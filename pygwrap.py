@@ -21,6 +21,8 @@ except ImportError:
 
 WRAP_BACKGROUND = None
 WRAP_BORDERS = None
+INPUT_CURSOR = None
+SMALLFONT = None
 
 TEX_WIDTH = 16
 BORDER_WIDTH = 8
@@ -38,6 +40,9 @@ pygame.time.set_timer(TIMEREVENT, 1000 / FPS)
 # to initialize it more than once.
 INIT_DONE = False
 
+# Store whether or not a quit signal has been received here.
+GOT_QUIT = False
+
 
 def wait_event():
     # Wait for input, then return it when it comes.
@@ -48,8 +53,12 @@ def wait_event():
         if android.check_pause():
             android.wait_for_resume()
 
-    return ev
+    # Record if a quit event took place
+    if ev.type == pygame.QUIT:
+        global GOT_QUIT
+        GOT_QUIT = True
 
+    return ev
 
 
 def draw_border( screen,dest ):
@@ -128,7 +137,8 @@ def wrap_multi_line(text, font, maxwidth):
     return list(lines)
 
 
-def render_text(font, text, width, color = (255,255,255) ):
+def render_text(font, text, width, color = (255,255,255), do_center= False ):
+    # Return an image with prettyprinted text.
     lines = wrap_multi_line( text , font , width )
 
     imgs = [ font.render(l, True, color ) for l in lines]
@@ -137,18 +147,78 @@ def render_text(font, text, width, color = (255,255,255) ):
     s.fill((0,0,0))
     o = 0
     for i in imgs:
-        s.blit(i,(0,o))
+        if do_center:
+            x = width/2 - i.get_width()/2
+        else:
+            x = 0
+        s.blit(i,(x,o))
         o += i.get_height()
     s.set_colorkey((0,0,0),pygame.RLEACCEL)
     return s
+
+def draw_text( screen , font , text , rect , color = (255,255,255), do_center= False ):
+    # Draw some text to the screen with the provided options.
+    myimage = render_text( font , text , rect.width , color , do_center )
+    if do_center:
+        myrect = myimage.get_rect( center = rect.center )
+    else:
+        myrect = rect
+    screen.set_clip( rect )
+    screen.blit( myimage , myrect )
+    screen.set_clip( None )
+
+
+ALLOWABLE_CHARACTERS = u'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
+
+def input_string( screen , font , redrawer = None, prompt = "Enter text below", prompt_color = (255,255,255), input_color = (240,240,50) ):
+    # Input a string from the user.
+    it = []
+    keep_going = True
+    cursor_frame = 1
+
+    myrect = pygame.Rect( screen.get_width() / 2 - 200 , screen.get_height() / 2 - 32 , 400 , 64 )
+    prompt_image = font.render( prompt, True, prompt_color )
+
+    while keep_going:
+        ev = wait_event()
+
+        if ev.type == TIMEREVENT:
+            if redrawer != None:
+                redrawer( screen )
+            draw_border( screen , myrect )
+            mystring = "".join( it )
+            myimage = font.render( mystring, True, input_color )
+            screen.blit( prompt_image , ( screen.get_width() / 2 - prompt_image.get_width() / 2 , screen.get_height() / 2 - prompt_image.get_height() - 2 ) )
+            screen.set_clip( myrect )
+            screen.blit( myimage , ( screen.get_width() / 2 - myimage.get_width() / 2 , screen.get_height() / 2 ) )
+            INPUT_CURSOR.render( screen , ( screen.get_width() / 2 + myimage.get_width() / 2 + 2 , screen.get_height() / 2 ) , cursor_frame / 3 )
+            screen.set_clip( None )
+            cursor_frame = ( cursor_frame + 1 ) % ( INPUT_CURSOR.num_frames() * 3 )
+            pygame.display.flip()
+
+
+        elif ev.type == pygame.KEYDOWN:
+            if ( ev.key == pygame.K_BACKSPACE ) and ( len( it ) > 0 ):
+                del it[-1]
+            elif ( ev.key == pygame.K_RETURN ) or ( ev.key == pygame.K_ESCAPE ):
+                keep_going = False
+            elif ( ev.unicode in ALLOWABLE_CHARACTERS ) and ( len( ev.unicode ) > 0 ):
+                it.append( ev.unicode )
+        elif ev.type == pygame.QUIT:
+            keep_going = False
+    return "".join( it )
 
 
 def init():
     global INIT_DONE
     if not INIT_DONE:
-        global WRAP_BACKGROUND, WRAP_BORDERS
+        global WRAP_BACKGROUND, WRAP_BORDERS, INPUT_CURSOR
         WRAP_BACKGROUND = image.Image( "sys_defbackground.png" , TEX_WIDTH , TEX_WIDTH )
         WRAP_BORDERS = image.Image( "sys_defborder.png" , BORDER_WIDTH , BORDER_WIDTH )
+        INPUT_CURSOR = image.Image( "sys_textcursor.png" , 8 , 16 )
+
+        global SMALLFONT
+        SMALLFONT = pygame.font.Font( "gfx/VeraBd.ttf" , 16 )
 
         if android:
             android.init()

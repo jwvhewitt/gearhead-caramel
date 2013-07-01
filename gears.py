@@ -1,7 +1,6 @@
 import container
 
 class Gear( object ):
-    geartype = 0
 
     def __init__(self, name = "Gear", scale = 0):
         self.sub_com = container.ContainerList()

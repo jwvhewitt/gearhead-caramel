@@ -1,5 +1,6 @@
 import pygame
 import pygwrap
+import glob
 
 
 MENUFONT = None
@@ -45,6 +46,10 @@ class Menu( pygame.Rect ):
         self.descbox = None
         self.quick_keys = {}
 
+        # predraw is a function that will take the screen as a parameter. It
+        # redraws/clears the screen before the menu is rendered.
+        self.predraw = None
+
     def add_item(self,msg,value,desc=None):
         item = MenuItem( msg , value , desc )
         self.items.append( item )
@@ -53,6 +58,9 @@ class Menu( pygame.Rect ):
         self.descbox = DescBox( self, x , y , w , h )
 
     def render(self):
+        if self.predraw != None:
+            self.predraw( self.screen )
+
         pygwrap.draw_border( self.screen , self )
         self.screen.set_clip(self)
 
@@ -189,6 +197,12 @@ class Menu( pygame.Rect ):
             if key_num >= len( self.alpha_key_sequence ):
                 break
 
+    def add_files( self , filepat ):
+        file_list = glob.glob( filepat )
+        for f in file_list:
+            self.add_item( f , f )
+        self.sort()
+
 def init():
     # Don't call init until after the display has been set.
     global INIT_DONE
@@ -196,7 +210,7 @@ def init():
         INIT_DONE = True
         pygwrap.init()
         global MENUFONT
-        MENUFONT = pygame.font.Font( "VeraBd.ttf" , 24 )
+        MENUFONT = pygame.font.Font( "gfx/VeraBd.ttf" , 24 )
 
 if __name__=='__main__':
     pygame.init()
