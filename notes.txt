@@ -1,0 +1,33 @@
+Some rough values that we're aiming for in the construction system:
+
+Vadel
+    Mobility 60
+    Armor 40
+    Mass 45
+
+Zerosaiko
+    Mobility 50
+    Armor 50
+    Mass 50
+
+Buru-Buru
+    Mobility 20
+    Armor 30
+    Mass 55
+
+Pixie
+    Mobility 70
+    Armor 30
+    Mass 40
+
+Thorshammer
+    Mobility 20
+    Armor 60
+    Mass 65
+
+Ovaknight
+    Mobility 31
+    Armor 70
+    Mass 80
+
+
