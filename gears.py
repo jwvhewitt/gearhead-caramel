@@ -1,16 +1,27 @@
 import container
+import materials
+
+def scale_mass( mass , scale , material ):
+    # Scale mass based on scale and material.
+    return ( mass * 10^scale * material.mass_scale ) / 5
+
+def scale_cost( cost , scale , material ):
+    # Scale mass based on scale and material.
+    return ( cost * 10^scale * material.cost_scale ) / 5
 
 class Gear( object ):
 
-    def __init__(self, name = "Gear", scale = 0):
+    def __init__(self, name = "Gear", scale = 0, material = materials.METAL ):
         self.sub_com = container.ContainerList()
         self.inv_com = container.ContainerList()
         self.name = name
         self.scale = scale
+        self.material = material
+
 
     @property
     def self_mass(self):
-        return 10 ^ self.scale
+        return scale_mass( 1 , self.scale , self.material )
 
     @property
     def mass(self):
@@ -25,7 +36,20 @@ class Gear( object ):
     # it's just a constant value.
     volume = 1
 
-    value = 1
+    energy = 1
+
+    @property
+    def self_cost(self):
+        return scale_cost( 1 , self.scale , self.material )
+
+    @property
+    def cost(self):
+        m = self.self_cost
+        for part in self.sub_com:
+            m = m + part.cost
+        for part in self.inv_com:
+            m = m + part.cost
+        return m
 
     def is_legal_sub_com(self,part):
         return False
@@ -38,6 +62,48 @@ class Gear( object ):
         for part in self.sub_com:
             for p in part.sub_sub_coms():
                 yield p
+
+class MeleeWeapon( Gear ):
+
+    def __init__(self, name = "Gear", scale = 0, material = materials.METAL, reach=1, damage=1, accuracy=1, penetration=1 ):
+        Gear.__init__( self, name , scale , material )
+        # Check the range of all parameters before applying.
+        if reach < 1:
+            reach = 1
+        elif reach > 3:
+            reach = 3
+        self.reach = reach
+        if damage < 1:
+            damage = 1
+        elif damage > 5:
+            damage = 5
+        self.damage = damage
+        if accuracy < 1:
+            accuracy = 1
+        elif accuracy > 5:
+            accuracy = 5
+        self.accuracy = accuracy
+        if penetration < 1:
+            penetration = 1
+        elif penetration > 5:
+            penetration = 5
+        self.penetration = penetration
+
+    @property
+    def self_mass(self):
+        return scale_mass( ( self.damage + self.penetration ) * 5 , self.scale , self.material )
+
+    @property
+    def volume(self):
+        return self.reach + self.accuracy
+
+    @property
+    def energy(self):
+        return 1
+
+    @property
+    def self_cost(self):
+        return scale_cost( self.damage * self.accuracy * self.penetration * self.range * 5 , self.scale , self.material )
 
 
 class ModuleForm( object ):
