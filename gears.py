@@ -63,30 +63,31 @@ class Gear( object ):
             for p in part.sub_sub_coms():
                 yield p
 
-class MeleeWeapon( Gear ):
-
-    def __init__(self, name = "Gear", scale = 0, material = materials.METAL, reach=1, damage=1, accuracy=1, penetration=1 ):
+class Weapon( Gear ):
+    # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
+    # cannot be instantiated. Subclasses should do that.
+    def __init__(self, name="Weapon", scale=0, material=materials.METAL, reach=1, damage=1, accuracy=1, penetration=1 ):
         Gear.__init__( self, name , scale , material )
         # Check the range of all parameters before applying.
-        if reach < 1:
-            reach = 1
-        elif reach > 3:
-            reach = 3
+        if reach < self.__class__.MIN_REACH:
+            reach = self.__class__.MIN_REACH
+        elif reach > self.__class__.MAX_REACH:
+            reach = self.__class__.MAX_REACH
         self.reach = reach
-        if damage < 1:
-            damage = 1
-        elif damage > 5:
-            damage = 5
+        if damage < self.__class__.MIN_DAMAGE:
+            damage = self.__class__.MIN_DAMAGE
+        elif damage > self.__class__.MAX_DAMAGE:
+            damage = self.__class__.MAX_DAMAGE
         self.damage = damage
-        if accuracy < 1:
-            accuracy = 1
-        elif accuracy > 5:
-            accuracy = 5
+        if accuracy < self.__class__.MIN_ACCURACY:
+            accuracy = self.__class__.MIN_ACCURACY
+        elif accuracy > self.__class__.MAX_ACCURACY:
+            accuracy = self.__class__.MAX_ACCURACY
         self.accuracy = accuracy
-        if penetration < 1:
-            penetration = 1
-        elif penetration > 5:
-            penetration = 5
+        if penetration < self.__class__.MIN_PENETRATION:
+            penetration = self.__class__.MIN_PENETRATION
+        elif penetration > self.__class__.MAX_PENETRATION:
+            penetration = self.__class__.MAX_PENETRATION
         self.penetration = penetration
 
     @property
@@ -95,7 +96,7 @@ class MeleeWeapon( Gear ):
 
     @property
     def volume(self):
-        return self.reach + self.accuracy
+        return self.reach + self.accuracy + 1
 
     @property
     def energy(self):
@@ -103,7 +104,37 @@ class MeleeWeapon( Gear ):
 
     @property
     def self_cost(self):
-        return scale_cost( self.damage * self.accuracy * self.penetration * self.range * 5 , self.scale , self.material )
+        # Multiply the stats together, squaring range because it's so important.
+        return scale_cost( self.damage * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.range^2 - self.range )/2 + 1) , self.scale , self.material )
+
+    def is_legal_sub_com(self,part):
+        if isinstance( part , Weapon ):
+            # In theory weapons should be able to install weapons which are integral.
+            # However, since I haven't yet implemented integralness... ^^;
+            return False
+        else:
+            return False
+
+class MeleeWeapon( Weapon ):
+    MIN_REACH = 1
+    MAX_REACH = 3
+    MIN_DAMAGE = 1
+    MAX_DAMAGE = 5
+    MIN_ACCURACY = 0
+    MAX_ACCURACY = 5
+    MIN_PENETRATION = 0
+    MAX_PENETRATION = 5
+
+class BallisticWeapon( Weapon ):
+    MIN_REACH = 2
+    MAX_REACH = 7
+    MIN_DAMAGE = 1
+    MAX_DAMAGE = 5
+    MIN_ACCURACY = 0
+    MAX_ACCURACY = 5
+    MIN_PENETRATION = 0
+    MAX_PENETRATION = 5
+
 
 
 class ModuleForm( object ):

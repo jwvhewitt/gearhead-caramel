@@ -1,10 +1,11 @@
 # Load one image file, use it for multiple images.
 
 import pygame
+import weakref
 
 # Keep a list of already-loaded images, to save memory when multiple objects
 # need to use the same image file.
-pre_loaded_images = {}
+pre_loaded_images = weakref.WeakValueDictionary()
 
 class Image( object ):
     def __init__(self,fname,frame_width=0,frame_height=0):
