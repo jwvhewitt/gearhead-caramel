@@ -125,6 +125,16 @@ class MeleeWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
 
+class EnergyWeapon( Weapon ):
+    MIN_REACH = 1
+    MAX_REACH = 3
+    MIN_DAMAGE = 1
+    MAX_DAMAGE = 5
+    MIN_ACCURACY = 0
+    MAX_ACCURACY = 5
+    MIN_PENETRATION = 0
+    MAX_PENETRATION = 5
+
 class BallisticWeapon( Weapon ):
     MIN_REACH = 2
     MAX_REACH = 7
@@ -135,6 +145,15 @@ class BallisticWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
 
+class BeamWeapon( Weapon ):
+    MIN_REACH = 1
+    MAX_REACH = 3
+    MIN_DAMAGE = 1
+    MAX_DAMAGE = 5
+    MIN_ACCURACY = 0
+    MAX_ACCURACY = 5
+    MIN_PENETRATION = 0
+    MAX_PENETRATION = 5
 
 
 class ModuleForm( object ):
