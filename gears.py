@@ -157,30 +157,94 @@ class BeamWeapon( Weapon ):
 
 
 class ModuleForm( object ):
-    def __init__( self, name ):
-        self.name = name
-
-class Head( ModuleForm ):
+    def is_legal_sub_com( self, part ):
+        return False
     def is_legal_inv_com( self, part ):
         return False
 
+class MF_Head( ModuleForm ):
+    name = "Head"
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Weapon )
+
+class MF_Torso( ModuleForm ):
+    name = "Torso"
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Weapon )
+
+class MF_Arm( ModuleForm ):
+    name = "Arm"
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Weapon )
+
+class MF_Leg( ModuleForm ):
+    name = "Leg"
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Weapon )
+
+class MF_Wing( ModuleForm ):
+    name = "Wing"
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Weapon )
+
+class MF_Turret( ModuleForm ):
+    name = "Turret"
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Weapon )
+
+class MF_Tail( ModuleForm ):
+    name = "Tail"
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Weapon )
+
+class MF_Storage( ModuleForm ):
+    name = "Storage"
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Weapon )
+
+
 class Module( Gear ):
-    def __init__(self, name = "Mecha", scale = 2, form=None):
+    def __init__(self, name = None, scale = 2, material = materials.METAL, form=None):
+        if form == None:
+            form = MF_Storage()
+        if name == None:
+            name = form.name
         Gear.__init__( self, name , scale )
         self.form = form
 
+    def is_legal_sub_com( self, part ):
+        return self.form.is_legal_sub_com( part )
+
+    def is_legal_inv_com( self, part ):
+        return self.form.is_legal_inv_com( part )
+
+class Battroid( object ):
+    name = "Battroid"
+    def is_legal_sub_com( self, part ):
+        if isinstance( part , Module ):
+            return not isinstance( part.form , MF_Turret )
+        else:
+            return False
+
 
 class Mecha(Gear):
-    def __init__(self, name = "Mecha", scale = 2):
-        Gear.__init__( self, name , scale )
+    def __init__(self, name = "Mecha", scale = 2, material = materials.METAL, form=None):
+        if form == None:
+            form = Battroid()
+        if name == None:
+            name = form.name
+        Gear.__init__( self, name , scale , material )
+        self.form = form
+
+    def is_legal_sub_com( self, part ):
+        return self.form.is_legal_sub_com( part )
+
+    def is_legal_inv_com( self, part ):
+        return True
 
     # Overwriting a property with a value... isn't this the opposite of how
     # things are usually done?
     self_mass = 0
-
-    def is_legal_sub_com(self,part):
-        # A mecha may have modules as subcomponents.
-        return isinstance( part , Module )
 
 
 
