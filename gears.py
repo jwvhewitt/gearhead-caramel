@@ -63,6 +63,25 @@ class Gear( object ):
             for p in part.sub_sub_coms():
                 yield p
 
+class Armor( Gear ):
+    def __init__(self, name="Armor", scale=0, material=materials.METAL, size = 1 ):
+        Gear.__init__( self, name = name , scale = scale , material = material )
+        # Check the range of all parameters before applying.
+        if size < 1:
+            size = 1
+        elif size > 10:
+            size = 10
+        self.size = size
+
+    @property
+    def self_mass(self):
+        return scale_mass( 8 * self.size , self.scale , self.material )
+
+    @property
+    def volume(self):
+        return self.size
+
+
 class Weapon( Gear ):
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
@@ -161,56 +180,76 @@ class ModuleForm( object ):
         return False
     def is_legal_inv_com( self, part ):
         return False
+    VOLUME_X = 1
+    MASS_X = 1
 
 class MF_Head( ModuleForm ):
     name = "Head"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon )
+        return isinstance( part , Weapon ) or isinstance( part , Armor )
 
 class MF_Torso( ModuleForm ):
     name = "Torso"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon )
+        return isinstance( part , Weapon ) or isinstance( part , Armor )
+    VOLUME_X = 2
+    MASS_X = 2
 
 class MF_Arm( ModuleForm ):
     name = "Arm"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon )
+        return isinstance( part , Weapon ) or isinstance( part , Armor )
 
 class MF_Leg( ModuleForm ):
     name = "Leg"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon )
+        return isinstance( part , Weapon ) or isinstance( part , Armor )
 
 class MF_Wing( ModuleForm ):
     name = "Wing"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon )
+        return isinstance( part , Weapon ) or isinstance( part , Armor )
 
 class MF_Turret( ModuleForm ):
     name = "Turret"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon )
+        return isinstance( part , Weapon ) or isinstance( part , Armor )
 
 class MF_Tail( ModuleForm ):
     name = "Tail"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon )
+        return isinstance( part , Weapon ) or isinstance( part , Armor )
 
 class MF_Storage( ModuleForm ):
     name = "Storage"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon )
+        return isinstance( part , Weapon ) or isinstance( part , Armor )
+    VOLUME_X = 2
+    MASS_X = 0
 
 
 class Module( Gear ):
-    def __init__(self, name = None, scale = 2, material = materials.METAL, form=None):
+    def __init__(self, name = None, scale = 2, material = materials.METAL, size = 1, form=None):
         if form == None:
             form = MF_Storage()
         if name == None:
             name = form.name
-        Gear.__init__( self, name , scale )
+        Gear.__init__( self, name = name , scale = scale , material = material )
+        # Check the range of all parameters before applying.
+        if size < 1:
+            size = 1
+        elif size > 10:
+            size = 10
+        self.size = size
         self.form = form
+
+    @property
+    def self_mass(self):
+        return scale_mass( 2  * self.form.MASS_X , self.scale , self.material )
+
+    @property
+    def volume(self):
+        return self.size * self.form.VOLUME_X
 
     def is_legal_sub_com( self, part ):
         return self.form.is_legal_sub_com( part )
@@ -253,13 +292,14 @@ class Mecha(Gear):
 if __name__=='__main__':
 
     G1 = Gear()
-    G2 = Mecha()
+    G2 = Armor( size = 5 )
 
     G1.sub_com.append(G2)
 
     G1.name = "Bob"
 
     print G1
+    print repr( G2 )
 
     print "Hello Windows"
 
