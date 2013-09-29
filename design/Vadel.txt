@@ -1,0 +1,10 @@
+
+Mecha
+name = Vadel
+desig = AD26c
+material = METAL
+form = MT_Battroid
+sub
+    Head
+    size = 3
+

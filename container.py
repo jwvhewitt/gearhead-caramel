@@ -80,9 +80,10 @@ class ContainerList(list,Container):
     Each element in the ContainerList has a .container attribute which points
     to the ContainerList itself. This container pointer is maintained automatically.
     """
-    def __init__(self, items=[]):
+    def __init__(self, items=[], owner=None):
         list.__init__(self, items)
         self._set_container_multi(items)
+        self.owner = owner
 
     def __repr__(self):
         return "<CL %s>" % list.__repr__(self)
