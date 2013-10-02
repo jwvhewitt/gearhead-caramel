@@ -3,7 +3,6 @@ import materials
 
 def scale_mass( mass , scale , material ):
     # Scale mass based on scale and material.
-    print mass, scale, material
     return int( ( mass * pow( 10 , scale ) * material.mass_scale ) / 5 )
 
 def scale_cost( cost , scale , material ):
@@ -70,6 +69,10 @@ class Gear( object ):
         for part in self.sub_com:
             for p in part.sub_sub_coms():
                 yield p
+
+    def can_be_installed( self , part ):
+        """Returns True if part can be legally installed here under current conditions"""
+        return self.is_legal_sub_com( part )
 
     def termdump( self , prefix = ' ' , indent = 1 ):
         """Dump some info about this gear to the terminal."""

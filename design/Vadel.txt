@@ -4,7 +4,7 @@ name = Vadel
 desig = AD26c
 material = METAL
 form = MT_Battroid
-sub
+SUB
     Head
     size = 3
 

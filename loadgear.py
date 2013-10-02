@@ -12,6 +12,13 @@ SUB, INV, NEXT = range( 3 )
 # Pre-compile our regular expressions.
 DICT_UNPACKER = re.compile( r'["\']?(\w+)["\']?\s?=\s?([\w"\']+)' )
 
+class ParseError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+
 class Loader( list ):
 
     def flush( self ):
@@ -24,6 +31,13 @@ class Loader( list ):
 
             if ( self.parent_gear == None ) or ( self.placement_mode == NEXT ):
                 self.append( fgear )
+                self.placement_mode = NEXT
+            elif self.placement_mode == SUB:
+                if self.parent_gear.can_be_installed( fgear ):
+                    self.parent_gear.sub_com.append( fgear )
+                else:
+                    raise ParseError( fgear.name + " doesn't fit in " + self.parent_gear.name )
+
 
     def load( self , g_file ):
         """Given an open file, load the text and store the list of described gears"""
@@ -71,6 +85,13 @@ class Loader( list ):
                     # This is a gear request.
                     self.flush()
                     self.gear_class = getattr( gears , line )
+
+                elif line == "SUB":
+                    # This is a SUB command.
+                    self.flush()
+                    self.placement_mode = SUB
+                    self.parent_gear = self.current_gear
+
         # Do one last flush at the end of the file, to make sure we got everything.
         self.flush()
 
