@@ -3,22 +3,22 @@ import materials
 
 def scale_mass( mass , scale , material ):
     # Scale mass based on scale and material.
-    return int( ( mass * pow( 10 , scale ) * material.mass_scale ) / 5 )
+    return int( ( mass * pow( 10 , scale ) * material.mass_scale ) // 5 )
 
 def scale_cost( cost , scale , material ):
     # Scale mass based on scale and material.
-    return ( cost * pow( 10 , scale ) * material.cost_scale ) / 5
+    return ( cost * pow( 10 , scale ) * material.cost_scale ) // 5
 
 class Gear( object ):
 
+    DEFAULT_NAME = "Gear"
     def __init__(self, **keywords ):
-        self.sub_com = container.ContainerList( owner = self )
-        self.inv_com = container.ContainerList( owner = self )
-        self.name = self.get_keyval( keywords , "name" , "Gear" )
-        if "desig" in keywords:
-            self.desig = keywords["desig"]
-        self.scale = self.get_keyval( keywords , "scale" , 2 )
-        self.material = self.get_keyval( keywords , "material" , materials.METAL )
+        self.sub_com = container.ContainerList( keywords.get( "sub_com", [] ), owner = self )
+        self.inv_com = container.ContainerList( keywords.get( "inv_com", [] ), owner = self )
+        self.name = keywords.get( "name" , self.DEFAULT_NAME )
+        self.desig = keywords.get( "desig", None )
+        self.scale = keywords.get( "scale" , 3 )
+        self.material = keywords.get( "material" , materials.METAL )
 
     def get_keyval( self , keywords , kw , default = None ):
         if kw in keywords:
@@ -83,10 +83,11 @@ class Gear( object ):
             g.termdump( prefix = '+' , indent = indent + 1 )
 
 class Armor( Gear ):
+    DEFAULT_NAME = "Armor"
     def __init__(self, **keywords ):
         Gear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
-        size = self.get_keyval( keywords , "size" , 1 )
+        size = keywords.get( "size" , 1 )
         if size < 1:
             size = 1
         elif size > 10:
@@ -95,7 +96,82 @@ class Armor( Gear ):
 
     @property
     def self_mass(self):
-        return scale_mass( 8 * self.size , self.scale , self.material )
+        return scale_mass( 9 * self.size , self.scale , self.material )
+
+    @property
+    def volume(self):
+        return self.size
+
+class Engine( Gear ):
+    DEFAULT_NAME = "Engine"
+    def __init__(self, **keywords ):
+        Gear.__init__( self, **keywords )
+        # Check the range of all parameters before applying.
+        size = keywords.get( "size" , 750 )
+        if size < 100:
+            size = 100
+        elif size > 2000:
+            size = 2000
+        self.size = size
+    @property
+    def self_mass(self):
+        return scale_mass( self.size // 100 + 10 , self.scale , self.material )
+    @property
+    def volume(self):
+        return self.size // 500 + 1
+    def is_legal_sub_com(self,part):
+        return isinstance( part , Armor )
+
+class Gyroscope( Gear ):
+    DEFAULT_NAME = "Gyroscope"
+    @property
+    def self_mass(self):
+        return scale_mass( 10 , self.scale , self.material )
+    def is_legal_sub_com(self,part):
+        return isinstance( part , Armor )
+
+class Cockpit( Gear ):
+    DEFAULT_NAME = "Cockpit"
+    @property
+    def self_mass(self):
+        return scale_mass( 5 , self.scale , self.material )
+    def is_legal_sub_com(self,part):
+        return isinstance( part , Armor )
+
+class Sensor( Gear ):
+    DEFAULT_NAME = "Sensor"
+    def __init__(self, **keywords ):
+        Gear.__init__( self, **keywords )
+        # Check the range of all parameters before applying.
+        size = keywords.get( "size" , 1 )
+        if size < 1:
+            size = 1
+        elif size > 5:
+            size = 5
+        self.size = size
+    @property
+    def self_mass(self):
+        return scale_mass( self.size * 5 , self.scale , self.material )
+    @property
+    def self_cost(self):
+        return scale_cost( self.size * self.size * 10 , self.scale , self.material )
+    @property
+    def volume(self):
+        return self.size
+
+class HoverJets( Gear ):
+    DEFAULT_NAME = "Hover Jets"
+    def __init__(self, **keywords ):
+        Gear.__init__( self, **keywords )
+        # Check the range of all parameters before applying.
+        size = keywords.get( "size" , 1 )
+        if size < 1:
+            size = 1
+        self.size = size
+
+    @property
+    def self_mass(self):
+        return scale_mass( 10 * self.size , self.scale , self.material )
 
     @property
     def volume(self):
@@ -103,34 +179,35 @@ class Armor( Gear ):
 
 
 class Weapon( Gear ):
+    DEFAULT_NAME = "Weapon"
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
     def __init__(self, **keywords ):
         Gear.__init__( self, **keywords )
 
         # Check the range of all parameters before applying.
-        reach = self.get_keyval( keywords , "reach" , 1 )
+        reach = keywords.get( "reach" , 1 )
         if reach < self.__class__.MIN_REACH:
             reach = self.__class__.MIN_REACH
         elif reach > self.__class__.MAX_REACH:
             reach = self.__class__.MAX_REACH
         self.reach = reach
 
-        damage = self.get_keyval( keywords , "damage" , 1 )
+        damage = keywords.get( "damage" , 1 )
         if damage < self.__class__.MIN_DAMAGE:
             damage = self.__class__.MIN_DAMAGE
         elif damage > self.__class__.MAX_DAMAGE:
             damage = self.__class__.MAX_DAMAGE
         self.damage = damage
 
-        accuracy = self.get_keyval( keywords , "accuracy" , 1 )
+        accuracy = keywords.get( "accuracy" , 1 )
         if accuracy < self.__class__.MIN_ACCURACY:
             accuracy = self.__class__.MIN_ACCURACY
         elif accuracy > self.__class__.MAX_ACCURACY:
             accuracy = self.__class__.MAX_ACCURACY
         self.accuracy = accuracy
 
-        penetration = self.get_keyval( keywords , "penetration" , 1 )
+        penetration = keywords.get( "penetration" , 1 )
         if penetration < self.__class__.MIN_PENETRATION:
             penetration = self.__class__.MIN_PENETRATION
         elif penetration > self.__class__.MAX_PENETRATION:
@@ -193,14 +270,49 @@ class BallisticWeapon( Weapon ):
     MAX_PENETRATION = 5
 
 class BeamWeapon( Weapon ):
-    MIN_REACH = 1
-    MAX_REACH = 3
+    MIN_REACH = 2
+    MAX_REACH = 7
     MIN_DAMAGE = 1
     MAX_DAMAGE = 5
     MIN_ACCURACY = 0
     MAX_ACCURACY = 5
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
+
+class Launcher( Gear ):
+    DEFAULT_NAME = "Launcher"
+    def __init__(self, **keywords ):
+        Gear.__init__( self, **keywords )
+        # Check the range of all parameters before applying.
+        size = keywords.get( "size" , 1 )
+        if size < 1:
+            size = 1
+        elif size > 20:
+            size = 20
+        self.size = size
+    @property
+    def self_mass(self):
+        return scale_mass( self.size , self.scale , self.material )
+    @property
+    def volume(self):
+        return self.size
+
+
+class Hand( Gear ):
+    DEFAULT_NAME = "Hand"
+    @property
+    def self_mass(self):
+        return scale_mass( 5 , self.scale , self.material )
+    def is_legal_inv_com(self,part):
+        return isinstance( part, Weapon )
+
+class Mount( Gear ):
+    DEFAULT_NAME = "Weapon Mount"
+    @property
+    def self_mass(self):
+        return scale_mass( 5 , self.scale , self.material )
+    def is_legal_inv_com(self,part):
+        return isinstance( part, Weapon )
 
 
 class ModuleForm( object ):
@@ -226,7 +338,7 @@ class MF_Torso( ModuleForm ):
 class MF_Arm( ModuleForm ):
     name = "Arm"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon ) or isinstance( part , Armor )
+        return isinstance( part , ( Weapon, Armor, Hand ) )
 
 class MF_Leg( ModuleForm ):
     name = "Leg"
@@ -258,15 +370,15 @@ class MF_Storage( ModuleForm ):
 
 class Module( Gear ):
     def __init__(self, **keywords ):
-        form = self.get_keyval( keywords , "form" )
+        form = keywords.get(  "form" )
         if form == None:
             form = MF_Storage()
-        name = self.get_keyval( keywords , "name" )
+        name = keywords.get(  "name" )
         if name == None:
             keywords[ "name" ] = form.name
         Gear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
-        size = self.get_keyval( keywords , "size" , 1 )
+        size = keywords.get(  "size" , 1 )
         if size < 1:
             size = 1
         elif size > 10:
@@ -329,6 +441,8 @@ class Storage( Module ):
         Module.__init__( self , **keywords )
 
 
+
+
 class MT_Battroid( object ):
     name = "Battroid"
     def is_legal_sub_com( self, part ):
@@ -340,10 +454,10 @@ class MT_Battroid( object ):
 
 class Mecha(Gear):
     def __init__(self, **keywords ):
-        form = self.get_keyval( keywords , "form" )
+        form = keywords.get(  "form" )
         if form == None:
-            form = Battroid()
-        name = self.get_keyval( keywords , "name" )
+            form = MT_Battroid()
+        name = keywords.get(  "name" )
         if name == None:
             keywords[ "name" ] = form.name
         Gear.__init__( self, **keywords )
