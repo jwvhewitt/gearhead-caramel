@@ -95,6 +95,11 @@ class Gear( object ):
         for g in self.inv_com:
             g.termdump( prefix = '+' , indent = indent + 1 )
 
+
+#   *****************
+#   ***   ARMOR   ***
+#   *****************
+
 class Armor( Gear ):
     DEFAULT_NAME = "Armor"
     def __init__(self, **keywords ):
@@ -114,6 +119,11 @@ class Armor( Gear ):
     @property
     def volume(self):
         return self.size
+
+
+#   ****************************
+#   ***   SUPPORT  SYSTEMS   ***
+#   ****************************
 
 class Engine( Gear ):
     DEFAULT_NAME = "Engine"
@@ -174,7 +184,13 @@ class Sensor( Gear ):
     def volume(self):
         return self.size
 
-class HoverJets( Gear ):
+
+
+#   *****************************
+#   ***   MOVEMENT  SYSTEMS   ***
+#   *****************************
+
+class MovementSystem( Gear ):
     DEFAULT_NAME = "Hover Jets"
     def __init__(self, **keywords ):
         Gear.__init__( self, **keywords )
@@ -192,6 +208,44 @@ class HoverJets( Gear ):
     def volume(self):
         return self.size
 
+class HoverJets( MovementSystem ):
+    DEFAULT_NAME = "Hover Jets"
+
+
+
+#   *************************
+#   ***   POWER  SOURCE   ***
+#   *************************
+
+class PowerSource( Gear ):
+    DEFAULT_NAME = "Power Source"
+    def __init__(self, **keywords ):
+        Gear.__init__( self, **keywords )
+        # Check the range of all parameters before applying.
+        size = keywords.get( "size" , 1 )
+        if size < 1:
+            size = 1
+        self.size = size
+
+    @property
+    def self_mass(self):
+        return scale_mass( 5 * self.size , self.scale , self.material )
+
+    @property
+    def volume(self):
+        return self.size
+
+
+#   *******************
+#   ***   USABLES   ***
+#   *******************
+
+class Usable( Gear ):
+    DEFAULT_NAME = "Do Nothing Usable"
+
+#   *******************
+#   ***   WEAPONS   ***
+#   *******************
 
 class Weapon( Gear ):
     DEFAULT_NAME = "Weapon"
@@ -314,6 +368,10 @@ class Launcher( Gear ):
         return self.size
 
 
+#   *******************
+#   ***   HOLDERS   ***
+#   *******************
+
 class Hand( Gear ):
     DEFAULT_NAME = "Hand"
     @property
@@ -331,6 +389,12 @@ class Mount( Gear ):
         return isinstance( part, Weapon )
 
 
+
+#   *******************
+#   ***   MODULES   ***
+#   *******************
+
+
 class ModuleForm( object ):
     def is_legal_sub_com( self, part ):
         return False
@@ -342,44 +406,44 @@ class ModuleForm( object ):
 class MF_Head( ModuleForm ):
     name = "Head"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon,Armor,Sensor,Cockpit,Mount ) )
+        return isinstance( part , ( Weapon,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable ) )
 
 class MF_Torso( ModuleForm ):
     name = "Torso"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon,Armor,Gyroscope,Sensor,Engine,Cockpit,Mount ) )
+        return isinstance( part , ( Weapon,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable,Engine,Gyroscope ) )
     VOLUME_X = 4
     MASS_X = 2
 
 class MF_Arm( ModuleForm ):
     name = "Arm"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon, Armor, Hand, Mount ) )
+        return isinstance( part , ( Weapon, Armor, Hand, Mount,MovementSystem,PowerSource,Sensor,Usable ) )
 
 class MF_Leg( ModuleForm ):
     name = "Leg"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon, Armor, HoverJets ) )
+        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
 
 class MF_Wing( ModuleForm ):
     name = "Wing"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon, Armor ) )
+        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
 
 class MF_Turret( ModuleForm ):
     name = "Turret"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon, Armor ) )
+        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
 
 class MF_Tail( ModuleForm ):
     name = "Tail"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon, Armor ) )
+        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
 
 class MF_Storage( ModuleForm ):
     name = "Storage"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon, Armor ) )
+        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
     VOLUME_X = 4
     MASS_X = 0
 
@@ -457,7 +521,9 @@ class Storage( Module ):
         Module.__init__( self , **keywords )
 
 
-
+#   *****************
+#   ***   MECHA   ***
+#   *****************
 
 class MT_Battroid( object ):
     name = "Battroid"
