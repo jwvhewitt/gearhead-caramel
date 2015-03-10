@@ -3,6 +3,7 @@ import materials
 
 def scale_mass( mass , scale , material ):
     # Scale mass based on scale and material.
+    # The universal mass unit is 100 grams.
     return int( ( mass * pow( 10 , scale ) * material.mass_scale ) // 5 )
 
 def scale_cost( cost , scale , material ):
@@ -12,19 +13,21 @@ def scale_cost( cost , scale , material ):
 class Gear( object ):
 
     DEFAULT_NAME = "Gear"
+    DEFAULT_MATERIAL = materials.METAL
     def __init__(self, **keywords ):
-        self.sub_com = container.ContainerList( keywords.get( "sub_com", [] ), owner = self )
         self.inv_com = container.ContainerList( keywords.get( "inv_com", [] ), owner = self )
         self.name = keywords.get( "name" , self.DEFAULT_NAME )
         self.desig = keywords.get( "desig", None )
         self.scale = keywords.get( "scale" , 3 )
-        self.material = keywords.get( "material" , materials.METAL )
+        self.material = keywords.get( "material" , self.DEFAULT_MATERIAL )
 
-    def get_keyval( self , keywords , kw , default = None ):
-        if kw in keywords:
-            return keywords[ kw ]
-        else:
-            return default
+        self.sub_com = container.ContainerList( owner = self )
+        sc_to_add = keywords.get( "sub_com", [] )
+        for i in sc_to_add:
+            if self.can_install( i ):
+                self.sub_com.append( i )
+            else:
+                print( "ERROR: {} cannot be installed in {}".format(i,self) )
 
     @property
     def self_mass(self):
@@ -42,6 +45,10 @@ class Gear( object ):
     # volume is likely to be a property in more complex gear types, but here
     # it's just a constant value.
     volume = 1
+
+    @property
+    def free_volume(self):
+        return self.volume - sum( i.volume for i in self.sub_com )
 
     energy = 1
 
@@ -61,6 +68,9 @@ class Gear( object ):
     def is_legal_sub_com(self,part):
         return False
 
+    def can_install(self,part):
+        return self.is_legal_sub_com(part) and part.scale <= self.scale and part.volume <= self.free_volume
+
     def is_legal_inv_com(self,part):
         return False
 
@@ -74,9 +84,12 @@ class Gear( object ):
         """Returns True if part can be legally installed here under current conditions"""
         return self.is_legal_sub_com( part )
 
+    def __str__( self ):
+        return self.name
+
     def termdump( self , prefix = ' ' , indent = 1 ):
         """Dump some info about this gear to the terminal."""
-        print " " * indent + prefix + self.name + "  SF:" + str( self.scale ) + ' mass:' + str( self.mass )
+        print " " * indent + prefix + self.name + "  SF:" + str( self.scale ) + ' mass:' + str( self.mass ) + " vol:" + str( self.free_volume ) + "/" + str( self.volume )
         for g in self.sub_com:
             g.termdump( prefix = '>' , indent = indent + 1 )
         for g in self.inv_com:
@@ -85,7 +98,6 @@ class Gear( object ):
 class Armor( Gear ):
     DEFAULT_NAME = "Armor"
     def __init__(self, **keywords ):
-        Gear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
         size = keywords.get( "size" , 1 )
         if size < 1:
@@ -93,6 +105,7 @@ class Armor( Gear ):
         elif size > 10:
             size = 10
         self.size = size
+        Gear.__init__( self, **keywords )
 
     @property
     def self_mass(self):
@@ -105,7 +118,6 @@ class Armor( Gear ):
 class Engine( Gear ):
     DEFAULT_NAME = "Engine"
     def __init__(self, **keywords ):
-        Gear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
         size = keywords.get( "size" , 750 )
         if size < 100:
@@ -113,12 +125,13 @@ class Engine( Gear ):
         elif size > 2000:
             size = 2000
         self.size = size
+        Gear.__init__( self, **keywords )
     @property
     def self_mass(self):
         return scale_mass( self.size // 100 + 10 , self.scale , self.material )
     @property
     def volume(self):
-        return self.size // 500 + 1
+        return self.size // 400 + 1
     def is_legal_sub_com(self,part):
         return isinstance( part , Armor )
 
@@ -129,6 +142,7 @@ class Gyroscope( Gear ):
         return scale_mass( 10 , self.scale , self.material )
     def is_legal_sub_com(self,part):
         return isinstance( part , Armor )
+    volume = 2
 
 class Cockpit( Gear ):
     DEFAULT_NAME = "Cockpit"
@@ -137,11 +151,11 @@ class Cockpit( Gear ):
         return scale_mass( 5 , self.scale , self.material )
     def is_legal_sub_com(self,part):
         return isinstance( part , Armor )
+    volume = 2
 
 class Sensor( Gear ):
     DEFAULT_NAME = "Sensor"
     def __init__(self, **keywords ):
-        Gear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
         size = keywords.get( "size" , 1 )
         if size < 1:
@@ -149,6 +163,7 @@ class Sensor( Gear ):
         elif size > 5:
             size = 5
         self.size = size
+        Gear.__init__( self, **keywords )
     @property
     def self_mass(self):
         return scale_mass( self.size * 5 , self.scale , self.material )
@@ -183,8 +198,6 @@ class Weapon( Gear ):
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
     def __init__(self, **keywords ):
-        Gear.__init__( self, **keywords )
-
         # Check the range of all parameters before applying.
         reach = keywords.get( "reach" , 1 )
         if reach < self.__class__.MIN_REACH:
@@ -214,9 +227,12 @@ class Weapon( Gear ):
             penetration = self.__class__.MAX_PENETRATION
         self.penetration = penetration
 
+        # Finally, call the gear initializer.
+        Gear.__init__( self, **keywords )
+
     @property
     def self_mass(self):
-        return scale_mass( ( self.damage + self.penetration ) * 5 , self.scale , self.material )
+        return scale_mass( ( self.damage + self.penetration ) * 5 + self.accuracy + self.reach , self.scale , self.material )
 
     @property
     def volume(self):
@@ -282,7 +298,6 @@ class BeamWeapon( Weapon ):
 class Launcher( Gear ):
     DEFAULT_NAME = "Launcher"
     def __init__(self, **keywords ):
-        Gear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
         size = keywords.get( "size" , 1 )
         if size < 1:
@@ -290,6 +305,7 @@ class Launcher( Gear ):
         elif size > 20:
             size = 20
         self.size = size
+        Gear.__init__( self, **keywords )
     @property
     def self_mass(self):
         return scale_mass( self.size , self.scale , self.material )
@@ -320,51 +336,51 @@ class ModuleForm( object ):
         return False
     def is_legal_inv_com( self, part ):
         return False
-    VOLUME_X = 1
+    VOLUME_X = 2
     MASS_X = 1
 
 class MF_Head( ModuleForm ):
     name = "Head"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon ) or isinstance( part , Armor )
+        return isinstance( part , ( Weapon,Armor,Sensor,Cockpit,Mount ) )
 
 class MF_Torso( ModuleForm ):
     name = "Torso"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon ) or isinstance( part , Armor )
-    VOLUME_X = 2
+        return isinstance( part , ( Weapon,Armor,Gyroscope,Sensor,Engine,Cockpit,Mount ) )
+    VOLUME_X = 4
     MASS_X = 2
 
 class MF_Arm( ModuleForm ):
     name = "Arm"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon, Armor, Hand ) )
+        return isinstance( part , ( Weapon, Armor, Hand, Mount ) )
 
 class MF_Leg( ModuleForm ):
     name = "Leg"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon ) or isinstance( part , Armor )
+        return isinstance( part , (Weapon, Armor, HoverJets ) )
 
 class MF_Wing( ModuleForm ):
     name = "Wing"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon ) or isinstance( part , Armor )
+        return isinstance( part , ( Weapon, Armor ) )
 
 class MF_Turret( ModuleForm ):
     name = "Turret"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon ) or isinstance( part , Armor )
+        return isinstance( part , ( Weapon, Armor ) )
 
 class MF_Tail( ModuleForm ):
     name = "Tail"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon ) or isinstance( part , Armor )
+        return isinstance( part , ( Weapon, Armor ) )
 
 class MF_Storage( ModuleForm ):
     name = "Storage"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , Weapon ) or isinstance( part , Armor )
-    VOLUME_X = 2
+        return isinstance( part , ( Weapon, Armor ) )
+    VOLUME_X = 4
     MASS_X = 0
 
 
@@ -376,7 +392,6 @@ class Module( Gear ):
         name = keywords.get(  "name" )
         if name == None:
             keywords[ "name" ] = form.name
-        Gear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
         size = keywords.get(  "size" , 1 )
         if size < 1:
@@ -385,6 +400,7 @@ class Module( Gear ):
             size = 10
         self.size = size
         self.form = form
+        Gear.__init__( self, **keywords )
 
     @property
     def self_mass(self):
@@ -460,8 +476,8 @@ class Mecha(Gear):
         name = keywords.get(  "name" )
         if name == None:
             keywords[ "name" ] = form.name
-        Gear.__init__( self, **keywords )
         self.form = form
+        Gear.__init__( self, **keywords )
 
     def is_legal_sub_com( self, part ):
         return self.form.is_legal_sub_com( part )
@@ -473,7 +489,12 @@ class Mecha(Gear):
     # things are usually done?
     self_mass = 0
 
+    def can_install(self,part):
+        return self.is_legal_sub_com(part) and part.scale <= self.scale
 
+    @property
+    def volume(self):
+        return sum( i.volume for i in self.sub_com )
 
 
         

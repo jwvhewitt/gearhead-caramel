@@ -1,6 +1,8 @@
 import gears
 import container
 
+part = gears.BeamWeapon(name="Intercept Laser",reach=2,damage=1,accuracy=2,penetration=1)
+print( isinstance( part, gears.Weapon ) )
 
 my_mecha = gears.Mecha( desig="SAN-X9", name="Buru Buru", sub_com = (
         gears.Head(size=5, sub_com = (
