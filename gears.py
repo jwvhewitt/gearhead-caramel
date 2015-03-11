@@ -68,8 +68,18 @@ class Gear( object ):
     def is_legal_sub_com(self,part):
         return False
 
+    MULTIPLICITY_LIMITS = {}
+    def check_multiplicity( self, part ):
+        """Returns True if part within acceptable limits for its kind."""
+        ok = True
+        for k,v in self.MULTIPLICITY_LIMITS.items():
+            if isinstance( part, k ):
+                ok = ok and len( [item for item in self.sub_com if isinstance( item, k )]) < v
+        return ok
+
     def can_install(self,part):
-        return self.is_legal_sub_com(part) and part.scale <= self.scale and part.volume <= self.free_volume
+        """Returns True if part can be legally installed here under current conditions"""
+        return self.is_legal_sub_com(part) and part.scale <= self.scale and part.volume <= self.free_volume and self.check_multiplicity( part )
 
     def is_legal_inv_com(self,part):
         return False
@@ -79,10 +89,6 @@ class Gear( object ):
         for part in self.sub_com:
             for p in part.sub_sub_coms():
                 yield p
-
-    def can_be_installed( self , part ):
-        """Returns True if part can be legally installed here under current conditions"""
-        return self.is_legal_sub_com( part )
 
     def __str__( self ):
         return self.name
@@ -367,6 +373,63 @@ class Launcher( Gear ):
     def volume(self):
         return self.size
 
+class Missile( Gear ):
+    DEFAULT_NAME = "Missile"
+    MIN_REACH = 2
+    MAX_REACH = 7
+    MIN_DAMAGE = 1
+    MAX_DAMAGE = 5
+    MIN_ACCURACY = 0
+    MAX_ACCURACY = 5
+    MIN_PENETRATION = 0
+    MAX_PENETRATION = 5
+    def __init__(self, **keywords ):
+        # Check the range of all parameters before applying.
+        reach = keywords.get( "reach" , 1 )
+        if reach < self.__class__.MIN_REACH:
+            reach = self.__class__.MIN_REACH
+        elif reach > self.__class__.MAX_REACH:
+            reach = self.__class__.MAX_REACH
+        self.reach = reach
+
+        damage = keywords.get( "damage" , 1 )
+        if damage < self.__class__.MIN_DAMAGE:
+            damage = self.__class__.MIN_DAMAGE
+        elif damage > self.__class__.MAX_DAMAGE:
+            damage = self.__class__.MAX_DAMAGE
+        self.damage = damage
+
+        accuracy = keywords.get( "accuracy" , 1 )
+        if accuracy < self.__class__.MIN_ACCURACY:
+            accuracy = self.__class__.MIN_ACCURACY
+        elif accuracy > self.__class__.MAX_ACCURACY:
+            accuracy = self.__class__.MAX_ACCURACY
+        self.accuracy = accuracy
+
+        penetration = keywords.get( "penetration" , 1 )
+        if penetration < self.__class__.MIN_PENETRATION:
+            penetration = self.__class__.MIN_PENETRATION
+        elif penetration > self.__class__.MAX_PENETRATION:
+            penetration = self.__class__.MAX_PENETRATION
+        self.penetration = penetration
+
+        self.quantity = max( keywords.get( "quantity" , 12 ), 1 )
+
+        # Finally, call the gear initializer.
+        Gear.__init__( self, **keywords )
+
+    @property
+    def self_mass(self):
+        return scale_mass( ( self.damage + self.penetration ) * 5 + self.accuracy + self.reach , self.scale , self.material )
+
+    @property
+    def volume(self):
+        return self.reach + self.accuracy + 1
+
+    @property
+    def self_cost(self):
+        # Multiply the stats together, squaring range because it's so important.
+        return scale_cost( self.damage * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.range^2 - self.range )/2 + 1) , self.scale , self.material ) * self.quantity / 20
 
 #   *******************
 #   ***   HOLDERS   ***
@@ -400,6 +463,17 @@ class ModuleForm( object ):
         return False
     def is_legal_inv_com( self, part ):
         return False
+    MULTIPLICITY_LIMITS = {
+        Engine:1,Hand:1,Mount:1,Cockpit:1,Gyroscope:1
+    }
+    def check_multiplicity( self, mod, part ):
+        """Returns True if part within acceptable limits for its kind."""
+        ok = True
+        for k,v in self.MULTIPLICITY_LIMITS.items():
+            if isinstance( part, k ):
+                ok = ok and len( [item for item in mod.sub_com if isinstance( item, k ) ] ) < v
+        return ok
+
     VOLUME_X = 2
     MASS_X = 1
 
@@ -410,6 +484,9 @@ class MF_Head( ModuleForm ):
 
 class MF_Torso( ModuleForm ):
     name = "Torso"
+    MULTIPLICITY_LIMITS = {
+        Engine:1,Mount:2,Cockpit:1,Gyroscope:1
+    }
     def is_legal_sub_com( self, part ):
         return isinstance( part , ( Weapon,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable,Engine,Gyroscope ) )
     VOLUME_X = 4
@@ -450,12 +527,10 @@ class MF_Storage( ModuleForm ):
 
 class Module( Gear ):
     def __init__(self, **keywords ):
-        form = keywords.get(  "form" )
+        form = keywords.get( "form" )
         if form == None:
             form = MF_Storage()
-        name = keywords.get(  "name" )
-        if name == None:
-            keywords[ "name" ] = form.name
+        keywords[ "name" ] = keywords.get( "name", form.name )
         # Check the range of all parameters before applying.
         size = keywords.get(  "size" , 1 )
         if size < 1:
@@ -473,6 +548,9 @@ class Module( Gear ):
     @property
     def volume(self):
         return self.size * self.form.VOLUME_X
+
+    def check_multiplicity( self, part ):
+        return self.form.check_multiplicity( self, part )
 
     def is_legal_sub_com( self, part ):
         return self.form.is_legal_sub_com( part )
@@ -555,8 +633,19 @@ class Mecha(Gear):
     # things are usually done?
     self_mass = 0
 
+    def check_multiplicity( self, part ):
+        # A mecha can have only one torso module.
+        if isinstance( part , Module ) and isinstance( part.form , MF_Torso ):
+            n = 0
+            for i in self.sub_com:
+                if isinstance( i, Module ) and isinstance( i.form , MF_Torso ):
+                    n += 1
+            return n == 0
+        else:
+            return True
+
     def can_install(self,part):
-        return self.is_legal_sub_com(part) and part.scale <= self.scale
+        return self.is_legal_sub_com(part) and part.scale <= self.scale and self.check_multiplicity( part )
 
     @property
     def volume(self):

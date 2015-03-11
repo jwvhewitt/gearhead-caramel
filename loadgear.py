@@ -33,7 +33,7 @@ class Loader( list ):
                 self.append( fgear )
                 self.placement_mode = NEXT
             elif self.placement_mode == SUB:
-                if self.parent_gear.can_be_installed( fgear ):
+                if self.parent_gear.can_install( fgear ):
                     self.parent_gear.sub_com.append( fgear )
                 else:
                     raise ParseError( fgear.name + " doesn't fit in " + self.parent_gear.name )
