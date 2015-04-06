@@ -12,7 +12,7 @@ class Material( object ):
 
 
 METAL   = Material( "Metal" , 5 , 5 , 10 )
-MEAT    = Material( "Meat" , 5 , 4 ,  7 )
+MEAT    = Material( "Meat" , 8 , 4 ,  7 )
 BIOTECH = Material( "Biotech" , 5 , 6 , 15 )
 
 

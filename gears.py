@@ -1,24 +1,26 @@
 import container
 import materials
 
+MECHA_SCALE = 10
+HUMAN_SCALE = 1
+
 def scale_mass( mass , scale , material ):
     # Scale mass based on scale and material.
     # The universal mass unit is 100 grams.
-    return int( ( mass * pow( 10 , scale ) * material.mass_scale ) // 5 )
+    return int( ( mass * pow( scale, 3 ) * material.mass_scale ) // 5 )
 
 def scale_cost( cost , scale , material ):
     # Scale mass based on scale and material.
-    return ( cost * pow( 10 , scale ) * material.cost_scale ) // 5
+    return ( cost * pow( scale, 3 ) * material.cost_scale ) // 5
 
 class Gear( object ):
 
     DEFAULT_NAME = "Gear"
     DEFAULT_MATERIAL = materials.METAL
     def __init__(self, **keywords ):
-        self.inv_com = container.ContainerList( keywords.get( "inv_com", [] ), owner = self )
         self.name = keywords.get( "name" , self.DEFAULT_NAME )
         self.desig = keywords.get( "desig", None )
-        self.scale = keywords.get( "scale" , 3 )
+        self.scale = keywords.get( "scale" , MECHA_SCALE )
         self.material = keywords.get( "material" , self.DEFAULT_MATERIAL )
 
         self.sub_com = container.ContainerList( owner = self )
@@ -28,6 +30,14 @@ class Gear( object ):
                 self.sub_com.append( i )
             else:
                 print( "ERROR: {} cannot be installed in {}".format(i,self) )
+
+        self.inv_com = container.ContainerList( owner = self )
+        ic_to_add = keywords.get( "inv_com", [] )
+        for i in ic_to_add:
+            if self.can_equip( i ):
+                self.inv_com.append( i )
+            else:
+                print( "ERROR: {} cannot be equipped in {}".format(i,self) )
 
     @property
     def self_mass(self):
@@ -83,6 +93,10 @@ class Gear( object ):
 
     def is_legal_inv_com(self,part):
         return False
+
+    def can_equip(self,part):
+        """Returns True if part can be legally installed here under current conditions"""
+        return self.is_legal_inv_com(part) and part.scale == self.scale and not self.inv_com
 
     def sub_sub_coms(self):
         yield self
@@ -355,24 +369,6 @@ class BeamWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
 
-class Launcher( Gear ):
-    DEFAULT_NAME = "Launcher"
-    def __init__(self, **keywords ):
-        # Check the range of all parameters before applying.
-        size = keywords.get( "size" , 1 )
-        if size < 1:
-            size = 1
-        elif size > 20:
-            size = 20
-        self.size = size
-        Gear.__init__( self, **keywords )
-    @property
-    def self_mass(self):
-        return scale_mass( self.size , self.scale , self.material )
-    @property
-    def volume(self):
-        return self.size
-
 class Missile( Gear ):
     DEFAULT_NAME = "Missile"
     MIN_REACH = 2
@@ -431,6 +427,26 @@ class Missile( Gear ):
         # Multiply the stats together, squaring range because it's so important.
         return scale_cost( self.damage * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.range^2 - self.range )/2 + 1) , self.scale , self.material ) * self.quantity / 20
 
+
+class Launcher( Gear ):
+    DEFAULT_NAME = "Launcher"
+    def __init__(self, **keywords ):
+        # Check the range of all parameters before applying.
+        size = keywords.get( "size" , 1 )
+        if size < 1:
+            size = 1
+        elif size > 20:
+            size = 20
+        self.size = size
+        Gear.__init__( self, **keywords )
+    @property
+    def self_mass(self):
+        return scale_mass( self.size , self.scale , self.material )
+    @property
+    def volume(self):
+        return self.size
+
+
 #   *******************
 #   ***   HOLDERS   ***
 #   *******************
@@ -441,7 +457,7 @@ class Hand( Gear ):
     def self_mass(self):
         return scale_mass( 5 , self.scale , self.material )
     def is_legal_inv_com(self,part):
-        return isinstance( part, Weapon )
+        return isinstance( part, (Weapon,Launcher) )
 
 class Mount( Gear ):
     DEFAULT_NAME = "Weapon Mount"
@@ -449,7 +465,7 @@ class Mount( Gear ):
     def self_mass(self):
         return scale_mass( 5 , self.scale , self.material )
     def is_legal_inv_com(self,part):
-        return isinstance( part, Weapon )
+        return isinstance( part, ( Weapon,Launcher ) )
 
 
 
@@ -646,6 +662,10 @@ class Mecha(Gear):
 
     def can_install(self,part):
         return self.is_legal_sub_com(part) and part.scale <= self.scale and self.check_multiplicity( part )
+
+    def can_equip(self,part):
+        """Returns True if part can be legally equipped under current conditions"""
+        return self.is_legal_inv_com(part) and part.scale <= self.scale
 
     @property
     def volume(self):

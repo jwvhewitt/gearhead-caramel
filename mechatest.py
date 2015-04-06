@@ -24,7 +24,7 @@ my_mecha = gears.Mecha( desig="SAN-X9", name="Buru Buru", sub_com = (
         gears.Arm(name="Right Arm",size=5, sub_com = (
             gears.Armor(size=4),
             gears.Hand(name="Right Hand", inv_com=(
-                gears.BallisticWeapon(name="Shaka Cannon",reach=4,damage=3,accuracy=0,penetration=3,caliber="150mm Shells"),
+                gears.BallisticWeapon(name="Shaka Cannon",reach=5,damage=3,accuracy=0,penetration=3,caliber="150mm Shells"),
             )),
         )),
         gears.Arm(name="Left Arm",size=5, sub_com = (
