@@ -1,17 +1,28 @@
 import container
 import materials
+import calibre
 
-MECHA_SCALE = 10
-HUMAN_SCALE = 1
+class MechaScale( object ):
+    SIZE_FACTOR = 10
+    COST_FACTOR = 2
+    @classmethod
+    def scale_mass( self, mass, material ):
+        # Scale mass based on scale and material.
+        # The universal mass unit is 100 grams.
+        return int( ( mass * pow( self.SIZE_FACTOR, 3 ) * material.mass_scale ) // 5 )
+    @classmethod
+    def scale_cost( self, cost , material ):
+        # Scale mass based on scale and material.
+        return ( cost * self.SIZE_FACTOR*self.COST_FACTOR * material.cost_scale ) // 5
+    @classmethod
+    def scale_health( self, hp , material ):
+        # Scale mass based on scale and material.
+        return ( hp * ( self.SIZE_FACTOR ** 2 ) * material.damage_scale ) // 2
 
-def scale_mass( mass , scale , material ):
-    # Scale mass based on scale and material.
-    # The universal mass unit is 100 grams.
-    return int( ( mass * pow( scale, 3 ) * material.mass_scale ) // 5 )
 
-def scale_cost( cost , scale , material ):
-    # Scale mass based on scale and material.
-    return ( cost * pow( scale, 3 ) * material.cost_scale ) // 5
+class HumanScale( MechaScale ):
+    SIZE_FACTOR = 1
+    COST_FACTOR = 5
 
 class Gear( object ):
 
@@ -20,8 +31,9 @@ class Gear( object ):
     def __init__(self, **keywords ):
         self.name = keywords.get( "name" , self.DEFAULT_NAME )
         self.desig = keywords.get( "desig", None )
-        self.scale = keywords.get( "scale" , MECHA_SCALE )
+        self.scale = keywords.get( "scale" , MechaScale )
         self.material = keywords.get( "material" , self.DEFAULT_MATERIAL )
+        self.hp_damage = 0
 
         self.sub_com = container.ContainerList( owner = self )
         sc_to_add = keywords.get( "sub_com", [] )
@@ -40,11 +52,18 @@ class Gear( object ):
                 print( "ERROR: {} cannot be equipped in {}".format(i,self) )
 
     @property
-    def self_mass(self):
-        return scale_mass( 1 , self.scale , self.material )
+    def base_mass(self):
+        """Returns the unscaled mass of this gear, ignoring children."""
+        return 1
+
+    @property
+    def self_mass( self ):
+        """Returns the properly scaled mass of this gear, ignoring children."""
+        return self.scale.scale_mass( self.base_mass , self.material )
 
     @property
     def mass(self):
+        """Returns the true mass of this gear including children."""
         m = self.self_mass
         for part in self.sub_com:
             m = m + part.mass
@@ -62,9 +81,11 @@ class Gear( object ):
 
     energy = 1
 
+    base_cost = 0
+
     @property
     def self_cost(self):
-        return scale_cost( 1 , self.scale , self.material )
+        return self.scale.scale_cost( self.base_cost , self.material )
 
     @property
     def cost(self):
@@ -104,16 +125,43 @@ class Gear( object ):
             for p in part.sub_sub_coms():
                 yield p
 
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return 0
+
+    @property
+    def max_health( self ):
+        """Returns the scaled maximum health of this gear."""
+        return scale_health( self.base_health, self.scale, self.material )
+
+    def is_okay( self ):
+        """ Returns True if this gear is not destroyed.
+            Note that this doesn't indicate the part is functional- just that
+            it would be functional if installed correctly, provided with power,
+            et cetera.
+        """
+        if self.base_health:
+            return self.max_health > self.hp_damage
+        else:
+            return True
+
     def __str__( self ):
         return self.name
 
     def termdump( self , prefix = ' ' , indent = 1 ):
         """Dump some info about this gear to the terminal."""
-        print " " * indent + prefix + self.name + "  SF:" + str( self.scale ) + ' mass:' + str( self.mass ) + " vol:" + str( self.free_volume ) + "/" + str( self.volume )
+        print " " * indent + prefix + self.name + ' mass:' + str( self.mass ) + ' cost:$' + str( self.cost ) + " vol:" + str( self.free_volume ) + "/" + str( self.volume )
         for g in self.sub_com:
             g.termdump( prefix = '>' , indent = indent + 1 )
         for g in self.inv_com:
             g.termdump( prefix = '+' , indent = indent + 1 )
+
+class Stackable( object ):
+    def can_merge_with( self, part ):
+        return ( self.__class__ is part.__class__ and self.scale is part.scale
+            and self.name is part.name and self.desig is part.desig
+            and not self.inv_com and not self.sub_com )
 
 
 #   *****************
@@ -133,12 +181,16 @@ class Armor( Gear ):
         Gear.__init__( self, **keywords )
 
     @property
-    def self_mass(self):
-        return scale_mass( 9 * self.size , self.scale , self.material )
+    def base_mass(self):
+        return 9 * self.size
 
     @property
     def volume(self):
         return self.size
+
+    @property
+    def base_cost(self):
+        return 55*self.size
 
 
 #   ****************************
@@ -157,31 +209,34 @@ class Engine( Gear ):
         self.size = size
         Gear.__init__( self, **keywords )
     @property
-    def self_mass(self):
-        return scale_mass( self.size // 100 + 10 , self.scale , self.material )
+    def base_mass(self):
+        return self.size // 100 + 10
     @property
     def volume(self):
         return self.size // 400 + 1
+    @property
+    def base_cost(self):
+        return (self.size**2) // 1000
+    base_health = 3
     def is_legal_sub_com(self,part):
         return isinstance( part , Armor )
 
 class Gyroscope( Gear ):
     DEFAULT_NAME = "Gyroscope"
-    @property
-    def self_mass(self):
-        return scale_mass( 10 , self.scale , self.material )
+    base_mass = 10
     def is_legal_sub_com(self,part):
         return isinstance( part , Armor )
     volume = 2
+    base_cost = 10
+    base_health = 2
 
 class Cockpit( Gear ):
     DEFAULT_NAME = "Cockpit"
-    @property
-    def self_mass(self):
-        return scale_mass( 5 , self.scale , self.material )
+    base_mass = 5
     def is_legal_sub_com(self,part):
         return isinstance( part , Armor )
     volume = 2
+    base_cost = 5
 
 class Sensor( Gear ):
     DEFAULT_NAME = "Sensor"
@@ -195,11 +250,11 @@ class Sensor( Gear ):
         self.size = size
         Gear.__init__( self, **keywords )
     @property
-    def self_mass(self):
-        return scale_mass( self.size * 5 , self.scale , self.material )
+    def base_mass(self):
+        return self.size * 5
     @property
-    def self_cost(self):
-        return scale_cost( self.size * self.size * 10 , self.scale , self.material )
+    def base_cost(self):
+        return self.size * self.size * 10
     @property
     def volume(self):
         return self.size
@@ -219,18 +274,19 @@ class MovementSystem( Gear ):
         if size < 1:
             size = 1
         self.size = size
-
     @property
-    def self_mass(self):
-        return scale_mass( 10 * self.size , self.scale , self.material )
-
+    def base_mass(self):
+        return 10 * self.size
     @property
     def volume(self):
         return self.size
+    @property
+    def base_cost(self):
+        return self.size * self.MOVESYS_COST
 
 class HoverJets( MovementSystem ):
     DEFAULT_NAME = "Hover Jets"
-
+    MOVESYS_COST = 56
 
 
 #   *************************
@@ -246,14 +302,15 @@ class PowerSource( Gear ):
         if size < 1:
             size = 1
         self.size = size
-
     @property
-    def self_mass(self):
-        return scale_mass( 5 * self.size , self.scale , self.material )
-
+    def base_mass(self):
+        return 5 * self.size
     @property
     def volume(self):
         return self.size
+    @property
+    def base_cost(self):
+        return self.size * 75
 
 
 #   *******************
@@ -269,6 +326,7 @@ class Usable( Gear ):
 
 class Weapon( Gear ):
     DEFAULT_NAME = "Weapon"
+    DEFAULT_CALIBRE = None
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
     def __init__(self, **keywords ):
@@ -301,12 +359,14 @@ class Weapon( Gear ):
             penetration = self.__class__.MAX_PENETRATION
         self.penetration = penetration
 
+        self.ammo_type = keywords.get( "calibre" , self.DEFAULT_CALIBRE )
+
         # Finally, call the gear initializer.
         Gear.__init__( self, **keywords )
 
     @property
-    def self_mass(self):
-        return scale_mass( ( self.damage + self.penetration ) * 5 + self.accuracy + self.reach , self.scale , self.material )
+    def base_mass(self):
+        return ( self.damage + self.penetration ) * 5 + self.accuracy + self.reach
 
     @property
     def volume(self):
@@ -317,9 +377,9 @@ class Weapon( Gear ):
         return 1
 
     @property
-    def self_cost(self):
+    def base_cost(self):
         # Multiply the stats together, squaring range because it's so important.
-        return scale_cost( self.damage * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.range^2 - self.range )/2 + 1) , self.scale , self.material )
+        return 5 * self.damage * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.reach**2 - self.reach )/2 + 1)
 
     def is_legal_sub_com(self,part):
         if isinstance( part , Weapon ):
@@ -349,6 +409,29 @@ class EnergyWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
 
+class Ammo( Gear, Stackable ):
+    DEFAULT_NAME = "Ammo"
+    STACK_CRITERIA = ("ammo_type",)
+    def __init__(self, **keywords ):
+        Gear.__init__( self, **keywords )
+        # Check the range of all parameters before applying.
+        self.ammo_type = keywords.get( "calibre" , calibre.Shells_150mm )
+        self.quantity = max( keywords.get( "quantity" , 12 ), 1 )
+
+        # Finally, call the gear initializer.
+        Gear.__init__( self, **keywords )
+    @property
+    def base_mass(self):
+        return self.ammo_type.bang * self.quantity //25
+    @property
+    def volume(self):
+        return ( self.ammo_type.bang * self.quantity + 49 ) // 50
+
+    @property
+    def base_cost(self):
+        # Multiply the stats together, squaring range because it's so important.
+        return self.ammo_type.bang * self.quantity // 10
+
 class BallisticWeapon( Weapon ):
     MIN_REACH = 2
     MAX_REACH = 7
@@ -358,6 +441,14 @@ class BallisticWeapon( Weapon ):
     MAX_ACCURACY = 5
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
+    DEFAULT_CALIBRE = calibre.Shells_150mm
+    def is_legal_sub_com(self,part):
+        if isinstance( part , Weapon ):
+            # In theory weapons should be able to install weapons which are integral.
+            # However, since I haven't yet implemented integralness... ^^;
+            return False
+        else:
+            return isinstance( part, Ammo ) and part.ammo_type is self.ammo_type
 
 class BeamWeapon( Weapon ):
     MIN_REACH = 2
@@ -379,6 +470,7 @@ class Missile( Gear ):
     MAX_ACCURACY = 5
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
+    STACK_CRITERIA = ("reach","damage","accuracy","penetration")
     def __init__(self, **keywords ):
         # Check the range of all parameters before applying.
         reach = keywords.get( "reach" , 1 )
@@ -415,17 +507,17 @@ class Missile( Gear ):
         Gear.__init__( self, **keywords )
 
     @property
-    def self_mass(self):
-        return scale_mass( ( self.damage + self.penetration ) * 5 + self.accuracy + self.reach , self.scale , self.material )
+    def base_mass(self):
+        return ( ( self.damage + self.penetration ) * 5 + self.accuracy + self.reach * self.quantity ) //25
 
     @property
     def volume(self):
-        return self.reach + self.accuracy + 1
+        return ( ( self.reach + self.accuracy + 1 ) * self.quantity + 49 ) // 50
 
     @property
-    def self_cost(self):
+    def base_cost(self):
         # Multiply the stats together, squaring range because it's so important.
-        return scale_cost( self.damage * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.range^2 - self.range )/2 + 1) , self.scale , self.material ) * self.quantity / 20
+        return (self.damage * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.reach**2 - self.reach )/2 + 1)) * self.quantity / 4
 
 
 class Launcher( Gear ):
@@ -440,11 +532,17 @@ class Launcher( Gear ):
         self.size = size
         Gear.__init__( self, **keywords )
     @property
-    def self_mass(self):
-        return scale_mass( self.size , self.scale , self.material )
+    def base_mass(self):
+        return self.size
     @property
     def volume(self):
         return self.size
+    @property
+    def base_cost(self):
+        # Multiply the stats together, squaring range because it's so important.
+        return self.size * 25
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Missile )
 
 
 #   *******************
@@ -453,20 +551,17 @@ class Launcher( Gear ):
 
 class Hand( Gear ):
     DEFAULT_NAME = "Hand"
-    @property
-    def self_mass(self):
-        return scale_mass( 5 , self.scale , self.material )
+    base_mass = 5
     def is_legal_inv_com(self,part):
         return isinstance( part, (Weapon,Launcher) )
+    base_cost = 50
 
 class Mount( Gear ):
     DEFAULT_NAME = "Weapon Mount"
-    @property
-    def self_mass(self):
-        return scale_mass( 5 , self.scale , self.material )
+    base_mass = 5
     def is_legal_inv_com(self,part):
         return isinstance( part, ( Weapon,Launcher ) )
-
+    base_cost = 50
 
 
 #   *******************
@@ -556,11 +651,12 @@ class Module( Gear ):
         self.size = size
         self.form = form
         Gear.__init__( self, **keywords )
-
     @property
-    def self_mass(self):
-        return scale_mass( 2  * self.form.MASS_X * self.size , self.scale , self.material )
-
+    def base_mass(self):
+        return 2  * self.form.MASS_X * self.size
+    @property
+    def base_cost(self):
+        return self.size * 25
     @property
     def volume(self):
         return self.size * self.form.VOLUME_X
@@ -647,7 +743,7 @@ class Mecha(Gear):
 
     # Overwriting a property with a value... isn't this the opposite of how
     # things are usually done?
-    self_mass = 0
+    base_mass = 0
 
     def check_multiplicity( self, part ):
         # A mecha can have only one torso module.
