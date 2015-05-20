@@ -11,8 +11,9 @@ class Material( object ):
         return self.name.upper()
 
 
-METAL   = Material( "Metal" , 5 , 5 , 10 )
-MEAT    = Material( "Meat" , 8 , 4 ,  7 )
-BIOTECH = Material( "Biotech" , 5 , 6 , 15 )
+METAL   = Material( "Metal" , 10 , 5 , 10 )
+ADVANCED = Material( "Advanced" , 8 , 5 , 50 )
+MEAT    = Material( "Meat" , 16 , 4 ,  7 )
+BIOTECH = Material( "Biotech" , 9 , 6 , 120 )
 
 

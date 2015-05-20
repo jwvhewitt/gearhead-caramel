@@ -9,20 +9,22 @@ class MechaScale( object ):
     def scale_mass( self, mass, material ):
         # Scale mass based on scale and material.
         # The universal mass unit is 100 grams.
-        return int( ( mass * pow( self.SIZE_FACTOR, 3 ) * material.mass_scale ) // 5 )
+        return int( ( mass * pow( self.SIZE_FACTOR, 3 ) * material.mass_scale ) // 10 )
     @classmethod
     def scale_cost( self, cost , material ):
         # Scale mass based on scale and material.
-        return ( cost * self.SIZE_FACTOR*self.COST_FACTOR * material.cost_scale ) // 5
+        return ( cost * self.SIZE_FACTOR*self.COST_FACTOR * material.cost_scale ) // 10
     @classmethod
     def scale_health( self, hp , material ):
         # Scale mass based on scale and material.
         return ( hp * ( self.SIZE_FACTOR ** 2 ) * material.damage_scale ) // 2
 
-
 class HumanScale( MechaScale ):
     SIZE_FACTOR = 1
     COST_FACTOR = 5
+
+
+
 
 class Gear( object ):
 
@@ -125,6 +127,17 @@ class Gear( object ):
             for p in part.sub_sub_coms():
                 yield p
 
+    def ancestors(self):
+        if hasattr( self, "container" ) and isinstance( self.container.owner, Gear ):
+            yield self.container.owner
+            for p in self.container.owner.ancestors():
+                yield p
+
+    def find_module( self ):
+        for g in self.ancestors():
+            if isinstance( g, Module ):
+                return g
+
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
@@ -133,9 +146,9 @@ class Gear( object ):
     @property
     def max_health( self ):
         """Returns the scaled maximum health of this gear."""
-        return scale_health( self.base_health, self.scale, self.material )
+        return self.scale.scale_health( self.base_health, self.material )
 
-    def is_okay( self ):
+    def is_not_destroyed( self ):
         """ Returns True if this gear is not destroyed.
             Note that this doesn't indicate the part is functional- just that
             it would be functional if installed correctly, provided with power,
@@ -145,6 +158,19 @@ class Gear( object ):
             return self.max_health > self.hp_damage
         else:
             return True
+
+    def is_operational( self ):
+        """ Returns True if this gear is okay and all of its necessary subcoms
+            are operational too. In other words, return True if this gear is
+            ready to be used.
+        """
+        return self.is_not_destroyed()
+
+    def is_active( self ):
+        """ Returns True if this gear is okay and capable of independent action.
+        """
+        return False
+
 
     def __str__( self ):
         return self.name
@@ -359,6 +385,8 @@ class Weapon( Gear ):
             penetration = self.__class__.MAX_PENETRATION
         self.penetration = penetration
 
+        self.integral = keywords.get( "integral" , False )
+
         self.ammo_type = keywords.get( "calibre" , self.DEFAULT_CALIBRE )
 
         # Finally, call the gear initializer.
@@ -370,7 +398,10 @@ class Weapon( Gear ):
 
     @property
     def volume(self):
-        return self.reach + self.accuracy + 1
+        v = self.reach + self.accuracy + 1
+        if self.integral:
+            v -= 1
+        return v
 
     @property
     def energy(self):
@@ -378,8 +409,8 @@ class Weapon( Gear ):
 
     @property
     def base_cost(self):
-        # Multiply the stats together, squaring range because it's so important.
-        return 5 * self.damage * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.reach**2 - self.reach )/2 + 1)
+        # Multiply the stats together, squaring damage and range because it's so important.
+        return self.COST_FACTOR * ( self.damage ** 2 ) * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.reach**2 - self.reach )/2 + 1)
 
     def is_legal_sub_com(self,part):
         if isinstance( part , Weapon ):
@@ -398,6 +429,7 @@ class MeleeWeapon( Weapon ):
     MAX_ACCURACY = 5
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
+    COST_FACTOR = 3
 
 class EnergyWeapon( Weapon ):
     MIN_REACH = 1
@@ -408,6 +440,7 @@ class EnergyWeapon( Weapon ):
     MAX_ACCURACY = 5
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
+    COST_FACTOR = 20
 
 class Ammo( Gear, Stackable ):
     DEFAULT_NAME = "Ammo"
@@ -441,6 +474,7 @@ class BallisticWeapon( Weapon ):
     MAX_ACCURACY = 5
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
+    COST_FACTOR = 5
     DEFAULT_CALIBRE = calibre.Shells_150mm
     def is_legal_sub_com(self,part):
         if isinstance( part , Weapon ):
@@ -459,6 +493,7 @@ class BeamWeapon( Weapon ):
     MAX_ACCURACY = 5
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
+    COST_FACTOR = 15
 
 class Missile( Gear ):
     DEFAULT_NAME = "Missile"
@@ -517,7 +552,7 @@ class Missile( Gear ):
     @property
     def base_cost(self):
         # Multiply the stats together, squaring range because it's so important.
-        return (self.damage * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.reach**2 - self.reach )/2 + 1)) * self.quantity / 4
+        return ((self.damage**2) * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * ( self.reach**2 - self.reach + 2)) * self.quantity / 8
 
 
 class Launcher( Gear ):
@@ -591,7 +626,7 @@ class ModuleForm( object ):
 class MF_Head( ModuleForm ):
     name = "Head"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable ) )
+        return isinstance( part , ( Weapon,Launcher,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable ) )
 
 class MF_Torso( ModuleForm ):
     name = "Torso"
@@ -599,39 +634,39 @@ class MF_Torso( ModuleForm ):
         Engine:1,Mount:2,Cockpit:1,Gyroscope:1
     }
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable,Engine,Gyroscope ) )
+        return isinstance( part , ( Weapon,Launcher,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable,Engine,Gyroscope ) )
     VOLUME_X = 4
     MASS_X = 2
 
 class MF_Arm( ModuleForm ):
     name = "Arm"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon, Armor, Hand, Mount,MovementSystem,PowerSource,Sensor,Usable ) )
+        return isinstance( part , ( Weapon,Launcher, Armor, Hand, Mount,MovementSystem,PowerSource,Sensor,Usable ) )
 
 class MF_Leg( ModuleForm ):
     name = "Leg"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
 
 class MF_Wing( ModuleForm ):
     name = "Wing"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
 
 class MF_Turret( ModuleForm ):
     name = "Turret"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
 
 class MF_Tail( ModuleForm ):
     name = "Tail"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
 
 class MF_Storage( ModuleForm ):
     name = "Storage"
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
     VOLUME_X = 4
     MASS_X = 0
 
@@ -766,6 +801,28 @@ class Mecha(Gear):
     @property
     def volume(self):
         return sum( i.volume for i in self.sub_com )
+
+    def is_not_destroyed( self ):
+        """ A mecha must have a notdestroyed body with a notdestroyed engine
+            in it.
+        """
+        # Check out the body.
+        for m in self.sub_com:
+            if isinstance( m, Torso ) and m.is_not_destroyed():
+                for e in m.sub_com:
+                    if isinstance( e, Engine ) and e.is_not_destroyed() and e.scale is self.scale:
+                        return True
+
+    def is_operational( self ):
+        """ To be operational, a mecha must have an operational engine.
+        """
+        return self.is_not_destroyed()
+
+    def is_active( self ):
+        """ To be active, a mecha must be operational and have an operational
+            pilot.
+        """
+        return self.is_operational()
 
 
         
