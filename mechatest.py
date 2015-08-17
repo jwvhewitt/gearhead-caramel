@@ -1,6 +1,8 @@
 import gears
 import container
 import calibre
+import damage
+import random
 
 my_mecha = gears.Mecha( desig="SAN-X9", name="Buru Buru", sub_com = (
         gears.Head(size=5, sub_com = (
@@ -46,11 +48,18 @@ my_mecha = gears.Mecha( desig="SAN-X9", name="Buru Buru", sub_com = (
     )
  )
 
-my_mecha.termdump()
 
 print "{} tons".format( my_mecha.mass / 10000.0 )
 print "${}".format( my_mecha.cost )
 
 print my_mecha.is_operational()
 
+t = 1
+while my_mecha.is_operational() and t < 1000:
+    t += 1
+    damage.Damage( 2500, 35 + random.randint(1,50), my_mecha )
+
+print "Destroyed in {} shaka cannon hits".format( t )
+
+my_mecha.statusdump()
 

@@ -27,7 +27,6 @@ class HumanScale( MechaScale ):
 
 
 class Gear( object ):
-
     DEFAULT_NAME = "Gear"
     DEFAULT_MATERIAL = materials.METAL
     def __init__(self, **keywords ):
@@ -148,13 +147,19 @@ class Gear( object ):
         """Returns the scaled maximum health of this gear."""
         return self.scale.scale_health( self.base_health, self.material )
 
+    def get_armor( self ):
+        """Returns the armor protecting this gear."""
+        for part in self.sub_com:
+            if isinstance( part, Armor ):
+                return part
+
     def is_not_destroyed( self ):
         """ Returns True if this gear is not destroyed.
             Note that this doesn't indicate the part is functional- just that
             it would be functional if installed correctly, provided with power,
             et cetera.
         """
-        if self.base_health:
+        if self.can_be_damaged():
             return self.max_health > self.hp_damage
         else:
             return True
@@ -171,6 +176,10 @@ class Gear( object ):
         """
         return False
 
+    def can_be_damaged( self ):
+        """ Returns True if this gear can be damaged.
+        """
+        return bool(self.base_health)
 
     def __str__( self ):
         return self.name
@@ -182,6 +191,15 @@ class Gear( object ):
             g.termdump( prefix = '>' , indent = indent + 1 )
         for g in self.inv_com:
             g.termdump( prefix = '+' , indent = indent + 1 )
+
+    def statusdump( self , prefix = ' ' , indent = 1 ):
+        """Dump some info about this gear to the terminal."""
+        print " " * indent + prefix + self.name + ' HP:{1}/{0}'.format(self.max_health,self.max_health-self.hp_damage)
+        for g in self.sub_com:
+            g.statusdump( prefix = '>' , indent = indent + 1 )
+        for g in self.inv_com:
+            g.statusdump( prefix = '+' , indent = indent + 1 )
+
 
 class Stackable( object ):
     def can_merge_with( self, part ):
@@ -209,6 +227,10 @@ class Armor( Gear ):
     @property
     def base_mass(self):
         return 9 * self.size
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
 
     @property
     def volume(self):
@@ -217,6 +239,14 @@ class Armor( Gear ):
     @property
     def base_cost(self):
         return 55*self.size
+
+    def get_armor( self ):
+        """Returns the armor protecting this gear."""
+        return self
+
+    def get_rating( self ):
+        """Returns the penetration rating of this armor."""
+        return (self.size * 10) * ( self.max_health - self.hp_damage ) // self.max_health
 
 
 #   ****************************
@@ -263,6 +293,7 @@ class Cockpit( Gear ):
         return isinstance( part , Armor )
     volume = 2
     base_cost = 5
+    base_health = 2
 
 class Sensor( Gear ):
     DEFAULT_NAME = "Sensor"
@@ -284,6 +315,7 @@ class Sensor( Gear ):
     @property
     def volume(self):
         return self.size
+    base_health = 2
 
 
 
@@ -309,6 +341,10 @@ class MovementSystem( Gear ):
     @property
     def base_cost(self):
         return self.size * self.MOVESYS_COST
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
 
 class HoverJets( MovementSystem ):
     DEFAULT_NAME = "Hover Jets"
@@ -337,6 +373,10 @@ class PowerSource( Gear ):
     @property
     def base_cost(self):
         return self.size * 75
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
 
 
 #   *******************
@@ -420,6 +460,12 @@ class Weapon( Gear ):
         else:
             return False
 
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.base_mass
+
+
 class MeleeWeapon( Weapon ):
     MIN_REACH = 1
     MAX_REACH = 3
@@ -464,6 +510,7 @@ class Ammo( Gear, Stackable ):
     def base_cost(self):
         # Multiply the stats together, squaring range because it's so important.
         return self.ammo_type.bang * self.quantity // 10
+    base_health = 1
 
 class BallisticWeapon( Weapon ):
     MIN_REACH = 2
@@ -554,6 +601,11 @@ class Missile( Gear ):
         # Multiply the stats together, squaring range because it's so important.
         return ((self.damage**2) * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * ( self.reach**2 - self.reach + 2)) * self.quantity / 8
 
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.volume // 2 + 1
+
 
 class Launcher( Gear ):
     DEFAULT_NAME = "Launcher"
@@ -590,6 +642,7 @@ class Hand( Gear ):
     def is_legal_inv_com(self,part):
         return isinstance( part, (Weapon,Launcher) )
     base_cost = 50
+    base_health = 2
 
 class Mount( Gear ):
     DEFAULT_NAME = "Weapon Mount"
@@ -597,7 +650,7 @@ class Mount( Gear ):
     def is_legal_inv_com(self,part):
         return isinstance( part, ( Weapon,Launcher ) )
     base_cost = 50
-
+    base_health = 2
 
 #   *******************
 #   ***   MODULES   ***
@@ -704,6 +757,12 @@ class Module( Gear ):
 
     def is_legal_inv_com( self, part ):
         return self.form.is_legal_inv_com( part )
+
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return 1 + self.form.MASS_X * self.size
+
 
 class Head( Module ):
     def __init__(self, **keywords ):
