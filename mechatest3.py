@@ -2,6 +2,7 @@ import gears
 import container
 import calibre
 import materials
+import damage
 
 part = gears.BeamWeapon(name="Intercept Laser",reach=2,damage=1,accuracy=2,penetration=1)
 print( isinstance( part, gears.Weapon ) )
@@ -13,7 +14,7 @@ my_mecha = gears.Mecha( desig="Z45-62", name="Zerosaiko", sub_com = (
         )),
         gears.Torso(size=5,material=materials.ADVANCED, sub_com = (
             gears.Armor(size=6,material=materials.ADVANCED),
-            gears.Engine(size=1200,material=materials.ADVANCED,sub_com = (
+            gears.Engine(size=1500,material=materials.ADVANCED,sub_com = (
                 gears.Armor(size=1,material=materials.ADVANCED),
             )),
             gears.Gyroscope(material=materials.ADVANCED,sub_com = (
@@ -58,4 +59,7 @@ my_mecha = gears.Mecha( desig="Z45-62", name="Zerosaiko", sub_com = (
 print "{} tons".format( my_mecha.mass / 10000.0 )
 print "${}".format( my_mecha.cost )
 
-my_mecha.termdump()
+
+print my_mecha.calc_mobility()
+
+

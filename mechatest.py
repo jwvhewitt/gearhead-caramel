@@ -26,7 +26,7 @@ my_mecha = gears.Mecha( desig="SAN-X9", name="Buru Buru", sub_com = (
         gears.Arm(name="Right Arm",size=5, sub_com = (
             gears.Armor(size=4),
             gears.Hand(name="Right Hand", inv_com=(
-                gears.BallisticWeapon(name="Shaka Cannon",reach=5,damage=2,accuracy=0,penetration=3,sub_com=(
+                gears.BallisticWeapon(name="Shaka Cannon",reach=5,damage=3,accuracy=0,penetration=3,sub_com=(
                     gears.Ammo( calibre=calibre.Shells_150mm, quantity=15 ),
                 )),
             )),
@@ -53,6 +53,7 @@ print "{} tons".format( my_mecha.mass / 10000.0 )
 print "${}".format( my_mecha.cost )
 
 print my_mecha.is_operational()
+print my_mecha.calc_mobility()
 
 t = 1
 while my_mecha.is_operational() and t < 1000:
@@ -62,4 +63,5 @@ while my_mecha.is_operational() and t < 1000:
 print "Destroyed in {} shaka cannon hits".format( t )
 
 my_mecha.statusdump()
+
 

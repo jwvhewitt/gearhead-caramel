@@ -200,6 +200,13 @@ class Gear( object ):
         for g in self.inv_com:
             g.statusdump( prefix = '+' , indent = indent + 1 )
 
+    def wipe_damage( self ):
+        self.hp_damage = 0
+        for p in self.sub_com:
+            p.wipe_damage()
+        for p in self.inv_com:
+            p.wipe_damage()
+
 
 class Stackable( object ):
     def can_merge_with( self, part ):
@@ -882,6 +889,26 @@ class Mecha(Gear):
             pilot.
         """
         return self.is_operational()
+
+    def calc_mobility( self ):
+        """Calculate the mobility ranking of this mecha.
+        """
+        mass_factor = ( self.mass ** 2 ) // ( 10000 *  self.scale.SIZE_FACTOR ** 6 )
+        has_gyro = False
+        engine_rating = 0
+        for m in self.sub_com:
+            if isinstance( m, Torso ) and m.is_not_destroyed():
+                for e in m.sub_com:
+                    if isinstance( e, Engine ) and e.is_not_destroyed() and e.scale is self.scale:
+                        engine_rating = e.size
+                    elif isinstance( e, Gyroscope ) and e.is_not_destroyed() and e.scale is self.scale:
+                        has_gyro = True
+                break
+        # We now have the mass_factor, engine_rating, and has_gyro.
+        it = engine_rating // mass_factor
+        if not has_gyro:
+            it -= 30
+        return it
 
 
         
