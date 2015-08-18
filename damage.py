@@ -123,7 +123,8 @@ class Damage( object ):
         # Give experience to vitality, if that's still a thing.
 
 
-
+def combat_test( mecha, weapon ):
+    pass
 
 
 
