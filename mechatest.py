@@ -65,3 +65,13 @@ print "Destroyed in {} shaka cannon hits".format( t )
 my_mecha.statusdump()
 
 
+print "Shaka Cannon..."
+damage.combat_test( my_mecha, damage.ShakaCannon )
+print "Railgun..."
+damage.combat_test( my_mecha, damage.Railgun )
+print "Guided Missile..."
+damage.combat_test( my_mecha, damage.Smartgun )
+
+
+
+

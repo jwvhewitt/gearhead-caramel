@@ -62,4 +62,11 @@ print "${}".format( my_mecha.cost )
 
 print my_mecha.calc_mobility()
 
+print "Shaka Cannon..."
+damage.combat_test( my_mecha, damage.ShakaCannon )
+print "Railgun..."
+damage.combat_test( my_mecha, damage.Railgun )
+print "Guided Missile..."
+damage.combat_test( my_mecha, damage.Smartgun )
+
 

@@ -122,9 +122,36 @@ class Damage( object ):
         # Check for engine explosions and crashing/falling here.
         # Give experience to vitality, if that's still a thing.
 
+class ShakaCannon( object ):
+    damage = 2500
+    accuracy = 0
+    penetration = 30
 
+class Smartgun( object ):
+    damage = 2500
+    accuracy = 30
+    penetration = 0
+
+class Railgun( object ):
+    damage = 2500
+    accuracy = 10
+    penetration = 10
+
+
+total = 0
 def combat_test( mecha, weapon ):
-    pass
+    total = 0
+    for trial in range(1000):
+        mecha.wipe_damage()
 
+        t = 1
+        while mecha.is_operational() and t < 1000:
+            t += 1
+            hitroll = random.randint(1,100)
+            target = random.randint(1,100)
+            if hitroll + weapon.accuracy > target + mecha.calc_mobility():
+                Damage( weapon.damage, hitroll - target + weapon.penetration, mecha )
+        total += t
+    print "On average, mecha destroyed in {} shots".format( total/1000.0 )
 
 
