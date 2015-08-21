@@ -49,20 +49,6 @@ my_mecha = gears.Mecha( desig="SAN-X9", name="Buru Buru", sub_com = (
  )
 
 
-print "{} tons".format( my_mecha.mass / 10000.0 )
-print "${}".format( my_mecha.cost )
-
-print my_mecha.is_operational()
-print my_mecha.calc_mobility()
-
-t = 1
-while my_mecha.is_operational() and t < 1000:
-    t += 1
-    damage.Damage( 2500, 35 + random.randint(1,50), my_mecha )
-
-print "Destroyed in {} shaka cannon hits".format( t )
-
-my_mecha.statusdump()
 
 
 print "Shaka Cannon..."
@@ -71,6 +57,8 @@ print "Railgun..."
 damage.combat_test( my_mecha, damage.Railgun )
 print "Guided Missile..."
 damage.combat_test( my_mecha, damage.Smartgun )
+print "Glass Cow..."
+damage.combat_test( my_mecha, damage.GlassCow )
 
 
 

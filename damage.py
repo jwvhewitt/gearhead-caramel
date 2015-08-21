@@ -137,6 +137,10 @@ class Railgun( object ):
     accuracy = 10
     penetration = 10
 
+class GlassCow( object ):
+    damage = 2500
+    accuracy = 0
+    penetration = 0
 
 total = 0
 def combat_test( mecha, weapon ):

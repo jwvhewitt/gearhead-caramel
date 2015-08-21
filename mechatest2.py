@@ -79,16 +79,14 @@ my_mecha = gears.Mecha( desig="CHR-3L", name="Chimentero", sub_com = (
     )
  )
 
-print "{} tons".format( my_mecha.mass / 10000.0 )
-print "${}".format( my_mecha.cost )
-
-my_mecha.termdump()
-
 print "Shaka Cannon..."
 damage.combat_test( my_mecha, damage.ShakaCannon )
 print "Railgun..."
 damage.combat_test( my_mecha, damage.Railgun )
 print "Guided Missile..."
 damage.combat_test( my_mecha, damage.Smartgun )
+print "Glass Cow..."
+damage.combat_test( my_mecha, damage.GlassCow )
+
 
 
