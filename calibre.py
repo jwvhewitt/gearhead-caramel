@@ -5,3 +5,4 @@
 class Shells_150mm( object ):
     """The ammunition used by the BuruBuru's Shaka Cannon."""
     bang = 9
+
