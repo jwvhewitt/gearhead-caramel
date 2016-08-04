@@ -52,7 +52,8 @@ class AStarPath( object ):
         x,y = pos
         for dx,dy in mymap.DELTA8:
             x2,y2 = x+dx,y+dy
-            if mymap.on_the_map(x2,y2) and not mymap.map[x2][y2].blocks_walking():
+            #if mymap.on_the_map(x2,y2) and not mymap.tile_blocks_walking(x2,y2):
+            if not mymap.tile_blocks_walking(x2,y2):
                 yield (x2,y2)
             elif (x2,y2) == self.goal:
                 yield self.goal

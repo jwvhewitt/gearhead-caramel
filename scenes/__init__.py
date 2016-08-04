@@ -2,20 +2,47 @@
     either subclass the Scene or just declare whatever extra bits are needed.
 """
 
+    # I feel like this unit isn't very Pythonic, since it's full of setters
+    # and getters and various other walls to keep the user away from the
+    # data.
+
+
 import engine
+import pathfinding
+import pfov
+import terrain
+import viewer
 
 class Tile( object ):
-    def __init__(self, floor=None, wall=None, decor=None, visible=False):
+    def __init__(self, floor=None, wall=None, decor=None, visible=True):
         self.floor = floor
         self.wall = wall
         self.decor = decor
         self.visible = visible
 
-    def blocks_vision( self ):
-        return ( self.floor and self.floor.block_vision ) or (self.wall and self.wall.block_vision ) or ( self.decor and self.decor.block_vision )
+    def get_floor( self, terrainlist ):
+        try:
+            return terrainlist[self.floor]
+        except TypeError:
+            return None
+    def get_wall( self, terrainlist ):
+        try:
+            return terrainlist[self.wall]
+        except TypeError:
+            return None
+    def get_decor( self, terrainlist ):
+        try:
+            return terrainlist[self.decor]
+        except TypeError:
+            return None
 
-    def blocks_walking( self ):
-        return ( self.floor and self.floor.block_walk ) or (self.wall and ( self.wall is True or self.wall.block_walk )) or ( self.decor and self.decor.block_walk )
+    def blocks_vision( self, terrainlist ):
+        floor,wall,decor = self.get_floor(terrainlist),self.get_wall(terrainlist),self.get_decor(terrainlist)
+        return ( floor and floor.block_vision ) or (wall and wall.block_vision ) or ( decor and decor.block_vision )
+
+    def blocks_walking( self, terrainlist ):
+        floor,wall,decor = self.get_floor(terrainlist),self.get_wall(terrainlist),self.get_decor(terrainlist)
+        return (floor and floor.block_walk) or (self.wall is True) or (wall and wall.block_walk) or (decor and decor.block_walk)
 
 
 class Scene( object ):
@@ -26,7 +53,7 @@ class Scene( object ):
         self.width = width
         self.height = height
         self.terrainlist = terrainlist
-        self.scripts = container.ContainerList()
+        self.scripts = engine.container.ContainerList()
         self.in_sight = set()
 
         self.last_updated = 0
@@ -45,21 +72,21 @@ class Scene( object ):
     def get_floor( self, x, y ):
         """Safely return floor of tile x,y, or None if off map."""
         if self.on_the_map(x,y):
-            return self._map[x][y].floor
+            return self._map[x][y].get_floor(self.terrainlist)
         else:
             return None
 
     def get_wall( self, x, y ):
         """Safely return wall of tile x,y, or None if off map."""
         if self.on_the_map(x,y):
-            return self._map[x][y].wall
+            return self._map[x][y].get_wall(self.terrainlist)
         else:
             return None
 
     def get_decor( self, x, y ):
         """Safely return decor of tile x,y, or None if off map."""
         if self.on_the_map(x,y):
-            return self._map[x][y].decor
+            return self._map[x][y].get_decor(self.terrainlist)
         else:
             return None
 
@@ -72,13 +99,13 @@ class Scene( object ):
 
     def tile_blocks_vision( self, x, y ):
         if self.on_the_map(x,y):
-            return self._map[x][y].blocks_vision()
+            return self._map[x][y].blocks_vision(self.terrainlist)
         else:
             return True
 
     def tile_blocks_walking( self, x, y ):
         if self.on_the_map(x,y):
-            return self._map[x][y].blocks_walking()
+            return self._map[x][y].blocks_walking(self.terrainlist)
         else:
             return True
 
@@ -109,4 +136,34 @@ class Scene( object ):
                     was_a_space = is_a_space
                     n += 1
             return n <= 2
+
+    def check_terrain( self, terraintype ):
+        """ If terraintype in the terrain list, return its index. If it is
+            not yet in the list, and is valid, add it and return its index.
+            Otherwise return terraintype unchanged and trust the caller."""
+        # This is probably a YAGNI method, but screw it. It's done.
+        if terraintype in self.terrainlist:
+            return self.terrainlist.index( floor )
+        elif isinstance( terraintype, terrain.Terrain ):
+            self.terrainlist.append( terraintype )
+            return len( self.terrainlist ) - 1
+        else:
+            return terraintype
+
+    def fill( self, dest, floor=-1, wall=-1, decor=-1 ):
+        # Fill the provided area with the provided terrain.
+        # If we are being provided a raw tile type, 
+        floor = self.check_terrain(floor)
+        wall = self.check_terrain(wall)
+        decor = self.check_terrain(decor)
+        for x in range( dest.x, dest.x + dest.width ):
+            for y in range( dest.y, dest.y + dest.height ):
+                if self.on_the_map(x,y):
+                    if floor != -1:
+                        self._map[x][y].floor = floor
+                    if wall != -1:
+                        self._map[x][y].wall = wall
+                    if decor != -1:
+                        self._map[x][y].decor = decor
+
 
