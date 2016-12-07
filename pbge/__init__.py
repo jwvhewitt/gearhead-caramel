@@ -1,15 +1,17 @@
-# This module contains some low-level graphics stuff needed to
+# Polar Bear Game Engine
+
+# This package contains some low-level graphics stuff needed to
 # create an isometric RPG style game in Python. The idea is to
 # isolate the graphics handling from the code as much as possible,
 # so that if PyGame is replaced the interface shouldn't change
-# too much.
+# too much. Also, so that creating a new game should be as simple
+# as importing this package.
 
 # Word wrapper taken from the PyGame wiki plus
 # the list-printer from Anne Archibald's GearHead Prime demo.
 
 import pygame
 from itertools import chain
-import image
 import util
 import glob
 import random
@@ -22,10 +24,75 @@ try:
 except ImportError:
     android = None
 
-class EngineState( object ):
-    """Contains information about the current state."""
-    def __init__( self, screen=None ):
+class Border( object ):
+    def __init__( self , border_width=16, tex_width=32, border_name="", tex_name="", padding=16, tl=0, tr=0, bl=0, br=0, t=1, b=1, l=2, r=2 ):
+        # tl,tr,bl,br are the top left, top right, bottom left, and bottom right frames
+        # Bug: The border must be exactly half as wide as the texture.
+        self.border_width = border_width
+        self.tex_width = tex_width
+        self.border_name = border_name
+        self.tex_name = tex_name
+        self.border = None
+        self.tex = None
+        self.padding = padding
+        self.tl = tl
+        self.tr = tr
+        self.bl = bl
+        self.br = br
+        self.t = t
+        self.b = b
+        self.l = l
+        self.r = r
+
+    def render( self, dest ):
+        """Draw this decorative border at dest on screen."""
+        # We're gonna draw a decorative border to surround the provided area.
+        # Step one: Determine the size of our box. Both dimensions should be 
+        # a multiple of TEX_WIDTH. 
+
+        if self.border == None:
+            self.border = image.Image( self.border_name, self.border_width, self.border_width )
+        if self.tex == None:
+            self.tex = image.Image( self.tex_name, self.tex_width, self.tex_width )
+
+        # Draw the backdrop.
+        self.tex.tile(dest.inflate(self.padding,self.padding))
+
+        # Expand the dimensions to their complete size.
+        # The method inflate_ip doesn't seem to be working... :(
+        fdest = dest.inflate(self.padding,self.padding)
+
+        self.border.render( ( fdest.x-self.border_width/2 , fdest.y-self.border_width/2 ) , self.tl )
+        self.border.render( ( fdest.x-self.border_width/2 , fdest.y+fdest.height-self.border_width/2 ) , self.bl )
+        self.border.render( ( fdest.x+fdest.width-self.border_width/2 , fdest.y-self.border_width/2 ) , self.tr )
+        self.border.render( ( fdest.x+fdest.width-self.border_width/2 , fdest.y+fdest.height-self.border_width/2 ) , self.br )
+
+        fdest = dest.inflate(self.padding-self.border_width,self.padding+self.border_width)
+        my_state.screen.set_clip(fdest)
+        for x in range(0,fdest.w/self.border_width+2):
+            self.border.render( ( fdest.x+x*self.border_width , fdest.y ) , self.t )
+            self.border.render( ( fdest.x+x*self.border_width , fdest.y+fdest.height-self.border_width ) , self.b )
+
+        fdest = dest.inflate(self.padding+self.border_width,self.padding-self.border_width)
+        my_state.screen.set_clip(fdest)
+        for y in range(0,fdest.h/self.border_width+2):
+            self.border.render( ( fdest.x , fdest.y+y*self.border_width ) , self.l )
+            self.border.render( ( fdest.x+fdest.width-self.border_width , fdest.y+y*self.border_width ) , self.r )
+
+
+default_border = Border( border_width=8, tex_width=16, border_name="sys_defborder.png", tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2 )
+#map_border = Border( border_name="sys_mapborder.png", tex_name="sys_maptexture.png", tl=0, tr=1, bl=2, br=3, t=4, b=6, l=7, r=5 )
+gold_border = Border( border_width=8, tex_width=16, border_name="sys_rixsborder.png", tex_name="sys_rixstexture.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2 )
+
+TEXT_COLOR = (240,240,50)
+
+
+class GameState( object ):
+    def __init__( self , screen=None ):
         self.screen = screen
+
+
+
 
 INPUT_CURSOR = None
 SMALLFONT = None
@@ -34,9 +101,10 @@ ITALICFONT = None
 BIGFONT = None
 ANIMFONT = None
 POSTERS = list()
-mystate = EngineState()
+my_state = GameState()
 
-TEXT_COLOR = (240,240,50)
+
+import image
 
 INIT_DONE = False
 
@@ -54,102 +122,8 @@ INIT_DONE = False
 GOT_QUIT = False
 
 
-def wait_event():
-    # Wait for input, then return it when it comes.
-    ev = pygame.event.wait()
-
-    # Android-specific:
-    if android:
-        if android.check_pause():
-            android.wait_for_resume()
-
-    # Record if a quit event took place
-    if ev.type == pygame.QUIT:
-        global GOT_QUIT
-        GOT_QUIT = True
-    elif ev.type == TIMEREVENT:
-        pygame.event.clear( TIMEREVENT )
-
-    elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_PRINT:
-        pygame.image.save( mystate.screen, util.user_dir( "out.png" ) )
-
-    elif ev.type == pygame.VIDEORESIZE:
-        mystate.screen = pygame.display.set_mode( (max(ev.w,800),max(ev.h,600)), pygame.RESIZABLE )
 
 
-    return ev
-
-def anim_delay():
-    while wait_event().type != TIMEREVENT:
-        pass
-
-
-class Border( object ):
-    def __init__( self , border_width=16, tex_width=32, border_name="", tex_name="", tl=0, tr=0, bl=0, br=0, t=1, b=1, l=2, r=2 ):
-        # tl,tr,bl,br are the top left, top right, bottom left, and bottom right frames
-        # Bug: The border must be exactly half as wide as the texture.
-        self.border_width = border_width
-        self.tex_width = tex_width
-        self.border_name = border_name
-        self.tex_name = tex_name
-        self.border = None
-        self.tex = None
-        self.tl = tl
-        self.tr = tr
-        self.bl = bl
-        self.br = br
-        self.t = t
-        self.b = b
-        self.l = l
-        self.r = r
-
-    def render( self, screen, dest ):
-        """Draw this decorative border at dest on screen."""
-        # We're gonna draw a decorative border to surround the provided area.
-        # Step one: Determine the size of our box. Both dimensions should be 
-        # a multiple of TEX_WIDTH. 
-
-        if self.border == None:
-            self.border = image.Image( self.border_name, self.border_width, self.border_width )
-        if self.tex == None:
-            self.tex = image.Image( self.tex_name, self.tex_width, self.tex_width )
-
-        # W32 and H32 will store the number of columns/rows. 
-        W32 = ( dest.width + self.border_width ) / self.tex_width + 1
-        H32 = ( dest.height + self.border_width ) / self.tex_width + 1
-
-        # X0 and Y0 will store the upper left corner of the box.
-        X0 = dest.left - ( ( ( W32 * self.tex_width ) - dest.width ) / 2 )
-        Y0 = dest.top - ( ( ( H32 * self.tex_width ) - dest.height ) / 2 )
-
-        # Draw the backdrop.
-        for X in range( W32 ):
-            Dest_X = X0 + X * self.tex_width
-            for Y in range( H32 ):
-                Dest_Y = Y0 + Y * self.tex_width
-                self.tex.render( screen , ( Dest_X , Dest_Y ) )
-
-        self.border.render( screen , ( X0 - self.border_width / 2 , Y0 - self.border_width / 2 ) , self.tl )
-        self.border.render( screen , ( X0 - self.border_width / 2 , Y0 - self.border_width / 2 + H32 * self.tex_width ) , self.bl )
-        self.border.render( screen , ( X0 - self.border_width / 2 + W32 * self.tex_width , Y0 - self.border_width / 2 ) , self.tr )
-        self.border.render( screen , ( X0 - self.border_width / 2 + W32 * self.tex_width , Y0 - self.border_width / 2 + H32 * self.tex_width ) , self.br )
-
-        for X in range( 1 , W32 * 2 ):
-            Dest_X = X0 + X * self.border_width - self.border_width / 2
-            Dest_Y = Y0 - self.border_width / 2
-            self.border.render( screen , ( Dest_X , Dest_Y ) , self.t )
-            Dest_Y = Y0 + H32 * self.tex_width - self.border_width / 2
-            self.border.render( screen , ( Dest_X , Dest_Y ) , self.b )
-        for Y in range( 1 ,H32 * 2 ):
-            Dest_Y = Y0 + Y * self.border_width - self.border_width / 2
-            Dest_X = X0 - self.border_width / 2
-            self.border.render( screen , ( Dest_X , Dest_Y ) , self.l )
-            Dest_X = X0 + W32 * self.tex_width - self.border_width / 2
-            self.border.render( screen , ( Dest_X , Dest_Y ) , self.r )
-
-default_border = Border( border_width=8, tex_width=16, border_name="sys_defborder.png", tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2 )
-#map_border = Border( border_name="sys_mapborder.png", tex_name="sys_maptexture.png", tl=0, tr=1, bl=2, br=3, t=4, b=6, l=7, r=5 )
-gold_border = Border( border_width=8, tex_width=16, border_name="sys_rixsborder.png", tex_name="sys_rixstexture.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2 )
 
 
 def truncline(text, font, maxwidth):
@@ -212,8 +186,9 @@ def render_text(font, text, width, color = TEXT_COLOR, justify = -1, antialias=T
     s.set_colorkey((0,0,0),pygame.RLEACCEL)
     return s
 
-def draw_text( screen , font , text , rect , color = TEXT_COLOR, justify=-1, antialias=True ):
+def draw_text( font , text , rect , color = TEXT_COLOR, justify=-1, antialias=True, dest_surface=None ):
     # Draw some text to the screen with the provided options.
+    dest_surface = dest_surface or my_state.screen
     myimage = render_text( font , text , rect.width , color , justify, antialias )
     if justify == 0:
         myrect = myimage.get_rect( midtop = rect.midtop )
@@ -221,14 +196,38 @@ def draw_text( screen , font , text , rect , color = TEXT_COLOR, justify=-1, ant
         myrect = myimage.get_rect( topleft = rect.topleft )
     else:
         myrect = rect
-    screen.set_clip( rect )
-    screen.blit( myimage , myrect )
-    screen.set_clip( None )
+    dest_surface.set_clip( rect )
+    dest_surface.blit( myimage , myrect )
+    dest_surface.set_clip( None )
 
+def wait_event():
+    # Wait for input, then return it when it comes.
+    ev = pygame.event.wait()
+
+    # Android-specific:
+    if android:
+        if android.check_pause():
+            android.wait_for_resume()
+
+    # Record if a quit event took place
+    if ev.type == pygame.QUIT:
+        global GOT_QUIT
+        GOT_QUIT = True
+    elif ev.type == TIMEREVENT:
+        pygame.event.clear( TIMEREVENT )
+    elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_PRINT:
+        pygame.image.save( my_state.screen, util.user_dir( "out.png" ) )
+    elif ev.type == pygame.VIDEORESIZE:
+        my_state.screen = pygame.display.set_mode( (max(ev.w,800),max(ev.h,600)), pygame.RESIZABLE )
+    return ev
+
+def anim_delay():
+    while wait_event().type != TIMEREVENT:
+        pass
 
 ALLOWABLE_CHARACTERS = u'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
 
-def input_string( screen , font = None, redrawer = None, prompt = "Enter text below", prompt_color = (255,255,255), input_color = TEXT_COLOR, border=default_border ):
+def input_string( font = None, redrawer = None, prompt = "Enter text below", prompt_color = (255,255,255), input_color = TEXT_COLOR, border=default_border ):
     # Input a string from the user.
     it = []
     keep_going = True
@@ -237,23 +236,23 @@ def input_string( screen , font = None, redrawer = None, prompt = "Enter text be
     if not font:
         font = BIGFONT
 
-    myrect = pygame.Rect( screen.get_width() / 2 - 200 , screen.get_height() / 2 - 32 , 400 , 64 )
+    myrect = pygame.Rect( my_state.screen.get_width() / 2 - 200 , my_state.screen.get_height() / 2 - 32 , 400 , 64 )
     prompt_image = font.render( prompt, True, prompt_color )
 
     while keep_going:
-        ev = wait_event()
+        ev = self.wait_event()
 
         if ev.type == TIMEREVENT:
             if redrawer != None:
-                redrawer( screen )
-            border.render( screen , myrect )
+                redrawer()
+            border.render( myrect )
             mystring = "".join( it )
             myimage = font.render( mystring, True, input_color )
-            screen.blit( prompt_image , ( screen.get_width() / 2 - prompt_image.get_width() / 2 , screen.get_height() / 2 - prompt_image.get_height() - 2 ) )
-            screen.set_clip( myrect )
-            screen.blit( myimage , ( screen.get_width() / 2 - myimage.get_width() / 2 , screen.get_height() / 2 ) )
-            INPUT_CURSOR.render( screen , ( screen.get_width() / 2 + myimage.get_width() / 2 + 2 , screen.get_height() / 2 ) , cursor_frame / 3 )
-            screen.set_clip( None )
+            my_state.screen.blit( prompt_image , ( my_state.screen.get_width() / 2 - prompt_image.get_width() / 2 , my_state.screen.get_height() / 2 - prompt_image.get_height() - 2 ) )
+            my_state.screen.set_clip( myrect )
+            my_state.screen.blit( myimage , ( my_state.screen.get_width() / 2 - myimage.get_width() / 2 , my_state.screen.get_height() / 2 ) )
+            INPUT_CURSOR.render( ( my_state.screen.get_width() / 2 + myimage.get_width() / 2 + 2 , my_state.screen.get_height() / 2 ) , cursor_frame / 3 )
+            my_state.screen.set_clip( None )
             cursor_frame = ( cursor_frame + 1 ) % ( INPUT_CURSOR.num_frames() * 3 )
             pygame.display.flip()
 
@@ -269,15 +268,16 @@ def input_string( screen , font = None, redrawer = None, prompt = "Enter text be
             keep_going = False
     return "".join( it )
 
-def please_stand_by( screen, caption ):
+
+def please_stand_by( caption ):
     img = pygame.image.load( random.choice( POSTERS ) ).convert()
-    dest = img.get_rect( center=(screen.get_width()//2,screen.get_height()//2) )
-    screen.fill( (0,0,0) )
-    screen.blit(img,dest)
+    dest = img.get_rect( center=(my_state.screen.get_width()//2,my_state.screen.get_height()//2) )
+    my_state.screen.fill( (0,0,0) )
+    my_state.screen.blit(img,dest)
     mytext = BIGFONT.render(caption, True, TEXT_COLOR )
     dest2 = mytext.get_rect( topleft = (dest.x+32,dest.y+32) )
-    gold_border.render( screen, dest2 )
-    screen.blit( mytext, dest2 )
+    gold_border.render( my_state.screen, dest2 )
+    my_state.screen.blit( mytext, dest2 )
     pygame.display.flip()
 
 
@@ -295,9 +295,9 @@ def init(winname,appname,gamedir,icon="sys_icon.png"):
         pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
         # Set the screen size.
         if util.config.getboolean( "DEFAULT", "fullscreen" ):
-            mystate.screen = pygame.display.set_mode( (0,0), pygame.FULLSCREEN )
+            my_state.screen = pygame.display.set_mode( (0,0), pygame.FULLSCREEN )
         else:
-            mystate.screen = pygame.display.set_mode( (800,600), pygame.RESIZABLE )
+            my_state.screen = pygame.display.set_mode( (800,600), pygame.RESIZABLE )
 
         rpgmenu.init()
 

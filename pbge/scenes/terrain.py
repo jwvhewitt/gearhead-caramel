@@ -1,22 +1,22 @@
 
-class TerrainList( list ):
-    """ The append method returns the index of the newly added terrain.
-        So, you can create a terrain list as follows:
-            FLOOR = TL.append( SingTerrain() )
-            WALL = TL.append( WallTerrain() )
-            ...
-    """
-    def append(self, item):
-        list.append(self,item)
-        return len(self) - 1
+""" How Terrain Works: Each terraintype is supposed to be a singleton, so
+    every reference to a particular terrain type points at the same thing,
+    and there will be no problems with serialization. So, to create a new
+    terrain type, create a subclass of the closest match and change its
+    constants.
+"""
+import exceptions
 
 class Terrain( object ):
-    def __init__( self, imagename, block_vision = False, block_walk = False, block_fly = False, frame = 0 ):
-        self.imagename = imagename
-        self.block_vision = block_vision
-        self.block_walk = block_walk
-        self.block_fly = block_fly
-        self.frame = frame
+    def __init__( self ):
+        raise exceptions.NotImplementedError("Terrain can't be instantiated. Use the class as a singleton.")
+    name = 'Undefined Terrain'
+    imagename = ''
+    block_vision = False
+    block_walk = False
+    block_fly = False
+    frame = 0
+
     def render( self, screen, dest, view, data ):
         view.sprites[ self.spritesheet ].render( screen, dest, self.frame )
     def prerender( self, screen, dest, view, data ):
@@ -29,16 +29,9 @@ class Terrain( object ):
         if scene.on_the_map( *pos ):
             scene.map[pos[0]][pos[1]].decor = self
     def __str__( self ):
-        return self.ident
-    def __reduce__( self ):
-        return self.ident
+        return self.name
 
 class WallTerrain( Terrain ):
-    def __init__( self, imagename, block_vision = True, block_walk = True, block_fly = True ):
-        self.imagename = imagename
-        self.block_vision = block_vision
-        self.block_walk = block_walk
-        self.block_fly = block_fly
 
     def prerender( self, screen, dest, view, data ):
         if data[0] != None:

@@ -1,5 +1,3 @@
-import engine
-
 OVERLAY_ITEM = 0
 OVERLAY_CURSOR = 1
 OVERLAY_ATTACK = 2

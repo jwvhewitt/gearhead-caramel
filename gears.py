@@ -23,10 +23,90 @@ class HumanScale( MechaScale ):
     SIZE_FACTOR = 1
     COST_FACTOR = 5
 
+#
+# Damage Handlers
+#
+#  Each "practical" gear should subclass one of the damage handlers.
+#
+
+class StandardDamageHandler( object ):
+    # This gear type has health and takes damage. It is destroyed when the
+    # amount of damage taken exceeds its maximum capacity.
+    def __init__( self ):
+        self.hp_damage = 0
+
+    base_health = 1
+
+    @property
+    def max_health( self ):
+        """Returns the scaled maximum health of this gear."""
+        return self.scale.scale_health( self.base_health, self.material )
+
+    def is_not_destroyed( self ):
+        """ Returns True if this gear is not destroyed.
+            Note that this doesn't indicate the part is functional- just that
+            it would be functional if installed correctly, provided with power,
+            et cetera.
+        """
+        if self.can_be_damaged():
+            return self.max_health > self.hp_damage
+        else:
+            return True
+
+    def is_operational( self ):
+        """ Returns True if this gear is okay and all of its necessary subcoms
+            are operational too. In other words, return True if this gear is
+            ready to be used.
+        """
+        return self.is_not_destroyed()
+
+    def is_active( self ):
+        """ Returns True if this gear is okay and capable of independent action.
+        """
+        return False
+
+    def can_be_damaged( self ):
+        """ Returns True if this gear can be damaged.
+        """
+        return True
+
+    def wipe_damage( self ):
+        self.hp_damage = 0
+        for p in self.sub_com:
+            p.wipe_damage()
+        for p in self.inv_com:
+            p.wipe_damage()
+
+class InvulnerableDamageHandler( StandardDamageHandler ):
+    def can_be_damaged( self ):
+        """ Returns True if this gear can be damaged.
+        """
+        return False
+    def is_not_destroyed( self ):
+        """ Returns True if this gear is not destroyed.
+            Note that this doesn't indicate the part is functional- just that
+            it would be functional if installed correctly, provided with power,
+            et cetera.
+        """
+        return True
+
+class ContainerDamageHandler( StandardDamageHandler ):
+    base_health = 0
+    def is_not_destroyed( self ):
+        """ Returns True if this gear is not destroyed.
+            Note that this doesn't indicate the part is functional- just that
+            it would be functional if installed correctly, provided with power,
+            et cetera.
+        """
+        working_subcoms = False
+        for subcom in self.sub_com:
+            if subcom.is_not_destroyed():
+                working_subcoms = True
+                break
+        return working_subcoms
 
 
-
-class Gear( object ):
+class BaseGear( object ):
     DEFAULT_NAME = "Gear"
     DEFAULT_MATERIAL = materials.METAL
     def __init__(self, **keywords ):
@@ -137,15 +217,6 @@ class Gear( object ):
             if isinstance( g, Module ):
                 return g
 
-    @property
-    def base_health(self):
-        """Returns the unscaled maximum health of this gear."""
-        return 0
-
-    @property
-    def max_health( self ):
-        """Returns the scaled maximum health of this gear."""
-        return self.scale.scale_health( self.base_health, self.material )
 
     def get_armor( self ):
         """Returns the armor protecting this gear."""
@@ -153,33 +224,6 @@ class Gear( object ):
             if isinstance( part, Armor ):
                 return part
 
-    def is_not_destroyed( self ):
-        """ Returns True if this gear is not destroyed.
-            Note that this doesn't indicate the part is functional- just that
-            it would be functional if installed correctly, provided with power,
-            et cetera.
-        """
-        if self.can_be_damaged():
-            return self.max_health > self.hp_damage
-        else:
-            return True
-
-    def is_operational( self ):
-        """ Returns True if this gear is okay and all of its necessary subcoms
-            are operational too. In other words, return True if this gear is
-            ready to be used.
-        """
-        return self.is_not_destroyed()
-
-    def is_active( self ):
-        """ Returns True if this gear is okay and capable of independent action.
-        """
-        return False
-
-    def can_be_damaged( self ):
-        """ Returns True if this gear can be damaged.
-        """
-        return bool(self.base_health)
 
     def __str__( self ):
         return self.name
@@ -200,12 +244,6 @@ class Gear( object ):
         for g in self.inv_com:
             g.statusdump( prefix = '+' , indent = indent + 1 )
 
-    def wipe_damage( self ):
-        self.hp_damage = 0
-        for p in self.sub_com:
-            p.wipe_damage()
-        for p in self.inv_com:
-            p.wipe_damage()
 
 
 class Stackable( object ):
@@ -219,7 +257,7 @@ class Stackable( object ):
 #   ***   ARMOR   ***
 #   *****************
 
-class Armor( Gear ):
+class Armor( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Armor"
     def __init__(self, **keywords ):
         # Check the range of all parameters before applying.
@@ -260,7 +298,7 @@ class Armor( Gear ):
 #   ***   SUPPORT  SYSTEMS   ***
 #   ****************************
 
-class Engine( Gear ):
+class Engine( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Engine"
     def __init__(self, **keywords ):
         # Check the range of all parameters before applying.
@@ -284,7 +322,7 @@ class Engine( Gear ):
     def is_legal_sub_com(self,part):
         return isinstance( part , Armor )
 
-class Gyroscope( Gear ):
+class Gyroscope( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Gyroscope"
     base_mass = 10
     def is_legal_sub_com(self,part):
@@ -293,7 +331,7 @@ class Gyroscope( Gear ):
     base_cost = 10
     base_health = 2
 
-class Cockpit( Gear ):
+class Cockpit( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Cockpit"
     base_mass = 5
     def is_legal_sub_com(self,part):
@@ -302,7 +340,7 @@ class Cockpit( Gear ):
     base_cost = 5
     base_health = 2
 
-class Sensor( Gear ):
+class Sensor( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Sensor"
     def __init__(self, **keywords ):
         # Check the range of all parameters before applying.
@@ -330,8 +368,8 @@ class Sensor( Gear ):
 #   ***   MOVEMENT  SYSTEMS   ***
 #   *****************************
 
-class MovementSystem( Gear ):
-    DEFAULT_NAME = "Hover Jets"
+class MovementSystem( BaseGear ):
+    DEFAULT_NAME = "MoveSys"
     def __init__(self, **keywords ):
         Gear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
@@ -348,21 +386,21 @@ class MovementSystem( Gear ):
     @property
     def base_cost(self):
         return self.size * self.MOVESYS_COST
+
+class HoverJets( MovementSystem, StandardDamageHandler ):
+    DEFAULT_NAME = "Hover Jets"
+    MOVESYS_COST = 56
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
         return self.size
-
-class HoverJets( MovementSystem ):
-    DEFAULT_NAME = "Hover Jets"
-    MOVESYS_COST = 56
 
 
 #   *************************
 #   ***   POWER  SOURCE   ***
 #   *************************
 
-class PowerSource( Gear ):
+class PowerSource( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Power Source"
     def __init__(self, **keywords ):
         Gear.__init__( self, **keywords )

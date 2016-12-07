@@ -3,6 +3,7 @@
 import pygame
 import weakref
 import util
+from . import my_state
 
 # Keep a list of already-loaded images, to save memory when multiple objects
 # need to use the same image file.
@@ -34,14 +35,15 @@ class Image( object ):
         self.frame_width = frame_width
         self.frame_height = frame_height
 
-    def render( self , screen , dest = (0,0) , frame = 0 ):
+    def render( self , dest = (0,0) , frame=0, dest_surface=None ):
         # Render this Image onto the provided surface.
         # Start by determining the correct sub-area of the image.
         frames_per_row = self.bitmap.get_width() / self.frame_width
         area_x = ( frame % frames_per_row ) * self.frame_width
         area_y = ( frame / frames_per_row ) * self.frame_height
         area = pygame.Rect( area_x , area_y , self.frame_width , self.frame_height )
-        screen.blit(self.bitmap , dest , area )
+        dest_surface = dest_surface or my_state.screen
+        dest_surface.blit(self.bitmap , dest , area )
 
     def num_frames( self ):
         frames_per_row = self.bitmap.get_width() / self.frame_width
@@ -53,44 +55,21 @@ class Image( object ):
         # Rather than trying to save the bitmap image, just save the filename.
         return Image, ( self.fname , self.frame_width , self.frame_height )
 
-    def tile( self , screen , dest , frame = 0 ):
-        x0,y0 = dest
-        start_x = ( -x0/ 10 ) % self.frame_width - self.frame_width
-        start_y = ( -y0/ 10 ) % self.frame_height - self.frame_height
+    def tile( self , dest , frame = 0, dest_surface=None ):
+        dest_surface = dest_surface or my_state.screen
+        grid_w = dest.w / self.frame_width + 2
+        grid_h = dest.h / self.frame_height + 2
+        dest_surface.set_clip( dest )
+        my_rect = pygame.Rect(0,0,0,0)
 
-        for x in range( 0 , screen.get_width() / self.frame_width + 2 ):
-            for y in range( 0 , screen.get_height() / self.frame_height + 2 ):
-                self.render( screen , (x * self.frame_width + start_x , y * self.frame_height + start_y ) , frame )
+        for x in range(0,grid_w):
+            my_rect.x = dest.x + x * self.frame_width
+            for y in range(0,grid_h):
+                my_rect.y = dest.y + y*self.frame_height
+                self.render(my_rect,frame,dest_surface)
 
+        dest_surface.set_clip( None )
 
-
-if __name__ == '__main__':
-    pygame.init()
-
-    # Set the screen size.
-    screen = pygame.display.set_mode((640, 480))
-
-    myimg = Image( "sys_defborder.png" , 16 , 16 )
-
-    screen.fill((0,0,0))
-    myimg.render( screen , ( 10 , 10 ) , 0 )
-    myimg.render( screen , ( 26 , 10 ) , 1 )
-    myimg.render( screen , ( 10 , 26 ) , 2 )
-    myimg.render( screen , ( 42 , 10 ) , 0 )
-    myimg.render( screen , ( 42 , 26 ) , 2 )
-    myimg.render( screen , ( 10 , 42 ) , 0 )
-    myimg.render( screen , ( 26 , 42 ) , 1 )
-    myimg.render( screen , ( 42 , 42 ) , 0 )
-
-    myimg2 = Image( frame_width = 32 , frame_height = 32 )
-    myimg2.render( screen , ( 100, 100 ) )
-
-    pygame.display.flip()
-
-    while True:
-        ev = pygame.event.wait()
-        if ( ev.type == pygame.MOUSEBUTTONDOWN ) or ( ev.type == pygame.QUIT ) or (ev.type == pygame.KEYDOWN):
-            break
 
 
 

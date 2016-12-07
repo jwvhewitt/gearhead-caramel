@@ -3,7 +3,7 @@ import glob
 import util
 from frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
 
-from . import default_border,render_text,wait_event,TIMEREVENT,gold_border,mystate
+from . import default_border,render_text,wait_event,TIMEREVENT,gold_border,my_state
 
 MENUFONT = None
 
@@ -21,7 +21,7 @@ class MenuItem( object ):
 
 class DescBox( Frect ):
     # The DescBox inherits from Rect, since that's basically what it is.
-    def __init__(self,menu,dx,dy,w=300,h=100,anchor=None,border=default_border,justify=-1):
+    def __init__(self,menu,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,border=default_border,justify=-1):
         self.menu = menu
         self.border = border
         self.justify = justify
@@ -32,10 +32,10 @@ class DescBox( Frect ):
     def render(self):
         mydest = self.get_rect()
         if self.border:
-            self.border.render( mystate.screen , mydest )
+            self.border.render( my_state.screen , mydest )
         if self.menu.items[self.menu.selected_item].desc != None:
             img = render_text( MENUFONT , self.menu.items[self.menu.selected_item].desc , self.w, justify = self.justify )
-            mystate.screen.blit( img , mydest )
+            my_state.screen.blit( img , mydest )
 
 
 
@@ -69,11 +69,11 @@ class Menu( Frect ):
         mydest = self.get_rect()
         if do_extras:
             if self.predraw:
-                self.predraw( mystate.screen )
+                self.predraw( my_state.screen )
             if self.border:
-                self.border.render( mystate.screen , mydest )
+                self.border.render( mydest )
 
-        mystate.screen.set_clip(mydest)
+        my_state.screen.set_clip(mydest)
 
         item_num = self.top_item
         y = mydest.top
@@ -85,13 +85,13 @@ class Menu( Frect ):
                 else:
                     color = self.menuitem
                 img = MENUFONT.render(self.items[item_num].msg, True, color )
-                mystate.screen.blit( img , ( mydest.left , y ) )
+                my_state.screen.blit( img , ( mydest.left , y ) )
                 y += MENUFONT.get_linesize()
             else:
                 break
             item_num += 1
 
-        mystate.screen.set_clip(None)
+        my_state.screen.set_clip(None)
 
         if self.descbox != None:
             self.descbox.render()
@@ -247,17 +247,17 @@ class PopUpMenu( Menu ):
     """Creates a small menu at the current mouse position."""
     WIDTH = 200
     HEIGHT = 250
-    def __init__( self, screen, predraw=None, border=gold_border ):
+    def __init__( self, predraw=None, border=gold_border ):
         x,y = pygame.mouse.get_pos()
         x += 8
         y += 8
-        sw,sh = screen.get_size()
+        sw,sh = my_state.screen.get_size()
         if x + self.WIDTH + 32 > sw:
             x += -self.WIDTH - 32
         if y + self.HEIGHT + 32 > sh:
             y += -self.HEIGHT - 32
 
-        super(PopUpMenu, self).__init__(screen,x,y,self.WIDTH,self.HEIGHT,ANCHOR_UPPERLEFT, border=border, predraw=predraw)
+        super(PopUpMenu, self).__init__(x,y,self.WIDTH,self.HEIGHT,ANCHOR_UPPERLEFT, border=border, predraw=predraw)
 
 
 def init():
