@@ -267,7 +267,7 @@ class Armor( BaseGear, StandardDamageHandler ):
         elif size > 10:
             size = 10
         self.size = size
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
 
     @property
     def base_mass(self):
@@ -308,7 +308,7 @@ class Engine( BaseGear, StandardDamageHandler ):
         elif size > 2000:
             size = 2000
         self.size = size
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
     @property
     def base_mass(self):
         return self.size // 100 + 10
@@ -350,7 +350,7 @@ class Sensor( BaseGear, StandardDamageHandler ):
         elif size > 5:
             size = 5
         self.size = size
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
     @property
     def base_mass(self):
         return self.size * 5
@@ -371,7 +371,7 @@ class Sensor( BaseGear, StandardDamageHandler ):
 class MovementSystem( BaseGear ):
     DEFAULT_NAME = "MoveSys"
     def __init__(self, **keywords ):
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
         size = keywords.get( "size" , 1 )
         if size < 1:
@@ -403,7 +403,7 @@ class HoverJets( MovementSystem, StandardDamageHandler ):
 class PowerSource( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Power Source"
     def __init__(self, **keywords ):
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
         size = keywords.get( "size" , 1 )
         if size < 1:
@@ -428,14 +428,14 @@ class PowerSource( BaseGear, StandardDamageHandler ):
 #   ***   USABLES   ***
 #   *******************
 
-class Usable( Gear ):
+class Usable( BaseGear ):
     DEFAULT_NAME = "Do Nothing Usable"
 
 #   *******************
 #   ***   WEAPONS   ***
 #   *******************
 
-class Weapon( Gear ):
+class Weapon( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Weapon"
     DEFAULT_CALIBRE = None
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
@@ -475,7 +475,7 @@ class Weapon( Gear ):
         self.ammo_type = keywords.get( "calibre" , self.DEFAULT_CALIBRE )
 
         # Finally, call the gear initializer.
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
 
     @property
     def base_mass(self):
@@ -533,17 +533,17 @@ class EnergyWeapon( Weapon ):
     MAX_PENETRATION = 5
     COST_FACTOR = 20
 
-class Ammo( Gear, Stackable ):
+class Ammo( BaseGear, Stackable ):
     DEFAULT_NAME = "Ammo"
     STACK_CRITERIA = ("ammo_type",)
     def __init__(self, **keywords ):
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
         # Check the range of all parameters before applying.
         self.ammo_type = keywords.get( "calibre" , calibre.Shells_150mm )
         self.quantity = max( keywords.get( "quantity" , 12 ), 1 )
 
         # Finally, call the gear initializer.
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
     @property
     def base_mass(self):
         return self.ammo_type.bang * self.quantity //25
@@ -587,7 +587,7 @@ class BeamWeapon( Weapon ):
     MAX_PENETRATION = 5
     COST_FACTOR = 15
 
-class Missile( Gear ):
+class Missile( BaseGear ):
     DEFAULT_NAME = "Missile"
     MIN_REACH = 2
     MAX_REACH = 7
@@ -631,7 +631,7 @@ class Missile( Gear ):
         self.quantity = max( keywords.get( "quantity" , 12 ), 1 )
 
         # Finally, call the gear initializer.
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
 
     @property
     def base_mass(self):
@@ -652,7 +652,7 @@ class Missile( Gear ):
         return self.volume // 2 + 1
 
 
-class Launcher( Gear ):
+class Launcher( BaseGear ):
     DEFAULT_NAME = "Launcher"
     def __init__(self, **keywords ):
         # Check the range of all parameters before applying.
@@ -662,7 +662,7 @@ class Launcher( Gear ):
         elif size > 20:
             size = 20
         self.size = size
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
     @property
     def base_mass(self):
         return self.size
@@ -681,7 +681,7 @@ class Launcher( Gear ):
 #   ***   HOLDERS   ***
 #   *******************
 
-class Hand( Gear ):
+class Hand( BaseGear ):
     DEFAULT_NAME = "Hand"
     base_mass = 5
     def is_legal_inv_com(self,part):
@@ -689,7 +689,7 @@ class Hand( Gear ):
     base_cost = 50
     base_health = 2
 
-class Mount( Gear ):
+class Mount( BaseGear ):
     DEFAULT_NAME = "Weapon Mount"
     base_mass = 5
     def is_legal_inv_com(self,part):
@@ -769,7 +769,7 @@ class MF_Storage( ModuleForm ):
     MASS_X = 0
 
 
-class Module( Gear ):
+class Module( BaseGear ):
     def __init__(self, **keywords ):
         form = keywords.get( "form" )
         if form == None:
@@ -783,7 +783,7 @@ class Module( Gear ):
             size = 10
         self.size = size
         self.form = form
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
     @property
     def base_mass(self):
         return 2  * self.form.MASS_X * self.size
@@ -863,7 +863,7 @@ class MT_Battroid( object ):
             return False
 
 
-class Mecha(Gear):
+class Mecha(BaseGear,StandardDamageHandler):
     def __init__(self, **keywords ):
         form = keywords.get(  "form" )
         if form == None:
@@ -872,7 +872,7 @@ class Mecha(Gear):
         if name == None:
             keywords[ "name" ] = form.name
         self.form = form
-        Gear.__init__( self, **keywords )
+        BaseGear.__init__( self, **keywords )
 
     def is_legal_sub_com( self, part ):
         return self.form.is_legal_sub_com( part )

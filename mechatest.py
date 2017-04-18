@@ -4,6 +4,8 @@ import calibre
 import damage
 import random
 
+import json
+
 my_mecha = gears.Mecha( desig="SAN-X9", name="Buru Buru", sub_com = (
         gears.Head(size=5, sub_com = (
             gears.Armor(size=4),
