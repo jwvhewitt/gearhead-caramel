@@ -13,11 +13,13 @@ class Floor( pbge.scenes.terrain.Terrain ):
 class Wall( pbge.scenes.terrain.WallTerrain ):
     imagename = 'terrain_wall_rocks.png'
 
-myscene = scenes.Scene(30,30,"Testaria")
-myscene.fill(Rect(0,0,29,29), floor=Floor, wall=Wall)
-myscene.fill(Rect(5,5,24,24), wall=None)
+myscene = scenes.Scene(50,50,"Testaria")
+myscene.fill(Rect(0,0,49,49), floor=Floor, wall=None)
+myscene.fill(Rect(5,5,24,24), wall=Wall)
 
-mymenu = pbge.rpgmenu.Menu(-150,-150,300,300)
+myview = scenes.viewer.SceneView( myscene )
+
+mymenu = pbge.rpgmenu.Menu(-150,-150,300,300,predraw=myview)
 mymenu.add_item('One',1)
 mymenu.add_item('Two',2)
 mymenu.add_item('Three',3)

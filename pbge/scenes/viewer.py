@@ -1,3 +1,8 @@
+import collections
+import weakref
+from . import Tile
+import pygame
+
 OVERLAY_ITEM = 0
 OVERLAY_CURSOR = 1
 OVERLAY_ATTACK = 2
@@ -27,19 +32,14 @@ class SceneView( object ):
 
         self.mouse_tile = (-1,-1)
 
-        self.map = []
-        for x in range( scene.width ):
-            self.map.append( [] )
-            for y in range( scene.height ):
-                self.map[x].append( Tile() )
 
-                if scene.map[x][y].floor:
-                    self.map[x][y].floor = scene.map[x][y].floor.get_data( self, x, y )
-                if scene.map[x][y].wall:
-                    self.map[x][y].wall = scene.map[x][y].wall.get_data( self, x, y )
-                if scene.map[x][y].decor:
-                    self.map[x][y].decor = scene.map[x][y].decor.get_data( self, x, y )
-
+    def get_sprite( self, obj ):
+        """Return the sprite for the requested object. If no sprite exists, try to load one."""
+        spr = self.sprites.get( obj )
+        if not spr:
+            spr = obj.get_sprite()
+            self.sprites[obj] = spr
+        return spr
 
     def calc_floor_score( self, x, y, terr ):
         """Return bitmask of how many floors of type terrain border tile x,y."""
@@ -61,34 +61,37 @@ class SceneView( object ):
           ( self.scene.get_floor( x - 1 , y ) == terr ):
             it += 8
         return it
+    def is_same_terrain( self, terr_to_check, terr_prototype ):
+        if terr_to_check:
+            return issubclass( terr_to_check, terr_prototype )
 
-    def calc_wall_score( self, x, y ):
+    def calc_wall_score( self, x, y, terr ):
         """Return bitmask of visible connected walls at x,y."""
         it = -1
-        if isinstance(self.scene.get_wall( x , y - 1 ),WallTerrain) and \
+        if self.is_same_terrain(self.scene.get_wall( x , y - 1 ),terr) and \
          not ( self.scene.tile_blocks_vision( x-1 , y -1 ) and self.scene.tile_blocks_vision( x - 1 , y ) \
          and self.scene.tile_blocks_vision( x + 1 , y - 1 ) and self.scene.tile_blocks_vision( x + 1 , y ) ):
             it += 1
-        if isinstance(self.scene.get_wall( x+1 , y ),WallTerrain) and \
+        if self.is_same_terrain(self.scene.get_wall( x+1 , y ),terr) and \
          not ( self.scene.tile_blocks_vision( x+1 , y -1 ) and self.scene.tile_blocks_vision( x , y-1 ) \
          and self.scene.tile_blocks_vision( x + 1 , y + 1 ) and self.scene.tile_blocks_vision( x , y+1 ) ):
             it += 2
-        if isinstance(self.scene.get_wall( x , y + 1 ),WallTerrain) and \
+        if self.is_same_terrain(self.scene.get_wall( x , y + 1 ),terr) and \
          not ( self.scene.tile_blocks_vision( x-1 , y +1 ) and self.scene.tile_blocks_vision( x - 1 , y ) \
          and self.scene.tile_blocks_vision( x + 1 , y + 1 ) and self.scene.tile_blocks_vision( x + 1 , y ) ):
             it += 4
-        if isinstance(self.scene.get_wall( x-1 , y ),WallTerrain) and \
+        if self.is_same_terrain(self.scene.get_wall( x-1 , y ),terr) and \
          not ( self.scene.tile_blocks_vision( x-1 , y -1 ) and self.scene.tile_blocks_vision( x , y-1 ) \
          and self.scene.tile_blocks_vision( x - 1 , y + 1 ) and self.scene.tile_blocks_vision( x , y+1 ) ):
             it += 8
 
         if it == -1:
-            it = 14
+            it = 5
         return it
 
     def is_border_wall( self, x, y ):
         """Return True if this loc is a wall or off the map."""
-        return isinstance(self.scene.get_wall( x , y ),WallTerrain ) or not self.scene.on_the_map( x,y )
+        return self.scene.get_wall( x , y ) or not self.scene.on_the_map( x,y )
 
     def calc_border_score( self, x, y ):
         """Return the wall border frame for this tile."""
@@ -216,12 +219,42 @@ class SceneView( object ):
             self.y_off -= SCROLL_STEP
             self.check_origin()
 
+        x,y = self.map_x(0,0)-2, self.map_y(0,0)-1
+        x0,y0 = x,y
+        keep_going = True
+        dest = pygame.Rect( 0, 0, 54, 54 )
+        line = 1
 
-        # Fill the modelmap, fieldmap, and itemmap.
+        while keep_going:
+            sx = self.relative_x( x, y ) + self.x_off
+            sy = self.relative_y( x, y ) + self.y_off
+            dest.topleft = (sx,sy)
+
+            if self.scene.on_the_map( x , y ) and self.scene._map[x][y].visible:
+                if self.scene._map[x][y].floor:
+                    self.scene._map[x][y].floor.render( dest, self, x,y )
+
+                if self.scene._map[x][y].wall:
+                    self.scene._map[x][y].wall.render( dest, self, x,y )
+
+            if (sx + 54) > ( screen_area.x + screen_area.w ):
+                if ( sy+self.HTH ) > ( screen_area.y + screen_area.h ):
+                    keep_going = False
+                else:
+                    x = x0 + line / 2
+                    y = y0 + ( line + 1 ) / 2
+                    line += 1
+            else:
+                x += 1
+                y -= 1
+
+
+
+"""        # Fill the modelmap, fieldmap, and itemmap.
         self.modelmap.clear()
         self.fieldmap.clear()
         itemmap = dict()
-        for m in self.scene.contents:
+        for m in self.scene._contents:
             if isinstance( m , characters.Character ):
                 self.modelmap[ tuple( m.pos ) ] = m
             elif isinstance( m , enchantments.Field ):
@@ -259,22 +292,22 @@ class SceneView( object ):
                         tile_x = x
                         tile_y = y
 
-                if self.scene.on_the_map( x , y ) and self.scene.map[x][y].visible and screen_area.colliderect( dest ):
-                    if self.scene.map[x][y].floor:
-                        self.scene.map[x][y].floor.render( screen, dest, self, self.map[x][y].floor )
+                if self.scene.on_the_map( x , y ) and self.scene._map[x][y].visible and screen_area.colliderect( dest ):
+                    if self.scene._map[x][y].floor:
+                        self.scene._map[x][y].floor.render( screen, dest, self, self.map[x][y].floor )
 
-                    if self.scene.map[x][y].wall:
-                        self.scene.map[x][y].wall.prerender( screen, dest, self, self.map[x][y].wall )
+                    if self.scene._map[x][y].wall:
+                        self.scene._map[x][y].wall.prerender( screen, dest, self, self.map[x][y].wall )
 
                     # Print overlay in between the wall border and the wall proper.
                     if self.overlays.get( (x,y) , None ):
                         self.extrasprite.render( screen, dest, self.overlays[(x,y)] )
 
-                    if self.scene.map[x][y].wall:
-                        self.scene.map[x][y].wall.render( screen, dest, self, self.map[x][y].wall )
+                    if self.scene._map[x][y].wall:
+                        self.scene._map[x][y].wall.render( screen, dest, self, self.map[x][y].wall )
 
-                    if self.scene.map[x][y].decor:
-                        self.scene.map[x][y].decor.render( screen, dest, self, self.map[x][y].decor )
+                    if self.scene._map[x][y].decor:
+                        self.scene._map[x][y].decor.render( screen, dest, self, self.map[x][y].decor )
 
                     if itemmap.get( (x,y), False ):
                         self.extrasprite.render( screen, dest, OVERLAY_ITEM )
@@ -319,5 +352,5 @@ class SceneView( object ):
 
         self.phase = ( self.phase + 1 ) % 600
         self.mouse_tile = ( tile_x, tile_y )
-
+"""
 

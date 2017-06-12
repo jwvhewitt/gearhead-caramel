@@ -6,6 +6,7 @@
     constants.
 """
 import exceptions
+from .. import image
 
 class Terrain( object ):
     def __init__( self ):
@@ -17,37 +18,45 @@ class Terrain( object ):
     block_fly = False
     frame = 0
 
-    def render( self, screen, dest, view, data ):
-        view.sprites[ self.spritesheet ].render( screen, dest, self.frame )
-    def prerender( self, screen, dest, view, data ):
+    @classmethod
+    def render( self, dest, view, x, y ):
+        spr = view.get_sprite(self)
+        spr.render( dest, self.frame )
+    @classmethod
+    def prerender( self, dest, view, x, y ):
         """Some wall types need a border that gets drawn first."""
         pass
-    def get_data( self, view, x, y ):
-        """Pre-generate display data for this tile."""
-        return None
+    @classmethod
     def place( self, scene, pos ):
         if scene.on_the_map( *pos ):
             scene.map[pos[0]][pos[1]].decor = self
+    @classmethod
     def __str__( self ):
         return self.name
+    @classmethod
+    def get_sprite( self ):
+        """Generate the sprite for this terrain."""
+        return image.Image(self.imagename,54,54)
 
 class WallTerrain( Terrain ):
+    block_vision = True
+    block_walk = True
+    block_fly = True
 
-    def prerender( self, screen, dest, view, data ):
-        if data[0] != None:
-            view.sprites[ SPRITE_BORDER ].render( screen, dest, data[0] )
-    def render( self, screen, dest, view, data ):
-        if data[1] != None:
-            view.sprites[ self.spritesheet ].render( screen, dest, data[1] )
-    def get_data( self, view, x, y ):
-        """Pre-generate display data for this tile- border frame, wall frame."""
+    @classmethod
+    def prerender( self, dest, view, x, y ):
+        pass
+    @classmethod
+    def render( self, dest, view, x,y ):
         bor = view.calc_border_score( x, y )
         if bor == -1:
             bor = None
         if bor == 14:
             wal = None
         else:
-            wal = view.calc_wall_score( x, y )
+            wal = view.calc_wall_score( x, y, WallTerrain )
 
-        return (bor,wal)
+        if wal:
+            spr = view.get_sprite(self)
+            spr.render( dest, wal )
 

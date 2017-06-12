@@ -7,11 +7,7 @@
     # data.
 
 
-import container
-import pathfinding
-import pfov
-import terrain
-import viewer
+from .. import container
 
 class Tile( object ):
     def __init__(self, floor=None, wall=None, decor=None, visible=True):
@@ -20,11 +16,16 @@ class Tile( object ):
         self.decor = decor
         self.visible = visible
 
-    def blocks_vision( self, terrainlist ):
+    def blocks_vision( self ):
         return ( self.floor and self.floor.block_vision ) or (self.wall and self.wall.block_vision ) or (self.decor and self.decor.block_vision )
 
-    def blocks_walking( self, terrainlist ):
+    def blocks_walking( self ):
         return (self.floor and self.floor.block_walk) or (self.wall is True) or (self.wall and self.wall.block_walk) or (self.decor and self.decor.block_walk)
+
+import pathfinding
+import pfov
+import terrain
+import viewer
 
 
 class Scene( object ):
