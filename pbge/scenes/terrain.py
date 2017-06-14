@@ -20,12 +20,13 @@ class Terrain( object ):
 
     @classmethod
     def render( self, dest, view, x, y ):
-        spr = view.get_sprite(self)
-        spr.render( dest, self.frame )
+        """Draw terrain that should appear in front of a model in the same tile"""
+        pass
     @classmethod
     def prerender( self, dest, view, x, y ):
-        """Some wall types need a border that gets drawn first."""
-        pass
+        """Draw terrain that should appear behind a model in the same tile"""
+        spr = view.get_sprite(self)
+        spr.render( dest, self.frame )
     @classmethod
     def place( self, scene, pos ):
         if scene.on_the_map( *pos ):

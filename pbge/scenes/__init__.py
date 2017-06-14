@@ -7,7 +7,8 @@
     # data.
 
 
-from .. import container
+from .. import container,image
+import pygame
 
 class Tile( object ):
     def __init__(self, floor=None, wall=None, decor=None, visible=True):
@@ -22,10 +23,55 @@ class Tile( object ):
     def blocks_walking( self ):
         return (self.floor and self.floor.block_walk) or (self.wall is True) or (self.wall and self.wall.block_walk) or (self.decor and self.decor.block_walk)
 
+    def prerender( self, dest, view, x, y ):
+        if self.floor:
+            self.floor.prerender( dest, view, x, y )
+        if self.wall and self.wall is not True:
+            self.wall.prerender( dest, view, x, y )
+        if self.decor:
+            self.decor.prerender( dest, view, x, y )
+
+    def render( self, dest, view, x, y ):
+        if self.floor:
+            self.floor.render( dest, view, x, y )
+        if self.wall and self.wall is not True:
+            self.wall.render( dest, view, x, y )
+        if self.decor:
+            self.decor.render( dest, view, x, y )
+
+
+
+class PlaceableThing( object ):
+    """A thing that can be placed on the map."""
+    def place( self, scene, pos=None, team=None ):
+        if hasattr( self, "container" ) and self.container:
+            self.container.remove( self )
+        scene._contents.append( self )
+        self.pos = pos
+        if team:
+            scene.local_teams[self] = team
+    imagename = ""
+    imageheight = 64
+    imagewidth = 64
+    frame = 0
+    def get_sprite(self):
+        """Generate the sprite for this thing."""
+        return image.Image(self.imagename,self.imagewidth,self.imageheight)
+    def render( self, foot_pos, view ):
+        spr = view.get_sprite(self)
+        mydest = pygame.Rect(0,0,self.imagewidth,self.imageheight)
+        mydest.midbottom = foot_pos
+        spr.render( mydest, self.frame )
+    def move( self, dest, view, speed=0.25 ):
+        view.anim_list.append( animobs.MoveModel( self, dest=dest, speed=speed))
+
+
+
 import pathfinding
 import pfov
 import terrain
 import viewer
+import animobs
 
 
 class Scene( object ):

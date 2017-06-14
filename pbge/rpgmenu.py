@@ -69,7 +69,7 @@ class Menu( Frect ):
         mydest = self.get_rect()
         if do_extras:
             if self.predraw:
-                self.predraw( my_state.screen )
+                self.predraw()
             if self.border:
                 self.border.render( mydest )
 

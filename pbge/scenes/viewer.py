@@ -1,6 +1,8 @@
 import collections
 import weakref
 from . import Tile
+from .. import my_state,anim_delay
+from .. import util
 import pygame
 
 OVERLAY_ITEM = 0
@@ -15,9 +17,8 @@ SCROLL_STEP = 12
 
 class SceneView( object ):
     def __init__( self, scene ):
-        self.sprites = dict()
-
         self.overlays = dict()
+        self.anim_list = list()
         self.anims = collections.defaultdict(list)
 
         self.modelmap = dict()
@@ -25,7 +26,6 @@ class SceneView( object ):
         self.modelsprite = weakref.WeakKeyDictionary()
 
         self.scene = scene
-        self.seed = 1
         self.x_off = 600
         self.y_off = -200
         self.phase = 0
@@ -35,10 +35,10 @@ class SceneView( object ):
 
     def get_sprite( self, obj ):
         """Return the sprite for the requested object. If no sprite exists, try to load one."""
-        spr = self.sprites.get( obj )
+        spr = self.modelsprite.get( obj )
         if not spr:
             spr = obj.get_sprite()
-            self.sprites[obj] = spr
+            self.modelsprite[obj] = spr
         return spr
 
     def calc_floor_score( self, x, y, terr ):
@@ -119,10 +119,7 @@ class SceneView( object ):
                 break
         return found_space
 
-    def get_pseudo_random( self ):
-        self.seed = ( 73 * self.seed + 101 ) % 1024
-        return self.seed
-
+    TILE_WIDTH = 54
     # Half tile width and half tile height
     HTW = 27
     HTH = 13
@@ -155,9 +152,9 @@ class SceneView( object ):
         elif -self.y_off > self.relative_y( self.scene.width-1 , self.scene.height-1 ):
             self.y_off = -self.relative_y(  self.scene.width-1 , self.scene.height-1  )
 
-    def focus( self, screen, x, y ):
-        self.x_off = screen.get_width()//2 - self.relative_x( x,y )
-        self.y_off = screen.get_height()//2 - self.relative_y( x,y )
+    def focus( self, x, y ):
+        self.x_off = my_state.screen.get_width()//2 - self.relative_x( x,y )
+        self.y_off = my_state.get_height()//2 - self.relative_y( x,y )
         self.check_origin()
 
     def regenerate_avatars( self, models ):
@@ -165,45 +162,91 @@ class SceneView( object ):
         for m in models:
             self.modelsprite[ m ] = m.generate_avatar()
 
-    def draw_caption( self, screen, center, txt ):
+    def draw_caption( self, center, txt ):
         myimage = pygwrap.TINYFONT.render( txt, True, (240,240,240) )
         mydest = myimage.get_rect(center=center)
         myfill = pygame.Rect( mydest.x - 2, mydest.y - 1, mydest.width + 4, mydest.height + 2 )
-        screen.fill( (36,37,36), myfill )
-        screen.blit( myimage, mydest )
+        my_state.screen.fill( (36,37,36), myfill )
+        my_state.screen.blit( myimage, mydest )
 
-    def quick_model_status( self, screen, dest, model, add_item_note ):
+    def quick_model_status( self, dest, model, add_item_note ):
         # Do a quick model status for this model.
-        self.draw_caption( screen, (dest.centerx,dest.y-8), str( model ) )
+        self.draw_caption( (dest.centerx,dest.y-8), str( model ) )
 
         box = pygame.Rect( dest.x + 7, dest.y , 40, 3 )
-        screen.fill( ( 250, 0, 0, 200 ), box )
+        my_state.screen.fill( ( 250, 0, 0, 200 ), box )
         hp = model.max_hp()
         hpd = min( model.hp_damage, hp )
         if hp > 0:
             box.x += box.w - ( hpd * box.w ) // hp
             box.w = dest.x + 7 + box.w - box.x
-            screen.fill( (120, 0, 0, 100), box )
+            my_state.screen.fill( (120, 0, 0, 100), box )
 
         box = pygame.Rect( dest.x + 7, dest.y + 4 , 40, 3 )
-        screen.fill( ( 0, 150, 250, 200 ), box )
+        my_state.screen.fill( ( 0, 150, 250, 200 ), box )
         hp = model.max_mp()
         hpd = min( model.mp_damage, hp )
         if hp > 0:
             box.x += box.w - ( hpd * box.w ) // hp
             box.w = dest.x + 7 + box.w - box.x
-            screen.fill( (0, 0, 120, 100), box )
+            my_state.screen.fill( (0, 0, 120, 100), box )
 
         if add_item_note:
-            self.draw_caption( screen, (dest.centerx,dest.y+8), "ITEM" )
+            self.draw_caption( (dest.centerx,dest.y+8), "ITEM" )
 
+    def next_tile( self, x0,y0,x, y, line, sx, sy, screen_area ):
+        """Locate the next map tile, moving left to right across the screen. """
+        keep_going = True
+        if (sx + self.TILE_WIDTH) > ( screen_area.x + screen_area.w ):
+            if ( sy+self.HTH ) > ( screen_area.y + screen_area.h ):
+                keep_going = False
+            x = x0 + line / 2
+            y = y0 + ( line + 1 ) / 2
+            line += 1
+        else:
+            x += 1
+            y -= 1
+        return x,y,line,keep_going
 
+    def handle_anim_sequence( self, record_anim=False ):
+        tick = 0
+        if record_anim:
+            self.anims.clear()
+            self( show_quick_stats=False )
+            pygame.display.flip()
+            pygame.image.save( my_state.screen, util.user_dir( "anim_{:0>3}.png".format(tick) ) )
+            tick += 1
 
-    def __call__( self , screen, show_quick_stats=True, first_pc_pos=None ):
+        while self.anim_list:
+            should_delay = False
+            self.anims.clear()
+            for a in list(self.anim_list):
+                if a.needs_deletion:
+                    self.anim_list.remove( a )
+                    self.anim_list += a.children
+                else:
+                    should_delay = True
+                    a.update(self)
+            if should_delay:
+                self( show_quick_stats=False )
+                pygame.display.flip()
+            if record_anim:
+                pygame.image.save( screen, util.user_dir( "anim_{:0>3}.png".format(tick) ) )
+
+            anim_delay()
+            tick += 1
+        self.anims.clear()
+
+    def PosToKey( self, pos ):
+        # Convert the x,y coordinates to a model_map key...
+        x,y = pos
+        return ( round(x), round(y) )
+
+    def __call__( self , show_quick_stats=True, first_pc_pos=None ):
         """Draws this mapview to the provided screen."""
-        screen_area = screen.get_rect()
+        screen_area = my_state.screen.get_rect()
         mouse_x,mouse_y = pygame.mouse.get_pos()
-        screen.fill( (0,0,0) )
+        my_state.screen.fill( (0,0,0) )
 
         # Check for map scrolling, depending on mouse position.
         if mouse_x < 20:
@@ -222,32 +265,61 @@ class SceneView( object ):
         x,y = self.map_x(0,0)-2, self.map_y(0,0)-1
         x0,y0 = x,y
         keep_going = True
-        dest = pygame.Rect( 0, 0, 54, 54 )
+        dest = pygame.Rect( 0, 0, self.TILE_WIDTH, self.TILE_WIDTH )
         line = 1
 
+        # Record all of the scene contents for display when their tile comes up.
+        self.modelmap.clear()
+        for m in self.scene._contents:
+            if hasattr( m , 'render' ):
+                self.modelmap[ self.PosToKey( m.pos ) ] = m
+
         while keep_going:
+            # In order to allow smooth sub-tile movement of stuff, we have
+            # to draw everything in a particular order. First, do the predrawing
+            # of a tile. Next, draw the models and other stuff in the tile
+            # behind this one. When we reach the bottom of the screen, check
+            # the next two rows of tiles anyway to finish drawing the models
+            # and walls. It's completely nuts! But this is the kind of thing
+            # you need to do if you don't have a Z-Buffer. Kinda makes me want
+            # to reconsider that resolution to never again use OpenGL.
             sx = self.relative_x( x, y ) + self.x_off
             sy = self.relative_y( x, y ) + self.y_off
             dest.topleft = (sx,sy)
 
             if self.scene.on_the_map( x , y ) and self.scene._map[x][y].visible:
-                if self.scene._map[x][y].floor:
-                    self.scene._map[x][y].floor.render( dest, self, x,y )
+                self.scene._map[x][y].prerender( dest, self, x,y )
 
-                if self.scene._map[x][y].wall:
-                    self.scene._map[x][y].wall.render( dest, self, x,y )
+            # We don't print the model in this tile yet- we print the one in
+            # the tile above it.
+            if self.scene.on_the_map( x-1, y-1) and self.scene._map[x-1][y-1].visible:
+                m = self.modelmap.get( (x-1,y-1) )
+                if m:
+                    mx,my = m.pos
+                    m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH), self)
 
-            if (sx + 54) > ( screen_area.x + screen_area.w ):
-                if ( sy+self.HTH ) > ( screen_area.y + screen_area.h ):
-                    keep_going = False
-                else:
-                    x = x0 + line / 2
-                    y = y0 + ( line + 1 ) / 2
-                    line += 1
-            else:
-                x += 1
-                y -= 1
+                dest.topleft = (self.relative_x( x-1, y-1 ) + self.x_off,self.relative_y( x-1, y-1 ) + self.y_off)
+                self.scene._map[x-1][y-1].render( dest, self, x-1,y-1 )
 
+            x,y,line,keep_going = self.next_tile(x0,y0,x,y,line,sx,sy,screen_area )
+
+        the_limit = line + 1
+        while line < the_limit:
+            sx = self.relative_x( x, y ) + self.x_off
+            sy = self.relative_y( x, y ) + self.y_off
+
+            if self.scene.on_the_map( x-1, y-1) and self.scene._map[x-1][y-1].visible:
+                m = self.modelmap.get( (x-1,y-1) )
+                if m:
+                    mx,my = m.pos
+                    m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH), self)
+
+                dest.topleft = (self.relative_x( x-1, y-1 ) + self.x_off,self.relative_y( x-1, y-1 ) + self.y_off)
+                self.scene._map[x-1][y-1].render( dest, self, x-1,y-1 )
+            x,y,line,keep_going = self.next_tile(x0,y0,x,y,line,sx,sy,screen_area )
+
+
+        self.phase = ( self.phase + 1 ) % 600
 
 
 """        # Fill the modelmap, fieldmap, and itemmap.
