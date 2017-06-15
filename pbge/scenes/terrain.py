@@ -43,6 +43,7 @@ class WallTerrain( Terrain ):
     block_vision = True
     block_walk = True
     block_fly = True
+    bordername = 'wall_border.png'
 
     @classmethod
     def prerender( self, dest, view, x, y ):
@@ -60,4 +61,6 @@ class WallTerrain( Terrain ):
         if wal:
             spr = view.get_sprite(self)
             spr.render( dest, wal )
+            if bor > -1:
+                spr = view.get_named_sprite( self.bordername )
 

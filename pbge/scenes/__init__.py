@@ -59,7 +59,7 @@ class PlaceableThing( object ):
         return image.Image(self.imagename,self.imagewidth,self.imageheight)
     def render( self, foot_pos, view ):
         spr = view.get_sprite(self)
-        mydest = pygame.Rect(0,0,self.imagewidth,self.imageheight)
+        mydest = pygame.Rect(0,0,spr.frame_width,spr.frame_height)
         mydest.midbottom = foot_pos
         spr.render( mydest, self.frame )
     def move( self, dest, view, speed=0.25 ):

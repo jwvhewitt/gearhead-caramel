@@ -2,7 +2,7 @@ import collections
 import weakref
 from . import Tile
 from .. import my_state,anim_delay
-from .. import util
+from .. import util, image
 import pygame
 
 OVERLAY_ITEM = 0
@@ -24,6 +24,7 @@ class SceneView( object ):
         self.modelmap = dict()
         self.fieldmap = dict()
         self.modelsprite = weakref.WeakKeyDictionary()
+        self.namedsprite = dict()
 
         self.scene = scene
         self.x_off = 600
@@ -39,6 +40,14 @@ class SceneView( object ):
         if not spr:
             spr = obj.get_sprite()
             self.modelsprite[obj] = spr
+        return spr
+
+    def get_named_sprite( self, fname ):
+        """Return the requested sprite. If no sprite exists, try to load one."""
+        spr = self.namedsprite.get( fname )
+        if not spr:
+            spr = image.Image(fname,self.TILE_WIDTH,self.TILE_WIDTH)
+            self.namedsprite[fname] = spr
         return spr
 
     def calc_floor_score( self, x, y, terr ):
