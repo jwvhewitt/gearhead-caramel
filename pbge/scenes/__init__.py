@@ -51,12 +51,13 @@ class PlaceableThing( object ):
         if team:
             scene.local_teams[self] = team
     imagename = ""
+    colors = None
     imageheight = 64
     imagewidth = 64
     frame = 0
     def get_sprite(self):
         """Generate the sprite for this thing."""
-        return image.Image(self.imagename,self.imagewidth,self.imageheight)
+        return image.Image(self.imagename,self.imagewidth,self.imageheight,self.colors)
     def render( self, foot_pos, view ):
         spr = view.get_sprite(self)
         mydest = pygame.Rect(0,0,spr.frame_width,spr.frame_height)

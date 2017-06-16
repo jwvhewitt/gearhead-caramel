@@ -37,23 +37,34 @@ class Terrain( object ):
     @classmethod
     def get_sprite( self ):
         """Generate the sprite for this terrain."""
-        return image.Image(self.imagename,54,54)
+        return image.Image(self.imagename,64,64)
+
+class VariableTerrain( Terrain ):
+    frames = (0,1,2,3,4,5,6,7)
+    @classmethod
+    def prerender( self, dest, view, x, y ):
+        """Draw terrain that should appear behind a model in the same tile"""
+        spr = view.get_sprite(self)
+        spr.render( dest, self.frames[view.get_pseudo_random(x,y) % len(self.frames)] )
+
 
 class WallTerrain( Terrain ):
     block_vision = True
     block_walk = True
     block_fly = True
-    bordername = 'wall_border.png'
+    bordername = 'terrain_wbor_tall.png'
 
     @classmethod
     def prerender( self, dest, view, x, y ):
         pass
+        """bor = view.calc_border_score( x, y )
+        if bor > 0:
+            spr = view.get_named_sprite( self.bordername )
+            spr.render( dest, bor )"""
     @classmethod
     def render( self, dest, view, x,y ):
         bor = view.calc_border_score( x, y )
-        if bor == -1:
-            bor = None
-        if bor == 14:
+        if bor == 15:
             wal = None
         else:
             wal = view.calc_wall_score( x, y, WallTerrain )
@@ -61,6 +72,7 @@ class WallTerrain( Terrain ):
         if wal:
             spr = view.get_sprite(self)
             spr.render( dest, wal )
-            if bor > -1:
-                spr = view.get_named_sprite( self.bordername )
+        if bor > 0:
+            spr = view.get_named_sprite( self.bordername )
+            spr.render( dest, bor )
 

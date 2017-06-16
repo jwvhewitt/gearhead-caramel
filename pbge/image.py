@@ -10,15 +10,17 @@ from . import my_state
 pre_loaded_images = weakref.WeakValueDictionary()
 
 class Image( object ):
-    def __init__(self,fname=None,frame_width=0,frame_height=0):
+    def __init__(self,fname=None,frame_width=0,frame_height=0,color=None):
         """Load image file, or create blank image, at frame size"""
         if fname:
-            if fname in pre_loaded_images:
+            if (fname,color) in pre_loaded_images:
                 self.bitmap = pre_loaded_images[fname]
             else:
                 self.bitmap = pygame.image.load( util.image_dir( fname ) ).convert()
                 self.bitmap.set_colorkey((0,0,255),pygame.RLEACCEL)
-                pre_loaded_images[fname] = self.bitmap
+                if color:
+                    self.recolor(color)
+                pre_loaded_images[(fname,color)] = self.bitmap
         else:
             self.bitmap = pygame.Surface( (frame_width , frame_height) )
             self.bitmap.fill((0,0,255))
@@ -49,6 +51,24 @@ class Image( object ):
         frames_per_row = self.bitmap.get_width() / self.frame_width
         frames_per_column = self.bitmap.get_height() / self.frame_height
         return frames_per_row * frames_per_column
+
+    def generate_color( self, color_desc, color_level ):
+        # The color_desc is a tuple of six values: r g b at lowest intensity,
+        # and r g b at highest intensity.
+        dr,dg,db = color_desc
+        r = min( ( dr * color_level ) / 200, 255 )
+        g = min( ( dg * color_level ) / 200, 255 )
+        b = min( ( db * color_level ) / 200, 255 )
+        return pygame.Color(r,g,b)
+
+    def recolor( self, red_channel ): 
+        # Just gonna brute force this. It could probably be speeded up by using
+        # a pixel array, but that would add dependencies.
+        for y in range( self.bitmap.get_height() ):
+            for x in range( self.bitmap.get_width() ):
+                c = self.bitmap.get_at( (x,y) )
+                if ( c.r > 0 ) and ( c.g == 0 ) and ( c.b == 0 ):
+                    self.bitmap.set_at( (x,y), self.generate_color(red_channel,c.r))
 
 
     def __reduce__( self ):

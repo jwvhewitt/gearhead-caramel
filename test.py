@@ -8,16 +8,17 @@ gamedir = os.path.dirname(__file__)
 pbge.init('GearHead Caramel','dmeternal',gamedir)
 
 
-class Floor( pbge.scenes.terrain.Terrain ):
-    imagename = 'terrain_floor_tile.png'
+class Floor( pbge.scenes.terrain.VariableTerrain ):
+    imagename = 'terrain_floor_new.png'
 
 class Wall( pbge.scenes.terrain.WallTerrain ):
-    imagename = 'terrain_wall_rocks.png'
+    imagename = 'terrain_wall_default.png'
 
 class Character( pbge.scenes.PlaceableThing):
-    imagename = 'sample_pc.png'
-    imageheight = 32
-    imagewidth = 32
+    imagename = 'PaperDoll.png'
+    imageheight = 64
+    imagewidth = 64
+    colors=(127,255,212)
 
 
 myscene = scenes.Scene(50,50,"Testaria")
@@ -75,6 +76,8 @@ while keep_going:
                 move_pc( 0, -1 )
             elif gdi.unicode == u"Q":
                 keep_going = False
+            elif gdi.unicode == u"c":
+                myview.focus(*mychar.pos)
 
         elif gdi.type == pygame.QUIT:
             keep_going = False

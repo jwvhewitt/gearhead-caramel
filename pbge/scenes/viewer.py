@@ -50,6 +50,10 @@ class SceneView( object ):
             self.namedsprite[fname] = spr
         return spr
 
+    def get_pseudo_random( self, x, y ):
+        self.seed = ( 73 * x + 101 * y + x * y ) % 1024
+        return self.seed
+
     def calc_floor_score( self, x, y, terr ):
         """Return bitmask of how many floors of type terrain border tile x,y."""
         it = 0
@@ -76,26 +80,24 @@ class SceneView( object ):
 
     def calc_wall_score( self, x, y, terr ):
         """Return bitmask of visible connected walls at x,y."""
-        it = -1
+        it = 0
         if self.is_same_terrain(self.scene.get_wall( x , y - 1 ),terr) and \
          not ( self.scene.tile_blocks_vision( x-1 , y -1 ) and self.scene.tile_blocks_vision( x - 1 , y ) \
          and self.scene.tile_blocks_vision( x + 1 , y - 1 ) and self.scene.tile_blocks_vision( x + 1 , y ) ):
-            it += 1
+            it += 2
         if self.is_same_terrain(self.scene.get_wall( x+1 , y ),terr) and \
          not ( self.scene.tile_blocks_vision( x+1 , y -1 ) and self.scene.tile_blocks_vision( x , y-1 ) \
          and self.scene.tile_blocks_vision( x + 1 , y + 1 ) and self.scene.tile_blocks_vision( x , y+1 ) ):
-            it += 2
+            it += 4
         if self.is_same_terrain(self.scene.get_wall( x , y + 1 ),terr) and \
          not ( self.scene.tile_blocks_vision( x-1 , y +1 ) and self.scene.tile_blocks_vision( x - 1 , y ) \
          and self.scene.tile_blocks_vision( x + 1 , y + 1 ) and self.scene.tile_blocks_vision( x + 1 , y ) ):
-            it += 4
+            it += 8
         if self.is_same_terrain(self.scene.get_wall( x-1 , y ),terr) and \
          not ( self.scene.tile_blocks_vision( x-1 , y -1 ) and self.scene.tile_blocks_vision( x , y-1 ) \
          and self.scene.tile_blocks_vision( x - 1 , y + 1 ) and self.scene.tile_blocks_vision( x , y+1 ) ):
-            it += 8
+            it += 1
 
-        if it == -1:
-            it = 5
         return it
 
     def is_border_wall( self, x, y ):
@@ -104,7 +106,7 @@ class SceneView( object ):
 
     def calc_border_score( self, x, y ):
         """Return the wall border frame for this tile."""
-        it = -1
+        it = 0
         if self.is_border_wall( x-1 , y-1 ) and self.is_border_wall( x-1 , y ) and self.is_border_wall( x , y-1 ):
             it += 1
         if self.is_border_wall( x+1 , y-1 ) and self.is_border_wall( x+1 , y ) and self.is_border_wall( x , y-1 ):
@@ -128,10 +130,10 @@ class SceneView( object ):
                 break
         return found_space
 
-    TILE_WIDTH = 54
+    TILE_WIDTH = 64
     # Half tile width and half tile height
-    HTW = 27
-    HTH = 13
+    HTW = 32
+    HTH = 16
 
     def relative_x( self, x, y ):
         """Return the relative x position of this tile, ignoring offset."""
@@ -163,13 +165,13 @@ class SceneView( object ):
 
     def focus( self, x, y ):
         self.x_off = my_state.screen.get_width()//2 - self.relative_x( x,y )
-        self.y_off = my_state.get_height()//2 - self.relative_y( x,y )
+        self.y_off = my_state.screen.get_height()//2 - self.relative_y( x,y )
         self.check_origin()
 
     def regenerate_avatars( self, models ):
         """Regenerate the avatars for the listed models."""
         for m in models:
-            self.modelsprite[ m ] = m.generate_avatar()
+            self.modelsprite[ m ] = m.get_sprite()
 
     def draw_caption( self, center, txt ):
         myimage = pygwrap.TINYFONT.render( txt, True, (240,240,240) )
@@ -177,31 +179,6 @@ class SceneView( object ):
         myfill = pygame.Rect( mydest.x - 2, mydest.y - 1, mydest.width + 4, mydest.height + 2 )
         my_state.screen.fill( (36,37,36), myfill )
         my_state.screen.blit( myimage, mydest )
-
-    def quick_model_status( self, dest, model, add_item_note ):
-        # Do a quick model status for this model.
-        self.draw_caption( (dest.centerx,dest.y-8), str( model ) )
-
-        box = pygame.Rect( dest.x + 7, dest.y , 40, 3 )
-        my_state.screen.fill( ( 250, 0, 0, 200 ), box )
-        hp = model.max_hp()
-        hpd = min( model.hp_damage, hp )
-        if hp > 0:
-            box.x += box.w - ( hpd * box.w ) // hp
-            box.w = dest.x + 7 + box.w - box.x
-            my_state.screen.fill( (120, 0, 0, 100), box )
-
-        box = pygame.Rect( dest.x + 7, dest.y + 4 , 40, 3 )
-        my_state.screen.fill( ( 0, 150, 250, 200 ), box )
-        hp = model.max_mp()
-        hpd = min( model.mp_damage, hp )
-        if hp > 0:
-            box.x += box.w - ( hpd * box.w ) // hp
-            box.w = dest.x + 7 + box.w - box.x
-            my_state.screen.fill( (0, 0, 120, 100), box )
-
-        if add_item_note:
-            self.draw_caption( (dest.centerx,dest.y+8), "ITEM" )
 
     def next_tile( self, x0,y0,x, y, line, sx, sy, screen_area ):
         """Locate the next map tile, moving left to right across the screen. """
@@ -221,7 +198,7 @@ class SceneView( object ):
         tick = 0
         if record_anim:
             self.anims.clear()
-            self( show_quick_stats=False )
+            self()
             pygame.display.flip()
             pygame.image.save( my_state.screen, util.user_dir( "anim_{:0>3}.png".format(tick) ) )
             tick += 1
@@ -237,7 +214,7 @@ class SceneView( object ):
                     should_delay = True
                     a.update(self)
             if should_delay:
-                self( show_quick_stats=False )
+                self()
                 pygame.display.flip()
             if record_anim:
                 pygame.image.save( screen, util.user_dir( "anim_{:0>3}.png".format(tick) ) )
@@ -251,7 +228,7 @@ class SceneView( object ):
         x,y = pos
         return ( round(x), round(y) )
 
-    def __call__( self , show_quick_stats=True, first_pc_pos=None ):
+    def __call__( self ):
         """Draws this mapview to the provided screen."""
         screen_area = my_state.screen.get_rect()
         mouse_x,mouse_y = pygame.mouse.get_pos()
