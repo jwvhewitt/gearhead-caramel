@@ -284,6 +284,9 @@ def please_stand_by( caption ):
 import frects
 import rpgmenu
 import container
+import namegen
+import randmaps
+import scenes
 
 def init(winname,appname,gamedir,icon="sys_icon.png"):
     global INIT_DONE

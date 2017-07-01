@@ -5,7 +5,7 @@ from pygame import Rect
 import pygame
 
 gamedir = os.path.dirname(__file__)
-pbge.init('GearHead Caramel','dmeternal',gamedir)
+pbge.init('GearHead Caramel','ghcaramel',gamedir)
 
 
 class Floor( pbge.scenes.terrain.VariableTerrain ):
@@ -15,20 +15,34 @@ class Wall( pbge.scenes.terrain.WallTerrain ):
     imagename = 'terrain_wall_default.png'
 
 class Character( pbge.scenes.PlaceableThing):
-    imagename = 'PaperDoll.png'
+    imagename = 'PD_Sean.png'
     imageheight = 64
     imagewidth = 64
-    colors=(127,255,212)
+    #colors=(127,255,212)
 
 
 myscene = scenes.Scene(50,50,"Testaria")
-myscene.fill(Rect(0,0,50,50), floor=Floor, wall=None)
-myscene.fill(Rect(5,5,24,24), wall=Wall)
-
-myscene.fill(Rect(0,49,29,49), wall=Wall)
+#myscene.fill(Rect(0,0,50,50), floor=Floor, wall=None)
+#myscene.fill(Rect(5,5,24,24), wall=Wall)
+#myscene.fill(Rect(0,49,29,49), wall=Wall)
 
 mychar = Character()
-mychar.place(myscene,(2,13))
+#mychar.place(myscene,(2,13))
+
+myfilter = pbge.randmaps.converter.BasicConverter(Wall)
+myarchi = pbge.randmaps.architect.Architecture(Floor,myfilter)
+myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
+
+myroom1 = pbge.randmaps.rooms.Room()
+myroom2 = pbge.randmaps.rooms.Room()
+myroom3 = pbge.randmaps.rooms.Room()
+myroom1.contents.append(mychar)
+
+myscenegen.contents.append(myroom1)
+myscenegen.contents.append(myroom2)
+myscenegen.contents.append(myroom3)
+
+myscenegen.make()
 
 myview = scenes.viewer.SceneView( myscene )
 
