@@ -50,8 +50,8 @@ class Room( object ):
             if isinstance( r, Room ):
                 r.step_three( gb, archi )
     def step_four( self, gb ):
-        if self.MUTATE:
-            self.MUTATE( gb, self.area )
+        if self.archi and self.archi.mutate:
+            self.archi.mutate( gb, self.area )
         # Prepare any child nodes in self.contents as needed.
         for r in self.contents:
             if isinstance( r, Room ):

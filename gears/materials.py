@@ -6,7 +6,7 @@
 class Material( object ):
     # This base class is just used so all other materials count as subclasses
     # of "Material". I don't think this is an elegant way to handle things,
-    # bud do you have a better idea? Check out Dungeon Monkey Eternal for some
+    # but do you have a better idea? Check out Dungeon Monkey Eternal for some
     # worse ways to handle game rule constants.
     name = "Base Material"
     mass_scale = 0

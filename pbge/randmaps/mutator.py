@@ -19,7 +19,7 @@ class CellMutator( object ):
         for x in range(x0-1,x0+2):
             for y in range(y0-1,y0+2):
                 if gb.on_the_map(x,y):
-                    if gb.map[x][y].wall:
+                    if gb._map[x][y].wall:
                         n += 1
                 else:
                     n += 1
@@ -30,7 +30,7 @@ class CellMutator( object ):
     def contains_a_space( self, gb, area ):
         for x in range( area.x, area.x + area.width ):
             for y in range( area.y, area.y + area.height ):
-                if not gb.map[x][y].wall:
+                if not gb._map[x][y].wall:
                     return True
 
     def carve_noise( self, gb, area ):
@@ -41,7 +41,7 @@ class CellMutator( object ):
             if self.contains_a_space( gb, myrect ):
                 for x in range( myrect.x, myrect.x + myrect.width ):
                     for y in range( myrect.y, myrect.y + myrect.height ):
-                        gb.map[x][y].wall = None
+                        gb._map[x][y].wall = None
 
     def __call__( self, gb, area ):
         if self.do_carving:
@@ -60,7 +60,7 @@ class CellMutator( object ):
             for x in range( area.x + 1, area.x + area.width - 1 ):
                 for y in range( area.y + 1, area.y + area.height - 1 ):
                     if temp[x][y] == self.WALL_OFF:
-                        gb.map[x][y].wall = None
+                        gb._map[x][y].wall = None
                     elif ( temp[x][y] == self.WALL_ON ) and gb.wall_wont_block( x, y ):
-                        gb.map[x][y].wall = True
+                        gb._map[x][y].wall = True
 

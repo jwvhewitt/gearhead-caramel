@@ -12,7 +12,7 @@ class Floor( pbge.scenes.terrain.VariableTerrain ):
     imagename = 'terrain_floor_new.png'
 
 class Wall( pbge.scenes.terrain.WallTerrain ):
-    imagename = 'terrain_wall_default.png'
+    imagename = 'terrain_wall_fortress.png'
 
 class Character( pbge.scenes.PlaceableThing):
     imagename = 'PD_Sean.png'
@@ -30,7 +30,8 @@ mychar = Character()
 #mychar.place(myscene,(2,13))
 
 myfilter = pbge.randmaps.converter.BasicConverter(Wall)
-myarchi = pbge.randmaps.architect.Architecture(Floor,myfilter)
+mymutate = pbge.randmaps.mutator.CellMutator()
+myarchi = pbge.randmaps.architect.Architecture(Floor,myfilter,mutate=mymutate)
 myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
 
 myroom1 = pbge.randmaps.rooms.Room()

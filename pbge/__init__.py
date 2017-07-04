@@ -287,6 +287,7 @@ import container
 import namegen
 import randmaps
 import scenes
+import plots
 
 def init(winname,appname,gamedir,icon="sys_icon.png"):
     global INIT_DONE
