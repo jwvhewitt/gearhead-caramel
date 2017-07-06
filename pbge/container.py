@@ -83,8 +83,8 @@ class ContainerList(list,Container):
     """
     def __init__(self, items=[], owner=None):
         list.__init__(self, items)
-        self._set_container_multi(items)
         self.owner = owner
+        self._set_container_multi(items)
 
     def __repr__(self):
         return "<CL %s>" % list.__repr__(self)

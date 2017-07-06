@@ -1,7 +1,7 @@
 import materials
 import scale
 import calibre
-from pbge import container
+from pbge import container, scenes, KeyObject
 
 #
 # Damage Handlers
@@ -9,11 +9,13 @@ from pbge import container
 #  Each "practical" gear should subclass one of the damage handlers.
 #
 
-class StandardDamageHandler( object ):
+class StandardDamageHandler( KeyObject ):
     # This gear type has health and takes damage. It is destroyed when the
     # amount of damage taken exceeds its maximum capacity.
-    def __init__( self ):
+    def __init__( self, **keywords ):
         self.hp_damage = 0
+        super(StandardDamageHandler, self).__init__(**keywords)
+
 
     base_health = 1
 
@@ -92,45 +94,68 @@ class ContainerDamageHandler( StandardDamageHandler ):
 # Subclass one of these to get extra stuff for your gear class.
 # These are purely optional.
 
-class Stackable( object ):
+class Stackable( KeyObject ):
+    def __init__(self, **keywords ):
+        super(Stackable, self).__init__(**keywords)
     def can_merge_with( self, part ):
         return ( self.__class__ is part.__class__ and self.scale is part.scale
             and self.name is part.name and self.desig is part.desig
             and not self.inv_com and not self.sub_com )
 
 
+# Custom Containers
+# For subcomponents and invcomponents with automatic error checking
+
+class SubComContainerList( container.ContainerList ):
+    def _set_container(self, item):
+        if self.owner.can_install( item ):
+            super( SubComContainerList, self )._set_container(item)
+        else:
+            raise container.ContainerError("Error: {} cannot subcom {}".format(self.owner,item))
+
+class InvComContainerList( container.ContainerList ):
+    def _set_container(self, item):
+        if self.owner.can_equip( item ):
+            super( InvComContainerList, self )._set_container(item)
+        else:
+            raise container.ContainerError("Error: {} cannot invcom {}".format(self.owner,item))
+
 # The Base Gear itself.
 # Note that the base gear is not usable by itself; a gear class should
 # subclass BaseGear and also one of the damage handlers, plus any desired
 # ingredients.
 
-class BaseGear( object ):
+class BaseGear( scenes.PlaceableThing ):
     # To create a usable gear class, you need to subclass BaseGear, one of the
     # damage handlers from above, and maybe another ingredient like Stackable.
     DEFAULT_NAME = "Gear"
-    DEFAULT_MATERIAL = materials.METAL
+    DEFAULT_MATERIAL = materials.Metal
     def __init__(self, **keywords ):
-        self.name = keywords.get( "name" , self.DEFAULT_NAME )
-        self.desig = keywords.get( "desig", None )
-        self.scale = keywords.get( "scale" , MechaScale )
-        self.material = keywords.get( "material" , self.DEFAULT_MATERIAL )
-        self.hp_damage = 0
+        self.name = keywords.pop( "name" , self.DEFAULT_NAME )
+        self.desig = keywords.pop( "desig", None )
+        self.scale = keywords.pop( "scale" , scale.MechaScale )
+        self.material = keywords.pop( "material" , self.DEFAULT_MATERIAL )
+        self.imagename = keywords.pop( "imagename", "iso_item.png" )
+        self.colors = keywords.pop( "colors", "" )
 
-        self.sub_com = container.ContainerList( owner = self )
-        sc_to_add = keywords.get( "sub_com", [] )
+
+        self.sub_com = SubComContainerList( owner = self )
+        sc_to_add = keywords.pop( "sub_com", [] )
         for i in sc_to_add:
-            if self.can_install( i ):
+            try:
                 self.sub_com.append( i )
-            else:
-                print( "ERROR: {} cannot be installed in {}".format(i,self) )
+            except container.ContainerError as err:
+                print( "ERROR: {}".format(err) )
 
-        self.inv_com = container.ContainerList( owner = self )
-        ic_to_add = keywords.get( "inv_com", [] )
+        self.inv_com = InvComContainerList( owner = self )
+        ic_to_add = keywords.pop( "inv_com", [] )
         for i in ic_to_add:
             if self.can_equip( i ):
                 self.inv_com.append( i )
             else:
                 print( "ERROR: {} cannot be equipped in {}".format(i,self) )
+
+        super(BaseGear, self).__init__(**keywords)
 
     @property
     def base_mass(self):
@@ -144,7 +169,7 @@ class BaseGear( object ):
 
     @property
     def mass(self):
-        """Returns the true mass of this gear including children."""
+        """Returns the true mass of this gear including children. Units is 0.1kg."""
         m = self.self_mass
         for part in self.sub_com:
             m = m + part.mass
@@ -243,4 +268,51 @@ class BaseGear( object ):
             g.statusdump( prefix = '>' , indent = indent + 1 )
         for g in self.inv_com:
             g.statusdump( prefix = '+' , indent = indent + 1 )
+
+#
+#  Practical Gears
+#
+
+#   *****************
+#   ***   ARMOR   ***
+#   *****************
+
+class Armor( BaseGear, StandardDamageHandler ):
+    DEFAULT_NAME = "Armor"
+    def __init__(self, size=1, **keywords ):
+        # Check the range of all parameters before applying.
+        if size < 1:
+            size = 1
+        elif size > 10:
+            size = 10
+        self.size = size
+        super(Armor, self).__init__(**keywords)
+    @property
+    def base_mass(self):
+        return 9 * self.size
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
+
+    @property
+    def volume(self):
+        return self.size
+
+    @property
+    def base_cost(self):
+        return 55*self.size
+
+    def get_armor( self ):
+        """Returns the armor protecting this gear."""
+        return self
+
+    def get_rating( self ):
+        """Returns the penetration rating of this armor."""
+        return (self.size * 10) * ( self.max_health - self.hp_damage ) // self.max_health
+
+#    def can_install(self,part):
+#        """Returns True if part can be legally installed here under current conditions"""
+#        return True
+
 

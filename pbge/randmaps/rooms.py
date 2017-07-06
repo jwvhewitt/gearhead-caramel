@@ -57,7 +57,7 @@ class Room( object ):
             if isinstance( r, Room ):
                 r.step_four( gb )
     def step_five( self, gb, archi ):
-        self.render( gb, archi )
+        self.build( gb, archi )
         # Prepare any child nodes in self.contents as needed.
         for r in self.contents:
             if isinstance( r, Room ):
@@ -134,7 +134,7 @@ class Room( object ):
                 # r becomes the new prev
                 prev = r
 
-    def render( self, gb, archi ):
+    def build( self, gb, archi ):
         # Step Five: Actually draw the room, taking into account terrain already on map.
         pass
 

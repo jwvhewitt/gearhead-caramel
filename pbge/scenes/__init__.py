@@ -7,7 +7,7 @@
     # data.
 
 
-from .. import container,image
+from .. import container,image,KeyObject
 import pygame
 
 class Tile( object ):
@@ -41,8 +41,11 @@ class Tile( object ):
 
 
 
-class PlaceableThing( object ):
+class PlaceableThing( KeyObject ):
     """A thing that can be placed on the map."""
+    def __init__(self, **keywords ):
+        super(PlaceableThing, self).__init__(**keywords)
+
     def place( self, scene, pos=None, team=None ):
         if hasattr( self, "container" ) and self.container:
             self.container.remove( self )

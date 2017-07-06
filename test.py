@@ -1,8 +1,9 @@
 import pbge
 import os
-from pbge import scenes
+from pbge import scenes, KeyObject
 from pygame import Rect
 import pygame
+import gears
 
 gamedir = os.path.dirname(__file__)
 pbge.init('GearHead Caramel','ghcaramel',gamedir)
@@ -12,7 +13,7 @@ class Floor( pbge.scenes.terrain.VariableTerrain ):
     imagename = 'terrain_floor_new.png'
 
 class Wall( pbge.scenes.terrain.WallTerrain ):
-    imagename = 'terrain_wall_fortress.png'
+    imagename = 'terrain_wall_stone.png'
 
 class Character( pbge.scenes.PlaceableThing):
     imagename = 'PD_Sean.png'
@@ -20,6 +21,13 @@ class Character( pbge.scenes.PlaceableThing):
     imagewidth = 64
     #colors=(127,255,212)
 
+#myarmor = gears.base.Armor( size = 5, sub_com=[gears.base.Armor(size=1)], scale=gears.scale.HumanScale, foo="bar" )
+
+mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'STC_Default.txt')).load()
+myarmor = mygearlist[0]
+
+print myarmor.mass
+print myarmor.max_health
 
 myscene = scenes.Scene(50,50,"Testaria")
 #myscene.fill(Rect(0,0,50,50), floor=Floor, wall=None)
@@ -38,6 +46,7 @@ myroom1 = pbge.randmaps.rooms.Room()
 myroom2 = pbge.randmaps.rooms.Room()
 myroom3 = pbge.randmaps.rooms.Room()
 myroom1.contents.append(mychar)
+myroom3.contents.append(myarmor)
 
 myscenegen.contents.append(myroom1)
 myscenegen.contents.append(myroom2)
@@ -61,10 +70,12 @@ def move_pc( dx, dy ):
         mychar.move((x,y),myview,0.25)
 
 keep_going = True
+record_anim = False
 while keep_going:
     # Get input and process it.
     if myview.anim_list:
-        myview.handle_anim_sequence()
+        myview.handle_anim_sequence(record_anim)
+        record_anim = False
 
     else:
         gdi = pbge.wait_event()
@@ -91,6 +102,8 @@ while keep_going:
                 move_pc( 0, -1 )
             elif gdi.unicode == u"Q":
                 keep_going = False
+            elif gdi.unicode == u"r":
+                record_anim = True
             elif gdi.unicode == u"c":
                 myview.focus(*mychar.pos)
 

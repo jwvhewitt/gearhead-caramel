@@ -1,0 +1,6 @@
+Armor
+    size = 5
+    scale = HumanScale
+    foo = bar
+
+

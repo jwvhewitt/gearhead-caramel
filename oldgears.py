@@ -259,7 +259,7 @@ class Stackable( object ):
 
 class Armor( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Armor"
-    def __init__(self, **keywords ):
+    def __init__(self, size=1, **keywords ):
         # Check the range of all parameters before applying.
         size = keywords.get( "size" , 1 )
         if size < 1:

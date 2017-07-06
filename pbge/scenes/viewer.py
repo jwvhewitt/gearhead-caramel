@@ -217,7 +217,7 @@ class SceneView( object ):
                 self()
                 pygame.display.flip()
             if record_anim:
-                pygame.image.save( screen, util.user_dir( "anim_{:0>3}.png".format(tick) ) )
+                pygame.image.save( my_state.screen, util.user_dir( "anim_{:0>3}.png".format(tick) ) )
 
             anim_delay()
             tick += 1

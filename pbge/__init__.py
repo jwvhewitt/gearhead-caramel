@@ -24,6 +24,15 @@ try:
 except ImportError:
     android = None
 
+class KeyObject( object ):
+    """A catcher for multiple inheritence. Subclass this instead of object if
+       you're going to use multiple inheritence, so that erroneous keywords
+       will get caught and identified."""
+    def __init__( self, **keywords ):
+        for k,i in keywords.iteritems():
+            print "WARNING: KeyObject got parameters {}={}".format(k,i)
+
+
 class Border( object ):
     def __init__( self , border_width=16, tex_width=32, border_name="", tex_name="", padding=16, tl=0, tr=0, bl=0, br=0, t=1, b=1, l=2, r=2 ):
         # tl,tr,bl,br are the top left, top right, bottom left, and bottom right frames
