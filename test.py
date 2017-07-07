@@ -13,7 +13,7 @@ class Floor( pbge.scenes.terrain.VariableTerrain ):
     imagename = 'terrain_floor_new.png'
 
 class Wall( pbge.scenes.terrain.WallTerrain ):
-    imagename = 'terrain_wall_stone.png'
+    imagename = 'terrain_wall_fortress.png'
 
 class Character( pbge.scenes.PlaceableThing):
     imagename = 'PD_Sean.png'

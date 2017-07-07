@@ -21,7 +21,7 @@ class SceneView( object ):
         self.anim_list = list()
         self.anims = collections.defaultdict(list)
 
-        self.modelmap = dict()
+        self.modelmap = collections.defaultdict(list)
         self.fieldmap = dict()
         self.modelsprite = weakref.WeakKeyDictionary()
         self.namedsprite = dict()
@@ -228,6 +228,9 @@ class SceneView( object ):
         x,y = pos
         return ( round(x), round(y) )
 
+    def model_depth( self, model ):
+        return self.relative_y( model.pos[0], model.pos[1] )
+
     def __call__( self ):
         """Draws this mapview to the provided screen."""
         screen_area = my_state.screen.get_rect()
@@ -258,7 +261,7 @@ class SceneView( object ):
         self.modelmap.clear()
         for m in self.scene._contents:
             if hasattr( m , 'render' ):
-                self.modelmap[ self.PosToKey( m.pos ) ] = m
+                self.modelmap[ self.PosToKey( m.pos ) ].append( m )
 
         while keep_going:
             # In order to allow smooth sub-tile movement of stuff, we have
@@ -279,10 +282,13 @@ class SceneView( object ):
             # We don't print the model in this tile yet- we print the one in
             # the tile above it.
             if self.scene.on_the_map( x-1, y-1) and self.scene._map[x-1][y-1].visible:
-                m = self.modelmap.get( (x-1,y-1) )
-                if m:
-                    mx,my = m.pos
-                    m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH), self)
+                mlist = self.modelmap.get( (x-1,y-1) )
+                if mlist:
+                    if len( mlist ) > 1:
+                        mlist.sort( key = self.model_depth )
+                    for m in mlist:
+                        mx,my = m.pos
+                        m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH), self)
 
                 dest.topleft = (self.relative_x( x-1, y-1 ) + self.x_off,self.relative_y( x-1, y-1 ) + self.y_off)
                 self.scene._map[x-1][y-1].render( dest, self, x-1,y-1 )
@@ -295,10 +301,13 @@ class SceneView( object ):
             sy = self.relative_y( x, y ) + self.y_off
 
             if self.scene.on_the_map( x-1, y-1) and self.scene._map[x-1][y-1].visible:
-                m = self.modelmap.get( (x-1,y-1) )
-                if m:
-                    mx,my = m.pos
-                    m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH), self)
+                mlist = self.modelmap.get( (x-1,y-1) )
+                if mlist:
+                    if len( mlist ) > 1:
+                        mlist.sort( key = self.model_depth )
+                    for m in mlist:
+                        mx,my = m.pos
+                        m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH), self)
 
                 dest.topleft = (self.relative_x( x-1, y-1 ) + self.x_off,self.relative_y( x-1, y-1 ) + self.y_off)
                 self.scene._map[x-1][y-1].render( dest, self, x-1,y-1 )

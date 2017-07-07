@@ -2,5 +2,13 @@ Armor
     size = 5
     scale = HumanScale
     foo = bar
+    SUB
+
+        Armor
+        name = "Tornado Alley"
+    END
+
+Armor
+    size = 7
 
 

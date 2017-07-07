@@ -20,8 +20,12 @@ harvest( base, base.BaseGear, GEAR_TYPES)
 harvest( scale, scale.MechaScale, SINGLETON_TYPES )
 SINGLETON_TYPES['MechaScale'] = scale.MechaScale
 
-# Pre-compile our regular expressions.
-DICT_UNPACKER = re.compile( r'["\']?(\w+)["\']?\s?=\s?([\w"\']+)' )
+# Why did I create this complicated regular expression to parse lines of
+# the form "a = b"? I guess I didn't know about string.partition at the time.
+# Anyhow, I'm leaving this here as a comment to remind me of the dangers of
+# overengineering. Also in case I ever need it again because I don't really
+# remember how regular expressions work and this looks complicated as heck.
+#DICT_UNPACKER = re.compile( r'["\']?(\w+)["\']?\s?=\s?([\w"\']+)' )
 
 
 class ProtoGear( object ):
@@ -36,12 +40,11 @@ class Loader( list ):
     def __init__( self, fname ):
         self.fname = fname
 
-
     def load_list( self , g_file ):
         """Given an open file, load the text and return the list of proto-gears"""
         # If it is a command, do that command.
         # If it has an =, add it to the dict
-        # Otherwise, check to see if it's a Gear typeclass Loader( list ):
+        # Otherwise, check to see if it's a Gear
         masterlist = list()
         current_gear = None
         keep_going = True
@@ -56,10 +59,11 @@ class Loader( list ):
 
                 elif "=" in line:
                     # This is a dict line. Add to the current_dict.
-                    m = DICT_UNPACKER.match( line )
-                    if m != None:
+                    a,b,c = line.partition('=')
+                    rawkey = a.strip()
+                    rawval = c.strip()
+                    if rawval:
                         # The value of the dictionary entry may need some decoding.
-                        rawval = m.group( 2 )
                         if rawval[0] in ( '"' , "'" ):
                             # This is a literal string. Get rid of the quotes.
                             truval = rawval.strip( '"\'' )
@@ -68,13 +72,13 @@ class Loader( list ):
                             truval = int( rawval )
 
                         elif rawval in SINGLETON_TYPES:
-                            # This is a material. Set the correct value.
+                            # This is a named constant of some type.
                             truval = SINGLETON_TYPES[ rawval ]
                         else:
                             # This is a string. Leave it alone.
                             truval = rawval
 
-                        current_gear.gparam[ m.group( 1 ) ] = truval
+                        current_gear.gparam[ rawkey ] = truval
 
                 elif line in GEAR_TYPES:
                     # This is a new gear.
