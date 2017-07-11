@@ -10,15 +10,17 @@ import re
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()
 
-def harvest( mod, subclass_of, dict_to_add_to ):
+def harvest( mod, subclass_of, dict_to_add_to, exclude_these ):
     for name in dir( mod ):
         o = getattr( mod, name )
-        if inspect.isclass( o ) and issubclass( o , subclass_of ) and o is not subclass_of:
+        if inspect.isclass( o ) and issubclass( o , subclass_of ) and o not in exclude_these:
             dict_to_add_to[ o.__name__ ] = o
 
-harvest( base, base.BaseGear, GEAR_TYPES)
-harvest( scale, scale.MechaScale, SINGLETON_TYPES )
-SINGLETON_TYPES['MechaScale'] = scale.MechaScale
+harvest( base, base.BaseGear, GEAR_TYPES, (base.BaseGear,base.MovementSystem,base.Weapon,base.Usable))
+harvest( scale, scale.MechaScale, SINGLETON_TYPES, () )
+harvest( base, base.ModuleForm, SINGLETON_TYPES, (base.ModuleForm,) )
+harvest( materials, materials.Material, SINGLETON_TYPES, (materials.Material,) )
+harvest( calibre, calibre.BaseCalibre, SINGLETON_TYPES, (calibre.BaseCalibre,) )
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about string.partition at the time.

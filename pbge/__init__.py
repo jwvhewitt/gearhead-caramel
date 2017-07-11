@@ -15,6 +15,7 @@ from itertools import chain
 import util
 import glob
 import random
+import exceptions
 
 # Import the android module. If we can't import it, set it to None - this
 # lets us test it, and check to see if we want android-specific behavior.
@@ -32,6 +33,10 @@ class KeyObject( object ):
         for k,i in keywords.iteritems():
             print "WARNING: KeyObject got parameters {}={}".format(k,i)
 
+class Singleton( object ):
+    """For game constants that don't need to be instanced."""
+    def __init__( self ):
+        raise exceptions.NotImplementedError("Singleton can't be instantiated.")
 
 class Border( object ):
     def __init__( self , border_width=16, tex_width=32, border_name="", tex_name="", padding=16, tl=0, tr=0, bl=0, br=0, t=1, b=1, l=2, r=2 ):

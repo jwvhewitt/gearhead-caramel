@@ -23,7 +23,7 @@ class Character( pbge.scenes.PlaceableThing):
 
 #myarmor = gears.base.Armor( size = 5, sub_com=[gears.base.Armor(size=1)], scale=gears.scale.HumanScale, foo="bar" )
 
-mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'STC_Default.txt')).load()
+mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
 myarmor = mygearlist[0]
 
 print myarmor.mass

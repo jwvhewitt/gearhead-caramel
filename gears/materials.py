@@ -3,7 +3,9 @@
 #
 # The materials are singletons- instead of instancing, just point to the class.
 
-class Material( object ):
+from pbge import Singleton
+
+class Material( Singleton ):
     # This base class is just used so all other materials count as subclasses
     # of "Material". I don't think this is an elegant way to handle things,
     # but do you have a better idea? Check out Dungeon Monkey Eternal for some
