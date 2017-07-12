@@ -1,20 +1,21 @@
 Mecha
     name = "Buru Buru"
     desig = "SAN-X9"
+    imagename = "btr_buruburu.png"
     SUB
         Head
             size = 5
             SUB
                 Armor
                     size = 4
+                Sensor
+                    size = 2
                 BeamWeapon
                     name = "Intercept Laser"
                     reach = 2
                     damage = 1
-                    accuracy = 3
+                    accuracy = 2
                     penetration = 0
-                Sensor
-                    size = 5
             END
         Torso
             size = 5
@@ -63,7 +64,7 @@ Mecha
                             ammo_type = Shells_150mm
                             SUB
                                 Ammo
-                                    ammo_type=calibre.Shells_150mm
+                                    ammo_type=Shells_150mm
                                     quantity=15
                             END
                     END

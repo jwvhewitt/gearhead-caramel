@@ -28,6 +28,7 @@ myarmor = mygearlist[0]
 
 print myarmor.mass
 print myarmor.max_health
+myarmor.termdump()
 
 myscene = scenes.Scene(50,50,"Testaria")
 #myscene.fill(Rect(0,0,50,50), floor=Floor, wall=None)

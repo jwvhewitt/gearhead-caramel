@@ -486,7 +486,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
 
     @property
     def volume(self):
-        v = self.reach + self.accuracy + 1
+        v = max(self.reach + self.accuracy + ( self.damage + self.penetration )/2,1)
         if self.integral:
             v -= 1
         return v
@@ -648,9 +648,8 @@ class Missile( BaseGear, StandardDamageHandler ):
 
 class Launcher( BaseGear, ContainerDamageHandler ):
     DEFAULT_NAME = "Launcher"
-    def __init__(self, **keywords ):
+    def __init__(self, size=5, **keywords ):
         # Check the range of all parameters before applying.
-        size = keywords.get( "size" , 1 )
         if size < 1:
             size = 1
         elif size > 20:
