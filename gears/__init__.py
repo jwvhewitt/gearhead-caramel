@@ -3,6 +3,7 @@ import calibre
 import damage
 import materials
 import scale
+import stats
 
 import inspect
 import re

@@ -26,6 +26,8 @@ class Character( pbge.scenes.PlaceableThing):
 mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
 myarmor = mygearlist[0]
 
+myarmor.colors = ((104,130,117),(152,190,181),(220,44,51),(152,190,181),(220,44,51))
+
 print myarmor.mass
 print myarmor.max_health
 myarmor.termdump()
