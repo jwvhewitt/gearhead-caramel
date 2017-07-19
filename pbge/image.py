@@ -13,14 +13,14 @@ class Image( object ):
     def __init__(self,fname=None,frame_width=0,frame_height=0,color=None):
         """Load image file, or create blank image, at frame size"""
         if fname:
-            if (fname,color) in pre_loaded_images:
-                self.bitmap = pre_loaded_images[(fname,color)]
+            if (fname,repr(color)) in pre_loaded_images:
+                self.bitmap = pre_loaded_images[(fname,repr(color))]
             else:
                 self.bitmap = pygame.image.load( util.image_dir( fname ) ).convert()
                 self.bitmap.set_colorkey((0,0,255),pygame.RLEACCEL)
                 if color:
                     self.recolor(color)
-                pre_loaded_images[(fname,color)] = self.bitmap
+                pre_loaded_images[(fname,repr(color))] = self.bitmap
         else:
             self.bitmap = pygame.Surface( (frame_width , frame_height) )
             self.bitmap.fill((0,0,255))

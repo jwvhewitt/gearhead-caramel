@@ -1,3 +1,104 @@
 from pbge import Singleton
 
+#  ***************
+#  ***  STATS  ***
+#  ***************
+
+class Stat( Singleton ):
+    @classmethod
+    def __str__(self):
+        return self.name
+
+class Reflexes( Stat ):
+    name = 'Reflexes'
+
+class Body( Stat ):
+    name = 'Body'
+
+class Speed( Stat ):
+    name = 'Speed'
+
+class Perception( Stat ):
+    name = 'Perception'
+
+class Craft( Stat ):
+    name = 'Craft'
+
+class Ego( Stat ):
+    name = 'Ego'
+
+class Knowledge( Stat ):
+    name = 'Knowledge'
+
+class Charm( Stat ):
+    name = 'Charm'
+
+
+#  ****************
+#  ***  SKILLS  ***
+#  ****************
+
+class Skill( Singleton ):
+    @classmethod
+    def __str__(self):
+        return self.name
+
+class MechaGunnery( Skill ):
+    name = 'Mecha Gunnery'
+
+class MechaFighting( Skill ):
+    name = 'Mecha Fighting'
+
+class MechaPiloting( Skill ):
+    name = 'Mecha Piloting'
+
+class RangedCombat( Skill ):
+    name = 'Ranged Combat'
+
+class CloseCombat( Skill ):
+    name = 'Close Combat'
+
+class Dodge( Skill ):
+    name = 'Dodge'
+
+class Repair( Skill ):
+    name = 'Repair'
+
+class Medicine( Skill ):
+    name = 'Medicine'
+
+class Biotech( Skill ):
+    name = 'Biotech'
+
+class Stealth( Skill ):
+    name = 'Stealth'
+
+class Science( Skill ):
+    name = 'Science'
+
+class Computers( Skill ):
+    name = 'Computers'
+
+class Performance( Skill ):
+    name = 'Performance'
+
+class Negotiation( Skill ):
+    name = 'Negotiation'
+
+class Scouting( Skill ):
+    name = 'Scouting'
+
+class DominateAnimal( Skill ):
+    name = 'Dominate Animal'
+
+
+
+
+
+
+
+
+
+
+
 

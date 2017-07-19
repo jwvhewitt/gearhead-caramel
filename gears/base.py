@@ -130,13 +130,14 @@ class BaseGear( scenes.PlaceableThing ):
     # damage handlers from above, and maybe another ingredient like Stackable.
     DEFAULT_NAME = "Gear"
     DEFAULT_MATERIAL = materials.Metal
+    SAVE_PARAMETERS = ('name','desig','scale','material','imagename','colors')
     def __init__(self, **keywords ):
         self.name = keywords.pop( "name" , self.DEFAULT_NAME )
         self.desig = keywords.pop( "desig", None )
         self.scale = keywords.pop( "scale" , scale.MechaScale )
         self.material = keywords.pop( "material" , self.DEFAULT_MATERIAL )
         self.imagename = keywords.pop( "imagename", "iso_item.png" )
-        self.colors = keywords.pop( "colors", "" )
+        self.colors = keywords.pop( "colors", None )
 
 
         self.sub_com = SubComContainerList( owner = self )
@@ -279,6 +280,7 @@ class BaseGear( scenes.PlaceableThing ):
 
 class Armor( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Armor"
+    SAVE_PARAMETERS = ('size',)
     def __init__(self, size=1, **keywords ):
         # Check the range of all parameters before applying.
         if size < 1:
@@ -322,6 +324,7 @@ class Armor( BaseGear, StandardDamageHandler ):
 
 class Engine( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Engine"
+    SAVE_PARAMETERS = ('size',)
     def __init__(self, size=750, **keywords ):
         # Check the range of all parameters before applying.
         if size < 100:
@@ -363,6 +366,7 @@ class Cockpit( BaseGear, StandardDamageHandler ):
 
 class Sensor( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Sensor"
+    SAVE_PARAMETERS = ('size',)
     def __init__(self, size=1, **keywords ):
         # Check the range of all parameters before applying.
         if size < 1:
@@ -388,6 +392,7 @@ class Sensor( BaseGear, StandardDamageHandler ):
 
 class MovementSystem( BaseGear ):
     DEFAULT_NAME = "MoveSys"
+    SAVE_PARAMETERS = ('size',)
     def __init__(self, size=1, **keywords ):
         # Check the range of all parameters before applying.
         if size < 1:
@@ -418,6 +423,7 @@ class HoverJets( MovementSystem, StandardDamageHandler ):
 
 class PowerSource( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Power Source"
+    SAVE_PARAMETERS = ('size',)
     def __init__(self,size=1, **keywords ):
         # Check the range of all parameters before applying.
         if size < 1:
@@ -445,6 +451,7 @@ class PowerSource( BaseGear, StandardDamageHandler ):
 class Weapon( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Weapon"
     DEFAULT_CALIBRE = None
+    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','integral','ammo_type')
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
     def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, **keywords ):
@@ -537,6 +544,7 @@ class EnergyWeapon( Weapon ):
 class Ammo( BaseGear, Stackable, StandardDamageHandler ):
     DEFAULT_NAME = "Ammo"
     STACK_CRITERIA = ("ammo_type",)
+    SAVE_PARAMETERS = ('ammo_type','quantity')
     def __init__(self, ammo_type=calibre.Shells_150mm, quantity=12, **keywords ):
         # Check the range of all parameters before applying.
         self.ammo_type = ammo_type
@@ -587,6 +595,7 @@ class BeamWeapon( Weapon ):
 
 class Missile( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Missile"
+    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','quantity')
     MIN_REACH = 2
     MAX_REACH = 7
     MIN_DAMAGE = 1
@@ -648,6 +657,7 @@ class Missile( BaseGear, StandardDamageHandler ):
 
 class Launcher( BaseGear, ContainerDamageHandler ):
     DEFAULT_NAME = "Launcher"
+    SAVE_PARAMETERS = ('size',)
     def __init__(self, size=5, **keywords ):
         # Check the range of all parameters before applying.
         if size < 1:
@@ -780,6 +790,7 @@ class MF_Storage( ModuleForm ):
     MASS_X = 0
 
 class Module( BaseGear, StandardDamageHandler ):
+    SAVE_PARAMETERS = ('form','size')
     def __init__(self, form=MF_Storage, size=1, **keywords ):
         keywords[ "name" ] = keywords.pop( "name", form.name )
         # Check the range of all parameters before applying.
@@ -870,6 +881,7 @@ class MT_Battroid( Singleton ):
 
 
 class Mecha(BaseGear,StandardDamageHandler):
+    SAVE_PARAMETERS = ('name','form')
     def __init__(self, form=MT_Battroid, **keywords ):
         name = keywords.get(  "name" )
         if name == None:

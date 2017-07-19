@@ -83,12 +83,18 @@ class DynaColor( object ):
 
 #mycolor.use()
 
+FREEDOM_BLUE = (21,177,255,12,3,36)
+MEDIUM_SKIN = (236,181,147,30,20,16)
+PIRATE_SUNRISE = (235,57,13,31,1,6)
+AQUAMARINE = (191,255,234,2,12,45)
+
 class ColorTest( object ):
-    def __init__( self, fname='por_f_ladi_vikki(JAY).png' ):
-        self.base_image = pbge.image.Image(fname,100,150,((17,78,200),(172,114,89),(175,26,10),(0,0,0),(0,0,0))) # Freedom Blue, Medium Skin, Pirate Sunrise
-        self.color_image = pbge.image.Image(fname,100,150)
+    def __init__( self, fname='new_portrait_test.png' ):
+        self.base_image = pbge.image.Image(fname,400,600,((17,78,200),(172,114,89),(175,26,10),(0,0,0),(0,0,0))) # Freedom Blue, Medium Skin, Pirate Sunrise
+        self.color_image = pbge.image.Image(fname,400,600)
         self.bitmap = self.color_image.bitmap
-        self.colors = ((21,177,255,3,7,36),(236,181,147,30,20,16),(235,57,13,31,1,6),(0,0,0,0,0,0),(0,0,0,0,0,0))
+        # Maroon, Dark Skin, Jade
+        self.colors = ((225,61,94,31,8,24),(122,78,42,17,8,5),(116,179,168,9,19,21),(0,0,0,0,0,0),(0,0,0,0,0,0))
 
         self.recolor()
 
@@ -110,21 +116,21 @@ class ColorTest( object ):
                 c = self.bitmap.get_at( (x,y) )
                 if ( c.r > 0 ) and ( c.g == 0 ) and ( c.b == 0 ):
                     self.bitmap.set_at( (x,y), self.generate_color(red_channel,c.r))
-                elif ( c.r > 0 ) and ( c.g == c.r ) and ( c.b == 0 ):
+                elif ( c.r > 0 ) and ( c.g > 0 ) and ( c.b == 0 ):
                     self.bitmap.set_at( (x,y), self.generate_color(yellow_channel,c.r))
-                elif ( c.r > 0 ) and ( c.g == 0 ) and ( c.b == c.r ):
+                elif ( c.r > 0 ) and ( c.g == 0 ) and ( c.b > 0 ):
                     self.bitmap.set_at( (x,y), self.generate_color(magenta_channel,c.r))
                 elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b == 0 ):
                     self.bitmap.set_at( (x,y), self.generate_color(green_channel,c.g))
-                elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b == c.g ):
+                elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b > 0 ):
                     self.bitmap.set_at( (x,y), self.generate_color(cyan_channel,c.g))
 
 
     def myview(self):
         screen_area = my_state.screen.get_rect()
         my_state.screen.fill( (0,0,0) )
-        self.base_image.render(pygame.Rect(50, 50, 100, 150))
-        self.color_image.render(pygame.Rect(200, 50, 100, 150))
+        self.base_image.render(pygame.Rect(0, 0, 400, 600))
+        self.color_image.render(pygame.Rect(400, 0, 400, 600))
 
     def use( self ):
         keep_going = True
@@ -142,5 +148,12 @@ class ColorTest( object ):
             elif gdi.type == pygame.QUIT:
                 keep_going = False
 
-ColorTest('por_m_phil_wrongness(A-Y).png').use()
+my_color_test = ColorTest()
+
+import timeit
+print timeit.timeit( 'my_color_test.recolor()', setup='''from __main__ import ColorTest
+my_color_test = ColorTest()''', number=1000)
+
+
+#ColorTest().use()
 

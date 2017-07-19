@@ -24,20 +24,28 @@ class Character( pbge.scenes.PlaceableThing):
 #myarmor = gears.base.Armor( size = 5, sub_com=[gears.base.Armor(size=1)], scale=gears.scale.HumanScale, foo="bar" )
 
 mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
-myarmor = mygearlist[0]
+mychar = mygearlist[0]
 
-myarmor.colors = ((104,130,117),(152,190,181),(220,44,51),(152,190,181),(220,44,51))
+#mygearlist = gears.Loader('out.txt').load()
+#myout = mygearlist[0]
 
-print myarmor.mass
-print myarmor.max_health
-myarmor.termdump()
+
+#mychar.colors = ((104,130,117),(152,190,181),(220,44,51),(152,190,181),(220,44,51))
+
+print mychar.mass
+print mychar.calc_mobility()
+mychar.termdump()
+print mychar.__class__.__mro__
+
+#mysaver = gears.Saver('out.txt')
+#mysaver.save([mychar])
 
 myscene = scenes.Scene(50,50,"Testaria")
 #myscene.fill(Rect(0,0,50,50), floor=Floor, wall=None)
 #myscene.fill(Rect(5,5,24,24), wall=Wall)
 #myscene.fill(Rect(0,49,29,49), wall=Wall)
 
-mychar = Character()
+#mychar = Character()
 #mychar.place(myscene,(2,13))
 
 myfilter = pbge.randmaps.converter.BasicConverter(Wall)
@@ -49,7 +57,7 @@ myroom1 = pbge.randmaps.rooms.Room()
 myroom2 = pbge.randmaps.rooms.Room()
 myroom3 = pbge.randmaps.rooms.Room()
 myroom1.contents.append(mychar)
-myroom3.contents.append(myarmor)
+#myroom1.contents.append(myout)
 
 myscenegen.contents.append(myroom1)
 myscenegen.contents.append(myroom2)
@@ -71,6 +79,49 @@ def move_pc( dx, dy ):
     y += dy
     if not myscene.tile_blocks_walking(x,y):
         mychar.move((x,y),myview,0.25)
+
+def parenthetic_contents(string):
+    """Generate parenthesized contents in string as pairs (level, contents)."""
+    stack = []
+    for i, c in enumerate(string):
+        if c == '(':
+            stack.append(i)
+        elif c == ')' and stack:
+            start = stack.pop()
+            yield (len(stack), string[start + 1: i])
+
+def process_list( string ):
+    current_list = None
+    stack = []
+    start_token = -1
+    for i, c in enumerate(string):
+        print i,c, len(stack)
+        if c == '(':
+            # Begin a new list
+            nulist = list()
+            if current_list is not None:
+                stack.append(current_list)
+                current_list.append( nulist )
+            current_list = nulist
+            start_token = i + 1
+        elif c == ')':
+            # Pop out to previous list
+            if start_token < i:
+                toke = string[start_token:i]
+                current_list.append(toke)
+            if stack:
+                current_list = stack.pop()
+            start_token=i+1
+        elif c == ',':
+            # Store the current item in the list
+            toke = string[start_token:i]
+            if toke:
+                current_list.append(toke)
+            start_token=i+1
+    return current_list
+
+
+#print process_list('((104, 130, 117), (152, 190, 181), (220, 44, 51), (152, 190, 181), (220, 44, 51))')
 
 keep_going = True
 record_anim = False

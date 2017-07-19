@@ -2,6 +2,8 @@ Mecha
     name = "Buru Buru"
     desig = "SAN-X9"
     imagename = "btr_buruburu.png"
+  colors = [[104, 130, 117], [152, 190, 181], [220, 44, 51], [152, 190, 181], [220, 44, 51]]
+
     SUB
         Head
             size = 5
@@ -16,6 +18,7 @@ Mecha
                     damage = 1
                     accuracy = 2
                     penetration = 0
+                    integral = True
             END
         Torso
             size = 5
