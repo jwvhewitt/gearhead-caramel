@@ -638,7 +638,7 @@ class Missile( BaseGear, StandardDamageHandler ):
 
     @property
     def base_mass(self):
-        return ( ( self.damage + self.penetration ) * 5 + self.accuracy + self.reach * self.quantity ) //25
+        return ((( self.damage + self.penetration ) * 5 + self.accuracy + self.reach ) * self.quantity ) //25
 
     @property
     def volume(self):
@@ -937,10 +937,15 @@ class Mecha(BaseGear,StandardDamageHandler):
         """
         return self.is_not_destroyed()
 
+    def find_pilot( self ):
+        """Return the character who is operating this mecha."""
+
+
     def is_active( self ):
         """ To be active, a mecha must be operational and have an operational
             pilot.
         """
+        pilot = self.find_pilot()
         return self.is_operational()
 
     def calc_mobility( self ):

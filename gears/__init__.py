@@ -49,6 +49,8 @@ class Loader( object ):
         self.fname = fname
 
     def process_list( self, string ):
+        # This string describes a list. There may be additional lists in
+        # the list. Deal with that.
         current_list = None
         stack = []
         start_token = -1

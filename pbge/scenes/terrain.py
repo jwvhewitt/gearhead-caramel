@@ -41,11 +41,18 @@ class Terrain( object ):
 
 class VariableTerrain( Terrain ):
     frames = (0,1,2,3,4,5,6,7)
+    imagename2 = ''
     @classmethod
     def prerender( self, dest, view, x, y ):
         """Draw terrain that should appear behind a model in the same tile"""
         spr = view.get_sprite(self)
         spr.render( dest, self.frames[view.get_pseudo_random(x,y) % len(self.frames)] )
+    @classmethod
+    def render( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        if self.imagename2:
+            spr = view.get_named_sprite( self.imagename2 )
+            spr.render( dest, self.frames[view.get_pseudo_random(x,y) % len(self.frames)] )
 
 
 class WallTerrain( Terrain ):

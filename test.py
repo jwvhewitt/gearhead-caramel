@@ -10,10 +10,14 @@ pbge.init('GearHead Caramel','ghcaramel',gamedir)
 
 
 class Floor( pbge.scenes.terrain.VariableTerrain ):
-    imagename = 'terrain_floor_new.png'
+    imagename = 'terrain_floor_grass.png'
 
-class Wall( pbge.scenes.terrain.WallTerrain ):
-    imagename = 'terrain_wall_fortress.png'
+#class Wall( pbge.scenes.terrain.WallTerrain ):
+#    imagename = 'terrain_wall_fortress.png'
+
+class Wall( pbge.scenes.terrain.VariableTerrain ):
+    imagename2 = 'terrain_trees_fg.png'
+    imagename = 'terrain_trees_bg.png'
 
 class Character( pbge.scenes.PlaceableThing):
     imagename = 'PD_Sean.png'
