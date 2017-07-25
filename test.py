@@ -10,14 +10,24 @@ pbge.init('GearHead Caramel','ghcaramel',gamedir)
 
 
 class Floor( pbge.scenes.terrain.VariableTerrain ):
-    imagename = 'terrain_floor_grass.png'
+    image_bottom = 'terrain_floor_grass.png'
 
 #class Wall( pbge.scenes.terrain.WallTerrain ):
 #    imagename = 'terrain_wall_fortress.png'
 
 class Wall( pbge.scenes.terrain.VariableTerrain ):
-    imagename2 = 'terrain_trees_fg.png'
-    imagename = 'terrain_trees_bg.png'
+    image_top = 'terrain_trees_fg.png'
+    image_middle = 'terrain_trees_bg.png'
+
+class Water( pbge.scenes.terrain.AnimTerrain ):
+    image_biddle = 'terrain_water2.png'
+    image_bottom = 'terrain_water1.png'
+    altitude = -24
+    transparent = True
+
+class Floor( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_grass.png'
+    border = pbge.scenes.terrain.TerrBorder( Water, 'terrain_border_beach.png' )
 
 class Character( pbge.scenes.PlaceableThing):
     imagename = 'PD_Sean.png'
@@ -47,7 +57,6 @@ print mychar.__class__.__mro__
 myscene = scenes.Scene(50,50,"Testaria")
 #myscene.fill(Rect(0,0,50,50), floor=Floor, wall=None)
 #myscene.fill(Rect(5,5,24,24), wall=Wall)
-#myscene.fill(Rect(0,49,29,49), wall=Wall)
 
 #mychar = Character()
 #mychar.place(myscene,(2,13))
@@ -68,6 +77,9 @@ myscenegen.contents.append(myroom2)
 myscenegen.contents.append(myroom3)
 
 myscenegen.make()
+
+myscene.fill(Rect(20,20,5,3), floor=Water, wall=None)
+myscene.fill(Rect(21,19,3,5), floor=Water, wall=None)
 
 myview = scenes.viewer.SceneView( myscene )
 

@@ -23,23 +23,47 @@ class Tile( object ):
     def blocks_walking( self ):
         return (self.floor and self.floor.block_walk) or (self.wall is True) or (self.wall and self.wall.block_walk) or (self.decor and self.decor.block_walk)
 
-    def prerender( self, dest, view, x, y ):
+    def render_bottom( self, dest, view, x, y ):
         if self.floor:
-            self.floor.prerender( dest, view, x, y )
+            self.floor.render_bottom( dest, view, x, y )
         if self.wall and self.wall is not True:
-            self.wall.prerender( dest, view, x, y )
+            self.wall.render_bottom( dest, view, x, y )
         if self.decor:
-            self.decor.prerender( dest, view, x, y )
+            self.decor.render_bottom( dest, view, x, y )
 
-    def render( self, dest, view, x, y ):
+    def render_biddle( self, dest, view, x, y ):
         if self.floor:
-            self.floor.render( dest, view, x, y )
+            self.floor.render_biddle( dest, view, x, y )
         if self.wall and self.wall is not True:
-            self.wall.render( dest, view, x, y )
+            self.wall.render_biddle( dest, view, x, y )
         if self.decor:
-            self.decor.render( dest, view, x, y )
+            self.decor.render_biddle( dest, view, x, y )
 
+    def render_middle( self, dest, view, x, y ):
+        if self.floor:
+            self.floor.render_middle( dest, view, x, y )
+        if self.wall and self.wall is not True:
+            self.wall.render_middle( dest, view, x, y )
+        if self.decor:
+            self.decor.render_middle( dest, view, x, y )
 
+    def render_top( self, dest, view, x, y ):
+        if self.floor:
+            self.floor.render_top( dest, view, x, y )
+        if self.wall and self.wall is not True:
+            self.wall.render_top( dest, view, x, y )
+        if self.decor:
+            self.decor.render_top( dest, view, x, y )
+
+    def altitude( self ):
+        alt = 0
+        if self.floor:
+            alt = self.floor.altitude
+        if self.wall and self.wall is not True:
+            alt = max(self.wall.altitude,alt)
+        if self.decor:
+            alt = max(self.decor.altitude,alt)
+        return alt
 
 class PlaceableThing( KeyObject ):
     """A thing that can be placed on the map."""
@@ -58,6 +82,7 @@ class PlaceableThing( KeyObject ):
     imageheight = 64
     imagewidth = 64
     frame = 0
+    altitude = None
     def get_sprite(self):
         """Generate the sprite for this thing."""
         return image.Image(self.imagename,self.imagewidth,self.imageheight,self.colors)
