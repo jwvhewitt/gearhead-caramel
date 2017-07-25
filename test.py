@@ -27,7 +27,14 @@ class Water( pbge.scenes.terrain.AnimTerrain ):
 
 class Floor( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_grass.png'
-    border = pbge.scenes.terrain.TerrBorder( Water, 'terrain_border_beach.png' )
+    #image_bottom = 'terrain_floor_new.png'
+    border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
+
+class Mountain( pbge.scenes.terrain.HillTerrain ):
+    altitude = 20
+    image_middle = 'terrain_hill_1.png'
+    bordername = ''
+    block_walk = False
 
 class Character( pbge.scenes.PlaceableThing):
     imagename = 'PD_Sean.png'
@@ -46,10 +53,10 @@ mychar = mygearlist[0]
 
 #mychar.colors = ((104,130,117),(152,190,181),(220,44,51),(152,190,181),(220,44,51))
 
-print mychar.mass
-print mychar.calc_mobility()
-mychar.termdump()
-print mychar.__class__.__mro__
+#print mychar.mass
+#print mychar.calc_mobility()
+#mychar.termdump()
+#print mychar.__class__.__mro__
 
 #mysaver = gears.Saver('out.txt')
 #mysaver.save([mychar])
@@ -80,6 +87,8 @@ myscenegen.make()
 
 myscene.fill(Rect(20,20,5,3), floor=Water, wall=None)
 myscene.fill(Rect(21,19,3,5), floor=Water, wall=None)
+myscene.fill(Rect(10,20,1,5), wall=Mountain)
+myscene.fill(Rect(8,20,5,1), wall=Mountain)
 
 myview = scenes.viewer.SceneView( myscene )
 

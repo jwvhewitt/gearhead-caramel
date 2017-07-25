@@ -27,6 +27,12 @@ class SceneView( object ):
         self.modelsprite = weakref.WeakKeyDictionary()
         self.namedsprite = dict()
 
+        self.randoms = list()
+        seed = ord(scene.name[0])
+        for t in range(1237):
+            seed = (( seed * 401 ) + 73 ) % 1024
+            self.randoms.append( seed )
+
         self.scene = scene
         self.x_off = 600
         self.y_off = -200
@@ -54,8 +60,9 @@ class SceneView( object ):
         return spr
 
     def get_pseudo_random( self, x, y ):
-        self.seed = ( 73 * x + 101 * y + x * y ) % 1024
-        return self.seed
+        #self.seed = ( 73 * x + 101 * y + x * y ) % 1024
+        #return self.seed
+        return self.randoms[ ( x + y * self.scene.width ) % len(self.randoms) ]
 
     def calc_floor_score( self, x, y, terr ):
         """Return bitmask of how many floors of type terrain border tile x,y."""

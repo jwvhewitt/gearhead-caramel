@@ -15,7 +15,7 @@ from .. import image, Singleton
 # - render_middle draws a layer beneath a model in the same tile
 # - render_top draws a layer on top of a model in the same tile
 
-class TerrBorder( object ):
+class FloorBorder( object ):
     def __init__( self, terrain_to_seek, border_image ):
         self.terrain_to_seek = terrain_to_seek
         self.border_image = border_image
@@ -177,14 +177,44 @@ class WallTerrain( Terrain ):
     @classmethod
     def render_top( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
-        bor = view.calc_border_score( x, y )
-        if bor == 15:
-            wal = None
+        if self.bordername:
+            bor = view.calc_border_score( x, y )
+            if bor == 15:
+                wal = None
+            else:
+                wal = view.calc_wall_score( x, y, WallTerrain )
         else:
+            bor = -1
             wal = view.calc_wall_score( x, y, WallTerrain )
 
         if wal:
-            spr = view.get_sprite(self)
+            spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
+            spr.render( dest, wal )
+        if bor > 0:
+            spr = view.get_named_sprite( self.bordername )
+            spr.render( dest, bor )
+
+class HillTerrain( Terrain ):
+    block_vision = False
+    block_walk = False
+    block_fly = False
+    bordername = None
+
+    @classmethod
+    def render_middle( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        if self.bordername:
+            bor = view.calc_border_score( x, y )
+            if bor == 15:
+                wal = None
+            else:
+                wal = view.calc_wall_score( x, y, HillTerrain )
+        else:
+            bor = -1
+            wal = view.calc_wall_score( x, y, HillTerrain )
+
+        if wal:
+            spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
             spr.render( dest, wal )
         if bor > 0:
             spr = view.get_named_sprite( self.bordername )

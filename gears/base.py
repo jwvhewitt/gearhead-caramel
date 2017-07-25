@@ -720,7 +720,7 @@ class ModuleForm( Singleton ):
     def is_legal_inv_com( self, part ):
         return False
     MULTIPLICITY_LIMITS = {
-        Engine:1,Hand:1,Mount:1,Cockpit:1,Gyroscope:1
+        Engine:1,Hand:1,Mount:1,Cockpit:1,Gyroscope:1,Armor:1
     }
     @classmethod
     def check_multiplicity( self, mod, part ):
@@ -743,7 +743,7 @@ class MF_Head( ModuleForm ):
 class MF_Torso( ModuleForm ):
     name = "Torso"
     MULTIPLICITY_LIMITS = {
-        Engine:1,Mount:2,Cockpit:1,Gyroscope:1
+        Engine:1,Mount:2,Cockpit:1,Gyroscope:1,Armor:1
     }
     @classmethod
     def is_legal_sub_com( self, part ):
