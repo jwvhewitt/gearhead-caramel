@@ -4,6 +4,7 @@ import damage
 import materials
 import scale
 import stats
+import effects
 
 import inspect
 import re

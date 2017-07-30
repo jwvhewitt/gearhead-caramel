@@ -87,6 +87,8 @@ myscenegen.make()
 
 myscene.fill(Rect(20,20,5,3), floor=Water, wall=None)
 myscene.fill(Rect(21,19,3,5), floor=Water, wall=None)
+myscene._map[22][22].floor = Floor
+myscene._map[19][21].floor = Water
 myscene.fill(Rect(10,20,1,5), wall=Mountain)
 myscene.fill(Rect(8,20,5,1), wall=Mountain)
 
@@ -161,6 +163,10 @@ while keep_going:
         if gdi.type == pbge.TIMEREVENT:
             myview()
             pygame.display.flip()
+
+        elif gdi.type == pygame.MOUSEBUTTONUP and gdi.button == 1:
+            myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=myview.mouse_tile,speed=0.5)
+            myview.anim_list.append( myanim )
 
         elif gdi.type == pygame.KEYDOWN:
             if gdi.unicode == u"1":

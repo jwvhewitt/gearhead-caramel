@@ -332,8 +332,18 @@ class SceneView( object ):
                         y_alt = self.model_altitude(m,x-1,y-1)
                         m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH-y_alt), self)
 
+
                 dest.topleft = (self.relative_x( x-1, y-1 ) + self.x_off,self.relative_y( x-1, y-1 ) + self.y_off)
                 self.scene._map[x-1][y-1].render_top( dest, self, x-1,y-1 )
+
+                mlist = self.anims.get( (x-1,y-1) )
+                if mlist:
+                    if len( mlist ) > 1:
+                        mlist.sort( key = self.model_depth )
+                    for m in mlist:
+                        mx,my = m.pos
+                        m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH), self)
+
 
             x,y,line,keep_going = self.next_tile(x0,y0,x,y,line,sx,sy,screen_area )
 
@@ -357,10 +367,20 @@ class SceneView( object ):
 
                 dest.topleft = (self.relative_x( x-1, y-1 ) + self.x_off,self.relative_y( x-1, y-1 ) + self.y_off)
                 self.scene._map[x-1][y-1].render_top( dest, self, x-1,y-1 )
+
+                mlist = self.anims.get( (x-1,y-1) )
+                if mlist:
+                    if len( mlist ) > 1:
+                        mlist.sort( key = self.model_depth )
+                    for m in mlist:
+                        mx,my = m.pos
+                        m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH), self)
+
             x,y,line,keep_going = self.next_tile(x0,y0,x,y,line,sx,sy,screen_area )
 
 
         self.phase = ( self.phase + 1 ) % 600
+        self.mouse_tile = (self.map_x(mouse_x,mouse_y),self.map_y(mouse_x,mouse_y))
 
 
 """        # Fill the modelmap, fieldmap, and itemmap.

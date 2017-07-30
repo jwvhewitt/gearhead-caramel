@@ -1,5 +1,6 @@
 import pygame
 import math
+from .. import image
 
 def get_line( x1, y1, x2, y2):
     # Bresenham's line drawing algorithm, as obtained from RogueBasin.
@@ -36,17 +37,18 @@ def get_line( x1, y1, x2, y2):
         points.reverse()
     return points
 
-def get_fline( x1, y1, x2, y2, speed):
+def get_fline( p1, p2, speed):
     # Generate a line, but of floats, ending with the ints x2,y2.
     points = list()
-    rng = math.sqrt( ( x1-x2 )**2 + ( y1-y2 )**2 )
+    rng = math.sqrt( ( p1[0]-p2[0] )**2 + ( p1[1]-p2[1] )**2 )
     steps = int(rng/speed)
     fsteps = float(rng/speed)
-    for t in range( 1, steps ):
-        x = x1 + float( (x2-x1) * t )/fsteps
-        y = y1 + float( (y2-y1) * t )/fsteps
-        points.append((x,y))
-    points.append((x2,y2))
+    for t in range( 0, steps ):
+        newpoint = list()
+        for coord in range(len(p1)):
+            newpoint.append( p1[coord] + float( (p2[coord]-p1[coord]) * t )/fsteps)
+        points.append(newpoint)
+    points.append(p2)
     return points
 
 class AnimOb( object ):
@@ -67,7 +69,7 @@ class AnimOb( object ):
 
     def update( self, view ):
 
-        view.anims[self.pos].append( self )
+        view.anims[view.PosToKey(self.pos)].append( self )
 
         if self.delay > 0:
             self.delay += -1
@@ -87,11 +89,85 @@ class AnimOb( object ):
                     self.counter = 0
 
 
-    def render( self, view, screen, dest ):
+    def render( self, foot_pos, view ):
         if not self.delay:
-            mydest = pygame.Rect( dest )
+            mydest = pygame.Rect(0,0,self.sprite.frame_width,self.sprite.frame_height)
+            mydest.midbottom = foot_pos
             mydest.y += self.y_off
-            self.sprite.render( screen, mydest, self.frame )
+            self.sprite.render( mydest, self.frame )
+
+class ShotAnim( AnimOb ):
+    """An AnimOb which moves along a line."""
+    def __init__( self, sprite_name, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=0.5, set_frame_offset=True, y_off=0, delay=0 ):
+        self.sprite = image.Image( sprite_name, width, height )
+        if set_frame_offset:
+            self.frame = frame + self.dir_frame_offset( self.isometric_pos(*start_pos), self.isometric_pos(*end_pos) )
+        else:
+            self.frame = frame
+        self.counter = 0
+        self.y_off = y_off
+        self.needs_deletion = False
+        self.pos = start_pos
+        self.itinerary = get_fline( start_pos, end_pos, speed )
+        self.children = list()
+        self.delay = delay
+
+    def relative_x( self, x, y ):
+        """Return the relative x position of this tile, ignoring offset."""
+        return ( x * 2 ) - ( y * 2 )
+
+    def relative_y( self, x, y ):
+        """Return the relative y position of this tile, ignoring offset."""
+        return y + x
+
+    def isometric_pos(self,x,y):
+        return self.relative_x(x,y),self.relative_y(x,y)
+
+    def dir_frame_offset( self, start_pos, end_pos ):
+        # There are 8 sprites for each projectile type, one for each of 
+        # the eight directions. Determine the direction which best suits 
+        # this vector. 
+        # Sprite 0 is pointing 12 o'clock and they go clockwise from there.
+        dx = end_pos[0] - start_pos[0]
+        dy = end_pos[1] - start_pos[1]
+
+        # Note that much of the following is magic translated from Pascal.
+        # I must've put some thought into it, but it looks mysterious now.
+        if dx == 0:
+            if dy > 0:
+                return 2
+            else:
+                return 6
+        else:
+            slope = float(dy)/float(dx)
+            if slope > 1.73:
+                tmp = 2
+            elif slope > 0.27:
+                tmp = 1
+            elif slope > -0.27:
+                tmp = 0
+            elif slope > -1.73:
+                tmp = 7
+            else:
+                tmp = 6
+            if dx > 0:
+                return tmp
+            else:
+                return ( tmp + 4 ) % 8
+
+
+
+    def update( self, view ):
+        view.anims[view.PosToKey(self.pos)].append( self )
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.counter += 1
+            if self.counter >= len( self.itinerary ):
+                self.needs_deletion = True
+            else:
+                self.pos = self.itinerary[ self.counter ]
+
 
 class MoveModel( object ):
     def __init__( self, model, start=None, dest=(0,0), speed=0.1, delay=0 ):
@@ -104,7 +180,7 @@ class MoveModel( object ):
         self.children = list()
         if not start:
             start = model.pos
-        self.itinerary = get_fline(start[0],start[1],dest[0],dest[1],speed)
+        self.itinerary = get_fline(start,dest,speed)
 
     def update( self, view ):
         # This one doesn't appear directly, but moves a model.

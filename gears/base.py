@@ -2,6 +2,7 @@ import materials
 import scale
 import calibre
 from pbge import container, scenes, KeyObject, Singleton
+import random
 
 #
 # Damage Handlers
@@ -312,6 +313,15 @@ class Armor( BaseGear, StandardDamageHandler ):
     def get_rating( self ):
         """Returns the penetration rating of this armor."""
         return (self.size * 10) * ( self.max_health - self.hp_damage ) // self.max_health
+
+    def reduce_damage( self, dmg, dmg_request ):
+        """Armor reduces damage taken, but gets damaged in the process."""
+        max_absorb = min(self.scale.scale_health( 1, self.material ),dmg)
+        absorb_amount = random.randint( max_absorb//5, max_absorb )
+        if absorb_amount > 0:
+            self.hp_damage = min( self.hp_damage + absorb_amount, self.max_health )
+            dmg -= 2 * absorb_amount
+        return dmg
 
 #    def can_install(self,part):
 #        """Returns True if part can be legally installed here under current conditions"""

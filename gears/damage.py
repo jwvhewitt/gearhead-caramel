@@ -71,11 +71,7 @@ class Damage( object ):
             if tar:
                 penetration -= tar
             # Armor that gets used gets damaged.
-            max_absorb = armor.scale.scale_health( 1, armor.material )
-            absorb_amount = random.randint( max_absorb//5, max_absorb )
-            if absorb_amount:
-                armor.hp_damage = min( armor.hp_damage + absorb_amount, armor.max_health )
-                dmg -= 2 * absorb_amount
+            dmg = armor.reduce_damage( dmg, self )
 
         if penetration > 0 and dmg > 0:
             # A damaging strike.
