@@ -4,6 +4,7 @@ from pbge import scenes, KeyObject
 from pygame import Rect
 import pygame
 import gears
+import random
 
 gamedir = os.path.dirname(__file__)
 pbge.init('GearHead Caramel','ghcaramel',gamedir)
@@ -107,45 +108,96 @@ def move_pc( dx, dy ):
     if not myscene.tile_blocks_walking(x,y):
         mychar.move((x,y),myview,0.25)
 
-def parenthetic_contents(string):
-    """Generate parenthesized contents in string as pairs (level, contents)."""
-    stack = []
-    for i, c in enumerate(string):
-        if c == '(':
-            stack.append(i)
-        elif c == ')' and stack:
-            start = stack.pop()
-            yield (len(stack), string[start + 1: i])
 
-def process_list( string ):
-    current_list = None
-    stack = []
-    start_token = -1
-    for i, c in enumerate(string):
-        print i,c, len(stack)
-        if c == '(':
-            # Begin a new list
-            nulist = list()
-            if current_list is not None:
-                stack.append(current_list)
-                current_list.append( nulist )
-            current_list = nulist
-            start_token = i + 1
-        elif c == ')':
-            # Pop out to previous list
-            if start_token < i:
-                toke = string[start_token:i]
-                current_list.append(toke)
-            if stack:
-                current_list = stack.pop()
-            start_token=i+1
-        elif c == ',':
-            # Store the current item in the list
-            toke = string[start_token:i]
-            if toke:
-                current_list.append(toke)
-            start_token=i+1
-    return current_list
+my_modules = pbge.image.Image('sys_modules.png',16,16)
+MODULE_FORM_FRAME_OFFSET = {
+        gears.base.MF_Torso:   0,
+        gears.base.MF_Head:    9,
+        gears.base.MF_Arm:     18,
+        gears.base.MF_Leg:     27,
+        gears.base.MF_Wing:    36,
+        gears.base.MF_Tail:    45,
+        gears.base.MF_Turret:  54,
+        gears.base.MF_Storage: 63,
+    }
+
+BIGFONT = pygame.font.Font( pbge.util.image_dir( "Anita semi square.ttf" ) , 15 )
+
+class ModuleDisplay( object ):
+    # The dest area should be 60x50.
+    # Increasing the width is okay, but the height is set in stone.
+    def __init__( self, dest, model ):
+        self.dest = dest
+        self.model = model
+    def part_struct_frame( self, module ):
+        if module.is_destroyed():
+            return MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 8
+        else:
+            return MODULE_FORM_FRAME_OFFSET.get(module.form,0) + min((module.get_damage_status()+5)/14, 7 )
+    def part_armor_frame( self, module, armor ):
+        if armor.is_destroyed():
+            return MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 80
+        else:
+            return MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 72 + min((armor.get_damage_status()+5)/14, 7 )
+
+    def draw_this_part( self, module ):
+        if (self.module_num % 2 ) == 1:
+            self.module_dest.centerx = self.dest.centerx - 12 * self.module_num//2 - 6
+        else:
+            self.module_dest.centerx = self.dest.centerx + 12 * self.module_num//2
+        my_modules.render( self.module_dest, self.part_struct_frame( module ) )
+        armor = module.get_armor()
+        if armor:
+            my_modules.render( self.module_dest, self.part_armor_frame( module, armor ) )
+        self.module_num += 1
+
+    def add_parts_of_type( self, mod_form ):
+        for module in self.model.sub_com:
+            if hasattr( module, "form" ) and module.form is mod_form and module.info_tier is None:
+                self.draw_this_part( module )
+
+    def add_parts_of_tier( self, mod_tier ):
+        for module in self.model.sub_com:
+            if hasattr( module, "form" ) and module.info_tier == mod_tier:
+                self.draw_this_part( module )
+
+    def render( self ):
+        self.module_dest = pygame.Rect(self.dest.x,self.dest.y,16,16)
+
+        self.module_num = 0
+    	self.add_parts_of_type( gears.base.MF_Head );
+    	self.add_parts_of_type( gears.base.MF_Turret );
+        self.module_num = max(self.module_num,1) # Want pods to either side of body; head and/or turret in middle.
+    	self.add_parts_of_type( gears.base.MF_Storage );
+        self.add_parts_of_tier( 1 )
+
+        self.module_num = 0
+        self.module_dest.y += 17
+    	self.add_parts_of_type( gears.base.MF_Torso );
+    	self.add_parts_of_type( gears.base.MF_Arm );
+    	self.add_parts_of_type( gears.base.MF_Wing );
+        self.add_parts_of_tier( 2 )
+
+        self.module_num = 0
+        self.module_dest.y += 17
+    	self.add_parts_of_type( gears.base.MF_Tail );
+        self.module_num = max(self.module_num,1) # Want legs to either side of body; tail in middle.
+    	self.add_parts_of_type( gears.base.MF_Leg );
+        self.add_parts_of_tier( 3 )
+
+
+class MechaStatusDisplay( object ):
+    def __init__( self, dest, model ):
+        myrect = pygame.Rect(0,0,220,150)
+        myrect.midbottom = dest
+        self.dest = myrect
+        self.model = model
+        self.module_display = ModuleDisplay(pygame.Rect(myrect.centerx-30,myrect.y+16,60,50),model)
+        self.render()
+    def render( self ):
+        pbge.default_border.render(self.dest)
+        pbge.draw_text(BIGFONT, str(self.model), self.dest, justify=0)
+        self.module_display.render()
 
 
 #print process_list('((104, 130, 117), (152, 190, 181), (220, 44, 51), (152, 190, 181), (220, 44, 51))')
@@ -162,10 +214,11 @@ while keep_going:
         gdi = pbge.wait_event()
         if gdi.type == pbge.TIMEREVENT:
             myview()
+            MechaStatusDisplay(pygame.mouse.get_pos(),mychar)
             pygame.display.flip()
 
         elif gdi.type == pygame.MOUSEBUTTONUP and gdi.button == 1:
-            myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=myview.mouse_tile,speed=0.5)
+            myanim = pbge.scenes.animobs.ShotAnim('anim_s_threebullet.png',start_pos=mychar.pos,end_pos=myview.mouse_tile,speed=0.5)
             myview.anim_list.append( myanim )
 
         elif gdi.type == pygame.KEYDOWN:
@@ -191,6 +244,19 @@ while keep_going:
                 record_anim = True
             elif gdi.unicode == u"c":
                 myview.focus(*mychar.pos)
+            elif gdi.unicode == u"s":
+                record_anim = True
+                endpos = list(mychar.pos)
+                endpos[0] += 15
+                for t in range(-10,11):
+                    endpos[1] = mychar.pos[1] - 10 + abs(t*2)
+                    myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=endpos,speed=0.5,delay=t*2+20)
+                    myview.anim_list.append( myanim )
+            elif gdi.unicode == u"d":
+                gears.damage.Damage( 2000, random.randint(1,100), mychar )
+
+
+
 
         elif gdi.type == pygame.QUIT:
             keep_going = False

@@ -25,6 +25,10 @@ class StandardDamageHandler( KeyObject ):
         """Returns the scaled maximum health of this gear."""
         return self.scale.scale_health( self.base_health, self.material )
 
+    def get_damage_status( self ):
+        """Returns a percent value showing how damaged this gear is."""
+        return (self.hp_damage*100)/self.max_health
+
     def is_not_destroyed( self ):
         """ Returns True if this gear is not destroyed.
             Note that this doesn't indicate the part is functional- just that
@@ -35,6 +39,9 @@ class StandardDamageHandler( KeyObject ):
             return self.max_health > self.hp_damage
         else:
             return True
+
+    def is_destroyed( self ):
+        return not self.is_not_destroyed()
 
     def is_operational( self ):
         """ Returns True if this gear is okay and all of its necessary subcoms
@@ -66,6 +73,9 @@ class InvulnerableDamageHandler( StandardDamageHandler ):
         """ Returns True if this gear can be damaged.
         """
         return False
+    def get_damage_status( self ):
+        """Returns a percent value showing how damaged this gear is."""
+        return 0
     def is_not_destroyed( self ):
         """ Returns True if this gear is not destroyed.
             Note that this doesn't indicate the part is functional- just that
@@ -90,6 +100,13 @@ class ContainerDamageHandler( StandardDamageHandler ):
                 working_subcoms = True
                 break
         return working_subcoms
+    def get_damage_status( self ):
+        """Returns a percent value showing how damaged this gear is."""
+        mysubs = [sc.get_damage_status() for sc in self.sub_com]
+        if mysubs:
+            return sum(mysubs)/len(mysubs)
+        else:
+            return 0
 
 # Gear Ingredients
 # Subclass one of these to get extra stuff for your gear class.
@@ -316,7 +333,7 @@ class Armor( BaseGear, StandardDamageHandler ):
 
     def reduce_damage( self, dmg, dmg_request ):
         """Armor reduces damage taken, but gets damaged in the process."""
-        max_absorb = min(self.scale.scale_health( 1, self.material ),dmg)
+        max_absorb = min(self.scale.scale_health( 2, self.material ),dmg)
         absorb_amount = random.randint( max_absorb//5, max_absorb )
         if absorb_amount > 0:
             self.hp_damage = min( self.hp_damage + absorb_amount, self.max_health )
@@ -801,7 +818,7 @@ class MF_Storage( ModuleForm ):
 
 class Module( BaseGear, StandardDamageHandler ):
     SAVE_PARAMETERS = ('form','size')
-    def __init__(self, form=MF_Storage, size=1, **keywords ):
+    def __init__(self, form=MF_Storage, size=1, info_tier=None, **keywords ):
         keywords[ "name" ] = keywords.pop( "name", form.name )
         # Check the range of all parameters before applying.
         if size < 1:
@@ -810,6 +827,9 @@ class Module( BaseGear, StandardDamageHandler ):
             size = 10
         self.size = size
         self.form = form
+        if info_tier not in (None,1,2,3):
+            info_tier = None
+        self.info_tier = info_tier
         super(Module, self).__init__(**keywords)
     @property
     def base_mass(self):

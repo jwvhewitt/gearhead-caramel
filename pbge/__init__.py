@@ -39,7 +39,7 @@ class Singleton( object ):
         raise exceptions.NotImplementedError("Singleton can't be instantiated.")
 
 class Border( object ):
-    def __init__( self , border_width=16, tex_width=32, border_name="", tex_name="", padding=16, tl=0, tr=0, bl=0, br=0, t=1, b=1, l=2, r=2 ):
+    def __init__( self , border_width=16, tex_width=32, border_name="", tex_name="", padding=16, tl=0, tr=0, bl=0, br=0, t=1, b=1, l=2, r=2, transparent=True ):
         # tl,tr,bl,br are the top left, top right, bottom left, and bottom right frames
         # Bug: The border must be exactly half as wide as the texture.
         self.border_width = border_width
@@ -57,17 +57,18 @@ class Border( object ):
         self.b = b
         self.l = l
         self.r = r
+        self.transparent = transparent
 
     def render( self, dest ):
         """Draw this decorative border at dest on screen."""
         # We're gonna draw a decorative border to surround the provided area.
-        # Step one: Determine the size of our box. Both dimensions should be 
-        # a multiple of TEX_WIDTH. 
-
         if self.border == None:
             self.border = image.Image( self.border_name, self.border_width, self.border_width )
         if self.tex == None:
             self.tex = image.Image( self.tex_name, self.tex_width, self.tex_width )
+            if self.transparent:
+                self.tex.bitmap.set_alpha(155)
+
 
         # Draw the backdrop.
         self.tex.tile(dest.inflate(self.padding,self.padding))
@@ -92,6 +93,7 @@ class Border( object ):
         for y in range(0,fdest.h/self.border_width+2):
             self.border.render( ( fdest.x , fdest.y+y*self.border_width ) , self.l )
             self.border.render( ( fdest.x+fdest.width-self.border_width , fdest.y+y*self.border_width ) , self.r )
+        my_state.screen.set_clip(None)
 
 
 default_border = Border( border_width=8, tex_width=16, border_name="sys_defborder.png", tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2 )

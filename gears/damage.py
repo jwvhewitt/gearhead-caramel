@@ -1,5 +1,5 @@
 import random
-import gears
+from base import Torso
 
 class Damage( object ):
     def __init__( self, hp_damage, penetration, target ):
@@ -109,7 +109,7 @@ class Damage( object ):
         if self.overkill:
             torso = None
             for m in target.sub_com:
-                if isinstance( m, gears.Torso ) and m.is_not_destroyed():
+                if isinstance( m, Torso ) and m.is_not_destroyed():
                     torso = m
             if torso:
                 self.apply_damage( torso, self.overkill )
