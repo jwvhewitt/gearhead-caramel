@@ -107,6 +107,10 @@ class ContainerDamageHandler( StandardDamageHandler ):
             return sum(mysubs)/len(mysubs)
         else:
             return 0
+    def can_be_damaged( self ):
+        """ Returns True if this gear can be damaged.
+        """
+        return False
 
 # Gear Ingredients
 # Subclass one of these to get extra stuff for your gear class.
@@ -910,7 +914,7 @@ class MT_Battroid( Singleton ):
             return False
 
 
-class Mecha(BaseGear,StandardDamageHandler):
+class Mecha(BaseGear,ContainerDamageHandler):
     SAVE_PARAMETERS = ('name','form')
     def __init__(self, form=MT_Battroid, **keywords ):
         name = keywords.get(  "name" )

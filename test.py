@@ -253,8 +253,16 @@ while keep_going:
                     myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=endpos,speed=0.5,delay=t*2+20)
                     myview.anim_list.append( myanim )
             elif gdi.unicode == u"d":
-                gears.damage.Damage( 2000, random.randint(1,100), mychar )
+                gears.damage.Damage( gears.scale.MechaScale.scale_health( 
+                  random.randint(1,6)+random.randint(1,6)+random.randint(1,6),
+                  gears.materials.Metal ), random.randint(1,100), mychar )
+            elif gdi.unicode == u"D":
+                gears.damage.Damage( gears.scale.MechaScale.scale_health( 
+                  11,
+                  gears.materials.Metal ), random.randint(1,100), mychar )
 
+            elif gdi.unicode == u"w":
+                mychar.wipe_damage()
 
 
 
