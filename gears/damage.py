@@ -20,21 +20,15 @@ class Damage( object ):
         # If any characters were found, set a "Number of Units" trigger. (Is this necessary? Why not do this at end of "inflict"?
         pass
 
-    def take_damage( self, target ):
-        """Function name inherited from GH2.1; record_damage may be better"""
-        # Check to see if the part is ok now
+    def apply_damage( self, target, dmg ):
+        """Function name inherited from GH2.1"""
+        # First, make sure this part can be damaged.
+        # Calculate overkill- damage above and beyond this part's capacity.
         # Record the damage done
         # If the part has been destroyed...
         #  * Moving up through part and its parents, set a trigger for each
         #    destroyed part.
         #  * Add this part to the list of destroyed stuff.
-        pass
-
-    def apply_damage( self, target, dmg ):
-        """Function name inherited from GH2.1"""
-        # First, make sure this part can be damaged.
-        # Calculate overkill- damage above and beyond this part's capacity.
-        # Call the take_damage function. What was I thinking?
         # Do special effects if this part is destroyed:
         # - Modules and cockpits do an ejection check
         # - Ammo can cause an explosion
@@ -47,11 +41,7 @@ class Damage( object ):
 
     def _list_thwackable_subcoms( self, target ):
         """Return a list of subcomponents which may take damage."""
-        thwackables = list()
-        for p in target.sub_com:
-            if p.is_not_destroyed():
-                thwackables.append( p )
-        return thwackables
+        return [ p for p in target.sub_com if p.is_not_destroyed() ]
 
     def real_damage_gear( self, target, dmg, penetration ):
         """Function name inherited from GH2.1"""

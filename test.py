@@ -218,7 +218,7 @@ while keep_going:
             pygame.display.flip()
 
         elif gdi.type == pygame.MOUSEBUTTONUP and gdi.button == 1:
-            myanim = pbge.scenes.animobs.ShotAnim('anim_s_threebullet.png',start_pos=mychar.pos,end_pos=myview.mouse_tile,speed=0.5)
+            myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=myview.mouse_tile,speed=0.5)
             myview.anim_list.append( myanim )
 
         elif gdi.type == pygame.KEYDOWN:
@@ -253,6 +253,8 @@ while keep_going:
                     myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=endpos,speed=0.5,delay=t*2+20)
                     myview.anim_list.append( myanim )
             elif gdi.unicode == u"d":
+                myanim = pbge.scenes.animobs.AnimOb('anim_smallboom.png',pos=mychar.pos,end_frame=7)
+                myview.anim_list.append( myanim )
                 gears.damage.Damage( gears.scale.MechaScale.scale_health( 
                   random.randint(1,6)+random.randint(1,6)+random.randint(1,6),
                   gears.materials.Metal ), random.randint(1,100), mychar )
