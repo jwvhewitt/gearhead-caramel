@@ -202,6 +202,8 @@ class MechaStatusDisplay( object ):
 
 #print process_list('((104, 130, 117), (152, 190, 181), (220, 44, 51), (152, 190, 181), (220, 44, 51))')
 
+boom_sprites = list(range(7))
+
 keep_going = True
 record_anim = False
 while keep_going:
@@ -253,15 +255,13 @@ while keep_going:
                     myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=endpos,speed=0.5,delay=t*2+20)
                     myview.anim_list.append( myanim )
             elif gdi.unicode == u"d":
-                myanim = pbge.scenes.animobs.AnimOb('anim_smallboom.png',pos=mychar.pos,end_frame=7)
-                myview.anim_list.append( myanim )
                 gears.damage.Damage( gears.scale.MechaScale.scale_health( 
                   random.randint(1,6)+random.randint(1,6)+random.randint(1,6),
-                  gears.materials.Metal ), random.randint(1,100), mychar )
+                  gears.materials.Metal ), random.randint(1,100), mychar, myview.anim_list )
             elif gdi.unicode == u"D":
                 gears.damage.Damage( gears.scale.MechaScale.scale_health( 
                   11,
-                  gears.materials.Metal ), random.randint(1,100), mychar )
+                  gears.materials.Metal ), random.randint(1,100), mychar, myview.anim_list )
 
             elif gdi.unicode == u"w":
                 mychar.wipe_damage()

@@ -1,11 +1,34 @@
 import random
-from base import Torso
+from pbge.scenes import animobs
+from base import Torso, Armor
+
+class SmallBoom( animobs.AnimOb ):
+    SPRITES = ('anim_smallboom_1.png','anim_smallboom_2.png',
+        'anim_smallboom_3.png','anim_smallboom_4.png',
+        'anim_smallboom_5.png','anim_smallboom_6.png',
+        'anim_smallboom_7.png')
+    def __init__(self, sprite=0, pos=(0,0), loop=0, delay=1 ):
+        super(SmallBoom, self).__init__(sprite_name=self.SPRITES[sprite],pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay)
+
+class NoDamageBoom( SmallBoom ):
+    SPRITES = ('anim_nodamage_1.png','anim_nodamage_2.png',
+        'anim_nodamage_3.png','anim_nodamage_4.png',
+        'anim_nodamage_5.png','anim_nodamage_6.png',
+        'anim_nodamage_7.png')
+
+class BigBoom( animobs.AnimOb ):
+    def __init__(self, pos=(0,0), loop=0, delay=1 ):
+        super(BigBoom, self).__init__(sprite_name="anim_bigboom.png",pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay)
+
 
 class Damage( object ):
-    def __init__( self, hp_damage, penetration, target ):
+    BOOM_SPRITES = list(range(7))
+    def __init__( self, hp_damage, penetration, target, animlist ):
         self.hp_damage = hp_damage
         self.penetration = penetration
         self.overkill = 0
+        self.damage_done = 0
+        self.animlist = animlist
         self.allocate_damage( target )
 
     def ejection_check( self, target ):
@@ -37,6 +60,8 @@ class Damage( object ):
         if dmg > dmg_capacity:
             self.overkill += dmg - dmg_capacity
             dmg = dmg_capacity
+        if not isinstance( target, Armor ):
+            self.damage_done += dmg
         target.hp_damage += dmg
 
     def _list_thwackable_subcoms( self, target ):
@@ -107,6 +132,33 @@ class Damage( object ):
         # A surrendered master that is damaged will un-surrender.
         # Check for engine explosions and crashing/falling here.
         # Give experience to vitality, if that's still a thing.
+
+        # Record the animations.
+        random.shuffle(self.BOOM_SPRITES)
+        if self.damage_done > 0:
+            if self.damage_done > target.scale.scale_health( 16, target.material ):
+                num_booms = 5
+            elif self.damage_done > target.scale.scale_health( 12, target.material ):
+                num_booms = 4
+            elif self.damage_done > target.scale.scale_health( 7, target.material ):
+                num_booms = 3
+            elif self.damage_done > target.scale.scale_health( 3, target.material ):
+                num_booms = 2
+            else:
+                num_booms = 1
+            for t in range(num_booms):
+                myanim = SmallBoom(sprite=self.BOOM_SPRITES[t],pos=target.pos,delay=t*2+1)
+                self.animlist.append( myanim )
+            if target.is_destroyed():
+                myanim = BigBoom(pos=target.pos,delay=num_booms*2)
+                self.animlist.append( myanim )
+        else:
+            for t in range(2):
+                myanim = NoDamageBoom(sprite=self.BOOM_SPRITES[t],pos=target.pos,delay=t*2+1)
+                self.animlist.append( myanim )
+
+
+
 
 class ShakaCannon( object ):
     damage = 4000
