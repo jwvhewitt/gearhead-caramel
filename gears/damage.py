@@ -1,24 +1,22 @@
 import random
+import pbge
 from pbge.scenes import animobs
 from base import Torso, Armor
 
 class SmallBoom( animobs.AnimOb ):
-    SPRITES = ('anim_smallboom_1.png','anim_smallboom_2.png',
-        'anim_smallboom_3.png','anim_smallboom_4.png',
-        'anim_smallboom_5.png','anim_smallboom_6.png',
-        'anim_smallboom_7.png')
-    def __init__(self, sprite=0, pos=(0,0), loop=0, delay=1 ):
-        super(SmallBoom, self).__init__(sprite_name=self.SPRITES[sprite],pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay)
+    SPRITE_NAME = 'anim_smallboom.png'
+    SPRITE_OFF = ((0,0),(-7,0),(-3,6),(3,6),(7,0),(3,-6),(-3,-6))
+    def __init__(self, sprite=0, pos=(0,0), loop=0, delay=1, y_off=0 ):
+        super(SmallBoom, self).__init__(sprite_name=self.SPRITE_NAME,pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay)
+        self.x_off,self.y_off = self.SPRITE_OFF[sprite]
+        self.y_off += y_off
 
 class NoDamageBoom( SmallBoom ):
-    SPRITES = ('anim_nodamage_1.png','anim_nodamage_2.png',
-        'anim_nodamage_3.png','anim_nodamage_4.png',
-        'anim_nodamage_5.png','anim_nodamage_6.png',
-        'anim_nodamage_7.png')
+    SPRITE_NAME = 'anim_nodamage.png'
 
 class BigBoom( animobs.AnimOb ):
-    def __init__(self, pos=(0,0), loop=0, delay=1 ):
-        super(BigBoom, self).__init__(sprite_name="anim_bigboom.png",pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay)
+    def __init__(self, pos=(0,0), loop=0, delay=1, y_off=0 ):
+        super(BigBoom, self).__init__(sprite_name="anim_bigboom.png",pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay, y_off=y_off)
 
 
 class Damage( object ):
@@ -29,6 +27,8 @@ class Damage( object ):
         self.overkill = 0
         self.damage_done = 0
         self.animlist = animlist
+        self.target_root = target.get_root()
+        self.operational_at_start = self.target_root.is_operational()
         self.allocate_damage( target )
 
     def ejection_check( self, target ):
@@ -123,7 +123,7 @@ class Damage( object ):
         # Dole out concussion and overkill damage.
         if self.overkill:
             torso = None
-            for m in target.sub_com:
+            for m in self.target_root.sub_com:
                 if isinstance( m, Torso ) and m.is_not_destroyed():
                     torso = m
             if torso:
@@ -136,25 +136,34 @@ class Damage( object ):
         # Record the animations.
         random.shuffle(self.BOOM_SPRITES)
         if self.damage_done > 0:
-            if self.damage_done > target.scale.scale_health( 16, target.material ):
+            if self.damage_done > self.target_root.scale.scale_health( 16, self.target_root.material ):
                 num_booms = 5
-            elif self.damage_done > target.scale.scale_health( 12, target.material ):
+            elif self.damage_done > self.target_root.scale.scale_health( 12, self.target_root.material ):
                 num_booms = 4
-            elif self.damage_done > target.scale.scale_health( 7, target.material ):
+            elif self.damage_done > self.target_root.scale.scale_health( 7, self.target_root.material ):
                 num_booms = 3
-            elif self.damage_done > target.scale.scale_health( 3, target.material ):
+            elif self.damage_done > self.target_root.scale.scale_health( 3, self.target_root.material ):
                 num_booms = 2
             else:
                 num_booms = 1
             for t in range(num_booms):
-                myanim = SmallBoom(sprite=self.BOOM_SPRITES[t],pos=target.pos,delay=t*2+1)
+                myanim = SmallBoom(sprite=self.BOOM_SPRITES[t],pos=self.target_root.pos,
+                    delay=t*2+1,
+                    y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
-            if target.is_destroyed():
-                myanim = BigBoom(pos=target.pos,delay=num_booms*2)
+            myanim = animobs.Caption( str(self.damage_done),
+                pos=self.target_root.pos,
+                y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
+            self.animlist.append( myanim )
+            if self.operational_at_start and not self.target_root.is_operational():
+                myanim = BigBoom(pos=self.target_root.pos,delay=num_booms*2,
+                y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
         else:
             for t in range(2):
-                myanim = NoDamageBoom(sprite=self.BOOM_SPRITES[t],pos=target.pos,delay=t*2+1)
+                myanim = NoDamageBoom(sprite=self.BOOM_SPRITES[t],
+                pos=self.target_root.pos,delay=t*2+1,
+                y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
 
 

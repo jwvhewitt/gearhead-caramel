@@ -40,6 +40,8 @@ class SceneView( object ):
 
         self.mouse_tile = (-1,-1)
 
+        my_state.view = self
+
 
     def get_sprite( self, obj ):
         """Return the sprite for the requested object. If no sprite exists, try to load one."""

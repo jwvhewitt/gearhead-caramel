@@ -3,7 +3,7 @@
 import pygame
 import weakref
 import util
-from . import my_state
+from . import my_state,render_text,TEXT_COLOR
 
 # Keep a list of already-loaded images, to save memory when multiple objects
 # need to use the same image file.
@@ -100,6 +100,23 @@ class Image( object ):
                 self.render(my_rect,frame,dest_surface)
 
         dest_surface.set_clip( None )
+
+class TextImage( Image ):
+    def __init__(self,txt='?????',frame_width=128,color=None,font=None):
+        """Create an image of the provided text"""
+        if not font:
+            font = my_state.anim_font
+        if not color:
+            color = TEXT_COLOR
+
+        self.txt = txt
+        self.bitmap = render_text(font,txt,frame_width,color,justify=0,antialias=False)
+        self.frame_width = self.bitmap.get_width()
+        self.frame_height = self.bitmap.get_height()
+
+    def __reduce__( self ):
+        # Rather than trying to save the bitmap image, just save the filename.
+        return TextImage, ( self.txt , self.frame_width , self.frame_height )
 
 
 

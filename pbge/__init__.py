@@ -106,6 +106,7 @@ TEXT_COLOR = (240,240,50)
 class GameState( object ):
     def __init__( self , screen=None ):
         self.screen = screen
+        self.view = None
 
 
 
@@ -120,7 +121,6 @@ POSTERS = list()
 my_state = GameState()
 
 
-import image
 
 INIT_DONE = False
 
@@ -304,6 +304,8 @@ import namegen
 import randmaps
 import scenes
 import plots
+import image
+
 
 def init(winname,appname,gamedir,icon="sys_icon.png"):
     global INIT_DONE
@@ -326,12 +328,14 @@ def init(winname,appname,gamedir,icon="sys_icon.png"):
 
         global SMALLFONT
         SMALLFONT = pygame.font.Font( util.image_dir( "VeraBd.ttf" ) , 12 )
+        my_state.small_font = SMALLFONT
 
         global TINYFONT
         TINYFONT = pygame.font.Font( util.image_dir( "VeraBd.ttf" ) , 9 )
 
         global ANIMFONT
         ANIMFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 16 )
+        my_state.anim_font = ANIMFONT
 
         global ITALICFONT
         ITALICFONT = pygame.font.Font( util.image_dir( "VeraBI.ttf" ) , 12 )

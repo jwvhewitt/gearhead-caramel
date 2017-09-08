@@ -254,6 +254,9 @@ while keep_going:
                     endpos[1] = mychar.pos[1] - 10 + abs(t*2)
                     myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=endpos,speed=0.5,delay=t*2+20)
                     myview.anim_list.append( myanim )
+            elif gdi.unicode == u"p":
+                myanim = pbge.scenes.animobs.Caption('Eat a dozen burritos!',pos=mychar.pos,delay=0)
+                myview.anim_list.append( myanim )
             elif gdi.unicode == u"d":
                 gears.damage.Damage( gears.scale.MechaScale.scale_health( 
                   random.randint(1,6)+random.randint(1,6)+random.randint(1,6),

@@ -255,10 +255,17 @@ class BaseGear( scenes.PlaceableThing ):
                 yield p
 
     def ancestors(self):
-        if hasattr( self, "container" ) and isinstance( self.container.owner, Gear ):
+        if hasattr( self, "container" ) and isinstance( self.container.owner, BaseGear ):
             yield self.container.owner
             for p in self.container.owner.ancestors():
                 yield p
+
+    def get_root(self):
+        """Return the top level parent of this gear."""
+        if hasattr( self, "container" ) and isinstance( self.container.owner, BaseGear ):
+            return self.container.owner.get_root()
+        else:
+            return self
 
     def find_module( self ):
         for g in self.ancestors():

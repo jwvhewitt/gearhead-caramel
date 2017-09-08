@@ -1,6 +1,6 @@
 import pygame
 import math
-from .. import image
+from .. import image, my_state
 
 def get_line( x1, y1, x2, y2):
     # Bresenham's line drawing algorithm, as obtained from RogueBasin.
@@ -53,7 +53,7 @@ def get_fline( p1, p2, speed):
 
 class AnimOb( object ):
     """An animation for the map."""
-    def __init__( self, sprite_name, width=64, height=64, pos=(0,0), start_frame=0, end_frame=0, ticks_per_frame=1, loop=0, y_off=0, delay=1 ):
+    def __init__( self, sprite_name, width=64, height=64, pos=(0,0), start_frame=0, end_frame=0, ticks_per_frame=1, loop=0, x_off=0, y_off=0, delay=1 ):
         self.sprite = image.Image( sprite_name, width, height )
         self.start_frame = start_frame
         self.frame = start_frame
@@ -61,6 +61,7 @@ class AnimOb( object ):
         self.ticks_per_frame = ticks_per_frame
         self.counter = 0
         self.loop = loop
+        self.x_off = x_off
         self.y_off = y_off
         self.needs_deletion = False
         self.pos = pos
@@ -93,18 +94,20 @@ class AnimOb( object ):
         if not self.delay:
             mydest = pygame.Rect(0,0,self.sprite.frame_width,self.sprite.frame_height)
             mydest.midbottom = foot_pos
+            mydest.x += self.x_off
             mydest.y += self.y_off
             self.sprite.render( mydest, self.frame )
 
 class ShotAnim( AnimOb ):
     """An AnimOb which moves along a line."""
-    def __init__( self, sprite_name, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=0.5, set_frame_offset=True, y_off=0, delay=0 ):
+    def __init__( self, sprite_name, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=0.5, set_frame_offset=True, x_off=0, y_off=0, delay=0 ):
         self.sprite = image.Image( sprite_name, width, height )
         if set_frame_offset:
             self.frame = frame + self.dir_frame_offset( self.isometric_pos(*start_pos), self.isometric_pos(*end_pos) )
         else:
             self.frame = frame
         self.counter = 0
+        self.x_off = x_off
         self.y_off = y_off
         self.needs_deletion = False
         self.pos = start_pos
@@ -167,6 +170,31 @@ class ShotAnim( AnimOb ):
                 self.needs_deletion = True
             else:
                 self.pos = self.itinerary[ self.counter ]
+
+class Caption( AnimOb ):
+    def __init__(self, txt="???", pos=(0,0), width=128, loop=16, color=(250,250,250), delay=1, y_off=0 ):
+        self.sprite = image.TextImage( txt, width )
+        self.frame = 0
+        self.counter = 0
+        self.loop = loop
+        self.x_off = 0
+        self.y_off = 0
+        self.dy_off = y_off
+        self.needs_deletion = False
+        self.pos = pos
+        self.delay = delay
+        self.children = list()
+
+    def update( self, view ):
+        view.anims[view.PosToKey(self.pos)].append( self )
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.counter += 1
+            self.y_off = -32 - 2*self.counter + self.dy_off
+            if self.counter >= self.loop:
+                self.needs_deletion = True
+
 
 
 class MoveModel( object ):
