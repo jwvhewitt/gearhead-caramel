@@ -44,16 +44,11 @@ class StandardDamageHandler( KeyObject ):
         return not self.is_not_destroyed()
 
     def is_operational( self ):
-        """ Returns True if this gear is okay and all of its necessary subcoms
-            are operational too. In other words, return True if this gear is
+        """ Returns True if this gear is okay and its conditions for use are
+            met. In other words, return True if this gear is
             ready to be used.
         """
         return self.is_not_destroyed()
-
-    def is_active( self ):
-        """ Returns True if this gear is okay and capable of independent action.
-        """
-        return False
 
     def can_be_damaged( self ):
         """ Returns True if this gear can be damaged.
@@ -152,11 +147,12 @@ class BaseGear( scenes.PlaceableThing ):
     # damage handlers from above, and maybe another ingredient like Stackable.
     DEFAULT_NAME = "Gear"
     DEFAULT_MATERIAL = materials.Metal
+    DEFAULT_SCALE = scale.MechaScale
     SAVE_PARAMETERS = ('name','desig','scale','material','imagename','colors')
     def __init__(self, **keywords ):
         self.name = keywords.pop( "name" , self.DEFAULT_NAME )
         self.desig = keywords.pop( "desig", None )
-        self.scale = keywords.pop( "scale" , scale.MechaScale )
+        self.scale = keywords.pop( "scale" , self.DEFAULT_SCALE )
         self.material = keywords.pop( "material" , self.DEFAULT_MATERIAL )
         self.imagename = keywords.pop( "imagename", "iso_item.png" )
         self.colors = keywords.pop( "colors", None )
@@ -267,7 +263,7 @@ class BaseGear( scenes.PlaceableThing ):
         else:
             return self
 
-    def find_module( self ):
+    def get_module( self ):
         for g in self.ancestors():
             if isinstance( g, Module ):
                 return g
@@ -397,7 +393,13 @@ class Cockpit( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Cockpit"
     base_mass = 5
     def is_legal_sub_com(self,part):
-        return isinstance( part , Armor )
+        return isinstance( part , (Armor,Character) )
+    def can_install(self,part):
+        if isinstance( part, Character ):
+            # Only one character per cockpit.
+            return len( [item for item in self.sub_com if isinstance( item, Character )]) < 1
+        else:
+            return self.is_legal_sub_com(part) and part.scale <= self.scale and self.check_multiplicity( part )
     volume = 2
     base_cost = 5
     base_health = 2
@@ -555,6 +557,13 @@ class Weapon( BaseGear, StandardDamageHandler ):
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
         return self.base_mass
+
+    def is_operational( self ):
+        """ To be operational, a weapon must be in an operational module.
+        """
+        mod = self.get_module()
+        return self.is_not_destroyed() and mod and mod.is_operational()
+
 
 
 class MeleeWeapon( Weapon ):
@@ -974,20 +983,24 @@ class Mecha(BaseGear,ContainerDamageHandler):
                         return True
 
     def is_operational( self ):
-        """ To be operational, a mecha must have an operational engine.
+        """ To be operational, a mecha must have a pilot.
         """
-        return self.is_not_destroyed()
+        pilot = self.get_pilot()
+        return self.is_not_destroyed() and pilot and pilot.is_operational()
 
-    def find_pilot( self ):
+    def get_pilot( self ):
         """Return the character who is operating this mecha."""
+        for m in self.sub_sub_coms():
+            if isinstance(m,Character):
+                return m
 
-
-    def is_active( self ):
-        """ To be active, a mecha must be operational and have an operational
-            pilot.
-        """
-        pilot = self.find_pilot()
-        return self.is_operational()
+    def load_pilot( self, pilot ):
+        """Stick the pilot into the mecha."""
+        cpit = None
+        for m in self.sub_sub_coms():
+            if isinstance(m,Cockpit):
+                cpit = m
+        cpit.sub_com.append( pilot )
 
     def calc_mobility( self ):
         """Calculate the mobility ranking of this mecha.
@@ -1009,5 +1022,54 @@ class Mecha(BaseGear,ContainerDamageHandler):
             it -= 30
         return it
 
+class Character(BaseGear,StandardDamageHandler):
+    SAVE_PARAMETERS = ('name','form')
+    DEFAULT_SCALE = scale.HumanScale
+    DEFAULT_MATERIAL = materials.Meat
+    def __init__(self, **keywords ):
+        super(Character, self).__init__(**keywords)
+
+    def is_legal_sub_com( self, part ):
+        return isinstance( part , Module )
+
+    def is_legal_inv_com( self, part ):
+        return True
+
+    def can_install(self,part):
+        return self.is_legal_sub_com(part) and part.scale is self.scale and self.check_multiplicity( part )
+
+    def can_equip(self,part):
+        """Returns True if part can be legally equipped under current conditions"""
+        return self.is_legal_inv_com(part) and part.scale <= self.scale
+
+    @property
+    def volume(self):
+        return sum( i.volume for i in self.sub_com )
+
+    def is_not_destroyed( self ):
+        """ A character doesn't need a body or head, but if present must not
+            be destroyed.
+        """
+        is_ok = self.max_health > self.hp_damage
+        # Check out the body.
+        for m in self.sub_com:
+            if isinstance( m, (Torso,Head) ) and m.is_destroyed():
+                is_ok = False
+                break
+        return is_ok
+
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this character."""
+        return self.volume // 2 + 1
+
+    def get_pilot( self ):
+        """Return the character itself."""
+        return self
+
+    def calc_mobility( self ):
+        """Calculate the mobility ranking of this character.
+        """
+        return 50
 
 

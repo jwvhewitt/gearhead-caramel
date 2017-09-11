@@ -103,6 +103,21 @@ class Loader( object ):
                 truval = rawval
             return truval
 
+    def process_dict( self, dict_desc ):
+        mydict = dict()
+        # Is this really the best way to get rid of the brackets?
+        # Probably not. Somebody Python this up, please.
+        dict_desc = dict_desc.replace('{','')
+        dict_desc = dict_desc.replace('}','')
+        print dict_desc
+        for line in dict_desc.split(','):
+            a,b,c = line.partition('=')
+            k = self.string_to_object(a)
+            v = self.string_to_object(c)
+            if k and v:
+                mydict[ k ] = v
+        return mydict
+
 
     def load_list( self , g_file ):
         """Given an open file, load the text and return the list of proto-gears"""
@@ -120,6 +135,24 @@ class Loader( object ):
                 if line[0] == "#":
                     # This line is a comment. Ignore.
                     pass
+
+                elif "{" in line:
+                    # This is the start of a dictionary.
+                    # Load the rest of the dict from the file,
+                    # then pass it to the dictionary expander.
+                    a,b,c = line.partition('=')
+                    k = self.string_to_object(a)
+                    my_dict_lines = [c,]
+                    while "}" not in my_dict_lines[-1]:
+                        nuline = g_file.readline()
+                        if nuline:
+                            my_dict_lines.append(nuline)
+                        else:
+                            break
+                    v = self.process_dict( ' '.join(my_dict_lines) )
+                    print k, '=', v
+                    if k and v:
+                        current_gear.gparam[ k ] = v
 
                 elif "=" in line:
                     # This is a dict line. Add to the current_dict.
@@ -175,6 +208,11 @@ class Saver( object ):
             return wotzit.__name__
         elif isinstance( wotzit, str ) and wotzit not in SINGLETON_TYPES and ' ' not in wotzit:
             return wotzit
+        elif isinstance( wotzit, dict ):
+            mylist = list()
+            for k,v in wotzit.iteritems():
+                mylist.append( self.hashable_to_string(k)+' = '+self.hashable_to_string(v) )
+            return '{' + ', '.join(mylist) + '}'
         else:
             return repr( wotzit )
 

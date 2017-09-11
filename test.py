@@ -48,6 +48,9 @@ class Character( pbge.scenes.PlaceableThing):
 mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
 mychar = mygearlist[0]
 
+mypilot = gears.base.Character(name="Rihanna")
+mychar.load_pilot( mypilot )
+
 #mygearlist = gears.Loader('out.txt').load()
 #myout = mygearlist[0]
 
@@ -247,7 +250,7 @@ while keep_going:
             elif gdi.unicode == u"c":
                 myview.focus(*mychar.pos)
             elif gdi.unicode == u"s":
-                record_anim = True
+                #record_anim = True
                 endpos = list(mychar.pos)
                 endpos[0] += 15
                 for t in range(-10,11):
@@ -255,7 +258,7 @@ while keep_going:
                     myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=endpos,speed=0.5,delay=t*2+20)
                     myview.anim_list.append( myanim )
             elif gdi.unicode == u"p":
-                myanim = pbge.scenes.animobs.Caption('Eat a dozen burritos!',pos=mychar.pos,delay=0)
+                myanim = pbge.scenes.animobs.Caption('Eat a dozen burritos!',pos=mychar.pos,delay=10)
                 myview.anim_list.append( myanim )
             elif gdi.unicode == u"d":
                 gears.damage.Damage( gears.scale.MechaScale.scale_health( 

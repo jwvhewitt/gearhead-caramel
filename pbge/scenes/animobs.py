@@ -69,12 +69,10 @@ class AnimOb( object ):
         self.children = list()
 
     def update( self, view ):
-
-        view.anims[view.PosToKey(self.pos)].append( self )
-
         if self.delay > 0:
             self.delay += -1
         else:
+            view.anims[view.PosToKey(self.pos)].append( self )
             self.counter += 1
             if self.counter >= self.ticks_per_frame:
                 self.frame += 1
@@ -161,10 +159,10 @@ class ShotAnim( AnimOb ):
 
 
     def update( self, view ):
-        view.anims[view.PosToKey(self.pos)].append( self )
         if self.delay > 0:
             self.delay += -1
         else:
+            view.anims[view.PosToKey(self.pos)].append( self )
             self.counter += 1
             if self.counter >= len( self.itinerary ):
                 self.needs_deletion = True
@@ -186,10 +184,10 @@ class Caption( AnimOb ):
         self.children = list()
 
     def update( self, view ):
-        view.anims[view.PosToKey(self.pos)].append( self )
         if self.delay > 0:
             self.delay += -1
         else:
+            view.anims[view.PosToKey(self.pos)].append( self )
             self.counter += 1
             self.y_off = -32 - 2*self.counter + self.dy_off
             if self.counter >= self.loop:
