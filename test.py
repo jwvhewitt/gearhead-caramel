@@ -72,6 +72,10 @@ myscene = scenes.Scene(50,50,"Testaria")
 #mychar = Character()
 #mychar.place(myscene,(2,13))
 
+mycamp = pbge.campaign.Campaign()
+mycamp.scene = myscene
+mycamp.party = [mychar,]
+
 myfilter = pbge.randmaps.converter.BasicConverter(Wall)
 mymutate = pbge.randmaps.mutator.CellMutator()
 myarchi = pbge.randmaps.architect.Architecture(Floor,myfilter,mutate=mymutate)
@@ -202,6 +206,52 @@ class MechaStatusDisplay( object ):
         pbge.draw_text(BIGFONT, str(self.model), self.dest, justify=0)
         self.module_display.render()
 
+class TargetingUI( object ):
+    def __init__(self):
+        pass
+    def render( self ):
+        self.view.overlays.clear()
+        self.view.overlays[ origin ] = maps.OVERLAY_CURRENTCHARA
+        self.view.overlays[ self.view.mouse_tile ] = maps.OVERLAY_CURSOR
+        if self.view.mouse_tile in legal_tiles:
+            aoe = aoegen.get_area( self.camp, origin, self.view.mouse_tile )
+            for p in aoe:
+                self.view.overlays[ p ] = maps.OVERLAY_AOE
+
+        self.view( self.screen )
+        if caption:
+            pygwrap.default_border.render( self.screen, self.SELECT_AREA_CAPTION_ZONE )
+            pygwrap.draw_text( self.screen, pygwrap.SMALLFONT, caption, self.SELECT_AREA_CAPTION_ZONE )
+
+    def select_area( self, origin, aoegen, caption = None ):
+        # Start by determining the possible target tiles.
+        legal_tiles = aoegen.get_targets( self.camp, origin )
+        target = None
+        aoe = set()
+
+        # Keep processing until a target is selected.
+        while not target:
+            # Get input and process it.
+            gdi = pygwrap.wait_event()
+
+            if gdi.type == pygwrap.TIMEREVENT:
+                # Set the mouse cursor on the map.
+                self.render()
+                pygame.display.flip()
+            elif gdi.type == pygame.KEYDOWN and gdi.key == pygame.K_F1:
+                caption = "Record Anim"
+                self.record_anim = True
+            elif gdi.type == pygame.QUIT:
+                self.no_quit = False
+                break
+            elif gdi.type == pygame.MOUSEBUTTONUP:
+                if gdi.button == 1 and self.view.mouse_tile in legal_tiles:
+                    target = self.view.mouse_tile
+                else:
+                    break
+        self.view.overlays.clear()
+        return target
+
 
 #print process_list('((104, 130, 117), (152, 190, 181), (220, 44, 51), (152, 190, 181), (220, 44, 51))')
 
@@ -258,14 +308,14 @@ while keep_going:
                     myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=endpos,speed=0.5,delay=t*2+20)
                     myview.anim_list.append( myanim )
             elif gdi.unicode == u"p":
-                myanim = pbge.scenes.animobs.Caption('Eat a dozen burritos!',pos=mychar.pos,delay=10)
+                myanim = pbge.scenes.animobs.Caption('Eat a dozen burritos!',pos=mychar.pos,delay=1)
                 myview.anim_list.append( myanim )
             elif gdi.unicode == u"d":
-                gears.damage.Damage( gears.scale.MechaScale.scale_health( 
+                gears.damage.Damage( mycamp, gears.scale.MechaScale.scale_health( 
                   random.randint(1,6)+random.randint(1,6)+random.randint(1,6),
                   gears.materials.Metal ), random.randint(1,100), mychar, myview.anim_list )
             elif gdi.unicode == u"D":
-                gears.damage.Damage( gears.scale.MechaScale.scale_health( 
+                gears.damage.Damage( mycamp, gears.scale.MechaScale.scale_health( 
                   11,
                   gears.materials.Metal ), random.randint(1,100), mychar, myview.anim_list )
 

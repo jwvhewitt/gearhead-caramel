@@ -384,7 +384,7 @@ class PointOfView( object ):
 
     def TileBlocked( self , x , y ):
         if self.scene.on_the_map( x , y ):
-            return self.scene.map[x][y].blocks_vision()
+            return self.scene.tile_blocks_vision(x,y)
         else:
             return True
 
@@ -409,7 +409,7 @@ class PCPointOfView( PointOfView ):
         if self.manhattan or ( self.radius == 1 ) or ( round( math.sqrt( ( x-self.x )**2 + ( y-self.y )**2 ) ) <= self.radius ):
             self.tiles.add( ( x , y ) )
             if self.scene.on_the_map( x , y ):
-                self.scene.map[x][y].visible = True
+                self.scene.set_visible(x,y,True)
 
 class Cone( PointOfView ):
     """Create a cone shaped template."""

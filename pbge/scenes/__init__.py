@@ -9,6 +9,7 @@
 
 from .. import container,image,KeyObject
 import pygame
+import math
 
 class Tile( object ):
     def __init__(self, floor=None, wall=None, decor=None, visible=True):
@@ -101,6 +102,7 @@ import pfov
 import terrain
 import viewer
 import animobs
+import targetarea
 
 
 class Scene( object ):

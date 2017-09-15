@@ -107,6 +107,7 @@ class GameState( object ):
     def __init__( self , screen=None ):
         self.screen = screen
         self.view = None
+        self.got_quit = False
 
 
 
@@ -133,9 +134,6 @@ TIMEREVENT = pygame.USEREVENT
 # Remember whether or not this unit has been initialized, since we don't need
 # to initialize it more than once.
 INIT_DONE = False
-
-# Store whether or not a quit signal has been received here.
-GOT_QUIT = False
 
 
 
@@ -227,8 +225,7 @@ def wait_event():
 
     # Record if a quit event took place
     if ev.type == pygame.QUIT:
-        global GOT_QUIT
-        GOT_QUIT = True
+        my_state.got_quit = True
     elif ev.type == TIMEREVENT:
         pygame.event.clear( TIMEREVENT )
     elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_PRINT:
@@ -305,6 +302,8 @@ import randmaps
 import scenes
 import plots
 import image
+import effects
+import campaign
 
 
 def init(winname,appname,gamedir,icon="sys_icon.png"):

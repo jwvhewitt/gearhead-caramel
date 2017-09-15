@@ -19,16 +19,20 @@ class BigBoom( animobs.AnimOb ):
         super(BigBoom, self).__init__(sprite_name="anim_bigboom.png",pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay, y_off=y_off)
 
 
+
 class Damage( object ):
     BOOM_SPRITES = list(range(7))
-    def __init__( self, hp_damage, penetration, target, animlist ):
+    def __init__( self, camp, hp_damage, penetration, target, animlist ):
+        self.camp = camp
         self.hp_damage = hp_damage
         self.penetration = penetration
         self.overkill = 0
         self.damage_done = 0
         self.animlist = animlist
+        self.destroyed_parts = list()
         self.target_root = target.get_root()
         self.operational_at_start = self.target_root.is_operational()
+        self.chain_reaction = list()
         self.allocate_damage( target )
 
     def ejection_check( self, target ):
@@ -56,6 +60,7 @@ class Damage( object ):
         # - Modules and cockpits do an ejection check
         # - Ammo can cause an explosion
         # - Engines can suffer a critical failure, aka big boom
+        ok_at_start = target.is_not_destroyed()
         dmg_capacity = target.max_health - target.hp_damage
         if dmg > dmg_capacity:
             self.overkill += dmg - dmg_capacity
@@ -63,6 +68,10 @@ class Damage( object ):
         if not isinstance( target, Armor ):
             self.damage_done += dmg
         target.hp_damage += dmg
+        if ok_at_start and target.is_destroyed():
+            self.destroyed_parts.append( target )
+            if hasattr(target,'on_destruction'):
+                self.chain_reaction.append(target.on_destruction)
 
     def _list_thwackable_subcoms( self, target ):
         """Return a list of subcomponents which may take damage."""
@@ -165,6 +174,9 @@ class Damage( object ):
                 pos=self.target_root.pos,delay=t*2+1,
                 y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
+        if self.chain_reaction:
+            for cr in self.chain_reaction:
+                cr(self.camp,myanim.children)
 
 
 
