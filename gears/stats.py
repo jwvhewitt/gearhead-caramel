@@ -33,6 +33,7 @@ class Knowledge( Stat ):
 class Charm( Stat ):
     name = 'Charm'
 
+PRIMARY_STATS = (Reflexes,Body,Speed,Perception,Craft,Ego,Knowledge,Charm)
 
 #  ****************
 #  ***  SKILLS  ***

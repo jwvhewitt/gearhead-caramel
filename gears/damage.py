@@ -1,22 +1,9 @@
 import random
 import pbge
+import geffects
 from pbge.scenes import animobs
 from base import Torso, Armor
 
-class SmallBoom( animobs.AnimOb ):
-    SPRITE_NAME = 'anim_smallboom.png'
-    SPRITE_OFF = ((0,0),(-7,0),(-3,6),(3,6),(7,0),(3,-6),(-3,-6))
-    def __init__(self, sprite=0, pos=(0,0), loop=0, delay=1, y_off=0 ):
-        super(SmallBoom, self).__init__(sprite_name=self.SPRITE_NAME,pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay)
-        self.x_off,self.y_off = self.SPRITE_OFF[sprite]
-        self.y_off += y_off
-
-class NoDamageBoom( SmallBoom ):
-    SPRITE_NAME = 'anim_nodamage.png'
-
-class BigBoom( animobs.AnimOb ):
-    def __init__(self, pos=(0,0), loop=0, delay=1, y_off=0 ):
-        super(BigBoom, self).__init__(sprite_name="anim_bigboom.png",pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay, y_off=y_off)
 
 
 
@@ -156,7 +143,7 @@ class Damage( object ):
             else:
                 num_booms = 1
             for t in range(num_booms):
-                myanim = SmallBoom(sprite=self.BOOM_SPRITES[t],pos=self.target_root.pos,
+                myanim = geffects.SmallBoom(sprite=self.BOOM_SPRITES[t],pos=self.target_root.pos,
                     delay=t*2+1,
                     y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
@@ -165,12 +152,12 @@ class Damage( object ):
                 y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
             self.animlist.append( myanim )
             if self.operational_at_start and not self.target_root.is_operational():
-                myanim = BigBoom(pos=self.target_root.pos,delay=num_booms*2,
+                myanim = geffects.BigBoom(pos=self.target_root.pos,delay=num_booms*2,
                 y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
         else:
             for t in range(2):
-                myanim = NoDamageBoom(sprite=self.BOOM_SPRITES[t],
+                myanim = geffects.NoDamageBoom(sprite=self.BOOM_SPRITES[t],
                 pos=self.target_root.pos,delay=t*2+1,
                 y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )

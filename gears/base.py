@@ -4,6 +4,9 @@ import calibre
 import pbge
 from pbge import container, scenes, KeyObject, Singleton
 import random
+import collections
+import stats
+import copy
 
 #
 # Damage Handlers
@@ -295,6 +298,36 @@ class BaseGear( scenes.PlaceableThing ):
             g.statusdump( prefix = '>' , indent = indent + 1 )
         for g in self.inv_com:
             g.statusdump( prefix = '+' , indent = indent + 1 )
+
+    def __deepcopy__( self, memo ):
+        # Regular deepcopy chokes on gears, so here's a custom deepcopy.
+        # Go through the ancestors, see what attributes need passing to constructor.
+        my_params = set()
+        for ancestor in self.__class__.__mro__:
+            if hasattr( ancestor, 'SAVE_PARAMETERS' ):
+                my_params.update( ancestor.SAVE_PARAMETERS )
+
+        # Copy the sub_com and inv_com
+        dcsubcom = [copy.deepcopy(sc) for sc in self.sub_com]
+        dcinvcom = [copy.deepcopy(sc) for sc in self.inv_com]
+
+        # Go through this gear's dict, copying stuff 
+        initdict = dict()
+        afterdict = dict()
+        for k,v in self.__dict__.items():
+            if k in my_params:
+                initdict[k] = copy.deepcopy(v)
+            elif k not in ('sub_com','inv_com','container'):
+                afterdict[k] = copy.deepcopy(v)
+
+        initdict["sub_com"] = dcsubcom
+        initdict["inv_com"] = dcinvcom
+
+        newgear = type(self)(**initdict)
+        newgear.__dict__.update(afterdict)
+        memo[id(self)] = newgear
+
+        return newgear
 
 #
 #  Practical Gears
@@ -783,6 +816,7 @@ class ModuleForm( Singleton ):
     VOLUME_X = 2
     MASS_X = 1
 
+
 class MF_Head( ModuleForm ):
     name = "Head"
     @classmethod
@@ -1033,11 +1067,29 @@ class Mecha(BaseGear,ContainerDamageHandler):
             it -= 30
         return it
 
+    def get_stat( self, stat_id ):
+        pilot = self.get_pilot()
+        if pilot:
+            return pilot.get_stat( stat_id )
+        else:
+            return 0
+
+    def get_skill_score( self, stat_id, skill_id ):
+        pilot = self.get_pilot()
+        if pilot:
+            return pilot.get_skill_score(stat_id,skill_id)
+        else:
+            return 0
+
 class Character(BaseGear,StandardDamageHandler):
     SAVE_PARAMETERS = ('name','form')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat
-    def __init__(self, **keywords ):
+    def __init__(self, statline=None, **keywords ):
+        self.statline = collections.defaultdict(int)
+        if statline:
+            self.statline.update(statline)
+
         super(Character, self).__init__(**keywords)
 
     def is_legal_sub_com( self, part ):
@@ -1069,10 +1121,19 @@ class Character(BaseGear,StandardDamageHandler):
                 break
         return is_ok
 
+    def get_stat( self, stat_id ):
+        return self.statline.get( stat_id, 0 )
+
+    def get_skill_score( self, stat_id, skill_id ):
+        it = self.get_stat(skill_id) * 5
+        if stat_id:
+            it += self.get_stat(stat_id) * 2
+        return it
+
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this character."""
-        return self.volume // 2 + 1
+        return max(self.get_stat(stats.Body),6)
 
     def get_pilot( self ):
         """Return the character itself."""

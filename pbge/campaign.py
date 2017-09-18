@@ -23,6 +23,8 @@
 from . import my_state
 import container
 import exceptions
+import util
+import cPickle
 
 class Campaign( object ):
     """Barebones campaign featuring functionality used by other pbge units."""

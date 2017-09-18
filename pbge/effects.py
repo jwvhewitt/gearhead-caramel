@@ -48,6 +48,7 @@ class Invocation( object ):
             This method will return an fx_record, which is a dict containing
             information about the results of any effects.
         """
+        fx_record = dict()
         for tp in target_points:
             if originator:
                 origin = originator.pos
@@ -65,10 +66,12 @@ class Invocation( object ):
             for p in area_of_effect:
                 if delay_point:
                     delay = camp.scene.distance( p, delay_point ) * 2 + 1
-                self.fx( camp, originator, p, anims, delay )
+                self.fx( camp, fx_record, originator, p, anims, delay )
 
         if self.price:
             self.price.pay(originator)
+
+        return fx_record
 
 
 
@@ -84,11 +87,11 @@ class NoEffect( object ):
         self.children = children
         self.anim = anim
 
-    def handle_effect( self, camp, originator, pos, anims, delay=0 ):
+    def handle_effect( self, camp, fx_record, originator, pos, anims, delay=0 ):
         """Do whatever is required of effect; return list of child effects."""
         return self.children
 
-    def __call__( self, camp, originator, pos, anims, delay=0 ):
+    def __call__( self, camp, fx_record, originator, pos, anims, delay=0 ):
         o_anims = anims
         o_delay = delay
         if self.anim:
@@ -102,7 +105,7 @@ class NoEffect( object ):
         # additional anims to be added by the effect itself. "handle_effect" is
         # called after the automatic anim above so that any captions/etc get
         # drawn on top of the base anim.
-        next_fx = self.handle_effect( camp, originator, pos, o_anims, o_delay )
+        next_fx = self.handle_effect( camp, fx_record, originator, pos, o_anims, o_delay )
         for nfx in next_fx:
             anims = nfx( camp, originator, pos, anims, delay )
         return anims

@@ -1,9 +1,12 @@
+import pbge
+
 import base
 import calibre
 import damage
 import materials
 import scale
 import stats
+import geffects
 
 import inspect
 import re
@@ -27,6 +30,10 @@ harvest( base, base.MT_Battroid, SINGLETON_TYPES, () )
 SINGLETON_TYPES['None'] = None
 harvest( stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,) )
 harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
+
+class GearHeadScene( pbge.scenes.Scene ):
+    def get_actors( self, pos ):
+        return [a for a in self._contents if isinstance(a,(base.Mecha,base.Character))]
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about string.partition at the time.

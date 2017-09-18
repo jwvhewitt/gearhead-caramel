@@ -5,6 +5,8 @@ from pygame import Rect
 import pygame
 import gears
 import random
+import copy
+import cPickle
 
 gamedir = os.path.dirname(__file__)
 pbge.init('GearHead Caramel','ghcaramel',gamedir)
@@ -48,14 +50,17 @@ class Character( pbge.scenes.PlaceableThing):
 mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
 mychar = mygearlist[0]
 
-mypilot = gears.base.Character(name="Rihanna")
+mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15})
 mychar.load_pilot( mypilot )
 
 #mygearlist = gears.Loader('out.txt').load()
 #myout = mygearlist[0]
 
-
-#mychar.colors = ((104,130,117),(152,190,181),(220,44,51),(152,190,181),(220,44,51))
+myclon = copy.deepcopy(mychar)
+myclon.colors = ((104,130,117),(152,190,181),(220,44,51),(152,190,181),(220,44,51))
+myclon.name = "Buru2"
+mypilot.name = "Argh"
+#myclon.termdump()
 
 #print mychar.mass
 #print mychar.calc_mobility()
@@ -65,7 +70,7 @@ mychar.load_pilot( mypilot )
 #mysaver = gears.Saver('out.txt')
 #mysaver.save([mychar])
 
-myscene = scenes.Scene(50,50,"Testaria")
+myscene = gears.GearHeadScene(50,50,"Testaria")
 #myscene.fill(Rect(0,0,50,50), floor=Floor, wall=None)
 #myscene.fill(Rect(5,5,24,24), wall=Wall)
 
@@ -76,6 +81,7 @@ mycamp = pbge.campaign.Campaign()
 mycamp.scene = myscene
 mycamp.party = [mychar,]
 
+
 myfilter = pbge.randmaps.converter.BasicConverter(Wall)
 mymutate = pbge.randmaps.mutator.CellMutator()
 myarchi = pbge.randmaps.architect.Architecture(Floor,myfilter,mutate=mymutate)
@@ -85,7 +91,7 @@ myroom1 = pbge.randmaps.rooms.Room()
 myroom2 = pbge.randmaps.rooms.Room()
 myroom3 = pbge.randmaps.rooms.Room()
 myroom1.contents.append(mychar)
-#myroom1.contents.append(myout)
+myroom1.contents.append(myclon)
 
 myscenegen.contents.append(myroom1)
 myscenegen.contents.append(myroom2)
@@ -99,6 +105,12 @@ myscene._map[22][22].floor = Floor
 myscene._map[19][21].floor = Water
 myscene.fill(Rect(10,20,1,5), wall=Mountain)
 myscene.fill(Rect(8,20,5,1), wall=Mountain)
+
+#mycamp.save()
+#with open( pbge.util.user_dir("rpg_BobDwarf19.sav"), "rb" ) as f:
+#    othercamp = cPickle.load( f )
+
+
 
 myview = scenes.viewer.SceneView( myscene )
 
@@ -269,7 +281,9 @@ while keep_going:
         gdi = pbge.wait_event()
         if gdi.type == pbge.TIMEREVENT:
             myview()
-            MechaStatusDisplay(pygame.mouse.get_pos(),mychar)
+            mmecha = myview.modelmap.get(myview.mouse_tile)
+            if mmecha:
+                MechaStatusDisplay(pygame.mouse.get_pos(),mmecha[0])
             pygame.display.flip()
 
         elif gdi.type == pygame.MOUSEBUTTONUP and gdi.button == 1:

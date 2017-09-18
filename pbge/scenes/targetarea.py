@@ -27,8 +27,6 @@ class Cone( object ):
         tiles = pfov.PointOfView( camp.scene, origin[0], origin[1], self.reach ).tiles
         tiles.remove( origin )
         return tiles
-    def pc_select_area( self, explo, origin, caption=None ):
-        explo.select_area( origin, self, caption )
 
 class Blast( object ):
     """A circular area centered on target."""
