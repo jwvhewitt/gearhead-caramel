@@ -12,9 +12,6 @@ gamedir = os.path.dirname(__file__)
 pbge.init('GearHead Caramel','ghcaramel',gamedir)
 
 
-class Floor( pbge.scenes.terrain.VariableTerrain ):
-    image_bottom = 'terrain_floor_grass.png'
-
 #class Wall( pbge.scenes.terrain.WallTerrain ):
 #    imagename = 'terrain_wall_fortress.png'
 
@@ -36,6 +33,7 @@ class Floor( pbge.scenes.terrain.VariableTerrain ):
 class Mountain( pbge.scenes.terrain.HillTerrain ):
     altitude = 20
     image_middle = 'terrain_hill_1.png'
+    #image_bottom = 'terrain_hill_1.png'
     bordername = ''
     block_walk = False
 
@@ -129,35 +127,35 @@ def move_pc( dx, dy ):
 
 
 my_modules = pbge.image.Image('sys_modules.png',16,16)
-MODULE_FORM_FRAME_OFFSET = {
-        gears.base.MF_Torso:   0,
-        gears.base.MF_Head:    9,
-        gears.base.MF_Arm:     18,
-        gears.base.MF_Leg:     27,
-        gears.base.MF_Wing:    36,
-        gears.base.MF_Tail:    45,
-        gears.base.MF_Turret:  54,
-        gears.base.MF_Storage: 63,
-    }
 
 BIGFONT = pygame.font.Font( pbge.util.image_dir( "Anita semi square.ttf" ) , 15 )
 
 class ModuleDisplay( object ):
     # The dest area should be 60x50.
     # Increasing the width is okay, but the height is set in stone.
+    MODULE_FORM_FRAME_OFFSET = {
+            gears.base.MF_Torso:   0,
+            gears.base.MF_Head:    9,
+            gears.base.MF_Arm:     18,
+            gears.base.MF_Leg:     27,
+            gears.base.MF_Wing:    36,
+            gears.base.MF_Tail:    45,
+            gears.base.MF_Turret:  54,
+            gears.base.MF_Storage: 63,
+        }
     def __init__( self, dest, model ):
         self.dest = dest
         self.model = model
     def part_struct_frame( self, module ):
         if module.is_destroyed():
-            return MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 8
+            return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 8
         else:
-            return MODULE_FORM_FRAME_OFFSET.get(module.form,0) + min((module.get_damage_status()+5)/14, 7 )
+            return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + min((module.get_damage_status()+5)/14, 7 )
     def part_armor_frame( self, module, armor ):
         if armor.is_destroyed():
-            return MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 80
+            return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 80
         else:
-            return MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 72 + min((armor.get_damage_status()+5)/14, 7 )
+            return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 72 + min((armor.get_damage_status()+5)/14, 7 )
 
     def draw_this_part( self, module ):
         if (self.module_num % 2 ) == 1:
@@ -264,10 +262,8 @@ class TargetingUI( object ):
         self.view.overlays.clear()
         return target
 
+my_mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
 
-#print process_list('((104, 130, 117), (152, 190, 181), (220, 44, 51), (152, 190, 181), (220, 44, 51))')
-
-boom_sprites = list(range(7))
 
 keep_going = True
 record_anim = False
@@ -285,6 +281,10 @@ while keep_going:
             if mmecha:
                 MechaStatusDisplay(pygame.mouse.get_pos(),mmecha[0])
             pygame.display.flip()
+
+            myview.overlays.clear()
+            myview.overlays[ myview.mouse_tile ] = (my_mapcursor,0)
+
 
         elif gdi.type == pygame.MOUSEBUTTONUP and gdi.button == 1:
             myanim = pbge.scenes.animobs.ShotAnim('anim_s_bigbullet.png',start_pos=mychar.pos,end_pos=myview.mouse_tile,speed=0.5)
@@ -336,6 +336,9 @@ while keep_going:
             elif gdi.unicode == u"w":
                 mychar.wipe_damage()
 
+            elif gdi.unicode == u"x":
+                mpos = pygame.mouse.get_pos()
+                print myview.mouse_tile, ' -> ', myview.fmap_x(*mpos), ',', myview.fmap_y(*mpos)
 
 
         elif gdi.type == pygame.QUIT:

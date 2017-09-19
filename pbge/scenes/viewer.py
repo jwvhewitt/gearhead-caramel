@@ -157,11 +157,19 @@ class SceneView( object ):
 
     def map_x( self, sx, sy ):
         """Return the map x column for the given screen coordinates."""
-        return ( ( sx - self.x_off ) / self.HTW + ( sy - self.y_off ) / self.HTH ) // 2
+        return int( float( sx - self.x_off ) / self.HTW + float( sy - self.y_off ) / self.HTH - 1) // 2 - 1
+
+    def fmap_x( self, sx, sy ):
+        """Return the map x column for the given screen coordinates."""
+        return ( float( sx - self.x_off ) / self.HTW + float( sy - self.y_off ) / self.HTH - 1) / 2 - 1
 
     def map_y( self, sx, sy ):
         """Return the map y row for the given screen coordinates."""
-        return ( ( sy - self.y_off ) / self.HTH - ( sx - self.x_off ) / self.HTW ) // 2
+        return int( float( sy - self.y_off ) / self.HTH - float( sx - self.x_off ) / self.HTW - 1) // 2
+
+    def fmap_y( self, sx, sy ):
+        """Return the map y row for the given screen coordinates."""
+        return ( float( sy - self.y_off ) / self.HTH - float( sx - self.x_off ) / self.HTW - 1) / 2
 
 
     def check_origin( self ):
@@ -319,11 +327,20 @@ class SceneView( object ):
                     self.scene._map[x][y].floor.border.render( dest, self, x, y )
 
 
+
+
             # We don't print the model in this tile yet- we print the one in
             # the tile above it.
             if self.scene.on_the_map( x-1, y-1) and self.scene._map[x-1][y-1].visible:
                 dest.topleft = (self.relative_x( x-1, y-1 ) + self.x_off,self.relative_y( x-1, y-1 ) + self.y_off)
                 self.scene._map[x-1][y-1].render_middle( dest, self, x-1,y-1 )
+
+                if self.overlays.get( (x-1,y-1) , None ):
+                    o_dest = dest.copy()
+                    if self.scene._map[x-1][y-1].altitude() > 0:
+                        o_dest.y -= self.scene._map[x-1][y-1].altitude()
+                    o_sprite,o_frame = self.overlays[(x-1,y-1)]
+                    o_sprite.render(o_dest,o_frame)
 
                 mlist = self.modelmap.get( (x-1,y-1) )
                 if mlist:
@@ -357,6 +374,13 @@ class SceneView( object ):
             if self.scene.on_the_map( x-1, y-1) and self.scene._map[x-1][y-1].visible:
                 dest.topleft = (self.relative_x( x-1, y-1 ) + self.x_off,self.relative_y( x-1, y-1 ) + self.y_off)
                 self.scene._map[x-1][y-1].render_middle( dest, self, x-1,y-1 )
+
+                if self.overlays.get( (x-1,y-1) , None ):
+                    o_dest = dest.copy()
+                    if self.scene._map[x-1][y-1].altitude() > 0:
+                        o_dest.y -= self.scene._map[x-1][y-1].altitude()
+                    o_sprite,o_frame = self.overlays[(x-1,y-1)]
+                    o_sprite.render(o_dest,o_frame)
 
                 mlist = self.modelmap.get( (x-1,y-1) )
                 if mlist:
