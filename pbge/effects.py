@@ -33,7 +33,7 @@ class Invocation( object ):
     def __str__( self ):
         return self.name
 
-    def invoke( self, camp, originator, target_points, anim_list ):
+    def invoke( self, camp, originator, target_points, anim_list, fx_record = None ):
         """ Invoke this effect using the provided target points. Animations
             will be stored in the provided list and displayed afterward.
             camp: The campaign.
@@ -48,13 +48,14 @@ class Invocation( object ):
             This method will return an fx_record, which is a dict containing
             information about the results of any effects.
         """
-        fx_record = dict()
+        if not fx_record:
+            fx_record = dict()
         for tp in target_points:
             if originator:
                 origin = originator.pos
             else:
                 origin = tp
-            if self.area.shot_anim:
+            if self.shot_anim:
                 opening_anim = self.shot_anim(start_pos=origin,end_pos=tp)
                 anim_list.append( opening_anim )
                 anims = opening_anim.children

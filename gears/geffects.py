@@ -1,7 +1,9 @@
 from pbge import effects
 from pbge.scenes import animobs
-import damage
 import random
+import materials
+import damage
+
 
 #  *******************
 #  ***   AnimObs   ***
@@ -19,8 +21,19 @@ class NoDamageBoom( SmallBoom ):
     SPRITE_NAME = 'anim_nodamage.png'
 
 class BigBoom( animobs.AnimOb ):
-    def __init__(self, pos=(0,0), loop=0, delay=1, y_off=0 ):
-        super(BigBoom, self).__init__(sprite_name="anim_bigboom.png",pos=pos,start_frame=0,end_frame=7,loop=loop,ticks_per_frame=1, delay=delay, y_off=y_off)
+    DEFAULT_SPRITE_NAME = "anim_bigboom.png"
+    DEFAULT_END_FRAME = 7
+
+class SuperBoom( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_frogatto_nuke.png"
+    DEFAULT_END_FRAME = 9
+
+
+class MissAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Miss!'
+
+class BigBullet( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_bigbullet.png"
 
 
 #  *******************
@@ -34,13 +47,17 @@ class AttackRoll( effects.NoEffect ):
         Otherwise, the penetration score is recorded in the fx_record and
         the children of this effect get returned.
     """
-    def __init__(self, att_stat, att_skill, children=(), anim=None, accuracy=0, penetration=0, defenses=() ):
+    def __init__(self, att_stat, att_skill, children=(), anim=None, accuracy=0, penetration=0, modifiers=(), defenses=() ):
         self.att_stat = att_stat
         self.att_skill = att_skill
         if not children:
             children = list()
         self.children = children
         self.anim = anim
+        self.accuracy = accuracy
+        self.penetration = penetration
+        self.modifiers = modifiers
+        self.defenses = defenses
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         if originator:
@@ -82,18 +99,25 @@ class DoDamage( effects.NoEffect ):
         for target in targets:
             scale = self.scale or target.scale
             mydamage = damage.Damage( camp, scale.scale_health( 
-                  sum( random.randint(self.damage_d) for n in range(self.damage_n) ),
-                  gears.materials.Metal ), random.randint(1,100), mychar, anims )
+                  sum( random.randint(1,self.damage_d) for n in range(self.damage_n) ),
+                  materials.Metal ), random.randint(1,100), target, anims )
+        return self.children
 
 #  **************************
 #  ***   Defense  Rolls   ***
 #  **************************
 
 class DodgeRoll( object ):
-    def make_roll( self, attacker, target ):
+    def make_roll( self, attacker, defender ):
         pass
-    def can_attempt( self, attacker, target ):
+        # If the attack roll + attack bonus + accuracy is higher than the
+        # defender's defense bonus + maneuverability + 50, or if the attack roll
+        # is greater than 95, the attack hits.
+
+    def can_attempt( self, attacker, defender ):
         pass
+
+    CHILDREN = (effects.NoEffect(anim=MissAnim),)
 
 # BlockRoll, ParryRoll, ECMRoll, AntiMissileRoll
 

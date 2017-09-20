@@ -2,7 +2,7 @@ import random
 import pbge
 import geffects
 from pbge.scenes import animobs
-from base import Torso, Armor
+import base
 
 
 
@@ -52,7 +52,7 @@ class Damage( object ):
         if dmg > dmg_capacity:
             self.overkill += dmg - dmg_capacity
             dmg = dmg_capacity
-        if not isinstance( target, Armor ):
+        if not isinstance( target, base.Armor ):
             self.damage_done += dmg
         target.hp_damage += dmg
         if ok_at_start and target.is_destroyed():
@@ -120,7 +120,7 @@ class Damage( object ):
         if self.overkill:
             torso = None
             for m in self.target_root.sub_com:
-                if isinstance( m, Torso ) and m.is_not_destroyed():
+                if isinstance( m, base.Torso ) and m.is_not_destroyed():
                     torso = m
             if torso:
                 self.apply_damage( torso, self.overkill )

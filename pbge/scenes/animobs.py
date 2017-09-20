@@ -53,11 +53,11 @@ def get_fline( p1, p2, speed):
 
 class AnimOb( object ):
     """An animation for the map."""
-    def __init__( self, sprite_name, width=64, height=64, pos=(0,0), start_frame=0, end_frame=0, ticks_per_frame=1, loop=0, x_off=0, y_off=0, delay=1 ):
-        self.sprite = image.Image( sprite_name, width, height )
+    def __init__( self, sprite_name=None, width=64, height=64, pos=(0,0), start_frame=0, end_frame=0, ticks_per_frame=1, loop=0, x_off=0, y_off=0, delay=1 ):
+        self.sprite = image.Image( sprite_name or self.DEFAULT_SPRITE_NAME, width, height )
         self.start_frame = start_frame
-        self.frame = start_frame
-        self.end_frame = end_frame
+        self.frame = start_frame or self.DEFAULT_START_FRAME
+        self.end_frame = end_frame or self.DEFAULT_END_FRAME
         self.ticks_per_frame = ticks_per_frame
         self.counter = 0
         self.loop = loop
@@ -67,6 +67,9 @@ class AnimOb( object ):
         self.pos = pos
         self.delay = delay
         self.children = list()
+    DEFAULT_SPRITE_NAME = ''
+    DEFAULT_START_FRAME = 0
+    DEFAULT_END_FRAME= 0
 
     def update( self, view ):
         if self.delay > 0:
@@ -98,8 +101,8 @@ class AnimOb( object ):
 
 class ShotAnim( AnimOb ):
     """An AnimOb which moves along a line."""
-    def __init__( self, sprite_name, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=0.5, set_frame_offset=True, x_off=0, y_off=0, delay=0 ):
-        self.sprite = image.Image( sprite_name, width, height )
+    def __init__( self, sprite_name=None, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=0.5, set_frame_offset=True, x_off=0, y_off=0, delay=0 ):
+        self.sprite = image.Image( sprite_name or self.DEFAULT_SPRITE_NAME, width, height )
         if set_frame_offset:
             self.frame = frame + self.dir_frame_offset( self.isometric_pos(*start_pos), self.isometric_pos(*end_pos) )
         else:
@@ -112,6 +115,7 @@ class ShotAnim( AnimOb ):
         self.itinerary = get_fline( start_pos, end_pos, speed )
         self.children = list()
         self.delay = delay
+    DEFAULT_SPRITE_NAME = ''
 
     def relative_x( self, x, y ):
         """Return the relative x position of this tile, ignoring offset."""
@@ -170,8 +174,10 @@ class ShotAnim( AnimOb ):
                 self.pos = self.itinerary[ self.counter ]
 
 class Caption( AnimOb ):
-    def __init__(self, txt="???", pos=(0,0), width=128, loop=16, color=(250,250,250), delay=1, y_off=0 ):
-        self.sprite = image.TextImage( txt, width )
+    def __init__(self, txt=None, pos=(0,0), width=128, loop=16, color=None, delay=1, y_off=0 ):
+        txt = txt or self.DEFAULT_TEXT
+        color = color or self.DEFAULT_COLOR
+        self.sprite = image.TextImage( txt, width, color=color )
         self.frame = 0
         self.counter = 0
         self.loop = loop
@@ -182,6 +188,8 @@ class Caption( AnimOb ):
         self.pos = pos
         self.delay = delay
         self.children = list()
+    DEFAULT_TEXT = '???'
+    DEFAULT_COLOR = (250,250,250)
 
     def update( self, view ):
         if self.delay > 0:

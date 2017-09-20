@@ -55,7 +55,7 @@ mychar.load_pilot( mypilot )
 #myout = mygearlist[0]
 
 myclon = copy.deepcopy(mychar)
-myclon.colors = ((104,130,117),(152,190,181),(220,44,51),(152,190,181),(220,44,51))
+myclon.colors = ((236,254,255),(194,16,38),(220,44,51),(152,190,181),(220,44,51))
 myclon.name = "Buru2"
 mypilot.name = "Argh"
 #myclon.termdump()
@@ -217,53 +217,70 @@ class MechaStatusDisplay( object ):
         self.module_display.render()
 
 class TargetingUI( object ):
-    def __init__(self):
-        pass
+    SC_ORIGIN = 4
+    SC_AOE = 2
+    SC_CURSOR = 3
+    SC_VOIDCURSOR = 0
+    def __init__(self, camp, attacker, invo):
+        self.camp = camp
+        self.attacker = attacker
+        self.origin = attacker.pos
+        self.targets = list()
+        self.area = invo.area
+        self.legal_tiles = invo.area.get_targets(camp,attacker.pos)
+        self.num_targets = invo.targets
+
+        self.cursor_sprite = pbge.image.Image('sys_mapcursor.png',64,64)
+
     def render( self ):
-        self.view.overlays.clear()
-        self.view.overlays[ origin ] = maps.OVERLAY_CURRENTCHARA
-        self.view.overlays[ self.view.mouse_tile ] = maps.OVERLAY_CURSOR
-        if self.view.mouse_tile in legal_tiles:
-            aoe = aoegen.get_area( self.camp, origin, self.view.mouse_tile )
+        pbge.my_state.view.overlays.clear()
+        pbge.my_state.view.overlays[ self.origin ] = (self.cursor_sprite,self.SC_ORIGIN)
+        if pbge.my_state.view.mouse_tile in self.legal_tiles:
+            aoe = self.area.get_area( self.camp, self.origin, pbge.my_state.view.mouse_tile )
             for p in aoe:
-                self.view.overlays[ p ] = maps.OVERLAY_AOE
+                pbge.my_state.view.overlays[ p ] = (self.cursor_sprite,self.SC_AOE)
+        if self.targets:
+            for t in self.targets:
+                aoe = self.area.get_area( self.camp, self.origin, t )
+                for p in aoe:
+                    pbge.my_state.view.overlays[ p ] = (self.cursor_sprite,self.SC_AOE)
+        if pbge.my_state.view.mouse_tile in self.legal_tiles:
+            pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_CURSOR)
+        else:
+            pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_VOIDCURSOR)
 
-        self.view( self.screen )
-        if caption:
-            pygwrap.default_border.render( self.screen, self.SELECT_AREA_CAPTION_ZONE )
-            pygwrap.draw_text( self.screen, pygwrap.SMALLFONT, caption, self.SELECT_AREA_CAPTION_ZONE )
+        pbge.my_state.view()
+        #if caption:
+        #    pygwrap.default_border.render( self.screen, self.SELECT_AREA_CAPTION_ZONE )
+        #    pygwrap.draw_text( self.screen, pygwrap.SMALLFONT, caption, self.SELECT_AREA_CAPTION_ZONE )
 
-    def select_area( self, origin, aoegen, caption = None ):
+    def select_area( self ):
         # Start by determining the possible target tiles.
-        legal_tiles = aoegen.get_targets( self.camp, origin )
-        target = None
-        aoe = set()
-
         # Keep processing until a target is selected.
-        while not target:
+        while len(self.targets) < self.num_targets:
             # Get input and process it.
-            gdi = pygwrap.wait_event()
+            gdi = pbge.wait_event()
 
-            if gdi.type == pygwrap.TIMEREVENT:
+            if gdi.type == pbge.TIMEREVENT:
                 # Set the mouse cursor on the map.
                 self.render()
                 pygame.display.flip()
-            elif gdi.type == pygame.KEYDOWN and gdi.key == pygame.K_F1:
-                caption = "Record Anim"
-                self.record_anim = True
             elif gdi.type == pygame.QUIT:
-                self.no_quit = False
                 break
             elif gdi.type == pygame.MOUSEBUTTONUP:
-                if gdi.button == 1 and self.view.mouse_tile in legal_tiles:
-                    target = self.view.mouse_tile
+                if gdi.button == 1 and pbge.my_state.view.mouse_tile in self.legal_tiles:
+                    self.targets.append( pbge.my_state.view.mouse_tile )
                 else:
                     break
-        self.view.overlays.clear()
-        return target
+        pbge.my_state.view.overlays.clear()
+        return self.targets
 
 my_mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
 
+myinvo = pbge.effects.Invocation( fx=gears.geffects.DoDamage(3,6),
+    area=pbge.scenes.targetarea.SingleTarget(reach=15),
+    shot_anim=gears.geffects.BigBullet,
+    )
 
 keep_going = True
 record_anim = False
@@ -279,7 +296,9 @@ while keep_going:
             myview()
             mmecha = myview.modelmap.get(myview.mouse_tile)
             if mmecha:
-                MechaStatusDisplay(pygame.mouse.get_pos(),mmecha[0])
+                x,y = pygame.mouse.get_pos()
+                y -= 64
+                MechaStatusDisplay((x,y),mmecha[0])
             pygame.display.flip()
 
             myview.overlays.clear()
@@ -311,6 +330,12 @@ while keep_going:
                 keep_going = False
             elif gdi.unicode == u"r":
                 record_anim = True
+            elif gdi.unicode == u"a":
+                my_targeter = TargetingUI(mycamp, mychar, myinvo )
+                targets = my_targeter.select_area()
+                if targets:
+                    myinvo.invoke(mycamp, mychar, targets, myview.anim_list )
+
             elif gdi.unicode == u"c":
                 myview.focus(*mychar.pos)
             elif gdi.unicode == u"s":

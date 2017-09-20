@@ -7,6 +7,8 @@ import random
 import collections
 import stats
 import copy
+import geffects
+
 
 #
 # Damage Handlers

@@ -33,7 +33,7 @@ harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
 
 class GearHeadScene( pbge.scenes.Scene ):
     def get_actors( self, pos ):
-        return [a for a in self._contents if isinstance(a,(base.Mecha,base.Character))]
+        return [a for a in self._contents if (isinstance(a,(base.Mecha,base.Character)) and (a.pos == pos)) ]
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about string.partition at the time.
