@@ -67,12 +67,17 @@ class AttackRoll( effects.NoEffect ):
         att_roll = random.randint(1,100)
 
         targets = camp.scene.get_actors(pos)
+        next_fx = []
         for target in targets:
-            hi_def_roll = 0
+            hi_def_roll = 50
             for defense in self.defenses:
                 if defense.can_attempt(originator,target):
-                    def_roll = defense.make_roll(originator,target)
+                    next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll)
                     hi_def_roll = max(def_roll,hi_def_roll)
+                    if next_fx:
+                        break
+            fx_record['penetration'] = att_roll + att_bonus + self.penetration - hi_def_roll
+        return next_fx or self.children
 
     def get_odds( self, camp, originator, target ):
         # Return the percent chance that this attack will hit.
@@ -92,7 +97,6 @@ class DoDamage( effects.NoEffect ):
         self.children = children
         self.anim = anim
         self.scale = scale
-
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         targets = camp.scene.get_actors(pos)
         penetration = fx_record.get("penetration",random.randint(1,100))
@@ -106,16 +110,33 @@ class DoDamage( effects.NoEffect ):
 #  **************************
 #  ***   Defense  Rolls   ***
 #  **************************
+#
+# Each defense roll takes the attack roll effect, the attacker, defender,
+# attack bonus, and attack roll.
+# It returns the roll result fx (None if the roll was unsuccessful)
+# and the defense target (def roll + def bonus), which is used to calculate
+# penetration if the attack hits.
 
 class DodgeRoll( object ):
-    def make_roll( self, attacker, defender ):
-        pass
+    def make_roll( self, atroller, attacker, defender, att_bonus, att_roll ):
         # If the attack roll + attack bonus + accuracy is higher than the
-        # defender's defense bonus + maneuverability + 50, or if the attack roll
+        # defender's defense bonus + maneuverability + 20, or if the attack roll
         # is greater than 95, the attack hits.
+        def_target = defender.get_dodge_score() + 50
+
+        if att_roll > 95:
+            # A roll greater than 95 always hits.
+            return (None,def_target)
+        elif att_roll <= 5:
+            # A roll of 5 or less always misses.
+            return (self.CHILDREN, def_target)
+        elif (att_roll + att_bonus + atroller.accuracy) > (def_target + defender.calc_mobility()):
+            return (None,def_target)
+        else:
+            return (self.CHILDREN, def_target)
 
     def can_attempt( self, attacker, defender ):
-        pass
+        return True
 
     CHILDREN = (effects.NoEffect(anim=MissAnim),)
 

@@ -48,7 +48,7 @@ class Character( pbge.scenes.PlaceableThing):
 mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
 mychar = mygearlist[0]
 
-mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15})
+mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15, gears.stats.Reflexes:13,gears.stats.Speed:13,gears.stats.MechaPiloting:3,gears.stats.MechaGunnery:5})
 mychar.load_pilot( mypilot )
 
 #mygearlist = gears.Loader('out.txt').load()
@@ -277,10 +277,16 @@ class TargetingUI( object ):
 
 my_mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
 
-myinvo = pbge.effects.Invocation( fx=gears.geffects.DoDamage(3,6),
+myinvo = pbge.effects.Invocation( 
+    fx=gears.geffects.AttackRoll(
+        gears.stats.Reflexes, gears.stats.MechaGunnery,
+        children = (gears.geffects.DoDamage(3,6),),
+        accuracy=25, penetration=30, 
+        defenses = (gears.geffects.DodgeRoll(),),
+        ),
     area=pbge.scenes.targetarea.SingleTarget(reach=15),
     shot_anim=gears.geffects.BigBullet,
-    )
+    targets=5)
 
 keep_going = True
 record_anim = False

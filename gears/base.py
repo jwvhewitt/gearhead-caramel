@@ -415,6 +415,13 @@ class Engine( BaseGear, StandardDamageHandler ):
     base_health = 3
     def is_legal_sub_com(self,part):
         return isinstance( part , Armor )
+    def on_destruction( self, camp, anim_list ):
+        my_root = self.get_root()
+        my_invo = pbge.effects.Invocation(
+            fx=geffects.DoDamage(2,self.size//200+2,anim=geffects.SuperBoom,scale=self.scale),
+            area=pbge.scenes.targetarea.SelfCentered(radius=self.size//600+1,delay_from=-1) )
+        my_invo.invoke(camp,None,[my_root.pos,],anim_list)
+
 
 
 class Gyroscope( BaseGear, StandardDamageHandler ):
@@ -919,19 +926,10 @@ class Head( Module ):
         keywords[ "form" ] = MF_Head
         super(Head, self).__init__(**keywords)
 
-class SuperBoom( pbge.scenes.animobs.AnimOb ):
-    def __init__(self, pos=(0,0), loop=0, delay=1, y_off=0 ):
-        super(SuperBoom, self).__init__(sprite_name="anim_frogatto_nuke.png",pos=pos,start_frame=0,end_frame=9,loop=loop,ticks_per_frame=1, delay=delay, y_off=y_off)
-
-
 class Torso( Module ):
     def __init__(self, **keywords ):
         keywords[ "form" ] = MF_Torso
         super(Torso, self).__init__(**keywords)
-    def on_destruction( self, camp, anim_list ):
-        my_root = self.get_root()
-        my_invo = pbge.effects.Invocation( fx=pbge.effects.NoEffect(anim=SuperBoom), area=pbge.scenes.targetarea.SelfCentered(delay_from=-1) )
-        my_invo.invoke(camp,None,[my_root.pos,],anim_list)
 
 class Arm( Module ):
     def __init__(self, **keywords ):
@@ -1083,6 +1081,9 @@ class Mecha(BaseGear,ContainerDamageHandler):
         else:
             return 0
 
+    def get_dodge_score( self ):
+        return self.get_skill_score( stats.Speed, stats.MechaPiloting )
+
 class Character(BaseGear,StandardDamageHandler):
     SAVE_PARAMETERS = ('name','form')
     DEFAULT_SCALE = scale.HumanScale
@@ -1144,6 +1145,10 @@ class Character(BaseGear,StandardDamageHandler):
     def calc_mobility( self ):
         """Calculate the mobility ranking of this character.
         """
-        return 50
+        return self.get_stat( stats.Speed ) * 4
+
+    def get_dodge_score( self ):
+        return self.get_skill_score( stats.Speed, stats.Dodge )
+
 
 

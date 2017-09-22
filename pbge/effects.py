@@ -50,15 +50,17 @@ class Invocation( object ):
         """
         if not fx_record:
             fx_record = dict()
+        n = 0
         for tp in target_points:
             if originator:
                 origin = originator.pos
             else:
                 origin = tp
             if self.shot_anim:
-                opening_anim = self.shot_anim(start_pos=origin,end_pos=tp)
+                opening_anim = self.shot_anim(start_pos=origin,end_pos=tp,delay=4*n+1)
                 anim_list.append( opening_anim )
                 anims = opening_anim.children
+                n += 1
             else:
                 anims = anim_list
             delay = 1
@@ -108,6 +110,6 @@ class NoEffect( object ):
         # drawn on top of the base anim.
         next_fx = self.handle_effect( camp, fx_record, originator, pos, o_anims, o_delay )
         for nfx in next_fx:
-            anims = nfx( camp, originator, pos, anims, delay )
+            anims = nfx( camp, fx_record, originator, pos, anims, delay )
         return anims
 
