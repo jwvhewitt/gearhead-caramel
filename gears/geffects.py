@@ -85,6 +85,11 @@ class AttackRoll( effects.NoEffect ):
             att_bonus = originator.get_skill_score(self.att_stat,self.att_skill)
         else:
             att_bonus = 50
+        odds = 1.0
+        for defense in self.defenses:
+            if defense.can_attempt(originator,target):
+                odds *= defense.get_odds(self,originator,target,att_bonus)
+        return odds
 
 class DoDamage( effects.NoEffect ):
     """ Whatever is in this tile is going to take damage.
@@ -137,6 +142,13 @@ class DodgeRoll( object ):
 
     def can_attempt( self, attacker, defender ):
         return True
+
+    def get_odds( self, atroller, attacker, defender, att_bonus ):
+        # Return the odds as a float.
+        def_target = defender.get_dodge_score()
+        # The chance to hit is clamped between 5% and 95%.
+        percent = min(max(50 + (att_bonus + atroller.accuracy) - (def_target + defender.calc_mobility()),5),95)
+        return float(percent)/100
 
     CHILDREN = (effects.NoEffect(anim=MissAnim),)
 

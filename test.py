@@ -37,18 +37,11 @@ class Mountain( pbge.scenes.terrain.HillTerrain ):
     bordername = ''
     block_walk = False
 
-class Character( pbge.scenes.PlaceableThing):
-    imagename = 'PD_Sean.png'
-    imageheight = 64
-    imagewidth = 64
-    #colors=(127,255,212)
-
-#myarmor = gears.base.Armor( size = 5, sub_com=[gears.base.Armor(size=1)], scale=gears.scale.HumanScale, foo="bar" )
 
 mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
 mychar = mygearlist[0]
 
-mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15, gears.stats.Reflexes:13,gears.stats.Speed:13,gears.stats.MechaPiloting:3,gears.stats.MechaGunnery:5})
+mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15, gears.stats.Reflexes:13,gears.stats.Speed:13,gears.stats.MechaPiloting:5,gears.stats.MechaGunnery:5})
 mychar.load_pilot( mypilot )
 
 #mygearlist = gears.Loader('out.txt').load()
@@ -60,6 +53,12 @@ myclon.name = "Buru2"
 mypilot.name = "Argh"
 #myclon.termdump()
 
+mytarg = copy.deepcopy(mychar)
+mytarg.colors = ((236,254,50),(16,194,38),(220,44,51),(152,190,181),(220,44,51))
+mytarg.name = "Buru3"
+mywoobie = mytarg.get_pilot()
+mywoobie.statline[gears.stats.MechaPiloting] = 1
+
 #print mychar.mass
 #print mychar.calc_mobility()
 #mychar.termdump()
@@ -69,11 +68,6 @@ mypilot.name = "Argh"
 #mysaver.save([mychar])
 
 myscene = gears.GearHeadScene(50,50,"Testaria")
-#myscene.fill(Rect(0,0,50,50), floor=Floor, wall=None)
-#myscene.fill(Rect(5,5,24,24), wall=Wall)
-
-#mychar = Character()
-#mychar.place(myscene,(2,13))
 
 mycamp = pbge.campaign.Campaign()
 mycamp.scene = myscene
@@ -90,6 +84,7 @@ myroom2 = pbge.randmaps.rooms.Room()
 myroom3 = pbge.randmaps.rooms.Room()
 myroom1.contents.append(mychar)
 myroom1.contents.append(myclon)
+myroom1.contents.append(mytarg)
 
 myscenegen.contents.append(myroom1)
 myscenegen.contents.append(myroom2)
@@ -226,6 +221,7 @@ class TargetingUI( object ):
         self.attacker = attacker
         self.origin = attacker.pos
         self.targets = list()
+        self.invo = invo
         self.area = invo.area
         self.legal_tiles = invo.area.get_targets(camp,attacker.pos)
         self.num_targets = invo.targets
@@ -250,6 +246,16 @@ class TargetingUI( object ):
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_VOIDCURSOR)
 
         pbge.my_state.view()
+
+        mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
+        if mmecha:
+            x,y = pygame.mouse.get_pos()
+            y -= 64
+            MechaStatusDisplay((x,y),mmecha[0])
+
+            if hasattr(self.invo.fx,"get_odds"):
+                pbge.draw_text(pbge.ANIMFONT, str(int(self.invo.fx.get_odds(self.camp,self.attacker,mmecha[0])*100))+'%', pygame.Rect(x-32,y+2,64,32))
+
         #if caption:
         #    pygwrap.default_border.render( self.screen, self.SELECT_AREA_CAPTION_ZONE )
         #    pygwrap.draw_text( self.screen, pygwrap.SMALLFONT, caption, self.SELECT_AREA_CAPTION_ZONE )
