@@ -20,6 +20,7 @@
 
 import copy
 import math
+import movement
 
 def get_line( x1, y1, x2, y2):
     # Bresenham's line drawing algorithm, as obtained from RogueBasin.
@@ -369,13 +370,14 @@ def __checkView(activeViews, viewIndex):
 
 class PointOfView( object ):
     # This class constructs a field of vision.
-    def __init__(self, scene, x0, y0, radius, manhattan=False):
+    def __init__(self, scene, x0, y0, radius, manhattan=False, vision_type=movement.Vision):
         self.x = x0
         self.y = y0
         self.scene = scene
         self.radius = radius
         self.manhattan = manhattan
         self.tiles = set()
+        self.vision_type = vision_type
         fieldOfView( x0 , y0 , scene.width , scene.height , radius , self )
 
     def VisitTile( self , x , y ):
@@ -384,7 +386,7 @@ class PointOfView( object ):
 
     def TileBlocked( self , x , y ):
         if self.scene.on_the_map( x , y ):
-            return self.scene.tile_blocks_vision(x,y)
+            return self.scene.tile_blocks_movement(x,y,self.vision_type)
         else:
             return True
 

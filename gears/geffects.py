@@ -66,6 +66,9 @@ class AttackRoll( effects.NoEffect ):
             att_bonus = random.randint(1,100)
         att_roll = random.randint(1,100)
 
+        for m in self.modifiers:
+            att_bonus += m.calc_modifier(camp,originator,pos)
+
         targets = camp.scene.get_actors(pos)
         next_fx = []
         for target in targets:
@@ -85,6 +88,8 @@ class AttackRoll( effects.NoEffect ):
             att_bonus = originator.get_skill_score(self.att_stat,self.att_skill)
         else:
             att_bonus = 50
+        for m in self.modifiers:
+            att_bonus += m.calc_modifier(camp,originator,target.pos)
         odds = 1.0
         for defense in self.defenses:
             if defense.can_attempt(originator,target):
@@ -111,6 +116,23 @@ class DoDamage( effects.NoEffect ):
                   sum( random.randint(1,self.damage_d) for n in range(self.damage_n) ),
                   materials.Metal ), random.randint(1,100), target, anims )
         return self.children
+
+#  ***************************
+#  ***   Roll  Modifiers   ***
+#  ***************************
+#
+# Modular roll modifiers.
+
+class RangeModifier( object ):
+    def __init__(self,range_step):
+        self.range_step = range_step
+    def calc_modifier( self, camp, attacker, pos ):
+        my_range = camp.scene.distance(attacker.pos,pos)
+        my_mod = ((my_range - 1)//self.range_step) * -5
+        if my_range < (self.range_step-3):
+            my_mod += (self.range_step-3-my_range) * -5
+        return my_mod
+
 
 #  **************************
 #  ***   Defense  Rolls   ***

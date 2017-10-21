@@ -10,6 +10,7 @@
 from .. import container,image,KeyObject
 import pygame
 import math
+import movement
 
 class Tile( object ):
     def __init__(self, floor=None, wall=None, decor=None, visible=True):
@@ -17,12 +18,14 @@ class Tile( object ):
         self.wall = wall
         self.decor = decor
         self.visible = visible
+    def blocks_movement( self, movemode ):
+        return ( self.floor and movemode in self.floor.blocks ) or (self.wall is True) or (self.wall and movemode in self.wall.blocks ) or (self.decor and movemode in self.decor.blocks )
 
     def blocks_vision( self ):
-        return ( self.floor and self.floor.block_vision ) or (self.wall and self.wall.block_vision ) or (self.decor and self.decor.block_vision )
+        return self.blocks_movement( movement.Vision )
 
     def blocks_walking( self ):
-        return (self.floor and self.floor.block_walk) or (self.wall is True) or (self.wall and self.wall.block_walk) or (self.decor and self.decor.block_walk)
+        return self.blocks_movement( movement.Walking )
 
     def render_bottom( self, dest, view, x, y ):
         if self.floor:
@@ -167,6 +170,13 @@ class Scene( object ):
             return self._map[x][y].blocks_walking()
         else:
             return True
+
+    def tile_blocks_movement( self, x, y, mmode ):
+        if self.on_the_map(x,y):
+            return self._map[x][y].blocks_movement(mmode)
+        else:
+            return True
+
 
     def distance( self, pos1, pos2 ):
         return round( math.sqrt( ( pos1[0]-pos2[0] )**2 + ( pos1[1]-pos2[1] )**2 ) )

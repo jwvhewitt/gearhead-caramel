@@ -35,11 +35,12 @@ class Mountain( pbge.scenes.terrain.HillTerrain ):
     image_middle = 'terrain_hill_1.png'
     #image_bottom = 'terrain_hill_1.png'
     bordername = ''
-    block_walk = False
+    blocks = ()
 
 
 mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
 mychar = mygearlist[0]
+mychar.mmode = scenes.movement.Walking
 
 mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15, gears.stats.Reflexes:13,gears.stats.Speed:13,gears.stats.MechaPiloting:5,gears.stats.MechaGunnery:5})
 mychar.load_pilot( mypilot )
@@ -210,6 +211,12 @@ class MechaStatusDisplay( object ):
         pbge.default_border.render(self.dest)
         pbge.draw_text(BIGFONT, str(self.model), self.dest, justify=0)
         self.module_display.render()
+        mydest = self.dest.copy()
+        mydest.y += 70
+        pbge.draw_text(pbge.SMALLFONT, str(self.model.get_pilot()), mydest, justify=-1)
+        mydest.y += 12
+        pbge.draw_text(pbge.SMALLFONT, 'Speed: {}'.format(str(self.model.get_current_speed())), mydest, justify=-1)
+
 
 class TargetingUI( object ):
     SC_ORIGIN = 4
@@ -289,6 +296,7 @@ myinvo = pbge.effects.Invocation(
         children = (gears.geffects.DoDamage(3,6),),
         accuracy=25, penetration=30, 
         defenses = (gears.geffects.DodgeRoll(),),
+        modifiers = (gears.geffects.RangeModifier(5),)
         ),
     area=pbge.scenes.targetarea.SingleTarget(reach=15),
     shot_anim=gears.geffects.BigBullet,

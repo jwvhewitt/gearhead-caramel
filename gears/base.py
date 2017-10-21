@@ -31,6 +31,11 @@ class StandardDamageHandler( KeyObject ):
         """Returns the scaled maximum health of this gear."""
         return self.scale.scale_health( self.base_health, self.material )
 
+    @property
+    def current_health( self ):
+        """Returns the scaled maximum health of this gear."""
+        return self.max_health - self.hp_damage
+
     def get_damage_status( self ):
         """Returns a percent value showing how damaged this gear is."""
         return (self.hp_damage*100)/self.max_health
@@ -125,6 +130,53 @@ class Stackable( KeyObject ):
             and self.name is part.name and self.desig is part.desig
             and not self.inv_com and not self.sub_com )
 
+class Mover( KeyObject ):
+    # A mover is a gear that moves under its own power, like a character or mecha.
+    def __init__(self, **keywords ):
+        self.mmode = None
+        super(Mover, self).__init__(**keywords)
+    def calc_walking( self ):
+        # Count the number of leg points, divide by mass.
+        return 0
+
+    def get_speed(self,mmode):
+        # This method returns the mover's movement points; under normal conditions
+        # it costs 2MP to move along a cardinal direction or 3MP to move diagonally.
+        # This cost will be adjusted for terrain and scale.
+        if mmode is scenes.movement.Walking:
+            return self.calc_walking()
+        else:
+            return 0
+
+    def get_current_speed(self):
+        return self.get_speed(self.mmode)
+
+    def count_module_points( self, module_form ):
+        # Count the number of active module points, reducing rating for damage taken.
+        total = 0
+        for m in self.sub_com:
+            if isinstance(m,Module) and (m.scale is self.scale) and (m.form == module_form) and m.is_not_destroyed():
+                total += ( m.size * m.current_health + m.max_health - 1 )//m.max_health
+        return total
+
+    def count_modules( self, module_form ):
+        # Returns the number of modules of the given type and the number
+        # of them that are not destroyed.
+        total,active = 0,0
+        for m in self.sub_com:
+            if isinstance(m,Module) and (m.scale is self.scale) and (m.form == module_form):
+                total += 1
+                if m.is_not_destroyed():
+                    active += 1
+        return total, active
+
+    def count_thrust_points( self, move_mode ):
+        total = 0
+        for g in self.sub_com.get_undestroyed():
+            if (g.scale is self.scale) and hasattr(g,'get_thrust'):
+                total += g.get_thrust(move_mode)
+        return total
+
 
 # Custom Containers
 # For subcomponents and invcomponents with automatic error checking
@@ -135,6 +187,15 @@ class SubComContainerList( container.ContainerList ):
             super( SubComContainerList, self )._set_container(item)
         else:
             raise container.ContainerError("Error: {} cannot subcom {}".format(self.owner,item))
+    def get_undestroyed(self):
+        # Return all non-destroyed gears, including descendants.
+        for g in self:
+            if g.is_not_destroyed():
+                yield g
+                for p in g.sub_com.get_undestroyed():
+                    yield p
+                for p in g.inv_com.get_undestroyed():
+                    yield p
 
 class InvComContainerList( container.ContainerList ):
     def _set_container(self, item):
@@ -142,6 +203,15 @@ class InvComContainerList( container.ContainerList ):
             super( InvComContainerList, self )._set_container(item)
         else:
             raise container.ContainerError("Error: {} cannot invcom {}".format(self.owner,item))
+    def get_undestroyed(self):
+        # Return all non-destroyed gears, including descendants.
+        for g in self:
+            if g.is_not_destroyed():
+                yield g
+                for p in g.sub_com.get_undestroyed():
+                    yield p
+                for p in g.inv_com.get_undestroyed():
+                    yield p
 
 # The Base Gear itself.
 # Note that the base gear is not usable by itself; a gear class should
@@ -255,6 +325,7 @@ class BaseGear( scenes.PlaceableThing ):
         for part in self.sub_com:
             for p in part.sub_sub_coms():
                 yield p
+
 
     def ancestors(self):
         if hasattr( self, "container" ) and isinstance( self.container.owner, BaseGear ):
@@ -500,6 +571,22 @@ class HoverJets( MovementSystem, StandardDamageHandler ):
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
         return self.size
+    def get_thrust( self, move_mode ):
+        return 0
+
+class HeavyActuators( MovementSystem, StandardDamageHandler ):
+    DEFAULT_NAME = "Heavy Actuators"
+    MOVESYS_COST = 100
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
+    def get_thrust( self, move_mode ):
+        if move_mode is scenes.movement.Walking:
+            return (self.size*1250*self.current_health+self.max_health-1)//self.max_health
+        else:
+            return 0
+
 
 #   *************************
 #   ***   POWER  SOURCE   ***
@@ -973,9 +1060,13 @@ class MT_Battroid( Singleton ):
             return not isinstance( part.form , MF_Turret )
         else:
             return False
+    @classmethod
+    def modify_speed( self, base_speed, move_mode ):
+        # Return the modified speed.
+        return base_speed
 
 
-class Mecha(BaseGear,ContainerDamageHandler):
+class Mecha(BaseGear,ContainerDamageHandler,Mover):
     SAVE_PARAMETERS = ('name','form')
     def __init__(self, form=MT_Battroid, **keywords ):
         name = keywords.get(  "name" )
@@ -1047,10 +1138,7 @@ class Mecha(BaseGear,ContainerDamageHandler):
                 cpit = m
         cpit.sub_com.append( pilot )
 
-    def calc_mobility( self ):
-        """Calculate the mobility ranking of this mecha.
-        """
-        mass_factor = ( self.mass ** 2 ) // ( 10000 *  self.scale.SIZE_FACTOR ** 6 )
+    def get_engine_rating_and_gyro_status( self ):
         has_gyro = False
         engine_rating = 0
         for m in self.sub_com:
@@ -1061,11 +1149,55 @@ class Mecha(BaseGear,ContainerDamageHandler):
                     elif isinstance( e, Gyroscope ) and e.is_not_destroyed() and e.scale is self.scale:
                         has_gyro = True
                 break
+        return engine_rating,has_gyro
+
+    def calc_mobility( self ):
+        """Calculate the mobility ranking of this mecha.
+        """
+        mass_factor = ( self.mass ** 2 ) // ( 10000 *  self.scale.SIZE_FACTOR ** 6 )
+        engine_rating,has_gyro = self.get_engine_rating_and_gyro_status()
         # We now have the mass_factor, engine_rating, and has_gyro.
         it = engine_rating // mass_factor
         if not has_gyro:
             it -= 30
         return it
+
+
+    def calc_walking( self ):
+        norm_mass = self.scale.unscale_mass( self.mass )
+        engine_rating,has_gyro = self.get_engine_rating_and_gyro_status()
+        # In order to walk, a mecha needs both an engine and a gyroscope.
+        if (engine_rating>0) and has_gyro:
+            # If the number of legs is less than half plus one,
+            # the mecha will fall over.
+            total_legs,active_legs = self.count_modules(MF_Leg)
+            if active_legs < ((total_legs//2)+1):
+                return 0
+
+            speed = (1125-norm_mass+engine_rating/5)//15
+
+            # Depending on the mecha's mass, it needs a minimum number of
+            # leg points to support it. If it has less than that number
+            # then speed will be reduced.
+            min_leg_points = norm_mass//50-2
+            actual_leg_points = self.count_module_points(MF_Leg)
+            if (actual_leg_points < min_leg_points):
+                speed = (speed*actual_leg_points)/min_leg_points
+
+            # Add thrust bonus.
+            thrust = self.count_thrust_points(scenes.movement.Walking)
+            if thrust > norm_mass:
+                speed += thrust // norm_mass
+
+            # Add form bonus.
+            speed = self.form.modify_speed(speed,scenes.movement.Walking)
+
+            # Don't drop below minimum speed.
+            speed = max(speed,20)
+
+            return speed
+        else:
+            return 0
 
     def get_stat( self, stat_id ):
         pilot = self.get_pilot()
@@ -1084,7 +1216,7 @@ class Mecha(BaseGear,ContainerDamageHandler):
     def get_dodge_score( self ):
         return self.get_skill_score( stats.Speed, stats.MechaPiloting )
 
-class Character(BaseGear,StandardDamageHandler):
+class Character(BaseGear,StandardDamageHandler,Mover):
     SAVE_PARAMETERS = ('name','form')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat

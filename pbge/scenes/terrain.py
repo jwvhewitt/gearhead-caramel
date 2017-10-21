@@ -7,6 +7,7 @@
 """
 import exceptions
 from .. import image, Singleton
+from movement import Walking,Flying,Vision
 
 # Each terrain type can have up to four rendering actions:
 # - render_bottom draws a layer beneath all models
@@ -68,9 +69,7 @@ class Terrain( Singleton ):
     image_biddle = ''
     image_middle = ''
     image_top = ''
-    block_vision = False
-    block_walk = False
-    block_fly = False
+    blocks = ()
     frame = 0
     altitude = 0
     transparent = False
@@ -169,9 +168,7 @@ class AnimTerrain( Terrain ):
 
 
 class WallTerrain( Terrain ):
-    block_vision = True
-    block_walk = True
-    block_fly = True
+    blocks = (Walking,Flying,Vision)
     bordername = 'terrain_wbor_tall.png'
 
     @classmethod
@@ -195,9 +192,6 @@ class WallTerrain( Terrain ):
             spr.render( dest, bor )
 
 class HillTerrain( Terrain ):
-    block_vision = False
-    block_walk = False
-    block_fly = False
     bordername = None
 
     @classmethod
