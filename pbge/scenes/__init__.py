@@ -159,6 +159,12 @@ class Scene( object ):
         else:
             return False
 
+    def set_visible( self, x, y, v=True ):
+        """Safely return visibility status of tile x,y, or None if off map."""
+        if self.on_the_map(x,y):
+            self._map[x][y].visible = v
+
+
     def tile_blocks_vision( self, x, y ):
         if self.on_the_map(x,y):
             return self._map[x][y].blocks_vision()

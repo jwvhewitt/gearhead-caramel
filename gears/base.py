@@ -139,12 +139,23 @@ class Mover( KeyObject ):
         # Count the number of leg points, divide by mass.
         return 0
 
+    def calc_skimming( self ):
+        norm_mass = self.scale.unscale_mass( self.mass )
+        thrust = self.count_thrust_points( geffects.Skimming )
+
+        if thrust > (norm_mass*20):
+            return thrust // norm_mass
+        else:
+            return 0
+
     def get_speed(self,mmode):
         # This method returns the mover's movement points; under normal conditions
         # it costs 2MP to move along a cardinal direction or 3MP to move diagonally.
         # This cost will be adjusted for terrain and scale.
         if mmode is scenes.movement.Walking:
             return self.calc_walking()
+        elif mmode is geffects.Skimming:
+            return self.calc_skimming()
         else:
             return 0
 
@@ -572,7 +583,14 @@ class HoverJets( MovementSystem, StandardDamageHandler ):
         """Returns the unscaled maximum health of this gear."""
         return self.size
     def get_thrust( self, move_mode ):
-        return 0
+        if move_mode is geffects.Skimming:
+            return (self.size*4000*self.current_health+self.max_health-1)//self.max_health
+        elif move_mode is geffects.SpaceFlight:
+            return (self.size*3700*self.current_health+self.max_health-1)//self.max_health
+        elif move_mode is scenes.movement.Flying:
+            return (self.size*500*self.current_health+self.max_health-1)//self.max_health
+        else:
+            return 0
 
 class HeavyActuators( MovementSystem, StandardDamageHandler ):
     DEFAULT_NAME = "Heavy Actuators"
@@ -1199,6 +1217,15 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover):
         else:
             return 0
 
+    def calc_skimming( self ):
+        engine_rating,has_gyro = self.get_engine_rating_and_gyro_status()
+        # In order to skim, a mecha needs both an engine and a gyroscope.
+        if (engine_rating>0) and has_gyro:
+            return Mover.calc_skimming(self)
+        else:
+            return 0
+
+
     def get_stat( self, stat_id ):
         pilot = self.get_pilot()
         if pilot:
@@ -1282,5 +1309,18 @@ class Character(BaseGear,StandardDamageHandler,Mover):
     def get_dodge_score( self ):
         return self.get_skill_score( stats.Speed, stats.Dodge )
 
+    MIN_WALK_SPEED = 20
+    def calc_walking( self ):
+        speed = self.get_stat(stats.Speed) * 5
+
+        # If the number of legs is less than half plus one,
+        # the character can only crawl.
+        total_legs,active_legs = self.count_modules(MF_Leg)
+        if active_legs < ((total_legs//2)+1):
+            speed = self.MIN_WALK_SPEED
+        elif active_legs < total_legs:
+            speed = max((speed*active_legs )//total_legs, self.MIN_WALK_SPEED)
+
+        return speed
 
 

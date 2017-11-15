@@ -8,6 +8,8 @@ import random
 import copy
 import cPickle
 
+import game
+
 gamedir = os.path.dirname(__file__)
 pbge.init('GearHead Caramel','ghcaramel',gamedir)
 
@@ -40,7 +42,8 @@ class Mountain( pbge.scenes.terrain.HillTerrain ):
 
 mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
 mychar = mygearlist[0]
-mychar.mmode = scenes.movement.Walking
+#mychar.mmode = scenes.movement.Walking
+mychar.mmode = gears.geffects.Skimming
 
 mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15, gears.stats.Reflexes:13,gears.stats.Speed:13,gears.stats.MechaPiloting:5,gears.stats.MechaGunnery:5})
 mychar.load_pilot( mypilot )
@@ -70,7 +73,7 @@ mywoobie.statline[gears.stats.MechaPiloting] = 1
 
 myscene = gears.GearHeadScene(50,50,"Testaria")
 
-mycamp = pbge.campaign.Campaign()
+mycamp = gears.GearHeadCampaign(explo_class=game.exploration.Explorer)
 mycamp.scene = myscene
 mycamp.party = [mychar,]
 
@@ -301,6 +304,8 @@ myinvo = pbge.effects.Invocation(
     area=pbge.scenes.targetarea.SingleTarget(reach=15),
     shot_anim=gears.geffects.BigBullet,
     targets=5)
+
+mycamp.play()
 
 keep_going = True
 record_anim = False

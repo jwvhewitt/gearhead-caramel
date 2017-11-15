@@ -1,8 +1,21 @@
 from pbge import effects
-from pbge.scenes import animobs
+from pbge.scenes import animobs,movement
 import random
 import materials
 import damage
+
+#  ***************************
+#  ***   Movement  Modes   ***
+#  ***************************
+
+class Skimming( movement.MoveMode ):
+    pass
+
+class Rolling( movement.MoveMode ):
+    pass
+
+class SpaceFlight( movement.MoveMode ):
+    pass
 
 
 #  *******************

@@ -7,6 +7,8 @@ import materials
 import scale
 import stats
 import geffects
+import info
+import targeting
 
 import inspect
 import re
@@ -34,6 +36,19 @@ harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
 class GearHeadScene( pbge.scenes.Scene ):
     def get_actors( self, pos ):
         return [a for a in self._contents if (isinstance(a,(base.Mecha,base.Character)) and (a.pos == pos)) ]
+
+class GearHeadCampaign( pbge.campaign.Campaign ):
+    fight = None
+    def first_active_pc( self ):
+        # The first active PC is the first PC in the party list who is
+        # both operational and on the map.
+        flp = None
+        for pc in self.party:
+            if pc.is_operational() and pc in self.scene._contents:
+                flp = pc
+                break
+        return flp
+
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about string.partition at the time.
