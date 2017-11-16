@@ -408,6 +408,10 @@ class SceneView( object ):
         self.phase = ( self.phase + 1 ) % 600
         self.mouse_tile = (self.map_x(mouse_x,mouse_y),self.map_y(mouse_x,mouse_y))
 
+        # After drawing the map, draw the widgets.
+        for w in my_state.widgets:
+            w.render()
+
 
 """        # Fill the modelmap, fieldmap, and itemmap.
         self.modelmap.clear()

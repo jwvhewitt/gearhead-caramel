@@ -108,6 +108,8 @@ class GameState( object ):
         self.screen = screen
         self.view = None
         self.got_quit = False
+        self.widgets = list()
+        self.widgets_active = True
 
 
 
@@ -232,6 +234,12 @@ def wait_event():
         pygame.image.save( my_state.screen, util.user_dir( "out.png" ) )
     elif ev.type == pygame.VIDEORESIZE:
         my_state.screen = pygame.display.set_mode( (max(ev.w,800),max(ev.h,600)), pygame.RESIZABLE )
+
+    # Inform any interested widgets of the event.
+    if my_state.widgets_active:
+        for w in my_state.widgets:
+            w.respond_event(ev)
+
     return ev
 
 def anim_delay():
@@ -304,6 +312,7 @@ import plots
 import image
 import effects
 import campaign
+import widgets
 
 
 def init(winname,appname,gamedir,icon="sys_icon.png"):
