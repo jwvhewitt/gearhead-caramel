@@ -16,9 +16,10 @@ class PriorityQueue:
         return heapq.heappop(self.elements)[1]
 
 class AStarPath( object ):
-    def __init__( self, mymap, start, goal, movemode ):
+    def __init__( self, mymap, start, goal, movemode, blocked_tiles=set() ):
         self.goal = goal
         self.movemode = movemode
+        self.blocked_tiles = blocked_tiles
         frontier = PriorityQueue()
         frontier.put(start, 0)
         came_from = {}
@@ -54,7 +55,7 @@ class AStarPath( object ):
         for dx,dy in mymap.DELTA8:
             x2,y2 = x+dx,y+dy
             #if mymap.on_the_map(x2,y2) and not mymap.tile_blocks_walking(x2,y2):
-            if not mymap.tile_blocks_movement(x2,y2,self.movemode):
+            if not( (x2,y2) in self.blocked_tiles or mymap.tile_blocks_movement(x2,y2,self.movemode) ):
                 yield (x2,y2)
             elif (x2,y2) == self.goal:
                 yield self.goal

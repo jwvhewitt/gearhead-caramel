@@ -110,6 +110,10 @@ class GameState( object ):
         self.got_quit = False
         self.widgets = list()
         self.widgets_active = True
+    def do_flip( self, show_widgets=True ):
+        for w in self.widgets:
+            w.render()
+        pygame.display.flip()
 
 
 
@@ -347,6 +351,9 @@ def init(winname,appname,gamedir,icon="sys_icon.png"):
 
         global ITALICFONT
         ITALICFONT = pygame.font.Font( util.image_dir( "VeraBI.ttf" ) , 12 )
+
+        global BIGFONT
+        BIGFONT = pygame.font.Font( util.image_dir( "Anita semi square.ttf" ) , 15 )
 
         global POSTERS
         POSTERS += glob.glob( util.image_dir("poster_*.png") )

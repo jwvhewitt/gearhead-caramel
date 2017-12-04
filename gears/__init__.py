@@ -8,7 +8,6 @@ import scale
 import stats
 import geffects
 import info
-import targeting
 
 import inspect
 import re
@@ -34,8 +33,10 @@ harvest( stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,) )
 harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
 
 class GearHeadScene( pbge.scenes.Scene ):
+    def is_an_actor( self, model ):
+        return isinstance(a,(base.Mecha,base.Character))
     def get_actors( self, pos ):
-        return [a for a in self._contents if (isinstance(a,(base.Mecha,base.Character)) and (a.pos == pos)) ]
+        return [a for a in self._contents if (self.is_an_actor(a) and (a.pos == pos)) ]
 
 class GearHeadCampaign( pbge.campaign.Campaign ):
     fight = None

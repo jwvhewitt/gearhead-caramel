@@ -18,6 +18,8 @@ class ModuleDisplay( object ):
     def __init__( self, dest, model ):
         self.dest = dest
         self.model = model
+        self.module_sprite = pbge.image.Image('sys_modules.png',16,16)
+
     def part_struct_frame( self, module ):
         if module.is_destroyed():
             return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 8
@@ -34,10 +36,10 @@ class ModuleDisplay( object ):
             self.module_dest.centerx = self.dest.centerx - 12 * self.module_num//2 - 6
         else:
             self.module_dest.centerx = self.dest.centerx + 12 * self.module_num//2
-        my_modules.render( self.module_dest, self.part_struct_frame( module ) )
+        self.module_sprite.render( self.module_dest, self.part_struct_frame( module ) )
         armor = module.get_armor()
         if armor:
-            my_modules.render( self.module_dest, self.part_armor_frame( module, armor ) )
+            self.module_sprite.render( self.module_dest, self.part_armor_frame( module, armor ) )
         self.module_num += 1
 
     def add_parts_of_type( self, mod_form ):
@@ -86,7 +88,7 @@ class MechaStatusDisplay( object ):
         self.render()
     def render( self ):
         pbge.default_border.render(self.dest)
-        pbge.draw_text(BIGFONT, str(self.model), self.dest, justify=0)
+        pbge.draw_text(pbge.BIGFONT, str(self.model), self.dest, justify=0)
         self.module_display.render()
         mydest = self.dest.copy()
         mydest.y += 70

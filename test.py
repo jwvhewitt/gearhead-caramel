@@ -305,6 +305,8 @@ myinvo = pbge.effects.Invocation(
     shot_anim=gears.geffects.BigBullet,
     targets=5)
 
+mycamp.fight = game.combat.Combat(mycamp,myclon)
+
 mycamp.play()
 
 keep_going = True

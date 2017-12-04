@@ -11,6 +11,7 @@ from .. import container,image,KeyObject
 import pygame
 import math
 import movement
+import weakref
 
 class Tile( object ):
     def __init__(self, floor=None, wall=None, decor=None, visible=True):
@@ -107,6 +108,17 @@ import viewer
 import animobs
 import targetarea
 
+class TeamDictionary( weakref.WeakKeyDictionary ):
+    # It's like a regular WeakKeyDictionary but it pickles.
+    def __getstate__( self ):
+        state = dict()
+        for key,val in self.iteritems():
+            state[key] = val
+        return state
+    def __setstate__( self, state ):
+        self.__init__()
+        self.update( state )
+
 
 class Scene( object ):
     DELTA8 = ( (-1,-1), (0,-1), (1,-1), (-1,0), (1,0), (-1,1), (0,1), (1,1) )
@@ -125,6 +137,9 @@ class Scene( object ):
         self._map = [[ Tile()
             for y in xrange(height) ]
                 for x in xrange(width) ]
+
+        self.local_teams = TeamDictionary()
+
 
     def on_the_map( self , x , y ):
         # Returns true if on the map, false otherwise

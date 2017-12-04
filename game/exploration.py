@@ -1,6 +1,7 @@
 from pbge import scenes
 import pbge
 import pygame
+import gears
 
 # Commands should be callable objects which take the explorer and return a value.
 # If untrue, the command stops.
@@ -15,7 +16,8 @@ class MoveTo( object ):
             party = [pc for pc in explo.scene._contents if pc in explo.camp.party]
         self.party = party
         pc = self.first_living_pc()
-        self.path = scenes.pathfinding.AStarPath(explo.scene,pc.pos,pos,pc.mmode)
+        #blocked_tiles = set( m.pos for m in explo.scene._contents )
+        self.path = scenes.pathfinding.AStarPath(explo.scene,pc.pos,pos)
         self.step = 0
 
     def first_living_pc( self ):
@@ -88,6 +90,8 @@ class MoveTo( object ):
 
 class Explorer( object ):
     # The object which is exploration of a scene. OO just got existential.
+    # Note that this does not get saved to disk, but instead gets created
+    # anew when the game is loaded.
     def __init__( self, camp ):
         self.camp = camp
         self.scene = camp.scene
@@ -122,7 +126,7 @@ class Explorer( object ):
 
         # Do one view first, just to prep the model map and mouse tile.
         self.view()
-        pygame.display.flip()
+        pbge.my_state.do_flip()
 
         # Do a start trigger, unless we're in combat.
         #if not self.camp.fight:
@@ -133,7 +137,7 @@ class Explorer( object ):
             if self.camp.fight:
                 self.order = None
                 self.camp.fight.go( self )
-                if pbge.GOT_QUIT or not self.camp.fight.no_quit:
+                if pbge.my_state.got_quit or not self.camp.fight.no_quit:
                     self.no_quit = False
                     break
                 self.camp.fight = None
@@ -147,7 +151,13 @@ class Explorer( object ):
                 self.view.overlays.clear()
                 self.view.overlays[ self.view.mouse_tile ] = (self.mapcursor,0)
                 self.view()
-                pygame.display.flip()
+                mmecha = self.view.modelmap.get(self.view.mouse_tile)
+                if mmecha:
+                    x,y = pygame.mouse.get_pos()
+                    y -= 64
+                    gears.info.MechaStatusDisplay((x,y),mmecha[0])
+
+                pbge.my_state.do_flip()
 
                 #self.time += 1
 
