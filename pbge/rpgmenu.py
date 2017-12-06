@@ -41,11 +41,12 @@ class DescBox( Frect ):
 
 class Menu( Frect ):
 
-    def __init__(self,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,menuitem=(150,145,130),menuselect=(128,250,230),border=default_border,predraw=None):
+    def __init__(self,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,menuitem=(150,145,130),menuselect=(128,250,230),border=default_border,predraw=None,font=None):
         super(Menu, self).__init__(dx,dy,w,h,anchor)
         self.menuitem = menuitem
         self.menuselect = menuselect
         self.border = border
+        self.font = font or my_state.small_font
 
         self.items = []
         self.top_item = 0
@@ -70,6 +71,9 @@ class Menu( Frect ):
         if do_extras:
             if self.predraw:
                 self.predraw()
+            else:
+                my_state.view()
+            my_state.render_widgets()
             if self.border:
                 self.border.render( mydest )
 
@@ -84,9 +88,9 @@ class Menu( Frect ):
                     color = self.menuselect
                 else:
                     color = self.menuitem
-                img = MENUFONT.render(self.items[item_num].msg, True, color )
+                img = self.font.render(self.items[item_num].msg, True, color )
                 my_state.screen.blit( img , ( mydest.left , y ) )
-                y += MENUFONT.get_linesize()
+                y += self.font.get_linesize()
             else:
                 break
             item_num += 1
@@ -101,7 +105,7 @@ class Menu( Frect ):
         mydest = self.get_rect()
         x,y = pos
         if mydest.collidepoint( pos ):
-            the_item = ( y - mydest.top ) // MENUFONT.get_linesize() + self.top_item
+            the_item = ( y - mydest.top ) // self.font.get_linesize() + self.top_item
             if the_item >= len( self.items ):
                 the_item = None
             return the_item
@@ -116,6 +120,10 @@ class Menu( Frect ):
             self.selected_item = 0
         no_choice_made = True
         choice = False
+
+        # Disable widgets while menuing.
+        push_widget_state = my_state.widgets_active
+        my_state.widgets_active = False
 
         menu_height = self.menu_height()
 
@@ -197,6 +205,8 @@ class Menu( Frect ):
             elif pc_input.type == pygame.QUIT:
                 no_choice_made = False
 
+        # Restore the widgets.
+        my_state.widgets_active = push_widget_state
 
         return( choice )
 
@@ -223,7 +233,7 @@ class Menu( Frect ):
         self.sort()
 
     def menu_height( self ):
-        return self.h // MENUFONT.get_linesize()
+        return self.h // self.font.get_linesize()
 
     def reposition( self ):
         if self.selected_item < self.top_item:

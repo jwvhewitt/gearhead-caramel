@@ -10,6 +10,7 @@
 import pbge
 import collections
 import pygame
+import movementui
 
 
 class CombatStat( object ):
@@ -18,16 +19,27 @@ class CombatStat( object ):
         self.action_points = 0
         self.aoo_readied = False
         self.attacks_this_round = 0
+        self.mp_remaining = 0
+        self.has_started_turn = False
     def can_act( self ):
         return self.action_points > 0
-
+    def spend_ap( self, ap, mp_remaining=0 ):
+        self.action_points -= ap
+        self.mp_remaining = mp_remaining
+    def start_turn( self ):
+        self.action_points += 2
+        self.has_started_turn = True
 
 
 class PlayerTurn( object ):
     # It's the player's turn. Allow the player to control this PC.
-    def __init__( self, pc, explo ):
+    def __init__( self, pc, camp ):
         self.pc = pc
-        self.explo = explo
+        self.camp = camp
+
+    def end_turn( self, button, ev ):
+        self.camp.fight.cstat[self.pc].action_points = 0
+        self.camp.fight.cstat[self.pc].mp_remaining = 0
 
     def go( self ):
         # Perform this character's turn.
@@ -41,47 +53,28 @@ class PlayerTurn( object ):
 
         my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
-         buttons=((0,1,None),(2,3,None),(0,1,None),(2,3,None),(4,5,None)),
+         buttons=((0,1,None),(2,3,None),(4,5,self.end_turn)),
          anchor=pbge.frects.ANCHOR_UPPERLEFT )
+        pbge.my_state.widgets.append(my_radio_buttons)
+
+        self.movement_ui = movementui.MovementUI( self.camp, self.pc )
+
+        self.active_ui = self.movement_ui
 
         keep_going = True
-        while keep_going:
+        while self.camp.fight.still_fighting() and (self.camp.fight.cstat[self.pc].action_points > 0 or self.camp.fight.cstat[self.pc].mp_remaining > 0):
             # Get input and process it.
             gdi = pbge.wait_event()
 
-            if gdi.type == pbge.TIMEREVENT:
-                #explo.view.overlays.clear()
-                #explo.view.overlays[ chara.pos ] = maps.OVERLAY_CURRENTCHARA
-                #explo.view.overlays[ explo.view.mouse_tile ] = maps.OVERLAY_CURSOR
-                self.explo.view()
+            self.active_ui.update( gdi )
 
-                pbge.my_state.do_flip()
+            if gdi.type == pygame.KEYDOWN:
+                if gdi.unicode == u"Q":
+                    keep_going = False
+                    self.camp.fight.no_quit = False
 
-            else:
-                if gdi.type == pygame.KEYDOWN:
-                    if gdi.unicode == u"Q":
-                        keep_going = False
-                        self.explo.camp.fight.no_quit = False
-                    elif gdi.unicode == u" ":
-                        self.end_turn( chara )
-                #elif gdi.type == pygame.MOUSEBUTTONUP:
-                #    if gdi.button == 1:
-                #        # Left mouse button.
-                #        if ( explo.view.mouse_tile != chara.pos ) and self.scene.on_the_map( *explo.view.mouse_tile ):
-                #            tacred.hmap = None
-                #            target = explo.view.modelmap.get( explo.view.mouse_tile, None )
-                #            if target and target.is_hostile( self.camp ):
-                #                if chara.can_attack():
-                #                    self.move_to_attack( explo, chara, target, tacred )
-                #                else:
-                #                    explo.alert( "You are out of ammunition!" )
-                #            else:
-                #                self.move_player_to_spot( explo, chara, explo.view.mouse_tile, tacred )
-                #            tacred.hmap = hotmaps.MoveMap( self.scene, chara )
-                #    else:
-                #        self.pop_combat_menu( explo, chara )
-        my_radio_buttons.remove()
-
+        pbge.my_state.widgets.remove(my_radio_buttons)
+        self.movement_ui.dispose()
 
 class Combat( object ):
     def __init__( self, camp, foe_zero=None ):
@@ -109,24 +102,45 @@ class Combat( object ):
         """Keep playing as long as there are enemies, players, and no quit."""
         return self.no_quit and not pbge.my_state.got_quit and not self.camp.destination
 
-    def do_combat_turn( self, explo, chara ):
+    def step( self, chara, dest ):
+        """Move chara according to hmap, return True if movement ended."""
+        # See if the movement starts in a threatened area- may be attacked if it ends
+        # in a threatened area as well.
+        #threat_area = self.get_threatened_area( chara )
+        #started_in_threat = chara.pos in threat_area
+        chara.move(dest,pbge.my_state.view,0.25)
+        pbge.my_state.view.handle_anim_sequence()
+
+    def move_model_to( self, chara, path ):
+        # Move the model along the path. Handle attacks of opportunity and wotnot.
+        # Return the tile where movement ends.
+        for p in path:
+            self.step( chara, p )
+        return chara.pos
+
+    def do_combat_turn( self, chara ):
+        if not self.cstat[chara].has_started_turn:
+            self.cstat[chara].start_turn()
         if chara in self.camp.party:
             # Outsource the turn-taking.
-            my_turn = PlayerTurn( chara, explo )
+            my_turn = PlayerTurn( chara, self.camp )
             my_turn.go()
 
-    def go( self, explo ):
+    def end_round( self ):
+        for chara in self.active:
+            self.cstat[chara].has_started_turn = False
+
+    def go( self ):
         """Perform this combat."""
 
         while self.still_fighting():
             if self.n >= len( self.active ):
                 # It's the end of the round.
                 self.n = 0
-                #self.ap_spent.clear()
-                #explo.update_monsters()
+                self.end_round()
             if self.active[self.n].is_operational():
                 chara = self.active[self.n]
-                self.do_combat_turn( explo, chara )
+                self.do_combat_turn( chara )
                 # After action, invoke enchantments and renew attacks of opportunity
                 #explo.invoke_enchantments( chara )
                 self.cstat[chara].aoo_readied = True

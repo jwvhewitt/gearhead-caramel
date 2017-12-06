@@ -1,13 +1,15 @@
 from .. import Singleton
 
 class MoveMode( Singleton ):
-    pass
+    climb_penalty = 2.0
 
 class Walking( MoveMode ):
+    NAME = 'walk'
     pass
 
 class Flying( MoveMode ):
-    pass
+    climb_penalty = 1.0
+    NAME = 'fly'
 
 class Vision( MoveMode ):
     pass

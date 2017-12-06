@@ -74,6 +74,9 @@ class Terrain( Singleton ):
     altitude = 0
     transparent = False
     border = None
+    # You may set different movement costs by movement mode;
+    # defaults to x1.0.
+    movement_cost = {}
 
     @classmethod
     def render_top( self, dest, view, x, y ):

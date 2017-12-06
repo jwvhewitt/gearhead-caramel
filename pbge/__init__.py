@@ -101,6 +101,7 @@ default_border = Border( border_width=8, tex_width=16, border_name="sys_defborde
 gold_border = Border( border_width=8, tex_width=16, border_name="sys_rixsborder.png", tex_name="sys_rixstexture.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2 )
 
 TEXT_COLOR = (240,240,50)
+WHITE = (255,255,255)
 
 
 class GameState( object ):
@@ -110,9 +111,13 @@ class GameState( object ):
         self.got_quit = False
         self.widgets = list()
         self.widgets_active = True
-    def do_flip( self, show_widgets=True ):
+        self.widget_clicked = False
+    def render_widgets( self ):
         for w in self.widgets:
             w.render()
+    def do_flip( self, show_widgets=True ):
+        if show_widgets:
+            self.render_widgets()
         pygame.display.flip()
 
 
@@ -240,6 +245,7 @@ def wait_event():
         my_state.screen = pygame.display.set_mode( (max(ev.w,800),max(ev.h,600)), pygame.RESIZABLE )
 
     # Inform any interested widgets of the event.
+    my_state.widget_clicked = False
     if my_state.widgets_active:
         for w in my_state.widgets:
             w.respond_event(ev)
@@ -354,6 +360,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png"):
 
         global BIGFONT
         BIGFONT = pygame.font.Font( util.image_dir( "Anita semi square.ttf" ) , 15 )
+        my_state.big_font = BIGFONT
 
         global POSTERS
         POSTERS += glob.glob( util.image_dir("poster_*.png") )

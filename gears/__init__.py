@@ -34,9 +34,11 @@ harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
 
 class GearHeadScene( pbge.scenes.Scene ):
     def is_an_actor( self, model ):
-        return isinstance(a,(base.Mecha,base.Character))
+        return isinstance(model,(base.Mecha,base.Character))
     def get_actors( self, pos ):
         return [a for a in self._contents if (self.is_an_actor(a) and (a.pos == pos)) ]
+    def get_blocked_tiles( self ):
+        return {a.pos for a in self._contents if (self.is_an_actor(a) and a.is_operational()) }
 
 class GearHeadCampaign( pbge.campaign.Campaign ):
     fight = None

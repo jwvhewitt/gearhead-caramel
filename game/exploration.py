@@ -17,7 +17,7 @@ class MoveTo( object ):
         self.party = party
         pc = self.first_living_pc()
         #blocked_tiles = set( m.pos for m in explo.scene._contents )
-        self.path = scenes.pathfinding.AStarPath(explo.scene,pc.pos,pos)
+        self.path = scenes.pathfinding.AStarPath(explo.scene,pc.pos,pos,pc.mmode)
         self.step = 0
 
     def first_living_pc( self ):
@@ -136,7 +136,7 @@ class Explorer( object ):
             first_pc_pos=self.camp.first_active_pc().pos
             if self.camp.fight:
                 self.order = None
-                self.camp.fight.go( self )
+                self.camp.fight.go()
                 if pbge.my_state.got_quit or not self.camp.fight.no_quit:
                     self.no_quit = False
                     break

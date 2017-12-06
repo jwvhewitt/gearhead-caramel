@@ -70,6 +70,16 @@ class Tile( object ):
             alt = max(self.decor.altitude,alt)
         return alt
 
+    def get_movement_multiplier( self, mmode ):
+        it = 1.0
+        if self.floor:
+            it *= self.floor.movement_cost.get(mmode,1.0)
+        if self.wall:
+            it *= self.wall.movement_cost.get(mmode,1.0)
+        if self.decor:
+            it *= self.decor.movement_cost.get(mmode,1.0)
+        return it
+
 class PlaceableThing( KeyObject ):
     """A thing that can be placed on the map."""
     def __init__(self, **keywords ):
@@ -238,5 +248,17 @@ class Scene( object ):
                         self._map[x][y].wall = wall
                     if decor != -1:
                         self._map[x][y].decor = decor
+
+    def get_move_cost( self, a, b, movemode ):
+        # a and b should be adjacent tiles.
+        if self.on_the_map(b[0],b[1]) and self.on_the_map(a[0],a[1]):
+            base_cost = 5 * (abs(a[0]-b[0]) + abs(a[1]-b[1]) + 1)
+            # Modify by terrain.
+            base_cost *= self._map[b[0]][b[1]].get_movement_multiplier(movemode)
+            if (movemode.climb_penalty > 1.0) and (self._map[b[0]][b[1]].altitude()>self._map[a[0]][a[1]].altitude()):
+                base_cost *= movemode.climb_penalty
+            return int(base_cost)
+        else:
+            return 100
 
 

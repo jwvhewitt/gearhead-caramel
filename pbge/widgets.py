@@ -1,27 +1,34 @@
 import frects
-from . import my_state,render_text
+from . import my_state,render_text,draw_text,TEXT_COLOR
 import pygame
 
 # respond_event: Receives an event.
 #   If the widget has a method corresponding to the event,
 #   that method will be called.
 
+# Note that the widget needs to be added to my_state.widgets to be used!
+# Or, as the child of another widget. Removing it from that list
+# removes it.
+
 class Widget( frects.Frect ):
-    def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, **kwargs ):
+    def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), **kwargs ):
         super(Widget, self).__init__(dx,dy,w,h,**kwargs)
         self.data = data
         self.active = True
         self.tooltip = tooltip
         self.on_click = on_click
-        my_state.widgets.append(self)
+        self.children = list(children)
     def respond_event( self, ev ):
-        if self.on_click and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1) and self.get_rect().collidepoint(pygame.mouse.get_pos()):
-            self.on_click(self,ev)
+        if self.active:
+            if self.on_click and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1) and self.get_rect().collidepoint(pygame.mouse.get_pos()):
+                self.on_click(self,ev)
+                my_state.widget_clicked = True
+            for c in self.children:
+                c.respond_event(ev)
     def render( self ):
         pass
-    def remove( self ):
-        # No real cleanup needed; just remove the widget from the state list.
-        my_state.widgets.remove(self)
+        for c in self.children:
+            c.render()
 
 class ButtonWidget( Widget ):
     def __init__( self, dx, dy, w, h, sprite=None, frame=0, on_frame=0, off_frame=0, **kwargs ):
@@ -33,6 +40,22 @@ class ButtonWidget( Widget ):
     def render( self ):
         if self.active:
             self.sprite.render(self.get_rect(),self.frame)
+        for c in self.children:
+            c.render()
+
+class LabelWidget( Widget ):
+    def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, **kwargs ):
+        super(LabelWidget, self).__init__(dx,dy,w,h,**kwargs)
+        self.text = text
+        self.color = color or TEXT_COLOR
+        self.font = font or my_state.small_font
+        self.justify = justify
+    def render( self ):
+        if self.active:
+            draw_text(self.font,self.text,self.get_rect(),self.color,self.justify)
+            for c in self.children:
+                c.render()
+
 
 class RadioButtonWidget( Widget ):
     def __init__( self, dx, dy, w, h, sprite=None, buttons=(), spacing=2, **kwargs ):
@@ -47,6 +70,7 @@ class RadioButtonWidget( Widget ):
             ddx += sprite.frame_width + self.spacing
         self.buttons[0].frame = self.buttons[0].on_frame
         self.active_button = self.buttons[0]
+        self.children += self.buttons
 
     def click_radio( self, button, ev ):
         self.active_button.frame = self.active_button.off_frame
@@ -55,10 +79,6 @@ class RadioButtonWidget( Widget ):
         if button.data:
             button.data(button,ev)
 
-    def remove( self ):
-        for b in self.buttons:
-            b.remove()
-        my_state.widgets.remove(self)
 
 
 

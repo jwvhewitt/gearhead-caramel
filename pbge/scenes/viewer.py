@@ -215,6 +215,10 @@ class SceneView( object ):
         return x,y,line,keep_going
 
     def handle_anim_sequence( self, record_anim=False ):
+        # Disable widgets while animation playing.
+        push_widget_state = my_state.widgets_active
+        my_state.widgets_active = False
+
         tick = 0
         if record_anim:
             self.anims.clear()
@@ -242,6 +246,10 @@ class SceneView( object ):
             anim_delay()
             tick += 1
         self.anims.clear()
+
+        # Restore the widgets.
+        my_state.widgets_active = push_widget_state
+
 
     def PosToKey( self, pos ):
         # Convert the x,y coordinates to a model_map key...

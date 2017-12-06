@@ -20,12 +20,14 @@ pbge.init('GearHead Caramel','ghcaramel',gamedir)
 class Wall( pbge.scenes.terrain.VariableTerrain ):
     image_top = 'terrain_trees_fg.png'
     image_middle = 'terrain_trees_bg.png'
+    movement_cost={pbge.scenes.movement.Walking:2.0,gears.geffects.Skimming:2.0,gears.geffects.Rolling:2.0}
 
 class Water( pbge.scenes.terrain.AnimTerrain ):
     image_biddle = 'terrain_water2.png'
     image_bottom = 'terrain_water1.png'
     altitude = -24
     transparent = True
+    movement_cost={pbge.scenes.movement.Walking:3.0,gears.geffects.Rolling:3.0}
 
 class Floor( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_grass.png'
@@ -42,8 +44,8 @@ class Mountain( pbge.scenes.terrain.HillTerrain ):
 
 mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load()
 mychar = mygearlist[0]
-#mychar.mmode = scenes.movement.Walking
-mychar.mmode = gears.geffects.Skimming
+mychar.mmode = scenes.movement.Walking
+#mychar.mmode = gears.geffects.Skimming
 
 mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15, gears.stats.Reflexes:13,gears.stats.Speed:13,gears.stats.MechaPiloting:5,gears.stats.MechaGunnery:5})
 mychar.load_pilot( mypilot )

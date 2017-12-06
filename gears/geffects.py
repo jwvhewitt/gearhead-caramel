@@ -9,14 +9,18 @@ import damage
 #  ***************************
 
 class Skimming( movement.MoveMode ):
+    NAME = 'skim'
     pass
 
 class Rolling( movement.MoveMode ):
+    NAME = 'roll'
     pass
 
 class SpaceFlight( movement.MoveMode ):
+    NAME = 'space flight'
     pass
 
+MOVEMODE_LIST = (movement.Walking,movement.Flying,Skimming,Rolling,SpaceFlight)
 
 #  *******************
 #  ***   AnimObs   ***
