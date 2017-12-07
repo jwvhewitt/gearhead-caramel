@@ -31,6 +31,7 @@ harvest( base, base.MT_Battroid, SINGLETON_TYPES, () )
 SINGLETON_TYPES['None'] = None
 harvest( stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,) )
 harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
+harvest( geffects, pbge.scenes.animobs.AnimOb,SINGLETON_TYPES, ())
 
 class GearHeadScene( pbge.scenes.Scene ):
     def is_an_actor( self, model ):

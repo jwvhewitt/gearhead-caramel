@@ -74,7 +74,7 @@ class AStarPath( object ):
 
 class NavigationGuide( AStarPath ):
     # Return a set of tiles that can be reached from the start tile.
-    def __init__( self, mymap, start, actions_remaining, mp_per_action, mp_leftover, movemode, blocked_tiles=set() ):
+    def __init__( self, mymap, start, max_mp, movemode, blocked_tiles=set() ):
         # tiers is a list of movement
         self.start = start
         self.movemode = movemode
@@ -87,8 +87,6 @@ class NavigationGuide( AStarPath ):
         self.came_from[start] = None
         self.cost_to_tile[start] = 0
         self.cheapest_move = 100000
-
-        max_mp = actions_remaining * mp_per_action + mp_leftover
 
         while frontier:
            current = frontier.pop()

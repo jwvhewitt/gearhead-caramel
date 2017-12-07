@@ -255,10 +255,18 @@ class Scene( object ):
             base_cost = 5 * (abs(a[0]-b[0]) + abs(a[1]-b[1]) + 1)
             # Modify by terrain.
             base_cost *= self._map[b[0]][b[1]].get_movement_multiplier(movemode)
-            if (movemode.climb_penalty > 1.0) and (self._map[b[0]][b[1]].altitude()>self._map[a[0]][a[1]].altitude()):
+            # Modify for climbing.
+            if (movemode.climb_penalty > 1.0) and (max(self._map[b[0]][b[1]].altitude(),movemode.altitude)>max(self._map[a[0]][a[1]].altitude(),movemode.altitude)):
                 base_cost *= movemode.climb_penalty
             return int(base_cost)
         else:
             return 100
+
+    def model_altitude( self, m,x,y ):
+        if m.mmode.altitude is None:
+            return self._map[x][y].altitude()
+        else:
+            return max(self._map[x][y].altitude(),m.mmode.altitude)
+
 
 

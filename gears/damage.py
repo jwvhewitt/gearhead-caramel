@@ -9,9 +9,9 @@ import base
 
 class Damage( object ):
     BOOM_SPRITES = list(range(7))
-    def __init__( self, camp, hp_damage, penetration, target, animlist ):
+    def __init__( self, camp, hit_list, penetration, target, animlist ):
         self.camp = camp
-        self.hp_damage = hp_damage
+        self.hit_list = hit_list
         self.penetration = penetration
         self.overkill = 0
         self.damage_done = 0
@@ -106,14 +106,9 @@ class Damage( object ):
         # X - Initialize history variables
         # X - Check on the master and the pilot- see if they're currently OK.
 
-        # Determine the number of damage packets and the damage of each packet.
-        # Since attack attributes haven't been invented yet, one packet.
-        num_hits = 1
-        the_hits = [self.hp_damage]
-
         # Start doling damage depending on whether this is burst or hyper.
         #   Call the real damage routine for each burst.
-        for h in the_hits:
+        for h in self.hit_list:
             self.real_damage_gear(target,h,self.penetration)
 
         # Dole out concussion and overkill damage.
@@ -145,21 +140,21 @@ class Damage( object ):
             for t in range(num_booms):
                 myanim = geffects.SmallBoom(sprite=self.BOOM_SPRITES[t],pos=self.target_root.pos,
                     delay=t*2+1,
-                    y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
+                    y_off=-self.camp.scene.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
             myanim = animobs.Caption( str(self.damage_done),
                 pos=self.target_root.pos,
-                y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
+                y_off=-self.camp.scene.model_altitude(self.target_root,*self.target_root.pos))
             self.animlist.append( myanim )
             if self.operational_at_start and not self.target_root.is_operational():
                 myanim = geffects.BigBoom(pos=self.target_root.pos,delay=num_booms*2,
-                y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
+                y_off=-self.camp.scene.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
         else:
             for t in range(2):
                 myanim = geffects.NoDamageBoom(sprite=self.BOOM_SPRITES[t],
                 pos=self.target_root.pos,delay=t*2+1,
-                y_off=-pbge.my_state.view.model_altitude(self.target_root,*self.target_root.pos))
+                y_off=-self.camp.scene.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
         if self.chain_reaction:
             for cr in self.chain_reaction:

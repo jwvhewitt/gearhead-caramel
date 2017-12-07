@@ -11,24 +11,26 @@
 class Invocation( object ):
     """ An invocation describes an effect that may be invoked by a character.
         Or not by a character. Try not to make too many assumptions."""
-    def __init__( self, name=None, fx=None, area=None, com_tar=None, exp_tar=None, shot_anim=None, ai_tar=None, targets=1, price=None ):
+    def __init__( self, name=None, fx=None, area=None, used_in_combat=None, used_in_exploration=None, shot_anim=None, ai_tar=None, targets=1, price=None, data=None ):
         self.name=name
         self.fx = fx
         self.area = area
-        self.com_tar = com_tar
-        self.exp_tar = exp_tar
+        self.used_in_combat = used_in_combat
+        self.used_in_exploration = used_in_exploration
         self.ai_tar = ai_tar
         self.shot_anim = shot_anim
         self.targets = targets
         self.price = price
+        self.data = data    # Game-specific info attached to an invocation,
+                # such as button images and whatnot.
 
     def can_be_invoked( self, chara, in_combat=False ):
         if self.price and not self.price.can_pay(chara):
             return False
         elif in_combat:
-            return self.com_tar and self.fx
+            return self.used_in_combat and self.fx
         else:
-            return self.exp_tar and self.fx
+            return self.used_in_exploration and self.fx
 
     def __str__( self ):
         return self.name

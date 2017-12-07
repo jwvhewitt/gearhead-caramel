@@ -256,13 +256,6 @@ class SceneView( object ):
         x,y = pos
         return ( int(round(x)), int(round(y)) )
 
-    def model_altitude( self, m,x,y ):
-        if m.altitude is None:
-            return self.scene._map[x][y].altitude()
-        else:
-            return m.altitude
-
-
     def model_depth( self, model ):
         return self.relative_y( model.pos[0], model.pos[1] )
 
@@ -298,7 +291,7 @@ class SceneView( object ):
         for m in self.scene._contents:
             if hasattr( m , 'render' ):
                 d_pos = self.PosToKey(m.pos)
-                if self.model_altitude(m,*d_pos) >= 0:
+                if self.scene.model_altitude(m,*d_pos) >= 0:
                     self.modelmap[ d_pos ].append( m )
                 else:
                     self.undermap[ d_pos ].append( m )
@@ -326,7 +319,7 @@ class SceneView( object ):
                         mlist.sort( key = self.model_depth )
                     for m in mlist:
                         mx,my = m.pos
-                        y_alt = self.model_altitude(m,x,y)
+                        y_alt = self.scene.model_altitude(m,x,y)
                         m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH-y_alt), self)
 
                 self.scene._map[x][y].render_biddle( dest, self, x,y )
@@ -356,7 +349,7 @@ class SceneView( object ):
                         mlist.sort( key = self.model_depth )
                     for m in mlist:
                         mx,my = m.pos
-                        y_alt = self.model_altitude(m,x-1,y-1)
+                        y_alt = self.scene.model_altitude(m,x-1,y-1)
                         m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH-y_alt), self)
 
 
@@ -396,7 +389,7 @@ class SceneView( object ):
                         mlist.sort( key = self.model_depth )
                     for m in mlist:
                         mx,my = m.pos
-                        y_alt = self.model_altitude(m,x-1,y-1)
+                        y_alt = self.scene.model_altitude(m,x-1,y-1)
                         m.render( (self.relative_x(mx,my)+self.x_off+self.HTW,self.relative_y(mx,my)+self.y_off+self.TILE_WIDTH-self.HTH-y_alt), self)
 
                 dest.topleft = (self.relative_x( x-1, y-1 ) + self.x_off,self.relative_y( x-1, y-1 ) + self.y_off)

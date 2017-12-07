@@ -1,6 +1,6 @@
 import exploration
 import combat
-import targeting
+import targetingui
 import movementui
 
 

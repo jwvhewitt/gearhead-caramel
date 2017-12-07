@@ -1,6 +1,28 @@
 import pbge
 from gears import info
 
+class TargetingWidget( pbge.widgets.Widget ):
+    def __init__( self, camp, attacker, **kwargs ):
+        super(TargetingWidget, self).__init__(-383,-5,383,57,anchor=pbge.frects.ANCHOR_UPPERRIGHT,**kwargs)
+        self.camp = camp
+        self.attacker = attacker
+
+        self.sprite = pbge.image.Image('sys_tacticsinterface_attackwidget.png',383,57)
+
+
+    def open_dropdown_menu( self ):
+        mymenu = pbge.rpgmenu.Menu(-130,32,100,200,anchor=pbge.frects.ANCHOR_UPPERRIGHT)
+        return mymenu
+
+    def render( self ):
+        if self.active:
+            self.sprite.render(self.get_rect(),0)
+
+            for c in self.children:
+                c.render()
+
+
+
 class TargetingUI( object ):
     SC_ORIGIN = 4
     SC_AOE = 2
@@ -41,7 +63,7 @@ class TargetingUI( object ):
         if mmecha:
             x,y = pygame.mouse.get_pos()
             y -= 64
-            MechaStatusDisplay((x,y),mmecha[0])
+            info.MechaStatusDisplay((x,y),mmecha[0])
 
             if hasattr(self.invo.fx,"get_odds"):
                 pbge.draw_text(pbge.ANIMFONT, str(int(self.invo.fx.get_odds(self.camp,self.attacker,mmecha[0])*100))+'%', pygame.Rect(x-32,y+2,64,32))
@@ -70,4 +92,20 @@ class TargetingUI( object ):
                     break
         pbge.my_state.view.overlays.clear()
         return self.targets
+
+    def update( self, ev ):
+        # We just got an event. Deal with it.
+        #if self.needs_tile_update:
+        #    self.update_tiles()
+        #    self.needs_tile_update = False
+
+        if ev.type == pbge.TIMEREVENT:
+            self.render()
+            pbge.my_state.do_flip()
+
+        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and pbge.my_state.view.mouse_tile in self.legal_tiles:
+            self.targets.append( pbge.my_state.view.mouse_tile )
+            if len(self.targets) >= self.num_targets:
+                pbge.my_state.view.overlays.clear()
+                # Launch the effect.
 

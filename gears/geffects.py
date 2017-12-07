@@ -4,21 +4,35 @@ import random
 import materials
 import damage
 
+#  *************************
+#  ***   Utility  Junk   ***
+#  *************************
+
+class AttackLibraryShelf( object ):
+    def __init__(self,weapon,invo_list):
+        self.weapon = weapon
+        self.invo_list = invo_list
+    def has_at_least_one_working_invo(self,chara,in_combat=True):
+        has_one = False
+        for invo in self.invo_list:
+            if invo.can_be_invoked(chara,in_combat):
+                has_one = True
+                break
+        return has_one
+
 #  ***************************
 #  ***   Movement  Modes   ***
 #  ***************************
 
 class Skimming( movement.MoveMode ):
     NAME = 'skim'
-    pass
+    altitude = 1
 
 class Rolling( movement.MoveMode ):
     NAME = 'roll'
-    pass
 
 class SpaceFlight( movement.MoveMode ):
     NAME = 'space flight'
-    pass
 
 MOVEMODE_LIST = (movement.Walking,movement.Flying,Skimming,Rolling,SpaceFlight)
 
@@ -129,9 +143,9 @@ class DoDamage( effects.NoEffect ):
         penetration = fx_record.get("penetration",random.randint(1,100))
         for target in targets:
             scale = self.scale or target.scale
-            mydamage = damage.Damage( camp, scale.scale_health( 
+            mydamage = damage.Damage( camp, [scale.scale_health( 
                   sum( random.randint(1,self.damage_d) for n in range(self.damage_n) ),
-                  materials.Metal ), random.randint(1,100), target, anims )
+                  materials.Metal ),], penetration, target, anims )
         return self.children
 
 #  ***************************
@@ -192,6 +206,21 @@ class DodgeRoll( object ):
     CHILDREN = (effects.NoEffect(anim=MissAnim),)
 
 # BlockRoll, ParryRoll, ECMRoll, AntiMissileRoll
+
+#  *****************
+#  ***   PRICE   ***
+#  *****************
+
+class AmmoPrice(object):
+    def __init__( self, ammo_source, ammo_amount ):
+        self.ammo_source = ammo_source
+        self.ammo_amount = ammo_amount
+
+    def pay( self, chara ):
+        self.ammo_source.spent += self.ammo_amount
+
+    def can_pay( self, chara ):
+        return self.ammo_source.quantity >= (self.ammo_source.spent + self.ammo_amount)
 
 
 

@@ -115,7 +115,7 @@ class MovementUI( object ):
     def update_tiles( self ):
         # Step one: figure out which tiles can be reached from here.
         self.origin = self.mover.pos
-        self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,self.origin,self.camp.fight.cstat[self.mover].action_points,self.mover.get_current_speed(),self.camp.fight.cstat[self.mover].mp_remaining,self.mover.mmode,self.camp.scene.get_blocked_tiles())
+        self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,self.origin,self.camp.fight.cstat[self.mover].action_points*self.mover.get_current_speed()+self.camp.fight.cstat[self.mover].mp_remaining,self.mover.mmode,self.camp.scene.get_blocked_tiles())
 
     def update( self, ev ):
         # We just got an event. Deal with it.

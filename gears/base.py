@@ -188,6 +188,15 @@ class Mover( KeyObject ):
                 total += g.get_thrust(move_mode)
         return total
 
+    def get_attack_library( self ):
+        my_invos = list()
+        for p in self.descendants():
+            if hasattr(p, 'get_attacks'):
+                p_list = geffects.AttackLibraryShelf(p,p.get_attacks(self))
+                if p_list.has_at_least_one_working_invo(self,True):
+                    my_invos.append(p_list)
+        return my_invos
+
 
 # Custom Containers
 # For subcomponents and invcomponents with automatic error checking
@@ -337,6 +346,15 @@ class BaseGear( scenes.PlaceableThing ):
             for p in part.sub_sub_coms():
                 yield p
 
+    def descendants(self):
+        for part in self.sub_com:
+            yield part
+            for p in part.descendants():
+                yield p
+        for part in self.inv_com:
+            yield part
+            for p in part.descendants():
+                yield p
 
     def ancestors(self):
         if hasattr( self, "container" ) and isinstance( self.container.owner, BaseGear ):
@@ -639,11 +657,11 @@ class PowerSource( BaseGear, StandardDamageHandler ):
 
 class Weapon( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Weapon"
-    DEFAULT_CALIBRE = None
-    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','integral','ammo_type')
+    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','integral','attack_stat','shot_anim')
+    DEFAULT_SHOT_ANIM = None
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
-    def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, **keywords ):
+    def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, attack_stat=stats.Reflexes, shot_anim=None, **keywords ):
         # Check the range of all parameters before applying.
         if reach < self.__class__.MIN_REACH:
             reach = self.__class__.MIN_REACH
@@ -669,9 +687,9 @@ class Weapon( BaseGear, StandardDamageHandler ):
             penetration = self.__class__.MAX_PENETRATION
         self.penetration = penetration
 
+        self.attack_stat = attack_stat
+        self.shot_anim = shot_anim or self.DEFAULT_SHOT_ANIM
         self.integral = keywords.pop( "integral" , False )
-
-        self.ammo_type = keywords.pop( "ammo_type" , self.DEFAULT_CALIBRE )
 
         # Finally, call the gear initializer.
         super(Weapon, self).__init__(**keywords)
@@ -713,7 +731,36 @@ class Weapon( BaseGear, StandardDamageHandler ):
         mod = self.get_module()
         return self.is_not_destroyed() and mod and mod.is_operational()
 
+    def get_attack_skill(self):
+        return self.scale.RANGED_SKILL
 
+    def get_defenses( self ):
+        return [geffects.DodgeRoll(),]
+
+    def get_modifiers( self ):
+        return [geffects.RangeModifier(self.reach),]
+
+    def get_basic_attack( self ):
+        return pbge.effects.Invocation(
+                name = 'Basic Attack', 
+                fx=geffects.AttackRoll(
+                    self.attack_stat, self.get_attack_skill(),
+                    children = (geffects.DoDamage(self.damage,6,scale=self.scale),),
+                    accuracy=self.accuracy*10, penetration=self.penetration*10, 
+                    defenses = self.get_defenses(),
+                    modifiers = self.get_modifiers()
+                    ),
+                area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
+                used_in_combat = True, used_in_exploration=False,
+                shot_anim=self.shot_anim,
+                targets=1)
+
+    def get_attacks( self, user ):
+        # Return a list of invocations associated with this weapon.
+        # Being a weapon, the invocations are likely to all be attacks.
+        my_invos = list()
+        my_invos.append(self.get_basic_attack())
+        return my_invos
 
 class MeleeWeapon( Weapon ):
     MIN_REACH = 1
@@ -725,6 +772,24 @@ class MeleeWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 3
+    def get_attack_skill(self):
+        return self.scale.MELEE_SKILL
+    def get_modifiers( self ):
+        return list()
+    def get_basic_attack( self ):
+        return pbge.effects.Invocation(
+                name = 'Basic Attack', 
+                fx=geffects.AttackRoll(
+                    self.attack_stat, self.get_attack_skill(),
+                    children = (geffects.DoDamage(self.damage,6,scale=self.scale),),
+                    accuracy=self.accuracy*10, penetration=self.penetration*10, 
+                    defenses = self.get_defenses(),
+                    modifiers = self.get_modifiers()
+                    ),
+                area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
+                used_in_combat = True, used_in_exploration=False,
+                shot_anim=self.shot_anim,
+                targets=1)
 
 class EnergyWeapon( Weapon ):
     MIN_REACH = 1
@@ -736,6 +801,24 @@ class EnergyWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 20
+    def get_attack_skill(self):
+        return self.scale.MELEE_SKILL
+    def get_modifiers( self ):
+        return list()
+    def get_basic_attack( self ):
+        return pbge.effects.Invocation(
+                name = 'Basic Attack', 
+                fx=geffects.AttackRoll(
+                    self.attack_stat, self.get_attack_skill(),
+                    children = (geffects.DoDamage(self.damage,6,scale=self.scale),),
+                    accuracy=self.accuracy*10, penetration=self.penetration*10, 
+                    defenses = self.get_defenses(),
+                    modifiers = self.get_modifiers()
+                    ),
+                area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
+                used_in_combat = True, used_in_exploration=False,
+                shot_anim=self.shot_anim,
+                targets=1)
 
 class Ammo( BaseGear, Stackable, StandardDamageHandler ):
     DEFAULT_NAME = "Ammo"
@@ -745,19 +828,19 @@ class Ammo( BaseGear, Stackable, StandardDamageHandler ):
         # Check the range of all parameters before applying.
         self.ammo_type = ammo_type
         self.quantity = max( quantity, 1 )
+        self.spent = 0
 
         # Finally, call the gear initializer.
         super(Ammo, self).__init__(**keywords)
     @property
     def base_mass(self):
-        return self.ammo_type.bang * self.quantity //25
+        return self.ammo_type.bang * (self.quantity-self.spent) //25
     @property
     def volume(self):
         return ( self.ammo_type.bang * self.quantity + 49 ) // 50
 
     @property
     def base_cost(self):
-        # Multiply the stats together, squaring range because it's so important.
         return self.ammo_type.bang * self.quantity // 10
     base_health = 1
 
@@ -771,12 +854,39 @@ class BallisticWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 5
+    SAVE_PARAMETERS = ('ammo_type',)
     DEFAULT_CALIBRE = calibre.Shells_150mm
+    DEFAULT_SHOT_ANIM = geffects.BigBullet
+    def __init__(self, ammo_type=None, **keywords ):
+        self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
+
+        # Finally, call the gear initializer.
+        super(BallisticWeapon, self).__init__(**keywords)
+
     def is_legal_sub_com(self,part):
         if isinstance( part , Weapon ):
             return part.integral
         else:
             return isinstance( part, Ammo ) and part.ammo_type is self.ammo_type
+    def get_ammo( self ):
+        for maybe_ammo in self.sub_com:
+            if isinstance(maybe_ammo,Ammo):
+                return maybe_ammo
+    def get_basic_attack( self ):
+        return pbge.effects.Invocation(
+                name = 'Basic Attack', 
+                fx=geffects.AttackRoll(
+                    self.attack_stat, self.get_attack_skill(),
+                    children = (geffects.DoDamage(self.damage,6,scale=self.scale),),
+                    accuracy=self.accuracy*10, penetration=self.penetration*10, 
+                    defenses = self.get_defenses(),
+                    modifiers = self.get_modifiers()
+                    ),
+                area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
+                used_in_combat = True, used_in_exploration=False,
+                shot_anim=self.shot_anim,
+                price=geffects.AmmoPrice(self.get_ammo(),1),
+                targets=1)
 
 class BeamWeapon( Weapon ):
     MIN_REACH = 2
@@ -828,13 +938,14 @@ class Missile( BaseGear, StandardDamageHandler ):
         self.penetration = penetration
 
         self.quantity = max( quantity, 1 )
+        self.spent = 0
 
         # Finally, call the gear initializer.
         super(Missile, self).__init__(**keywords)
 
     @property
     def base_mass(self):
-        return ((( self.damage + self.penetration ) * 5 + self.accuracy + self.reach ) * self.quantity ) //25
+        return ((( self.damage + self.penetration ) * 5 + self.accuracy + self.reach ) * (self.quantity-self.spent) ) //25
 
     @property
     def volume(self):
@@ -873,6 +984,40 @@ class Launcher( BaseGear, ContainerDamageHandler ):
         return self.size * 25
     def is_legal_sub_com( self, part ):
         return isinstance( part , Missile ) and part.volume <= self.volume
+    def get_ammo( self ):
+        for maybe_ammo in self.sub_com:
+            if isinstance(maybe_ammo,Missile):
+                return maybe_ammo
+    def is_operational( self ):
+        """ To be operational, a launcher must be in an operational module.
+        """
+        mod = self.get_module()
+        return self.is_not_destroyed() and mod and mod.is_operational()
+
+    def get_basic_attack( self ):
+        ammo = self.get_ammo()
+        if ammo:
+            return pbge.effects.Invocation(
+                name = 'Single Shot', 
+                fx=geffects.AttackRoll(
+                    stats.Perception, self.scale.RANGED_SKILL,
+                    children = (geffects.DoDamage(ammo.damage,6,scale=ammo.scale),),
+                    accuracy=ammo.accuracy*10, penetration=ammo.penetration*10, 
+                    defenses = [geffects.DodgeRoll(),],
+                    modifiers = [geffects.RangeModifier(ammo.reach),]
+                    ),
+                area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
+                used_in_combat = True, used_in_exploration=False,
+                shot_anim=None,
+                price=geffects.AmmoPrice(ammo,1),
+                targets=1)
+    def get_attacks( self, user ):
+        # Return a list of invocations associated with this weapon.
+        # Being a weapon, the invocations are likely to all be attacks.
+        my_invos = list()
+        my_invos.append(self.get_basic_attack())
+        return my_invos
+
 
 #   *******************
 #   ***   HOLDERS   ***

@@ -4,9 +4,13 @@
 #
 # The scales are singletons- instead of instancing, just point to the class.
 
+import stats
+
 class MechaScale( object ):
     SIZE_FACTOR = 10
     COST_FACTOR = 2
+    RANGED_SKILL = stats.MechaGunnery
+    MELEE_SKILL = stats.MechaFighting
     @classmethod
     def scale_mass( self, mass, material ):
         # Scale mass based on scale and material.
@@ -28,4 +32,6 @@ class MechaScale( object ):
 class HumanScale( MechaScale ):
     SIZE_FACTOR = 1
     COST_FACTOR = 5
+    RANGED_SKILL = stats.RangedCombat
+    MELEE_SKILL = stats.CloseCombat
 
