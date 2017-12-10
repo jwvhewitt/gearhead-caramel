@@ -94,6 +94,62 @@ class SmallBeam( animobs.ShotAnim ):
 
 class Missile1( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_missile1.png"
+    DEFAULT_SPEED = 0.3
+
+class Missile2( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_missile2.png"
+    DEFAULT_SPEED = 0.3
+
+class Missile3( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_missile3.png"
+    DEFAULT_SPEED = 0.3
+
+class Missile4( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_missile4.png"
+    DEFAULT_SPEED = 0.3
+
+class Missile5( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_missile5.png"
+    DEFAULT_SPEED = 0.3
+
+class ClusterShot( animobs.ShotAnim ):
+    def __init__( self, start_pos=(0,0), end_pos=(0,0), x_off=0, y_off=0, delay=0, child_classes=() ):
+        self.x_off = x_off
+        self.y_off = y_off
+        self.needs_deletion = False
+        self.start_pos = start_pos
+        self.end_pos = end_pos
+        self.child_classes = child_classes
+        self.children = list()
+        self.delay = delay
+    def update( self, view ):
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.needs_deletion = True
+            delay = 0
+            original_children = self.children
+            self.children = list()
+            for cc in self.child_classes:
+                self.children.append( cc( start_pos=self.start_pos, end_pos=self.end_pos,
+                  x_off=self.x_off, y_off=self.y_off, delay=delay ))
+                delay += 1
+            self.children[0].children += original_children
+
+class MissileFactory( object ):
+    # Used to create custom missile salvos.
+    def __init__(self, num_missiles):
+        self.num_missiles = min(num_missiles,40)
+    MISSILE_ANIMS = (Missile1,Missile2,Missile3,Missile4,Missile5)
+    def __call__(self,start_pos,end_pos,delay=0):
+        # Return as many missiles as requested.
+        fives,leftover = divmod(self.num_missiles,5)
+        my_anim = list()
+        if fives > 0:
+            my_anim += [Missile5,] * fives
+        if leftover > 0:
+            my_anim.append( self.MISSILE_ANIMS[leftover-1] )
+        return ClusterShot(start_pos=start_pos,end_pos=end_pos,delay=delay,child_classes=my_anim)
 
 
 #  *******************

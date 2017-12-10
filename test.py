@@ -47,7 +47,7 @@ mychar = mygearlist[0]
 mychar.mmode = scenes.movement.Walking
 #mychar.mmode = gears.geffects.Skimming
 
-mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15, gears.stats.Reflexes:13,gears.stats.Speed:13,gears.stats.MechaPiloting:5,gears.stats.MechaGunnery:5})
+mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15, gears.stats.Reflexes:13,gears.stats.Speed:13,gears.stats.Perception:12,gears.stats.MechaPiloting:5,gears.stats.MechaGunnery:5})
 mychar.load_pilot( mypilot )
 
 #mygearlist = gears.Loader('out.txt').load()

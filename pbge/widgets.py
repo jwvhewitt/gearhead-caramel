@@ -20,15 +20,22 @@ class Widget( frects.Frect ):
         self.children = list(children)
     def respond_event( self, ev ):
         if self.active:
-            if self.on_click and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1) and self.get_rect().collidepoint(pygame.mouse.get_pos()):
-                self.on_click(self,ev)
-                my_state.widget_clicked = True
+            if self.get_rect().collidepoint(pygame.mouse.get_pos()):
+                if self.on_click and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1):
+                    self.on_click(self,ev)
+                    my_state.widget_clicked = True
             for c in self.children:
                 c.respond_event(ev)
+    def super_render( self ):
+        # This renders the widget and children, setting tooltip and whatnot.
+        if self.active:
+            self.render()
+            if self.tooltip and self.get_rect().collidepoint(pygame.mouse.get_pos()):
+                my_state.widget_tooltip = self.tooltip
+            for c in self.children:
+                c.super_render()
     def render( self ):
         pass
-        for c in self.children:
-            c.render()
 
 class ButtonWidget( Widget ):
     def __init__( self, dx, dy, w, h, sprite=None, frame=0, on_frame=0, off_frame=0, **kwargs ):
@@ -40,8 +47,6 @@ class ButtonWidget( Widget ):
     def render( self ):
         if self.active and self.sprite:
             self.sprite.render(self.get_rect(),self.frame)
-        for c in self.children:
-            c.render()
 
 class LabelWidget( Widget ):
     def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, **kwargs ):
@@ -53,8 +58,6 @@ class LabelWidget( Widget ):
     def render( self ):
         if self.active:
             draw_text(self.font,self.text,self.get_rect(),self.color,self.justify)
-            for c in self.children:
-                c.render()
 
 
 class RadioButtonWidget( Widget ):

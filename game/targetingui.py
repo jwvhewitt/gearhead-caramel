@@ -37,10 +37,12 @@ class AttackWidget( pbge.widgets.Widget ):
 
     def pop_weapon_menu(self,button,ev):
         mymenu = pbge.rpgmenu.Menu(-380,15,200,180,anchor=pbge.frects.ANCHOR_UPPERRIGHT,font=pbge.BIGFONT)
+        mymenu.descobj = WeaponMenuDesc( -160, 15, 140, 180, anchor=pbge.frects.ANCHOR_UPPERRIGHT )
         for shelf in self.library:
-            mymenu.add_item(str(shelf.weapon),shelf)
+            if shelf.has_at_least_one_working_invo(self.attacker):
+                mymenu.add_item(str(shelf.weapon),shelf)
         nu_shelf = mymenu.query()
-        if nu_shelf != self.shelf:
+        if nu_shelf in self.library and nu_shelf != self.shelf:
             self.set_shelf_invo( nu_shelf, nu_shelf.get_first_working_invo(self.attacker) )
 
     def select_first_usable_attack(self):
@@ -80,15 +82,25 @@ class AttackWidget( pbge.widgets.Widget ):
                     self.buttons[butt].frame = b_invo.data.inactive_frame
                 else:
                     self.buttons[butt].frame = b_invo.data.disabled_frame
+                self.buttons[butt].tooltip = b_invo.name
             else:
                 self.buttons[butt].sprite = None
+                self.buttons[butt].tooltip = None
     def render( self ):
-        if self.active:
-            self.sprite.render(self.get_rect(),0)
+        self.sprite.render(self.get_rect(),0)
 
-            for c in self.children:
-                c.render()
-
+class WeaponMenuDesc( pbge.frects.Frect ):
+    def render_desc( self, menu_item ):
+        # Just print this weapon's stats in the provided window.
+        myrect = self.get_rect()
+        pbge.default_border.render(myrect)
+        pbge.draw_text( pbge.SMALLFONT, self.get_desc(menu_item.value.weapon), self.get_rect(), justify = -1, color=pbge.WHITE )
+    def get_desc( self, weapon ):
+        # Return the weapon stats as a string.
+        if hasattr( weapon, 'get_weapon_desc' ):
+            return weapon.get_weapon_desc()
+        else:
+            return '???'
 
 
 class TargetingUI( object ):

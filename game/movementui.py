@@ -42,9 +42,6 @@ class MoveWidget( pbge.widgets.Widget ):
             if num_ap < 4 and self.camp.fight.cstat[self.mover].mp_remaining > 0:
                 self.counter_sprite.render(dest,1)
 
-            for c in self.children:
-                c.render()
-
 
 class MovementUI( object ):
     SC_ORIGIN = 4
@@ -83,6 +80,8 @@ class MovementUI( object ):
             x,y = pygame.mouse.get_pos()
             y -= 64
             info.MechaStatusDisplay((x,y),mmecha[0])
+
+        #pbge.draw_text(pbge.SMALLFONT,'This is an example\n of an overly long line that I intend to split into multiple lines using this function.',pygame.rect.Rect(50,50,200,100))
 
         pbge.my_state.do_flip()
 

@@ -5,10 +5,6 @@ from frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
 
 from . import default_border,render_text,wait_event,TIMEREVENT,gold_border,my_state
 
-MENUFONT = None
-
-INIT_DONE = False
-
 class MenuItem( object ):
     def __init__(self,msg,value,desc=None):
         self.msg = msg
@@ -19,22 +15,29 @@ class MenuItem( object ):
         """ Comparison of menu items done by msg string """
         return( self.msg < other.msg )
 
+# The DescBox is the default MenuDesc. It takes a string stored in the menu
+# item and displays it. However, it is not the only menu description possible!
+# Any object with a render_desc(menu_item) method will work.
+# Also note that the desc associated with each menu item doesn't need to be
+# a string- it all depends on the needs of the descobj you're using.
+
 class DescBox( Frect ):
-    # The DescBox inherits from Rect, since that's basically what it is.
-    def __init__(self,menu,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,border=default_border,justify=-1):
+    # The DescBox inherits from Frect, since that's basically what it is.
+    def __init__(self,menu,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,border=default_border,justify=-1,font=None):
         self.menu = menu
         self.border = border
         self.justify = justify
         if not anchor:
             anchor = menu.anchor
+        self.font = font or my_state.small_font
         super(DescBox, self).__init__(dx,dy,w,h,anchor)
 
-    def render(self):
+    def render_desc(self,menu_item):
         mydest = self.get_rect()
         if self.border:
             self.border.render( my_state.screen , mydest )
-        if self.menu.items[self.menu.selected_item].desc != None:
-            img = render_text( MENUFONT , self.menu.items[self.menu.selected_item].desc , self.w, justify = self.justify )
+        if menu_item and menu_item.desc:
+            img = render_text( self.font, menu_item.desc, self.w, justify = self.justify )
             my_state.screen.blit( img , mydest )
 
 
@@ -52,7 +55,7 @@ class Menu( Frect ):
         self.top_item = 0
         self.selected_item = 0
         self.can_cancel = True
-        self.descbox = None
+        self.descobj = None
         self.quick_keys = {}
 
         # predraw is a function that will take the screen as a parameter. It
@@ -63,8 +66,8 @@ class Menu( Frect ):
         item = MenuItem( msg , value , desc )
         self.items.append( item )
 
-    def add_desc(self,x,y,w=30,h=10,justify=-1):
-        self.descbox = DescBox( self, x , y , w , h, self.border, justify )
+    def add_descbox(self,x,y,w=30,h=10,justify=-1):
+        self.descobj = DescBox( self, x , y , w , h, self.border, justify )
 
     def render(self,do_extras=True):
         mydest = self.get_rect()
@@ -97,8 +100,8 @@ class Menu( Frect ):
 
         my_state.screen.set_clip(None)
 
-        if self.descbox != None:
-            self.descbox.render()
+        if self.descobj != None:
+            self.descobj.render_desc(self.get_current_item())
 
     def get_mouseover_item( self , pos ):
         # Return the menu item under this mouse position.
@@ -252,6 +255,10 @@ class Menu( Frect ):
             self.selected_item = n
         self.reposition()
 
+    def get_current_item( self ):
+        if self.selected_item < len( self.items ):
+            return self.items[self.selected_item]
+
 
 class PopUpMenu( Menu ):
     """Creates a small menu at the current mouse position."""
@@ -269,13 +276,5 @@ class PopUpMenu( Menu ):
 
         super(PopUpMenu, self).__init__(x,y,self.WIDTH,self.HEIGHT,ANCHOR_UPPERLEFT, border=border, predraw=predraw)
 
-
-def init():
-    # Don't call init until after the display has been set.
-    global INIT_DONE
-    if not INIT_DONE:
-        INIT_DONE = True
-        global MENUFONT
-        MENUFONT = pygame.font.Font( util.image_dir( "VeraBd.ttf" ) , 24 )
 
 

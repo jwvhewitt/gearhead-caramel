@@ -73,6 +73,7 @@ class PlayerTurn( object ):
 
         self.movement_ui = movementui.MovementUI( self.camp, self.pc )
         self.attack_ui = targetingui.TargetingUI(self.camp,self.pc)
+        #self.attack_ui.deactivate()
 
         self.active_ui = self.movement_ui
 

@@ -792,6 +792,8 @@ class MeleeWeapon( Weapon ):
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 targets=1)
+    def get_weapon_desc( self ):
+        return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}'.format(self)
 
 class EnergyWeapon( Weapon ):
     MIN_REACH = 1
@@ -822,6 +824,8 @@ class EnergyWeapon( Weapon ):
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 targets=1)
+    def get_weapon_desc( self ):
+        return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}'.format(self)
 
 class Ammo( BaseGear, Stackable, StandardDamageHandler ):
     DEFAULT_NAME = "Ammo"
@@ -891,6 +895,14 @@ class BallisticWeapon( Weapon ):
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 price=geffects.AmmoPrice(self.get_ammo(),1),
                 targets=1)
+    def get_weapon_desc( self ):
+        ammo = self.get_ammo()
+        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)
+        if ammo:
+            it = it + '\n Ammo: {}/{}'.format(ammo.quantity-ammo.spent,ammo.quantity)
+        else:
+            it = it + '\n Ammo: 0'
+        return it
 
 class BeamWeapon( Weapon ):
     MIN_REACH = 2
@@ -903,6 +915,9 @@ class BeamWeapon( Weapon ):
     MAX_PENETRATION = 5
     COST_FACTOR = 15
     DEFAULT_SHOT_ANIM = geffects.GunBeam
+    def get_weapon_desc( self ):
+        return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)
+
 
 class Missile( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Missile"
@@ -1031,7 +1046,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
                 used_in_combat = True, used_in_exploration=False,
-                shot_anim=geffects.Missile1,
+                shot_anim=geffects.MissileFactory(num_missiles),
                 price=geffects.AmmoPrice(ammo,num_missiles),
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),frame),
                 targets=1)
@@ -1047,8 +1062,15 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                 my_invos.append(self.get_multi_attack(last_n,3))
             if last_n > 0 and int(ammo.quantity/2) > last_n:
                 my_invos.append(self.get_multi_attack(int(ammo.quantity/2),6))
-            my_invos.append(self.get_multi_attack(ammo.quantity-ammo.spent,9))
+            if ammo.quantity > 1:
+                my_invos.append(self.get_multi_attack(max(ammo.quantity-ammo.spent,2),9))
         return my_invos
+    def get_weapon_desc( self ):
+        ammo = self.get_ammo()
+        if ammo:
+            return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}\n Ammo: {3}/{0.quantity}'.format(ammo,ammo.reach*2,ammo.reach*3,ammo.quantity-ammo.spent)
+        else:
+            return 'Empty'
 
 
 #   *******************

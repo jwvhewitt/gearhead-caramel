@@ -114,10 +114,19 @@ class GameState( object ):
         self.widget_clicked = False
     def render_widgets( self ):
         for w in self.widgets:
-            w.render()
+            w.super_render()
+
     def do_flip( self, show_widgets=True ):
+        self.widget_tooltip = None
         if show_widgets:
             self.render_widgets()
+        if self.widget_tooltip:
+            x,y = pygame.mouse.get_pos()
+            if x + 200 > self.screen.get_width():
+                x -= 200
+            myrect = pygame.rect.Rect(x,y,200,20)
+            default_border.render(myrect)
+            draw_text(self.small_font,self.widget_tooltip,myrect)
         pygame.display.flip()
 
 
@@ -338,8 +347,6 @@ def init(winname,appname,gamedir,icon="sys_icon.png"):
             my_state.screen = pygame.display.set_mode( (0,0), pygame.FULLSCREEN )
         else:
             my_state.screen = pygame.display.set_mode( (800,600), pygame.RESIZABLE )
-
-        rpgmenu.init()
 
         global INPUT_CURSOR
         INPUT_CURSOR = image.Image( "sys_textcursor.png" , 8 , 16 )
