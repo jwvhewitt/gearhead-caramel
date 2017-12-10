@@ -753,6 +753,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 targets=1)
 
     def get_attacks( self, user ):
@@ -789,6 +790,7 @@ class MeleeWeapon( Weapon ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 targets=1)
 
 class EnergyWeapon( Weapon ):
@@ -818,6 +820,7 @@ class EnergyWeapon( Weapon ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 targets=1)
 
 class Ammo( BaseGear, Stackable, StandardDamageHandler ):
@@ -885,6 +888,7 @@ class BallisticWeapon( Weapon ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 price=geffects.AmmoPrice(self.get_ammo(),1),
                 targets=1)
 
@@ -898,6 +902,7 @@ class BeamWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 15
+    DEFAULT_SHOT_ANIM = geffects.GunBeam
 
 class Missile( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Missile"
@@ -1008,14 +1013,41 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
                 used_in_combat = True, used_in_exploration=False,
-                shot_anim=None,
+                shot_anim=geffects.Missile1,
                 price=geffects.AmmoPrice(ammo,1),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),0),
+                targets=1)
+    def get_multi_attack( self, num_missiles, frame ):
+        ammo = self.get_ammo()
+        if ammo:
+            return pbge.effects.Invocation(
+                name = 'Fire x{}'.format(num_missiles), 
+                fx=geffects.MultiAttackRoll(
+                    stats.Perception, self.scale.RANGED_SKILL,num_attacks=num_missiles,
+                    children = (geffects.DoDamage(ammo.damage,6,scale=ammo.scale),),
+                    accuracy=ammo.accuracy*10, penetration=ammo.penetration*10, 
+                    defenses = [geffects.DodgeRoll(),],
+                    modifiers = [geffects.RangeModifier(ammo.reach),]
+                    ),
+                area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
+                used_in_combat = True, used_in_exploration=False,
+                shot_anim=geffects.Missile1,
+                price=geffects.AmmoPrice(ammo,num_missiles),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),frame),
                 targets=1)
     def get_attacks( self, user ):
         # Return a list of invocations associated with this weapon.
         # Being a weapon, the invocations are likely to all be attacks.
         my_invos = list()
-        my_invos.append(self.get_basic_attack())
+        ammo = self.get_ammo()
+        if ammo:
+            my_invos.append(self.get_basic_attack())
+            last_n = int(ammo.quantity/4)
+            if last_n > 1:
+                my_invos.append(self.get_multi_attack(last_n,3))
+            if last_n > 0 and int(ammo.quantity/2) > last_n:
+                my_invos.append(self.get_multi_attack(int(ammo.quantity/2),6))
+            my_invos.append(self.get_multi_attack(ammo.quantity-ammo.spent,9))
         return my_invos
 
 

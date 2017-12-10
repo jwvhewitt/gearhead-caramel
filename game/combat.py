@@ -11,6 +11,8 @@ import pbge
 import collections
 import pygame
 import movementui
+import targetingui
+
 
 
 class CombatStat( object ):
@@ -41,6 +43,18 @@ class PlayerTurn( object ):
         self.camp.fight.cstat[self.pc].action_points = 0
         self.camp.fight.cstat[self.pc].mp_remaining = 0
 
+    def switch_movement( self, button, ev ):
+        if self.active_ui != self.movement_ui:
+            self.active_ui.deactivate()
+            self.movement_ui.activate()
+            self.active_ui = self.movement_ui
+
+    def switch_attack( self, button, ev ):
+        if self.active_ui != self.attack_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_attack_library():
+            self.active_ui.deactivate()
+            self.attack_ui.activate()
+            self.active_ui = self.attack_ui
+
     def go( self ):
         # Perform this character's turn.
         #Start by making a hotmap centered on PC, to see how far can move.
@@ -53,11 +67,12 @@ class PlayerTurn( object ):
 
         my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
-         buttons=((0,1,None),(2,3,None),(4,5,self.end_turn)),
+         buttons=((0,1,self.switch_movement),(2,3,self.switch_attack),(4,5,self.end_turn)),
          anchor=pbge.frects.ANCHOR_UPPERLEFT )
         pbge.my_state.widgets.append(my_radio_buttons)
 
         self.movement_ui = movementui.MovementUI( self.camp, self.pc )
+        self.attack_ui = targetingui.TargetingUI(self.camp,self.pc)
 
         self.active_ui = self.movement_ui
 
@@ -75,6 +90,7 @@ class PlayerTurn( object ):
 
         pbge.my_state.widgets.remove(my_radio_buttons)
         self.movement_ui.dispose()
+        self.attack_ui.dispose()
 
 class Combat( object ):
     def __init__( self, camp, foe_zero=None ):

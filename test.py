@@ -114,20 +114,6 @@ BIGFONT = pygame.font.Font( pbge.util.image_dir( "Anita semi square.ttf" ) , 15 
 
 my_mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
 
-myinvo = pbge.effects.Invocation( 
-    fx=gears.geffects.AttackRoll(
-        gears.stats.Reflexes, gears.stats.MechaGunnery,
-        children = (gears.geffects.DoDamage(3,6),),
-        accuracy=25, penetration=30, 
-        defenses = (gears.geffects.DodgeRoll(),),
-        modifiers = (gears.geffects.RangeModifier(5),)
-        ),
-    area=pbge.scenes.targetarea.SingleTarget(reach=15),
-    shot_anim=gears.geffects.BigBullet,
-    targets=5)
-
-print mychar.get_attack_library()
-
 mycamp.fight = game.combat.Combat(mycamp,myclon)
 
 mycamp.play()

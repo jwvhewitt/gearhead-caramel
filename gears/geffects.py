@@ -19,6 +19,26 @@ class AttackLibraryShelf( object ):
                 has_one = True
                 break
         return has_one
+    def get_first_working_invo(self,chara,in_combat=True):
+        for invo in self.invo_list:
+            if invo.can_be_invoked(chara,in_combat):
+                return invo
+
+class AttackData( object ):
+    # The data class passed to an attack invocation. Mostly just
+    # contains the UI stuff.
+    def __init__(self,attack_icon,active_frame,inactive_frame=None,disabled_frame=None):
+        self.attack_icon = attack_icon
+        self.active_frame = active_frame
+        if inactive_frame is not None:
+            self.inactive_frame = inactive_frame
+        else:
+            self.inactive_frame = active_frame + 1
+        if disabled_frame is not None:
+            self.disabled_frame = disabled_frame
+        else:
+            self.disabled_frame = active_frame + 2
+
 
 #  ***************************
 #  ***   Movement  Modes   ***
@@ -65,6 +85,15 @@ class MissAnim( animobs.Caption ):
 
 class BigBullet( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_bigbullet.png"
+
+class GunBeam( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_gunbeam.png"
+
+class SmallBeam( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_smallbeam.png"
+
+class Missile1( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_missile1.png"
 
 
 #  *******************
@@ -127,6 +156,80 @@ class AttackRoll( effects.NoEffect ):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds
 
+class MultiAttackRoll( effects.NoEffect ):
+    """ One actor is gonna attack another actor.
+        This may be opposed by a succession of defensive rolls.
+        If a defensive roll beats the attack roll, its children get returned.
+        Otherwise, the penetration score is recorded in the fx_record and
+        the children of this effect get returned.
+    """
+    def __init__(self, att_stat, att_skill, num_attacks=2, children=(), anim=None, accuracy=0, penetration=0, modifiers=(), defenses=() ):
+        self.att_stat = att_stat
+        self.att_skill = att_skill
+        self.num_attacks = num_attacks
+        if not children:
+            children = list()
+        self.children = children
+        self.anim = anim
+        self.accuracy = accuracy
+        self.penetration = penetration
+        self.modifiers = modifiers
+        self.defenses = defenses
+
+    def get_multi_bonus( self ):
+        # Launching multiple attacks results in a bonus to hit. Of course,
+        # not all of these attacks are likely to hit.
+        return min(self.num_attacks,10) * 2
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        if originator:
+            att_bonus = originator.get_skill_score(self.att_stat,self.att_skill) + self.get_multi_bonus()
+        else:
+            att_bonus = random.randint(1,100)
+        att_roll = random.randint(1,100)
+
+        for m in self.modifiers:
+            att_bonus += m.calc_modifier(camp,originator,pos)
+
+        targets = camp.scene.get_actors(pos)
+        next_fx = []
+        for target in targets:
+            hi_def_roll = 50
+            failed = False
+            for defense in self.defenses:
+                if defense.can_attempt(originator,target):
+                    next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll)
+                    hi_def_roll = max(def_roll,hi_def_roll)
+                    if next_fx:
+                        failed = True
+                        break
+            fx_record['penetration'] = att_roll + att_bonus + self.penetration - hi_def_roll - self.get_multi_bonus()
+            if not failed:
+                if self.num_attacks <= 10:
+                    num_hits = int(min( min( att_roll + att_bonus - hi_def_roll, 45 ) // 5 + 1, self.num_attacks ))
+                else:
+                    num_hits = int(max((min( att_roll + att_bonus - hi_def_roll, 50 ) * self.num_attacks)//50,1))
+                fx_record['number_of_hits'] = num_hits
+                anims.append( animobs.Caption('x{}'.format(num_hits),pos=pos,delay=delay,y_off=camp.scene.model_altitude(target,pos[0],pos[1])-15) )
+
+
+        return next_fx or self.children
+
+    def get_odds( self, camp, originator, target ):
+        # Return the percent chance that this attack will hit.
+        if originator:
+            att_bonus = originator.get_skill_score(self.att_stat,self.att_skill)+ self.get_multi_bonus()
+        else:
+            att_bonus = 50+ self.get_multi_bonus()
+        for m in self.modifiers:
+            att_bonus += m.calc_modifier(camp,originator,target.pos)
+        odds = 1.0
+        for defense in self.defenses:
+            if defense.can_attempt(originator,target):
+                odds *= defense.get_odds(self,originator,target,att_bonus)
+        return odds
+
+
 class DoDamage( effects.NoEffect ):
     """ Whatever is in this tile is going to take damage.
     """
@@ -141,11 +244,14 @@ class DoDamage( effects.NoEffect ):
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         targets = camp.scene.get_actors(pos)
         penetration = fx_record.get("penetration",random.randint(1,100))
+        number_of_hits = fx_record.get("number_of_hits",1)
         for target in targets:
             scale = self.scale or target.scale
-            mydamage = damage.Damage( camp, [scale.scale_health( 
-                  sum( random.randint(1,self.damage_d) for n in range(self.damage_n) ),
-                  materials.Metal ),], penetration, target, anims )
+            hits = [scale.scale_health(
+              sum(random.randint(1,self.damage_d) for n in range(self.damage_n)),
+              materials.Metal) for t in range(number_of_hits)]
+            mydamage = damage.Damage( camp, hits,
+                  penetration, target, anims )
         return self.children
 
 #  ***************************

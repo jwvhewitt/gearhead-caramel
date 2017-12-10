@@ -139,5 +139,12 @@ class MovementUI( object ):
         # Get rid of the widgets and shut down.
         pbge.my_state.widgets.remove(self.my_widget)
 
+    def activate( self ):
+        self.my_widget.active = True
+
+    def deactivate( self ):
+        self.my_widget.active = False
+
+
 
 

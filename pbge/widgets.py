@@ -38,7 +38,7 @@ class ButtonWidget( Widget ):
         self.on_frame = on_frame
         self.off_frame = off_frame
     def render( self ):
-        if self.active:
+        if self.active and self.sprite:
             self.sprite.render(self.get_rect(),self.frame)
         for c in self.children:
             c.render()

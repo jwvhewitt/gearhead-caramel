@@ -19,6 +19,7 @@ Mecha
                     accuracy = 2
                     penetration = 0
                     integral = True
+                    shot_anim = SmallBeam
             END
         Torso
             size = 5
