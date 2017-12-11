@@ -113,15 +113,19 @@ class Missile5( animobs.ShotAnim ):
     DEFAULT_SPEED = 0.3
 
 class ClusterShot( animobs.ShotAnim ):
+    # This shotanim is a container which holds a bunch of other shot anims.
+    # It's used when a shot consists of more than one anim, for example
+    # a large volley of missiles or a particularly long beam blast.
     def __init__( self, start_pos=(0,0), end_pos=(0,0), x_off=0, y_off=0, delay=0, child_classes=() ):
         self.x_off = x_off
         self.y_off = y_off
         self.needs_deletion = False
         self.start_pos = start_pos
         self.end_pos = end_pos
-        self.child_classes = child_classes
+        self.child_classes = child_classes or self.DEFAULT_CHILD_CLASSES
         self.children = list()
         self.delay = delay
+    DEFAULT_CHILD_CLASSES = []
     def update( self, view ):
         if self.delay > 0:
             self.delay += -1

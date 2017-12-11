@@ -38,8 +38,13 @@ class GearHeadScene( pbge.scenes.Scene ):
         return isinstance(model,(base.Mecha,base.Character))
     def get_actors( self, pos ):
         return [a for a in self._contents if (self.is_an_actor(a) and (a.pos == pos)) ]
+    def get_operational_actors( self ):
+        return [a for a in self._contents if (self.is_an_actor(a) and a.is_operational()) ]
     def get_blocked_tiles( self ):
         return {a.pos for a in self._contents if (self.is_an_actor(a) and a.is_operational()) }
+    def are_hostile( self, a, b ):
+        team_a = self.local_teams.get(a)
+        return team_a and team_a.is_enemy(self.local_teams.get(b))
 
 class GearHeadCampaign( pbge.campaign.Campaign ):
     fight = None
@@ -52,6 +57,7 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
                 flp = pc
                 break
         return flp
+
 
 
 # Why did I create this complicated regular expression to parse lines of

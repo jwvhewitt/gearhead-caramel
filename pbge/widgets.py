@@ -62,23 +62,26 @@ class LabelWidget( Widget ):
 
 class RadioButtonWidget( Widget ):
     def __init__( self, dx, dy, w, h, sprite=None, buttons=(), spacing=2, **kwargs ):
-        # buttons is a list of tuples of (on_frame,off_frame,on_click)
+        # buttons is a list of tuples of (on_frame,off_frame,on_click,tooltip)
         super(RadioButtonWidget, self).__init__(dx,dy,w,h,**kwargs)
         self.sprite = sprite
         self.buttons = list()
         self.spacing = spacing
         ddx = 0
         for b in buttons:
-            self.buttons.append(ButtonWidget(ddx,0,sprite.frame_width,sprite.frame_height,sprite,frame=b[1],on_frame=b[0],off_frame=b[1],on_click=self.click_radio,data=b[2],parent=self,anchor=frects.ANCHOR_UPPERLEFT))
+            self.buttons.append(ButtonWidget(ddx,0,sprite.frame_width,sprite.frame_height,sprite,frame=b[1],on_frame=b[0],off_frame=b[1],on_click=self.click_radio,data=b[2],tooltip=b[3],parent=self,anchor=frects.ANCHOR_UPPERLEFT))
             ddx += sprite.frame_width + self.spacing
         self.buttons[0].frame = self.buttons[0].on_frame
         self.active_button = self.buttons[0]
         self.children += self.buttons
 
-    def click_radio( self, button, ev ):
+    def activate_button( self, button ):
         self.active_button.frame = self.active_button.off_frame
         self.active_button = button
         button.frame = button.on_frame
+
+    def click_radio( self, button, ev ):
+        self.activate_button( button )
         if button.data:
             button.data(button,ev)
 

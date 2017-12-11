@@ -73,12 +73,13 @@ mywoobie.statline[gears.stats.MechaPiloting] = 1
 #mysaver = gears.Saver('out.txt')
 #mysaver.save([mychar])
 
-myscene = gears.GearHeadScene(50,50,"Testaria")
+team1 = game.teams.Team(name="Player Team")
+team2 = game.teams.Team(name="Enemy Team",enemies=(team1,))
+myscene = gears.GearHeadScene(50,50,"Testaria",player_team=team1)
 
 mycamp = gears.GearHeadCampaign(explo_class=game.exploration.Explorer)
 mycamp.scene = myscene
 mycamp.party = [mychar,]
-
 
 myfilter = pbge.randmaps.converter.BasicConverter(Wall)
 mymutate = pbge.randmaps.mutator.CellMutator()
@@ -88,9 +89,13 @@ myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
 myroom1 = pbge.randmaps.rooms.Room()
 myroom2 = pbge.randmaps.rooms.Room()
 myroom3 = pbge.randmaps.rooms.Room()
-myroom1.contents.append(mychar)
+myroom3.contents.append(mychar)
 myroom1.contents.append(myclon)
 myroom1.contents.append(mytarg)
+
+myscene.local_teams[mychar] = team1
+myscene.local_teams[myclon] = team2
+myscene.local_teams[mytarg] = team2
 
 myscenegen.contents.append(myroom1)
 myscenegen.contents.append(myroom2)
@@ -111,10 +116,11 @@ my_modules = pbge.image.Image('sys_modules.png',16,16)
 
 BIGFONT = pygame.font.Font( pbge.util.image_dir( "Anita semi square.ttf" ) , 15 )
 
+mypilot.statline[gears.stats.MechaGunnery] += 10
 
 my_mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
 
-mycamp.fight = game.combat.Combat(mycamp,myclon)
+#mycamp.fight = game.combat.Combat(mycamp,myclon)
 
 mycamp.play()
 

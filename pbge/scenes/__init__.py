@@ -133,10 +133,11 @@ class TeamDictionary( weakref.WeakKeyDictionary ):
 class Scene( object ):
     DELTA8 = ( (-1,-1), (0,-1), (1,-1), (-1,0), (1,0), (-1,1), (0,1), (1,1) )
     ANGDIR = ( (-1,-1), (0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (-1,0) )
-    def __init__(self,width=128,height=128,name=""):
+    def __init__(self,width=128,height=128,name="",player_team=None):
         self.name = name
         self.width = width
         self.height = height
+        self.player_team = player_team
         self.scripts = container.ContainerList()
         self.in_sight = set()
 

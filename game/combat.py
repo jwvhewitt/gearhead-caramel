@@ -54,6 +54,9 @@ class PlayerTurn( object ):
             self.active_ui.deactivate()
             self.attack_ui.activate()
             self.active_ui = self.attack_ui
+        else:
+            # If the attack UI can't be activated, switch back to movement UI.
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
     def go( self ):
         # Perform this character's turn.
@@ -65,11 +68,11 @@ class PlayerTurn( object ):
         #  a handler. The radio buttons widget determines what mode is current.
         #  Then, this routine routes the input to the correct UI handler.
 
-        my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
+        self.my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
-         buttons=((0,1,self.switch_movement),(2,3,self.switch_attack),(4,5,self.end_turn)),
+         buttons=((0,1,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),(4,5,self.end_turn,'End Turn')),
          anchor=pbge.frects.ANCHOR_UPPERLEFT )
-        pbge.my_state.widgets.append(my_radio_buttons)
+        pbge.my_state.widgets.append(self.my_radio_buttons)
 
         self.movement_ui = movementui.MovementUI( self.camp, self.pc )
         self.attack_ui = targetingui.TargetingUI(self.camp,self.pc)
@@ -89,7 +92,7 @@ class PlayerTurn( object ):
                     keep_going = False
                     self.camp.fight.no_quit = False
 
-        pbge.my_state.widgets.remove(my_radio_buttons)
+        pbge.my_state.widgets.remove(self.my_radio_buttons)
         self.movement_ui.dispose()
         self.attack_ui.dispose()
 
@@ -114,10 +117,20 @@ class Combat( object ):
         for m in self.scene._contents:
             if m in self.camp.party:
                 self.active.append( m )
+            elif self.scene.local_teams.get(m) is m0team:
+                self.active.append( m )
+
+    def num_enemies( self ):
+        """Return the number of active, hostile characters."""
+        n = 0
+        for m in self.active:
+            if self.scene.is_an_actor(m) and m.is_operational() and self.scene.player_team.is_enemy( self.scene.local_teams.get(m) ):
+                n += 1
+        return n
 
     def still_fighting( self ):
         """Keep playing as long as there are enemies, players, and no quit."""
-        return self.no_quit and not pbge.my_state.got_quit and not self.camp.destination
+        return self.num_enemies() and self.camp.first_active_pc() and self.no_quit and not pbge.my_state.got_quit and not self.camp.destination
 
     def step( self, chara, dest ):
         """Move chara according to hmap, return True if movement ended."""

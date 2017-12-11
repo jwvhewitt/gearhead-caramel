@@ -140,6 +140,7 @@ class MovementUI( object ):
 
     def activate( self ):
         self.my_widget.active = True
+        self.needs_tile_update = True
 
     def deactivate( self ):
         self.my_widget.active = False

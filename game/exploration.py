@@ -2,6 +2,7 @@ from pbge import scenes
 import pbge
 import pygame
 import gears
+import combat
 
 # Commands should be callable objects which take the explorer and return a value.
 # If untrue, the command stops.
@@ -118,6 +119,35 @@ class Explorer( object ):
     def keep_exploring( self ):
         return self.camp.first_active_pc() and self.no_quit and not pbge.my_state.got_quit and not self.camp.destination
 
+    def npc_inactive( self, mon ):
+        return mon not in self.camp.party and (( not self.camp.fight ) or mon not in self.camp.fight.active)
+
+    def activate_foe( self, npc ):
+        # Activate this foe, starting combat if it hasn't already started.
+        if self.camp.fight:
+            self.camp.fight.activate_monster( npc )
+        else:
+            self.camp.fight = combat.Combat( self.camp, npc )
+
+    def update_npcs( self ):
+        my_actors = self.scene.get_operational_actors()
+        for npc in my_actors:
+            if self.npc_inactive(npc):
+                # First handle movement.
+
+                # Next, check visibility to PC.
+                npteam = self.scene.local_teams.get(npc)
+                if npteam and self.scene.player_team.is_enemy( npteam ):
+                    pov = scenes.pfov.PointOfView( self.scene, npc.pos[0], npc.pos[1], 5 )
+                    in_sight = False
+                    for pc in self.camp.party:
+                        if pc.pos in pov.tiles and pc in my_actors:
+                            in_sight = True
+                            break
+                    if in_sight:
+                        self.activate_foe( npc )
+
+
     def go( self ):
         self.no_quit = True
         self.order = None
@@ -165,7 +195,7 @@ class Explorer( object ):
                     if not self.order( self ):
                         self.order = None
 
-                #self.update_monsters()
+                self.update_npcs()
 
                 #if self.time % 150 == 0:
                 #    self.update_enchantments()
