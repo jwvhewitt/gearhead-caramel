@@ -34,6 +34,9 @@ harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
 harvest( geffects, pbge.scenes.animobs.AnimOb,SINGLETON_TYPES, ())
 
 class GearHeadScene( pbge.scenes.Scene ):
+    def __init__(self,width=128,height=128,name="",player_team=None,scale=scale.MechaScale):
+        super(GearHeadScene,self).__init__(width,height,name,player_team)
+        self.scale = scale
     def is_an_actor( self, model ):
         return isinstance(model,(base.Mecha,base.Character))
     def get_actors( self, pos ):
@@ -45,6 +48,12 @@ class GearHeadScene( pbge.scenes.Scene ):
     def are_hostile( self, a, b ):
         team_a = self.local_teams.get(a)
         return team_a and team_a.is_enemy(self.local_teams.get(b))
+    def update_party_position( self, party ):
+        self.in_sight = set()
+        for pc in party:
+            if pc.is_operational() and pc in self._contents:
+                self.in_sight |= pbge.scenes.pfov.PCPointOfView( self, pc.pos[0], pc.pos[1], pc.get_sensor_range(self.scale) ).tiles
+
 
 class GearHeadCampaign( pbge.campaign.Campaign ):
     fight = None
@@ -57,6 +66,10 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
                 flp = pc
                 break
         return flp
+    def keep_playing_campaign( self ):
+        # The default version of this method will keep playing forever.
+        # You're probably gonna want to redefine this in your subclass.
+        return self.first_active_pc()
 
 
 

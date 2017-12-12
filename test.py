@@ -20,7 +20,7 @@ pbge.init('GearHead Caramel','ghcaramel',gamedir)
 class Wall( pbge.scenes.terrain.VariableTerrain ):
     image_top = 'terrain_trees_fg.png'
     image_middle = 'terrain_trees_bg.png'
-    movement_cost={pbge.scenes.movement.Walking:2.0,gears.geffects.Skimming:2.0,gears.geffects.Rolling:2.0}
+    movement_cost={pbge.scenes.movement.Walking:2.0,gears.geffects.Skimming:2.0,gears.geffects.Rolling:2.0,pbge.scenes.movement.Vision:5}
 
 class Water( pbge.scenes.terrain.AnimTerrain ):
     image_biddle = 'terrain_water2.png'
@@ -47,7 +47,7 @@ mychar = mygearlist[0]
 mychar.mmode = scenes.movement.Walking
 #mychar.mmode = gears.geffects.Skimming
 
-mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:15, gears.stats.Reflexes:13,gears.stats.Speed:13,gears.stats.Perception:12,gears.stats.MechaPiloting:5,gears.stats.MechaGunnery:5})
+mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:10, gears.stats.Reflexes:9,gears.stats.Speed:9,gears.stats.Perception:9,gears.stats.MechaPiloting:2,gears.stats.MechaGunnery:2})
 mychar.load_pilot( mypilot )
 
 #mygearlist = gears.Loader('out.txt').load()
@@ -116,7 +116,14 @@ my_modules = pbge.image.Image('sys_modules.png',16,16)
 
 BIGFONT = pygame.font.Font( pbge.util.image_dir( "Anita semi square.ttf" ) , 15 )
 
-mypilot.statline[gears.stats.MechaGunnery] += 10
+mypilot.statline[gears.stats.Reflexes] = 15
+mypilot.statline[gears.stats.Perception] = 13
+mypilot.statline[gears.stats.Speed] = 13
+
+mypilot.statline[gears.stats.MechaGunnery] = 5
+mypilot.statline[gears.stats.MechaFighting] = 5
+mypilot.statline[gears.stats.MechaPiloting] = 6
+mypilot.name = 'Baron'
 
 my_mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
 

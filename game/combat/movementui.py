@@ -66,7 +66,7 @@ class MovementUI( object ):
 
         if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (
-              self.cursor_sprite,self.SC_ZEROCURSOR+min(4,self.ap_needed(pbge.my_state.view.mouse_tile)))
+              self.cursor_sprite,self.SC_ZEROCURSOR+min(4,self.camp.fight.ap_needed(self.mover,self.nav,pbge.my_state.view.mouse_tile)))
             mypath = self.nav.get_path(pbge.my_state.view.mouse_tile)
             for p in mypath[1:-1]:
                 pbge.my_state.view.overlays[ p ] = (self.cursor_sprite,self.SC_TRAILMARKER)
@@ -102,15 +102,6 @@ class MovementUI( object ):
         if new_mm in gears.geffects.MOVEMODE_LIST and new_mm != original_mm:
             self.change_movemode( new_mm )
 
-
-    def ap_needed( self, dest ):
-        # Return how many action points are needed to move to this destination.
-        mp_needed = self.nav.cost_to_tile[dest]-self.camp.fight.cstat[self.mover].mp_remaining
-        if mp_needed < 1:
-            return 0
-        else:
-            return mp_needed//max(self.mover.get_current_speed(),1) + 1
-
     def update_tiles( self ):
         # Step one: figure out which tiles can be reached from here.
         self.origin = self.mover.pos
@@ -128,10 +119,7 @@ class MovementUI( object ):
             self.render()
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and pbge.my_state.view.mouse_tile in self.nav.cost_to_tile and not pbge.my_state.widget_clicked:
             # Move!
-            dest = self.camp.fight.move_model_to(self.mover,self.nav.get_path(pbge.my_state.view.mouse_tile)[1:])
-            ap = self.ap_needed(dest)
-            mp_left = self.camp.fight.cstat[self.mover].mp_remaining + ap * self.mover.get_current_speed() - self.nav.cost_to_tile[dest]
-            self.camp.fight.cstat[self.mover].spend_ap(ap,mp_left)
+            dest = self.camp.fight.move_model_to(self.mover,self.nav,pbge.my_state.view.mouse_tile)
             self.needs_tile_update = True
 
     def dispose( self ):

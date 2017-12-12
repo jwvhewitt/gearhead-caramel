@@ -84,7 +84,7 @@ class MoveTo( object ):
 
             # Now that all of the pcs have moved, check the tiles_in_sight for
             # hidden models.
-            #exp.scene.update_party_position( exp.camp.party )
+            exp.scene.update_party_position( exp.camp.party )
 
             return keep_going
 
@@ -104,7 +104,7 @@ class Explorer( object ):
         for pc in camp.party:
             if pc.pos and pc.is_operational() and pc in self.scene._contents:
                 x,y = pc.pos
-                scenes.pfov.PCPointOfView( camp.scene, x, y, 15 )
+                scenes.pfov.PCPointOfView( camp.scene, x, y, pc.get_sensor_range(self.scene.scale) )
                 if not first_pc:
                     first_pc = pc
 
@@ -138,7 +138,7 @@ class Explorer( object ):
                 # Next, check visibility to PC.
                 npteam = self.scene.local_teams.get(npc)
                 if npteam and self.scene.player_team.is_enemy( npteam ):
-                    pov = scenes.pfov.PointOfView( self.scene, npc.pos[0], npc.pos[1], 5 )
+                    pov = scenes.pfov.PointOfView( self.scene, npc.pos[0], npc.pos[1], npc.get_sensor_range(self.scene.scale) )
                     in_sight = False
                     for pc in self.camp.party:
                         if pc.pos in pov.tiles and pc in my_actors:

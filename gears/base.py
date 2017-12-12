@@ -569,6 +569,8 @@ class Sensor( BaseGear, StandardDamageHandler ):
     def volume(self):
         return self.size
     base_health = 2
+    def get_sensor_rating( self ):
+        return self.size * self.scale.RANGE_FACTOR
 
 #   *****************************
 #   ***   MOVEMENT  SYSTEMS   ***
@@ -738,7 +740,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
         return [geffects.DodgeRoll(),]
 
     def get_modifiers( self ):
-        return [geffects.RangeModifier(self.reach),]
+        return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
 
     def get_basic_attack( self ):
         return pbge.effects.Invocation(
@@ -776,7 +778,7 @@ class MeleeWeapon( Weapon ):
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
-        return list()
+        return [geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
     def get_basic_attack( self ):
         return pbge.effects.Invocation(
                 name = 'Basic Attack', 
@@ -808,7 +810,7 @@ class EnergyWeapon( Weapon ):
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
-        return list()
+        return [geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
     def get_basic_attack( self ):
         return pbge.effects.Invocation(
                 name = 'Basic Attack', 
@@ -1014,6 +1016,12 @@ class Launcher( BaseGear, ContainerDamageHandler ):
         mod = self.get_module()
         return self.is_not_destroyed() and mod and mod.is_operational()
 
+    def get_defenses( self ):
+        return [geffects.DodgeRoll(),]
+
+    def get_modifiers( self, ammo ):
+        return [geffects.RangeModifier(ammo.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
+
     def get_basic_attack( self ):
         ammo = self.get_ammo()
         if ammo:
@@ -1023,8 +1031,8 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                     stats.Perception, self.scale.RANGED_SKILL,
                     children = (geffects.DoDamage(ammo.damage,6,scale=ammo.scale),),
                     accuracy=ammo.accuracy*10, penetration=ammo.penetration*10, 
-                    defenses = [geffects.DodgeRoll(),],
-                    modifiers = [geffects.RangeModifier(ammo.reach),]
+                    defenses = self.get_defenses(),
+                    modifiers = self.get_modifiers(ammo)
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
                 used_in_combat = True, used_in_exploration=False,
@@ -1041,8 +1049,8 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                     stats.Perception, self.scale.RANGED_SKILL,num_attacks=num_missiles,
                     children = (geffects.DoDamage(ammo.damage,6,scale=ammo.scale),),
                     accuracy=ammo.accuracy*10, penetration=ammo.penetration*10, 
-                    defenses = [geffects.DodgeRoll(),],
-                    modifiers = [geffects.RangeModifier(ammo.reach),]
+                    defenses = self.get_defenses(),
+                    modifiers = self.get_modifiers(ammo)
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
                 used_in_combat = True, used_in_exploration=False,
@@ -1442,6 +1450,14 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover):
     def get_dodge_score( self ):
         return self.get_skill_score( stats.Speed, stats.MechaPiloting )
 
+    def get_sensor_range( self, map_scale ):
+        it = 0
+        for sens in self.sub_sub_coms():
+            if hasattr(sens,'get_sensor_rating') and sens.is_operational():
+                it = max((sens.get_sensor_rating()/map_scale.RANGE_FACTOR)*5+5,it)
+        return it
+
+
 class Character(BaseGear,StandardDamageHandler,Mover):
     SAVE_PARAMETERS = ('name','form')
     DEFAULT_SCALE = scale.HumanScale
@@ -1522,4 +1538,6 @@ class Character(BaseGear,StandardDamageHandler,Mover):
 
         return speed
 
+    def get_sensor_range( self, map_scale ):
+        return self.get_stat(stats.Perception) * self.scale.RANGE_FACTOR / map_scale.RANGE_FACTOR
 

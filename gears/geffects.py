@@ -325,9 +325,50 @@ class RangeModifier( object ):
         self.range_step = range_step
     def calc_modifier( self, camp, attacker, pos ):
         my_range = camp.scene.distance(attacker.pos,pos)
-        my_mod = ((my_range - 1)//self.range_step) * -5
+        my_mod = ((my_range - 1)//self.range_step) * -10
         if my_range < (self.range_step-3):
             my_mod += (self.range_step-3-my_range) * -5
+        return my_mod
+
+class CoverModifier( object ):
+    def __init__(self,vision_type=movement.Vision):
+        self.vision_type = vision_type
+    def calc_modifier( self, camp, attacker, pos ):
+        my_mod = -camp.scene.get_cover(attacker.pos[0],attacker.pos[1],pos[0],pos[1])
+        return my_mod
+
+class SpeedModifier( object ):
+    IMMOBILE_MODIFIER = 25
+    MOD_PER_TILE = -3
+    def calc_modifier( self, camp, attacker, pos ):
+        targets = camp.scene.get_actors(pos)
+        my_mod = 0
+        for t in targets:
+            if t.get_current_speed < 1:
+                my_mod += self.IMMOBILE_MODIFIER
+            elif camp.fight:
+                my_mod += camp.fight.cstat[t].moves_this_round * self.MOD_PER_TILE
+        return my_mod
+
+class SensorModifier( object ):
+    PENALTY = -5
+    def calc_modifier( self, camp, attacker, pos ):
+        my_range = camp.scene.distance(attacker.pos,pos)
+        my_sensor = attacker.get_sensor_range(camp.scene.scale)
+        if my_range > my_sensor:
+            return (my_range - my_sensor)*self.PENALTY
+        else:
+            return 0
+
+class OverwhelmModifier( object ):
+    # Every time you are attacked, the next attack gets a bonus to hit.
+    MOD_PER_ATTACK = 2
+    def calc_modifier( self, camp, attacker, pos ):
+        my_mod = 0
+        if camp.fight:
+            targets = camp.scene.get_actors(pos)
+            for t in targets:
+                my_mod += camp.fight.cstat[t].attacks_this_round * self.MOD_PER_ATTACK
         return my_mod
 
 

@@ -14,7 +14,7 @@ import movement
 import weakref
 
 class Tile( object ):
-    def __init__(self, floor=None, wall=None, decor=None, visible=True):
+    def __init__(self, floor=None, wall=None, decor=None, visible=False):
         self.floor = floor
         self.wall = wall
         self.decor = decor
@@ -79,6 +79,17 @@ class Tile( object ):
         if self.decor:
             it *= self.decor.movement_cost.get(mmode,1.0)
         return it
+
+    def get_cover( self, vmode=movement.Vision ):
+        it = 0
+        if self.floor:
+            it += self.floor.movement_cost.get(vmode,0)
+        if self.wall:
+            it += self.wall.movement_cost.get(vmode,0)
+        if self.decor:
+            it += self.decor.movement_cost.get(vmode,0)
+        return it
+
 
 class PlaceableThing( KeyObject ):
     """A thing that can be placed on the map."""
@@ -269,5 +280,12 @@ class Scene( object ):
         else:
             return max(self._map[x][y].altitude(),m.mmode.altitude)
 
+    def get_cover(self,x1,y1,x2,y2,vmode=movement.Vision):
+        my_line = animobs.get_line(x1,y1,x2,y2)
+        it = 0
+        for p in my_line[1:]:
+            if self.on_the_map(*p):
+                it += self._map[p[0]][p[1]].get_cover(vmode)
+        return it
 
 

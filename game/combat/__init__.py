@@ -12,6 +12,9 @@ import collections
 import pygame
 import movementui
 import targetingui
+import aibrain
+import random
+import gears
 
 
 
@@ -21,6 +24,7 @@ class CombatStat( object ):
         self.action_points = 0
         self.aoo_readied = False
         self.attacks_this_round = 0
+        self.moves_this_round = 0
         self.mp_remaining = 0
         self.has_started_turn = False
     def can_act( self ):
@@ -31,6 +35,8 @@ class CombatStat( object ):
     def start_turn( self ):
         self.action_points += 2
         self.has_started_turn = True
+        self.moves_this_round = 0
+        self.attacks_this_round = 0
 
 
 class PlayerTurn( object ):
@@ -103,6 +109,7 @@ class Combat( object ):
         self.camp = camp
         self.ap_spent = collections.defaultdict( int )
         self.cstat = collections.defaultdict( CombatStat )
+        self.ai_brains = dict()
         self.no_quit = True
         self.n = 0
 
@@ -110,7 +117,10 @@ class Combat( object ):
             self.activate_foe( foe_zero )
 
         # Sort based on initiative roll.
-        #self.active.sort( key = characters.roll_initiative, reverse=True )
+        self.active.sort( key = self.roll_initiative, reverse=True )
+
+    def roll_initiative( self, chara ):
+        return chara.get_stat(gears.stats.Speed) + random.randint(1,20)
 
     def activate_foe( self, foe ):
         m0team = self.scene.local_teams.get(foe)
@@ -140,12 +150,33 @@ class Combat( object ):
         #started_in_threat = chara.pos in threat_area
         chara.move(dest,pbge.my_state.view,0.25)
         pbge.my_state.view.handle_anim_sequence()
+        self.cstat[chara].moves_this_round += 1
 
-    def move_model_to( self, chara, path ):
+    def ap_needed( self, mover, nav, dest ):
+        # Return how many action points are needed to move to this destination.
+        mp_needed = nav.cost_to_tile[dest]-self.cstat[mover].mp_remaining
+        if mp_needed < 1:
+            return 0
+        else:
+            return (mp_needed-1)//max(mover.get_current_speed(),1) + 1
+
+
+    def move_model_to( self, chara, nav, dest ):
         # Move the model along the path. Handle attacks of opportunity and wotnot.
         # Return the tile where movement ends.
+        is_player_model = chara in self.camp.party
+        path = nav.get_path(dest)[1:]
         for p in path:
             self.step( chara, p )
+            if is_player_model:
+                self.scene.update_party_position(self.camp.party)
+
+        # Spend the action points.
+        ap = self.ap_needed(chara,nav,chara.pos)
+        mp_left = self.cstat[chara].mp_remaining + ap * chara.get_current_speed() - nav.cost_to_tile[chara.pos]
+        self.cstat[chara].spend_ap(ap,mp_left)
+
+        # Return the actual end point, which may be different from that requested.
         return chara.pos
 
     def do_combat_turn( self, chara ):
@@ -155,6 +186,13 @@ class Combat( object ):
             # Outsource the turn-taking.
             my_turn = PlayerTurn( chara, self.camp )
             my_turn.go()
+        else:
+            if chara not in self.ai_brains:
+                chara_ai = aibrain.CrapAI(chara)
+                self.ai_brains[chara] = chara_ai
+            else:
+                chara_ai = self.ai_brains[chara]
+            chara_ai.act(self.camp)
 
     def end_round( self ):
         for chara in self.active:
