@@ -1,4 +1,5 @@
 import pbge
+import random
 
 import base
 import calibre
@@ -40,18 +41,18 @@ class GearHeadScene( pbge.scenes.Scene ):
     def is_an_actor( self, model ):
         return isinstance(model,(base.Mecha,base.Character))
     def get_actors( self, pos ):
-        return [a for a in self._contents if (self.is_an_actor(a) and (a.pos == pos)) ]
+        return [a for a in self.contents if (self.is_an_actor(a) and (a.pos == pos)) ]
     def get_operational_actors( self ):
-        return [a for a in self._contents if (self.is_an_actor(a) and a.is_operational()) ]
+        return [a for a in self.contents if (self.is_an_actor(a) and a.is_operational()) ]
     def get_blocked_tiles( self ):
-        return {a.pos for a in self._contents if (self.is_an_actor(a) and a.is_operational()) }
+        return {a.pos for a in self.contents if (self.is_an_actor(a) and a.is_operational()) }
     def are_hostile( self, a, b ):
         team_a = self.local_teams.get(a)
         return team_a and team_a.is_enemy(self.local_teams.get(b))
     def update_party_position( self, party ):
         self.in_sight = set()
         for pc in party:
-            if pc.is_operational() and pc in self._contents:
+            if pc.is_operational() and pc in self.contents:
                 self.in_sight |= pbge.scenes.pfov.PCPointOfView( self, pc.pos[0], pc.pos[1], pc.get_sensor_range(self.scale) ).tiles
 
 
@@ -62,7 +63,7 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
         # both operational and on the map.
         flp = None
         for pc in self.party:
-            if pc.is_operational() and pc in self.scene._contents:
+            if pc.is_operational() and pc in self.scene.contents:
                 flp = pc
                 break
         return flp
@@ -70,6 +71,28 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
         # The default version of this method will keep playing forever.
         # You're probably gonna want to redefine this in your subclass.
         return self.first_active_pc()
+    def place_party( self ):
+        """Stick the party close to the waypoint."""
+        x0,y0 = self.entrance.pos
+        entry_points = pbge.scenes.pfov.WalkReach( self.scene, x0, y0, 3, True ).tiles
+        entry_points.difference( self.scene.get_blocked_tiles() )
+        entry_points = list(entry_points)
+        for pc in self.party:
+            if pc.is_operational():
+                if entry_points:
+                    pos = random.choice( entry_points )
+                    entry_points.remove( pos )
+                else:
+                    pos = self.entrance.pos
+                pc.place(self.scene,pos,self.scene.player_team)
+                pc.gear_up()
+                pbge.scenes.pfov.PCPointOfView( self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale) )
+
+    def remove_party_from_scene( self ):
+        for pc in self.party:
+            pc.pos = None
+            if pc in self.scene.contents:
+                self.scene.contents.remove( pc )
 
 
 

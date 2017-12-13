@@ -30,7 +30,7 @@ class Water( pbge.scenes.terrain.AnimTerrain ):
     movement_cost={pbge.scenes.movement.Walking:3.0,gears.geffects.Rolling:3.0}
 
 class Floor( pbge.scenes.terrain.VariableTerrain ):
-    image_bottom = 'terrain_floor_grass.png'
+    image_bottom = 'terrain_floor_snow.png'
     #image_bottom = 'terrain_floor_new.png'
     border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
 
@@ -48,7 +48,13 @@ mychar.mmode = scenes.movement.Walking
 #mychar.mmode = gears.geffects.Skimming
 
 mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:10, gears.stats.Reflexes:9,gears.stats.Speed:9,gears.stats.Perception:9,gears.stats.MechaPiloting:2,gears.stats.MechaGunnery:2})
-mychar.load_pilot( mypilot )
+#mypilot.mmode = pbge.scenes.movement.Walking
+mypilot.imagename = 'cha_wm_parka.png'
+mypilot.colors = (17,78,200),(172,114,89),(235,26,10),(50,50,50),(150,190,190)
+
+game.start_mocha(mypilot)
+
+"""mychar.load_pilot( mypilot )
 
 #mygearlist = gears.Loader('out.txt').load()
 #myout = mygearlist[0]
@@ -123,7 +129,7 @@ mypilot.statline[gears.stats.Speed] = 13
 mypilot.statline[gears.stats.MechaGunnery] = 5
 mypilot.statline[gears.stats.MechaFighting] = 5
 mypilot.statline[gears.stats.MechaPiloting] = 6
-mypilot.name = 'Baron'
+mypilot.name = 'Tommy'
 
 my_mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
 
@@ -131,6 +137,7 @@ my_mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
 
 mycamp.play()
 
+"""
 """
 
 myview = scenes.viewer.SceneView( myscene )

@@ -197,6 +197,13 @@ class Mover( KeyObject ):
                     my_invos.append(p_list)
         return my_invos
 
+    MOVEMODE_LIST = (scenes.movement.Walking,geffects.Rolling,geffects.Skimming,scenes.movement.Flying,geffects.SpaceFlight)
+    def gear_up(self):
+        for mm in self.MOVEMODE_LIST:
+            if self.get_speed(mm) > 0:
+                self.mmode = mm
+                break
+
 
 # Custom Containers
 # For subcomponents and invcomponents with automatic error checking

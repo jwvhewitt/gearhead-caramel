@@ -217,3 +217,14 @@ class HillTerrain( Terrain ):
             spr = view.get_named_sprite( self.bordername )
             spr.render( dest, bor )
 
+class OnTheWallTerrain( Terrain ):
+    @classmethod
+    def render_middle( self, dest, view, x, y ):
+        if view.space_to_south( x, y ):
+            frame = 1
+        else:
+            frame = 0
+        spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
+        spr.render( dest, frame )
+
+

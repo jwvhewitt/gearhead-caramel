@@ -118,6 +118,8 @@ class TargetingUI( object ):
         pbge.my_state.widgets.append(self.my_widget)
         self.my_widget.active = False
 
+        self.record = False
+
     def update_invocation( self, new_invo ):
         self.invo = new_invo
         self.legal_tiles = new_invo.area.get_targets(self.camp,self.attacker.pos)
@@ -179,9 +181,6 @@ class TargetingUI( object ):
 
     def update( self, ev ):
         # We just got an event. Deal with it.
-        #if self.needs_tile_update:
-        #    self.update_tiles()
-        #    self.needs_tile_update = False
 
         if ev.type == pbge.TIMEREVENT:
             self.render()
@@ -193,10 +192,17 @@ class TargetingUI( object ):
                 pbge.my_state.view.overlays.clear()
                 # Launch the effect.
                 self.invo.invoke(self.camp, self.attacker, self.targets, pbge.my_state.view.anim_list )
-                pbge.my_state.view.handle_anim_sequence()
+                pbge.my_state.view.handle_anim_sequence(self.record)
                 self.camp.fight.cstat[self.attacker].spend_ap(1)
                 self.targets = list()
                 self.my_widget.update_buttons()
+                self.record = False
+
+        elif ev.type == pygame.KEYDOWN:
+            if ev.unicode == u"r":
+                #self.camp.save(self.screen)
+                self.record = True
+                print "Recording"
 
     def dispose( self ):
         # Get rid of the widgets and shut down.

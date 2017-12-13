@@ -32,19 +32,17 @@ class PlotState( object ):
         # from the generator.
         return self
 
+ALL_CONTENTS_SEARCH_PATH = ["contents","sub_scenes"]
+
 def all_contents( thing, check_subscenes=True ):
     """Iterate over this thing and all of its descendants."""
     yield thing
-    if hasattr( thing, "contents" ):
-        for t in thing.contents:
-            if check_subscenes or not isinstance( t, maps.Scene ):
-                for tt in all_contents( t, check_subscenes ):
-                    yield tt
-    if hasattr( thing, "sub_scenes" ):
-        for t in thing.sub_scenes:
-            if check_subscenes or not isinstance( t, maps.Scene ):
-                for tt in all_contents( t, check_subscenes ):
-                    yield tt
+    for cs in ALL_CONTENTS_SEARCH_PATH:
+        if hasattr( thing, cs ):
+            for t in getattr(thing,cs):
+                if check_subscenes or not isinstance( t, maps.Scene ):
+                    for tt in all_contents( t, check_subscenes ):
+                        yield tt
 
 class Plot( object ):
     """The building block of the adventure."""
@@ -270,10 +268,11 @@ class Plot( object ):
 
 class NarrativeRequest( object ):
     """The builder class which constructs a story out of individual plots."""
-    def __init__( self, camp, pstate, adv_type="ADVENTURE_STUB" ):
+    def __init__( self, camp, pstate, adv_type="ADVENTURE_STUB", plot_list={} ):
         self.camp = camp
         self.generators = list()
         self.errors = list()
+        self.plot_list = plot_list
         # Add the seed plot.
         self.story = self.generate_sub_plot( pstate, adv_type )
 
@@ -292,7 +291,7 @@ class NarrativeRequest( object ):
         """Locate a plot which matches the request, init it, and return it."""
         # Create a list of potential plots.
         candidates = list()
-        for sp in PLOT_LIST[label]:
+        for sp in self.plot_list[label]:
             if sp.matches( pstate ):
                 if not sp.UNIQUE or sp not in self.camp.uniques:
                     candidates.append( sp )
@@ -305,7 +304,7 @@ class NarrativeRequest( object ):
                     cp = cpc(self,pstate)
                     if cpc.UNIQUE:
                         self.camp.uniques.add( cpc )
-                except plots.PlotError:
+                except PlotError:
                     cp = None
             if not cp:
                 self.errors.append( "No plot accepted for {0}".format( label ) )

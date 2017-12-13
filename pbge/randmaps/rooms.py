@@ -224,5 +224,13 @@ class Room( object ):
     def find_distance_to( self, oroom ):
         return round( math.sqrt( ( self.area.centerx-oroom.area.centerx )**2 + ( self.area.centery-oroom.area.centery )**2 ) )
 
+class FuzzyRoom( Room ):
+    """A room without hard walls, with default ground floors."""
+    def build( self, gb, archi ):
+        # Step Five: Actually draw the room, taking into account terrain already on map.
+        archi = self.archi or archi
+        for x in range( self.area.x+1, self.area.x + self.area.width-1 ):
+            for y in range( self.area.y+1, self.area.y + self.area.height-1 ):
+                archi.draw_fuzzy_ground( gb, x, y )
 
 

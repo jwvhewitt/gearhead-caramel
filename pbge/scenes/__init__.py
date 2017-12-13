@@ -99,7 +99,7 @@ class PlaceableThing( KeyObject ):
     def place( self, scene, pos=None, team=None ):
         if hasattr( self, "container" ) and self.container:
             self.container.remove( self )
-        scene._contents.append( self )
+        scene.contents.append( self )
         self.pos = pos
         if team:
             scene.local_teams[self] = team
@@ -155,7 +155,7 @@ class Scene( object ):
         self.last_updated = 0
 
         # Fill the map with empty tiles
-        self._contents = container.ContainerList(owner=self)
+        self.contents = container.ContainerList(owner=self)
         self._map = [[ Tile()
             for y in xrange(height) ]
                 for x in xrange(width) ]

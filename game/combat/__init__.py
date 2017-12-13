@@ -124,7 +124,7 @@ class Combat( object ):
 
     def activate_foe( self, foe ):
         m0team = self.scene.local_teams.get(foe)
-        for m in self.scene._contents:
+        for m in self.scene.contents:
             if m in self.camp.party:
                 self.active.append( m )
             elif self.scene.local_teams.get(m) is m0team:

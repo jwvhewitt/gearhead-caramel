@@ -49,7 +49,7 @@ class SceneGenerator( Room ):
         self.gb = myscene
         self.area = pygame.Rect(0,0,myscene.width,myscene.height)
         self.archi = archi
-        self.contents = myscene._contents
+        self.contents = myscene.contents
         if default_room:
             self.DEFAULT_ROOM = default_room
         if gapfill:
@@ -81,9 +81,9 @@ class SceneGenerator( Room ):
 
     def clean_contents( self ):
         # Remove unimportant things from the contents.
-        for t in self.gb._contents[:]:
+        for t in self.gb.contents[:]:
             if not hasattr( t, "pos" ):
-                self.gb._contents.remove( t )
+                self.gb.contents.remove( t )
                 #if isinstance( t, maps.Scene ):
                 #    t.parent_scene = self.gb
                 #    self.gb.sub_scenes.append( t )

@@ -22,6 +22,7 @@ class SceneView( object ):
         self.anims = collections.defaultdict(list)
 
         self.modelmap = collections.defaultdict(list)
+        self.uppermap = collections.defaultdict(list)
         self.undermap = collections.defaultdict(list)
         self.fieldmap = dict()
         self.modelsprite = weakref.WeakKeyDictionary()
@@ -287,12 +288,14 @@ class SceneView( object ):
 
         # Record all of the scene contents for display when their tile comes up.
         self.modelmap.clear()
+        self.uppermap.clear()
         self.undermap.clear()
-        for m in self.scene._contents:
+        for m in self.scene.contents:
             if hasattr( m , 'render' ):
                 d_pos = self.PosToKey(m.pos)
+                self.modelmap[d_pos].append(m)
                 if self.scene.model_altitude(m,*d_pos) >= 0:
-                    self.modelmap[ d_pos ].append( m )
+                    self.uppermap[ d_pos ].append( m )
                 else:
                     self.undermap[ d_pos ].append( m )
 
@@ -343,7 +346,7 @@ class SceneView( object ):
                     o_sprite,o_frame = self.overlays[(x-1,y-1)]
                     o_sprite.render(o_dest,o_frame)
 
-                mlist = self.modelmap.get( (x-1,y-1) )
+                mlist = self.uppermap.get( (x-1,y-1) )
                 if mlist:
                     if len( mlist ) > 1:
                         mlist.sort( key = self.model_depth )
@@ -383,7 +386,7 @@ class SceneView( object ):
                     o_sprite,o_frame = self.overlays[(x-1,y-1)]
                     o_sprite.render(o_dest,o_frame)
 
-                mlist = self.modelmap.get( (x-1,y-1) )
+                mlist = self.uppermap.get( (x-1,y-1) )
                 if mlist:
                     if len( mlist ) > 1:
                         mlist.sort( key = self.model_depth )
@@ -418,7 +421,7 @@ class SceneView( object ):
         self.modelmap.clear()
         self.fieldmap.clear()
         itemmap = dict()
-        for m in self.scene._contents:
+        for m in self.scene.contents:
             if isinstance( m , characters.Character ):
                 self.modelmap[ tuple( m.pos ) ] = m
             elif isinstance( m , enchantments.Field ):

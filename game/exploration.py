@@ -14,10 +14,10 @@ class MoveTo( object ):
         self.dest = pos
         if not party:
             # Always party.
-            party = [pc for pc in explo.scene._contents if pc in explo.camp.party]
+            party = [pc for pc in explo.scene.contents if pc in explo.camp.party]
         self.party = party
         pc = self.first_living_pc()
-        #blocked_tiles = set( m.pos for m in explo.scene._contents )
+        #blocked_tiles = set( m.pos for m in explo.scene.contents )
         self.path = scenes.pathfinding.AStarPath(explo.scene,pc.pos,pos,pc.mmode)
         self.step = 0
 
@@ -102,7 +102,7 @@ class Explorer( object ):
         # Update the view of all party members.
         first_pc = None
         for pc in camp.party:
-            if pc.pos and pc.is_operational() and pc in self.scene._contents:
+            if pc.pos and pc.is_operational() and pc in self.scene.contents:
                 x,y = pc.pos
                 scenes.pfov.PCPointOfView( camp.scene, x, y, pc.get_sensor_range(self.scene.scale) )
                 if not first_pc:
