@@ -9,6 +9,7 @@ import scale
 import stats
 import geffects
 import info
+import color
 
 import inspect
 import re
@@ -33,6 +34,7 @@ SINGLETON_TYPES['None'] = None
 harvest( stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,) )
 harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
 harvest( geffects, pbge.scenes.animobs.AnimOb,SINGLETON_TYPES, ())
+harvest( color, pbge.image.Gradient, SINGLETON_TYPES, () )
 
 class GearHeadScene( pbge.scenes.Scene ):
     def __init__(self,width=128,height=128,name="",player_team=None,scale=scale.MechaScale):

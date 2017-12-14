@@ -3,11 +3,25 @@
 import pygame
 import weakref
 import util
-from . import my_state,render_text,TEXT_COLOR
+from . import my_state,render_text,TEXT_COLOR,Singleton
 
 # Keep a list of already-loaded images, to save memory when multiple objects
 # need to use the same image file.
 pre_loaded_images = weakref.WeakValueDictionary()
+
+class Gradient( Singleton ):
+    NAME = 'Gradient'
+    COLOR_RANGE = (0,0,0, 255,255,255)
+    @classmethod
+    def generate_color( self, color_level ):
+        # The COLOR_RANGE is a tuple of six values: r g b at highest intensity,
+        # and r g b at lowest intensity.
+        color_level = max(color_level-40,0)
+        r = max(min((( self.COLOR_RANGE[0] - self.COLOR_RANGE[3] ) * color_level ) / 215 + self.COLOR_RANGE[3], 255 ),0)
+        g = max(min((( self.COLOR_RANGE[1] - self.COLOR_RANGE[4] ) * color_level ) / 215 + self.COLOR_RANGE[4], 255 ),0)
+        b = max(min((( self.COLOR_RANGE[2] - self.COLOR_RANGE[5] ) * color_level ) / 215 + self.COLOR_RANGE[5], 255 ),0)
+        return (r,g,b)
+
 
 class Image( object ):
     def __init__(self,fname=None,frame_width=0,frame_height=0,color=None):
@@ -52,35 +66,28 @@ class Image( object ):
         frames_per_column = self.bitmap.get_height() / self.frame_height
         return frames_per_row * frames_per_column
 
-    def generate_color( self, color_desc, color_level ):
-        # The color_desc is a tuple of six values: r g b at lowest intensity,
-        # and r g b at highest intensity.
-        dr,dg,db = color_desc
-        r = min( ( dr * color_level ) / 200, 255 )
-        g = min( ( dg * color_level ) / 200, 255 )
-        b = min( ( db * color_level ) / 200, 255 )
-        return pygame.Color(r,g,b)
-
     def recolor( self, color_channels ): 
         # Just gonna brute force this. It could probably be speeded up by using
         # a pixel array, but that would add dependencies. Besides- this should get
         # called just once, when the image is created, so speed isn't that
         # important.
         red_channel,yellow_channel,green_channel,cyan_channel,magenta_channel = color_channels
+        par = pygame.PixelArray(self.bitmap)
         for y in range( self.bitmap.get_height() ):
             for x in range( self.bitmap.get_width() ):
-                c = self.bitmap.get_at( (x,y) )
+                c = self.bitmap.unmap_rgb(par[x,y])
                 if ( c.r > 0 ) and ( c.g == 0 ) and ( c.b == 0 ):
-                    self.bitmap.set_at( (x,y), self.generate_color(red_channel,c.r))
-                elif ( c.r > 0 ) and ( c.g == c.r ) and ( c.b == 0 ):
-                    self.bitmap.set_at( (x,y), self.generate_color(yellow_channel,c.r))
-                elif ( c.r > 0 ) and ( c.g == 0 ) and ( c.b == c.r ):
-                    self.bitmap.set_at( (x,y), self.generate_color(magenta_channel,c.r))
+                    par[x,y] = red_channel.generate_color(c.r)
+                    #par[x,y] = self.generate_color(red_channel,c.r)
+                elif ( c.r > 0 ) and ( c.g > 0 ) and ( c.b == 0 ):
+                    par[x,y] = yellow_channel.generate_color(c.r)
+                elif ( c.r > 0 ) and ( c.g == 0 ) and ( c.b > 0 ):
+                    par[x,y] = magenta_channel.generate_color(c.r)
                 elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b == 0 ):
-                    self.bitmap.set_at( (x,y), self.generate_color(green_channel,c.g))
-                elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b == c.g ):
-                    self.bitmap.set_at( (x,y), self.generate_color(cyan_channel,c.g))
-
+                    par[x,y] = green_channel.generate_color(c.g)
+                elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b > 0 ):
+                    par[x,y] = cyan_channel.generate_color(c.g)
+        del(par)
 
     def __reduce__( self ):
         # Rather than trying to save the bitmap image, just save the filename.
