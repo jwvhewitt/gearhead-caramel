@@ -36,4 +36,34 @@ class VendingMachineTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_middle = 'terrain_prop_vendingmachine.png'
     blocks = (Walking,Skimming,Rolling)
 
+class WinterMochaBarrelTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_wintermocha.png'
+    frame = 0
+    blocks = (Walking,Skimming,Rolling)
+
+class WinterMochaBrokenShovel(pbge.scenes.terrain.Terrain):
+    image_middle = 'terrain_wintermocha.png'
+    frame = 1
+
+class WinterMochaToolboxTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_wintermocha.png'
+    frame = 2
+    blocks = (Walking,Skimming,Rolling)
+
+class WinterMochaDomeTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_wintermocha.png'
+    frame = 3
+    blocks = (Walking,Skimming,Rolling)
+
+class WinterMochaGeothermalGeneratorTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_wintermocha.png'
+    frame = 4
+    blocks = (Walking,Skimming,Rolling)
+
+class WinterMochaSnowdrift( pbge.scenes.terrain.HillTerrain ):
+    altitude = 20
+    image_middle = 'terrain_wintermocha_snowdrift.png'
+    bordername = ''
+    blocks = (Walking,Skimming,Rolling)
+
 

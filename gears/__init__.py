@@ -18,6 +18,13 @@ from numbers import Number
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()
 
+ALL_COLORS = list()
+CLOTHING_COLORS = list()
+SKIN_COLORS = list()
+HAIR_COLORS = list()
+MECHA_COLORS = list()
+DETAIL_COLORS = list()
+
 def harvest( mod, subclass_of, dict_to_add_to, exclude_these ):
     for name in dir( mod ):
         o = getattr( mod, name )
@@ -34,7 +41,32 @@ SINGLETON_TYPES['None'] = None
 harvest( stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,) )
 harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
 harvest( geffects, pbge.scenes.animobs.AnimOb,SINGLETON_TYPES, ())
-harvest( color, pbge.image.Gradient, SINGLETON_TYPES, () )
+
+def harvest_color( mod, subclass_of, dict_to_add_to, exclude_these ):
+    for name in dir( color ):
+        o = getattr( color, name )
+        if inspect.isclass( o ) and issubclass( o , pbge.image.Gradient ) and o is not pbge.image.Gradient:
+            dict_to_add_to[ o.__name__ ] = o
+            ALL_COLORS.append(o)
+            if color.CLOTHING in o.SETS:
+                CLOTHING_COLORS.append(o)
+            if color.SKIN in o.SETS:
+                SKIN_COLORS.append(o)
+            if color.HAIR in o.SETS:
+                HAIR_COLORS.append(o)
+            if color.MECHA in o.SETS:
+                MECHA_COLORS.append(o)
+            if color.DETAILS in o.SETS:
+                DETAIL_COLORS.append(o)
+
+def random_character_colors():
+    return [random.choice(CLOTHING_COLORS),random.choice(SKIN_COLORS),random.choice(HAIR_COLORS),random.choice(DETAIL_COLORS),random.choice(CLOTHING_COLORS)]
+
+def random_mecha_colors():
+    return [random.choice(MECHA_COLORS),random.choice(MECHA_COLORS),random.choice(DETAIL_COLORS),random.choice(DETAIL_COLORS),random.choice(MECHA_COLORS)]
+
+
+harvest_color( color, pbge.image.Gradient, SINGLETON_TYPES, () )
 
 class GearHeadScene( pbge.scenes.Scene ):
     def __init__(self,width=128,height=128,name="",player_team=None,scale=scale.MechaScale):

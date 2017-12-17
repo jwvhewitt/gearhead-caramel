@@ -33,7 +33,7 @@ class FrozenHotSpringCity( Plot ):
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(50,50,"Mauna",player_team=team1,scale=gears.scale.HumanScale)
 
-        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
+        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.WinterMochaSnowdrift)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.SmallSnow,myfilter,mutate=mymutate)
         myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
@@ -43,13 +43,18 @@ class FrozenHotSpringCity( Plot ):
 
         myroom = pbge.randmaps.rooms.FuzzyRoom(10,10)
 
-        myent = self.register_element( "ENTRANCE", waypoints.VendingMachine(plot_locked=True,anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element( "ENTRANCE", waypoints.WinterMochaBarrel(plot_locked=True,anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
 
         myscenegen.contents.append(myroom)
 
-        self.register_element( "ENTRANCE", myent )
+        myroom2 = pbge.randmaps.rooms.FuzzyRoom(10,10)
+        myroom2.contents.append( waypoints.WinterMochaToolbox() )
+        myroom2.contents.append( ghterrain.WinterMochaDomeTerrain )
+        myroom2.contents.append( ghterrain.WinterMochaBrokenShovel )
+        myroom2.contents.append( ghterrain.WinterMochaGeothermalGeneratorTerrain )
 
+        myscenegen.contents.append(myroom2)
 
 
         return True

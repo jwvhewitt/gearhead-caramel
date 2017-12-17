@@ -50,7 +50,7 @@ mychar.mmode = scenes.movement.Walking
 mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:10, gears.stats.Reflexes:9,gears.stats.Speed:9,gears.stats.Perception:9,gears.stats.MechaPiloting:2,gears.stats.MechaGunnery:2})
 #mypilot.mmode = pbge.scenes.movement.Walking
 mypilot.imagename = 'cha_wm_parka.png'
-mypilot.colors = (gears.color.Olive,gears.color.LightSkin,gears.color.Black,gears.color.FadedDenim,gears.color.FadedDenim)
+mypilot.colors = gears.random_character_colors()
 
 game.start_mocha(mypilot)
 

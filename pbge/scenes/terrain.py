@@ -105,7 +105,7 @@ class Terrain( Singleton ):
     @classmethod
     def place( self, scene, pos ):
         if scene.on_the_map( *pos ):
-            scene.map[pos[0]][pos[1]].decor = self
+            scene._map[pos[0]][pos[1]].decor = self
     @classmethod
     def __str__( self ):
         return self.name
