@@ -162,6 +162,7 @@ class Explorer( object ):
         #if not self.camp.fight:
         #    self.check_trigger( "START" )
 
+
         while self.keep_exploring():
             first_pc_pos=self.camp.first_active_pc().pos
             if self.camp.fight:
@@ -186,6 +187,7 @@ class Explorer( object ):
                     x,y = pygame.mouse.get_pos()
                     y -= 64
                     gears.info.MechaStatusDisplay((x,y),mmecha[0])
+
 
                 pbge.my_state.do_flip()
 

@@ -332,6 +332,7 @@ import image
 import effects
 import campaign
 import widgets
+import dialogue
 
 
 def init(winname,appname,gamedir,icon="sys_icon.png"):

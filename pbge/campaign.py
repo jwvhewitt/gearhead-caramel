@@ -49,6 +49,15 @@ class Campaign( object ):
         # You're probably gonna want to redefine this in your subclass.
         return True
 
+    def active_plots( self ):
+        for p in self.scene.scripts:
+            if p.active:
+                yield p
+        for p in self.scripts:
+            if p.active:
+                yield p
+
+
     def place_party( self ):
         """Stick the party close to the waypoint."""
         raise exceptions.NotImplementedError("Method place_party needs custom implementation.")

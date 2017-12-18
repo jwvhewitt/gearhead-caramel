@@ -46,6 +46,17 @@ class FrozenHotSpringCity( Plot ):
         myent = self.register_element( "ENTRANCE", waypoints.WinterMochaBarrel(plot_locked=True,anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
 
+        vikki = gears.base.Character(name="Vikki",statline={gears.stats.Reflexes:15,
+         gears.stats.Body:10,gears.stats.Speed:13,gears.stats.Perception:13,
+         gears.stats.Knowledge:10,gears.stats.Craft:10,gears.stats.Ego:10,
+         gears.stats.Charm:12,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
+         gears.stats.MechaFighting:7})
+        vikki.imagename = 'cha_wm_vikki.png'
+        vikki.portrait = 'por_f_wintervikki.png'
+        vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
+        vikki.mmode = pbge.scenes.movement.Walking
+        myroom.contents.append(vikki)
+
         myscenegen.contents.append(myroom)
 
         myroom2 = pbge.randmaps.rooms.FuzzyRoom(10,10)
