@@ -57,6 +57,11 @@ class Campaign( object ):
             if p.active:
                 yield p
 
+    def check_trigger( self, trigger, thing=None ):
+        # Something is happened that plots may need to react to.
+        for p in self.active_plots():
+            p.handle_trigger( self, trigger, thing )
+
 
     def place_party( self ):
         """Stick the party close to the waypoint."""

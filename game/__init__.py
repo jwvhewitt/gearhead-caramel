@@ -2,6 +2,7 @@ import exploration
 import combat
 import teams
 import content
+import ghdialogue
 
 
 

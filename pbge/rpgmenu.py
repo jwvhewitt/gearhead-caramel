@@ -3,7 +3,7 @@ import glob
 import util
 from frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
 
-from . import default_border,render_text,wait_event,TIMEREVENT,gold_border,my_state
+from . import default_border,render_text,wait_event,TIMEREVENT,my_state
 
 class MenuItem( object ):
     def __init__(self,msg,value,desc=None):
@@ -264,7 +264,7 @@ class PopUpMenu( Menu ):
     """Creates a small menu at the current mouse position."""
     WIDTH = 200
     HEIGHT = 250
-    def __init__( self, predraw=None, border=gold_border ):
+    def __init__( self, predraw=None, border=default_border ):
         x,y = pygame.mouse.get_pos()
         x += 8
         y += 8

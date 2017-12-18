@@ -15,36 +15,14 @@ import random
 # A standard reply token is generally two offer tokens separated by a colon.
 #
 
-def absorb( gram, othergram ):
-    for k,v in othergram.iteritems():
-        if k not in gram:
-            gram[k] = list()
-        gram[k] += v
-    return gram
+class Grammar( dict ):
+    def absorb( self, othergram ):
+        for k,v in othergram.iteritems():
+            if k not in self:
+                self[k] = list()
+            self[k] += v
 
-def base_grammar( pc, npc, explo ):
-    # Build a default grammar with the required elements.
-    mygram = collections.defaultdict(list)
-    absorb( mygram, GRAM_DATABASE )
-    mygram["[pc]"].append( str( pc ) )
-    mygram["[npc]"].append( str( npc ) )
-    mygram["[scene]"].append( str( explo.scene ) )
-    mygram["[city]"].append( str( explo.camp.current_root_scene() ) )
 
-    if npc:
-        friendliness = npc.get_friendliness( explo.camp )
-        if friendliness < -50:
-            absorb( mygram, DISLIKE_GRAMMAR )
-            absorb( mygram, HATE_GRAMMAR )
-        elif friendliness < -20:
-            absorb( mygram, DISLIKE_GRAMMAR )
-        elif friendliness > 50:
-            absorb( mygram, LIKE_GRAMMAR )
-            absorb( mygram, LOVE_GRAMMAR )
-        elif friendliness > 20:
-            absorb( mygram, LIKE_GRAMMAR )
-
-    return mygram
 
 def expand_token( token_block, gramdb ):
     """Return an expansion of token according to gramdb. If no expansion possible, return token."""

@@ -4,6 +4,7 @@ from . import my_state
 ANCHOR_UPPERLEFT = (0,0)
 ANCHOR_UPPERRIGHT = (2,0)
 ANCHOR_CENTER = (1,1)
+ANCHOR_LOWERLEFT = (0,2)
 ANCHOR_LOWERRIGHT = (2,2)
 
 class Frect( object ):

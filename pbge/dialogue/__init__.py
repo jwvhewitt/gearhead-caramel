@@ -1,12 +1,17 @@
 
 import copy
 import grammar
+from .. import my_state,default_border,frects,draw_text,rpgmenu
 
 
 # Configuration constants- fill out these lists with game-specific stuff.
 
 STANDARD_OFFERS = list()
 STANDARD_REPLIES = list()
+
+# Grammar Builder is a function with parameters (mygram,camp,npc,pc)
+# It fills mygram with the default grammar for this game + context.
+GRAMMAR_BUILDER = None
 
 
 class ContextTag( tuple ):
@@ -18,7 +23,7 @@ class ContextTag( tuple ):
         return self[0:len(self)] == other[0:len(self)]
 
 class Cue(object):
-    # An empty node, waiting to be filled with randomly selected dialog.
+    # An empty node, waiting to be filled with a randomly selected Offer.
     def __init__( self , context ):
         self.context = context
 
@@ -37,6 +42,7 @@ class Cue(object):
 class Offer(object):
     # An Offer is a single line spoken by the NPC, along with its context tag,
     # effect, and a list of replies.
+    # "effect" is a function that takes the campaign as its parameter
     def __init__(self, msg, context=(), effect = None, replies = None ):
         self.msg = msg
         self.context = context
@@ -82,11 +88,55 @@ class Reply(object):
     def __str__(self):
         return self.msg
 
+class SimpleVisualizer(object):
+    # The visualizer is a class used by the conversation when conversing.
+    # It has a "text" property and "render", "get_menu" methods.
+    TEXT_AREA = frects.Frect(-150,-100,300,100)
+    MENU_AREA = frects.Frect(-150,20,300,80)
+    def __init__(self):
+        self.text = ''
+    def render(self):
+        if my_state.view:
+            my_state.view()
+        text_rect = self.TEXT_AREA.get_rect()
+        default_border.render(text_rect)
+        draw_text(my_state.smallfont,self.text,text_rect)
+        default_border.render(self.MENU_AREA.get_rect())
+    def get_menu(self):
+        return rpgmenu.Menu(self.MENU_AREA.dx,self.MENU_AREA.dy,self.MENU_AREA.w,self.MENU_AREA.h,border=None,predraw=self.render)
+
 class Conversation(object):
-    def __init__(self,start=None,npc_offers=()):
+    def __init__(self,camp,npc,pc,start,visualizer=None):
+        self.camp = camp
+        self.npc = npc
+        self.pc = pc
+        if not visualizer:
+            visualizer = SimpleVisualizer()
+        self.visualizer = visualizer
         self.root = None
-        self.npc_offers = npc_offers
+        self.npc_offers = list()
+        self.npc_grammar = grammar.Grammar()
+        self.pc_grammar = grammar.Grammar()
+        self._get_dialogue_data()
         self.build(start)
+
+    def _get_dialogue_data( self ):
+        self.npc_offers = list()
+        self.pc_grammar.clear()
+        self.npc_grammar.clear()
+        if GRAMMAR_BUILDER:
+            GRAMMAR_BUILDER(self.grammar,self.camp,self.npc,self.pc)
+            GRAMMAR_BUILDER(self.grammar,self.camp,self.pc,self.npc)
+        self.pc_grammar.absorb({"[pc]":str(self.pc), "[npc]":str(self.npc)})
+        self.npc_grammar.absorb({"[pc]":str(self.pc), "[npc]":str(self.npc)})
+
+        for p in self.camp.active_plots():
+            self.npc_offers += p.get_dialogue_offers( npc, self.camp )
+            pgram = p.get_dialogue_grammar( npc, self.camp )
+            if pgram:
+                self.npc_grammar.absorb( pgram )
+                self.pc_grammar.absorb( pgram )
+
 
     def _find_offer_to_match_cue( self, cue_in_question ):
         # Find an offer in this list which matches one of the provided cues.
@@ -95,7 +145,6 @@ class Conversation(object):
             o_cues = o.get_cue_list()
             if cue_in_question.context.matches( o.context ) and self._cues_accounted_for( o_cues, self.npc_offers ):
                 goffs.append( o )
-
         if goffs:
             return random.choice( goffs )
         else:
@@ -245,5 +294,27 @@ class Conversation(object):
                 a.replies.append( copy.deepcopy( l ) )
             else:
                 keepgoing = False
+
+    def converse( self ):
+        # coff is the "current offer"
+        coff = self.root
+        while coff:
+            self.visualizer.text = grammar.convert_tokens( coff.msg , self.npc_grammar )
+            mymenu = self.visualizer.get_menu()
+            for i in coff.replies:
+                mymenu.add_item( grammar.convert_tokens( i.msg, self.pc_grammar ), i.destination )
+            if self.visualizer.text and not mymenu.items:
+                mymenu.add_item( "[Continue]", None )
+            else:
+                mymenu.sort()
+            nextfx = coff.effect
+
+            coff = mymenu.query()
+
+            if nextfx:
+                nextfx( self.camp )
+
+
+
 
 
