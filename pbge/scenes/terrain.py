@@ -227,4 +227,31 @@ class OnTheWallTerrain( Terrain ):
         spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
         spr.render( dest, frame )
 
+class TerrSetTerrain( Terrain ):
+    # A terrain type that partners with a TerrSet to arrange a whole bunch of
+    # sprite frames into a coherent picture.
+    @classmethod
+    def render_top( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        if self.image_top:
+            spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
+            spr.render( dest, view.scene.data.get((x,y),0) )
+    @classmethod
+    def render_biddle( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        if self.image_biddle:
+            spr = view.get_named_sprite( self.image_biddle, transparent=self.transparent )
+            spr.render( dest, view.scene.data.get((x,y),0) )
+    @classmethod
+    def render_middle( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        if self.image_middle:
+            spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
+            spr.render( dest, view.scene.data.get((x,y),0) )
+    @classmethod
+    def render_bottom( self, dest, view, x, y ):
+        """Draw terrain that should appear behind a model in the same tile"""
+        if self.image_bottom:
+            spr = view.get_named_sprite( self.image_bottom, transparent=self.transparent )
+            spr.render( dest, view.scene.data.get((x,y),0) )
 

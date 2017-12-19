@@ -3,6 +3,7 @@ import pbge
 import pygame
 import gears
 import combat
+import ghdialogue
 
 # Commands should be callable objects which take the explorer and return a value.
 # If untrue, the command stops.
@@ -45,8 +46,10 @@ class MoveTo( object ):
         targets = exp.scene.get_actors( dest )
         if exp.scene.tile_blocks_movement(dest[0],dest[1],pc.mmode):
             # There's an obstacle in the way.
-            #if first:
-            #    exp.bump_tile( dest, pc )
+            if first:
+                wp = exp.scene.get_waypoint(dest)
+                if wp:
+                    wp.bump(exp.camp,pc)
             return False
         else:
             move_ok = True
@@ -71,14 +74,14 @@ class MoveTo( object ):
         else:
             first = True
             keep_going = True
-            for pc in exp.camp.party:
+            for pc in self.party:
                 if pc.is_operational() and exp.scene.on_the_map( *pc.pos ):
                     if first:
                         keep_going = self.move_pc( exp, pc, self.path.results[self.step], True )
                         f_pos = pc.pos
                         first = False
                     else:
-                        path = pathfinding.AStarPath(exp.scene,pc.pos,f_pos,pc.mmode)
+                        path = scenes.pathfinding.AStarPath(exp.scene,pc.pos,f_pos,pc.mmode)
                         for t in range( min(3,len(path.results)-1)):
                             self.move_pc( exp, pc, path.results[t+1] )
 
@@ -87,6 +90,43 @@ class MoveTo( object ):
             exp.scene.update_party_position( exp.camp.party )
 
             return keep_going
+
+class TalkTo( MoveTo ):
+    """A command for moving to a particular model, then talking with them."""
+    def __init__( self, explo, npc, party=None ):
+        """Move the party to pos."""
+        self.npc = npc
+        if not party:
+            # Always party.
+            party = [pc for pc in explo.scene.contents if pc in explo.camp.party]
+        self.party = party
+        self.step = 0
+
+    def __call__( self, exp ):
+        pc = self.first_living_pc()
+        self.step += 1
+
+        if (not pc) or self.step > 50:
+            return False
+        elif self.npc.pos in scenes.pfov.PointOfView( exp.scene, pc.pos[0], pc.pos[1], 3 ).tiles:
+            cviz = ghdialogue.ghdview.ConvoVisualizer(self.npc)
+            cviz.rollout()
+            convo = pbge.dialogue.Conversation(exp.camp,self.npc,pc,ghdialogue.HELLO_STARTER,visualizer=cviz)
+            convo.converse()
+            return False
+        else:
+            f_pos = self.npc.pos
+            for pc in self.party:
+                if pc.is_operational() and exp.scene.on_the_map( *pc.pos ):
+                    path = scenes.pathfinding.AStarPath(exp.scene,pc.pos,f_pos,pc.mmode)
+                    self.move_pc( exp, pc, path.results[1] )
+                    f_pos = pc.pos
+
+            # Now that all of the pcs have moved, check the tiles_in_sight for
+            # hidden models.
+            exp.scene.update_party_position( exp.camp.party )
+
+            return True
 
 
 class Explorer( object ):
@@ -159,8 +199,8 @@ class Explorer( object ):
         pbge.my_state.do_flip()
 
         # Do a start trigger, unless we're in combat.
-        #if not self.camp.fight:
-        #    self.check_trigger( "START" )
+        if not self.camp.fight:
+            self.camp.check_trigger( "START" )
 
 
         while self.keep_exploring():
@@ -219,6 +259,11 @@ class Explorer( object ):
                     if gdi.button == 1:
                         # Left mouse button.
                         if ( self.view.mouse_tile != self.camp.first_active_pc().pos ) and self.scene.on_the_map( *self.view.mouse_tile ):
-                            self.order = MoveTo( self, self.view.mouse_tile )
-                            self.view.overlays.clear()
+                            npc = self.view.modelmap.get(self.view.mouse_tile)
+                            if npc and self.scene.is_an_actor(npc[0]):
+                                self.order = TalkTo( self, npc[0] )
+                                self.view.overlays.clear()
+                            else:
+                                self.order = MoveTo( self, self.view.mouse_tile )
+                                self.view.overlays.clear()
 

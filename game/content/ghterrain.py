@@ -66,4 +66,20 @@ class WinterMochaSnowdrift( pbge.scenes.terrain.HillTerrain ):
     bordername = ''
     blocks = (Walking,Skimming,Rolling)
 
+class WinterMochaHangarTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_top = 'terrain_wintermocha_hangar.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
 
+class WinterMochaHangar(pbge.randmaps.terrset.TerrSet):
+    TERRAIN_TYPE = WinterMochaHangarTerrain
+    TERRAIN_MAP = (
+        (0,1),
+        (2,3,4),
+        (5,6,7,8),
+        (9,10,11,12,13,14),
+        (15,16,17,18,19,20),
+        (21,22,23,24,25,26),
+        (None,27,28,29,30,31),
+        (None,None,32,33,34,35),
+        (None,None,36,37,38,39)
+    )

@@ -62,6 +62,16 @@ class Campaign( object ):
         for p in self.active_plots():
             p.handle_trigger( self, trigger, thing )
 
+    def expand_puzzle_menu( self, thing, thingmenu ):
+        # Something is happened that plots may need to react to.
+        for p in self.active_plots():
+            p.modify_puzzle_menu( thing, thingmenu )
+        if not thingmenu.items:
+            thingmenu.add_item( "[Continue]", None )
+        else:
+            thingmenu.sort()
+            thingmenu.add_alpha_keys()
+
 
     def place_party( self ):
         """Stick the party close to the waypoint."""

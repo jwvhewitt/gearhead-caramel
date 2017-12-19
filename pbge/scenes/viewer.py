@@ -384,6 +384,7 @@ class SceneView( object ):
                     if self.scene._map[x-1][y-1].altitude() > 0:
                         o_dest.y -= self.scene._map[x-1][y-1].altitude()
                     o_sprite,o_frame = self.overlays[(x-1,y-1)]
+                    
                     o_sprite.render(o_dest,o_frame)
 
                 mlist = self.uppermap.get( (x-1,y-1) )

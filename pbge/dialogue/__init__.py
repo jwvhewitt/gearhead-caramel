@@ -2,6 +2,7 @@
 import copy
 import grammar
 from .. import my_state,default_border,frects,draw_text,rpgmenu
+import random
 
 
 # Configuration constants- fill out these lists with game-specific stuff.
@@ -100,7 +101,7 @@ class SimpleVisualizer(object):
             my_state.view()
         text_rect = self.TEXT_AREA.get_rect()
         default_border.render(text_rect)
-        draw_text(my_state.smallfont,self.text,text_rect)
+        draw_text(my_state.small_font,self.text,text_rect)
         default_border.render(self.MENU_AREA.get_rect())
     def get_menu(self):
         return rpgmenu.Menu(self.MENU_AREA.dx,self.MENU_AREA.dy,self.MENU_AREA.w,self.MENU_AREA.h,border=None,predraw=self.render)
@@ -125,14 +126,14 @@ class Conversation(object):
         self.pc_grammar.clear()
         self.npc_grammar.clear()
         if GRAMMAR_BUILDER:
-            GRAMMAR_BUILDER(self.grammar,self.camp,self.npc,self.pc)
-            GRAMMAR_BUILDER(self.grammar,self.camp,self.pc,self.npc)
-        self.pc_grammar.absorb({"[pc]":str(self.pc), "[npc]":str(self.npc)})
-        self.npc_grammar.absorb({"[pc]":str(self.pc), "[npc]":str(self.npc)})
+            GRAMMAR_BUILDER(self.npc_grammar,self.camp,self.npc,self.pc)
+            GRAMMAR_BUILDER(self.pc_grammar,self.camp,self.pc,self.npc)
+        self.pc_grammar.absorb({"[pc]":[str(self.pc),], "[npc]":[str(self.npc)]})
+        self.npc_grammar.absorb({"[pc]":[str(self.pc)], "[npc]":[str(self.npc)]})
 
         for p in self.camp.active_plots():
-            self.npc_offers += p.get_dialogue_offers( npc, self.camp )
-            pgram = p.get_dialogue_grammar( npc, self.camp )
+            self.npc_offers += p.get_dialogue_offers( self.npc, self.camp )
+            pgram = p.get_dialogue_grammar( self.npc, self.camp )
             if pgram:
                 self.npc_grammar.absorb( pgram )
                 self.pc_grammar.absorb( pgram )
@@ -143,7 +144,7 @@ class Conversation(object):
         goffs = []
         for o in self.npc_offers:
             o_cues = o.get_cue_list()
-            if cue_in_question.context.matches( o.context ) and self._cues_accounted_for( o_cues, self.npc_offers ):
+            if cue_in_question.context.matches( o.context ) and self._cues_accounted_for( o_cues ):
                 goffs.append( o )
         if goffs:
             return random.choice( goffs )
@@ -168,14 +169,6 @@ class Conversation(object):
         else:
             return None
 
-    def _cues_accounted_for( self, list_of_cues, possible_offers ):
-        # Return True if every cue in the list has a possible offer.
-        ok = True
-        for c in list_of_cues:
-            if not find_offer_to_match_cue( c, possible_offers ):
-                ok = False
-                break
-        return ok
 
     def _build_cue_list( self, conversation, context_type ):
         # Find a list of all cues in this conversation which match the context type.
@@ -262,7 +255,7 @@ class Conversation(object):
                     else:
                         # Standard offers do get copied, because they have to be
                         # shared around.
-                        exc = self._find_std_offer_to_match_cue( c , self.npc_offers )
+                        exc = self._find_std_offer_to_match_cue( c )
 
                     # We now have an exchange. Find the cue it will replace.
                     cue = self._find_cue( exc.context )

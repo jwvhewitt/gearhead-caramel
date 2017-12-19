@@ -14,6 +14,7 @@ import prep
 import rooms
 from rooms import Room
 import architect
+import terrset
 
 
 # A scene is constructed in the following steps:

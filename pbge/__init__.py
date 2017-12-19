@@ -265,6 +265,25 @@ def anim_delay():
     while wait_event().type != TIMEREVENT:
         pass
 
+def alert(text,font=None):
+    if not font:
+        font = my_state.medium_font
+    #mydest = pygame.Rect( my_state.screen.get_width() // 2 - 200, my_state.screen.get_height()//2 - 100, 400, 200 )
+    mytext = render_text( font, text, 400 )
+    mydest = mytext.get_rect( center = (my_state.screen.get_width() // 2, my_state.screen.get_height()//2) )
+
+    while True:
+        ev = pygame.event.wait()
+        if ( ev.type == pygame.MOUSEBUTTONUP) or ( ev.type == pygame.QUIT ) or (ev.type == pygame.KEYDOWN):
+            break
+        elif ev.type == TIMEREVENT:
+            if my_state.view:
+                my_state.view()
+            default_border.render( mydest )
+            my_state.screen.blit( mytext, mydest )
+            my_state.do_flip()
+
+
 ALLOWABLE_CHARACTERS = u'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
 
 def input_string( font = None, redrawer = None, prompt = "Enter text below", prompt_color = (255,255,255), input_color = TEXT_COLOR, border=default_border ):
@@ -353,21 +372,25 @@ def init(winname,appname,gamedir,icon="sys_icon.png"):
         INPUT_CURSOR = image.Image( "sys_textcursor.png" , 8 , 16 )
 
         global SMALLFONT
-        SMALLFONT = pygame.font.Font( util.image_dir( "VeraBd.ttf" ) , 12 )
+        SMALLFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 12 )
         my_state.small_font = SMALLFONT
 
         global TINYFONT
-        TINYFONT = pygame.font.Font( util.image_dir( "VeraBd.ttf" ) , 9 )
+        TINYFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 9 )
 
         global ANIMFONT
         ANIMFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 16 )
         my_state.anim_font = ANIMFONT
 
+        MEDIUMFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 14 )
+        my_state.medium_font = MEDIUMFONT
+
+
         global ITALICFONT
-        ITALICFONT = pygame.font.Font( util.image_dir( "VeraBI.ttf" ) , 12 )
+        ITALICFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Oblique.ttf" ) , 12 )
 
         global BIGFONT
-        BIGFONT = pygame.font.Font( util.image_dir( "Anita semi square.ttf" ) , 15 )
+        BIGFONT = pygame.font.Font( util.image_dir( "Anita semi square.ttf" ) , 16 )
         my_state.big_font = BIGFONT
 
         global POSTERS

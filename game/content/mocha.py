@@ -3,7 +3,7 @@ import waypoints
 import ghterrain
 import gears
 import pbge
-from .. import teams
+from .. import teams,ghdialogue
 
 class MochaStub( Plot ):
     LABEL = "SCENARIO_MOCHA"
@@ -28,10 +28,12 @@ class FrozenHotSpringCity( Plot ):
     # Mauna in winter. There was a heavy snowfall last night, and the mecha
     # hangar is blocked.
     LABEL = "MOCHA_MAUNA"
+    active = True
+    scope = True
     def custom_init( self, nart ):
         """Create map, fill with city + services."""
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(50,50,"Mauna",player_team=team1,scale=gears.scale.HumanScale)
+        myscene = gears.GearHeadScene(60,60,"Mauna",player_team=team1,scale=gears.scale.HumanScale)
 
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.WinterMochaSnowdrift)
         mymutate = pbge.randmaps.mutator.CellMutator()
@@ -56,17 +58,22 @@ class FrozenHotSpringCity( Plot ):
         vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
         vikki.mmode = pbge.scenes.movement.Walking
         myroom.contents.append(vikki)
+        self.register_element( "VIKKI", vikki )
 
         myscenegen.contents.append(myroom)
 
-        myroom2 = pbge.randmaps.rooms.FuzzyRoom(10,10)
-        myroom2.contents.append( waypoints.WinterMochaToolbox() )
-        myroom2.contents.append( ghterrain.WinterMochaDomeTerrain )
-        myroom2.contents.append( ghterrain.WinterMochaBrokenShovel )
-        myroom2.contents.append( ghterrain.WinterMochaGeothermalGeneratorTerrain )
+        myroom2 = pbge.randmaps.rooms.FuzzyRoom(15,15)
+        myroom3 = ghterrain.WinterMochaHangar(parent=myroom2)
 
         myscenegen.contents.append(myroom2)
 
 
         return True
+
+    def VIKKI_offers(self,camp):
+        # Return list of dialogue offers.
+        mylist = list()
+        mylist.append( pbge.dialogue.Offer('[HELLO]',context=pbge.dialogue.ContextTag((ghdialogue.context.HELLO,))))
+        return mylist
+
 

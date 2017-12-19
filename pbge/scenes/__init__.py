@@ -122,12 +122,14 @@ class PlaceableThing( KeyObject ):
 
 
 
+
 import pathfinding
 import pfov
 import terrain
 import viewer
 import animobs
 import targetarea
+import waypoints
 
 class TeamDictionary( weakref.WeakKeyDictionary ):
     # It's like a regular WeakKeyDictionary but it pickles.
@@ -150,6 +152,10 @@ class Scene( object ):
         self.height = height
         self.player_team = player_team
         self.scripts = container.ContainerList()
+
+        # The data dict is primarily used to hold frames for TerrSetTerrain
+        # tiles, but I guess you could put anything you want in there.
+        self.data = dict()
         self.in_sight = set()
 
         self.last_updated = 0
@@ -287,5 +293,13 @@ class Scene( object ):
             if self.on_the_map(*p):
                 it += self._map[p[0]][p[1]].get_cover(vmode)
         return it
+
+    def get_waypoint(self,pos):
+        # Return the first waypoint found at this position. If more than one
+        # waypoint is there, tough cookies.
+        for a in self.contents:
+            if a.pos == pos and isinstance(a,waypoints.Waypoint):
+                return a
+
 
 
