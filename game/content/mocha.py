@@ -4,6 +4,63 @@ import ghterrain
 import gears
 import pbge
 from .. import teams,ghdialogue
+from pbge.scenes.movement import Walking, Flying, Vision
+from gears.geffects import Skimming, Rolling
+
+
+
+# ********************************
+# ***   TERRAIN  DEFINITIONS   ***
+# ********************************
+
+class WinterMochaSnowdrift( pbge.scenes.terrain.HillTerrain ):
+    altitude = 20
+    image_middle = 'terrain_wintermocha_snowdrift.png'
+    bordername = ''
+    blocks = (Walking,Skimming,Rolling)
+
+class WinterMochaHangarTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_top = 'terrain_wintermocha_hangar.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class WinterMochaHangar(pbge.randmaps.terrset.TerrSet):
+    TERRAIN_TYPE = WinterMochaHangarTerrain
+    TERRAIN_MAP = (
+        (0,1),
+        (2,3,4),
+        (5,6,7,8),
+        (9,10,11,12,13,14),
+        (15,16,17,18,19,20),
+        (21,22,23,24,25,26),
+        (None,27,28,29,30,31),
+        (None,None,32,33,34,35),
+        (None,None,36,37,38,39),
+        (None,None,WinterMochaSnowdrift,WinterMochaSnowdrift,WinterMochaSnowdrift)
+    )
+    WAYPOINT_POS = {
+        "DOOR": (3,8)
+    }
+
+class WinterMochaFenceTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_top = 'terrain_wintermocha_fence.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class WinterMochaFence(pbge.randmaps.terrset.TerrSet):
+    TERRAIN_TYPE = WinterMochaFenceTerrain
+    TERRAIN_MAP = (
+        (0,),
+        (1,),
+        (2,),
+    )
+    WAYPOINT_POS = {
+        "DOOR": (0,1)
+    }
+
+
+
+# *****************
+# ***   PLOTS   ***
+# *****************
 
 class MochaStub( Plot ):
     LABEL = "SCENARIO_MOCHA"
@@ -35,7 +92,7 @@ class FrozenHotSpringCity( Plot ):
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(60,60,"Mauna",player_team=team1,scale=gears.scale.HumanScale)
 
-        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.WinterMochaSnowdrift)
+        myfilter = pbge.randmaps.converter.BasicConverter(WinterMochaSnowdrift)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.SmallSnow,myfilter,mutate=mymutate)
         myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
@@ -63,9 +120,11 @@ class FrozenHotSpringCity( Plot ):
         myscenegen.contents.append(myroom)
 
         myroom2 = pbge.randmaps.rooms.FuzzyRoom(15,15)
-        myroom3 = ghterrain.WinterMochaHangar(parent=myroom2)
-
+        myroom3 = WinterMochaHangar(parent=myroom2,waypoints={"DOOR":waypoints.VendingMachine()})
         myscenegen.contents.append(myroom2)
+
+        myroom4 = pbge.randmaps.rooms.FuzzyRoom(6,5,anchor=pbge.randmaps.anchors.northwest,parent=myscenegen)
+        myroom5 = WinterMochaFence(parent=myroom4,anchor=pbge.randmaps.anchors.west)
 
 
         return True

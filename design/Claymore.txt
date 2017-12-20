@@ -1,0 +1,119 @@
+Mecha
+    name = "Claymore"
+    desig = "ITM-01"
+    imagename = "btr_claymore.png"
+
+    SUB
+        Torso
+            size = 6
+            SUB
+                Armor
+                    size = 7
+                Engine
+                    size = 550
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Sensor
+                    size = 2
+
+                BallisticWeapon
+                    name = "Light Autocannon"
+                    reach = 4
+                    damage = 1
+                    accuracy = 0
+                    penetration = 0
+                    ammo_type = Shells_150mm
+                    attributes = (Automatic)
+                    SUB
+                        Ammo
+                            ammo_type=Shells_150mm
+                            quantity=30
+                    END
+
+
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BallisticWeapon
+                            name = "Heavy Autocannon"
+                            reach = 7
+                            damage = 2
+                            accuracy = 0
+                            penetration = 2
+                            ammo_type = Shells_150mm
+                            attributes = (Automatic)
+                            SUB
+                                Ammo
+                                    ammo_type=Shells_150mm
+                                    quantity=40
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Left Hand"
+                    INV
+                        MeleeWeapon
+                            name="Axe"
+                            reach=1
+                            damage=3
+                            accuracy=1
+                            penetration=2
+                    END
+            END
+        Leg
+            name = "Right Leg"
+            size = 7
+            SUB
+                Armor
+                    size = 5
+                Launcher
+                    size = 4
+                    SUB
+                        Missile
+                            name = "Heavy Missiles"
+                            reach = 7
+                            damage = 2
+                            accuracy = 1
+                            penetration = 1
+                            quantity = 12
+                    END
+
+            END
+        Leg
+            name = "Left Leg"
+            size = 7
+            SUB
+                Armor
+                    size = 5
+                Launcher
+                    size = 4
+                    SUB
+                        Missile
+                            name = "Heavy Missiles"
+                            reach = 7
+                            damage = 2
+                            accuracy = 1
+                            penetration = 1
+                            quantity = 12
+                    END
+
+            END
+    END
+

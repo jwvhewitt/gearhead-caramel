@@ -1,7 +1,7 @@
 #  *******************
 #  ***   ANCHORS   ***
 #  *******************
-# Each anchor function takes two rect: a parent and a child.
+# Each anchor function takes two rects: a parent and a child.
 # The child is arranged relative to the parent.
 
 def northwest(par,chi):

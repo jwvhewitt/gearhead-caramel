@@ -10,6 +10,7 @@ import stats
 import geffects
 import info
 import color
+import attackattributes
 
 import inspect
 import re
@@ -41,6 +42,7 @@ SINGLETON_TYPES['None'] = None
 harvest( stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,) )
 harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
 harvest( geffects, pbge.scenes.animobs.AnimOb,SINGLETON_TYPES, ())
+harvest( attackattributes, pbge.Singleton, SINGLETON_TYPES, ())
 
 def harvest_color( mod, subclass_of, dict_to_add_to, exclude_these ):
     for name in dir( color ):

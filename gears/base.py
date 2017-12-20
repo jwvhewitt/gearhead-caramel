@@ -8,6 +8,7 @@ import collections
 import stats
 import copy
 import geffects
+import attackattributes
 
 
 #
@@ -666,11 +667,12 @@ class PowerSource( BaseGear, StandardDamageHandler ):
 
 class Weapon( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Weapon"
-    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','integral','attack_stat','shot_anim')
+    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','integral','attack_stat','shot_anim','attributes')
     DEFAULT_SHOT_ANIM = None
+    LEGAL_ATTRIBUTES = ()
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
-    def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, attack_stat=stats.Reflexes, shot_anim=None, **keywords ):
+    def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, attack_stat=stats.Reflexes, shot_anim=None, attributes=(), **keywords ):
         # Check the range of all parameters before applying.
         if reach < self.__class__.MIN_REACH:
             reach = self.__class__.MIN_REACH
@@ -699,20 +701,30 @@ class Weapon( BaseGear, StandardDamageHandler ):
         self.attack_stat = attack_stat
         self.shot_anim = shot_anim or self.DEFAULT_SHOT_ANIM
         self.integral = keywords.pop( "integral" , False )
+        self.attributes = list()
+        for a in attributes:
+            if a in self.LEGAL_ATTRIBUTES:
+                self.attributes.append(a)
 
         # Finally, call the gear initializer.
         super(Weapon, self).__init__(**keywords)
 
     @property
     def base_mass(self):
-        return ( self.damage + self.penetration ) * 5 + self.accuracy + self.reach
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.MASS_MODIFIER
+        return int((( self.damage + self.penetration ) * 5 + self.accuracy + self.reach) * mult)
 
     @property
     def volume(self):
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.VOLUME_MODIFIER
         v = max(self.reach + self.accuracy + ( self.damage + self.penetration )/2,1)
         if self.integral:
             v -= 1
-        return v
+        return int(v*mult)
 
     @property
     def energy(self):
@@ -721,7 +733,10 @@ class Weapon( BaseGear, StandardDamageHandler ):
     @property
     def base_cost(self):
         # Multiply the stats together, squaring damage and range because they're so important.
-        return self.COST_FACTOR * ( self.damage ** 2 ) * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.reach**2 - self.reach )/2 + 1)
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.COST_MODIFIER
+        return int((self.COST_FACTOR * ( self.damage ** 2 ) * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * (( self.reach**2 - self.reach )/2 + 1))*mult)
 
     def is_legal_sub_com(self,part):
         if isinstance( part , Weapon ):
@@ -770,6 +785,11 @@ class Weapon( BaseGear, StandardDamageHandler ):
         # Being a weapon, the invocations are likely to all be attacks.
         my_invos = list()
         my_invos.append(self.get_basic_attack())
+
+        for aa in self.attributes:
+            if hasattr(aa,'get_attacks'):
+                my_invos += aa.get_attacks(self,user)
+
         return my_invos
 
 class MeleeWeapon( Weapon ):
@@ -873,6 +893,7 @@ class BallisticWeapon( Weapon ):
     SAVE_PARAMETERS = ('ammo_type',)
     DEFAULT_CALIBRE = calibre.Shells_150mm
     DEFAULT_SHOT_ANIM = geffects.BigBullet
+    LEGAL_ATTRIBUTES = (attackattributes.Automatic,)
     def __init__(self, ammo_type=None, **keywords ):
         self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
 
@@ -888,9 +909,9 @@ class BallisticWeapon( Weapon ):
         for maybe_ammo in self.sub_com:
             if isinstance(maybe_ammo,Ammo):
                 return maybe_ammo
-    def get_basic_attack( self ):
+    def get_basic_attack( self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0 ):
         return pbge.effects.Invocation(
-                name = 'Basic Attack', 
+                name = name, 
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.get_attack_skill(),
                     children = (geffects.DoDamage(self.damage,6,scale=self.scale),),
@@ -901,9 +922,9 @@ class BallisticWeapon( Weapon ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
-                price=geffects.AmmoPrice(self.get_ammo(),1),
-                targets=1)
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon),
+                price=geffects.AmmoPrice(self.get_ammo(),ammo_cost),
+                targets=targets)
     def get_weapon_desc( self ):
         ammo = self.get_ammo()
         it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)

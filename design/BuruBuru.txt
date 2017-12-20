@@ -2,7 +2,6 @@ Mecha
     name = "Buru Buru"
     desig = "SAN-X9"
     imagename = "btr_buruburu.png"
-  colors = [[104, 130, 117], [152, 190, 181], [220, 44, 51], [152, 190, 181], [220, 44, 51]]
 
     SUB
         Head
