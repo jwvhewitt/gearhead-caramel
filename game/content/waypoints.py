@@ -12,15 +12,6 @@ class VendingMachine( Waypoint ):
     TILE = pbge.scenes.Tile( None, None, ghterrain.VendingMachineTerrain )
     desc = "You stand before a vending machine."
 
-class WinterMochaBarrel( Waypoint ):
-    TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaBarrelTerrain )
-    desc = "You stand before a big container of fuel."
 
-class WinterMochaShovel( Waypoint ):
-    TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaBrokenShovel )
-    desc = "You stand before a broken shovel."
 
-class WinterMochaToolbox( Waypoint ):
-    TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaToolboxTerrain )
-    desc = "You stand before an abandoned toolbox."
 

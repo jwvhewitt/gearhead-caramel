@@ -10,5 +10,11 @@
 DEFAULT_GRAMMAR = {
     "[HELLO]": ["Hello.","Hello [pc]."
         ],
+    # The data block should hold the item name.
+    "[HELLO:ASK_FOR_ITEM]": ["Do you have a {item}?",
+        "I'm looking for a {item}. Seen one?"
+        ],
 
 }
+
+

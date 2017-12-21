@@ -1,6 +1,6 @@
 from pbge.image import Gradient
 
-CLOTHING,SKIN,HAIR,MECHA,DETAILS = range(5)
+CLOTHING,SKIN,HAIR,MECHA,DETAILS,METAL = range(6)
 
 class RoyalPink( Gradient ):
     NAME = 'Royal Pink'
@@ -105,7 +105,7 @@ class LemonYellow( Gradient ):
 class Gold( Gradient ):
     NAME = 'Gold'
     COLOR_RANGE = (255,255,0,45,38,0)
-    SETS = (CLOTHING,HAIR,MECHA,DETAILS)
+    SETS = (CLOTHING,HAIR,MECHA,DETAILS,METAL)
 
 class ElectricYellow( Gradient ):
     NAME = 'Electric Yellow'
@@ -115,7 +115,7 @@ class ElectricYellow( Gradient ):
 class NobleGold( Gradient ):
     NAME = 'NobleGold'
     COLOR_RANGE = (255,249,104,75,70,29)
-    SETS = (CLOTHING,HAIR,MECHA,DETAILS)
+    SETS = (CLOTHING,HAIR,MECHA,DETAILS,METAL)
 
 class CharredBlonde( Gradient ):
     NAME = 'Charred Blonde'
@@ -221,7 +221,7 @@ class FlourescentGreen( Gradient ):
 class AeroBlue( Gradient ):
     NAME = 'Aero Blue'
     COLOR_RANGE = (255,255,255,92,96,123)
-    SETS = (CLOTHING,MECHA,DETAILS)
+    SETS = (CLOTHING,MECHA,DETAILS,METAL)
 
 class Jade( Gradient ):
     NAME = 'Jade'
@@ -251,7 +251,7 @@ class FadedDenim( Gradient ):
 class SteelBlue( Gradient ):
     NAME = 'Steel Blue'
     COLOR_RANGE = (101,183,230,22,40,64)
-    SETS = (CLOTHING,HAIR,MECHA)
+    SETS = (CLOTHING,HAIR,MECHA,METAL)
 
 class FreedomBlue( Gradient ):
     NAME = 'Freedom Blue'
@@ -276,7 +276,7 @@ class BugBlue( Gradient ):
 class Cobalt( Gradient ):
     NAME = 'Cobalt'
     COLOR_RANGE = (8,79,179,3,17,64)
-    SETS = (CLOTHING,HAIR,MECHA)
+    SETS = (CLOTHING,HAIR,MECHA,METAL)
 
 class PrussianBlue( Gradient ):
     NAME = 'Prussian Blue'
@@ -371,7 +371,7 @@ class Terracotta( Gradient ):
 class GothSkin( Gradient ):
     NAME = 'Goth Skin'
     COLOR_RANGE = (255,255,255,130,137,120)
-    SETS = (SKIN,)
+    SETS = (SKIN,METAL)
 
 class Alabaster( Gradient ):
     NAME = 'Alabaster'
@@ -426,52 +426,52 @@ class DarkSkin( Gradient ):
 class Black( Gradient ):
     NAME = 'Black'
     COLOR_RANGE = (64,64,64,10,10,10)
-    SETS = (CLOTHING,HAIR,MECHA,DETAILS)
+    SETS = (CLOTHING,HAIR,MECHA,DETAILS,METAL)
 
 class DeepGrey( Gradient ):
     NAME = 'Deep Grey'
     COLOR_RANGE = (102,102,120,42,42,42)
-    SETS = (CLOTHING,HAIR,MECHA)
+    SETS = (CLOTHING,HAIR,MECHA,METAL)
 
 class FieldGrey( Gradient ):
     NAME = 'Field Grey'
     COLOR_RANGE = (98,118,103,41,50,46)
-    SETS = (CLOTHING,MECHA)
+    SETS = (CLOTHING,MECHA,METAL)
 
 class DimGrey( Gradient ):
     NAME = 'Dim Grey'
     COLOR_RANGE = (140,140,140,56,56,64)
-    SETS = (CLOTHING,HAIR,MECHA)
+    SETS = (CLOTHING,HAIR,MECHA,METAL)
 
 class WarmGrey( Gradient ):
     NAME = 'Warm Grey'
     COLOR_RANGE = (184,169,136,64,57,48)
-    SETS = (CLOTHING,MECHA)
+    SETS = (CLOTHING,MECHA,METAL)
 
 class BattleshipGrey( Gradient ):
     NAME = 'Battleship Grey'
     COLOR_RANGE = (169,183,145,69,77,61)
-    SETS = (CLOTHING,HAIR,MECHA)
+    SETS = (CLOTHING,HAIR,MECHA,METAL)
 
 class LunarGrey( Gradient ):
     NAME = 'Lunar Grey'
     COLOR_RANGE = (146,166,164,65,70,70)
-    SETS = (CLOTHING,MECHA)
+    SETS = (CLOTHING,MECHA,METAL)
 
 class SlateGrey( Gradient ):
     NAME = 'Slate Grey'
     COLOR_RANGE = (143,173,196,63,69,77)
-    SETS = (CLOTHING,HAIR,MECHA)
+    SETS = (CLOTHING,HAIR,MECHA,METAL)
 
 class GullGrey( Gradient ):
     NAME = 'Gull Grey'
     COLOR_RANGE = (200,220,234,80,86,98)
-    SETS = (CLOTHING,MECHA)
+    SETS = (CLOTHING,MECHA,METAL)
 
 class Ceramic( Gradient ):
     NAME = 'Ceramic'
     COLOR_RANGE = (255,255,255,90,115,124)
-    SETS = (CLOTHING,MECHA,DETAILS)
+    SETS = (CLOTHING,MECHA,DETAILS,METAL)
 
 class Cream( Gradient ):
     NAME = 'Cream'
@@ -486,7 +486,7 @@ class White( Gradient ):
 class ShiningWhite( Gradient ):
     NAME = 'Shining White'
     COLOR_RANGE = (236,254,255,60,110,120)
-    SETS = (CLOTHING,MECHA)
+    SETS = (CLOTHING,MECHA,METAL)
 
 
 

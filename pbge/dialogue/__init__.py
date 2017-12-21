@@ -43,11 +43,13 @@ class Cue(object):
 class Offer(object):
     # An Offer is a single line spoken by the NPC, along with its context tag,
     # effect, and a list of replies.
-    # "effect" is a function that takes the campaign as its parameter
-    def __init__(self, msg, context=(), effect = None, replies = None ):
+    # "effect" is a function that takes the campaign as its parameter.
+    # "data" is a dict holding strings that may be requested by format.
+    def __init__(self, msg, context=(), effect = None, replies = None, data={} ):
         self.msg = msg
         self.context = context
         self.effect = effect
+        self.data = data
 
         if replies == None:
             self.replies = []
@@ -162,7 +164,7 @@ class Conversation(object):
             # But we don't need to find a waiting offer for the root exchange.
             e_cues = e.get_cue_list()
 
-            if cue_in_question.context.matches( e.context ) and self._cues_accounted_for( e_cues, self.npc_offers ):
+            if cue_in_question.context.matches( e.context ) and self._cues_accounted_for( e_cues ):
                 candidates.append( e )
         if candidates:
             return copy.deepcopy( random.choice( candidates ) )
@@ -287,15 +289,20 @@ class Conversation(object):
                 a.replies.append( copy.deepcopy( l ) )
             else:
                 keepgoing = False
+    def format_text( self, text, mygrammar, offer ):
+        text = grammar.convert_tokens( text, mygrammar )
+        if offer:
+            text = text.format(**offer.data)
+        return text
 
     def converse( self ):
         # coff is the "current offer"
         coff = self.root
         while coff:
-            self.visualizer.text = grammar.convert_tokens( coff.msg , self.npc_grammar )
+            self.visualizer.text = self.format_text( coff.msg , self.npc_grammar, coff )
             mymenu = self.visualizer.get_menu()
             for i in coff.replies:
-                mymenu.add_item( grammar.convert_tokens( i.msg, self.pc_grammar ), i.destination )
+                mymenu.add_item( self.format_text( i.msg, self.pc_grammar, i.destination ), i.destination )
             if self.visualizer.text and not mymenu.items:
                 mymenu.add_item( "[Continue]", None )
             else:

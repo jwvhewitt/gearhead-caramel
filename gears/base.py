@@ -1391,6 +1391,16 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover):
                 cpit = m
         cpit.sub_com.append( pilot )
 
+    def free_pilots( self ):
+        pilots = list()
+        for m in self.sub_sub_coms():
+            if isinstance(m,Cockpit):
+                for pilot in list(m.sub_com):
+                    if isinstance(m,Character):
+                        m.sub_com.remove(pilot)
+                        pilots.append(pilot)
+        return pilots
+
     def get_engine_rating_and_gyro_status( self ):
         has_gyro = False
         engine_rating = 0

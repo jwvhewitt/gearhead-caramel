@@ -1,4 +1,4 @@
 
 # Constants for dialogue contexts.
 
-HELLO = 1
+HELLO,ASK_FOR_ITEM = range(2)

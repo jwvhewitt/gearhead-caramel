@@ -25,6 +25,7 @@ SKIN_COLORS = list()
 HAIR_COLORS = list()
 MECHA_COLORS = list()
 DETAIL_COLORS = list()
+METAL_COLORS = list()
 
 def harvest( mod, subclass_of, dict_to_add_to, exclude_these ):
     for name in dir( mod ):
@@ -60,12 +61,14 @@ def harvest_color( mod, subclass_of, dict_to_add_to, exclude_these ):
                 MECHA_COLORS.append(o)
             if color.DETAILS in o.SETS:
                 DETAIL_COLORS.append(o)
+            if color.METAL in o.SETS:
+                METAL_COLORS.append(o)
 
 def random_character_colors():
     return [random.choice(CLOTHING_COLORS),random.choice(SKIN_COLORS),random.choice(HAIR_COLORS),random.choice(DETAIL_COLORS),random.choice(CLOTHING_COLORS)]
 
 def random_mecha_colors():
-    return [random.choice(MECHA_COLORS),random.choice(MECHA_COLORS),random.choice(DETAIL_COLORS),random.choice(DETAIL_COLORS),random.choice(MECHA_COLORS)]
+    return [random.choice(MECHA_COLORS),random.choice(MECHA_COLORS),random.choice(DETAIL_COLORS),random.choice(METAL_COLORS),random.choice(MECHA_COLORS)]
 
 
 harvest_color( color, pbge.image.Gradient, SINGLETON_TYPES, () )
@@ -94,6 +97,7 @@ class GearHeadScene( pbge.scenes.Scene ):
 
 class GearHeadCampaign( pbge.campaign.Campaign ):
     fight = None
+    pc = None
     def first_active_pc( self ):
         # The first active PC is the first PC in the party list who is
         # both operational and on the map.
@@ -107,13 +111,29 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
         # The default version of this method will keep playing forever.
         # You're probably gonna want to redefine this in your subclass.
         return self.first_active_pc()
+
+    def choose_party( self ):
+        # Generally, if we're entering a mecha scale scene, send in the mecha.
+        usable_party = list()
+        for pc in self.party:
+            if pc.is_not_destroyed() and pc.scale == self.scene.scale:
+                if hasattr(pc,"pilot"):
+                    if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational():
+                        pc.load_pilot(pc.pilot)
+                        usable_party.append(pc)
+                elif pc.is_operational():
+                    usable_party.append(pc)
+        if not usable_party:
+            usable_party.append(self.pc)
+        return usable_party
+
     def place_party( self ):
         """Stick the party close to the waypoint."""
         x0,y0 = self.entrance.pos
         entry_points = pbge.scenes.pfov.WalkReach( self.scene, x0, y0, 3, True ).tiles
         entry_points.difference( self.scene.get_blocked_tiles() )
         entry_points = list(entry_points)
-        for pc in self.party:
+        for pc in self.choose_party():
             if pc.is_operational():
                 if entry_points:
                     pos = random.choice( entry_points )
@@ -129,6 +149,8 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
             pc.pos = None
             if pc in self.scene.contents:
                 self.scene.contents.remove( pc )
+            if hasattr(pc,"free_pilots"):
+                pc.free_pilots()
 
 
 

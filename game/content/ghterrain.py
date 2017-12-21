@@ -50,15 +50,6 @@ class WinterMochaToolboxTerrain(pbge.scenes.terrain.Terrain):
     frame = 2
     blocks = (Walking,Skimming,Rolling)
 
-class WinterMochaDomeTerrain(pbge.scenes.terrain.Terrain):
-    image_top = 'terrain_wintermocha.png'
-    frame = 3
-    blocks = (Walking,Skimming,Rolling)
-
-class WinterMochaGeothermalGeneratorTerrain(pbge.scenes.terrain.Terrain):
-    image_top = 'terrain_wintermocha.png'
-    frame = 4
-    blocks = (Walking,Skimming,Rolling)
 
 
 
