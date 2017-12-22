@@ -5,13 +5,17 @@ from pbge import my_state,draw_text,default_border,anim_delay
 class ConvoVisualizer(object):
     # The visualizer is a class used by the conversation when conversing.
     # It has a "text" property and "render", "get_menu" methods.
-    TEXT_AREA = pbge.frects.Frect(0,-125,300,100)
-    MENU_AREA = pbge.frects.Frect(0,0,300,80)
+    TEXT_AREA = pbge.frects.Frect(0,-125,350,100)
+    MENU_AREA = pbge.frects.Frect(0,0,350,80)
     PORTRAIT_AREA = pbge.frects.Frect(-370,-300,400,600)
     
     def __init__(self,npc):
+        npc = npc.get_pilot()
         self.npc = npc
-        self.npc_sprite = pbge.image.Image(npc.portrait,400,600,npc.colors)
+        if hasattr(npc, "portrait"):
+            self.npc_sprite = pbge.image.Image(npc.portrait,400,600,npc.colors)
+        else:
+            self.npc_sprite = None
         self.bottom_sprite = pbge.image.Image('sys_wintermocha_convoborder.png',32,200)
         self.text = ''
     def render(self):
@@ -19,7 +23,8 @@ class ConvoVisualizer(object):
             my_state.view()
 
         self.bottom_sprite.tile(pygame.Rect(0,my_state.screen.get_height()//2+100,my_state.screen.get_width(),200))
-        self.npc_sprite.render(self.PORTRAIT_AREA.get_rect())
+        if self.npc_sprite:
+            self.npc_sprite.render(self.PORTRAIT_AREA.get_rect())
 
         text_rect = self.TEXT_AREA.get_rect()
         default_border.render(text_rect)
@@ -35,7 +40,8 @@ class ConvoVisualizer(object):
             if my_state.view:
                 my_state.view()
             self.bottom_sprite.tile(pygame.Rect(max(0,bx-t*75),my_state.screen.get_height()//2+100,my_state.screen.get_width(),200))
-            self.npc_sprite.render(myrect)
+            if self.npc_sprite:
+                self.npc_sprite.render(myrect)
 
             my_state.do_flip()
             myrect.x += 25

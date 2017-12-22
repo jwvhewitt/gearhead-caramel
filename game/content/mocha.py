@@ -4,11 +4,13 @@ import ghterrain
 import gears
 import pbge
 from .. import teams,ghdialogue
+from ..ghdialogue import context
 from pbge.scenes.movement import Walking, Flying, Vision
 from gears.geffects import Skimming, Rolling
 import random
 import copy
 import os
+from pbge.dialogue import Cue,ContextTag,Offer,Reply
 
 
 
@@ -196,6 +198,10 @@ class FrozenHotSpringCity( Plot ):
 
         self.add_sub_plot( nart, "MOCHA_MISSION", PlotState( elements={"CITY":myscene} ).based_on( self ), ident="COMBAT" )
 
+        self.did_opening_sequence = False
+        self.got_vikki_history = False
+        self.got_vikki_mission = False
+
         return True
 
     def SNOW_DRIFT_MELT( self, camp ):
@@ -205,20 +211,17 @@ class FrozenHotSpringCity( Plot ):
         scene._map[drift.pos[0]-1][drift.pos[1]].wall = None
         scene._map[drift.pos[0]+1][drift.pos[1]].wall = None
 
-    def _use_fence_gate( self, camp ):
-        pbge.alert("Congratulations! Part One is over.")
-
     def FENCE_GATE_menu(self,thingmenu):
         thingmenu.add_item('Board a mecha and start mission',self._give_bad_mecha)
         thingmenu.add_item("Don't start mission yet",None)
 
     def HANGAR_GATE_menu(self,thingmenu):
-        thingmenu.add_item('Board a mecha and start mission',self._use_fence_gate)
+        thingmenu.add_item('Board a mecha and start mission',self._give_good_mecha)
         thingmenu.add_item("Don't start mission yet",None)
 
     def _give_bad_mecha(self,camp):
         # Give the PC some cheapass mecha.
-        mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'BuruBuru.txt')).load() + gears.Loader(os.path.join(pbge.util.game_dir('design'),'Claymore.txt')).load()
+        mygearlist = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
         random.shuffle(mygearlist)
         mek1 = mygearlist[0]
         mek2 = mygearlist[1]
@@ -230,13 +233,81 @@ class FrozenHotSpringCity( Plot ):
 
         self._go_to_mission(camp)
 
+    def _give_good_mecha(self,camp):
+        mek1 = gears.Loader.load_design_file('Zerosaiko.txt')[0]
+        mek2 = gears.Loader.load_design_file('Thorshammer.txt')[0]
+        mek1.colors = gears.random_mecha_colors()
+        mek2.colors = (gears.color.ShiningWhite,gears.color.Olive,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta)
+        mek1.pilot = camp.pc
+        mek2.pilot = self.elements["VIKKI"]
+        camp.party += [mek1,mek2]
+
+        self._go_to_mission(camp)
+
+
     def _go_to_mission(self,camp):
         self.subplots["COMBAT"].enter_combat(camp)
 
     def VIKKI_offers(self,camp):
         # Return list of dialogue offers.
         mylist = list()
+
+        mylist.append(Offer("[LONGTIMENOSEE] It's me, Vikki Shingo, from Hogye. Did they pull you out of bed for this mission too?",
+            context=ContextTag([self]),
+            replies=[Reply("What mission? What's going on?",destination=Cue(ContextTag([context.INFO,context.MISSION]))),
+                Reply("Vikki! How's life been treating you?",destination=Cue(ContextTag([context.INFO,context.PERSONAL])))
+            ]))
+
+        if not self.got_vikki_mission:
+            mylist.append(Offer("Some bandits are attacking a convoy down on the Gyori Highway. Because of the blizzard last night, the Guardians are tied up with disaster relief. Even worse, the hangar where my and probably your mecha are stored is snowed under.",
+                context=ContextTag([context.INFO,context.MISSION]), data={"subject":"mission",},
+                replies = [
+                    Reply("[DOTHEYHAVEITEM]",
+                     destination=Offer("Yeah, they do have snow clearing equipment... it's in the same hangar as our mecha. Not to worry, though- the junker meks we used in the charity game are in the storage yard, so we can use them.", context=ContextTag([context.MISSION,context.PROBLEM]),data={"item":"snow clearing equipment",})
+                    ),
+                    Reply("[IWILLDOMISSION]",
+                     destination=Offer("[GOODLUCK] I'm going back to bed.", context=ContextTag([context.GOODBYE,context.MISSION]),data={"mission":"fight the bandits"})
+                    ),
+                ], effect = self._get_vikki_mission
+                 ))
+        else:
+            mylist.append(Offer("You should have had a cup of coffee. There are bandits on the Gyori Highway, you can get a mecha to use from the storage yard up north.",
+                context=ContextTag([context.INFO,context.MISSION]), data={'subject':'bandits'} ))
+
+
+        if not self.got_vikki_history:
+            mylist.append(Offer("I've been doing alright. I'm working for the Defense Force nearly full time now... Haven't gotten over the heartbreak of losing my Ovaknight to Typhon, but I did some work on the old Thorshammer.",
+                context=ContextTag([context.INFO,context.PERSONAL]), data={'subject':'past six months'}, effect=self._ask_vikki_history ))
+
+        if self.elements["VIKKI"] not in camp.party:
+            mylist.append(Offer("Alright, I'll go with you. Between the two of us this should be no problem.",
+                context=ContextTag([context.JOIN]), effect=self._vikki_join ))
+
         return mylist
+
+    def _get_vikki_mission(self,camp):
+        self.got_vikki_mission = True
+
+    def _ask_vikki_history(self,camp):
+        self.got_vikki_history = True
+
+    def _vikki_join(self,camp):
+        camp.party.append(self.elements["VIKKI"])
+
+    def t_START(self,camp):
+        if not self.did_opening_sequence:
+            pbge.alert("December 23, NT157. It's been an awful year for the Federated Territories of Earth.")
+            pbge.alert("An ancient bioweapon named Typhon was awakened from stasis and rampaged through several cities. Fortunately, a team of cavaliers was able to destroy it before it reached Snake Lake. You were there.")
+            pbge.alert("Now, six months later, you are meeting with several of your former lancemates for a charity mecha tournament in the recently constructed Mauna Arena.")
+            pbge.alert("At 5AM, alarms go off through the hotel. You rush outside to see what's going on.")
+
+            npc = self.elements["VIKKI"]
+            cviz = ghdialogue.ghdview.ConvoVisualizer(npc)
+            cviz.rollout()
+            convo = pbge.dialogue.Conversation(camp,npc,camp.pc,Cue(ContextTag([self])),visualizer=cviz)
+            convo.converse()
+
+            self.did_opening_sequence = True
 
 class WinterBattle( Plot ):
     # Go fight mecha near Mauna.
@@ -250,7 +321,7 @@ class WinterBattle( Plot ):
 
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate,prepare=pbge.randmaps.prep.HeightfieldPrep(ghterrain.Water,ghterrain.SmallSnow,ghterrain.Snow))
         myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
@@ -259,7 +330,25 @@ class WinterBattle( Plot ):
         myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
 
+        boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene)
+
+        mygoal = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.north)
+        team2 = teams.Team(enemies=(team1,))
+        boss_mecha = self.register_element("BOSS",gears.Loader.load_design_file('Blitzen.txt')[0])
+        boss_mecha.load_pilot(gears.random_pilot())
+        mygoal.contents.append(boss_mecha)
+        myscene.local_teams[boss_mecha] = team2
+
         return True
+
+    def t_FIGHTOVER(self,camp):
+        myboss = self.elements["BOSS"]
+        if not myboss.is_operational():
+            pbge.alert("Victory! Thank you for trying GearHead Caramel. Keep watching for more updates.")
+        elif not camp.first_active_pc():
+            pbge.alert("Game over. Better luck next time.")
+    def t_START(self,camp):
+        pass
 
     def enter_combat( self, camp ):
         camp.destination = self.elements["LOCALE"]

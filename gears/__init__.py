@@ -15,6 +15,7 @@ import attackattributes
 import inspect
 import re
 from numbers import Number
+import os
 
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()
@@ -320,6 +321,10 @@ class Loader( object ):
             mylist = self.load_list(f)
         return self.convert( mylist )
 
+    @classmethod
+    def load_design_file(self,dfname):
+        return self(os.path.join(pbge.util.game_dir('design'),dfname)).load()
+
 class Saver( object ):
     """Used to save a gear structure to disk in a human-readable format."""
     def __init__( self, fname ):
@@ -374,5 +379,21 @@ class Saver( object ):
         with open(self.fname,'wb') as f:
             self.save_list(f,glist)
 
+
+#  ******************************
+#  ***   UTILITY  FUNCTIONS   ***
+#  ******************************
+
+EARTH_NAMES = pbge.namegen.NameGen("ng_earth.txt")
+
+def random_pilot( rank=25 ):
+    skill_rank = max(rank//10, 1)
+    pc = base.Character(name=EARTH_NAMES.gen_word(),
+         statline={stats.Reflexes:10,stats.Body:10,stats.Speed:10,
+         stats.Perception:10,stats.Knowledge:10,stats.Craft:10,stats.Ego:10,
+         stats.Charm:10,stats.MechaPiloting:skill_rank,stats.MechaGunnery:skill_rank,
+         stats.MechaFighting:skill_rank}
+    )
+    return pc
 
 

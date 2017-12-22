@@ -1,0 +1,111 @@
+Mecha
+    name = "Thorshammer"
+    desig = "THD-35"
+    imagename = "btr_thorshammer.png"
+
+    SUB
+        Torso
+            size = 7
+            material = Advanced
+            SUB
+                Armor
+                    size = 12
+                    material = Advanced
+
+                Engine
+                    size = 1000
+                Gyroscope
+                Cockpit
+
+                Sensor
+                    size = 2
+
+                BeamWeapon
+                    name = "Laser Cannon"
+                    reach = 4
+                    damage = 4
+                    accuracy = 1
+                    penetration = 0
+
+                Mount
+                    name = "Top Weapon Mount"
+                    INV
+                        Launcher
+                            size = 12
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 60
+                            END
+                    END
+
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 7
+                    material = Advanced
+                Hand
+                    name = "Right Hand"
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        BallisticWeapon
+                            name = "Heavy Autocannon"
+                            reach = 7
+                            damage = 2
+                            accuracy = 0
+                            penetration = 2
+                            ammo_type = Shells_150mm
+                            attributes = (Automatic)
+                            SUB
+                                Ammo
+                                    ammo_type=Shells_150mm
+                                    quantity=60
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 7
+                    material = Advanced
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+            END
+        Leg
+            name = "Right Leg"
+            size = 6
+            material = Advanced
+            SUB
+                Armor
+                    size = 7
+                    material = Advanced
+                HeavyActuators
+                    size = 5
+            END
+        Leg
+            name = "Left Leg"
+            size = 6
+            material = Advanced
+            SUB
+                Armor
+                    size = 7
+                    material = Advanced
+                HeavyActuators
+                    size = 5
+            END
+    END
+

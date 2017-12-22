@@ -382,6 +382,18 @@ class BaseGear( scenes.PlaceableThing ):
             if isinstance( g, Module ):
                 return g
 
+    def calc_average_armor( self ):
+        alist = list()
+        for part in self.sub_com:
+            armor = part.get_armor()
+            if part:
+                alist.append(armor.get_rating())
+            else:
+                alist.append(0)
+        if len(alist) > 0:
+            return sum(alist)//len(alist)
+        else:
+            return 0
 
     def get_armor( self ):
         """Returns the armor protecting this gear."""

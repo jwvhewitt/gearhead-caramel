@@ -111,7 +111,7 @@ class TalkTo( MoveTo ):
         elif self.npc.pos in scenes.pfov.PointOfView( exp.scene, pc.pos[0], pc.pos[1], 3 ).tiles:
             cviz = ghdialogue.ghdview.ConvoVisualizer(self.npc)
             cviz.rollout()
-            convo = pbge.dialogue.Conversation(exp.camp,self.npc,pc,ghdialogue.HELLO_STARTER,visualizer=cviz)
+            convo = pbge.dialogue.Conversation(exp.camp,self.npc,pc.get_pilot(),ghdialogue.HELLO_STARTER,visualizer=cviz)
             convo.converse()
             return False
         else:
@@ -154,7 +154,9 @@ class Explorer( object ):
             self.view.focus( x, y )
 
     def update_scene( self ):
-        pass
+        for npc in self.scene.contents:
+            if hasattr(npc,"gear_up"):
+                npc.gear_up()
 
     def keep_exploring( self ):
         return self.camp.first_active_pc() and self.no_quit and not pbge.my_state.got_quit and not self.camp.destination
@@ -212,6 +214,7 @@ class Explorer( object ):
                     self.no_quit = False
                     break
                 self.camp.fight = None
+                self.camp.check_trigger( "FIGHTOVER" )
 
             # Get input and process it.
             gdi = pbge.wait_event()

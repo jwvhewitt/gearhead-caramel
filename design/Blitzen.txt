@@ -1,0 +1,166 @@
+Mecha
+    name = "Blitzen"
+    desig = "WM Custom"
+    imagename = "btr_blitzen.png"
+    colors = (Cinnamon,Gold,BrightRed,SlateGrey,Cream)
+
+    SUB
+        Head
+            size = 6
+            material = Advanced
+            SUB
+                Armor
+                    size = 5
+                    material = Advanced
+                Sensor
+                    size = 3
+                    material = Advanced
+                EnergyWeapon
+                    material = Advanced
+                    name="Power Antlers"
+                    reach=1
+                    damage=3
+                    accuracy=1
+                    penetration=2
+            END
+        Torso
+            size = 6
+            material = Advanced
+            SUB
+                Armor
+                    size = 9
+                    material = Advanced
+                Engine
+                    size = 1700
+                    material = Advanced
+                    SUB
+                        Armor
+                            size = 1
+                            material = Advanced
+                    END
+                Gyroscope
+                    material = Advanced
+                    SUB
+                        Armor
+                            size = 1
+                            material = Advanced
+                    END
+                Cockpit
+                    material = Advanced
+                    SUB
+                        Armor
+                            size = 2
+                            material = Advanced
+                    END
+                BeamWeapon
+                    name = "Laser Cannon"
+                    reach = 4
+                    damage = 2
+                    accuracy = 1
+                    penetration = 0
+                    material = Advanced
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 7
+                    material = Advanced
+                Hand
+                    name = "Right Hand"
+                    material = Advanced
+                Mount
+                    name = "Right Shoulder Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 7
+                    material = Advanced
+                Hand
+                    name = "Left Hand"
+                    material = Advanced
+                Mount
+                    name = "Left Shoulder Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Leg
+            name = "Right Leg 1"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 5
+                    material = Advanced
+                HeavyActuators
+                    size = 5
+                    material = Advanced
+            END
+        Leg
+            name = "Left Leg 1"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 5
+                    material = Advanced
+                HeavyActuators
+                    size = 5
+                    material = Advanced
+            END
+        Leg
+            name = "Right Leg 2"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 5
+                    material = Advanced
+                HeavyActuators
+                    size = 5
+                    material = Advanced
+            END
+        Leg
+            name = "Left Leg 2"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 5
+                    material = Advanced
+                HeavyActuators
+                    size = 5
+                    material = Advanced
+            END
+
+    END

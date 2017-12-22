@@ -10,7 +10,7 @@ Mecha
                 Armor
                     size = 7
                 Engine
-                    size = 550
+                    size = 450
                 Gyroscope
                 Cockpit
                     SUB

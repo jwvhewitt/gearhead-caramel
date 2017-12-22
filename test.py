@@ -24,8 +24,9 @@ mychar = mygearlist[0]
 mychar.mmode = scenes.movement.Walking
 #mychar.mmode = gears.geffects.Skimming
 
-#mygearlist = gears.Loader(os.path.join(pbge.util.game_dir('design'),'Claymore.txt')).load()
-#mygearlist[0].termdump()
+mygearlist = gears.Loader.load_design_file('Blitzen.txt')
+print mygearlist[0].calc_mobility()
+mygearlist[0].termdump()
 
 mypilot = gears.base.Character(name="Bob",statline={gears.stats.Body:10, gears.stats.Reflexes:9,gears.stats.Speed:9,gears.stats.Perception:9,gears.stats.MechaPiloting:2,gears.stats.MechaGunnery:2})
 #mypilot.mmode = pbge.scenes.movement.Walking

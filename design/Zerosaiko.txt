@@ -1,0 +1,146 @@
+Mecha
+    name = "Zerosaiko"
+    desig = "Z45-60"
+    imagename = "btr_zerosaiko.png"
+
+    SUB
+        Head
+            size = 4
+            material = Advanced
+            SUB
+                Armor
+                    size = 5
+                    material = Advanced
+                Sensor
+                    size = 3
+                    material = Advanced
+            END
+        Torso
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 9
+                    material = Advanced
+                Engine
+                    size = 1600
+                    material = Advanced
+                Gyroscope
+                    material = Advanced
+                    SUB
+                        Armor
+                            size = 1
+                            material = Advanced
+                    END
+                Cockpit
+                    material = Advanced
+                    SUB
+                        Armor
+                            size = 2
+                            material = Advanced
+                    END
+                Mount
+                    name = "Right Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+                Mount
+                    name = "Left Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 7
+                    material = Advanced
+                Hand
+                    name = "Right Hand"
+                    material = Advanced
+                    INV
+                        BallisticWeapon
+                            name = "Mass Driver"
+                            reach = 5
+                            damage = 2
+                            accuracy = 2
+                            penetration = 2
+                            attributes = (Automatic)
+                            ammo_type = Shells_150mm
+                            material = Advanced
+                            SUB
+                                Ammo
+                                    ammo_type=Shells_150mm
+                                    quantity=20
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 7
+                    material = Advanced
+                Hand
+                    name = "Left Hand"
+                    material = Advanced
+                    INV
+                        EnergyWeapon
+                            material = Advanced
+                            name="Beam Sword"
+                            reach=1
+                            damage=3
+                            accuracy=1
+                            penetration=2
+                    END
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 5
+                    material = Advanced
+                HoverJets
+                    size = 5
+                    material = Advanced
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            material = Advanced
+            SUB
+                Armor
+                    size = 5
+                    material = Advanced
+                HoverJets
+                    size = 5
+                    material = Advanced
+            END
+    END

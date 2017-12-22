@@ -9,6 +9,7 @@ import ghoffers
 
 def build_grammar( mygram, camp, speaker, audience ):
     mygram.absorb(ghgrammar.DEFAULT_GRAMMAR)
+    mygram.absorb({"[speaker]":(str(speaker),),"[audience]":(str(audience),)})
 
 def harvest( mod, class_to_collect ):
     mylist = []

@@ -85,11 +85,22 @@ class MechaStatusDisplay( object ):
         self.dest = myrect
         self.model = model
         self.module_display = ModuleDisplay(pygame.Rect(myrect.centerx-30,myrect.y+16,60,50),model)
+        self.am_sprite = pbge.image.Image('sys_armormobility.png',40,50)
         self.render()
     def render( self ):
         pbge.default_border.render(self.dest)
         pbge.draw_text(pbge.BIGFONT, str(self.model), self.dest, justify=0)
         self.module_display.render()
+        mydest = self.dest.copy()
+        mydest.y += 16
+        self.am_sprite.render(mydest,0)
+        textdest = pygame.Rect(mydest.x + 5, mydest.y + 10, 30, 16 )
+        pbge.draw_text(pbge.BIGFONT, str(self.model.calc_average_armor()), textdest, justify=0)
+        mydest.x += 180
+        self.am_sprite.render(mydest,1)
+        textdest = pygame.Rect(mydest.x + 5, mydest.y + 10, 30, 16 )
+        pbge.draw_text(pbge.BIGFONT, str(self.model.calc_mobility()), textdest, justify=0)
+
         mydest = self.dest.copy()
         mydest.y += 70
         pbge.draw_text(pbge.SMALLFONT, str(self.model.get_pilot()), mydest, justify=-1)
