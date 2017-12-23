@@ -93,8 +93,10 @@ class Image( object ):
         # Rather than trying to save the bitmap image, just save the filename.
         return Image, ( self.fname , self.frame_width , self.frame_height )
 
-    def tile( self , dest , frame = 0, dest_surface=None ):
+    def tile( self , dest=None , frame = 0, dest_surface=None ):
         dest_surface = dest_surface or my_state.screen
+        if not dest:
+            dest = my_state.screen.get_rect()
         grid_w = dest.w / self.frame_width + 2
         grid_h = dest.h / self.frame_height + 2
         dest_surface.set_clip( dest )

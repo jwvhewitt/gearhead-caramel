@@ -152,7 +152,7 @@ class TargetingUI( object ):
             info.MechaStatusDisplay((x,y),mmecha[0])
 
             if hasattr(self.invo.fx,"get_odds"):
-                pbge.draw_text(pbge.ANIMFONT, str(int(self.invo.fx.get_odds(self.camp,self.attacker,mmecha[0])*100))+'%', pygame.Rect(x-32,y+2,64,32))
+                pbge.draw_text(pbge.my_state.huge_font, 'Hit: {}'.format(str(int(self.invo.fx.get_odds(self.camp,self.attacker,mmecha[0])*100))+'%'), pygame.Rect(x-100,y-48,200,32),justify=0)
 
         #if caption:
         #    pygwrap.default_border.render( self.screen, self.SELECT_AREA_CAPTION_ZONE )

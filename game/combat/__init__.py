@@ -97,6 +97,9 @@ class PlayerTurn( object ):
                 if gdi.unicode == u"Q":
                     keep_going = False
                     self.camp.fight.no_quit = False
+                elif gdi.unicode == u"c":
+                    pbge.my_state.view.focus( self.pc.pos[0], self.pc.pos[1] )
+
 
         pbge.my_state.widgets.remove(self.my_radio_buttons)
         self.movement_ui.dispose()
@@ -118,6 +121,9 @@ class Combat( object ):
 
         # Sort based on initiative roll.
         self.active.sort( key = self.roll_initiative, reverse=True )
+
+        if hasattr(camp.scene,"combat_music"):
+            pbge.my_state.start_music(camp.scene.combat_music)
 
     def roll_initiative( self, chara ):
         return chara.get_stat(gears.stats.Speed) + random.randint(1,20)

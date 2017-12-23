@@ -110,6 +110,15 @@ class WinterMochaDome( waypoints.Waypoint ):
     TILE = pbge.scenes.Tile( None, None, WinterMochaDomeTerrain )
     desc = "You stand before a half buried dome. No idea what its function is."
 
+class WinterMochaBlowerTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_wintermocha.png'
+    frame = 8
+    blocks = (Walking,Skimming,Rolling)
+
+class WinterMochaBlower( waypoints.Waypoint ):
+    TILE = pbge.scenes.Tile( None, None, WinterMochaBlowerTerrain )
+    desc = "You stand before an industrial air blower. It's probably being used in the construction of the new arena."
+
 # *****************
 # ***   PLOTS   ***
 # *****************
@@ -143,6 +152,7 @@ class FrozenHotSpringCity( Plot ):
         """Create map, fill with city + services."""
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(60,60,"Mauna",player_team=team1,scale=gears.scale.HumanScale)
+        myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
 
         myfilter = pbge.randmaps.converter.BasicConverter(WinterMochaSnowdrift)
         mymutate = pbge.randmaps.mutator.CellMutator()
@@ -326,6 +336,9 @@ class WinterBattle( Plot ):
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
+        myscene.exploration_music = 'Lines.ogg'
+        myscene.combat_music = 'Late.ogg'
+
         myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
         myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
@@ -436,7 +449,7 @@ class IndustrialStrengthBlower( Plot ):
     def custom_init( self, nart ):
         scene = self.elements["LOCALE"]
         myroom = self.register_element("_ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5),dident="LOCALE")
-        puzzle_item = self.register_element("PUZZITEM",WinterMochaHeatLamp(plot_locked=True,anchor=pbge.randmaps.anchors.middle))
+        puzzle_item = self.register_element("PUZZITEM",WinterMochaBlower(plot_locked=True,anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(puzzle_item)
         self.add_sub_plot( nart, "ENERGIZE", PlotState( elements={"TARGET":puzzle_item} ).based_on( self ) )
 

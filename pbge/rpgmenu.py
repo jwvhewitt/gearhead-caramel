@@ -58,7 +58,7 @@ class Menu( Frect ):
         self.descobj = None
         self.quick_keys = {}
 
-        # predraw is a function that will take the screen as a parameter. It
+        # predraw is a function that
         # redraws/clears the screen before the menu is rendered.
         self.predraw = predraw
 

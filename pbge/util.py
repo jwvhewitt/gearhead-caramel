@@ -33,6 +33,8 @@ def data_dir(fname=""):
     return os.path.join(game_dir('data'),fname)
 def user_dir( fname=""):
     return os.path.join(USERDIR,fname)
+def music_dir(fname=""):
+    return os.path.join(game_dir('music'),fname)
 
 # Load the configuration file.
 config = None

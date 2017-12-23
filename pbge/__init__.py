@@ -112,6 +112,8 @@ class GameState( object ):
         self.widgets = list()
         self.widgets_active = True
         self.widget_clicked = False
+        self.music = None
+        self.music_name = None
     def render_widgets( self ):
         for w in self.widgets:
             w.super_render()
@@ -128,6 +130,16 @@ class GameState( object ):
             default_border.render(myrect)
             draw_text(self.small_font,self.widget_tooltip,myrect)
         pygame.display.flip()
+
+    def start_music( self, mfname ):
+        if mfname != self.music_name:
+            self.music_name = mfname
+            sound = pygame.mixer.Sound(util.music_dir(mfname))
+            if self.music:
+                self.music.fadeout(2000)
+            self.music = sound
+            sound.play(loops=-1,fade_ms=2000)
+
 
 
 
@@ -299,7 +311,7 @@ def input_string( font = None, redrawer = None, prompt = "Enter text below", pro
     prompt_image = font.render( prompt, True, prompt_color )
 
     while keep_going:
-        ev = self.wait_event()
+        ev = wait_event()
 
         if ev.type == TIMEREVENT:
             if redrawer != None:
@@ -360,6 +372,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png"):
         util.init(appname,gamedir)
 
         pygame.init()
+        pygame.mixer.init()
         pygame.display.set_caption(winname,appname)
         pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
         # Set the screen size.
@@ -392,6 +405,8 @@ def init(winname,appname,gamedir,icon="sys_icon.png"):
         global BIGFONT
         BIGFONT = pygame.font.Font( util.image_dir( "Anita semi square.ttf" ) , 16 )
         my_state.big_font = BIGFONT
+
+        my_state.huge_font = pygame.font.Font( util.image_dir( "Anita semi square.ttf" ) , 24 )
 
         global POSTERS
         POSTERS += glob.glob( util.image_dir("poster_*.png") )

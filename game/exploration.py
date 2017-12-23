@@ -235,6 +235,8 @@ class Explorer( object ):
                 pbge.my_state.do_flip()
 
                 #self.time += 1
+                if hasattr(self.scene,"exploration_music"):
+                    pbge.my_state.start_music(self.scene.exploration_music)
 
                 if self.order:
                     if not self.order( self ):
@@ -253,6 +255,10 @@ class Explorer( object ):
                     if gdi.unicode == u"Q":
                         #self.camp.save(self.screen)
                         self.no_quit = False
+                    elif gdi.unicode == u"c":
+                        pc = self.camp.first_active_pc()
+                        pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
+
 
                 elif gdi.type == pygame.QUIT:
                     #self.camp.save(self.screen)
