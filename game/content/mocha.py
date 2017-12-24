@@ -348,7 +348,7 @@ class WinterBattle( Plot ):
         mygoal = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.north)
         team2 = teams.Team(enemies=(team1,))
         boss_mecha = self.register_element("BOSS",gears.Loader.load_design_file('Blitzen.txt')[0])
-        boss_mecha.load_pilot(gears.random_pilot())
+        boss_mecha.load_pilot(gears.random_pilot(50))
         mygoal.contents.append(boss_mecha)
         myscene.local_teams[boss_mecha] = team2
 
@@ -515,7 +515,7 @@ class UniversalLockpick( Plot ):
         self.active = False
     def _try_open(self,camp):
         pbge.alert("It's locked.")
-        self.subplots["FINDER"].active = True
+        self.subplots["FINDER"].activate(camp)
     def PUZZITEM_FIND(self,camp):
         self.found_item = True
 
@@ -539,7 +539,7 @@ class FindAbandonedToolbox( Plot ):
         thingmenu.add_item('Borrow the {}'.format(self.elements["TARGET"]),self.get_crowbar)
 
 class BorrowAnItem( Plot ):
-    # The item you seek is in an abandoned toolbox.
+    # The item you seek is held by an NPC.
     LABEL = "FIND"
     active = False
     scope = True
@@ -551,6 +551,10 @@ class BorrowAnItem( Plot ):
     def _get_item( self, camp ):
         camp.check_trigger( "FIND", self.elements[ "TARGET" ])
         self.active = False
+    def t_UPDATE(self,camp):
+        if self.active and self.elements["NPC"] in camp.party:
+            pbge.alert("{} says 'Here, you can borrow my {}'.".format(self.elements["NPC"],self.elements["TARGET"]))
+            self._get_item(camp)
     def NPC_offers(self, camp ):
         mylist = list()
         mylist.append( pbge.dialogue.Offer('Sure, here you go.',context=pbge.dialogue.ContextTag((ghdialogue.context.ASK_FOR_ITEM,)),data={'item':self.elements["TARGET"]},effect=self._get_item))
@@ -577,7 +581,7 @@ class ExtensionCord( Plot ):
         self.active = False
     def _try_activate(self,camp):
         pbge.alert("Nothing happens. It doesn't have any power. You notice that it isn't plugged in.")
-        self.subplots["FINDER"].active = True
+        self.subplots["FINDER"].activate(camp)
     def PUZZITEM_FIND(self,camp):
         self.found_item = True
 
@@ -619,7 +623,7 @@ class OpenContainer( Plot ):
         thingmenu.add_item('Leave it alone',None)
     def _try_activate(self,camp):
         pbge.alert("Warning: Contents will react violently when exposed to oxygen. Extreme caution should be used when handling.")
-        self.subplots["OPENER"].active = True
+        self.subplots["OPENER"].activate(camp)
     def TARGET_OPEN(self,camp):
         pbge.alert("You open it up and retreat to a safe distance as the fireworks begin.")
         camp.check_trigger( "IGNITE", self.elements[ "TARGET" ])
@@ -649,7 +653,7 @@ class UseFlares( Plot ):
         self.active = False
     def _try_activate(self,camp):
         pbge.alert("Warning: Highly flammable. Keep away from sparks and open flame.")
-        self.subplots["FINDER"].active = True
+        self.subplots["FINDER"].activate(camp)
     def PUZZITEM_FIND(self,camp):
         self.found_item = True
 

@@ -1,0 +1,6 @@
+- Added Plot.activate, Plot.deactivate methods (pbge/plots.py)
+- Fixed party walking order during exploration bug (game/exploration.py)
+- Fixed move-then-fire bug (game/combat/targetingui.py)
+
+v0.100  December 23, 2017
+- First public release

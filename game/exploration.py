@@ -15,7 +15,7 @@ class MoveTo( object ):
         self.dest = pos
         if not party:
             # Always party.
-            party = [pc for pc in explo.scene.contents if pc in explo.camp.party]
+            party = [pc for pc in explo.camp.party if pc in explo.scene.contents]
         self.party = party
         pc = self.first_living_pc()
         #blocked_tiles = set( m.pos for m in explo.scene.contents )
@@ -269,7 +269,7 @@ class Explorer( object ):
                         # Left mouse button.
                         if ( self.view.mouse_tile != self.camp.first_active_pc().pos ) and self.scene.on_the_map( *self.view.mouse_tile ):
                             npc = self.view.modelmap.get(self.view.mouse_tile)
-                            if npc and self.scene.is_an_actor(npc[0]):
+                            if npc and npc[0].is_operational() and self.scene.is_an_actor(npc[0]):
                                 self.order = TalkTo( self, npc[0] )
                                 self.view.overlays.clear()
                             else:

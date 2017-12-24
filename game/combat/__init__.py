@@ -32,8 +32,11 @@ class CombatStat( object ):
     def spend_ap( self, ap, mp_remaining=0 ):
         self.action_points -= ap
         self.mp_remaining = mp_remaining
-    def start_turn( self ):
-        self.action_points += 2
+    def start_turn( self, chara ):
+        if chara.get_current_speed() > 0:
+            self.action_points += 2
+        else:
+            self.action_points += 1
         self.has_started_turn = True
         self.moves_this_round = 0
         self.attacks_this_round = 0
@@ -187,7 +190,7 @@ class Combat( object ):
 
     def do_combat_turn( self, chara ):
         if not self.cstat[chara].has_started_turn:
-            self.cstat[chara].start_turn()
+            self.cstat[chara].start_turn(chara)
         if chara in self.camp.party:
             # Outsource the turn-taking.
             my_turn = PlayerTurn( chara, self.camp )

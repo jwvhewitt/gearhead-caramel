@@ -210,6 +210,7 @@ class TargetingUI( object ):
 
     def activate( self ):
         self.my_widget.active = True
+        self.legal_tiles = self.invo.area.get_targets(self.camp,self.attacker.pos)
 
     def deactivate( self ):
         self.my_widget.active = False

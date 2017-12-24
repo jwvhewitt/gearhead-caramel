@@ -114,9 +114,9 @@ Mecha
                             material = Advanced
                             name="Beam Sword"
                             reach=1
-                            damage=3
-                            accuracy=1
-                            penetration=2
+                            damage=4
+                            accuracy=3
+                            penetration=1
                     END
             END
         Leg

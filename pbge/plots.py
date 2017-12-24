@@ -51,6 +51,8 @@ class Plot( object ):
     COMMON = False
     chapter = None
     rank = 1
+    # You are free to set active manually, but it's better to use the
+    # activate and deactivate functions, which trigger an UPDATE.
     active = False
 
     _used = 0
@@ -265,6 +267,14 @@ class Plot( object ):
     def matches( self, pstate ):
         """Returns True if this plot matches the current plot state."""
         return True
+
+    def activate( self, camp ):
+        self.active = True
+        camp.check_trigger( 'UPDATE' )
+
+    def deactivate( self, camp ):
+        self.active = False
+        camp.check_trigger( 'UPDATE' )
 
 class NarrativeRequest( object ):
     """The builder class which constructs a story out of individual plots."""

@@ -55,7 +55,7 @@ def start_game(tsrd):
     pc.colors = gears.random_character_colors()
     game.start_mocha(pc)
 
-if __name__ == "__main__":
+def play_the_game():
     gamedir = os.path.dirname(__file__)
     pbge.init('GearHead Caramel','ghcaramel',gamedir)
 
@@ -76,4 +76,7 @@ if __name__ == "__main__":
         if action:
             action(tsrd)
 
+
+if __name__ == "__main__":
+    play_the_game()
 

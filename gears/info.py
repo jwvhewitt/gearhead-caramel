@@ -2,6 +2,17 @@ import base
 import pbge
 import pygame
 
+class InfoPanel( object ):
+    # An InfoPanel contains a bunch of InfoBlocks which get arranged vertically.
+    def __init__(self):
+        self.info_blocks = list()
+
+    def render( self ):
+        for block in self.info_blocks:
+            block.render(pos)
+            pos.y += block.height
+
+
 class ModuleDisplay( object ):
     # The dest area should be 60x50.
     # Increasing the width is okay, but the height is set in stone.
