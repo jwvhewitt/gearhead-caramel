@@ -203,18 +203,22 @@ class AttackRoll( effects.NoEffect ):
         return next_fx or self.children
 
     def get_odds( self, camp, originator, target ):
-        # Return the percent chance that this attack will hit.
+        # Return the percent chance that this attack will hit and the list of
+        # modifiers in (value,name) form.
+        modifiers = list()
         if originator:
             att_bonus = originator.get_skill_score(self.att_stat,self.att_skill)
         else:
             att_bonus = 50
         for m in self.modifiers:
-            att_bonus += m.calc_modifier(camp,originator,target.pos)
+            mval = m.calc_modifier(camp,originator,target.pos)
+            att_bonus += mval
+            modifiers.append((mval,m.name))
         odds = 1.0
         for defense in self.defenses:
             if defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
-        return odds
+        return odds,modifiers
 
 class MultiAttackRoll( effects.NoEffect ):
     """ One actor is gonna attack another actor.
@@ -276,18 +280,22 @@ class MultiAttackRoll( effects.NoEffect ):
         return next_fx or self.children
 
     def get_odds( self, camp, originator, target ):
-        # Return the percent chance that this attack will hit.
+        # Return the percent chance that this attack will hit and the modifiers.
+        modifiers = list()
+        modifiers.append((self.get_multi_bonus(),'Multi-attack'))
         if originator:
             att_bonus = originator.get_skill_score(self.att_stat,self.att_skill)+ self.get_multi_bonus()
         else:
             att_bonus = 50+ self.get_multi_bonus()
         for m in self.modifiers:
-            att_bonus += m.calc_modifier(camp,originator,target.pos)
+            mval = m.calc_modifier(camp,originator,target.pos)
+            att_bonus += mval
+            modifiers.append((mval,m.name))
         odds = 1.0
         for defense in self.defenses:
             if defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
-        return odds
+        return odds,modifiers
 
 
 class DoDamage( effects.NoEffect ):
@@ -321,6 +329,7 @@ class DoDamage( effects.NoEffect ):
 # Modular roll modifiers.
 
 class RangeModifier( object ):
+    name = 'Range'
     def __init__(self,range_step):
         self.range_step = range_step
     def calc_modifier( self, camp, attacker, pos ):
@@ -331,6 +340,7 @@ class RangeModifier( object ):
         return my_mod
 
 class CoverModifier( object ):
+    name = 'Cover'
     def __init__(self,vision_type=movement.Vision):
         self.vision_type = vision_type
     def calc_modifier( self, camp, attacker, pos ):
@@ -338,6 +348,7 @@ class CoverModifier( object ):
         return my_mod
 
 class SpeedModifier( object ):
+    name = 'Target Speed'
     IMMOBILE_MODIFIER = 25
     MOD_PER_TILE = -3
     def calc_modifier( self, camp, attacker, pos ):
@@ -351,6 +362,7 @@ class SpeedModifier( object ):
         return my_mod
 
 class SensorModifier( object ):
+    name = 'Sensor Range'
     PENALTY = -5
     def calc_modifier( self, camp, attacker, pos ):
         my_range = camp.scene.distance(attacker.pos,pos)
@@ -362,6 +374,7 @@ class SensorModifier( object ):
 
 class OverwhelmModifier( object ):
     # Every time you are attacked, the next attack gets a bonus to hit.
+    name = 'Target Overwhelmed'
     MOD_PER_ATTACK = 2
     def calc_modifier( self, camp, attacker, pos ):
         my_mod = 0

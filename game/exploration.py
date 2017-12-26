@@ -229,7 +229,7 @@ class Explorer( object ):
                 if mmecha:
                     x,y = pygame.mouse.get_pos()
                     y -= 64
-                    gears.info.MechaStatusDisplay((x,y),mmecha[0])
+                    gears.info.MechaStatusDisplay(model=mmecha[0]).render(x,y)
 
 
                 pbge.my_state.do_flip()
