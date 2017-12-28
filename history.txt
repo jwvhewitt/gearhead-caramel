@@ -1,3 +1,5 @@
+- Fixed bugs with Overwhelmed, Target Movement modifiers (gears/geffects.py)
+- The InfoPanel is now modular (gears/info.py)
 - Added Plot.activate, Plot.deactivate methods (pbge/plots.py)
 - Fixed party walking order during exploration bug (game/exploration.py)
 - Fixed move-then-fire bug (game/combat/targetingui.py)

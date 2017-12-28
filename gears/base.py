@@ -1512,10 +1512,11 @@ class Character(BaseGear,StandardDamageHandler,Mover):
     SAVE_PARAMETERS = ('name','form')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat
-    def __init__(self, statline=None, **keywords ):
+    def __init__(self, statline=None, personality=(), **keywords ):
         self.statline = collections.defaultdict(int)
         if statline:
             self.statline.update(statline)
+        self.personality = personality
 
         super(Character, self).__init__(**keywords)
 

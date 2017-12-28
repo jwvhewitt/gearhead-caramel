@@ -200,6 +200,10 @@ class AttackRoll( effects.NoEffect ):
                     if next_fx:
                         break
             fx_record['penetration'] = att_roll + att_bonus + self.penetration - hi_def_roll
+
+            if camp.fight:
+                camp.fight.cstat[target].attacks_this_round += 1
+
         return next_fx or self.children
 
     def get_odds( self, camp, originator, target ):
@@ -213,7 +217,8 @@ class AttackRoll( effects.NoEffect ):
         for m in self.modifiers:
             mval = m.calc_modifier(camp,originator,target.pos)
             att_bonus += mval
-            modifiers.append((mval,m.name))
+            if mval != 0:
+                modifiers.append((mval,m.name))
         odds = 1.0
         for defense in self.defenses:
             if defense.can_attempt(originator,target):
@@ -276,6 +281,8 @@ class MultiAttackRoll( effects.NoEffect ):
                 fx_record['number_of_hits'] = num_hits
                 anims.append( animobs.Caption('x{}'.format(num_hits),pos=pos,delay=delay,y_off=camp.scene.model_altitude(target,pos[0],pos[1])-15) )
 
+            if camp.fight:
+                camp.fight.cstat[target].attacks_this_round += 1
 
         return next_fx or self.children
 
@@ -290,7 +297,8 @@ class MultiAttackRoll( effects.NoEffect ):
         for m in self.modifiers:
             mval = m.calc_modifier(camp,originator,target.pos)
             att_bonus += mval
-            modifiers.append((mval,m.name))
+            if mval != 0:
+                modifiers.append((mval,m.name))
         odds = 1.0
         for defense in self.defenses:
             if defense.can_attempt(originator,target):
@@ -348,14 +356,14 @@ class CoverModifier( object ):
         return my_mod
 
 class SpeedModifier( object ):
-    name = 'Target Speed'
+    name = 'Target Movement'
     IMMOBILE_MODIFIER = 25
     MOD_PER_TILE = -3
     def calc_modifier( self, camp, attacker, pos ):
         targets = camp.scene.get_actors(pos)
         my_mod = 0
         for t in targets:
-            if t.get_current_speed < 1:
+            if t.get_current_speed() < 1:
                 my_mod += self.IMMOBILE_MODIFIER
             elif camp.fight:
                 my_mod += camp.fight.cstat[t].moves_this_round * self.MOD_PER_TILE
@@ -374,8 +382,8 @@ class SensorModifier( object ):
 
 class OverwhelmModifier( object ):
     # Every time you are attacked, the next attack gets a bonus to hit.
-    name = 'Target Overwhelmed'
-    MOD_PER_ATTACK = 2
+    name = 'Overwhelmed'
+    MOD_PER_ATTACK = 3
     def calc_modifier( self, camp, attacker, pos ):
         my_mod = 0
         if camp.fight:

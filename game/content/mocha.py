@@ -11,6 +11,7 @@ import random
 import copy
 import os
 from pbge.dialogue import Cue,ContextTag,Offer,Reply
+from gears import personality
 
 
 
@@ -171,7 +172,8 @@ class FrozenHotSpringCity( Plot ):
          gears.stats.Body:10,gears.stats.Speed:13,gears.stats.Perception:13,
          gears.stats.Knowledge:10,gears.stats.Craft:10,gears.stats.Ego:10,
          gears.stats.Charm:12,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
-         gears.stats.MechaFighting:7})
+         gears.stats.MechaFighting:7},
+         personality=[personality.Cheerful,personality.Shy,personality.Fellowship])
         vikki.imagename = 'cha_wm_vikki.png'
         vikki.portrait = 'por_f_wintervikki.png'
         vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)

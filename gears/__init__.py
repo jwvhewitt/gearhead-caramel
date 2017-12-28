@@ -11,6 +11,7 @@ import geffects
 import info
 import color
 import attackattributes
+import personality
 
 import inspect
 import re

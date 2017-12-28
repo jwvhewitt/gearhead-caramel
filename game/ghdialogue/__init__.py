@@ -8,7 +8,17 @@ import ghoffers
 
 
 def build_grammar( mygram, camp, speaker, audience ):
-    mygram.absorb(ghgrammar.DEFAULT_GRAMMAR)
+    for pat,gramdic in ghgrammar.DEFAULT_GRAMMAR.iteritems():
+        for k,v in gramdic.iteritems():
+            if k is ghgrammar.Default:
+                if pat not in mygram:
+                    mygram[pat] = list()
+                mygram[pat] += v
+            elif k in speaker.personality:
+                if pat not in mygram:
+                    mygram[pat] = list()
+                mygram[pat] += v
+
     mygram.absorb({"[speaker]":(str(speaker),),"[audience]":(str(audience),)})
 
 def harvest( mod, class_to_collect ):

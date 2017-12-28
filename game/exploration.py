@@ -98,7 +98,7 @@ class TalkTo( MoveTo ):
         self.npc = npc
         if not party:
             # Always party.
-            party = [pc for pc in explo.scene.contents if pc in explo.camp.party]
+            party = [pc for pc in explo.camp.party if pc in explo.scene.contents]
         self.party = party
         self.step = 0
 
