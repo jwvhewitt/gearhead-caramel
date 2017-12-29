@@ -186,8 +186,9 @@ class GH1Loader( object ):
     @classmethod
     def seek_gh1_files( self ):
         myfiles = list()
-        myfiles += glob.glob(pbge.util.user_dir('gharena/RPG*.txt'))
-        myfiles += glob.glob(os.path.expanduser('~/.config/gharena/SaveGame/RPG*.txt'))
-        myfiles += glob.glob(os.path.expanduser('~/gharena/SaveGame/RPG*.txt'))
+        myfiles += glob.glob(pbge.util.user_dir('RPG*.txt'))
+        myfiles += glob.glob(pbge.util.user_dir(os.path.join('gharena','RPG*.txt')))
+        myfiles += glob.glob(os.path.expanduser(os.path.join('~','.config','gharena','SaveGame','RPG*.txt')))
+        myfiles += glob.glob(os.path.expanduser(os.path.join('~','gharena','SaveGame','RPG*.txt')))
         print myfiles
 
