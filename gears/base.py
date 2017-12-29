@@ -1516,7 +1516,7 @@ class Character(BaseGear,StandardDamageHandler,Mover):
         self.statline = collections.defaultdict(int)
         if statline:
             self.statline.update(statline)
-        self.personality = personality
+        self.personality = set(personality)
 
         super(Character, self).__init__(**keywords)
 
@@ -1561,7 +1561,7 @@ class Character(BaseGear,StandardDamageHandler,Mover):
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this character."""
-        return max(self.get_stat(stats.Body),6)
+        return max(self.get_stat(stats.Body)+self.get_stat(stats.Vitality),6)
 
     def get_pilot( self ):
         """Return the character itself."""

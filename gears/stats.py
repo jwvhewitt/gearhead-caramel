@@ -92,6 +92,15 @@ class Scouting( Skill ):
 class DominateAnimal( Skill ):
     name = 'Dominate Animal'
 
+class Vitality( Skill ):
+    name = 'Vitality'
+
+class Athletics( Skill ):
+    name = 'Athletics'
+
+class Concentration( Skill ):
+    name = 'Concentration'
+
 
 
 

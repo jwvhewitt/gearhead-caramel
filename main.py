@@ -79,6 +79,10 @@ def play_the_game():
 
 if __name__ == "__main__":
     myfiles = gears.oldghloader.GH1Loader.seek_gh1_files()
-    gears.oldghloader.GH1Loader(myfiles[0]).load()
+    if myfiles:
+        mygears = gears.oldghloader.GH1Loader(myfiles[0])
+        mygears.load()
+        pc = mygears.find_pc()
+        mygears.convert_character(pc)
     play_the_game()
 

@@ -1,6 +1,7 @@
 import glob
 import pbge
 import os
+import stats
 
 
 class RetroGear( object ):
@@ -45,6 +46,67 @@ class GH1Loader( object ):
                 break
             else:
                 tile += int(count)
+
+    #  **************************************
+    #  ***   GEARHEAD  ARENA  CONSTANTS   ***
+    #  **************************************
+
+    GG_CHARACTER = 2
+    NAG_LOCATION = -1
+    NAS_TEAM = 4
+    NAV_DEFPLAYERTEAM = 1
+
+    NAG_SKILL = 1
+    NAS_MECHAGUNNERY = 1
+    NAS_MECHAARTILLERY = 2
+    NAS_MECHAWEAPONS = 3
+    NAS_MECHAFIGHTING = 4
+    NAS_MECHAPILOTING = 5
+    NAS_SMALLARMS = 6
+    NAS_HEAVYWEAPONS = 7
+    NAS_ARMEDCOMBAT = 8
+    NAS_MARTIALARTS = 9
+    NAS_DODGE = 10
+    NAS_AWARENESS = 11
+    NAS_INITIATIVE = 12
+    NAS_VITALITY = 13
+    NAS_SURVIVAL = 14
+    NAS_MECHAREPAIR = 15
+    NAS_MEDICINE = 16
+    NAS_ELECTRONICWARFARE = 17
+    NAS_SPOTWEAKNESS = 18
+    NAS_CONVERSATION = 19
+    NAS_FIRSTAID = 20
+    NAS_SHOPPING = 21
+    NAS_BIOTECHNOLOGY = 22
+    NAS_GENERALREPAIR = 23
+    NAS_CYBERTECH = 24
+    NAS_STEALTH = 25
+    NAS_ATHLETICS = 26
+    NAS_FLIRTATION = 27
+    NAS_INTIMIDATION = 28
+    NAS_SCIENCE = 29
+    NAS_CONCENTRATION = 30
+    NAS_MECHAENGINEERING = 31
+    NAS_CODEBREAKING = 32
+    NAS_WEIGHTLIFTING = 33
+    NAS_MYSTICISM = 34
+    NAS_PERFORMANCE = 35
+    NAS_RESISTANCE = 36
+    NAS_INVESTIGATION = 37
+    NAS_ROBOTICS = 38
+    NAS_LEADERSHIP = 39
+    NAS_DOMINATEANIMAL = 40
+    NAS_PICKPOCKETS = 41
+
+    NAG_CHARDESCRIPTION = 3
+    NAS_HEROIC = -1
+    NAS_LAWFUL = -2
+    NAS_SOCIABLE = -3
+    NAS_EASYGOING = -4
+    NAS_CHEERFUL = -5
+    NAS_RENOWNED = -6
+    NAS_PRAGMATIC = -7
 
     SAVE_FILE_CONTINUE = 0
     SAVE_FILE_SENTINEL = -1
@@ -100,8 +162,8 @@ class GH1Loader( object ):
                 keep_going = False
             else:
                 k,raw_v = rawline.split(None,1)
-                v = raw_v.strip('<> ')
-                mydict[k] = v
+                v = raw_v.strip().strip('<>')
+                mydict[k.upper()] = v
 
         return mydict
 
@@ -173,15 +235,69 @@ class GH1Loader( object ):
         # Load the scene index. Throw it out.
         myfile.readline()
 
-        # Load the contents of the current scene.
-        mylist = self._load_gears(myfile)
+        # Load the contents of the current gameboard.
+        self.gb_contents = self._load_gears(myfile)
+
+
+    @classmethod
+    def all_gears( self, mylist ):
+        # Cycle through all the gears in this tree.
+        for gear in mylist:
+            yield gear
+            if gear.sub_com:
+                for p in self.all_gears(gear.sub_com):
+                    yield p
+            if gear.inv_com:
+                for p in self.all_gears(gear.inv_com):
+                    yield p
+
+    def find_pc( self ):
+        pc = None
+        for mpc in self.all_gears(self.gb_contents):
+            if mpc.g == self.GG_CHARACTER and mpc.natt.get((self.NAG_LOCATION,self.NAS_TEAM)) == self.NAV_DEFPLAYERTEAM:
+                pc = mpc
+        return pc
+
+    def convert_character( self, pc ):
+        # Convert a character from GH1 rules to GearHead Caramel rules.
+        statline = dict()
+        t = 1
+        for stat in stats.PRIMARY_STATS:
+            statline[stat] = pc.stats.get(t,10)
+            t += 1
+            print '{} = {}'.format(stat.name,statline[stat])
+
+        # Convert the skills. MechaGunnery is max of MechaGunnery, MechaArtillery
+        statline[stats.MechaGunnery] = max(pc.natt.get((self.NAG_SKILL,self.NAS_MECHAGUNNERY),0),pc.natt.get((self.NAG_SKILL,self.NAS_MECHAARTILLERY),0))
+        statline[stats.MechaFighting] = max(pc.natt.get((self.NAG_SKILL,self.NAS_MECHAWEAPONS),0),pc.natt.get((self.NAG_SKILL,self.NAS_MECHAFIGHTING),0))
+        statline[stats.MechaPiloting] = pc.natt.get((self.NAG_SKILL,self.NAS_MECHAPILOTING),0)
+        statline[stats.RangedCombat] = max(pc.natt.get((self.NAG_SKILL,self.NAS_SMALLARMS),0),pc.natt.get((self.NAG_SKILL,self.NAS_HEAVYWEAPONS),0))
+        statline[stats.CloseCombat] = max(pc.natt.get((self.NAG_SKILL,self.NAS_ARMEDCOMBAT),0),pc.natt.get((self.NAG_SKILL,self.NAS_MARTIALARTS),0))
+        statline[stats.Dodge] = pc.natt.get((self.NAG_SKILL,self.NAS_DODGE),0)
+        statline[stats.Repair] = max(pc.natt.get((self.NAG_SKILL,self.NAS_MECHAREPAIR),0),pc.natt.get((self.NAG_SKILL,self.NAS_GENERALREPAIR),0))
+        statline[stats.Medicine] = max(pc.natt.get((self.NAG_SKILL,self.NAS_MEDICINE),0),pc.natt.get((self.NAG_SKILL,self.NAS_FIRSTAID),0),pc.natt.get((self.NAG_SKILL,self.NAS_CYBERTECH),0))
+        statline[stats.Biotech] = pc.natt.get((self.NAG_SKILL,self.NAS_BIOTECHNOLOGY),0)
+        statline[stats.Stealth] = max(pc.natt.get((self.NAG_SKILL,self.NAS_STEALTH),0),pc.natt.get((self.NAG_SKILL,self.NAS_PICKPOCKETS),0))
+        statline[stats.Science] = max(pc.natt.get((self.NAG_SKILL,self.NAS_SCIENCE),0),pc.natt.get((self.NAG_SKILL,self.NAS_MECHAENGINEERING),0),pc.natt.get((self.NAG_SKILL,self.NAS_ROBOTICS),0))
+        statline[stats.Computers] = max(pc.natt.get((self.NAG_SKILL,self.NAS_ELECTRONICWARFARE),0),pc.natt.get((self.NAG_SKILL,self.NAS_CODEBREAKING),0))
+        statline[stats.Performance] = pc.natt.get((self.NAG_SKILL,self.NAS_PERFORMANCE),0)
+        statline[stats.Negotiation] = max(pc.natt.get((self.NAG_SKILL,self.NAS_CONVERSATION),0),pc.natt.get((self.NAG_SKILL,self.NAS_SHOPPING),0),
+            pc.natt.get((self.NAG_SKILL,self.NAS_FLIRTATION),0),pc.natt.get((self.NAG_SKILL,self.NAS_INTIMIDATION),0),pc.natt.get((self.NAG_SKILL,self.NAS_LEADERSHIP),0))
+        statline[stats.Scouting] = max(pc.natt.get((self.NAG_SKILL,self.NAS_AWARENESS),0),pc.natt.get((self.NAG_SKILL,self.NAS_SURVIVAL),0),pc.natt.get((self.NAG_SKILL,self.NAS_INVESTIGATION),0))
+        statline[stats.DominateAnimal] = pc.natt.get((self.NAG_SKILL,self.NAS_DOMINATEANIMAL),0)
+        statline[stats.Vitality] = max(pc.natt.get((self.NAG_SKILL,self.NAS_VITALITY),0),pc.natt.get((self.NAG_SKILL,self.NAS_RESISTANCE),0))
+        statline[stats.Athletics] = max(pc.natt.get((self.NAG_SKILL,self.NAS_ATHLETICS),0),pc.natt.get((self.NAG_SKILL,self.NAS_WEIGHTLIFTING),0))
+        statline[stats.Concentration] = max(pc.natt.get((self.NAG_SKILL,self.NAS_CONCENTRATION),0),pc.natt.get((self.NAG_SKILL,self.NAS_INITIATIVE),0),
+            pc.natt.get((self.NAG_SKILL,self.NAS_SPOTWEAKNESS),0),pc.natt.get((self.NAG_SKILL,self.NAS_MYSTICISM),0))
+
+        # Generate the personality.
+        personality = list()
 
 
 
     def load( self ):
         with open(self.fname,'rb') as f:
-            mylist = self._load_list(f)
-        return mylist
+            self._load_list(f)
 
     @classmethod
     def seek_gh1_files( self ):
