@@ -66,6 +66,8 @@ def harvest_color( mod, subclass_of, dict_to_add_to, exclude_these ):
             if color.METAL in o.SETS:
                 METAL_COLORS.append(o)
 
+import oldghloader
+
 def random_character_colors():
     return [random.choice(CLOTHING_COLORS),random.choice(SKIN_COLORS),random.choice(HAIR_COLORS),random.choice(DETAIL_COLORS),random.choice(CLOTHING_COLORS)]
 

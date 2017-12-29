@@ -1,3 +1,7 @@
+import glob
+import pbge
+import os
+
 
 class RetroGear( object ):
     # A container for gear info.
@@ -8,7 +12,7 @@ class RetroGear( object ):
         self.scale = scale
         self.natt = dict()
         self.satt = dict()
-        self sub_com = list()
+        self.sub_com = list()
         self.inv_com = list()
 
 class GH1Loader( object ):
@@ -56,6 +60,64 @@ class GH1Loader( object ):
         else:
             return -1, ''
 
+    def _read_numeric_attributes(self,myfile):
+        # Return the dict of numeric attributes.
+        mydict = dict()
+        keep_going = True
+        while keep_going:
+            rawline = g_file.readline()
+
+            if len(rawline) < 1:
+                # Conveniently, a blank line is both the Python end of file
+                # indicator and a halting error in GearHead1.
+                keep_going = False
+            else:
+                # This line should contain an "action code".
+                n,myline = self._extract_value(rawline)
+                if n == self.SAVE_FILE_CONTINUE:
+                    # This is a gear.
+                    g,myline = self._extract_value(myline)
+                    s,myline = self._extract_value(myline)
+                    v,myline = self._extract_value(myline)
+                    mydict[(g,s)] = v
+
+                elif n == self.SAVE_FILE_SENTINEL:
+                    keep_going = False
+                else:
+                    print "GH1Loader Error... no idea what action code {} is.".format(n)
+        return mydict
+
+    def _read_string_attributes(self,myfile):
+        # Return the dict of string attributes.
+        mydict = dict()
+        keep_going = True
+        while keep_going:
+            rawline = g_file.readline()
+
+            if len(rawline) < 1 or '<' not in rawline:
+                # Conveniently, a blank line is both the Python end of file
+                # indicator and a halting error in GearHead1.
+                keep_going = False
+            else:
+                k,raw_v = rawline.split(maxsplit=1)
+                v = raw_v.strip('<> ')
+                mydict[k] = v
+
+        return mydict
+
+    def _process_stat_line(self,rawline):
+        mydict = dict()
+        stat_stuff = rawline.split()
+        del stat_stuff[0]
+        mystat = -1
+        for s in stat_stuff:
+            if mystat is -1:
+                mystat = int(s)
+            else:
+                mydict[mystat] = int(s)
+                mystat = -1
+        return mydict
+
     def _load_gears(self,myfile):
         # Start reading, and keep going until we reach the save file sentinel
         # or end of file.
@@ -81,7 +143,14 @@ class GH1Loader( object ):
                     mygear = RetroGear(g,s,v,scale)
                     mylist.append(mygear)
 
-                    mygear.natt = self._read_numeric_attributes(myfile)
+                    # Read the stats line.
+                    rawline = g_file.readline()
+                    mygear.stats = self._process_stat_line(rawline)
+
+                    mygear.natt = self._read_numeric_attributes(g_file)
+                    mygear.satt = self._read_string_attributes(g_file)
+                    mygear.inv_com = self._load_gears(g_file)
+                    mygear.sub_com = self._load_gears(g_file)
 
                 elif n == self.SAVE_FILE_SENTINEL:
                     keep_going = False
@@ -114,4 +183,11 @@ class GH1Loader( object ):
             mylist = self._load_list(f)
         return mylist
 
+    @classmethod
+    def seek_gh1_files( self ):
+        myfiles = list()
+        myfiles += glob.glob(pbge.util.user_dir('gharena/RPG*.txt'))
+        myfiles += glob.glob(os.path.expanduser('~/.config/gharena/SaveGame/RPG*.txt'))
+        myfiles += glob.glob(os.path.expanduser('~/gharena/SaveGame/RPG*.txt'))
+        print myfiles
 
