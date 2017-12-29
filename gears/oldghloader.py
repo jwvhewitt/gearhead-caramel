@@ -65,7 +65,7 @@ class GH1Loader( object ):
         mydict = dict()
         keep_going = True
         while keep_going:
-            rawline = g_file.readline()
+            rawline = myfile.readline()
 
             if len(rawline) < 1:
                 # Conveniently, a blank line is both the Python end of file
@@ -92,7 +92,7 @@ class GH1Loader( object ):
         mydict = dict()
         keep_going = True
         while keep_going:
-            rawline = g_file.readline()
+            rawline = myfile.readline()
 
             if len(rawline) < 1 or '<' not in rawline:
                 # Conveniently, a blank line is both the Python end of file
@@ -124,7 +124,7 @@ class GH1Loader( object ):
         keep_going = True
         mylist = list()
         while keep_going:
-            rawline = g_file.readline()
+            rawline = myfile.readline()
 
             if len(rawline) < 1:
                 # Conveniently, a blank line is both the Python end of file
@@ -144,7 +144,7 @@ class GH1Loader( object ):
                     mylist.append(mygear)
 
                     # Read the stats line.
-                    rawline = g_file.readline()
+                    rawline = myfile.readline()
                     mygear.stats = self._process_stat_line(rawline)
 
                     mygear.natt = self._read_numeric_attributes(g_file)
@@ -191,4 +191,5 @@ class GH1Loader( object ):
         myfiles += glob.glob(os.path.expanduser(os.path.join('~','.config','gharena','SaveGame','RPG*.txt')))
         myfiles += glob.glob(os.path.expanduser(os.path.join('~','gharena','SaveGame','RPG*.txt')))
         print myfiles
+        return myfiles
 
