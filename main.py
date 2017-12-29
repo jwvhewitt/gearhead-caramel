@@ -78,6 +78,7 @@ def play_the_game():
 
 
 if __name__ == "__main__":
-    gears.oldghloader.GH1Loader.seek_gh1_files()
+    myfiles = gears.oldghloader.GH1Loader.seek_gh1_files()
+    gears.oldghloader.GH1Loader(myfiles[0]).load()
     play_the_game()
 

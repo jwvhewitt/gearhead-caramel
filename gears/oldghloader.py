@@ -50,7 +50,7 @@ class GH1Loader( object ):
     SAVE_FILE_SENTINEL = -1
 
     def _extract_value(self,myline):
-        bits = myline.split(maxsplit=1)
+        bits = myline.split(None,1)
         if bits:
             v = int(bits[0])
             if len(bits) > 1:
@@ -99,7 +99,7 @@ class GH1Loader( object ):
                 # indicator and a halting error in GearHead1.
                 keep_going = False
             else:
-                k,raw_v = rawline.split(maxsplit=1)
+                k,raw_v = rawline.split(None,1)
                 v = raw_v.strip('<> ')
                 mydict[k] = v
 
@@ -147,10 +147,10 @@ class GH1Loader( object ):
                     rawline = myfile.readline()
                     mygear.stats = self._process_stat_line(rawline)
 
-                    mygear.natt = self._read_numeric_attributes(g_file)
-                    mygear.satt = self._read_string_attributes(g_file)
-                    mygear.inv_com = self._load_gears(g_file)
-                    mygear.sub_com = self._load_gears(g_file)
+                    mygear.natt = self._read_numeric_attributes(myfile)
+                    mygear.satt = self._read_string_attributes(myfile)
+                    mygear.inv_com = self._load_gears(myfile)
+                    mygear.sub_com = self._load_gears(myfile)
 
                 elif n == self.SAVE_FILE_SENTINEL:
                     keep_going = False
