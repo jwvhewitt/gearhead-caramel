@@ -66,13 +66,14 @@ def harvest_color( mod, subclass_of, dict_to_add_to, exclude_these ):
             if color.METAL in o.SETS:
                 METAL_COLORS.append(o)
 
-import oldghloader
 
 def random_character_colors():
     return [random.choice(CLOTHING_COLORS),random.choice(SKIN_COLORS),random.choice(HAIR_COLORS),random.choice(DETAIL_COLORS),random.choice(CLOTHING_COLORS)]
 
 def random_mecha_colors():
     return [random.choice(MECHA_COLORS),random.choice(MECHA_COLORS),random.choice(DETAIL_COLORS),random.choice(METAL_COLORS),random.choice(MECHA_COLORS)]
+
+import oldghloader
 
 
 harvest_color( color, pbge.image.Gradient, SINGLETON_TYPES, () )

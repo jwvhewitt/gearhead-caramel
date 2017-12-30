@@ -93,8 +93,13 @@ class Saffron( Gradient ):
     SETS = (CLOTHING,HAIR,MECHA,DETAILS)
 
 class DesertYellow( Gradient ):
-    NAME = 'Saffron'
+    NAME = 'Desert Yellow'
     COLOR_RANGE = (255,239,163,42,32,15)
+    SETS = (CLOTHING,MECHA)
+
+class Khaki( Gradient ):
+    NAME = 'Khaki'
+    COLOR_RANGE = (255,244,147,71,73,47)
     SETS = (CLOTHING,MECHA)
 
 class LemonYellow( Gradient ):
