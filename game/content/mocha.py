@@ -163,7 +163,7 @@ class FrozenHotSpringCity( Plot ):
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
-        myroom = pbge.randmaps.rooms.FuzzyRoom(10,10)
+        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10))
 
         myent = self.register_element( "ENTRANCE", WinterMochaBurningBarrel(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
@@ -209,6 +209,7 @@ class FrozenHotSpringCity( Plot ):
         self.add_sub_plot( nart, "MELT", PlotState( elements={"TARGET":snow_drift} ).based_on( self ) )
 
         self.add_sub_plot( nart, "MOCHA_MISSION", PlotState( elements={"CITY":myscene} ).based_on( self ), ident="COMBAT" )
+        self.add_sub_plot( nart, "MOCHA_HYOLEE" )
 
         self.did_opening_sequence = False
         self.got_vikki_history = False
@@ -320,6 +321,29 @@ class FrozenHotSpringCity( Plot ):
             convo.converse()
 
             self.did_opening_sequence = True
+
+class WinterMochaHyolee( Plot ):
+    LABEL = "MOCHA_HYOLEE"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+
+        hyolee = gears.base.Character(name="Hyolee",statline={gears.stats.Reflexes:9,
+         gears.stats.Body:8,gears.stats.Speed:10,gears.stats.Perception:13,
+         gears.stats.Knowledge:18,gears.stats.Craft:11,gears.stats.Ego:15,
+         gears.stats.Charm:16,gears.stats.Science:10,gears.stats.Biotech:10,
+         gears.stats.Medicine:7},
+         personality=[personality.Cheerful,personality.Peace,personality.Fellowship])
+        hyolee.imagename = 'cha_wm_hyolee.png'
+        hyolee.portrait = 'por_f_winterhyolee.png'
+        hyolee.colors = (gears.color.Viridian,gears.color.Chocolate,gears.color.Saffron,gears.color.GunRed,gears.color.RoyalPink)
+        hyolee.mmode = pbge.scenes.movement.Walking
+        self.register_element( "HYOLEE", hyolee, dident="ROOM" )
+
+
+        return True
+
 
 class WinterBattle( Plot ):
     # Go fight mecha near Mauna.
