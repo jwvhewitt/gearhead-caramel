@@ -2,6 +2,7 @@ Mecha
     name = "Buru Buru"
     desig = "SAN-X9"
     imagename = "btr_buruburu.png"
+    portrait = "mecha_buruburu.png"
 
     SUB
         Head

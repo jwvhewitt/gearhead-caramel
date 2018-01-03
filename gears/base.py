@@ -131,6 +131,27 @@ class Stackable( KeyObject ):
             and self.name is part.name and self.desig is part.desig
             and not self.inv_com and not self.sub_com )
 
+class WithPortrait( pbge.scenes.PlaceableThing ):
+    def __init__(self, portrait=None, **keywords ):
+        self.portrait = portrait
+        super(WithPortrait, self).__init__(**keywords)
+    SAVE_PARAMETERS = ('portrait',)
+    FRAMES = ((0,0,400,600),(0,600,100,100),(100,600,64,64))
+    def get_sprite(self):
+        """Generate the sprite for this thing."""
+        if self.portrait and self.portrait.startswith('card_'):
+            self.frame = 2
+            return pbge.image.Image(self.portrait,self.imagewidth,self.imageheight,self.colors,custom_frames=self.FRAMES)
+        else:
+            return pbge.image.Image(self.imagename,self.imagewidth,self.imageheight,self.colors)
+    def get_portrait(self):
+        if self.portrait:
+            if self.portrait.startswith('card_'):
+                return pbge.image.Image(self.portrait,self.imagewidth,self.imageheight,self.colors,custom_frames=self.FRAMES)
+            else:
+                return pbge.image.Image(self.portrait,400,600,self.colors)
+
+
 class Mover( KeyObject ):
     # A mover is a gear that moves under its own power, like a character or mecha.
     def __init__(self, **keywords ):
@@ -450,6 +471,7 @@ class BaseGear( scenes.PlaceableThing ):
         memo[id(self)] = newgear
 
         return newgear
+
 
 #
 #  Practical Gears
@@ -1331,7 +1353,7 @@ class MT_Battroid( Singleton ):
         return base_speed
 
 
-class Mecha(BaseGear,ContainerDamageHandler,Mover):
+class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait):
     SAVE_PARAMETERS = ('name','form')
     def __init__(self, form=MT_Battroid, **keywords ):
         name = keywords.get(  "name" )
@@ -1508,7 +1530,7 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover):
         return it
 
 
-class Character(BaseGear,StandardDamageHandler,Mover):
+class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait):
     SAVE_PARAMETERS = ('name','form')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat

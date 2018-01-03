@@ -30,7 +30,7 @@ class TitleScreenRedraw(object):
         self.flakes = list()
 
     def add_snow(self,dest):
-        for t in range(random.randint(1,3)):
+        for t in range(min(random.randint(1,3),random.randint(1,3))):
             self.flakes.append(Snowflake(dest))
 
     def __call__(self):

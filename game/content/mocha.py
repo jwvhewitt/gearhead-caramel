@@ -120,6 +120,10 @@ class WinterMochaBlower( waypoints.Waypoint ):
     TILE = pbge.scenes.Tile( None, None, WinterMochaBlowerTerrain )
     desc = "You stand before an industrial air blower. It's probably being used in the construction of the new arena."
 
+class WinterMochaPavement( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_wintermocha_pavement.png'
+    border = pbge.scenes.terrain.FloorBorder( ghterrain.Snow, 'terrain_border_snowline.png' )
+
 # *****************
 # ***   PLOTS   ***
 # *****************
@@ -174,8 +178,8 @@ class FrozenHotSpringCity( Plot ):
          gears.stats.Charm:12,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
          gears.stats.MechaFighting:7},
          personality=[personality.Cheerful,personality.Shy,personality.Fellowship])
-        vikki.imagename = 'cha_wm_vikki.png'
-        vikki.portrait = 'por_f_wintervikki.png'
+        #vikki.imagename = 'cha_wm_vikki.png'
+        vikki.portrait = 'card_f_wintervikki.png'
         vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
         vikki.mmode = pbge.scenes.movement.Walking
         myroom.contents.append(vikki)
@@ -191,7 +195,7 @@ class FrozenHotSpringCity( Plot ):
 
         fence_gate = self.register_element("FENCE_GATE",waypoints.Waypoint(plot_locked=True,desc="This is the gate of the mecha storage yard."))
 
-        myroom4 = pbge.randmaps.rooms.FuzzyRoom(6,5,anchor=pbge.randmaps.anchors.northwest,parent=myscenegen)
+        myroom4 = self.register_element("FENCE_GATE_ROOM",pbge.randmaps.rooms.FuzzyRoom(6,5,anchor=pbge.randmaps.anchors.northwest,parent=myscenegen))
         myroom5 = WinterMochaFence(parent=myroom4,anchor=pbge.randmaps.anchors.west,waypoints={'DOOR':fence_gate})
 
         # I don't know why I added a broken shovel. Just thought it was funny.
@@ -210,6 +214,7 @@ class FrozenHotSpringCity( Plot ):
 
         self.add_sub_plot( nart, "MOCHA_MISSION", PlotState( elements={"CITY":myscene} ).based_on( self ), ident="COMBAT" )
         self.add_sub_plot( nart, "MOCHA_HYOLEE" )
+        self.add_sub_plot( nart, "MOCHA_CARTER" )
 
         self.did_opening_sequence = False
         self.got_vikki_history = False
@@ -340,9 +345,57 @@ class WinterMochaHyolee( Plot ):
         hyolee.colors = (gears.color.Viridian,gears.color.Chocolate,gears.color.Saffron,gears.color.GunRed,gears.color.RoyalPink)
         hyolee.mmode = pbge.scenes.movement.Walking
         self.register_element( "HYOLEE", hyolee, dident="ROOM" )
-
-
         return True
+
+class WinterMochaCarter( Plot ):
+    LABEL = "MOCHA_CARTER"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+
+        carter = gears.base.Character(name="Carter",statline={gears.stats.Reflexes:14,
+         gears.stats.Body:16,gears.stats.Speed:12,gears.stats.Perception:15,
+         gears.stats.Knowledge:14,gears.stats.Craft:11,gears.stats.Ego:13,
+         gears.stats.Charm:9,gears.stats.MechaGunnery:6,gears.stats.MechaFighting:6,
+         gears.stats.MechaPiloting:7},
+         personality=[personality.Shy,personality.Easygoing,personality.Justice])
+        carter.imagename = 'cha_wm_hyolee.png'
+        carter.portrait = 'por_m_wintercarter.png'
+        carter.colors = (gears.color.BugBlue,gears.color.Burlywood,gears.color.AceScarlet,gears.color.SkyBlue,gears.color.SlateGrey)
+        carter.mmode = pbge.scenes.movement.Walking
+        self.register_element( "CARTER", carter, dident="FENCE_GATE_ROOM" )
+        return True
+
+
+# Mocha Mission Construction.
+#
+# The Mocha mission is going to use a miniature version of the GH1 core story
+# generator plus a branching conclusion. One of the brilliant things about
+# defining content in Python is that I don't need to hardcode the story
+# generator; instead, the plots involved can define their own rules. Yay!
+#
+# Here's how the story generator works. There are three story state variables-
+# in this case they will be Enemy, Complication, and Stakes. Each story
+# component is keyed to two of the state variables and alters one of them.
+# If each variable has ten possible states, that means there are 1000 possible
+# story states but only 300 story components are needed to ensure three
+# possible outcomes for each state.
+#
+# In practice, far fewer components should be needed since not every state
+# will be reachable and each state really only needs one possible outcome.
+# Plus, many components will have broad requirements- instead of only applying
+# to a single two-variable state, it may apply to multiple states involving
+# those two variables.
+#
+# Enemy -
+# Complication - 
+# Stakes - 
+
+class WMRoad( pbge.randmaps.rooms.Room ):
+    """A room without hard walls, with default ground floors."""
+    def build( self, gb, archi ):
+        gb.fill(self.area,floor=WinterMochaPavement)
 
 
 class WinterBattle( Plot ):
@@ -365,7 +418,7 @@ class WinterBattle( Plot ):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
 
-        myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
+        myroom = WMRoad(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
         myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
 

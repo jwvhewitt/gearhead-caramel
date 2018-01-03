@@ -24,7 +24,7 @@ class Gradient( Singleton ):
 
 
 class Image( object ):
-    def __init__(self,fname=None,frame_width=0,frame_height=0,color=None):
+    def __init__(self,fname=None,frame_width=0,frame_height=0,color=None,custom_frames=None):
         """Load image file, or create blank image, at frame size"""
         if fname:
             if (fname,repr(color)) in pre_loaded_images:
@@ -51,20 +51,35 @@ class Image( object ):
         self.frame_width = frame_width
         self.frame_height = frame_height
 
+        self.custom_frames = custom_frames
+
     def render( self , dest = (0,0) , frame=0, dest_surface=None ):
         # Render this Image onto the provided surface.
         # Start by determining the correct sub-area of the image.
-        frames_per_row = self.bitmap.get_width() / self.frame_width
-        area_x = ( frame % frames_per_row ) * self.frame_width
-        area_y = ( frame / frames_per_row ) * self.frame_height
-        area = pygame.Rect( area_x , area_y , self.frame_width , self.frame_height )
+        if self.custom_frames and frame < len(self.custom_frames):
+            area = pygame.Rect(self.custom_frames[frame])
+        else:
+            frames_per_row = self.bitmap.get_width() / self.frame_width
+            area_x = ( frame % frames_per_row ) * self.frame_width
+            area_y = ( frame / frames_per_row ) * self.frame_height
+            area = pygame.Rect( area_x , area_y , self.frame_width , self.frame_height )
         dest_surface = dest_surface or my_state.screen
         dest_surface.blit(self.bitmap , dest , area )
 
+    def get_rect( self, frame ):
+        # Return a rect of the correct size for this frame.
+        if self.custom_frames and frame < len(self.custom_frames):
+            return pygame.Rect(0,0,self.custom_frames[frame][2],self.custom_frames[frame][3])
+        else:
+            return pygame.Rect(0,0,self.frame_width,self.frame_height)
+
     def num_frames( self ):
-        frames_per_row = self.bitmap.get_width() / self.frame_width
-        frames_per_column = self.bitmap.get_height() / self.frame_height
-        return frames_per_row * frames_per_column
+        if self.custom_frames:
+            return len(self.custom_frames)
+        else:
+            frames_per_row = self.bitmap.get_width() / self.frame_width
+            frames_per_column = self.bitmap.get_height() / self.frame_height
+            return frames_per_row * frames_per_column
 
     def recolor( self, color_channels ): 
         # Just gonna brute force this. It could probably be speeded up by using

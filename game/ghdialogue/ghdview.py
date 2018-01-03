@@ -8,14 +8,19 @@ class ConvoVisualizer(object):
     TEXT_AREA = pbge.frects.Frect(0,-125,350,100)
     MENU_AREA = pbge.frects.Frect(0,0,350,80)
     PORTRAIT_AREA = pbge.frects.Frect(-370,-300,400,600)
+    PILOT_AREA = pbge.frects.Frect(-350,-250,100,100)
     
     def __init__(self,npc):
-        npc = npc.get_pilot()
-        self.npc = npc
-        if hasattr(npc, "portrait"):
-            self.npc_sprite = pbge.image.Image(npc.portrait,400,600,npc.colors)
+        pilot = npc.get_pilot()
+        self.npc = pilot
+        if hasattr(npc, "get_portrait"):
+            self.npc_sprite = npc.get_portrait()
         else:
             self.npc_sprite = None
+        if pilot is not npc and hasattr(pilot, "get_portrait"):
+            self.pilot_sprite = pilot.get_portrait()
+        else:
+            self.pilot_sprite = None
         self.bottom_sprite = pbge.image.Image('sys_wintermocha_convoborder.png',32,200)
         self.text = ''
     def render(self):
@@ -25,6 +30,10 @@ class ConvoVisualizer(object):
         self.bottom_sprite.tile(pygame.Rect(0,my_state.screen.get_height()//2+100,my_state.screen.get_width(),200))
         if self.npc_sprite:
             self.npc_sprite.render(self.PORTRAIT_AREA.get_rect())
+        if self.pilot_sprite:
+            default_border.render(self.PILOT_AREA.get_rect())
+            self.pilot_sprite.render(self.PILOT_AREA.get_rect(),1)
+
 
         text_rect = self.TEXT_AREA.get_rect()
         default_border.render(text_rect)
