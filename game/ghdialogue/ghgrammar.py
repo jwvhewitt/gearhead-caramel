@@ -27,6 +27,18 @@ DEFAULT_GRAMMAR = {
     "[GOODBYE_MISSION:JOIN]": {
         Default: ["Why don't you come with me?"
             ],
+        personality.Cheerful: ["Why don't you come too? It'll be fun.",
+            ],
+        personality.Grim: ["My odds would be better if you came too.",
+            ],
+        personality.Easygoing: [ "Wanna come with me?",
+            ],
+        personality.Passionate: ["Would you join me on this glorious mission?",
+            ],
+        personality.Sociable: ["I could use some company out there.",
+            ],
+        personality.Shy: ["Will you come too?",
+            ],
         },
 
     "[GOODLUCK]": {
@@ -39,6 +51,10 @@ DEFAULT_GRAMMAR = {
         personality.Easygoing: [ "Shouldn't be too hard.",
             ],
         personality.Passionate: ["Do your best!", "Give it your all!",
+            ],
+        personality.Sociable: ["I wish you the best of luck.",
+            ],
+        personality.Shy: ["Good luck.",
             ],
         },    
 
@@ -83,19 +99,56 @@ DEFAULT_GRAMMAR = {
         Default: [ "Would you like to join my lance?",
             "How about joining my lance?"
             ],
+        personality.Cheerful: ["Come join my lance, it'll be fun.",
+            ],
+        personality.Grim: ["It will be dangerous, but I need your help.",
+            ],
+        personality.Easygoing: [ "I could use some help on this mission.",
+            ],
+        personality.Passionate: ["I'd be honored if you would join my lance.",
+            ],
+        personality.Sociable: ["I want you to join my lance.",
+            ],
+        personality.Shy: ["Your skills would be valuable on this mission.",
+            ],
+
         },
 
     "[INFO_PERSONAL:JOIN]": {
         Default: ["Why don't you join my lance?",
-            "Let's go on an adventure together."
+            ],
+        personality.Cheerful: ["Let's go on an adventure together.",
+            ],
+        personality.Grim: ["Let's go wreck some stuff.",
+            ],
+        personality.Easygoing: [ "That's cool. Wanna join my lance?",
+            ],
+        personality.Passionate: ["Here's an idea- Why not join my lance?",
+            ],
+        personality.Sociable: ["You're just the kind of lancemate I need.",
+            ],
+        personality.Shy: ["Join me.",
             ],
         },
 
     # The data block should include "mission"
     "[IWILLDOMISSION]": {
-        Default: [ "I'll get to work.", "I will do this mission.",
+        Default: [ "I'll get to work.",
             "I'll {mission}."
             ],
+        personality.Cheerful: ["Sounds like fun.",
+            ],
+        personality.Grim: ["This may get me killed, but I'll do it.",
+            ],
+        personality.Easygoing: [ "I guess I could {mission}.","Time to {mission}."
+            ],
+        personality.Passionate: ["I swear to {mission}!","I won't let you down!"
+            ],
+        personality.Sociable: ["I will do this mission.",
+            ],
+        personality.Shy: ["I'll do it.","Okay."
+            ],
+
         },
     "[LONGTIMENOSEE]": {
         Default: ["Hello [audience], long time no see.",

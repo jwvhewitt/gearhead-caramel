@@ -137,6 +137,7 @@ class TextImage( Image ):
         self.bitmap = render_text(font,txt,frame_width,color,justify=0,antialias=False)
         self.frame_width = self.bitmap.get_width()
         self.frame_height = self.bitmap.get_height()
+        self.custom_frames = None
 
     def __reduce__( self ):
         # Rather than trying to save the bitmap image, just save the filename.
