@@ -1,3 +1,8 @@
+- Border transparency now uses same alpha as GearHead1 (pbge)
+- Combat starts when PC moves within half sensor range (game/exploration.py)
+- Targeting info shows top three modifiers (game/combat/targetingui.py)
+- "card_" portraits contain sprite (game/ghdialogue/gdview.py)
+- Images may now have custom frames (pbge/image.py)
 - Fixed bugs with Overwhelmed, Target Movement modifiers (gears/geffects.py)
 - The InfoPanel is now modular (gears/info.py)
 - Added Plot.activate, Plot.deactivate methods (pbge/plots.py)

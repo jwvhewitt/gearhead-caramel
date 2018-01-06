@@ -3,6 +3,7 @@ import waypoints
 import ghterrain
 import gears
 import pbge
+import pygame
 from .. import teams,ghdialogue
 from ..ghdialogue import context
 from pbge.scenes.movement import Walking, Flying, Vision
@@ -392,10 +393,38 @@ class WinterMochaCarter( Plot ):
 # Complication - 
 # Stakes - 
 
-class WMRoad( pbge.randmaps.rooms.Room ):
-    """A room without hard walls, with default ground floors."""
-    def build( self, gb, archi ):
-        gb.fill(self.area,floor=WinterMochaPavement)
+
+class WinterHighwaySceneGen( pbge.randmaps.SceneGenerator ):
+    DO_DIRECT_CONNECTIONS = True
+    def connect_contents( self, gb, archi ):
+        # Generate list of rooms.
+        unconnected = [r for r in self.contents if hasattr(r,"area")]
+        random.shuffle(unconnected)
+        connected = list()
+        connected.append( unconnected.pop() )
+        unconnected.sort(key=lambda r: gb.distance(r.area.center,connected[0].area.center))
+
+        room = connected[0]
+        if room.anchor:
+            mydest = pygame.Rect(0,0,3,3)
+            room.anchor(self.area,mydest)
+            self.draw_direct_connection( gb, room.area.centerx, room.area.centery, mydest.centerx, mydest.centery, archi )
+
+        # Process them
+        for room in list(unconnected):
+            unconnected.remove(room)
+            dest = min(connected, key=lambda r: gb.distance(r.area.center,room.area.center))
+            self.draw_direct_connection( gb, room.area.centerx, room.area.centery, dest.area.centerx, dest.area.centery, archi )
+            connected.append(room)
+            if room.anchor:
+                mydest = pygame.Rect(0,0,3,3)
+                room.anchor(self.area,mydest)
+                self.draw_direct_connection( gb, room.area.centerx, room.area.centery, mydest.centerx, mydest.centery, archi )
+
+    def draw_direct_connection( self, gb, x1,y1,x2,y2, archi ):
+        path = pbge.scenes.animobs.get_line( x1,y1,x2,y2 )
+        for p in path:
+            gb.fill(pygame.Rect(p[0]-1,p[1]-1,3,3),floor=WinterMochaPavement,wall=None)
 
 
 class WinterBattle( Plot ):
@@ -410,15 +439,15 @@ class WinterBattle( Plot ):
 
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate,prepare=pbge.randmaps.prep.HeightfieldPrep(ghterrain.Water,ghterrain.SmallSnow,ghterrain.Snow))
-        myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myscenegen = WinterHighwaySceneGen(myscene,myarchi)
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
 
-        myroom = WMRoad(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
+        myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
         myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
 
@@ -495,10 +524,17 @@ class BurnTheBarrels( Plot ):
         myroom.contents.append(puzzle_item)
         self.add_sub_plot( nart, "IGNITE", PlotState( elements={"TARGET":puzzle_item} ).based_on( self ) )
         return True
+    SPRITE_OFF = [(0,0),(-14,0),(-6,12),(6,9),(14,0),(6,-12),(-6,-12)]
     def PUZZITEM_IGNITE(self,camp):
         pbge.alert("The barrel of fuel fires up, melting some of the nearby snow.")
         scene = self.elements["LOCALE"]
         barrel = self.elements["PUZZITEM"]
+
+        random.shuffle(self.SPRITE_OFF)
+        for t in range(5):
+            pbge.my_state.view.anim_list.append(gears.geffects.BigBoom(pos=barrel.pos,x_off=self.SPRITE_OFF[t][0],y_off=self.SPRITE_OFF[t][1],delay=t*5))
+        pbge.my_state.view.handle_anim_sequence()
+
         scene._map[barrel.pos[0]][barrel.pos[1]].decor = WinterMochaBurningBarrelTerrain
         camp.check_trigger( "HEAT", self.elements[ "TARGET" ])
         self.active = False

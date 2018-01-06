@@ -116,10 +116,7 @@ class Room( object ):
         # Step Three: Connect all rooms in contents, making trails on map.
 
         # Generate list of rooms.
-        myrooms = list()
-        for r in self.contents:
-            if hasattr( r, "area" ):
-                myrooms.append( r )
+        myrooms = [r for r in self.contents if hasattr(r,"area")]
 
         # Process them
         if myrooms:
@@ -232,5 +229,11 @@ class FuzzyRoom( Room ):
         for x in range( self.area.x+1, self.area.x + self.area.width-1 ):
             for y in range( self.area.y+1, self.area.y + self.area.height-1 ):
                 archi.draw_fuzzy_ground( gb, x, y )
+
+class OpenRoom( Room ):
+    """A room with floor and no walls."""
+    def build( self, gb, archi ):
+        archi = self.archi or archi
+        gb.fill(self.area,floor=archi.floor_terrain,wall=None)
 
 

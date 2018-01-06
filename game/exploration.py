@@ -180,7 +180,7 @@ class Explorer( object ):
                 # Next, check visibility to PC.
                 npteam = self.scene.local_teams.get(npc)
                 if npteam and self.scene.player_team.is_enemy( npteam ):
-                    pov = scenes.pfov.PointOfView( self.scene, npc.pos[0], npc.pos[1], npc.get_sensor_range(self.scene.scale) )
+                    pov = scenes.pfov.PointOfView( self.scene, npc.pos[0], npc.pos[1], npc.get_sensor_range(self.scene.scale)//2+1 )
                     in_sight = False
                     for pc in self.camp.party:
                         if pc.pos in pov.tiles and pc in my_actors:

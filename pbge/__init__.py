@@ -67,7 +67,7 @@ class Border( object ):
         if self.tex == None:
             self.tex = image.Image( self.tex_name, self.tex_width, self.tex_width )
             if self.transparent:
-                self.tex.bitmap.set_alpha(155)
+                self.tex.bitmap.set_alpha(224)
 
 
         # Draw the backdrop.
