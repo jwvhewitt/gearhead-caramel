@@ -1,4 +1,12 @@
 
+Unless otherwise noted, game artwork is by Joseph Hewitt and released under
+a CC-BY-4.0 license.
+
+The font Anita Semi-Square is by Gustavo Paz L., CC-BY-SA 4.0
+The DejaVu fonts are released under a free license. https://dejavu-fonts.github.io/License.html
+
+anim_frogatto_nuke.png from OpenGameArt user Jetrel, public domain
+
 Movement icon by ProSymbols from the Noun Project CC-BY-3.0
 Attack icon Sword by uzeir syarief from the Noun Project CC-BY-3.0
 End Turn Icon is Close by Riley Shaw from the Noun Project CC-BY-3.0
