@@ -4,6 +4,7 @@ from . import Tile
 from .. import my_state,anim_delay
 from .. import util, image
 import pygame
+import waypoints
 
 OVERLAY_ITEM = 0
 OVERLAY_CURSOR = 1
@@ -24,6 +25,7 @@ class SceneView( object ):
         self.modelmap = collections.defaultdict(list)
         self.uppermap = collections.defaultdict(list)
         self.undermap = collections.defaultdict(list)
+        self.waypointmap = collections.defaultdict(list)
         self.fieldmap = dict()
         self.modelsprite = weakref.WeakKeyDictionary()
         self.namedsprite = dict()
@@ -290,6 +292,7 @@ class SceneView( object ):
         self.modelmap.clear()
         self.uppermap.clear()
         self.undermap.clear()
+        self.waypointmap.clear()
         for m in self.scene.contents:
             if hasattr( m , 'render' ):
                 d_pos = self.PosToKey(m.pos)
@@ -298,6 +301,11 @@ class SceneView( object ):
                     self.uppermap[ d_pos ].append( m )
                 else:
                     self.undermap[ d_pos ].append( m )
+            elif isinstance( m, waypoints.Waypoint ) and m.name:
+                # Nameless waypoints are hidden. They probably serve some
+                # utility purpose, but the player doesn't have to know they're
+                # there.
+                self.waypointmap[m.pos].append(m)
 
 
         while keep_going:

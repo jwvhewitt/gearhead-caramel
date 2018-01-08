@@ -36,6 +36,15 @@ class NameBlock( object ):
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
+class ListBlock( object ):
+    def __init__(self,items,width=220,**kwargs):
+        self.items = items
+        self.width = width
+        self.image = pbge.render_text(pbge.BIGFONT,'\n'.join([str(i) for i in items]),width,justify=-1)
+        self.height = self.image.get_height()
+    def render(self,x,y):
+        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+
 class ModuleStatusBlock( object ):
     # This block contains both the module display and the Armor/Mobility displays.
     def __init__(self,model,width=220,**kwargs):
@@ -162,5 +171,8 @@ class ModuleDisplay( object ):
 class MechaStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
     DEFAULT_BLOCKS = (NameBlock,ModuleStatusBlock,PilotStatusBlock)
+
+class ListDisplay( InfoPanel ):
+    DEFAULT_BLOCKS = (ListBlock,)
 
 

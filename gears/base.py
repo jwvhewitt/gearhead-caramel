@@ -149,7 +149,7 @@ class WithPortrait( pbge.scenes.PlaceableThing ):
             if self.portrait.startswith('card_'):
                 return pbge.image.Image(self.portrait,self.imagewidth,self.imageheight,self.colors,custom_frames=self.FRAMES)
             else:
-                return pbge.image.Image(self.portrait,400,600,self.colors)
+                return pbge.image.Image(self.portrait,color=self.colors)
 
 
 class Mover( KeyObject ):
@@ -214,7 +214,7 @@ class Mover( KeyObject ):
         my_invos = list()
         for p in self.descendants():
             if hasattr(p, 'get_attacks'):
-                p_list = geffects.AttackLibraryShelf(p,p.get_attacks(self))
+                p_list = geffects.AttackLibraryShelf(p,p.get_attacks())
                 if p_list.has_at_least_one_working_invo(self,True):
                     my_invos.append(p_list)
         return my_invos
@@ -799,7 +799,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
         return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
 
     def get_basic_attack( self ):
-        return pbge.effects.Invocation(
+        ba = pbge.effects.Invocation(
                 name = 'Basic Attack', 
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.get_attack_skill(),
@@ -813,16 +813,33 @@ class Weapon( BaseGear, StandardDamageHandler ):
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 targets=1)
+        for aa in self.get_attributes():
+            if hasattr(aa,'modify_basic_attack'):
+                aa.modify_basic_attack(self,ba)
+        return ba
 
-    def get_attacks( self, user ):
+    def get_attributes(self):
+        return self.attributes
+
+    def get_primary_attacks(self):
+        # Normally, the primary attack will be the basic attack as above.
+        # However, certain attack attributes may replace the primary attack...
+        # If more than one replacement exists, provide them all.
+        default = [self.get_basic_attack()]
+        modified = list()
+        for aa in self.get_attributes():
+            if hasattr(aa,'replace_primary_attack'):
+                modified += aa.replace_primary_attack(self)
+        return modified or default
+
+    def get_attacks( self ):
         # Return a list of invocations associated with this weapon.
         # Being a weapon, the invocations are likely to all be attacks.
-        my_invos = list()
-        my_invos.append(self.get_basic_attack())
+        my_invos = self.get_primary_attacks()
 
         for aa in self.attributes:
             if hasattr(aa,'get_attacks'):
-                my_invos += aa.get_attacks(self,user)
+                my_invos += aa.get_attacks(self)
 
         return my_invos
 
@@ -841,7 +858,7 @@ class MeleeWeapon( Weapon ):
     def get_modifiers( self ):
         return [geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
     def get_basic_attack( self ):
-        return pbge.effects.Invocation(
+        ba = pbge.effects.Invocation(
                 name = 'Basic Attack', 
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.get_attack_skill(),
@@ -855,6 +872,11 @@ class MeleeWeapon( Weapon ):
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 targets=1)
+        for aa in self.get_attributes():
+            if hasattr(aa,'modify_basic_attack'):
+                aa.modify_basic_attack(self,ba)
+        return ba
+
     def get_weapon_desc( self ):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}'.format(self)
 
@@ -873,7 +895,7 @@ class EnergyWeapon( Weapon ):
     def get_modifiers( self ):
         return [geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
     def get_basic_attack( self ):
-        return pbge.effects.Invocation(
+        ba = pbge.effects.Invocation(
                 name = 'Basic Attack', 
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.get_attack_skill(),
@@ -887,18 +909,27 @@ class EnergyWeapon( Weapon ):
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 targets=1)
+        for aa in self.get_attributes():
+            if hasattr(aa,'modify_basic_attack'):
+                aa.modify_basic_attack(self,ba)
+        return ba
     def get_weapon_desc( self ):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}'.format(self)
 
 class Ammo( BaseGear, Stackable, StandardDamageHandler ):
     DEFAULT_NAME = "Ammo"
-    STACK_CRITERIA = ("ammo_type",)
-    SAVE_PARAMETERS = ('ammo_type','quantity')
-    def __init__(self, ammo_type=calibre.Shells_150mm, quantity=12, **keywords ):
+    STACK_CRITERIA = ("ammo_type",'attributes')
+    SAVE_PARAMETERS = ('ammo_type','quantity','attributes')
+    LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2)
+    def __init__(self, ammo_type=calibre.Shells_150mm, quantity=12, attributes=(), **keywords ):
         # Check the range of all parameters before applying.
         self.ammo_type = ammo_type
         self.quantity = max( quantity, 1 )
         self.spent = 0
+        self.attributes = list()
+        for a in attributes:
+            if a in self.LEGAL_ATTRIBUTES:
+                self.attributes.append(a)
 
         # Finally, call the gear initializer.
         super(Ammo, self).__init__(**keywords)
@@ -927,7 +958,9 @@ class BallisticWeapon( Weapon ):
     SAVE_PARAMETERS = ('ammo_type',)
     DEFAULT_CALIBRE = calibre.Shells_150mm
     DEFAULT_SHOT_ANIM = geffects.BigBullet
-    LEGAL_ATTRIBUTES = (attackattributes.Automatic,)
+    LEGAL_ATTRIBUTES = (attackattributes.Automatic,attackattributes.BurstFire2,
+        attackattributes.BurstFire3,attackattributes.BurstFire4,attackattributes.BurstFire5,
+        )
     def __init__(self, ammo_type=None, **keywords ):
         self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
 
@@ -943,13 +976,25 @@ class BallisticWeapon( Weapon ):
         for maybe_ammo in self.sub_com:
             if isinstance(maybe_ammo,Ammo):
                 return maybe_ammo
+    def get_attributes( self ):
+        ammo = self.get_ammo()
+        if ammo:
+            return self.attributes + ammo.attributes
+        else:
+            return self.attributes
     def get_basic_attack( self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0 ):
-        return pbge.effects.Invocation(
+        # Check the ammunition. If it doesn't have enough bang, downgrade the attack.
+        my_ammo = self.get_ammo()
+        penetration = self.penetration * 10
+        if my_ammo.ammo_type.bang < (self.damage * max(self.penetration,1)):
+            penetration -= (self.damage * max(self.penetration,1) - my_ammo.ammo_type.bang)*15
+
+        ba = pbge.effects.Invocation(
                 name = name, 
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.get_attack_skill(),
                     children = (geffects.DoDamage(self.damage,6,scale=self.scale),),
-                    accuracy=self.accuracy*10, penetration=self.penetration*10, 
+                    accuracy=self.accuracy*10, penetration=penetration, 
                     defenses = self.get_defenses(),
                     modifiers = self.get_modifiers()
                     ),
@@ -957,8 +1002,14 @@ class BallisticWeapon( Weapon ):
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon),
-                price=geffects.AmmoPrice(self.get_ammo(),ammo_cost),
+                price=geffects.AmmoPrice(my_ammo,ammo_cost),
                 targets=targets)
+
+        for aa in self.get_attributes():
+            if hasattr(aa,'modify_basic_attack'):
+                aa.modify_basic_attack(self,ba)
+        return ba
+
     def get_weapon_desc( self ):
         ammo = self.get_ammo()
         it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)
@@ -985,7 +1036,7 @@ class BeamWeapon( Weapon ):
 
 class Missile( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Missile"
-    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','quantity')
+    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','quantity','attributes')
     MIN_REACH = 2
     MAX_REACH = 7
     MIN_DAMAGE = 1
@@ -995,7 +1046,8 @@ class Missile( BaseGear, StandardDamageHandler ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     STACK_CRITERIA = ("reach","damage","accuracy","penetration")
-    def __init__(self, reach=1,damage=1,accuracy=1,penetration=1,quantity=12,**keywords ):
+    LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2,)
+    def __init__(self, reach=1,damage=1,accuracy=1,penetration=1,quantity=12,attributes=(),**keywords ):
         # Check the range of all parameters before applying.
         if reach < self.__class__.MIN_REACH:
             reach = self.__class__.MIN_REACH
@@ -1024,21 +1076,36 @@ class Missile( BaseGear, StandardDamageHandler ):
         self.quantity = max( quantity, 1 )
         self.spent = 0
 
+        self.attributes = list()
+        for a in attributes:
+            if a in self.LEGAL_ATTRIBUTES:
+                self.attributes.append(a)
+
         # Finally, call the gear initializer.
         super(Missile, self).__init__(**keywords)
 
     @property
     def base_mass(self):
-        return ((( self.damage + self.penetration ) * 5 + self.accuracy + self.reach ) * (self.quantity-self.spent) ) //25
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.MASS_MODIFIER
+
+        return int((((( self.damage + self.penetration ) * 5 + self.accuracy + self.reach ) * (self.quantity-self.spent) ) //25)*mult)
 
     @property
     def volume(self):
-        return ( ( self.reach + self.accuracy + self.damage + self.penetration + 1 ) * self.quantity + 49 ) // 50
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.VOLUME_MODIFIER
+        return int((( ( self.reach + self.accuracy + self.damage + self.penetration + 1 ) * self.quantity + 49 ) // 50)*mult)
 
     @property
     def base_cost(self):
         # Multiply the stats together, squaring range because it's so important.
-        return ((self.damage**2) * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * ( self.reach**2 - self.reach + 2)) * self.quantity / 8
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.COST_MODIFIER
+        return int((((self.damage**2) * ( self.accuracy + 1 ) * ( self.penetration + 1 ) * ( self.reach**2 - self.reach + 2)) * self.quantity / 8)*mult)
 
     @property
     def base_health(self):
@@ -1083,11 +1150,14 @@ class Launcher( BaseGear, ContainerDamageHandler ):
 
     def get_modifiers( self, ammo ):
         return [geffects.RangeModifier(ammo.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
+    def get_attributes( self ):
+        ammo = self.get_ammo()
+        return ammo.attributes or []
 
     def get_basic_attack( self ):
         ammo = self.get_ammo()
         if ammo:
-            return pbge.effects.Invocation(
+            ba = pbge.effects.Invocation(
                 name = 'Single Shot', 
                 fx=geffects.AttackRoll(
                     stats.Perception, self.scale.RANGED_SKILL,
@@ -1102,10 +1172,15 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                 price=geffects.AmmoPrice(ammo,1),
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),0),
                 targets=1)
+            for aa in self.get_attributes():
+                if hasattr(aa,'modify_basic_attack'):
+                    aa.modify_basic_attack(self,ba)
+            return ba
+
     def get_multi_attack( self, num_missiles, frame ):
         ammo = self.get_ammo()
         if ammo:
-            return pbge.effects.Invocation(
+            ba = pbge.effects.Invocation(
                 name = 'Fire x{}'.format(num_missiles), 
                 fx=geffects.MultiAttackRoll(
                     stats.Perception, self.scale.RANGED_SKILL,num_attacks=num_missiles,
@@ -1120,7 +1195,12 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                 price=geffects.AmmoPrice(ammo,num_missiles),
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),frame),
                 targets=1)
-    def get_attacks( self, user ):
+            for aa in self.get_attributes():
+                if hasattr(aa,'modify_basic_attack'):
+                    aa.modify_basic_attack(self,ba)
+            return ba
+
+    def get_attacks( self ):
         # Return a list of invocations associated with this weapon.
         # Being a weapon, the invocations are likely to all be attacks.
         my_invos = list()

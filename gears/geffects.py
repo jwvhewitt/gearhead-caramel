@@ -155,6 +155,16 @@ class MissileFactory( object ):
             my_anim.append( self.MISSILE_ANIMS[leftover-1] )
         return ClusterShot(start_pos=start_pos,end_pos=end_pos,delay=delay,child_classes=my_anim)
 
+class BulletFactory( object ):
+    # Used to create custom missile salvos.
+    def __init__(self, num_bullets, proto_bullet):
+        self.num_bullets = num_bullets
+        self.proto_bullet = proto_bullet
+    def __call__(self,start_pos,end_pos,delay=0):
+        # Return as many missiles as requested.
+        my_anim = [self.proto_bullet,] * self.num_bullets
+        return ClusterShot(start_pos=start_pos,end_pos=end_pos,delay=delay,child_classes=my_anim)
+
 
 #  *******************
 #  ***   Effects   ***

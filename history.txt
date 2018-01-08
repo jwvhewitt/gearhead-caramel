@@ -1,3 +1,5 @@
+- Added BurstFire, Blast attack attributes (gears/attackattributes.py)
+- Named waypoints indicated on mouseover (game/exploration.py)
 - Border transparency now uses same alpha as GearHead1 (pbge)
 - Combat starts when PC moves within half sensor range (game/exploration.py)
 - Targeting info shows top three modifiers (game/combat/targetingui.py)

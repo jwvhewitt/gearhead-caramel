@@ -25,10 +25,10 @@ class PuzzleMenu( rpgmenu.Menu ):
 class Waypoint( object ):
     TILE = None
     ATTACH_TO_WALL = False
-    name = "Waypoint"
+    name = None
     desc = ""
     desctags = tuple()
-    def __init__( self, scene=None, pos=(0,0), plot_locked=False, desc=None, anchor=None ):
+    def __init__( self, scene=None, pos=(0,0), plot_locked=False, desc=None, anchor=None, name='' ):
         """Place this waypoint in a scene."""
         if scene:
             self.place( scene, pos )
@@ -38,6 +38,8 @@ class Waypoint( object ):
             self.desc = desc
         if anchor:
             self.anchor = anchor
+        if name is not '':
+            self.name = name
 
     def place( self, scene, pos=None ):
         if hasattr( self, "container" ) and self.container:
@@ -72,4 +74,7 @@ class Waypoint( object ):
                 fx( camp )
         else:
             self.unlocked_use( camp )
+
+    def __str__(self):
+        return self.name
 

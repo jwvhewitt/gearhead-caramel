@@ -139,6 +139,18 @@ class Explorer( object ):
         self.view = scenes.viewer.SceneView( camp.scene )
         self.mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
 
+        # Preload some portraits and sprites.
+        self.preloads = list()
+        for pc in self.scene.contents:
+            if hasattr(pc,'get_portrait'):
+                self.preloads.append(pc.get_portrait())
+                if hasattr(pc,'get_pilot'):
+                    pcp = pc.get_pilot()
+                    if pcp and pcp is not pc and hasattr(pcp,'get_portrait'):
+                        self.preloads.append(pcp.get_portrait())
+            if hasattr(pc,'get_sprite'):
+                self.preloads.append(pc.get_sprite())
+
         # Update the view of all party members.
         first_pc = None
         for pc in camp.party:
@@ -230,7 +242,11 @@ class Explorer( object ):
                     x,y = pygame.mouse.get_pos()
                     y -= 64
                     gears.info.MechaStatusDisplay(model=mmecha[0]).render(x,y)
-
+                elif self.view.waypointmap.get(self.view.mouse_tile):
+                    wp = self.view.waypointmap.get(self.view.mouse_tile)
+                    x,y = pygame.mouse.get_pos()
+                    y -= 64
+                    gears.info.ListDisplay(items=wp).render(x,y)
 
                 pbge.my_state.do_flip()
 

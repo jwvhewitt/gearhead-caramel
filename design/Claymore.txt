@@ -2,6 +2,7 @@ Mecha
     name = "Claymore"
     desig = "ITM-01"
     imagename = "btr_claymore.png"
+    portrait = "mecha_claymore.png"
 
     SUB
         Torso
@@ -26,12 +27,12 @@ Mecha
                     damage = 1
                     accuracy = 0
                     penetration = 0
-                    ammo_type = Shells_150mm
-                    attributes = (Automatic)
+                    ammo_type = Shells_20mm
+                    attributes = (BurstFire4)
                     SUB
                         Ammo
-                            ammo_type=Shells_150mm
-                            quantity=30
+                            ammo_type=Shells_20mm
+                            quantity=120
                     END
 
 
@@ -51,11 +52,11 @@ Mecha
                             damage = 2
                             accuracy = 0
                             penetration = 2
-                            ammo_type = Shells_150mm
+                            ammo_type = Shells_60mm
                             attributes = (Automatic)
                             SUB
                                 Ammo
-                                    ammo_type=Shells_150mm
+                                    ammo_type=Shells_60mm
                                     quantity=40
                             END
                     END
@@ -92,7 +93,8 @@ Mecha
                             damage = 2
                             accuracy = 1
                             penetration = 1
-                            quantity = 12
+                            quantity = 4
+                            attributes = (Blast2)
                     END
 
             END
@@ -111,7 +113,8 @@ Mecha
                             damage = 2
                             accuracy = 1
                             penetration = 1
-                            quantity = 12
+                            quantity = 4
+                            attributes = (Blast2)
                     END
 
             END

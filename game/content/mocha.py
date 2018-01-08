@@ -70,6 +70,7 @@ class WinterMochaBurningBarrelTerrain( pbge.scenes.terrain.AnimTerrain ):
     blocks = (Walking,Skimming,Rolling)
 
 class WinterMochaBurningBarrel( waypoints.Waypoint ):
+    name = 'Barrel Fire'
     TILE = pbge.scenes.Tile( None, None, WinterMochaBurningBarrelTerrain )
     desc = "There's a fire in this barrel. It's nice and warm."
 
@@ -79,10 +80,12 @@ class WinterMochaGeneratorTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking,Skimming,Rolling)
 
 class WinterMochaGenerator( waypoints.Waypoint ):
+    name = 'Geothermal Generator'
     TILE = pbge.scenes.Tile( None, None, WinterMochaGeneratorTerrain )
     desc = "You stand before a geothermal generator."
 
 class WinterMochaToolbox( waypoints.Waypoint ):
+    name = 'Toolbox'
     TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaToolboxTerrain )
     desc = "You stand before an abandoned toolbox."
 
@@ -92,14 +95,17 @@ class WinterMochaHeatLampTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking,Skimming,Rolling)
 
 class WinterMochaHeatLamp( waypoints.Waypoint ):
+    name = 'Heat Lamp'
     TILE = pbge.scenes.Tile( None, None, WinterMochaHeatLampTerrain )
     desc = "You stand before an industrial heat lamp. It's probably being used in the construction of the new arena."
 
 class WinterMochaBarrel( waypoints.Waypoint ):
+    name = 'Barrel'
     TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaBarrelTerrain )
     desc = "You stand before a big container of fuel."
 
 class WinterMochaShovel( waypoints.Waypoint ):
+    name = 'Broken Shovel'
     TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaBrokenShovel )
     desc = "You stand before a broken shovel."
 
@@ -109,6 +115,7 @@ class WinterMochaDomeTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking,Skimming,Rolling)
 
 class WinterMochaDome( waypoints.Waypoint ):
+    name = 'Dome'
     TILE = pbge.scenes.Tile( None, None, WinterMochaDomeTerrain )
     desc = "You stand before a half buried dome. No idea what its function is."
 
@@ -118,6 +125,7 @@ class WinterMochaBlowerTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking,Skimming,Rolling)
 
 class WinterMochaBlower( waypoints.Waypoint ):
+    name = 'Industrial Blower'
     TILE = pbge.scenes.Tile( None, None, WinterMochaBlowerTerrain )
     desc = "You stand before an industrial air blower. It's probably being used in the construction of the new arena."
 
@@ -188,13 +196,13 @@ class FrozenHotSpringCity( Plot ):
 
         myscenegen.contents.append(myroom)
 
-        hangar_gate = self.register_element("HANGAR_GATE",waypoints.Waypoint(plot_locked=True,desc="This is the door of the mecha hangar."))
-        snow_drift = self.register_element("SNOW_DRIFT",waypoints.Waypoint(desc="The snow has blocked the entrance to the mecha hangar. You're going to have to take one of the backup mecha from the storage yard."))
+        hangar_gate = self.register_element("HANGAR_GATE",waypoints.Waypoint(name="Hangar Door",plot_locked=True,desc="This is the door of the mecha hangar."))
+        snow_drift = self.register_element("SNOW_DRIFT",waypoints.Waypoint(name="Snowdrift",desc="The snow has blocked the entrance to the mecha hangar. You're going to have to take one of the backup mecha from the storage yard."))
         myroom2 = pbge.randmaps.rooms.FuzzyRoom(15,15)
         myroom3 = WinterMochaHangar(parent=myroom2,waypoints={"DOOR":hangar_gate,"DRIFT":snow_drift})
         myscenegen.contents.append(myroom2)
 
-        fence_gate = self.register_element("FENCE_GATE",waypoints.Waypoint(plot_locked=True,desc="This is the gate of the mecha storage yard."))
+        fence_gate = self.register_element("FENCE_GATE",waypoints.Waypoint(name="Storage Yard",plot_locked=True,desc="This is the gate of the mecha storage yard."))
 
         myroom4 = self.register_element("FENCE_GATE_ROOM",pbge.randmaps.rooms.FuzzyRoom(6,5,anchor=pbge.randmaps.anchors.northwest,parent=myscenegen))
         myroom5 = WinterMochaFence(parent=myroom4,anchor=pbge.randmaps.anchors.west,waypoints={'DOOR':fence_gate})
@@ -342,7 +350,7 @@ class WinterMochaHyolee( Plot ):
          gears.stats.Medicine:7},
          personality=[personality.Cheerful,personality.Peace,personality.Fellowship])
         hyolee.imagename = 'cha_wm_hyolee.png'
-        hyolee.portrait = 'por_f_winterhyolee.png'
+        hyolee.portrait = 'card_f_winterhyolee.png'
         hyolee.colors = (gears.color.Viridian,gears.color.Chocolate,gears.color.Saffron,gears.color.GunRed,gears.color.RoyalPink)
         hyolee.mmode = pbge.scenes.movement.Walking
         self.register_element( "HYOLEE", hyolee, dident="ROOM" )
@@ -361,8 +369,7 @@ class WinterMochaCarter( Plot ):
          gears.stats.Charm:9,gears.stats.MechaGunnery:6,gears.stats.MechaFighting:6,
          gears.stats.MechaPiloting:7},
          personality=[personality.Shy,personality.Easygoing,personality.Justice])
-        carter.imagename = 'cha_wm_hyolee.png'
-        carter.portrait = 'por_m_wintercarter.png'
+        carter.portrait = 'card_m_wintercarter.png'
         carter.colors = (gears.color.BugBlue,gears.color.Burlywood,gears.color.AceScarlet,gears.color.SkyBlue,gears.color.SlateGrey)
         carter.mmode = pbge.scenes.movement.Walking
         self.register_element( "CARTER", carter, dident="FENCE_GATE_ROOM" )
@@ -433,7 +440,9 @@ class WinterBattle( Plot ):
     active = True
     scope = "LOCALE"
     def custom_init( self, nart ):
-        """Create map, fill with city + services."""
+        """The mission leadup will be two highway scenes with an intro, two
+           encounters, a recharge, and two choices at the end. The choices
+           will handle their own scenes."""
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(60,60,"Near Mauna",player_team=team1,scale=gears.scale.MechaScale)
 

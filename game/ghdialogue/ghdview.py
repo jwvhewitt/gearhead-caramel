@@ -23,13 +23,20 @@ class ConvoVisualizer(object):
             self.pilot_sprite = None
         self.bottom_sprite = pbge.image.Image('sys_wintermocha_convoborder.png',32,200)
         self.text = ''
+    def get_portrait_area(self):
+        if self.npc_sprite:
+            mydest = self.npc_sprite.get_rect(0)
+            mydest.midbottom = (my_state.screen.get_width()//2-170,my_state.screen.get_height()//2+300)
+        else:
+            return self.PORTRAIT_AREA.get_rect()
+        return mydest
     def render(self):
         if my_state.view:
             my_state.view()
 
         self.bottom_sprite.tile(pygame.Rect(0,my_state.screen.get_height()//2+100,my_state.screen.get_width(),200))
         if self.npc_sprite:
-            self.npc_sprite.render(self.PORTRAIT_AREA.get_rect())
+            self.npc_sprite.render(self.get_portrait_area())
         if self.pilot_sprite:
             default_border.render(self.PILOT_AREA.get_rect())
             self.pilot_sprite.render(self.PILOT_AREA.get_rect(),1)
@@ -45,7 +52,7 @@ class ConvoVisualizer(object):
         t = 0
         myrect = self.PORTRAIT_AREA.get_rect()
         myrect.x = -400
-        while (myrect.x < self.PORTRAIT_AREA.get_rect().x):
+        while (myrect.x < self.get_portrait_area().x):
             if my_state.view:
                 my_state.view()
             self.bottom_sprite.tile(pygame.Rect(max(0,bx-t*75),my_state.screen.get_height()//2+100,my_state.screen.get_width(),200))
