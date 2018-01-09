@@ -39,6 +39,11 @@ class AttackData( object ):
         else:
             self.disabled_frame = active_frame + 2
 
+# Defense constants
+DODGE = 'DODGE'
+PARRY = 'PARRY'
+BLOCK = 'BLOCK'
+INTERCEPT = 'INTERCEPT'
 
 #  ***************************
 #  ***   Movement  Modes   ***
@@ -203,9 +208,9 @@ class AttackRoll( effects.NoEffect ):
         next_fx = []
         for target in targets:
             hi_def_roll = 50
-            for defense in self.defenses:
+            for defense in self.defenses.values():
                 if defense.can_attempt(originator,target):
-                    next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll)
+                    next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll,fx_record)
                     hi_def_roll = max(def_roll,hi_def_roll)
                     if next_fx:
                         break
@@ -230,7 +235,7 @@ class AttackRoll( effects.NoEffect ):
             if mval != 0:
                 modifiers.append((mval,m.name))
         odds = 1.0
-        for defense in self.defenses:
+        for defense in self.defenses.values():
             if defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers
@@ -275,9 +280,9 @@ class MultiAttackRoll( effects.NoEffect ):
         for target in targets:
             hi_def_roll = 50
             failed = False
-            for defense in self.defenses:
+            for defense in self.defenses.values():
                 if defense.can_attempt(originator,target):
-                    next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll)
+                    next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll,fx_record)
                     hi_def_roll = max(def_roll,hi_def_roll)
                     if next_fx:
                         failed = True
@@ -285,9 +290,9 @@ class MultiAttackRoll( effects.NoEffect ):
             fx_record['penetration'] = att_roll + att_bonus + self.penetration - hi_def_roll - self.get_multi_bonus()
             if not failed:
                 if self.num_attacks <= 10:
-                    num_hits = int(min( min( att_roll + att_bonus - hi_def_roll, 45 ) // 5 + 1, self.num_attacks ))
+                    num_hits = max(int(min( min( att_roll + att_bonus - hi_def_roll, 45 ) // 5 + 1, self.num_attacks )),1)
                 else:
-                    num_hits = int(max((min( att_roll + att_bonus - hi_def_roll, 50 ) * self.num_attacks)//50,1))
+                    num_hits = max(int(max((min( att_roll + att_bonus - hi_def_roll, 50 ) * self.num_attacks)//50,1)),1)
                 fx_record['number_of_hits'] = num_hits
                 anims.append( animobs.Caption('x{}'.format(num_hits),pos=pos,delay=delay,y_off=camp.scene.model_altitude(target,pos[0],pos[1])-15) )
 
@@ -310,7 +315,7 @@ class MultiAttackRoll( effects.NoEffect ):
             if mval != 0:
                 modifiers.append((mval,m.name))
         odds = 1.0
-        for defense in self.defenses:
+        for defense in self.defenses.values():
             if defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers
@@ -319,7 +324,7 @@ class MultiAttackRoll( effects.NoEffect ):
 class DoDamage( effects.NoEffect ):
     """ Whatever is in this tile is going to take damage.
     """
-    def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None ):
+    def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False ):
         if not children:
             children = list()
         self.damage_n = damage_n
@@ -327,17 +332,19 @@ class DoDamage( effects.NoEffect ):
         self.children = children
         self.anim = anim
         self.scale = scale
+        self.hot_knife = hot_knife
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         targets = camp.scene.get_actors(pos)
         penetration = fx_record.get("penetration",random.randint(1,100))
+        damage_percent = fx_record.get("damage_percent",100)
         number_of_hits = fx_record.get("number_of_hits",1)
         for target in targets:
             scale = self.scale or target.scale
-            hits = [scale.scale_health(
+            hits = [max(scale.scale_health(
               sum(random.randint(1,self.damage_d) for n in range(self.damage_n)),
-              materials.Metal) for t in range(number_of_hits)]
+              materials.Metal) * damage_percent // 100,1) for t in range(number_of_hits)]
             mydamage = damage.Damage( camp, hits,
-                  penetration, target, anims )
+                  penetration, target, anims, hot_knife=self.hot_knife )
         return self.children
 
 #  ***************************
@@ -402,6 +409,12 @@ class OverwhelmModifier( object ):
                 my_mod += camp.fight.cstat[t].attacks_this_round * self.MOD_PER_ATTACK
         return my_mod
 
+class GenericBonus(object):
+    def __init__(self,name,bonus):
+        self.name = name
+        self.bonus = bonus
+    def calc_modifier( self, camp, attacker, pos ):
+        return self.bonus
 
 #  **************************
 #  ***   Defense  Rolls   ***
@@ -414,7 +427,7 @@ class OverwhelmModifier( object ):
 # penetration if the attack hits.
 
 class DodgeRoll( object ):
-    def make_roll( self, atroller, attacker, defender, att_bonus, att_roll ):
+    def make_roll( self, atroller, attacker, defender, att_bonus, att_roll, fx_record ):
         # If the attack roll + attack bonus + accuracy is higher than the
         # defender's defense bonus + maneuverability + 20, or if the attack roll
         # is greater than 95, the attack hits.
@@ -443,6 +456,27 @@ class DodgeRoll( object ):
 
     CHILDREN = (effects.NoEffect(anim=MissAnim),)
 
+class ReflexSaveRoll( object ):
+    # Taking the name from d20... Unlike a regular dodge roll, a reflex save
+    # can't entirely avoid an attack, but it can reduce the damage done.
+    def make_roll( self, atroller, attacker, defender, att_bonus, att_roll, fx_record ):
+        # If the attack roll + attack bonus + accuracy is higher than the
+        # defender's defense bonus + maneuverability + 20, or if the attack roll
+        # is greater than 95, the attack hits.
+        def_target = defender.get_dodge_score() + random.randint(1,100)
+        diff = (def_target + defender.calc_mobility()) - (att_roll + att_bonus + atroller.accuracy)
+        if diff >= 0:
+            # Record a damage reduction.
+            fx_record['damage_percent'] = max( 75- diff, 25 )
+        return (None,def_target)
+
+    def can_attempt( self, attacker, defender ):
+        return True
+
+    def get_odds( self, atroller, attacker, defender, att_bonus ):
+        return 1.0
+
+
 # BlockRoll, ParryRoll, ECMRoll, AntiMissileRoll
 
 #  *****************
@@ -460,7 +494,26 @@ class AmmoPrice(object):
     def can_pay( self, chara ):
         return self.ammo_source.quantity >= (self.ammo_source.spent + self.ammo_amount)
 
+class PowerPrice(object):
+    def __init__( self, power_amount ):
+        self.power_amount = power_amount
 
+    def pay( self, chara ):
+        chara.consume_power(self.power_amount)
+
+    def can_pay( self, chara ):
+        cp,mp = chara.get_current_and_max_power()
+        return cp >= self.power_amount
+
+class MentalPrice(object):
+    def __init__( self, amount ):
+        self.amount = amount
+
+    def pay( self, chara ):
+        chara.spend_mental(self.amount)
+
+    def can_pay( self, chara ):
+        return chara.get_current_mental() >= self.amount
 
 
 

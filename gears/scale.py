@@ -29,6 +29,9 @@ class MechaScale( object ):
     def scale_health( self, hp , material ):
         # Scale mass based on scale and material.
         return ( hp * ( self.SIZE_FACTOR ** 2 ) * material.damage_scale ) // 2
+    @classmethod
+    def scale_power( self, power ):
+        return power * self.SIZE_FACTOR ** 2
 
 class HumanScale( MechaScale ):
     SIZE_FACTOR = 1

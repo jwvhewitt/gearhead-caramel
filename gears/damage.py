@@ -9,13 +9,14 @@ import base
 
 class Damage( object ):
     BOOM_SPRITES = list(range(7))
-    def __init__( self, camp, hit_list, penetration, target, animlist ):
+    def __init__( self, camp, hit_list, penetration, target, animlist, hot_knife=False ):
         self.camp = camp
         self.hit_list = hit_list
         self.penetration = penetration
         self.overkill = 0
         self.damage_done = 0
         self.animlist = animlist
+        self.hot_knife = hot_knife
         self.destroyed_parts = list()
         self.target_root = target.get_root()
         self.operational_at_start = self.target_root.is_operational()
@@ -83,6 +84,13 @@ class Damage( object ):
                 penetration -= tar
             # Armor that gets used gets damaged.
             dmg = armor.reduce_damage( dmg, self )
+
+        if penetration <= 0 and self.hot_knife and dmg > 0:
+            # A hot knife attack doesn't get stopped by armor, but it does get
+            # its damage reduced a fair chunk.
+            denom = max( 45 + penetration, 5 )
+            dmg = max( int( dmg * denom // 50 ), 1 )
+            penetration = 1
 
         if penetration > 0 and dmg > 0:
             # A damaging strike.

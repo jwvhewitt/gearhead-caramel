@@ -26,7 +26,7 @@ Mecha
                     damage = 4
                     accuracy = 1
                     penetration = 0
-
+                    attributes = (VariableFire3)
                 Mount
                     name = "Top Weapon Mount"
                     INV

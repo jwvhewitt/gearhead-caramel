@@ -69,12 +69,25 @@ class PilotStatusBlock( object ):
     def __init__(self,model,width=220,**kwargs):
         if model:
             self.model = model.get_pilot()
+            self.mover = model
         else:
             self.model = None
         self.width = width
-        self.height = pbge.SMALLFONT.get_linesize()
+        self.height = max(pbge.SMALLFONT.get_linesize(),12)
+        self.power_sprite = pbge.image.Image('sys_powerindicator.png',32,12)
+
     def render(self,x,y):
         pbge.draw_text(pbge.SMALLFONT, str(self.model), pygame.Rect(x,y,self.width,self.height), justify=-1)
+        if self.model:
+            pbge.draw_text(pbge.SMALLFONT, 'H:{}'.format(self.model.current_health), pygame.Rect(x+83,y,35,self.height,justify=0))
+            pbge.draw_text(pbge.SMALLFONT, 'M:{}'.format(self.model.get_current_mental()), pygame.Rect(x+118,y,35,self.height,justify=0))
+            pbge.draw_text(pbge.SMALLFONT, 'S:{}'.format(self.model.get_current_stamina()), pygame.Rect(x+153,y,35,self.height,justify=0))
+
+            cp,mp = self.mover.get_current_and_max_power()
+            if mp > 0:
+                mydest = self.power_sprite.get_rect(0)
+                mydest.midright = (x + self.width, y + self.height//2)
+                self.power_sprite.render(mydest,10-max(cp*10//mp,1))
 
 class OddsInfoBlock( object ):
     def __init__(self,odds,modifiers,width=220,**kwargs):

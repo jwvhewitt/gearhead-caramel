@@ -226,6 +226,45 @@ class Mover( KeyObject ):
                 self.mmode = mm
                 break
 
+class HasPower( KeyObject ):
+    # This is a gear that has, and can use, power sources.
+    def get_current_and_max_power( self ):
+        sources = [ p for p in self.descendants() if (hasattr(p,"max_power") and p.is_operational())]
+        current_power = 0
+        max_power = 0
+        for p in sources:
+            current_power += p.current_power()
+            max_power += p.max_power()
+        return current_power,max_power
+    def consume_power(self,amount):
+        sources = [ p for p in self.descendants() if (hasattr(p,"spend_power") and p.is_operational())]
+        random.shuffle( sources )
+        while (amount > 0) and sources:
+            ps = sources.pop()
+            amount = ps.spend_power( amount )
+    def renew_power(self):
+        for p in self.descendants():
+            if hasattr(p,'regen_power') and p.is_operational():
+                p.regen_power()
+
+class MakesPower( KeyObject ):
+    # In addition to this inheritance, the subclass needs to define a max_power
+    # method.
+    def __init__(self, **keywords ):
+        self.spent = 0
+        super(MakesPower, self).__init__(**keywords)
+    def max_power(self):
+        return self.scale.scale_power(1)
+    def current_power(self):
+        return self.max_power() - self.spent
+    def spend_power(self,amount):
+        # Take power from this device. Return any unspent power.
+        leftover = amount - self.current_power()
+        self.spent = min( self.spent + amount, self.max_power() )
+        return max(leftover,0)
+    def regen_power(self):
+        if self.spent > 0:
+            self.spent = max(self.spent - self.scale.SIZE_FACTOR,0)
 
 # Custom Containers
 # For subcomponents and invcomponents with automatic error checking
@@ -328,8 +367,6 @@ class BaseGear( scenes.PlaceableThing ):
     @property
     def free_volume(self):
         return self.volume - sum( i.volume for i in self.sub_com )
-
-    energy = 1
 
     base_cost = 0
 
@@ -534,7 +571,7 @@ class Armor( BaseGear, StandardDamageHandler ):
 #   ***   SUPPORT  SYSTEMS   ***
 #   ****************************
 
-class Engine( BaseGear, StandardDamageHandler ):
+class Engine( BaseGear, StandardDamageHandler, MakesPower ):
     DEFAULT_NAME = "Engine"
     SAVE_PARAMETERS = ('size',)
     def __init__(self, size=750, **keywords ):
@@ -563,6 +600,14 @@ class Engine( BaseGear, StandardDamageHandler ):
             fx=geffects.DoDamage(2,self.size//200+2,anim=geffects.SuperBoom,scale=self.scale),
             area=pbge.scenes.targetarea.SelfCentered(radius=self.size//600+1,delay_from=-1) )
         my_invo.invoke(camp,None,[my_root.pos,],anim_list)
+    def is_operational( self ):
+        """ To be operational, an engine must be in an operational module.
+        """
+        mod = self.get_module()
+        return self.is_not_destroyed() and mod and mod.is_operational()
+
+    def max_power(self):
+        return self.scale.scale_power(self.size // 25)
 
 
 
@@ -672,7 +717,7 @@ class HeavyActuators( MovementSystem, StandardDamageHandler ):
 #   ***   POWER  SOURCE   ***
 #   *************************
 
-class PowerSource( BaseGear, StandardDamageHandler ):
+class PowerSource( BaseGear, StandardDamageHandler, MakesPower ):
     DEFAULT_NAME = "Power Source"
     SAVE_PARAMETERS = ('size',)
     def __init__(self,size=1, **keywords ):
@@ -694,6 +739,14 @@ class PowerSource( BaseGear, StandardDamageHandler ):
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
         return self.size
+    def is_operational( self ):
+        """ To be operational, a power source must be in an operational module.
+        """
+        mod = self.get_module()
+        return self.is_not_destroyed() and mod and mod.is_operational()
+
+    def max_power(self):
+        return self.scale.scale_power( self.size * 5 )
 
 #   *******************
 #   ***   WEAPONS   ***
@@ -761,10 +814,6 @@ class Weapon( BaseGear, StandardDamageHandler ):
         return int(v*mult)
 
     @property
-    def energy(self):
-        return 1
-
-    @property
     def base_cost(self):
         # Multiply the stats together, squaring damage and range because they're so important.
         mult = 1.0
@@ -793,7 +842,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
         return self.scale.RANGED_SKILL
 
     def get_defenses( self ):
-        return [geffects.DodgeRoll(),]
+        return {geffects.DODGE: geffects.DodgeRoll(),}
 
     def get_modifiers( self ):
         return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
@@ -856,7 +905,7 @@ class MeleeWeapon( Weapon ):
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
-        return [geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
+        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
     def get_basic_attack( self ):
         ba = pbge.effects.Invocation(
                 name = 'Basic Attack', 
@@ -881,6 +930,8 @@ class MeleeWeapon( Weapon ):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}'.format(self)
 
 class EnergyWeapon( Weapon ):
+    # Energy weapons do "hot knife" damage. It gets reduced by, but not stopped
+    # by, armor.
     MIN_REACH = 1
     MAX_REACH = 3
     MIN_DAMAGE = 1
@@ -893,13 +944,19 @@ class EnergyWeapon( Weapon ):
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
-        return [geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
+        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
+    def get_basic_power_cost( self ):
+        mult = 1.0
+        for aa in self.get_attributes():
+            mult *= aa.POWER_MODIFIER
+        return max(int( self.scale.scale_power(self.damage) * mult ), 1)
+
     def get_basic_attack( self ):
         ba = pbge.effects.Invocation(
                 name = 'Basic Attack', 
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.get_attack_skill(),
-                    children = (geffects.DoDamage(self.damage,6,scale=self.scale),),
+                    children = (geffects.DoDamage(self.damage,6,scale=self.scale,hot_knife=True),),
                     accuracy=self.accuracy*10, penetration=self.penetration*10, 
                     defenses = self.get_defenses(),
                     modifiers = self.get_modifiers()
@@ -907,6 +964,7 @@ class EnergyWeapon( Weapon ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
+                price=[geffects.PowerPrice(self.get_basic_power_cost())],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
                 targets=1)
         for aa in self.get_attributes():
@@ -958,8 +1016,9 @@ class BallisticWeapon( Weapon ):
     SAVE_PARAMETERS = ('ammo_type',)
     DEFAULT_CALIBRE = calibre.Shells_150mm
     DEFAULT_SHOT_ANIM = geffects.BigBullet
-    LEGAL_ATTRIBUTES = (attackattributes.Automatic,attackattributes.BurstFire2,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Automatic,attackattributes.BurstFire2,
         attackattributes.BurstFire3,attackattributes.BurstFire4,attackattributes.BurstFire5,
+        attackattributes.VariableFire3,
         )
     def __init__(self, ammo_type=None, **keywords ):
         self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
@@ -1002,7 +1061,7 @@ class BallisticWeapon( Weapon ):
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon),
-                price=geffects.AmmoPrice(my_ammo,ammo_cost),
+                price=[geffects.AmmoPrice(my_ammo,ammo_cost)],
                 targets=targets)
 
         for aa in self.get_attributes():
@@ -1030,8 +1089,38 @@ class BeamWeapon( Weapon ):
     MAX_PENETRATION = 5
     COST_FACTOR = 15
     DEFAULT_SHOT_ANIM = geffects.GunBeam
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Automatic,attackattributes.BurstFire2,
+        attackattributes.BurstFire3,attackattributes.BurstFire4,attackattributes.BurstFire5,
+        attackattributes.VariableFire3,
+        )
     def get_weapon_desc( self ):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)
+    def get_basic_power_cost( self ):
+        mult = 1.0
+        for aa in self.get_attributes():
+            mult *= aa.POWER_MODIFIER
+        return max(int( self.scale.scale_power(self.damage) * mult ), 1)
+    def get_basic_attack( self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0 ):
+        # Check the ammunition. If it doesn't have enough bang, downgrade the attack.
+        ba = pbge.effects.Invocation(
+                name = name, 
+                fx=geffects.AttackRoll(
+                    self.attack_stat, self.get_attack_skill(),
+                    children = (geffects.DoDamage(self.damage,6,scale=self.scale),),
+                    accuracy=self.accuracy*10, penetration=self.penetration*10, 
+                    defenses = self.get_defenses(),
+                    modifiers = self.get_modifiers()
+                    ),
+                area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
+                used_in_combat = True, used_in_exploration=False,
+                shot_anim=self.shot_anim,
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon),
+                price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost)],
+                targets=targets)
+        for aa in self.get_attributes():
+            if hasattr(aa,'modify_basic_attack'):
+                aa.modify_basic_attack(self,ba)
+        return ba
 
 
 class Missile( BaseGear, StandardDamageHandler ):
@@ -1146,7 +1235,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
         return self.is_not_destroyed() and mod and mod.is_operational()
 
     def get_defenses( self ):
-        return [geffects.DodgeRoll(),]
+        return {geffects.DODGE: geffects.DodgeRoll(),}
 
     def get_modifiers( self, ammo ):
         return [geffects.RangeModifier(ammo.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
@@ -1169,7 +1258,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=geffects.Missile1,
-                price=geffects.AmmoPrice(ammo,1),
+                price=[geffects.AmmoPrice(ammo,1)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),0),
                 targets=1)
             for aa in self.get_attributes():
@@ -1192,7 +1281,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=geffects.MissileFactory(num_missiles),
-                price=geffects.AmmoPrice(ammo,num_missiles),
+                price=[geffects.AmmoPrice(ammo,num_missiles)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),frame),
                 targets=1)
             for aa in self.get_attributes():
@@ -1433,7 +1522,7 @@ class MT_Battroid( Singleton ):
         return base_speed
 
 
-class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait):
+class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower):
     SAVE_PARAMETERS = ('name','form')
     def __init__(self, form=MT_Battroid, **keywords ):
         name = keywords.get(  "name" )
@@ -1609,8 +1698,45 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait):
                 it = max((sens.get_sensor_rating()/map_scale.RANGE_FACTOR)*5+5,it)
         return it
 
+    def get_max_mental( self ):
+        pilot = self.get_pilot()
+        if pilot:
+            return pilot.get_max_mental()
+        else:
+            return 0
 
-class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait):
+    def get_max_stamina( self ):
+        pilot = self.get_pilot()
+        if pilot:
+            return pilot.get_max_stamina()
+        else:
+            return 0
+
+    def get_current_mental( self ):
+        pilot = self.get_pilot()
+        if pilot:
+            return pilot.get_current_mental()
+        else:
+            return 0
+
+    def get_current_stamina( self ):
+        pilot = self.get_pilot()
+        if pilot:
+            return pilot.get_current_stamina()
+        else:
+            return 0
+
+    def spend_mental( self, amount ):
+        pilot = self.get_pilot()
+        if pilot:
+            pilot.spend_mental(amount)
+
+    def spend_stamina( self, amount ):
+        pilot = self.get_pilot()
+        if pilot:
+            pilot.spend_stamina(amount)
+
+class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait,HasPower):
     SAVE_PARAMETERS = ('name','form')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat
@@ -1619,6 +1745,9 @@ class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait):
         if statline:
             self.statline.update(statline)
         self.personality = set(personality)
+
+        self.mp_spent = 0
+        self.sp_spent = 0
 
         super(Character, self).__init__(**keywords)
 
@@ -1693,4 +1822,22 @@ class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait):
 
     def get_sensor_range( self, map_scale ):
         return self.get_stat(stats.Perception) * self.scale.RANGE_FACTOR / map_scale.RANGE_FACTOR
+
+    def get_max_mental( self ):
+        return (self.get_stat(stats.Knowledge)+self.get_stat(stats.Ego)+5)//2 + self.get_stat(stats.Concentration)*3
+
+    def get_max_stamina( self ):
+        return (self.get_stat(stats.Body)+self.get_stat(stats.Ego)+5)//2 + self.get_stat(stats.Athletics)*3
+
+    def get_current_mental( self ):
+        return max(self.get_max_mental() - self.mp_spent,0)
+
+    def get_current_stamina( self ):
+        return max(self.get_max_stamina() - self.sp_spent,0)
+
+    def spend_mental( self, amount ):
+        self.mp_spent += amount
+
+    def spend_stamina( self, amount ):
+        self.sp_spent += amount
 

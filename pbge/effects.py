@@ -20,12 +20,14 @@ class Invocation( object ):
         self.ai_tar = ai_tar
         self.shot_anim = shot_anim
         self.targets = targets
-        self.price = price
+        self.price = list()
+        if price:
+            self.price += price
         self.data = data    # Game-specific info attached to an invocation,
                 # such as button images and whatnot.
 
     def can_be_invoked( self, chara, in_combat=False ):
-        if self.price and not self.price.can_pay(chara):
+        if self.price and not all(p.can_pay(chara) for p in self.price):
             return False
         elif in_combat:
             return self.used_in_combat and self.fx
@@ -73,8 +75,8 @@ class Invocation( object ):
                     delay = camp.scene.distance( p, delay_point ) * 2 + 1
                 self.fx( camp, fx_record, originator, p, anims, delay )
 
-        if self.price:
-            self.price.pay(originator)
+        for p in self.price:
+            p.pay(originator)
 
         return fx_record
 

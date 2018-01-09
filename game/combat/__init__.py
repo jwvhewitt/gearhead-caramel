@@ -222,6 +222,7 @@ class Combat( object ):
                 #explo.invoke_enchantments( chara )
                 self.cstat[chara].aoo_readied = True
                 self.cstat[chara].attacks_this_round = 0
+                chara.renew_power()
             self.n += 1
 
         #if self.no_quit and not pygwrap.GOT_QUIT:

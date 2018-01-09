@@ -66,6 +66,7 @@ Mecha
                             accuracy = 0
                             penetration = 3
                             ammo_type = Shells_150mm
+                            attributes = (Accurate)
                             SUB
                                 Ammo
                                     ammo_type=Shells_150mm

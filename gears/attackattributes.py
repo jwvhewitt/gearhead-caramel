@@ -2,12 +2,27 @@ from pbge import Singleton
 import geffects
 import pbge
 
+class Accurate(Singleton):
+    # This weapon has an Aim action that gives +20 accuracy for 4MP.
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.2
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def get_attacks( self, weapon ):
+        aa = weapon.get_basic_attack(name='Aim (+20 acc, 4MP)',attack_icon=12)
+        aa.fx.modifiers.append(geffects.GenericBonus('Aim',20))
+        aa.price.append(geffects.MentalPrice(4))
+        return [aa]
+
 class Automatic(Singleton):
     # This weapon has two extra modes: x5 ammo for 2 shots, or x10 ammo for 3 shots
 
     MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 1.2
     COST_MODIFIER = 2.0
+    POWER_MODIFIER = 1.0
 
     @classmethod
     def get_attacks( self, weapon ):
@@ -18,6 +33,7 @@ class Blast1(Singleton):
     MASS_MODIFIER = 2.0
     VOLUME_MODIFIER = 2.0
     COST_MODIFIER = 2.0
+    POWER_MODIFIER = 2.0
     BLAST_RADIUS = 1
 
     @classmethod
@@ -29,11 +45,13 @@ class Blast1(Singleton):
             reach = weapon.reach
         attack.area = pbge.scenes.targetarea.Blast(radius=self.BLAST_RADIUS,reach=reach,delay_from=1)
         attack.fx.anim = geffects.BigBoom
+        attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
 
 class Blast2(Blast1):
     MASS_MODIFIER = 3.0
     VOLUME_MODIFIER = 3.0
     COST_MODIFIER = 3.0
+    POWER_MODIFIER = 3.0
     BLAST_RADIUS = 2
 
 class BurstFire2(Singleton):
@@ -41,6 +59,7 @@ class BurstFire2(Singleton):
     MASS_MODIFIER = 1.2
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.5
+    POWER_MODIFIER = 1.0
     BURST_VALUE = 2
 
     @classmethod
@@ -66,6 +85,7 @@ class BurstFire3(BurstFire2):
     MASS_MODIFIER = 1.3
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.0
+    POWER_MODIFIER = 1.0
     BURST_VALUE = 3
 
 class BurstFire4(BurstFire2):
@@ -73,6 +93,7 @@ class BurstFire4(BurstFire2):
     MASS_MODIFIER = 1.4
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.5
+    POWER_MODIFIER = 1.0
     BURST_VALUE = 4
 
 class BurstFire5(BurstFire2):
@@ -80,6 +101,17 @@ class BurstFire5(BurstFire2):
     MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 1.1
     COST_MODIFIER = 3.0
+    POWER_MODIFIER = 1.0
     BURST_VALUE = 5
 
+class VariableFire3(Singleton):
+    # This weapon can do Burst x3 fire in addition to single fire
+    MASS_MODIFIER = 1.3
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.5
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def get_attacks( self, weapon ):
+        return BurstFire3.replace_primary_attack(weapon)
 
