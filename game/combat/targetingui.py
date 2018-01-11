@@ -182,6 +182,17 @@ class TargetingUI( object ):
         pbge.my_state.view.overlays.clear()
         return self.targets
 
+    def launch( self ):
+        pbge.my_state.view.overlays.clear()
+        # Launch the effect.
+        self.invo.invoke(self.camp, self.attacker, self.targets, pbge.my_state.view.anim_list )
+        pbge.my_state.view.handle_anim_sequence(self.record)
+        self.camp.fight.cstat[self.attacker].spend_ap(1)
+        self.targets = list()
+        self.my_widget.update_buttons()
+        self.record = False
+
+
     def update( self, ev, player_turn ):
         # We just got an event. Deal with it.
 
@@ -189,17 +200,24 @@ class TargetingUI( object ):
             self.render()
             pbge.my_state.do_flip()
 
-        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and pbge.my_state.view.mouse_tile in self.legal_tiles and not pbge.my_state.widget_clicked:
-            self.targets.append( pbge.my_state.view.mouse_tile )
+        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
+            if pbge.my_state.view.mouse_tile in self.legal_tiles:
+                self.targets.append( pbge.my_state.view.mouse_tile )
+            elif self.num_targets == 1 and pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile):
+                # Maybe we can move into range? We can determine firing points by
+                # checking from the target's position.
+                tarp = pbge.my_state.view.mouse_tile
+                firing_points = self.invo.area.get_targets(self.camp,pbge.my_state.view.mouse_tile)
+                if firing_points.intersection(self.nav.cost_to_tile.keys()):
+                    fp = min(firing_points, key=lambda r: self.nav.cost_to_tile.get(r,10000))
+                    self.camp.fight.cstat[chara].mp_remaining += self.attacker.get_current_speed()//2
+                    self.camp.fight.move_model_to(self.attacker,self.nav,fp)
+                    if self.attacker.pos == fp:
+                        self.targets.append( tarp )
+                    self.activate()
+
             if len(self.targets) >= self.num_targets:
-                pbge.my_state.view.overlays.clear()
-                # Launch the effect.
-                self.invo.invoke(self.camp, self.attacker, self.targets, pbge.my_state.view.anim_list )
-                pbge.my_state.view.handle_anim_sequence(self.record)
-                self.camp.fight.cstat[self.attacker].spend_ap(1)
-                self.targets = list()
-                self.my_widget.update_buttons()
-                self.record = False
+                self.launch()
 
         elif ev.type == pygame.KEYDOWN:
             if ev.unicode == u"r":
@@ -214,6 +232,7 @@ class TargetingUI( object ):
     def activate( self ):
         self.my_widget.active = True
         self.legal_tiles = self.invo.area.get_targets(self.camp,self.attacker.pos)
+        self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,self.attacker.pos,(self.camp.fight.cstat[self.attacker].action_points-1)*self.attacker.get_current_speed()+self.attacker.get_current_speed()//2+self.camp.fight.cstat[self.attacker].mp_remaining,self.attacker.mmode,self.camp.scene.get_blocked_tiles())
 
     def deactivate( self ):
         self.my_widget.active = False

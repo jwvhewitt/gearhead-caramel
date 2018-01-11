@@ -188,6 +188,9 @@ class Combat( object ):
         # Return the actual end point, which may be different from that requested.
         return chara.pos
 
+    def move_and_attack( self, chara, nav, dest, invo, target ):
+        pass
+
     def do_combat_turn( self, chara ):
         if not self.cstat[chara].has_started_turn:
             self.cstat[chara].start_turn(chara)
