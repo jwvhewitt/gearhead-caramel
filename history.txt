@@ -1,3 +1,4 @@
+- Clicking enemy opens attack menu (game/combat/movementui.py)
 - Music is preloaded when scene entered (pbge,game/exploration.py)
 - Added OddsInfo block (gears/info.py)
 - Melee, Energy attacks ignore target speed (gears/base.py)

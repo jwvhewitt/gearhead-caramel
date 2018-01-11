@@ -75,14 +75,14 @@ class MovementUI( object ):
 
         pbge.my_state.view()
 
-        if self.scene.get_visible(*self.view.mouse_tile):
+        if self.camp.scene.get_visible(*pbge.my_state.view.mouse_tile):
             mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
             if mmecha:
                 x,y = pygame.mouse.get_pos()
                 y -= 64
                 info.MechaStatusDisplay(model=mmecha[0]).render(x,y)
-            elif pbge.my_state.view.waypointmap.get(self.view.mouse_tile):
-                wp = pbge.my_state.view.waypointmap.get(self.view.mouse_tile)
+            elif pbge.my_state.view.waypointmap.get(pbge.my_state.view.mouse_tile):
+                wp = pbge.my_state.view.waypointmap.get(pbge.my_state.view.mouse_tile)
                 x,y = pygame.mouse.get_pos()
                 y -= 64
                 gears.info.ListDisplay(items=wp).render(x,y)
@@ -113,7 +113,7 @@ class MovementUI( object ):
         self.origin = self.mover.pos
         self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,self.origin,self.camp.fight.cstat[self.mover].action_points*self.mover.get_current_speed()+self.camp.fight.cstat[self.mover].mp_remaining,self.mover.mmode,self.camp.scene.get_blocked_tiles())
 
-    def update( self, ev ):
+    def update( self, ev, player_turn ):
         # We just got an event. Deal with it.
         if self.needs_tile_update:
             self.update_tiles()
@@ -123,10 +123,16 @@ class MovementUI( object ):
             self.camp.fight.cstat[self.mover].mp_remaining = 0
         elif ev.type == pbge.TIMEREVENT:
             self.render()
-        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and pbge.my_state.view.mouse_tile in self.nav.cost_to_tile and not pbge.my_state.widget_clicked:
-            # Move!
-            dest = self.camp.fight.move_model_to(self.mover,self.nav,pbge.my_state.view.mouse_tile)
-            self.needs_tile_update = True
+        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
+            if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
+                # Move!
+                dest = self.camp.fight.move_model_to(self.mover,self.nav,pbge.my_state.view.mouse_tile)
+                self.needs_tile_update = True
+            else:
+                mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
+                if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
+                    player_turn.switch_attack()
+
 
     def dispose( self ):
         # Get rid of the widgets and shut down.

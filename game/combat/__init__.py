@@ -58,7 +58,7 @@ class PlayerTurn( object ):
             self.movement_ui.activate()
             self.active_ui = self.movement_ui
 
-    def switch_attack( self, button, ev ):
+    def switch_attack( self, button=None, ev=None ):
         if self.active_ui != self.attack_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_attack_library():
             self.active_ui.deactivate()
             self.attack_ui.activate()
@@ -94,7 +94,7 @@ class PlayerTurn( object ):
             # Get input and process it.
             gdi = pbge.wait_event()
 
-            self.active_ui.update( gdi )
+            self.active_ui.update( gdi, self )
 
             if gdi.type == pygame.KEYDOWN:
                 if gdi.unicode == u"Q":

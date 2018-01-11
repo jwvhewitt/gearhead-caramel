@@ -145,7 +145,7 @@ class TargetingUI( object ):
 
         pbge.my_state.view()
 
-        if self.scene.get_visible(*self.view.mouse_tile):
+        if self.camp.scene.get_visible(*pbge.my_state.view.mouse_tile):
             mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
             if mmecha:
                 x,y = pygame.mouse.get_pos()
@@ -182,7 +182,7 @@ class TargetingUI( object ):
         pbge.my_state.view.overlays.clear()
         return self.targets
 
-    def update( self, ev ):
+    def update( self, ev, player_turn ):
         # We just got an event. Deal with it.
 
         if ev.type == pbge.TIMEREVENT:
