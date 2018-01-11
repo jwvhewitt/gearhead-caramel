@@ -210,10 +210,13 @@ class TargetingUI( object ):
                 firing_points = self.invo.area.get_targets(self.camp,pbge.my_state.view.mouse_tile)
                 if firing_points.intersection(self.nav.cost_to_tile.keys()):
                     fp = min(firing_points, key=lambda r: self.nav.cost_to_tile.get(r,10000))
-                    self.camp.fight.cstat[chara].mp_remaining += self.attacker.get_current_speed()//2
+                    self.camp.fight.cstat[self.attacker].mp_remaining += self.attacker.get_current_speed()//2
                     self.camp.fight.move_model_to(self.attacker,self.nav,fp)
                     if self.attacker.pos == fp:
                         self.targets.append( tarp )
+                    else:
+                        self.camp.fight.cstat[self.attacker].spend_ap(1)
+                    # Recalculate the combat info.
                     self.activate()
 
             if len(self.targets) >= self.num_targets:
