@@ -151,6 +151,12 @@ class Explorer( object ):
             if hasattr(pc,'get_sprite'):
                 self.preloads.append(pc.get_sprite())
 
+        # Preload the music as well.
+        if hasattr( self.scene, 'exploration_music'):
+            pbge.my_state.locate_music(self.scene.exploration_music)
+        if hasattr( self.scene, 'combat_music'):
+            pbge.my_state.locate_music(self.scene.combat_music)
+
         # Update the view of all party members.
         first_pc = None
         for pc in camp.party:
@@ -237,16 +243,17 @@ class Explorer( object ):
                 self.view.overlays.clear()
                 self.view.overlays[ self.view.mouse_tile ] = (self.mapcursor,0)
                 self.view()
-                mmecha = self.view.modelmap.get(self.view.mouse_tile)
-                if mmecha:
-                    x,y = pygame.mouse.get_pos()
-                    y -= 64
-                    gears.info.MechaStatusDisplay(model=mmecha[0]).render(x,y)
-                elif self.view.waypointmap.get(self.view.mouse_tile):
-                    wp = self.view.waypointmap.get(self.view.mouse_tile)
-                    x,y = pygame.mouse.get_pos()
-                    y -= 64
-                    gears.info.ListDisplay(items=wp).render(x,y)
+                if self.scene.get_visible(*self.view.mouse_tile):
+                    mmecha = self.view.modelmap.get(self.view.mouse_tile)
+                    if mmecha:
+                        x,y = pygame.mouse.get_pos()
+                        y -= 64
+                        gears.info.MechaStatusDisplay(model=mmecha[0]).render(x,y)
+                    elif self.view.waypointmap.get(self.view.mouse_tile):
+                        wp = self.view.waypointmap.get(self.view.mouse_tile)
+                        x,y = pygame.mouse.get_pos()
+                        y -= 64
+                        gears.info.ListDisplay(items=wp).render(x,y)
 
                 pbge.my_state.do_flip()
 

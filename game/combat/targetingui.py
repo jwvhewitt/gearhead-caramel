@@ -145,16 +145,17 @@ class TargetingUI( object ):
 
         pbge.my_state.view()
 
-        mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
-        if mmecha:
-            x,y = pygame.mouse.get_pos()
-            y -= 64
-            mysd = info.MechaStatusDisplay(model=mmecha[0])
+        if self.scene.get_visible(*self.view.mouse_tile):
+            mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
+            if mmecha:
+                x,y = pygame.mouse.get_pos()
+                y -= 64
+                mysd = info.MechaStatusDisplay(model=mmecha[0])
 
-            if hasattr(self.invo.fx,"get_odds"):
-                odds,modifiers = self.invo.fx.get_odds(self.camp,self.attacker,mmecha[0])
-                mysd.info_blocks.append(info.OddsInfoBlock(odds,modifiers))
-            mysd.render(x,y)
+                if hasattr(self.invo.fx,"get_odds"):
+                    odds,modifiers = self.invo.fx.get_odds(self.camp,self.attacker,mmecha[0])
+                    mysd.info_blocks.append(info.OddsInfoBlock(odds,modifiers))
+                mysd.render(x,y)
 
         #if caption:
         #    pygwrap.default_border.render( self.screen, self.SELECT_AREA_CAPTION_ZONE )

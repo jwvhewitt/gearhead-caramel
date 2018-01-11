@@ -114,6 +114,8 @@ class GameState( object ):
         self.widget_clicked = False
         self.music = None
         self.music_name = None
+        self.music_library = dict()
+
     def render_widgets( self ):
         for w in self.widgets:
             w.super_render()
@@ -131,10 +133,18 @@ class GameState( object ):
             draw_text(self.small_font,self.widget_tooltip,myrect)
         pygame.display.flip()
 
+    def locate_music( self, mfname ):
+        if mfname in self.music_library:
+            return self.music_library[mfname]
+        else:
+            sound = pygame.mixer.Sound(util.music_dir(mfname))
+            self.music_library[mfname] = sound
+            return sound
+
     def start_music( self, mfname ):
         if mfname != self.music_name:
             self.music_name = mfname
-            sound = pygame.mixer.Sound(util.music_dir(mfname))
+            sound = self.locate_music(mfname)
             if self.music:
                 self.music.fadeout(2000)
             self.music = sound

@@ -75,11 +75,17 @@ class MovementUI( object ):
 
         pbge.my_state.view()
 
-        mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
-        if mmecha:
-            x,y = pygame.mouse.get_pos()
-            y -= 64
-            info.MechaStatusDisplay(model=mmecha[0]).render(x,y)
+        if self.scene.get_visible(*self.view.mouse_tile):
+            mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
+            if mmecha:
+                x,y = pygame.mouse.get_pos()
+                y -= 64
+                info.MechaStatusDisplay(model=mmecha[0]).render(x,y)
+            elif pbge.my_state.view.waypointmap.get(self.view.mouse_tile):
+                wp = pbge.my_state.view.waypointmap.get(self.view.mouse_tile)
+                x,y = pygame.mouse.get_pos()
+                y -= 64
+                gears.info.ListDisplay(items=wp).render(x,y)
 
         #pbge.draw_text(pbge.SMALLFONT,'This is an example\n of an overly long line that I intend to split into multiple lines using this function.',pygame.rect.Rect(50,50,200,100))
 

@@ -101,7 +101,7 @@ class OddsInfoBlock( object ):
         pbge.draw_text(pbge.my_state.big_font, 'TO HIT', pygame.Rect(x,y+pbge.my_state.huge_font.get_linesize(),75,32),justify=0)
         t = 0
         for mymod in self.modifiers:
-            pbge.draw_text(pbge.my_state.small_font, '{:+d}: {}'.format(int(mymod[0]),mymod[1]), pygame.Rect(x+80,y+t*pbge.SMALLFONT.get_linesize(),self.width-80,32),justify=-1)
+            pbge.draw_text(pbge.my_state.small_font, '{:+d}: {}'.format(int(mymod[0]),mymod[1]), pygame.Rect(x+77,y+t*pbge.SMALLFONT.get_linesize(),self.width-77,32),justify=-1)
             t += 1
             if t > 2:
                 break

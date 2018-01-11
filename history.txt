@@ -1,3 +1,5 @@
+- Music is preloaded when scene entered (pbge,game/exploration.py)
+- Added OddsInfo block (gears/info.py)
 - Melee, Energy attacks ignore target speed (gears/base.py)
 - Added Mental, Stamina, and Power (gears/base.py)
 - Blast attacks cannot be dodged (gears/geffects.py)
