@@ -1,3 +1,4 @@
+- Added Scatter damage type (game/geffects.py)
 - Clicking enemy opens attack menu (game/combat/movementui.py)
 - Music is preloaded when scene entered (pbge,game/exploration.py)
 - Added OddsInfo block (gears/info.py)

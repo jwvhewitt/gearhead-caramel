@@ -324,7 +324,7 @@ class MultiAttackRoll( effects.NoEffect ):
 class DoDamage( effects.NoEffect ):
     """ Whatever is in this tile is going to take damage.
     """
-    def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False ):
+    def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False, scatter=False ):
         if not children:
             children = list()
         self.damage_n = damage_n
@@ -333,6 +333,7 @@ class DoDamage( effects.NoEffect ):
         self.anim = anim
         self.scale = scale
         self.hot_knife = hot_knife
+        self.scatter = scatter
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         targets = camp.scene.get_actors(pos)
         penetration = fx_record.get("penetration",random.randint(1,100))
@@ -340,9 +341,15 @@ class DoDamage( effects.NoEffect ):
         number_of_hits = fx_record.get("number_of_hits",1)
         for target in targets:
             scale = self.scale or target.scale
-            hits = [max(scale.scale_health(
-              sum(random.randint(1,self.damage_d) for n in range(self.damage_n)),
-              materials.Metal) * damage_percent // 100,1) for t in range(number_of_hits)]
+
+            if self.scatter:
+                num_packets = sum( sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) for t in range(number_of_hits))
+                num_packets = max(int(num_packets * damage_percent //100), 1)
+                hits = [scale.scale_health(1, materials.Metal )] * num_packets
+            else:
+                hits = [max(int(scale.scale_health(
+                  sum(random.randint(1,self.damage_d) for n in range(self.damage_n)),
+                  materials.Metal) * damage_percent // 100),1) for t in range(number_of_hits)]
             mydamage = damage.Damage( camp, hits,
                   penetration, target, anims, hot_knife=self.hot_knife )
         return self.children

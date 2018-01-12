@@ -978,7 +978,9 @@ class Ammo( BaseGear, Stackable, StandardDamageHandler ):
     DEFAULT_NAME = "Ammo"
     STACK_CRITERIA = ("ammo_type",'attributes')
     SAVE_PARAMETERS = ('ammo_type','quantity','attributes')
-    LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2)
+    LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2,
+        attackattributes.Scatter, 
+        )
     def __init__(self, ammo_type=calibre.Shells_150mm, quantity=12, attributes=(), **keywords ):
         # Check the range of all parameters before applying.
         self.ammo_type = ammo_type
@@ -1091,7 +1093,7 @@ class BeamWeapon( Weapon ):
     DEFAULT_SHOT_ANIM = geffects.GunBeam
     LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Automatic,attackattributes.BurstFire2,
         attackattributes.BurstFire3,attackattributes.BurstFire4,attackattributes.BurstFire5,
-        attackattributes.VariableFire3,
+        attackattributes.Scatter, attackattributes.VariableFire3,
         )
     def get_weapon_desc( self ):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)
@@ -1135,7 +1137,9 @@ class Missile( BaseGear, StandardDamageHandler ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     STACK_CRITERIA = ("reach","damage","accuracy","penetration")
-    LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2,)
+    LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2,
+        attackattributes.Scatter, 
+        )
     def __init__(self, reach=1,damage=1,accuracy=1,penetration=1,quantity=12,attributes=(),**keywords ):
         # Check the range of all parameters before applying.
         if reach < self.__class__.MIN_REACH:

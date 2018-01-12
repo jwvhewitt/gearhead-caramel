@@ -46,6 +46,7 @@ class Blast1(Singleton):
         attack.area = pbge.scenes.targetarea.Blast(radius=self.BLAST_RADIUS,reach=reach,delay_from=1)
         attack.fx.anim = geffects.BigBoom
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
+        attack.fx.children[0].scatter = True
 
 class Blast2(Blast1):
     MASS_MODIFIER = 3.0
@@ -103,6 +104,18 @@ class BurstFire5(BurstFire2):
     COST_MODIFIER = 3.0
     POWER_MODIFIER = 1.0
     BURST_VALUE = 5
+
+class Scatter(Singleton):
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.2
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def modify_basic_attack( self, weapon, attack ):
+        # Change the damage type to scatter. That was easy.
+        attack.fx.children[0].scatter = True
+
 
 class VariableFire3(Singleton):
     # This weapon can do Burst x3 fire in addition to single fire
