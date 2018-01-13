@@ -27,6 +27,15 @@ class InfoPanel( object ):
             block.render(x,y)
             y += block.height + self.padding
 
+    def popup( self ):
+        w,h = self.get_dimensions()
+        x,y = pygame.mouse.get_pos()
+        x -= w//2
+        y -= h + 64
+        myrect = pygame.Rect(x,y,w,h)
+        myrect.clamp_ip(pbge.my_state.screen.get_rect())
+        self.render(myrect.left,myrect.top)
+
 class NameBlock( object ):
     def __init__(self,model,width=220,**kwargs):
         self.model = model

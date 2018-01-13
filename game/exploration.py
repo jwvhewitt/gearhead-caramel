@@ -243,17 +243,11 @@ class Explorer( object ):
                 self.view.overlays.clear()
                 self.view.overlays[ self.view.mouse_tile ] = (self.mapcursor,0)
                 self.view()
-                if self.scene.get_visible(*self.view.mouse_tile):
-                    mmecha = self.view.modelmap.get(self.view.mouse_tile)
-                    if mmecha:
-                        x,y = pygame.mouse.get_pos()
-                        y -= 64
-                        gears.info.MechaStatusDisplay(model=mmecha[0]).render(x,y)
-                    elif self.view.waypointmap.get(self.view.mouse_tile):
-                        wp = self.view.waypointmap.get(self.view.mouse_tile)
-                        x,y = pygame.mouse.get_pos()
-                        y -= 64
-                        gears.info.ListDisplay(items=wp).render(x,y)
+
+                # Display info for this tile.
+                my_info = self.scene.get_tile_info(self.view.mouse_tile)
+                if my_info:
+                    my_info.popup()
 
                 pbge.my_state.do_flip()
 

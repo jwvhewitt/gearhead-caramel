@@ -98,6 +98,16 @@ class GearHeadScene( pbge.scenes.Scene ):
         for pc in party:
             if pc.is_operational() and pc in self.contents:
                 self.in_sight |= pbge.scenes.pfov.PCPointOfView( self, pc.pos[0], pc.pos[1], pc.get_sensor_range(self.scale) ).tiles
+    def get_tile_info( self, pos ):
+        """Return an InfoPanel for the contents of this tile, if appropriate."""
+        if self.get_visible(*pos):
+            mmecha = pbge.my_state.view.modelmap.get(pos)
+            if mmecha:
+                return info.MechaStatusDisplay(model=mmecha[0])
+            elif pbge.my_state.view.waypointmap.get(pos):
+                wp = pbge.my_state.view.waypointmap.get(pos)
+                return info.ListDisplay(items=wp)
+
 
 
 class GearHeadCampaign( pbge.campaign.Campaign ):
