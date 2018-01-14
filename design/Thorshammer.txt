@@ -2,6 +2,7 @@ Mecha
     name = "Thorshammer"
     desig = "THD-35"
     imagename = "btr_thorshammer.png"
+    portrait = "mecha_thorshammer.png"
 
     SUB
         Torso
@@ -23,7 +24,7 @@ Mecha
                 BeamWeapon
                     name = "Laser Cannon"
                     reach = 4
-                    damage = 4
+                    damage = 2
                     accuracy = 1
                     penetration = 0
                     attributes = (VariableFire3)

@@ -2,6 +2,7 @@ Mecha
     name = "Zerosaiko"
     desig = "Z45-60"
     imagename = "btr_zerosaiko.png"
+    portrait = "mecha_zerosaiko.png"
 
     SUB
         Head

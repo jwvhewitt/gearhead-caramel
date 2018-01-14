@@ -108,6 +108,8 @@ class TargetingUI( object ):
     SC_AOE = 2
     SC_CURSOR = 3
     SC_VOIDCURSOR = 0
+    SC_TRAILMARKER = 6
+    SC_ZEROCURSOR = 7
     def __init__(self, camp, attacker, invo=None ):
         self.camp = camp
         self.attacker = attacker
@@ -126,9 +128,16 @@ class TargetingUI( object ):
         self.num_targets = new_invo.targets
         self.targets = list()
 
+    def can_move_and_attack( self, target ):
+        if self.num_targets == 1:
+            self.firing_points = self.invo.area.get_targets(self.camp,target.pos)
+            return self.firing_points.intersection(self.nav.cost_to_tile.keys())
+
+
     def render( self ):
         pbge.my_state.view.overlays.clear()
         pbge.my_state.view.overlays[ self.attacker.pos ] = (self.cursor_sprite,self.SC_ORIGIN)
+        mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             aoe = self.invo.area.get_area( self.camp, self.attacker.pos, pbge.my_state.view.mouse_tile )
             for p in aoe:
@@ -140,6 +149,13 @@ class TargetingUI( object ):
                     pbge.my_state.view.overlays[ p ] = (self.cursor_sprite,self.SC_AOE)
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_CURSOR)
+        elif mmecha and self.can_move_and_attack( mmecha[0] ):
+            fp = min(self.firing_points, key=lambda r: self.nav.cost_to_tile.get(r,10000))
+            pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_CURSOR)
+            mypath = self.nav.get_path(fp)
+            for p in mypath[1:]:
+                pbge.my_state.view.overlays[ p ] = (self.cursor_sprite,self.SC_TRAILMARKER)
+
         else:
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_VOIDCURSOR)
 
@@ -148,7 +164,6 @@ class TargetingUI( object ):
         # Display info for this tile.
         my_info = self.camp.scene.get_tile_info(pbge.my_state.view.mouse_tile)
         if my_info:
-            mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
             if mmecha and hasattr(self.invo.fx,"get_odds"):
                 odds,modifiers = self.invo.fx.get_odds(self.camp,self.attacker,mmecha[0])
                 my_info.info_blocks.append(info.OddsInfoBlock(odds,modifiers))
