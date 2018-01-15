@@ -214,6 +214,9 @@ class FrozenHotSpringCity( Plot ):
         else:
             myroom6.contents.append(WinterMochaDome(anchor=pbge.randmaps.anchors.middle))
 
+        self.add_sub_plot( nart, "MOCHA_HYOLEE" )
+        self.add_sub_plot( nart, "MOCHA_CARTER" )
+
         # Add the puzzle to get through the snowdrift.
         #
         # Bibliography for procedural puzzle generation:
@@ -222,8 +225,6 @@ class FrozenHotSpringCity( Plot ):
         self.add_sub_plot( nart, "MELT", PlotState( elements={"TARGET":snow_drift} ).based_on( self ) )
 
         self.add_sub_plot( nart, "MOCHA_MISSION", PlotState( elements={"CITY":myscene} ).based_on( self ), ident="COMBAT" )
-        self.add_sub_plot( nart, "MOCHA_HYOLEE" )
-        self.add_sub_plot( nart, "MOCHA_CARTER" )
 
         self.did_opening_sequence = False
         self.got_vikki_history = False
@@ -356,6 +357,12 @@ class WinterMochaHyolee( Plot ):
         self.register_element( "HYOLEE", hyolee, dident="ROOM" )
         return True
 
+    def HYOLEE_offers(self,camp):
+        # Return list of dialogue offers.
+        mylist = list()
+
+        return mylist
+
 class WinterMochaCarter( Plot ):
     LABEL = "MOCHA_CARTER"
     active = True
@@ -374,6 +381,12 @@ class WinterMochaCarter( Plot ):
         carter.mmode = pbge.scenes.movement.Walking
         self.register_element( "CARTER", carter, dident="FENCE_GATE_ROOM" )
         return True
+
+    def CARTER_offers(self,camp):
+        # Return list of dialogue offers.
+        mylist = list()
+
+        return mylist
 
 
 # Mocha Mission Construction.
@@ -399,6 +412,7 @@ class WinterMochaCarter( Plot ):
 # Enemy -
 # Complication - 
 # Stakes - 
+# Order - 
 
 
 class WinterHighwaySceneGen( pbge.randmaps.SceneGenerator ):
@@ -433,10 +447,60 @@ class WinterHighwaySceneGen( pbge.randmaps.SceneGenerator ):
         for p in path:
             gb.fill(pygame.Rect(p[0]-1,p[1]-1,3,3),floor=WinterMochaPavement,wall=None)
 
+class MochaMissionBattleBuilder( Plot ):
+    # Go fight mecha near Mauna.
+    LABEL = "MOCHA_MISSION"
+    active = True
+    scope = True
+    def custom_init( self, nart ):
+        """The mission leadup will be two highway scenes with an intro, two
+           encounters, a recharge, and two choices at the end. The choices
+           will handle their own scenes."""
+        team1 = teams.Team(name="Player Team")
+        myscene1 = gears.GearHeadScene(60,60,"Near Mauna",player_team=team1,scale=gears.scale.MechaScale)
+
+        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
+        mymutate = pbge.randmaps.mutator.CellMutator()
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myscenegen1 = WinterHighwaySceneGen(myscene1,myarchi)
+
+        myscene2 = gears.GearHeadScene(60,60,"Gyori Highway",player_team=team1,scale=gears.scale.MechaScale)
+        myscenegen2 = WinterHighwaySceneGen(myscene2,myarchi)
+
+        self.register_scene( nart, myscene1, myscenegen1, ident="FIRST_PART" )
+        self.register_scene( nart, myscene2, myscenegen2, ident="SECOND_PART" )
+
+        myscene1.exploration_music = 'Lines.ogg'
+        myscene1.combat_music = 'Late.ogg'
+        myscene2.exploration_music = 'Lines.ogg'
+        myscene2.combat_music = 'Late.ogg'
+
+        myroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene1,anchor=pbge.randmaps.anchors.south)
+        myent = self.register_element( "FIRST_ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myroom.contents.append( myent )
+
+        myroom2 = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene2,anchor=pbge.randmaps.anchors.south)
+        myent2 = self.register_element( "SECOND_ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myroom2.contents.append( myent2 )
+
+        mygoal = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene1,anchor=pbge.randmaps.anchors.north)
+        myexit = waypoints.Exit(dest_scene=myscene2,dest_entrance=myent2,name="Continue Onward",anchor=pbge.randmaps.anchors.north)
+        mygoal.contents.append( myexit )
+
+        boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene2)
+        boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene2)
+
+
+        return True
+
+    def enter_combat( self, camp ):
+        camp.destination = self.elements["FIRST_PART"]
+        camp.entrance = self.elements["FIRST_ENTRANCE"]
+
 
 class WinterBattle( Plot ):
     # Go fight mecha near Mauna.
-    LABEL = "MOCHA_MISSION"
+    LABEL = "OLD_MOCHA_MISSION"
     active = True
     scope = "LOCALE"
     def custom_init( self, nart ):

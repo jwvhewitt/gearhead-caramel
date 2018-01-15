@@ -51,5 +51,11 @@ class WinterMochaToolboxTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking,Skimming,Rolling)
 
 
+class ExitTerrain( pbge.scenes.terrain.AnimTerrain ):
+    image_top = 'terrain_wp_exit.png'
+    transparent = True
+    blocks = (Walking,Skimming,Rolling,Flying)
+    frames = (0,1,2,3,4,5,6,7,8,9)
+    anim_delay = 1
 
 

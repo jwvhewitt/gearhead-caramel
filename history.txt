@@ -1,3 +1,4 @@
+- Fixed free_pilots bug (gears/base.py)
 - Movement into range indicated in targeting UI (game/combat/targetingui.py)
 - Centralized info display code (gears)
 - Added Scatter damage type (game/geffects.py)

@@ -1603,7 +1603,7 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower):
         for m in self.sub_sub_coms():
             if isinstance(m,Cockpit):
                 for pilot in list(m.sub_com):
-                    if isinstance(m,Character):
+                    if isinstance(pilot,Character):
                         m.sub_com.remove(pilot)
                         pilots.append(pilot)
         return pilots
