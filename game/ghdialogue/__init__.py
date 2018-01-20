@@ -36,3 +36,10 @@ pbge.dialogue.STANDARD_REPLIES = harvest(ghreplies,pbge.dialogue.Reply)
 pbge.dialogue.STANDARD_OFFERS = harvest(ghoffers,pbge.dialogue.Offer)
 
 HELLO_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.HELLO,)))
+
+def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
+    cviz = ghdview.ConvoVisualizer(npc)
+    cviz.rollout()
+    convo = pbge.dialogue.Conversation(camp,npc.get_pilot(),pc,cue,visualizer=cviz)
+    convo.converse()
+

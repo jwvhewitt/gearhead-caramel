@@ -122,6 +122,10 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
                 flp = pc
                 break
         return flp
+    def get_active_lancemates( self ):
+        # Return a list of lancemates currently on the map.
+        return [pc for pc in self.scene.contents if pc in self.party and pc.is_operational() and pc.get_pilot() is not self.pc]
+
     def keep_playing_campaign( self ):
         # The default version of this method will keep playing forever.
         # You're probably gonna want to redefine this in your subclass.

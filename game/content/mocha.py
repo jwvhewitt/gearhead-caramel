@@ -330,10 +330,7 @@ class FrozenHotSpringCity( Plot ):
             pbge.alert("At 5AM, alarms go off through the hotel. You rush outside to see what's going on.")
 
             npc = self.elements["VIKKI"]
-            cviz = ghdialogue.ghdview.ConvoVisualizer(npc)
-            cviz.rollout()
-            convo = pbge.dialogue.Conversation(camp,npc,camp.pc,Cue(ContextTag([self])),visualizer=cviz)
-            convo.converse()
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=Cue(ContextTag([self])))
 
             self.did_opening_sequence = True
 
@@ -396,12 +393,13 @@ class WinterMochaCarter( Plot ):
 # defining content in Python is that I don't need to hardcode the story
 # generator; instead, the plots involved can define their own rules. Yay!
 #
-# Here's how the story generator works. There are three story state variables-
-# in this case they will be Enemy, Complication, and Stakes. Each story
+# Here's how the story generator works. There are at least three story state
+# variables- in this case they will be Enemy, Complication, Stakes, and Order.
+# Each story
 # component is keyed to two of the state variables and alters one of them.
-# If each variable has ten possible states, that means there are 1000 possible
-# story states but only 300 story components are needed to ensure three
-# possible outcomes for each state.
+# If 4 variables each have ten possible states, that means there are 10000
+# possible story states but only 400 story components are needed to ensure
+# four possible outcomes for each state.
 #
 # In practice, far fewer components should be needed since not every state
 # will be reachable and each state really only needs one possible outcome.
@@ -409,10 +407,18 @@ class WinterMochaCarter( Plot ):
 # to a single two-variable state, it may apply to multiple states involving
 # those two variables.
 #
-# Enemy -
-# Complication - 
-# Stakes - 
-# Order - 
+
+ENEMY = 'ENEMY'
+NO_ENEMY,BANDITS = range(2)
+
+COMPLICATION = 'COMPLICATION'
+NO_COMPLICATION,PROFESSIONAL_OPERATION = range(2)
+
+STAKES = 'STAKES'
+NO_STAKES = 0
+
+ORDER = 'ORDER'
+NO_ORDER,GET_THE_LEADER = range(2)
 
 
 class WinterHighwaySceneGen( pbge.randmaps.SceneGenerator ):
@@ -488,8 +494,14 @@ class MochaMissionBattleBuilder( Plot ):
         mygoal.contents.append( myexit )
 
         boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene2)
-        boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene2)
 
+        # Create a boss mecha, but don't place it yet. It may be claimed by one
+        # of the subplots.
+        boss_mecha = self.register_element("BOSS",gears.Loader.load_design_file('Blitzen.txt')[0])
+        boss_mecha.load_pilot(gears.random_pilot(50))
+
+        sp = self.add_sub_plot( nart, "MOCHA_MINTRO", PlotState( elements={"LOCALE":myscene1} ).based_on( self ) )
+        sp = self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":myscene1} ).based_on( sp ) )
 
         return True
 
@@ -497,6 +509,65 @@ class MochaMissionBattleBuilder( Plot ):
         camp.destination = self.elements["FIRST_PART"]
         camp.entrance = self.elements["FIRST_ENTRANCE"]
 
+# Intros
+
+class Intro_GetTheLeader( Plot ):
+    LABEL = "MOCHA_MINTRO"
+    active = True
+    scope = "LOCALE"
+    # Info for the plot checker...
+    CHANGES = {ORDER:GET_THE_LEADER,COMPLICATION:NO_COMPLICATION}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element( ENEMY, BANDITS )
+        self.register_element( ORDER, GET_THE_LEADER )
+        self.did_intro = False
+        return True
+    def t_START(self,camp):
+        if not self.did_intro:
+            lance = camp.get_active_lancemates()
+            if lance:
+                npc = random.choice(lance)
+                self.register_element( "NPC", npc.get_pilot() )
+                ghdialogue.start_conversation(camp,camp.pc,npc,cue=Cue(ContextTag([self])))
+            else:
+                pbge.alert("According to the mission alert, all you have to do is defeat the boss of the bandits.")
+            self.did_intro = True
+    def NPC_offers(self,camp):
+        # Return list of dialogue offers.
+        mylist = list()
+        mylist.append(Offer("According to the mission offer, all we have to do is catch the boss of the bandits.",
+            context=ContextTag([self]),
+            replies=[
+            ]))
+        return mylist
+
+# Encounters
+
+class Encounter_SeeLeader( Plot ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    # Info for the plot checker...
+    REQUIRES = {ORDER:GET_THE_LEADER,COMPLICATION:NO_COMPLICATION}
+    CHANGES = {COMPLICATION:PROFESSIONAL_OPERATION}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(ORDER,0) == GET_THE_LEADER and pstate.elements.get(COMPLICATION,0) == NO_COMPLICATION
+
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element( COMPLICATION, PROFESSIONAL_OPERATION )
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,10,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+
+        self.did_intro = False
+        return True
+
+
+
+
+# Old stuff.
 
 class WinterBattle( Plot ):
     # Go fight mecha near Mauna.

@@ -21,8 +21,11 @@ class Exit( Waypoint ):
 
     def unlocked_use( self, camp ):
         # Perform this waypoint's special action.
-        camp.destination = self.dest_scene
-        camp.entrance = self.dest_entrance
+        if self.dest_scene and self.dest_entrance:
+            camp.destination = self.dest_scene
+            camp.entrance = self.dest_entrance
+        else:
+            pbge.alert("This door doesn't seem to go anywhere.")
 
 
 

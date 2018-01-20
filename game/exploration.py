@@ -109,10 +109,7 @@ class TalkTo( MoveTo ):
         if (not pc) or self.step > 50:
             return False
         elif self.npc.pos in scenes.pfov.PointOfView( exp.scene, pc.pos[0], pc.pos[1], 3 ).tiles:
-            cviz = ghdialogue.ghdview.ConvoVisualizer(self.npc)
-            cviz.rollout()
-            convo = pbge.dialogue.Conversation(exp.camp,self.npc,pc.get_pilot(),ghdialogue.HELLO_STARTER,visualizer=cviz)
-            convo.converse()
+            ghdialogue.start_conversation(exp.camp,pc,self.npc)
             return False
         else:
             f_pos = self.npc.pos
