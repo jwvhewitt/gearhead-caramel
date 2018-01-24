@@ -12,6 +12,7 @@ class ConvoVisualizer(object):
     
     def __init__(self,npc):
         pilot = npc.get_pilot()
+        npc = npc.get_root()
         self.npc = pilot
         if hasattr(npc, "get_portrait"):
             self.npc_sprite = npc.get_portrait()
@@ -30,7 +31,7 @@ class ConvoVisualizer(object):
         else:
             return self.PORTRAIT_AREA.get_rect()
         return mydest
-    def render(self):
+    def render(self,draw_menu_rect=True):
         if my_state.view:
             my_state.view()
 
@@ -41,11 +42,11 @@ class ConvoVisualizer(object):
             default_border.render(self.PILOT_AREA.get_rect())
             self.pilot_sprite.render(self.PILOT_AREA.get_rect(),1)
 
-
         text_rect = self.TEXT_AREA.get_rect()
         default_border.render(text_rect)
         draw_text(my_state.medium_font,self.text,text_rect)
-        default_border.render(self.MENU_AREA.get_rect())
+        if draw_menu_rect:
+            default_border.render(self.MENU_AREA.get_rect())
 
     def rollout(self):
         bx = my_state.screen.get_width()

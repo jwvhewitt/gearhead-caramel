@@ -9,6 +9,8 @@ class Team( object ):
         self.name = name
         self.faction = faction
         self.reactions = dict()
+        self.contents = list()
+        self.home = None
         for e in enemies:
             self.set_mutual_reaction(e,ARE_ENEMIES)
         for a in allies:
@@ -22,4 +24,10 @@ class Team( object ):
     def is_enemy( self, other_team ):
         return self.reactions.get(other_team) == ARE_ENEMIES
 
+    def predeploy( self, gb, room ):
+        self.home = room.area
+        if self.contents:
+            for c in self.contents:
+                gb.local_teams[c]=self
+            room.contents += self.contents
 

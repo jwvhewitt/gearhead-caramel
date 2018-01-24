@@ -12,7 +12,8 @@ import random
 import copy
 import os
 from pbge.dialogue import Cue,ContextTag,Offer,Reply
-from gears import personality
+from gears import personality,color,stats
+import ghcutscene
 
 
 
@@ -499,6 +500,8 @@ class MochaMissionBattleBuilder( Plot ):
         # of the subplots.
         boss_mecha = self.register_element("BOSS",gears.Loader.load_design_file('Blitzen.txt')[0])
         boss_mecha.load_pilot(gears.random_pilot(50))
+        # Also set the enemy team color.
+        self.register_element("ENEMY_COLORS",(color.CometRed,color.DimGrey,color.GreenYellow,color.Black,color.BlackRose))
 
         sp = self.add_sub_plot( nart, "MOCHA_MINTRO", PlotState( elements={"LOCALE":myscene1} ).based_on( self ) )
         sp = self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":myscene1} ).based_on( sp ) )
@@ -516,11 +519,12 @@ class Intro_GetTheLeader( Plot ):
     active = True
     scope = "LOCALE"
     # Info for the plot checker...
-    CHANGES = {ORDER:GET_THE_LEADER,COMPLICATION:NO_COMPLICATION}
+    CHANGES = {ORDER:GET_THE_LEADER,ENEMY:BANDITS}
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
         self.register_element( ENEMY, BANDITS )
         self.register_element( ORDER, GET_THE_LEADER )
+        self.register_element("ENEMY_COLORS",(color.WarmGrey,color.Cream,color.BrightRed,color.Avocado,color.Terracotta))
         self.did_intro = False
         return True
     def t_START(self,camp):
@@ -544,7 +548,7 @@ class Intro_GetTheLeader( Plot ):
 
 # Encounters
 
-class Encounter_SeeLeader( Plot ):
+class Encounter_WaitingAmbush( Plot ):
     LABEL = "MOCHA_MENCOUNTER"
     active = True
     scope = "LOCALE"
@@ -559,11 +563,54 @@ class Encounter_SeeLeader( Plot ):
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
         self.register_element( COMPLICATION, PROFESSIONAL_OPERATION )
-        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,10,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        mytrap = self.register_element("TRAP",pbge.randmaps.rooms.Room(10,1,anchor=pbge.randmaps.anchors.south),dident="_room")
+        myscene.script_rooms.append(mytrap)
+        myencounter = self.register_element("_mekroom",pbge.randmaps.rooms.Room(10,3,anchor=pbge.randmaps.anchors.north),dident="_room")
 
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_mekroom")
+        boss_mecha = self.register_element("ENEMY",random.choice(gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')))
+        boss_mecha.colors = self.elements["ENEMY_COLORS"]
+        boss_mecha.load_pilot(gears.random_pilot(25))
+        team2.contents.append(boss_mecha)
+        self.combat_entered = False
+        self.trap_ready = True
         self.did_intro = False
         return True
-
+    def ETEAM_ACTIVATETEAM(self,camp):
+        self.combat_entered = True
+    def t_ENDCOMBAT(self,camp):
+        if self.combat_entered:
+            mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
+              beats = (
+                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You get the feeling that these aren't ordinary bandits. Better be careful from this point on.")),
+                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("This sentry was waiting for us. Whoever these raiders are, they're obviously pros.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+              )
+            )
+            mycutscene(camp)
+            self.combat_entered = False
+    def TRAP_ENTER(self,camp):
+        if self.trap_ready:
+            mycutscene = ghcutscene.SkillRollCutscene( stats.Perception,stats.Scouting,50,
+              library={'pc':camp.pc},
+              on_success = (
+                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("Without warning, a proximity mine goes off at your feet."),children=[
+                    pbge.cutscene.Beat(ghcutscene.ExplosionDisplay()),
+                ]),
+              ),
+              on_failure = (
+                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("Without warning, a proximity mine goes off at your feet."),children=(
+                    pbge.cutscene.Beat(ghcutscene.ExplosionDisplay(),children=(
+                        pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("What the Eff???")),
+                        pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Tough luck. It's too bad we didn't have a scout in the lance... they might have been able to detect the mines.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+                        pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Sorry, I didn't spot the mines on the sensor feed. Watch out... it looks like somebody is expecting us.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Scouting,))),
+                    )),
+                )),
+              )
+            )
+            mycutscene(camp)
+            
+            self.trap_ready = False
 
 
 
@@ -606,7 +653,7 @@ class WinterBattle( Plot ):
 
         return True
 
-    def t_FIGHTOVER(self,camp):
+    def t_ENDCOMBAT(self,camp):
         myboss = self.elements["BOSS"]
         if not myboss.is_operational():
             pbge.alert("Victory! Thank you for trying GearHead Caramel. Keep watching for more updates.")

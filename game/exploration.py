@@ -87,7 +87,7 @@ class MoveTo( object ):
 
             # Now that all of the pcs have moved, check the tiles_in_sight for
             # hidden models.
-            exp.scene.update_party_position( exp.camp.party )
+            exp.scene.update_party_position( exp.camp )
 
             return keep_going
 
@@ -121,7 +121,7 @@ class TalkTo( MoveTo ):
 
             # Now that all of the pcs have moved, check the tiles_in_sight for
             # hidden models.
-            exp.scene.update_party_position( exp.camp.party )
+            exp.scene.update_party_position( exp.camp )
 
             return True
 
@@ -182,7 +182,7 @@ class Explorer( object ):
     def activate_foe( self, npc ):
         # Activate this foe, starting combat if it hasn't already started.
         if self.camp.fight:
-            self.camp.fight.activate_monster( npc )
+            self.camp.fight.activate_foe( npc )
         else:
             self.camp.fight = combat.Combat( self.camp, npc )
 
@@ -223,13 +223,14 @@ class Explorer( object ):
         while self.keep_exploring():
             first_pc_pos=self.camp.first_active_pc().pos
             if self.camp.fight:
+                self.camp.check_trigger( "STARTCOMBAT" )
                 self.order = None
                 self.camp.fight.go()
                 if pbge.my_state.got_quit or not self.camp.fight.no_quit:
                     self.no_quit = False
                     break
                 self.camp.fight = None
-                self.camp.check_trigger( "FIGHTOVER" )
+                self.camp.check_trigger( "ENDCOMBAT" )
 
             # Get input and process it.
             gdi = pbge.wait_event()

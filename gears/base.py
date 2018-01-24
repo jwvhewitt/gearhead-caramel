@@ -1741,7 +1741,7 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower):
             pilot.spend_stamina(amount)
 
 class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait,HasPower):
-    SAVE_PARAMETERS = ('name','form')
+    SAVE_PARAMETERS = ('statline','personality')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat
     def __init__(self, statline=None, personality=(), **keywords ):

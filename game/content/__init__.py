@@ -8,6 +8,7 @@ import inspect
 
 import ghterrain
 import waypoints
+import ghcutscene
 
 import mocha
 

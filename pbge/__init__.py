@@ -305,6 +305,17 @@ def alert(text,font=None):
             my_state.screen.blit( mytext, mydest )
             my_state.do_flip()
 
+def alert_display(disp):
+    while True:
+        ev = pygame.event.wait()
+        if ( ev.type == pygame.MOUSEBUTTONUP) or ( ev.type == pygame.QUIT ) or (ev.type == pygame.KEYDOWN):
+            break
+        elif ev.type == TIMEREVENT:
+            if my_state.view:
+                my_state.view()
+            disp.render()
+            my_state.do_flip()
+    
 
 ALLOWABLE_CHARACTERS = u'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
 
@@ -374,6 +385,7 @@ import effects
 import campaign
 import widgets
 import dialogue
+import cutscene
 
 
 def init(winname,appname,gamedir,icon="sys_icon.png"):

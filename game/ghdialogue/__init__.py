@@ -9,7 +9,8 @@ import ghoffers
 
 def build_grammar( mygram, camp, speaker, audience ):
     speaker = speaker.get_pilot()
-    audience = audience.get_pilot()
+    if audience:
+        audience = audience.get_pilot()
     for pat,gramdic in ghgrammar.DEFAULT_GRAMMAR.iteritems():
         for k,v in gramdic.iteritems():
             if k is ghgrammar.Default:

@@ -133,11 +133,13 @@ class Combat( object ):
 
     def activate_foe( self, foe ):
         m0team = self.scene.local_teams.get(foe)
+        self.camp.check_trigger('ACTIVATETEAM',m0team)
         for m in self.scene.contents:
             if m in self.camp.party:
                 self.active.append( m )
             elif self.scene.local_teams.get(m) is m0team:
                 self.active.append( m )
+                self.camp.check_trigger('ACTIVATE',m)
 
     def num_enemies( self ):
         """Return the number of active, hostile characters."""
@@ -178,7 +180,7 @@ class Combat( object ):
         for p in path:
             self.step( chara, p )
             if is_player_model:
-                self.scene.update_party_position(self.camp.party)
+                self.scene.update_party_position(self.camp)
 
         # Spend the action points.
         ap = self.ap_needed(chara,nav,chara.pos)

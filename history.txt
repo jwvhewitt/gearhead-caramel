@@ -1,3 +1,6 @@
+- Added cutscenes (pbge/cutscene.py)
+- Rooms may be saved for use by scripts (gears/__init__.py)
+- Fixed place_party bug (gears/__init__.py)
 - Centralized the start_conversation code (game/ghdialogue)
 - Fixed free_pilots bug (gears/base.py)
 - Movement into range indicated in targeting UI (game/combat/targetingui.py)

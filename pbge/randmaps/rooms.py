@@ -149,7 +149,7 @@ class Room( object ):
         good_spots = self.list_good_deploy_spots( gb )
 
         # First pass- execute any deploy methods in any contents.
-        for i in self.contents[:]:
+        for i in list(self.contents):
             if hasattr( i, "predeploy" ):
                 i.predeploy( gb, self )
 
@@ -162,7 +162,7 @@ class Room( object ):
             if gb._map[self.area.x][y].wall and gb._map[self.area.x][y-1].wall and gb._map[self.area.x][y+1].wall and not gb._map[self.area.x+1][y].blocks_walking():
                 good_walls.append((self.area.x,y ))
 
-        for i in self.contents[:]:
+        for i in list(self.contents):
             # Only place contents which can be placed, but haven't yet.
             if hasattr( i, "place" ) and not ( hasattr(i,"pos") and i.pos ):
                 if hasattr( i, "anchor" ):

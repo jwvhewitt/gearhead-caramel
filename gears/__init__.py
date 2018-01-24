@@ -82,6 +82,7 @@ class GearHeadScene( pbge.scenes.Scene ):
     def __init__(self,width=128,height=128,name="",player_team=None,scale=scale.MechaScale):
         super(GearHeadScene,self).__init__(width,height,name,player_team)
         self.scale = scale
+        self.script_rooms = list()
     def is_an_actor( self, model ):
         return isinstance(model,(base.Mecha,base.Character))
     def get_actors( self, pos ):
@@ -93,11 +94,18 @@ class GearHeadScene( pbge.scenes.Scene ):
     def are_hostile( self, a, b ):
         team_a = self.local_teams.get(a)
         return team_a and team_a.is_enemy(self.local_teams.get(b))
-    def update_party_position( self, party ):
+    def update_party_position( self, camp ):
         self.in_sight = set()
-        for pc in party:
+        first = True
+        for pc in camp.party:
             if pc.is_operational() and pc in self.contents:
                 self.in_sight |= pbge.scenes.pfov.PCPointOfView( self, pc.pos[0], pc.pos[1], pc.get_sensor_range(self.scale) ).tiles
+                if first and self.script_rooms:
+                    # Check the position of this PC against the script rooms.
+                    for r in self.script_rooms:
+                        if r.area.collidepoint(*pc.pos):
+                            camp.check_trigger("ENTER",r)
+                    first = False
     def get_tile_info( self, pos ):
         """Return an InfoPanel for the contents of this tile, if appropriate."""
         if self.get_visible(*pos):
@@ -125,6 +133,11 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
     def get_active_lancemates( self ):
         # Return a list of lancemates currently on the map.
         return [pc for pc in self.scene.contents if pc in self.party and pc.is_operational() and pc.get_pilot() is not self.pc]
+    def get_active_party( self ):
+        # Return a list of lancemates currently on the map.
+        return [pc for pc in self.scene.contents if pc in self.party and pc.is_operational()]
+    def get_party_skill( self, stat_id, skill_id ):
+        return max( pc.get_skill_score(stat_id,skill_id) for pc in self.get_active_party())
 
     def keep_playing_campaign( self ):
         # The default version of this method will keep playing forever.
@@ -150,7 +163,7 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
         """Stick the party close to the waypoint."""
         x0,y0 = self.entrance.pos
         entry_points = pbge.scenes.pfov.WalkReach( self.scene, x0, y0, 3, True ).tiles
-        entry_points.difference( self.scene.get_blocked_tiles() )
+        entry_points = entry_points.difference( self.scene.get_blocked_tiles() )
         entry_points = list(entry_points)
         for pc in self.choose_party():
             if pc.is_operational():
