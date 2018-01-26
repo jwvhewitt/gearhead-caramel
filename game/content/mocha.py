@@ -395,7 +395,7 @@ class WinterMochaCarter( Plot ):
 # generator; instead, the plots involved can define their own rules. Yay!
 #
 # Here's how the story generator works. There are at least three story state
-# variables- in this case they will be Enemy, Complication, Stakes, and Order.
+# variables- in this case they will be Enemy, Complication, and Stakes.
 # Each story
 # component is keyed to two of the state variables and alters one of them.
 # If 4 variables each have ten possible states, that means there are 10000
@@ -409,17 +409,15 @@ class WinterMochaCarter( Plot ):
 # those two variables.
 #
 
-ENEMY = 'ENEMY'
-NO_ENEMY,BANDITS = range(2)
+ENEMY = 'MENCOUNTER_ENEMY'
+NO_ENEMY,BANDITS,AEGIS = range(3)
 
-COMPLICATION = 'COMPLICATION'
+COMPLICATION = 'MENCOUNTER_COMPLICATION'
 NO_COMPLICATION,PROFESSIONAL_OPERATION = range(2)
 
-STAKES = 'STAKES'
-NO_STAKES = 0
+STAKES = 'MENCOUNTER_STAKES'
+NO_STAKES,GET_THE_LEADER = range(2)
 
-ORDER = 'ORDER'
-NO_ORDER,GET_THE_LEADER = range(2)
 
 
 class WinterHighwaySceneGen( pbge.randmaps.SceneGenerator ):
@@ -499,12 +497,15 @@ class MochaMissionBattleBuilder( Plot ):
         # Create a boss mecha, but don't place it yet. It may be claimed by one
         # of the subplots.
         boss_mecha = self.register_element("BOSS",gears.Loader.load_design_file('Blitzen.txt')[0])
-        boss_mecha.load_pilot(gears.random_pilot(50))
+        boss_pilot = self.register_element("BOSS_PILOT",gears.random_pilot(50))
+        boss_mecha.load_pilot(boss_pilot)
         # Also set the enemy team color.
         self.register_element("ENEMY_COLORS",(color.CometRed,color.DimGrey,color.GreenYellow,color.Black,color.BlackRose))
 
         sp = self.add_sub_plot( nart, "MOCHA_MINTRO", PlotState( elements={"LOCALE":myscene1} ).based_on( self ) )
         sp = self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":myscene1} ).based_on( sp ) )
+        sp = self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":myscene2} ).based_on( sp ) )
+        sp = self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"LOCALE":myscene2,"MHOICE_ANCHOR":pbge.randmaps.anchors.west} ).based_on( sp ) )
 
         return True
 
@@ -512,18 +513,20 @@ class MochaMissionBattleBuilder( Plot ):
         camp.destination = self.elements["FIRST_PART"]
         camp.entrance = self.elements["FIRST_ENTRANCE"]
 
-# Intros
+#  ******************
+#  ***   Intros   ***
+#  ******************
 
 class Intro_GetTheLeader( Plot ):
     LABEL = "MOCHA_MINTRO"
     active = True
     scope = "LOCALE"
     # Info for the plot checker...
-    CHANGES = {ORDER:GET_THE_LEADER,ENEMY:BANDITS}
+    CHANGES = {STAKES:GET_THE_LEADER,ENEMY:BANDITS}
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
         self.register_element( ENEMY, BANDITS )
-        self.register_element( ORDER, GET_THE_LEADER )
+        self.register_element( STAKES, GET_THE_LEADER )
         self.register_element("ENEMY_COLORS",(color.WarmGrey,color.Cream,color.BrightRed,color.Avocado,color.Terracotta))
         self.did_intro = False
         return True
@@ -546,20 +549,21 @@ class Intro_GetTheLeader( Plot ):
             ]))
         return mylist
 
-# Encounters
+#  **********************
+#  ***   Encounters   ***
+#  **********************
 
 class Encounter_WaitingAmbush( Plot ):
     LABEL = "MOCHA_MENCOUNTER"
     active = True
     scope = "LOCALE"
     # Info for the plot checker...
-    REQUIRES = {ORDER:GET_THE_LEADER,COMPLICATION:NO_COMPLICATION}
+    REQUIRES = {STAKES:GET_THE_LEADER,COMPLICATION:NO_COMPLICATION}
     CHANGES = {COMPLICATION:PROFESSIONAL_OPERATION}
     @classmethod
     def matches( self, pstate ):
         """Returns True if this plot matches the current plot state."""
-        return pstate.elements.get(ORDER,0) == GET_THE_LEADER and pstate.elements.get(COMPLICATION,0) == NO_COMPLICATION
-
+        return pstate.elements.get(STAKES,0) == GET_THE_LEADER and pstate.elements.get(COMPLICATION,0) == NO_COMPLICATION
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
         self.register_element( COMPLICATION, PROFESSIONAL_OPERATION )
@@ -594,23 +598,154 @@ class Encounter_WaitingAmbush( Plot ):
             mycutscene = ghcutscene.SkillRollCutscene( stats.Perception,stats.Scouting,50,
               library={'pc':camp.pc},
               on_success = (
-                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("Without warning, a proximity mine goes off at your feet."),children=[
-                    pbge.cutscene.Beat(ghcutscene.ExplosionDisplay()),
-                ]),
+                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Watch out, [pc]- there are proximity mines under the snow. Seems like someone is expecting us.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Scouting,))),
+                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("Your sensors detect some proximity mines just underneath the snow. It's a good thing you were paying attention, or you could have walked right into them.")),
               ),
               on_failure = (
                 pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("Without warning, a proximity mine goes off at your feet."),children=(
                     pbge.cutscene.Beat(ghcutscene.ExplosionDisplay(),children=(
-                        pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("What the Eff???")),
                         pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Tough luck. It's too bad we didn't have a scout in the lance... they might have been able to detect the mines.",'npc'),prep=ghcutscene.LancematePrep('npc')),
-                        pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Sorry, I didn't spot the mines on the sensor feed. Watch out... it looks like somebody is expecting us.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Scouting,))),
+                        pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Sorry, I didn't spot the mines on the sensor feed. Guess I need to practice scouting more. Watch out... it looks like somebody is expecting us.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Scouting,))),
                     )),
                 )),
               )
             )
             mycutscene(camp)
-            
             self.trap_ready = False
+
+class Encounter_CovertAegis( Plot ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    # Info for the plot checker...
+    REQUIRES = {ENEMY:BANDITS,COMPLICATION:PROFESSIONAL_OPERATION}
+    CHANGES = {ENEMY:AEGIS}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(ENEMY,0) == BANDITS and pstate.elements.get(COMPLICATION,0) == PROFESSIONAL_OPERATION
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element( ENEMY, AEGIS )
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        self.register_element("ENEMY_COLORS",(color.LunarGrey,color.AegisCrimson,color.LemonYellow,color.Ceramic,color.LunarGrey))
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mymecha.load_pilot(gears.random_pilot(25))
+            team2.contents.append(mymecha)
+        self.intro_ready = True
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
+              beats = (
+                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("These bandits we're fighting? I'm not entirely sure that they're bandits... Those look like Aegis colors.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+              )
+            )
+            mycutscene(camp)
+            self.intro_ready = False
+
+#  *****************
+#  ***  CHOICES  ***
+#  *****************
+#
+# Each choice will set elements telling what virtue it's based on
+# and what story state var it involves, so the second choice won't
+# duplicate the first in form or spirit.
+
+VIRTUE = "MHOICE_VIRTUE"
+SSTATE = "MHOICE_STORY_STATE"
+
+class DutyToCatchTheLeader( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {STAKES:GET_THE_LEADER}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(STAKES,0) == GET_THE_LEADER and pstate.elements.get(VIRTUE,0) != personality.Duty and pstate.elements.get(SSTATE,0) != STAKES
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Duty)
+        self.register_element(SSTATE,STAKES)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_BOSSBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to capture them?'
+        thingmenu.add_item('Do your duty',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+
+#  *************************
+#  ***   FINAL  BATTLE   ***
+#  *************************
+#
+# The final battle will usually be composed of two subplots: One holding
+# the battle itself, and one holding the enemy leader's conversation bits.
+#
+
+class FinalBattleAgainstBoss( Plot ):
+    LABEL = "MOCHA_FB_BOSSBATTLE"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        team1 = teams.Team(name="Player Team")
+        myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
+        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
+        mymutate = pbge.randmaps.mutator.CellMutator()
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myscenegen = WinterHighwaySceneGen(myscene,myarchi)
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
+        myscene.exploration_music = 'Lines.ogg'
+        myscene.combat_music = 'Late.ogg'
+        myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
+        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myroom.contents.append( myent )
+        boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene,anchor=pbge.randmaps.anchors.north)
+        mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
+        team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mymecha.load_pilot(gears.random_pilot(25))
+            team2.contents.append(mymecha)
+        self.add_sub_plot( nart, "MOCHA_FB_BOSSTALK" )
+        return True
+    def start_battle( self, camp ):
+        myscene = self.elements["LOCALE"]
+        camp.destination = myscene
+        camp.entrance = self.elements["ENTRANCE"]
+        boss = self.elements["BOSS"]
+        pos = self.elements["_goalroom"].area.center
+        myscene.place_actor(boss,pos[0],pos[1],self.elements["_eteam"])
+
+#  ********************
+#  ***   BOSSTALK   ***
+#  ********************
+#
+# The conversation with the boss is separated from the encounter itself
+# so we don't have to repeat the encounter mechanics for identical
+# battles with different setups.
+#
+
+class BossyTrashTalk( Plot ):
+    LABEL = "MOCHA_FB_BOSSTALK"
+    active = True
+    scope = "LOCALE"
+    def BOSS_ACTIVATE( self, camp ):
+        ghdialogue.start_conversation(camp,camp.pc,self.elements["BOSS_PILOT"],cue=ghdialogue.ATTACK_STARTER)
 
 
 

@@ -4,6 +4,8 @@ import context
 
 HELLO = Offer('[HELLO]',context=ContextTag([context.HELLO,]))
 
+ATTACK = Offer('[ATTACK]',context=ContextTag([context.ATTACK,]))
+
 
 
 

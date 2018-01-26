@@ -115,6 +115,15 @@ class GearHeadScene( pbge.scenes.Scene ):
             elif pbge.my_state.view.waypointmap.get(pos):
                 wp = pbge.my_state.view.waypointmap.get(pos)
                 return info.ListDisplay(items=wp)
+    def place_actor( self, actor, x0, y0, team=None ):
+        entry_points = pbge.scenes.pfov.WalkReach( self, x0, y0, 5, True ).tiles
+        entry_points = entry_points.difference( self.get_blocked_tiles() )
+        entry_points = list(entry_points)
+        if entry_points:
+            actor.place(self,random.choice(entry_points),team)
+        else:
+            actor.place(self,(x0,y0),team)
+        actor.gear_up()
 
 
 

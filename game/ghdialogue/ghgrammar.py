@@ -17,12 +17,83 @@ from gears import personality
 Default = None
 
 DEFAULT_GRAMMAR = {
-    # The data block should hold the item name as "item".
+    "[ATTACK]": {
+        Default: ["I don't know what you're doing here, but you'll feel my wrath. [LETSFIGHT]",
+            "You shouldn't have come here. [LETSFIGHT]"
+            ],
+        personality.Cheerful: ["I was hoping that today would be interesting, and now here you are... [LETSFIGHT]",
+            ],
+        personality.Grim: ["I'm afraid it's time for you to die... I'll try to make it painless. [LETSFIGHT]",
+            "Those who oppose me end up dead. [LETSFIGHT]"
+            ],
+        personality.Easygoing: [ "And here I thought this was going to be an easy day. [LETSFIGHT]",
+            "I don't mean to be unfriendly, but you've ended up in the wrong place at the wrong time. [LETSFIGHT]"
+            ],
+        personality.Passionate: ["A challenger approaches... do you think you can defeat me? [LETSFIGHT]",
+            "I've been looking for someone to battle... [LETSFIGHT]",
+            "You dare to challenge me? [LETSFIGHT]"
+            ],
+        personality.Sociable: ["I've heard of your skills, [audience]... [LETSFIGHT]",
+            "Is this a challenge? I accept. [LETSFIGHT]"
+            ],
+        personality.Shy: ["[LETSFIGHT]",
+            ],
+        personality.Duty: [ "I can't allow you to interfere with my mission. [LETSFIGHT]",
+            ],
+        personality.Peace: [ "Though I don't wish to cause harm, I'm going to have to [fight_you]. [LETSFIGHT]",
+            ],
+        personality.Fellowship: [ "You know the rules... [LETSFIGHT]",
+            ],
+        personality.Glory: [ "Only one of us is going to leave here victorious. [LETSFIGHT]",
+            ],
+    },
+
+    
+    "[defeating_you]": {
+        Default: ["defeating you","beating you"
+            ],
+        personality.Cheerful: ["winning","kicking your arse"
+            ],
+        personality.Grim: ["destroying you","crushing you","causing you pain",
+            "watching you suffer","killing you",
+            ],
+        personality.Easygoing: [ "fighting you",
+            ],
+        personality.Passionate: ["facing a true challenge","annihilating you",
+            "showing you my true power",
+            ],
+        personality.Sociable: ["humiliating you",
+            ],
+        personality.Shy: ["stopping you",
+            ],
+    },
+
+
     "[DOTHEYHAVEITEM]": {
+    # The data block should hold the item name as "item".
         Default: [ "Don't they have {item}?",
             "They should have {item}.","What about their {item}?"
             ],
         },
+
+    "[fight_you]": {
+        Default: ["defeat you","fight you","beat you"
+            ],
+        personality.Cheerful: ["kick your arse",
+            ],
+        personality.Grim: ["destroy you","crush you","kill you",
+            ],
+        personality.Easygoing: [ "shoot you",
+            ],
+        personality.Passionate: ["battle you","challenge you","do battle",
+            ],
+        personality.Sociable: ["humiliate you",
+            ],
+        personality.Shy: ["stop you",
+            ],
+        personality.Peace: [ "stop you","oppose you"
+            ],
+    },
 
     "[GOODBYE_MISSION:JOIN]": {
         Default: ["Why don't you come with me?"
@@ -150,6 +221,40 @@ DEFAULT_GRAMMAR = {
             ],
 
         },
+
+    "[LETSFIGHT]": {
+        Default: ["Let's fight.","Prepare for battle.","I will [fight_you]."
+            ],
+        personality.Cheerful: ["Let's fight! This will be fun.","It'll be fun [defeating_you].",
+            "Shall we dance?","I can't wait to [fight_you]."
+            ],
+        personality.Grim: ["Time to finish this.","I will break you.","I will enjoy [defeating_you].",
+            "Your story comes to an end now.", "I will teach you what it means to suffer."
+            ],
+        personality.Easygoing: [ "We might as well start the fight.","Ready to go?",
+            "I'm gonna try [defeating_you], okay?","I don't think this battle will last too long.",
+            "Might as well get this over with.","The highlight of my day will be [defeating_you].",
+            "I think I have to [fight_you]."
+            ],
+        personality.Passionate: ["Let the battle begin!","I'll show you my true power!",
+            "You are about to learn the true meaning of power!", "Let's fight!",
+            "Defeat me if you can!", "Show me a real fight!","Just see how I [fight_you]!"
+            ],
+        personality.Sociable: ["Shall we battle?","Prepare to defend yourself.",
+            "I can't wait for everyone to see me [defeating_you].",
+            "Now I get to see if you can live up to your reputation.",
+            "I'm going to have to [fight_you] now."
+            ],
+        personality.Shy: ["Let's go.","Let's start.","Defend yourself.",
+            "I can take you."
+            ],
+        personality.Peace: [ "I'm afraid I must [fight_you].",
+            ],
+        personality.Justice: [ "You're about to get what you deserve.",
+            ],
+    },
+
+
     "[LONGTIMENOSEE]": {
         Default: ["Hello [audience], long time no see.",
             "Long time no see, [audience].",],
