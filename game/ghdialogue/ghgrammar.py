@@ -129,6 +129,23 @@ DEFAULT_GRAMMAR = {
             ],
         },    
 
+    "[HAGOODONE]": {
+        Default: ["Ha! That's a good one.","Yeah, right."
+            ],
+        personality.Cheerful: ["LOL!",
+            ],
+        personality.Grim: ["Ha ha, very funny.","Was that supposed to be a joke?"
+            ],
+        personality.Easygoing: [ "You're funny.",
+            ],
+        personality.Passionate: ["Ha! You should've been a comedian.",
+            ],
+        personality.Sociable: ["Why don't you pull my other leg.",
+            ],
+        personality.Shy: ["Ha!",
+            ],
+        },    
+
     "[HELLO]": {
         Default: ["Hello.","Hello [audience]."
             ],
@@ -184,6 +201,64 @@ DEFAULT_GRAMMAR = {
             ],
 
         },
+        
+    "[INFO_PERSONAL]": {
+        # This pattern should be supported by IP_* tokens gathered
+        # from the plots involving this character. You don't need to
+        # provide a complete set, and the bits will likely come from
+        # multiple sources.
+        #   IP_STATUS: A general platitude, like "I'm fine."
+        #   IP_Business: An independent clause about the character's work life.
+        #   IP_Pleasure: An independent clause about the character's social life
+        #   IP_GoodNews,IP_BadNews: What it says on the tin. Independent clauses.
+        #   IP_Worry,IP_Hope: Should be obvious. Independent clauses.
+        Default: ["[IP_STATUS]", "[IP_STATUS] [IP_NEWS]", "[IP_STATUS] [IP_NEWS] [IP_OPINION]", "[IP_STATUS] [IP_OPINION]",
+            "[IP_STATUS] [IP_Business]. [IP_BadNews], but [IP_GoodNews].",
+            "[IP_STATUS] [IP_Pleasure]. [IP_BadNews], but fortunately [IP_GoodNews].",
+            "[IP_STATUS] [IP_Business]. [IP_GoodNews]; unfortunately [IP_BadNews].",
+            "[IP_STATUS] [IP_Business], and [IP_Pleasure]. [IP_GoodNews].",
+            "[IP_STATUS] [IP_Business], and [IP_Pleasure]. [IP_BadNews].",
+            "[IP_STATUS] [IP_Pleasure]; also, [IP_GoodNews].",
+            "[IP_STATUS] [IP_Business]; unfortunately, [IP_BadNews].",
+            "[IP_STATUS] [IP_Pleasure]. [IP_GoodNews]; unfortunately [IP_BadNews].",
+            "[IP_STATUS] [IP_Business], and [IP_Pleasure]. [IP_BadNews], but [IP_GoodNews].",
+            "[IP_STATUS] [IP_Pleasure], and [IP_Business]. [IP_GoodNews], but [IP_BadNews].",
+            "[IP_STATUS] [IP_GoodNews]... [IP_Hope].",
+            "[IP_STATUS] [IP_BadNews]... [IP_Worry]."
+            ],
+        personality.Cheerful: ["[IP_STATUS] [IP_Pleasure], and [IP_GoodNews].",
+            "[IP_STATUS] [IP_Pleasure], and [IP_Business]. [IP_GoodNews], which is great.",
+            "[IP_STATUS] [IP_Business]. [IP_GoodNews]... [IP_Hope].",
+            "[IP_STATUS] [IP_Pleasure]. [IP_BadNews]... Still, [IP_Hope].",
+            "[IP_STATUS] [IP_Hope]... [IP_Pleasure], and [IP_GoodNews].",
+            "[IP_STATUS] [IP_Hope]... [IP_GoodNews].",
+            ],
+        personality.Grim: ["[IP_STATUS] [IP_BadNews]... but at least [IP_Business].",
+            "[IP_STATUS] [IP_Business]. [IP_GoodNews], but then again [IP_BadNews].",
+            "[IP_STATUS] [IP_Business], and [IP_Pleasure]. As you might expect, [IP_BadNews].",
+            "[IP_STATUS] [IP_Worry]... [IP_BadNews]. Still, [IP_Pleasure].",
+            "[IP_STATUS] [IP_Worry]... [IP_BadNews].",
+            ],
+        personality.Easygoing: [ "[IP_STATUS] [IP_Business], but in my spare time [IP_Pleasure].",
+            "[IP_STATUS] Earlier on [IP_BadNews], but [IP_GoodNews]. You know.",
+            "[IP_STATUS] In my free time [IP_Pleasure]. [IP_OPINION]"
+            ],
+        personality.Passionate: ["[IP_STATUS] [IP_Pleasure], and also [IP_Business]. [IP_BadNews] but that doesn't worry me.",
+            "[IP_STATUS] Would you believe that [IP_GoodNews]? Also, [IP_Pleasure]!",
+            "[IP_STATUS] [IP_NEWS] [IP_Worry], but [IP_Hope]!"
+            "[IP_STATUS] I've been working hard; [IP_Business]. [IP_OPINION]"
+            ],
+        personality.Sociable: ["[IP_STATUS] [IP_Pleasure], while by day [IP_Business]. [IP_BadNews], but [IP_GoodNews].",
+            "[IP_STATUS] The main thing I have to report is that [IP_Pleasure]. Also, [IP_GoodNews].",
+            "[IP_STATUS] Did you hear that [IP_BadNews]? I'm afraid it's true. But at least [IP_Pleasure].",
+            "[IP_STATUS] [IP_Worry], but also [IP_Hope].",
+            "[IP_STATUS] You should know that [IP_NEWS] [IP_OPINION]",
+            ],
+        personality.Shy: ["[IP_STATUS] [IP_Business].","[IP_STATUS] [IP_Business]. [IP_Pleasure].",
+            "[IP_STATUS] [IP_GoodNews], but [IP_BadNews].","[IP_STATUS] [IP_NEWS]",
+            ],
+        },
+
 
     "[INFO_PERSONAL:JOIN]": {
         Default: ["Why don't you join my lance?",
@@ -201,6 +276,48 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Join me.",
             ],
         },
+
+    "[IP_NEWS]": {
+        Default: ["[IP_GoodNews].","[IP_BadNews].","[IP_Business].","[IP_Pleasure]."
+            ],
+        personality.Cheerful: ["[IP_GoodNews]."],
+        personality.Grim: ["[IP_BadNews]."],
+        personality.Fellowship: ["[IP_Pleasure]."],
+        personality.Duty: ["[IP_Business]."],
+        },
+
+    "[IP_OPINION]": {
+        Default: ["[IP_Hope].","[IP_Worry].",
+            ],
+        personality.Cheerful: ["[IP_Hope]."],
+        personality.Grim: ["[IP_Worry]."],
+        },
+        
+    "[IP_STATUS]": {
+        # Opening statement for an INFO_PERSONAL offer.
+        Default: ["I'm fine.","Overall, not bad.","It's been alright."
+            ],
+        personality.Cheerful: ["I've been good.","I've been doing alright.",
+            "Things are good.","I'm good."
+            ],
+        personality.Grim: ["It hasn't been easy.","Nothing I can't handle.",
+            "I haven't died yet.","Things could be worse."
+            ],
+        personality.Easygoing: [ "Same as usual.","I'm keeping at it.",
+            "I've been taking it easy.","Trying not to work too hard."
+            ],
+        personality.Passionate: ["Life never ceases to amaze.","I'm keeping busy.",
+            "I've been working out.","I'm great!"
+            ],
+        personality.Sociable: ["You know how it is.","Let me tell you about it.",
+            "You've got to hear this.", "I've been dying to tell you."
+            ],
+        personality.Shy: ["I don't know what to say.","Where to start...",
+            "Um...", "Yeah."
+            ],
+        },
+
+
 
     # The data block should include "mission"
     "[IWILLDOMISSION]": {

@@ -26,7 +26,7 @@ class ContextTag( tuple ):
 class Cue(object):
     # An empty node, waiting to be filled with a randomly selected Offer.
     def __init__( self , context ):
-        self.context = context
+        self.context = ContextTag(context)
 
     def get_context_set(self):
         # Get the set of all context tags used by this Cue. Since a cue doesn't
@@ -47,7 +47,7 @@ class Offer(object):
     # "data" is a dict holding strings that may be requested by format.
     def __init__(self, msg, context=(), effect = None, replies = None, data={} ):
         self.msg = msg
-        self.context = context
+        self.context = ContextTag(context)
         self.effect = effect
         self.data = data
 
@@ -74,6 +74,8 @@ class Offer(object):
 
     def __str__(self):
         return self.msg
+    def __repr__(self):
+        return self.msg
 
 
 class Reply(object):
@@ -81,7 +83,7 @@ class Reply(object):
     def __init__(self, msg, destination=None, context=() ):
         self.msg = msg
         self.destination = destination
-        self.context = context
+        self.context = ContextTag(context)
 
     def get_context_set( self ):
         # Get the set of contexts this link. This is going to depend on the links
@@ -314,6 +316,129 @@ class Conversation(object):
             if nextfx:
                 nextfx( self.camp )
 
+
+class DynaConversation(object):
+    # As above, but instead of building the whole conversation at
+    # the start we're gonna build the set of replies when a node
+    # is entered.
+    def __init__(self,camp,npc,pc,start,visualizer=None):
+        self.camp = camp
+        self.npc = npc
+        self.pc = pc
+        if not visualizer:
+            visualizer = SimpleVisualizer()
+        self.visualizer = visualizer
+        self.root = None
+        self.npc_offers = list()
+        self.npc_grammar = grammar.Grammar()
+        self.pc_grammar = grammar.Grammar()
+        #self._get_dialogue_data()
+        self.build(start)
+
+    def _get_dialogue_data( self ):
+        self.npc_offers = list()
+        self.pc_grammar.clear()
+        self.npc_grammar.clear()
+        if GRAMMAR_BUILDER:
+            GRAMMAR_BUILDER(self.npc_grammar,self.camp,self.npc,self.pc)
+            GRAMMAR_BUILDER(self.pc_grammar,self.camp,self.pc,self.npc)
+        self.pc_grammar.absorb({"[pc]":[str(self.pc),], "[npc]":[str(self.npc)]})
+        self.npc_grammar.absorb({"[pc]":[str(self.pc)], "[npc]":[str(self.npc)]})
+
+        for p in self.camp.active_plots():
+            self.npc_offers += p.get_dialogue_offers( self.npc, self.camp )
+            pgram = p.get_dialogue_grammar( self.npc, self.camp )
+            if pgram:
+                self.npc_grammar.absorb( pgram )
+                self.pc_grammar.absorb( pgram )
+                
+    def _find_std_offer_to_match_cue( self, cue_in_question ):
+        # Find an exchange in the standard exchanges list which matches the provided
+        # cue and may possibly branch to one of the provided offers.
+        # Return a new instance of the good exchange found.
+        candidates = []
+
+        for e in STANDARD_OFFERS:
+            # We want to check the links from this exchange against the offers on tap.
+            # But we don't need to find a waiting offer for the root exchange.
+            e_cues = e.get_cue_list()
+
+            if cue_in_question.context.matches( e.context ):
+                candidates.append( e )
+        if candidates:
+            return copy.deepcopy( random.choice( candidates ) )
+        else:
+            return None
+
+    def _get_offer_for_cue( self,cue,candidates):
+        short_list = [c for c in candidates if cue.context.matches(c.context)]
+        if short_list:
+            # Great! just return one of these.
+            return random.choice(short_list)
+        else:
+            # No good. Try one of the standard offers instead.
+            return self._find_std_offer_to_match_cue(cue)
+
+    def _get_reply_for_offers(self,off1,off2):
+        candidates = [r for r in STANDARD_REPLIES if off1.context.matches(r.context) and r.destination.context.matches(off2.context)]
+        if candidates:
+            return copy.deepcopy(random.choice(candidates))
+
+    def build( self,current ):
+        # Renew the data
+        self._get_dialogue_data()
+        # If the current is a cue, change it to an offer.
+        if isinstance(current,Cue):
+            self.root = self._get_offer_for_cue(current,self.npc_offers)
+        else:
+            self.root = current
+        if self.root in self.npc_offers:
+            self.npc_offers.remove(self.root)
+        
+        # If the current offer has replies, fill them first.
+        for r in self.root.replies:
+            if isinstance(r.destination,Cue):
+                r.destination = self._get_offer_for_cue(r.destination,self.npc_offers)
+
+        # Shuffle self.npc_offers.
+        random.shuffle(self.npc_offers)
+
+        # Go through self.npc_offers, adding any offers that connect to current
+        for o in self.npc_offers:
+            r = self._get_reply_for_offers(self.root,o)
+            if r:
+                self.root.replies.append(r)
+                r.destination = o
+            
+        # Add any needed standards: Goodbye, Can I ask something else
+        # That's it.
+
+    def format_text( self, text, mygrammar, offer ):
+        text = grammar.convert_tokens( text, mygrammar )
+        if offer:
+            text = text.format(**offer.data)
+        return text
+
+    def converse( self ):
+        # coff is the "current offer"
+        coff = self.root
+        while coff:
+            self.visualizer.text = self.format_text( coff.msg , self.npc_grammar, coff )
+            mymenu = self.visualizer.get_menu()
+            for i in coff.replies:
+                mymenu.add_item( self.format_text( i.msg, self.pc_grammar, i.destination ), i.destination )
+            if self.visualizer.text and not mymenu.items:
+                mymenu.add_item( "[Continue]", None )
+            else:
+                mymenu.sort()
+            nextfx = coff.effect
+
+            coff = mymenu.query()
+
+            if nextfx:
+                nextfx( self.camp )
+            if coff:
+                self.build(coff)
 
 
 

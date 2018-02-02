@@ -235,7 +235,7 @@ class Plot( object ):
         """Get any dialogue offers this plot has for npc."""
         # Method [ELEMENTID]_offers will be called. This method should return a
         # list of offers to be built into the conversation.
-        ofrz = self.get_generic_offers( npc, camp )
+        ofrz = self._get_generic_offers( npc, camp )
         npc_ids = self.get_element_idents( npc )
         for i in npc_ids:
             ogen = getattr( self, "{0}_offers".format(i), None )
@@ -254,7 +254,7 @@ class Plot( object ):
             if ogen:
                 ogen( thingmenu )
 
-    def get_generic_offers( self, npc, camp ):
+    def _get_generic_offers( self, npc, camp ):
         """Get any offers that could apply to non-element NPCs."""
         return list()
 

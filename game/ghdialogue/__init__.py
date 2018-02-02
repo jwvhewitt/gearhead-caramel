@@ -21,6 +21,10 @@ def build_grammar( mygram, camp, speaker, audience ):
                 if pat not in mygram:
                     mygram[pat] = list()
                 mygram[pat] += v
+    for p in camp.active_plots():
+        pgram = p.get_dialogue_grammar( speaker, camp )
+        if pgram:
+            mygram.absorb( pgram )
 
     mygram.absorb({"[speaker]":(str(speaker),),"[audience]":(str(audience),)})
 
@@ -42,6 +46,6 @@ ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
     cviz = ghdview.ConvoVisualizer(npc)
     cviz.rollout()
-    convo = pbge.dialogue.Conversation(camp,npc.get_pilot(),pc,cue,visualizer=cviz)
+    convo = pbge.dialogue.DynaConversation(camp,npc.get_pilot(),pc,cue,visualizer=cviz)
     convo.converse()
 

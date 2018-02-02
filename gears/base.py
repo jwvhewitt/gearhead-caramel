@@ -170,6 +170,16 @@ class Mover( KeyObject ):
         else:
             return 0
 
+
+    def calc_rolling( self ):
+        norm_mass = self.scale.unscale_mass( self.mass )
+        thrust = self.count_thrust_points( geffects.Rolling )
+
+        if thrust > (norm_mass*20):
+            return thrust // norm_mass
+        else:
+            return 0
+
     def get_speed(self,mmode):
         # This method returns the mover's movement points; under normal conditions
         # it costs 2MP to move along a cardinal direction or 3MP to move diagonally.
@@ -178,6 +188,8 @@ class Mover( KeyObject ):
             return self.calc_walking()
         elif mmode is geffects.Skimming:
             return self.calc_skimming()
+        elif mmode is geffects.Rolling:
+            return self.calc_rolling()
         else:
             return 0
 
@@ -562,9 +574,42 @@ class Armor( BaseGear, StandardDamageHandler ):
             dmg -= 2 * absorb_amount
         return dmg
 
-#    def can_install(self,part):
-#        """Returns True if part can be legally installed here under current conditions"""
-#        return True
+class Shield( BaseGear, StandardDamageHandler ):
+    DEFAULT_NAME = "Shield"
+    SAVE_PARAMETERS = ('size','bonus')
+    def __init__(self, size=3, bonus=0, **keywords ):
+        # Check the range of all parameters before applying.
+        if size < 1:
+            size = 1
+        elif size > 10:
+            size = 10
+        self.size = size
+        if bonus < 0:
+            bonus = 0
+        elif bonus > 5:
+            bonus = 5
+        self.bonus = bonus
+        super(Shield, self).__init__(**keywords)
+    @property
+    def base_mass(self):
+        return 8 * self.size
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
+    @property
+    def volume(self):
+        return self.size
+    @property
+    def base_cost(self):
+        return (100*self.size * (1 + self.bonus))//2
+    def get_block_bonus(self):
+        return self.bonus * 5
+    def is_operational( self ):
+        """ To be operational, a shield must be in an operational module.
+        """
+        mod = self.get_module()
+        return self.is_not_destroyed() and mod and mod.is_operational()
 
 
 #   ****************************
@@ -698,6 +743,23 @@ class HoverJets( MovementSystem, StandardDamageHandler ):
             return (self.size*500*self.current_health+self.max_health-1)//self.max_health
         else:
             return 0
+            
+class Wheels( MovementSystem, StandardDamageHandler ):
+    DEFAULT_NAME = "Wheels"
+    MOVESYS_COST = 10
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
+    def get_thrust( self, move_mode ):
+        if move_mode is geffects.Rolling:
+            return (self.size*4000*self.current_health+self.max_health-1)//self.max_health
+        else:
+            return 0
+    @property
+    def base_mass(self):
+        return 5 * self.size
+
 
 class HeavyActuators( MovementSystem, StandardDamageHandler ):
     DEFAULT_NAME = "Heavy Actuators"
@@ -1395,6 +1457,9 @@ class MF_Arm( ModuleForm ):
     @classmethod
     def is_legal_sub_com( self, part ):
         return isinstance( part , ( Weapon,Launcher, Armor, Hand, Mount,MovementSystem,PowerSource,Sensor,Usable ) )
+    @classmethod
+    def is_legal_inv_com( self, part ):
+        return isinstance( part, Shield )
 
 class MF_Leg( ModuleForm ):
     name = "Leg"
@@ -1631,7 +1696,6 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower):
         if not has_gyro:
             it -= 30
         return it
-
 
     def calc_walking( self ):
         norm_mass = self.scale.unscale_mass( self.mass )

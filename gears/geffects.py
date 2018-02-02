@@ -88,6 +88,9 @@ class SuperBoom( animobs.AnimOb ):
 class MissAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Miss!'
 
+class BlockAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Block!'
+
 class BigBullet( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_bigbullet.png"
 
@@ -482,6 +485,45 @@ class ReflexSaveRoll( object ):
 
     def get_odds( self, atroller, attacker, defender, att_bonus ):
         return 1.0
+
+class BlockRoll( object ):
+    def make_roll( self, atroller, attacker, defender, att_bonus, att_roll, fx_record ):
+        # First, locate the defender's shield.
+        shield = self.get_shield()
+        if shield:
+            def_roll = random.randint(1,100)
+            def_bonus = shield.get_block_bonus() + defender.get_skill_score(stats.Speed,shield.scale.MELEE_SKILL)
+
+            if def_roll > 95:
+                # A roll greater than 95 always defends.
+                return (self.CHILDREN,def_roll + def_bonus)
+            elif def_roll <= 5:
+                # A roll of 5 or less always fails.
+                return (None, def_roll + def_bonus)
+            elif (att_roll + att_bonus + atroller.accuracy) > (def_roll + def_bonus):
+                return (None,def_roll + def_bonus)
+            else:
+                return (self.CHILDREN, def_roll + def_bonus)
+        else:
+            return (None,0)
+    def get_shield( self, defender ):
+        shields = [part for part in defender.descendants() if hasattr(part,'get_block_bonus') and part.is_operational()]
+        if shields:
+            return max( shields, key = lambda s: s.get_block_bonus() )
+    def can_attempt( self, attacker, defender ):
+        return self.get_shield(defender) and (defender.get_current_stamina() > 0)
+
+    def get_odds( self, atroller, attacker, defender, att_bonus ):
+        # Return the odds as a float.
+        shield = self.get_shield()
+        if shield:
+            def_target = shield.get_block_bonus() + defender.get_skill_score(stats.Speed,shield.scale.MELEE_SKILL)
+            # The chance to hit is clamped between 5% and 95%.
+            percent = min(max(50 + (att_bonus + atroller.accuracy) - (def_target + defender.calc_mobility()),5),95)
+            return float(percent)/100
+        else:
+            return 1.0
+    CHILDREN = (effects.NoEffect(anim=BlockAnim),)
 
 
 # BlockRoll, ParryRoll, ECMRoll, AntiMissileRoll

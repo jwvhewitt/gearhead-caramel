@@ -257,7 +257,9 @@ class FrozenHotSpringCity( Plot ):
         mek1.colors = gears.random_mecha_colors()
         mek2.colors = (gears.color.ShiningWhite,gears.color.Olive,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta)
         mek1.pilot = camp.pc
-        mek2.pilot = self.elements["VIKKI"]
+        for npc in camp.get_active_lancemates():
+            if npc.name != "Carter":
+                mek2.pilot = npc
         camp.party += [mek1,mek2]
 
         self._go_to_mission(camp)
@@ -277,6 +279,18 @@ class FrozenHotSpringCity( Plot ):
     def _go_to_mission(self,camp):
         self.subplots["COMBAT"].enter_combat(camp)
 
+    def get_dialogue_grammar(self,npc,camp):
+        if npc is self.elements["VIKKI"]:
+            # Return the IP_ grammar.
+            mygram = dict()
+            mygram["[IP_STATUS]"] = ["A lot has happened this year."]
+            mygram["[IP_Business]"] = ["I'm working for the Defense Force nearly full time now","I did a search and rescue mission near the Ziggurat a few weeks back"]
+            mygram["[IP_Pleasure]"] = ["I've been helping to organize the first big tournament at Mauna Arena"]
+            mygram["[IP_GoodNews]"] = ["I did some work on the old Thorshammer","I've been promoted to captain"]
+            mygram["[IP_BadNews]"] = ["I'm still heartbroken over losing my Ovaknight to Typhon"]
+            mygram["[IP_Hope]"] = ["I hope Hyolee can figure out how to fight biomonsters before the next one shows up"]
+            mygram["[IP_Worry]"] = ["I'm worried about what's going to happen between the Federation and Aegis next"]
+            return mygram
     def VIKKI_offers(self,camp):
         # Return list of dialogue offers.
         mylist = list()
@@ -305,12 +319,16 @@ class FrozenHotSpringCity( Plot ):
 
 
         if not self.got_vikki_history:
-            mylist.append(Offer("I've been doing alright. I'm working for the Defense Force nearly full time now... Haven't gotten over the heartbreak of losing my Ovaknight to Typhon, but I did some work on the old Thorshammer.",
+            mylist.append(Offer("[INFO_PERSONAL]",
                 context=ContextTag([context.INFO,context.PERSONAL]), data={'subject':'past six months'}, effect=self._ask_vikki_history ))
 
         if self.elements["VIKKI"] not in camp.party:
-            mylist.append(Offer("Alright, I'll go with you. Between the two of us this should be no problem.",
-                context=ContextTag([context.JOIN]), effect=self._vikki_join ))
+            if camp.get_active_lancemates():
+                mylist.append(Offer("Nah, you look like you have this covered. I'm going back to bed.",
+                    context=ContextTag([context.JOIN]) ))                
+            else:
+                mylist.append(Offer("Alright, I'll go with you. Between the two of us this should be no problem.",
+                    context=ContextTag([context.JOIN]), effect=self._vikki_join ))
 
         return mylist
 
@@ -353,12 +371,31 @@ class WinterMochaHyolee( Plot ):
         hyolee.colors = (gears.color.Viridian,gears.color.Chocolate,gears.color.Saffron,gears.color.GunRed,gears.color.RoyalPink)
         hyolee.mmode = pbge.scenes.movement.Walking
         self.register_element( "HYOLEE", hyolee, dident="ROOM" )
+        self.asked_join = False
         return True
 
+    def get_dialogue_grammar(self,npc,camp):
+        if npc is self.elements["HYOLEE"]:
+            # Return the IP_ grammar.
+            mygram = dict()
+            mygram["[IP_STATUS]"] = ["It's been interesting."]
+            mygram["[IP_Business]"] = ["they're upgrading the security at my lab, as if fifteen velociraptors isn't enough",]
+            mygram["[IP_Pleasure]"] = ["I came here with Vikki to cheer Team Hogye in the tournament"]
+            mygram["[IP_GoodNews]"] = ["Calmegie Lab has been selected to analyze part of Typhon's corpse","Fluffy has laid eggs"]
+            #mygram["[IP_BadNews]"] = [""]
+            mygram["[IP_Hope]"] = ["I hope I can get some new insights into the biology of synthetics"]
+            #mygram["[IP_Worry]"] = [""]
+            return mygram
+    def _ask_to_join(self,camp):
+        self.asked_join = True
     def HYOLEE_offers(self,camp):
         # Return list of dialogue offers.
         mylist = list()
-
+        mylist.append(Offer("[INFO_PERSONAL]",
+            context=ContextTag([context.INFO,context.PERSONAL]), data={'subject':'year'}, effect=None ))
+        if not self.asked_join:
+            mylist.append(Offer("[HAGOODONE] I tried piloting a mecha once, and that's quite enough for me.",
+                context=ContextTag([context.JOIN]), effect=self._ask_to_join ))
         return mylist
 
 class WinterMochaCarter( Plot ):
@@ -379,10 +416,38 @@ class WinterMochaCarter( Plot ):
         carter.mmode = pbge.scenes.movement.Walking
         self.register_element( "CARTER", carter, dident="FENCE_GATE_ROOM" )
         return True
+        
+    def get_dialogue_grammar(self,npc,camp):
+        if npc is self.elements["CARTER"]:
+            # Return the IP_ grammar.
+            mygram = dict()
+            mygram["[IP_Business]"] = ["my convoy got in from Wujung just before they closed the highway"]
+            #mygram["[IP_Pleasure]"] = [""]
+            #mygram["[IP_GoodNews]"] = [""]
+            mygram["[IP_BadNews]"] = ["I won't be getting to Gyori tonight"]
+            mygram["[IP_Hope]"] = ["I'm thinking of joining the tournament next time they hold one of these things"]
+            mygram["[IP_Worry]"] = ["this storm is bad news- there's something out there"]
+            return mygram
+
+    def _carter_join(self,camp):
+        camp.party.append(self.elements["CARTER"])
+        mek1 = gears.Loader.load_design_file('Corsair.txt')[0]
+        mek1.pilot = self.elements["CARTER"]
+        mek1.colors = (gears.color.FreedomBlue,gears.color.Gold,gears.color.BugBlue,gears.color.BattleshipGrey,gears.color.SlateGrey)
+        camp.party.append(mek1)
 
     def CARTER_offers(self,camp):
         # Return list of dialogue offers.
         mylist = list()
+        mylist.append(Offer("[INFO_PERSONAL]",
+            context=ContextTag([context.INFO,context.PERSONAL]), data={'subject':'tonight'}, effect=None ))
+        if self.elements["CARTER"] not in camp.party:
+            if camp.get_active_lancemates():
+                mylist.append(Offer("No thanks, I've been mucking through this pea soup enough for one night.",
+                    context=ContextTag([context.JOIN]) ))                
+            else:
+                mylist.append(Offer("Okay, I can do that. My corsair's right here in the storage yard.",
+                    context=ContextTag([context.JOIN]), effect=self._carter_join ))
 
         return mylist
 
@@ -492,8 +557,6 @@ class MochaMissionBattleBuilder( Plot ):
         myexit = waypoints.Exit(dest_scene=myscene2,dest_entrance=myent2,name="Continue Onward",anchor=pbge.randmaps.anchors.north)
         mygoal.contents.append( myexit )
 
-        boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene2)
-
         # Create a boss mecha, but don't place it yet. It may be claimed by one
         # of the subplots.
         boss_mecha = self.register_element("BOSS",gears.Loader.load_design_file('Blitzen.txt')[0])
@@ -508,10 +571,15 @@ class MochaMissionBattleBuilder( Plot ):
         sp = self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"LOCALE":myscene2,"MHOICE_ANCHOR":pbge.randmaps.anchors.west} ).based_on( sp ) )
 
         return True
-
     def enter_combat( self, camp ):
         camp.destination = self.elements["FIRST_PART"]
         camp.entrance = self.elements["FIRST_ENTRANCE"]
+    def t_ENDCOMBAT(self,camp):
+        myboss = self.elements["BOSS"]
+        if not myboss.is_operational():
+            pbge.alert("Victory! Thank you for trying GearHead Caramel. Keep watching for more updates.")
+        elif not camp.first_active_pc():
+            pbge.alert("Game over. Better luck next time.")
 
 #  ******************
 #  ***   Intros   ***
@@ -532,26 +600,25 @@ class Intro_GetTheLeader( Plot ):
         return True
     def t_START(self,camp):
         if not self.did_intro:
-            lance = camp.get_active_lancemates()
-            if lance:
-                npc = random.choice(lance)
-                self.register_element( "NPC", npc.get_pilot() )
-                ghdialogue.start_conversation(camp,camp.pc,npc,cue=Cue(ContextTag([self])))
-            else:
-                pbge.alert("According to the mission alert, all you have to do is defeat the boss of the bandits.")
+            mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
+              beats = (
+                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("According to the mission offer you received, you just need to defeat the boss of the bandits.")),
+                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("According to the mission offer, all we have to do is catch the boss of the bandits.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("I've heard about this bandit we're going up against, {0}. If we can defeat him then his troops should scatter.".format(self.elements["BOSS_PILOT"]),'npc'),prep=ghcutscene.LancematePrep('npc')),
+              )
+            )
+            mycutscene(camp)
             self.did_intro = True
-    def NPC_offers(self,camp):
-        # Return list of dialogue offers.
-        mylist = list()
-        mylist.append(Offer("According to the mission offer, all we have to do is catch the boss of the bandits.",
-            context=ContextTag([self]),
-            replies=[
-            ]))
-        return mylist
+
 
 #  **********************
 #  ***   Encounters   ***
 #  **********************
+
+# STAKES: GET_THE_LEADER, ENEMY: BANDITS
+# ENEMY: BANDITS, COMPLICATION: NO_COMPLICATION
+# STAKES: GET_THE_LEADER, COMPLICATION: PROFESSIONAL_OPERATION
+
 
 class Encounter_WaitingAmbush( Plot ):
     LABEL = "MOCHA_MENCOUNTER"
@@ -584,7 +651,7 @@ class Encounter_WaitingAmbush( Plot ):
     def ETEAM_ACTIVATETEAM(self,camp):
         self.combat_entered = True
     def t_ENDCOMBAT(self,camp):
-        if self.combat_entered:
+        if self.combat_entered and camp.first_active_pc():
             mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
               beats = (
                 pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You get the feeling that these aren't ordinary bandits. Better be careful from this point on.")),

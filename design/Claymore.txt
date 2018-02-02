@@ -69,15 +69,13 @@ Mecha
                     size = 5
                 Hand
                     name = "Left Hand"
-                    INV
-                        MeleeWeapon
-                            name="Axe"
-                            reach=1
-                            damage=3
-                            accuracy=1
-                            penetration=2
-                    END
             END
+            INV
+				Shield
+					size = 4
+					bonus = 1
+			END
+
         Leg
             name = "Right Leg"
             size = 7

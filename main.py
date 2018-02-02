@@ -110,8 +110,8 @@ def play_the_game():
 
 if __name__ == "__main__":
 
-    #clay = gears.Loader.load_design_file('Claymore.txt')
-    #clay[0].termdump()
+    clay = gears.Loader.load_design_file('Corsair.txt')
+    clay[0].termdump()
 
     play_the_game()
 
