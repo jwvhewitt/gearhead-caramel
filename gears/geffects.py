@@ -3,6 +3,7 @@ from pbge.scenes import animobs,movement
 import random
 import materials
 import damage
+import stats
 
 #  *************************
 #  ***   Utility  Junk   ***
@@ -489,7 +490,7 @@ class ReflexSaveRoll( object ):
 class BlockRoll( object ):
     def make_roll( self, atroller, attacker, defender, att_bonus, att_roll, fx_record ):
         # First, locate the defender's shield.
-        shield = self.get_shield()
+        shield = self.get_shield(defender)
         if shield:
             def_roll = random.randint(1,100)
             def_bonus = shield.get_block_bonus() + defender.get_skill_score(stats.Speed,shield.scale.MELEE_SKILL)
@@ -515,7 +516,7 @@ class BlockRoll( object ):
 
     def get_odds( self, atroller, attacker, defender, att_bonus ):
         # Return the odds as a float.
-        shield = self.get_shield()
+        shield = self.get_shield(defender)
         if shield:
             def_target = shield.get_block_bonus() + defender.get_skill_score(stats.Speed,shield.scale.MELEE_SKILL)
             # The chance to hit is clamped between 5% and 95%.

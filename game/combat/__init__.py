@@ -63,6 +63,7 @@ class PlayerTurn( object ):
             self.active_ui.deactivate()
             self.attack_ui.activate()
             self.active_ui = self.attack_ui
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[1])
         else:
             # If the attack UI can't be activated, switch back to movement UI.
             self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])

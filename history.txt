@@ -1,3 +1,4 @@
+- PC should always count as lead party member (game/exploration.py)
 - Rewrote dialogue generator to dynamically create each exchange (pbge/dialogue)
 - Added cutscenes (pbge/cutscene.py)
 - Rooms may be saved for use by scripts (gears/__init__.py)

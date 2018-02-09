@@ -15,12 +15,19 @@ class MoveTo( object ):
         self.dest = pos
         if not party:
             # Always party.
-            party = [pc for pc in explo.camp.party if pc in explo.scene.contents]
+            party = self._get_pc_party(explo)
         self.party = party
         pc = self.first_living_pc()
         #blocked_tiles = set( m.pos for m in explo.scene.contents )
         self.path = scenes.pathfinding.AStarPath(explo.scene,pc.pos,pos,pc.mmode)
         self.step = 0
+    def _get_pc_party( self, explo ):
+        party = [pc for pc in explo.camp.party if pc in explo.scene.contents]
+        pc = explo.camp.pc.get_root()
+        if pc in party:
+            party.remove(pc)
+            party.insert(0,pc)
+        return party
 
     def first_living_pc( self ):
         first_pc = None
@@ -98,7 +105,7 @@ class TalkTo( MoveTo ):
         self.npc = npc
         if not party:
             # Always party.
-            party = [pc for pc in explo.camp.party if pc in explo.scene.contents]
+            party = self._get_pc_party(explo)
         self.party = party
         self.step = 0
 
@@ -210,6 +217,8 @@ class Explorer( object ):
         self.order = None
 
         self.update_scene()
+        # Clear the event queue, in case switching scenes took a long time.
+        pygame.event.clear()
 
         # Do one view first, just to prep the model map and mouse tile.
         self.view()
@@ -282,7 +291,7 @@ class Explorer( object ):
                 elif gdi.type == pygame.MOUSEBUTTONUP:
                     if gdi.button == 1:
                         # Left mouse button.
-                        if ( self.view.mouse_tile != self.camp.first_active_pc().pos ) and self.scene.on_the_map( *self.view.mouse_tile ):
+                        if ( self.view.mouse_tile != self.camp.pc.get_root().pos ) and self.scene.on_the_map( *self.view.mouse_tile ):
                             npc = self.view.modelmap.get(self.view.mouse_tile)
                             if npc and npc[0].is_operational() and self.scene.is_an_actor(npc[0]):
                                 self.order = TalkTo( self, npc[0] )

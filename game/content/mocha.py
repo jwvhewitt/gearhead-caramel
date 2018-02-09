@@ -433,7 +433,7 @@ class WinterMochaCarter( Plot ):
         camp.party.append(self.elements["CARTER"])
         mek1 = gears.Loader.load_design_file('Corsair.txt')[0]
         mek1.pilot = self.elements["CARTER"]
-        mek1.colors = (gears.color.FreedomBlue,gears.color.Gold,gears.color.BugBlue,gears.color.BattleshipGrey,gears.color.SlateGrey)
+        mek1.colors = (gears.color.FreedomBlue,gears.color.Gold,gears.color.Aquamarine,gears.color.BattleshipGrey,gears.color.SlateGrey)
         camp.party.append(mek1)
 
     def CARTER_offers(self,camp):
@@ -473,16 +473,6 @@ class WinterMochaCarter( Plot ):
 # to a single two-variable state, it may apply to multiple states involving
 # those two variables.
 #
-
-ENEMY = 'MENCOUNTER_ENEMY'
-NO_ENEMY,BANDITS,AEGIS = range(3)
-
-COMPLICATION = 'MENCOUNTER_COMPLICATION'
-NO_COMPLICATION,PROFESSIONAL_OPERATION = range(2)
-
-STAKES = 'MENCOUNTER_STAKES'
-NO_STAKES,GET_THE_LEADER = range(2)
-
 
 
 class WinterHighwaySceneGen( pbge.randmaps.SceneGenerator ):
@@ -570,6 +560,10 @@ class MochaMissionBattleBuilder( Plot ):
         sp = self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":myscene2} ).based_on( sp ) )
         sp = self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"LOCALE":myscene2,"MHOICE_ANCHOR":pbge.randmaps.anchors.west} ).based_on( sp ) )
 
+        # Try to load a debugging encounter.
+        self.add_sub_plot( nart, "MOCHA_DEBUGENCOUNTER", PlotState( elements={"LOCALE":myscene1} ).based_on( self ), necessary=False )
+
+
         return True
     def enter_combat( self, camp ):
         camp.destination = self.elements["FIRST_PART"]
@@ -580,6 +574,20 @@ class MochaMissionBattleBuilder( Plot ):
             pbge.alert("Victory! Thank you for trying GearHead Caramel. Keep watching for more updates.")
         elif not camp.first_active_pc():
             pbge.alert("Game over. Better luck next time.")
+            
+#  **************************************
+#  ***   Random  Story  Descriptors   ***
+#  **************************************
+
+ENEMY = 'MENCOUNTER_ENEMY'
+NO_ENEMY,BANDITS,AEGIS = range(3)
+
+COMPLICATION = 'MENCOUNTER_COMPLICATION'
+NO_COMPLICATION,PROFESSIONAL_OPERATION = range(2)
+
+STAKES = 'MENCOUNTER_STAKES'
+NO_STAKES,GET_THE_LEADER,PROTOTYPE_MECHA = range(3)
+
 
 #  ******************
 #  ***   Intros   ***
@@ -615,10 +623,60 @@ class Intro_GetTheLeader( Plot ):
 #  ***   Encounters   ***
 #  **********************
 
-# STAKES: GET_THE_LEADER, ENEMY: BANDITS
-# ENEMY: BANDITS, COMPLICATION: NO_COMPLICATION
-# STAKES: GET_THE_LEADER, COMPLICATION: PROFESSIONAL_OPERATION
-
+class Encounter_WeHaveBlitzen( Plot ):
+    LABEL = "MOCHA_DEBUGENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    # Info for the plot checker...
+    REQUIRES = {ENEMY:BANDITS,STAKES:GET_THE_LEADER}
+    CHANGES = {STAKES:PROTOTYPE_MECHA}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(ENEMY,0) == BANDITS and pstate.elements.get(STAKES,0) == GET_THE_LEADER
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element( STAKES, PROTOTYPE_MECHA )
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mypilot = gears.random_pilot(25)
+            mymecha.load_pilot(mypilot)
+            team2.contents.append(mymecha)
+            if t == 0:
+                self.register_element("_MIDBOSS",mypilot)
+        self.intro_ready = True
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            npc = self.elements["_MIDBOSS"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+    def _run_away(self,camp):
+        # The bandits will run away.
+        pbge.alert("The bandits withdraw.")
+        for npc in list(camp.scene.contents):
+            if camp.scene.local_teams.get(npc,None) == self.elements["ETEAM"]:
+                camp.scene.contents.remove(npc)
+    def _MIDBOSS_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("Halt! With the Blitzen mecha that our boss {} stole, the Bone Devil Gang will be unbeatable! [LETSFIGHT]".format(str(self.elements["BOSS_PILOT"])),
+            context=ContextTag([context.ATTACK,]),  ))
+        mylist.append(Offer("[CHALLENGE]",
+            context=ContextTag([context.CHALLENGE,]),  ))
+        ci = Offer("The Blitzen is a one of a kind, bleeding edge combat battroid. It's got a laser cannon and swarm missiles and power antlers!",
+            context=ContextTag([context.COMBAT_INFO,]), data={"subject":"Blitzen"} )
+        if camp.get_party_skill(stats.Charm,stats.Negotiation) >= 50:
+            ci.replies.append( Reply("I see that the Blitzen isn't here.",
+                     destination=Offer("Uh, yeah... but if it was here, we'd definitely [threat]! We'll just go away now, let you get back to work.", effect=self._run_away,context=ContextTag([context.RETREAT,]))
+                    )
+            )
+        mylist.append(ci)
+        return mylist
 
 class Encounter_WaitingAmbush( Plot ):
     LABEL = "MOCHA_MENCOUNTER"

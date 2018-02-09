@@ -1,7 +1,7 @@
 Mecha
     name = "Corsair"
     desig = "SDH-22"
-    imagename = "btr_buruburu.png"
+    imagename = "btr_corsair.png"
     portrait = "mecha_corsair.png"
 
     SUB

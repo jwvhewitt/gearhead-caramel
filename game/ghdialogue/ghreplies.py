@@ -1,6 +1,14 @@
 from pbge.dialogue import Reply,Cue,ContextTag
 import context
 
+ATTACK_CHALLENGE = Reply( "[ATTACK:CHALLENGE]" ,
+            destination = Cue( ContextTag([context.CHALLENGE]) ) ,
+            context = ContextTag([context.ATTACK]) )
+
+ATTACK_COMBATINFO = Reply( "[ATTACK:COMBAT_INFO]" ,
+            destination = Cue( ContextTag([context.COMBAT_INFO]) ) ,
+            context = ContextTag([context.ATTACK]) )
+
 HELLO_ASKFORITEM = Reply( "[HELLO:ASK_FOR_ITEM]" ,
             destination = Cue( ContextTag([context.ASK_FOR_ITEM]) ) ,
             context = ContextTag([context.HELLO]) )

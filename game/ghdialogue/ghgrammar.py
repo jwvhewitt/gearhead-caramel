@@ -47,7 +47,72 @@ DEFAULT_GRAMMAR = {
         personality.Glory: [ "Only one of us is going to leave here victorious. [LETSFIGHT]",
             ],
     },
+    
+    "[ATTACK:CHALLENGE]": {
+        Default: ["I accept your challenge.","This won't go so well for you.",
+            "I can take you.","Let's finish this.",
+            ],
+        personality.Cheerful: ["Sounds like fun.","Don't make me laugh.",
+            "This is getting fun!",
+            ],
+        personality.Grim: ["You will regret challenging me.","This may be your last mistake.",
+            "This will end in tears for you...",
+            ],
+        personality.Easygoing: [ "I guess we could do that.","Sure, I have nothing better to do.",
+            ],
+        personality.Passionate: ["Prepare to be demolished.","You don't know who you're messing with.",
+            "You have no chance of beating me.","WAARGH!!!",
+            ],
+        personality.Sociable: ["I'm all ready to fight.","You're going to lose.",
+            ],
+        personality.Shy: ["Enough talk.","Whatever.",
+            ],
+        personality.Peace: [ "Maybe you should just give up now?",
+            ],
+        personality.Fellowship: [ "Let's keep this an honorable duel.",
+            ],
+    },
 
+    "[ATTACK:COMBAT_INFO]": {
+    # The data block should include "subject"
+        Default: ["{subject}? What's that?","Tell me about {subject}."
+            ],
+        personality.Cheerful: ["I'd like to hear more about {subject}.",
+            ],
+        personality.Grim: ["Tell me about {subject} or die.",
+            ],
+        personality.Easygoing: [ "{subject}, you say?",
+            ],
+        personality.Passionate: ["What in blazes is {subject}?!",
+            ],
+        personality.Sociable: ["Tell me more about {subject}.",
+            ],
+        personality.Shy: ["What is {subject}?",
+            ],
+    },
+
+
+    "[CHALLENGE]": {
+        Default: ["[THREATEN]",
+            ],
+        personality.Cheerful: ["Time to party.",
+            ],
+        personality.Grim: ["Prepare for death.","You don't stand a chance.",
+            ],
+        personality.Easygoing: [ "Shall we get started? Alright.",
+            ],
+        personality.Passionate: ["Show me what you have.",
+            ],
+        personality.Sociable: ["That's big talk. Prove it to me.",
+            "You know what I'm going to do? [THREATEN]",
+            ],
+        personality.Shy: ["Shut up and fight.",
+            ],
+        personality.Justice: [ "For great justice!",
+            ],
+        personality.Glory: [ "May the best fighter win!",
+            ],
+    },
     
     "[defeating_you]": {
         Default: ["defeating you","beating you"
@@ -386,6 +451,38 @@ DEFAULT_GRAMMAR = {
             ],
         },
 
+    "[threat]": {
+        Default: ["rend you limb from limb",
+            "mop the floor with you","defeat you","humiliate you",
+            "beat you","fight you","destroy you","demolish you",
+            "wreck you","obliterate you","spank your monkey",
+            "spank you","kill you","murder you","knock your clock",
+            "knock you down","make you wish you were never born",
+            "make you beg for mercy","make you beg for death",
+            "stop you","break you","make you cry","make you scream",
+            "eviscerate you","snap your neck","crush your bones",
+            "take you down","crush you","crush you like a bug",
+            "squash you","squash you like a grape","cut you to pieces",
+            "pound you","injure you terribly","beat you black and blue",
+            "give you a thorough ass-kicking","kick your ass",
+            "kick your behind","kick your butt","slap you around",
+            "send you to the hospital","be your worst nightmare",
+            "wreck your plans","raise a little hell","rant and roar",
+            "open a can of whoop-ass","do my limit break",
+            "rage like a rabid wolverine","get violent","get VERY violent",
+            "power up","go berserk","show you my true skills",
+            "demonstrate my fighting power","show you how strong I am",
+            "fight like a demon","show no mercy","fight dirty",
+            "hold back nothing","call upon my warrior spirit",
+            "boot your head","snap you like a twig","ruin your day",
+            "shred you","send you to oblivion","send you up the bomb",
+            ],
+        },
+        
+    "[THREATEN]": {
+        Default: ["I'm going to [threat]!","I will [threat]!",
+        ],    
+    }
 
 }
 

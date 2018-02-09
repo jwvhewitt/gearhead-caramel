@@ -904,7 +904,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
         return self.scale.RANGED_SKILL
 
     def get_defenses( self ):
-        return {geffects.DODGE: geffects.DodgeRoll(),}
+        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll()}
 
     def get_modifiers( self ):
         return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
@@ -1301,7 +1301,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
         return self.is_not_destroyed() and mod and mod.is_operational()
 
     def get_defenses( self ):
-        return {geffects.DODGE: geffects.DodgeRoll(),}
+        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll()}
 
     def get_modifiers( self, ammo ):
         return [geffects.RangeModifier(ammo.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
