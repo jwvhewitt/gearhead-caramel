@@ -134,6 +134,17 @@ class WinterMochaPavement( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_wintermocha_pavement.png'
     border = pbge.scenes.terrain.FloorBorder( ghterrain.Snow, 'terrain_border_snowline.png' )
 
+class WinterMochaTruckTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_wintermocha_mission.png'
+    frame = 0
+    blocks = (Walking,Skimming,Rolling)
+
+class WinterMochaTruck( waypoints.Waypoint ):
+    name = 'Wrecked Truck'
+    TILE = pbge.scenes.Tile( None, None, WinterMochaTruckTerrain )
+    desc = "You stand before one of the trucks from the convoy that was attacked."
+
+
 # *****************
 # ***   PLOTS   ***
 # *****************
@@ -535,7 +546,7 @@ class MochaMissionBattleBuilder( Plot ):
         myscene2.exploration_music = 'Lines.ogg'
         myscene2.combat_music = 'Late.ogg'
 
-        myroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene1,anchor=pbge.randmaps.anchors.south)
+        myroom = self.register_element("FIRST_ENTRANCE_ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene1,anchor=pbge.randmaps.anchors.south))
         myent = self.register_element( "FIRST_ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
 
@@ -555,14 +566,10 @@ class MochaMissionBattleBuilder( Plot ):
         # Also set the enemy team color.
         self.register_element("ENEMY_COLORS",(color.CometRed,color.DimGrey,color.GreenYellow,color.Black,color.BlackRose))
 
-        sp = self.add_sub_plot( nart, "MOCHA_MINTRO", PlotState( elements={"LOCALE":myscene1} ).based_on( self ) )
-        sp = self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":myscene1} ).based_on( sp ) )
-        sp = self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":myscene2} ).based_on( sp ) )
-        sp = self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"LOCALE":myscene2,"MHOICE_ANCHOR":pbge.randmaps.anchors.west} ).based_on( sp ) )
+        sp = self.add_sub_plot( nart, "MOCHA_MINTRO", PlotState( elements={"LOCALE":myscene1,"LOCALE2":myscene2} ).based_on( self ) )
 
         # Try to load a debugging encounter.
         self.add_sub_plot( nart, "MOCHA_DEBUGENCOUNTER", PlotState( elements={"LOCALE":myscene1} ).based_on( self ), necessary=False )
-
 
         return True
     def enter_combat( self, camp ):
@@ -580,14 +587,16 @@ class MochaMissionBattleBuilder( Plot ):
 #  **************************************
 
 ENEMY = 'MENCOUNTER_ENEMY'
-NO_ENEMY,BANDITS,AEGIS = range(3)
+NO_ENEMY,BANDITS,MERCENARY,PIRATES,AEGIS = range(5)
 
 COMPLICATION = 'MENCOUNTER_COMPLICATION'
-NO_COMPLICATION,PROFESSIONAL_OPERATION = range(2)
+NO_COMPLICATION,CONTRABAND_CARGO,FERAL_SYNTHS,PROFESSIONAL_OPERATION,AEGIS_SCOUTS = range(5)
 
 STAKES = 'MENCOUNTER_STAKES'
-NO_STAKES,GET_THE_LEADER,PROTOTYPE_MECHA = range(3)
+NO_STAKES,STOLEN_TOYS,GET_THE_LEADER,PROTOTYPE_MECHA = range(4)
 
+AEGIS_COLORS = (color.LunarGrey,color.AegisCrimson,color.LemonYellow,color.Ceramic,color.LunarGrey)
+CRIHNA_COLORS = (color.HeavyPurple,color.SeaGreen,color.PirateSunrise,color.BlackRose,color.StarViolet)
 
 #  ******************
 #  ***   Intros   ***
@@ -605,6 +614,7 @@ class Intro_GetTheLeader( Plot ):
         self.register_element( STAKES, GET_THE_LEADER )
         self.register_element("ENEMY_COLORS",(color.WarmGrey,color.Cream,color.BrightRed,color.Avocado,color.Terracotta))
         self.did_intro = False
+        self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"ENCOUNTER_NUMBER":1} ).based_on( self ) )
         return True
     def t_START(self,camp):
         if not self.did_intro:
@@ -618,25 +628,353 @@ class Intro_GetTheLeader( Plot ):
             mycutscene(camp)
             self.did_intro = True
 
+class Intro_ToyBandits( Plot ):
+    LABEL = "MOCHA_MINTRO"
+    active = True
+    scope = "LOCALE"
+    # Info for the plot checker...
+    CHANGES = {STAKES:STOLEN_TOYS}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element( STAKES, STOLEN_TOYS )
+        self.register_element("_TRUCK",WinterMochaTruck(desc="A ransacked toy delivery truck."),dident="FIRST_ENTRANCE_ROOM")
+        self.did_intro = False
+        self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"ENCOUNTER_NUMBER":1} ).based_on( self ) )
+        return True
+    def t_START(self,camp):
+        if not self.did_intro:
+            mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
+              beats = (
+                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You come across one of the trucks from the convoy that was attacked. Its cargo of toys, bound for the orphanage in Wugung, has been stolen."),
+                    children = [
+                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("What kind of meanie would steal a truckload of orphan's toys, and right before the solstice to boot?",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Cheerful,),)),
+                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("This is worse than a crime, it's a travesty! The villains who stole these toys must be brought to justice.",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Justice,),)),
+                    ],),
+              )
+            )
+            mycutscene(camp)
+            self.did_intro = True
+
 
 #  **********************
 #  ***   Encounters   ***
 #  **********************
 
-class Encounter_WeHaveBlitzen( Plot ):
-    LABEL = "MOCHA_DEBUGENCOUNTER"
+# Need: ContrabandCargo/GetTheLeader
+
+class Encounter_BasicBandits( Plot ):
+    # This will be the prototype for all MOCHA_MENCOUNTER
+    LABEL = "MOCHA_MENCOUNTER"
     active = True
     scope = "LOCALE"
-    # Info for the plot checker...
-    REQUIRES = {ENEMY:BANDITS,STAKES:GET_THE_LEADER}
-    CHANGES = {STAKES:PROTOTYPE_MECHA}
+    # Info for the matches method and the plot checker...
+    REQUIRES = {ENEMY: NO_ENEMY, COMPLICATION: NO_COMPLICATION}
+    CHANGES = {ENEMY: BANDITS}
     @classmethod
     def matches( self, pstate ):
         """Returns True if this plot matches the current plot state."""
-        return pstate.elements.get(ENEMY,0) == BANDITS and pstate.elements.get(STAKES,0) == GET_THE_LEADER
+        # Note that the lack of an ENCOUNTER_NUMBER implies that this
+        # plot is being loaded as a debug encounter.
+        return "ENCOUNTER_NUMBER" not in pstate.elements or all( pstate.elements.get(k,0) == self.REQUIRES[k] for k in self.REQUIRES.iterkeys() )
+    def load_next( self, nart ):
+        self.elements.update(self.CHANGES)
+        enc_num = self.elements.get("ENCOUNTER_NUMBER",0)
+        if enc_num == 1:
+            # Load the second encounter.
+            self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":self.elements["LOCALE2"],"ENCOUNTER_NUMBER":2} ).based_on( self ) )
+        elif enc_num == 2:
+            self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"MHOICE_ANCHOR":pbge.randmaps.anchors.west} ).based_on( self ) )
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
-        self.register_element( STAKES, PROTOTYPE_MECHA )
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        self.register_element("ENEMY_COLORS",(color.WarmGrey,color.Cream,color.BrightRed,color.Avocado,color.Terracotta))
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mymecha.load_pilot(gears.random_pilot(25))
+            team2.contents.append(mymecha)
+        self.combat_entered = False
+        self.load_next(nart)
+        return True
+        
+class Encounter_MyLittleCabbageFunkoBeaniePogs( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {ENEMY:NO_ENEMY,STAKES:STOLEN_TOYS}
+    CHANGES = {ENEMY:PIRATES}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        self.register_element("ENEMY_COLORS",CRIHNA_COLORS)
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mypilot = gears.random_pilot(25)
+            mymecha.load_pilot(mypilot)
+            team2.contents.append(mymecha)
+            if t == 0:
+                self.register_element("_MIDBOSS",mypilot)
+        self.intro_ready = True
+        self.load_next(nart)
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            npc = self.elements["_MIDBOSS"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+    def _MIDBOSS_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("Greetings, prisoners of gravity! This is [speaker] of the Blades of Crihna. We're just having a short plunder trip on your world. [LETSFIGHT]",
+            context=ContextTag([context.ATTACK,]),
+            replies = [
+                    Reply("Why are you stealing toys, though?",
+                     destination=Cue( ContextTag([context.COMBAT_INFO]) ) ,
+                    ),],))
+        mylist.append(Offer("[CHALLENGE]",
+            context=ContextTag([context.CHALLENGE,]),  ))
+        mylist.append( Offer("Are you serious? That truck was loaded with fresh first edition NerpsEpic figurines. You can sell those for a fortune in Emerald Spinner.",
+            context=ContextTag([context.COMBAT_INFO,]), data={"subject":"the toys"} ))
+        return mylist
+
+
+class Encounter_FunnyLookingPrize( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {COMPLICATION:PROFESSIONAL_OPERATION,STAKES:GET_THE_LEADER}
+    CHANGES = {STAKES:PROTOTYPE_MECHA}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mypilot = gears.random_pilot(25)
+            mymecha.load_pilot(mypilot)
+            team2.contents.append(mymecha)
+            if t == 0:
+                self.register_element("_MIDBOSS",mypilot)
+        self.register_element("_TRUCK",WinterMochaTruck(desc="A mecha transport vehicle. The mecha it was transporting is gone."),dident="_room")
+        self.intro_ready = True
+        self.load_next(nart)
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            npc = self.elements["_MIDBOSS"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+    def _MIDBOSS_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("You're too late, cavaliers. Our leader {} has already escaped with the prototype mecha. [LETSFIGHT]".format(str(self.elements["BOSS_PILOT"])),
+            context=ContextTag([context.ATTACK,]),  ))
+        mylist.append(Offer("[CHALLENGE]",
+            context=ContextTag([context.CHALLENGE,]),  ))
+        mylist.append( Offer("It's called the Blitzen. Frankly speaking it looks ridiculous, but the boss seems to think it's worth this trouble.",
+            context=ContextTag([context.COMBAT_INFO,]), data={"subject":"the prototype"} ))
+        return mylist
+
+
+class Encounter_LastBanditStanding( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {ENEMY:BANDITS,COMPLICATION:CONTRABAND_CARGO}
+    CHANGES = {COMPLICATION:AEGIS_SCOUTS}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        mek1 = random.choice(meks)
+        mek1.colors = self.elements["ENEMY_COLORS"]
+        mypilot = self.register_element("_MIDBOSS",gears.random_pilot(15))
+        mek1.load_pilot(mypilot)
+        team2.contents.append(mek1)
+
+        self.intro_ready = True
+        self.combat_entered = False
+        self.load_next(nart)
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        if not self.combat_entered:
+            self.combat_entered = True
+            npc = self.elements["_MIDBOSS"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+    def _run_away(self,camp):
+        # The bandits will run away.
+        pbge.alert("{} withdraws.".format(str(self.elements["_MIDBOSS"])))
+        self.elements["ETEAM"].retreat(camp)
+        self.t_ENDCOMBAT(camp)
+    def t_ENDCOMBAT(self,camp):
+        if self.combat_entered and self.intro_ready and camp.first_active_pc():
+            self.intro_ready = False
+            myscene = self.elements["LOCALE"]
+            pos = self.elements["_room"].area.center
+            meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+            random.shuffle(meks)
+            for t in range(2):
+                mymecha = meks.pop()
+                mymecha.colors = AEGIS_COLORS
+                mymecha.load_pilot(gears.random_pilot(25))
+                myscene.place_actor(mymecha,pos[0],pos[1],self.elements["ETEAM"])
+            pbge.alert("Suddenly, a group of Aegis mecha emerge from the forest.")
+    def _MIDBOSS_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("Am I ever glad to see you... I was out here with my gang, hard at work y'know, when out of the corner of my eye I notice we're being trailed by these Aegis mecha. They opened fire and I got separated from the group but I know those moon-men are up to something.",
+            context=ContextTag([context.ATTACK,]), 
+            replies = [
+                    Reply("You must be one of the bandits we're looking for.",
+                     destination=Cue( ContextTag([context.CHALLENGE]) ) ,
+                    ),],))
+        mylist.append(Offer("Yeah, so what? You really want to pester a nobody like me when this could be the start of a Lunar invasion? Alright, then. [THREATEN]",
+            context=ContextTag([context.CHALLENGE,]), ))
+        mylist.append(Offer("Really? Thanks! Watch out for those Aegis creeps...",
+            context=ContextTag([context.MERCY,]), effect=self._run_away ))
+        return mylist
+
+        
+class Encounter_MovingOnUp( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {ENEMY:BANDITS,STAKES:PROTOTYPE_MECHA}
+    CHANGES = {ENEMY:PIRATES}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = meks.pop()
+            mypilot = gears.random_pilot(25)
+            mymecha.load_pilot(mypilot)
+            team2.contents.append(mymecha)
+            if t == 0:
+                self.register_element("_MIDBOSS",mypilot)
+                mymecha.colors = (color.HeavyPurple,color.SeaGreen,color.PirateSunrise,color.BlackRose,color.StarViolet)
+            else:
+                mymecha.colors = self.elements["ENEMY_COLORS"]
+        self.register_element("ENEMY_COLORS",CRIHNA_COLORS)
+        self.intro_ready = True
+        self.load_next(nart)
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            npc = self.elements["_MIDBOSS"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+    def _MIDBOSS_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("This lot has done mighty nice, mighty nice indeed. We said if they could get us that Blitzen mecha we'd let them join the Blades. And now here you are, so we can seal the deal with a good old fashioned fight.",
+            context=ContextTag([context.ATTACK,]),  ))
+        mylist.append(Offer("[CHALLENGE]",
+            context=ContextTag([context.CHALLENGE,]),  ))
+        mylist.append( Offer("You don't know about the Blades?! The Blades of Crihna? We're only the biggest and most powerful pirate fleet in all of space! [LETSFIGHT]",
+            context=ContextTag([context.COMBAT_INFO,]), data={"subject":"the Blades"} ))
+        return mylist
+
+
+class Encounter_TheEnemyOfMyEnemy( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {ENEMY:BANDITS,COMPLICATION:NO_COMPLICATION}
+    CHANGES = {COMPLICATION:CONTRABAND_CARGO}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        # Mek1 gets deployed right away, with the standard enemy colors.
+        mek1 = meks.pop()
+        mek1.colors = self.elements["ENEMY_COLORS"]
+        mek1.load_pilot(gears.random_pilot(25))
+        team2.contents.append(mek1)
+
+        # Mek2 gets held behind until the first fight is over.
+        mek2 = self.register_element("_MIDMEK",meks.pop())
+        mek2.colors = (color.Jade,color.Ceramic,color.FlourescentGreen,color.Black,color.MassiveGreen)
+        mypilot = self.register_element("_MIDBOSS",gears.random_pilot(35))
+        mek2.load_pilot(mypilot)
+
+        self.register_element("_TRUCK",WinterMochaTruck(plot_locked=True),dident="_room")
+
+        self.intro_ready = True
+        self.combat_entered = False
+        self.load_next(nart)
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        self.combat_entered = True
+    def t_ENDCOMBAT(self,camp):
+        if self.combat_entered and self.intro_ready and camp.first_active_pc():
+            self.intro_ready = False
+            myscene = self.elements["LOCALE"]
+            boss = self.elements["_MIDMEK"]
+            pos = self.elements["_room"].area.center
+            myscene.place_actor(boss,pos[0],pos[1],self.elements["ETEAM"])
+            pbge.alert("As you finish fighting the bandit, one of the convoy guards emerges from the woods.")
+            npc = self.elements["_MIDBOSS"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+    def _MIDBOSS_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("Normally I'd thank you for defeating one of the bandits who attacked our convoy, but given the cargo we're hauling I don't think I should risk leaving any witnesses.",
+            context=ContextTag([context.ATTACK,]),  ))
+        mylist.append(Offer("Oh, so you didn't even take a peek inside the truck? No matter. [LETSFIGHT]",
+            context=ContextTag([context.COMBAT_INFO,]), data={"subject":"the cargo"} ))
+        return mylist
+    def _TRUCK_menu(self,thingmenu):
+        thingmenu.desc = "This is one of the trucks from the convoy that was attacked. Inside, you see a number of biotank storage units. No idea what they're transporting but it can't be good news."
+        thingmenu.add_item('[Continue]',None)
+
+class Encounter_AdvancedMecha( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {STAKES:PROTOTYPE_MECHA,COMPLICATION:NO_COMPLICATION}
+    CHANGES = {COMPLICATION:PROFESSIONAL_OPERATION}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('Zerosaiko.txt')
+        mymecha = random.choice(meks)
+        mymecha.colors = self.elements["ENEMY_COLORS"]
+        mymecha.load_pilot(gears.random_pilot(25))
+        team2.contents.append(mymecha)
+        self.combat_entered = False
+        self.load_next(nart)
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        self.combat_entered = True
+    def t_ENDCOMBAT(self,camp):
+        if self.combat_entered and camp.first_active_pc():
+            mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
+              beats = (
+                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("That was some high end equipment for a bandit... Better not underestimate this gang.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+              )
+            )
+            mycutscene(camp)
+            self.combat_entered = False
+
+class Encounter_WeHaveBlitzen( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {ENEMY:BANDITS,STAKES:GET_THE_LEADER}
+    CHANGES = {STAKES:PROTOTYPE_MECHA}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
         meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
@@ -650,6 +988,7 @@ class Encounter_WeHaveBlitzen( Plot ):
             if t == 0:
                 self.register_element("_MIDBOSS",mypilot)
         self.intro_ready = True
+        self.load_next(nart)
         return True
     def ETEAM_ACTIVATETEAM(self,camp):
         if self.intro_ready:
@@ -678,20 +1017,15 @@ class Encounter_WeHaveBlitzen( Plot ):
         mylist.append(ci)
         return mylist
 
-class Encounter_WaitingAmbush( Plot ):
+class Encounter_WaitingAmbush( Encounter_BasicBandits ):
     LABEL = "MOCHA_MENCOUNTER"
     active = True
     scope = "LOCALE"
     # Info for the plot checker...
     REQUIRES = {STAKES:GET_THE_LEADER,COMPLICATION:NO_COMPLICATION}
     CHANGES = {COMPLICATION:PROFESSIONAL_OPERATION}
-    @classmethod
-    def matches( self, pstate ):
-        """Returns True if this plot matches the current plot state."""
-        return pstate.elements.get(STAKES,0) == GET_THE_LEADER and pstate.elements.get(COMPLICATION,0) == NO_COMPLICATION
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
-        self.register_element( COMPLICATION, PROFESSIONAL_OPERATION )
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         mytrap = self.register_element("TRAP",pbge.randmaps.rooms.Room(10,1,anchor=pbge.randmaps.anchors.south),dident="_room")
         myscene.script_rooms.append(mytrap)
@@ -705,6 +1039,7 @@ class Encounter_WaitingAmbush( Plot ):
         self.combat_entered = False
         self.trap_ready = True
         self.did_intro = False
+        self.load_next(nart)
         return True
     def ETEAM_ACTIVATETEAM(self,camp):
         self.combat_entered = True
@@ -738,22 +1073,16 @@ class Encounter_WaitingAmbush( Plot ):
             mycutscene(camp)
             self.trap_ready = False
 
-class Encounter_CovertAegis( Plot ):
+class Encounter_CovertAegis( Encounter_BasicBandits ):
     LABEL = "MOCHA_MENCOUNTER"
     active = True
     scope = "LOCALE"
-    # Info for the plot checker...
     REQUIRES = {ENEMY:BANDITS,COMPLICATION:PROFESSIONAL_OPERATION}
     CHANGES = {ENEMY:AEGIS}
-    @classmethod
-    def matches( self, pstate ):
-        """Returns True if this plot matches the current plot state."""
-        return pstate.elements.get(ENEMY,0) == BANDITS and pstate.elements.get(COMPLICATION,0) == PROFESSIONAL_OPERATION
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
-        self.register_element( ENEMY, AEGIS )
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
-        self.register_element("ENEMY_COLORS",(color.LunarGrey,color.AegisCrimson,color.LemonYellow,color.Ceramic,color.LunarGrey))
+        self.register_element("ENEMY_COLORS",AEGIS_COLORS)
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
         meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
         random.shuffle(meks)
@@ -763,6 +1092,7 @@ class Encounter_CovertAegis( Plot ):
             mymecha.load_pilot(gears.random_pilot(25))
             team2.contents.append(mymecha)
         self.intro_ready = True
+        self.load_next(nart)
         return True
     def ETEAM_ACTIVATETEAM(self,camp):
         if self.intro_ready:
@@ -810,6 +1140,30 @@ class DutyToCatchTheLeader( Plot ):
         thingmenu.add_item('Do your duty',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
 
+class DutyToStopThePrototype( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {STAKES:PROTOTYPE_MECHA}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(STAKES,0) == PROTOTYPE_MECHA and pstate.elements.get(VIRTUE,0) != personality.Duty and pstate.elements.get(SSTATE,0) != STAKES
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Duty)
+        self.register_element(SSTATE,STAKES)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_BOSSBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to recover the stolen prototype?'
+        thingmenu.add_item('Do your duty',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
 
 #  *************************
 #  ***   FINAL  BATTLE   ***

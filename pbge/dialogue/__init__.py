@@ -399,6 +399,8 @@ class DynaConversation(object):
         for r in self.root.replies:
             if isinstance(r.destination,Cue):
                 r.destination = self._get_offer_for_cue(r.destination,self.npc_offers)
+                if r.destination in self.npc_offers:
+                    self.npc_offers.remove(r.destination)
 
         # Shuffle self.npc_offers.
         random.shuffle(self.npc_offers)

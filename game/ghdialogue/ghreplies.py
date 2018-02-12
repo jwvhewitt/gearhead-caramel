@@ -8,6 +8,11 @@ ATTACK_CHALLENGE = Reply( "[ATTACK:CHALLENGE]" ,
 ATTACK_COMBATINFO = Reply( "[ATTACK:COMBAT_INFO]" ,
             destination = Cue( ContextTag([context.COMBAT_INFO]) ) ,
             context = ContextTag([context.ATTACK]) )
+            
+ATTACK_MERCY = Reply( "[ATTACK:MERCY]" ,
+            destination = Cue( ContextTag([context.MERCY]) ) ,
+            context = ContextTag([context.ATTACK]) )
+
 
 HELLO_ASKFORITEM = Reply( "[HELLO:ASK_FOR_ITEM]" ,
             destination = Cue( ContextTag([context.ASK_FOR_ITEM]) ) ,

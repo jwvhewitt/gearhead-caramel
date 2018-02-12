@@ -30,4 +30,9 @@ class Team( object ):
             for c in self.contents:
                 gb.local_teams[c]=self
             room.contents += self.contents
+    def retreat( self, camp ):
+        for npc in list(camp.scene.contents):
+            if camp.scene.local_teams.get(npc,None) == self:
+                camp.scene.contents.remove(npc)
+
 

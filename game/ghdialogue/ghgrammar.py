@@ -91,6 +91,34 @@ DEFAULT_GRAMMAR = {
             ],
     },
 
+    "[ATTACK:MERCY]": {
+        Default: ["Get out of here.",
+            ],
+        personality.Cheerful: ["It's your lucky day, you can go.",
+            ],
+        personality.Grim: ["Get lost before I change my mind.",
+            ],
+        personality.Easygoing: [ "You can go home now.",
+            ],
+        personality.Passionate: ["Let me show you my mercy!",
+            ],
+        personality.Sociable: ["You can leave if you don't want to fight.",
+            ],
+        personality.Shy: ["Go.",
+            ],
+        personality.Peace: [ "I have no desire to fight you.",
+            ],
+        personality.Duty: [ "Run away now and I won't chase you.",
+            ],
+        personality.Fellowship: [ "Go on, I won't challenge you.",
+            ],
+        personality.Glory: [ "Maybe we can duel later, but not today.",
+            ],
+        personality.Justice: [ "It wouldn't be fair to fight you now.",
+            ],
+    },
+
+
 
     "[CHALLENGE]": {
         Default: ["[THREATEN]",

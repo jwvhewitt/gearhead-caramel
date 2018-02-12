@@ -105,8 +105,10 @@ class Plot( object ):
             ident = "_autoident_{0}".format( len( self.subplots ) )
         sp = nart.generate_sub_plot( spstate, splabel )
         if necessary and not sp:
+            #print "Fail: {}".format(splabel)
             self.fail( nart )
         elif sp:
+            #print "Success: {}".format(splabel)
             self.subplots[ident] = sp
         return sp
 
