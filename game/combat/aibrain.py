@@ -42,7 +42,7 @@ class CrapAI( object ):
                 # Move to a better tile if appropriate.
                 my_firing_points = pbge.scenes.pfov.AttackReach( camp.scene, self.target.pos[0], self.target.pos[1], my_invo.area.reach ).tiles
 
-                if self.npc.pos not in my_firing_points:
+                if self.npc.pos not in my_firing_points and hasattr(self.npc,"get_current_speed"):
                     mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,camp.fight.cstat[self.npc].action_points*self.npc.get_current_speed()+camp.fight.cstat[self.npc].mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
                     target_spaces = set(mynav.cost_to_tile.keys()) & my_firing_points
                     if target_spaces:
@@ -51,14 +51,18 @@ class CrapAI( object ):
                     else:
                         # Can't move into position this round. Ummm...
                         self.move_to(camp,mynav,random.choice(mynav.cost_to_tile.keys()))
-                else:
+                elif self.npc.pos in my_firing_points:
                     my_invo.invoke(camp, self.npc, [self.target.pos,], pbge.my_state.view.anim_list )
                     pbge.my_state.view.handle_anim_sequence()
                     camp.fight.cstat[self.npc].spend_ap(1)
-            else:
+                else:
+                    camp.fight.cstat[self.npc].spend_ap(1)
+            elif hasattr(self.npc,"get_current_speed"):
                 # Can't move into position this round. Ummm...
                 mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,camp.fight.cstat[self.npc].action_points*self.npc.get_current_speed()+camp.fight.cstat[self.npc].mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
                 self.move_to(camp,mynav,random.choice(mynav.cost_to_tile.keys()))
+            else:
+                camp.fight.cstat[self.npc].spend_ap(1)
 
 
                 

@@ -208,7 +208,7 @@ class AttackRoll( effects.NoEffect ):
         for m in self.modifiers:
             att_bonus += m.calc_modifier(camp,originator,pos)
 
-        targets = camp.scene.get_actors(pos)
+        targets = camp.scene.get_operational_actors(pos)
         next_fx = []
         for target in targets:
             hi_def_roll = 50
@@ -279,7 +279,7 @@ class MultiAttackRoll( effects.NoEffect ):
         for m in self.modifiers:
             att_bonus += m.calc_modifier(camp,originator,pos)
 
-        targets = camp.scene.get_actors(pos)
+        targets = camp.scene.get_operational_actors(pos)
         next_fx = []
         for target in targets:
             hi_def_roll = 50
@@ -339,7 +339,7 @@ class DoDamage( effects.NoEffect ):
         self.hot_knife = hot_knife
         self.scatter = scatter
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
-        targets = camp.scene.get_actors(pos)
+        targets = camp.scene.get_operational_actors(pos)
         penetration = fx_record.get("penetration",random.randint(1,100))
         damage_percent = fx_record.get("damage_percent",100)
         number_of_hits = fx_record.get("number_of_hits",1)
@@ -388,10 +388,10 @@ class SpeedModifier( object ):
     IMMOBILE_MODIFIER = 25
     MOD_PER_TILE = -3
     def calc_modifier( self, camp, attacker, pos ):
-        targets = camp.scene.get_actors(pos)
+        targets = camp.scene.get_operational_actors(pos)
         my_mod = 0
         for t in targets:
-            if t.get_current_speed() < 1:
+            if hasattr(t,"get_current_speed") and t.get_current_speed() < 1:
                 my_mod += self.IMMOBILE_MODIFIER
             elif camp.fight:
                 my_mod += camp.fight.cstat[t].moves_this_round * self.MOD_PER_TILE
@@ -415,7 +415,7 @@ class OverwhelmModifier( object ):
     def calc_modifier( self, camp, attacker, pos ):
         my_mod = 0
         if camp.fight:
-            targets = camp.scene.get_actors(pos)
+            targets = camp.scene.get_operational_actors(pos)
             for t in targets:
                 my_mod += camp.fight.cstat[t].attacks_this_round * self.MOD_PER_ATTACK
         return my_mod

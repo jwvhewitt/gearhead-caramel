@@ -400,7 +400,7 @@ class GH1Loader( object ):
         statline[stats.Dodge] = pc.natt.get((self.NAG_SKILL,self.NAS_DODGE),0)
         statline[stats.Repair] = max(pc.natt.get((self.NAG_SKILL,self.NAS_MECHAREPAIR),0),pc.natt.get((self.NAG_SKILL,self.NAS_GENERALREPAIR),0))
         statline[stats.Medicine] = max(pc.natt.get((self.NAG_SKILL,self.NAS_MEDICINE),0),pc.natt.get((self.NAG_SKILL,self.NAS_FIRSTAID),0),pc.natt.get((self.NAG_SKILL,self.NAS_CYBERTECH),0))
-        statline[stats.Biotech] = pc.natt.get((self.NAG_SKILL,self.NAS_BIOTECHNOLOGY),0)
+        statline[stats.Biotechnology] = pc.natt.get((self.NAG_SKILL,self.NAS_BIOTECHNOLOGY),0)
         statline[stats.Stealth] = max(pc.natt.get((self.NAG_SKILL,self.NAS_STEALTH),0),pc.natt.get((self.NAG_SKILL,self.NAS_PICKPOCKETS),0))
         statline[stats.Science] = max(pc.natt.get((self.NAG_SKILL,self.NAS_SCIENCE),0),pc.natt.get((self.NAG_SKILL,self.NAS_MECHAENGINEERING),0),pc.natt.get((self.NAG_SKILL,self.NAS_ROBOTICS),0))
         statline[stats.Computers] = max(pc.natt.get((self.NAG_SKILL,self.NAS_ELECTRONICWARFARE),0),pc.natt.get((self.NAG_SKILL,self.NAS_CODEBREAKING),0))

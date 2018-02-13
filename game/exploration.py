@@ -191,7 +191,8 @@ class Explorer( object ):
         if self.camp.fight:
             self.camp.fight.activate_foe( npc )
         else:
-            self.camp.fight = combat.Combat( self.camp, npc )
+            self.camp.fight = combat.Combat( self.camp )
+            self.camp.fight.activate_foe( npc )
 
     def update_npcs( self ):
         my_actors = self.scene.get_operational_actors()

@@ -92,5 +92,13 @@ def test_mocha_encounters():
                 print "No encounter found for Complication:{} Stakes:{}".format(cs[1],cs[3])
             done_stuff.add(cs)
 
+    for s in possible_states:
+        if move_cost[repr(s)] >= 2:
+            choices = [ p for p in PLOT_LIST['MOCHA_MHOICE'] if all( p.REQUIRES[k] == s.get(k,0) for k in p.REQUIRES.iterkeys() )]
+            if len(choices) < 4:
+                print "Only {} choices for {}".format(len(choices),s)
+
+
+
 
 test_mocha_encounters()

@@ -222,21 +222,24 @@ class Mover( KeyObject ):
                 total += g.get_thrust(move_mode)
         return total
 
-    def get_attack_library( self ):
-        my_invos = list()
-        for p in self.descendants():
-            if hasattr(p, 'get_attacks'):
-                p_list = geffects.AttackLibraryShelf(p,p.get_attacks())
-                if p_list.has_at_least_one_working_invo(self,True):
-                    my_invos.append(p_list)
-        return my_invos
-
     MOVEMODE_LIST = (scenes.movement.Walking,geffects.Rolling,geffects.Skimming,scenes.movement.Flying,geffects.SpaceFlight)
     def gear_up(self):
         for mm in self.MOVEMODE_LIST:
             if self.get_speed(mm) > 0:
                 self.mmode = mm
                 break
+                
+class Combatant( KeyObject ):
+    def get_attack_library( self ):
+        my_invos = list()
+        for p in self.descendants():
+            if p.is_operational() and hasattr(p, 'get_attacks'):
+                p_list = geffects.AttackLibraryShelf(p,p.get_attacks())
+                if p_list.has_at_least_one_working_invo(self,True):
+                    my_invos.append(p_list)
+        return my_invos
+    def get_action_points( self ):
+        return 3
 
 class HasPower( KeyObject ):
     # This is a gear that has, and can use, power sources.
@@ -456,7 +459,7 @@ class BaseGear( scenes.PlaceableThing ):
         alist = list()
         for part in self.sub_com:
             armor = part.get_armor()
-            if part:
+            if armor:
                 alist.append(armor.get_rating())
             else:
                 alist.append(0)
@@ -1591,7 +1594,7 @@ class MT_Battroid( Singleton ):
         return base_speed
 
 
-class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower):
+class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower,Combatant):
     SAVE_PARAMETERS = ('name','form')
     def __init__(self, form=MT_Battroid, **keywords ):
         name = keywords.get(  "name" )
@@ -1804,7 +1807,15 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower):
         if pilot:
             pilot.spend_stamina(amount)
 
-class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait,HasPower):
+    def get_action_points( self ):
+        if self.get_current_speed() > 0:
+            return 2
+        else:
+            return 1
+
+
+
+class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait,HasPower,Combatant):
     SAVE_PARAMETERS = ('statline','personality')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat
@@ -1908,4 +1919,97 @@ class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait,HasPower):
 
     def spend_stamina( self, amount ):
         self.sp_spent += amount
+
+    def get_action_points( self ):
+        if self.get_current_speed() > 0:
+            return 2
+        else:
+            return 1
+
+
+class Prop(BaseGear,StandardDamageHandler,HasPower,Combatant):
+    SAVE_PARAMETERS = ('size','statline')
+    DEFAULT_SCALE = scale.MechaScale
+    DEFAULT_MATERIAL = materials.Metal
+    def __init__(self, statline={}, size=10, **keywords ):
+        self.statline = collections.defaultdict(int)
+        if statline:
+            self.statline.update(statline)
+        self.size = size
+
+        super(Prop, self).__init__(**keywords)
+
+    def is_legal_sub_com( self, part ):
+        return True
+
+    def is_legal_inv_com( self, part ):
+        return True
+
+    @property
+    def volume(self):
+        return self.size * 2
+
+    def get_stat( self, stat_id ):
+        return self.statline.get( stat_id, 0 )
+
+    def get_skill_score( self, stat_id, skill_id ):
+        it = self.get_stat(skill_id) * 5
+        if stat_id:
+            it += self.get_stat(stat_id) * 2
+        return it
+
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this character."""
+        return self.size * 10
+
+    def get_pilot( self ):
+        """Return the prop itself."""
+        return self
+
+    def calc_mobility( self ):
+        """Calculate the mobility ranking of this character.
+        """
+        return 0
+
+    def get_dodge_score( self ):
+        return 0
+
+    def get_sensor_range( self, map_scale ):
+        return 25
+
+    def get_max_mental( self ):
+        return (self.get_stat(stats.Knowledge)+self.get_stat(stats.Ego)+5)//2 + self.get_stat(stats.Concentration)*3
+
+    def get_max_stamina( self ):
+        return (self.get_stat(stats.Body)+self.get_stat(stats.Ego)+5)//2 + self.get_stat(stats.Athletics)*3
+
+    def get_current_mental( self ):
+        return self.get_max_mental()
+
+    def get_current_stamina( self ):
+        return self.get_max_stamina()
+
+    def spend_mental( self, amount ):
+        pass
+
+    def spend_stamina( self, amount ):
+        pass
+
+    def get_attack_library( self ):
+        my_invos = list()
+        for p in self.descendants():
+            if hasattr(p, 'get_attacks') and p.is_not_destroyed():
+                p_list = geffects.AttackLibraryShelf(p,p.get_attacks())
+                if p_list.has_at_least_one_working_invo(self,True):
+                    my_invos.append(p_list)
+        return my_invos
+    def get_action_points( self ):
+        return 3
+    def render( self, foot_pos, view ):
+        spr = view.get_sprite(self)
+        mydest = spr.get_rect(self.frame)
+        mydest.midbottom = foot_pos
+        mydest.top += view.HTH
+        spr.render( mydest, self.frame )
 

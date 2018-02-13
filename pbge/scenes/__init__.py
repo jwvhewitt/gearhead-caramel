@@ -189,6 +189,11 @@ class Scene( object ):
         else:
             return None
 
+    def set_wall( self, x, y, terr ):
+        """Safely set wall of tile x,y."""
+        if self.on_the_map(x,y):
+            self._map[x][y].wall = terr
+
     def get_decor( self, x, y ):
         """Safely return decor of tile x,y, or None if off map."""
         if self.on_the_map(x,y):
@@ -282,7 +287,7 @@ class Scene( object ):
             return 100
 
     def model_altitude( self, m,x,y ):
-        if m.mmode.altitude is None:
+        if not hasattr(m,"mmode") or m.mmode.altitude is None:
             return self._map[x][y].altitude()
         else:
             return max(self._map[x][y].altitude(),m.mmode.altitude)

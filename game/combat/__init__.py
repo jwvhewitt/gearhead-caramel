@@ -33,10 +33,7 @@ class CombatStat( object ):
         self.action_points -= ap
         self.mp_remaining = mp_remaining
     def start_turn( self, chara ):
-        if chara.get_current_speed() > 0:
-            self.action_points += 2
-        else:
-            self.action_points += 1
+        self.action_points += chara.get_action_points()
         self.has_started_turn = True
         self.moves_this_round = 0
         self.attacks_this_round = 0
@@ -110,7 +107,7 @@ class PlayerTurn( object ):
         self.attack_ui.dispose()
 
 class Combat( object ):
-    def __init__( self, camp, foe_zero=None ):
+    def __init__( self, camp ):
         self.active = []
         self.scene = camp.scene
         self.camp = camp
@@ -120,27 +117,26 @@ class Combat( object ):
         self.no_quit = True
         self.n = 0
 
-        if foe_zero:
-            self.activate_foe( foe_zero )
-
-        # Sort based on initiative roll.
-        self.active.sort( key = self.roll_initiative, reverse=True )
-
         if hasattr(camp.scene,"combat_music"):
             pbge.my_state.start_music(camp.scene.combat_music)
+    def roll_initiative( self ):
+        # Sort based on initiative roll.
+        self.active.sort( key = self._get_npc_initiative, reverse=True )
 
-    def roll_initiative( self, chara ):
+    def _get_npc_initiative( self, chara ):
         return chara.get_stat(gears.stats.Speed) + random.randint(1,20)
 
     def activate_foe( self, foe ):
         m0team = self.scene.local_teams.get(foe)
         self.camp.check_trigger('ACTIVATETEAM',m0team)
         for m in self.scene.contents:
-            if m in self.camp.party:
-                self.active.append( m )
-            elif self.scene.local_teams.get(m) is m0team:
-                self.active.append( m )
-                self.camp.check_trigger('ACTIVATE',m)
+            if m not in self.active:
+                if m in self.camp.party:
+                    self.active.append( m )
+                elif self.scene.local_teams.get(m) is m0team:
+                    self.active.append( m )
+                    self.camp.check_trigger('ACTIVATE',m)
+        self.roll_initiative()
 
     def num_enemies( self ):
         """Return the number of active, hostile characters."""

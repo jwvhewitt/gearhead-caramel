@@ -144,6 +144,34 @@ class WinterMochaTruck( waypoints.Waypoint ):
     TILE = pbge.scenes.Tile( None, None, WinterMochaTruckTerrain )
     desc = "You stand before one of the trucks from the convoy that was attacked."
 
+class WinterMochaClaymoreTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_wintermocha_mission.png'
+    frame = 1
+
+class WinterMochaClaymore( waypoints.Waypoint ):
+    name = 'Wrecked Claymore'
+    TILE = pbge.scenes.Tile( None, None, WinterMochaClaymoreTerrain )
+    desc = "You stand before a totalled mecha."
+
+class WinterMochaFortressWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_fortress.png'
+    blocks = (Walking,Skimming,Rolling,Vision)
+    
+class WinterMochaFortressRoom(pbge.randmaps.rooms.Room):
+    def build( self, gb, archi ):
+        gb.fill(self.area.inflate(2,2),floor=archi.floor_terrain,wall=None)
+        width = self.area.w-2
+        for x in range(width/2-1):
+            gb.set_wall(x+1+self.area.left,self.area.top+1,WinterMochaFortressWall)
+            gb.set_wall(self.area.right-x-1,self.area.top+1,WinterMochaFortressWall)
+            gb.set_wall(x+1+self.area.left,self.area.bottom-1,WinterMochaFortressWall)
+            gb.set_wall(self.area.right-x-1,self.area.bottom-1,WinterMochaFortressWall)
+        height = self.area.h-2
+        for y in range(height/2-1):
+            gb.set_wall(self.area.left+1,y+1+self.area.top,WinterMochaFortressWall)
+            gb.set_wall(self.area.left+1,self.area.bottom-y-1,WinterMochaFortressWall)
+            gb.set_wall(self.area.right-1,y+1+self.area.top,WinterMochaFortressWall)
+            gb.set_wall(self.area.right-1,self.area.bottom-y-1,WinterMochaFortressWall)
 
 # *****************
 # ***   PLOTS   ***
@@ -374,7 +402,7 @@ class WinterMochaHyolee( Plot ):
         hyolee = gears.base.Character(name="Hyolee",statline={gears.stats.Reflexes:9,
          gears.stats.Body:8,gears.stats.Speed:10,gears.stats.Perception:13,
          gears.stats.Knowledge:18,gears.stats.Craft:11,gears.stats.Ego:15,
-         gears.stats.Charm:16,gears.stats.Science:10,gears.stats.Biotech:10,
+         gears.stats.Charm:16,gears.stats.Science:10,gears.stats.Biotechnology:10,
          gears.stats.Medicine:7},
          personality=[personality.Cheerful,personality.Peace,personality.Fellowship])
         hyolee.imagename = 'cha_wm_hyolee.png'
@@ -570,11 +598,15 @@ class MochaMissionBattleBuilder( Plot ):
 
         # Try to load a debugging encounter.
         self.add_sub_plot( nart, "MOCHA_DEBUGENCOUNTER", PlotState( elements={"LOCALE":myscene1} ).based_on( self ), necessary=False )
+        self.add_sub_plot( nart, "MOCHA_FB_DEBUGSTUB", PlotState( elements={"LOCALE":myscene1} ).based_on( self ), necessary=False )
 
         return True
     def enter_combat( self, camp ):
         camp.destination = self.elements["FIRST_PART"]
         camp.entrance = self.elements["FIRST_ENTRANCE"]
+    def t_MOCHAVICTORY(self,camp):
+        if camp.first_active_pc():
+            pbge.alert("Victory! Thank you for trying GearHead Caramel. Keep watching for more updates.")
     def t_ENDCOMBAT(self,camp):
         myboss = self.elements["BOSS"]
         if not myboss.is_operational():
@@ -596,7 +628,7 @@ STAKES = 'MENCOUNTER_STAKES'
 NO_STAKES,STOLEN_TOYS,GET_THE_LEADER,PROTOTYPE_MECHA = range(4)
 
 AEGIS_COLORS = (color.LunarGrey,color.AegisCrimson,color.LemonYellow,color.Ceramic,color.LunarGrey)
-CRIHNA_COLORS = (color.HeavyPurple,color.SeaGreen,color.PirateSunrise,color.BlackRose,color.StarViolet)
+CRIHNA_COLORS = (color.HeavyPurple,color.SeaGreen,color.PirateSunrise,color.BattleshipGrey,color.StarViolet)
 
 #  ******************
 #  ***   Intros   ***
@@ -699,6 +731,119 @@ class Encounter_BasicBandits( Plot ):
         self.load_next(nart)
         return True
         
+class Encounter_SilentMercenaries( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {ENEMY:NO_ENEMY,COMPLICATION:FERAL_SYNTHS}
+    CHANGES = {ENEMY:MERCENARY}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        self.register_element("ENEMY_COLORS",gears.random_mecha_colors())
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mypilot = gears.random_pilot(25)
+            mymecha.load_pilot(mypilot)
+            team2.contents.append(mymecha)
+        self.load_next(nart)
+        return True
+
+
+class Encounter_InstantKarma( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {STAKES:STOLEN_TOYS,COMPLICATION:NO_COMPLICATION}
+    CHANGES = {COMPLICATION:FERAL_SYNTHS}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        myroom.contents.append(WinterMochaClaymore())
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('HunterX.txt')
+        for t in range(random.randint(4,6)):
+            mymecha = copy.deepcopy(meks[0])
+            team2.contents.append(mymecha)
+        self.combat_entered = False
+        self.load_next(nart)
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        if not self.combat_entered:
+            self.combat_entered = True
+            mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
+              beats = (
+                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Ashes... it's hunter synths! The raiders we're after must have wandered into a nest of them. Serves them right for stealing toys from orphans.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+              )
+            )
+            mycutscene(camp)
+            self.combat_entered = False
+
+class Encounter_WeBroughtThisFightHere( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {ENEMY:PIRATES,COMPLICATION:NO_COMPLICATION}
+    CHANGES = {COMPLICATION:AEGIS_SCOUTS}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("_ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = copy.deepcopy(meks[t])
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mymecha.load_pilot(gears.random_pilot(25))
+            team2.contents.append(mymecha)
+        team3 = self.register_element("_AEGISTEAM",teams.Team(enemies=(myscene.player_team,team2)),dident="_room")
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = copy.deepcopy(meks[t])
+            mymecha.colors = AEGIS_COLORS
+            mypilot = gears.random_pilot(25)
+            mymecha.load_pilot(mypilot)
+            team3.contents.append(mymecha)
+            if t == 0:
+                self.register_element("_MIDBOSS",mypilot)
+
+        self.intro_ready = True
+        self.load_next(nart)
+        return True
+    def _ETEAM_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            oteam = self.elements["_AEGISTEAM"]
+            for npc in oteam.get_active_members(camp):
+                if npc not in camp.fight.active:
+                    camp.fight.active.append(npc)
+            camp.fight.roll_initiative()
+            self.do_intro(camp)
+    def _AEGISTEAM_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            oteam = self.elements["_ETEAM"]
+            for npc in oteam.get_active_members(camp):
+                if npc not in camp.fight.active:
+                    camp.fight.active.append(npc)
+            camp.fight.roll_initiative()
+            self.do_intro(camp)
+    def do_intro(self,camp):
+        npc = self.elements["_MIDBOSS"]
+        ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+        self.intro_ready = False
+    def _MIDBOSS_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("Leave this place, Terran. This business is between Aegis Overlord Luna and these pirates.",
+            context=ContextTag([context.ATTACK,]),
+            replies = [
+                    Reply("Your presence makes it my business.",
+                     destination=Cue( ContextTag([context.CHALLENGE]) ) ,
+                    ),],))
+        return mylist
+
 class Encounter_MyLittleCabbageFunkoBeaniePogs( Encounter_BasicBandits ):
     LABEL = "MOCHA_MENCOUNTER"
     active = True
@@ -1115,7 +1260,32 @@ class Encounter_CovertAegis( Encounter_BasicBandits ):
 VIRTUE = "MHOICE_VIRTUE"
 SSTATE = "MHOICE_STORY_STATE"
 
-class DutyToCatchTheLeader( Plot ):
+class Choice_PeaceByDefeatingAegis( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {COMPLICATION: AEGIS_SCOUTS}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(COMPLICATION,0) == AEGIS_SCOUTS and pstate.elements.get(VIRTUE,0) != personality.Peace and pstate.elements.get(SSTATE,0) != COMPLICATION
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Peace)
+        self.register_element(SSTATE,COMPLICATION)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", PlotState( elements={"ENEMY_COLORS":AEGIS_COLORS,} ).based_on( self ), ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = 'The tracks in the snow indicate that this is the direction the Aegis scouts came from. Stopping them may be far more important than the raiders you were sent to fight.'
+        thingmenu.add_item('Protect the Earth',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+class Choice_DutyToCatchTheLeader( Plot ):
     LABEL = "MOCHA_MHOICE"
     active = True
     scope = True
@@ -1140,7 +1310,7 @@ class DutyToCatchTheLeader( Plot ):
         thingmenu.add_item('Do your duty',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
 
-class DutyToStopThePrototype( Plot ):
+class Choice_DutyToStopThePrototype( Plot ):
     LABEL = "MOCHA_MHOICE"
     active = True
     scope = True
@@ -1172,6 +1342,64 @@ class DutyToStopThePrototype( Plot ):
 # The final battle will usually be composed of two subplots: One holding
 # the battle itself, and one holding the enemy leader's conversation bits.
 #
+
+class FinalBattleDebug( Plot ):
+    LABEL = "MOCHA_FB_DEBUGSTUB"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.southwest),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Debug Ending",anchor=pbge.randmaps.anchors.middle),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_DEBUG", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = 'This seems to be a final battle in need of debugging.'
+        thingmenu.add_item('Do your duty',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+class FinalBattleAgainstBase( Plot ):
+    LABEL = "MOCHA_FB_BASEBATTLE"
+    #LABEL = "MOCHA_FB_DEBUG"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        team1 = teams.Team(name="Player Team")
+        myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
+        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
+        mymutate = pbge.randmaps.mutator.CellMutator()
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
+        myscene.exploration_music = 'Lines.ogg'
+        myscene.combat_music = 'Late.ogg'
+        myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
+        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myroom.contents.append( myent )
+        mygoal = self.register_element("_goalroom",WinterMochaFortressRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
+        team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mymecha.load_pilot(gears.random_pilot(25))
+            team2.contents.append(mymecha)
+        meks = gears.Loader.load_design_file('STC_Buildings.txt')
+        team2.contents.append(meks[0])
+        self.register_element("BOSS",meks[0])
+        return True
+    def start_battle( self, camp ):
+        myscene = self.elements["LOCALE"]
+        camp.destination = myscene
+        camp.entrance = self.elements["ENTRANCE"]
+    def t_ENDCOMBAT(self,camp):
+        myboss = self.elements["BOSS"]
+        if not myboss.is_operational():
+            camp.check_trigger('MOCHAVICTORY')
 
 class FinalBattleAgainstBoss( Plot ):
     LABEL = "MOCHA_FB_BOSSBATTLE"
@@ -1209,6 +1437,10 @@ class FinalBattleAgainstBoss( Plot ):
         boss = self.elements["BOSS"]
         pos = self.elements["_goalroom"].area.center
         myscene.place_actor(boss,pos[0],pos[1],self.elements["_eteam"])
+    def t_ENDCOMBAT(self,camp):
+        myboss = self.elements["BOSS"]
+        if not myboss.is_operational():
+            camp.check_trigger('MOCHAVICTORY')
 
 #  ********************
 #  ***   BOSSTALK   ***

@@ -1,0 +1,58 @@
+Character
+	name = "Hunter-Killer"
+	statline = {Reflexes = 18, Body=2, Speed=10, Perception=14, Craft=7, Knowledge=5, Ego=14, Charm = 4,
+			MechaGunnery = 6, MechaFighting = 6, MechaPiloting = 4,
+			CloseCombat = 6, RangedCombat = 6, Dodge = 4
+	}
+	scale = MechaScale
+	imagename = 'monster_ms_hkiller.png'
+	colors = (CardinalRed,SteelBlue,Malachite,Black,Black)
+	SUB
+        Head
+            size = 1
+            material = Biotech
+            SUB
+				MeleeWeapon
+					name="Jaws"
+					reach=1
+					damage=1
+					accuracy=0
+					penetration=2
+					integral = True
+            END
+        Torso
+            size = 1
+            material = Biotech
+        Leg
+            size = 1
+            material = Biotech
+            SUB
+				MeleeWeapon
+					name="Claw"
+					reach=1
+					damage=1
+					accuracy=1
+					penetration=0
+					integral = True
+            END
+        Leg
+            size = 1
+            material = Biotech
+            SUB
+				MeleeWeapon
+					name="Claw"
+					reach=1
+					damage=1
+					accuracy=0
+					penetration=0
+					integral = True
+            END
+        Leg
+            size = 1
+            material = Biotech
+        Leg
+            size = 1
+            material = Biotech
+
+    END
+

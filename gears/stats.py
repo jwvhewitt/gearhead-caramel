@@ -68,8 +68,8 @@ class Repair( Skill ):
 class Medicine( Skill ):
     name = 'Medicine'
 
-class Biotech( Skill ):
-    name = 'Biotech'
+class Biotechnology( Skill ):
+    name = 'Biotechnology'
 
 class Stealth( Skill ):
     name = 'Stealth'

@@ -84,11 +84,11 @@ class GearHeadScene( pbge.scenes.Scene ):
         self.scale = scale
         self.script_rooms = list()
     def is_an_actor( self, model ):
-        return isinstance(model,(base.Mecha,base.Character))
+        return isinstance(model,(base.Mecha,base.Character,base.Prop))
     def get_actors( self, pos ):
         return [a for a in self.contents if (self.is_an_actor(a) and (a.pos == pos)) ]
-    def get_operational_actors( self ):
-        return [a for a in self.contents if (self.is_an_actor(a) and a.is_operational()) ]
+    def get_operational_actors( self, pos=None ):
+        return [a for a in self.contents if (self.is_an_actor(a) and a.is_operational() and (pos is None or a.pos == pos)) ]
     def get_blocked_tiles( self ):
         return {a.pos for a in self.contents if (self.is_an_actor(a) and a.is_operational()) }
     def are_hostile( self, a, b ):
@@ -275,7 +275,6 @@ class Loader( object ):
         # Probably not. Somebody Python this up, please.
         dict_desc = dict_desc.replace('{','')
         dict_desc = dict_desc.replace('}','')
-        print dict_desc
         for line in dict_desc.split(','):
             a,b,c = line.partition('=')
             k = self.string_to_object(a)
@@ -316,7 +315,6 @@ class Loader( object ):
                         else:
                             break
                     v = self.process_dict( ' '.join(my_dict_lines) )
-                    print k, '=', v
                     if k and v:
                         current_gear.gparam[ k ] = v
 

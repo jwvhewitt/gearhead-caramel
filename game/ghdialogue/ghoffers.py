@@ -6,6 +6,7 @@ HELLO = Offer('[HELLO]',context=ContextTag([context.HELLO,]))
 
 ATTACK = Offer('[ATTACK]',context=ContextTag([context.ATTACK,]))
 
+CHALLENGE = Offer('[CHALLENGE]',context=ContextTag([context.CHALLENGE,]))
 
 
 

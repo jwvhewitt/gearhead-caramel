@@ -1,0 +1,25 @@
+Prop
+	name = "Bunker"
+	imagename = "prop_bunker.png"
+	scale = MechaScale
+	statline = {
+		Reflexes = 10, Body=10, Speed=10, Perception=10, Craft=10, Knowledge=10, Ego=10, Charm = 10,
+		MechaGunnery = 5, MechaFighting = 5,
+	}
+	SUB
+		BallisticWeapon
+			name = "Autocannon"
+			reach = 7
+			damage = 1
+			accuracy = 0
+			penetration = 0
+			ammo_type = Shells_20mm
+			attributes = (BurstFire4)
+			SUB
+				Ammo
+					ammo_type=Shells_20mm
+					quantity=320
+			END
+		Armor
+			size = 8
+	END
