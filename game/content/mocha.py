@@ -631,6 +631,7 @@ NO_STAKES,STOLEN_TOYS,GET_THE_LEADER,PROTOTYPE_MECHA = range(4)
 AEGIS_COLORS = (color.LunarGrey,color.AegisCrimson,color.LemonYellow,color.Ceramic,color.LunarGrey)
 CRIHNA_COLORS = (color.HeavyPurple,color.SeaGreen,color.PirateSunrise,color.BattleshipGrey,color.StarViolet)
 CONVOY_COLORS = (color.Jade,color.Ceramic,color.FlourescentGreen,color.Black,color.MassiveGreen)
+BANDIT_COLORS = (color.Black,color.Cream,color.BrightRed,color.Avocado,color.Terracotta)
 
 #  ******************
 #  ***   Intros   ***
@@ -646,7 +647,7 @@ class Intro_GetTheLeader( Plot ):
         myscene = self.elements["LOCALE"]
         self.register_element( ENEMY, BANDITS )
         self.register_element( STAKES, GET_THE_LEADER )
-        self.register_element("ENEMY_COLORS",(color.WarmGrey,color.Cream,color.BrightRed,color.Avocado,color.Terracotta))
+        self.register_element("ENEMY_COLORS",BANDIT_COLORS)
         self.did_intro = False
         self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"ENCOUNTER_NUMBER":1} ).based_on( self ) )
         return True
@@ -724,7 +725,7 @@ class Encounter_BasicBandits( Plot ):
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
         meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        self.register_element("ENEMY_COLORS",(color.WarmGrey,color.Cream,color.BrightRed,color.Avocado,color.Terracotta))
+        self.register_element("ENEMY_COLORS",BANDIT_COLORS)
         for t in range(2):
             mymecha = meks.pop()
             mymecha.colors = self.elements["ENEMY_COLORS"]

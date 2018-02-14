@@ -3,6 +3,7 @@ Mecha
     desig = "WM Custom"
     imagename = "btr_blitzen.png"
     colors = (Cinnamon,Gold,BrightRed,SlateGrey,Cream)
+    portrait = "mecha_blitzen.png"
 
     SUB
         Head
