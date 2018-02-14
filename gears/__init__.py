@@ -422,7 +422,10 @@ class Saver( object ):
 #  ***   UTILITY  FUNCTIONS   ***
 #  ******************************
 
-EARTH_NAMES = pbge.namegen.NameGen("ng_earth.txt")
+EARTH_NAMES = None
+def init_gears():
+    global EARTH_NAMES
+    EARTH_NAMES = pbge.namegen.NameGen("ng_earth.txt")
 
 def random_pilot( rank=25 ):
     skill_rank = max(rank//10, 1)

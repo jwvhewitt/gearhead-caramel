@@ -620,6 +620,7 @@ class MochaMissionBattleBuilder( Plot ):
 
 ENEMY = 'MENCOUNTER_ENEMY'
 NO_ENEMY,BANDITS,MERCENARY,PIRATES,AEGIS = range(5)
+ENEMY_NOUN = ('the raiders','the bandits','the raiders','the pirates','Aegis Overlord')
 
 COMPLICATION = 'MENCOUNTER_COMPLICATION'
 NO_COMPLICATION,CONTRABAND_CARGO,FERAL_SYNTHS,PROFESSIONAL_OPERATION,AEGIS_SCOUTS = range(5)
@@ -629,6 +630,7 @@ NO_STAKES,STOLEN_TOYS,GET_THE_LEADER,PROTOTYPE_MECHA = range(4)
 
 AEGIS_COLORS = (color.LunarGrey,color.AegisCrimson,color.LemonYellow,color.Ceramic,color.LunarGrey)
 CRIHNA_COLORS = (color.HeavyPurple,color.SeaGreen,color.PirateSunrise,color.BattleshipGrey,color.StarViolet)
+CONVOY_COLORS = (color.Jade,color.Ceramic,color.FlourescentGreen,color.Black,color.MassiveGreen)
 
 #  ******************
 #  ***   Intros   ***
@@ -715,7 +717,8 @@ class Encounter_BasicBandits( Plot ):
             # Load the second encounter.
             self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":self.elements["LOCALE2"],"ENCOUNTER_NUMBER":2} ).based_on( self ) )
         elif enc_num == 2:
-            self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"MHOICE_ANCHOR":pbge.randmaps.anchors.west} ).based_on( self ) )
+            mc = self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"MHOICE_ANCHOR":pbge.randmaps.anchors.west} ).based_on( self ) )
+            self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"MHOICE_ANCHOR":pbge.randmaps.anchors.east} ).based_on( mc ) )
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
@@ -843,6 +846,49 @@ class Encounter_WeBroughtThisFightHere( Encounter_BasicBandits ):
                      destination=Cue( ContextTag([context.CHALLENGE]) ) ,
                     ),],))
         return mylist
+        
+class Encounter_TheDreadPirateOtaku( Encounter_BasicBandits ):
+    LABEL = "MOCHA_MENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    REQUIRES = {ENEMY:PIRATES,STAKES:STOLEN_TOYS}
+    CHANGES = {STAKES:GET_THE_LEADER}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mypilot = gears.random_pilot(25)
+            mymecha.load_pilot(mypilot)
+            team2.contents.append(mymecha)
+            if t == 0:
+                self.register_element("_MIDBOSS",mypilot)
+        self.intro_ready = True
+        self.load_next(nart)
+        return True
+    def ETEAM_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            npc = self.elements["_MIDBOSS"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+    def _MIDBOSS_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("".format(str(self.elements["BOSS_PILOT"])),
+            context=ContextTag([context.ATTACK,]),
+            replies = [
+                    Reply("Who is {}?".format(str(self.elements["BOSS_PILOT"])),
+                     destination=Cue( ContextTag([context.COMBAT_INFO]) ) ,
+                    ),],))
+        mylist.append(Offer("[CHALLENGE]",
+            context=ContextTag([context.CHALLENGE,]),  ))
+        mylist.append( Offer("A fabulous collector of priceless treasures from across the solar system, and the deadliest captain who's ever paid my salary... [LETSFIGHT]",
+            context=ContextTag([context.COMBAT_INFO,]), data={"subject":"the toys"} ))
+        return mylist
+
 
 class Encounter_MyLittleCabbageFunkoBeaniePogs( Encounter_BasicBandits ):
     LABEL = "MOCHA_MENCOUNTER"
@@ -1049,7 +1095,7 @@ class Encounter_TheEnemyOfMyEnemy( Encounter_BasicBandits ):
 
         # Mek2 gets held behind until the first fight is over.
         mek2 = self.register_element("_MIDMEK",meks.pop())
-        mek2.colors = (color.Jade,color.Ceramic,color.FlourescentGreen,color.Black,color.MassiveGreen)
+        mek2.colors = CONVOY_COLORS
         mypilot = self.register_element("_MIDBOSS",gears.random_pilot(35))
         mek2.load_pilot(mypilot)
 
@@ -1260,6 +1306,268 @@ class Encounter_CovertAegis( Encounter_BasicBandits ):
 VIRTUE = "MHOICE_VIRTUE"
 SSTATE = "MHOICE_STORY_STATE"
 
+class Choice_BringJusticeToScumHive( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {ENEMY: PIRATES}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(ENEMY,0) == PIRATES and pstate.elements.get(VIRTUE,0) != personality.Justice and pstate.elements.get(SSTATE,0) != ENEMY
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Justice)
+        self.register_element(SSTATE,ENEMY)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = "Pirates don't normally operate in this area; they must have established a smuggling camp to expand their territory. This appears to be the direction they came from."
+        thingmenu.add_item('Bring them to justice',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+
+class Choice_PeaceAgainstSynths( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {COMPLICATION:FERAL_SYNTHS}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(COMPLICATION,0) == FERAL_SYNTHS and pstate.elements.get(VIRTUE,0) != personality.Peace and pstate.elements.get(SSTATE,0) != COMPLICATION
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Peace)
+        self.register_element(SSTATE,COMPLICATION)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_SYNTHBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = "It seems that the hunter synths came from this direction. Left unchecked, they could be a much bigger threat to Mauna than {}.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
+        thingmenu.add_item('Protect Mauna by exterminating the synths',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+class Choice_FellowshipToDefendAgainstSynths( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {COMPLICATION:FERAL_SYNTHS}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(COMPLICATION,0) == FERAL_SYNTHS and pstate.elements.get(VIRTUE,0) != personality.Fellowship and pstate.elements.get(SSTATE,0) != COMPLICATION
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Fellowship)
+        self.register_element(SSTATE,COMPLICATION)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_SYNTHBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = "From the marks in the snow, you see that the hunter synths pursued {} in this direction.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
+        thingmenu.add_item('Show fellowship and rescue them',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+
+class Choice_BringJusticeToMercenaries( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {ENEMY:MERCENARY}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(ENEMY,0) == MERCENARY and pstate.elements.get(VIRTUE,0) != personality.Justice and pstate.elements.get(SSTATE,0) != ENEMY
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Justice)
+        self.register_element(SSTATE,ENEMY)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = "You still don't know who hired the mercenaries you fought earlier. This could be an opportunity to trail them to their leader and find out who they work for."
+        thingmenu.add_item('For great justice',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+
+class Choice_DutyToFightPirates( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {ENEMY:PIRATES}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(ENEMY,0) == PIRATES and pstate.elements.get(VIRTUE,0) != personality.Duty and pstate.elements.get(SSTATE,0) != ENEMY
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Duty)
+        self.register_element(SSTATE,ENEMY)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = "The pirates seem to be having trouble navigating on Earth. They've left the road and headed into the forest. It should be no problem to catch up with them there."
+        thingmenu.add_item('Do your duty',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+class Choice_FellowshipWithSmugglers( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {COMPLICATION: CONTRABAND_CARGO}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(COMPLICATION,0) == CONTRABAND_CARGO and pstate.elements.get(VIRTUE,0) != personality.Fellowship and pstate.elements.get(SSTATE,0) != COMPLICATION
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Fellowship)
+        self.register_element(SSTATE,COMPLICATION)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_TRUCKBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = "Marks in the snow indicate that the smugglers are still being pursued by {}. It seems cruel to leave them to their fate... You can defend the convoy and let the Guardians figure out what to do about the contraband later.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
+        thingmenu.add_item('Show your fellowship',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+
+class Choice_BringJusticeToSmugglers( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {COMPLICATION: CONTRABAND_CARGO}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(COMPLICATION,0) == CONTRABAND_CARGO and pstate.elements.get(VIRTUE,0) != personality.Justice and pstate.elements.get(SSTATE,0) != COMPLICATION
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Justice)
+        self.register_element(SSTATE,COMPLICATION)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        # Set a new boss for the final scene.
+        boss_mecha = gears.Loader.load_design_file('Zerosaiko.txt')[0]
+        boss_mecha.colors = CONVOY_COLORS
+        boss_pilot = gears.random_pilot(50)
+        boss_mecha.load_pilot(boss_pilot)
+        self.add_sub_plot( nart, "MOCHA_FB_TRUCKBATTLE", PlotState( elements={"BOSS":boss_mecha,"BOSS_PILOT":boss_pilot,"ENEMY_COLORS":CONVOY_COLORS,} ).based_on( self ), ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = "The smugglers who got away from {} seem to have gone in this direction. Their actions tonight have endangered a great number of lives, and they shouldn't get away with it.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
+        thingmenu.add_item('For great justice',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+
+class Choice_JusticeForWujungOrphans( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {STAKES: STOLEN_TOYS}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(STAKES,0) == STOLEN_TOYS and pstate.elements.get(VIRTUE,0) != personality.Justice and pstate.elements.get(SSTATE,0) != STAKES
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Justice)
+        self.register_element(SSTATE,STAKES)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_TRUCKBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = 'From the tracks in the snow, you think this is the way the thieves brought the stolen toys. If you hurry you may still be able to catch them and return the toys to the children of Wujung.'
+        thingmenu.add_item('For great justice',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+class Choice_GloryByDestroyingBigBase( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {COMPLICATION: PROFESSIONAL_OPERATION}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(COMPLICATION,0) == PROFESSIONAL_OPERATION and pstate.elements.get(VIRTUE,0) != personality.Glory and pstate.elements.get(SSTATE,0) != COMPLICATION
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Glory)
+        self.register_element(SSTATE,COMPLICATION)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = "In order to pull off an operation like this, {} must have a base nearby. This seems to be the direction from which they came.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
+        thingmenu.add_item('Go for glory',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+
+class Choice_GloryByDestroyingBanditBase( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {ENEMY: BANDITS}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(ENEMY,0) == BANDITS and pstate.elements.get(VIRTUE,0) != personality.Glory and pstate.elements.get(SSTATE,0) != ENEMY
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Glory)
+        self.register_element(SSTATE,ENEMY)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = 'The tracks in the snow indicate that the bandits came from this direction. If you follow the tracks back to their base, you may be able to put an end to their crime spree once and for all.'
+        thingmenu.add_item('Go for glory',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
+
 class Choice_PeaceByDefeatingAegis( Plot ):
     LABEL = "MOCHA_MHOICE"
     active = True
@@ -1285,6 +1593,31 @@ class Choice_PeaceByDefeatingAegis( Plot ):
         thingmenu.add_item('Protect the Earth',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
 
+class Choice_GloryByFightingTheLeader( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {STAKES:GET_THE_LEADER}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(STAKES,0) == GET_THE_LEADER and pstate.elements.get(VIRTUE,0) != personality.Glory and pstate.elements.get(SSTATE,0) != STAKES
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Glory)
+        self.register_element(SSTATE,STAKES)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = "This seems to be the way that the raider leader went. It's time to finish this."
+        thingmenu.add_item('Go for glory',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+
 class Choice_DutyToCatchTheLeader( Plot ):
     LABEL = "MOCHA_MHOICE"
     active = True
@@ -1308,6 +1641,31 @@ class Choice_DutyToCatchTheLeader( Plot ):
     def _waypoint_menu(self,thingmenu):
         thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to capture them?'
         thingmenu.add_item('Do your duty',self.start_mission)
+        thingmenu.add_item('Examine the other options first',None)
+        
+class Choice_PeaceToDisableThePrototype( Plot ):
+    LABEL = "MOCHA_MHOICE"
+    active = True
+    scope = True
+    # Info for the plot checker...
+    REQUIRES = {STAKES:PROTOTYPE_MECHA}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.elements.get(STAKES,0) == PROTOTYPE_MECHA and pstate.elements.get(VIRTUE,0) != personality.Peace and pstate.elements.get(SSTATE,0) != STAKES
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element(VIRTUE,personality.Peace)
+        self.register_element(SSTATE,STAKES)
+        mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
+        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        self.add_sub_plot( nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER" )
+        return True
+    def start_mission(self,camp):
+        self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+    def _waypoint_menu(self,thingmenu):
+        thingmenu.desc = 'This seems to be the direction that the prototype mecha was taken. A weapon that powerful should not fall into the wrong hands.'
+        thingmenu.add_item('Fight for peace',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
 
 class Choice_DutyToStopThePrototype( Plot ):
@@ -1360,6 +1718,44 @@ class FinalBattleDebug( Plot ):
         thingmenu.desc = 'This seems to be a final battle in need of debugging.'
         thingmenu.add_item('Do your duty',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
+        
+class FinalBattleAgainstSynths( Plot ):
+    LABEL = "MOCHA_FB_SYNTHBATTLE"
+    #LABEL = "MOCHA_FB_DEBUG"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        team1 = teams.Team(name="Player Team")
+        myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
+        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
+        mymutate = pbge.randmaps.mutator.CellMutator()
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
+        myscene.exploration_music = 'Lines.ogg'
+        myscene.combat_music = 'Late.ogg'
+        myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
+        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myroom.contents.append( myent )
+        mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
+        team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
+        meks = gears.Loader.load_design_file('HunterX.txt')
+        for t in range(random.randint(4,5)):
+            mymecha = copy.deepcopy(meks[0])
+            team2.contents.append(mymecha)
+        for t in range(random.randint(1,3)):
+            mymecha = copy.deepcopy(meks[1])
+            team2.contents.append(mymecha)
+        return True
+    def start_battle( self, camp ):
+        myscene = self.elements["LOCALE"]
+        camp.destination = myscene
+        camp.entrance = self.elements["ENTRANCE"]
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+        if not myteam.get_active_members(camp):
+            camp.check_trigger('MOCHAVICTORY')
+
 
 class FinalBattleAgainstBase( Plot ):
     LABEL = "MOCHA_FB_BASEBATTLE"
@@ -1400,6 +1796,50 @@ class FinalBattleAgainstBase( Plot ):
         myboss = self.elements["BOSS"]
         if not myboss.is_operational():
             camp.check_trigger('MOCHAVICTORY')
+            
+class FinalBattleAgainstTrucks( Plot ):
+    LABEL = "MOCHA_FB_TRUCKBATTLE"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        team1 = teams.Team(name="Player Team")
+        myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
+        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
+        mymutate = pbge.randmaps.mutator.CellMutator()
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myscenegen = WinterHighwaySceneGen(myscene,myarchi)
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
+        myscene.exploration_music = 'Lines.ogg'
+        myscene.combat_music = 'Late.ogg'
+        myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
+        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myroom.contents.append( myent )
+        boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene,anchor=pbge.randmaps.anchors.north)
+        mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
+        mygoal.contents.append(WinterMochaTruckTerrain)
+        mygoal.contents.append(WinterMochaTruckTerrain)
+        team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mymecha.load_pilot(gears.random_pilot(25))
+            team2.contents.append(mymecha)
+        self.add_sub_plot( nart, "MOCHA_FB_BOSSTALK" )
+        return True
+    def start_battle( self, camp ):
+        myscene = self.elements["LOCALE"]
+        camp.destination = myscene
+        camp.entrance = self.elements["ENTRANCE"]
+        boss = self.elements["BOSS"]
+        pos = self.elements["_goalroom"].area.center
+        myscene.place_actor(boss,pos[0],pos[1],self.elements["_eteam"])
+    def t_ENDCOMBAT(self,camp):
+        myboss = self.elements["BOSS"]
+        if not myboss.is_operational():
+            camp.check_trigger('MOCHAVICTORY')
+
 
 class FinalBattleAgainstBoss( Plot ):
     LABEL = "MOCHA_FB_BOSSBATTLE"
@@ -1441,6 +1881,47 @@ class FinalBattleAgainstBoss( Plot ):
         myboss = self.elements["BOSS"]
         if not myboss.is_operational():
             camp.check_trigger('MOCHAVICTORY')
+            
+class FinalBattleAgainstBossInWoods( Plot ):
+    LABEL = "MOCHA_FB_WILDBATTLE"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        team1 = teams.Team(name="Player Team")
+        myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
+        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
+        mymutate = pbge.randmaps.mutator.CellMutator()
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myscenegen = WinterHighwaySceneGen(myscene,myarchi)
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
+        myscene.exploration_music = 'Lines.ogg'
+        myscene.combat_music = 'Late.ogg'
+        myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
+        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myroom.contents.append( myent )
+        mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
+        team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
+        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        random.shuffle(meks)
+        for t in range(2):
+            mymecha = meks.pop()
+            mymecha.colors = self.elements["ENEMY_COLORS"]
+            mymecha.load_pilot(gears.random_pilot(25))
+            team2.contents.append(mymecha)
+        self.add_sub_plot( nart, "MOCHA_FB_BOSSTALK" )
+        return True
+    def start_battle( self, camp ):
+        myscene = self.elements["LOCALE"]
+        camp.destination = myscene
+        camp.entrance = self.elements["ENTRANCE"]
+        boss = self.elements["BOSS"]
+        pos = self.elements["_goalroom"].area.center
+        myscene.place_actor(boss,pos[0],pos[1],self.elements["_eteam"])
+    def t_ENDCOMBAT(self,camp):
+        myboss = self.elements["BOSS"]
+        if not myboss.is_operational():
+            camp.check_trigger('MOCHAVICTORY')
+
 
 #  ********************
 #  ***   BOSSTALK   ***

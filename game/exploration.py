@@ -138,6 +138,7 @@ class Explorer( object ):
     # Note that this does not get saved to disk, but instead gets created
     # anew when the game is loaded.
     def __init__( self, camp ):
+        pbge.please_stand_by()
         self.camp = camp
         self.scene = camp.scene
         self.view = scenes.viewer.SceneView( camp.scene )

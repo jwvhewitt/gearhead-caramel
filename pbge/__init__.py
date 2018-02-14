@@ -361,15 +361,16 @@ def input_string( font = None, redrawer = None, prompt = "Enter text below", pro
     return "".join( it )
 
 
-def please_stand_by( caption ):
+def please_stand_by( caption=None ):
     img = pygame.image.load( random.choice( POSTERS ) ).convert()
     dest = img.get_rect( center=(my_state.screen.get_width()//2,my_state.screen.get_height()//2) )
     my_state.screen.fill( (0,0,0) )
     my_state.screen.blit(img,dest)
-    mytext = BIGFONT.render(caption, True, TEXT_COLOR )
-    dest2 = mytext.get_rect( topleft = (dest.x+32,dest.y+32) )
-    gold_border.render( my_state.screen, dest2 )
-    my_state.screen.blit( mytext, dest2 )
+    if caption:
+        mytext = BIGFONT.render(caption, True, TEXT_COLOR )
+        dest2 = mytext.get_rect( topleft = (dest.x+32,dest.y+32) )
+        gold_border.render( my_state.screen, dest2 )
+        my_state.screen.blit( mytext, dest2 )
     pygame.display.flip()
 
 
@@ -388,7 +389,7 @@ import dialogue
 import cutscene
 
 
-def init(winname,appname,gamedir,icon="sys_icon.png"):
+def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.png"):
     global INIT_DONE
     if not INIT_DONE:
         util.init(appname,gamedir)
@@ -431,7 +432,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png"):
         my_state.huge_font = pygame.font.Font( util.image_dir( "Anita semi square.ttf" ) , 24 )
 
         global POSTERS
-        POSTERS += glob.glob( util.image_dir("poster_*.png") )
+        POSTERS += glob.glob( util.image_dir(poster_pattern) )
 
         global FPS
         FPS = util.config.getint( "DEFAULT", "frames_per_second" )

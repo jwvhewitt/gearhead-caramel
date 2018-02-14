@@ -4,6 +4,7 @@ import pygame
 import os
 import gears
 import random
+import sys
 
 class Snowflake(object):
     def __init__(self,dest):
@@ -86,8 +87,15 @@ def import_arena_character(tsrd):
 
 
 def play_the_game():
-    gamedir = os.path.dirname(__file__)
-    pbge.init('GearHead Caramel','ghcaramel',gamedir)
+    try:
+        # running in a bundle
+        gamedir = sys._MEIPASS
+    except Exception:
+        # running live
+        gamedir = os.path.dirname(__file__)
+    #print '"'+gamedir+'"'
+    pbge.init('GearHead Caramel','ghcaramel',gamedir,poster_pattern='eyecatch_*.png')
+    gears.init_gears()
 
     tsrd = TitleScreenRedraw()
     mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
@@ -109,9 +117,9 @@ def play_the_game():
 
 
 if __name__ == "__main__":
-    #clay = gears.Loader.load_design_file('STC_Buildings.txt')
-    #clay[0].termdump()
-    #clay[0].statusdump()
+    #clay = gears.Loader.load_design_file('HunterX.txt')
+    #clay[1].termdump()
+    #clay[1].statusdump()
 
     play_the_game()
 

@@ -1871,7 +1871,7 @@ class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait,HasPower,Comba
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this character."""
-        return max(self.get_stat(stats.Body)+self.get_stat(stats.Vitality),6)
+        return max(self.get_stat(stats.Body)+self.get_stat(stats.Vitality),3)
 
     def get_pilot( self ):
         """Return the character itself."""

@@ -16,7 +16,7 @@ class LancematePrep( object ):
     def matches_criteria(self,pc,cscene):
         ok = True
         if self.personality_traits:
-            ok = pc.personality_traits >= self.personality_traits
+            ok = pc.personality >= self.personality_traits
         if ok and self.stats:
             ok = pc.statline.keys() >= self.stats
         if ok and self.exclude:

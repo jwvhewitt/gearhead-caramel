@@ -56,3 +56,64 @@ Character
 
     END
 
+Character
+	name = "Hunter-Slayer"
+	statline = {Reflexes = 22, Body=5, Speed=10, Perception=15, Craft=5, Knowledge=8, Ego=8, Charm = 4,
+			MechaGunnery = 7, MechaFighting = 7, MechaPiloting = 4,
+			CloseCombat = 7, RangedCombat = 7, Dodge = 4
+	}
+	scale = MechaScale
+	imagename = 'monster_ms_hslayer.png'
+	colors = (CardinalRed,SteelBlue,Malachite,Black,Black)
+	SUB
+        Torso
+            size = 3
+            material = Biotech
+            SUB
+				MeleeWeapon
+					name="Jaws"
+					reach=1
+					damage=1
+					accuracy=0
+					penetration=2
+					integral = True
+				BeamWeapon
+                    name = "Bio-Plasma"
+                    reach = 4
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+                Armor
+					size = 1
+					material = Biotech
+            END
+        Leg
+            size = 2
+            material = Biotech
+            SUB
+				MeleeWeapon
+					name="Claw"
+					reach=1
+					damage=1
+					accuracy=1
+					penetration=0
+					integral = True
+				PowerSource
+					size = 2
+            END
+        Leg
+            size = 2
+            material = Biotech
+            SUB
+				MeleeWeapon
+					name="Claw"
+					reach=1
+					damage=1
+					accuracy=0
+					penetration=0
+					integral = True
+				PowerSource
+					size = 2
+            END
