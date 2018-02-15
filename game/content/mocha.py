@@ -556,14 +556,14 @@ class MochaMissionBattleBuilder( Plot ):
            encounters, a recharge, and two choices at the end. The choices
            will handle their own scenes."""
         team1 = teams.Team(name="Player Team")
-        myscene1 = gears.GearHeadScene(60,60,"Near Mauna",player_team=team1,scale=gears.scale.MechaScale)
+        myscene1 = gears.GearHeadScene(30,60,"Near Mauna",player_team=team1,scale=gears.scale.MechaScale)
 
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
         myscenegen1 = WinterHighwaySceneGen(myscene1,myarchi)
 
-        myscene2 = gears.GearHeadScene(60,60,"Gyori Highway",player_team=team1,scale=gears.scale.MechaScale)
+        myscene2 = gears.GearHeadScene(30,60,"Gyori Highway",player_team=team1,scale=gears.scale.MechaScale)
         myscenegen2 = WinterHighwaySceneGen(myscene2,myarchi)
 
         self.register_scene( nart, myscene1, myscenegen1, ident="FIRST_PART" )
@@ -695,8 +695,6 @@ class Intro_ToyBandits( Plot ):
 #  ***   Encounters   ***
 #  **********************
 
-# Need: ContrabandCargo/GetTheLeader
-
 class Encounter_BasicBandits( Plot ):
     # This will be the prototype for all MOCHA_MENCOUNTER
     LABEL = "MOCHA_MENCOUNTER"
@@ -781,7 +779,7 @@ class Encounter_InstantKarma( Encounter_BasicBandits ):
             self.combat_entered = True
             mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
               beats = (
-                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Ashes... it's hunter synths! The raiders we're after must have wandered into a nest of them. Serves them right for stealing toys from orphans.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Ashes... it's hunter synths! {} must have wandered into a nest of them. Serves them right for stealing toys from orphans.".format(ENEMY_NOUN[self.elements.get(ENEMY)]),'npc'),prep=ghcutscene.LancematePrep('npc')),
               )
             )
             mycutscene(camp)
@@ -878,7 +876,7 @@ class Encounter_TheDreadPirateOtaku( Encounter_BasicBandits ):
             self.intro_ready = False
     def _MIDBOSS_offers(self,camp):
         mylist = list()
-        mylist.append(Offer("".format(str(self.elements["BOSS_PILOT"])),
+        mylist.append(Offer("Arr, I heard that someone was out here getting in our way. You don't seem to realize that you're messing with the crew of the dread captain {}!".format(str(self.elements["BOSS_PILOT"])),
             context=ContextTag([context.ATTACK,]),
             replies = [
                     Reply("Who is {}?".format(str(self.elements["BOSS_PILOT"])),
@@ -1590,7 +1588,7 @@ class Choice_PeaceByDefeatingAegis( Plot ):
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
     def _waypoint_menu(self,thingmenu):
-        thingmenu.desc = 'The tracks in the snow indicate that this is the direction the Aegis scouts came from. Stopping them may be far more important than the raiders you were sent to fight.'
+        thingmenu.desc = 'The tracks in the snow indicate that this is the direction the Aegis scouts came from. Stopping them may be far more important than {} you were sent to fight.'.format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
         thingmenu.add_item('Protect the Earth',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
 

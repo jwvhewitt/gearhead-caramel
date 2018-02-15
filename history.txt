@@ -1,3 +1,7 @@
+v0.111  February 15, 2018
+- Fixed a dialogue bug in one of the mocha encounters
+- Random pilots get random personalities (gears/__init__.py)
+
 v0.110  February 14, 2018
 - Enabled loading screens (pbge)
 - Added Props (gears/base.py)

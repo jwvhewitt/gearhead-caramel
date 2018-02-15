@@ -1,6 +1,39 @@
 import random
 import pbge
 
+# Determine impulses
+# Ask if each can be done
+# Sort by intensity
+# Do one of them
+
+# Impulses:
+# - Attack preferred target
+# - Attack target of opportunity
+# - Get behind cover
+
+# Attack Patterns
+#  Evasive Maneuvers: Move once, Attack once
+#  Archer Type: Move towards cover, then attack; keep distance from enemy
+#  Fighter Type: Attempt to enter close combat, attack as much as possible
+
+#  *****************************
+#  ***   TARGET  SELECTORS   ***
+#  *****************************
+
+class RandomTargeter( object ):
+    # This targeter just picks a random target every time.
+    def __init__(self,npc):
+        self.npc = npc
+    def get_target( self, camp ):
+        candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar)]
+        if candidates:
+            return random.choice( candidates )
+
+
+#  **********************
+#  ***   AI  OBJECT   ***
+#  **********************
+
 class CrapAI( object ):
     def __init__( self, npc ):
         self.npc = npc
