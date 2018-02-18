@@ -27,6 +27,8 @@ class Cone( object ):
         tiles = pfov.PointOfView( camp.scene, origin[0], origin[1], self.reach ).tiles
         tiles.remove( origin )
         return tiles
+    def get_reach( self ):
+        return self.reach
 
 class Blast( object ):
     """A circular area centered on target."""
@@ -44,6 +46,8 @@ class Blast( object ):
             return origin
         elif self.delay_from > 0:
             return target
+    def get_reach( self ):
+        return self.reach
 
 class Line( object ):
     """A line from caster to target."""
@@ -64,6 +68,8 @@ class Line( object ):
             return origin
         elif self.delay_from > 0:
             return target
+    def get_reach( self ):
+        return self.reach
 
 class SelfOnly( object ):
     """Just the originator."""
@@ -77,6 +83,8 @@ class SelfOnly( object ):
             return origin
         elif self.delay_from > 0:
             return target
+    def get_reach( self ):
+        return 0
 
 class SelfCentered( object ):
     """A circle centered on originator."""
@@ -96,6 +104,8 @@ class SelfCentered( object ):
             return origin
         elif self.delay_from > 0:
             return target
+    def get_reach( self ):
+        return self.radius
 
 class SingleTarget( object ):
     """Just the target tile."""
@@ -114,6 +124,8 @@ class SingleTarget( object ):
             return origin
         elif self.delay_from > 0:
             return target
+    def get_reach( self ):
+        return self.reach
 
 class SinglePartyMember( SingleTarget ):
     """Just the target tile, which must be a party member."""
@@ -134,6 +146,8 @@ class SinglePartyMember( SingleTarget ):
             return origin
         elif self.delay_from > 0:
             return target
+    def get_reach( self ):
+        return 0
 
 class AllPartyMembers( object ):
     """Target all party members."""
@@ -150,4 +164,6 @@ class AllPartyMembers( object ):
             return origin
         elif self.delay_from > 0:
             return target
+    def get_reach( self ):
+        return 0
 

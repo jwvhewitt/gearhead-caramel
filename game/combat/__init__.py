@@ -199,7 +199,7 @@ class Combat( object ):
             my_turn.go()
         else:
             if chara not in self.ai_brains:
-                chara_ai = aibrain.CrapAI(chara)
+                chara_ai = aibrain.BasicAI(chara)
                 self.ai_brains[chara] = chara_ai
             else:
                 chara_ai = self.ai_brains[chara]

@@ -779,7 +779,7 @@ class Encounter_InstantKarma( Encounter_BasicBandits ):
             self.combat_entered = True
             mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
               beats = (
-                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Ashes... it's hunter synths! {} must have wandered into a nest of them. Serves them right for stealing toys from orphans.".format(ENEMY_NOUN[self.elements.get(ENEMY)]),'npc'),prep=ghcutscene.LancematePrep('npc')),
+                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Ashes... it's hunter synths! {} must have wandered into a nest of them. Serves them right for stealing toys from orphans.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)]),'npc'),prep=ghcutscene.LancematePrep('npc')),
               )
             )
             mycutscene(camp)
