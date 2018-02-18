@@ -20,7 +20,7 @@ import pbge
 #  ***   TARGET  SELECTORS   ***
 #  *****************************
 
-    class RandomTargeter( object ):
+class RandomTargeter( object ):
     # This targeter just picks a random target every time.
     def __init__(self,npc):
         self.npc = npc
