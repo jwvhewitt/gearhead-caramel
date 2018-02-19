@@ -65,7 +65,7 @@ class BasicAI( object ):
             else:
                 return (0,average//2,max(dist))
         else:
-            return (0,0)
+            return (0,0,0)
 
     def calc_tile_desirability( self, camp, tilepos, minrange, midrange, maxrange, target, enemies ):
         # Calculate the desirability of this tile.
