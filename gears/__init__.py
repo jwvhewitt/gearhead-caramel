@@ -12,11 +12,15 @@ import info
 import color
 import attackattributes
 import personality
+import factions
+import tags
+import selector
 
 import inspect
 import re
 from numbers import Number
 import os
+import glob
 
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()
@@ -46,6 +50,8 @@ harvest( stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,) )
 harvest( stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,) )
 harvest( geffects, pbge.scenes.animobs.AnimOb,SINGLETON_TYPES, ())
 harvest( attackattributes, pbge.Singleton, SINGLETON_TYPES, ())
+harvest( factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
+harvest( tags, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 
 def harvest_color( mod, subclass_of, dict_to_add_to, exclude_these ):
     for name in dir( color ):
@@ -79,9 +85,10 @@ import oldghloader
 harvest_color( color, pbge.image.Gradient, SINGLETON_TYPES, () )
 
 class GearHeadScene( pbge.scenes.Scene ):
-    def __init__(self,width=128,height=128,name="",player_team=None,scale=scale.MechaScale):
+    def __init__(self,width=128,height=128,name="",player_team=None,scale=scale.MechaScale,environment=tags.GroundEnv):
         super(GearHeadScene,self).__init__(width,height,name,player_team)
         self.scale = scale
+        self.environment = environment
         self.script_rooms = list()
     def is_an_actor( self, model ):
         return isinstance(model,(base.Mecha,base.Character,base.Prop))
@@ -363,6 +370,8 @@ class Loader( object ):
     def load_design_file(self,dfname):
         return self(os.path.join(pbge.util.game_dir('design'),dfname)).load()
 
+
+
 class Saver( object ):
     """Used to save a gear structure to disk in a human-readable format."""
     def __init__( self, fname ):
@@ -426,6 +435,14 @@ EARTH_NAMES = None
 def init_gears():
     global EARTH_NAMES
     EARTH_NAMES = pbge.namegen.NameGen("ng_earth.txt")
+
+    if not os.path.exists( pbge.util.user_dir('design') ):
+        os.mkdir( pbge.util.user_dir('design') )
+    # Load all design files.
+    design_files = glob.glob(os.path.join(pbge.util.game_dir('design'),'*.txt')) + glob.glob(os.path.join(pbge.util.user_dir('design'),'*.txt'))
+    for f in design_files:
+        selector.DESIGN_LIST += Loader(f).load()
+    #print selector.DESIGN_LIST
     
 def random_personality():
     tset = set()

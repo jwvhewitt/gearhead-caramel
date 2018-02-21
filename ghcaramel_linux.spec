@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['/home/jhewitt/Documents/Programming/gearhead-caramel'],
+             pathex=['/home/joseph/Documents/Programming/gearhead-caramel'],
              binaries=[],
              datas=[('data','data'),('design','design'),('image','image'),('music','music')],
              hiddenimports=[],
@@ -26,4 +26,4 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=True )
+          console=False )

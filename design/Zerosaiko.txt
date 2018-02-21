@@ -4,6 +4,10 @@ Mecha
     imagename = "btr_zerosaiko.png"
     portrait = "mecha_zerosaiko.png"
 
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Command,)
+
     SUB
         Head
             size = 4

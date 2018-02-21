@@ -4,6 +4,10 @@ Mecha
     imagename = "btr_claymore.png"
     portrait = "mecha_claymore.png"
 
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (None,)
+    role_list = (Support,)
+
     SUB
         Torso
             size = 6

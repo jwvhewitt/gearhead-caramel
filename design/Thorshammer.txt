@@ -4,6 +4,10 @@ Mecha
     imagename = "btr_thorshammer.png"
     portrait = "mecha_thorshammer.png"
 
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (TerranDefenseForce,)
+    role_list = (Support,Command)
+
     SUB
         Torso
             size = 7

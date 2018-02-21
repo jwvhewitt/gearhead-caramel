@@ -3,6 +3,10 @@ Mecha
     desig = "SAN-X9"
     imagename = "btr_buruburu.png"
     portrait = "mecha_buruburu.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Trooper,Command)
 
     SUB
         Head

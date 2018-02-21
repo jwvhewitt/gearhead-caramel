@@ -9,6 +9,7 @@ import stats
 import copy
 import geffects
 import attackattributes
+import tags
 
 
 #
@@ -1595,12 +1596,16 @@ class MT_Battroid( Singleton ):
 
 
 class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower,Combatant):
-    SAVE_PARAMETERS = ('name','form')
-    def __init__(self, form=MT_Battroid, **keywords ):
+    SAVE_PARAMETERS = ('name','form','faction_list','environment_list','role_list','family')
+    def __init__(self, form=MT_Battroid, faction_list=(None,), environment_list=(tags.GroundEnv,tags.UrbanEnv,tags.SpaceEnv), role_list=(tags.Trooper,), family='None', **keywords ):
         name = keywords.get(  "name" )
         if name == None:
             keywords[ "name" ] = form.name
         self.form = form
+        self.faction_list = faction_list
+        self.environment_list = environment_list
+        self.role_list = role_list
+        self.family = family
         super(Mecha, self).__init__(**keywords)
 
     def is_legal_sub_com( self, part ):

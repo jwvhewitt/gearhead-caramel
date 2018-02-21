@@ -95,6 +95,7 @@ def play_the_game():
         gamedir = os.path.dirname(__file__)
     #print '"'+gamedir+'"'
     pbge.init('GearHead Caramel','ghcaramel',gamedir,poster_pattern='eyecatch_*.png')
+    pbge.please_stand_by()
     gears.init_gears()
 
     tsrd = TitleScreenRedraw()
