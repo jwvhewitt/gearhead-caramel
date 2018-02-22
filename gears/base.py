@@ -1651,6 +1651,17 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower,Combatan
                     if isinstance( e, Engine ) and e.is_not_destroyed() and e.scale is self.scale:
                         return True
 
+    def check_design( self ):
+        # Return True if this is a usable mecha design.
+        # That basically means it has an engine, a gyro, and a cockpit.
+        er,gs = self.get_engine_rating_and_gyro_status()
+        if er > 0 and gs:
+            num_cockpits = 0
+            for g in self.sub_sub_coms():
+                if isinstance(g,Cockpit):
+                    num_cockpits += 1
+            return num_cockpits == 1
+
     def is_operational( self ):
         """ To be operational, a mecha must have a pilot.
         """

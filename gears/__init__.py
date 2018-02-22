@@ -431,10 +431,8 @@ class Saver( object ):
 #  ***   UTILITY  FUNCTIONS   ***
 #  ******************************
 
-EARTH_NAMES = None
 def init_gears():
-    global EARTH_NAMES
-    EARTH_NAMES = pbge.namegen.NameGen("ng_earth.txt")
+    selector.EARTH_NAMES = pbge.namegen.NameGen("ng_earth.txt")
 
     if not os.path.exists( pbge.util.user_dir('design') ):
         os.mkdir( pbge.util.user_dir('design') )
@@ -443,26 +441,6 @@ def init_gears():
     for f in design_files:
         selector.DESIGN_LIST += Loader(f).load()
     #print selector.DESIGN_LIST
+    #selector.check_design_list()
     
-def random_personality():
-    tset = set()
-    traits = list(personality.TRAITS)
-    random.shuffle( traits )
-    for t in range(min(random.randint(1,3),random.randint(1,3))):
-        tset.add(random.choice(traits[t]))
-    if random.randint(1,4) != 1:
-        tset.add(random.choice(personality.VIRTUES))
-    return tset
-
-def random_pilot( rank=25 ):
-    skill_rank = max(rank//10, 1)
-    pc = base.Character(name=EARTH_NAMES.gen_word(),
-         statline={stats.Reflexes:10,stats.Body:10,stats.Speed:10,
-         stats.Perception:10,stats.Knowledge:10,stats.Craft:10,stats.Ego:10,
-         stats.Charm:10,stats.MechaPiloting:skill_rank,stats.MechaGunnery:skill_rank,
-         stats.MechaFighting:skill_rank},
-         personality = random_personality()
-    )
-    return pc
-
 

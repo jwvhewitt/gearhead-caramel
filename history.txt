@@ -1,4 +1,6 @@
-- Improved the enemy AI (gears/combat/aibrain.py)
+- Fixed crash when player mecha runs out of attacks (game/combat)
+- Added random mecha selector (gears/selector.py)
+- Improved the enemy AI (game/combat/aibrain.py)
 
 v0.111  February 15, 2018
 - Fixed a dialogue bug in one of the mocha encounters

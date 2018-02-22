@@ -294,6 +294,7 @@ def alert(text,font=None):
     mytext = render_text( font, text, 400 )
     mydest = mytext.get_rect( center = (my_state.screen.get_width() // 2, my_state.screen.get_height()//2) )
 
+    pygame.event.clear([TIMEREVENT,pygame.KEYDOWN])
     while True:
         ev = pygame.event.wait()
         if ( ev.type == pygame.MOUSEBUTTONUP) or ( ev.type == pygame.QUIT ) or (ev.type == pygame.KEYDOWN):
@@ -306,6 +307,7 @@ def alert(text,font=None):
             my_state.do_flip()
 
 def alert_display(disp):
+    pygame.event.clear([TIMEREVENT,pygame.KEYDOWN])
     while True:
         ev = pygame.event.wait()
         if ( ev.type == pygame.MOUSEBUTTONUP) or ( ev.type == pygame.QUIT ) or (ev.type == pygame.KEYDOWN):

@@ -363,6 +363,7 @@ DEFAULT_GRAMMAR = {
         personality.Easygoing: [ "That's cool. Wanna join my lance?",
             ],
         personality.Passionate: ["Here's an idea- Why not join my lance?",
+            "Join me; together we will be unbeatable!",
             ],
         personality.Sociable: ["You're just the kind of lancemate I need.",
             ],
@@ -475,7 +476,8 @@ DEFAULT_GRAMMAR = {
         },
     "[MISSION_PROBLEM:JOIN]": {
         Default: ["I could really use your help out there.",
-            "Sounds like I could use some backup."
+            "Sounds like I could use some backup.",
+            "This would be easier if you came with me."
             ],
         },
 

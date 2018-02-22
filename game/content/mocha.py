@@ -589,10 +589,10 @@ class MochaMissionBattleBuilder( Plot ):
         # Create a boss mecha, but don't place it yet. It may be claimed by one
         # of the subplots.
         boss_mecha = self.register_element("BOSS",gears.Loader.load_design_file('Blitzen.txt')[0])
-        boss_pilot = self.register_element("BOSS_PILOT",gears.random_pilot(50))
+        boss_pilot = self.register_element("BOSS_PILOT",gears.selector.random_pilot(50))
         boss_mecha.load_pilot(boss_pilot)
         # Also set the enemy team color.
-        self.register_element("ENEMY_COLORS",(color.CometRed,color.DimGrey,color.GreenYellow,color.Black,color.BlackRose))
+        self.register_element("ENEMY_FACTION",UnkEneFaction)
 
         sp = self.add_sub_plot( nart, "MOCHA_MINTRO", PlotState( elements={"LOCALE":myscene1,"LOCALE2":myscene2} ).based_on( self ) )
 
@@ -628,10 +628,17 @@ NO_COMPLICATION,CONTRABAND_CARGO,FERAL_SYNTHS,PROFESSIONAL_OPERATION,AEGIS_SCOUT
 STAKES = 'MENCOUNTER_STAKES'
 NO_STAKES,STOLEN_TOYS,GET_THE_LEADER,PROTOTYPE_MECHA = range(4)
 
-AEGIS_COLORS = (color.LunarGrey,color.AegisCrimson,color.LemonYellow,color.Ceramic,color.LunarGrey)
-CRIHNA_COLORS = (color.HeavyPurple,color.SeaGreen,color.PirateSunrise,color.BattleshipGrey,color.StarViolet)
-CONVOY_COLORS = (color.Jade,color.Ceramic,color.FlourescentGreen,color.Black,color.MassiveGreen)
-BANDIT_COLORS = (color.Black,color.Cream,color.BrightRed,color.Avocado,color.Terracotta)
+class MercFaction(object):
+    # This is an instant faction for the mercenaries.
+    def __init__(self):
+        self.mecha_colors = gears.random_mecha_colors()
+
+class ConvoyFaction(pbge.Singleton):
+    mecha_colors = (color.Jade,color.Ceramic,color.FlourescentGreen,color.Black,color.MassiveGreen)
+    
+class UnkEneFaction(pbge.Singleton):
+    mecha_colors = (color.CometRed,color.DimGrey,color.GreenYellow,color.Black,color.BlackRose)
+
 
 #  ******************
 #  ***   Intros   ***
@@ -647,7 +654,7 @@ class Intro_GetTheLeader( Plot ):
         myscene = self.elements["LOCALE"]
         self.register_element( ENEMY, BANDITS )
         self.register_element( STAKES, GET_THE_LEADER )
-        self.register_element("ENEMY_COLORS",BANDIT_COLORS)
+        self.register_element("ENEMY_FACTION",gears.factions.BoneDevils)
         self.did_intro = False
         self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"ENCOUNTER_NUMBER":1} ).based_on( self ) )
         return True
@@ -722,14 +729,9 @@ class Encounter_BasicBandits( Plot ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        self.register_element("ENEMY_COLORS",BANDIT_COLORS)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mymecha.load_pilot(gears.random_pilot(25))
-            team2.contents.append(mymecha)
-        self.combat_entered = False
+        self.register_element("ENEMY_FACTION",gears.factions.BoneDevils)
+        meks = gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += meks
         self.load_next(nart)
         return True
         
@@ -743,15 +745,8 @@ class Encounter_SilentMercenaries( Encounter_BasicBandits ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        self.register_element("ENEMY_COLORS",gears.random_mecha_colors())
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mypilot = gears.random_pilot(25)
-            mymecha.load_pilot(mypilot)
-            team2.contents.append(mymecha)
+        self.register_element("ENEMY_FACTION",MercFaction())
+        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         self.load_next(nart)
         return True
 
@@ -795,23 +790,13 @@ class Encounter_WeBroughtThisFightHere( Encounter_BasicBandits ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("_ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = copy.deepcopy(meks[t])
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mymecha.load_pilot(gears.random_pilot(25))
-            team2.contents.append(mymecha)
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+
+
         team3 = self.register_element("_AEGISTEAM",teams.Team(enemies=(myscene.player_team,team2)),dident="_room")
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = copy.deepcopy(meks[t])
-            mymecha.colors = AEGIS_COLORS
-            mypilot = gears.random_pilot(25)
-            mymecha.load_pilot(mypilot)
-            team3.contents.append(mymecha)
-            if t == 0:
-                self.register_element("_MIDBOSS",mypilot)
+        team3.contents += gears.selector.RandomMechaUnit(25,50,gears.factions.AegisOverlord,myscene.environment).mecha_list
+        bossmek = random.choice(team3.contents)
+        self.register_element("_MIDBOSS",bossmek.get_pilot())
 
         self.intro_ready = True
         self.load_next(nart)
@@ -856,16 +841,10 @@ class Encounter_TheDreadPirateOtaku( Encounter_BasicBandits ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mypilot = gears.random_pilot(25)
-            mymecha.load_pilot(mypilot)
-            team2.contents.append(mymecha)
-            if t == 0:
-                self.register_element("_MIDBOSS",mypilot)
+        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        bossmek = random.choice(team2.contents)
+        self.register_element("_MIDBOSS",bossmek.get_pilot())
+
         self.intro_ready = True
         self.load_next(nart)
         return True
@@ -899,17 +878,10 @@ class Encounter_MyLittleCabbageFunkoBeaniePogs( Encounter_BasicBandits ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        self.register_element("ENEMY_COLORS",CRIHNA_COLORS)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mypilot = gears.random_pilot(25)
-            mymecha.load_pilot(mypilot)
-            team2.contents.append(mymecha)
-            if t == 0:
-                self.register_element("_MIDBOSS",mypilot)
+        self.register_element("ENEMY_FACTION",gears.factions.BladesOfCrihna)
+        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        bossmek = max(team2.contents, key=lambda m: m.cost)
+        self.register_element("_MIDBOSS",bossmek.get_pilot())
         self.intro_ready = True
         self.load_next(nart)
         return True
@@ -943,16 +915,11 @@ class Encounter_FunnyLookingPrize( Encounter_BasicBandits ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mypilot = gears.random_pilot(25)
-            mymecha.load_pilot(mypilot)
-            team2.contents.append(mymecha)
-            if t == 0:
-                self.register_element("_MIDBOSS",mypilot)
+
+        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        bossmek = max(team2.contents, key=lambda m: m.cost)
+        self.register_element("_MIDBOSS",bossmek.get_pilot())
+
         self.register_element("_TRUCK",WinterMochaTruck(desc="A mecha transport vehicle. The mecha it was transporting is gone."),dident="_room")
         self.intro_ready = True
         self.load_next(nart)
@@ -985,8 +952,8 @@ class Encounter_LastBanditStanding( Encounter_BasicBandits ):
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
         meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
         mek1 = random.choice(meks)
-        mek1.colors = self.elements["ENEMY_COLORS"]
-        mypilot = self.register_element("_MIDBOSS",gears.random_pilot(15))
+        mek1.colors = self.elements["ENEMY_FACTION"].mecha_colors
+        mypilot = self.register_element("_MIDBOSS",gears.selector.random_pilot(15))
         mek1.load_pilot(mypilot)
         team2.contents.append(mek1)
 
@@ -1009,13 +976,9 @@ class Encounter_LastBanditStanding( Encounter_BasicBandits ):
             self.intro_ready = False
             myscene = self.elements["LOCALE"]
             pos = self.elements["_room"].area.center
-            meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-            random.shuffle(meks)
-            for t in range(2):
-                mymecha = meks.pop()
-                mymecha.colors = AEGIS_COLORS
-                mymecha.load_pilot(gears.random_pilot(25))
-                myscene.place_actor(mymecha,pos[0],pos[1],self.elements["ETEAM"])
+            meks = gears.selector.RandomMechaUnit(25,30,gears.factions.AegisOverlord,myscene.environment).mecha_list
+            for mek in meks:
+                myscene.place_actor(mek,pos[0],pos[1],self.elements["ETEAM"])
             pbge.alert("Suddenly, a group of Aegis mecha emerge from the forest.")
     def _MIDBOSS_offers(self,camp):
         mylist = list()
@@ -1042,19 +1005,12 @@ class Encounter_MovingOnUp( Encounter_BasicBandits ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = meks.pop()
-            mypilot = gears.random_pilot(25)
-            mymecha.load_pilot(mypilot)
-            team2.contents.append(mymecha)
-            if t == 0:
-                self.register_element("_MIDBOSS",mypilot)
-                mymecha.colors = (color.HeavyPurple,color.SeaGreen,color.PirateSunrise,color.BlackRose,color.StarViolet)
-            else:
-                mymecha.colors = self.elements["ENEMY_COLORS"]
-        self.register_element("ENEMY_COLORS",CRIHNA_COLORS)
+        self.register_element("ENEMY_FACTION",gears.factions.BladesOfCrihna)
+        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        bossmek = max(team2.contents, key=lambda m: m.cost)
+        self.register_element("_MIDBOSS",bossmek.get_pilot())
+        bossmek.colors = gears.factions.BladesOfCrihna.mecha_colors
+        self.register_element("ENEMY_FACTION",gears.factions.BladesOfCrihna)
         self.intro_ready = True
         self.load_next(nart)
         return True
@@ -1088,14 +1044,14 @@ class Encounter_TheEnemyOfMyEnemy( Encounter_BasicBandits ):
         random.shuffle(meks)
         # Mek1 gets deployed right away, with the standard enemy colors.
         mek1 = meks.pop()
-        mek1.colors = self.elements["ENEMY_COLORS"]
-        mek1.load_pilot(gears.random_pilot(25))
+        mek1.colors = self.elements["ENEMY_FACTION"].mecha_colors
+        mek1.load_pilot(gears.selector.random_pilot(25))
         team2.contents.append(mek1)
 
         # Mek2 gets held behind until the first fight is over.
         mek2 = self.register_element("_MIDMEK",meks.pop())
-        mek2.colors = CONVOY_COLORS
-        mypilot = self.register_element("_MIDBOSS",gears.random_pilot(35))
+        mek2.colors = ConvoyFaction.mecha_colors
+        mypilot = self.register_element("_MIDBOSS",gears.selector.random_pilot(35))
         mek2.load_pilot(mypilot)
 
         self.register_element("_TRUCK",WinterMochaTruck(plot_locked=True),dident="_room")
@@ -1139,8 +1095,8 @@ class Encounter_AdvancedMecha( Encounter_BasicBandits ):
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
         meks = gears.Loader.load_design_file('Zerosaiko.txt')
         mymecha = random.choice(meks)
-        mymecha.colors = self.elements["ENEMY_COLORS"]
-        mymecha.load_pilot(gears.random_pilot(25))
+        mymecha.colors = self.elements["ENEMY_FACTION"].mecha_colors
+        mymecha.load_pilot(gears.selector.random_pilot(25))
         team2.contents.append(mymecha)
         self.combat_entered = False
         self.load_next(nart)
@@ -1167,16 +1123,10 @@ class Encounter_WeHaveBlitzen( Encounter_BasicBandits ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mypilot = gears.random_pilot(25)
-            mymecha.load_pilot(mypilot)
-            team2.contents.append(mymecha)
-            if t == 0:
-                self.register_element("_MIDBOSS",mypilot)
+        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        bossmek = max(team2.contents, key=lambda m: m.cost)
+        self.register_element("_MIDBOSS",bossmek.get_pilot())
+
         self.intro_ready = True
         self.load_next(nart)
         return True
@@ -1223,8 +1173,8 @@ class Encounter_WaitingAmbush( Encounter_BasicBandits ):
 
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_mekroom")
         boss_mecha = self.register_element("ENEMY",random.choice(gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')))
-        boss_mecha.colors = self.elements["ENEMY_COLORS"]
-        boss_mecha.load_pilot(gears.random_pilot(25))
+        boss_mecha.colors = self.elements["ENEMY_FACTION"].mecha_colors
+        boss_mecha.load_pilot(gears.selector.random_pilot(25))
         team2.contents.append(boss_mecha)
         self.combat_entered = False
         self.trap_ready = True
@@ -1272,15 +1222,9 @@ class Encounter_CovertAegis( Encounter_BasicBandits ):
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
-        self.register_element("ENEMY_COLORS",AEGIS_COLORS)
+        self.register_element("ENEMY_FACTION",gears.factions.AegisOverlord)
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mymecha.load_pilot(gears.random_pilot(25))
-            team2.contents.append(mymecha)
+        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         self.intro_ready = True
         self.load_next(nart)
         return True
@@ -1477,10 +1421,10 @@ class Choice_BringJusticeToSmugglers( Plot ):
         myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
         # Set a new boss for the final scene.
         boss_mecha = gears.Loader.load_design_file('Zerosaiko.txt')[0]
-        boss_mecha.colors = CONVOY_COLORS
-        boss_pilot = gears.random_pilot(50)
+        boss_mecha.colors = ConvoyFaction.mecha_colors
+        boss_pilot = gears.selector.random_pilot(50)
         boss_mecha.load_pilot(boss_pilot)
-        self.add_sub_plot( nart, "MOCHA_FB_TRUCKBATTLE", PlotState( elements={"BOSS":boss_mecha,"BOSS_PILOT":boss_pilot,"ENEMY_COLORS":CONVOY_COLORS,} ).based_on( self ), ident="FINAL_ENCOUNTER" )
+        self.add_sub_plot( nart, "MOCHA_FB_TRUCKBATTLE", PlotState( elements={"BOSS":boss_mecha,"BOSS_PILOT":boss_pilot,"ENEMY_FACTION":ConvoyFaction,} ).based_on( self ), ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
@@ -1583,7 +1527,7 @@ class Choice_PeaceByDefeatingAegis( Plot ):
         self.register_element(SSTATE,COMPLICATION)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
         myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
-        self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", PlotState( elements={"ENEMY_COLORS":AEGIS_COLORS,} ).based_on( self ), ident="FINAL_ENCOUNTER" )
+        self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", PlotState( elements={"ENEMY_FACTION":gears.factions.AegisOverlord,} ).based_on( self ), ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
@@ -1776,13 +1720,8 @@ class FinalBattleAgainstBase( Plot ):
         myroom.contents.append( myent )
         mygoal = self.register_element("_goalroom",WinterMochaFortressRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mymecha.load_pilot(gears.random_pilot(25))
-            team2.contents.append(mymecha)
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+
         meks = gears.Loader.load_design_file('STC_Buildings.txt')
         team2.contents.append(meks[0])
         self.register_element("BOSS",meks[0])
@@ -1818,13 +1757,8 @@ class FinalBattleAgainstTrucks( Plot ):
         mygoal.contents.append(WinterMochaTruckTerrain)
         mygoal.contents.append(WinterMochaTruckTerrain)
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mymecha.load_pilot(gears.random_pilot(25))
-            team2.contents.append(mymecha)
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+
         self.add_sub_plot( nart, "MOCHA_FB_BOSSTALK" )
         return True
     def start_battle( self, camp ):
@@ -1860,13 +1794,8 @@ class FinalBattleAgainstBoss( Plot ):
         boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene,anchor=pbge.randmaps.anchors.north)
         mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mymecha.load_pilot(gears.random_pilot(25))
-            team2.contents.append(mymecha)
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+
         self.add_sub_plot( nart, "MOCHA_FB_BOSSTALK" )
         return True
     def start_battle( self, camp ):
@@ -1891,7 +1820,7 @@ class FinalBattleAgainstBossInWoods( Plot ):
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
-        myscenegen = WinterHighwaySceneGen(myscene,myarchi)
+        myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
@@ -1900,13 +1829,8 @@ class FinalBattleAgainstBossInWoods( Plot ):
         myroom.contents.append( myent )
         mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
-        meks = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
-        random.shuffle(meks)
-        for t in range(2):
-            mymecha = meks.pop()
-            mymecha.colors = self.elements["ENEMY_COLORS"]
-            mymecha.load_pilot(gears.random_pilot(25))
-            team2.contents.append(mymecha)
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+
         self.add_sub_plot( nart, "MOCHA_FB_BOSSTALK" )
         return True
     def start_battle( self, camp ):
@@ -1973,7 +1897,7 @@ class WinterBattle( Plot ):
         mygoal = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.north)
         team2 = teams.Team(enemies=(team1,))
         boss_mecha = self.register_element("BOSS",gears.Loader.load_design_file('Blitzen.txt')[0])
-        boss_mecha.load_pilot(gears.random_pilot(50))
+        boss_mecha.load_pilot(gears.selector.random_pilot(50))
         mygoal.contents.append(boss_mecha)
         myscene.local_teams[boss_mecha] = team2
 

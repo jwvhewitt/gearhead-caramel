@@ -2,7 +2,7 @@
 Mecha
 name = Vadel
 desig = AD26c
-material = METAL
+material = Metal
 form = MT_Battroid
 SUB
     Head

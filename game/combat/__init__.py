@@ -49,11 +49,12 @@ class PlayerTurn( object ):
         self.camp.fight.cstat[self.pc].action_points = 0
         self.camp.fight.cstat[self.pc].mp_remaining = 0
 
-    def switch_movement( self, button, ev ):
+    def switch_movement( self, button=None, ev=None ):
         if self.active_ui != self.movement_ui:
             self.active_ui.deactivate()
             self.movement_ui.activate()
             self.active_ui = self.movement_ui
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
     def switch_attack( self, button=None, ev=None ):
         if self.active_ui != self.attack_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_attack_library():

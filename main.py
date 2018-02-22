@@ -54,8 +54,8 @@ TITLE_THEME = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
 def start_game(tsrd):
     name = pbge.input_string(prompt="By what name will you be known?",redrawer=tsrd)
     if not name:
-        name = gears.EARTH_NAMES.gen_word()
-    pc = gears.random_pilot(50)
+        name = gears.selector.EARTH_NAMES.gen_word()
+    pc = gears.selector.random_pilot(50)
     pc.name = name
     pc.imagename = 'cha_wm_parka.png'
     pc.colors = gears.random_character_colors()

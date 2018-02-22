@@ -46,6 +46,7 @@ class AttackWidget( pbge.widgets.Widget ):
             self.set_shelf_invo( nu_shelf, nu_shelf.get_first_working_invo(self.attacker) )
 
     def select_first_usable_attack(self):
+        self.library = self.attacker.get_attack_library()
         self.shelf = None
         for shelf in self.library:
             invo = shelf.get_first_working_invo(self.attacker)
@@ -205,11 +206,19 @@ class TargetingUI( object ):
         self.my_widget.update_buttons()
         self.record = False
 
+        # Recalculate the combat info.
+        self.activate()
+
 
     def update( self, ev, player_turn ):
         # We just got an event. Deal with it.
 
-        if ev.type == pbge.TIMEREVENT:
+        if not self.my_widget.library:
+            if ev.type == pbge.TIMEREVENT:
+                self.render()
+                pbge.my_state.do_flip()
+            player_turn.switch_movement()
+        elif ev.type == pbge.TIMEREVENT:
             self.render()
             pbge.my_state.do_flip()
 
@@ -232,7 +241,7 @@ class TargetingUI( object ):
                     # Recalculate the combat info.
                     self.activate()
 
-            if len(self.targets) >= self.num_targets:
+            if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.attacker,True):
                 self.launch()
 
         elif ev.type == pygame.KEYDOWN:

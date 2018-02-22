@@ -220,7 +220,7 @@ class Explorer( object ):
 
         self.update_scene()
         # Clear the event queue, in case switching scenes took a long time.
-        pygame.event.clear()
+        pygame.event.clear([pbge.TIMEREVENT,pygame.KEYDOWN])
 
         # Do one view first, just to prep the model map and mouse tile.
         self.view()
