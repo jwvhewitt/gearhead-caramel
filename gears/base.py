@@ -609,12 +609,17 @@ class Shield( BaseGear, StandardDamageHandler ):
         return (100*self.size * (1 + self.bonus))//2
     def get_block_bonus(self):
         return self.bonus * 5
+    def pay_for_block(self,defender,weapon_being_blocked):
+        defender.spend_stamina(1)
+        if weapon_being_blocked:
+            self.hp_damage += random.randint(1,weapon_being_blocked.scale.scale_health(1,materials.Metal))
     def is_operational( self ):
         """ To be operational, a shield must be in an operational module.
         """
         mod = self.get_module()
         return self.is_not_destroyed() and mod and mod.is_operational()
-
+    def get_aim_bonus( self ):
+        return -5 * (self.bonus+1)
 
 #   ****************************
 #   ***   SUPPORT  SYSTEMS   ***
@@ -908,10 +913,10 @@ class Weapon( BaseGear, StandardDamageHandler ):
         return self.scale.RANGED_SKILL
 
     def get_defenses( self ):
-        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll()}
+        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self)}
 
     def get_modifiers( self ):
-        return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
+        return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
 
     def get_basic_attack( self ):
         ba = pbge.effects.Invocation(
@@ -926,7 +931,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
                 targets=1)
         for aa in self.get_attributes():
             if hasattr(aa,'modify_basic_attack'):
@@ -968,10 +973,12 @@ class MeleeWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 3
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Flail,attackattributes.Defender,)
+
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
-        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
+        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
     def get_basic_attack( self ):
         ba = pbge.effects.Invocation(
                 name = 'Basic Attack', 
@@ -985,15 +992,34 @@ class MeleeWeapon( Weapon ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
                 targets=1)
         for aa in self.get_attributes():
             if hasattr(aa,'modify_basic_attack'):
                 aa.modify_basic_attack(self,ba)
         return ba
+    def get_defenses( self ):
+        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self),geffects.PARRY: geffects.ParryRoll(self)}
 
     def get_weapon_desc( self ):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}'.format(self)
+    def can_parry(self):
+        it = True
+        for aa in self.get_attributes():
+            if hasattr(aa,'NO_PARRY') and aa.NO_PARRY:
+                it = False
+                break
+        return it
+    def get_parry_bonus(self):
+        it = self.accuracy * 10
+        for aa in self.get_attributes():
+            if hasattr(aa,'PARRY_BONUS'):
+                it += aa.PARRY_BONUS
+        return it
+    def pay_for_parry(self,defender,weapon_being_blocked):
+        defender.spend_stamina(1)
+        if weapon_being_blocked:
+            self.hp_damage += random.randint(1,weapon_being_blocked.scale.scale_health(1,materials.Metal))
 
 class EnergyWeapon( Weapon ):
     # Energy weapons do "hot knife" damage. It gets reduced by, but not stopped
@@ -1007,10 +1033,11 @@ class EnergyWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 20
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Flail,attackattributes.Defender,)
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
-        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
+        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
     def get_basic_power_cost( self ):
         mult = 1.0
         for aa in self.get_attributes():
@@ -1031,14 +1058,33 @@ class EnergyWeapon( Weapon ):
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
                 price=[geffects.PowerPrice(self.get_basic_power_cost())],
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
                 targets=1)
         for aa in self.get_attributes():
             if hasattr(aa,'modify_basic_attack'):
                 aa.modify_basic_attack(self,ba)
         return ba
+    def get_defenses( self ):
+        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self),geffects.PARRY: geffects.ParryRoll(self)}
     def get_weapon_desc( self ):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}'.format(self)
+    def can_parry(self):
+        it = True
+        for aa in self.get_attributes():
+            if hasattr(aa,'NO_PARRY') and aa.NO_PARRY:
+                it = False
+                break
+        return it
+    def get_parry_bonus(self):
+        it = self.accuracy * 10
+        for aa in self.get_attributes():
+            if hasattr(aa,'PARRY_BONUS'):
+                it += aa.PARRY_BONUS
+        return it
+    def pay_for_parry(self,defender,weapon_being_blocked):
+        defender.spend_stamina(1)
+        if weapon_being_blocked:
+            self.hp_damage += random.randint(1,weapon_being_blocked.scale.scale_health(1,materials.Metal))
 
 class Ammo( BaseGear, Stackable, StandardDamageHandler ):
     DEFAULT_NAME = "Ammo"
@@ -1086,7 +1132,7 @@ class BallisticWeapon( Weapon ):
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Automatic,attackattributes.BurstFire2,
         attackattributes.BurstFire3,attackattributes.BurstFire4,attackattributes.BurstFire5,
-        attackattributes.VariableFire3,
+        attackattributes.VariableFire3,attackattributes.VariableFire4,
         )
     def __init__(self, ammo_type=None, **keywords ):
         self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
@@ -1128,7 +1174,7 @@ class BallisticWeapon( Weapon ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon,thrill_power=self.damage*2+self.penetration),
                 price=[geffects.AmmoPrice(my_ammo,ammo_cost)],
                 targets=targets)
 
@@ -1159,7 +1205,7 @@ class BeamWeapon( Weapon ):
     DEFAULT_SHOT_ANIM = geffects.GunBeam
     LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Automatic,attackattributes.BurstFire2,
         attackattributes.BurstFire3,attackattributes.BurstFire4,attackattributes.BurstFire5,
-        attackattributes.Scatter, attackattributes.VariableFire3,
+        attackattributes.Scatter, attackattributes.VariableFire3,attackattributes.VariableFire4,
         )
     def get_weapon_desc( self ):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)
@@ -1182,7 +1228,7 @@ class BeamWeapon( Weapon ):
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=self.shot_anim,
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon,thrill_power=self.damage*2+self.penetration),
                 price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost)],
                 targets=targets)
         for aa in self.get_attributes():
@@ -1305,10 +1351,10 @@ class Launcher( BaseGear, ContainerDamageHandler ):
         return self.is_not_destroyed() and mod and mod.is_operational()
 
     def get_defenses( self ):
-        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll()}
+        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self)}
 
     def get_modifiers( self, ammo ):
-        return [geffects.RangeModifier(ammo.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier()]
+        return [geffects.RangeModifier(ammo.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
     def get_attributes( self ):
         ammo = self.get_ammo()
         return ammo.attributes or []
@@ -1329,7 +1375,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=geffects.Missile1,
                 price=[geffects.AmmoPrice(ammo,1)],
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),0),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),0,thrill_power=ammo.damage+ammo.penetration),
                 targets=1)
             for aa in self.get_attributes():
                 if hasattr(aa,'modify_basic_attack'):
@@ -1352,7 +1398,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                 used_in_combat = True, used_in_exploration=False,
                 shot_anim=geffects.MissileFactory(num_missiles),
                 price=[geffects.AmmoPrice(ammo,num_missiles)],
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),frame),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),frame,thrill_power=ammo.damage*2+ammo.penetration),
                 targets=1)
             for aa in self.get_attributes():
                 if hasattr(aa,'modify_basic_attack'):
@@ -1437,6 +1483,10 @@ class ModuleForm( Singleton ):
 
     VOLUME_X = 2
     MASS_X = 1
+    AIM_BONUS = 0
+    CAN_ATTACK = False
+    ACCURACY = 0
+    PENETRATION = 0
 
 
 class MF_Head( ModuleForm ):
@@ -1458,6 +1508,9 @@ class MF_Torso( ModuleForm ):
 
 class MF_Arm( ModuleForm ):
     name = "Arm"
+    AIM_BONUS = 5
+    CAN_ATTACK = True
+    ACCURACY = 1
     @classmethod
     def is_legal_sub_com( self, part ):
         return isinstance( part , ( Weapon,Launcher, Armor, Hand, Mount,MovementSystem,PowerSource,Sensor,Usable ) )
@@ -1467,6 +1520,8 @@ class MF_Arm( ModuleForm ):
 
 class MF_Leg( ModuleForm ):
     name = "Leg"
+    CAN_ATTACK = True
+    PENETRATION = 1
     @classmethod
     def is_legal_sub_com( self, part ):
         return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
@@ -1479,12 +1534,17 @@ class MF_Wing( ModuleForm ):
 
 class MF_Turret( ModuleForm ):
     name = "Turret"
+    AIM_BONUS = 5
     @classmethod
     def is_legal_sub_com( self, part ):
         return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
 
 class MF_Tail( ModuleForm ):
     name = "Tail"
+    AIM_BONUS = 5
+    CAN_ATTACK = True
+    ACCURACY = 1
+    PENETRATION = 1
     @classmethod
     def is_legal_sub_com( self, part ):
         return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
@@ -1535,6 +1595,31 @@ class Module( BaseGear, StandardDamageHandler ):
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
         return 1 + self.form.MASS_X * self.size
+    def get_defenses( self ):
+        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self),geffects.PARRY: geffects.ParryRoll(self)}
+    def get_modifiers( self ):
+        return [geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self)]
+    def get_attacks( self ):
+        # Return a list of invocations associated with this module.
+        my_invos = list()
+        if self.form.CAN_ATTACK:
+            ba = pbge.effects.Invocation(
+            name = 'Basic Attack', 
+            fx=geffects.AttackRoll(
+                stats.Body, self.scale.MELEE_SKILL,
+                children = (geffects.DoDamage(2,self.size+1,scale=self.scale),),
+                accuracy=self.form.ACCURACY*10, penetration=self.form.PENETRATION*10, 
+                defenses = self.get_defenses(),
+                modifiers = self.get_modifiers()
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=1),
+            used_in_combat = True, used_in_exploration=False,
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
+            targets=1)
+            my_invos.append(ba)
+
+        return my_invos
 
 
 class Head( Module ):
@@ -1714,6 +1799,12 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower,Combatan
         it = engine_rating // mass_factor
         if not has_gyro:
             it -= 30
+        # Head mounted cockpits provide a bonus.
+        pilot = self.get_pilot()
+        if pilot:
+            pmod = pilot.get_module()
+            if pmod and pmod.form == MF_Head:
+                it += 10
         return it
 
     def calc_walking( self ):

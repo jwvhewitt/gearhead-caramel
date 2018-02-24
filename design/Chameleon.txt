@@ -1,0 +1,408 @@
+Mecha
+    name = "Chameleon"
+    desig = "CHA-01"
+    imagename = "btr_chameleon1.png"
+    portrait = "mecha_chameleon.png"
+    family = "Chameleon"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (AegisOverlord,)
+    role_list = (Trooper,)
+
+    SUB
+        Head
+            size = 2
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Sensor
+                    size = 2
+            END
+        Torso
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Engine
+                    size = 600
+                Gyroscope
+                Cockpit
+                BeamWeapon
+                    name = "Small Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+            END
+        Arm
+            name = "Right Arm"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BeamWeapon
+                            name = "Pulse Rifle"
+                            reach = 4
+                            damage = 1
+                            accuracy = 2
+                            penetration = 0
+                            attributes = (VariableFire4)
+                    END
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+                                    name = "Gajira Missiles"
+                                    reach = 9
+                                    damage = 5
+                                    accuracy = 0
+                                    penetration = 4
+                                    quantity = 2
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+                                    name = "Sparrow Missiles"
+                                    reach = 5
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 0
+                                    quantity = 30
+                            END
+                    END
+
+            END
+            INV
+                Shield
+					size = 3
+					bonus = 2
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Wheels
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Wheels
+                    size = 4
+            END
+    END
+
+Mecha
+    name = "Chameleon"
+    desig = "CHA-02b Sniper"
+    imagename = "btr_chameleon2.png"
+    portrait = "mecha_chameleon.png"
+    family = "Chameleon"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (AegisOverlord,)
+    role_list = (Support,)
+
+    SUB
+        Head
+            size = 2
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Sensor
+                    size = 2
+            END
+        Torso
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Engine
+                    size = 600
+                Gyroscope
+                Cockpit
+                BeamWeapon
+                    name = "Small Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+            END
+        Arm
+            name = "Right Arm"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BallisticWeapon
+                            name = "Gauss Rifle"
+                            reach = 10
+                            damage = 3
+                            accuracy = 2
+                            penetration = 2
+                            ammo_type = Ferrous_70mm
+                            attributes = (Accurate)
+                            SUB
+                                Ammo
+                                    ammo_type=Ferrous_70mm
+                                    quantity=32
+                            END
+
+                    END
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+                                    name = "Gajira Missiles"
+                                    reach = 9
+                                    damage = 5
+                                    accuracy = 0
+                                    penetration = 4
+                                    quantity = 2
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+                                    name = "Sparrow Missiles"
+                                    reach = 5
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 0
+                                    quantity = 30
+                            END
+                    END
+
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Wheels
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Wheels
+                    size = 4
+            END
+    END
+
+Mecha
+    name = "Chameleon"
+    desig = "CHA-03 Command"
+    imagename = "btr_chameleon3.png"
+    portrait = "mecha_chameleon.png"
+    family = "Chameleon"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (AegisOverlord,)
+    role_list = (Commander,)
+
+    SUB
+        Head
+            size = 2
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Sensor
+                    size = 2
+            END
+        Torso
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Engine
+                    size = 600
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                        size = 2
+                        material = Ceramic
+                    END
+                BeamWeapon
+                    name = "Small Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+            END
+        Arm
+            name = "Right Arm"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BeamWeapon
+                            name = "Plasma Rifle"
+                            reach = 6
+                            damage = 3
+                            accuracy = 0
+                            penetration = 2
+                            attributes = (Scatter)
+                    END
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+                                    name = "Gajira Missiles"
+                                    reach = 9
+                                    damage = 5
+                                    accuracy = 0
+                                    penetration = 4
+                                    quantity = 2
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Hand
+                    name = "Left Hand"
+                    INV
+                        MeleeWeapon
+                            name="Rapier"
+                            reach=1
+                            damage=1
+                            accuracy=3
+                            penetration=3
+                            attributes = (Defender,)
+                    END
+                Mount
+                    name = "Left Arm Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+                                    name = "Sparrow Missiles"
+                                    reach = 5
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 0
+                                    quantity = 30
+                            END
+                    END
+
+            END
+            INV
+                Shield
+					size = 3
+					bonus = 2
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Wheels
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Ceramic
+                Wheels
+                    size = 4
+            END
+    END

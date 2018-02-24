@@ -27,6 +27,12 @@ class Advanced( Material ):
     damage_scale = 5
     cost_scale = 50
 
+class Ceramic( Material ):
+    name = "Ceramic"
+    mass_scale = 9
+    damage_scale = 4
+    cost_scale = 15
+
 class Meat( Material ):
     name = "Meat"
     mass_scale = 16

@@ -24,11 +24,22 @@ class AttackLibraryShelf( object ):
         for invo in self.invo_list:
             if invo.can_be_invoked(chara,in_combat):
                 return invo
+    def get_average_thrill_power(self,chara):
+        thrills = list()
+        for invo in self.invo_list:
+            if invo.can_be_invoked(chara,True):
+                thrills.append(invo.data.thrill_power)
+        if thrills:
+            return sum(thrills)/len(thrills)
+        else:
+            return 0
 
 class AttackData( object ):
     # The data class passed to an attack invocation. Mostly just
     # contains the UI stuff.
-    def __init__(self,attack_icon,active_frame,inactive_frame=None,disabled_frame=None):
+    # thrill_power is a rough measurement of how exciting this attack is;
+    #  used to determine what attacks to prioritize.
+    def __init__(self,attack_icon,active_frame,inactive_frame=None,disabled_frame=None,thrill_power=1):
         self.attack_icon = attack_icon
         self.active_frame = active_frame
         if inactive_frame is not None:
@@ -39,6 +50,7 @@ class AttackData( object ):
             self.disabled_frame = disabled_frame
         else:
             self.disabled_frame = active_frame + 2
+        self.thrill_power = thrill_power
 
 # Defense constants
 DODGE = 'DODGE'
@@ -91,6 +103,9 @@ class MissAnim( animobs.Caption ):
 
 class BlockAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Block!'
+
+class ParryAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Parry!'
 
 class BigBullet( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_bigbullet.png"
@@ -427,6 +442,21 @@ class GenericBonus(object):
     def calc_modifier( self, camp, attacker, pos ):
         return self.bonus
 
+class ModuleBonus(object):
+    def __init__(self,wmodule):
+        self.name = '{} Mod'.format(wmodule)
+        self.wmodule = wmodule
+    def calc_modifier( self, camp, attacker, pos ):
+        if self.wmodule:
+            it = self.wmodule.form.AIM_BONUS
+            for i in self.wmodule.inv_com:
+                if hasattr(i,"get_aim_bonus"):
+                    it += i.get_aim_bonus()
+            return it
+        else:
+            return 0
+
+
 #  **************************
 #  ***   Defense  Rolls   ***
 #  **************************
@@ -488,6 +518,8 @@ class ReflexSaveRoll( object ):
         return 1.0
 
 class BlockRoll( object ):
+    def __init__(self,weapon_to_block):
+        self.weapon_to_block = weapon_to_block
     def make_roll( self, atroller, attacker, defender, att_bonus, att_roll, fx_record ):
         # First, locate the defender's shield.
         shield = self.get_shield(defender)
@@ -497,6 +529,7 @@ class BlockRoll( object ):
 
             if def_roll > 95:
                 # A roll greater than 95 always defends.
+                shield.pay_for_block(defender,self.weapon_to_block)
                 return (self.CHILDREN,def_roll + def_bonus)
             elif def_roll <= 5:
                 # A roll of 5 or less always fails.
@@ -504,6 +537,7 @@ class BlockRoll( object ):
             elif (att_roll + att_bonus + atroller.accuracy) > (def_roll + def_bonus):
                 return (None,def_roll + def_bonus)
             else:
+                shield.pay_for_block(defender,self.weapon_to_block)
                 return (self.CHILDREN, def_roll + def_bonus)
         else:
             return (None,0)
@@ -526,8 +560,51 @@ class BlockRoll( object ):
             return 1.0
     CHILDREN = (effects.NoEffect(anim=BlockAnim),)
 
+class ParryRoll( object ):
+    def __init__(self,weapon_to_parry):
+        self.weapon_to_parry = weapon_to_parry
+    def make_roll( self, atroller, attacker, defender, att_bonus, att_roll, fx_record ):
+        # First, locate the defender's parrier.
+        parrier = self.get_parrier(defender)
+        if parrier:
+            def_roll = random.randint(1,100)
+            def_bonus = parrier.get_parry_bonus() + defender.get_skill_score(stats.Speed,parrier.scale.MELEE_SKILL)
 
-# BlockRoll, ParryRoll, ECMRoll, AntiMissileRoll
+            if def_roll > 95:
+                # A roll greater than 95 always defends.
+                parrier.pay_for_block(defender,self.weapon_to_parry)
+                return (self.CHILDREN,def_roll + def_bonus)
+            elif def_roll <= 5:
+                # A roll of 5 or less always fails.
+                return (None, def_roll + def_bonus)
+            elif (att_roll + att_bonus + atroller.accuracy) > (def_roll + def_bonus):
+                return (None,def_roll + def_bonus)
+            else:
+                parrier.pay_for_parry(defender,self.weapon_to_parry)
+                return (self.CHILDREN, def_roll + def_bonus)
+        else:
+            return (None,0)
+    def get_parrier( self, defender ):
+        parriers = [part for part in defender.descendants() if hasattr(part,'can_parry') and part.can_parry() and part.is_operational()]
+        if parriers:
+            return max( parriers, key = lambda s: s.get_parry_bonus() )
+    def can_attempt( self, attacker, defender ):
+        return self.get_parrier(defender) and (defender.get_current_stamina() > 0)
+
+    def get_odds( self, atroller, attacker, defender, att_bonus ):
+        # Return the odds as a float.
+        parrier = self.get_parrier(defender)
+        if parrier:
+            def_target = parrier.get_parry_bonus() + defender.get_skill_score(stats.Speed,parrier.scale.MELEE_SKILL)
+            # The chance to hit is clamped between 5% and 95%.
+            percent = min(max(50 + (att_bonus + atroller.accuracy) - def_target,5),95)
+            return float(percent)/100
+        else:
+            return 1.0
+    CHILDREN = (effects.NoEffect(anim=ParryAnim),)
+
+
+# ParryRoll, ECMRoll, AntiMissileRoll
 
 #  *****************
 #  ***   PRICE   ***

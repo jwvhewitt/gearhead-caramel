@@ -118,9 +118,9 @@ def play_the_game():
 
 
 if __name__ == "__main__":
-    #clay = gears.Loader.load_design_file('HunterX.txt')
-    #clay[1].termdump()
-    #clay[1].statusdump()
+    #clay = gears.Loader.load_design_file('Chameleon.txt')
+    #clay[2].termdump()
+    #clay[2].statusdump()
 
     play_the_game()
 

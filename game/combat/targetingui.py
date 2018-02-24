@@ -10,7 +10,7 @@ class AttackWidget( pbge.widgets.Widget ):
         self.camp = camp
         self.attacker = attacker
         self.library = attacker.get_attack_library()
-        self.library.sort(key=lambda shelf: -shelf.weapon.cost)
+        self.library.sort(key=lambda shelf: -shelf.get_average_thrill_power(self.attacker))
         self.shelf = None
         self.invo = 0
         # The shelf_offset tells the index of the first invocation in the menu.
@@ -47,6 +47,7 @@ class AttackWidget( pbge.widgets.Widget ):
 
     def select_first_usable_attack(self):
         self.library = self.attacker.get_attack_library()
+        self.library.sort(key=lambda shelf: -shelf.get_average_thrill_power(self.attacker))
         self.shelf = None
         for shelf in self.library:
             invo = shelf.get_first_working_invo(self.attacker)

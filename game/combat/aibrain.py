@@ -57,10 +57,10 @@ class BasicAI( object ):
         for shelf in my_library:
             for i in shelf.invo_list:
                 if i.can_be_invoked(self.npc,True):
-                    dist.append(i.area.get_reach())
+                    dist += [i.area.get_reach(),]*i.data.thrill_power
         if dist:
             average = sum(dist)//len(dist)
-            if average > 18:
+            if average >= 15:
                 return (average//3,(average*2)//3,max(dist))
             else:
                 return (0,average//2,max(dist))

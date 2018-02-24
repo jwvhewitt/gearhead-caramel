@@ -1,3 +1,8 @@
+- Successfully blocking with shield damages shield, costs 1 stamina (gears/)
+- Attack invocations record "thrill power" (gears/geffects.py)
+- Modules now have attacks (gears/base.py)
+- Shields cause aim penalty for weapons in same arm (gears/base.py)
+- Head mounted cockpits provide +10 Mobility (gears/base.py)
 - Fixed crash when player mecha runs out of attacks (game/combat)
 - Added random mecha selector (gears/selector.py)
 - Improved the enemy AI (game/combat/aibrain.py)

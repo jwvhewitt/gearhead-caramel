@@ -634,7 +634,7 @@ class MercFaction(object):
         self.mecha_colors = gears.random_mecha_colors()
 
 class ConvoyFaction(pbge.Singleton):
-    mecha_colors = (color.Jade,color.Ceramic,color.FlourescentGreen,color.Black,color.MassiveGreen)
+    mecha_colors = (color.Jade,color.CeramicColor,color.FlourescentGreen,color.Black,color.MassiveGreen)
     
 class UnkEneFaction(pbge.Singleton):
     mecha_colors = (color.CometRed,color.DimGrey,color.GreenYellow,color.Black,color.BlackRose)

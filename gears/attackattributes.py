@@ -14,6 +14,7 @@ class Accurate(Singleton):
         aa = weapon.get_basic_attack(name='Aim (+20 acc, 4MP)',attack_icon=12)
         aa.fx.modifiers.append(geffects.GenericBonus('Aim',20))
         aa.price.append(geffects.MentalPrice(4))
+        aa.data.thrill_power += 1
         return [aa]
 
 class Automatic(Singleton):
@@ -105,6 +106,26 @@ class BurstFire5(BurstFire2):
     POWER_MODIFIER = 1.0
     BURST_VALUE = 5
 
+class Defender(Singleton):
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.5
+    POWER_MODIFIER = 1.0
+    PARRY_BONUS = 20
+
+class Flail(Singleton):
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.5
+    POWER_MODIFIER = 1.0
+    NO_PARRY = True
+
+    @classmethod
+    def modify_basic_attack( self, weapon, attack ):
+        # Flails cannot be blocked or parried.
+        attack.fx.defenses[geffects.PARRY] = None
+        attack.fx.defenses[geffects.BLOCK] = None
+
 class Scatter(Singleton):
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.0
@@ -115,6 +136,8 @@ class Scatter(Singleton):
     def modify_basic_attack( self, weapon, attack ):
         # Change the damage type to scatter. That was easy.
         attack.fx.children[0].scatter = True
+        attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
+
 
 
 class VariableFire3(Singleton):
@@ -127,4 +150,17 @@ class VariableFire3(Singleton):
     @classmethod
     def get_attacks( self, weapon ):
         return BurstFire3.replace_primary_attack(weapon)
+
+class VariableFire4(Singleton):
+    # This weapon can do Burst x4 fire in addition to single fire
+    MASS_MODIFIER = 1.3
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 3.0
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def get_attacks( self, weapon ):
+        return BurstFire4.replace_primary_attack(weapon)
+
+
 

@@ -473,7 +473,7 @@ class GullGrey( Gradient ):
     COLOR_RANGE = (200,220,234,80,86,98)
     SETS = (CLOTHING,MECHA,METAL)
 
-class Ceramic( Gradient ):
+class CeramicColor( Gradient ):
     NAME = 'Ceramic'
     COLOR_RANGE = (255,255,255,90,115,124)
     SETS = (CLOTHING,MECHA,DETAILS,METAL)

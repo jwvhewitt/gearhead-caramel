@@ -3,7 +3,7 @@ import color
 
 class AegisOverlord(Singleton):
 	name = "Aegis Overlord Luna"
-	mecha_colors = (color.LunarGrey,color.AegisCrimson,color.LemonYellow,color.Ceramic,color.LunarGrey)
+	mecha_colors = (color.LunarGrey,color.AegisCrimson,color.LemonYellow,color.CeramicColor,color.LunarGrey)
 
 class BladesOfCrihna(Singleton):
 	name = "the Blades of Crihna"

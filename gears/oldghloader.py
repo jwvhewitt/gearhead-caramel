@@ -210,7 +210,7 @@ class GH1Loader( object ):
         (112,128,144): color.SlateGrey,
         (157,172,183): color.GullGrey,
         (169,169,169): color.DeepGrey,
-        (211,224,230): color.Ceramic,
+        (211,224,230): color.CeramicColor,
         (206,195,162): color.Cream,
         (240,240,240): color.White,
         (236,254,255): color.ShiningWhite,
