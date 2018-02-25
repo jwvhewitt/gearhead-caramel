@@ -607,6 +607,11 @@ class Shield( BaseGear, StandardDamageHandler ):
     @property
     def base_cost(self):
         return (100*self.size * (1 + self.bonus))//2
+    def is_legal_sub_com(self,part):
+        if isinstance( part , Weapon ):
+            return part.integral
+        else:
+            return False
     def get_block_bonus(self):
         return self.bonus * 5
     def pay_for_block(self,defender,weapon_being_blocked):
@@ -1033,13 +1038,14 @@ class EnergyWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 20
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Flail,attackattributes.Defender,)
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Flail,
+        attackattributes.Defender,attackattributes.Intercept)
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
         return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
     def get_basic_power_cost( self ):
-        mult = 1.0
+        mult = 0.25
         for aa in self.get_attributes():
             mult *= aa.POWER_MODIFIER
         return max(int( self.scale.scale_power(self.damage) * mult ), 1)
@@ -1085,6 +1091,25 @@ class EnergyWeapon( Weapon ):
         defender.spend_stamina(1)
         if weapon_being_blocked:
             self.hp_damage += random.randint(1,weapon_being_blocked.scale.scale_health(1,materials.Metal))
+    def can_intercept(self):
+        it = False
+        for aa in self.get_attributes():
+            if hasattr(aa,'CAN_INTERCEPT') and aa.CAN_INTERCEPT:
+                it = True
+                break
+        if it:
+            actor = self.get_root()
+            c,m = actor.get_current_and_max_power()
+            if c < self.get_basic_power_cost():
+                it = False
+        return it
+    def get_intercept_bonus(self):
+        it = self.accuracy * 10
+        return it
+    def pay_for_intercept(self,defender,weapon_being_blocked):
+        defender.spend_stamina(1)
+        defender.consume_power(self.get_basic_power_cost())
+
 
 class Ammo( BaseGear, Stackable, StandardDamageHandler ):
     DEFAULT_NAME = "Ammo"
@@ -1133,6 +1158,7 @@ class BallisticWeapon( Weapon ):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Automatic,attackattributes.BurstFire2,
         attackattributes.BurstFire3,attackattributes.BurstFire4,attackattributes.BurstFire5,
         attackattributes.VariableFire3,attackattributes.VariableFire4,
+        attackattributes.Intercept,
         )
     def __init__(self, ammo_type=None, **keywords ):
         self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
@@ -1191,6 +1217,26 @@ class BallisticWeapon( Weapon ):
         else:
             it = it + '\n Ammo: 0'
         return it
+    def can_intercept(self):
+        it = False
+        for aa in self.get_attributes():
+            if hasattr(aa,'CAN_INTERCEPT') and aa.CAN_INTERCEPT:
+                it = True
+                break
+        if it:
+            ammo = self.get_ammo()
+            if not ammo or ammo.spent >= ammo.quantity:
+                it = False
+        return it
+    def get_intercept_bonus(self):
+        it = self.accuracy * 10
+        return it
+    def pay_for_intercept(self,defender,weapon_being_blocked):
+        defender.spend_stamina(1)
+        ammo = self.get_ammo()
+        if ammo:
+            ammo.spent += 1
+ 
 
 class BeamWeapon( Weapon ):
     MIN_REACH = 2
@@ -1206,11 +1252,12 @@ class BeamWeapon( Weapon ):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Automatic,attackattributes.BurstFire2,
         attackattributes.BurstFire3,attackattributes.BurstFire4,attackattributes.BurstFire5,
         attackattributes.Scatter, attackattributes.VariableFire3,attackattributes.VariableFire4,
+        attackattributes.Intercept,
         )
     def get_weapon_desc( self ):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)
     def get_basic_power_cost( self ):
-        mult = 1.0
+        mult = 0.5
         for aa in self.get_attributes():
             mult *= aa.POWER_MODIFIER
         return max(int( self.scale.scale_power(self.damage) * mult ), 1)
@@ -1235,6 +1282,24 @@ class BeamWeapon( Weapon ):
             if hasattr(aa,'modify_basic_attack'):
                 aa.modify_basic_attack(self,ba)
         return ba
+    def can_intercept(self):
+        it = False
+        for aa in self.get_attributes():
+            if hasattr(aa,'CAN_INTERCEPT') and aa.CAN_INTERCEPT:
+                it = True
+                break
+        if it:
+            actor = self.get_root()
+            c,m = actor.get_current_and_max_power()
+            if c < self.get_basic_power_cost():
+                it = False
+        return it
+    def get_intercept_bonus(self):
+        it = self.accuracy * 10
+        return it
+    def pay_for_intercept(self,defender,weapon_being_blocked):
+        defender.spend_stamina(1)
+        defender.consume_power(self.get_basic_power_cost())
 
 
 class Missile( BaseGear, StandardDamageHandler ):
@@ -1351,7 +1416,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
         return self.is_not_destroyed() and mod and mod.is_operational()
 
     def get_defenses( self ):
-        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self)}
+        return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self),geffects.INTERCEPT: geffects.InterceptRoll(self)}
 
     def get_modifiers( self, ammo ):
         return [geffects.RangeModifier(ammo.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]

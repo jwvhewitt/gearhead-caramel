@@ -126,6 +126,13 @@ class Flail(Singleton):
         attack.fx.defenses[geffects.PARRY] = None
         attack.fx.defenses[geffects.BLOCK] = None
 
+class Intercept(Singleton):
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.5
+    POWER_MODIFIER = 1.0
+    CAN_INTERCEPT = True
+
 class Scatter(Singleton):
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.0

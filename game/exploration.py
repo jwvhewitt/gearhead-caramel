@@ -198,6 +198,7 @@ class Explorer( object ):
     def update_npcs( self ):
         my_actors = self.scene.get_operational_actors()
         for npc in my_actors:
+            npc.renew_power()
             if self.npc_inactive(npc):
                 # First handle movement.
 

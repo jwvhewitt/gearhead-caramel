@@ -37,6 +37,7 @@ Mecha
                     accuracy = 2
                     penetration = 0
                     integral = True
+                    attributes = (Intercept)
             END
         Arm
             name = "Right Arm"
@@ -168,6 +169,7 @@ Mecha
                     accuracy = 2
                     penetration = 0
                     integral = True
+                    attributes = (Intercept)
             END
         Arm
             name = "Right Arm"
@@ -306,6 +308,7 @@ Mecha
                     accuracy = 2
                     penetration = 0
                     integral = True
+                    attributes = (Intercept)
             END
         Arm
             name = "Right Arm"

@@ -25,7 +25,7 @@ Mecha
             material = Advanced
             SUB
                 Armor
-                    size = 9
+                    size = 7
                     material = Advanced
                 Engine
                     size = 1600
@@ -46,6 +46,7 @@ Mecha
                     END
                 Mount
                     name = "Right Collar Mount"
+                    material = Advanced
                     INV
                         Launcher
                             size = 4
@@ -61,19 +62,7 @@ Mecha
                     END
                 Mount
                     name = "Left Collar Mount"
-                    INV
-                        Launcher
-                            size = 4
-                            SUB
-                                Missile
-                                    name = "Swarm Missiles"
-                                    reach = 6
-                                    damage = 1
-                                    accuracy = 1
-                                    penetration = 1
-                                    quantity = 20
-                            END
-                    END
+                    material = Advanced
             END
         Arm
             name = "Right Arm"
@@ -81,7 +70,7 @@ Mecha
             material = Advanced
             SUB
                 Armor
-                    size = 7
+                    size = 5
                     material = Advanced
                 Hand
                     name = "Right Hand"
@@ -103,13 +92,30 @@ Mecha
                             END
                     END
             END
+            INV
+                Shield
+                    size = 4
+                    material = Advanced
+                    SUB
+                        BeamWeapon
+                            name = "Intercept Laser"
+                            reach = 2
+                            damage = 1
+                            accuracy = 2
+                            penetration = 0
+                            integral = True
+                            shot_anim = SmallBeam
+                            attributes = (Intercept)
+                            material = Advanced
+                    END
+            END
         Arm
             name = "Left Arm"
             size = 5
             material = Advanced
             SUB
                 Armor
-                    size = 7
+                    size = 5
                     material = Advanced
                 Hand
                     name = "Left Hand"
@@ -122,6 +128,24 @@ Mecha
                             damage=4
                             accuracy=3
                             penetration=1
+                            material = Advanced
+                    END
+            END
+            INV
+                Shield
+                    size = 4
+                    material = Advanced
+                    SUB
+                        BeamWeapon
+                            name = "Intercept Laser"
+                            reach = 2
+                            damage = 1
+                            accuracy = 2
+                            penetration = 0
+                            integral = True
+                            shot_anim = SmallBeam
+                            attributes = (Intercept)
+                            material = Advanced
                     END
             END
         Leg

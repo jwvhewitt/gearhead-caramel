@@ -107,6 +107,9 @@ class BlockAnim( animobs.Caption ):
 class ParryAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Parry!'
 
+class InterceptAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Intercept!'
+
 class BigBullet( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_bigbullet.png"
 
@@ -572,7 +575,7 @@ class ParryRoll( object ):
 
             if def_roll > 95:
                 # A roll greater than 95 always defends.
-                parrier.pay_for_block(defender,self.weapon_to_parry)
+                parrier.pay_for_parry(defender,self.weapon_to_parry)
                 return (self.CHILDREN,def_roll + def_bonus)
             elif def_roll <= 5:
                 # A roll of 5 or less always fails.
@@ -603,8 +606,51 @@ class ParryRoll( object ):
             return 1.0
     CHILDREN = (effects.NoEffect(anim=ParryAnim),)
 
+class InterceptRoll( object ):
+    def __init__(self,weapon_to_intercept):
+        self.weapon_to_intercept = weapon_to_intercept
+    def make_roll( self, atroller, attacker, defender, att_bonus, att_roll, fx_record ):
+        # First, locate the defender's interceptor.
+        interceptor = self.get_interceptor(defender)
+        if interceptor:
+            def_roll = random.randint(1,100)
+            def_bonus = interceptor.get_intercept_bonus() + defender.get_skill_score(stats.Speed,interceptor.scale.RANGED_SKILL)
 
-# ParryRoll, ECMRoll, AntiMissileRoll
+            if def_roll > 95:
+                # A roll greater than 95 always defends.
+                interceptor.pay_for_intercept(defender,self.weapon_to_intercept)
+                return (self.CHILDREN,def_roll + def_bonus)
+            elif def_roll <= 5:
+                # A roll of 5 or less always fails.
+                return (None, def_roll + def_bonus)
+            elif (att_roll + att_bonus + atroller.accuracy) > (def_roll + def_bonus):
+                return (None,def_roll + def_bonus)
+            else:
+                interceptor.pay_for_intercept(defender,self.weapon_to_intercept)
+                return (self.CHILDREN, def_roll + def_bonus)
+        else:
+            return (None,0)
+    def get_interceptor( self, defender ):
+        interceptors = [part for part in defender.descendants() if hasattr(part,'can_intercept') and part.can_intercept() and part.is_operational()]
+        if interceptors:
+            return max( interceptors, key = lambda s: s.get_intercept_bonus() )
+    def can_attempt( self, attacker, defender ):
+        return self.get_interceptor(defender) and (defender.get_current_stamina() > 0)
+
+    def get_odds( self, atroller, attacker, defender, att_bonus ):
+        # Return the odds as a float.
+        interceptor = self.get_interceptor(defender)
+        if interceptor:
+            def_target = interceptor.get_intercept_bonus() + defender.get_skill_score(stats.Speed,interceptor.scale.RANGED_SKILL)
+            # The chance to hit is clamped between 5% and 95%.
+            percent = min(max(50 + (att_bonus + atroller.accuracy) - def_target,5),95)
+            return float(percent)/100
+        else:
+            return 1.0
+    CHILDREN = (effects.NoEffect(anim=InterceptAnim),)
+
+
+# ECMRoll
 
 #  *****************
 #  ***   PRICE   ***

@@ -24,6 +24,7 @@ Mecha
                     penetration = 0
                     integral = True
                     shot_anim = SmallBeam
+                    attributes = (Intercept)
             END
         Torso
             size = 5
