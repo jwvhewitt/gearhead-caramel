@@ -62,18 +62,16 @@ Mecha
                 Mount
                     name = "Right Arm Mount"
                     INV
-                        BallisticWeapon
-                            name = "Heavy Autocannon"
-                            reach = 7
-                            damage = 2
+                        ChemThrower
+                            name = "Flame Cannon"
+                            reach = 5
+                            damage = 4
                             accuracy = 0
-                            penetration = 2
-                            ammo_type = Shells_150mm
-                            attributes = (Automatic)
+                            penetration = 1
+                            attributes = (ConeAttack)
                             SUB
-                                Ammo
-                                    ammo_type=Shells_150mm
-                                    quantity=60
+                                Chem
+                                    quantity = 120
                             END
                     END
             END

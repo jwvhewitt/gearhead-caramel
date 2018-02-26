@@ -4,6 +4,7 @@ import pygame
 import gears
 import combat
 import ghdialogue
+import configedit
 
 # Commands should be callable objects which take the explorer and return a value.
 # If untrue, the command stops.
@@ -157,10 +158,11 @@ class Explorer( object ):
                 self.preloads.append(pc.get_sprite())
 
         # Preload the music as well.
-        if hasattr( self.scene, 'exploration_music'):
-            pbge.my_state.locate_music(self.scene.exploration_music)
-        if hasattr( self.scene, 'combat_music'):
-            pbge.my_state.locate_music(self.scene.combat_music)
+        if pbge.util.config.getboolean( "DEFAULT", "music_on" ):
+            if hasattr( self.scene, 'exploration_music'):
+                pbge.my_state.locate_music(self.scene.exploration_music)
+            if hasattr( self.scene, 'combat_music'):
+                pbge.my_state.locate_music(self.scene.combat_music)
 
         # Update the view of all party members.
         first_pc = None
@@ -285,7 +287,9 @@ class Explorer( object ):
                     elif gdi.unicode == u"c":
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
-
+                    elif gdi.key == pygame.K_ESCAPE:
+                        mymenu = configedit.PopupGameMenu()
+                        mymenu(self)
 
                 elif gdi.type == pygame.QUIT:
                     #self.camp.save(self.screen)

@@ -415,12 +415,13 @@ class PCPointOfView( PointOfView ):
 
 class Cone( PointOfView ):
     """Create a cone shaped template."""
-    def __init__(self, scene, start, end, manhattan=False):
+    def __init__(self, scene, start, end, manhattan=False, vision_type=movement.Vision):
         self.x,self.y = start
         self.scene = scene
         self.endradius = max( int( scene.distance( start, end ) // 3 ) , 1 )
         self.radius = int( scene.distance( start, end ) + self.endradius )
         self.manhattan = manhattan
+        self.vision_type = vision_type
 
         # Start with a ball
         proto_cone = set()

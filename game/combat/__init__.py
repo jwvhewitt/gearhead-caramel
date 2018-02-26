@@ -15,6 +15,7 @@ import targetingui
 import aibrain
 import random
 import gears
+from .. import configedit
 
 
 
@@ -101,6 +102,9 @@ class PlayerTurn( object ):
                     self.camp.fight.no_quit = False
                 elif gdi.unicode == u"c":
                     pbge.my_state.view.focus( self.pc.pos[0], self.pc.pos[1] )
+                elif gdi.key == pygame.K_ESCAPE:
+                    mymenu = configedit.PopupGameMenu()
+                    mymenu(self.camp.fight)
 
 
         pbge.my_state.widgets.remove(self.my_radio_buttons)

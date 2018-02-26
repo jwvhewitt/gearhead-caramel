@@ -142,13 +142,21 @@ class GameState( object ):
             return sound
 
     def start_music( self, mfname ):
-        if mfname != self.music_name:
-            self.music_name = mfname
+        if mfname != self.music_name and util.config.getboolean( "DEFAULT", "music_on" ):
             sound = self.locate_music(mfname)
             if self.music:
                 self.music.fadeout(2000)
             self.music = sound
             sound.play(loops=-1,fade_ms=2000)
+        self.music_name = mfname
+
+    def stop_music( self ):
+        if self.music:
+            self.music.stop()
+    def resume_music( self ):
+        if self.music_name:
+            mname,self.music_name = self.music_name,None
+            self.start_music(mname)
 
 
 
@@ -415,6 +423,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
 
         global TINYFONT
         TINYFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 9 )
+        my_state.tiny_font = TINYFONT
 
         global ANIMFONT
         ANIMFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 16 )

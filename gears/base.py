@@ -830,12 +830,13 @@ class PowerSource( BaseGear, StandardDamageHandler, MakesPower ):
 
 class Weapon( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Weapon"
-    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','integral','attack_stat','shot_anim','attributes')
+    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','integral','attack_stat','shot_anim','area_anim','attributes')
     DEFAULT_SHOT_ANIM = None
+    DEFAULT_AREA_ANIM = geffects.BigBoom
     LEGAL_ATTRIBUTES = ()
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
-    def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, attack_stat=stats.Reflexes, shot_anim=None, attributes=(), **keywords ):
+    def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, attack_stat=stats.Reflexes, shot_anim=None, area_anim=None, attributes=(), **keywords ):
         # Check the range of all parameters before applying.
         if reach < self.__class__.MIN_REACH:
             reach = self.__class__.MIN_REACH
@@ -863,6 +864,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
 
         self.attack_stat = attack_stat
         self.shot_anim = shot_anim or self.DEFAULT_SHOT_ANIM
+        self.area_anim = area_anim or self.DEFAULT_AREA_ANIM
         self.integral = keywords.pop( "integral" , False )
         self.attributes = list()
         for a in attributes:
@@ -967,6 +969,17 @@ class Weapon( BaseGear, StandardDamageHandler ):
                 my_invos += aa.get_attacks(self)
 
         return my_invos
+    def get_area_anim(self):
+        return self.area_anim
+    def get_reach_str(self):
+        rstr = None
+        for aa in self.get_attributes():
+            if hasattr(aa,"get_reach_str"):
+                rstr = aa.get_reach_str(self)
+                break
+        if not rstr:
+            rstr = '{}-{}-{}'.format(self.reach,self.reach*2,self.reach*3)
+        return rstr
 
 class MeleeWeapon( Weapon ):
     MIN_REACH = 1
@@ -1114,15 +1127,16 @@ class EnergyWeapon( Weapon ):
 class Ammo( BaseGear, Stackable, StandardDamageHandler ):
     DEFAULT_NAME = "Ammo"
     STACK_CRITERIA = ("ammo_type",'attributes')
-    SAVE_PARAMETERS = ('ammo_type','quantity','attributes')
+    SAVE_PARAMETERS = ('ammo_type','quantity','area_anim','attributes')
     LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2,
         attackattributes.Scatter, 
         )
-    def __init__(self, ammo_type=calibre.Shells_150mm, quantity=12, attributes=(), **keywords ):
+    def __init__(self, ammo_type=calibre.Shells_150mm, quantity=12, area_anim=None, attributes=(), **keywords ):
         # Check the range of all parameters before applying.
         self.ammo_type = ammo_type
         self.quantity = max( quantity, 1 )
         self.spent = 0
+        self.area_anim = area_anim
         self.attributes = list()
         for a in attributes:
             if a in self.LEGAL_ATTRIBUTES:
@@ -1132,14 +1146,23 @@ class Ammo( BaseGear, Stackable, StandardDamageHandler ):
         super(Ammo, self).__init__(**keywords)
     @property
     def base_mass(self):
-        return self.ammo_type.bang * (self.quantity-self.spent) //25
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.MASS_MODIFIER
+        return int( mult * self.ammo_type.bang * (self.quantity-self.spent) /25)
     @property
     def volume(self):
-        return ( self.ammo_type.bang * self.quantity + 49 ) // 50
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.VOLUME_MODIFIER
+        return int(( mult * self.ammo_type.bang * self.quantity + 49 )/50)
 
     @property
     def base_cost(self):
-        return self.ammo_type.bang * self.quantity // 10
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.COST_MODIFIER
+        return int(mult*self.ammo_type.bang * self.quantity / 10)
     base_health = 1
 
 class BallisticWeapon( Weapon ):
@@ -1211,7 +1234,7 @@ class BallisticWeapon( Weapon ):
 
     def get_weapon_desc( self ):
         ammo = self.get_ammo()
-        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)
+        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}'.format(self,self.get_reach_str())
         if ammo:
             it = it + '\n Ammo: {}/{}'.format(ammo.quantity-ammo.spent,ammo.quantity)
         else:
@@ -1236,7 +1259,13 @@ class BallisticWeapon( Weapon ):
         ammo = self.get_ammo()
         if ammo:
             ammo.spent += 1
- 
+    def get_area_anim(self):
+        ammo = self.get_ammo()
+        if ammo and ammo.area_anim:
+            return ammo.area_anim
+        else:
+            return self.area_anim
+
 
 class BeamWeapon( Weapon ):
     MIN_REACH = 2
@@ -1255,7 +1284,7 @@ class BeamWeapon( Weapon ):
         attackattributes.Intercept,
         )
     def get_weapon_desc( self ):
-        return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}'.format(self,self.reach*2,self.reach*3)
+        return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}'.format(self,self.get_reach_str())
     def get_basic_power_cost( self ):
         mult = 0.5
         for aa in self.get_attributes():
@@ -1304,7 +1333,7 @@ class BeamWeapon( Weapon ):
 
 class Missile( BaseGear, StandardDamageHandler ):
     DEFAULT_NAME = "Missile"
-    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','quantity','attributes')
+    SAVE_PARAMETERS = ('reach','damage','accuracy','penetration','quantity','area_anim','attributes')
     MIN_REACH = 2
     MAX_REACH = 7
     MIN_DAMAGE = 1
@@ -1317,7 +1346,7 @@ class Missile( BaseGear, StandardDamageHandler ):
     LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2,
         attackattributes.Scatter, 
         )
-    def __init__(self, reach=1,damage=1,accuracy=1,penetration=1,quantity=12,attributes=(),**keywords ):
+    def __init__(self, reach=1,damage=1,accuracy=1,penetration=1,quantity=12,area_anim=None,attributes=(),**keywords ):
         # Check the range of all parameters before applying.
         if reach < self.__class__.MIN_REACH:
             reach = self.__class__.MIN_REACH
@@ -1345,6 +1374,7 @@ class Missile( BaseGear, StandardDamageHandler ):
 
         self.quantity = max( quantity, 1 )
         self.spent = 0
+        self.area_anim = area_anim
 
         self.attributes = list()
         for a in attributes:
@@ -1491,6 +1521,139 @@ class Launcher( BaseGear, ContainerDamageHandler ):
             return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {0.reach}-{1}-{2}\n Ammo: {3}/{0.quantity}'.format(ammo,ammo.reach*2,ammo.reach*3,ammo.quantity-ammo.spent)
         else:
             return 'Empty'
+    def get_area_anim(self):
+        ammo = self.get_ammo()
+        if ammo and ammo.area_anim:
+            return ammo.area_anim
+        else:
+            return geffects.BigBoom
+
+
+class Chem( BaseGear, Stackable, StandardDamageHandler ):
+    DEFAULT_NAME = "Chem"
+    STACK_CRITERIA = ('attributes',)
+    SAVE_PARAMETERS = ('quantity','attributes','shot_anim','area_anim')
+    LEGAL_ATTRIBUTES = tuple()
+    def __init__(self, quantity=20, shot_anim=None, area_anim=None, attributes=(), **keywords ):
+        # Check the range of all parameters before applying.
+        self.quantity = max( quantity, 1 )
+        self.spent = 0
+        self.shot_anim = shot_anim
+        self.area_anim = area_anim
+        self.attributes = list()
+        for a in attributes:
+            if a in self.LEGAL_ATTRIBUTES:
+                self.attributes.append(a)
+
+        # Finally, call the gear initializer.
+        super(Chem, self).__init__(**keywords)
+    @property
+    def base_mass(self):
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.MASS_MODIFIER
+        return int( mult * 10 * (self.quantity-self.spent) /25)
+    @property
+    def volume(self):
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.VOLUME_MODIFIER
+        return int(( mult * 5 * self.quantity + 49 ) / 50)
+
+    @property
+    def base_cost(self):
+        mult = 1.0
+        for aa in self.attributes:
+            mult *= aa.COST_MODIFIER
+        return int(10 * self.quantity * mult / 10)
+    base_health = 1
+
+class ChemThrower( Weapon ):
+    MIN_REACH = 2
+    MAX_REACH = 5
+    MIN_DAMAGE = 1
+    MAX_DAMAGE = 5
+    MIN_ACCURACY = 0
+    MAX_ACCURACY = 5
+    MIN_PENETRATION = 0
+    MAX_PENETRATION = 5
+    COST_FACTOR = 5
+    DEFAULT_SHOT_ANIM = geffects.BigBullet
+    DEFAULT_AREA_ANIM = geffects.Fireball
+    LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2,
+        attackattributes.ConeAttack,
+        )
+    def is_legal_sub_com(self,part):
+        if isinstance( part , Weapon ):
+            return part.integral
+        else:
+            return isinstance( part, Chem )
+    def get_ammo( self ):
+        for maybe_ammo in self.sub_com:
+            if isinstance(maybe_ammo,Chem):
+                return maybe_ammo
+    def get_attributes( self ):
+        ammo = self.get_ammo()
+        if ammo:
+            return self.attributes + ammo.attributes
+        else:
+            return self.attributes
+    def get_defenses( self ):
+        return {geffects.DODGE: geffects.ReflexSaveRoll(),geffects.BLOCK: geffects.BlockRoll(self)}
+
+    def get_modifiers( self ):
+        return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
+        
+    def get_chem_cost(self):
+        mult = 1.0
+        for aa in self.get_attributes():
+            mult *= aa.POWER_MODIFIER        
+        return int( mult * self.damage * max(self.penetration,1))
+
+    def get_basic_attack( self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0 ):
+        my_ammo = self.get_ammo()
+
+        ba = pbge.effects.Invocation(
+                name = name, 
+                fx=geffects.AttackRoll(
+                    self.attack_stat, self.get_attack_skill(),
+                    children = (geffects.DoDamage(self.damage,6,scale=self.scale,scatter=True),),
+                    accuracy=self.accuracy*10, penetration=self.penetration*10, 
+                    defenses = self.get_defenses(),
+                    modifiers = self.get_modifiers()
+                    ),
+                area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
+                used_in_combat = True, used_in_exploration=False,
+                shot_anim=self.get_shot_anim(),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
+                price=[geffects.AmmoPrice(my_ammo,ammo_cost * self.get_chem_cost())],
+                targets=targets)
+
+        for aa in self.get_attributes():
+            if hasattr(aa,'modify_basic_attack'):
+                aa.modify_basic_attack(self,ba)
+        return ba
+
+    def get_weapon_desc( self ):
+        ammo = self.get_ammo()
+        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}'.format(self,self.get_reach_str())
+        if ammo:
+            it = it + '\n Chem: {}/{}'.format(ammo.quantity-ammo.spent,ammo.quantity)
+        else:
+            it = it + '\n Chem: 0'
+        return it
+    def get_shot_anim(self):
+        ammo = self.get_ammo()
+        if ammo and ammo.shot_anim:
+            return ammo.shot_anim
+        else:
+            return self.shot_anim
+    def get_area_anim(self):
+        ammo = self.get_ammo()
+        if ammo and ammo.area_anim:
+            return ammo.area_anim
+        else:
+            return self.area_anim
 
 
 #   *******************

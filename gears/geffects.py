@@ -97,6 +97,10 @@ class SuperBoom( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_frogatto_nuke.png"
     DEFAULT_END_FRAME = 9
 
+class Fireball( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_fireball.png"
+    DEFAULT_END_FRAME = 7
+
 
 class MissAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Miss!'

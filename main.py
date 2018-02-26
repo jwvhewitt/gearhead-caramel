@@ -23,7 +23,7 @@ class Snowflake(object):
 
 class TitleScreenRedraw(object):
     TITLE_DEST = pbge.frects.Frect(-325,-150,650,100)
-    MENU_DEST = pbge.frects.Frect(-150,0,300,100)
+    MENU_DEST = pbge.frects.Frect(-150,0,300,150)
     def __init__(self):
         self.title = pbge.image.Image("sys_wmtitle.png")
         self.bg = pbge.image.Image("poster_snowday.png")
@@ -35,6 +35,7 @@ class TitleScreenRedraw(object):
             self.flakes.append(Snowflake(dest))
 
     def __call__(self):
+        pbge.my_state.screen.fill((0,0,0))
         dest = self.bg.bitmap.get_rect( center=(pbge.my_state.screen.get_width()//2,pbge.my_state.screen.get_height()//2) )
         self.bg.render(dest)
         
@@ -84,7 +85,9 @@ def import_arena_character(tsrd):
         pc.imagename = 'cha_wm_parka.png'
         game.start_mocha(pc)
 
-
+def open_config_menu(tsrd):
+    myconfigmenu = game.configedit.ConfigEditor(tsrd,dy=0)
+    myconfigmenu()
 
 def play_the_game():
     try:
@@ -107,6 +110,7 @@ def play_the_game():
 
     mymenu.add_item("Start Game",start_game)
     mymenu.add_item("Import GH1 Character",import_arena_character)
+    mymenu.add_item("Config Options",open_config_menu)
     mymenu.add_item("Quit",None)
 
     action = True
@@ -118,7 +122,7 @@ def play_the_game():
 
 
 if __name__ == "__main__":
-    #clay = gears.Loader.load_design_file('Zerosaiko.txt')
+    #clay = gears.Loader.load_design_file('Thorshammer.txt')
     #clay[0].termdump()
     #clay[0].statusdump()
 

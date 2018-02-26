@@ -45,7 +45,7 @@ class Blast1(Singleton):
         else:
             reach = weapon.reach
         attack.area = pbge.scenes.targetarea.Blast(radius=self.BLAST_RADIUS,reach=reach,delay_from=1)
-        attack.fx.anim = geffects.BigBoom
+        attack.fx.anim = weapon.get_area_anim()
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
         attack.fx.children[0].scatter = True
 
@@ -105,6 +105,23 @@ class BurstFire5(BurstFire2):
     COST_MODIFIER = 3.0
     POWER_MODIFIER = 1.0
     BURST_VALUE = 5
+
+class ConeAttack(Singleton):
+    MASS_MODIFIER = 2.0
+    VOLUME_MODIFIER = 2.0
+    COST_MODIFIER = 2.0
+    POWER_MODIFIER = 3.0
+
+    @classmethod
+    def modify_basic_attack( self, weapon, attack ):
+        # Change the area to cone.
+        attack.area = pbge.scenes.targetarea.Cone(reach=weapon.reach*2,delay_from=-1)
+        attack.shot_anim = None
+        attack.fx.anim = weapon.get_area_anim()
+    @classmethod
+    def get_reach_str(self,weapon):
+        return '{}-{} cone'.format(weapon.reach,weapon.reach*2)
+
 
 class Defender(Singleton):
     MASS_MODIFIER = 1.0
