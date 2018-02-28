@@ -118,6 +118,8 @@ class ConeAttack(Singleton):
         attack.area = pbge.scenes.targetarea.Cone(reach=weapon.reach*2,delay_from=-1)
         attack.shot_anim = None
         attack.fx.anim = weapon.get_area_anim()
+        attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
+        attack.fx.children[0].scatter = True
     @classmethod
     def get_reach_str(self,weapon):
         return '{}-{} cone'.format(weapon.reach,weapon.reach*2)
@@ -149,6 +151,22 @@ class Intercept(Singleton):
     COST_MODIFIER = 2.5
     POWER_MODIFIER = 1.0
     CAN_INTERCEPT = True
+    
+class LineAttack(Singleton):
+    MASS_MODIFIER = 1.5
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.5
+    POWER_MODIFIER = 2.0
+
+    @classmethod
+    def modify_basic_attack( self, weapon, attack ):
+        # Change the area to cone.
+        attack.area = pbge.scenes.targetarea.Line(reach=weapon.reach*3,delay_from=-1)
+        attack.shot_anim = None
+        attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
+        attack.fx.anim = weapon.get_area_anim()
+        attack.fx.children[0].scatter = True
+
 
 class Scatter(Singleton):
     MASS_MODIFIER = 1.0
@@ -163,6 +181,16 @@ class Scatter(Singleton):
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
 
 
+class VariableFire2(Singleton):
+    # This weapon can do Burst x2 fire in addition to single fire
+    MASS_MODIFIER = 1.2
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.0
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def get_attacks( self, weapon ):
+        return BurstFire2.replace_primary_attack(weapon)
 
 class VariableFire3(Singleton):
     # This weapon can do Burst x3 fire in addition to single fire
@@ -177,7 +205,7 @@ class VariableFire3(Singleton):
 
 class VariableFire4(Singleton):
     # This weapon can do Burst x4 fire in addition to single fire
-    MASS_MODIFIER = 1.3
+    MASS_MODIFIER = 1.4
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 3.0
     POWER_MODIFIER = 1.0
@@ -185,6 +213,17 @@ class VariableFire4(Singleton):
     @classmethod
     def get_attacks( self, weapon ):
         return BurstFire4.replace_primary_attack(weapon)
+
+class VariableFire5(Singleton):
+    # This weapon can do Burst x4 fire in addition to single fire
+    MASS_MODIFIER = 1.5
+    VOLUME_MODIFIER = 1.1
+    COST_MODIFIER = 3.5
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def get_attacks( self, weapon ):
+        return BurstFire5.replace_primary_attack(weapon)
 
 
 

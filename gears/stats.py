@@ -1,4 +1,5 @@
 from pbge import Singleton
+import geffects
 
 #  ***************
 #  ***  STATS  ***

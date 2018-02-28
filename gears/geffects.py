@@ -24,10 +24,10 @@ class AttackLibraryShelf( object ):
         for invo in self.invo_list:
             if invo.can_be_invoked(chara,in_combat):
                 return invo
-    def get_average_thrill_power(self,chara):
+    def get_average_thrill_power(self,chara,in_combat=True):
         thrills = list()
         for invo in self.invo_list:
-            if invo.can_be_invoked(chara,True):
+            if invo.can_be_invoked(chara,in_combat):
                 thrills.append(invo.data.thrill_power)
         if thrills:
             return sum(thrills)/len(thrills)

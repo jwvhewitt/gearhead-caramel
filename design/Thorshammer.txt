@@ -71,6 +71,7 @@ Mecha
                             attributes = (ConeAttack)
                             SUB
                                 Chem
+                                    name = "Napalm"
                                     quantity = 120
                             END
                     END

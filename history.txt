@@ -1,3 +1,4 @@
+- Head mounted sensors get a range bonus (gears/base.py)
 - Added ChemThrower, Chem gears (gears/base.py)
 - Ammo cost, mass, volume now affected by attributes (gears/base.py)
 - Added names_above_heads config option (pbge/scenes/viewer.py)

@@ -716,7 +716,11 @@ class Sensor( BaseGear, StandardDamageHandler ):
         return self.size
     base_health = 2
     def get_sensor_rating( self ):
-        return self.size * self.scale.RANGE_FACTOR
+        it = self.size
+        mymod = self.get_module()
+        if mymod:
+            it += mymod.form.SENSOR_BONUS
+        return it * self.scale.RANGE_FACTOR
 
 #   *****************************
 #   ***   MOVEMENT  SYSTEMS   ***
@@ -1715,10 +1719,12 @@ class ModuleForm( Singleton ):
     CAN_ATTACK = False
     ACCURACY = 0
     PENETRATION = 0
+    SENSOR_BONUS = 0
 
 
 class MF_Head( ModuleForm ):
     name = "Head"
+    SENSOR_BONUS = 1
     @classmethod
     def is_legal_sub_com( self, part ):
         return isinstance( part , ( Weapon,Launcher,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable ) )
@@ -2098,10 +2104,10 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower,Combatan
         return self.get_skill_score( stats.Speed, stats.MechaPiloting )
 
     def get_sensor_range( self, map_scale ):
-        it = 0
+        it = 3
         for sens in self.sub_sub_coms():
             if hasattr(sens,'get_sensor_rating') and sens.is_operational():
-                it = max((sens.get_sensor_rating()/map_scale.RANGE_FACTOR)*5+5,it)
+                it = max((sens.get_sensor_rating()/map_scale.RANGE_FACTOR)*5,it)
         return it
 
     def get_max_mental( self ):
