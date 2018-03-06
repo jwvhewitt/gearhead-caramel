@@ -687,7 +687,7 @@ class Intro_ToyBandits( Plot ):
         if not self.did_intro:
             mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
               beats = (
-                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You come across one of the trucks from the convoy that was attacked. Its cargo of toys, bound for the orphanage in Wugung, has been stolen."),
+                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You come across one of the trucks from the convoy that was attacked. Its cargo of toys, bound for the orphanage in Wujung, has been stolen."),
                     children = [
                     pbge.cutscene.Beat(ghcutscene.MonologueDisplay("What kind of meanie would steal a truckload of orphan's toys, and right before the solstice to boot?",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Cheerful,),)),
                     pbge.cutscene.Beat(ghcutscene.MonologueDisplay("This is worse than a crime, it's a travesty! The villains who stole these toys must be brought to justice.",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Justice,),)),
