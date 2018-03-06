@@ -6,7 +6,8 @@
 - The Esc key will now bring up an options menu in-game (game/)
 - Added configuration editor (game/configedit.py)
 - Reduced power cost of energy, beam weapons (gears/base.py)
-- Added Intercept, Flail, Defender attack attributes (gears/attackattributes.py)
+- Added Intercept, Flail, Defender, ConeAttack, LineAttack
+  attack attributes (gears/attackattributes.py)
 - Added Parry, Intercept defenses (gears/)
 - Successfully blocking with shield damages shield, costs 1 stamina (gears/)
 - Attack invocations record "thrill power" (gears/geffects.py)

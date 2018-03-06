@@ -1,8 +1,35 @@
 import pbge
 from gears import info
 import pygame
+from .. import invoker
 
-class AttackWidget( pbge.widgets.Widget ):
+
+
+class WeaponMenuDesc( pbge.frects.Frect ):
+    def render_desc( self, menu_item ):
+        # Just print this weapon's stats in the provided window.
+        myrect = self.get_rect()
+        pbge.default_border.render(myrect)
+        pbge.draw_text( pbge.SMALLFONT, self.get_desc(menu_item.value.source), self.get_rect(), justify = -1, color=pbge.WHITE )
+    def get_desc( self, weapon ):
+        # Return the weapon stats as a string.
+        if hasattr( weapon, 'get_weapon_desc' ):
+            return weapon.get_weapon_desc()
+        else:
+            return '???'
+
+class AttackWidget(invoker.InvocationsWidget):
+    DESC_CLASS = WeaponMenuDesc
+    IMAGE_NAME = 'sys_tacticsinterface_attackwidget.png'
+
+class TargetingUI(invoker.InvocationUI):
+    LIBRARY_WIDGET = AttackWidget
+    def __init__(self,camp,attacker):
+        super(TargetingUI,self).__init__(camp,attacker,attacker.get_attack_library)
+
+
+
+class OldAttackWidget( pbge.widgets.Widget ):
     def __init__( self, camp, attacker, changing_invo_function, **kwargs ):
         # This widget holds the attack library and determines what invocation
         # from the library is going to be used.
@@ -40,7 +67,7 @@ class AttackWidget( pbge.widgets.Widget ):
         mymenu.descobj = WeaponMenuDesc( -160, 15, 140, 180, anchor=pbge.frects.ANCHOR_UPPERRIGHT )
         for shelf in self.library:
             if shelf.has_at_least_one_working_invo(self.attacker):
-                mymenu.add_item(str(shelf.weapon),shelf)
+                mymenu.add_item(str(shelf.source),shelf)
         nu_shelf = mymenu.query()
         if nu_shelf in self.library and nu_shelf != self.shelf:
             self.set_shelf_invo( nu_shelf, nu_shelf.get_first_working_invo(self.attacker) )
@@ -73,7 +100,7 @@ class AttackWidget( pbge.widgets.Widget ):
         else:
             self.shelf_offset = 0
         self.changing_invo_function(nu_invo)
-        self.weapon_name.text = str(nu_shelf.weapon)
+        self.weapon_name.text = str(nu_shelf.source)
         for butt in range(4):
             if butt + self.shelf_offset < len(self.shelf.invo_list):
                 b_invo = self.shelf.invo_list[butt + self.shelf_offset]
@@ -91,21 +118,8 @@ class AttackWidget( pbge.widgets.Widget ):
     def render( self ):
         self.sprite.render(self.get_rect(),0)
 
-class WeaponMenuDesc( pbge.frects.Frect ):
-    def render_desc( self, menu_item ):
-        # Just print this weapon's stats in the provided window.
-        myrect = self.get_rect()
-        pbge.default_border.render(myrect)
-        pbge.draw_text( pbge.SMALLFONT, self.get_desc(menu_item.value.weapon), self.get_rect(), justify = -1, color=pbge.WHITE )
-    def get_desc( self, weapon ):
-        # Return the weapon stats as a string.
-        if hasattr( weapon, 'get_weapon_desc' ):
-            return weapon.get_weapon_desc()
-        else:
-            return '???'
 
-
-class TargetingUI( object ):
+class OldTargetingUI( object ):
     SC_ORIGIN = 4
     SC_AOE = 2
     SC_CURSOR = 3

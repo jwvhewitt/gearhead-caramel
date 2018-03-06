@@ -1,5 +1,6 @@
 from pbge import Singleton
 import geffects
+import pbge
 
 #  ***************
 #  ***  STATS  ***
@@ -50,6 +51,23 @@ class MechaGunnery( Skill ):
 
 class MechaFighting( Skill ):
     name = 'Mecha Fighting'
+    @classmethod
+    def get_invocations(self):
+        my_invos = list()
+        ba = pbge.effects.Invocation(
+            name = 'Boop', 
+            fx=pbge.effects.NoEffect(
+                anim = geffects.SuperBoom,
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=1),
+            used_in_combat = True, used_in_exploration=True,
+            shot_anim=geffects.GunBeam,
+            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
+            price=[geffects.MentalPrice(5)],
+            targets=1)
+        my_invos.append(ba)
+        return my_invos
+
 
 class MechaPiloting( Skill ):
     name = 'Mecha Piloting'

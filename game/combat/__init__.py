@@ -15,7 +15,7 @@ import targetingui
 import aibrain
 import random
 import gears
-from .. import configedit
+from .. import configedit,invoker
 
 
 
@@ -67,6 +67,16 @@ class PlayerTurn( object ):
             # If the attack UI can't be activated, switch back to movement UI.
             self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
+    def switch_skill( self, button=None, ev=None ):
+        if self.active_ui != self.skill_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_skill_library():
+            self.active_ui.deactivate()
+            self.skill_ui.activate()
+            self.active_ui = self.skill_ui
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[2])
+        else:
+            # If the attack UI can't be activated, switch back to movement UI.
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
+
     def go( self ):
         # Perform this character's turn.
         #Start by making a hotmap centered on PC, to see how far can move.
@@ -79,13 +89,14 @@ class PlayerTurn( object ):
 
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
-         buttons=((0,1,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),(4,5,self.end_turn,'End Turn')),
+         buttons=((0,1,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),(0,1,self.switch_skill,'Skills'),(4,5,self.end_turn,'End Turn')),
          anchor=pbge.frects.ANCHOR_UPPERLEFT )
         pbge.my_state.widgets.append(self.my_radio_buttons)
 
         self.movement_ui = movementui.MovementUI( self.camp, self.pc )
         self.attack_ui = targetingui.TargetingUI(self.camp,self.pc)
         #self.attack_ui.deactivate()
+        self.skill_ui = invoker.InvocationUI(self.camp,self.pc,self.pc.get_skill_library)
 
         self.active_ui = self.movement_ui
 

@@ -9,9 +9,9 @@ import stats
 #  ***   Utility  Junk   ***
 #  *************************
 
-class AttackLibraryShelf( object ):
-    def __init__(self,weapon,invo_list):
-        self.weapon = weapon
+class InvoLibraryShelf( object ):
+    def __init__(self,source,invo_list):
+        self.source = source
         self.invo_list = invo_list
     def has_at_least_one_working_invo(self,chara,in_combat=True):
         has_one = False
@@ -33,6 +33,8 @@ class AttackLibraryShelf( object ):
             return sum(thrills)/len(thrills)
         else:
             return 0
+    def __str__(self):
+        return self.source.name
 
 class AttackData( object ):
     # The data class passed to an attack invocation. Mostly just

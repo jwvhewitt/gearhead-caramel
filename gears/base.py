@@ -235,8 +235,18 @@ class Combatant( KeyObject ):
         my_invos = list()
         for p in self.descendants():
             if p.is_operational() and hasattr(p, 'get_attacks'):
-                p_list = geffects.AttackLibraryShelf(p,p.get_attacks())
+                p_list = geffects.InvoLibraryShelf(p,p.get_attacks())
                 if p_list.has_at_least_one_working_invo(self,True):
+                    my_invos.append(p_list)
+        my_invos.sort(key=lambda shelf: -shelf.get_average_thrill_power(self))
+        return my_invos
+    def get_skill_library( self,in_combat=False ):
+        my_invos = list()
+        pilot = self.get_pilot()
+        for p in pilot.statline.keys():
+            if hasattr(p, 'get_invocations'):
+                p_list = geffects.InvoLibraryShelf(p,p.get_invocations())
+                if p_list.has_at_least_one_working_invo(self,in_combat):
                     my_invos.append(p_list)
         return my_invos
     def get_action_points( self ):
@@ -2341,10 +2351,20 @@ class Prop(BaseGear,StandardDamageHandler,HasPower,Combatant):
         my_invos = list()
         for p in self.descendants():
             if hasattr(p, 'get_attacks') and p.is_not_destroyed():
-                p_list = geffects.AttackLibraryShelf(p,p.get_attacks())
+                p_list = geffects.InvoLibraryShelf(p,p.get_attacks())
                 if p_list.has_at_least_one_working_invo(self,True):
                     my_invos.append(p_list)
+        my_invos.sort(key=lambda shelf: -shelf.get_average_thrill_power(self))
         return my_invos
+    def get_skill_library( self,in_combat=False ):
+        my_invos = list()
+        for p in self.statline.keys():
+            if hasattr(p, 'get_invocations'):
+                p_list = geffects.InvoLibraryShelf(p,p.get_invocations())
+                if p_list.has_at_least_one_working_invo(self,in_combat):
+                    my_invos.append(p_list)
+        return my_invos
+
     def get_action_points( self ):
         return 3
     def render( self, foot_pos, view ):

@@ -2,6 +2,7 @@
 import pbge
 from gears import info
 import pygame
+import exploration
 
 # Shelf needs name, desc properties & __str__ method.
 # AttackData should be renamed InvoData
@@ -19,14 +20,18 @@ class InvocationsWidget(pbge.widgets.Widget):
     # to select which invocation to invoke.
     DESC_CLASS = InvoMenuDesc
     IMAGE_NAME = 'sys_invokerinterface_widget.png'
-    def __init__( self, camp, pc, build_library_function, **kwargs ):
+    def __init__( self, camp, pc, build_library_function, update_callback, start_source=None, **kwargs ):
         # This widget holds the attack library and determines what invocation
         # from the library is going to be used.
+        # build_library_function is a function that builds the library. Duh.
+        # update_callback is a function that gets called when the invocation
+        #   is changed. It passes the new invocation as a parameter.
         super(InvocationsWidget, self).__init__(-383,-5,383,57,anchor=pbge.frects.ANCHOR_UPPERRIGHT,**kwargs)
         self.camp = camp
         self.pc = pc
         self.build_library = build_library_function
         self.library = build_library_function()
+        self.update_callback = update_callback
         self.shelf = None
         self.invo = 0
         # The shelf_offset tells the index of the first invocation in the menu.
@@ -43,10 +48,14 @@ class InvocationsWidget(pbge.widgets.Widget):
         self.children += self.buttons
 
         self.sprite = pbge.image.Image(self.IMAGE_NAME,383,57)
+        if start_source:
+            self.select_shelf_with_this_source(start_source)
+        else:
+            self.select_first_usable_invo()
 
     def click_button(self,button,ev):
         target_invo = button.data + self.shelf_offset
-        if self.shelf and target_invo < len(self.shelf.invo_list) and self.shelf.invo_list[target_invo].can_be_invoked(self.attacker,self.camp.fight):
+        if self.shelf and target_invo < len(self.shelf.invo_list) and self.shelf.invo_list[target_invo].can_be_invoked(self.pc,self.camp.fight):
             self.set_shelf_invo(self.shelf,self.shelf.invo_list[target_invo])
 
     def pop_invo_menu(self,button,ev):
@@ -59,11 +68,19 @@ class InvocationsWidget(pbge.widgets.Widget):
         if nu_shelf in self.library and nu_shelf != self.shelf:
             self.set_shelf_invo( nu_shelf, nu_shelf.get_first_working_invo(self.pc) )
 
-    def select_first_usable_attack(self):
+    def select_shelf_with_this_source(self,this_source):
         self.library = self.build_library()
         self.shelf = None
         for shelf in self.library:
-            invo = shelf.get_first_working_invo(self.attacker)
+            if this_source is shelf.source:
+                self.set_shelf_invo(shelf,shelf.get_first_working_invo(self.pc,self.camp.fight) or shelf.invo_list[0])
+                break
+
+    def select_first_usable_invo(self):
+        self.library = self.build_library()
+        self.shelf = None
+        for shelf in self.library:
+            invo = shelf.get_first_working_invo(self.pc,self.camp.fight)
             if invo:
                 self.set_shelf_invo(shelf,invo)
                 break
@@ -81,7 +98,7 @@ class InvocationsWidget(pbge.widgets.Widget):
             if butt + self.shelf_offset < len(self.shelf.invo_list):
                 b_invo = self.shelf.invo_list[butt + self.shelf_offset]
                 self.buttons[butt].sprite = b_invo.data.attack_icon
-                if not b_invo.can_be_invoked(self.attacker,self.camp.fight):
+                if not b_invo.can_be_invoked(self.pc,self.camp.fight):
                     self.buttons[butt].frame = b_invo.data.disabled_frame
                 elif butt + self.shelf_offset == self.invo:
                     self.buttons[butt].frame = b_invo.data.active_frame
@@ -91,11 +108,21 @@ class InvocationsWidget(pbge.widgets.Widget):
             else:
                 self.buttons[butt].sprite = None
                 self.buttons[butt].tooltip = None
+        self.update_callback(self.get_invo())
     def render( self ):
         self.sprite.render(self.get_rect(),0)
     def get_invo(self):
         if self.shelf and self.invo < len(self.shelf.invo_list):
             return self.shelf.invo_list[self.invo]
+    def update_buttons( self ):
+        if not self.shelf.invo_list[self.invo].can_be_invoked(self.pc,True):
+            if self.shelf.has_at_least_one_working_invo(self.pc):
+                self.set_shelf_invo( self.shelf, self.shelf.get_first_working_invo(self.pc) )
+            else:
+                self.select_first_usable_invo()
+        else:
+            self.set_shelf_invo( self.shelf, self.shelf.invo_list[self.invo] )
+
 
 class InvocationUI( object ):
     SC_ORIGIN = 4
@@ -105,46 +132,66 @@ class InvocationUI( object ):
     SC_TRAILMARKER = 6
     SC_ZEROCURSOR = 7
     LIBRARY_WIDGET = InvocationsWidget
-    def __init__(self, camp, pc, build_library_function, invo=None ):
+    def __init__(self, camp, pc, build_library_function, source=None ):
         self.camp = camp
-        self.attacker = pc
-        self.invo = invo
+        self.pc = pc
+        #self.change_invo(invo)
         self.cursor_sprite = pbge.image.Image('sys_mapcursor.png',64,64)
 
-        self.my_widget = self.LIBRARY_WIDGET(camp,pc,build_library_function)
-        pbge.my_state.widgets.append(self.my_widget)
+        self.my_widget = self.LIBRARY_WIDGET(camp,pc,build_library_function,self.change_invo,source)
         self.my_widget.active = False
-
+        pbge.my_state.widgets.append(self.my_widget)
         self.record = False
+        self.keep_exploring = True
 
-    def can_move_and_attack( self, target ):
-        if self.num_targets == 1:
-            self.firing_points = self.invo.area.get_targets(self.camp,target.pos)
-            return self.firing_points.intersection(self.nav.cost_to_tile.keys())
+    def change_invo(self,new_invo):
+        self.invo = new_invo
+        if new_invo:
+            self.legal_tiles = new_invo.area.get_targets(self.camp,self.pc.pos)
+            self.num_targets = new_invo.targets
+        else:
+            self.legal_tiles = set()
+            self.num_targets = 0
+        self.targets = list()
 
+    def can_move_and_attack( self, target_pos ):
+        # Return True if model can move and invoke.
+        # Record the path in self.mypath.
+        if self.num_targets != 1:
+            return False
+        elif not self.camp.fight:
+            self.firing_points = self.invo.area.get_targets(self.camp,target_pos)
+            mynav = pbge.scenes.pathfinding.AStarPath(self.camp.scene,self.pc.pos,target_pos,self.pc.mmode)
+            if self.firing_points.intersection(mynav.cost_to_tile.keys()):
+                fp = min(self.firing_points, key=lambda r: mynav.cost_to_tile.get(r,10000))
+                self.mypath = mynav.get_path(fp)
+                return True
+        else:
+            self.firing_points = self.invo.area.get_targets(self.camp,target_pos)
+            if self.firing_points.intersection(self.nav.cost_to_tile.keys()):
+                fp = min(self.firing_points, key=lambda r: self.nav.cost_to_tile.get(r,10000))
+                self.mypath = self.nav.get_path(fp)
+                return True
 
     def render( self ):
         pbge.my_state.view.overlays.clear()
-        pbge.my_state.view.overlays[ self.attacker.pos ] = (self.cursor_sprite,self.SC_ORIGIN)
+        pbge.my_state.view.overlays[ self.pc.pos ] = (self.cursor_sprite,self.SC_ORIGIN)
         mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
-        if pbge.my_state.view.mouse_tile in self.legal_tiles:
-            aoe = self.invo.area.get_area( self.camp, self.attacker.pos, pbge.my_state.view.mouse_tile )
+        if self.invo and pbge.my_state.view.mouse_tile in self.legal_tiles:
+            aoe = self.invo.area.get_area( self.camp, self.pc.pos, pbge.my_state.view.mouse_tile )
             for p in aoe:
                 pbge.my_state.view.overlays[ p ] = (self.cursor_sprite,self.SC_AOE)
-        if self.targets:
+        if self.invo and self.targets:
             for t in self.targets:
-                aoe = self.invo.area.get_area( self.camp, self.attacker.pos, t )
+                aoe = self.invo.area.get_area( self.camp, self.pc.pos, t )
                 for p in aoe:
                     pbge.my_state.view.overlays[ p ] = (self.cursor_sprite,self.SC_AOE)
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_CURSOR)
-        elif mmecha and self.can_move_and_attack( mmecha[0] ):
-            fp = min(self.firing_points, key=lambda r: self.nav.cost_to_tile.get(r,10000))
+        elif mmecha and self.can_move_and_attack( mmecha[0].pos ):
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_CURSOR)
-            mypath = self.nav.get_path(fp)
-            for p in mypath[1:]:
+            for p in self.mypath[1:]:
                 pbge.my_state.view.overlays[ p ] = (self.cursor_sprite,self.SC_TRAILMARKER)
-
         else:
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_VOIDCURSOR)
 
@@ -153,30 +200,34 @@ class InvocationUI( object ):
         # Display info for this tile.
         my_info = self.camp.scene.get_tile_info(pbge.my_state.view.mouse_tile)
         if my_info:
-            if mmecha and hasattr(self.invo.fx,"get_odds"):
-                odds,modifiers = self.invo.fx.get_odds(self.camp,self.attacker,mmecha[0])
+            if self.invo and mmecha and hasattr(self.invo.fx,"get_odds"):
+                odds,modifiers = self.invo.fx.get_odds(self.camp,self.pc,mmecha[0])
                 my_info.info_blocks.append(info.OddsInfoBlock(odds,modifiers))
             my_info.popup()
 
 
     def launch( self ):
-        pbge.my_state.view.overlays.clear()
-        # Launch the effect.
-        self.invo.invoke(self.camp, self.attacker, self.targets, pbge.my_state.view.anim_list )
-        pbge.my_state.view.handle_anim_sequence(self.record)
-        self.camp.fight.cstat[self.attacker].spend_ap(1)
-        self.targets = list()
-        self.my_widget.update_buttons()
-        self.record = False
+        # This function is for use in combat. The explo_invoke class
+        # method will handle invocations outside of combat.
+        # Ideally, there should be a way to describe actions that works
+        # both inside and outside of combat. I'm gonna think about that.
+        if self.camp.fight:
+            pbge.my_state.view.overlays.clear()
+            # Launch the effect.
+            self.invo.invoke(self.camp, self.pc, self.targets, pbge.my_state.view.anim_list )
+            pbge.my_state.view.handle_anim_sequence(self.record)
+            self.camp.fight.cstat[self.pc].spend_ap(1)
+            self.targets = list()
+            self.my_widget.update_buttons()
+            self.record = False
 
-        # Recalculate the combat info.
-        self.activate()
-
+            # Recalculate the combat info.
+            self.activate()
 
     def update( self, ev, player_turn ):
         # We just got an event. Deal with it.
 
-        if not self.my_widget.library:
+        if player_turn and not self.my_widget.library:
             if ev.type == pbge.TIMEREVENT:
                 self.render()
                 pbge.my_state.do_flip()
@@ -188,23 +239,26 @@ class InvocationUI( object ):
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
             if pbge.my_state.view.mouse_tile in self.legal_tiles:
                 self.targets.append( pbge.my_state.view.mouse_tile )
-            elif self.num_targets == 1 and pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile):
-                # Maybe we can move into range? We can determine firing points by
-                # checking from the target's position.
-                tarp = pbge.my_state.view.mouse_tile
-                firing_points = self.invo.area.get_targets(self.camp,pbge.my_state.view.mouse_tile)
-                if firing_points.intersection(self.nav.cost_to_tile.keys()):
-                    fp = min(firing_points, key=lambda r: self.nav.cost_to_tile.get(r,10000))
-                    self.camp.fight.cstat[self.attacker].mp_remaining += self.attacker.get_current_speed()//2
-                    self.camp.fight.move_model_to(self.attacker,self.nav,fp)
-                    if self.attacker.pos == fp:
-                        self.targets.append( tarp )
-                    else:
-                        self.camp.fight.cstat[self.attacker].spend_ap(1)
-                    # Recalculate the combat info.
-                    self.activate()
+            elif self.can_move_and_attack(pbge.my_state.view.mouse_tile) and pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile):
+                if self.camp.fight:
+                    # Maybe we can move into range? We can determine firing points by
+                    # checking from the target's position.
+                    tarp = pbge.my_state.view.mouse_tile
+                    firing_points = self.invo.area.get_targets(self.camp,pbge.my_state.view.mouse_tile)
+                    if firing_points.intersection(self.nav.cost_to_tile.keys()):
+                        fp = min(firing_points, key=lambda r: self.nav.cost_to_tile.get(r,10000))
+                        self.camp.fight.cstat[self.pc].mp_remaining += self.pc.get_current_speed()//2
+                        self.camp.fight.move_model_to(self.pc,self.nav,fp)
+                        if self.pc.pos == fp:
+                            self.targets.append( tarp )
+                        else:
+                            self.camp.fight.cstat[self.pc].spend_ap(1)
+                        # Recalculate the combat info.
+                        self.activate()
+                else:
+                    self.targets.append( pbge.my_state.view.mouse_tile )
 
-            if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.attacker,True):
+            if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.pc,True):
                 self.launch()
 
         elif ev.type == pygame.KEYDOWN:
@@ -212,6 +266,8 @@ class InvocationUI( object ):
                 #self.camp.save(self.screen)
                 self.record = True
                 print "Recording"
+            elif ev.key == pygame.K_ESCAPE:
+                self.keep_exploring = False
 
     def dispose( self ):
         # Get rid of the widgets and shut down.
@@ -219,11 +275,39 @@ class InvocationUI( object ):
 
     def activate( self ):
         self.my_widget.active = True
-        self.legal_tiles = self.invo.area.get_targets(self.camp,self.attacker.pos)
-        self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,self.attacker.pos,(self.camp.fight.cstat[self.attacker].action_points-1)*self.attacker.get_current_speed()+self.attacker.get_current_speed()//2+self.camp.fight.cstat[self.attacker].mp_remaining,self.attacker.mmode,self.camp.scene.get_blocked_tiles())
+        self.legal_tiles = self.invo.area.get_targets(self.camp,self.pc.pos)
+        if self.camp.fight:
+            self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,self.pc.pos,(self.camp.fight.cstat[self.pc].action_points-1)*self.pc.get_current_speed()+self.pc.get_current_speed()//2+self.camp.fight.cstat[self.pc].mp_remaining,self.pc.mmode,self.camp.scene.get_blocked_tiles())
 
     def deactivate( self ):
+        # Used during combat only!
         self.my_widget.active = False
 
+    def get_firing_pos(self):
+        if self.targets[0] in self.legal_tiles:
+            return self.pc.pos
+        else:
+            self.firing_points = self.invo.area.get_targets(self.camp,self.targets[0])
+            mynav = pbge.scenes.pathfinding.AStarPath(self.camp.scene,self.pc.pos,self.targets[0],self.pc.mmode)
+            if self.firing_points.intersection(mynav.cost_to_tile.keys()):
+                return min(self.firing_points, key=lambda r: mynav.cost_to_tile.get(r,10000))
+            else:
+                return self.pc.pos
+
+
+    @classmethod
+    def explo_invoke(self,explo,camp, pc, build_library_function, source=None ):
+        # Run the UI. Return a DoInvocation action if an invocation
+        # was chosen, or None if the invocation was cancelled.
+        myui = self(camp,pc,build_library_function,source)
+        myui.activate()
+        while myui.keep_exploring and len(myui.targets) < myui.num_targets:
+            gdi = pbge.wait_event()
+            myui.update(gdi,None)
+
+        myui.dispose()
+        
+        if myui.invo and len(myui.targets) >= myui.num_targets and myui.invo.can_be_invoked(myui.pc,False):
+            return exploration.DoInvocation(explo,pc,myui.get_firing_pos(),myui.invo,myui.targets,myui.record)
 
 

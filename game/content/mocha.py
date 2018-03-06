@@ -448,7 +448,7 @@ class WinterMochaCarter( Plot ):
          gears.stats.Body:16,gears.stats.Speed:12,gears.stats.Perception:15,
          gears.stats.Knowledge:14,gears.stats.Craft:11,gears.stats.Ego:13,
          gears.stats.Charm:9,gears.stats.MechaGunnery:6,gears.stats.MechaFighting:6,
-         gears.stats.MechaPiloting:7},
+         gears.stats.MechaPiloting:7,gears.stats.Concentration:6,gears.stats.Repair:8},
          personality=[personality.Shy,personality.Easygoing,personality.Justice])
         carter.portrait = 'card_m_wintercarter.png'
         carter.colors = (gears.color.BugBlue,gears.color.Burlywood,gears.color.AceScarlet,gears.color.SkyBlue,gears.color.SlateGrey)

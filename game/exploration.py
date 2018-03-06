@@ -5,6 +5,7 @@ import gears
 import combat
 import ghdialogue
 import configedit
+import invoker
 
 # Commands should be callable objects which take the explorer and return a value.
 # If untrue, the command stops.
@@ -132,6 +133,48 @@ class TalkTo( MoveTo ):
             exp.scene.update_party_position( exp.camp )
 
             return True
+
+class DoInvocation( MoveTo ):
+    """A command for moving to a particular spot, then invoking."""
+    def __init__( self, explo, pc, pos, invo, target_list, record=False ):
+        """Move the pc to pos, then invoke the invocation."""
+        self.party = [pc,]
+        self.pos = pos
+        self.path = scenes.pathfinding.AStarPath(explo.scene,pc.pos,pos,pc.mmode)
+        self.step = 0
+        self.record = record
+        self.invo = invo
+        self.target_list = target_list
+    def __call__( self, exp ):
+        pc = self.party[0]
+        self.step += 1
+
+        if self.pos == pc.pos:
+            # Invoke the invocation from here.
+            self.invo.invoke(exp.camp, pc, self.target_list, pbge.my_state.view.anim_list )
+            pbge.my_state.view.handle_anim_sequence(self.record)
+            return False
+        elif (not pc.is_operational()) or ( self.step > len(self.path.results) ) or not exp.scene.on_the_map( *self.pos ):
+            return False
+        else:
+            first = True
+            keep_going = True
+            for pc in self.party:
+                if pc.is_operational() and exp.scene.on_the_map( *pc.pos ):
+                    if first:
+                        keep_going = self.move_pc( exp, pc, self.path.results[self.step], True )
+                        f_pos = pc.pos
+                        first = False
+                    else:
+                        path = scenes.pathfinding.AStarPath(exp.scene,pc.pos,f_pos,pc.mmode)
+                        for t in range( min(3,len(path.results)-1)):
+                            self.move_pc( exp, pc, path.results[t+1] )
+
+            # Now that all of the pcs have moved, check the tiles_in_sight for
+            # hidden models.
+            exp.scene.update_party_position( exp.camp )
+
+            return keep_going
 
 
 class Explorer( object ):
@@ -306,4 +349,12 @@ class Explorer( object ):
                             else:
                                 self.order = MoveTo( self, self.view.mouse_tile )
                                 self.view.overlays.clear()
-
+                    else:
+                        mymenu = pbge.rpgmenu.PopUpMenu()
+                        pc = self.camp.first_active_pc()
+                        my_invos = pc.get_skill_library()
+                        for i in my_invos:
+                            mymenu.add_item(str(i),i)
+                        mi = mymenu.query()
+                        if mi:
+                            self.order = invoker.InvocationUI.explo_invoke(self,self.camp,pc,pc.get_skill_library,mi.source)
