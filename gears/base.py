@@ -245,7 +245,7 @@ class Combatant( KeyObject ):
         pilot = self.get_pilot()
         for p in pilot.statline.keys():
             if hasattr(p, 'get_invocations'):
-                p_list = geffects.InvoLibraryShelf(p,p.get_invocations())
+                p_list = geffects.InvoLibraryShelf(p,p.get_invocations(pilot))
                 if p_list.has_at_least_one_working_invo(self,in_combat):
                     my_invos.append(p_list)
         return my_invos
@@ -436,6 +436,17 @@ class BaseGear( scenes.PlaceableThing ):
         yield self
         for part in self.sub_com:
             for p in part.sub_sub_coms():
+                yield p
+
+    def get_all_parts(self):
+        yield self
+        for part in self.sub_com:
+            yield part
+            for p in part.descendants():
+                yield p
+        for part in self.inv_com:
+            yield part
+            for p in part.descendants():
                 yield p
 
     def descendants(self):

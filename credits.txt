@@ -8,6 +8,7 @@ The DejaVu fonts are released under a free license. https://dejavu-fonts.github.
 anim_frogatto_nuke.png from OpenGameArt user Jetrel, public domain
 
 Movement icon by ProSymbols from the Noun Project CC-BY-3.0
+Move by Mister Pixel from the Noun Project CC-BY-3.0
 Attack icon Sword by uzeir syarief from the Noun Project CC-BY-3.0
 End Turn Icon is Close by Riley Shaw from the Noun Project CC-BY-3.0
 Basic attack icon by Simon Mettler from the Noun Project CC-BY-3.0
@@ -17,6 +18,8 @@ aim by amante de icono from the Noun Project CC-BY-3.0
 Shield by Alena Artemova from the Noun Project CC-BY-3.0
 Gear by Aya Sofya from the Noun Project CC-BY-3.0
 Battery by Wawan Hermawan from the Noun Project CC-BY-3.0
+Wrench by Ralf Schmitzer from the Noun Project CC-BY-3.0
+Heart by Khomsun Chaiwong from the Noun Project CC-BY-3.0
 
 exit sign by Gregor Cresnar from the Noun Project CC-BY-3.0
 

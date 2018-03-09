@@ -12,7 +12,10 @@ class InvoMenuDesc( pbge.frects.Frect ):
         # Just print this weapon's stats in the provided window.
         myrect = self.get_rect()
         pbge.default_border.render(myrect)
-        pbge.draw_text( pbge.SMALLFONT, menu_item.value.desc, self.get_rect(), justify = -1, color=pbge.WHITE )
+        if hasattr(menu_item.value, 'desc'):
+            pbge.draw_text( pbge.SMALLFONT, menu_item.value.desc, self.get_rect(), justify = -1, color=pbge.WHITE )
+        else:
+            pbge.draw_text( pbge.SMALLFONT, '???', self.get_rect(), justify = -1, color=pbge.WHITE )
 
 
 class InvocationsWidget(pbge.widgets.Widget):

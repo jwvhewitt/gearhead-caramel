@@ -60,7 +60,7 @@ class AnimOb( object ):
         self.end_frame = end_frame or self.DEFAULT_END_FRAME
         self.ticks_per_frame = ticks_per_frame
         self.counter = 0
-        self.loop = loop
+        self.loop = loop or self.DEFAULT_LOOP
         self.x_off = x_off
         self.y_off = y_off
         self.needs_deletion = False
@@ -70,6 +70,7 @@ class AnimOb( object ):
     DEFAULT_SPRITE_NAME = ''
     DEFAULT_START_FRAME = 0
     DEFAULT_END_FRAME= 0
+    DEFAULT_LOOP = 0
 
     def update( self, view ):
         if self.delay > 0:

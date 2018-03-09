@@ -103,6 +103,21 @@ class Fireball( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_fireball.png"
     DEFAULT_END_FRAME = 7
 
+class RepairAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_repair.png"
+    DEFAULT_END_FRAME = 7
+    DEFAULT_LOOP = 4
+
+class MedicineAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_medicine.png"
+    DEFAULT_END_FRAME = 7
+    DEFAULT_LOOP = 4
+
+class BiotechnologyAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_biotechnology.png"
+    DEFAULT_END_FRAME = 7
+    DEFAULT_LOOP = 4
+
 
 class MissAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Miss!'
@@ -381,6 +396,42 @@ class DoDamage( effects.NoEffect ):
             mydamage = damage.Damage( camp, hits,
                   penetration, target, anims, hot_knife=self.hot_knife )
         return self.children
+
+class DoHealing( effects.NoEffect ):
+    """ Whatever is in this tile is going to get healed. Maybe.
+    """
+    def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, repair_type=materials.RT_REPAIR ):
+        if not children:
+            children = list()
+        self.damage_n = damage_n
+        self.damage_d = damage_d
+        self.children = children
+        self.anim = anim
+        self.scale = scale
+        self.repair_type = repair_type
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        targets = camp.scene.get_operational_actors(pos)
+        for target in targets:
+            scale = self.scale or target.scale
+            damaged_parts = [part for part in target.get_all_parts() if hasattr(part,"hp_damage") and part.hp_damage > 0 and part.material.repair_type == self.repair_type]
+            hp_to_restore = max(scale.scale_health(
+                  sum(random.randint(1,self.damage_d) for n in range(self.damage_n)),
+                  materials.Metal)//2,1)
+            hp_restored = 0
+            while damaged_parts and hp_restored < hp_to_restore:
+                part = random.choice(damaged_parts)
+                part.hp_damage -= 1
+                hp_restored += 1
+                if part.hp_damage < 1:
+                    damaged_parts.remove(part)
+            myanim = animobs.Caption( str(hp_restored),
+                pos=target.pos, delay=delay,
+                y_off=-camp.scene.model_altitude(target,*target.pos))
+            anims.append( myanim )
+
+
+        return self.children
+
 
 #  ***************************
 #  ***   Roll  Modifiers   ***

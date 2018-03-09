@@ -35,7 +35,7 @@ def random_personality():
     return tset
 
 def random_pilot( rank=25 ):
-    skill_rank = max(rank//10, 1)
+    skill_rank = max((rank+20)//10, 1)
     pc = base.Character(name=EARTH_NAMES.gen_word(),
          statline={stats.Reflexes:10,stats.Body:10,stats.Speed:10,
          stats.Perception:10,stats.Knowledge:10,stats.Craft:10,stats.Ego:10,

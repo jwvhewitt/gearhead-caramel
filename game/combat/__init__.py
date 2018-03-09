@@ -89,7 +89,7 @@ class PlayerTurn( object ):
 
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
-         buttons=((0,1,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),(0,1,self.switch_skill,'Skills'),(4,5,self.end_turn,'End Turn')),
+         buttons=((6,7,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),(8,9,self.switch_skill,'Skills'),(4,5,self.end_turn,'End Turn')),
          anchor=pbge.frects.ANCHOR_UPPERLEFT )
         pbge.my_state.widgets.append(self.my_radio_buttons)
 
@@ -121,6 +121,7 @@ class PlayerTurn( object ):
         pbge.my_state.widgets.remove(self.my_radio_buttons)
         self.movement_ui.dispose()
         self.attack_ui.dispose()
+        self.skill_ui.dispose()
 
 class Combat( object ):
     def __init__( self, camp ):

@@ -6,6 +6,8 @@ import gears
 import random
 import sys
 
+VERSION = "v0.120"
+
 class Snowflake(object):
     def __init__(self,dest):
         self.dest = dest
@@ -49,6 +51,8 @@ class TitleScreenRedraw(object):
             else:
                 self.snow.render((sf.x,sf.y),sf.frame)
         pbge.my_state.screen.set_clip(None)
+        versid = pbge.render_text(pbge.my_state.medium_font,VERSION,120,justify=1)
+        pbge.my_state.screen.blit(versid,versid.get_rect(bottomright=(pbge.my_state.screen.get_width()-8,pbge.my_state.screen.get_height()-8)))
 
 TITLE_THEME = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
 
@@ -56,7 +60,7 @@ def start_game(tsrd):
     name = pbge.input_string(prompt="By what name will you be known?",redrawer=tsrd)
     if not name:
         name = gears.selector.EARTH_NAMES.gen_word()
-    pc = gears.selector.random_pilot(50)
+    pc = gears.selector.random_pilot(35)
     pc.name = name
     pc.imagename = 'cha_wm_parka.png'
     pc.colors = gears.random_character_colors()

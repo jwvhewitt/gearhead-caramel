@@ -485,7 +485,7 @@ class WinterMochaCarter( Plot ):
                 mylist.append(Offer("No thanks, I've been mucking through this pea soup enough for one night.",
                     context=ContextTag([context.JOIN]) ))                
             else:
-                mylist.append(Offer("Okay, I can do that. My corsair's right here in the storage yard.",
+                mylist.append(Offer("Okay, I can do that. My corsair's right here in the storage yard. If we need any repairs during the mission, I'm half decent at that.",
                     context=ContextTag([context.JOIN]), effect=self._carter_join ))
 
         return mylist
@@ -691,6 +691,37 @@ class Intro_ToyBandits( Plot ):
                     children = [
                     pbge.cutscene.Beat(ghcutscene.MonologueDisplay("What kind of meanie would steal a truckload of orphan's toys, and right before the solstice to boot?",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Cheerful,),)),
                     pbge.cutscene.Beat(ghcutscene.MonologueDisplay("This is worse than a crime, it's a travesty! The villains who stole these toys must be brought to justice.",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Justice,),)),
+                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Toy thieves, huh? Let's catch them so I can go back to bed.",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Shy,),)),
+                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Who steals a truckload of toys in the middle of a blizzard? Do you think they planned this heist or were they expecting something else?",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Easygoing,),)),
+                    ],),
+              )
+            )
+            mycutscene(camp)
+            self.did_intro = True
+
+class Intro_MysteriousMecha( Plot ):
+    LABEL = "MOCHA_MINTRO"
+    active = True
+    scope = "LOCALE"
+    # Info for the plot checker...
+    CHANGES = {COMPLICATION:AEGIS_SCOUTS,}
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element( STAKES, STOLEN_TOYS )
+        self.did_intro = False
+        self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"ENCOUNTER_NUMBER":1} ).based_on( self ) )
+        return True
+    def t_START(self,camp):
+        if not self.did_intro:
+            mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
+              beats = (
+                pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You find the tracks in the snow where the bandits met the convoy. However, there is a second set of tracks just off the road, following the others at a distance."),
+                    children = [
+                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("I recognize these tread marks from the battle of Snake Lake... Those are Aegis mecha. This mission just got a whole lot more serious.",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Grim,),)),
+                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("These tracks belong to a Chameleon; that's an Aegis mecha. We better be careful from here on out.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Scouting,),)),
+                    pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You recognize the third set of tracks as belonging to an Aegis patrol. Looks like you'll have more than bandits to worry about.")),
+                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("These tire marks don't belong to any bandit; they're Aegis mecha! I'd stake my reputation on that.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Repair,),)),
+
                     ],),
               )
             )
@@ -730,7 +761,7 @@ class Encounter_BasicBandits( Plot ):
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
         self.register_element("ENEMY_FACTION",gears.factions.BoneDevils)
-        meks = gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        meks = gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         team2.contents += meks
         self.load_next(nart)
         return True
@@ -746,7 +777,7 @@ class Encounter_SilentMercenaries( Encounter_BasicBandits ):
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
         self.register_element("ENEMY_FACTION",MercFaction())
-        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         self.load_next(nart)
         return True
 
@@ -841,7 +872,7 @@ class Encounter_TheDreadPirateOtaku( Encounter_BasicBandits ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         bossmek = random.choice(team2.contents)
         self.register_element("_MIDBOSS",bossmek.get_pilot())
 
@@ -879,7 +910,7 @@ class Encounter_MyLittleCabbageFunkoBeaniePogs( Encounter_BasicBandits ):
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
         self.register_element("ENEMY_FACTION",gears.factions.BladesOfCrihna)
-        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         bossmek = max(team2.contents, key=lambda m: m.cost)
         self.register_element("_MIDBOSS",bossmek.get_pilot())
         self.intro_ready = True
@@ -916,7 +947,7 @@ class Encounter_FunnyLookingPrize( Encounter_BasicBandits ):
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
 
-        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         bossmek = max(team2.contents, key=lambda m: m.cost)
         self.register_element("_MIDBOSS",bossmek.get_pilot())
 
@@ -976,7 +1007,7 @@ class Encounter_LastBanditStanding( Encounter_BasicBandits ):
             self.intro_ready = False
             myscene = self.elements["LOCALE"]
             pos = self.elements["_room"].area.center
-            meks = gears.selector.RandomMechaUnit(25,30,gears.factions.AegisOverlord,myscene.environment).mecha_list
+            meks = gears.selector.RandomMechaUnit(25,50,gears.factions.AegisOverlord,myscene.environment).mecha_list
             for mek in meks:
                 myscene.place_actor(mek,pos[0],pos[1],self.elements["ETEAM"])
             pbge.alert("Suddenly, a group of Aegis mecha emerge from the forest.")
@@ -1006,7 +1037,7 @@ class Encounter_MovingOnUp( Encounter_BasicBandits ):
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
         self.register_element("ENEMY_FACTION",gears.factions.BladesOfCrihna)
-        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         bossmek = max(team2.contents, key=lambda m: m.cost)
         self.register_element("_MIDBOSS",bossmek.get_pilot())
         bossmek.colors = gears.factions.BladesOfCrihna.mecha_colors
@@ -1123,7 +1154,7 @@ class Encounter_WeHaveBlitzen( Encounter_BasicBandits ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         bossmek = max(team2.contents, key=lambda m: m.cost)
         self.register_element("_MIDBOSS",bossmek.get_pilot())
 
@@ -1224,7 +1255,7 @@ class Encounter_CovertAegis( Encounter_BasicBandits ):
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         self.register_element("ENEMY_FACTION",gears.factions.AegisOverlord)
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        team2.contents += gears.selector.RandomMechaUnit(25,30,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
         self.intro_ready = True
         self.load_next(nart)
         return True
@@ -1720,7 +1751,7 @@ class FinalBattleAgainstBase( Plot ):
         myroom.contents.append( myent )
         mygoal = self.register_element("_goalroom",WinterMochaFortressRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
-        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(35,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
 
         meks = gears.Loader.load_design_file('STC_Buildings.txt')
         team2.contents.append(meks[0])
@@ -1757,7 +1788,7 @@ class FinalBattleAgainstTrucks( Plot ):
         mygoal.contents.append(WinterMochaTruckTerrain)
         mygoal.contents.append(WinterMochaTruckTerrain)
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
-        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(35,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
 
         self.add_sub_plot( nart, "MOCHA_FB_BOSSTALK" )
         return True
@@ -1794,7 +1825,7 @@ class FinalBattleAgainstBoss( Plot ):
         boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene,anchor=pbge.randmaps.anchors.north)
         mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
-        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(35,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
 
         self.add_sub_plot( nart, "MOCHA_FB_BOSSTALK" )
         return True
@@ -1829,7 +1860,7 @@ class FinalBattleAgainstBossInWoods( Plot ):
         myroom.contents.append( myent )
         mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
-        team2.contents += gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        team2.contents += gears.selector.RandomMechaUnit(35,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
 
         self.add_sub_plot( nart, "MOCHA_FB_BOSSTALK" )
         return True

@@ -1,3 +1,8 @@
+v0.120  March 9, 2018
+- Version indicated on title screen (main.py)
+- Repair skills working (gears/stats.py)
+- Added skill invocations (gears/stats.py)
+- Added generic invocation targeting UI (game/invoker.py)
 - Head mounted sensors get a range bonus (gears/base.py)
 - Added ChemThrower, Chem gears (gears/base.py)
 - Ammo cost, mass, volume now affected by attributes (gears/base.py)

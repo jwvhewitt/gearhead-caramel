@@ -1,6 +1,9 @@
 from pbge import Singleton
 import geffects
 import pbge
+import random
+import materials
+
 
 #  ***************
 #  ***  STATS  ***
@@ -51,23 +54,6 @@ class MechaGunnery( Skill ):
 
 class MechaFighting( Skill ):
     name = 'Mecha Fighting'
-    @classmethod
-    def get_invocations(self):
-        my_invos = list()
-        ba = pbge.effects.Invocation(
-            name = 'Boop', 
-            fx=pbge.effects.NoEffect(
-                anim = geffects.SuperBoom,
-                ),
-            area=pbge.scenes.targetarea.SingleTarget(reach=1),
-            used_in_combat = True, used_in_exploration=True,
-            shot_anim=geffects.GunBeam,
-            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
-            price=[geffects.MentalPrice(5)],
-            targets=1)
-        my_invos.append(ba)
-        return my_invos
-
 
 class MechaPiloting( Skill ):
     name = 'Mecha Piloting'
@@ -83,12 +69,75 @@ class Dodge( Skill ):
 
 class Repair( Skill ):
     name = 'Repair'
+    @classmethod
+    def get_invocations(self,pc):
+        my_invos = list()
+        pc_skill = pc.get_skill_score(Craft,self)
+        n,extra = divmod(pc_skill,6)
+        if random.randint(1,6) <= extra:
+            n += 1
+        ba = pbge.effects.Invocation(
+            name = 'Repair (5MP)', 
+            fx=geffects.DoHealing(
+                max(n,1),6,repair_type=materials.RT_REPAIR,
+                anim = geffects.RepairAnim,
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=1),
+            used_in_combat = True, used_in_exploration=True,
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
+            price=[geffects.MentalPrice(5)],
+            targets=1)
+        my_invos.append(ba)
+        return my_invos
 
 class Medicine( Skill ):
     name = 'Medicine'
+    @classmethod
+    def get_invocations(self,pc):
+        my_invos = list()
+        pc_skill = pc.get_skill_score(Craft,self)
+        n,extra = divmod(pc_skill,6)
+        if random.randint(1,6) <= extra:
+            n += 1
+        ba = pbge.effects.Invocation(
+            name = 'Heal (5MP)', 
+            fx=geffects.DoHealing(
+                max(n,1),6,repair_type=materials.RT_MEDICINE,
+                anim = geffects.MedicineAnim,
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=1),
+            used_in_combat = True, used_in_exploration=True,
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
+            price=[geffects.MentalPrice(5)],
+            targets=1)
+        my_invos.append(ba)
+        return my_invos
 
 class Biotechnology( Skill ):
     name = 'Biotechnology'
+    @classmethod
+    def get_invocations(self,pc):
+        my_invos = list()
+        pc_skill = pc.get_skill_score(Craft,self)
+        n,extra = divmod(pc_skill,6)
+        if random.randint(1,6) <= extra:
+            n += 1
+        ba = pbge.effects.Invocation(
+            name = 'Repair (5MP)', 
+            fx=geffects.DoHealing(
+                max(n,1),6,repair_type=materials.RT_BIOTECHNOLOGY,
+                anim = geffects.BiotechnologyAnim,
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=1),
+            used_in_combat = True, used_in_exploration=True,
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
+            price=[geffects.MentalPrice(5)],
+            targets=1)
+        my_invos.append(ba)
+        return my_invos
 
 class Stealth( Skill ):
     name = 'Stealth'
