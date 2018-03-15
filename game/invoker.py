@@ -299,10 +299,10 @@ class InvocationUI( object ):
 
 
     @classmethod
-    def explo_invoke(self,explo,camp, pc, build_library_function, source=None ):
+    def explo_invoke(self,explo, pc, build_library_function, source=None ):
         # Run the UI. Return a DoInvocation action if an invocation
         # was chosen, or None if the invocation was cancelled.
-        myui = self(camp,pc,build_library_function,source)
+        myui = self(explo.camp,pc,build_library_function,source)
         myui.activate()
         while myui.keep_exploring and len(myui.targets) < myui.num_targets:
             gdi = pbge.wait_event()

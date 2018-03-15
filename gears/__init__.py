@@ -96,6 +96,12 @@ class GearHeadScene( pbge.scenes.Scene ):
         return [a for a in self.contents if (self.is_an_actor(a) and (a.pos == pos)) ]
     def get_operational_actors( self, pos=None ):
         return [a for a in self.contents if (self.is_an_actor(a) and a.is_operational() and (pos is None or a.pos == pos)) ]
+    def get_main_actor(self,pos):
+        # In theory, a tile should only ever have one operational actor
+        # in it. Check the tile, return the first operational actor found.
+        mylist = self.get_operational_actors(pos)
+        if mylist:
+            return mylist[0]
     def get_blocked_tiles( self ):
         return {a.pos for a in self.contents if (self.is_an_actor(a) and a.is_operational()) }
     def are_hostile( self, a, b ):

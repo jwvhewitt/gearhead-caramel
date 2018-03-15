@@ -87,9 +87,13 @@ class PlayerTurn( object ):
         #  a handler. The radio buttons widget determines what mode is current.
         #  Then, this routine routes the input to the correct UI handler.
 
+        buttons_to_add = [(6,7,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),]
+        if self.pc.get_skill_library():
+            buttons_to_add.append((8,9,self.switch_skill,'Skills'))
+        buttons_to_add.append((4,5,self.end_turn,'End Turn'))
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
-         buttons=((6,7,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),(8,9,self.switch_skill,'Skills'),(4,5,self.end_turn,'End Turn')),
+         buttons=buttons_to_add,
          anchor=pbge.frects.ANCHOR_UPPERLEFT )
         pbge.my_state.widgets.append(self.my_radio_buttons)
 

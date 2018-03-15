@@ -132,10 +132,14 @@ class Stackable( KeyObject ):
             and self.name is part.name and self.desig is part.desig
             and not self.inv_com and not self.sub_com )
 
-class WithPortrait( pbge.scenes.PlaceableThing ):
+class VisibleGear( pbge.scenes.PlaceableThing ):
+    # This gear has the GearHead-specific sprite modifications.
+    # - If destroyed, use the destroyed image
+    # - If hidden, hide it
+    # - May have a portrait
     def __init__(self, portrait=None, **keywords ):
         self.portrait = portrait
-        super(WithPortrait, self).__init__(**keywords)
+        super(VisibleGear, self).__init__(**keywords)
     SAVE_PARAMETERS = ('portrait',)
     FRAMES = ((0,0,400,600),(0,600,100,100),(100,600,64,64))
     def get_sprite(self):
@@ -1935,7 +1939,7 @@ class MT_Battroid( Singleton ):
         return base_speed
 
 
-class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower,Combatant):
+class Mecha(BaseGear,ContainerDamageHandler,Mover,VisibleGear,HasPower,Combatant):
     SAVE_PARAMETERS = ('name','form','faction_list','environment_list','role_list','family')
     def __init__(self, form=MT_Battroid, faction_list=(None,), environment_list=(tags.GroundEnv,tags.UrbanEnv,tags.SpaceEnv), role_list=(tags.Trooper,), family='None', **keywords ):
         name = keywords.get(  "name" )
@@ -2177,7 +2181,7 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,WithPortrait,HasPower,Combatan
 
 
 
-class Character(BaseGear,StandardDamageHandler,Mover,WithPortrait,HasPower,Combatant):
+class Character(BaseGear,StandardDamageHandler,Mover,VisibleGear,HasPower,Combatant):
     SAVE_PARAMETERS = ('statline','personality')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat

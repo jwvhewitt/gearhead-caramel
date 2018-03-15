@@ -21,9 +21,8 @@ things that GearHead Caramel can do.
 INSTALLATION
 ============
 
-This game requires Pygame and Python 2.7 to be installed on your system.
-Someday, there will probably be a simple installer which installs all of
-these dependencies for you, but today is not that day.
+If you are installing from source, you will need both Python 2.7 and
+PyGame installed.
 
   https://www.python.org/
 
@@ -49,6 +48,8 @@ COMMANDS
 Note that commands are case sensitive- "Q" is different from "q".
 
 Left click: Move to spot
+
+Right click: Open skills menu during exploration
 
 c: Center the screen on the party/active character
 

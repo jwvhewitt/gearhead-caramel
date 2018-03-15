@@ -175,7 +175,39 @@ class DoInvocation( MoveTo ):
             exp.scene.update_party_position( exp.camp )
 
             return keep_going
+            
+class InvoMenuCall( object ):
+    def __init__(self,explo,pc,source=None):
+        # Creates a callable that opens the invocation UI and handles
+        # its effects.
+        self.explo = explo
+        self.pc = pc
+        self.source = source
+    def __call__(self):
+        self.explo.order = invoker.InvocationUI.explo_invoke(self.explo,self.pc,self.pc.get_skill_library,self.source)
 
+class ExploMenu( object ):
+    def __init__(self,explo,pc=None):
+        self.explo = explo
+        self.pc = pc
+        self.query()
+
+    def query( self ):
+        mymenu = pbge.rpgmenu.PopUpMenu()
+
+        if self.pc and self.pc in self.explo.camp.party:
+            my_invos = self.pc.get_skill_library()
+            for i in my_invos:
+                if i.has_at_least_one_working_invo(self.pc,False):
+                    mymenu.add_item(str(i),InvoMenuCall(self.explo,self.pc,i.source))
+        else:
+            for pc in self.explo.camp.get_active_party():
+                if pc.get_skill_library():
+                    mymenu.add_item('{} Use Skill'.format(str(pc)),InvoMenuCall(self.explo,pc,None))
+        mymenu.add_item('-----',None)
+        mi = mymenu.query()
+        if mi:
+            mi()
 
 class Explorer( object ):
     # The object which is exploration of a scene. OO just got existential.
@@ -350,11 +382,5 @@ class Explorer( object ):
                                 self.order = MoveTo( self, self.view.mouse_tile )
                                 self.view.overlays.clear()
                     else:
-                        mymenu = pbge.rpgmenu.PopUpMenu()
-                        pc = self.camp.first_active_pc()
-                        my_invos = pc.get_skill_library()
-                        for i in my_invos:
-                            mymenu.add_item(str(i),i)
-                        mi = mymenu.query()
-                        if mi:
-                            self.order = invoker.InvocationUI.explo_invoke(self,self.camp,pc,pc.get_skill_library,mi.source)
+                        pc = self.scene.get_main_actor(self.view.mouse_tile)
+                        ExploMenu(self,pc)
