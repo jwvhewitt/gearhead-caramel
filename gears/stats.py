@@ -70,8 +70,7 @@ class Dodge( Skill ):
 class Repair( Skill ):
     name = 'Repair'
     @classmethod
-    def get_invocations(self,pc):
-        my_invos = list()
+    def get_invocations(self,pc,invodict):
         pc_skill = pc.get_skill_score(Craft,self)
         n,extra = divmod(pc_skill,6)
         if random.randint(1,6) <= extra:
@@ -88,14 +87,12 @@ class Repair( Skill ):
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
             price=[geffects.MentalPrice(5)],
             targets=1)
-        my_invos.append(ba)
-        return my_invos
+        invodict[self].append(ba)
 
 class Medicine( Skill ):
     name = 'Medicine'
     @classmethod
-    def get_invocations(self,pc):
-        my_invos = list()
+    def add_invocations(self,pc,invodict):
         pc_skill = pc.get_skill_score(Craft,self)
         n,extra = divmod(pc_skill,6)
         if random.randint(1,6) <= extra:
@@ -112,14 +109,12 @@ class Medicine( Skill ):
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
             price=[geffects.MentalPrice(5)],
             targets=1)
-        my_invos.append(ba)
-        return my_invos
+        invodict[self].append(ba)
 
 class Biotechnology( Skill ):
     name = 'Biotechnology'
     @classmethod
-    def get_invocations(self,pc):
-        my_invos = list()
+    def add_invocations(self,pc,invodict):
         pc_skill = pc.get_skill_score(Craft,self)
         n,extra = divmod(pc_skill,6)
         if random.randint(1,6) <= extra:
@@ -136,11 +131,27 @@ class Biotechnology( Skill ):
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
             price=[geffects.MentalPrice(5)],
             targets=1)
-        my_invos.append(ba)
-        return my_invos
+        invodict[self].append(ba)
 
 class Stealth( Skill ):
     name = 'Stealth'
+    @classmethod
+    def add_invocations(self,pc,invodict):
+        pc_skill = pc.get_skill_score(Craft,self)
+        n,extra = divmod(pc_skill,6)
+        if random.randint(1,6) <= extra:
+            n += 1
+        ba = pbge.effects.Invocation(
+            name = 'Hide', 
+            fx=geffects.SetHidden(anim=geffects.SmokePoof,
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=1),
+            used_in_combat = True, used_in_exploration=True,
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
+            price=[],
+            targets=1)
+        invodict[self].append(ba)
 
 class Science( Skill ):
     name = 'Science'

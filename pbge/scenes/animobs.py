@@ -230,4 +230,34 @@ class MoveModel( object ):
         else:
             self.needs_deletion = True
 
+class HideModel( object ):
+    def __init__( self, model, delay=0, children = [] ):
+        self.model = model
+        self.delay = delay
+        self.needs_deletion = False
+        self.children = list() + children
+
+    def update( self, view ):
+        # This one doesn't appear directly, but hides a model.
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.model.hidden = True
+            self.needs_deletion = True
+
+class RevealModel( object ):
+    def __init__( self, model, delay=0, children = [] ):
+        self.model = model
+        self.delay = delay
+        self.needs_deletion = False
+        self.children = list() + children
+
+    def update( self, view ):
+        # This one doesn't appear directly, but reveals a model.
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.model.hidden = False
+            self.needs_deletion = True
+
 

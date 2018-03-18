@@ -99,6 +99,10 @@ class SuperBoom( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_frogatto_nuke.png"
     DEFAULT_END_FRAME = 9
 
+class SmokePoof( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_smokepoof.png"
+    DEFAULT_END_FRAME = 7
+
 class Fireball( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_fireball.png"
     DEFAULT_END_FRAME = 7
@@ -395,6 +399,9 @@ class DoDamage( effects.NoEffect ):
                   materials.Metal) * damage_percent // 100),1) for t in range(number_of_hits)]
             mydamage = damage.Damage( camp, hits,
                   penetration, target, anims, hot_knife=self.hot_knife )
+            # Hidden targets struck by an attack get revealed.
+            myanim = animobs.RevealModel( target,delay=delay)
+            anims.append(myanim)
         return self.children
 
 class DoHealing( effects.NoEffect ):
@@ -432,6 +439,15 @@ class DoHealing( effects.NoEffect ):
 
         return self.children
 
+class SetHidden( effects.NoEffect ):
+    """An effect that hides a model."""
+    def handle_effect( self, camp, fx_record, originator, pos, anims, delay=0 ):
+        """Do whatever is required of effect; return list of child effects."""
+        targets = camp.scene.get_operational_actors(pos)
+        for target in targets:
+            myanim = animobs.HideModel( target,delay=delay)
+            anims.append(myanim)
+        return self.children
 
 #  ***************************
 #  ***   Roll  Modifiers   ***

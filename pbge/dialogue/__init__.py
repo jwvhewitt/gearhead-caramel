@@ -10,6 +10,9 @@ import random
 STANDARD_OFFERS = list()
 STANDARD_REPLIES = list()
 
+# Generic offers are added to every conversation. Things like saying goodbye.
+GENERIC_OFFERS = list()
+
 # Grammar Builder is a function with parameters (mygram,camp,npc,pc)
 # It fills mygram with the default grammar for this game + context.
 GRAMMAR_BUILDER = None
@@ -351,6 +354,11 @@ class DynaConversation(object):
             if pgram:
                 self.npc_grammar.absorb( pgram )
                 self.pc_grammar.absorb( pgram )
+        for goff in GENERIC_OFFERS:
+            # Add a copy of this to the npc_offers if there isn't
+            # currently an offer with a compatible tag.
+            if not self._get_offer_for_cue(goff,self.npc_offers,False):
+                self.npc_offers.append(copy.deepcopy(goff))
                 
     def _find_std_offer_to_match_cue( self, cue_in_question ):
         # Find an exchange in the standard exchanges list which matches the provided
@@ -370,12 +378,12 @@ class DynaConversation(object):
         else:
             return None
 
-    def _get_offer_for_cue( self,cue,candidates):
+    def _get_offer_for_cue( self,cue,candidates,allow_standards=True):
         short_list = [c for c in candidates if cue.context.matches(c.context)]
         if short_list:
             # Great! just return one of these.
             return random.choice(short_list)
-        else:
+        elif allow_standards:
             # No good. Try one of the standard offers instead.
             return self._find_std_offer_to_match_cue(cue)
 

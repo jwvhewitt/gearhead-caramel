@@ -93,9 +93,10 @@ class Tile( object ):
 
 class PlaceableThing( KeyObject ):
     """A thing that can be placed on the map."""
-    def __init__(self, **keywords ):
+    # By default, a hidden thing just isn't displayed.
+    def __init__(self, hidden=False, **keywords ):
+        self.hidden = hidden
         super(PlaceableThing, self).__init__(**keywords)
-
     def place( self, scene, pos=None, team=None ):
         if hasattr( self, "container" ) and self.container:
             self.container.remove( self )
@@ -113,10 +114,17 @@ class PlaceableThing( KeyObject ):
         """Generate the sprite for this thing."""
         return image.Image(self.imagename,self.imagewidth,self.imageheight,self.colors)
     def render( self, foot_pos, view ):
+        if self.hidden:
+            self.render_hidden( foot_pos, view )
+        else:
+            self.render_visible( foot_pos, view )
+    def render_visible( self, foot_pos, view ):
         spr = view.get_sprite(self)
         mydest = spr.get_rect(self.frame)
         mydest.midbottom = foot_pos
         spr.render( mydest, self.frame )
+    def render_hidden( self, foot_pos, view ):
+        pass
     def move( self, dest, view, speed=0.25 ):
         view.anim_list.append( animobs.MoveModel( self, dest=dest, speed=speed))
 
@@ -285,10 +293,14 @@ class Scene( object ):
             return int(base_cost)
         else:
             return 100
-
+    def tile_altitude(self,x,y):
+        if self.on_the_map(x,y):
+            return self._map[x][y].altitude()
+        else:
+            return 0
     def model_altitude( self, m,x,y ):
         if not hasattr(m,"mmode") or m.mmode.altitude is None:
-            return self._map[x][y].altitude()
+            return self.tile_altitude(x,y)
         else:
             return max(self._map[x][y].altitude(),m.mmode.altitude)
 

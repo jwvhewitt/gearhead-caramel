@@ -8,5 +8,7 @@ ATTACK = Offer('[ATTACK]',context=ContextTag([context.ATTACK,]))
 
 CHALLENGE = Offer('[CHALLENGE]',context=ContextTag([context.CHALLENGE,]))
 
+GOODBYE = Offer('[GOODBYE]',context=ContextTag([context.GOODBYE,]))
+
 
 

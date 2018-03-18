@@ -42,7 +42,7 @@ class BasicAI( object ):
     def select_target( self, camp ):
         # Choose a possible target.
         # For now, we're just choosing a random target.
-        candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar)]
+        candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar) and not tar.hidden]
         if candidates:
             return random.choice( candidates )
 
@@ -135,7 +135,7 @@ class BasicAI( object ):
             invo_x_targets = dict()
             for shelf in myattacks:
                 if invo.can_be_invoked(self.npc,True):
-                    possible_targets = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar) and tar.pos in invo.area.get_targets(camp,self.npc.pos)]
+                    possible_targets = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar) and tar.pos in invo.area.get_targets(camp,self.npc.pos) and not tar.hidden]
                     if possible_targets:
                         invo_x_targets[invo] = possible_targets
             if invo_x_targets:
@@ -219,7 +219,7 @@ class CrapAI( object ):
     def select_target( self, camp ):
         # Choose a possible target.
         # For now, we're just choosing a random target.
-        candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar)]
+        candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar) and not tar.hidden]
         if candidates:
             return random.choice( candidates )
 

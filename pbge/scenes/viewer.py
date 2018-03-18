@@ -60,7 +60,10 @@ class SceneView( object ):
         if not spr:
             spr = image.Image(fname,self.TILE_WIDTH,self.TILE_WIDTH)
             if transparent:
-                spr.bitmap.set_alpha(155)
+                alpha = int(transparent)
+                if alpha <= 1:
+                    alpha = 155
+                spr.bitmap.set_alpha(alpha)
             self.namedsprite[fname] = spr
         return spr
 
@@ -302,7 +305,8 @@ class SceneView( object ):
         for m in self.scene.contents:
             if hasattr( m , 'render' ):
                 d_pos = self.PosToKey(m.pos)
-                self.modelmap[d_pos].append(m)
+                if not m.hidden:
+                    self.modelmap[d_pos].append(m)
                 if self.scene.model_altitude(m,*d_pos) >= 0:
                     self.uppermap[ d_pos ].append( m )
                 else:

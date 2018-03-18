@@ -17,6 +17,40 @@ from gears import personality
 Default = None
 
 DEFAULT_GRAMMAR = {
+    "[ACCEPT_MISSION:GOODBYE]": {
+        Default: ["I'll be back when I'm finished."
+            ],
+        personality.Cheerful: ["See you later!",
+            ],
+        personality.Grim: ["Time to get to work.",
+            ],
+        personality.Easygoing: [ "Guess I should get started.",
+            ],
+        personality.Passionate: ["I'll do my best!",
+            ],
+        personality.Sociable: ["I'll let you know how it goes.",
+            ],
+        personality.Shy: ["Goodbye.",
+            ],
+        },
+
+    "[ACCEPT_MISSION:JOIN]": {
+        Default: ["Why don't you come with me?"
+            ],
+        personality.Cheerful: ["Why don't you come too? It'll be fun.",
+            ],
+        personality.Grim: ["My odds would be better if you came too.",
+            ],
+        personality.Easygoing: [ "Wanna come with me?",
+            ],
+        personality.Passionate: ["Would you join me on this glorious mission?",
+            ],
+        personality.Sociable: ["I could use some company out there.",
+            ],
+        personality.Shy: ["Will you come too?",
+            ],
+        },
+
     "[ATTACK]": {
         Default: ["I don't know what you're doing here, but you'll feel my wrath. [LETSFIGHT]",
             "You shouldn't have come here. [LETSFIGHT]"
@@ -187,21 +221,21 @@ DEFAULT_GRAMMAR = {
         personality.Peace: [ "stop you","oppose you"
             ],
     },
-
-    "[GOODBYE_MISSION:JOIN]": {
-        Default: ["Why don't you come with me?"
+    
+    "[GOODBYE]": {
+        Default: ["Goodbye."
             ],
-        personality.Cheerful: ["Why don't you come too? It'll be fun.",
+        personality.Cheerful: ["Bye bye.",
             ],
-        personality.Grim: ["My odds would be better if you came too.",
+        personality.Grim: ["Until we meet again.",
             ],
-        personality.Easygoing: [ "Wanna come with me?",
+        personality.Easygoing: [ "See ya.",
             ],
-        personality.Passionate: ["Would you join me on this glorious mission?",
+        personality.Passionate: ["Farewell.",
             ],
-        personality.Sociable: ["I could use some company out there.",
+        personality.Sociable: ["I'll see you later.",
             ],
-        personality.Shy: ["Will you come too?",
+        personality.Shy: ["Bye.",
             ],
         },
 
@@ -262,6 +296,12 @@ DEFAULT_GRAMMAR = {
             "I'm looking for a {item}. Seen one?"
             ],
         },
+
+    "[HELLO:GOODBYE]": {
+        Default: ["Well, I must be off.","See you later.",
+            ],
+        },
+
     # The data block should include "subject"
     "[HELLO:INFO]": {
         Default: [ "Tell me about the {subject}.",
@@ -370,6 +410,26 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Join me.",
             ],
         },
+        
+    "[INFO_PERSONAL:GOODBYE]": {
+        Default: ["Talk with you later.",
+            ],
+        personality.Cheerful: ["Nice talking to you, but I have to go.",
+            ],
+        personality.Grim: ["I must go.",
+            ],
+        personality.Easygoing: [ "I gotta run.",
+            ],
+        personality.Passionate: ["Wild. I'll see you around.",
+            ],
+        personality.Sociable: ["See you; we'll talk again later.",
+            ],
+        personality.Shy: ["Yeah. I've got to go now.",
+            ],
+        personality.Peace: ["Take care; I'll see you later.",
+            ],
+        },
+
 
     "[IP_NEWS]": {
         Default: ["[IP_GoodNews].","[IP_BadNews].","[IP_Business].","[IP_Pleasure]."
@@ -478,6 +538,11 @@ DEFAULT_GRAMMAR = {
         Default: ["I could really use your help out there.",
             "Sounds like I could use some backup.",
             "This would be easier if you came with me."
+            ],
+        },
+
+    "[MISSION_PROBLEM:GOODBYE]": {
+        Default: ["Well, I've heard enough about that.",
             ],
         },
 

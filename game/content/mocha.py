@@ -348,7 +348,7 @@ class FrozenHotSpringCity( Plot ):
                      destination=Offer("Yeah, they do have snow clearing equipment... it's in the same hangar as our mecha. Not to worry, though- the junker meks we used in the charity game are in the storage yard, so we can use them.", context=ContextTag([context.MISSION,context.PROBLEM]),data={"item":"snow clearing equipment",})
                     ),
                     Reply("[IWILLDOMISSION]",
-                     destination=Offer("[GOODLUCK] I'm going back to bed.", context=ContextTag([context.GOODBYE,context.MISSION]),data={"mission":"fight the bandits"})
+                     destination=Offer("[GOODLUCK] I'm going back to bed.", context=ContextTag([context.ACCEPT,context.MISSION]),data={"mission":"fight the bandits"})
                     ),
                 ], effect = self._get_vikki_mission
                  ))

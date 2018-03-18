@@ -122,9 +122,10 @@ class GearHeadScene( pbge.scenes.Scene ):
     def get_tile_info( self, pos ):
         """Return an InfoPanel for the contents of this tile, if appropriate."""
         if self.get_visible(*pos):
-            mmecha = pbge.my_state.view.modelmap.get(pos)
-            if mmecha:
-                return info.MechaStatusDisplay(model=mmecha[0])
+            #mmecha = pbge.my_state.view.modelmap.get(pos)
+            mmecha = self.get_main_actor(pos)
+            if mmecha and (self.local_teams.get(mmecha) == self.player_team or not mmecha.hidden):
+                return info.MechaStatusDisplay(model=mmecha)
             elif pbge.my_state.view.waypointmap.get(pos):
                 wp = pbge.my_state.view.waypointmap.get(pos)
                 return info.ListDisplay(items=wp)

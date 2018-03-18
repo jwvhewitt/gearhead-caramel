@@ -155,6 +155,17 @@ class VisibleGear( pbge.scenes.PlaceableThing ):
                 return pbge.image.Image(self.portrait,self.imagewidth,self.imageheight,self.colors,custom_frames=self.FRAMES)
             else:
                 return pbge.image.Image(self.portrait,color=self.colors)
+    def render( self, foot_pos, view ):
+        self.render_shadow(foot_pos,view)
+        if not self.hidden:
+            self.render_visible( foot_pos, view )
+    def render_shadow( self, foot_pos, view ):
+        spr = view.get_named_sprite('sys_shadow.png',transparent=50)
+        mydest = spr.get_rect(0)
+        x,y = self.pos
+        mydest.topleft = (view.relative_x( x, y ) + view.x_off,
+            view.relative_y( x, y ) + view.y_off - view.scene.tile_altitude(x,y))
+        spr.render( mydest, 0 )
 
 
 class Mover( KeyObject ):
@@ -245,13 +256,16 @@ class Combatant( KeyObject ):
         my_invos.sort(key=lambda shelf: -shelf.get_average_thrill_power(self))
         return my_invos
     def get_skill_library( self,in_combat=False ):
-        my_invos = list()
+        my_invo_dict = collections.defaultdict(list)
         pilot = self.get_pilot()
         for p in pilot.statline.keys():
-            if hasattr(p, 'get_invocations'):
-                p_list = geffects.InvoLibraryShelf(p,p.get_invocations(pilot))
-                if p_list.has_at_least_one_working_invo(self,in_combat):
-                    my_invos.append(p_list)
+            if hasattr(p, 'add_invocations'):
+                p.add_invocations(pilot,my_invo_dict)
+        my_invos = list()
+        for k,v in my_invo_dict.items():
+            p_list = geffects.InvoLibraryShelf(k,v)
+            if p_list.has_at_least_one_working_invo(self,in_combat):
+                my_invos.append(p_list)
         return my_invos
     def get_action_points( self ):
         return 3
@@ -2372,12 +2386,15 @@ class Prop(BaseGear,StandardDamageHandler,HasPower,Combatant):
         my_invos.sort(key=lambda shelf: -shelf.get_average_thrill_power(self))
         return my_invos
     def get_skill_library( self,in_combat=False ):
-        my_invos = list()
+        my_invo_dict = collections.defaultdict(list)
         for p in self.statline.keys():
-            if hasattr(p, 'get_invocations'):
-                p_list = geffects.InvoLibraryShelf(p,p.get_invocations())
-                if p_list.has_at_least_one_working_invo(self,in_combat):
-                    my_invos.append(p_list)
+            if hasattr(p, 'add_invocations'):
+                p.add_invocations(pilot,my_invo_dict)
+        my_invos = list()
+        for k,v in my_invo_dict.items():
+            p_list = geffects.InvoLibraryShelf(k,v)
+            if p_list.has_at_least_one_working_invo(self,in_combat):
+                my_invos.append(p_list)
         return my_invos
 
     def get_action_points( self ):
