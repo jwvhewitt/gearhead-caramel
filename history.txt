@@ -1,6 +1,6 @@
 - Default offers automatically added to conversation (pbge/dialogue)
 - VisibleGears have a shadow (gears/base.py)
-- Placeable things may be hidden (pbge/scenes)
+- PlaceableThings may be hidden (pbge/scenes)
 - Exploration right click menu now works properly (game/exploration.py)
 - Combat skill button only shows up if PC has usable skills (game/combat)
 

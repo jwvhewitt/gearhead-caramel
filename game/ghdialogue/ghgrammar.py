@@ -8,6 +8,9 @@ from gears import personality
 #
 # Uppercase tokens should expand to a complete sentence
 # Lowercase tokens should not
+# Camel Case tokens expand to an independent clause that can be turned
+#  into a sentence by adding punctuation to the end, or incorporated
+#  into a compound sentence.
 # A standard offer token is generally the context tags of the offer separated
 #  by underspaces.
 # A standard reply token is generally two offer tokens separated by a colon.
@@ -233,7 +236,7 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Passionate: ["Farewell.",
             ],
-        personality.Sociable: ["I'll see you later.",
+        personality.Sociable: ["I'll see you later.","Don't be a stranger."
             ],
         personality.Shy: ["Bye.",
             ],
