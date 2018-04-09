@@ -10,6 +10,7 @@ import copy
 import geffects
 import attackattributes
 import tags
+import aitargeters
 
 
 #
@@ -980,6 +981,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
+                ai_tar=aitargeters.AttackTargeter(),
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
                 targets=1)
@@ -1052,6 +1054,7 @@ class MeleeWeapon( Weapon ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
                 used_in_combat = True, used_in_exploration=False,
+                ai_tar=aitargeters.AttackTargeter(),
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
                 targets=1)
@@ -1118,6 +1121,7 @@ class EnergyWeapon( Weapon ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
                 used_in_combat = True, used_in_exploration=False,
+                ai_tar=aitargeters.AttackTargeter(),
                 shot_anim=self.shot_anim,
                 price=[geffects.PowerPrice(self.get_basic_power_cost())],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
@@ -1265,6 +1269,7 @@ class BallisticWeapon( Weapon ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
+                ai_tar=aitargeters.AttackTargeter(),
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon,thrill_power=self.damage*2+self.penetration),
                 price=[geffects.AmmoPrice(my_ammo,ammo_cost)],
@@ -1346,6 +1351,7 @@ class BeamWeapon( Weapon ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
+                ai_tar=aitargeters.AttackTargeter(),
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon,thrill_power=self.damage*2+self.penetration),
                 price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost)],
@@ -1511,6 +1517,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
                 used_in_combat = True, used_in_exploration=False,
+                ai_tar=aitargeters.AttackTargeter(),
                 shot_anim=geffects.Missile1,
                 price=[geffects.AmmoPrice(ammo,1)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),0,thrill_power=ammo.damage+ammo.penetration),
@@ -1534,6 +1541,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach*3),
                 used_in_combat = True, used_in_exploration=False,
+                ai_tar=aitargeters.AttackTargeter(),
                 shot_anim=geffects.MissileFactory(num_missiles),
                 price=[geffects.AmmoPrice(ammo,num_missiles)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),frame,thrill_power=ammo.damage*2+ammo.penetration),
@@ -1667,6 +1675,7 @@ class ChemThrower( Weapon ):
                     ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=self.reach*3),
                 used_in_combat = True, used_in_exploration=False,
+                ai_tar=aitargeters.AttackTargeter(),
                 shot_anim=self.get_shot_anim(),
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
                 price=[geffects.AmmoPrice(my_ammo,ammo_cost * self.get_chem_cost())],
@@ -1885,9 +1894,10 @@ class Module( BaseGear, StandardDamageHandler ):
                 defenses = self.get_defenses(),
                 modifiers = self.get_modifiers()
                 ),
-            area=pbge.scenes.targetarea.SingleTarget(reach=1),
-            used_in_combat = True, used_in_exploration=False,
-            shot_anim=None,
+                area=pbge.scenes.targetarea.SingleTarget(reach=1),
+                used_in_combat = True, used_in_exploration=False,
+                ai_tar=aitargeters.AttackTargeter(),
+                shot_anim=None,
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
             targets=1)
             my_invos.append(ba)

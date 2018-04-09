@@ -29,6 +29,8 @@ class Cone( object ):
         return tiles
     def get_reach( self ):
         return self.reach
+    def get_firing_points(self,camp,desired_target):
+        return self.get_targets(camp,desired_target)
 
 class Blast( object ):
     """A circular area centered on target."""
@@ -48,6 +50,8 @@ class Blast( object ):
             return target
     def get_reach( self ):
         return self.reach
+    def get_firing_points(self,camp,desired_target):
+        return self.get_targets(camp,desired_target)
 
 class Line( object ):
     """A line from caster to target."""
@@ -70,6 +74,8 @@ class Line( object ):
             return target
     def get_reach( self ):
         return self.reach
+    def get_firing_points(self,camp,desired_target):
+        return self.get_targets(camp,desired_target)
 
 class SelfOnly( object ):
     """Just the originator."""
@@ -85,6 +91,8 @@ class SelfOnly( object ):
             return target
     def get_reach( self ):
         return 0
+    def get_firing_points(self,camp,desired_target):
+        return None
 
 class SelfCentered( object ):
     """A circle centered on originator."""
@@ -106,6 +114,8 @@ class SelfCentered( object ):
             return target
     def get_reach( self ):
         return self.radius
+    def get_firing_points(self,camp,desired_target):
+        return self.get_area(camp,desired_target,None)
 
 class SingleTarget( object ):
     """Just the target tile."""
@@ -126,6 +136,8 @@ class SingleTarget( object ):
             return target
     def get_reach( self ):
         return self.reach
+    def get_firing_points(self,camp,desired_target):
+        return self.get_targets(camp,desired_target)
 
 class SinglePartyMember( SingleTarget ):
     """Just the target tile, which must be a party member."""
@@ -148,6 +160,8 @@ class SinglePartyMember( SingleTarget ):
             return target
     def get_reach( self ):
         return 0
+    def get_firing_points(self,camp,desired_target):
+        return None
 
 class AllPartyMembers( object ):
     """Target all party members."""
@@ -166,4 +180,6 @@ class AllPartyMembers( object ):
             return target
     def get_reach( self ):
         return 0
+    def get_firing_points(self,camp,desired_target):
+        return None
 

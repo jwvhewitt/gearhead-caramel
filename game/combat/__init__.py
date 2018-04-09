@@ -208,8 +208,28 @@ class Combat( object ):
         # Return the actual end point, which may be different from that requested.
         return chara.pos
 
-    def move_and_attack( self, chara, nav, dest, invo, target ):
-        pass
+    def get_action_nav(self,pc):
+        # Return the navigation guide for this character taking into account that you can make
+        # half a move while invoking an action.
+        return pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,pc.pos,(self.cstat[pc].action_points-1)*pc.get_current_speed()+pc.get_current_speed()//2+self.cstat[pc].mp_remaining,pc.mmode,self.camp.scene.get_blocked_tiles())
+
+    def can_move_and_invoke( self, chara, nav, invo, target_pos ):
+        firing_points = invo.area.get_firing_points(self.camp, target_pos)
+        return firing_points.intersection(nav.cost_to_tile.keys())
+
+    def move_and_invoke(self,pc,nav,invo,target_list,firing_points,record=False):
+        fp = min(firing_points, key=lambda r: nav.cost_to_tile.get(r, 10000))
+        self.cstat[pc].mp_remaining += pc.get_current_speed() // 2
+        self.move_model_to(pc, nav, fp)
+        if pc.pos == fp:
+            pbge.my_state.view.overlays.clear()
+            # Launch the effect.
+            invo.invoke(self.camp, pc, target_list, pbge.my_state.view.anim_list )
+            pbge.my_state.view.handle_anim_sequence(record)
+            self.cstat[pc].spend_ap(1)
+
+        else:
+            self.cstat[pc].spend_ap(1)
 
     def do_combat_turn( self, chara ):
         if not self.cstat[chara].has_started_turn:

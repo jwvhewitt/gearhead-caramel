@@ -295,7 +295,7 @@ class Scene( object ):
             return 100
     def tile_altitude(self,x,y):
         if self.on_the_map(x,y):
-            return self._map[x][y].altitude()
+            return self._map[int(x)][int(y)].altitude()
         else:
             return 0
     def model_altitude( self, m,x,y ):

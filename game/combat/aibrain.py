@@ -83,7 +83,7 @@ class BasicAI( object ):
         cover_diff = camp.scene.get_cover(target.pos[0],target.pos[1],tilepos[0],tilepos[1]) - camp.scene.get_cover(tilepos[0],tilepos[1],target.pos[0],target.pos[1])
         points += min(max(cover_diff,-50),50)
         # Advantage if close to minrange; disadvantage if below minrange or above midrange
-        if dist >= minrange and dist <= midrange:
+        if minrange <= dist <= midrange:
             points += (midrange - dist) * 2
         elif dist < minrange:
             points -= (minrange-dist)*15
@@ -152,6 +152,7 @@ class BasicAI( object ):
                 return None,None
 
     def attempt_attack( self, camp ):
+        # type: (Campaign) -> None
         # 1. Do I want to move?
         #    - Check to see if there's a better firing position within 1AP
         #    - Check to see if enemies are too close if minimum comfort range
@@ -175,7 +176,7 @@ class BasicAI( object ):
                     self.move_to(camp,mynav,best)
 
         # We are now either in a good position, or so far out of the loop it isn't funny.
-        while camp.fight.still_fighting() and camp.fight.cstat[self.npc].action_points > 0:
+        if camp.fight.cstat[self.npc].action_points > 0:
             # If we don't have a target, pick a target.
             if not ( self.target and self.target.is_operational() ):
                 self.target = self.select_target(camp)
@@ -209,6 +210,19 @@ class BasicAI( object ):
             else:
                 # Can't move, can't attack. Might as well do nothing.
                 camp.fight.cstat[self.npc].spend_ap(1)
-            
+
+    def try_to_use_a_skill(self,camp):
+        # Check to see if any skills are usable.
+        my_skills = list()
+        my_library = self.npc.get_skill_library(True)
+        for shelf in my_library:
+            for invo in shelf.invo_list:
+                if invo.can_be_invoked(self.npc,True) and invo.ai_tar.get_impulse(self.npc,self.camp) > 0:
+                    my_skills.append(invo)
+
     def act(self,camp):
-        self.attempt_attack(camp)
+        # Attempt to use a skill first.
+        while camp.fight.still_fighting() and camp.fight.cstat[self.npc].action_points > 0:
+            # If targets exist, call attack.
+            # Otherwise attempt skill use again.
+            self.attempt_attack(camp)

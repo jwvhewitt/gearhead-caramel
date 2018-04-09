@@ -1,3 +1,4 @@
+- Centralized the move-then-invoke code (game/combat)
 - Default offers automatically added to conversation (pbge/dialogue)
 - VisibleGears have a shadow (gears/base.py)
 - PlaceableThings may be hidden (pbge/scenes)

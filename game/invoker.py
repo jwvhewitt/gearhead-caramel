@@ -170,8 +170,8 @@ class InvocationUI( object ):
                 self.mypath = mynav.get_path(fp)
                 return True
         else:
-            self.firing_points = self.invo.area.get_targets(self.camp,target_pos)
-            if self.firing_points.intersection(self.nav.cost_to_tile.keys()):
+            self.firing_points = self.camp.fight.can_move_and_invoke(self.pc,self.nav,self.invo,target_pos)
+            if self.firing_points:
                 fp = min(self.firing_points, key=lambda r: self.nav.cost_to_tile.get(r,10000))
                 self.mypath = self.nav.get_path(fp)
                 return True
@@ -247,16 +247,13 @@ class InvocationUI( object ):
                     # Maybe we can move into range? We can determine firing points by
                     # checking from the target's position.
                     tarp = pbge.my_state.view.mouse_tile
-                    firing_points = self.invo.area.get_targets(self.camp,pbge.my_state.view.mouse_tile)
-                    if firing_points.intersection(self.nav.cost_to_tile.keys()):
-                        fp = min(firing_points, key=lambda r: self.nav.cost_to_tile.get(r,10000))
-                        self.camp.fight.cstat[self.pc].mp_remaining += self.pc.get_current_speed()//2
-                        self.camp.fight.move_model_to(self.pc,self.nav,fp)
-                        if self.pc.pos == fp:
-                            self.targets.append( tarp )
-                        else:
-                            self.camp.fight.cstat[self.pc].spend_ap(1)
+                    firing_points = self.camp.fight.can_move_and_invoke(self.pc,self.nav,self.invo,tarp)
+                    if firing_points:
+                        self.camp.fight.move_and_invoke(self.pc,self.nav,self.invo,[tarp,],firing_points,self.record)
                         # Recalculate the combat info.
+                        self.targets = list()
+                        self.my_widget.update_buttons()
+                        self.record = False
                         self.activate()
                 else:
                     self.targets.append( pbge.my_state.view.mouse_tile )
@@ -280,7 +277,7 @@ class InvocationUI( object ):
         self.my_widget.active = True
         self.legal_tiles = self.invo.area.get_targets(self.camp,self.pc.pos)
         if self.camp.fight:
-            self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,self.pc.pos,(self.camp.fight.cstat[self.pc].action_points-1)*self.pc.get_current_speed()+self.pc.get_current_speed()//2+self.camp.fight.cstat[self.pc].mp_remaining,self.pc.mmode,self.camp.scene.get_blocked_tiles())
+            self.nav = self.camp.fight.get_action_nav(self.pc)
 
     def deactivate( self ):
         # Used during combat only!
