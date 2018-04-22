@@ -107,6 +107,8 @@ class SelfCentered( object ):
         if self.exclude_middle:
             tiles.remove( origin )
         return tiles
+    def get_targets( self, camp, origin ):
+        return self.get_area(camp,origin,(0,0))
     def get_delay_point( self, origin, target ):
         if self.delay_from < 0:
             return origin

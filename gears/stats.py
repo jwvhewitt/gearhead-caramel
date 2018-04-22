@@ -3,6 +3,7 @@ import geffects
 import pbge
 import random
 import materials
+import aitargeters
 
 
 #  ***************
@@ -25,6 +26,21 @@ class Speed( Stat ):
 
 class Perception( Stat ):
     name = 'Perception'
+    @classmethod
+    def add_invocations(self,pc,invodict):
+        pc_skill = pc.get_skill_score(self,Scouting)
+        ba = pbge.effects.Invocation(
+            name = 'Search',
+            fx=geffects.SetVisible(anim=geffects.SmokePoof,
+                ),
+            area=pbge.scenes.targetarea.SelfCentered(),
+            used_in_combat = True, used_in_exploration=True,
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsHidden()]),
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
+            price=[],
+            targets=1)
+        invodict[Scouting].append(ba)
 
 class Craft( Stat ):
     name = 'Craft'

@@ -152,7 +152,6 @@ class BasicAI( object ):
                 return None,None
 
     def attempt_attack( self, camp ):
-        # type: (Campaign) -> None
         # 1. Do I want to move?
         #    - Check to see if there's a better firing position within 1AP
         #    - Check to see if enemies are too close if minimum comfort range
@@ -167,8 +166,6 @@ class BasicAI( object ):
             #sample = sample[:len(sample)//4]
             self.camp = camp
             self.minr,self.midr,self.maxr = self.get_min_mid_max_range(self.npc.get_attack_library())
-            if not ( self.target and self.target.is_operational() ):
-                self.target = self.select_target(camp)
             if self.target and sample:
                 self.enemies = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar)]
                 best = max(sample,key=self._desirability)
@@ -177,10 +174,6 @@ class BasicAI( object ):
 
         # We are now either in a good position, or so far out of the loop it isn't funny.
         if camp.fight.cstat[self.npc].action_points > 0:
-            # If we don't have a target, pick a target.
-            if not ( self.target and self.target.is_operational() ):
-                self.target = self.select_target(camp)
-                
             my_attacks = self.npc.get_attack_library()
             
             # Attempt to attack the target, or failing that anyone
@@ -214,15 +207,32 @@ class BasicAI( object ):
     def try_to_use_a_skill(self,camp):
         # Check to see if any skills are usable.
         my_skills = list()
+        my_targets = dict()
+        my_nav = camp.fight.get_action_nav(self.npc)
         my_library = self.npc.get_skill_library(True)
         for shelf in my_library:
             for invo in shelf.invo_list:
-                if invo.can_be_invoked(self.npc,True) and invo.ai_tar.get_impulse(self.npc,self.camp) > 0:
-                    my_skills.append(invo)
+                if invo.can_be_invoked(self.npc,True) and invo.ai_tar and invo.ai_tar.get_impulse(camp,self.npc) > 0:
+                    potar = [tar for tar in invo.ai_tar.get_potential_targets(camp,self.npc) if camp.fight.can_move_and_invoke(self.npc,my_nav,invo,tar.pos)]
+                    if potar:
+                        my_skills.append(invo)
+                        my_targets[invo] = potar
+        if my_skills:
+            my_skills.sort(key=lambda invo: invo.ai_tar.get_impulse(camp,self.npc))
+            invo = my_skills.pop()
+            tar = random.choice(my_targets[invo])
+            camp.fight.move_and_invoke(self.npc,my_nav,invo,[tar.pos],camp.fight.can_move_and_invoke(self.npc,my_nav,invo,tar.pos))
+            return True
 
     def act(self,camp):
         # Attempt to use a skill first.
         while camp.fight.still_fighting() and camp.fight.cstat[self.npc].action_points > 0:
             # If targets exist, call attack.
             # Otherwise attempt skill use again.
-            self.attempt_attack(camp)
+            if not (self.target and self.target.is_operational()):
+                self.target = self.select_target(camp)
+            if self.target:
+                self.attempt_attack(camp)
+            else:
+                if not self.try_to_use_a_skill(camp):
+                    camp.fight.cstat[self.npc].spend_ap(1)

@@ -449,6 +449,17 @@ class SetHidden( effects.NoEffect ):
             anims.append(myanim)
         return self.children
 
+class SetVisible( effects.NoEffect ):
+    """An effect that reveals a model."""
+    def handle_effect( self, camp, fx_record, originator, pos, anims, delay=0 ):
+        """Do whatever is required of effect; return list of child effects."""
+        targets = camp.scene.get_operational_actors(pos)
+        for target in targets:
+            myanim = animobs.RevealModel( target,delay=delay)
+            anims.append(myanim)
+        return self.children
+
+
 #  ***************************
 #  ***   Roll  Modifiers   ***
 #  ***************************
