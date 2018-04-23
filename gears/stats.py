@@ -31,12 +31,14 @@ class Perception( Stat ):
         pc_skill = pc.get_skill_score(self,Scouting)
         ba = pbge.effects.Invocation(
             name = 'Search',
-            fx=geffects.SetVisible(anim=geffects.SmokePoof,
+            fx= geffects.OpposedSkillRoll(Perception,Scouting,Speed,Stealth,
+                anim=geffects.SearchAnim, roll_mod=25, min_chance=25,
+                on_success=[geffects.SetVisible(anim=geffects.SmokePoof,)],
                 ),
-            area=pbge.scenes.targetarea.SelfCentered(),
+            area=pbge.scenes.targetarea.SelfCentered(delay_from=-1),
             used_in_combat = True, used_in_exploration=True,
             ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsHidden()]),
-            shot_anim=None,
+            shot_anim=geffects.OriginSpotShotFactory(geffects.SearchTextAnim),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
             price=[],
             targets=1)

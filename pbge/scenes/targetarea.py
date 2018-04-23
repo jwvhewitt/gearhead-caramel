@@ -93,6 +93,8 @@ class SelfOnly( object ):
         return 0
     def get_firing_points(self,camp,desired_target):
         return None
+    def get_potential_targets(self,camp,pc):
+        return [pc,]
 
 class SelfCentered( object ):
     """A circle centered on originator."""

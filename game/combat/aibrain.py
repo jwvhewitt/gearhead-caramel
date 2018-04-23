@@ -212,13 +212,13 @@ class BasicAI( object ):
         my_library = self.npc.get_skill_library(True)
         for shelf in my_library:
             for invo in shelf.invo_list:
-                if invo.can_be_invoked(self.npc,True) and invo.ai_tar and invo.ai_tar.get_impulse(camp,self.npc) > 0:
-                    potar = [tar for tar in invo.ai_tar.get_potential_targets(camp,self.npc) if camp.fight.can_move_and_invoke(self.npc,my_nav,invo,tar.pos)]
+                if invo.can_be_invoked(self.npc,True) and invo.ai_tar and invo.ai_tar.get_impulse(invo,camp,self.npc) > 0:
+                    potar = [tar for tar in invo.ai_tar.get_potential_targets(invo,camp,self.npc) if camp.fight.can_move_and_invoke(self.npc,my_nav,invo,tar.pos)]
                     if potar:
                         my_skills.append(invo)
                         my_targets[invo] = potar
         if my_skills:
-            my_skills.sort(key=lambda invo: invo.ai_tar.get_impulse(camp,self.npc))
+            my_skills.sort(key=lambda invo: invo.ai_tar.get_impulse(invo,camp,self.npc))
             invo = my_skills.pop()
             tar = random.choice(my_targets[invo])
             camp.fight.move_and_invoke(self.npc,my_nav,invo,[tar.pos],camp.fight.can_move_and_invoke(self.npc,my_nav,invo,tar.pos))

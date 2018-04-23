@@ -117,29 +117,45 @@ class MedicineAnim( animobs.AnimOb ):
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 4
 
+
 class BiotechnologyAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_biotechnology.png"
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 4
 
 
+class SearchAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = 'anim_scouting_search.png'
+    DEFAULT_END_FRAME = 7
+
+
 class MissAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Miss!'
+
 
 class BlockAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Block!'
 
+
 class ParryAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Parry!'
+
 
 class InterceptAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Intercept!'
 
+
+class SearchTextAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Search!'
+
+
 class BigBullet( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_bigbullet.png"
 
+
 class GunBeam( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_gunbeam.png"
+
 
 class SmallBeam( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_smallbeam.png"
@@ -217,6 +233,14 @@ class BulletFactory( object ):
         my_anim = [self.proto_bullet,] * self.num_bullets
         return ClusterShot(start_pos=start_pos,end_pos=end_pos,delay=delay,child_classes=my_anim)
 
+class OriginSpotShotFactory( object ):
+    # Instead of a shot anim, this factory generates a spot anim.
+    def __init__(self, proto_spot):
+        self.proto_spot = proto_spot
+    def __call__(self,start_pos,end_pos,delay=0):
+        # Return the spot anim.
+        return self.proto_spot(pos=start_pos,delay=delay)
+
 
 #  *******************
 #  ***   Effects   ***
@@ -286,6 +310,7 @@ class AttackRoll( effects.NoEffect ):
             if defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers
+
 
 class MultiAttackRoll( effects.NoEffect ):
     """ One actor is gonna attack another actor.
@@ -366,6 +391,55 @@ class MultiAttackRoll( effects.NoEffect ):
             if defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers
+
+
+class OpposedSkillRoll( effects.NoEffect ):
+    """ Two actors make a skill roll. One will succeed, one will fail.
+    """
+    def __init__(self, att_stat, att_skill, def_stat, def_skill, on_success=(), on_failure=(), on_no_target=(), anim=None, roll_mod=0, min_chance=5, max_chance=95 ):
+        self.att_stat = att_stat
+        self.att_skill = att_skill
+        self.def_stat = def_stat
+        self.def_skill = def_skill
+        if not on_success:
+            on_success = list()
+        self.on_success = on_success
+        if not on_failure:
+            on_failure = list()
+        self.on_failure = on_failure
+        if not on_no_target:
+            on_no_target = list()
+        self.on_no_target = on_no_target
+        self.anim = anim
+        self.roll_mod = roll_mod
+        self.min_chance = min_chance
+        self.max_chance = max_chance
+
+    def _calc_percent(self, camp, originator, target):
+        if originator:
+            percent = originator.get_skill_score(self.att_stat,self.att_skill) + self.roll_mod
+        else:
+            percent = self.roll_mod
+        if target:
+            percent -= target.get_skill_score(self.def_stat,self.def_skill)
+        return max(min(percent,self.max_chance),self.min_chance)
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        target = camp.scene.get_main_actor(pos)
+        if target:
+            odds = self._calc_percent(camp,originator,target)
+            if random.randint(1,100) <= odds:
+                return self.on_success
+            else:
+                return self.on_failure
+        else:
+            return self.on_no_target
+
+    def get_odds( self, camp, originator, target ):
+        # Return the percent chance that this attack will hit and the list of
+        # modifiers in (value,name) form.
+        modifiers = [(self.roll_mod,'Base Modifier')]
+        return self._calc_percent(camp,originator,target)/100.0,modifiers
 
 
 class DoDamage( effects.NoEffect ):

@@ -35,8 +35,11 @@ class GenericTargeter(object):
         # Return True if npc is a good target for this invocation.
         return isinstance(npc,self.targetable_types) and all(con(camp, pc, npc) for con in self.conditions)
 
-    def get_potential_targets(self, camp, pc):
-        return [npc for npc in camp.scene.contents if self.is_potential_target(camp,pc,npc)]
+    def get_potential_targets(self, invo, camp, pc):
+        if hasattr(invo.area,"get_potential_targets"):
+            return [npc for npc in invo.area.get_potential_targets(camp,pc) if self.is_potential_target(camp,pc,npc)]
+        else:
+            return [npc for npc in camp.scene.contents if self.is_potential_target(camp,pc,npc)]
 
     def get_impulse(self, camp, pc):
         # Return an integer rating how desirable this action is.
