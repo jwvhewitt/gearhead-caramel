@@ -24,8 +24,6 @@ class AttackWidget(invoker.InvocationsWidget):
 
 class TargetingUI(invoker.InvocationUI):
     LIBRARY_WIDGET = AttackWidget
-    def __init__(self,camp,attacker):
+    def __init__(self,camp,attacker,foo=None,bar=None):
         super(TargetingUI,self).__init__(camp,attacker,attacker.get_attack_library)
-
-
 

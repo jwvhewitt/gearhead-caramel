@@ -2,6 +2,7 @@ from pbge import scenes
 import pbge
 import pygame
 import gears
+from gears import stats,geffects
 import combat
 import ghdialogue
 import configedit
@@ -219,6 +220,7 @@ class Explorer( object ):
         self.scene = camp.scene
         self.view = scenes.viewer.SceneView( camp.scene )
         self.mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
+        self.time = 0
 
         # Preload some portraits and sprites.
         self.preloads = list()
@@ -272,6 +274,9 @@ class Explorer( object ):
             self.camp.fight = combat.Combat( self.camp )
             self.camp.fight.activate_foe( npc )
 
+    CASUAL_SEARCH_CHECK = geffects.OpposedSkillRoll(stats.Perception, stats.Scouting, stats.Speed, stats.Stealth,
+                                                    on_success=True, on_failure=False, min_chance=10, max_chance=90)
+
     def update_npcs( self ):
         my_actors = self.scene.get_operational_actors()
         for npc in my_actors:
@@ -286,11 +291,23 @@ class Explorer( object ):
                     in_sight = False
                     for pc in self.camp.party:
                         if pc.pos in pov.tiles and pc in my_actors:
-                            in_sight = True
-                            break
+                            if not pc.hidden:
+                                in_sight = True
+                                break
+                            elif self.CASUAL_SEARCH_CHECK.handle_effect(self.camp,{},npc,pc.pos,list()):
+                                pc.hidden = False
+                                pbge.my_state.view.anim_list.append(geffects.SmokePoof(pos=pc.pos))
+                                pbge.my_state.view.anim_list.append(pbge.scenes.animobs.Caption(txt='Spotted!',pos=pc.pos))
+                                pbge.my_state.view.handle_anim_sequence()
+                                in_sight = True
+                                break
                     if in_sight:
                         self.activate_foe( npc )
 
+    def update_enchantments(self):
+        for thing in self.scene.contents:
+            if hasattr(thing,'ench_list'):
+                thing.ench_list.update(self.camp,thing)
 
     def go( self ):
         self.no_quit = True
@@ -338,7 +355,7 @@ class Explorer( object ):
 
                 pbge.my_state.do_flip()
 
-                #self.time += 1
+                self.time += 1
                 if hasattr(self.scene,"exploration_music"):
                     pbge.my_state.start_music(self.scene.exploration_music)
 
@@ -346,10 +363,10 @@ class Explorer( object ):
                     if not self.order( self ):
                         self.order = None
 
-                self.update_npcs()
-
-                #if self.time % 150 == 0:
-                #    self.update_enchantments()
+                if self.time % 35 == 75:
+                    self.update_npcs()
+                elif self.time % 150 == 0:
+                    self.update_enchantments()
 
             elif not self.order:
                 # Set the mouse cursor on the map.
@@ -376,8 +393,12 @@ class Explorer( object ):
                         if ( self.view.mouse_tile != self.camp.pc.get_root().pos ) and self.scene.on_the_map( *self.view.mouse_tile ):
                             npc = self.view.modelmap.get(self.view.mouse_tile)
                             if npc and npc[0].is_operational() and self.scene.is_an_actor(npc[0]):
-                                self.order = TalkTo( self, npc[0] )
-                                self.view.overlays.clear()
+                                npteam = self.scene.local_teams.get(npc[0])
+                                if npteam and self.scene.player_team.is_enemy(npteam):
+                                    self.activate_foe(npc[0])
+                                else:
+                                    self.order = TalkTo( self, npc[0] )
+                                    self.view.overlays.clear()
                             else:
                                 self.order = MoveTo( self, self.view.mouse_tile )
                                 self.view.overlays.clear()

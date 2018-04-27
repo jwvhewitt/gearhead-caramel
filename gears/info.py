@@ -54,6 +54,21 @@ class ListBlock( object ):
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
+
+class EnchantmentBlock( object ):
+    def __init__(self, model, width=220, **kwargs):
+        self.model = model
+        self.width = width
+        if model.ench_list:
+            self.image = pbge.render_text(pbge.SMALLFONT,', '.join([e.name for e in model.ench_list]),width,justify=-1)
+            self.height = self.image.get_height()
+        else:
+            self.image = None
+            self.height = 0
+    def render(self,x,y):
+        if self.image:
+            pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+
 class ModuleStatusBlock( object ):
     # This block contains both the module display and the Armor/Mobility displays.
     def __init__(self,model,width=220,**kwargs):
@@ -169,30 +184,30 @@ class ModuleDisplay( object ):
         self.module_dest = pygame.Rect(self.dest.x,self.dest.y,16,16)
 
         self.module_num = 0
-    	self.add_parts_of_type( base.MF_Head );
-    	self.add_parts_of_type( base.MF_Turret );
+        self.add_parts_of_type( base.MF_Head )
+        self.add_parts_of_type( base.MF_Turret )
         self.module_num = max(self.module_num,1) # Want pods to either side of body; head and/or turret in middle.
-    	self.add_parts_of_type( base.MF_Storage );
+        self.add_parts_of_type( base.MF_Storage )
         self.add_parts_of_tier( 1 )
 
         self.module_num = 0
         self.module_dest.y += 17
-    	self.add_parts_of_type( base.MF_Torso );
-    	self.add_parts_of_type( base.MF_Arm );
-    	self.add_parts_of_type( base.MF_Wing );
+        self.add_parts_of_type( base.MF_Torso )
+        self.add_parts_of_type( base.MF_Arm )
+        self.add_parts_of_type( base.MF_Wing )
         self.add_parts_of_tier( 2 )
 
         self.module_num = 0
         self.module_dest.y += 17
-    	self.add_parts_of_type( base.MF_Tail );
+        self.add_parts_of_type( base.MF_Tail )
         self.module_num = max(self.module_num,1) # Want legs to either side of body; tail in middle.
-    	self.add_parts_of_type( base.MF_Leg );
+        self.add_parts_of_type( base.MF_Leg )
         self.add_parts_of_tier( 3 )
 
 
 class MechaStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (NameBlock,ModuleStatusBlock,PilotStatusBlock)
+    DEFAULT_BLOCKS = (NameBlock,ModuleStatusBlock,PilotStatusBlock,EnchantmentBlock)
 
 class ListDisplay( InfoPanel ):
     DEFAULT_BLOCKS = (ListBlock,)

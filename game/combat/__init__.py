@@ -234,11 +234,13 @@ class Combat( object ):
     def do_combat_turn( self, chara ):
         if not self.cstat[chara].has_started_turn:
             self.cstat[chara].start_turn(chara)
-        if chara in self.camp.party:
+            if hasattr(chara,'ench_list'):
+                chara.ench_list.update(self.camp,chara)
+        if chara in self.camp.party and chara.is_operational():
             # Outsource the turn-taking.
             my_turn = PlayerTurn( chara, self.camp )
             my_turn.go()
-        else:
+        elif chara.is_operational():
             if chara not in self.ai_brains:
                 chara_ai = aibrain.BasicAI(chara)
                 self.ai_brains[chara] = chara_ai
@@ -261,14 +263,13 @@ class Combat( object ):
             if self.active[self.n].is_operational():
                 chara = self.active[self.n]
                 self.do_combat_turn( chara )
-                # After action, invoke enchantments and renew attacks of opportunity
-                #explo.invoke_enchantments( chara )
+                # After action, renew attacks of opportunity
                 self.cstat[chara].aoo_readied = True
                 self.cstat[chara].attacks_this_round = 0
                 chara.renew_power()
             self.n += 1
 
-        #if self.no_quit and not pygwrap.GOT_QUIT:
+        if self.no_quit and not pbge.my_state.got_quit:
             # Combat is over. Deal with things.
             #explo.check_trigger( "COMBATOVER" )
             #if self.camp.num_pcs() > 0:
@@ -278,19 +279,10 @@ class Combat( object ):
             #    #self.do_first_aid(explo)
             #    self.recover_fainted(explo)
 
-        # PCs stop hiding when combat ends.
-        #for pc in self.camp.party:
-        #    pc.hidden = False
-        #    pc.condition.tidy( enchantments.COMBAT )
+            for thing in self.scene.contents:
+                # Tidy up any combat enchantments.
+                if hasattr(thing,"ench_list"):
+                    thing.ench_list.tidy( gears.enchantments.END_COMBAT )
 
-        # Tidy up any combat enchantments.
-        #for m in self.scene.contents[:]:
-        #    if hasattr( m, "condition" ):
-        #        m.condition.tidy( enchantments.COMBAT )
-        #    if hasattr( m, "combat_only" ) and m.combat_only:
-        #        self.scene.contents.remove( m )
-        #    elif hasattr( m, "mitose" ) and hasattr( m, "hp_damage" ):
-        #        # Slimes regenerate after battle, to prevent split/flee exploit.
-        #        m.hp_damage = 0
 
 

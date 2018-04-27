@@ -1,9 +1,10 @@
 from pbge import effects
-from pbge.scenes import animobs,movement
+from pbge.scenes import animobs,movement,pfov
 import random
 import materials
 import damage
 import stats
+from enchantments import Enchantment,END_COMBAT
 
 #  *************************
 #  ***   Utility  Junk   ***
@@ -143,6 +144,10 @@ class ParryAnim( animobs.Caption ):
 
 class InterceptAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Intercept!'
+
+
+class FailAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Fail!'
 
 
 class SearchTextAnim( animobs.Caption ):
@@ -285,7 +290,10 @@ class AttackRoll( effects.NoEffect ):
                     hi_def_roll = max(def_roll,hi_def_roll)
                     if next_fx:
                         break
-            fx_record['penetration'] = att_roll + att_bonus + self.penetration - hi_def_roll
+            penetration = att_roll + att_bonus + self.penetration - hi_def_roll
+            if hasattr(target,'ench_list'):
+                penetration += target.ench_list.get_funval(camp,target,'get_penetration_bonus')
+            fx_record['penetration'] = penetration
 
             if camp.fight:
                 camp.fight.cstat[target].attacks_this_round += 1
@@ -359,7 +367,11 @@ class MultiAttackRoll( effects.NoEffect ):
                     if next_fx:
                         failed = True
                         break
-            fx_record['penetration'] = att_roll + att_bonus + self.penetration - hi_def_roll - self.get_multi_bonus()
+            penetration = att_roll + att_bonus + self.penetration - hi_def_roll - self.get_multi_bonus()
+            if hasattr(target,'ench_list'):
+                penetration += target.ench_list.get_funval(camp,target,'get_penetration_bonus')
+            fx_record['penetration'] = penetration
+
             if not failed:
                 if self.num_attacks <= 10:
                     num_hits = max(int(min( min( att_roll + att_bonus - hi_def_roll, 45 ) // 5 + 1, self.num_attacks )),1)
@@ -442,6 +454,68 @@ class OpposedSkillRoll( effects.NoEffect ):
         return self._calc_percent(camp,originator,target)/100.0,modifiers
 
 
+class CheckConditions( effects.NoEffect ):
+    """ This tile will be checked for something.
+        conditions is a list of conditions in the same format as the aitargeter conditions;
+        each condition is a callable that takes (camp,originator,target)
+    """
+    def __init__(self, conditions, on_success=(), on_failure=(), anim=None ):
+        self.conditions = conditions
+        if not on_success:
+            on_success = list()
+        self.on_success = on_success
+        if not on_failure:
+            on_failure = list()
+        self.on_failure = on_failure
+        self.anim = anim
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        target = camp.scene.get_main_actor(pos)
+        if all(con(camp, originator, target) for con in self.conditions):
+            return self.on_success
+        else:
+            return self.on_failure
+
+
+class StealthSkillRoll( effects.NoEffect ):
+    """ The originator makes a skill roll against the highest enemy in range.
+    """
+    def __init__(self, att_stat=None, att_skill=None, def_stat=None, def_skill=None, on_success=(), on_failure=(), radius=15, anim=None, roll_mod=50, min_chance=5, max_chance=95 ):
+        self.att_stat = att_stat or stats.Speed
+        self.att_skill = att_skill or stats.Stealth
+        self.def_stat = def_stat or stats.Perception
+        self.def_skill = def_skill or stats.Scouting
+        if not on_success:
+            on_success = list()
+        self.on_success = on_success
+        if not on_failure:
+            on_failure = list()
+        self.on_failure = on_failure
+        self.anim = anim
+        self.roll_mod = roll_mod
+        self.min_chance = min_chance
+        self.max_chance = max_chance
+        self.radius = radius
+
+    def _calc_percent(self, camp, originator, pos):
+        if originator:
+            percent = originator.get_skill_score(self.att_stat,self.att_skill) + self.roll_mod
+        else:
+            percent = self.roll_mod
+        observation_area = pfov.PointOfView( camp.scene, pos[0], pos[1], self.radius ).tiles
+        enemy_skills = [npc.get_skill_score(self.def_stat,self.def_skill) for npc in camp.scene.get_operational_actors() if camp.scene.are_hostile(originator,npc) and npc.pos in observation_area]
+        if enemy_skills:
+            percent -= max(enemy_skills)
+        return max(min(percent,self.max_chance),self.min_chance)
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        odds = self._calc_percent(camp,originator,pos)
+        if random.randint(1,100) <= odds:
+            return self.on_success
+        else:
+            return self.on_failure
+
+
 class DoDamage( effects.NoEffect ):
     """ Whatever is in this tile is going to take damage.
     """
@@ -510,6 +584,8 @@ class DoHealing( effects.NoEffect ):
                 y_off=-camp.scene.model_altitude(target,*target.pos))
             anims.append( myanim )
 
+            if hasattr(target, "ench_list"):
+                target.ench_list.tidy(self.repair_type)
 
         return self.children
 
@@ -531,6 +607,22 @@ class SetVisible( effects.NoEffect ):
         for target in targets:
             myanim = animobs.RevealModel( target,delay=delay)
             anims.append(myanim)
+        return self.children
+
+class AddEnchantment( effects.NoEffect ):
+    """ Apply an enchantment to the actor in this tile.
+    """
+    def __init__(self, enchant_type, enchant_params={}, children=(), anim=None ):
+        self.enchant_type = enchant_type
+        self.enchant_params = enchant_params
+        if not children:
+            children = list()
+        self.children = children
+        self.anim = anim
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        target = camp.scene.get_main_actor(pos)
+        if target and hasattr(target,'ench_list'):
+            target.ench_list.add_enchantment(self.enchant_type,self.enchant_params)
         return self.children
 
 
@@ -614,6 +706,27 @@ class ModuleBonus(object):
                 if hasattr(i,"get_aim_bonus"):
                     it += i.get_aim_bonus()
             return it
+        else:
+            return 0
+
+
+class SneakAttackBonus(object):
+    name = 'Sneak Attack'
+    BONUS = 20
+    def calc_modifier( self, camp, attacker, pos ):
+        if attacker and attacker.hidden:
+            return self.BONUS
+        else:
+            return 0
+
+
+class HiddenModifier(object):
+    name = 'Hidden'
+    BONUS = -25
+    def calc_modifier( self, camp, attacker, pos ):
+        target = camp.scene.get_main_actor(pos)
+        if target and target.hidden:
+            return self.BONUS
         else:
             return 0
 
@@ -846,8 +959,28 @@ class MentalPrice(object):
     def can_pay( self, chara ):
         return chara.get_current_mental() >= self.amount
 
+class RevealPositionPrice(object):
+    def __init__( self, weapon_flash ):
+        self.weapon_flash = weapon_flash
+
+    def pay( self, chara ):
+        stealth_skill = min(chara.get_skill_score(stats.Ego,stats.Stealth) - self.weapon_flash * 25, 50)
+        if random.randint(1,100) > stealth_skill:
+            chara.hidden = False
+
+    def can_pay( self, chara ):
+        return True
 
 
+#  ************************
+#  ***   ENCHANTMENTS   ***
+#  ************************
 
+
+class WeakPoint(Enchantment):
+    name = 'Weak Point'
+    DEFAULT_DISPEL = (END_COMBAT,)
+    def get_penetration_bonus(self,camp,owner):
+        return 20
 
 

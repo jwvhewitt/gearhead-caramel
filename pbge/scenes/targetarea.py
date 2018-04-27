@@ -92,7 +92,9 @@ class SelfOnly( object ):
     def get_reach( self ):
         return 0
     def get_firing_points(self,camp,desired_target):
-        return None
+        return set([desired_target,])
+    def get_targets(self,camp,origin):
+        return set([origin,])
     def get_potential_targets(self,camp,pc):
         return [pc,]
 

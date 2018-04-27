@@ -1,3 +1,8 @@
+- Repair will remove appropriate enchantments (gears/geffects.py)
+- Added enchantments
+- NPCs will use skills in combat as appropriate (game/combat/aibrain.py)
+- Added Search invocation (gears/stats)
+- Added Stealth invocation (gears/stats)
 - Centralized the move-then-invoke code (game/combat)
 - Default offers automatically added to conversation (pbge/dialogue)
 - VisibleGears have a shadow (gears/base.py)

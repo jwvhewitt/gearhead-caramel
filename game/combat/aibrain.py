@@ -215,17 +215,18 @@ class BasicAI( object ):
                 if invo.can_be_invoked(self.npc,True) and invo.ai_tar and invo.ai_tar.get_impulse(invo,camp,self.npc) > 0:
                     potar = [tar for tar in invo.ai_tar.get_potential_targets(invo,camp,self.npc) if camp.fight.can_move_and_invoke(self.npc,my_nav,invo,tar.pos)]
                     if potar:
-                        my_skills.append(invo)
+                        my_skills += [invo,] * invo.ai_tar.get_impulse(invo,camp,self.npc)
                         my_targets[invo] = potar
         if my_skills:
-            my_skills.sort(key=lambda invo: invo.ai_tar.get_impulse(invo,camp,self.npc))
-            invo = my_skills.pop()
+            invo = random.choice(my_skills)
             tar = random.choice(my_targets[invo])
             camp.fight.move_and_invoke(self.npc,my_nav,invo,[tar.pos],camp.fight.can_move_and_invoke(self.npc,my_nav,invo,tar.pos))
             return True
 
     def act(self,camp):
         # Attempt to use a skill first.
+        if camp.fight.cstat[self.npc].action_points > 0 and random.randint(1,2) == 1:
+            self.try_to_use_a_skill(camp)
         while camp.fight.still_fighting() and camp.fight.cstat[self.npc].action_points > 0:
             # If targets exist, call attack.
             # Otherwise attempt skill use again.

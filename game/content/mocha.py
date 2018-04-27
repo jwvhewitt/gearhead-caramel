@@ -733,6 +733,43 @@ class Intro_MysteriousMecha( Plot ):
 #  ***   Encounters   ***
 #  **********************
 
+class Encounter_StealthTest( Plot ):
+    # This will be the prototype for all MOCHA_MENCOUNTER
+    LABEL = "zMOCHA_DEBUGENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    # Info for the matches method and the plot checker...
+    REQUIRES = {ENEMY: NO_ENEMY, COMPLICATION: NO_COMPLICATION}
+    CHANGES = {ENEMY: BANDITS}
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        # Note that the lack of an ENCOUNTER_NUMBER implies that this
+        # plot is being loaded as a debug encounter.
+        return "ENCOUNTER_NUMBER" not in pstate.elements or all( pstate.elements.get(k,0) == self.REQUIRES[k] for k in self.REQUIRES.iterkeys() )
+    def load_next( self, nart ):
+        self.elements.update(self.CHANGES)
+        enc_num = self.elements.get("ENCOUNTER_NUMBER",0)
+        if enc_num == 1:
+            # Load the second encounter.
+            self.add_sub_plot( nart, "MOCHA_MENCOUNTER", PlotState( elements={"LOCALE":self.elements["LOCALE2"],"ENCOUNTER_NUMBER":2} ).based_on( self ) )
+        elif enc_num == 2:
+            mc = self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"MHOICE_ANCHOR":pbge.randmaps.anchors.west} ).based_on( self ) )
+            self.add_sub_plot( nart, "MOCHA_MHOICE", PlotState( elements={"MHOICE_ANCHOR":pbge.randmaps.anchors.east} ).based_on( mc ) )
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.southeast),dident="LOCALE")
+        team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
+        self.register_element("ENEMY_FACTION",gears.factions.BoneDevils)
+        meks = gears.selector.RandomMechaUnit(25,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
+        for m in meks:
+            p = m.get_pilot()
+            p.statline[stats.Stealth] = 5
+        team2.contents += meks
+        self.load_next(nart)
+        return True
+
+
 class Encounter_BasicBandits( Plot ):
     # This will be the prototype for all MOCHA_MENCOUNTER
     LABEL = "MOCHA_MENCOUNTER"

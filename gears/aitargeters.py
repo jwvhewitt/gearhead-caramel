@@ -6,18 +6,33 @@ class TargetIsEnemy(object):
     def __call__(self, camp, pc, npc):
         return camp.scene.are_hostile(pc, npc)
 
+
+class TargetIsAlly(object):
+    def __call__(self, camp, pc, npc):
+        return camp.scene.are_allies(pc, npc)
+
+
 class TargetIsOperational(object):
     def __call__(self, camp, pc, npc):
-        return npc.is_operational()
+        return npc and npc.is_operational()
+
 
 class TargetIsHidden(object):
     def __call__(self, camp, pc, npc):
-        return npc.hidden
+        return npc and npc.hidden
+
 
 class TargetIsNotHidden(object):
     def __call__(self, camp, pc, npc):
-        return not npc.hidden
+        return npc and not npc.hidden
 
+
+class TargetIsDamaged(object):
+    def __init__(self, damage_type):
+        self.damage_type = damage_type
+    def __call__(self, camp, pc, npc):
+        damage = sum(part.damage for part in npc.get_all_parts() if hasattr(part, "hp_damage") and part.hp_damage > 0 and part.material.repair_type == self.damage_type)
+        return damage > 0
 
 class GenericTargeter(object):
     # This targeter will attempt to use its invocation against an enemy model.
@@ -41,10 +56,10 @@ class GenericTargeter(object):
         else:
             return [npc for npc in camp.scene.contents if self.is_potential_target(camp,pc,npc)]
 
-    def get_impulse(self, camp, pc):
+    def get_impulse(self, invo, camp, pc):
         # Return an integer rating how desirable this action is.
         # An impulse of 10 is the default attack action.
-        if self.get_potential_targets(camp, pc):
+        if self.get_potential_targets(invo, camp, pc):
             return self.impulse_score
 
     def can_use_immediately(self):

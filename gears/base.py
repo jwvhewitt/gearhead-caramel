@@ -11,6 +11,7 @@ import geffects
 import attackattributes
 import tags
 import aitargeters
+import enchantments
 
 
 #
@@ -245,8 +246,12 @@ class Mover( KeyObject ):
             if self.get_speed(mm) > 0:
                 self.mmode = mm
                 break
-                
+
+
 class Combatant( KeyObject ):
+    def __init__(self, **keywords ):
+        self.ench_list = enchantments.EnchantmentList()
+        super(Combatant, self).__init__(**keywords)
     def get_attack_library( self ):
         my_invos = list()
         for p in self.descendants():
@@ -967,7 +972,9 @@ class Weapon( BaseGear, StandardDamageHandler ):
         return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self)}
 
     def get_modifiers( self ):
-        return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
+        return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),
+                geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module()),
+                geffects.SneakAttackBonus(),geffects.HiddenModifier()]
 
     def get_basic_attack( self ):
         ba = pbge.effects.Invocation(
@@ -983,6 +990,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
                 used_in_combat = True, used_in_exploration=False,
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=self.shot_anim,
+                price=[geffects.RevealPositionPrice(self.damage)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
                 targets=1)
         for aa in self.get_attributes():
@@ -1041,7 +1049,8 @@ class MeleeWeapon( Weapon ):
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
-        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
+        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),
+                geffects.ModuleBonus(self.get_module()),geffects.SneakAttackBonus(),geffects.HiddenModifier()]
     def get_basic_attack( self ):
         ba = pbge.effects.Invocation(
                 name = 'Basic Attack', 
@@ -1056,6 +1065,7 @@ class MeleeWeapon( Weapon ):
                 used_in_combat = True, used_in_exploration=False,
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=self.shot_anim,
+                price=[geffects.RevealPositionPrice(self.damage-1)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
                 targets=1)
         for aa in self.get_attributes():
@@ -1102,7 +1112,8 @@ class EnergyWeapon( Weapon ):
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
-        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
+        return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),
+                geffects.ModuleBonus(self.get_module()),geffects.SneakAttackBonus(),geffects.HiddenModifier()]
     def get_basic_power_cost( self ):
         mult = 0.25
         for aa in self.get_attributes():
@@ -1123,7 +1134,7 @@ class EnergyWeapon( Weapon ):
                 used_in_combat = True, used_in_exploration=False,
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=self.shot_anim,
-                price=[geffects.PowerPrice(self.get_basic_power_cost())],
+                price=[geffects.PowerPrice(self.get_basic_power_cost()),geffects.RevealPositionPrice(self.damage)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
                 targets=1)
         for aa in self.get_attributes():
@@ -1272,7 +1283,7 @@ class BallisticWeapon( Weapon ):
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon,thrill_power=self.damage*2+self.penetration),
-                price=[geffects.AmmoPrice(my_ammo,ammo_cost)],
+                price=[geffects.AmmoPrice(my_ammo,ammo_cost),geffects.RevealPositionPrice(self.damage)],
                 targets=targets)
 
         for aa in self.get_attributes():
@@ -1354,7 +1365,7 @@ class BeamWeapon( Weapon ):
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=self.shot_anim,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon,thrill_power=self.damage*2+self.penetration),
-                price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost)],
+                price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost),geffects.RevealPositionPrice(self.damage)],
                 targets=targets)
         for aa in self.get_attributes():
             if hasattr(aa,'modify_basic_attack'):
@@ -1498,7 +1509,10 @@ class Launcher( BaseGear, ContainerDamageHandler ):
         return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self),geffects.INTERCEPT: geffects.InterceptRoll(self)}
 
     def get_modifiers( self, ammo ):
-        return [geffects.RangeModifier(ammo.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
+        return [geffects.RangeModifier(ammo.reach),geffects.CoverModifier(),geffects.SpeedModifier(),
+                geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module()),
+                geffects.SneakAttackBonus(), geffects.HiddenModifier()]
+
     def get_attributes( self ):
         ammo = self.get_ammo()
         return ammo.attributes or []
@@ -1519,7 +1533,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                 used_in_combat = True, used_in_exploration=False,
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=geffects.Missile1,
-                price=[geffects.AmmoPrice(ammo,1)],
+                price=[geffects.AmmoPrice(ammo,1),geffects.RevealPositionPrice(ammo.damage)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),0,thrill_power=ammo.damage+ammo.penetration),
                 targets=1)
             for aa in self.get_attributes():
@@ -1543,7 +1557,7 @@ class Launcher( BaseGear, ContainerDamageHandler ):
                 used_in_combat = True, used_in_exploration=False,
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=geffects.MissileFactory(num_missiles),
-                price=[geffects.AmmoPrice(ammo,num_missiles)],
+                price=[geffects.AmmoPrice(ammo,num_missiles),geffects.RevealPositionPrice(ammo.damage*2)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png',32,32),frame,thrill_power=ammo.damage*2+ammo.penetration),
                 targets=1)
             for aa in self.get_attributes():
@@ -1653,7 +1667,9 @@ class ChemThrower( Weapon ):
         return {geffects.DODGE: geffects.ReflexSaveRoll(),geffects.BLOCK: geffects.BlockRoll(self)}
 
     def get_modifiers( self ):
-        return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module())]
+        return [geffects.RangeModifier(self.reach),geffects.CoverModifier(),geffects.SpeedModifier(),
+                geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self.get_module()),
+                geffects.SneakAttackBonus(), geffects.HiddenModifier()]
         
     def get_chem_cost(self):
         mult = 1.0
@@ -1678,7 +1694,7 @@ class ChemThrower( Weapon ):
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=self.get_shot_anim(),
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
-                price=[geffects.AmmoPrice(my_ammo,ammo_cost * self.get_chem_cost())],
+                price=[geffects.AmmoPrice(my_ammo,ammo_cost * self.get_chem_cost()),geffects.RevealPositionPrice(self.damage)],
                 targets=targets)
 
         for aa in self.get_attributes():
@@ -1880,7 +1896,8 @@ class Module( BaseGear, StandardDamageHandler ):
     def get_defenses( self ):
         return {geffects.DODGE: geffects.DodgeRoll(),geffects.BLOCK: geffects.BlockRoll(self),geffects.PARRY: geffects.ParryRoll(self)}
     def get_modifiers( self ):
-        return [geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self)]
+        return [geffects.SensorModifier(),geffects.OverwhelmModifier(),geffects.ModuleBonus(self),
+                geffects.SneakAttackBonus(), geffects.HiddenModifier()]
     def get_attacks( self ):
         # Return a list of invocations associated with this module.
         my_invos = list()
@@ -1896,6 +1913,7 @@ class Module( BaseGear, StandardDamageHandler ):
                 ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=1),
                 used_in_combat = True, used_in_exploration=False,
+                price=[geffects.RevealPositionPrice(self.size//3)],
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=None,
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0),
@@ -2399,7 +2417,7 @@ class Prop(BaseGear,StandardDamageHandler,HasPower,Combatant):
         my_invo_dict = collections.defaultdict(list)
         for p in self.statline.keys():
             if hasattr(p, 'add_invocations'):
-                p.add_invocations(pilot,my_invo_dict)
+                p.add_invocations(self,my_invo_dict)
         my_invos = list()
         for k,v in my_invo_dict.items():
             p_list = geffects.InvoLibraryShelf(k,v)

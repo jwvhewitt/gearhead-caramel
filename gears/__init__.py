@@ -15,6 +15,7 @@ import personality
 import factions
 import tags
 import selector
+import enchantments
 
 import inspect
 import re
@@ -90,23 +91,36 @@ class GearHeadScene( pbge.scenes.Scene ):
         self.scale = scale
         self.environment = environment
         self.script_rooms = list()
+
     def is_an_actor( self, model ):
         return isinstance(model,(base.Mecha,base.Character,base.Prop))
+
     def get_actors( self, pos ):
         return [a for a in self.contents if (self.is_an_actor(a) and (a.pos == pos)) ]
+
     def get_operational_actors( self, pos=None ):
         return [a for a in self.contents if (self.is_an_actor(a) and a.is_operational() and (pos is None or a.pos == pos)) ]
+
     def get_main_actor(self,pos):
         # In theory, a tile should only ever have one operational actor
         # in it. Check the tile, return the first operational actor found.
         mylist = self.get_operational_actors(pos)
         if mylist:
             return mylist[0]
+
     def get_blocked_tiles( self ):
         return {a.pos for a in self.contents if (self.is_an_actor(a) and a.is_operational()) }
+
     def are_hostile( self, a, b ):
-        team_a = self.local_teams.get(a)
-        return team_a and team_a.is_enemy(self.local_teams.get(b))
+        if a and b:
+            team_a = self.local_teams.get(a)
+            return team_a and team_a.is_enemy(self.local_teams.get(b))
+
+    def are_allies( self, a, b ):
+        if a and b:
+            team_a = self.local_teams.get(a)
+            return team_a and team_a.is_ally(self.local_teams.get(b))
+
     def update_party_position( self, camp ):
         self.in_sight = set()
         first = True
@@ -119,6 +133,7 @@ class GearHeadScene( pbge.scenes.Scene ):
                         if r.area.collidepoint(*pc.pos):
                             camp.check_trigger("ENTER",r)
                     first = False
+
     def get_tile_info( self, pos ):
         """Return an InfoPanel for the contents of this tile, if appropriate."""
         if self.get_visible(*pos):
@@ -129,6 +144,7 @@ class GearHeadScene( pbge.scenes.Scene ):
             elif pbge.my_state.view.waypointmap.get(pos):
                 wp = pbge.my_state.view.waypointmap.get(pos)
                 return info.ListDisplay(items=wp)
+
     def place_actor( self, actor, x0, y0, team=None ):
         entry_points = pbge.scenes.pfov.WalkReach( self, x0, y0, 5, True ).tiles
         entry_points = entry_points.difference( self.get_blocked_tiles() )
@@ -138,7 +154,6 @@ class GearHeadScene( pbge.scenes.Scene ):
         else:
             actor.place(self,(x0,y0),team)
         actor.gear_up()
-
 
 
 class GearHeadCampaign( pbge.campaign.Campaign ):

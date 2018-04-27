@@ -24,6 +24,11 @@ class Team( object ):
     def is_enemy( self, other_team ):
         return self.reactions.get(other_team) == ARE_ENEMIES
 
+    def make_allies( self, other_team ):
+        self.set_mutual_reaction(other_team,ARE_ALLIES)
+    def is_ally( self, other_team ):
+        return self is other_team or self.reactions.get(other_team) == ARE_ALLIES
+
     def predeploy( self, gb, room ):
         self.home = room.area
         if self.contents:
