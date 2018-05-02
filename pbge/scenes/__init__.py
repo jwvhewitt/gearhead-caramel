@@ -127,7 +127,8 @@ class PlaceableThing( KeyObject ):
         pass
     def move( self, dest, view, speed=0.25 ):
         view.anim_list.append( animobs.MoveModel( self, dest=dest, speed=speed))
-
+    # Define an update_graphics method if you need to change this object's appearance
+    # after invoking effects.
 
 
 

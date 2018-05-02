@@ -126,7 +126,7 @@ def play_the_game():
 
 
 if __name__ == "__main__":
-    #clay = gears.Loader.load_design_file('Gorilla.txt')
+    #clay = gears.Loader.load_design_file('Joust.txt')
     #clay[0].termdump()
     #clay[0].statusdump()
 

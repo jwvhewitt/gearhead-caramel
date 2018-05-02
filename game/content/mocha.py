@@ -229,7 +229,9 @@ class FrozenHotSpringCity( Plot ):
          personality=[personality.Cheerful,personality.Shy,personality.Fellowship])
         #vikki.imagename = 'cha_wm_vikki.png'
         vikki.portrait = 'card_f_wintervikki.png'
+        #vikki.portrait = 'card_n_wintermel.png'
         vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
+        #vikki.colors = (gears.color.Black,gears.color.Burlywood,gears.color.BugBlue,gears.color.NobleGold,gears.color.CeramicColor)
         vikki.mmode = pbge.scenes.movement.Walking
         myroom.contents.append(vikki)
         self.register_element( "VIKKI", vikki )
@@ -289,7 +291,7 @@ class FrozenHotSpringCity( Plot ):
 
     def _give_bad_mecha(self,camp):
         # Give the PC some cheapass mecha.
-        mygearlist = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Claymore.txt')
+        mygearlist = gears.Loader.load_design_file('Joust.txt')+gears.Loader.load_design_file('Claymore.txt')
         random.shuffle(mygearlist)
         mek1 = mygearlist[0]
         mek2 = mygearlist[1]

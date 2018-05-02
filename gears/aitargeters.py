@@ -34,6 +34,14 @@ class TargetIsDamaged(object):
         damage = sum(part.damage for part in npc.get_all_parts() if hasattr(part, "hp_damage") and part.hp_damage > 0 and part.material.repair_type == self.damage_type)
         return damage > 0
 
+
+class TargetDoesNotHaveEnchantment(object):
+    def __init__(self, enchantment_class):
+        self.enchantment_class = enchantment_class
+    def __call__(self, camp, pc, npc):
+        return hasattr(npc,'ench_list') and not npc.ench_list.get_enchantment_of_class(self.enchantment_class)
+
+
 class GenericTargeter(object):
     # This targeter will attempt to use its invocation against an enemy model.
     DEFAULT_CONDITIONS = ()

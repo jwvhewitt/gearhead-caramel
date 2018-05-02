@@ -1,3 +1,4 @@
+import pbge
 from pbge import effects
 from pbge.scenes import animobs,movement,pfov
 import random
@@ -5,6 +6,7 @@ import materials
 import damage
 import stats
 from enchantments import Enchantment,END_COMBAT
+import math
 
 #  *************************
 #  ***   Utility  Junk   ***
@@ -37,6 +39,7 @@ class InvoLibraryShelf( object ):
     def __str__(self):
         return self.source.name
 
+
 class AttackData( object ):
     # The data class passed to an attack invocation. Mostly just
     # contains the UI stuff.
@@ -54,6 +57,65 @@ class AttackData( object ):
         else:
             self.disabled_frame = active_frame + 2
         self.thrill_power = thrill_power
+
+
+class DashTarget( object ):
+    """You can charge and attack someone."""
+    AUTOMATIC = False
+    MOVE_AND_FIRE = False
+    def __init__( self, model, delay_from=0 ):
+        self.model = model
+        self.delay_from = delay_from
+    def get_area( self, camp, origin, target ):
+        tiles = set()
+        tiles.add( target )
+        return tiles
+    def get_targets( self, camp, origin ):
+        return DashReach( camp, origin[0], origin[1], self.model ).tiles
+    def get_delay_point( self, origin, target ):
+        if self.delay_from < 0:
+            return origin
+        elif self.delay_from > 0:
+            return target
+    def get_reach( self ):
+        return self.model.get_current_speed() // 10 + 1
+    def get_firing_points(self,camp,desired_target):
+        return {self.model.pos}
+    def get_potential_targets(self,camp,pc):
+        mytiles = DashReach( camp, pc.pos[0], pc.pos[1], self.model ).tiles
+        return [pc for pc in camp.scene.get_operational_actors() if pc.pos in mytiles]
+
+
+class DashReach( pfov.PointOfView ):
+    # Return the attackable tiles for a dash attack.
+    def __init__(self, camp, x0, y0, model ):
+        self.x = x0
+        self.y = y0
+        self.model = model
+        self.scene = camp.scene
+        self.blocked_tiles = camp.scene.get_blocked_tiles()
+        self.radius = model.get_current_speed() // 10 + 1
+        self.tiles = set()
+        self.vision_type = model.mmode
+        self.nav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,model.pos,model.get_current_speed(),model.mmode,self.blocked_tiles)
+        pfov.fieldOfView( x0 , y0 , camp.scene.width , camp.scene.height , self.radius , self )
+
+    def TileBlocked( self , x , y ):
+        if (x,y) in self.blocked_tiles:
+            return True
+        elif self.scene.on_the_map( x , y ):
+            return self.scene.tile_blocks_movement(x,y,self.vision_type)
+        else:
+            return True
+
+    def VisitTile( self , x , y ):
+        dist = round( math.sqrt( ( x-self.x )**2 + ( y-self.y )**2 ))
+        intline = animobs.get_line(self.model.pos[0],self.model.pos[1],x,y)
+
+        if dist <= self.radius and dist > 1 and intline[-2] in self.nav.cost_to_tile:
+            self.tiles.add( ( x , y ) )
+
+
 
 # Defense constants
 DODGE = 'DODGE'
@@ -102,6 +164,14 @@ class SuperBoom( animobs.AnimOb ):
 
 class SmokePoof( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_smokepoof.png"
+    DEFAULT_END_FRAME = 7
+
+class DustCloud( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_dustcloud.png"
+    DEFAULT_END_FRAME = 7
+
+class BurnAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_burning.png"
     DEFAULT_END_FRAME = 7
 
 class Fireball( animobs.AnimOb ):
@@ -246,6 +316,36 @@ class OriginSpotShotFactory( object ):
         # Return the spot anim.
         return self.proto_spot(pos=start_pos,delay=delay)
 
+class AnimBox( animobs.AnimOb ):
+    # This anim does nothing but release other anims into the wild.
+    def __init__( self, child_anims, delay=0 ):
+        """
+        :type child_anims: list
+        :type delay: int
+        """
+        self.child_anims = child_anims
+        self.children = list()
+        self.delay = delay
+        self.needs_deletion = False
+    def update( self, view ):
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.needs_deletion = True
+            original_children = self.children
+            self.children = list(self.child_anims)
+            self.children[0].children += original_children
+
+class DashFactory( object ):
+    # Instead of a shot anim, this factory generates a dash anim.
+    def __init__(self, dasher):
+        self.dasher = dasher
+    def __call__(self,start_pos,end_pos,delay=0):
+        # Return the spot anim.
+        mydash = animobs.Dash(self.dasher,end_pos=end_pos,delay=delay)
+        mydust = DustCloud(pos=self.dasher.pos,delay=2)
+        return AnimBox([mydash,mydust])
+
 
 #  *******************
 #  ***   Effects   ***
@@ -261,9 +361,7 @@ class AttackRoll( effects.NoEffect ):
     def __init__(self, att_stat, att_skill, children=(), anim=None, accuracy=0, penetration=0, modifiers=(), defenses=() ):
         self.att_stat = att_stat
         self.att_skill = att_skill
-        if not children:
-            children = list()
-        self.children = children
+        self.children = list(children)
         self.anim = anim
         self.accuracy = accuracy
         self.penetration = penetration
@@ -589,6 +687,7 @@ class DoHealing( effects.NoEffect ):
 
         return self.children
 
+
 class SetHidden( effects.NoEffect ):
     """An effect that hides a model."""
     def handle_effect( self, camp, fx_record, originator, pos, anims, delay=0 ):
@@ -598,6 +697,7 @@ class SetHidden( effects.NoEffect ):
             myanim = animobs.HideModel( target,delay=delay)
             anims.append(myanim)
         return self.children
+
 
 class SetVisible( effects.NoEffect ):
     """An effect that reveals a model."""
@@ -609,20 +709,24 @@ class SetVisible( effects.NoEffect ):
             anims.append(myanim)
         return self.children
 
+
 class AddEnchantment( effects.NoEffect ):
     """ Apply an enchantment to the actor in this tile.
     """
-    def __init__(self, enchant_type, enchant_params={}, children=(), anim=None ):
+    def __init__(self, enchant_type, enchant_params={}, dur_n=None, dur_d=None, children=(), anim=None ):
         self.enchant_type = enchant_type
         self.enchant_params = enchant_params
-        if not children:
-            children = list()
-        self.children = children
+        self.dur_n = dur_n
+        self.dur_d = dur_d
+        self.children = list(children)
         self.anim = anim
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         target = camp.scene.get_main_actor(pos)
         if target and hasattr(target,'ench_list'):
-            target.ench_list.add_enchantment(self.enchant_type,self.enchant_params)
+            params = self.enchant_params.copy()
+            if self.dur_n and self.dur_d:
+                params['duration'] = sum(random.randint(1, self.dur_d) for n in range(self.dur_n))
+            target.ench_list.add_enchantment(self.enchant_type,params)
         return self.children
 
 
@@ -643,6 +747,7 @@ class RangeModifier( object ):
             my_mod += (self.range_step-3-my_range) * -5
         return my_mod
 
+
 class CoverModifier( object ):
     name = 'Cover'
     def __init__(self,vision_type=movement.Vision):
@@ -650,6 +755,7 @@ class CoverModifier( object ):
     def calc_modifier( self, camp, attacker, pos ):
         my_mod = -camp.scene.get_cover(attacker.pos[0],attacker.pos[1],pos[0],pos[1])
         return my_mod
+
 
 class SpeedModifier( object ):
     name = 'Target Movement'
@@ -665,6 +771,7 @@ class SpeedModifier( object ):
                 my_mod += camp.fight.cstat[t].moves_this_round * self.MOD_PER_TILE
         return my_mod
 
+
 class SensorModifier( object ):
     name = 'Sensor Range'
     PENALTY = -5
@@ -675,6 +782,7 @@ class SensorModifier( object ):
             return (my_range - my_sensor)*self.PENALTY
         else:
             return 0
+
 
 class OverwhelmModifier( object ):
     # Every time you are attacked, the next attack gets a bonus to hit.
@@ -688,12 +796,14 @@ class OverwhelmModifier( object ):
                 my_mod += camp.fight.cstat[t].attacks_this_round * self.MOD_PER_ATTACK
         return my_mod
 
+
 class GenericBonus(object):
     def __init__(self,name,bonus):
         self.name = name
         self.bonus = bonus
     def calc_modifier( self, camp, attacker, pos ):
         return self.bonus
+
 
 class ModuleBonus(object):
     def __init__(self,wmodule):
@@ -771,6 +881,7 @@ class DodgeRoll( object ):
 
     CHILDREN = (effects.NoEffect(anim=MissAnim),)
 
+
 class ReflexSaveRoll( object ):
     # Taking the name from d20... Unlike a regular dodge roll, a reflex save
     # can't entirely avoid an attack, but it can reduce the damage done.
@@ -790,6 +901,7 @@ class ReflexSaveRoll( object ):
 
     def get_odds( self, atroller, attacker, defender, att_bonus ):
         return 1.0
+
 
 class BlockRoll( object ):
     def __init__(self,weapon_to_block):
@@ -834,6 +946,7 @@ class BlockRoll( object ):
             return 1.0
     CHILDREN = (effects.NoEffect(anim=BlockAnim),)
 
+
 class ParryRoll( object ):
     def __init__(self,weapon_to_parry):
         self.weapon_to_parry = weapon_to_parry
@@ -876,6 +989,7 @@ class ParryRoll( object ):
         else:
             return 1.0
     CHILDREN = (effects.NoEffect(anim=ParryAnim),)
+
 
 class InterceptRoll( object ):
     def __init__(self,weapon_to_intercept):
@@ -938,6 +1052,7 @@ class AmmoPrice(object):
     def can_pay( self, chara ):
         return self.ammo_source.quantity >= (self.ammo_source.spent + self.ammo_amount)
 
+
 class PowerPrice(object):
     def __init__( self, power_amount ):
         self.power_amount = power_amount
@@ -949,6 +1064,7 @@ class PowerPrice(object):
         cp,mp = chara.get_current_and_max_power()
         return cp >= self.power_amount
 
+
 class MentalPrice(object):
     def __init__( self, amount ):
         self.amount = amount
@@ -958,6 +1074,7 @@ class MentalPrice(object):
 
     def can_pay( self, chara ):
         return chara.get_current_mental() >= self.amount
+
 
 class RevealPositionPrice(object):
     def __init__( self, weapon_flash ):
@@ -976,6 +1093,18 @@ class RevealPositionPrice(object):
 #  ***   ENCHANTMENTS   ***
 #  ************************
 
+class Burning(Enchantment):
+    name = 'Burning'
+    DEFAULT_DURATION = 3
+    def update(self,camp,owner):
+        burn = effects.Invocation(
+            name = 'Burn',
+            fx= DoDamage(2,4,scale=owner.scale,scatter=True,
+                         anim=BurnAnim,),
+            area=pbge.scenes.targetarea.SingleTarget(),)
+        burn.invoke(camp, None, [owner.pos,], pbge.my_state.view.anim_list)
+        pbge.my_state.view.handle_anim_sequence()
+
 
 class WeakPoint(Enchantment):
     name = 'Weak Point'
@@ -984,3 +1113,9 @@ class WeakPoint(Enchantment):
         return 20
 
 
+class HaywireStatus(Enchantment):
+    name = 'Haywire'
+    # The only top 10 status effect from Prince Edward Island
+    DEFAULT_DURATION = 3
+    DEFAULT_DURATION = (END_COMBAT,materials.RT_REPAIR)
+    ALT_AI = 'HaywireAI'

@@ -224,7 +224,7 @@ class Scouting( Skill ):
                 ),
             area=pbge.scenes.targetarea.SingleTarget(reach=15),
             used_in_combat = True, used_in_exploration=False,
-            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsHidden()]),
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.WeakPoint)]),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),9),
             price=[geffects.MentalPrice(2),],
             targets=1)

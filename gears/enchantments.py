@@ -17,7 +17,7 @@ class EnchantmentList(list):
     def add_enchantment(self, ench_type, ench_params):
         current_ench = self.get_enchantment_of_class(ench_type)
         if current_ench and hasattr(current_ench,'add_enchantment'):
-            current_ench.add_enchantment(ench_params)
+            current_ench.add_enchantment(**ench_params)
         elif not current_ench:
             self.append(ench_type(**ench_params))
 
@@ -56,6 +56,8 @@ class EnchantmentList(list):
                 elif v < 0:
                     n_max = min( v , n_max )
         return p_max + n_max
+    def get_tags(self,tag_id):
+        return [getattr(thing,tag_id) for thing in self if hasattr(thing,tag_id)]
 
 
 class Enchantment(object):
@@ -68,7 +70,7 @@ class Enchantment(object):
     def add_enchantment(self, **kwargs):
         # An enchantment of the same type is being added to this one.
         if self.duration:
-            d = kwargs.get('duration')
+            d = kwargs.get('duration') or self.DEFAULT_DURATION
             if d:
                 self.duration += max(d-1,1)
 

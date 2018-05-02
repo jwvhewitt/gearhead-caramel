@@ -230,6 +230,21 @@ class MoveModel( object ):
         else:
             self.needs_deletion = True
 
+class Dash( MoveModel ):
+    def __init__( self, model, start_pos=None, end_pos=(0,0), speed=0.5, delay=0 ):
+        self.model = model
+        self.speed = speed
+        if not start_pos:
+            start_pos = model.pos
+        intline = get_line(start_pos[0],start_pos[1],end_pos[0],end_pos[1])
+        self.dest = intline[-2]
+        self.delay = delay
+        self.step = 0
+        self.needs_deletion = False
+        self.children = list()
+        self.itinerary = get_fline(start_pos,self.dest,speed)
+
+
 class HideModel( object ):
     def __init__( self, model, delay=0, children = [] ):
         self.model = model

@@ -256,6 +256,11 @@ class SceneView( object ):
         # Restore the widgets.
         my_state.widgets_active = push_widget_state
 
+        # Update any placable things that need updates.
+        for thing in self.scene.contents:
+            if hasattr(thing,'update_graphics'):
+                thing.update_graphics()
+
 
     def PosToKey( self, pos ):
         # Convert the x,y coordinates to a model_map key...

@@ -73,6 +73,7 @@ Mecha
                                 Chem
                                     name = "Napalm"
                                     quantity = 120
+                                    attributes = (BurnAttack)
                             END
                     END
             END

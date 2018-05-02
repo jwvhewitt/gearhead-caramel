@@ -141,9 +141,11 @@ class VisibleGear( pbge.scenes.PlaceableThing ):
     # - May have a portrait
     def __init__(self, portrait=None, **keywords ):
         self.portrait = portrait
+        self.destroyed_pose = False
         super(VisibleGear, self).__init__(**keywords)
     SAVE_PARAMETERS = ('portrait',)
     FRAMES = ((0,0,400,600),(0,600,100,100),(100,600,64,64))
+    DESTROYED_FRAME = 1
     def get_sprite(self):
         """Generate the sprite for this thing."""
         if self.portrait and self.portrait.startswith('card_'):
@@ -158,9 +160,12 @@ class VisibleGear( pbge.scenes.PlaceableThing ):
             else:
                 return pbge.image.Image(self.portrait,color=self.colors)
     def render( self, foot_pos, view ):
-        self.render_shadow(foot_pos,view)
-        if not self.hidden:
-            self.render_visible( foot_pos, view )
+        if self.destroyed_pose:
+            self.render_destroyed(foot_pos,view)
+        else:
+            self.render_shadow(foot_pos,view)
+            if not self.hidden:
+                self.render_visible( foot_pos, view )
     def render_shadow( self, foot_pos, view ):
         spr = view.get_named_sprite('sys_shadow.png',transparent=50)
         mydest = spr.get_rect(0)
@@ -168,6 +173,14 @@ class VisibleGear( pbge.scenes.PlaceableThing ):
         mydest.topleft = (view.relative_x( x, y ) + view.x_off,
             view.relative_y( x, y ) + view.y_off - view.scene.tile_altitude(x,y))
         spr.render( mydest, 0 )
+    def render_destroyed( self, foot_pos, view ):
+        spr = view.get_named_sprite('sys_destroyed.png')
+        mydest = spr.get_rect(0)
+        mydest.midbottom = foot_pos
+        mydest.top += 8
+        spr.render( mydest, self.DESTROYED_FRAME )
+    def update_graphics(self):
+        self.destroyed_pose = not self.is_operational()
 
 
 class Mover( KeyObject ):
@@ -1034,6 +1047,7 @@ class Weapon( BaseGear, StandardDamageHandler ):
             rstr = '{}-{}-{}'.format(self.reach,self.reach*2,self.reach*3)
         return rstr
 
+
 class MeleeWeapon( Weapon ):
     MIN_REACH = 1
     MAX_REACH = 3
@@ -1044,16 +1058,17 @@ class MeleeWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 3
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Flail,attackattributes.Defender,)
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.Flail,
+                        attackattributes.Defender,attackattributes.ChargeAttack)
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
         return [geffects.CoverModifier(),geffects.SensorModifier(),geffects.OverwhelmModifier(),
                 geffects.ModuleBonus(self.get_module()),geffects.SneakAttackBonus(),geffects.HiddenModifier()]
-    def get_basic_attack( self ):
+    def get_basic_attack( self, name='Basic Attack', attack_icon=0 ):
         ba = pbge.effects.Invocation(
-                name = 'Basic Attack', 
+                name = name,
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.get_attack_skill(),
                     children = (geffects.DoDamage(self.damage,6,scale=self.scale),),
@@ -1066,7 +1081,7 @@ class MeleeWeapon( Weapon ):
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=self.shot_anim,
                 price=[geffects.RevealPositionPrice(self.damage-1)],
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon,thrill_power=self.damage*2+self.penetration),
                 targets=1)
         for aa in self.get_attributes():
             if hasattr(aa,'modify_basic_attack'):
@@ -1107,8 +1122,8 @@ class EnergyWeapon( Weapon ):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 20
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.Flail,
-        attackattributes.Defender,attackattributes.Intercept)
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate,attackattributes.BurnAttack,attackattributes.Flail,
+        attackattributes.Defender,attackattributes.Intercept,attackattributes.ChargeAttack)
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
     def get_modifiers( self ):
@@ -1120,9 +1135,9 @@ class EnergyWeapon( Weapon ):
             mult *= aa.POWER_MODIFIER
         return max(int( self.scale.scale_power(self.damage) * mult ), 1)
 
-    def get_basic_attack( self ):
+    def get_basic_attack( self, name='Basic Attack', attack_icon=0 ):
         ba = pbge.effects.Invocation(
-                name = 'Basic Attack', 
+                name = name,
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.get_attack_skill(),
                     children = (geffects.DoDamage(self.damage,6,scale=self.scale,hot_knife=True),),
@@ -1135,7 +1150,7 @@ class EnergyWeapon( Weapon ):
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,),),
                 shot_anim=self.shot_anim,
                 price=[geffects.PowerPrice(self.get_basic_power_cost()),geffects.RevealPositionPrice(self.damage)],
-                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),0,thrill_power=self.damage*2+self.penetration),
+                data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),attack_icon,thrill_power=self.damage*2+self.penetration),
                 targets=1)
         for aa in self.get_attributes():
             if hasattr(aa,'modify_basic_attack'):
@@ -1187,7 +1202,7 @@ class Ammo( BaseGear, Stackable, StandardDamageHandler ):
     STACK_CRITERIA = ("ammo_type",'attributes')
     SAVE_PARAMETERS = ('ammo_type','quantity','area_anim','attributes')
     LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2,
-        attackattributes.Scatter, 
+        attackattributes.BurnAttack,attackattributes.Scatter,
         )
     def __init__(self, ammo_type=calibre.Shells_150mm, quantity=12, area_anim=None, attributes=(), **keywords ):
         # Check the range of all parameters before applying.
@@ -1404,7 +1419,7 @@ class Missile( BaseGear, StandardDamageHandler ):
     MAX_PENETRATION = 5
     STACK_CRITERIA = ("reach","damage","accuracy","penetration")
     LEGAL_ATTRIBUTES = (attackattributes.Blast1,attackattributes.Blast2,
-        attackattributes.Scatter, 
+        attackattributes.BurnAttack, attackattributes.Scatter,
         )
     def __init__(self, reach=1,damage=1,accuracy=1,penetration=1,quantity=12,area_anim=None,attributes=(),**keywords ):
         # Check the range of all parameters before applying.
@@ -1594,11 +1609,11 @@ class Launcher( BaseGear, ContainerDamageHandler ):
             return geffects.BigBoom
 
 
-class Chem( BaseGear, Stackable, StandardDamageHandler ):
+class Chem(BaseGear, Stackable, StandardDamageHandler):
     DEFAULT_NAME = "Chem"
     STACK_CRITERIA = ('attributes',)
     SAVE_PARAMETERS = ('quantity','attributes','shot_anim','area_anim')
-    LEGAL_ATTRIBUTES = tuple()
+    LEGAL_ATTRIBUTES = (attackattributes.BurnAttack,)
     def __init__(self, quantity=20, shot_anim=None, area_anim=None, attributes=(), **keywords ):
         # Check the range of all parameters before applying.
         self.quantity = max( quantity, 1 )
@@ -2227,6 +2242,7 @@ class Character(BaseGear,StandardDamageHandler,Mover,VisibleGear,HasPower,Combat
     SAVE_PARAMETERS = ('statline','personality')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat
+    DESTROYED_FRAME = 0
     def __init__(self, statline=None, personality=(), **keywords ):
         self.statline = collections.defaultdict(int)
         if statline:

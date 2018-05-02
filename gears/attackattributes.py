@@ -56,6 +56,19 @@ class Blast2(Blast1):
     POWER_MODIFIER = 3.0
     BLAST_RADIUS = 2
 
+
+class BurnAttack(Singleton):
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.0
+    POWER_MODIFIER = 1.5
+
+    @classmethod
+    def modify_basic_attack(self, weapon, attack):
+        # Add a burn status to the children.
+        attack.fx.children.append(geffects.AddEnchantment(geffects.Burning,))
+
+
 class BurstFire2(Singleton):
     # Default fire action fires multiple bullets.
     MASS_MODIFIER = 1.2
@@ -82,6 +95,7 @@ class BurstFire2(Singleton):
         )
         return [base,]
 
+
 class BurstFire3(BurstFire2):
     # Default fire action fires multiple bullets.
     MASS_MODIFIER = 1.3
@@ -89,6 +103,7 @@ class BurstFire3(BurstFire2):
     COST_MODIFIER = 2.0
     POWER_MODIFIER = 1.0
     BURST_VALUE = 3
+
 
 class BurstFire4(BurstFire2):
     # Default fire action fires multiple bullets.
@@ -98,6 +113,7 @@ class BurstFire4(BurstFire2):
     POWER_MODIFIER = 1.0
     BURST_VALUE = 4
 
+
 class BurstFire5(BurstFire2):
     # Default fire action fires multiple bullets.
     MASS_MODIFIER = 1.5
@@ -105,6 +121,24 @@ class BurstFire5(BurstFire2):
     COST_MODIFIER = 3.0
     POWER_MODIFIER = 1.0
     BURST_VALUE = 5
+
+
+class ChargeAttack(Singleton):
+    # This weapon has a charge attack
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.5
+    COST_MODIFIER = 1.5
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def get_attacks( self, weapon ):
+        aa = weapon.get_basic_attack(name='Charge',attack_icon=15)
+        aa.fx.modifiers.append(geffects.GenericBonus('Charge',10))
+        aa.fx.children[0].damage_d = 10
+        aa.area = geffects.DashTarget(weapon.get_root())
+        aa.data.thrill_power = int(aa.data.thrill_power * 1.5)
+        aa.shot_anim = geffects.DashFactory(weapon.get_root())
+        return [aa]
 
 class ConeAttack(Singleton):
     MASS_MODIFIER = 2.0

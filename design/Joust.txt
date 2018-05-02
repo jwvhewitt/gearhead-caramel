@@ -1,0 +1,117 @@
+Mecha
+    name = "Joust"
+    desig = "A7800"
+    imagename = "btr_joust.png"
+    portrait = "mecha_joust.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Trooper,Command)
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 725
+                Gyroscope
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 3
+                Hand
+                    name = "Right Hand"
+                    INV
+                        EnergyWeapon
+                            name = "Plasma Lance"
+                            reach=1
+                            damage=3
+                            accuracy=2
+                            penetration=2
+                            attributes=(ChargeAttack)
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 3
+                Hand
+                    name = "Left Hand"
+			END
+            INV
+				Shield
+				    name = "Gun Shield"
+					size = 5
+					bonus = 1
+					SUB
+					    BallisticWeapon
+                        name = "Light Autocannon"
+                        reach = 4
+                        damage = 1
+                        accuracy = 0
+                        penetration = 0
+                        ammo_type = Shells_20mm
+                        attributes = (BurstFire3)
+                        integral = True
+                        SUB
+                            Ammo
+                                ammo_type=Shells_20mm
+                                quantity=90
+                        END
+					END
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 6
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 6
+            END
+    END

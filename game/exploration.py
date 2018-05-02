@@ -255,6 +255,12 @@ class Explorer( object ):
             x,y = first_pc.pos
             self.view.focus( x, y )
 
+        # Make sure all graphics are updated.
+        for thing in self.scene.contents:
+            if hasattr(thing,'update_graphics'):
+                thing.update_graphics()
+
+
     def update_scene( self ):
         for npc in self.scene.contents:
             if hasattr(npc,"gear_up"):
@@ -294,7 +300,7 @@ class Explorer( object ):
                             if not pc.hidden:
                                 in_sight = True
                                 break
-                            elif self.CASUAL_SEARCH_CHECK.handle_effect(self.camp,{},npc,pc.pos,list()):
+                            elif self.time % 75 == 0 and self.CASUAL_SEARCH_CHECK.handle_effect(self.camp,{},npc,pc.pos,list()):
                                 pc.hidden = False
                                 pbge.my_state.view.anim_list.append(geffects.SmokePoof(pos=pc.pos))
                                 pbge.my_state.view.anim_list.append(pbge.scenes.animobs.Caption(txt='Spotted!',pos=pc.pos))
@@ -363,9 +369,8 @@ class Explorer( object ):
                     if not self.order( self ):
                         self.order = None
 
-                if self.time % 35 == 75:
-                    self.update_npcs()
-                elif self.time % 150 == 0:
+                self.update_npcs()
+                if self.time % 150 == 0:
                     self.update_enchantments()
 
             elif not self.order:

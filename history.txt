@@ -1,3 +1,6 @@
+- Added Joust mecha
+- Added charge attacks (gears/geffects.py)
+- Added BurnAttack status effect (gears/attackattributes.py)
 - Repair will remove appropriate enchantments (gears/geffects.py)
 - Added enchantments
 - NPCs will use skills in combat as appropriate (game/combat/aibrain.py)
