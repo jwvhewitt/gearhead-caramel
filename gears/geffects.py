@@ -1117,5 +1117,5 @@ class HaywireStatus(Enchantment):
     name = 'Haywire'
     # The only top 10 status effect from Prince Edward Island
     DEFAULT_DURATION = 3
-    DEFAULT_DURATION = (END_COMBAT,materials.RT_REPAIR)
+    DEFAULT_DISPEL = (END_COMBAT,materials.RT_REPAIR)
     ALT_AI = 'HaywireAI'

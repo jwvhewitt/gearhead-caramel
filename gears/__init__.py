@@ -16,6 +16,7 @@ import factions
 import tags
 import selector
 import enchantments
+import programs
 
 import inspect
 import re
@@ -53,6 +54,7 @@ harvest( geffects, pbge.scenes.animobs.AnimOb,SINGLETON_TYPES, ())
 harvest( attackattributes, pbge.Singleton, SINGLETON_TYPES, ())
 harvest( factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest( tags, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
+harvest( programs, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 
 def harvest_color( mod, subclass_of, dict_to_add_to, exclude_these ):
     for name in dir( color ):

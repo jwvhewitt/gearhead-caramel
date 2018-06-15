@@ -886,6 +886,54 @@ class PowerSource( BaseGear, StandardDamageHandler, MakesPower ):
     def max_power(self):
         return self.scale.scale_power( self.size * 5 )
 
+
+#   *********************************
+#   ***   COMPUTERS AND EW GEAR   ***
+#   *********************************
+
+class EWSystem( BaseGear, StandardDamageHandler, MakesPower ):
+    DEFAULT_NAME = "EW System"
+    SAVE_PARAMETERS = ('size','programs')
+    def __init__(self, size=1, programs=(), **keywords ):
+        # Check the range of all parameters before applying.
+        if size < 1:
+            size = 1
+        self.size = size
+        self.programs = list(programs)
+        if len(self.programs) > self.size:
+            self.programs = self.programs[:self.size]
+        super(EWSystem, self).__init__(**keywords)
+
+    @property
+    def base_mass(self):
+        return 2 * self.size
+
+    @property
+    def volume(self):
+        return self.size
+
+    @property
+    def base_cost(self):
+        return self.size * 125 + sum(p.COST for p in self.programs if hasattr(p,'COST'))
+
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
+
+    def is_operational( self ):
+        """ To be operational, an EW System must be in an operational module.
+        """
+        mod = self.get_module()
+        return self.is_not_destroyed() and mod and mod.is_operational()
+
+    def get_programs(self,pc,invodict):
+        for p in self.programs:
+            if p not in invodict:
+                invodict[p] = p.get_invocations(pc)
+
+
+
 #   *******************
 #   ***   WEAPONS   ***
 #   *******************
@@ -1806,7 +1854,7 @@ class MF_Head( ModuleForm ):
     SENSOR_BONUS = 1
     @classmethod
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon,Launcher,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable ) )
+        return isinstance( part , ( Weapon,Launcher,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable,EWSystem ) )
 
 class MF_Torso( ModuleForm ):
     name = "Torso"
@@ -1815,7 +1863,7 @@ class MF_Torso( ModuleForm ):
     }
     @classmethod
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon,Launcher,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable,Engine,Gyroscope ) )
+        return isinstance( part , ( Weapon,Launcher,Armor,Sensor,Cockpit,Mount,MovementSystem,PowerSource,Usable,Engine,Gyroscope,EWSystem ) )
     VOLUME_X = 4
     MASS_X = 2
 
@@ -1826,7 +1874,7 @@ class MF_Arm( ModuleForm ):
     ACCURACY = 1
     @classmethod
     def is_legal_sub_com( self, part ):
-        return isinstance( part , ( Weapon,Launcher, Armor, Hand, Mount,MovementSystem,PowerSource,Sensor,Usable ) )
+        return isinstance( part , ( Weapon,Launcher, Armor, Hand, Mount,MovementSystem,PowerSource,Sensor,Usable,EWSystem ) )
     @classmethod
     def is_legal_inv_com( self, part ):
         return isinstance( part, Shield )
@@ -1837,20 +1885,20 @@ class MF_Leg( ModuleForm ):
     PENETRATION = 1
     @classmethod
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable,EWSystem) )
 
 class MF_Wing( ModuleForm ):
     name = "Wing"
     @classmethod
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable,EWSystem) )
 
 class MF_Turret( ModuleForm ):
     name = "Turret"
     AIM_BONUS = 5
     @classmethod
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable,EWSystem) )
 
 class MF_Tail( ModuleForm ):
     name = "Tail"
@@ -1860,13 +1908,13 @@ class MF_Tail( ModuleForm ):
     PENETRATION = 1
     @classmethod
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable,EWSystem) )
 
 class MF_Storage( ModuleForm ):
     name = "Storage"
     @classmethod
     def is_legal_sub_com( self, part ):
-        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable) )
+        return isinstance( part , (Weapon,Launcher,Armor,MovementSystem,Mount,Sensor,PowerSource,Usable,EWSystem) )
     VOLUME_X = 4
     MASS_X = 0
 

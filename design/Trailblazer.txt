@@ -1,0 +1,106 @@
+Mecha
+    name = "Trailblazer"
+    desig = "TR9-02"
+    imagename = "btr_trailblazer.png"
+    portrait = "mecha_trailblazer.png"
+
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+
+    SUB
+        Head
+            size = 3
+            material = Advanced
+            SUB
+                Armor
+                    size = 2
+                    material = Advanced
+                Sensor
+                    size = 4
+            END
+        Torso
+            size = 3
+            material = Advanced
+            SUB
+                Armor
+                    size = 3
+                    material = Advanced
+                Engine
+                    size = 600
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 1
+                    END
+                 EWSystem
+                    size = 2
+                    programs = (TargetAnalysis,Deflect)
+            END
+        Arm
+            name = "Right Arm"
+            size = 2
+            material = Advanced
+            SUB
+                Armor
+                    size = 2
+                    material = Advanced
+                Hand
+                    name = "Right Hand"
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        BeamWeapon
+                        name = "Particle Cannon"
+                        reach = 7
+                        damage = 1
+                        accuracy = 2
+                        penetration = 2
+                        shot_anim = SmallBeam
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 2
+            material = Advanced
+            SUB
+                Armor
+                    size = 2
+                    material = Advanced
+                Hand
+                    name = "Left Hand"
+                    INV
+                        EnergyWeapon
+                            name = "Plasma Spear"
+                            reach=2
+                            damage=1
+                            accuracy=1
+                            penetration=4
+                            attributes=(ChargeAttack)
+                    END
+                 Mount
+                    name = "Left Arm Mount"
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            material = Advanced
+            SUB
+                Armor
+                    size = 2
+                    material = Advanced
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            material = Advanced
+            SUB
+                Armor
+                    size = 2
+                    material = Advanced
+                HoverJets
+                    size = 4
+            END
+    END

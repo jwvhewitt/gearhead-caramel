@@ -105,6 +105,9 @@ def play_the_game():
     pbge.please_stand_by()
     gears.init_gears()
 
+    #mypic = pbge.image.Image('BuruBuru.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))
+    #pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
+
     tsrd = TitleScreenRedraw()
     mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
         TitleScreenRedraw.MENU_DEST.dy,
@@ -126,7 +129,7 @@ def play_the_game():
 
 
 if __name__ == "__main__":
-    #clay = gears.Loader.load_design_file('Joust.txt')
+    #clay = gears.Loader.load_design_file('Trailblazer.txt')
     #clay[0].termdump()
     #clay[0].statusdump()
 

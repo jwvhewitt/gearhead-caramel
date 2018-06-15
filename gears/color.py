@@ -14,7 +14,7 @@ class Pink( Gradient ):
 
 class HotPink( Gradient ):
     NAME = 'Hot Pink'
-    COLOR_RANGE = (255,134,255,45,18,25)
+    COLOR_RANGE = (255,92,133,140,14,98)
     SETS = (CLOTHING,HAIR,MECHA,DETAILS)
 
 class Magenta( Gradient ):
@@ -114,7 +114,7 @@ class Gold( Gradient ):
 
 class ElectricYellow( Gradient ):
     NAME = 'Electric Yellow'
-    COLOR_RANGE = (255,221,51,45,41,0)
+    COLOR_RANGE = (255,240,150,120,21,0)
     SETS = (CLOTHING,HAIR,MECHA,DETAILS)
 
 class NobleGold( Gradient ):

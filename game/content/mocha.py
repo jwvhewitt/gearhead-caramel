@@ -291,7 +291,7 @@ class FrozenHotSpringCity( Plot ):
 
     def _give_bad_mecha(self,camp):
         # Give the PC some cheapass mecha.
-        mygearlist = gears.Loader.load_design_file('Joust.txt')+gears.Loader.load_design_file('Claymore.txt')
+        mygearlist = gears.Loader.load_design_file('BuruBuru.txt')+gears.Loader.load_design_file('Joust.txt')+gears.Loader.load_design_file('Claymore.txt')
         random.shuffle(mygearlist)
         mek1 = mygearlist[0]
         mek2 = mygearlist[1]
