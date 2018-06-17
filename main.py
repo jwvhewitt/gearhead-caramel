@@ -6,7 +6,7 @@ import gears
 import random
 import sys
 
-VERSION = "v0.120"
+VERSION = "v0.130"
 
 class Snowflake(object):
     def __init__(self,dest):

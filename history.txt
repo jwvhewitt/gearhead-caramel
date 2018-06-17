@@ -1,4 +1,5 @@
-- Added Joust mecha
+v0.130  June 17, 2018
+- Added Joust, Trailblazer mecha
 - Added charge attacks (gears/geffects.py)
 - Added BurnAttack status effect (gears/attackattributes.py)
 - Repair will remove appropriate enchantments (gears/geffects.py)
