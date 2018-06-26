@@ -5,6 +5,7 @@ from .. import my_state,anim_delay,WHITE
 from .. import util, image
 import pygame
 import waypoints
+import random
 
 OVERLAY_ITEM = 0
 OVERLAY_CURSOR = 1
@@ -33,8 +34,9 @@ class SceneView( object ):
         self.randoms = list()
         seed = ord(scene.name[0])
         for t in range(1237):
-            seed = (( seed * 401 ) + 73 ) % 1024
-            self.randoms.append( seed )
+            #seed = (( seed * 401 ) + 73 ) % 1024
+            #self.randoms.append( seed )
+            self.randoms.append(random.randint(1,10000))
 
         self.scene = scene
         self.x_off = 600
@@ -114,6 +116,20 @@ class SceneView( object ):
         if self.is_same_terrain(self.scene.get_wall( x-1 , y ),terr) and \
          not ( self.scene.tile_blocks_vision( x-1 , y -1 ) and self.scene.tile_blocks_vision( x , y-1 ) \
          and self.scene.tile_blocks_vision( x - 1 , y + 1 ) and self.scene.tile_blocks_vision( x , y+1 ) ):
+            it += 1
+
+        return it
+
+    def calc_decor_score( self, x, y, terr ):
+        """Return bitmask of how many decors of type terrain border tile x,y."""
+        it = 0
+        if self.is_same_terrain(self.scene.get_decor( x , y - 1 ),terr) or not self.scene.on_the_map(x, y-1):
+            it += 2
+        if self.is_same_terrain(self.scene.get_decor( x+1 , y ),terr) or not self.scene.on_the_map(x+1 , y):
+            it += 4
+        if self.is_same_terrain(self.scene.get_decor( x , y + 1 ),terr) or not self.scene.on_the_map(x, y+1):
+            it += 8
+        if self.is_same_terrain(self.scene.get_decor( x-1 , y ),terr) or not self.scene.on_the_map(x-1 , y):
             it += 1
 
         return it

@@ -1,3 +1,5 @@
+- HeightfieldPrep can set maximum levels of lowground, highground (pbge/randmaps/prep.py)
+
 v0.130  June 17, 2018
 - Added Joust, Trailblazer mecha
 - Added charge attacks (gears/geffects.py)

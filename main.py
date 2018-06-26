@@ -5,6 +5,7 @@ import os
 import gears
 import random
 import sys
+#import timeit
 
 VERSION = "v0.130"
 
@@ -105,6 +106,7 @@ def play_the_game():
     pbge.please_stand_by()
     gears.init_gears()
 
+    #print timeit.timeit("""mypic = pbge.image.Image('BuruBuru.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=100)
     #mypic = pbge.image.Image('BuruBuru.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))
     #pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
 

@@ -194,6 +194,14 @@ class WallTerrain( Terrain ):
             spr = view.get_named_sprite( self.bordername )
             spr.render( dest, bor )
 
+class RoadTerrain( Terrain ):
+    @classmethod
+    def render_bottom( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        d = view.calc_decor_score( x, y, RoadTerrain )
+        spr = view.get_named_sprite( self.image_bottom, transparent=self.transparent )
+        spr.render( dest, d )
+
 class HillTerrain( Terrain ):
     bordername = None
 

@@ -4,6 +4,7 @@ import pygame
 import weakref
 import util
 from . import my_state,render_text,TEXT_COLOR,Singleton
+#import numpy
 
 # Keep a list of already-loaded images, to save memory when multiple objects
 # need to use the same image file.
@@ -80,28 +81,42 @@ class Image( object ):
             frames_per_row = self.bitmap.get_width() / self.frame_width
             frames_per_column = self.bitmap.get_height() / self.frame_height
             return frames_per_row * frames_per_column
-
-    def recolor( self, color_channels ): 
+    def _generate_color(self,c):
+        if ( c[0] > 0 ) and ( c[1] == 0 ) and ( c[2] == 0 ):
+            c[:] = self.red_channel.generate_color(c[0])
+        elif ( c[0] > 0 ) and ( c[1] > 0 ) and ( c[2] == 0 ):
+            c[:] = self.yellow_channel.generate_color(c[0])
+        elif ( c[0] > 0 ) and ( c[1] == 0 ) and ( c[2] > 0 ):
+            c[:] = self.bitmap.map_rgb(self.magenta_channel.generate_color(c[0]))
+        elif ( c[0] == 0 ) and ( c[1] > 0 ) and ( c[2] == 0 ):
+            c[:] = self.bitmap.map_rgb(self.green_channel.generate_color(c[1]))
+        elif ( c[0] == 0 ) and ( c[1] > 0 ) and ( c[2] > 0 ):
+            c[:] = self.bitmap.map_rgb(self.cyan_channel.generate_color(c[1]))
+    def recolor( self, color_channels, unum=False ):
         # Just gonna brute force this. It could probably be speeded up by using
         # a pixel array, but that would add dependencies. Besides- this should get
         # called just once, when the image is created, so speed isn't that
         # important.
-        red_channel,yellow_channel,green_channel,cyan_channel,magenta_channel = color_channels
-        par = pygame.PixelArray(self.bitmap)
-        for y in range( self.bitmap.get_height() ):
-            for x in range( self.bitmap.get_width() ):
-                c = self.bitmap.unmap_rgb(par[x,y])
-                if ( c.r > 0 ) and ( c.g == 0 ) and ( c.b == 0 ):
-                    par[x,y] = red_channel.generate_color(c.r)
-                    #par[x,y] = self.generate_color(red_channel,c.r)
-                elif ( c.r > 0 ) and ( c.g > 0 ) and ( c.b == 0 ):
-                    par[x,y] = yellow_channel.generate_color(c.r)
-                elif ( c.r > 0 ) and ( c.g == 0 ) and ( c.b > 0 ):
-                    par[x,y] = magenta_channel.generate_color(c.r)
-                elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b == 0 ):
-                    par[x,y] = green_channel.generate_color(c.g)
-                elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b > 0 ):
-                    par[x,y] = cyan_channel.generate_color(c.g)
+        self.red_channel,self.yellow_channel,self.green_channel,self.cyan_channel,self.magenta_channel = color_channels
+        if unum:
+            par = pygame.surfarray.pixels3d(self.bitmap)
+            numpy.apply_along_axis(self._generate_color,2,par)
+        else:
+            par = pygame.PixelArray(self.bitmap)
+            for y in range( self.bitmap.get_height() ):
+                for x in range( self.bitmap.get_width() ):
+                    c = self.bitmap.unmap_rgb(par[x,y])
+                    if ( c.r > 0 ) and ( c.g == 0 ) and ( c.b == 0 ):
+                        par[x,y] = self.red_channel.generate_color(c.r)
+                        #par[x,y] = self.generate_color(red_channel,c.r)
+                    elif ( c.r > 0 ) and ( c.g > 0 ) and ( c.b == 0 ):
+                        par[x,y] = self.yellow_channel.generate_color(c.r)
+                    elif ( c.r > 0 ) and ( c.g == 0 ) and ( c.b > 0 ):
+                        par[x,y] = self.magenta_channel.generate_color(c.r)
+                    elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b == 0 ):
+                        par[x,y] = self.green_channel.generate_color(c.g)
+                    elif ( c.r == 0 ) and ( c.g > 0 ) and ( c.b > 0 ):
+                        par[x,y] = self.cyan_channel.generate_color(c.g)
         del(par)
 
     def __reduce__( self ):

@@ -384,6 +384,10 @@ class Explorer( object ):
                     elif gdi.unicode == u"c":
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
+                    elif gdi.unicode == u"&":
+                        for x in range(self.scene.width):
+                            for y in range(self.scene.height):
+                                self.scene.set_visible(x,y,True)
                     elif gdi.key == pygame.K_ESCAPE:
                         mymenu = configedit.PopupGameMenu()
                         mymenu(self)

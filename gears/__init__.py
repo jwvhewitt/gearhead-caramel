@@ -161,6 +161,15 @@ class GearHeadScene( pbge.scenes.Scene ):
 class GearHeadCampaign( pbge.campaign.Campaign ):
     fight = None
     pc = None
+    def __init__(self,name="GHC Campaign",explo_class=None):
+        super(GearHeadCampaign,self).__init__(name,explo_class)
+        self.tarot = dict()
+    def active_plots( self ):
+        for p in super(GearHeadCampaign,self).active_plots():
+            yield p
+        for p in self.tarot.items():
+            yield p
+
     def first_active_pc( self ):
         # The first active PC is the first PC in the party list who is
         # both operational and on the map.

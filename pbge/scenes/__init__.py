@@ -210,6 +210,11 @@ class Scene( object ):
         else:
             return None
 
+    def set_decor( self, x, y, terr ):
+        """Safely set decor of tile x,y."""
+        if self.on_the_map(x,y):
+            self._map[x][y].decor = terr
+
     def get_visible( self, x, y ):
         """Safely return visibility status of tile x,y, or None if off map."""
         if self.on_the_map(x,y):

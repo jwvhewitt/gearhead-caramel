@@ -3,6 +3,7 @@ import gears
 from pbge.scenes.movement import Walking, Flying, Vision
 from gears.geffects import Skimming, Rolling
 
+
 class Forest( pbge.scenes.terrain.VariableTerrain ):
     image_top = 'terrain_trees_fg.png'
     image_middle = 'terrain_trees_bg.png'
@@ -14,6 +15,17 @@ class Water( pbge.scenes.terrain.AnimTerrain ):
     altitude = -24
     transparent = True
     movement_cost={pbge.scenes.movement.Walking:3.0,gears.geffects.Rolling:3.0}
+
+class DeadZoneGround( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_dzground.png'
+    border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
+
+class TechnoRubble( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_technorubble.png'
+    border = pbge.scenes.terrain.FloorBorder( DeadZoneGround, 'terrain_border_technoedge.png' )
+
+class WorldMapRoad(pbge.scenes.terrain.RoadTerrain):
+    image_bottom = 'terrain_decor_worldroad.png'
 
 class Snow( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_snow.png'

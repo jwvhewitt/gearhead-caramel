@@ -5,31 +5,60 @@
 # The child is arranged relative to the parent.
 
 def northwest(par,chi):
-    chi.topleft = par.topleft
+    if chi:
+        chi.topleft = par.topleft
+    else:
+        return par.topleft
 
 def north( par,chi ):
-    chi.midtop = par.midtop
+    if chi:
+        chi.midtop = par.midtop
+    else:
+        return par.midtop
 
 def northeast(par,chi):
-    chi.topright = par.topright
+    if chi:
+        chi.topright = par.topright
+    else:
+        return par.topright
 
 def west(par,chi):
-    chi.midleft = par.midleft
+    if chi:
+        chi.midleft = par.midleft
+    else:
+        return par.midleft
 
 def middle( par,chi):
-    chi.center = par.center
+    if chi:
+        chi.center = par.center
+    else:
+        return par.center
 
 def east(par,chi):
-    chi.midright = par.midright
+    if chi:
+        chi.midright = par.midright
+    else:
+        return par.midright
 
 def southwest(par,chi):
-    chi.bottomleft = par.bottomleft
+    if chi:
+        chi.bottomleft = par.bottomleft
+    else:
+        return par.bottomleft
 
 def south( par,chi ):
-    chi.midbottom = par.midbottom
+    if chi:
+        chi.midbottom = par.midbottom
+    else:
+        return par.midbottom
 
 def southeast(par,chi):
-    chi.bottomright = par.bottomright
+    if chi:
+        chi.bottomright = par.bottomright
+    else:
+        return par.bottomright
+
+
 
 EDGES = (west,northwest,north,northeast,east,southeast,south,southwest)
 

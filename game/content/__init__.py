@@ -11,6 +11,7 @@ import waypoints
 import ghcutscene
 
 import mocha
+import dd_main
 
 # The list of plots will be stored as a dictionary based on label.
 PLOT_LIST = collections.defaultdict( list )
@@ -24,8 +25,9 @@ def harvest( mod ):
             # print o.__name__
 
 harvest(mocha)
+harvest(dd_main)
 
-def narrative_convenience_function( adv_type="SCENARIO_MOCHA" ):
+def narrative_convenience_function( adv_type="SCENARIO_DEADZONEDRIFTER" ):
     # Start an adventure.
     init = pbge.plots.PlotState(rank=1)
     camp = gears.GearHeadCampaign(explo_class=exploration.Explorer)
