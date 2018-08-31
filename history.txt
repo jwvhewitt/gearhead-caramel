@@ -1,3 +1,4 @@
+- Added tarot to GearHeadCampaign (gears/)
 - HeightfieldPrep can set maximum levels of lowground, highground (pbge/randmaps/prep.py)
 
 v0.130  June 17, 2018

@@ -13,7 +13,7 @@ class VendingMachine( Waypoint ):
     desc = "You stand before a vending machine."
 
 class Exit( Waypoint ):
-    TILE = pbge.scenes.Tile( None, None, ghterrain.ExitTerrain )
+    TILE = pbge.scenes.Tile( None, ghterrain.ExitTerrain, None )
     def __init__( self, dest_scene=None, dest_entrance=None, **kwargs ):
         self.dest_scene = dest_scene
         self.dest_entrance = dest_entrance

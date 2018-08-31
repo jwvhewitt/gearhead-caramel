@@ -196,6 +196,10 @@ class ContainerDict(dict,Container):
     def update(self, other):
         for (k,v) in other.items():
             self[k] = v
+    def remove(self,value):
+        keys = [key for key, v in self.iteritems() if v == value]
+        for k in keys:
+            del self[k]
 
 if __name__=='__main__':
 

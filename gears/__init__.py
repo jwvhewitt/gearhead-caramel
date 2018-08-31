@@ -163,11 +163,11 @@ class GearHeadCampaign( pbge.campaign.Campaign ):
     pc = None
     def __init__(self,name="GHC Campaign",explo_class=None):
         super(GearHeadCampaign,self).__init__(name,explo_class)
-        self.tarot = dict()
+        self.tarot = pbge.container.ContainerDict()
     def active_plots( self ):
         for p in super(GearHeadCampaign,self).active_plots():
             yield p
-        for p in self.tarot.items():
+        for p in self.tarot.values():
             yield p
 
     def first_active_pc( self ):

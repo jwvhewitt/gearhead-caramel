@@ -6,6 +6,7 @@ import pbge
 from .. import teams,ghdialogue
 import pygame
 import random
+import dd_tarot
 
 # Room tags
 ON_THE_ROAD = "ON_THE_ROAD" # This location is connected to the highway, if appropriate.
@@ -26,6 +27,17 @@ class DeadzoneDrifterStub( Plot ):
         w = wplot.elements.get("LOCALE")
         self.chapter.world = w
         self.register_element( "WORLD", w )
+        threat_card = nart.add_tarot_card(self,(dd_tarot.MT_THREAT,),)
+        nega = threat_card.get_negations()
+        print "Nega:",nega
+        if nega:
+            possible_cards = threat_card.get_cards_that_change_this_one(nega[0].__name__,nart)
+            print "Cards that Produce Nega:", possible_cards
+            if possible_cards:
+                initial_cards = threat_card.generate_puzzle_sequence(nart,[random.choice(possible_cards)])
+                print "Initial Cards:", initial_cards
+        else:
+            print "No negations found. Bummer."
 
         return True
 
@@ -101,13 +113,16 @@ class BasicDeadZoneHighwayTown( Plot ):
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
-        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10,tags=(ON_THE_ROAD),anchor=anc_a))
+        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5,tags=(ON_THE_ROAD),anchor=anc_a))
         myscenegen.contents.append(myroom)
 
-        mydest = self.register_element("ROOM2",pbge.randmaps.rooms.FuzzyRoom(10,10,tags=(ON_THE_ROAD,),anchor=anc_b))
+        mydest = self.register_element("ROOM2",pbge.randmaps.rooms.FuzzyRoom(3,3,tags=(ON_THE_ROAD,),anchor=anc_b))
         myscenegen.contents.append(mydest)
 
         myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
+
+        myexit = self.register_element( "EXIT", waypoints.Exit(name="Exit Scenario",anchor=pbge.randmaps.anchors.middle))
+        mydest.contents.append( myexit )
         return True
 

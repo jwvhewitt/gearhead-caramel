@@ -39,7 +39,7 @@ class CardinalRed( Gradient ):
 
 class BrightRed( Gradient ):
     NAME = 'Bright Red'
-    COLOR_RANGE = (255,73,56,39,7,12)
+    COLOR_RANGE = (255,73,56,128,7,12)
     SETS = (CLOTHING,HAIR,MECHA,DETAILS)
 
 class GunRed( Gradient ):
