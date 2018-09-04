@@ -32,6 +32,13 @@ harvest(dd_tarot)
 
 
 class GHNarrativeRequest(pbge.plots.NarrativeRequest):
+    def init_tarot_card(self,myplot,card_class,pstate,ident=None):
+        cp = card_class(self,pstate)
+        if cp:
+            if not ident:
+                ident = "_autoident_{0}".format(len(myplot.subplots))
+            myplot.subplots[ident] = cp
+        return cp
     def generate_tarot_card( self, pstate, tags ):
         """Locate a plot which matches the request, init it, and return it."""
         # Create a list of potential plots.

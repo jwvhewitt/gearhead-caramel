@@ -7,6 +7,7 @@ from .. import teams,ghdialogue
 import pygame
 import random
 import dd_tarot
+import mechtarot
 
 # Room tags
 ON_THE_ROAD = "ON_THE_ROAD" # This location is connected to the highway, if appropriate.
@@ -28,16 +29,7 @@ class DeadzoneDrifterStub( Plot ):
         self.chapter.world = w
         self.register_element( "WORLD", w )
         threat_card = nart.add_tarot_card(self,(dd_tarot.MT_THREAT,),)
-        nega = threat_card.get_negations()
-        print "Nega:",nega
-        if nega:
-            possible_cards = threat_card.get_cards_that_change_this_one(nega[0].__name__,nart)
-            print "Cards that Produce Nega:", possible_cards
-            if possible_cards:
-                initial_cards = threat_card.generate_puzzle_sequence(nart,[random.choice(possible_cards)])
-                print "Initial Cards:", initial_cards
-        else:
-            print "No negations found. Bummer."
+        mechtarot.Constellation(nart,self,threat_card,threat_card.get_negations()[0])
 
         return True
 
