@@ -24,7 +24,8 @@ class Demagogue(TarotCard):
     TAGS = (MT_PERSON,MT_THREAT)
     NEGATIONS = (Convict,)
     def custom_init( self, nart ):
-        self.register_element(ME_PERSON,"The Bad Guy")
+        if ME_PERSON not in self.elements:
+            self.register_element(ME_PERSON,"The Bad Guy")
         return True
     def t_START(self,camp):
         pbge.alert("Demagogue is here")

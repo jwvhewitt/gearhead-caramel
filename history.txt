@@ -1,3 +1,7 @@
+- Player folder now has an image subfolder (gears/)
+- Images now have a search path (pbge/image.py)
+- Mechanical Tarot can generate causality chains (gears/mechtarot.py)
+- Added portraits module (gears/portraits.py)
 - Added tarot to GearHeadCampaign (gears/)
 - HeightfieldPrep can set maximum levels of lowground, highground (pbge/randmaps/prep.py)
 

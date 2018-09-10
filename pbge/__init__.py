@@ -403,6 +403,8 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
     global INIT_DONE
     if not INIT_DONE:
         util.init(appname,gamedir)
+        # Init image.py
+        image.init_image(util.image_dir(""))
 
         pygame.init()
         pygame.mixer.init()

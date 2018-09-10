@@ -28,6 +28,10 @@ class DeadzoneDrifterStub( Plot ):
         w = wplot.elements.get("LOCALE")
         self.chapter.world = w
         self.register_element( "WORLD", w )
+
+        # Add the village in trouble.
+
+
         threat_card = nart.add_tarot_card(self,(dd_tarot.MT_THREAT,),)
         mechtarot.Constellation(nart,self,threat_card,threat_card.get_negations()[0])
 
@@ -118,3 +122,76 @@ class BasicDeadZoneHighwayTown( Plot ):
         mydest.contents.append( myexit )
         return True
 
+
+class BasicDeadZoneHighwayTown( Plot ):
+    LABEL = "DZD_VILLAGE"
+    def custom_init( self, nart ):
+        team1 = teams.Team(name="Player Team")
+        myscene = gears.GearHeadScene(60,60,"DZ Village",player_team=team1,scale=gears.scale.HumanScale)
+        myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
+
+        myfilter = pbge.randmaps.converter.BasicConverter(WinterMochaSnowdrift)
+        mymutate = pbge.randmaps.mutator.CellMutator()
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.SmallSnow,myfilter,mutate=mymutate)
+        myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
+
+
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
+
+        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10))
+
+        myent = self.register_element( "ENTRANCE", WinterMochaBurningBarrel(anchor=pbge.randmaps.anchors.middle))
+        myroom.contents.append( myent )
+
+        vikki = gears.base.Character(name="Vikki",statline={gears.stats.Reflexes:15,
+         gears.stats.Body:10,gears.stats.Speed:13,gears.stats.Perception:13,
+         gears.stats.Knowledge:10,gears.stats.Craft:10,gears.stats.Ego:10,
+         gears.stats.Charm:12,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
+         gears.stats.MechaFighting:7},
+         personality=[personality.Cheerful,personality.Shy,personality.Fellowship])
+        #vikki.imagename = 'cha_wm_vikki.png'
+        vikki.portrait = 'card_f_wintervikki.png'
+        #vikki.portrait = 'card_n_wintermel.png'
+        vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
+        #vikki.colors = (gears.color.Black,gears.color.Burlywood,gears.color.BugBlue,gears.color.NobleGold,gears.color.CeramicColor)
+        vikki.mmode = pbge.scenes.movement.Walking
+        myroom.contents.append(vikki)
+        self.register_element( "VIKKI", vikki )
+
+        myscenegen.contents.append(myroom)
+
+        hangar_gate = self.register_element("HANGAR_GATE",waypoints.Waypoint(name="Hangar Door",plot_locked=True,desc="This is the door of the mecha hangar."))
+        snow_drift = self.register_element("SNOW_DRIFT",waypoints.Waypoint(name="Snowdrift",desc="The snow has blocked the entrance to the mecha hangar. You're going to have to take one of the backup mecha from the storage yard."))
+        myroom2 = pbge.randmaps.rooms.FuzzyRoom(15,15)
+        myroom3 = WinterMochaHangar(parent=myroom2,waypoints={"DOOR":hangar_gate,"DRIFT":snow_drift})
+        myscenegen.contents.append(myroom2)
+
+        fence_gate = self.register_element("FENCE_GATE",waypoints.Waypoint(name="Storage Yard",plot_locked=True,desc="This is the gate of the mecha storage yard."))
+
+        myroom4 = self.register_element("FENCE_GATE_ROOM",pbge.randmaps.rooms.FuzzyRoom(6,5,anchor=pbge.randmaps.anchors.northwest,parent=myscenegen))
+        myroom5 = WinterMochaFence(parent=myroom4,anchor=pbge.randmaps.anchors.west,waypoints={'DOOR':fence_gate})
+
+        # I don't know why I added a broken shovel. Just thought it was funny.
+        myroom6 = pbge.randmaps.rooms.FuzzyRoom(3,3,parent=myscenegen)
+        if random.randint(1,3) != 1:
+            myroom6.contents.append(WinterMochaShovel(anchor=pbge.randmaps.anchors.middle))
+        else:
+            myroom6.contents.append(WinterMochaDome(anchor=pbge.randmaps.anchors.middle))
+
+        self.add_sub_plot( nart, "MOCHA_HYOLEE" )
+        self.add_sub_plot( nart, "MOCHA_CARTER" )
+
+        # Add the puzzle to get through the snowdrift.
+        #
+        # Bibliography for procedural puzzle generation:
+        # Isaac Dart, Mark J. Nelson (2012). Smart terrain causality chains for adventure-game puzzle generation. In Proceedings of the IEEE Conference on Computational Intelligence and Games, pp. 328-334.
+        # Clara Fernandez-Vara and Alec Thomson. 2012. Procedural Generation of Narrative Puzzles in Adventure Games: The Puzzle-Dice System. In Proceedings of the The third workshop on Procedural Content Generation in Games (PCG '12).
+        self.add_sub_plot( nart, "MELT", PlotState( elements={"TARGET":snow_drift} ).based_on( self ) )
+
+        self.add_sub_plot( nart, "MOCHA_MISSION", PlotState( elements={"CITY":myscene} ).based_on( self ), ident="COMBAT" )
+
+        self.did_opening_sequence = False
+        self.got_vikki_history = False
+        self.got_vikki_mission = False
+
+        return True

@@ -17,6 +17,7 @@ import tags
 import selector
 import enchantments
 import programs
+import portraits
 
 import inspect
 import re
@@ -469,11 +470,18 @@ def init_gears():
 
     if not os.path.exists( pbge.util.user_dir('design') ):
         os.mkdir( pbge.util.user_dir('design') )
+    if not os.path.exists( pbge.util.user_dir('image') ):
+        os.mkdir( pbge.util.user_dir('image') )
+    pbge.image.search_path.append(pbge.util.user_dir('image'))
+    pbge.POSTERS += glob.glob(os.path.join(pbge.util.user_dir('image'),"eyecatch_*.png"))
+
     # Load all design files.
     design_files = glob.glob(os.path.join(pbge.util.game_dir('design'),'*.txt')) + glob.glob(os.path.join(pbge.util.user_dir('design'),'*.txt'))
     for f in design_files:
         selector.DESIGN_LIST += Loader(f).load()
     #print selector.DESIGN_LIST
     #selector.check_design_list()
+
+    portraits.init_portraits()
     
 

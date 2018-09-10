@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Masculine Body A",
+    "btype": "Base",
+    "layers": [
+      {"name":"Body","fname":"por_mba_body.png","anchor":"midbottom","depth":2000}
+    ],
+    "children": [
+      "RightArm","LeftArm","Clothing","Head"
+    ],
+    "anchors": {
+      "head": [10,-137],"right shoulder":[0,0]
+    }
+  },
+
+  {
+    "name": "Head A",
+    "btype": "Head",
+    "layers": [
+      {"name":"Head","fname":"por_head_a.png","anchor":"head","depth":5000}
+    ],
+    "children": [
+      "Eyes","Nose","Mouth","Hair","Ears"
+    ]
+  },
+
+  {
+    "name": "Round Head",
+    "btype": "Head",
+    "layers": [
+      {"name":"Head","fname":"por_head_round.png","anchor":"head","depth":5000,"y_offset":1}
+    ],
+    "children": [
+      "Eyes","Nose","Mouth","Hair","Ears"
+    ]
+  },
+
+  {
+    "name": "Strongjaw Head",
+    "btype": "Head",
+    "layers": [
+      {"name":"Head","fname":"por_head_strongjaw.png","anchor":"head","depth":5000,"x_offset":1,"y_offset":4}
+    ],
+    "children": [
+      "Eyes","Nose","Mouth","Hair","Ears"
+    ]
+  }
+
+
+]

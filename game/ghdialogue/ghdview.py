@@ -2,6 +2,8 @@ import pbge
 import pygame
 from pbge import my_state,draw_text,default_border,anim_delay
 
+import gears
+
 class ConvoVisualizer(object):
     # The visualizer is a class used by the conversation when conversing.
     # It has a "text" property and "render", "get_menu" methods.
@@ -16,6 +18,10 @@ class ConvoVisualizer(object):
         self.npc = pilot
         if hasattr(npc, "get_portrait"):
             self.npc_sprite = npc.get_portrait()
+            #self.portrait = gears.portraits.Portrait()
+            #self.portrait.random_portrait()
+            #self.npc_sprite = self.portrait.build_portrait()
+            #self.npc_sprite.recolor(gears.random_character_colors())
         else:
             self.npc_sprite = None
         if pilot is not npc and hasattr(pilot, "get_portrait"):

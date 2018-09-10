@@ -4,11 +4,13 @@ import pygame
 import weakref
 import util
 from . import my_state,render_text,TEXT_COLOR,Singleton
+import os.path
 #import numpy
 
 # Keep a list of already-loaded images, to save memory when multiple objects
 # need to use the same image file.
 pre_loaded_images = weakref.WeakValueDictionary()
+search_path = list()
 
 class Gradient( Singleton ):
     NAME = 'Gradient'
@@ -25,21 +27,28 @@ class Gradient( Singleton ):
 
 
 class Image( object ):
-    def __init__(self,fname=None,frame_width=0,frame_height=0,color=None,custom_frames=None):
+    def __init__(self,fname=None,frame_width=0,frame_height=0,color=None,custom_frames=None,flags=pygame.RLEACCEL):
         """Load image file, or create blank image, at frame size"""
         if fname:
             if (fname,repr(color)) in pre_loaded_images:
                 self.bitmap = pre_loaded_images[(fname,repr(color))]
             else:
-                self.bitmap = pygame.image.load( util.image_dir( fname ) ).convert()
-                self.bitmap.set_colorkey((0,0,255),pygame.RLEACCEL)
+                if not os.path.exists(fname):
+                    for p in search_path:
+                        if os.path.exists(os.path.join(p,fname)):
+                            fname = os.path.join(p,fname)
+                            break
+                self.bitmap = pygame.image.load( fname ).convert()
+                self.bitmap.set_colorkey((0,0,255),flags)
                 if color:
                     self.recolor(color)
                 pre_loaded_images[(fname,repr(color))] = self.bitmap
         else:
             self.bitmap = pygame.Surface( (frame_width , frame_height) )
             self.bitmap.fill((0,0,255))
-            self.bitmap.set_colorkey((0,0,255),pygame.RLEACCEL)
+            self.bitmap.set_colorkey((0,0,255),flags)
+
+        self.fname = fname
 
         if frame_width == 0:
             frame_width = self.bitmap.get_width()
@@ -159,5 +168,6 @@ class TextImage( Image ):
         return TextImage, ( self.txt , self.frame_width , self.frame_height )
 
 
-
+def init_image(def_image_folder):
+    search_path.append(def_image_folder)
 
