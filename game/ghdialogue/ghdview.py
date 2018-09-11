@@ -17,11 +17,11 @@ class ConvoVisualizer(object):
         npc = npc.get_root()
         self.npc = pilot
         if hasattr(npc, "get_portrait"):
-            self.npc_sprite = npc.get_portrait()
-            #self.portrait = gears.portraits.Portrait()
-            #self.portrait.random_portrait()
-            #self.npc_sprite = self.portrait.build_portrait()
-            #self.npc_sprite.recolor(gears.random_character_colors())
+            #self.npc_sprite = npc.get_portrait()
+            self.portrait = gears.portraits.Portrait()
+            self.portrait.random_portrait()
+            self.npc_sprite = self.portrait.build_portrait()
+            self.npc_sprite.recolor(gears.random_character_colors())
         else:
             self.npc_sprite = None
         if pilot is not npc and hasattr(pilot, "get_portrait"):

@@ -15,20 +15,23 @@ class Portrait(object):
     def __init__(self):
         self.bits = list()
 
-    def get_bit_of_type(self,ptype):
+    def get_bit_of_type(self,ptype,form_tags):
         candidates = list()
         for pb in PORTRAIT_BITS_BY_TYPE[ptype]:
-            candidates.append(pb)
+            if pb.is_legal_bit(form_tags):
+                candidates.append(pb)
         if candidates:
             return random.choice(candidates)
 
     def random_portrait(self):
         frontier = ["Base",]
+        form_tags = list()
         while frontier:
-            nu_part = self.get_bit_of_type(frontier.pop())
+            nu_part = self.get_bit_of_type(frontier.pop(),form_tags)
             if nu_part:
                 self.bits.append(nu_part.name)
                 frontier += nu_part.children
+                form_tags += nu_part.form_tags
 
     def build_portrait(self):
         layers = list()
@@ -61,20 +64,26 @@ class PortraitLayer(object):
         self.y_offset = y_offset
         for k,v in kwargs.items():
             setattr(self,k,v)
+    LAYER_OFFSETS = {"left_eye":"head","right_eye":"head","mouth":"head","ear":"head"}
     def get_rect(self,limage,canvas,anchors):
         mydest = limage.get_rect(self.frame)
         if self.anchor == u"midbottom":
             mydest.midbottom = canvas.get_rect().midbottom
+        elif self.anchor == u"center":
+            mydest.center = canvas.get_rect().center
         elif self.anchor in anchors:
             mydest.center = canvas.get_rect().center
             mydest.right += anchors[self.anchor][0]
             mydest.top += anchors[self.anchor][1]
+            if self.anchor in self.LAYER_OFFSETS and self.LAYER_OFFSETS[self.anchor] in anchors:
+                mydest.right += anchors[self.LAYER_OFFSETS[self.anchor]][0]
+                mydest.top += anchors[self.LAYER_OFFSETS[self.anchor]][1]
         mydest.right += self.x_offset
         mydest.top += self.y_offset
         return mydest
 
 class PortraitBit(object):
-    def __init__(self,name="No_Name",btype="No_Type",layers=(),children=(),anchors=dict(),**kwargs):
+    def __init__(self,name="No_Name",btype="No_Type",layers=(),children=(),anchors=dict(),form_tags=(),fit_forms=(),**kwargs):
         self.name = name
         self.btype = btype
         self.layers = list()
@@ -83,8 +92,15 @@ class PortraitBit(object):
         for l in layers:
             self.layers.append(PortraitLayer(**l))
         self.children = list(children)
+        self.form_tags = list(form_tags)
+        self.fit_forms = set(fit_forms)
         for k,v in kwargs.items():
             setattr(self,k,v)
+    def is_legal_bit(self,existing_form_tags):
+        if self.fit_forms:
+            return self.fit_forms.intersection(existing_form_tags)
+        else:
+            return True
 
 def init_portraits():
     # Load all the json portrait descriptions.
@@ -96,7 +112,6 @@ def init_portraits():
                 mylist = json.load(fp)
                 if mylist:
                     portrait_bits_list += mylist
-    print portrait_bits_list
     global PORTRAIT_BITS
     global PORTRAIT_BITS_BY_TYPE
     for pbdict in portrait_bits_list:
