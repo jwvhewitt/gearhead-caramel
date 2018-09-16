@@ -1,3 +1,5 @@
+- Gender may be defined as dict in design files (gears/base.py)
+- Added gender (gears/gender.py)
 - Player folder now has an image subfolder (gears/)
 - Images now have a search path (pbge/image.py)
 - Mechanical Tarot can generate causality chains (gears/mechtarot.py)

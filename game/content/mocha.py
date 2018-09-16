@@ -226,7 +226,8 @@ class FrozenHotSpringCity( Plot ):
          gears.stats.Knowledge:10,gears.stats.Craft:10,gears.stats.Ego:10,
          gears.stats.Charm:12,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
          gears.stats.MechaFighting:7},
-         personality=[personality.Cheerful,personality.Shy,personality.Fellowship])
+         personality=[personality.Cheerful,personality.Shy,personality.Fellowship],
+                                     gender=gears.genderobj.Gender.get_default_female())
         #vikki.imagename = 'cha_wm_vikki.png'
         vikki.portrait = 'card_f_wintervikki.png'
         #vikki.portrait = 'card_n_wintermel.png'
@@ -406,7 +407,8 @@ class WinterMochaHyolee( Plot ):
          gears.stats.Knowledge:18,gears.stats.Craft:11,gears.stats.Ego:15,
          gears.stats.Charm:16,gears.stats.Science:10,gears.stats.Biotechnology:10,
          gears.stats.Medicine:7},
-         personality=[personality.Cheerful,personality.Peace,personality.Fellowship])
+         personality=[personality.Cheerful,personality.Peace,personality.Fellowship],
+                                     gender=gears.genderobj.Gender.get_default_female())
         hyolee.imagename = 'cha_wm_hyolee.png'
         hyolee.portrait = 'card_f_winterhyolee.png'
         hyolee.colors = (gears.color.Viridian,gears.color.Chocolate,gears.color.Saffron,gears.color.GunRed,gears.color.RoyalPink)
@@ -451,7 +453,8 @@ class WinterMochaCarter( Plot ):
          gears.stats.Knowledge:14,gears.stats.Craft:11,gears.stats.Ego:13,
          gears.stats.Charm:9,gears.stats.MechaGunnery:6,gears.stats.MechaFighting:6,
          gears.stats.MechaPiloting:7,gears.stats.Concentration:6,gears.stats.Repair:8},
-         personality=[personality.Shy,personality.Easygoing,personality.Justice])
+         personality=[personality.Shy,personality.Easygoing,personality.Justice],
+                                     gender=gears.genderobj.Gender.get_default_male())
         carter.portrait = 'card_m_wintercarter.png'
         carter.colors = (gears.color.BugBlue,gears.color.Burlywood,gears.color.AceScarlet,gears.color.SkyBlue,gears.color.SlateGrey)
         carter.mmode = pbge.scenes.movement.Walking

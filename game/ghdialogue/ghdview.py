@@ -19,7 +19,7 @@ class ConvoVisualizer(object):
         if hasattr(npc, "get_portrait"):
             #self.npc_sprite = npc.get_portrait()
             self.portrait = gears.portraits.Portrait()
-            self.portrait.random_portrait()
+            self.portrait.random_portrait(self.npc)
             self.npc_sprite = self.portrait.build_portrait()
             self.npc_sprite.recolor(gears.random_character_colors())
         else:

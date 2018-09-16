@@ -2,6 +2,7 @@ import materials
 import scale
 import calibre
 import pbge
+import genderobj
 from pbge import container, scenes, KeyObject, Singleton
 import random
 import collections
@@ -2287,15 +2288,20 @@ class Mecha(BaseGear,ContainerDamageHandler,Mover,VisibleGear,HasPower,Combatant
 
 
 class Character(BaseGear,StandardDamageHandler,Mover,VisibleGear,HasPower,Combatant):
-    SAVE_PARAMETERS = ('statline','personality')
+    SAVE_PARAMETERS = ('statline','personality','gender')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat
     DESTROYED_FRAME = 0
-    def __init__(self, statline=None, personality=(), **keywords ):
+    def __init__(self, statline=None, personality=(), gender=None, **keywords ):
         self.statline = collections.defaultdict(int)
         if statline:
             self.statline.update(statline)
         self.personality = set(personality)
+        if not gender:
+            gender = genderobj.Gender.random_gender()
+        elif isinstance(gender,dict):
+            gender = genderobj.Gender(**gender)
+        self.gender = gender
 
         self.mp_spent = 0
         self.sp_spent = 0

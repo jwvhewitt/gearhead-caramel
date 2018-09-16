@@ -18,6 +18,7 @@ import selector
 import enchantments
 import programs
 import portraits
+import genderobj
 
 import inspect
 import re

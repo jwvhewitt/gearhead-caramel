@@ -94,6 +94,10 @@ def open_config_menu(tsrd):
     myconfigmenu = game.configedit.ConfigEditor(tsrd,dy=0)
     myconfigmenu()
 
+def open_cosplay_menu(tsrd):
+    game.cosplay.ColorMenu.explo_invoke(tsrd)
+    print "Done."
+
 def play_the_game():
     try:
         # running in a bundle
@@ -121,6 +125,7 @@ def play_the_game():
     mymenu.add_item("Start Game",start_game)
     mymenu.add_item("Import GH1 Character",import_arena_character)
     mymenu.add_item("Config Options",open_config_menu)
+    mymenu.add_item("Cosplay Color Menu",open_cosplay_menu)
     mymenu.add_item("Quit",None)
 
     action = True

@@ -13,6 +13,7 @@
     "anchors": {
       "head": [10,-137],"right arm":[-99,78],"left arm":[99,102]
     },
+    "requires": ["Masculine"],
     "form_tags": ["BodMA"]
   },
   {
@@ -29,6 +30,7 @@
     "anchors": {
       "head": [10,-137],"right arm":[-99,78],"left arm":[99,102]
     },
+    "requires": ["Feminine"],
     "form_tags": ["BodFA"]
   },
   {
@@ -55,7 +57,7 @@
       "Eyes","Nose","Mouth","Hair","Ears"
     ],
     "anchors": {
-      "right_eye": [-3,3], "left_eye": [30,3], "mouth": [13,40], "ear": [-40,18]
+      "right_eye": [-3,3], "left_eye": [30,3], "mouth": [13,40], "ear": [-39,18]
     }
 
   },
@@ -71,16 +73,44 @@
     ],
     "anchors": {
       "right_eye": [-3,3], "left_eye": [30,3], "mouth": [13,40], "ear": [-40,18]
-    }
+    },
+    "requires": ["Masculine"]
 
+  },
+  {
+    "name": "Haywire B3 Head",
+    "btype": "Head",
+    "layers": [
+      {"name":"Head","fname":"por_head_hwb3.png","anchor":"head","depth":5000,"x_offset":0,"y_offset":0}
+    ],
+    "children": [
+      "Eyes","Nose","Mouth","Hair","Ears"
+    ],
+    "anchors": {
+      "right_eye": [-2,2], "left_eye": [29,2], "mouth": [13,38], "ear": [-38,18]
+    },
+    "requires": ["Feminine"]
+  },
+  {
+    "name": "Chubby Head",
+    "btype": "Head",
+    "layers": [
+      {"name":"Head","fname":"por_head_chubby.png","anchor":"head","depth":5000,"x_offset":1,"y_offset":0}
+    ],
+    "children": [
+      "Eyes","Nose","Mouth","Hair","Ears"
+    ],
+    "anchors": {
+      "right_eye": [-4,2], "left_eye": [31,2], "mouth": [15,39], "ear": [-38,18]
+    }
   },
 
   {
     "name": "Eyes A",
     "btype": "Eyes",
     "layers": [
-      {"name":"Right Eye","fname":"por_eyes_a.png","anchor":"right_eye","depth":5100,"frame_width":21,"frame_height":13},
-      {"name":"Left Eye","fname":"por_eyes_a.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":21,"frame_height":13}
+      {"name":"Right Eye","fname":"por_eyes_a.png","anchor":"right_eye","depth":5100,"frame_width":21,"frame_height":12},
+      {"name":"Left Eye","fname":"por_eyes_a.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":21,"frame_height":12}
     ],
     "children": [
       "Eyebrows"
@@ -108,7 +138,22 @@
     ],
     "children": [
       "Eyebrows"
-    ]
+    ],
+    "requires": ["Feminine"],
+    "prefers": ["Cheerful"]
+  },
+
+  {
+    "name": "Eyes HWB3",
+    "btype": "Eyes",
+    "layers": [
+      {"name":"Right Eye","fname":"por_eyes_hwb3.png","anchor":"right_eye","depth":5100,"frame_width":27,"frame_height":12,"x_offset":-2},
+      {"name":"Left Eye","fname":"por_eyes_hwb3.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":27,"frame_height":12,"x_offset":1}
+    ],
+    "children": [
+      "Eyebrows"
+    ],
+    "requires": ["Feminine"]
   },
 
   {
@@ -117,6 +162,15 @@
     "layers": [
       {"name":"Right Eyebrow","fname":"por_eyebrows_a.png","anchor":"right_eye","depth":5100,"frame_width":33,"frame_height":10,"y_offset":-10},
       {"name":"Left Eyebrow","fname":"por_eyebrows_a.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":33,"frame_height":10,"y_offset":-10}
+    ]
+  },
+
+  {
+    "name": "Eyebrows HWB3",
+    "btype": "Eyebrows",
+    "layers": [
+      {"name":"Right Eyebrow","fname":"por_eyebrows_hwb3.png","anchor":"right_eye","depth":5100,"frame_width":28,"frame_height":8,"y_offset":-9},
+      {"name":"Left Eyebrow","fname":"por_eyebrows_hwb3.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":28,"frame_height":8,"y_offset":-9}
     ]
   },
 
@@ -136,6 +190,24 @@
       {"name":"Right Eyebrow","fname":"por_eyebrows_darcy.png","anchor":"right_eye","depth":5100,"frame_width":31,"frame_height":13,"y_offset":-13},
       {"name":"Left Eyebrow","fname":"por_eyebrows_darcy.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":31,"frame_height":13,"y_offset":-13}
     ]
+  },
+  {
+    "name": "Eyebrows: VPrice",
+    "btype": "Eyebrows",
+    "layers": [
+      {"name":"Right Eyebrow","fname":"por_eyebrows_vprice.png","anchor":"right_eye","depth":5100,"frame_width":29,"frame_height":9,"x_offset":-4,"y_offset":-10},
+      {"name":"Left Eyebrow","fname":"por_eyebrows_vprice.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":29,"frame_height":9,"x_offset":2,"y_offset":-10}
+    ],
+    "prefers": ["Grim"]
+  },
+  {
+    "name": "Eyebrows: Arched",
+    "btype": "Eyebrows",
+    "layers": [
+      {"name":"Right Eyebrow","fname":"por_eyebrows_arch.png","anchor":"right_eye","depth":5100,"frame_width":30,"frame_height":8,"x_offset":0,"y_offset":-10},
+      {"name":"Left Eyebrow","fname":"por_eyebrows_arch.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":30,"frame_height":8,"x_offset":0,"y_offset":-10}
+    ],
+    "prefers": ["Cheerful"]
   },
 
   {
@@ -163,25 +235,69 @@
   },
 
   {
+    "name": "Roman Nose",
+    "btype": "Nose",
+    "layers": [
+      {"name":"Nose","fname":"por_nose_roman.png","anchor":"head","depth":5200,"x_offset":17,"y_offset":12}
+    ]
+  },
+
+  {
     "name": "Mouth A",
     "btype": "Mouth",
     "layers": [
-      {"name":"Mouth","fname":"por_mouth_a.png","anchor":"mouth","depth":5200}
-    ]
+      {"name":"Mouth","fname":"por_mouth_a.png","anchor":"mouth","depth":5200,"y_offset":-2}
+    ],
+    "prefers": ["Easygoing"]
   },
   {
     "name": "Pouty Mouth",
     "btype": "Mouth",
     "layers": [
       {"name":"Mouth","fname":"por_mouth_pouty.png","anchor":"mouth","depth":5200,"x_offset":2}
-    ]
+    ],
+    "prefers": ["Grim","Shy"]
   },
   {
     "name": "Pouty Mouth C",
     "btype": "Mouth",
     "layers": [
       {"name":"Mouth","fname":"por_mouth_pouty_c.png","anchor":"mouth","depth":5200,"x_offset":2}
-    ]
+    ],
+    "requires": ["Feminine"],
+    "prefers": ["Grim","Shy"]
+  },
+  {
+    "name": "Neutral Mouth",
+    "btype": "Mouth",
+    "layers": [
+      {"name":"Mouth","fname":"por_mouth_neutral.png","anchor":"mouth","depth":5200,"y_offset":0}
+    ],
+    "prefers": ["Grim"]
+  },
+  {
+    "name": "HWB3 Mouth C",
+    "btype": "Mouth",
+    "layers": [
+      {"name":"Mouth","fname":"por_mouth_hwb3_c.png","anchor":"mouth","depth":5200,"y_offset":0}
+    ],
+    "requires": ["Feminine"]
+  },
+  {
+    "name": "HWB3 Mouth R",
+    "btype": "Mouth",
+    "layers": [
+      {"name":"Mouth","fname":"por_mouth_hwb3_r.png","anchor":"mouth","depth":5200,"y_offset":0}
+    ],
+    "requires": ["Feminine"]
+  },
+  {
+    "name": "Big Smile Mouth",
+    "btype": "Mouth",
+    "layers": [
+      {"name":"Mouth","fname":"por_mouth_bigsmile.png","anchor":"mouth","depth":5200,"y_offset":0}
+    ],
+    "prefers": ["Cheerful"]
   },
   {
     "name": "Anime Hair",
@@ -195,7 +311,8 @@
     "btype": "Hair",
     "layers": [
       {"name":"Hair","fname":"por_hair_crewcut.png","anchor":"head","x_offset":-7, "y_offset":-28, "depth":6000}
-    ]
+    ],
+    "prefers": ["Duty"]
   },
   {
     "name": "Pixie Hair",
@@ -205,10 +322,33 @@
     ]
   },
   {
+    "name": "HWB3 Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_hwb3.png","anchor":"head","x_offset":-9, "y_offset":-17, "depth":6000}
+    ],
+    "requires": ["Feminine"]
+  },
+  {
     "name": "Ear A",
     "btype": "Ears",
     "layers": [
       {"name":"Ear","fname":"por_ear_a.png","anchor":"ear","depth":7000}
+    ],
+    "prefers": ["Common"]
+  },
+  {
+    "name": "Ear A2",
+    "btype": "Ears",
+    "layers": [
+      {"name":"Ear","fname":"por_ear_a2.png","anchor":"ear","depth":7000}
+    ]
+  },
+  {
+    "name": "Ear: HWB3",
+    "btype": "Ears",
+    "layers": [
+      {"name":"Ear","fname":"por_ear_hwb3.png","anchor":"ear","depth":7000}
     ]
   },
   {
@@ -224,7 +364,7 @@
     "layers": [
       {"name":"Shirt","fname":"por_clothing_bodmashirt1.png","anchor":"center","depth":3000,"x_offset":-5,"y_offset":45}
     ],
-    "fit_forms": ["BodMA"],
+    "requires": ["BodMA"],
     "children": [
       "Sleeves","Pants"
     ]
@@ -235,7 +375,7 @@
     "layers": [
       {"name":"Pants","fname":"por_pants_bodmapants1.png","anchor":"midbottom","depth":2000,"x_offset":2,"y_offset":0}
     ],
-    "fit_forms": ["BodMA"]
+    "requires": ["BodMA"]
   },
   {
     "name": "BodMA Pants 1M",
@@ -243,7 +383,7 @@
     "layers": [
       {"name":"Pants","fname":"por_pants_bodmapants1m.png","anchor":"midbottom","depth":2000,"x_offset":2,"y_offset":0}
     ],
-    "fit_forms": ["BodMA"]
+    "requires": ["BodMA"]
   },
   {
     "name": "BodFA Pants 1",
@@ -251,7 +391,7 @@
     "layers": [
       {"name":"Pants","fname":"por_pants_bodfapants1.png","anchor":"midbottom","depth":2000,"x_offset":-4,"y_offset":0}
     ],
-    "fit_forms": ["BodFA"]
+    "requires": ["BodFA"]
   },
   {
     "name": "BodFA Pants 1M",
@@ -259,7 +399,7 @@
     "layers": [
       {"name":"Pants","fname":"por_pants_bodfapants1m.png","anchor":"midbottom","depth":2000,"x_offset":-4,"y_offset":0}
     ],
-    "fit_forms": ["BodFA"]
+    "requires": ["BodFA"]
   },
   {
     "name": "BodMA Sleeves 1",
@@ -268,7 +408,7 @@
       {"name":"Right Sleeve","fname":"por_sleeves_bodmasleeves1.png","anchor":"center","depth":15000,"frame_width":124,"frame_height":134,"x_offset":-100,"y_offset":1},
       {"name":"Left Sleeve","fname":"por_sleeves_bodmasleeves1.png","anchor":"center","depth":1500,"frame":1,"frame_width":124,"frame_height":134,"x_offset":77,"y_offset":12}
     ],
-    "fit_forms": ["BodMA"]
+    "requires": ["BodMA"]
   },
   {
     "name": "BodFA Shirt 1",
@@ -276,7 +416,7 @@
     "layers": [
       {"name":"Shirt","fname":"por_clothing_bodfashirt1.png","anchor":"center","depth":3000,"x_offset":-2,"y_offset":59}
     ],
-    "fit_forms": ["BodFA"],
+    "requires": ["BodFA"],
     "children": [
       "Sleeves","Pants"
     ]
@@ -288,7 +428,7 @@
       {"name":"Right Sleeve","fname":"por_sleeves_bodfasleeves1.png","anchor":"center","depth":15000,"frame_width":102,"frame_height":149,"x_offset":-98,"y_offset":8},
       {"name":"Left Sleeve","fname":"por_sleeves_bodfasleeves1.png","anchor":"center","depth":1500,"frame":1,"frame_width":102,"frame_height":149,"x_offset":70,"y_offset":17}
     ],
-    "fit_forms": ["BodFA"]
+    "requires": ["BodFA"]
   }
 
 ]

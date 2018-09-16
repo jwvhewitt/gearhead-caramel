@@ -5,6 +5,7 @@ import content
 import ghdialogue
 import configedit
 import invoker
+import cosplay
 
 
 
