@@ -228,9 +228,8 @@ class FrozenHotSpringCity( Plot ):
          gears.stats.MechaFighting:7},
          personality=[personality.Cheerful,personality.Shy,personality.Fellowship],
                                      gender=gears.genderobj.Gender.get_default_female())
-        #vikki.imagename = 'cha_wm_vikki.png'
-        vikki.portrait = 'card_f_wintervikki.png'
-        #vikki.portrait = 'card_n_wintermel.png'
+        #vikki.portrait = 'card_f_wintervikki.png'
+        vikki.portrait_gen = gears.portraits.Portrait()
         vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
         #vikki.colors = (gears.color.Black,gears.color.Burlywood,gears.color.BugBlue,gears.color.NobleGold,gears.color.CeramicColor)
         vikki.mmode = pbge.scenes.movement.Walking

@@ -13,6 +13,7 @@ import attackattributes
 import tags
 import aitargeters
 import enchantments
+import portraits
 
 
 #
@@ -140,26 +141,33 @@ class VisibleGear( pbge.scenes.PlaceableThing ):
     # - If destroyed, use the destroyed image
     # - If hidden, hide it
     # - May have a portrait
-    def __init__(self, portrait=None, **keywords ):
+    def __init__(self, portrait=None, portrait_gen=None, **keywords ):
         self.portrait = portrait
+        self.portrait_gen = portrait_gen
         self.destroyed_pose = False
         super(VisibleGear, self).__init__(**keywords)
     SAVE_PARAMETERS = ('portrait',)
-    FRAMES = ((0,0,400,600),(0,600,100,100),(100,600,64,64))
     DESTROYED_FRAME = 1
     def get_sprite(self):
         """Generate the sprite for this thing."""
         if self.portrait and self.portrait.startswith('card_'):
             self.frame = 2
-            return pbge.image.Image(self.portrait,self.imagewidth,self.imageheight,self.colors,custom_frames=self.FRAMES)
+            return pbge.image.Image(self.portrait, self.imagewidth, self.imageheight, self.colors,
+                                    custom_frames=portraits.FRAMES)
+        elif self.portrait_gen:
+            self.frame = 2
+            return self.portrait_gen.build_portrait(self)
         else:
             return pbge.image.Image(self.imagename,self.imagewidth,self.imageheight,self.colors)
     def get_portrait(self):
         if self.portrait:
             if self.portrait.startswith('card_'):
-                return pbge.image.Image(self.portrait,self.imagewidth,self.imageheight,self.colors,custom_frames=self.FRAMES)
+                return pbge.image.Image(self.portrait,self.imagewidth,self.imageheight,self.colors,custom_frames=portraits.FRAMES)
             else:
                 return pbge.image.Image(self.portrait,color=self.colors)
+        elif self.portrait_gen:
+            return self.portrait_gen.build_portrait(self)
+
     def render( self, foot_pos, view ):
         if self.destroyed_pose:
             self.render_destroyed(foot_pos,view)

@@ -2,6 +2,32 @@ from pbge.image import Gradient
 
 CLOTHING,SKIN,HAIR,MECHA,DETAILS,METAL = range(6)
 
+class ChannelRed( Gradient ):
+    NAME = 'Channel Red'
+    COLOR_RANGE = (255,0,0,0,0,0)
+    SETS = ()
+
+class ChannelYellow( Gradient ):
+    NAME = 'Channel Yellow'
+    COLOR_RANGE = (255,255,0,0,0,0)
+    SETS = ()
+
+class ChannelGreen( Gradient ):
+    NAME = 'Channel Green'
+    COLOR_RANGE = (0,255,0,0,0,0)
+    SETS = ()
+
+class ChannelCyan( Gradient ):
+    NAME = 'Channel Cyan'
+    COLOR_RANGE = (0,255,255,0,0,0)
+    SETS = ()
+
+class ChannelMagenta( Gradient ):
+    NAME = 'Channel Magenta'
+    COLOR_RANGE = (255,0,255,0,0,0)
+    SETS = ()
+
+
 class RoyalPink( Gradient ):
     NAME = 'Royal Pink'
     COLOR_RANGE = (255,135,241,80,43,54)
@@ -206,7 +232,7 @@ class SeaGreen( Gradient ):
 
 class Jade( Gradient ):
     NAME = 'Jade'
-    COLOR_RANGE = (181,243,203,9,12,116)
+    COLOR_RANGE = (115,255,223,17,49,87)
     SETS = (CLOTHING,HAIR,MECHA)
 
 class Viridian( Gradient ):
@@ -242,6 +268,11 @@ class SkyBlue( Gradient ):
 class Cyan( Gradient ):
     NAME = 'Cyan'
     COLOR_RANGE = (0,255,234,0,79,86)
+    SETS = (CLOTHING,HAIR,MECHA,DETAILS)
+
+class Turquoise( Gradient ):
+    NAME = 'Turquoise'
+    COLOR_RANGE = (0,250,222,60,0,90)
     SETS = (CLOTHING,HAIR,MECHA,DETAILS)
 
 class FadedDenim( Gradient ):
@@ -303,6 +334,11 @@ class Fuschia( Gradient ):
     NAME = 'Fuschia'
     COLOR_RANGE = (191,112,247,35,31,69)
     SETS = (CLOTHING,HAIR,MECHA,DETAILS)
+
+class Twilight( Gradient ):
+    NAME = 'Twilight'
+    COLOR_RANGE = (255,170,255,0,69,82)
+    SETS = (HAIR,DETAILS)
 
 class HeavyPurple( Gradient ):
     NAME = 'Heavy Purple'
@@ -428,6 +464,11 @@ class Black( Gradient ):
     NAME = 'Black'
     COLOR_RANGE = (64,64,64,10,10,10)
     SETS = (CLOTHING,HAIR,MECHA,DETAILS,METAL)
+
+class GhostGrey( Gradient ):
+    NAME = 'Ghost Grey'
+    COLOR_RANGE = (181,243,203,9,12,116)
+    SETS = (CLOTHING,MECHA,METAL)
 
 class DeepGrey( Gradient ):
     NAME = 'Deep Grey'

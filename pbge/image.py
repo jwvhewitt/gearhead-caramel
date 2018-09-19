@@ -42,7 +42,7 @@ class Image( object ):
                 self.bitmap.set_colorkey((0,0,255),flags)
                 if color:
                     self.recolor(color)
-                pre_loaded_images[(fname,repr(color))] = self.bitmap
+                self.record_pre_loaded(fname,color,self.bitmap)
         else:
             self.bitmap = pygame.Surface( (frame_width , frame_height) )
             self.bitmap.fill((0,0,255))
@@ -62,6 +62,10 @@ class Image( object ):
         self.frame_height = frame_height
 
         self.custom_frames = custom_frames
+
+    @staticmethod
+    def record_pre_loaded(ident,colorset,bitmap):
+        pre_loaded_images[(ident, repr(colorset))] = bitmap
 
     def render( self , dest = (0,0) , frame=0, dest_surface=None ):
         # Render this Image onto the provided surface.

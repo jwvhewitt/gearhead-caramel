@@ -95,7 +95,7 @@ def open_config_menu(tsrd):
     myconfigmenu()
 
 def open_cosplay_menu(tsrd):
-    game.cosplay.ColorMenu.explo_invoke(tsrd)
+    game.cosplay.ColorEditor.explo_invoke(tsrd)
     print "Done."
 
 def play_the_game():

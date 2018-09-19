@@ -1,3 +1,5 @@
+- Added cosplay module (game/cosplay.py)
+- Portrait generator now used by VisibleGear class (gears/base.py)
 - Gender may be defined as dict in design files (gears/base.py)
 - Added gender (gears/gender.py)
 - Player folder now has an image subfolder (gears/)
