@@ -438,6 +438,50 @@
     ]
   },
   {
+    "name": "BodMA Shirt 2",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_clothing_bodmashirt2.png","anchor":"center","depth":3000,"x_offset":-5,"y_offset":36},
+      {"name":"Collar","fname":"por_collar_bodma_1.png","anchor":"center","depth":3500,"x_offset":3,"y_offset":-64}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_shirt_ma2.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
+    ],
+    "requires": ["BodMA"],
+    "children": [
+      "Sleeves","Pants"
+    ]
+  },
+  {
+    "name": "BodMA Rob Liefeld Shirt",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_clothing_bodmashirt_liefeld.png","anchor":"center","depth":3000,"x_offset":-5,"y_offset":40},
+      {"name":"Collar","fname":"por_collar_bodma_1.png","anchor":"center","depth":3500,"x_offset":3,"y_offset":-64}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_shirt_liefeld.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
+    ],
+    "requires": ["BodMA"],
+    "children": [
+      "Sleeves","Pants"
+    ]
+  },
+  {
+    "name": "BodMA T-Shirt",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_clothing_bodmashirt_t.png","anchor":"center","depth":3000,"x_offset":-7,"y_offset":57}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_shirt_mat.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
+    ],
+    "requires": ["BodMA"],
+    "children": [
+      "Sleeves","Pants","Decal"
+    ]
+  },
+  {
     "name": "BodMA Pants 1",
     "btype": "Pants",
     "layers": [
@@ -446,7 +490,8 @@
     "avatar_layers": [
       {"name":"Pants","fname":"avatar_pants_a_red.png","anchor":"midbottom","depth":3000,"x_offset":-1}
     ],
-    "requires": ["BodMA"]
+    "requires": ["BodMA"],
+    "children": ["Shoes"]
   },
   {
     "name": "BodMA Pants 1M",
@@ -457,7 +502,8 @@
     "avatar_layers": [
       {"name":"Pants","fname":"avatar_pants_a_magenta.png","anchor":"midbottom","depth":3000,"x_offset":-1}
     ],
-    "requires": ["BodMA"]
+    "requires": ["BodMA"],
+    "children": ["Shoes"]
   },
   {
     "name": "BodFA Pants 1",
@@ -468,7 +514,8 @@
     "avatar_layers": [
       {"name":"Pants","fname":"avatar_pants_a_red.png","anchor":"midbottom","depth":3000,"x_offset":-1}
     ],
-    "requires": ["BodFA"]
+    "requires": ["BodFA"],
+    "children": ["Shoes"]
   },
   {
     "name": "BodFA Pants 1M",
@@ -479,7 +526,8 @@
     "avatar_layers": [
       {"name":"Pants","fname":"avatar_pants_a_magenta.png","anchor":"midbottom","depth":3000,"x_offset":-1}
     ],
-    "requires": ["BodFA"]
+    "requires": ["BodFA"],
+    "children": ["Shoes"]
   },
   {
     "name": "BodMA Sleeves 1",
@@ -489,8 +537,21 @@
       {"name":"Left Sleeve","fname":"por_sleeves_bodmasleeves1.png","anchor":"center","depth":1500,"frame":1,"frame_width":124,"frame_height":134,"x_offset":77,"y_offset":12}
     ],
     "avatar_layers": [
-      {"name":"Right Sleeve","fname":"avatar_sleeves_ma1.png","anchor":"avatar_right_shoulder","depth":1500,"frame_width":5,"frame_height":9,"y_offset":4},
-      {"name":"Left Sleeve","fname":"avatar_sleeves_ma1.png","anchor":"avatar_left_shoulder","depth":1500,"frame_width":5,"frame_height":9,"y_offset":4}
+      {"name":"Right Sleeve","fname":"avatar_sleeves_ma1.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":5,"frame_height":9,"y_offset":4},
+      {"name":"Left Sleeve","fname":"avatar_sleeves_ma1.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":5,"frame_height":9,"y_offset":4}
+    ],
+    "requires": ["BodMA"]
+  },
+  {
+    "name": "BodMA Sleeves 2",
+    "btype": "Sleeves",
+    "layers": [
+      {"name":"Right Sleeve","fname":"por_sleeves_bodmasleeves2.png","anchor":"center","depth":15000,"frame_width":103,"frame_height":115,"x_offset":-90,"y_offset":-10},
+      {"name":"Left Sleeve","fname":"por_sleeves_bodmasleeves2.png","anchor":"center","depth":1500,"frame":1,"frame_width":103,"frame_height":115,"x_offset":75,"y_offset":-1}
+    ],
+    "avatar_layers": [
+      {"name":"Right Sleeve","fname":"avatar_sleeves_ma2.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":5,"frame_height":6,"y_offset":3},
+      {"name":"Left Sleeve","fname":"avatar_sleeves_ma2.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":5,"frame_height":6,"y_offset":3}
     ],
     "requires": ["BodMA"]
   },
@@ -520,6 +581,36 @@
       {"name":"Left Sleeve","fname":"avatar_sleeves_fa1.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":5,"frame_height":9,"y_offset":4}
     ],
     "requires": ["BodFA"]
+  },
+  {
+    "name": "Shoes: Red",
+    "btype": "Shoes",
+    "avatar_layers": [
+      {"name":"Shoes","fname":"avatar_shoes_red.png","anchor":"midbottom","depth":2500,"x_offset":-1}
+    ]
+  },
+  {
+    "name": "Shoes: Magenta",
+    "btype": "Shoes",
+    "avatar_layers": [
+      {"name":"Shoes","fname":"avatar_shoes_magenta.png","anchor":"midbottom","depth":2500,"x_offset":-1}
+    ]
+  },
+  {
+    "name": "Shoes: Cyan",
+    "btype": "Shoes",
+    "avatar_layers": [
+      {"name":"Shoes","fname":"avatar_shoes_cyan.png","anchor":"midbottom","depth":2500,"x_offset":-1}
+    ]
+  },
+  {
+    "name": "Decal: Introvert",
+    "btype": "Decal",
+    "layers": [
+      {"name":"Decal","fname":"por_decal_ma_introvert.png","anchor":"center","depth":7000,"x_offset":22,"y_offset":15}
+    ],
+    "requires": ["Grim"]
   }
+
 
 ]

@@ -227,7 +227,7 @@ class FrozenHotSpringCity( Plot ):
          gears.stats.Charm:12,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
          gears.stats.MechaFighting:7},
          personality=[personality.Cheerful,personality.Shy,personality.Fellowship],
-                                     gender=gears.genderobj.Gender.get_default_female())
+                                     gender=gears.genderobj.Gender.get_default_male())
         #vikki.portrait = 'card_f_wintervikki.png'
         vikki.portrait_gen = gears.portraits.Portrait()
         vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
