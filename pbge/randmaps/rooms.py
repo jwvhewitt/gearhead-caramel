@@ -91,6 +91,7 @@ class Room( object ):
                 if myrect.collidelist( closed_area ) == -1:
                     r.area = myrect
                     closed_area.append( myrect )
+        old_closed = list(closed_area)
         # Assign areas for unplaced rooms.
         for r in self.contents:
             if hasattr( r, "area" ) and not r.area:
@@ -109,7 +110,7 @@ class Room( object ):
                         closed_area.append( myrect )
                     count += 1
                 if not r.area:
-                    raise RoomError( "ROOM ERROR: {}:{} cannot place {}".format(self,str( self.__class__ ),r) )
+                    raise RoomError( "ROOM ERROR: {}:{} cannot place {}".format(str(self),str( self.__class__ ),str(r)) )
 
 
     def connect_contents( self, gb, archi ):

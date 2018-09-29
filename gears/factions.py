@@ -16,3 +16,8 @@ class BoneDevils(Singleton):
 class TerranDefenseForce(Singleton):
 	name = "the Terran Defense Force"
 	mecha_colors = (color.ArmyDrab,color.Olive,color.ElectricYellow,color.GullGrey,color.Terracotta)
+
+class Circle(Singleton):
+	def __init__(self, parent_faction=None):
+		self.parent_faction = parent_faction
+

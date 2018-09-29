@@ -1,6 +1,7 @@
 import mechtarot
 from mechtarot import TarotCard,Interaction,TagChecker,NameChecker
 import pbge
+import gears
 
 
 MT_PERSON = "PERSON"
@@ -25,24 +26,29 @@ class Demagogue(TarotCard):
     NEGATIONS = (Convict,)
     def custom_init( self, nart ):
         if ME_PERSON not in self.elements:
-            self.register_element(ME_PERSON,"The Bad Guy")
+            npc = gears.selector.random_pilot(50)
+            self.register_element(ME_PERSON,npc,dident="TOWN")
         return True
-    def t_START(self,camp):
-        pbge.alert("Demagogue is here")
+    def PERSON_offers(self,camp):
+        # Return list of dialogue offers.
+        mylist = list()
+
+
+        return mylist
+
+
 
 
 class Warrant(TarotCard):
     INTERACTIONS = (Interaction(TagChecker([MT_PERSON],[ME_PERSON]),action_triggers=[],effect_plot='',results=(None,"Convict",None),passparams=(None,((ME_PERSON,),None),None)),
                     )
-    def t_START(self,camp):
-        pbge.alert("Warrant Person: {}".format(self.elements.get(ME_PERSON)))
+
 
 
 class TheLaw(TarotCard):
     INTERACTIONS = (Interaction(NameChecker(["Evidence"]),action_triggers=[],effect_plot='',results=(None,None,"Warrant"),passparams=(None,None,(None,(ME_PERSON,)))),
                     )
-    def t_START(self,camp):
-        pbge.alert("The Law Person: {}".format(self.elements.get(ME_PERSON)))
+
 
 
 class LocalHero(TarotCard):
@@ -52,15 +58,9 @@ class LocalHero(TarotCard):
             self.register_element(ME_PERSON,"Deadzone Drifter")
         return True
 
-    def t_START(self,camp):
-        pbge.alert("Local Hero Person: {}".format(self.elements.get(ME_PERSON)))
-
 class TheBadge(TarotCard):
     INTERACTIONS = (Interaction(TagChecker([MT_PERSON,MT_HEROIC]),action_triggers=[],effect_plot='',results=(None,"TheLaw",None),passparams=(None,(None,(ME_PERSON,)),None)),
                     )
-    def t_START(self,camp):
-        pbge.alert("The Badge Person: {}".format(self.elements.get(ME_PERSON)))
-
 
 class Evidence(TarotCard):
     # If first card, place the evidence right in a crime scene that the PC can discover-
@@ -71,11 +71,7 @@ class Evidence(TarotCard):
 class Clue(TarotCard):
     INTERACTIONS = (Interaction(NameChecker(["Crime"]),action_triggers=[],effect_plot='',results=("Evidence",None,None),passparams=(((ME_PERSON,),None),None,None)),
                     )
-    def t_START(self,camp):
-        pbge.alert("Clue Person: {}".format(self.elements.get(ME_PERSON)))
-
 
 class Crime(TarotCard):
-    def t_START(self,camp):
-        pbge.alert("Crime Person: {}".format(self.elements.get(ME_PERSON)))
+    pass
 

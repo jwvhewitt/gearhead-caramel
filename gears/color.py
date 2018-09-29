@@ -1,4 +1,6 @@
 from pbge.image import Gradient
+import random
+
 
 CLOTHING,SKIN,HAIR,MECHA,DETAILS,METAL = range(6)
 
@@ -272,7 +274,7 @@ class Cyan( Gradient ):
 
 class Turquoise( Gradient ):
     NAME = 'Turquoise'
-    COLOR_RANGE = (0,250,222,60,0,90)
+    COLOR_RANGE = (50,250,222,60,0,90)
     SETS = (CLOTHING,HAIR,MECHA,DETAILS)
 
 class FadedDenim( Gradient ):
@@ -531,6 +533,19 @@ class ShiningWhite( Gradient ):
     SETS = (CLOTHING,MECHA,METAL)
 
 
+ALL_COLORS = list()
+CLOTHING_COLORS = list()
+SKIN_COLORS = list()
+HAIR_COLORS = list()
+MECHA_COLORS = list()
+DETAIL_COLORS = list()
+METAL_COLORS = list()
+
+def random_character_colors():
+    return [random.choice(CLOTHING_COLORS),random.choice(SKIN_COLORS),random.choice(HAIR_COLORS),random.choice(DETAIL_COLORS),random.choice(CLOTHING_COLORS)]
+
+def random_mecha_colors():
+    return [random.choice(MECHA_COLORS),random.choice(MECHA_COLORS),random.choice(DETAIL_COLORS),random.choice(METAL_COLORS),random.choice(MECHA_COLORS)]
 
 
 

@@ -24,6 +24,10 @@ class TechnoRubble( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_technorubble.png'
     border = pbge.scenes.terrain.FloorBorder( DeadZoneGround, 'terrain_border_technoedge.png' )
 
+class CrackedEarth( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_crackedearth.png'
+    border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
+
 class WorldMapRoad(pbge.scenes.terrain.RoadTerrain):
     image_bottom = 'terrain_decor_worldroad.png'
 
@@ -71,3 +75,12 @@ class ExitTerrain( pbge.scenes.terrain.AnimTerrain ):
     anim_delay = 1
 
 
+class FortressWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_fortress.png'
+    blocks = (Walking,Skimming,Rolling,Vision)
+
+class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_dragonteeth.png'
+    bordername = None
+    altitude = 20
+    blocks = (Walking, Skimming, Rolling)

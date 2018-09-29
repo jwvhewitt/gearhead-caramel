@@ -153,25 +153,21 @@ class WinterMochaClaymore( waypoints.Waypoint ):
     TILE = pbge.scenes.Tile( None, None, WinterMochaClaymoreTerrain )
     desc = "You stand before a totalled mecha."
 
-class WinterMochaFortressWall(pbge.scenes.terrain.WallTerrain):
-    image_top = 'terrain_wall_fortress.png'
-    blocks = (Walking,Skimming,Rolling,Vision)
-    
 class WinterMochaFortressRoom(pbge.randmaps.rooms.Room):
     def build( self, gb, archi ):
         gb.fill(self.area.inflate(2,2),floor=archi.floor_terrain,wall=None)
         width = self.area.w-2
         for x in range(width/2-1):
-            gb.set_wall(x+1+self.area.left,self.area.top+1,WinterMochaFortressWall)
-            gb.set_wall(self.area.right-x-1,self.area.top+1,WinterMochaFortressWall)
-            gb.set_wall(x+1+self.area.left,self.area.bottom-1,WinterMochaFortressWall)
-            gb.set_wall(self.area.right-x-1,self.area.bottom-1,WinterMochaFortressWall)
+            gb.set_wall(x+1+self.area.left,self.area.top+1,ghterrain.FortressWall)
+            gb.set_wall(self.area.right-x-1,self.area.top+1,ghterrain.FortressWall)
+            gb.set_wall(x+1+self.area.left,self.area.bottom-1,ghterrain.FortressWall)
+            gb.set_wall(self.area.right-x-1,self.area.bottom-1,ghterrain.FortressWall)
         height = self.area.h-2
         for y in range(height/2-1):
-            gb.set_wall(self.area.left+1,y+1+self.area.top,WinterMochaFortressWall)
-            gb.set_wall(self.area.left+1,self.area.bottom-y-1,WinterMochaFortressWall)
-            gb.set_wall(self.area.right-1,y+1+self.area.top,WinterMochaFortressWall)
-            gb.set_wall(self.area.right-1,self.area.bottom-y-1,WinterMochaFortressWall)
+            gb.set_wall(self.area.left+1,y+1+self.area.top,ghterrain.FortressWall)
+            gb.set_wall(self.area.left+1,self.area.bottom-y-1,ghterrain.FortressWall)
+            gb.set_wall(self.area.right-1,y+1+self.area.top,ghterrain.FortressWall)
+            gb.set_wall(self.area.right-1,self.area.bottom-y-1,ghterrain.FortressWall)
 
 # *****************
 # ***   PLOTS   ***
@@ -227,9 +223,9 @@ class FrozenHotSpringCity( Plot ):
          gears.stats.Charm:12,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
          gears.stats.MechaFighting:7},
          personality=[personality.Cheerful,personality.Shy,personality.Fellowship],
-                                     gender=gears.genderobj.Gender.get_default_male())
-        #vikki.portrait = 'card_f_wintervikki.png'
-        vikki.portrait_gen = gears.portraits.Portrait()
+                                     gender=gears.genderobj.Gender.get_default_female())
+        vikki.portrait = 'card_f_wintervikki.png'
+        #vikki.portrait_gen = gears.portraits.Portrait()
         vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
         #vikki.colors = (gears.color.Black,gears.color.Burlywood,gears.color.BugBlue,gears.color.NobleGold,gears.color.CeramicColor)
         vikki.mmode = pbge.scenes.movement.Walking

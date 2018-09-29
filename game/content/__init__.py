@@ -77,8 +77,8 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
         return sp
 
 
-#def narrative_convenience_function( adv_type="SCENARIO_DEADZONEDRIFTER" ):
-def narrative_convenience_function(adv_type="SCENARIO_MOCHA"):
+def narrative_convenience_function( adv_type="SCENARIO_DEADZONEDRIFTER" ):
+#def narrative_convenience_function(adv_type="SCENARIO_MOCHA"):
     # Start an adventure.
     init = pbge.plots.PlotState(rank=1)
     camp = gears.GearHeadCampaign(explo_class=exploration.Explorer)

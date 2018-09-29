@@ -79,8 +79,6 @@ class Constellation(object):
             if initial_cards:
                 # Add these cards to the adventure.
                 for pcard in initial_cards:
-                    print pcard.card.__name__
-                    print pcard.elements
                     pstate = pbge.plots.PlotState().based_on(root_plot)
                     for k,v in pcard.elements.items():
                         # Copy any known elements to this tarot plot.
@@ -148,14 +146,10 @@ class Constellation(object):
                         proto_b = ProtoCard(card_b)
                         # We are only worrying about the original_proto product here; any other products of this
                         # interaction don't matter.
-                        print "initial {}: {}".format(proto_a.card.__name__,proto_a.elements)
-                        print "initial {}: {}".format(proto_b.card.__name__,proto_b.elements)
                         self.inherit_elements(original_proto, proto_a, inter.passparams[inter.results.index(original_proto.card.__name__)][0])
                         self.inherit_elements(original_proto, proto_b, inter.passparams[inter.results.index(original_proto.card.__name__)][1])
                         self.inherit_elements(proto_a, proto_b, inter.card_checker.needed_elements)
                         self.inherit_elements(proto_b, proto_a, inter.card_checker.needed_elements)
-                        print "final {}: {}".format(proto_a.card.__name__,proto_a.elements)
-                        print "final {}: {}".format(proto_b.card.__name__,proto_b.elements)
                         candidates.append((proto_a,proto_b))
         if candidates:
             return random.choice(candidates)

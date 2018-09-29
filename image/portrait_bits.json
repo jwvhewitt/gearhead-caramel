@@ -89,7 +89,7 @@
       "Eyes","Nose","Mouth","Hair","Ears"
     ],
     "anchors": {
-      "right_eye": [-3,3], "left_eye": [30,3], "mouth": [13,40], "ear": [-40,18]
+      "right_eye": [-2,3], "left_eye": [30,3], "mouth": [14,40], "ear": [-40,18]
     },
     "requires": ["Masculine"]
 
@@ -165,7 +165,6 @@
     "requires": ["Feminine"],
     "prefers": ["Cheerful"]
   },
-
   {
     "name": "Eyes HWB3",
     "btype": "Eyes",
@@ -177,6 +176,19 @@
       "Eyebrows"
     ],
     "requires": ["Feminine"]
+  },
+  {
+    "name": "Emo Eyes",
+    "btype": "Eyes",
+    "layers": [
+      {"name":"Right Eye","fname":"por_eyes_emo.png","anchor":"right_eye","depth":5100,"frame_width":21,"frame_height":13,"x_offset":-1},
+      {"name":"Left Eye","fname":"por_eyes_emo.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":21,"frame_height":13,"x_offset":0}
+    ],
+    "children": [
+      "Eyebrows"
+    ],
+    "prefers": ["Grim"],
+    "requires": ["Masculine"]
   },
 
   {
@@ -376,7 +388,8 @@
     ],
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_pixie.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
-    ]
+    ],
+    "requires": ["Feminine"]
   },
   {
     "name": "HWB3 Hair",
@@ -388,6 +401,63 @@
       {"name":"Hair","fname":"avatar_hair_hwb3.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
     "requires": ["Feminine"]
+  },
+  {
+    "name": "Emo Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_emo.png","anchor":"head","x_offset":-1, "y_offset":-9, "depth":6000}
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_emo.png","anchor":"avatar_head","depth":5000,"x_offset":1,"y_offset":-1}
+    ],
+    "requires": ["Masculine"],
+    "prefers": ["Grim"]
+  },
+  {
+    "name": "Balding Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_balding.png","anchor":"head","x_offset":-4, "y_offset":-20, "depth":6000}
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_balding.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
+    ],
+    "requires": ["Masculine"],
+    "prefers": ["Old"]
+  },
+  {
+    "name": "Windswept Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_windswept.png","anchor":"head","x_offset":-7, "y_offset":-22, "depth":6000}
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_windswept.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
+    ],
+    "prefers": ["Masculine"]
+  },
+  {
+    "name": "Brightperm Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_brightperm.png","anchor":"head","x_offset":-9, "y_offset":-15, "depth":6000}
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_brightperm.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
+    ],
+    "requires": ["Masculine"]
+  },
+  {
+    "name": "B70 Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_b70.png","anchor":"head","x_offset":-5, "y_offset":-10, "depth":7500}
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_b70.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
+    ],
+    "requires": ["Masculine"]
   },
   {
     "name": "Ear A",
@@ -477,9 +547,25 @@
       {"name":"Shirt","fname":"avatar_shirt_mat.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
     ],
     "requires": ["BodMA"],
+    "prefers": ["Easygoing"],
     "children": [
       "Sleeves","Pants","Decal"
     ]
+  },
+  {
+    "name": "BodMA Bandoliers",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_clothing_bodmabandoliers.png","anchor":"center","depth":3000,"x_offset":2,"y_offset":43}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_bodma_bandoliers.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":1}
+    ],
+    "requires": ["Custom"],
+    "children": [
+      "Pants"
+    ],
+    "form_tags": ["SC1974"]
   },
   {
     "name": "BodMA Pants 1",
@@ -504,6 +590,17 @@
     ],
     "requires": ["BodMA"],
     "children": ["Shoes"]
+  },
+  {
+    "name": "Raider Shorts",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_pants_bodmaraidershorts.png","anchor":"midbottom","depth":2000,"x_offset":3,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_pants_a_raidershorts.png","anchor":"midbottom","depth":3000,"x_offset":-1}
+    ],
+    "requires": ["Custom"]
   },
   {
     "name": "BodFA Pants 1",
@@ -608,6 +705,14 @@
     "btype": "Decal",
     "layers": [
       {"name":"Decal","fname":"por_decal_ma_introvert.png","anchor":"center","depth":7000,"x_offset":22,"y_offset":15}
+    ],
+    "requires": ["Shy"]
+  },
+  {
+    "name": "Decal: Skull",
+    "btype": "Decal",
+    "layers": [
+      {"name":"Decal","fname":"por_decal_ma_skull.png","anchor":"center","depth":7000,"x_offset":20,"y_offset":59}
     ],
     "requires": ["Grim"]
   }

@@ -6,6 +6,7 @@ import random
 
 import pbge
 import pygame
+import color
 
 PORTRAIT_BITS = dict()
 PORTRAIT_BITS_BY_TYPE = collections.defaultdict(list)
@@ -88,7 +89,12 @@ class Portrait(object):
             mydest = l.get_rect(mysprite, avatar_bm, anchors)
             mysprite.render(mydest, l.frame, avatar_bm)
 
-        if add_color and pc.colors:
+        if add_color:
+            if not pc.colors:
+                # Generate random colors for this character.
+                pc.colors = color.random_character_colors()
+                #If this character has a faction, update the colors with faction colors.
+
             porimage.recolor(pc.colors)
             pbge.image.Image.record_pre_loaded(self,pc.colors,porimage.bitmap)
 
