@@ -113,7 +113,9 @@ class Murder(TarotCard):
             self.register_element(ME_PERSON,gears.selector.random_pilot(50))
         if not self.elements.get(ME_AUTOREVEAL):
             # Add a subplot to reveal this murder.
-            pass
-            tplot = self.add_sub_plot(nart, "DDTS_LostPerson",necessary=False)
+            tplot = self.add_sub_plot(nart, "DZD_RevealMurder", ident="_RevealMurder" )
         return True
-
+    def _RevealMurder_WIN(self,camp):
+        if not self.visible:
+            pbge.alert("You win!")
+            self.visible = True

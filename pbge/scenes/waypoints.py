@@ -64,6 +64,8 @@ class Waypoint( object ):
             alert( self.desc )
 
     def bump( self, camp, pc ):
+        # Send a BUMP trigger.
+        camp.check_trigger("BUMP",self)
         # If plot_locked, check plots for possible actions.
         # Otherwise, use the normal unlocked_use.
         if self.plot_locked:

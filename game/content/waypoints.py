@@ -45,3 +45,8 @@ class DZDCommTower( Exit ):
     name = 'Comm Tower'
     TILE = pbge.scenes.Tile( None, DZDCommTowerTerrain, None )
     desc = "You stand before a communications tower."
+
+class Victim(Waypoint):
+    name = 'Victim'
+    TILE = pbge.scenes.Tile(None,None,ghterrain.VictimTerrain)
+    desc = "This person has seen better days."

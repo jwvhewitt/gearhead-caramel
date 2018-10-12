@@ -6,6 +6,7 @@ import personality
 import stats
 import portraits
 import genderobj
+import color
 
 DESIGN_LIST = list()
 EARTH_NAMES = None
@@ -98,6 +99,8 @@ class RandomMechaUnit(object):
         self.fac = fac
         if fac:
             self.team_colors = fac.mecha_colors
+        else:
+            self.team_colors = color.random_mecha_colors()
         self.shopping_list = MechaShoppingList(
             max(calc_threat_points(level), self.MIN_HI_PRICE),
             fac, env)

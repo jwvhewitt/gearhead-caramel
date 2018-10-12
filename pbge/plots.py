@@ -20,7 +20,7 @@ class PlotState( object ):
             self.elements = elements.copy()
         else:
             self.elements = dict()
-    def based_on( self, oplot ):
+    def based_on( self, oplot, update_elements=None ):
         self.chapter = self.chapter or oplot.chapter
         self.rank = self.rank or oplot.rank
         # Only copy over the elements not marked as private.
@@ -28,6 +28,8 @@ class PlotState( object ):
             if isinstance( k, str ) and len(k)>0 and k[0]!="_":
                 if k not in self.elements:
                     self.elements[k] = v
+        if update_elements:
+            self.elements.update(update_elements)
         # Why return self? Because this function will often be called straight
         # from the generator.
         return self

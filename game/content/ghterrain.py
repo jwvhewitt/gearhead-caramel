@@ -24,6 +24,9 @@ class TechnoRubble( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_technorubble.png'
     border = pbge.scenes.terrain.FloorBorder( DeadZoneGround, 'terrain_border_technoedge.png' )
 
+class OldTilesFloor( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_oldtiles.png'
+
 class CrackedEarth( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_crackedearth.png'
     border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
@@ -49,7 +52,7 @@ class Mountain( pbge.scenes.terrain.HillTerrain ):
     blocks = ()
 
 class VendingMachineTerrain(pbge.scenes.terrain.OnTheWallTerrain):
-    image_middle = 'terrain_prop_vendingmachine.png'
+    image_middle = 'terrain_decor_vendingmachine.png'
     blocks = (Walking,Skimming,Rolling)
 
 class WinterMochaBarrelTerrain(pbge.scenes.terrain.Terrain):
@@ -79,6 +82,10 @@ class FortressWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_fortress.png'
     blocks = (Walking,Skimming,Rolling,Vision)
 
+class DefaultWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_default.png'
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
 class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_dragonteeth.png'
     bordername = None
@@ -103,4 +110,9 @@ class DZDCommTowerTerrain(pbge.scenes.terrain.Terrain):
     frame = 0
     blocks = (Walking,Skimming,Rolling,Flying)
 
+
+class VictimTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_default.png'
+    frame = 0
+    blocks = (Walking,Skimming,Rolling,Flying)
 
