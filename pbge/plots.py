@@ -278,15 +278,28 @@ class Plot( object ):
         self.active = False
         camp.check_trigger( 'UPDATE' )
 
+    def end_plot(self, camp):
+        self.active = False
+        for sp in self.subplots.itervalues():
+            if not sp.active:
+                sp.end_plot( camp )
+
+        # Remove self from the adventure.
+        if hasattr( self, "container" ) and self.container:
+            self.container.remove( self )
+
+        camp.check_trigger( 'UPDATE' )
+
 class NarrativeRequest( object ):
     """The builder class which constructs a story out of individual plots."""
-    def __init__( self, camp, pstate, adv_type="ADVENTURE_STUB", plot_list={} ):
+    def __init__( self, camp, pstate=None, adv_type="ADVENTURE_STUB", plot_list={} ):
         self.camp = camp
         self.generators = list()
         self.errors = list()
         self.plot_list = plot_list
         # Add the seed plot.
-        self.story = self.generate_sub_plot( pstate, adv_type )
+        if pstate:
+            self.story = self.generate_sub_plot( pstate, adv_type )
 
     def random_choice_by_weight( self, candidates ):
         wcan = list()

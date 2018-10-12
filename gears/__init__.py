@@ -79,9 +79,10 @@ harvest_color(SINGLETON_TYPES)
 
 
 class GearHeadScene(pbge.scenes.Scene):
-    def __init__(self, width=128, height=128, name="", player_team=None, scale=scale.MechaScale,
-                 environment=tags.GroundEnv):
+    def __init__(self, width=128, height=128, name="", player_team=None, civilian_team=None,
+                 scale=scale.MechaScale, environment=tags.GroundEnv):
         super(GearHeadScene, self).__init__(width, height, name, player_team)
+        self.civilian_team = civilian_team
         self.scale = scale
         self.environment = environment
         self.script_rooms = list()

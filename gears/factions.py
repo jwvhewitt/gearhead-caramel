@@ -18,6 +18,7 @@ class TerranDefenseForce(Singleton):
 	mecha_colors = (color.ArmyDrab,color.Olive,color.ElectricYellow,color.GullGrey,color.Terracotta)
 
 class Circle(Singleton):
-	def __init__(self, parent_faction=None):
+	def __init__(self, parent_faction=None,mecha_colors=None):
 		self.parent_faction = parent_faction
+		self.mecha_colors = mecha_colors or color.random_mecha_colors()
 

@@ -1,28 +1,14 @@
 import gears
-from gears import personality
-from pbge.plots import Plot, Chapter, PlotState
+from game.content.waypoints import DZDTown
+from pbge.plots import Plot, Chapter
 import waypoints
 import ghterrain
 import pbge
-from .. import teams,ghdialogue
+from .. import teams
 import pygame
 import random
 import dd_tarot
 import mechtarot
-from pbge.scenes.movement import Walking, Flying, Vision
-from gears.geffects import Skimming, Rolling
-
-
-class DZDTownTerrain(pbge.scenes.terrain.Terrain):
-    image_top = 'terrain_dzd_worldprops.png'
-    frame = 0
-    blocks = (Walking,Skimming,Rolling,Flying)
-
-class DZDTown( waypoints.Exit ):
-    name = 'Town'
-    TILE = pbge.scenes.Tile( None, DZDTownTerrain, None )
-    desc = "You stand before a deadzone community."
-
 
 # Room tags
 ON_THE_ROAD = "ON_THE_ROAD" # This location is connected to the highway, if appropriate.
@@ -113,6 +99,7 @@ class SomewhereOnTheHighway( Plot ):
     def custom_init( self, nart ):
         """Create map, fill with city + services."""
         team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team",allies=(team1,))
         myscene = gears.GearHeadScene(30,30,"Mauna",player_team=team1,scale=gears.scale.MechaScale)
         myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
 
@@ -146,8 +133,13 @@ class BasicDeadZoneHighwayTown( Plot ):
     # noinspection PyAttributeOutsideInit,PyAttributeOutsideInit,PyAttributeOutsideInit
     def custom_init( self, nart ):
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(20,20,"DZ Village",player_team=team1,scale=gears.scale.HumanScale)
+        team2 = teams.Team(name="Civilian Team",allies=(team1,))
+        myscene = gears.GearHeadScene(20,20,"DZ Village",player_team=team1,civilian_team=team2,scale=gears.scale.HumanScale)
         myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
+
+        npc = gears.selector.random_pilot(50)
+        npc.name = "Schmoe"
+        npc.place(myscene,team=team2)
 
         myfilter = pbge.randmaps.converter.BasicConverter(None)
         mymutate = pbge.randmaps.mutator.CellMutator()

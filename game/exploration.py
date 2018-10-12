@@ -243,8 +243,8 @@ class Explorer( object ):
 
         # Update the view of all party members.
         first_pc = None
-        for pc in camp.party:
-            if pc.pos and pc.is_operational() and pc in self.scene.contents:
+        for pc in camp.get_active_party():
+            if pc.pos and pc.is_operational():
                 x,y = pc.pos
                 scenes.pfov.PCPointOfView( camp.scene, x, y, pc.get_sensor_range(self.scene.scale) )
                 if not first_pc:

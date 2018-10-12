@@ -9,15 +9,12 @@ import inspect
 import ghterrain
 import waypoints
 import ghcutscene
-import mechtarot
 
-import mocha
-import dd_main
-import dd_tarot
 
 # The list of plots will be stored as a dictionary based on label.
 PLOT_LIST = collections.defaultdict( list )
 UNSORTED_PLOT_LIST = list()
+CARDS_BY_NAME = dict()
 def harvest( mod ):
     for name in dir( mod ):
         o = getattr( mod, name )
@@ -25,10 +22,8 @@ def harvest( mod ):
             PLOT_LIST[ o.LABEL ].append( o )
             UNSORTED_PLOT_LIST.append( o )
             # print o.__name__
-
-harvest(mocha)
-harvest(dd_main)
-harvest(dd_tarot)
+            if issubclass(o,mechtarot.TarotCard):
+                CARDS_BY_NAME[o.__name__] = o
 
 
 class GHNarrativeRequest(pbge.plots.NarrativeRequest):
@@ -75,6 +70,23 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
             #print "Success: {}".format(splabel)
             myplot.subplots[ident] = sp
         return sp
+    def request_tarot_card_by_name(self,tarot_name,pstate):
+        cpc = CARDS_BY_NAME.get(tarot_name)
+        if cpc:
+            self.story = cpc(self,pstate)
+            return self.story
+
+import mechtarot
+
+import mocha
+import dd_main
+import dd_tarot
+import dd_tarotsupport
+
+harvest(mocha)
+harvest(dd_main)
+harvest(dd_tarot)
+harvest(dd_tarotsupport)
 
 
 def narrative_convenience_function( adv_type="SCENARIO_DEADZONEDRIFTER" ):

@@ -1,5 +1,5 @@
 import mechtarot
-from mechtarot import TarotCard,Interaction,TagChecker,NameChecker
+from mechtarot import TarotCard,Interaction,TagChecker,NameChecker,ME_TAROTPOSITION,ME_AUTOREVEAL
 import pbge
 import gears
 from ..ghdialogue import context
@@ -8,6 +8,7 @@ from pbge.dialogue import Offer
 MT_PERSON = "PERSON"
 MT_THREAT = "THREAT"
 MT_HEROIC = "HEROIC"
+MT_CRIME = "CRIME"
 
 ME_PERSON = "PERSON"
 
@@ -60,8 +61,7 @@ class TheLaw(TarotCard):
     def PERSON_offers(self,camp):
         # Return list of dialogue offers.
         mylist = list()
-        if not self.visible:
-            mylist.append(Offer("I am the law.",context=(context.HELLO,),))
+        mylist.append(Offer("I am the law.",context=(context.HELLO,),))
         return mylist
 
 
@@ -103,9 +103,17 @@ class Evidence(TarotCard):
 
 
 class Clue(TarotCard):
-    INTERACTIONS = (Interaction(NameChecker(["Crime"]),action_triggers=[],results=("Evidence",None,None),passparams=(((ME_PERSON,),None),None,None)),
+    INTERACTIONS = (Interaction(TagChecker([MT_CRIME]),action_triggers=[],results=("Evidence",None,None),passparams=(((ME_PERSON,),None),None,None)),
                     )
 
-class Crime(TarotCard):
-    pass
+class Murder(TarotCard):
+    TAGS = (MT_CRIME,)
+    def custom_init( self, nart ):
+        if ME_PERSON not in self.elements:
+            self.register_element(ME_PERSON,gears.selector.random_pilot(50))
+        if not self.elements.get(ME_AUTOREVEAL):
+            # Add a subplot to reveal this murder.
+            pass
+            tplot = self.add_sub_plot(nart, "DDTS_LostPerson",necessary=False)
+        return True
 

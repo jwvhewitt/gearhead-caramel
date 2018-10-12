@@ -47,17 +47,20 @@ class Offer(object):
     # An Offer is a single line spoken by the NPC, along with its context tag,
     # effect, and a list of replies.
     # "effect" is a function that takes the campaign as its parameter.
+    # "subject" is an identifier that limits conversation branches.
+
     # "data" is a dict holding strings that may be requested by format.
-    def __init__(self, msg, context=(), effect = None, replies = None, data={} ):
+    def __init__(self, msg, context=(), effect = None, replies = None, subject=None, data=None ):
         self.msg = msg
         self.context = ContextTag(context)
         self.effect = effect
-        self.data = data
+        self.subject = subject
+        self.data = data or dict()
 
-        if replies == None:
-            self.replies = []
+        if not replies:
+            self.replies = list()
         else:
-            self.replies = replies
+            self.replies = list(replies)
 
     def get_context_set(self):
         # Get the set of all context tags used by this offer and any offers or
@@ -388,7 +391,8 @@ class DynaConversation(object):
             return self._find_std_offer_to_match_cue(cue)
 
     def _get_reply_for_offers(self,off1,off2):
-        candidates = [r for r in STANDARD_REPLIES if off1.context.matches(r.context) and r.destination.context.matches(off2.context)]
+        candidates = [r for r in STANDARD_REPLIES if off1.context.matches(r.context) and r.destination.context.matches(off2.context)
+                      and (off1.subject == off2.subject or off2.subject is None or off2.subject in off1.msg)]
         if candidates:
             return copy.deepcopy(random.choice(candidates))
 
@@ -402,6 +406,8 @@ class DynaConversation(object):
             self.root = current
         if self.root in self.npc_offers:
             self.npc_offers.remove(self.root)
+        # Process the root offer message.
+        self.root.msg = self.format_text( self.root.msg , self.npc_grammar, self.root )
         
         # If the current offer has replies, fill them first.
         for r in self.root.replies:

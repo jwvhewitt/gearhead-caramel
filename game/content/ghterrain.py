@@ -84,3 +84,23 @@ class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     bordername = None
     altitude = 20
     blocks = (Walking, Skimming, Rolling)
+
+
+class DZDTownTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_dzd_worldprops.png'
+    frame = 0
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+
+class DZDWCommTowerTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_dzd_worldprops.png'
+    frame = 1
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+
+class DZDCommTowerTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_dzd_mechaprops.png'
+    frame = 0
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+

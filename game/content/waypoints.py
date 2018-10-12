@@ -5,6 +5,7 @@
 
 import pbge
 import ghterrain
+from game.content.ghterrain import DZDTownTerrain, DZDWCommTowerTerrain, DZDCommTowerTerrain
 from pbge.scenes.waypoints import Waypoint
 
 
@@ -28,5 +29,19 @@ class Exit( Waypoint ):
             pbge.alert("This door doesn't seem to go anywhere.")
 
 
+class DZDTown( Exit ):
+    name = 'Town'
+    TILE = pbge.scenes.Tile( None, DZDTownTerrain, None )
+    desc = "You stand before a deadzone community."
 
 
+class DZDWCommTower( Exit ):
+    name = 'Comm Tower'
+    TILE = pbge.scenes.Tile( None, DZDWCommTowerTerrain, None )
+    desc = "You stand before a communications tower."
+
+
+class DZDCommTower( Exit ):
+    name = 'Comm Tower'
+    TILE = pbge.scenes.Tile( None, DZDCommTowerTerrain, None )
+    desc = "You stand before a communications tower."
