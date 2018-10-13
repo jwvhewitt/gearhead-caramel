@@ -78,10 +78,8 @@ class LocalHero(TarotCard):
         # Return list of dialogue offers.
         mylist = list()
         if not self.visible:
-            mylist.append(Offer("I am the local hero.",context=(context.HELLO,),effect=self._reveal,data={"subject":"crime"}))
+            mylist.append(Offer("I am the local hero.",context=(context.HELLO,),effect=self.reveal,data={"subject":"crime"}))
         return mylist
-    def _reveal(self,camp):
-        self.visible = True
 
 class TheBadge(TarotCard):
     INTERACTIONS = (Interaction(TagChecker([MT_PERSON,MT_HEROIC]),action_triggers=[mechtarot.BetaCardDialogueTrigger(ME_PERSON,"You win!",[context.INFO,],data={"subject":"the badge"})],results=(None,"TheLaw",None),passparams=(None,(None,(ME_PERSON,)),None)),
@@ -91,16 +89,13 @@ class TheBadge(TarotCard):
         goffs = list()
         if camp.scene.civilian_team and camp.scene.local_teams.get(npc) is camp.scene.civilian_team and not self.visible:
             # Any villager can tell you about the need for a lawkeeper.
-            goffs.append(Offer("We need a new sheriff in this town.",context=(context.INFO,),effect=self._reveal,data={"subject":"crime"}))
+            goffs.append(Offer("We need a new sheriff in this town.",context=(context.INFO,),effect=self.reveal,data={"subject":"crime"}))
         return goffs
-    def _reveal(self,camp):
-        self.visible = True
 
 class Evidence(TarotCard):
     # If first card, place the evidence right in a crime scene that the PC can discover-
     # correspondence in a bandit base, a personal effect at a murder scene, etc.
     pass
-
 
 class Clue(TarotCard):
     INTERACTIONS = (Interaction(TagChecker([MT_CRIME]),action_triggers=[],results=("Evidence",None,None),passparams=(((ME_PERSON,),None),None,None)),
@@ -117,5 +112,5 @@ class Murder(TarotCard):
         return True
     def _RevealMurder_WIN(self,camp):
         if not self.visible:
-            pbge.alert("You win!")
-            self.visible = True
+            self.memo = "You discovered that {} has been murdered.".format(self.elements[ME_PERSON].name)
+            self.reveal(camp)

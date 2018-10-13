@@ -227,12 +227,12 @@ class HillTerrain( Terrain ):
 
 class OnTheWallTerrain( Terrain ):
     @classmethod
-    def render_middle( self, dest, view, x, y ):
+    def render_top( self, dest, view, x, y ):
         if view.space_to_south( x, y ):
             frame = 1
         else:
             frame = 0
-        spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
+        spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
         spr.render( dest, frame )
 
 class TerrSetTerrain( Terrain ):

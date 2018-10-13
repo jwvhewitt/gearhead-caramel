@@ -50,3 +50,10 @@ class Victim(Waypoint):
     name = 'Victim'
     TILE = pbge.scenes.Tile(None,None,ghterrain.VictimTerrain)
     desc = "This person has seen better days."
+
+class RetroComputer(Waypoint):
+    name = 'Computer Terminal'
+    ATTACH_TO_WALL = True
+    TILE = pbge.scenes.Tile(None,None,ghterrain.RetroComputerTerrain)
+    desc = "An obsolete but still functioning computer terminal."
+

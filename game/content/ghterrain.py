@@ -52,7 +52,7 @@ class Mountain( pbge.scenes.terrain.HillTerrain ):
     blocks = ()
 
 class VendingMachineTerrain(pbge.scenes.terrain.OnTheWallTerrain):
-    image_middle = 'terrain_decor_vendingmachine.png'
+    image_top = 'terrain_decor_vendingmachine.png'
     blocks = (Walking,Skimming,Rolling)
 
 class WinterMochaBarrelTerrain(pbge.scenes.terrain.Terrain):
@@ -116,3 +116,8 @@ class VictimTerrain(pbge.scenes.terrain.Terrain):
     frame = 0
     blocks = (Walking,Skimming,Rolling,Flying)
 
+class Window(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_window.png'
+
+class RetroComputerTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_computer.png'

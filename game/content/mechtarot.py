@@ -49,6 +49,9 @@ class TarotCard(plots.Plot):
                 ofrz += interac.get_interaction_dialogue_offers(npc, camp, self)
         return ofrz
 
+    def reveal(self,camp):
+        self.visible = True
+        camp.check_trigger("UPDATE")
 
 class TagChecker(object):
     def __init__(self, needed_tags=(), needed_elements=()):

@@ -78,6 +78,7 @@ class Plot( object ):
         self.rank = pstate.rank or self.rank
         self.elements = pstate.elements.copy()
         self.subplots = dict()
+        self.memo = None
 
         # Increment the usage count, for getting info on plot numbers!
         self.__class__._used += 1
@@ -280,11 +281,11 @@ class Plot( object ):
         self.active = False
         camp.check_trigger( 'UPDATE' )
 
-    def end_plot(self, camp):
+    def end_plot(self, camp, total_removal=False):
         self.active = False
         for sp in self.subplots.itervalues():
-            if not sp.active:
-                sp.end_plot( camp )
+            if total_removal or not sp.active:
+                sp.end_plot( camp, total_removal )
 
         # Remove self from the adventure.
         if hasattr( self, "container" ) and self.container:

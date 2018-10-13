@@ -52,9 +52,11 @@ class LostPersonRadioTower( Plot ):
         intscenegen = pbge.randmaps.SceneGenerator(intscene,myarchi)
         self.register_scene( nart, intscene, intscenegen, ident="_interior" )
         introom = self.register_element('_introom',pbge.randmaps.rooms.OpenRoom(7,7,anchor=pbge.randmaps.anchors.middle),dident="_interior")
+        introom.DECORATE = pbge.randmaps.decor.OmniDec(win=ghterrain.Window)
         self.move_element(self.elements["PERSON"],introom)
         intscene.local_teams[self.elements["PERSON"]] = team2
         intexit = self.register_element( "_exit", waypoints.Exit(name="Exit",dest_scene=myscene,anchor=pbge.randmaps.anchors.south),dident="_introom")
+        self.register_element('WAYPOINT',waypoints.RetroComputer(),dident="_introom")
 
         mytower = self.register_element("_tower",waypoints.DZDCommTower(anchor=pbge.randmaps.anchors.middle,dest_scene=intscene,dest_entrance=intexit),dident="_goalroom")
         intexit.dest_entrance = mytower

@@ -157,11 +157,11 @@ class Room( object ):
         # Find a list of good walls for stuff that must be mounted on a wall.
         good_walls = list()
         for x in range( self.area.x + 1, self.area.x + self.area.width - 1 ):
-            if gb._map[x][self.area.y].wall and gb._map[x-1][self.area.y].wall and gb._map[x+1][self.area.y].wall and not gb._map[x][self.area.y+1].blocks_walking():
-                good_walls.append((x,self.area.y ))
+            if gb.get_wall(x,self.area.y-1) and gb.get_wall(x-1,self.area.y-1) and gb.get_wall(x+1,self.area.y-1) and not gb._map[x][self.area.y+1].blocks_walking():
+                good_walls.append((x,self.area.y-1 ))
         for y in range( self.area.y + 1, self.area.y + self.area.height - 1 ):
-            if gb._map[self.area.x][y].wall and gb._map[self.area.x][y-1].wall and gb._map[self.area.x][y+1].wall and not gb._map[self.area.x+1][y].blocks_walking():
-                good_walls.append((self.area.x,y ))
+            if gb.get_wall(self.area.x-1,y) and gb.get_wall(self.area.x-1,y-1) and gb.get_wall(self.area.x-1,y+1) and not gb._map[self.area.x+1][y].blocks_walking():
+                good_walls.append((self.area.x-1,y ))
 
         for i in list(self.contents):
             # Only place contents which can be placed, but haven't yet.

@@ -7,6 +7,7 @@ import combat
 import ghdialogue
 import configedit
 import invoker
+import memobrowser
 
 # Commands should be callable objects which take the explorer and return a value.
 # If untrue, the command stops.
@@ -384,6 +385,8 @@ class Explorer( object ):
                     elif gdi.unicode == u"c":
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
+                    elif gdi.unicode == u"m":
+                        memobrowser.MemoBrowser.browse(self.camp)
                     elif gdi.unicode == u"&":
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
