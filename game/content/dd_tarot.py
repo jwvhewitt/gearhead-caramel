@@ -100,6 +100,17 @@ class Evidence(TarotCard):
 class Clue(TarotCard):
     INTERACTIONS = (Interaction(TagChecker([MT_CRIME]),action_triggers=[],results=("Evidence",None,None),passparams=(((ME_PERSON,),None),None,None)),
                     )
+    def custom_init( self, nart ):
+        if ME_PERSON not in self.elements:
+            self.register_element(ME_PERSON,gears.selector.random_pilot(50))
+        if not self.elements.get(ME_AUTOREVEAL):
+            # Add a subplot to reveal this clue.
+            tplot = self.add_sub_plot(nart, "DZD_RevealClue", ident="_RevealClue" )
+        return True
+    def _RevealClue_WIN(self,camp):
+        if not self.visible:
+            self.memo = "You discovered a clue or something."
+            self.reveal(camp)
 
 class Murder(TarotCard):
     TAGS = (MT_CRIME,)

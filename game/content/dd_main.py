@@ -9,6 +9,7 @@ import pygame
 import random
 import dd_tarot
 import mechtarot
+import plotutility
 
 # Room tags
 ON_THE_ROAD = "ON_THE_ROAD" # This location is connected to the highway, if appropriate.
@@ -148,18 +149,7 @@ class BasicDeadZoneHighwayTown( Plot ):
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
-        town_entrance_anchor = random.choice(pbge.randmaps.anchors.EDGES)
-        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=town_entrance_anchor),dident="LOCALE")
-
-        world_scene = self.elements["WORLD"]
-        wmroom = self.register_element("NEIGHBORHOOD", pbge.randmaps.rooms.FuzzyRoom(5, 5, tags=(ON_THE_ROAD,)), dident="WORLD")
-        mytown = self.register_element( "TOWN_ENTRANCE", DZDTown(dest_scene=myscene))
-        wmroom.contents.append(mytown)
-
-        myent = self.register_element( "ENTRANCE", waypoints.Exit(name="Exit",dest_scene=world_scene,dest_entrance=mytown,anchor=town_entrance_anchor))
-        myroom.contents.append( myent )
-        mytown.dest_entrance = myent
-
-        #myscenegen.contents.append(myroom)
+        wm_con = plotutility.WMDZTownConnection(self,self.elements["WORLD"],myscene)
+        wm_con.room1.tags = (ON_THE_ROAD,)
 
         return True

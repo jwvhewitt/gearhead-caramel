@@ -14,6 +14,7 @@ class VendingMachine( Waypoint ):
     desc = "You stand before a vending machine."
 
 class Exit( Waypoint ):
+    name = "Exit"
     TILE = pbge.scenes.Tile( None, ghterrain.ExitTerrain, None )
     def __init__( self, dest_scene=None, dest_entrance=None, **kwargs ):
         self.dest_scene = dest_scene
@@ -57,3 +58,13 @@ class RetroComputer(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.RetroComputerTerrain)
     desc = "An obsolete but still functioning computer terminal."
 
+class DZDWConcreteBuilding( Exit ):
+    name = 'Concrete Building'
+    TILE = pbge.scenes.Tile( None, ghterrain.DZDWConcreteBuilding, None )
+    desc = "You stand before a concrete building."
+
+
+class DZDConcreteBuilding( Exit ):
+    name = 'Concrete Building'
+    TILE = pbge.scenes.Tile( None, ghterrain.DZDConcreteBuilding, None )
+    desc = "You stand before a concrete building."

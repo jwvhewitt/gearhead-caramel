@@ -134,6 +134,8 @@ class Plot( object ):
 
     def register_element( self, ident, ele, dident=None ):
         # dident is an element itent for this element's destination.
+        if not ident:
+            ident = "_autoelement_{0}_{1}".format( len( self.elements ), hash(ele) )
         self.elements[ident] = ele
         if dident:
             mydest = self.elements.get(dident)

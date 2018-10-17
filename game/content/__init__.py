@@ -82,6 +82,7 @@ import mocha
 import dd_main
 import dd_tarot
 import dd_tarotsupport
+import plotutility
 
 harvest(mocha)
 harvest(dd_main)

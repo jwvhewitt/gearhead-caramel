@@ -20,6 +20,10 @@ class DeadZoneGround( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_dzground.png'
     border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
 
+class SmallDeadZoneGround( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_dzground2.png'
+    border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
+
 class TechnoRubble( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_technorubble.png'
     border = pbge.scenes.terrain.FloorBorder( DeadZoneGround, 'terrain_border_technoedge.png' )
@@ -121,3 +125,14 @@ class Window(pbge.scenes.terrain.OnTheWallTerrain):
 
 class RetroComputerTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_computer.png'
+
+class DZDWConcreteBuilding(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_dzd_worldprops.png'
+    frame = 2
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+
+class DZDConcreteBuilding(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_dzd_mechaprops.png'
+    frame = 1
+    blocks = (Walking,Skimming,Rolling,Flying)

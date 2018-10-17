@@ -53,7 +53,6 @@ class OmniDec( object ):
         gb._map[x][y].decor = random.choice(self.FLOOR_DECOR)
 
     def __call__( self, gb, area ):
-        print "Decorating!"
         good_wall_spots = list()
         good_floor_spots = list()
         for x in range(area.x, area.x + area.width-1):
