@@ -90,3 +90,9 @@ class WMDZTownConnection(SceneConnection):
         return self.r2anchor
     def get_door2(self):
         return self.DEFAULT_DOOR_2(anchor=self.r2anchor)
+
+
+# Scene Generators
+
+def GenerateMechaDeadzone():
+    pass
