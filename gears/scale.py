@@ -8,7 +8,7 @@ import stats
 
 class MechaScale( object ):
     SIZE_FACTOR = 10
-    RANGE_FACTOR = 4
+    RANGE_FACTOR = 2
     COST_FACTOR = 2
     RANGED_SKILL = stats.MechaGunnery
     MELEE_SKILL = stats.MechaFighting
@@ -39,4 +39,7 @@ class HumanScale( MechaScale ):
     COST_FACTOR = 5
     RANGED_SKILL = stats.RangedCombat
     MELEE_SKILL = stats.CloseCombat
+
+class WorldScale( MechaScale ):
+    RANGE_FACTOR = 3
 

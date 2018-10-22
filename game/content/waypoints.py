@@ -68,3 +68,13 @@ class DZDConcreteBuilding( Exit ):
     name = 'Concrete Building'
     TILE = pbge.scenes.Tile( None, ghterrain.DZDConcreteBuilding, None )
     desc = "You stand before a concrete building."
+
+class MetalDoor( Waypoint ):
+    name = "Door"
+    TILE = pbge.scenes.Tile( None, ghterrain.MetalDoorClosed, None )
+    def unlocked_use( self, camp ):
+        # Perform this waypoint's special action.
+        if camp.scene.get_wall(*self.pos) is ghterrain.MetalDoorClosed:
+            camp.scene.set_wall(self.pos[0],self.pos[1],ghterrain.MetalDoorOpen)
+        elif camp.scene.get_wall(*self.pos) is ghterrain.MetalDoorOpen:
+            camp.scene.set_wall(self.pos[0],self.pos[1],ghterrain.MetalDoorClosed)

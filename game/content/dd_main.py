@@ -10,6 +10,7 @@ import random
 import dd_tarot
 import mechtarot
 import plotutility
+import gharchitecture
 
 # Room tags
 ON_THE_ROAD = "ON_THE_ROAD" # This location is connected to the highway, if appropriate.
@@ -100,31 +101,19 @@ class SomewhereOnTheHighway( Plot ):
     def custom_init( self, nart ):
         """Create map, fill with city + services."""
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team",allies=(team1,))
-        myscene = gears.GearHeadScene(30,30,"Mauna",player_team=team1,scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(30,30,"Deadzone Highway",player_team=team1,scale=gears.scale.WorldScale)
         myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
 
         anc_a,anc_b = random.choice(pbge.randmaps.anchors.OPPOSING_CARDINALS)
 
-        myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
-        mymutate = pbge.randmaps.mutator.CellMutator()
-        myprep = pbge.randmaps.prep.HeightfieldPrep(ghterrain.Water,ghterrain.DeadZoneGround,ghterrain.TechnoRubble,higround=0.8,maxhiground=0.9)
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.DeadZoneGround,myfilter,mutate=mymutate,prepare=myprep)
-        myscenegen = DeadzoneHighwaySceneGen(myscene,myarchi)
+        myscenegen = DeadzoneHighwaySceneGen(myscene,gharchitecture.WorldScaleDeadzone())
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
-        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5,tags=(ON_THE_ROAD),anchor=anc_a))
-        myscenegen.contents.append(myroom)
-
-        mydest = self.register_element("ROOM2",pbge.randmaps.rooms.FuzzyRoom(3,3,tags=(ON_THE_ROAD,),anchor=anc_b))
-        myscenegen.contents.append(mydest)
-
-        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
-        myroom.contents.append( myent )
-
-        myexit = self.register_element( "EXIT", waypoints.Exit(name="Exit Scenario",anchor=pbge.randmaps.anchors.middle))
-        mydest.contents.append( myexit )
+        myroom = self.register_element("_ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5,tags=(ON_THE_ROAD),anchor=anc_a),dident="LOCALE")
+        mydest = self.register_element("_ROOM2",pbge.randmaps.rooms.FuzzyRoom(3,3,tags=(ON_THE_ROAD,),anchor=anc_b),dident="LOCALE")
+        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle),dident="_ROOM")
+        myexit = self.register_element( "EXIT", waypoints.Exit(name="Exit Scenario",anchor=pbge.randmaps.anchors.middle),dident="_ROOM2")
         return True
 
 
@@ -142,9 +131,7 @@ class BasicDeadZoneHighwayTown( Plot ):
         npc.name = "Schmoe"
         npc.place(myscene,team=team2)
 
-        myfilter = pbge.randmaps.converter.BasicConverter(None)
-        mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.CrackedEarth,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.CrackedEarth)
         myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )

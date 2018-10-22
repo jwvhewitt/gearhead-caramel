@@ -136,3 +136,13 @@ class DZDConcreteBuilding(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_mechaprops.png'
     frame = 1
     blocks = (Walking,Skimming,Rolling,Flying)
+
+class MetalDoorClosed(pbge.scenes.terrain.DoorTerrain):
+    image_top = 'terrain_door_metal.png'
+    frame = 0
+    blocks = (Walking, Skimming, Rolling, Flying, Vision)
+
+class MetalDoorOpen(pbge.scenes.terrain.DoorTerrain):
+    image_bottom = 'terrain_door_metal.png'
+    frame = 2
+    blocks = ()

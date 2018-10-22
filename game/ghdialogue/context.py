@@ -1,7 +1,7 @@
 
 # Constants for dialogue contexts.
 
-HELLO,ASK_FOR_ITEM,INFO,MISSION,PROBLEM,ACCEPT,ARREST,GOODBYE,JOIN,PERSONAL,ATTACK,CHALLENGE,COMBAT_INFO,MERCY,RETREAT = range(15)
+HELLO,ASK_FOR_ITEM,INFO,MISSION,PROBLEM,ACCEPT,ARREST,GOODBYE,JOIN,PERSONAL,ATTACK,CHALLENGE,COMBAT_INFO,MERCY,RETREAT,WITHDRAW = range(16)
 
 # HELLO = NPC says hello. Usually the first offer in a peaceful conversation.
 # ASK_FOR_ITEM: The NPC gives the PC an item, or at least replies to the request.
@@ -18,5 +18,6 @@ HELLO,ASK_FOR_ITEM,INFO,MISSION,PROBLEM,ACCEPT,ARREST,GOODBYE,JOIN,PERSONAL,ATTA
 #       The data property should contain "subject"
 # MERCY: The enemy is being allowed to leave the battle.
 # RETREAT: The enemy is withdrawing from battle.
+# WITHDRAW: The PC is withdrawing from battle.
 
 

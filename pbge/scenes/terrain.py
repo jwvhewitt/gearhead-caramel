@@ -194,6 +194,28 @@ class WallTerrain( Terrain ):
             spr = view.get_named_sprite( self.bordername )
             spr.render( dest, bor )
 
+class DoorTerrain( WallTerrain ):
+    # A singleton terrain class; use these objects as tokens for maps.
+    @classmethod
+    def render_bottom( self, dest, view, x, y ):
+        if view.space_to_south(x, y):
+            wal = 1
+        else:
+            wal = 0
+
+        spr = view.get_named_sprite(self.image_bottom, transparent=self.transparent)
+        spr.render(dest, self.frame + wal)
+    @classmethod
+    def render_top( self, dest, view, x, y ):
+        if view.space_to_south(x, y):
+            wal = 1
+        else:
+            wal = 0
+
+        spr = view.get_named_sprite(self.image_top, transparent=self.transparent)
+        spr.render(dest, self.frame + wal)
+
+
 class RoadTerrain( Terrain ):
     @classmethod
     def render_bottom( self, dest, view, x, y ):

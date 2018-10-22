@@ -63,6 +63,8 @@ class MechaShoppingList(object):
 
     def __init__(self, hi_price, fac=None, env=tags.GroundEnv):
         self.hi_price = hi_price
+        if hasattr(fac,"parent_faction"):
+            fac = fac.parent_faction
         self.fac = fac
         self.env = env
         self.best_choices = list()
@@ -88,7 +90,7 @@ class MechaShoppingList(object):
 class RandomMechaUnit(object):
     MIN_HI_PRICE = 250000
 
-    def __init__(self, level, strength, fac, env):
+    def __init__(self, level, strength, fac, env, add_commander=False):
         # level refers to the renown rating of this encounter. It
         #   determines the skill level of pilots and the types of
         #   mecha you will face.
@@ -108,13 +110,18 @@ class RandomMechaUnit(object):
         self.mecha_list = list()
         if self.shopping_list.best_choices or self.shopping_list.backup_choices:
             self.buy_mecha()
+            if add_commander:
+                mek = self.choose_mecha()
+                self.commander = random_pilot(level)
+                mek.load_pilot(self.commander)
+                self.mecha_list.append(mek)
+
         else:
             print "No mecha to buy for {} {} {}".format(level, fac, env)
 
     def prep_mecha(self, protomek):
         mek = copy.deepcopy(protomek)
-        if self.fac:
-            mek.colors = self.fac.mecha_colors
+        mek.colors = self.team_colors
         return mek
 
     def choose_mecha(self):

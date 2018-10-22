@@ -1,3 +1,5 @@
+- Random mecha units get random team color if no faction (gears/selector.py)
+- Standardized GearHead architectures (game/content/gharchitecture.py)
 - Added cosplay module (game/cosplay.py)
 - Portrait generator now used by VisibleGear class (gears/base.py)
 - Gender may be defined as dict in design files (gears/base.py)

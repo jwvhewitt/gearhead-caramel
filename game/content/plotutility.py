@@ -1,6 +1,7 @@
 import waypoints
 import random
 import pbge
+import gears
 
 class SceneConnection(object):
     DEFAULT_ROOM_1 = pbge.randmaps.rooms.FuzzyRoom
@@ -92,7 +93,16 @@ class WMDZTownConnection(SceneConnection):
         return self.DEFAULT_DOOR_2(anchor=self.r2anchor)
 
 
-# Scene Generators
-
-def GenerateMechaDeadzone():
-    pass
+class RandomBanditCircle(gears.factions.Circle):
+    CHART_A = ("Brutal","Cruel","Desert","Deadly","Frenzied","Angry","Despicable","Evil","Freaky","Greedy",
+               "Glorious","Hellbound","Horrid","Invincible","Jolly","Killer","Lucky","Larcenous","Murderous",
+               "Merciless","Nasty","Pierced","Rancid","Razor","Speed","Savage","Terrible","Thunder","Jugular",
+               "Unbeatable","Vicious","Violent","Red","Bloody","Wanton","Xtreem","Heavy Metal","Blood Pact")
+    CHART_B = ("Warriors","Bandits","Pirates","Demons","Gang","Hooligans","Destroyers","Raiders","Droogs","Modez",
+               "Breakers","Bruisers","Crashers","Executors","Frenz","Grabberz","Hammers","Jokerz","Killerz",
+               "Mob","Ogres","Queenz","Kingz","Raptors","Slashers","Titanz","Vizigoths","Freakz","Junk Ratz",
+               "Rippers","Gougers","Horde")
+    def __init__(self):
+        parent_faction = random.choice([gears.factions.BoneDevils,gears.factions.BoneDevils,gears.factions.BladesOfCrihna,None])
+        name = "the {} {}".format(random.choice(self.CHART_A),random.choice(self.CHART_B))
+        super(RandomBanditCircle,self).__init__(name=name,parent_faction=parent_faction)

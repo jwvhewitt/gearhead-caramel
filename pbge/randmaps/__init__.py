@@ -70,7 +70,7 @@ class SceneGenerator( Room ):
         self.step_five( self.gb, self.archi ) # Render for self, then children
 
         # Convert undefined walls to real walls.
-        self.archi.wall_filter( self )
+        self.archi.wall_converter( self )
         #self.gb.validate_terrain()
 
         self.step_six( self.gb ) # Deploy for self, then children

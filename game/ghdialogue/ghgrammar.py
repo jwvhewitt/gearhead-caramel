@@ -155,7 +155,26 @@ DEFAULT_GRAMMAR = {
             ],
     },
 
-
+    "[ATTACK:WITHDRAW]": {
+        # The PC is withdrawing from combat.
+        Default: ["Alright, I'll go.", "Okay, I'm leaving."
+                  ],
+        personality.Cheerful: ["You're no fun. I'm out of here.",
+                               "Ugh, I didn't want to play with you anyhow."
+                               ],
+        personality.Grim: ["I'll leave... for now.", "I don't feel like [defeating_you] now.",
+                           ],
+        personality.Easygoing: ["Oh, sorry, I didn't mean to intrude.", "Really? I'd best be off, then.",
+                                ],
+        personality.Passionate: ["I'll go, but it doesn't mean you won.",
+                                 "Take it easy, I'm just looking around.",
+                                 ],
+        personality.Sociable: ["I didn't know. I'll leave now.",
+                               "[GOODBYE]",
+                               ],
+        personality.Shy: ["I'm leaving.", "So long.",
+                          ],
+    },
 
     "[CHALLENGE]": {
         Default: ["[THREATEN]",
@@ -580,7 +599,24 @@ DEFAULT_GRAMMAR = {
     "[THREATEN]": {
         Default: ["I'm going to [threat]!","I will [threat]!",
         ],    
-    }
+    },
+    "[WITHDRAW]": {
+        # The PC is withdrawing from combat.
+        Default: ["Off with you, then.", "Don't return to this place."
+                  ],
+        personality.Cheerful: ["[GOODBYE] Remember, we don't like visitors right here.", "Ding-dong-deng, that's the right answer! [GOODBYE]"
+                               ],
+        personality.Grim: ["Good, you choose to live.", "Come back again and I will [threat].",
+                           ],
+        personality.Easygoing: ["No worries. See you around.", "Yeah, I think that'd be easiest for both of us.",
+                                ],
+        personality.Passionate: ["Too bad; I was looking forward to [defeating_you].", "I can tell you wouldn't have been a true challenge anyhow.",
+                                 ],
+        personality.Sociable: ["Alright, I'll see you later... just not around here, okay?", "We really ought to put up some signs on the perimeter, keep people like you from wandering in. [GOODBYE]",
+                               ],
+        personality.Shy: ["Go. Now.", "Smart choice.",
+                          ],
+    },
 
 }
 
