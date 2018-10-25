@@ -9,10 +9,12 @@ class ConvoVisualizer(object):
     # It has a "text" property and "render", "get_menu" methods.
     TEXT_AREA = pbge.frects.Frect(0,-125,350,100)
     MENU_AREA = pbge.frects.Frect(0,0,350,80)
+    NAME_AREA = pbge.frects.Frect(25,-185,300,35)
+    REACT_AREA = pbge.frects.Frect(290,-185,35,35)
     PORTRAIT_AREA = pbge.frects.Frect(-370,-300,400,600)
     PILOT_AREA = pbge.frects.Frect(-350,-250,100,100)
     
-    def __init__(self,npc):
+    def __init__(self,npc,camp,pc=None):
         pilot = npc.get_pilot()
         npc = npc.get_root()
         self.npc = pilot
@@ -24,8 +26,13 @@ class ConvoVisualizer(object):
             self.pilot_sprite = pilot.get_portrait()
         else:
             self.pilot_sprite = None
+        self.npc_desc = self.npc.get_text_desc(camp)
+        self.camp = camp
         self.bottom_sprite = pbge.image.Image('sys_wintermocha_convoborder.png',32,200)
+        self.react_sprite = pbge.image.Image('sys_reaction_emoji.png',35,35)
         self.text = ''
+        if pc:
+            self.pc = pc.get_pilot()
     def get_portrait_area(self):
         if self.npc_sprite:
             mydest = self.npc_sprite.get_rect(0)
@@ -49,6 +56,16 @@ class ConvoVisualizer(object):
         draw_text(my_state.medium_font,self.text,text_rect)
         if draw_menu_rect:
             default_border.render(self.MENU_AREA.get_rect())
+
+        name_rect = self.NAME_AREA.get_rect()
+        default_border.render(name_rect)
+        draw_text(my_state.big_font,str(self.npc),name_rect,color=pbge.WHITE,justify=0)
+        name_rect.y += my_state.big_font.get_linesize()
+        draw_text(my_state.small_font,self.npc_desc,name_rect,color=pbge.GREY,justify=0)
+
+        if self.pc:
+            react_level = ( self.npc.get_reaction_score(self.pc,self.camp) + 99 )//40
+            self.react_sprite.render(self.REACT_AREA.get_rect(),react_level)
 
     def rollout(self):
         bx = my_state.screen.get_width()

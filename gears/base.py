@@ -14,6 +14,8 @@ import tags
 import aitargeters
 import enchantments
 import portraits
+import pygame
+import personality
 
 
 #
@@ -2643,9 +2645,9 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
 
 class Character(Being):
-    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year')
+    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod')
 
-    def __init__(self, personality=(), gender=None, job=None, birth_year=145, **keywords):
+    def __init__(self, personality=(), gender=None, job=None, birth_year=138, reaction_mod=0, faction=None, **keywords):
         self.personality = set(personality)
         if not gender:
             gender = genderobj.Gender.random_gender()
@@ -2654,8 +2656,59 @@ class Character(Being):
         self.gender = gender
         self.job = job
         self.birth_year = birth_year
+        self.reaction_mod = reaction_mod
+        self.faction = faction
+        self.faction_scores = dict()
         super(Character, self).__init__(**keywords)
 
+    def get_tacit_faction(self,camp):
+        # Get this character's effective faction. Normally this will be the faction this character belongs to, but
+        # if the character is factionless then it will be the faction of the team this character is a member of.
+        faction = self.faction
+        if not faction:
+            myroot = self.get_root()
+            team = camp.scene.local_teams.get(myroot)
+            if team:
+                faction = team.faction
+        return faction
+
+    def get_reaction_score(self,pc,camp):
+        rs = self.reaction_mod
+        for a,b in personality.OPPOSED_PAIRS:
+            if a in self.personality:
+                if a in pc.personality:
+                    rs += 10
+                elif b in pc.personality:
+                    rs -= 10
+            elif b in self.personality:
+                if a in pc.personality:
+                    rs -= 10
+                elif b in pc.personality:
+                    rs += 10
+        for v in personality.VIRTUES:
+            if v in self.personality and v in pc.personality:
+                rs += 10
+        fac = self.get_tacit_faction(camp)
+        if fac:
+            rs += pc.faction_scores.get(fac.get_faction_tag(),0)
+            pc_fac = pc.get_tacit_faction(camp)
+            if pc_fac and (fac.is_enemy(pc_fac) or pc_fac.is_enemy(fac)):
+                rs -= 20
+        # Add Charm bonus.
+        pc_charm = pc.get_stat(stats.Charm)
+        npc_ego = self.get_stat(stats.Ego)
+        if pc_charm >= npc_ego:
+            rs += (pc_charm - npc_ego + 3) * 5
+        return min(max(rs,-100),100)
+
+    def get_text_desc(self,camp):
+        myitems = list()
+        myitems.append("{} year old".format(camp.year-self.birth_year))
+        if self.gender:
+            myitems.append(self.gender.adjective)
+        if self.job:
+            myitems.append(str(self.job))
+        return " ".join(myitems)
 
 class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
     SAVE_PARAMETERS = ('size', 'statline')
@@ -2759,3 +2812,89 @@ class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
         mydest.midbottom = foot_pos
         mydest.top += view.HTH
         spr.render(mydest, self.frame)
+
+class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
+    DEFAULT_SCALE = scale.WorldScale
+    DESTROYED_FRAME = 0
+
+    def is_legal_sub_com(self, part):
+        return isinstance(part, (Being,Mecha))
+
+    def is_legal_inv_com(self, part):
+        return False
+
+    def can_install(self, part):
+        return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR < self.scale.SIZE_FACTOR
+
+    @property
+    def volume(self):
+        return sum(i.volume for i in self.sub_com)
+
+    def get_stat(self, stat_id):
+        return max( [0,]+[mem.statline.get(stat_id, 0) for mem in self.sub_com if hasattr(mem,"statline") and mem.is_operational()])
+
+    def get_skill_score(self, stat_id, skill_id):
+        it = self.get_stat(skill_id) * 5
+        if stat_id:
+            it += self.get_stat(stat_id) * 2
+        return it
+
+    def calc_mobility(self):
+        """Calculate the mobility ranking of this character.
+        """
+        return max( [0,]+[mem.calc_mobility() for mem in self.sub_com if hasattr(mem,"calc_mobility") and mem.is_operational()])
+
+    def get_dodge_score(self):
+        return self.get_skill_score(stats.Speed, stats.Dodge)
+
+    def calc_walking(self):
+        return min( [20,]+[mem.calc_walking() for mem in self.sub_com if hasattr(mem,"calc_walking") and mem.is_operational()])
+
+    def get_sensor_range(self, map_scale):
+        return max( [0,]+[mem.get_sensor_range(map_scale) for mem in self.sub_com if hasattr(mem,"get_sensor_range") and mem.is_operational()])
+
+    def get_max_mental(self):
+        return 100
+
+    def get_max_stamina(self):
+        return 100
+
+    def get_current_mental(self):
+        return max(self.get_max_mental() - self.mp_spent, 0)
+
+    def get_current_stamina(self):
+        return max(self.get_max_stamina() - self.sp_spent, 0)
+
+    def spend_mental(self, amount):
+        self.mp_spent += amount
+
+    def spend_stamina(self, amount):
+        self.sp_spent += amount
+
+    def get_action_points(self):
+        return len([mem for mem in self.sub_com if mem.is_operational()])
+
+    MINI_SPRITE_OFFSETS = ((22,40),(0,40),(44,40),(11,44),(33,44))
+    def get_sprite(self):
+        """Generate the sprite for this thing."""
+        base_image = pbge.image.Image(frame_width=self.imagewidth,frame_height=self.imageheight)
+        for n,mem in enumerate(self.sub_com):
+            spr = mem.get_sprite()
+            smol_spr = pygame.transform.scale(spr.bitmap,(20,20))
+            base_image.bitmap.blit(smol_spr,self.MINI_SPRITE_OFFSETS[n])
+            if n >= 4:
+                break
+        return base_image
+
+    def get_portrait(self):
+        if self.sub_com:
+            return self.sub_com[0].get_portrait()
+
+    def free_pilots(self):
+        pilots = list()
+        for pc in list(self.sub_com):
+            self.sub_com.remove(pc)
+            pilots.append(pc)
+            if hasattr(pc,"free_pilots"):
+                pilots += pc.free_pilots()
+        return pilots

@@ -76,5 +76,5 @@ class MetalDoor( Waypoint ):
         # Perform this waypoint's special action.
         if camp.scene.get_wall(*self.pos) is ghterrain.MetalDoorClosed:
             camp.scene.set_wall(self.pos[0],self.pos[1],ghterrain.MetalDoorOpen)
-        elif camp.scene.get_wall(*self.pos) is ghterrain.MetalDoorOpen:
+        elif camp.scene.get_wall(*self.pos) is ghterrain.MetalDoorOpen and not camp.scene.get_actors(self.pos):
             camp.scene.set_wall(self.pos[0],self.pos[1],ghterrain.MetalDoorClosed)

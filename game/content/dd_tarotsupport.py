@@ -1,7 +1,7 @@
 # This unit contains support plots for tarot cards.
-import game.content.waypoints
+import game.content.ghwaypoints
 from pbge.plots import Plot, Chapter, PlotState
-import waypoints
+import ghwaypoints
 import ghterrain
 import gears
 import pbge
@@ -52,7 +52,7 @@ class LostPersonRadioTower( Plot ):
         introom = self.register_element('_introom',pbge.randmaps.rooms.OpenRoom(7,7,anchor=pbge.randmaps.anchors.middle,decorate=pbge.randmaps.decor.OmniDec(win=ghterrain.Window)),dident="_interior")
         self.move_element(self.elements["PERSON"],introom)
         intscene.local_teams[self.elements["PERSON"]] = team2
-        self.register_element('WAYPOINT',waypoints.RetroComputer(),dident="_introom")
+        self.register_element('WAYPOINT', ghwaypoints.RetroComputer(), dident="_introom")
 
         world_scene = self.elements["WORLD"]
 
@@ -127,7 +127,7 @@ class BanditBase( Plot ):
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
-        dimdiff = max(random.randint(1,4),random.randint(1,4))
+        dimdiff = max(random.randint(0,4),random.randint(0,4))
         if random.randint(1,2) == 1:
             dimdiff = -dimdiff
         intscene = gears.GearHeadScene(35,35,"Bandit Base",player_team=team1,civilian_team=team2,scale= gears.scale.HumanScale)
@@ -138,7 +138,6 @@ class BanditBase( Plot ):
         mycon2 = plotutility.IntConcreteBuildingConnection(self,myscene,intscene,room1=mygoal,room2=introom)
 
         introom2 = self.register_element('OFFICE',pbge.randmaps.rooms.ClosedRoom(random.randint(7,10),random.randint(7,10),decorate=pbge.randmaps.decor.OmniDec(win=ghterrain.Window)),dident="_interior")
-
 
         return True
     def _eteam_ACTIVATETEAM(self,camp):
@@ -170,7 +169,7 @@ class SubcontractedCrime( Plot ):
     scope = True
     def custom_init( self, nart ):
         # Create a filing cabinet or records computer for the PUZZLEITEM
-        my_item = self.register_element("PUZZLEITEM",waypoints.RetroComputer(plot_locked=True))
+        my_item = self.register_element("PUZZLEITEM", ghwaypoints.RetroComputer(plot_locked=True))
 
         # Generate a criminal enterprise of some kind.
         cplot = self.add_sub_plot(nart, "DZD_CriminalEnterprise")
@@ -199,7 +198,7 @@ class HideAndSeekWithACorpse( Plot ):
     scope = True
     def custom_init( self, nart ):
         mynpc = self.elements["PERSON"]
-        mycorpse = self.register_element('PERSON',waypoints.Victim(plot_locked=True,name=mynpc.name))
+        mycorpse = self.register_element('PERSON', ghwaypoints.Victim(plot_locked=True, name=mynpc.name))
         self.register_element('_the_deceased',mynpc)
         tplot = self.add_sub_plot(nart, "DZD_LostPerson")
         return True

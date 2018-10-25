@@ -1,3 +1,5 @@
+- Added jobs system (gears/jobs.py)
+- Can activate waypoints via the popup menu (game/exploration.py)
 - Random mecha units get random team color if no faction (gears/selector.py)
 - Standardized GearHead architectures (game/content/gharchitecture.py)
 - Added cosplay module (game/cosplay.py)

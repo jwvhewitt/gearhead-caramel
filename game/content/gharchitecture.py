@@ -1,7 +1,7 @@
 import ghterrain
 from pbge.randmaps.architect import Architecture
 import pbge
-import waypoints
+import ghwaypoints
 
 class WorldScaleDeadzone(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
@@ -15,7 +15,8 @@ class MechaScaleDeadzone(Architecture):
     DEFAULT_FLOOR_TERRAIN = ghterrain.SmallDeadZoneGround
 
 class HumanScaleDeadzone(Architecture):
-    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
+#    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
+#    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.CrackedEarth
 
@@ -23,4 +24,4 @@ class DefaultBuilding(Architecture):
     DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
-    DEFAULT_DOOR_CLASS = waypoints.MetalDoor
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor

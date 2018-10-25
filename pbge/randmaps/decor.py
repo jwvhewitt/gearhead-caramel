@@ -24,7 +24,7 @@ class OmniDec( object ):
     def windowize( self, gb, room ):
         t = 0
         for p in room.get_west_north_wall_points():
-            if t % 3 == 1 and not gb.get_decor(p[0],p[1]):
+            if t % 3 == 1 and room.is_basic_wall(gb,p[0],p[1]) and not gb.get_decor(p[0],p[1]):
                 gb.set_decor(p[0], p[1], self.WIN_DECOR)
             t += 1
 

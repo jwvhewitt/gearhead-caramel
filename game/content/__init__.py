@@ -7,7 +7,7 @@ from .. import exploration
 import inspect
 
 import ghterrain
-import waypoints
+import ghwaypoints
 import ghcutscene
 
 

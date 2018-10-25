@@ -102,6 +102,7 @@ default_border = Border( border_width=8, tex_width=16, border_name="sys_defborde
 
 TEXT_COLOR = (240,240,50)
 WHITE = (255,255,255)
+GREY = (160,160,160)
 
 
 class GameState( object ):

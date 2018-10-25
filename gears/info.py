@@ -209,7 +209,18 @@ class MechaStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
     DEFAULT_BLOCKS = (NameBlock,ModuleStatusBlock,PilotStatusBlock,EnchantmentBlock)
 
+class NameStatusDisplay( InfoPanel ):
+    # A floating status display, drawn wherever the mouse is pointing.
+    DEFAULT_BLOCKS = (NameBlock,)
+
 class ListDisplay( InfoPanel ):
     DEFAULT_BLOCKS = (ListBlock,)
+
+def get_status_display(model,**kwargs):
+    if isinstance(model,(base.Mecha,base.Being,base.Prop)):
+        return MechaStatusDisplay(model=model,**kwargs)
+    else:
+        return NameStatusDisplay(model=model,**kwargs)
+
 
 

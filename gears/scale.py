@@ -41,5 +41,6 @@ class HumanScale( MechaScale ):
     MELEE_SKILL = stats.CloseCombat
 
 class WorldScale( MechaScale ):
+    SIZE_FACTOR = 100
     RANGE_FACTOR = 3
 

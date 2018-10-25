@@ -1,7 +1,7 @@
 import gears
-from game.content.waypoints import DZDTown
+from game.content.ghwaypoints import DZDTown
 from pbge.plots import Plot, Chapter
-import waypoints
+import ghwaypoints
 import ghterrain
 import pbge
 from .. import teams
@@ -112,8 +112,8 @@ class SomewhereOnTheHighway( Plot ):
 
         myroom = self.register_element("_ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5,tags=(ON_THE_ROAD),anchor=anc_a),dident="LOCALE")
         mydest = self.register_element("_ROOM2",pbge.randmaps.rooms.FuzzyRoom(3,3,tags=(ON_THE_ROAD,),anchor=anc_b),dident="LOCALE")
-        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle),dident="_ROOM")
-        myexit = self.register_element( "EXIT", waypoints.Exit(name="Exit Scenario",anchor=pbge.randmaps.anchors.middle),dident="_ROOM2")
+        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_ROOM")
+        myexit = self.register_element( "EXIT", ghwaypoints.Exit(name="Exit Scenario", anchor=pbge.randmaps.anchors.middle), dident="_ROOM2")
         return True
 
 
@@ -131,8 +131,7 @@ class BasicDeadZoneHighwayTown( Plot ):
         npc.name = "Schmoe"
         npc.place(myscene,team=team2)
 
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.CrackedEarth)
-        myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
+        myscenegen = pbge.randmaps.SceneGenerator(myscene,gharchitecture.HumanScaleDeadzone())
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 

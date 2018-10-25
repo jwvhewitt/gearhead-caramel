@@ -42,6 +42,8 @@ class Portrait(object):
             form_tags += pc.gender.tags
         for pt in pc.personality:
             form_tags.append(pt.name)
+        if pc.job:
+            form_tags += [tag.name for tag in pc.job.tags]
         while frontier:
             nu_part = self.get_bit_of_type(frontier.pop(), form_tags)
             if nu_part:

@@ -17,7 +17,7 @@ class Architecture( object ):
     DEFAULT_CONVERTER = None
     DEFAULT_FLOOR_TERRAIN = None
     DEFAULT_PREPARE = None
-    DEFAULT_WALL_TERRAIN = True
+    DEFAULT_WALL_TERRAIN = None
     DEFAULT_OPEN_DOOR_TERRAIN = None
     DEFAULT_DOOR_CLASS = None
     def __init__(self, floor_terrain=None, wall_converter=None, prepare=None, biome=None, desctags=None, gapfill=None,

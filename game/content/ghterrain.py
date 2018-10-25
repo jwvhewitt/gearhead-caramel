@@ -143,6 +143,7 @@ class MetalDoorClosed(pbge.scenes.terrain.DoorTerrain):
     blocks = (Walking, Skimming, Rolling, Flying, Vision)
 
 class MetalDoorOpen(pbge.scenes.terrain.DoorTerrain):
-    image_bottom = 'terrain_door_metal.png'
+    image_middle = 'terrain_door_metal.png'
     frame = 2
     blocks = ()
+

@@ -206,6 +206,15 @@ class DoorTerrain( WallTerrain ):
         spr = view.get_named_sprite(self.image_bottom, transparent=self.transparent)
         spr.render(dest, self.frame + wal)
     @classmethod
+    def render_middle( self, dest, view, x, y ):
+        if view.space_to_south(x, y):
+            wal = 1
+        else:
+            wal = 0
+
+        spr = view.get_named_sprite(self.image_middle, transparent=self.transparent)
+        spr.render(dest, self.frame + wal)
+    @classmethod
     def render_top( self, dest, view, x, y ):
         if view.space_to_south(x, y):
             wal = 1

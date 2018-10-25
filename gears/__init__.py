@@ -48,7 +48,7 @@ harvest(stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,))
 harvest(stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,))
 harvest(geffects, pbge.scenes.animobs.AnimOb, SINGLETON_TYPES, ())
 harvest(attackattributes, pbge.Singleton, SINGLETON_TYPES, ())
-harvest(factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
+harvest(factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,factions.Faction))
 harvest(tags, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(programs, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 
@@ -74,9 +74,11 @@ def harvest_color(dict_to_add_to):
 
 
 import oldghloader
+import jobs
 
 harvest_color(SINGLETON_TYPES)
-
+SINGLETON_TYPES.update(jobs.ALL_JOBS)
+jobs.SINGLETON_TYPES = SINGLETON_TYPES
 
 class GearHeadScene(pbge.scenes.Scene):
     def __init__(self, width=128, height=128, name="", player_team=None, civilian_team=None,
@@ -89,7 +91,7 @@ class GearHeadScene(pbge.scenes.Scene):
 
     @staticmethod
     def is_an_actor(model):
-        return isinstance(model, (base.Mecha, base.Being, base.Prop))
+        return isinstance(model, (base.Mecha, base.Being, base.Prop, base.Squad))
 
     def get_actors(self, pos):
         return [a for a in self.contents if (self.is_an_actor(a) and (a.pos == pos))]
@@ -138,7 +140,7 @@ class GearHeadScene(pbge.scenes.Scene):
             # mmecha = pbge.my_state.view.modelmap.get(pos)
             mmecha = self.get_main_actor(pos)
             if mmecha and (self.local_teams.get(mmecha) == self.player_team or not mmecha.hidden):
-                return info.MechaStatusDisplay(model=mmecha)
+                return info.get_status_display(model=mmecha)
             elif pbge.my_state.view.waypointmap.get(pos):
                 wp = pbge.my_state.view.waypointmap.get(pos)
                 return info.ListDisplay(items=wp)
@@ -158,9 +160,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None
     pc = None
 
-    def __init__(self, name="GHC Campaign", explo_class=None):
+    def __init__(self, name="GHC Campaign", explo_class=None, year=158):
         super(GearHeadCampaign, self).__init__(name, explo_class)
         self.tarot = pbge.container.ContainerDict()
+        self.year = year
 
     def active_plots(self):
         for p in super(GearHeadCampaign, self).active_plots():
@@ -195,11 +198,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         # You're probably gonna want to redefine this in your subclass.
         return self.first_active_pc()
 
-    def choose_party(self):
-        # Generally, if we're entering a mecha scale scene, send in the mecha.
+    def get_usable_party(self,map_scale):
         usable_party = list()
         for pc in self.party:
-            if pc.is_not_destroyed() and pc.scale == self.scene.scale:
+            if pc.is_not_destroyed() and pc.scale == map_scale:
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational():
                         pc.load_pilot(pc.pilot)
@@ -208,6 +210,18 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     usable_party.append(pc)
         if not usable_party:
             usable_party.append(self.pc)
+        return usable_party
+
+    def choose_party(self):
+        # Generally, if we're entering a mecha scale scene, send in the mecha.
+        usable_party = list()
+        if self.scene.scale is scale.WorldScale:
+            mysquad = base.Squad(name="Party")
+            mysquad.sub_com += self.get_usable_party(scale.MechaScale)
+            usable_party.append(mysquad)
+            self.party.append(mysquad)
+        else:
+            usable_party += self.get_usable_party(self.scene.scale)
         return usable_party
 
     def place_party(self):
@@ -228,12 +242,14 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 pbge.scenes.pfov.PCPointOfView(self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale))
 
     def remove_party_from_scene(self):
-        for pc in self.party:
+        for pc in list(self.party):
             pc.pos = None
             if pc in self.scene.contents:
                 self.scene.contents.remove(pc)
             if hasattr(pc, "free_pilots"):
                 pc.free_pilots()
+            if isinstance(pc,base.Squad):
+                self.party.remove(pc)
 
 
 # Why did I create this complicated regular expression to parse lines of
@@ -483,3 +499,4 @@ def init_gears():
     # selector.check_design_list()
 
     portraits.init_portraits()
+    jobs.init_jobs()

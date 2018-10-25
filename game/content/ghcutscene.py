@@ -39,7 +39,7 @@ class MonologueDisplay( object ):
     def __call__(self,camp,cutscene):
         npc = cutscene.library.get(self.id_tag,None)
         if npc:
-            myviz = ghdialogue.ghdview.ConvoVisualizer(npc)
+            myviz = ghdialogue.ghdview.ConvoVisualizer(npc,camp)
             mygrammar = pbge.dialogue.grammar.Grammar()
             pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,npc,None)
             myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)

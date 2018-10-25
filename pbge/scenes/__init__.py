@@ -326,5 +326,8 @@ class Scene( object ):
             if a.pos == pos and isinstance(a,waypoints.Waypoint):
                 return a
 
+    def get_waypoints(self,pos):
+        # Return all of the waypoints found at this position.
+        return [a for a in self.contents if a.pos == pos and isinstance(a,waypoints.Waypoint)]
 
 

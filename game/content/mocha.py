@@ -1,5 +1,5 @@
 from pbge.plots import Plot, Chapter, PlotState
-import waypoints
+import ghwaypoints
 import ghterrain
 import gears
 import pbge
@@ -70,7 +70,7 @@ class WinterMochaBurningBarrelTerrain( pbge.scenes.terrain.AnimTerrain ):
     image_top = 'terrain_wintermocha.png'
     blocks = (Walking,Skimming,Rolling)
 
-class WinterMochaBurningBarrel( waypoints.Waypoint ):
+class WinterMochaBurningBarrel(ghwaypoints.Waypoint):
     name = 'Barrel Fire'
     TILE = pbge.scenes.Tile( None, None, WinterMochaBurningBarrelTerrain )
     desc = "There's a fire in this barrel. It's nice and warm."
@@ -80,12 +80,12 @@ class WinterMochaGeneratorTerrain(pbge.scenes.terrain.Terrain):
     frame = 4
     blocks = (Walking,Skimming,Rolling)
 
-class WinterMochaGenerator( waypoints.Waypoint ):
+class WinterMochaGenerator(ghwaypoints.Waypoint):
     name = 'Geothermal Generator'
     TILE = pbge.scenes.Tile( None, None, WinterMochaGeneratorTerrain )
     desc = "You stand before a geothermal generator."
 
-class WinterMochaToolbox( waypoints.Waypoint ):
+class WinterMochaToolbox(ghwaypoints.Waypoint):
     name = 'Toolbox'
     TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaToolboxTerrain )
     desc = "You stand before an abandoned toolbox."
@@ -95,17 +95,17 @@ class WinterMochaHeatLampTerrain(pbge.scenes.terrain.Terrain):
     frame = 5
     blocks = (Walking,Skimming,Rolling)
 
-class WinterMochaHeatLamp( waypoints.Waypoint ):
+class WinterMochaHeatLamp(ghwaypoints.Waypoint):
     name = 'Heat Lamp'
     TILE = pbge.scenes.Tile( None, None, WinterMochaHeatLampTerrain )
     desc = "You stand before an industrial heat lamp. It's probably being used in the construction of the new arena."
 
-class WinterMochaBarrel( waypoints.Waypoint ):
+class WinterMochaBarrel(ghwaypoints.Waypoint):
     name = 'Barrel'
     TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaBarrelTerrain )
     desc = "You stand before a big container of fuel."
 
-class WinterMochaShovel( waypoints.Waypoint ):
+class WinterMochaShovel(ghwaypoints.Waypoint):
     name = 'Broken Shovel'
     TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaBrokenShovel )
     desc = "You stand before a broken shovel."
@@ -115,7 +115,7 @@ class WinterMochaDomeTerrain(pbge.scenes.terrain.Terrain):
     frame = 3
     blocks = (Walking,Skimming,Rolling)
 
-class WinterMochaDome( waypoints.Waypoint ):
+class WinterMochaDome(ghwaypoints.Waypoint):
     name = 'Dome'
     TILE = pbge.scenes.Tile( None, None, WinterMochaDomeTerrain )
     desc = "You stand before a half buried dome. No idea what its function is."
@@ -125,7 +125,7 @@ class WinterMochaBlowerTerrain(pbge.scenes.terrain.Terrain):
     frame = 8
     blocks = (Walking,Skimming,Rolling)
 
-class WinterMochaBlower( waypoints.Waypoint ):
+class WinterMochaBlower(ghwaypoints.Waypoint):
     name = 'Industrial Blower'
     TILE = pbge.scenes.Tile( None, None, WinterMochaBlowerTerrain )
     desc = "You stand before an industrial air blower. It's probably being used in the construction of the new arena."
@@ -139,7 +139,7 @@ class WinterMochaTruckTerrain(pbge.scenes.terrain.Terrain):
     frame = 0
     blocks = (Walking,Skimming,Rolling)
 
-class WinterMochaTruck( waypoints.Waypoint ):
+class WinterMochaTruck(ghwaypoints.Waypoint):
     name = 'Wrecked Truck'
     TILE = pbge.scenes.Tile( None, None, WinterMochaTruckTerrain )
     desc = "You stand before one of the trucks from the convoy that was attacked."
@@ -148,7 +148,7 @@ class WinterMochaClaymoreTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_wintermocha_mission.png'
     frame = 1
 
-class WinterMochaClaymore( waypoints.Waypoint ):
+class WinterMochaClaymore(ghwaypoints.Waypoint):
     name = 'Wrecked Claymore'
     TILE = pbge.scenes.Tile( None, None, WinterMochaClaymoreTerrain )
     desc = "You stand before a totalled mecha."
@@ -234,13 +234,13 @@ class FrozenHotSpringCity( Plot ):
 
         myscenegen.contents.append(myroom)
 
-        hangar_gate = self.register_element("HANGAR_GATE",waypoints.Waypoint(name="Hangar Door",plot_locked=True,desc="This is the door of the mecha hangar."))
-        snow_drift = self.register_element("SNOW_DRIFT",waypoints.Waypoint(name="Snowdrift",desc="The snow has blocked the entrance to the mecha hangar. You're going to have to take one of the backup mecha from the storage yard."))
+        hangar_gate = self.register_element("HANGAR_GATE", ghwaypoints.Waypoint(name="Hangar Door", plot_locked=True, desc="This is the door of the mecha hangar."))
+        snow_drift = self.register_element("SNOW_DRIFT", ghwaypoints.Waypoint(name="Snowdrift", desc="The snow has blocked the entrance to the mecha hangar. You're going to have to take one of the backup mecha from the storage yard."))
         myroom2 = pbge.randmaps.rooms.FuzzyRoom(15,15)
         myroom3 = WinterMochaHangar(parent=myroom2,waypoints={"DOOR":hangar_gate,"DRIFT":snow_drift})
         myscenegen.contents.append(myroom2)
 
-        fence_gate = self.register_element("FENCE_GATE",waypoints.Waypoint(name="Storage Yard",plot_locked=True,desc="This is the gate of the mecha storage yard."))
+        fence_gate = self.register_element("FENCE_GATE", ghwaypoints.Waypoint(name="Storage Yard", plot_locked=True, desc="This is the gate of the mecha storage yard."))
 
         myroom4 = self.register_element("FENCE_GATE_ROOM",pbge.randmaps.rooms.FuzzyRoom(6,5,anchor=pbge.randmaps.anchors.northwest,parent=myscenegen))
         myroom5 = WinterMochaFence(parent=myroom4,anchor=pbge.randmaps.anchors.west,waypoints={'DOOR':fence_gate})
@@ -575,15 +575,15 @@ class MochaMissionBattleBuilder( Plot ):
         myscene2.combat_music = 'Late.ogg'
 
         myroom = self.register_element("FIRST_ENTRANCE_ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene1,anchor=pbge.randmaps.anchors.south))
-        myent = self.register_element( "FIRST_ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element( "FIRST_ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
 
         myroom2 = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene2,anchor=pbge.randmaps.anchors.south)
-        myent2 = self.register_element( "SECOND_ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent2 = self.register_element( "SECOND_ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom2.contents.append( myent2 )
 
         mygoal = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene1,anchor=pbge.randmaps.anchors.north)
-        myexit = waypoints.Exit(dest_scene=myscene2,dest_entrance=myent2,name="Continue Onward",anchor=pbge.randmaps.anchors.north)
+        myexit = ghwaypoints.Exit(dest_scene=myscene2, dest_entrance=myent2, name="Continue Onward", anchor=pbge.randmaps.anchors.north)
         mygoal.contents.append( myexit )
 
         # Create a boss mecha, but don't place it yet. It may be claimed by one
@@ -1332,7 +1332,7 @@ class Choice_BringJusticeToScumHive( Plot ):
         self.register_element(VIRTUE,personality.Justice)
         self.register_element(SSTATE,ENEMY)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1358,7 +1358,7 @@ class Choice_PeaceAgainstSynths( Plot ):
         self.register_element(VIRTUE,personality.Peace)
         self.register_element(SSTATE,COMPLICATION)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_SYNTHBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1383,7 +1383,7 @@ class Choice_FellowshipToDefendAgainstSynths( Plot ):
         self.register_element(VIRTUE,personality.Fellowship)
         self.register_element(SSTATE,COMPLICATION)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_SYNTHBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1409,7 +1409,7 @@ class Choice_BringJusticeToMercenaries( Plot ):
         self.register_element(VIRTUE,personality.Justice)
         self.register_element(SSTATE,ENEMY)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1435,7 +1435,7 @@ class Choice_DutyToFightPirates( Plot ):
         self.register_element(VIRTUE,personality.Duty)
         self.register_element(SSTATE,ENEMY)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1460,7 +1460,7 @@ class Choice_FellowshipWithSmugglers( Plot ):
         self.register_element(VIRTUE,personality.Fellowship)
         self.register_element(SSTATE,COMPLICATION)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_TRUCKBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1486,7 +1486,7 @@ class Choice_BringJusticeToSmugglers( Plot ):
         self.register_element(VIRTUE,personality.Justice)
         self.register_element(SSTATE,COMPLICATION)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         # Set a new boss for the final scene.
         boss_mecha = gears.Loader.load_design_file('Zerosaiko.txt')[0]
         boss_mecha.colors = ConvoyFaction.mecha_colors
@@ -1517,7 +1517,7 @@ class Choice_JusticeForWujungOrphans( Plot ):
         self.register_element(VIRTUE,personality.Justice)
         self.register_element(SSTATE,STAKES)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_TRUCKBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1542,7 +1542,7 @@ class Choice_GloryByDestroyingBigBase( Plot ):
         self.register_element(VIRTUE,personality.Glory)
         self.register_element(SSTATE,COMPLICATION)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1568,7 +1568,7 @@ class Choice_GloryByDestroyingBanditBase( Plot ):
         self.register_element(VIRTUE,personality.Glory)
         self.register_element(SSTATE,ENEMY)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1594,7 +1594,7 @@ class Choice_PeaceByDefeatingAegis( Plot ):
         self.register_element(VIRTUE,personality.Peace)
         self.register_element(SSTATE,COMPLICATION)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_BASEBATTLE", PlotState( elements={"ENEMY_FACTION":gears.factions.AegisOverlord,} ).based_on( self ), ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1619,7 +1619,7 @@ class Choice_GloryByFightingTheLeader( Plot ):
         self.register_element(VIRTUE,personality.Glory)
         self.register_element(SSTATE,STAKES)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1644,7 +1644,7 @@ class Choice_DutyToCatchTheLeader( Plot ):
         self.register_element(VIRTUE,personality.Duty)
         self.register_element(SSTATE,STAKES)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_BOSSBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1669,7 +1669,7 @@ class Choice_PeaceToDisableThePrototype( Plot ):
         self.register_element(VIRTUE,personality.Peace)
         self.register_element(SSTATE,STAKES)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1694,7 +1694,7 @@ class Choice_DutyToStopThePrototype( Plot ):
         self.register_element(VIRTUE,personality.Duty)
         self.register_element(SSTATE,STAKES)
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=self.elements["MHOICE_ANCHOR"]),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Continue Onward",anchor=self.elements["MHOICE_ANCHOR"]),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Continue Onward", anchor=self.elements["MHOICE_ANCHOR"]), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_BOSSBATTLE", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1720,7 +1720,7 @@ class FinalBattleDebug( Plot ):
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
         mygoal = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(5,5,anchor=pbge.randmaps.anchors.southwest),dident="LOCALE")
-        myexit = self.register_element("_waypoint",waypoints.Exit(plot_locked=True,name="Debug Ending",anchor=pbge.randmaps.anchors.middle),dident="_room")
+        myexit = self.register_element("_waypoint", ghwaypoints.Exit(plot_locked=True, name="Debug Ending", anchor=pbge.randmaps.anchors.middle), dident="_room")
         self.add_sub_plot( nart, "MOCHA_FB_DEBUG", ident="FINAL_ENCOUNTER" )
         return True
     def start_mission(self,camp):
@@ -1746,7 +1746,7 @@ class FinalBattleAgainstSynths( Plot ):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
         mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
@@ -1784,7 +1784,7 @@ class FinalBattleAgainstBase( Plot ):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
         mygoal = self.register_element("_goalroom",WinterMochaFortressRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
@@ -1818,7 +1818,7 @@ class FinalBattleAgainstTrucks( Plot ):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
         boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene,anchor=pbge.randmaps.anchors.north)
         mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
@@ -1857,7 +1857,7 @@ class FinalBattleAgainstBoss( Plot ):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
         boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene,anchor=pbge.randmaps.anchors.north)
         mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
@@ -1893,7 +1893,7 @@ class FinalBattleAgainstBossInWoods( Plot ):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
         mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
@@ -1957,7 +1957,7 @@ class WinterBattle( Plot ):
         myscene.combat_music = 'Late.ogg'
 
         myroom = pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element( "ENTRANCE", waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
 
         boringroom = pbge.randmaps.rooms.FuzzyRoom(5,5,parent=myscene)

@@ -1,4 +1,4 @@
-import waypoints
+import ghwaypoints
 import random
 import pbge
 import gears
@@ -10,8 +10,8 @@ class SceneConnection(object):
     DEFAULT_ROOM_2 = pbge.randmaps.rooms.FuzzyRoom
     DEFAULT_ROOM_2_W = 5
     DEFAULT_ROOM_2_H = 5
-    DEFAULT_DOOR_1 = waypoints.Exit
-    DEFAULT_DOOR_2 = waypoints.Exit
+    DEFAULT_DOOR_1 = ghwaypoints.Exit
+    DEFAULT_DOOR_2 = ghwaypoints.Exit
     def __init__(self,plot,scene1,scene2,room1=None,room1_id=None,room2=None,room2_id=None,anchor1=None,anchor2=None,door1=None,door1_id=None,door2=None,door2_id=None):
         self.scene1 = scene1
         self.scene2 = scene2
@@ -48,7 +48,7 @@ class SceneConnection(object):
 
 class WMCommTowerConnection(SceneConnection):
     DEFAULT_ROOM_2 = pbge.randmaps.rooms.OpenRoom
-    DEFAULT_DOOR_1 = waypoints.DZDWCommTower
+    DEFAULT_DOOR_1 = ghwaypoints.DZDWCommTower
     r2anchor = pbge.randmaps.anchors.middle
     def get_room2_anchor(self):
         self.r2anchor = random.choice(pbge.randmaps.anchors.EDGES)
@@ -58,7 +58,7 @@ class WMCommTowerConnection(SceneConnection):
 
 class IntCommTowerConnection(SceneConnection):
     DEFAULT_ROOM_2 = pbge.randmaps.rooms.OpenRoom
-    DEFAULT_DOOR_1 = waypoints.DZDCommTower
+    DEFAULT_DOOR_1 = ghwaypoints.DZDCommTower
     def get_room2_anchor(self):
         return pbge.randmaps.anchors.south
     def get_door2(self):
@@ -66,7 +66,7 @@ class IntCommTowerConnection(SceneConnection):
 
 class WMConcreteBuildingConnection(SceneConnection):
     DEFAULT_ROOM_2 = pbge.randmaps.rooms.OpenRoom
-    DEFAULT_DOOR_1 = waypoints.DZDWConcreteBuilding
+    DEFAULT_DOOR_1 = ghwaypoints.DZDWConcreteBuilding
     r2anchor = None
     def get_room2_anchor(self):
         self.r2anchor = random.choice(pbge.randmaps.anchors.EDGES)
@@ -76,7 +76,7 @@ class WMConcreteBuildingConnection(SceneConnection):
 
 class IntConcreteBuildingConnection(SceneConnection):
     DEFAULT_ROOM_2 = pbge.randmaps.rooms.OpenRoom
-    DEFAULT_DOOR_1 = waypoints.DZDConcreteBuilding
+    DEFAULT_DOOR_1 = ghwaypoints.DZDConcreteBuilding
     def get_room2_anchor(self):
         return pbge.randmaps.anchors.south
     def get_door2(self):
@@ -84,7 +84,7 @@ class IntConcreteBuildingConnection(SceneConnection):
 
 class WMDZTownConnection(SceneConnection):
     DEFAULT_ROOM_2 = pbge.randmaps.rooms.OpenRoom
-    DEFAULT_DOOR_1 = waypoints.DZDTown
+    DEFAULT_DOOR_1 = ghwaypoints.DZDTown
     r2anchor = None
     def get_room2_anchor(self):
         self.r2anchor = random.choice(pbge.randmaps.anchors.EDGES)

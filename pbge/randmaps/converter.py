@@ -8,7 +8,10 @@ import plasma
 class BasicConverter( object ):
     """Convert True walls to the provided terrain."""
     def __init__( self, terr ):
-        self.terr = terr
+        if not terr:
+            self.terr = None
+        else:
+            self.terr = terr
 
     def __call__( self, mapgen ):
         for x in range( mapgen.width ):

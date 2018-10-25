@@ -247,7 +247,7 @@ class Concentration( Skill ):
     name = 'Concentration'
 
 
-
+COMBATANT_SKILLS = (MechaFighting,MechaGunnery,MechaPiloting,RangedCombat,CloseCombat,Dodge,Vitality,Athletics,Concentration)
 
 
 

@@ -7,6 +7,7 @@ import stats
 import portraits
 import genderobj
 import color
+import jobs
 
 DESIGN_LIST = list()
 EARTH_NAMES = None
@@ -43,18 +44,20 @@ def random_personality():
 
 
 def random_pilot(rank=25, **kwargs):
-    skill_rank = max((rank + 20) // 10, 1)
     # Build the creation matrix, aka the dict.
     creation_matrix = dict(name=EARTH_NAMES.gen_word(),
                         statline={stats.Reflexes: 10, stats.Body: 10, stats.Speed: 10,
                                   stats.Perception: 10, stats.Knowledge: 10, stats.Craft: 10, stats.Ego: 10,
-                                  stats.Charm: 10, stats.MechaPiloting: skill_rank, stats.MechaGunnery: skill_rank,
-                                  stats.MechaFighting: skill_rank}, portrait_gen=portraits.Portrait(),
-                        personality=random_personality(), gender=genderobj.Gender.random_gender())
+                                  stats.Charm: 10 }, portrait_gen=portraits.Portrait(),
+                           combatant=True,
+                        personality=random_personality(), gender=genderobj.Gender.random_gender(),
+                        birth_year=138 - random.randint(1,10) + random.randint(1,5),
+                           job=jobs.ALL_JOBS["Mecha Pilot"])
     if kwargs:
         creation_matrix.update(kwargs)
     pc = base.Character(**creation_matrix
                         )
+    creation_matrix["job"].scale_skills(pc,rank)
     return pc
 
 
@@ -112,12 +115,19 @@ class RandomMechaUnit(object):
             self.buy_mecha()
             if add_commander:
                 mek = self.choose_mecha()
-                self.commander = random_pilot(level)
+                self.commander = self.generate_pilot(level,tag=tags.Commander)
                 mek.load_pilot(self.commander)
                 self.mecha_list.append(mek)
 
         else:
             print "No mecha to buy for {} {} {}".format(level, fac, env)
+
+    def generate_pilot(self,pilot_level,tag=tags.Trooper):
+        if self.fac:
+            job = self.fac.choose_job(tag)
+        else:
+            job = jobs.ALL_JOBS["Mecha Pilot"]
+        return random_pilot( pilot_level,faction=self.fac,job=job)
 
     def prep_mecha(self, protomek):
         mek = copy.deepcopy(protomek)
@@ -147,7 +157,7 @@ class RandomMechaUnit(object):
                 pilot_level += 10
                 self.points -= mek.cost // 2
             self.points -= mek.cost
-            pilot = random_pilot(pilot_level)
+            pilot = self.generate_pilot(pilot_level)
             mek.load_pilot(pilot)
             self.mecha_list.append(mek)
 

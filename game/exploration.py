@@ -136,6 +136,40 @@ class TalkTo( MoveTo ):
 
             return True
 
+class BumpTo( MoveTo ):
+    """A command for moving to a particular waypoint, then activating it."""
+    def __init__( self, explo, wayp, party=None ):
+        """Move the party to pos."""
+        self.wayp = wayp
+        if not party:
+            # Always party.
+            party = self._get_pc_party(explo)
+        self.party = party
+        self.step = 0
+
+    def __call__( self, exp ):
+        pc = self.first_living_pc()
+        self.step += 1
+
+        if (not pc) or self.step > 50:
+            return False
+        elif self.wayp.pos in scenes.pfov.PointOfView( exp.scene, pc.pos[0], pc.pos[1], 1 ).tiles:
+            self.wayp.bump(exp.camp,pc)
+            return False
+        else:
+            f_pos = self.wayp.pos
+            for pc in self.party:
+                if pc.is_operational() and exp.scene.on_the_map( *pc.pos ):
+                    path = scenes.pathfinding.AStarPath(exp.scene,pc.pos,f_pos,pc.mmode)
+                    self.move_pc( exp, pc, path.results[1] )
+                    f_pos = pc.pos
+
+            # Now that all of the pcs have moved, check the tiles_in_sight for
+            # hidden models.
+            exp.scene.update_party_position( exp.camp )
+
+            return True
+
 class DoInvocation( MoveTo ):
     """A command for moving to a particular spot, then invoking."""
     def __init__( self, explo, pc, pos, invo, target_list, record=False ):
@@ -188,6 +222,13 @@ class InvoMenuCall( object ):
     def __call__(self):
         self.explo.order = invoker.InvocationUI.explo_invoke(self.explo,self.pc,self.pc.get_skill_library,self.source)
 
+class BumpToCall(object):
+    def __init__(self,explo,wayp):
+        self.explo = explo
+        self.wayp = wayp
+    def __call__(self):
+        self.explo.order = BumpTo(self.explo,self.wayp)
+
 class ExploMenu( object ):
     def __init__(self,explo,pc=None):
         self.explo = explo
@@ -207,6 +248,10 @@ class ExploMenu( object ):
                 if pc.get_skill_library():
                     mymenu.add_item('{} Use Skill'.format(str(pc)),InvoMenuCall(self.explo,pc,None))
         mymenu.add_item('-----',None)
+        # Check for waypoints.
+        wayp_list = self.explo.camp.scene.get_waypoints(pbge.my_state.view.mouse_tile)
+        for wayp in wayp_list:
+            mymenu.add_item('Use {}'.format(str(wayp)),BumpToCall(self.explo,wayp))
         mi = mymenu.query()
         if mi:
             mi()
