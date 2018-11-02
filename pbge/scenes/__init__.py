@@ -330,4 +330,14 @@ class Scene( object ):
         # Return all of the waypoints found at this position.
         return [a for a in self.contents if a.pos == pos and isinstance(a,waypoints.Waypoint)]
 
+    def get_bumpable(self,pos):
+        # Return the first bumpable found at this position. If more than one
+        # bumpable is there, tough cookies.
+        for a in self.contents:
+            if a.pos == pos and hasattr(a,'bump'):
+                return a
+
+    def get_bumpables(self,pos):
+        # Return all of the bumpables found at this position.
+        return [a for a in self.contents if a.pos == pos and hasattr(a,'bump')]
 

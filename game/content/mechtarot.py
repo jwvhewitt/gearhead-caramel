@@ -49,6 +49,16 @@ class TarotCard(plots.Plot):
                 ofrz += interac.get_interaction_dialogue_offers(npc, camp, self)
         return ofrz
 
+    def modify_puzzle_menu( self, camp, thing, thingmenu ):
+        """Modify the thingmenu based on this plot."""
+        # Method [ELEMENTID]_menu will be called with the menu as parameter.
+        # This method should modify the menu as needed- typically by altering
+        # the "desc" property (menu caption) and adding menu items.
+        super(TarotCard,self).modify_puzzle_menu(camp,thing,thingmenu)
+        if self.visible:
+            for interac in self.INTERACTIONS:
+                interac.modify_interaction_puzzle_menu(camp, thing, thingmenu, self)
+
     def reveal(self,camp):
         self.visible = True
         camp.check_trigger("UPDATE")
@@ -99,9 +109,15 @@ class Interaction(object):
         ofrz = list()
         for beta_card in camp.tarot.values():
             if beta_card.visible and self.maybe_activated_by(beta_card):
-                for at in self.action_triggers:
+                for at in [a for a in self.action_triggers if hasattr(a,"get_at_dialogue_offers")]:
                     ofrz += at.get_at_dialogue_offers(npc, camp, alpha_card, beta_card, self.invoke)
         return ofrz
+
+    def modify_interaction_puzzle_menu( self, camp, thing, thingmenu, alpha_card ):
+        for beta_card in camp.tarot.values():
+            if beta_card.visible and self.maybe_activated_by(beta_card):
+                for at in [a for a in self.action_triggers if hasattr(a,"can_modify_puzzle_menu") and a.can_modify_puzzle_menu(thing,alpha_card,beta_card)]:
+                    at.modify_at_puzzle_menu(camp,thing,thingmenu,alpha_card,beta_card,self.invoke)
 
     def mutate_cards(self, alpha_card, beta_card, camp):
         nart = GHNarrativeRequest(camp, plot_list=PLOT_LIST)
@@ -142,22 +158,32 @@ class Interaction(object):
 
 
 class ActionTriggerInvoker(object):
-    def __init__(self, alpha, beta, atfun):
+    # extra_fx is an optional function that takes alpha, beta, camp as its parameters
+    #  that is called after the primary atfun function.
+    #  Now the terrible part: For whatever reason, if the function is a static method or object method,
+    #  it won't if it's included in the card's Interactions dict. And, of course, a bound method can't be
+    #  included in the Interactions dict because it doesn't even exist until the card is instantiated.
+    #  So, instead, pretend that extra_fx takes just beta and camp as its parameters and call alpha self
+    #  and everything will work but it's sleazy as hell.
+    def __init__(self, alpha, beta, atfun, extra_fx):
         self.alpha = alpha
         self.beta = beta
         self.atfun = atfun
+        self.extra_fx = extra_fx
 
     def __call__(self, camp):
         self.atfun(self.alpha, self.beta, camp)
-
+        if self.extra_fx:
+            self.extra_fx(self.alpha,self.beta,camp)
 
 class AlphaCardDialogueTrigger(object):
-    def __init__(self, npc_ident, dialogue_text, dialogue_context, data=None, data_fun=None):
+    def __init__(self, npc_ident, dialogue_text, dialogue_context, data=None, data_fun=None, extra_fx=None):
         self.npc_ident = npc_ident
         self.dialogue_text = dialogue_text
         self.dialogue_context = dialogue_context
         self.data = data
         self.data_fun = data_fun
+        self.extra_fx = extra_fx
 
     def get_at_dialogue_offers(self, npc, camp, alpha_card, beta_card, effect_fun):
         ofrz = list()
@@ -169,18 +195,19 @@ class AlphaCardDialogueTrigger(object):
             else:
                 mydata = False
             ofrz.append(pbge.dialogue.Offer(self.dialogue_text, self.dialogue_context,
-                                            effect=ActionTriggerInvoker(alpha_card, beta_card, effect_fun),
+                                            effect=ActionTriggerInvoker(alpha_card, beta_card, effect_fun, self.extra_fx),
                                             data=mydata))
         return ofrz
 
 
 class BetaCardDialogueTrigger(object):
-    def __init__(self, npc_ident, dialogue_text, dialogue_context, data=None, data_fun=None):
+    def __init__(self, npc_ident, dialogue_text, dialogue_context, data=None, data_fun=None, extra_fx=None):
         self.npc_ident = npc_ident
         self.dialogue_text = dialogue_text
         self.dialogue_context = dialogue_context
         self.data = data
         self.data_fun = data_fun
+        self.extra_fx = extra_fx
 
     def get_at_dialogue_offers(self, npc, camp, alpha_card, beta_card, effect_fun):
         ofrz = list()
@@ -192,9 +219,33 @@ class BetaCardDialogueTrigger(object):
             else:
                 mydata = False
             ofrz.append(pbge.dialogue.Offer(self.dialogue_text, self.dialogue_context,
-                                            effect=ActionTriggerInvoker(alpha_card, beta_card, effect_fun),
+                                            effect=ActionTriggerInvoker(alpha_card, beta_card, effect_fun, self.extra_fx),
                                             data=mydata))
         return ofrz
+
+class AlphaCardPuzzleItemTrigger(object):
+    # This trigger adds an option to a puzzlemenu.
+    def __init__(self, item_ident, caption_pattern='{}', menu_option='[]', data=None, data_fun=None, extra_fx=None):
+        self.item_ident = item_ident
+        self.caption_pattern = caption_pattern
+        self.menu_option = menu_option
+        self.data = data
+        self.data_fun = data_fun
+        self.extra_fx = extra_fx
+
+    def can_modify_puzzle_menu(self, thing, alpha_card, beta_card):
+        return alpha_card.elements.get(self.item_ident) == thing
+
+    def modify_at_puzzle_menu(self,camp,thing,thingmenu,alpha_card,beta_card,effect_fun):
+        if self.data:
+            mydata = self.data
+        elif self.data_fun:
+            mydata = self.data_fun(camp)
+        else:
+            mydata = dict()
+        thingmenu.desc = self.caption_pattern.format(thingmenu.desc).format(**mydata)
+        thingmenu.add_item(self.menu_option.format(**mydata),ActionTriggerInvoker(alpha_card, beta_card, effect_fun, self.extra_fx))
+
 
 
 class ProtoCard(object):

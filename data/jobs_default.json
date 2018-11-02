@@ -14,6 +14,146 @@
       "Scouting": -2,
       "Negotiation": -1
     }
+  },
+  {
+    "name": "Pirate",
+    "skills": [],
+    "tags": ["Criminal"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": -1,
+      "CloseCombat": 1,
+      "RangedCombat": -1
+    }
+  },
+  {
+    "name": "Pirate Captain",
+    "skills": ["Negotiation"],
+    "tags": ["Criminal"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": -1,
+      "CloseCombat": 1,
+      "RangedCombat": -1
+    }
+  },
+  {
+    "name": "Bandit",
+    "skills": [],
+    "tags": ["Criminal"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": 1,
+      "MechaPiloting": -1,
+      "Concentration": -1
+    }
+  },
+  {
+    "name": "Thief",
+    "skills": ["Stealth"],
+    "tags": ["Criminal"],
+    "always_combatant": false,
+    "skill_modifiers": {
+      "MechaFighting": -1,
+      "MechaGunnery": -1
+    }
+  },
+  {
+    "name": "Scavenger",
+    "skills": ["Repair"],
+    "tags": ["Craftsperson","Adventurer"],
+    "skill_modifiers": {
+      "Athletics": -1,
+      "Vitality": -1
+    }
+  },
+  {
+    "name": "Scientist",
+    "skills": ["Science","Biotechnology","Computers"],
+    "tags": ["Academic"],
+    "skill_modifiers": {
+      "Athletics": -1,
+      "Vitality": -2,
+      "Concentration": 1
+    }
+  },
+  {
+    "name": "Teacher",
+    "skills": ["Negotiation"],
+    "tags": ["Academic"],
+    "skill_modifiers": {
+      "Concentration": 2
+    }
+  },
+  {
+    "name": "Arena Pilot",
+    "skills": [],
+    "tags": ["Adventurer"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": 1,
+      "MechaPiloting": 1,
+      "CloseCombat": -1,
+      "RangedCombat": -1,
+      "Dodge": -1
+    }
+  },
+  {
+    "name": "Bounty Hunter",
+    "skills": ["Scouting"],
+    "tags": ["Adventurer"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": -1,
+      "MechaGunnery": -1,
+      "MechaPiloting": -1,
+      "CloseCombat": 1,
+      "RangedCombat": 1,
+      "Dodge": 1
+    }
+  },
+  {
+    "name": "Explorer",
+    "skills": ["Scouting"],
+    "tags": ["Adventurer"],
+    "skill_modifiers": {
+      "MechaFighting": -1,
+      "Vitality": 1
+    }
+  },
+  {
+    "name": "Martial Artist",
+    "skills": [],
+    "tags": ["Adventurer"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": -1,
+      "CloseCombat": 1,
+      "RangedCombat": -1
+    }
+  },
+  {
+    "name": "Mercenary",
+    "skills": [],
+    "tags": ["Adventurer"],
+    "always_combatant": true
+  },
+  {
+    "name": "Test Pilot",
+    "skills": [],
+    "tags": ["Adventurer"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "Vitality": 1,
+      "MechaPiloting": 1,
+      "CloseCombat": -1,
+      "RangedCombat": -1
+    }
   }
 
 

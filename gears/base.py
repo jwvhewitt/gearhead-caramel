@@ -2645,9 +2645,9 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
 
 class Character(Being):
-    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod')
+    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction')
 
-    def __init__(self, personality=(), gender=None, job=None, birth_year=138, reaction_mod=0, faction=None, **keywords):
+    def __init__(self, personality=(), gender=None, job=None, birth_year=138, reaction_mod=0, faction=None, renown=0, **keywords):
         self.personality = set(personality)
         if not gender:
             gender = genderobj.Gender.random_gender()
@@ -2659,6 +2659,7 @@ class Character(Being):
         self.reaction_mod = reaction_mod
         self.faction = faction
         self.faction_scores = dict()
+        self.renown = renown
         super(Character, self).__init__(**keywords)
 
     def get_tacit_faction(self,camp):

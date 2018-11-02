@@ -11,6 +11,9 @@ MT_HEROIC = "HEROIC"
 MT_CRIME = "CRIME"
 
 ME_PERSON = "PERSON"
+ME_PUZZLEITEM = "PUZZLEITEM"
+ME_CRIME = "CRIME_TEXT"
+ME_CRIMED = "CRIME_VERBED_TEXT"
 
 
 class Convict(TarotCard):
@@ -28,7 +31,7 @@ class Demagogue(TarotCard):
     NEGATIONS = (Convict,)
     def custom_init( self, nart ):
         if ME_PERSON not in self.elements:
-            npc = gears.selector.random_pilot(50)
+            npc = gears.selector.random_character(50,local_tags=self.elements["TOWN"].attributes)
             self.register_element(ME_PERSON,npc,dident="TOWN")
         return True
     def PERSON_offers(self,camp):
@@ -54,7 +57,7 @@ class TheLaw(TarotCard):
                     )
     def custom_init( self, nart ):
         if ME_PERSON not in self.elements:
-            npc = gears.selector.random_pilot(50)
+            npc = gears.selector.random_character(50,combatant=True)
             npc.name = "The Law"
             self.register_element(ME_PERSON,npc,dident="TOWN")
         return True
@@ -70,7 +73,7 @@ class LocalHero(TarotCard):
     TAGS = (MT_PERSON,MT_HEROIC)
     def custom_init( self, nart ):
         if ME_PERSON not in self.elements:
-            npc = gears.selector.random_pilot(50)
+            npc = gears.selector.random_character(50,needed_tags=(gears.tags.Adventurer,),local_tags=self.elements["TOWN"].attributes,combatant=True)
             npc.name = "Local Hero"
             self.register_element(ME_PERSON,npc,dident="TOWN")
         return True
@@ -98,25 +101,35 @@ class Evidence(TarotCard):
     pass
 
 class Clue(TarotCard):
-    INTERACTIONS = (Interaction(TagChecker([MT_CRIME]),action_triggers=[],results=("Evidence",None,None),passparams=(((ME_PERSON,),None),None,None)),
-                    )
     def custom_init( self, nart ):
         if ME_PERSON not in self.elements:
             self.register_element(ME_PERSON,gears.selector.random_pilot(50))
-        if not self.elements.get(ME_AUTOREVEAL):
+        if ME_PUZZLEITEM not in self.elements or not self.elements.get(ME_AUTOREVEAL):
             # Add a subplot to reveal this clue.
             tplot = self.add_sub_plot(nart, "DZD_RevealClue", ident="_RevealClue" )
+            self.elements[ME_PUZZLEITEM] = tplot.elements.get(ME_PUZZLEITEM)
         return True
     def _RevealClue_WIN(self,camp):
         if not self.visible:
             self.memo = "You discovered a clue or something."
             self.reveal(camp)
+    def find_clue_from_puzzleitem( self, beta, camp):
+        pbge.alert("You discover evidence that {} {}.".format(self.elements[ME_PERSON],beta.elements[ME_CRIMED]))
+    INTERACTIONS = (Interaction(TagChecker([MT_CRIME]),
+                                action_triggers=[mechtarot.AlphaCardPuzzleItemTrigger(ME_PUZZLEITEM,menu_option="Search for clues.",extra_fx=find_clue_from_puzzleitem)],
+                                results=("Evidence",None,None),passparams=(((ME_PERSON,),None),None,None)),
+                    )
 
 class Murder(TarotCard):
     TAGS = (MT_CRIME,)
     def custom_init( self, nart ):
         if ME_PERSON not in self.elements:
-            self.register_element(ME_PERSON,gears.selector.random_pilot(50))
+            npc = self.register_element(ME_PERSON,gears.selector.random_pilot(50))
+        else:
+            npc = self.elements[ME_PERSON]
+        # Record the crime text elements.
+        self.elements[ME_CRIME] = "the murder of {}".format(npc)
+        self.elements[ME_CRIMED] = "murdered {}".format(npc)
         if not self.elements.get(ME_AUTOREVEAL):
             # Add a subplot to reveal this murder.
             tplot = self.add_sub_plot(nart, "DZD_RevealMurder", ident="_RevealMurder" )

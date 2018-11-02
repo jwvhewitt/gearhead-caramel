@@ -58,7 +58,7 @@ class MoveTo( object ):
         if exp.scene.tile_blocks_movement(dest[0],dest[1],pc.mmode):
             # There's an obstacle in the way.
             if first:
-                wp = exp.scene.get_waypoint(dest)
+                wp = exp.scene.get_bumpable(dest)
                 if wp:
                     wp.bump(exp.camp,pc)
             return False
@@ -249,7 +249,7 @@ class ExploMenu( object ):
                     mymenu.add_item('{} Use Skill'.format(str(pc)),InvoMenuCall(self.explo,pc,None))
         mymenu.add_item('-----',None)
         # Check for waypoints.
-        wayp_list = self.explo.camp.scene.get_waypoints(pbge.my_state.view.mouse_tile)
+        wayp_list = self.explo.camp.scene.get_bumpables(pbge.my_state.view.mouse_tile)
         for wayp in wayp_list:
             mymenu.add_item('Use {}'.format(str(wayp)),BumpToCall(self.explo,wayp))
         mi = mymenu.query()

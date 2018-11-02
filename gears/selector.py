@@ -11,6 +11,10 @@ import jobs
 
 DESIGN_LIST = list()
 EARTH_NAMES = None
+LUNA_NAMES = None
+ORBITAL_NAMES = None
+MARS_NAMES = None
+GENERIC_NAMES = None
 
 
 def calc_threat_points(level, percent=30):
@@ -31,9 +35,24 @@ def check_design_list():
             else:
                 print "{} {}: ${}".format(mek.desig, mek, mek.cost)
 
+def random_name(npc):
+    candidates = list()
+    if personality.GreenZone in npc.personality or personality.DeadZone in npc.personality:
+        candidates.append(EARTH_NAMES)
+    if personality.L5Spinners in npc.personality or personality.L5DustyRing in npc.personality:
+        candidates.append(ORBITAL_NAMES)
+    if personality.Mars in npc.personality:
+        candidates.append(MARS_NAMES)
+    if personality.Luna in npc.personality:
+        candidates.append(LUNA_NAMES)
+    if random.randint(1,10) == 7 or not candidates:
+        candidates.append(GENERIC_NAMES)
+    ngen = random.choice(candidates)
+    return ngen.gen_word()
 
-def random_personality():
-    tset = set()
+
+def random_personality(preselected=()):
+    tset = set(preselected)
     traits = list(personality.TRAITS)
     random.shuffle(traits)
     for t in range(min(random.randint(1, 3), random.randint(1, 3))):
@@ -45,8 +64,7 @@ def random_personality():
 
 def random_pilot(rank=25, **kwargs):
     # Build the creation matrix, aka the dict.
-    creation_matrix = dict(name=EARTH_NAMES.gen_word(),
-                        statline={stats.Reflexes: 10, stats.Body: 10, stats.Speed: 10,
+    creation_matrix = dict(statline={stats.Reflexes: 10, stats.Body: 10, stats.Speed: 10,
                                   stats.Perception: 10, stats.Knowledge: 10, stats.Craft: 10, stats.Ego: 10,
                                   stats.Charm: 10 }, portrait_gen=portraits.Portrait(),
                            combatant=True,
@@ -57,7 +75,27 @@ def random_pilot(rank=25, **kwargs):
         creation_matrix.update(kwargs)
     pc = base.Character(**creation_matrix
                         )
+    if "name" not in creation_matrix:
+        pc.name = random_name(pc)
     creation_matrix["job"].scale_skills(pc,rank)
+    return pc
+
+def random_character(rank=25, needed_tags=(), local_tags=(), **kwargs):
+    # Build the creation matrix, aka the dict.
+    possible_origins = [o for o in local_tags if o in personality.ORIGINS]
+    job = jobs.choose_random_job(needed_tags,local_tags)
+    creation_matrix = dict(statline={stats.Reflexes: 10, stats.Body: 10, stats.Speed: 10,
+                                     stats.Perception: 10, stats.Knowledge: 10, stats.Craft: 10, stats.Ego: 10,
+                                     stats.Charm: 10}, portrait_gen=portraits.Portrait(), job=job,
+                           personality=random_personality(possible_origins), gender=genderobj.Gender.random_gender(),
+                           birth_year=138 - random.randint(1, 10) + random.randint(1, 5))
+    if kwargs:
+        creation_matrix.update(kwargs)
+    pc = base.Character(**creation_matrix
+                        )
+    if "name" not in creation_matrix:
+        pc.name = random_name(pc)
+    job.scale_skills(pc, rank)
     return pc
 
 
@@ -125,9 +163,15 @@ class RandomMechaUnit(object):
     def generate_pilot(self,pilot_level,tag=tags.Trooper):
         if self.fac:
             job = self.fac.choose_job(tag)
+            origin = self.fac.choose_location()
+            if origin:
+                personality = random_personality([origin,])
+            else:
+                personality = random_personality()
         else:
             job = jobs.ALL_JOBS["Mecha Pilot"]
-        return random_pilot( pilot_level,faction=self.fac,job=job)
+            personality = random_personality()
+        return random_pilot( pilot_level,faction=self.fac,job=job,personality=personality)
 
     def prep_mecha(self, protomek):
         mek = copy.deepcopy(protomek)

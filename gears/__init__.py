@@ -82,12 +82,13 @@ jobs.SINGLETON_TYPES = SINGLETON_TYPES
 
 class GearHeadScene(pbge.scenes.Scene):
     def __init__(self, width=128, height=128, name="", player_team=None, civilian_team=None,
-                 scale=scale.MechaScale, environment=tags.GroundEnv):
+                 scale=scale.MechaScale, environment=tags.GroundEnv, attributes=()):
         super(GearHeadScene, self).__init__(width, height, name, player_team)
         self.civilian_team = civilian_team
         self.scale = scale
         self.environment = environment
         self.script_rooms = list()
+        self.attributes = set(attributes)
 
     @staticmethod
     def is_an_actor(model):
@@ -482,6 +483,10 @@ class Saver(object):
 
 def init_gears():
     selector.EARTH_NAMES = pbge.namegen.NameGen("ng_earth.txt")
+    selector.ORBITAL_NAMES = pbge.namegen.NameGen("ng_orbital.txt")
+    selector.MARS_NAMES = pbge.namegen.NameGen("ng_mars.txt")
+    selector.LUNA_NAMES = pbge.namegen.NameGen("ng_lunar.txt")
+    selector.GENERIC_NAMES = pbge.namegen.NameGen("ng_generic.txt")
 
     if not os.path.exists(pbge.util.user_dir('design')):
         os.mkdir(pbge.util.user_dir('design'))

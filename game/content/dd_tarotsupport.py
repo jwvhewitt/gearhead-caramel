@@ -205,5 +205,5 @@ class HideAndSeekWithACorpse( Plot ):
     def PERSON_BUMP(self,camp):
         # Encountering the corpse will reveal the murder.
         camp.check_trigger("WIN",self)
-    def PERSON_menu(self,thingmenu):
+    def PERSON_menu(self,camp,thingmenu):
         pass

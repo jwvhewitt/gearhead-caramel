@@ -65,7 +65,7 @@ class Campaign( object ):
     def expand_puzzle_menu( self, thing, thingmenu ):
         # Something is happened that plots may need to react to.
         for p in self.active_plots():
-            p.modify_puzzle_menu( thing, thingmenu )
+            p.modify_puzzle_menu( self, thing, thingmenu )
         if not thingmenu.items:
             thingmenu.add_item( "[Continue]", None )
         else:

@@ -277,11 +277,11 @@ class FrozenHotSpringCity( Plot ):
         scene._map[drift.pos[0]-1][drift.pos[1]].wall = None
         scene._map[drift.pos[0]+1][drift.pos[1]].wall = None
 
-    def FENCE_GATE_menu(self,thingmenu):
+    def FENCE_GATE_menu(self,camp,thingmenu):
         thingmenu.add_item('Board a mecha and start mission',self._give_bad_mecha)
         thingmenu.add_item("Don't start mission yet",None)
 
-    def HANGAR_GATE_menu(self,thingmenu):
+    def HANGAR_GATE_menu(self,camp,thingmenu):
         thingmenu.add_item('Board a mecha and start mission',self._give_good_mecha)
         thingmenu.add_item("Don't start mission yet",None)
 
@@ -1147,7 +1147,7 @@ class Encounter_TheEnemyOfMyEnemy( Encounter_BasicBandits ):
         mylist.append(Offer("Oh, so you didn't even take a peek inside the truck? No matter. [LETSFIGHT]",
             context=ContextTag([context.COMBAT_INFO,]), data={"subject":"the cargo"} ))
         return mylist
-    def _TRUCK_menu(self,thingmenu):
+    def _TRUCK_menu(self,camp,thingmenu):
         thingmenu.desc = "This is one of the trucks from the convoy that was attacked. Inside, you see a number of biotank storage units. No idea what they're transporting but it can't be good news."
         thingmenu.add_item('[Continue]',None)
 
@@ -1337,7 +1337,7 @@ class Choice_BringJusticeToScumHive( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = "Pirates don't normally operate in this area; they must have established a smuggling camp to expand their territory. This appears to be the direction they came from."
         thingmenu.add_item('Bring them to justice',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1363,7 +1363,7 @@ class Choice_PeaceAgainstSynths( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = "It seems that the hunter synths came from this direction. Left unchecked, they could be a much bigger threat to Mauna than {}.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
         thingmenu.add_item('Protect Mauna by exterminating the synths',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1388,7 +1388,7 @@ class Choice_FellowshipToDefendAgainstSynths( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = "From the marks in the snow, you see that the hunter synths pursued {} in this direction.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
         thingmenu.add_item('Show fellowship and rescue them',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1414,7 +1414,7 @@ class Choice_BringJusticeToMercenaries( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = "You still don't know who hired the mercenaries you fought earlier. This could be an opportunity to trail them to their leader and find out who they work for."
         thingmenu.add_item('For great justice',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1440,7 +1440,7 @@ class Choice_DutyToFightPirates( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = "The pirates seem to be having trouble navigating on Earth. They've left the road and headed into the forest. It should be no problem to catch up with them there."
         thingmenu.add_item('Do your duty',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1465,7 +1465,7 @@ class Choice_FellowshipWithSmugglers( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = "Marks in the snow indicate that the smugglers are still being pursued by {}. It seems cruel to leave them to their fate... You can defend the convoy and let the Guardians figure out what to do about the contraband later.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
         thingmenu.add_item('Show your fellowship',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1496,7 +1496,7 @@ class Choice_BringJusticeToSmugglers( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = "The smugglers who got away from {} seem to have gone in this direction. Their actions tonight have endangered a great number of lives, and they shouldn't get away with it.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
         thingmenu.add_item('For great justice',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1522,7 +1522,7 @@ class Choice_JusticeForWujungOrphans( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = 'From the tracks in the snow, you think this is the way the thieves brought the stolen toys. If you hurry you may still be able to catch them and return the toys to the children of Wujung.'
         thingmenu.add_item('For great justice',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1547,7 +1547,7 @@ class Choice_GloryByDestroyingBigBase( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = "In order to pull off an operation like this, {} must have a base nearby. This seems to be the direction from which they came.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
         thingmenu.add_item('Go for glory',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1573,7 +1573,7 @@ class Choice_GloryByDestroyingBanditBase( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = 'The tracks in the snow indicate that the bandits came from this direction. If you follow the tracks back to their base, you may be able to put an end to their crime spree once and for all.'
         thingmenu.add_item('Go for glory',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1599,7 +1599,7 @@ class Choice_PeaceByDefeatingAegis( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = 'The tracks in the snow indicate that this is the direction the Aegis scouts came from. Stopping them may be far more important than {} you were sent to fight.'.format(ENEMY_NOUN[self.elements.get(ENEMY,0)])
         thingmenu.add_item('Protect the Earth',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1624,7 +1624,7 @@ class Choice_GloryByFightingTheLeader( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = "This seems to be the way that the raider leader went. It's time to finish this."
         thingmenu.add_item('Go for glory',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1649,7 +1649,7 @@ class Choice_DutyToCatchTheLeader( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to capture them?'
         thingmenu.add_item('Do your duty',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1674,7 +1674,7 @@ class Choice_PeaceToDisableThePrototype( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = 'This seems to be the direction that the prototype mecha was taken. A weapon that powerful should not fall into the wrong hands.'
         thingmenu.add_item('Fight for peace',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1699,7 +1699,7 @@ class Choice_DutyToStopThePrototype( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to recover the stolen prototype?'
         thingmenu.add_item('Do your duty',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -1725,7 +1725,7 @@ class FinalBattleDebug( Plot ):
         return True
     def start_mission(self,camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
-    def _waypoint_menu(self,thingmenu):
+    def _waypoint_menu(self,camp,thingmenu):
         thingmenu.desc = 'This seems to be a final battle in need of debugging.'
         thingmenu.add_item('Do your duty',self.start_mission)
         thingmenu.add_item('Examine the other options first',None)
@@ -2108,7 +2108,7 @@ class LazyassOpener( Plot ):
     LABEL = "OPEN"
     active = True
     scope = True
-    def TARGET_menu(self,thingmenu):
+    def TARGET_menu(self,camp,thingmenu):
         thingmenu.add_item('Try to open it',self._try_open)
     def _try_open(self,camp):
         pbge.alert("You open it easily. Who leaves stuff like this unlocked?!")
@@ -2127,7 +2127,7 @@ class UniversalLockpick( Plot ):
         self.add_sub_plot( nart, "FIND", PlotState( elements={"TARGET":puzzle_item} ).based_on( self ), ident="FINDER" )
         self.found_item = False
         return True
-    def TARGET_menu(self,thingmenu):
+    def TARGET_menu(self,camp,thingmenu):
         if self.found_item:
             thingmenu.add_item('Open it with the crowbar',self._open_thing)
         else:
@@ -2158,7 +2158,7 @@ class FindAbandonedToolbox( Plot ):
         pbge.alert("You take the {}. It might be useful for something.".format(self.elements["TARGET"]))
         camp.check_trigger( "FIND", self.elements[ "TARGET" ])
         self.active = False
-    def PUZZITEM_menu(self,thingmenu):
+    def PUZZITEM_menu(self,camp,thingmenu):
         thingmenu.desc = '{} There is a {} inside.'.format(thingmenu.desc,self.elements["TARGET"])
         thingmenu.add_item('Borrow the {}'.format(self.elements["TARGET"]),self.get_crowbar)
 
@@ -2194,7 +2194,7 @@ class ExtensionCord( Plot ):
         self.add_sub_plot( nart, "FIND", PlotState( elements={"TARGET":puzzle_item} ).based_on( self ), ident="FINDER" )
         self.found_item = False
         return True
-    def TARGET_menu(self,thingmenu):
+    def TARGET_menu(self,camp,thingmenu):
         if self.found_item:
             thingmenu.add_item('Plug it in and turn it on',self._open_thing)
         else:
@@ -2220,11 +2220,11 @@ class CircuitBroken( Plot ):
         puzzle_item = self.register_element("PUZZITEM",WinterMochaGenerator(plot_locked=True,anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(puzzle_item)
         return True
-    def TARGET_menu(self,thingmenu):
+    def TARGET_menu(self,camp,thingmenu):
         thingmenu.add_item('Try to turn it on',self._try_activate)
     def _try_activate(self,camp):
         pbge.alert("Nothing happens. Everything seems to be connected properly, but it isn't getting any power.")
-    def PUZZITEM_menu(self,thingmenu):
+    def PUZZITEM_menu(self,camp,thingmenu):
         thingmenu.desc = '{} The generator is currently off; the circuit breaker must have blown during the storm.'.format(thingmenu.desc)
         thingmenu.add_item("Turn it back on again",self._fix_generator)
         thingmenu.add_item("Leave it alone",None)
@@ -2241,7 +2241,7 @@ class OpenContainer( Plot ):
     def custom_init( self, nart ):
         self.add_sub_plot( nart, "OPEN", ident="OPENER" )
         return True
-    def TARGET_menu(self,thingmenu):
+    def TARGET_menu(self,camp,thingmenu):
         thingmenu.desc = '{} There is a large red warning label pasted to the front.'.format(thingmenu.desc)
         thingmenu.add_item('Read the warning label',self._try_activate)
         thingmenu.add_item('Leave it alone',None)
@@ -2264,7 +2264,7 @@ class UseFlares( Plot ):
         self.add_sub_plot( nart, "FIND", PlotState( elements={"TARGET":puzzle_item} ).based_on( self ), ident="FINDER" )
         self.found_item = False
         return True
-    def TARGET_menu(self,thingmenu):
+    def TARGET_menu(self,camp,thingmenu):
         thingmenu.desc = '{} There is a large yellow warning label pasted to the front.'.format(thingmenu.desc)
         if self.found_item:
             thingmenu.add_item('Place a lit flare in the barrel',self._open_thing)

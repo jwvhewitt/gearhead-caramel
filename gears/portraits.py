@@ -44,6 +44,12 @@ class Portrait(object):
             form_tags.append(pt.name)
         if pc.job:
             form_tags += [tag.name for tag in pc.job.tags]
+        if pc.combatant:
+            form_tags.append("Combatant")
+        else:
+            form_tags.append("Noncombatant")
+        if pc.faction:
+            form_tags.append(pc.faction.get_faction_tag().name)
         while frontier:
             nu_part = self.get_bit_of_type(frontier.pop(), form_tags)
             if nu_part:

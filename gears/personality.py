@@ -39,7 +39,24 @@ class Fellowship(Singleton):
 VIRTUES = (Glory,Peace,Justice,Duty,Fellowship)
 
 
-# Job tags
-class Military(Singleton):
-    name = "Military"
+# Origin Tags- Use one of these to mark the home/culture of a character.
 
+class GreenZone(Singleton):
+    name = "Green Zone"
+
+class DeadZone(Singleton):
+    name = "Dead Zone"
+
+class L5Spinners(Singleton):
+    name = "L5 Spinners"
+
+class L5DustyRing(Singleton):
+    name = "L5 Dusty Ring"
+
+class Luna(Singleton):
+    name = "Luna"
+
+class Mars(Singleton):
+    name = "Mars"
+
+ORIGINS = (GreenZone,DeadZone,L5Spinners,L5DustyRing,Luna,Mars)

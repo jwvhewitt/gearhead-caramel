@@ -124,11 +124,10 @@ class BasicDeadZoneHighwayTown( Plot ):
     def custom_init( self, nart ):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team",allies=(team1,))
-        myscene = gears.GearHeadScene(20,20,"DZ Village",player_team=team1,civilian_team=team2,scale=gears.scale.HumanScale)
+        myscene = gears.GearHeadScene(20,20,"DZ Village",player_team=team1,civilian_team=team2,scale=gears.scale.HumanScale,attributes=(gears.personality.DeadZone,gears.tags.Village))
         myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
 
-        npc = gears.selector.random_pilot(50)
-        npc.name = "Schmoe"
+        npc = gears.selector.random_character(50,local_tags=myscene.attributes)
         npc.place(myscene,team=team2)
 
         myscenegen = pbge.randmaps.SceneGenerator(myscene,gharchitecture.HumanScaleDeadzone())
