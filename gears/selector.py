@@ -62,14 +62,21 @@ def random_personality(preselected=()):
     return tset
 
 
-def random_pilot(rank=25, **kwargs):
+def random_pilot(rank=25, current_year=158, **kwargs):
     # Build the creation matrix, aka the dict.
+    age = random.randint(21,30)
+    if random.randint(1,4) == 1:
+        age += random.randint(1,20)
+    elif random.randint(1,4) == 2:
+        age -= random.randint(1,6)
+    if random.randint(1,20) == 17:
+        age += random.randint(1,30)
     creation_matrix = dict(statline={stats.Reflexes: 10, stats.Body: 10, stats.Speed: 10,
                                   stats.Perception: 10, stats.Knowledge: 10, stats.Craft: 10, stats.Ego: 10,
                                   stats.Charm: 10 }, portrait_gen=portraits.Portrait(),
                            combatant=True,
                         personality=random_personality(), gender=genderobj.Gender.random_gender(),
-                        birth_year=138 - random.randint(1,10) + random.randint(1,5),
+                        birth_year=current_year - age,
                            job=jobs.ALL_JOBS["Mecha Pilot"])
     if kwargs:
         creation_matrix.update(kwargs)

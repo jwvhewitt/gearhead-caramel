@@ -10,5 +10,6 @@ CHALLENGE = Offer('[CHALLENGE]',context=ContextTag([context.CHALLENGE,]))
 
 GOODBYE = Offer('[GOODBYE]',context=ContextTag([context.GOODBYE,]))
 
+CHAT = Offer('[CHAT]',context=ContextTag([context.CHAT,]))
 
 

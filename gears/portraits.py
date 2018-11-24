@@ -154,7 +154,6 @@ class PortraitLayer(object):
         mydest.top += self.y_offset
         return mydest
 
-
 class PortraitBit(object):
     def __init__(self, name="No_Name", btype="No_Type", layers=(), avatar_layers=(), children=(), anchors=(), form_tags=(),
                  requires=(), prefers=(), **kwargs):
@@ -177,7 +176,7 @@ class PortraitBit(object):
 
     def is_legal_bit(self, existing_form_tags):
         if self.requires:
-            return self.requires.intersection(existing_form_tags)
+            return self.requires.issubset(existing_form_tags)
         else:
             return True
 

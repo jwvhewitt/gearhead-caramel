@@ -1,7 +1,7 @@
 
 # Constants for dialogue contexts.
 
-HELLO,ASK_FOR_ITEM,INFO,MISSION,PROBLEM,ACCEPT,ARREST,GOODBYE,JOIN,PERSONAL,ATTACK,CHALLENGE,COMBAT_INFO,MERCY,RETREAT,WITHDRAW = range(16)
+HELLO,ASK_FOR_ITEM,INFO,MISSION,PROBLEM,ACCEPT,ARREST,GOODBYE,JOIN,PERSONAL,ATTACK,CHALLENGE,COMBAT_INFO,MERCY,RETREAT,WITHDRAW,CHAT = range(17)
 
 # HELLO = NPC says hello. Usually the first offer in a peaceful conversation.
 # ASK_FOR_ITEM: The NPC gives the PC an item, or at least replies to the request.
@@ -11,6 +11,7 @@ HELLO,ASK_FOR_ITEM,INFO,MISSION,PROBLEM,ACCEPT,ARREST,GOODBYE,JOIN,PERSONAL,ATTA
 # MISSION: 
 # ACCEPT: The NPC responds to PC accepting a mission or offer
 # ARREST: The PC will attempt to arrest the NPC
+# CHAT: The NPC will provide miscellaneous chatter, maybe including rumors + news.
 
 # ATTACK: The greeting from a hostile NPC.
 # CHALLENGE: The reply from a hostile NPC when challenged by PC.

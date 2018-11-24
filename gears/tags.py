@@ -49,9 +49,14 @@ class Craftsperson(Singleton):
 class Criminal(Singleton):
     name = "Criminal"
 
+class Media(Singleton):
+    name = "Media"
 
 class Military(Singleton):
     name = "Military"
+
+class Politician(Singleton):
+    name = "Politician"
 
 # Scene Tags
 class Village(Singleton):

@@ -197,7 +197,67 @@ DEFAULT_GRAMMAR = {
         personality.Glory: [ "May the best fighter win!",
             ],
     },
-    
+
+    "[CHAT]": {
+        Default: [
+            "[chat_lead_in] [News].",
+        ],
+    },
+
+    "[chat_lead_in]": {
+        Default: [
+            "They say that","They say","I've heard that","I've heard","I think that","I think","Someone told me that",
+            "A friend told me that","I believe","It's rumored that","People say that","Word around here is that",
+            "It's been rumored that","Everyone knows that","Everyone says that","I heard a rumor that",
+            "I heard someone say that","You may have heard that","It's common knowledge that","You should know that",
+            "It's been said that","I often hear that","Someone said that","In my opinion,","In my humble opinion,",
+            "My friend said that","All my friends say that","My friend told me that",
+            "You may have heard this already, but","I bet","You'd never guess it, but","I bet you didn't know that",
+            "There's been a rumour going around that","For your information,","Don't say I told you so, but",
+            "To be completely honest with you,","Word is that"
+        ],
+    },
+
+    "[CHAT:CHAT]": {
+        Default: ["Anything else?", "You don't say."
+                  ],
+    },
+
+    "[CHAT:GOODBYE]": {
+        Default: ["[GOODBYE]",
+                  ],
+        personality.Cheerful: ["Thanks for letting me know. Goodbye.",
+                               ],
+        personality.Grim: ["This conversation has become tiresome.",
+                           ],
+        personality.Easygoing: ["I think we've chatted enough for now.",
+                                ],
+        personality.Passionate: ["Time to go, I have things to do.",
+                                 ],
+        personality.Sociable: ["Interesting. Well, I must be off.",
+                               ],
+        personality.Shy: ["That's all the chatter I can take today.",
+                          ],
+    },
+
+    "[CHAT:INFO]": {
+        # The data block should include "subject"
+        Default: ["Tell me more about {subject}.",
+                  ],
+        personality.Cheerful: ["I'd like to hear more about {subject}.",
+                               ],
+        personality.Grim: ["Do you know more about {subject}?",
+                           ],
+        personality.Easygoing: ["Wait, what's this about {subject}?",
+                                ],
+        personality.Passionate: ["I must know about {subject}.",
+                                 ],
+        personality.Sociable: ["What more can you tell me about {subject}?",
+                               ],
+        personality.Shy: ["Tell me about {subject}.",
+                          ],
+    },
+
     "[defeating_you]": {
         Default: ["defeating you","beating you"
             ],
@@ -318,6 +378,23 @@ DEFAULT_GRAMMAR = {
             "I'm looking for a {item}. Seen one?"
             ],
         },
+
+    "[HELLO:CHAT]": {
+        Default: ["What's up?", "What's been happening lately?"
+                  ],
+        personality.Cheerful: ["Hear any good news lately?",
+                               ],
+        personality.Grim: ["Got any bad news to share?",
+                           ],
+        personality.Sociable: ["Hi, [audience]. What's new?","Just stopping by to chat.",
+                               ],
+        personality.Shy: ["I'm looking for information.",
+                          ],
+        personality.Easygoing: ["Hear anything interesting lately?",
+                                ],
+        personality.Passionate: ["Hey [audience] , what's the latest news?",
+                                 ],
+    },
 
     "[HELLO:GOODBYE]": {
         Default: ["Well, I must be off.","See you later.",
@@ -567,6 +644,12 @@ DEFAULT_GRAMMAR = {
         Default: ["Well, I've heard enough about that.",
             ],
         },
+
+    "[News]": {
+        Default: [
+            "not much is going on",
+        ],
+    },
 
     "[threat]": {
         Default: ["rend you limb from limb",

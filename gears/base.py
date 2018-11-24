@@ -2658,7 +2658,7 @@ class Character(Being):
         self.birth_year = birth_year
         self.reaction_mod = reaction_mod
         self.faction = faction
-        self.faction_scores = dict()
+        self.faction_scores = collections.defaultdict(int)
         self.renown = renown
         super(Character, self).__init__(**keywords)
 

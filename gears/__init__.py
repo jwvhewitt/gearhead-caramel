@@ -51,6 +51,7 @@ harvest(attackattributes, pbge.Singleton, SINGLETON_TYPES, ())
 harvest(factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,factions.Faction))
 harvest(tags, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(programs, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
+harvest(personality, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 
 
 def harvest_color(dict_to_add_to):

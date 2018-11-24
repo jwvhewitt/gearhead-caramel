@@ -376,6 +376,7 @@ class Explorer( object ):
         # Do a start trigger, unless we're in combat.
         if not self.camp.fight:
             self.camp.check_trigger( "START" )
+            self.camp.check_trigger( "ENTER", self.scene )
 
 
         while self.keep_exploring():

@@ -154,6 +154,23 @@
       "CloseCombat": -1,
       "RangedCombat": -1
     }
+  },
+  {
+    "name": "Pundit",
+    "skills": ["Negotiation"],
+    "tags": ["Media","Politician"]
+  },
+  {
+    "name": "Lawyer",
+    "skills": ["Negotiation"],
+    "tags": ["Politician"]
+  },
+  {
+    "name": "Aristo",
+    "skills": ["Negotiation"],
+    "tags": ["Politician"],
+    "always_combatant": true,
+    "local_requirements": ["DeadZone"]
   }
 
 

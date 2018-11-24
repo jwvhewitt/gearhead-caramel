@@ -25,9 +25,25 @@ ATTACK_WITHDRAW = Reply( "[ATTACK:WITHDRAW]" ,
             destination = Cue( ContextTag([context.WITHDRAW]) ) ,
             context = ContextTag([context.ATTACK]) )
 
+CHAT_CHAT = Reply( "[CHAT:CHAT]" ,
+            destination = Cue( ContextTag([context.CHAT]) ) ,
+            context = ContextTag([context.CHAT]) )
+
+CHAT_GOODBYE = Reply( "[CHAT:GOODBYE]" ,
+            context = ContextTag([context.CHAT]),
+            destination = Cue( ContextTag([context.GOODBYE]) ) )
+
+CHAT_INFO = Reply( "[CHAT:INFO]" ,
+            context = ContextTag([context.CHAT]),
+            destination = Cue( ContextTag([context.INFO]) ) )
+
 
 HELLO_ASKFORITEM = Reply( "[HELLO:ASK_FOR_ITEM]" ,
             destination = Cue( ContextTag([context.ASK_FOR_ITEM]) ) ,
+            context = ContextTag([context.HELLO]) )
+
+HELLO_CHAT = Reply( "[HELLO:CHAT]" ,
+            destination = Cue( ContextTag([context.CHAT]) ) ,
             context = ContextTag([context.HELLO]) )
 
 HELLO_GOODBYE = Reply( "[HELLO:GOODBYE]" ,

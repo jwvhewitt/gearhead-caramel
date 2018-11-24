@@ -58,6 +58,17 @@ class Waypoint( object ):
         else:
             self.pos = (0,0)
 
+    def remove(self, scene):
+        if self in scene.contents:
+            scene.contents.remove(self)
+            if self.TILE:
+                if self.TILE.floor:
+                    scene._map[self.pos[0]][self.pos[1]].floor = None
+                if self.TILE.wall:
+                    scene._map[self.pos[0]][self.pos[1]].wall = None
+                if self.TILE.decor:
+                    scene._map[self.pos[0]][self.pos[1]].decor = None
+
     def unlocked_use( self, camp ):
         # Perform this waypoint's special action.
         if self.desc:

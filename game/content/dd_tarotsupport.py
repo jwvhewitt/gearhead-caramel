@@ -27,12 +27,10 @@ import gharchitecture
 #
 #  Elements:
 #   PERSON: The NPC or prop who is lost. This element should be placed.
-#
+#   GOALSCENE: The scene where the NPC can be found.
 
 class LostPersonRadioTower( Plot ):
     LABEL = "DZD_LostPerson"
-    active = True
-    scope = "LOCALE"
     def custom_init( self, nart ):
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(35,35,"Radio Tower Area",player_team=team1,scale=gears.scale.MechaScale)
@@ -47,9 +45,9 @@ class LostPersonRadioTower( Plot ):
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(10,10,"Radio Tower Interior",player_team=team1,civilian_team=team2,scale= gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene,gharchitecture.DefaultBuilding())
-        self.register_scene( nart, intscene, intscenegen, ident="_interior" )
+        self.register_scene( nart, intscene, intscenegen, ident="GOALSCENE" )
 
-        introom = self.register_element('_introom',pbge.randmaps.rooms.OpenRoom(7,7,anchor=pbge.randmaps.anchors.middle,decorate=pbge.randmaps.decor.OmniDec(win=ghterrain.Window)),dident="_interior")
+        introom = self.register_element('_introom',pbge.randmaps.rooms.OpenRoom(7,7,anchor=pbge.randmaps.anchors.middle,decorate=pbge.randmaps.decor.OmniDec(win=ghterrain.Window)),dident="GOALSCENE")
         self.move_element(self.elements["PERSON"],introom)
         intscene.local_teams[self.elements["PERSON"]] = team2
         self.register_element('WAYPOINT', ghwaypoints.RetroComputer(), dident="_introom")
@@ -62,12 +60,7 @@ class LostPersonRadioTower( Plot ):
         int_con = plotutility.IntCommTowerConnection(self,myscene,intscene,room1=mygoal,room2=introom)
 
         tplot = self.add_sub_plot(nart, "DZD_MECHA_ENCOUNTER", spstate=PlotState().based_on(self,{"ROOM":mygoal}), necessary=False)
-
-        self.intro_ready = True
         return True
-    def t_START(self,camp):
-        if self.intro_ready:
-            self.intro_ready = False
 
 #  *******************************
 #  ***   DZD_MECHA_ENCOUNTER   ***
@@ -158,6 +151,22 @@ class BanditBase( Plot ):
         myexit = self.elements["_exit"]
         myexit.unlocked_use(camp)
 
+#  ***************************
+#  ***   DZD_RevealBadge   ***
+#  ***************************
+
+class RB_CatchTheRaiders( Plot ):
+    LABEL = "DZD_RevealBadge"
+    active = True
+    scope = True
+    def custom_init( self, nart ):
+        # Add an NPC to the town that needs a sheriff. This NPC will offer the mission.
+
+        # Generate a criminal enterprise of some kind.
+        #cplot = self.add_sub_plot(nart, "DZD_CriminalEnterprise")
+
+        return True
+
 
 #  **************************
 #  ***   DZD_RevealClue   ***
@@ -182,6 +191,8 @@ class SubcontractedCrime( Plot ):
     def PUZZLEITEM_BUMP(self,camp):
         # Encountering the corpse will reveal the murder.
         camp.check_trigger("WIN",self)
+    def PUZZLEITEM_menu(self,camp,thingmenu):
+        thingmenu.desc = "{} It seems to contain records belonging to {}.".format(thingmenu.desc,self.elements.get("PERSON"))
 
 
 #  ****************************
@@ -201,9 +212,16 @@ class HideAndSeekWithACorpse( Plot ):
         mycorpse = self.register_element('PERSON', ghwaypoints.Victim(plot_locked=True, name=mynpc.name))
         self.register_element('_the_deceased',mynpc)
         tplot = self.add_sub_plot(nart, "DZD_LostPerson")
+        self.elements["GOALSCENE"] = tplot.elements.get("GOALSCENE")
+        self.intro_ready = True
         return True
     def PERSON_BUMP(self,camp):
         # Encountering the corpse will reveal the murder.
         camp.check_trigger("WIN",self)
+        self.elements["PERSON"].remove(self.elements["GOALSCENE"])
     def PERSON_menu(self,camp,thingmenu):
-        pass
+        thingmenu.desc = "You find the body of {}, obviously murdered.".format(self.elements["_the_deceased"])
+    def GOALSCENE_ENTER(self,camp):
+        if self.intro_ready:
+            #pbge.alert("You found the goalscene.")
+            self.intro_ready = False

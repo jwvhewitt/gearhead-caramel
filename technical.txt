@@ -1,0 +1,16 @@
+List of Triggers
+
+Non-Element Triggers:
+"START"         When the PC enters a new scene
+"STARTCOMBAT"   When combat begins
+"ENDCOMBAT"     When combat ends
+"UPDATE"        When the status of any plot changes
+
+With-Element Triggers:
+"ACTIVATE"      When a combatant is activated
+"ACTIVATETEAM"  When a team is activated in combat
+"BUMP"          When a bumpable is bumped
+"ENTER"         When a scene entered or reloaded from disk
+"ENTER"         When a scene.script_room rect is entered by a party member
+"WIN"           When a subplot is won
+

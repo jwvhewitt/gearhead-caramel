@@ -40,6 +40,7 @@ pbge.dialogue.GRAMMAR_BUILDER = build_grammar
 pbge.dialogue.STANDARD_REPLIES = harvest(ghreplies,pbge.dialogue.Reply)
 pbge.dialogue.STANDARD_OFFERS = harvest(ghoffers,pbge.dialogue.Offer)
 pbge.dialogue.GENERIC_OFFERS.append(ghoffers.GOODBYE)
+pbge.dialogue.GENERIC_OFFERS.append(ghoffers.CHAT)
 
 HELLO_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.HELLO,)))
 ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))

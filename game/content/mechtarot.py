@@ -87,7 +87,7 @@ class NameChecker(object):
 
 
 class Interaction(object):
-    def __init__(self, card_checker, action_triggers=(), effect_fun=None, results=(None, None, None),
+    def __init__(self, card_checker=None, action_triggers=(), effect_fun=None, results=(None, None, None),
                  passparams=(((), ()), ((), ()), ((), ()))):
         # The card_checker is an object that can determine if a given card or the current game state will trigger this interaction
         # The action_triggers are dialogue options and prop actions that are activated when the card_checker says this interaction is active
@@ -103,7 +103,8 @@ class Interaction(object):
         self.passparams = passparams
 
     def maybe_activated_by(self, card_to_check):
-        return self.card_checker.check(card_to_check)
+        if self.card_checker:
+            return self.card_checker.check(card_to_check)
 
     def get_interaction_dialogue_offers(self, npc, camp, alpha_card):
         ofrz = list()

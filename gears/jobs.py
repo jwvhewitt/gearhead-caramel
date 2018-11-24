@@ -15,13 +15,13 @@ class Job(object):
             if sk in SINGLETON_TYPES:
                 self.skills.add(SINGLETON_TYPES[sk])
             else:
-                print "Unidentified symbol: {}".format(sk)
+                print "Unidentified symbol: {} in {}".format(sk,self.name)
         self.tags = set()
         for t in tags:
             if t in SINGLETON_TYPES:
                 self.tags.add(SINGLETON_TYPES[t])
             else:
-                print "Unidentified symbol: {}".format(sk)
+                print "Unidentified symbol: {} in {}".format(t,self.name)
         self.always_combatant = always_combatant
         self.skill_modifiers = dict()
         if skill_modifiers:
@@ -32,7 +32,7 @@ class Job(object):
             if t in SINGLETON_TYPES:
                 self.local_requirements.add(SINGLETON_TYPES[t])
             else:
-                print "Unidentified symbol: {}".format(sk)
+                print "Unidentified symbol: {} in {}".format(t,self.name)
         ALL_JOBS[name] = self
 
     def scale_skills(self,pc,rank):
