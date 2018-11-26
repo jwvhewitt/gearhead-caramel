@@ -136,6 +136,8 @@ class BasicDeadZoneHighwayTown( Plot ):
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
+        myscene.contents.append(ghterrain.ScrapIronBuilding())
+
         wm_con = plotutility.WMDZTownConnection(self,self.elements["WORLD"],myscene)
         wm_con.room1.tags = (ON_THE_ROAD,)
 

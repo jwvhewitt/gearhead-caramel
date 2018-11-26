@@ -147,3 +147,14 @@ class MetalDoorOpen(pbge.scenes.terrain.DoorTerrain):
     frame = 2
     blocks = ()
 
+class ScrapIronBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_bottom = 'terrain_building_scrapiron_b.png'
+    image_top = 'terrain_building_scrapiron.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
+    TERRAIN_TYPE = ScrapIronBuildingTerrain
+    WAYPOINT_POS = {
+        "DOOR": (3,8), "DRIFT": (3,9)
+    }
+

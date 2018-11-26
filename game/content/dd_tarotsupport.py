@@ -151,6 +151,26 @@ class BanditBase( Plot ):
         myexit = self.elements["_exit"]
         myexit.unlocked_use(camp)
 
+#  *****************************
+#  ***   DZD_LocalBusiness   ***
+#  *****************************
+#
+# A local business venture that has limited relevance for the player character.
+
+class LB_MoistureFarm(Plot):
+    LABEL = "DZD_LocalBusiness"
+    active = True
+    scope = True
+    def custom_init( self, nart ):
+
+
+        # Generate a criminal enterprise of some kind.
+        #cplot = self.add_sub_plot(nart, "DZD_CriminalEnterprise")
+
+        return True
+
+
+
 #  ***************************
 #  ***   DZD_RevealBadge   ***
 #  ***************************
@@ -161,6 +181,7 @@ class RB_CatchTheRaiders( Plot ):
     scope = True
     def custom_init( self, nart ):
         # Add an NPC to the town that needs a sheriff. This NPC will offer the mission.
+        npcplot = self.add_sub_plot(nart, "DZD_LocalBusiness")
 
         # Generate a criminal enterprise of some kind.
         #cplot = self.add_sub_plot(nart, "DZD_CriminalEnterprise")
