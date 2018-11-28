@@ -2,6 +2,7 @@ from rooms import Room
 from .. import container,scenes
 import inspect
 import random
+import itertools
 
 class TerrSet( Room ):
     # A Terrainset is a handler for TerrSetTerrain terrain.
@@ -15,9 +16,10 @@ class TerrSet( Room ):
         (None,None,None),
     )
     WAYPOINT_POS = dict()
-    def __init__(self,tags=(), anchor=None, parent=None, archi=None, waypoints=dict()):
-        self.width = max([len(a) for a in self.TERRAIN_MAP]) + 2
-        self.height = len(self.TERRAIN_MAP) + 2
+    def __init__(self,tags=(), anchor=None, parent=None, archi=None, waypoints=dict(),border=1):
+        self.border = border
+        self.width = max([len(a) for a in self.TERRAIN_MAP]) + 2*border
+        self.height = len(self.TERRAIN_MAP) + 2*border
         self.tags = tags
         self.anchor = anchor
         self.archi = archi
@@ -31,8 +33,8 @@ class TerrSet( Room ):
     def build( self, scene, archi):
         # x0,y0 is the NorthWest corner of the terrain.
         #x0,y0 = self.area.topleft
-        x0 = self.area.x + 1
-        y0 = self.area.y + 1
+        x0 = self.area.x + self.border
+        y0 = self.area.y + self.border
         y = y0
         for row in self.TERRAIN_MAP:
             x = x0
@@ -67,11 +69,13 @@ class BuildingSet( TerrSet ):
     GF3_TILE = (17,22)
     GF4_TILE = (18,23)
     GF5_TILE = (19,24)
-    def __init__(self,tags=(), dimx=0,dimy=0,dimz=0,anchor=None, parent=None, archi=None, waypoints=dict()):
+    DEFAULT_DECOR_OPTIONS = ()
+    def __init__(self, tags=(), dimx=0, dimy=0, dimz=0, anchor=None, parent=None, archi=None, waypoints=dict(), border=1, decor_options=()):
         self.TERRAIN_MAP = list()
-        dimx = dimx or random.randint(5,8)
-        dimy = dimy or random.randint(5,8)
-        dimz = dimz or random.randint(2,5)
+        dimx = max(dimx or random.randint(4,7),3)
+        dimy = max(dimy or random.randint(4,7),3)
+        dimz = max(dimz or min(random.randint(2,5),random.randint(2,5)),2)
+        self.dimz = dimz
         for mapy in range(dimy + dimz - 1):
             myrow = list()
             if mapy == 0:
@@ -97,9 +101,127 @@ class BuildingSet( TerrSet ):
                 myrow.append(random.choice(self.GF3_TILE))
             # Start on the East Face of the building, as appropriate.
             if mapy > 0 and mapy < dimz:
-                myrow += [random.choice(self.GF4_TILE) for x in range(min(max(mapy-1,0),dimz-1))]
+                myrow += [random.choice(self.GF4_TILE) for x in range(min(max(mapy-1,0),dimz-1,dimy-2))]
                 myrow += [random.choice(self.GF5_TILE)]
             elif mapy >= dimz:
                 myrow += [random.choice(self.GF4_TILE) for x in range(min(max(dimy + dimz - mapy - 2, 0), dimz - 1))]
             self.TERRAIN_MAP.append(myrow)
-        super(BuildingSet,self).__init__(tags,anchor,parent,archi,waypoints)
+
+        # Create the set of all terrain points.
+        self.decor_tiles = set()
+        for y,row in enumerate(self.TERRAIN_MAP):
+            for x,value in enumerate(row):
+                if value:
+                    self.decor_tiles.add((x,y))
+
+        # Create the WAYPOINT_POS dictionary. Add a spot for a door and a spot for some other reachable ground tile.
+        self.WAYPOINT_POS = dict()
+        if random.randint(1,2) == 1:
+            self.WAYPOINT_POS["DOOR"] = (random.randint(1,dimx-2)+dimz-1,dimy-2+dimz)
+            self.WAYPOINT_POS["OTHER"] = (dimx - 2 + dimz, random.randint(1,dimy-2)+dimz-1)
+        else:
+            self.WAYPOINT_POS["DOOR"] = (dimx - 2 + dimz, random.randint(1,dimy-2)+dimz-1)
+            self.WAYPOINT_POS["OTHER"] = (random.randint(1, dimx - 2) + dimz - 1, dimy - 2 + dimz)
+        self.decor_tiles.remove(self.WAYPOINT_POS["DOOR"])
+        self.decor_tiles.remove(self.WAYPOINT_POS["OTHER"])
+
+        super(BuildingSet,self).__init__(tags,anchor,parent,archi,waypoints,border)
+
+        # Add the decor.
+        decor_options = decor_options or self.DEFAULT_DECOR_OPTIONS
+        if decor_options:
+            for t in range(random.randint(5,10)):
+                mydecor = random.choice(decor_options)
+                self.install_decor(mydecor)
+
+
+    def install_decor(self,decortype):
+        possible_points = [p for p in self.decor_tiles if decortype.is_legal_point(self,p)]
+        if possible_points:
+            decortype.apply(self,random.choice(possible_points))
+
+    def is_wall_section(self,x,y):
+        try:
+            return self.TERRAIN_MAP[y][x] in self.GF2_TILE + self.GF4_TILE
+        except IndexError:
+            return False
+    def is_ground_level(self,x,y):
+        return (y == len(self.TERRAIN_MAP)-1) or ((y < len(self.TERRAIN_MAP)-1) and (y >= self.dimz - 1 ) and (x == len(self.TERRAIN_MAP[y])-1))
+
+class WallDecor(object):
+    def __init__(self,south_terrain=(),east_terrain=()):
+        self.south_terrain = south_terrain
+        self.east_terrain = east_terrain
+    def is_legal_point(self,terrset,p):
+        x,y= p
+        return terrset.is_wall_section(x,y)
+    def apply(self,terrset,p):
+        id = "{}_{}_{}".format(hash(self),hash(terrset),len(terrset.WAYPOINT_POS))
+        x,y = p
+        if terrset.TERRAIN_MAP[y][x] in terrset.GF2_TILE:
+            terrset.waypoints[id] = random.choice(self.south_terrain)
+        else:
+            terrset.waypoints[id] = random.choice(self.east_terrain)
+        terrset.WAYPOINT_POS[id] = p
+        terrset.decor_tiles.remove(p)
+
+class RoofDecor(object):
+    def __init__(self,terrain_list=()):
+        self.terrain_list = terrain_list
+    def is_legal_point(self,terrset,p):
+        x,y= p
+        return terrset.TERRAIN_MAP[y][x] in terrset.MMT_TILE
+    def apply(self,terrset,p):
+        id = "{}_{}_{}".format(hash(self),hash(terrset),len(terrset.WAYPOINT_POS))
+        terrset.waypoints[id] = random.choice(self.terrain_list)
+        terrset.WAYPOINT_POS[id] = p
+        terrset.decor_tiles.remove(p)
+
+class WallHanger(object):
+    def __init__(self,south_top,south_mid,south_bottom,east_top,east_mid,east_bottom):
+        self.south_top = south_top
+        self.south_mid = south_mid
+        self.south_bottom = south_bottom
+        self.east_top = east_top
+        self.east_mid = east_mid
+        self.east_bottom = east_bottom
+
+    def get_terrain_points(self,terrset,x,y):
+        mylist = [(x,y)]
+        while (y < len(terrset.TERRAIN_MAP)) and not terrset.is_ground_level(x,y):
+            x += 1
+            y += 1
+            mylist.append((x,y))
+        return mylist
+
+    def is_legal_point(self,terrset,p):
+        x,y= p
+        if terrset.is_wall_section(x,y):
+            all_ok = True
+            for p in self.get_terrain_points(terrset,x,y):
+                if p not in terrset.decor_tiles:
+                    all_ok = False
+                    break
+            return all_ok
+
+    def apply(self,terrset,op):
+        x,y = op
+        for p in self.get_terrain_points(terrset, x, y):
+            id = "{}_{}_{}_{}".format(hash(self),hash(terrset),len(terrset.WAYPOINT_POS),p)
+            if terrset.TERRAIN_MAP[y][x] in terrset.GF2_TILE:
+                if p == op:
+                    terrset.waypoints[id] = self.south_top
+                elif terrset.is_ground_level(*p):
+                    terrset.waypoints[id] = self.south_bottom
+                else:
+                    terrset.waypoints[id] = self.south_mid
+            else:
+                if p == op:
+                    terrset.waypoints[id] = self.east_top
+                elif terrset.is_ground_level(*p):
+                    terrset.waypoints[id] = self.east_bottom
+                else:
+                    terrset.waypoints[id] = self.east_mid
+            terrset.WAYPOINT_POS[id] = p
+            terrset.decor_tiles.remove(p)
+

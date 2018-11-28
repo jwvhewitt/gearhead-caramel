@@ -124,7 +124,7 @@ class BasicDeadZoneHighwayTown( Plot ):
     def custom_init( self, nart ):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team",allies=(team1,))
-        myscene = gears.GearHeadScene(20,20,"DZ Village",player_team=team1,civilian_team=team2,
+        myscene = gears.GearHeadScene(50,50,"DZ Village",player_team=team1,civilian_team=team2,
                                       scale=gears.scale.HumanScale,
                                       attributes=(gears.personality.DeadZone,gears.tags.Village))
         myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
@@ -136,7 +136,7 @@ class BasicDeadZoneHighwayTown( Plot ):
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
-        myscene.contents.append(ghterrain.ScrapIronBuilding())
+        myscene.contents.append(ghterrain.ScrapIronBuilding(waypoints={"DOOR":ghwaypoints.ScrapIronDoor(),"OTHER":ghwaypoints.RetroComputer()}))
 
         wm_con = plotutility.WMDZTownConnection(self,self.elements["WORLD"],myscene)
         wm_con.room1.tags = (ON_THE_ROAD,)

@@ -152,9 +152,56 @@ class ScrapIronBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_top = 'terrain_building_scrapiron.png'
     blocks = (Walking,Skimming,Rolling,Flying)
 
+class ScrapIronDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_scrapirondoor.png'
+
+class JunkWindowSouth(pbge.scenes.terrain.VariableTerrain):
+    frames = (5,6,7)
+    image_top = 'terrain_decor_junkwindows.png'
+
+class JunkWindowEast(pbge.scenes.terrain.VariableTerrain):
+    frames = (0,1,2)
+    image_top = 'terrain_decor_junkwindows.png'
+
+class SteelPipeEastTop(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_pipes.png'
+
+class SteelPipeEastMid(pbge.scenes.terrain.Terrain):
+    frame = 2
+    image_top = 'terrain_decor_pipes.png'
+
+class SteelPipeSouthTop(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_pipes.png'
+
+class SteelPipeSouthMid(pbge.scenes.terrain.Terrain):
+    frame = 3
+    image_top = 'terrain_decor_pipes.png'
+
+class RoofStuff(pbge.scenes.terrain.VariableTerrain):
+    frames = (0,1,2,3,4,5,6,7)
+    image_top = 'terrain_decor_roofstuff.png'
+
+class VentFanEast(pbge.scenes.terrain.AnimTerrain):
+    frames = (0,1,2)
+    image_top = 'terrain_decor_ventfan.png'
+    anim_delay = 2
+
+class VentFanSouth(pbge.scenes.terrain.AnimTerrain):
+    frames = (3,4,5)
+    image_top = 'terrain_decor_ventfan.png'
+    anim_delay = 2
+
+
 class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = ScrapIronBuildingTerrain
     WAYPOINT_POS = {
         "DOOR": (3,8), "DRIFT": (3,9)
     }
+    DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((JunkWindowSouth,), (JunkWindowEast,)),
+                             pbge.randmaps.terrset.WallHanger(SteelPipeSouthTop,SteelPipeSouthMid,SteelPipeSouthMid,SteelPipeEastTop,SteelPipeEastMid,SteelPipeEastMid),
+                             pbge.randmaps.terrset.RoofDecor((RoofStuff,)),
+                             pbge.randmaps.terrset.WallDecor((VentFanSouth,), (VentFanEast,)),
+                             )
 
