@@ -6,21 +6,24 @@ import ghdview
 import ghreplies
 import ghoffers
 
-
-def build_grammar( mygram, camp, speaker, audience ):
-    speaker = speaker.get_pilot()
-    if audience:
-        audience = audience.get_pilot()
-    for pat,gramdic in ghgrammar.DEFAULT_GRAMMAR.iteritems():
+def trait_absorb(mygram,nugram,traits):
+    for pat,gramdic in nugram.iteritems():
         for k,v in gramdic.iteritems():
             if k is ghgrammar.Default:
                 if pat not in mygram:
                     mygram[pat] = list()
                 mygram[pat] += v
-            elif k in speaker.personality:
+            elif k in traits:
                 if pat not in mygram:
                     mygram[pat] = list()
                 mygram[pat] += v
+
+
+def build_grammar( mygram, camp, speaker, audience ):
+    speaker = speaker.get_pilot()
+    if audience:
+        audience = audience.get_pilot()
+    trait_absorb(mygram,ghgrammar.DEFAULT_GRAMMAR,speaker.get_tags())
     for p in camp.active_plots():
         pgram = p.get_dialogue_grammar( speaker, camp )
         if pgram:

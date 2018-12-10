@@ -6,11 +6,12 @@ class InfoPanel( object ):
     # An InfoPanel contains a bunch of InfoBlocks which get arranged vertically.
     # Each InfoBlock needs a width, height, and render(x,y)
     DEFAULT_BLOCKS = list()
-    def __init__(self,padding=3,**kwargs):
+    def __init__(self,padding=3,draw_border=True,**kwargs):
         self.padding = padding
         self.info_blocks = list()
         for b in self.DEFAULT_BLOCKS:
             self.info_blocks.append(b(**kwargs))
+        self.draw_border = draw_border
 
     def get_dimensions( self ):
         width = 0
@@ -22,7 +23,8 @@ class InfoPanel( object ):
 
     def render( self, x, y ):
         w,h = self.get_dimensions()
-        pbge.default_border.render(pygame.Rect(x,y,w,h))
+        if self.draw_border:
+            pbge.default_border.render(pygame.Rect(x,y,w,h))
         for block in self.info_blocks:
             block.render(x,y)
             y += block.height + self.padding

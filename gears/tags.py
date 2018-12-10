@@ -55,6 +55,9 @@ class Media(Singleton):
 class Military(Singleton):
     name = "Military"
 
+class Police(Singleton):
+    name = "Police"
+
 class Politician(Singleton):
     name = "Politician"
 

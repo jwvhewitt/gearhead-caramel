@@ -156,13 +156,25 @@ class BanditBase( Plot ):
 #  *****************************
 #
 # A local business venture that has limited relevance for the player character.
+# LOCALE = The location of the business.
 
-class LB_MoistureFarm(Plot):
+class LB_Cheesery(Plot):
     LABEL = "DZD_LocalBusiness"
     active = True
     scope = True
     def custom_init( self, nart ):
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR",ghterrain.ScrapIronBuilding(waypoints={"DOOR":ghwaypoints.ScrapIronDoor()}),dident="TOWN")
 
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35,35,"Cheesery",player_team=team1,civilian_team=team2,scale= gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene,gharchitecture.MakeScrapIronBuilding())
+        self.register_scene( nart, intscene, intscenegen, ident="LOCALE" )
+        foyer = self.register_element('_introom',pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,decorate=gharchitecture.CheeseShopDecor()),dident="LOCALE")
+
+        mycon2 = plotutility.TownBuildingConnection(self,self.elements["TOWN"],intscene,room1=building,room2=foyer,door1=building.waypoints["DOOR"],move_door1=False)
 
         # Generate a criminal enterprise of some kind.
         #cplot = self.add_sub_plot(nart, "DZD_CriminalEnterprise")

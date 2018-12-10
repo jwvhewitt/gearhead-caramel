@@ -86,6 +86,10 @@ class FortressWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_fortress.png'
     blocks = (Walking,Skimming,Rolling,Vision)
 
+class ScrapIronWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_rusty.png'
+    blocks = (Walking,Skimming,Rolling,Vision)
+
 class DefaultWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_default.png'
     blocks = (Walking,Skimming,Rolling,Vision,Flying)
@@ -125,6 +129,13 @@ class Window(pbge.scenes.terrain.OnTheWallTerrain):
 
 class RetroComputerTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_computer.png'
+
+class WoodenShelves(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    image_top = 'terrain_decor_woodenshelves.png'
+    south_frames = (1,3,5,7,9)
+    east_frames = (0,2,4,6,8)
+
+
 
 class DZDWConcreteBuilding(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'

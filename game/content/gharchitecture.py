@@ -1,7 +1,11 @@
 import ghterrain
 from pbge.randmaps.architect import Architecture
+from pbge.randmaps.decor import OmniDec
 import pbge
 import ghwaypoints
+
+class CheeseShopDecor(OmniDec):
+    WALL_DECOR = (ghterrain.WoodenShelves,)
 
 class WorldScaleDeadzone(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
@@ -22,6 +26,12 @@ class HumanScaleDeadzone(Architecture):
 
 class DefaultBuilding(Architecture):
     DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+class MakeScrapIronBuilding(Architecture):
+    DEFAULT_WALL_TERRAIN = ghterrain.ScrapIronWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor

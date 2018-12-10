@@ -7,6 +7,7 @@ import configedit
 import invoker
 import cosplay
 import gears
+import chargen
 
 
 

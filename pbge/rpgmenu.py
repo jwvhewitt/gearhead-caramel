@@ -66,8 +66,8 @@ class Menu( Frect ):
         item = MenuItem( msg , value , desc )
         self.items.append( item )
 
-    def add_descbox(self,x,y,w=30,h=10,justify=-1):
-        self.descobj = DescBox( self, x , y , w , h, self.border, justify )
+    def add_descbox(self,x,y,w=30,h=10,justify=-1,font=None):
+        self.descobj = DescBox( self, x , y , w , h, border=self.border, justify=justify, font=font or self.font )
 
     def render(self,do_extras=True):
         mydest = self.get_rect()

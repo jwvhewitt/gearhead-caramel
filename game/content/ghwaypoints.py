@@ -58,7 +58,7 @@ class RetroComputer(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.RetroComputerTerrain)
     desc = "An obsolete but still functioning computer terminal."
 
-class ScrapIronDoor(Waypoint):
+class ScrapIronDoor(Exit):
     name = 'Door'
     ATTACH_TO_WALL = True
     TILE = pbge.scenes.Tile(None,None,ghterrain.ScrapIronDoorTerrain)

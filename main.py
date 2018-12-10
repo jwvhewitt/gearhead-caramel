@@ -96,7 +96,9 @@ def open_config_menu(tsrd):
 
 def open_cosplay_menu(tsrd):
     game.cosplay.ColorEditor.explo_invoke(tsrd)
-    print "Done."
+
+def open_chargen_menu(tsrd):
+    game.chargen.CharacterGenerator.create_and_invoke(tsrd)
 
 def play_the_game():
     try:
@@ -126,6 +128,7 @@ def play_the_game():
     mymenu.add_item("Import GH1 Character",import_arena_character)
     mymenu.add_item("Config Options",open_config_menu)
     mymenu.add_item("Cosplay Color Menu",open_cosplay_menu)
+    mymenu.add_item("Create Character",open_chargen_menu)
     mymenu.add_item("Quit",None)
 
     action = True

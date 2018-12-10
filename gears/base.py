@@ -2645,9 +2645,9 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
 
 class Character(Being):
-    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction')
+    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction', 'badges', 'bio')
 
-    def __init__(self, personality=(), gender=None, job=None, birth_year=138, reaction_mod=0, faction=None, renown=0, **keywords):
+    def __init__(self, personality=(), gender=None, job=None, birth_year=138, reaction_mod=0, faction=None, renown=0, badges=(), bio="", **keywords):
         self.personality = set(personality)
         if not gender:
             gender = genderobj.Gender.random_gender()
@@ -2660,6 +2660,8 @@ class Character(Being):
         self.faction = faction
         self.faction_scores = collections.defaultdict(int)
         self.renown = renown
+        self.badges = list(badges)
+        self.bio = bio
         super(Character, self).__init__(**keywords)
 
     def get_tacit_faction(self,camp):
@@ -2672,6 +2674,15 @@ class Character(Being):
             if team:
                 faction = team.faction
         return faction
+
+    def get_tags(self):
+        # Return all of the character's personality, job, and faction tags.
+        mytags = list(self.personality)
+        if self.job:
+            mytags += list(self.job.tags)
+        if self.faction:
+            mytags.append(self.faction.get_faction_tag())
+        return mytags
 
     def get_reaction_score(self,pc,camp):
         rs = self.reaction_mod
@@ -2695,6 +2706,11 @@ class Character(Being):
             pc_fac = pc.get_tacit_faction(camp)
             if pc_fac and (fac.is_enemy(pc_fac) or pc_fac.is_enemy(fac)):
                 rs -= 20
+
+        # Add bonuses from PC's merit badges
+        for badge in pc.badges:
+            rs += badge.get_reaction_modifier(pc,self,camp)
+
         # Add Charm bonus.
         pc_charm = pc.get_stat(stats.Charm)
         npc_ego = self.get_stat(stats.Ego)
