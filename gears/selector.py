@@ -61,9 +61,7 @@ def random_personality(preselected=()):
         tset.add(random.choice(personality.VIRTUES))
     return tset
 
-
-def random_pilot(rank=25, current_year=158, **kwargs):
-    # Build the creation matrix, aka the dict.
+def random_age():
     age = random.randint(21,30)
     if random.randint(1,4) == 1:
         age += random.randint(1,20)
@@ -71,12 +69,14 @@ def random_pilot(rank=25, current_year=158, **kwargs):
         age -= random.randint(1,6)
     if random.randint(1,20) == 17:
         age += random.randint(1,30)
-    creation_matrix = dict(statline={stats.Reflexes: 10, stats.Body: 10, stats.Speed: 10,
-                                  stats.Perception: 10, stats.Knowledge: 10, stats.Craft: 10, stats.Ego: 10,
-                                  stats.Charm: 10 }, portrait_gen=portraits.Portrait(),
+    return age
+
+def random_pilot(rank=25, current_year=158, **kwargs):
+    # Build the creation matrix, aka the dict.
+    creation_matrix = dict(statline=base.Being.random_stats(points=max(rank+50,80)),portrait_gen=portraits.Portrait(),
                            combatant=True,
                         personality=random_personality(), gender=genderobj.Gender.random_gender(),
-                        birth_year=current_year - age,
+                        birth_year=current_year - random_age(),
                            job=jobs.ALL_JOBS["Mecha Pilot"])
     if kwargs:
         creation_matrix.update(kwargs)
@@ -87,15 +87,13 @@ def random_pilot(rank=25, current_year=158, **kwargs):
     creation_matrix["job"].scale_skills(pc,rank)
     return pc
 
-def random_character(rank=25, needed_tags=(), local_tags=(), **kwargs):
+def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, **kwargs):
     # Build the creation matrix, aka the dict.
     possible_origins = [o for o in local_tags if o in personality.ORIGINS]
     job = jobs.choose_random_job(needed_tags,local_tags)
-    creation_matrix = dict(statline={stats.Reflexes: 10, stats.Body: 10, stats.Speed: 10,
-                                     stats.Perception: 10, stats.Knowledge: 10, stats.Craft: 10, stats.Ego: 10,
-                                     stats.Charm: 10}, portrait_gen=portraits.Portrait(), job=job,
+    creation_matrix = dict(statline=base.Being.random_stats(points=max(rank+50,80)), portrait_gen=portraits.Portrait(), job=job,
                            personality=random_personality(possible_origins), gender=genderobj.Gender.random_gender(),
-                           birth_year=138 - random.randint(1, 10) + random.randint(1, 5))
+                           birth_year=current_year - random_age())
     if kwargs:
         creation_matrix.update(kwargs)
     pc = base.Character(**creation_matrix

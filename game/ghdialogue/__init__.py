@@ -5,6 +5,7 @@ import context
 import ghdview
 import ghreplies
 import ghoffers
+import gears
 
 def trait_absorb(mygram,nugram,traits):
     for pat,gramdic in nugram.iteritems():
@@ -49,6 +50,9 @@ HELLO_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.HELLO,)))
 ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 
 def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
+    # If this NPC has no relationship with the PC, create that now.
+    if not npc.relationship:
+        npc.relationship = gears.relationships.Relationship()
     cviz = ghdview.ConvoVisualizer(npc,camp,pc=pc)
     cviz.rollout()
     convo = pbge.dialogue.DynaConversation(camp,npc.get_pilot(),pc,cue,visualizer=cviz)

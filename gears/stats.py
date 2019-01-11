@@ -248,6 +248,7 @@ class Concentration( Skill ):
 
 
 COMBATANT_SKILLS = (MechaFighting,MechaGunnery,MechaPiloting,RangedCombat,CloseCombat,Dodge,Vitality,Athletics,Concentration)
+NONCOMBAT_SKILLS = (Repair,Medicine,Biotechnology,Stealth,Science,Computers,Performance,Negotiation,Scouting,DominateAnimal)
 
 
 

@@ -465,7 +465,8 @@
     "layers": [
       {"name":"Ear","fname":"por_ear_a.png","anchor":"ear","depth":7000}
     ],
-    "prefers": ["Common"]
+    "prefers": ["Common"],
+    "rejects": ["Feline Mutation"]
   },
   {
     "name": "Ear A2",
@@ -473,7 +474,8 @@
     "layers": [
       {"name":"Ear","fname":"por_ear_a2.png","anchor":"ear","depth":7000}
     ],
-    "prefers": ["Feminine"]
+    "prefers": ["Feminine"],
+    "rejects": ["Feline Mutation"]
   },
   {
     "name": "Ear: HWB3",
@@ -481,7 +483,8 @@
     "layers": [
       {"name":"Ear","fname":"por_ear_hwb3.png","anchor":"ear","depth":7000}
     ],
-    "prefers": ["Common"]
+    "prefers": ["Common"],
+    "rejects": ["Feline Mutation"]
   },
   {
     "name": "Big Ear",
@@ -491,7 +494,17 @@
     ],
     "avatar_layers": [
       {"name":"Ears","fname":"avatar_ears_big.png","anchor":"avatar_head","depth":7000,"x_offset":0,"y_offset":0}
-    ]
+    ],
+    "rejects": ["Feline Mutation"]
+  },
+  {
+    "name": "Feline Ear 1",
+    "btype": "Ears",
+    "layers": [
+      {"name":"Right Ear","fname":"por_ear_feline1.png","anchor":"ear","frame_width":35,"frame_height":97,"x_offset":-1,"y_offset":-20,"depth":7000},
+      {"name":"Left Ear","fname":"por_ear_feline1.png","anchor":"head","frame_width":35,"frame_height":97,"frame":1,"x_offset":45,"y_offset":-20,"depth":1000}
+    ],
+    "requires": ["Feline Mutation"]
   },
   {
     "name": "BodMA Shirt 1",

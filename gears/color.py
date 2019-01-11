@@ -541,6 +541,8 @@ MECHA_COLORS = list()
 DETAIL_COLORS = list()
 METAL_COLORS = list()
 
+CHARACTER_COLOR_CHANNELS = (CLOTHING_COLORS,SKIN_COLORS,HAIR_COLORS,DETAIL_COLORS,CLOTHING_COLORS)
+
 def random_character_colors():
     return [random.choice(CLOTHING_COLORS),random.choice(SKIN_COLORS),random.choice(HAIR_COLORS),random.choice(DETAIL_COLORS),random.choice(CLOTHING_COLORS)]
 

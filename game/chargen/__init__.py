@@ -1,18 +1,21 @@
 import lifepath
 import pbge
-import pygame
 import gears
+import copy
 
 
 class CharacterGenerator(object):
+    STAT_POINTS = 105
     def __init__(self,redraw):
         self.redraw = redraw
 
-        self.pc = gears.base.Character(name="New Character")
+        self.pc = gears.base.Character(name="New Character",portrait_gen=gears.portraits.Portrait())
+        self.pc.roll_stats(self.STAT_POINTS)
         self.biogram = dict()
 
+
         # Record the character generator zones.
-        self.title_zone = pbge.frects.Frect(-200,-280,400,20)
+        self.title_zone = pbge.frects.Frect(-250,-280,500,20)
         self.charsheet_zone = pbge.frects.Frect(-360,-230,350,460)
         self.info_zone = pbge.frects.Frect(20,-230,340,180)
         self.menu_zone = pbge.frects.Frect(20, -20, 340, 200)
@@ -45,7 +48,7 @@ class CharacterGenerator(object):
         return mymenu
 
     def choose_lifepath(self):
-        self.info = lifepath.LifePathStatusPanel(model=self.pc,width=self.charsheet_zone.w,draw_border=False)
+        self.info = lifepath.LifePathStatusPanel(model=self.pc,width=self.charsheet_zone.w,draw_border=False,padding=5)
 
         self.title = "Where is your character from?"
         choices = lifepath.STARTING_CHOICES
@@ -56,12 +59,20 @@ class CharacterGenerator(object):
 
             mychoice = mymenu.query()
             if mychoice:
+                if mychoice.auto_fx:
+                    mychoice.auto_fx.apply(self)
+                    self.info.update()
                 for c in mychoice.choices:
                     self.title = c.prompt
                     mymenu = self.create_menu()
                     for c2 in c.options:
                         mymenu.add_item(c2.name,c2,c2.desc)
                     myop = mymenu.query()
+                    if myop:
+                        myop.apply(self)
+                        self.info.update()
+                    else:
+                        self.cancelled = True
                 self.title = mychoice.next_prompt
                 choices = mychoice.next
             else:
@@ -69,21 +80,42 @@ class CharacterGenerator(object):
 
         self.info = None
 
+    def random_lifepath(self):
+        keep_rolling = True
+        backup_pc = copy.deepcopy(self.pc)
+        self.title = "Generate Lifepath"
+        self.info = lifepath.LifePathStatusPanel(model=self.pc,width=self.charsheet_zone.w,draw_border=False,padding=5)
+        mymenu = self.create_menu()
+        mymenu.add_item("Roll new history",True)
+        mymenu.add_item("Keep this history", False)
+        while keep_rolling:
+            self.pc = copy.deepcopy(backup_pc)
+            self.biogram.clear()
+            lifepath.generate_random_lifepath(self)
+            self.info = lifepath.LifePathStatusPanel(model=self.pc, width=self.charsheet_zone.w, draw_border=False,
+                                                     padding=5)
+            keep_rolling = mymenu.query()
+    def random_stats(self):
+        keep_rolling = True
+        self.title = "Generate Stats"
+        self.info = lifepath.LifePathStatusPanel(model=self.pc, width=self.charsheet_zone.w, draw_border=False,
+                                                 padding=5)
+        mymenu = self.create_menu()
+        mymenu.add_item("Reroll Stats",True)
+        mymenu.add_item("Accept Stats", False)
+        while keep_rolling:
+            self.pc.roll_stats(self.STAT_POINTS)
+
+            keep_rolling = mymenu.query()
+
+    def invoke(self):
+        #self.choose_lifepath()
+        self.random_stats()
+        self.random_lifepath()
+
     @classmethod
     def create_and_invoke(cls, redraw):
-        # Run the UI. Return a DoInvocation action if an invocation
-        # was chosen, or None if the invocation was cancelled.
+        # Run the UI.
         myui = cls(redraw)
-        myui.choose_lifepath()
-
-        keepgoing = True
-        while keepgoing:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                myui.render()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
+        myui.invoke()
 

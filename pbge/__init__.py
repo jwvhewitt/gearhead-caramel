@@ -169,6 +169,7 @@ TINYFONT = None
 ITALICFONT = None
 BIGFONT = None
 ANIMFONT = None
+MEDIUMFONT = None
 POSTERS = list()
 my_state = GameState()
 
@@ -432,6 +433,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
         ANIMFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 16 )
         my_state.anim_font = ANIMFONT
 
+        global MEDIUMFONT
         MEDIUMFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 14 )
         my_state.medium_font = MEDIUMFONT
 

@@ -18,6 +18,7 @@ TAG_COMMON = "Common"
 class Portrait(object):
     def __init__(self):
         self.bits = list()
+        self.color_channels = list(color.CHARACTER_COLOR_CHANNELS)
 
     @staticmethod
     def get_bit_of_type(ptype, form_tags):
@@ -100,7 +101,7 @@ class Portrait(object):
         if add_color:
             if not pc.colors:
                 # Generate random colors for this character.
-                pc.colors = color.random_character_colors()
+                pc.colors = [random.choice(chan) for chan in self.color_channels]
                 #If this character has a faction, update the colors with faction colors.
 
             porimage.recolor(pc.colors)
@@ -156,7 +157,7 @@ class PortraitLayer(object):
 
 class PortraitBit(object):
     def __init__(self, name="No_Name", btype="No_Type", layers=(), avatar_layers=(), children=(), anchors=(), form_tags=(),
-                 requires=(), prefers=(), **kwargs):
+                 requires=(), prefers=(), rejects=(), **kwargs):
         self.name = name
         self.btype = btype
         self.layers = list()
@@ -171,14 +172,15 @@ class PortraitBit(object):
         self.form_tags = list(form_tags)
         self.requires = set(requires)
         self.prefers = set(prefers)
+        self.rejects = set(rejects)
         for k, v in kwargs.items():
             setattr(self, k, v)
 
     def is_legal_bit(self, existing_form_tags):
         if self.requires:
-            return self.requires.issubset(existing_form_tags)
+            return self.requires.issubset(existing_form_tags) and not self.rejects.intersection(existing_form_tags)
         else:
-            return True
+            return not self.rejects.intersection(existing_form_tags)
 
 
 def init_portraits():

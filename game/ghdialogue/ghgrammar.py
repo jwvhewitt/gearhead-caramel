@@ -53,7 +53,40 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Will you come too?",
             ],
         },
-
+    "[Adjective]": {
+        Default: [
+            "Useless","Useful","Artificial","Adorable","Uncomfortable","Comfortable","Good","Bad","Open","Modern",
+            "Shiny","Bright","Honorable","Stupid","Smart","Healthy","Sinful","Interesting","Surprising","Bland",
+            "Sexy","Loud","Quiet","New","Important","Wonderful","Great","Fun","Beautiful","Pretty","Ugly",
+            "Cool","Strange","Fast","Slow","Lucky","Big","Huge","Long","Small","Tiny","Exciting","Gigantic",
+            "Cosmic","Natural","Unwanted","Delicate","Stormy","Fragile","Strong","Flexible","Rigid","Cold",
+            "Hot","Irradiated","Poor","Living","Dead","Creamy","Delicious","Cool","Excellent","Boring","Happy",
+            "Sad","Confusing","Valuable","Old","Young","Loud","Hidden","Bouncy","Magnetic","Smelly","Hard",
+            "Easy","Serious","Kind","Gentle","Greedy","Lovely","Cute","Plain","Dangerous","Silly","Smart",
+            "Fresh","Obsolete","Perfect","Ideal","Professional","Current","Fat","Rich","Poor","Wise","Absurd",
+            "Foolish","Blind","Deaf","Creepy","Nice","Adequate","Expensive","Cheap","Fluffy","Rusted","Hormonal",
+            "Lying","Freezing","Acidic","Green","Red","Blue","Yellow","Orange",'Purple',"Grey","Brown","Pink",
+            "Dirty","Gothic","Metallic","Mutagenic","Outrageous","Incredible","Miraculous","Unlucky",
+            "Hated", "Loved", "Feared"
+        ]
+    },
+    "[adjective]": {
+        Default: [
+            "useless","useful","artificial","adorable","uncomfortable","comfortable","good","bad","open","modern",
+            "shiny","bright","honorable","stupid","smart","healthy","sinful","interesting","surprising","bland",
+            "sexy","loud","quiet","new","important","wonderful","great","fun","beautiful","pretty","ugly",
+            "cool","strange","fast","slow","lucky","big","huge","long","small","tiny","exciting","gigantic",
+            "cosmic","natural","unwanted","delicate","stormy","fragile","strong","flexible","rigid","cold",
+            "hot","irradiated","poor","living","dead","creamy","delicious","cool","excellent","boring","happy",
+            "sad","confusing","valuable","old","young","loud","hidden","bouncy","magnetic","smelly","hard",
+            "easy","serious","kind","gentle","greedy","lovely","cute","plain","dangerous","silly","smart",
+            "fresh","obsolete","perfect","ideal","professional","current","fat","rich","poor","wise","absurd",
+            "foolish","blind","deaf","creepy","nice","adequate","expensive","cheap","fluffy","rusted","hormonal",
+            "lying","freezing","acidic","green","red","blue","yellow","orange",'purple',"grey","brown","pink",
+            "dirty","gothic","metallic","mutagenic","outrageous","incredible","miraculous","unlucky",
+            "hated","loved","feared"
+        ]
+    },
     "[ATTACK]": {
         Default: ["I don't know what you're doing here, but you'll feel my wrath. [LETSFIGHT]",
             "You shouldn't have come here. [LETSFIGHT]"
@@ -529,6 +562,13 @@ DEFAULT_GRAMMAR = {
             ],
         },
 
+    "[instrument]": {
+        Default: [
+            "guitar", "keytar", "drums", "violin", "bass", "synthesizer", "organ",
+            "mandolin", "theremin", "turntable", "piano", "saxophone", "melodica"
+        ]
+    },
+
 
     "[IP_NEWS]": {
         Default: ["[IP_GoodNews].","[IP_BadNews].","[IP_Business].","[IP_Pleasure]."
@@ -649,6 +689,53 @@ DEFAULT_GRAMMAR = {
         Default: [
             "not much is going on",
         ],
+    },
+    "[Noun]": {
+        Default: [
+            "Hominid","Underwear","Paluke","Artifice","Lie","Knowledge","Battle","Weather","Food","News",
+            "Mecha","Fashion","Athlete","Music","Politics","Religion","Love","War","History",
+            "Technology","Time","Internet","Literature","Destiny","Romance","Base","Stuff","Agriculture",
+            "Sports","Science","Television","Atmosphere","Sky","Color","Sound","Taste","Friendship","Law",
+            "Beer","Singing","Cola","Pizza","Vaporware","Buzz","Mood","Dissent","City","House","Town",
+            "Village","Country","Planet","Fortress","Universe","Program","Arena","Wangtta","Hospital",
+            "Medicine","Therapy","Library","Education","Philosophy","Family","Jive","Feel","Coffee",
+            "Hope","Hate","Love","Fear","Sale","Life","Market","Enemy","Data","Fish","Beast",
+            "Something","Everything","Nothing","Sabotage","Justice","Fruit","Pocket","Parfait","Flavor",
+            "Talent","Prison","Plan","Noise","Bottom","Force","Anything","Top","Appeal","Booster",
+            "Complaint","Chatting","Dream","Heart","Secret","Fauna","Desire","Situation","Risk",
+            "Crime","Vice","Virtue","Treasure","Storm","Vapor","School","Uniform","World","Body",
+            "Pain","Fault","Profit","Business","Prophet","Animal","Bedroom","Kitchen","Home","Apartment",
+            "Vehicle","Machine","Bathroom","Fruit","Side","Entertainment","Movie","Game","Chemistry",
+            "Synergy","Opinion","Hero","Villain","Thief","Fantasy","Adventure","Mission","Job",
+            "Career","Glamour","Diary","Expression","Hairdo","Environment","Wizard","Drug"
+        ]
+    },
+    "[noun]": {
+        Default: [
+            "[instrument]","underwear","paluke","artifice","lie","knowledge","battle","weather","food","news",
+            "mecha","fashion","soccer competition","music","politics","religion","love","war","history",
+            "technology","time","internet","literature","destiny","romance","base","stuff","agriculture",
+            "sports","science","television","atmosphere","sky","color","sound","taste","friendship","law",
+            "beer","singing","cola","pizza","vaporware","buzz","mood","dissent","city","house","town",
+            "village","country","planet","fortress","universe","program","arena","wangtta","hospital",
+            "medicine","therapy","library","education","philosophy","family","jive","feel","coffee",
+            "hope","hate","love","fear","sale","life","market","enemy","data","fish","lion taming",
+            "something","everything","nothing","sabotage","justice","fruit","pocket","parfait","flavor",
+            "talent","prison","plan","noise","bottom","force","anything","top","appeal","booster",
+            "complaint","chatting","dream","heart","secret","fauna","desire","situation","risk",
+            "crime","vice","virtue","treasure","storm","vapor","school","uniform","world","body",
+            "pain","fault","profit","business","prophet","animal","bedroom","kitchen","home","apartment",
+            "vehicle","machine","bathroom","fruit","side","entertainment","movie","game","chemistry",
+            "synergy","opinion","hero","villain","thief","fantasy","adventure","mission","job",
+            "career","glamour","diary","expression","hairdo","environment","wizard","drug"
+
+        ]
+    },
+
+    "[object_pronoun]": {
+        Default: [
+            "him","her","zem"
+        ]
     },
 
     "[threat]": {

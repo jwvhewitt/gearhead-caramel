@@ -2643,11 +2643,27 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         else:
             return 1
 
+    @staticmethod
+    def random_stats(points=80):
+        statline = dict()
+        minstat = (points - 10) // 24
+        leftovers = points - minstat * 8
+        for s in stats.PRIMARY_STATS:
+            statline[s] = minstat
+        for t in range(leftovers):
+            stat_to_improve = random.choice(stats.PRIMARY_STATS)
+            if statline[stat_to_improve] >= 15 and random.randint(1,5) != 5:
+                stat_to_improve = random.choice(stats.PRIMARY_STATS)
+            statline[stat_to_improve] += 1
+        return statline
+    def roll_stats(self,points=80):
+        nu_stats = self.random_stats(points)
+        self.statline.update(nu_stats)
 
 class Character(Being):
-    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction', 'badges', 'bio')
+    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction', 'badges', 'bio', 'relationship')
 
-    def __init__(self, personality=(), gender=None, job=None, birth_year=138, reaction_mod=0, faction=None, renown=0, badges=(), bio="", **keywords):
+    def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="", relationship=None, **keywords):
         self.personality = set(personality)
         if not gender:
             gender = genderobj.Gender.random_gender()
@@ -2656,12 +2672,12 @@ class Character(Being):
         self.gender = gender
         self.job = job
         self.birth_year = birth_year
-        self.reaction_mod = reaction_mod
         self.faction = faction
         self.faction_scores = collections.defaultdict(int)
         self.renown = renown
         self.badges = list(badges)
         self.bio = bio
+        self.relationship = relationship
         super(Character, self).__init__(**keywords)
 
     def get_tacit_faction(self,camp):
@@ -2685,7 +2701,10 @@ class Character(Being):
         return mytags
 
     def get_reaction_score(self,pc,camp):
-        rs = self.reaction_mod
+        if self.relationship:
+            rs = self.relationship.reaction_mod
+        else:
+            rs = 0
         for a,b in personality.OPPOSED_PAIRS:
             if a in self.personality:
                 if a in pc.personality:

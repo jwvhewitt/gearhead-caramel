@@ -5,6 +5,7 @@ from gears.meritbadges import TagReactionBadge
 import pygame
 from .. import ghdialogue
 from ..ghdialogue.ghgrammar import Default
+import random
 
 BADGE_ACADEMIC = TagReactionBadge("Academic","You are familiar with the language and culture of academia.",remods={tags.Academic:10})
 BADGE_CRIMINAL = TagReactionBadge("Criminal","",remods={tags.Police:-10,tags.Criminal:10})
@@ -30,24 +31,101 @@ class LifePathOption(object):
     def apply(self,cgen):
         ghdialogue.trait_absorb(cgen.biogram,self.biogram,cgen.pc.get_tags())
         if self.biomessage:
-            cgen.pc.bio += pbge.dialogue.grammar.convert_tokens(self.biomessage,cgen.biogram,allow_maybe=False)
+            nugramdict = cgen.biogram.copy()
+            ghdialogue.trait_absorb(nugramdict,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,cgen.pc.get_tags())
+            cgen.pc.bio += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
+        for k,v in self.stat_mods.items():
+            cgen.pc.statline[k] += v
 
 class LPIdealistBonus(object):
-    def __init__(self,name,desc):
+    def __init__(self,name,desc,biomessage='',biogram=None):
         self.name = name
         self.desc = desc
+        self.biomessage = biomessage
+        self.biogram = dict()
+        if biogram:
+            self.biogram.update(biogram)
+    def apply(self,cgen):
+        ghdialogue.trait_absorb(cgen.biogram,self.biogram,cgen.pc.get_tags())
+        if self.biomessage:
+            nugramdict = cgen.biogram.copy()
+            ghdialogue.trait_absorb(nugramdict,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,cgen.pc.get_tags())
+            cgen.pc.bio += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
+        stat_list = random.sample(gears.stats.PRIMARY_STATS,3)
+        for s in stat_list:
+            cgen.pc.statline[s] += 1
+        cgen.pc.personality.add(personality.Idealist)
+
 
 class LPRandomMutation(object):
-    def __init__(self,name,desc):
+    def __init__(self,name,desc,biomessage='',biogram=None):
         self.name = name
         self.desc = desc
+        self.biomessage = biomessage
+        self.biogram = dict()
+        if biogram:
+            self.biogram.update(biogram)
+    def apply(self,cgen):
+        mutation = random.choice(personality.MUTATIONS)
+        cgen.pc.personality.add(mutation)
+        mutation.apply(cgen.pc)
+        ghdialogue.trait_absorb(cgen.biogram,self.biogram,cgen.pc.get_tags())
+        if self.biomessage:
+            nugramdict = cgen.biogram.copy()
+            ghdialogue.trait_absorb(nugramdict,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,cgen.pc.get_tags())
+            cgen.pc.bio += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
 
 
-CHOOSE_PEACE = LifePathOption("Peace", "You vow to protect the weak, and prevent tragedies like those you've witnessed from happening again.", personality_tags = (personality.Peace,))
-CHOOSE_GLORY = LifePathOption("Glory", "", personality_tags = (personality.Glory,))
-CHOOSE_JUSTICE = LifePathOption("Justice", "", personality_tags = (personality.Justice,))
-CHOOSE_FELLOWSHIP = LifePathOption("Fellowship", "", personality_tags=(personality.Fellowship,))
-CHOOSE_DUTY = LifePathOption("Duty", "", personality_tags = (personality.Duty,))
+CHOOSE_PEACE = LifePathOption("Peace", "You vow to protect the weak, and prevent tragedies like those you've witnessed from happening again.", personality_tags = (personality.Peace,),
+                             biomessage = "[LPE_INTRO]",
+                             biogram={
+                                 "[LPE_INTRO]": {
+                                     Default: [
+                                         "Now, you have dedicated your life to peace and protecting the powerless.",
+                                         "These days you work to protect people and stop tragedies like those you've witnessed from happening again."
+                                     ]
+                                 }
+                             })
+CHOOSE_GLORY = LifePathOption("Glory", "", personality_tags = (personality.Glory,),
+                             biomessage = "[LPE_INTRO]",
+                             biogram={
+                                 "[LPE_INTRO]": {
+                                     Default: [
+                                         "Now, you have dedicated your life to seeking adventure and glory.",
+                                         "So far you haven't had great success, but you know it's only a matter of time before you're number one!"
+                                     ]
+                                 }
+                             })
+CHOOSE_JUSTICE = LifePathOption("Justice", "", personality_tags = (personality.Justice,),
+                             biomessage = "[LPE_INTRO]",
+                             biogram={
+                                 "[LPE_INTRO]": {
+                                     Default: [
+                                         "Now, you have dedicated your life to the pursuit of justice.",
+                                         "Following that, you pledged yourself to the quest for justice. This is the principle that motivates you as a cavalier."
+                                     ]
+                                 }
+                             })
+CHOOSE_FELLOWSHIP = LifePathOption("Fellowship", "", personality_tags=(personality.Fellowship,),
+                             biomessage = "[LPE_INTRO]",
+                             biogram={
+                                 "[LPE_INTRO]": {
+                                     Default: [
+                                         "If life has taught you anything, it's that we're all in this together. You strive to honor this fellowship with other cavaliers.",
+                                         "These days, you enjoy being a cavalier mostly for the fellowship."
+                                     ]
+                                 }
+                             })
+CHOOSE_DUTY = LifePathOption("Duty", "", personality_tags = (personality.Duty,),
+                             biomessage = "[LPE_INTRO]",
+                             biogram={
+                                 "[LPE_INTRO]": {
+                                     Default: [
+                                         "You strive every day to fulfil your duty as a cavalier.",
+                                         "Life so far has taught you the importance of responsibility. You accept your duty with steely resolve."
+                                     ]
+                                 }
+                             })
 
 class LifePathChoice(object):
     def __init__(self,prompt,options=()):
@@ -64,75 +142,255 @@ class LifePathNode(object):
         self.auto_fx = auto_fx
 
 FAIL_POPSTAR = LifePathOption("My music career went nowhere.","Performance skill, Pop Star merit badge.",
-                              stat_mods={stats.Performance:1},badges=(BADGE_POPSTAR,))
+                              stat_mods={stats.Performance:1},badges=(BADGE_POPSTAR,),
+                              biomessage="[LPD_FAIL]",
+                              biogram={
+                                  "[LPD_FAIL]": {
+                                      Default: [
+                                          "You decided to start a band. Your one and only single ended up the most hated song of NT154.",
+                                          "You accepted a recording contract before you were ready for the bigtime and ended up a has-been before you even got a chance to start."
+                                      ]
+                                  }
+                              })
 FAIL_FRIENDDIED = LifePathOption("My friend died and I couldn't save them.","Medicine skill, Grim trait",
-                                 stat_mods={stats.Medicine:1},personality_tags=(personality.Grim,))
+                                 stat_mods={stats.Medicine:1},personality_tags=(personality.Grim,),
+                              biomessage="[LPD_FAIL]",
+                              biogram={
+                                  "[LPD_FAIL]": {
+                                      Default: [
+                                          "A routine mission went bad. One of your lancemates was critically injured, and you couldn't save [object_pronoun].",
+                                          "Your friend got shot during a mission. You tried to save [object_pronoun], but failed."
+                                      ]
+                                  }
+                              })
 
 D_FAILURE = LifePathNode(
     "Failure","You failed at an important task, and now bear the responsibility for the consequences.",
     choices=(
         LifePathChoice("What sort of failure did you experience?",(FAIL_POPSTAR,FAIL_FRIENDDIED)),
         LifePathChoice("How do you choose to deal with this failure?",(CHOOSE_PEACE,CHOOSE_JUSTICE,CHOOSE_DUTY)),
-    )
+    ),
+    auto_fx=LifePathOption("Failure Auto","...",
+        biomessage="[LPD_INTRO]",
+        biogram={
+            "[LPD_INTRO]": {
+                Default: [
+                    "Unfortunately, your plans for life were upturned by a single mistake.",
+                    "Just when your life started looking up, a single accident turned everything upside down."
+                ]
+            }
+        })
 )
 
-BETR_MENTOR = LifePathOption("My mentor. I never saw it coming.","Scouting skill",
-                             stat_mods={stats.Scouting:1})
+BETR_MENTOR = LifePathOption("I must never let my guard down again.","Scouting skill",
+                             stat_mods={stats.Scouting:1},
+                              biomessage="[LPD_BETR]",
+                              biogram={
+                                  "[LPD_BETR]": {
+                                      Default: [
+                                          "Following this, you swore to never let your guard down again.",
+                                          "Since that time you've been cautious about other people.",
+                                          "You never saw it coming."
+                                      ]
+                                  }
+                              })
 
-BETR_LABMATE = LifePathOption("My high school lab partner. No idea why.","Science skill",
-                             stat_mods={stats.Science:1})
+
+BETR_LABMATE = LifePathOption("I will get strong enough to defeat them.","Mecha Fighting bonus",
+                             stat_mods={stats.MechaFighting:1},
+                              biomessage="[LPD_BETR]",
+                              biogram={
+                                  "[LPD_BETR]": {
+                                      Default: [
+                                          "You swore to train until you are strong enough to enact revenge.",
+                                          "You promised that one day you will defeat them."
+                                      ]
+                                  }
+                              })
 
 D_BETRAYAL = LifePathNode(
     "Betrayal","You were betrayed by someone close to you.",
     choices=(
-        LifePathChoice("Who betrayed you?",(BETR_MENTOR,BETR_LABMATE)),
-        LifePathChoice("How do you choose to deal with this betrayal?",(CHOOSE_PEACE,CHOOSE_JUSTICE,CHOOSE_FELLOWSHIP)),
-    )
+        LifePathChoice("What was your reaction to this betrayal?",(BETR_MENTOR,BETR_LABMATE)),
+        LifePathChoice("What will you do moving forward?",(CHOOSE_PEACE,CHOOSE_JUSTICE,CHOOSE_FELLOWSHIP)),
+    ),
+    auto_fx=LifePathOption("Betrayal Auto","...",
+        biomessage="[LPD_INTRO]",
+        biogram={
+            "[LPD_INTRO]": {
+                Default: [
+                    "During an important mission, you were betrayed by a friend.",
+                    "On your first mission as a cavalier, you were betrayed by your mentor."
+                ]
+            }
+        })
 )
 
 DEST_MECHALOVE = LifePathOption("I was born to pilot mecha.","Repair skill, Gearhead badge",
-                                stat_mods={stats.Repair:1},badges=(BADGE_GEARHEAD,))
+                                stat_mods={stats.Repair:1},badges=(BADGE_GEARHEAD,),
+                                biomessage="[LPD_DEST]",
+                                biogram={
+                                    "[LPD_DEST]": {
+                                        Default: [
+                                            "You spent your life savings on a new mecha and became a cavalier."
+                                        ]
+                                    }
+                                })
 DEST_GOLDENTONGUE = LifePathOption("I am both a problem solver and a troublemaker.","Negotiation skill",
-                                   stat_mods={stats.Negotiation:1})
+                                   stat_mods={stats.Negotiation:1},
+                                   biomessage="[LPD_DEST]",
+                                   biogram={
+                                       "[LPD_DEST]": {
+                                           Default: [
+                                               "You talked a [client] into giving you a free mecha, and set out to become a cavalier."
+                                           ]
+                                       },
+                                       "[client]": {
+                                           Default: [
+                                               "recruiter", "corporate executive", "friend", "trucker", "mechanic"
+                                           ]
+                                       }
+                                   })
 
 D_DESTINY = LifePathNode(
     "Destiny","",
     choices=(
         LifePathChoice("What is your great destiny?",(DEST_MECHALOVE,DEST_GOLDENTONGUE)),
         LifePathChoice("How do you choose to deal with this destiny?",(CHOOSE_GLORY,CHOOSE_JUSTICE,CHOOSE_FELLOWSHIP)),
-    )
+    ),
+    auto_fx=LifePathOption("Destiny Auto","...",
+        biomessage="[LPD_INTRO]",
+        biogram={
+            "[LPD_INTRO]": {
+                Default: [
+                    "You always felt that you were destined for greater things.",
+                    "One day, you left all of that to go fulfil your destiny."
+                ]
+            }
+        })
+
 )
 
 POVE_CRIME = LifePathOption("I stole what I needed to survive.","Stealth skill, Criminal badge",
-                            stat_mods={stats.Stealth:1},badges=(BADGE_CRIMINAL,))
-POVE_SURVIVALIST = LifePathOption("I lived off the land, aided by my animal companions.","Dominate Animal skill",
-                                  stat_mods={stats.DominateAnimal:1})
+                            stat_mods={stats.Stealth:1},badges=(BADGE_CRIMINAL,),
+                            biomessage="[LPD_POVE]",
+                            biogram={
+                                "[LPD_POVE]": {
+                                    Default: [
+                                        "During this time, you did some things you aren't proud of just to survive.",
+                                        "Around this time, you did a number of things that aren't technically legal."
+                                    ]
+                                }
+                            })
+POVE_MERCENARY = LifePathOption("I became a mercenary.","Ranged Combat bonus",
+                                  stat_mods={stats.RangedCombat:1},
+                                  biomessage="[LPD_POVE]",
+                                  biogram={
+                                      "[LPD_POVE]": {
+                                          Default: [
+                                              "You became a mercenary, selling your skills to the highest bidder.",
+                                              "You traveled the solar system as a mercenary, seeking out trouble spots for your next big contract."
+                                          ]
+                                      }
+                                  })
 
 D_POVERTY = LifePathNode(
     "Poverty","You lost whatever money you may once have had, and are now in dire straits.",
     choices=(
-        LifePathChoice("How did you survive during this time?",(POVE_CRIME,POVE_SURVIVALIST)),
+        LifePathChoice("How did you survive during this time?",(POVE_CRIME,POVE_MERCENARY)),
         LifePathChoice("How do you choose to deal with your poverty?",(CHOOSE_GLORY,CHOOSE_DUTY,CHOOSE_FELLOWSHIP)),
-    )
+    ),
+    auto_fx=LifePathOption("Poverty Auto","...",
+                           biomessage="[LPD_INTRO]",
+                           biogram={
+                               "[LPD_INTRO]": {
+                                   Default: [
+                                       "With no money and no options, you were forced to leave home.",
+                                       "Unfortunately, the money you were counting on never started to pour in."
+                                   ]
+                               }
+                           })
+
 )
 
 WAR_SPECIALIST = LifePathOption("I fought, using my talents as an EW specialist.","Computers skill",
-                                stat_mods={stats.Computers:1})
+                                stat_mods={stats.Computers:1},
+                                biomessage="[LPD_WAR]",
+                                biogram={
+                                    "[LPD_WAR]": {
+                                        Default: [
+                                            "Your expertise at electronic warfare came in handy during the fighting.",
+                                            "You joined a defense squad as their ECM specialist."
+                                        ]
+                                    }
+                                })
 WAR_BIOTECH = LifePathOption("I sought info about PreZero bioweapons to aid my side.","Biotechnology skill",
-                             stat_mods={stats.Biotechnology:1})
+                             stat_mods={stats.Biotechnology:1},
+                             biomessage="[LPD_WAR]",
+                             biogram={
+                                 "[LPD_WAR]": {
+                                     Default: [
+                                         "Hearing rumors of reawakened bioweapons, you were sent to learn what you could about these ancient threats.",
+                                         "As news arrived of reawakened bioweapons, your knowledge of lost technology became highly valuable."
+                                     ]
+                                 }
+                             })
 
 D_WAR = LifePathNode(
     "War","",
     choices=(
         LifePathChoice("What did you do during the war?",(WAR_SPECIALIST,WAR_BIOTECH)),
         LifePathChoice("How do you choose to deal with this conflict?",(CHOOSE_GLORY,CHOOSE_DUTY,CHOOSE_PEACE)),
-    )
+    ),
+    auto_fx=LifePathOption("War Auto","...",
+                           biomessage="[LPD_INTRO]",
+                           biogram={
+                               "[LPD_INTRO]": {
+                                   Default: [
+                                       "You fought against [enemies].",
+                                       "Your home was destroyed in an enemy attack, forcing you to fight for your life.",
+                                       "When [enemies] attacked your neighborhood, fighting became a matter of survival."
+                                   ]
+                               },
+                               "[enemies]": {
+                                   personality.GreenZone: [
+                                       "Typhon", "Aegis commandoes"
+                                   ],
+                                   personality.DeadZone: [
+                                       "Typhon", "Aegis infiltrators"
+                                   ]
+                               }
+                           })
+
 )
 
 SURV_PET = LifePathOption("I had a dog who kept me safe.","Dominate Animal skill",
-                          stat_mods={stats.DominateAnimal:1})
+                          stat_mods={stats.DominateAnimal:1},
+                          biomessage="[LPC_SURV]",
+                          biogram={
+                              "[LPC_SURV]": {
+                                  Default: [
+                                      "Fortunately, you had a big dog who protected you until you were big enough to look after yourself.",
+                                      "When you were targeted by [badguys], it was a stray dog that came to your defense."
+                                  ]
+                              },
+                              "[badguys]": {
+                                  Default: [
+                                      "bullies","muggers","thieves"
+                                  ]
+                              }
+                          })
 SURV_TALK = LifePathOption("I learned to talk my way out of bad situations.","Negotiation skill",
-                           stat_mods={stats.Negotiation:1})
+                           stat_mods={stats.Negotiation:1},
+                           biomessage="[LPC_SURV]",
+                           biogram={
+                               "[LPC_SURV]": {
+                                   Default: [
+                                       "Thanks to your fast wits, you could talk your way out of most bad situations.",
+                                       "You discovered a talent for negotiation. With nothing more than a golden tongue, you soon began to climb the heap."
+                                   ]
+                               }
+                           })
 
 C_SURVIVAL = LifePathNode(
     "Survival","Life was tough. All you could do was to survive, and then just barely.",
@@ -140,15 +398,52 @@ C_SURVIVAL = LifePathNode(
         LifePathChoice("What allowed you to get through this period?",(SURV_PET,SURV_TALK)),
     ),
     next_prompt="Pick a crisis.",
-    next=(D_WAR,D_FAILURE,D_BETRAYAL),
+    next=(D_WAR,D_FAILURE,D_POVERTY),
     auto_fx = LifePathOption("Survival Bonus","Vitality + 2",
-                             stat_mods={stats.Vitality:2})
+                             stat_mods={stats.Vitality:2},
+                             biomessage="[LPC_INTRO]",
+                             biogram={
+                                 "[LPC_INTRO]": {
+                                     Default: [
+                                         "Despite all the obstacles the world threw at you, you refused to give up.",
+                                         "Through perserverance you managed to survive and prosper under terrible circumstances."
+                                     ]
+                                 }
+                             })
 )
 
-HAKN_THIEF = LifePathOption("I was a shoplifter.","Stealth skill",
-                            stat_mods={stats.Stealth:1})
+HAKN_THIEF = LifePathOption("I was a thief.","Stealth skill",
+                            stat_mods={stats.Stealth:1},
+                            biomessage="[LPC_HAKN]",
+                            biogram={
+                                "[LPC_HAKN]": {
+                                    Default: [
+                                        "You became a notorious thief, easily able to slip past guards."
+                                    ],
+                                    personality.Passionate: [
+                                        "You became a cat burgular, stealing priceless treasures as their owners slept just meters away."
+                                    ],
+                                    personality.Easygoing: [
+                                        "You took up shoplifting. Although this wasn't a lucrative career, it paid the bills."
+                                    ]
+                                }
+                            })
 HAKN_HACKER = LifePathOption("I was a computer hacker.","Computers skill",
-                             stat_mods={stats.Computers:1})
+                             stat_mods={stats.Computers:1},
+                             biomessage="[LPC_HAKN]",
+                             biogram={
+                                 "[LPC_HAKN]": {
+                                     Default: [
+                                         "Online you were known as [Adjective] [Noun], [LPC_HAKN_DESC]."
+                                     ]
+                                 },
+                                 "[LPC_HAKN_DESC]": {
+                                     Default: [
+                                         "the infamous hacker","[city]'s greatest hacker",
+                                         "the feared cybercriminal"
+                                     ]
+                                 }
+                             })
 
 C_HARDKNOCKS = LifePathNode(
     "Hard Knocks","As a youth, you got mixed up in some dangerous times.",
@@ -156,15 +451,41 @@ C_HARDKNOCKS = LifePathNode(
         LifePathChoice("What sort of criminal activity were you involved in?",(HAKN_HACKER,HAKN_THIEF)),
     ),
     next_prompt="Pick a crisis.",
-    next=(D_FAILURE,D_BETRAYAL,D_DESTINY),
+    next=(D_FAILURE,D_POVERTY,D_DESTINY),
     auto_fx=LifePathOption("Hard Knocks Bonus", "Athletics + 2",
-                           stat_mods={stats.Athletics: 2}, badges=(BADGE_CRIMINAL,))
+                           stat_mods={stats.Athletics: 2}, badges=(BADGE_CRIMINAL,),
+                           biomessage="[LPC_INTRO]",
+                           biogram={
+                               "[LPC_INTRO]": {
+                                   Default: [
+                                       "To make ends meet, you got involved in crime.",
+                                       "You started committing crimes before you were old enough to really understand the consequences."
+                                   ]
+                               }
+                           })
 )
 
 AUTO_SCIENCE = LifePathOption("Science, especially the lost art of biotech.","Biotechnology skill",
-                                stat_mods={stats.Biotechnology:1})
+                                stat_mods={stats.Biotechnology:1},
+                              biomessage="[LPC_AUTO]",
+                              biogram={
+                                  "[LPC_AUTO]": {
+                                      Default: [
+                                          "You sought out esoteric tomes to learn the forbidden art of biotechnology.",
+                                          "Your search for the lost science of biotechnology took you to ancient libraries and prezero ruins."
+                                      ]
+                                  }
+                              })
 AUTO_ART = LifePathOption("Art, especially music.","Performance skill",
-                          stat_mods={stats.Performance:1})
+                          stat_mods={stats.Performance:1},
+                          biomessage="[LPC_AUTO]",
+                          biogram={
+                              "[LPC_AUTO]": {
+                                  Default: [
+                                      "Every night you practiced the [instrument], working hard to perfect your technique.",
+                                  ]
+                              },
+                          })
 
 C_AUTODIDACT = LifePathNode(
     "Autodidact","You taught yourself everything you know, and were a very good teacher.",
@@ -174,24 +495,92 @@ C_AUTODIDACT = LifePathNode(
     next_prompt="Pick a crisis.",
     next=(D_BETRAYAL,D_DESTINY,D_POVERTY),
     auto_fx=LifePathOption("Autodidact Bonus", "Concentration + 2",
-                           stat_mods={stats.Concentration: 2})
+                           stat_mods={stats.Concentration: 2},
+                           biomessage="[LPC_INTRO]",
+                           biogram={
+                               "[LPC_INTRO]": {
+                                   Default: [
+                                       "You completed your education using books and old datafiles.",
+                                       "You spurned higher education in favor of studying by yourself."
+                                   ]
+                               }
+                           })
 )
 
 UNI1_SCIENCE = LifePathOption("Science.","Science skill",
-                              stat_mods={stats.Science:1})
+                              stat_mods={stats.Science:1},
+                              biogram={
+                                  "[major]": {
+                                      Default: [
+                                          "science"
+                                      ]
+                                  }
+                              })
 UNI1_MEDICINE = LifePathOption("Medicine.","Medicine skill",
-                              stat_mods={stats.Medicine:1})
+                              stat_mods={stats.Medicine:1},
+                               biogram={
+                                   "[major]": {
+                                       Default: [
+                                           "medicine"
+                                       ]
+                                   }
+                               })
 
 UNI2_ENGINEERING = LifePathOption("Engineering.","Repair skill",
-                                  stat_mods={stats.Repair:1})
+                                  stat_mods={stats.Repair:1},
+                                  biomessage="[LPC_OUTRO]",
+                                  biogram={
+                                      "[minor]": {
+                                          Default: [
+                                              "engineering"
+                                          ]
+                                      }
+                                  })
 UNI2_COMPSCI = LifePathOption("Computer Science.","Computers skill",
-                                  stat_mods={stats.Computers:1})
+                                  stat_mods={stats.Computers:1},
+                              biomessage="[LPC_OUTRO]",
+                              biogram={
+                                  "[minor]": {
+                                      Default: [
+                                          "computer science"
+                                      ]
+                                  }
+                              })
+
 UNI2_MUSIC = LifePathOption("Music.","Performance skill",
-                                  stat_mods={stats.Performance:1})
+                                  stat_mods={stats.Performance:1},
+                                biomessage="[LPC_OUTRO]",
+                                  biogram={
+                                      "[minor]": {
+                                          Default: [
+                                              "music"
+                                          ]
+                                      }
+                                  }
+                            )
+
 UNI2_POLYSCI = LifePathOption("Management.","Negotiation skill",
-                                  stat_mods={stats.Negotiation:1})
+                                  stat_mods={stats.Negotiation:1},
+                                biomessage = "[LPC_OUTRO]",
+                                biogram = {
+                                    "[minor]": {
+                                        Default: [
+                                            "management"
+                                        ]
+                                    }
+                                })
+
 UNI2_PHYSED = LifePathOption("Physical Education.","Athletics skill bonus",
-                                  stat_mods={stats.Athletics:1})
+                                  stat_mods={stats.Athletics:1},
+                             biomessage="[LPC_OUTRO]",
+                             biogram={
+                                 "[minor]": {
+                                     Default: [
+                                         "physical education"
+                                     ]
+                                 }
+                             })
+
 
 C_UNIVERSITY = LifePathNode(
     "University","You studied at a prestigious university.",
@@ -200,18 +589,65 @@ C_UNIVERSITY = LifePathNode(
         LifePathChoice("What was your minor in university?", (UNI2_COMPSCI,UNI2_ENGINEERING,UNI2_MUSIC,UNI2_PHYSED,UNI2_POLYSCI)),
     ),
     next_prompt="Pick a crisis.",
-    next=(D_DESTINY,D_POVERTY,D_WAR),
+    next=(D_DESTINY,D_BETRAYAL,D_WAR),
     auto_fx=LifePathOption("University Bonus", "Academics badge",
                            badges=(BADGE_ACADEMIC,),
+                           biomessage="[LPC_INTRO]",
+                           biogram={
+                               "[LPC_INTRO]": {
+                                   Default: [
+                                       "After high school you went to university."
+                                   ],
+                                   personality.Idealist: [
+                                       "You finished high school early and entered university in your mid teens."
+                                   ],
+                                   personality.DeadZone: [
+                                       "You were accepted into a university in the green zone."
+                                   ]
+                               },
+                               "[LPC_OUTRO]": {
+                                   Default: [
+                                       "You majored in [major] and minored in [minor].",
+                                       "You studied [major] and [minor]."
+                                   ]
+                               }
+                           }
                            )
 )
 
 MILI_SCOUT = LifePathOption("I was a scout pilot.","Scouting skill",
-                            stat_mods={stats.Scouting:1})
+                            stat_mods={stats.Scouting:1},
+                            biomessage="[LPC_MILI]",
+                            biogram={
+                                "[LPC_MILI]": {
+                                    Default: [
+                                        "Your skill as a recon pilot saved your lance on several occassions.",
+                                        "You infiltrated enemy lines as a recon pilot."
+                                    ]
+                                }
+                            })
 MILI_TECH = LifePathOption("I was a field tech.","Repair skill",
-                            stat_mods={stats.Repair:1})
+                            stat_mods={stats.Repair:1},
+                           biomessage="[LPC_MILI]",
+                           biogram={
+                               "[LPC_MILI]": {
+                                   Default: [
+                                       "Your skill as a field tech helped keep your lance in the fight.",
+                                       "As a technician you didn't see much action, you just had to clean up the mess when it was over."
+                                   ]
+                               }
+                           })
 MILI_GRUNT = LifePathOption("I was just a grunt.","Mecha Gunnery bonus",
-                            stat_mods={stats.MechaGunnery:1})
+                            stat_mods={stats.MechaGunnery:1},
+                            biomessage="[LPC_MILI]",
+                            biogram={
+                                "[LPC_MILI]": {
+                                    Default: [
+                                        "You helped defend [town] against [enemies].",
+                                        "You fought [enemies]."
+                                    ]
+                                }
+                            })
 
 
 C_MILITIA = LifePathNode(
@@ -220,17 +656,53 @@ C_MILITIA = LifePathNode(
         LifePathChoice("What was your position in the army?",(MILI_SCOUT,MILI_TECH,MILI_GRUNT)),
     ),
     next_prompt="Pick a crisis.",
-    next=(D_POVERTY,D_WAR,D_FAILURE),
-    auto_fx=LifePathOption("Militia Bonus", "Soldier badge",
+    next=(D_BETRAYAL,D_WAR,D_FAILURE),
+    auto_fx=LifePathOption("Militia Bonus", "Mecha Piloting bonus, Soldier badge",
+                            stat_mods={stats.MechaPiloting:1},
                            badges=(BADGE_SOLDIER,),
+                           biomessage="[LPC_INTRO]",
+                           biogram={
+                               "[LPC_INTRO]": {
+                                   Default: [
+                                       "When [crisis], you joined the militia in [city].",
+                                       "As soon as you were old enough to pilot a mecha, you signed up with the militia."
+                                   ],
+                                   personality.GreenZone: [
+                                       "You joined the Terran Defense Force.",
+                                       "You learned mecha piloting in the Solar Navy."
+                                   ],
+                                   personality.DeadZone: [
+                                       "You were conscripted into the militia."
+                                   ]
+                               }
+                           }
                            )
 )
 
 ORPH_LONER = LifePathOption("I became a loner, and still don't get close to people.","Shy trait",
-                                 personality_tags=(personality.Shy,))
+                                 personality_tags=(personality.Shy,),
+                            biomessage="[LPB_ORPH]",
+                            biogram={
+                                "[LPB_ORPH]": {
+                                    Default: [
+                                        "You were adopted by a family that neglected you.",
+                                        "You shut yourself off from human connections."
+                                    ]
+                                }
+                            })
 
 ORPH_SOCIABLE = LifePathOption("I took comfort in my friends and caretakers.","Sociable trait",
-                                 personality_tags=(personality.Shy,))
+                                 personality_tags=(personality.Shy,),
+                               biomessage="[LPB_ORPH]",
+                               biogram={
+                                   "[LPB_ORPH]": {
+                                       Default: [
+                                           "You were like a surrogate parent to the other orphans.",
+                                           "Over time, you found a new family in your friends and caretakers.",
+                                           "You were adopted by a family who cared for you deeply."
+                                       ]
+                                   }
+                               })
 
 B_ORPHAN = LifePathNode(
     "Orphan","You lost your parents at a young age.",
@@ -241,14 +713,56 @@ B_ORPHAN = LifePathNode(
     next=(C_MILITIA,C_SURVIVAL,C_HARDKNOCKS),
     auto_fx=LifePathOption("Orphan Bonus", "+1 Ego, +1 Speed",
                            stat_mods={stats.Ego:1,stats.Speed:1},
+                           biomessage="[LPB_INTRO]",
+                           biogram={
+                               "[LPB_INTRO]": {
+                                   Default: [
+                                       "Your parents died when you were very young.",
+                                       "You were raised in an orphanage and never knew your parents.",
+                                       "You were left on the doorstop of an orphanage in [town].",
+                                       "Your parents were killed in an attack by [enemies]."
+                                   ]
+                               }
+                           }
                            )
 )
 
 OUTC_MUTANT = LPRandomMutation("I have visible genetic mutations.", "Mutant trait",
+                               biomessage="[LPB_OUTC]",
+                               biogram={
+                                   "[LPB_OUTC]": {
+                                       Default: [
+                                           "You were born with [mutation].", "As you grew up, you developed [mutation]."
+                                       ]
+                                   },
+                                   "[mutation]": {
+                                       Default: [
+                                           "visible mutations",
+                                       ],
+                                       personality.FelineMutation: [
+                                           "feline features", "cat ears", "feline ears"
+                                       ],
+                                       personality.DraconicMutation: [
+                                           "scaly skin", "armored plates on your skin"
+                                       ],
+                                       personality.GeneralMutation: [
+                                           "brightly colored skin",
+                                       ]
+                                   }
+                               }
                              )
 
 OUTC_CRIMINAL = LifePathOption("I got started in crime at a young age.", "Criminal badge",
-                             badges=(BADGE_CRIMINAL,))
+                             badges=(BADGE_CRIMINAL,),
+                               biomessage="[LPB_OUTC]",
+                               biogram={
+                                   "[LPB_OUTC]": {
+                                       Default: [
+                                           "Even as a child you were constantly in trouble with the law.",
+                                           "You joined a gang and started committing petty crimes.",
+                                       ]
+                                   }
+                               })
 
 B_OUTCAST = LifePathNode(
     "Outcast","You have always lived on the fringes of society.",
@@ -259,14 +773,40 @@ B_OUTCAST = LifePathNode(
     next=(C_SURVIVAL,C_HARDKNOCKS,C_AUTODIDACT),
     auto_fx=LifePathOption("Outcast Bonus", "+1 Reflexes, +1 Craft",
                            stat_mods={stats.Reflexes:1,stats.Craft:1},
+                           biomessage="[LPB_INTRO]",
+                           biogram={
+                               "[LPB_INTRO]": {
+                                   Default: [
+                                       "From birth, you never really fit in with your peers.",
+                                       "Your early life was spent on the fringes of society."
+                                   ]
+                               }
+                           }
                            )
 )
 
 IDEA_EASY = LifePathOption("My natural talents made me lazy at school.","Easygoing trait",
-                                 personality_tags=(personality.Easygoing,))
+                                 personality_tags=(personality.Easygoing,),
+                           biomessage="[LPB_IDEA]",
+                           biogram = {
+                               "[LPB_IDEA]": {
+                                   Default: [
+                                       "Because of your natural talents, you never had to work as hard as your peers.",
+                                       "Your genetic enhancements meant you never had to push yourself."
+                                   ]
+                               }
+                           }                           )
 
 IDEA_HARD = LifePathOption("I was very competitive; Every subject was a challenge to be mastered.","Passionate trait",
-                                 personality_tags=(personality.Passionate,))
+                                 personality_tags=(personality.Passionate,),
+                           biomessage="[LPB_IDEA]",
+                           biogram = {
+                               "[LPB_IDEA]": {
+                                   Default: [
+                                       "In school you were very competitive. Every subject was a challenge to be mastered."
+                                   ]
+                               }
+                           })
 
 B_IDEALIST = LifePathNode(
     "Idealist","Your heritage includes a significant amount of genetic engineering.",
@@ -276,14 +816,41 @@ B_IDEALIST = LifePathNode(
     next_prompt="How did you learn to be a cavalier?",
     next=(C_HARDKNOCKS,C_AUTODIDACT,C_UNIVERSITY),
     auto_fx=LPIdealistBonus("Idealist Bonus", "+1 to three random stats",
+                            biomessage="[LPB_INTRO]",
+                            biogram={
+                                "[LPB_INTRO]": {
+                                    Default: [
+                                        "As a child, you began to show exceptional abilities.",
+                                        "You come from a long line of idealists, and your family had great expectations for you."
+                                    ]
+                                }
+                            }
                            )
 )
 
 CITY_PROSPEROUS = LifePathOption("I lived on the good side of town.","Cheerful trait",
-                                 personality_tags=(personality.Cheerful,))
+                                 personality_tags=(personality.Cheerful,),
+                                 biomessage="[LPB_CITY]",
+                                 biogram={
+                                     "[LPB_CITY]": {
+                                         Default: [
+                                             "Your neighborhood was nice enough.",
+                                             "Your family's home was on the rich side of town."
+                                         ]
+                                     }
+                                 })
 
 CITY_SLUMS = LifePathOption("I lived in the slums.", "Grim trait",
-                 personality_tags=(personality.Grim,))
+                 personality_tags=(personality.Grim,),
+                            biomessage="[LPB_CITY]",
+                            biogram = {
+                                "[LPB_CITY]": {
+                                    Default: [
+                                        "Your home was in the bad side of town.",
+                                        "Your neighborhood was riddled with crime."
+                                    ]
+                                }
+                            })
 
 B_CITY = LifePathNode(
     "City","You were born in a city and led an average life there.",
@@ -294,17 +861,53 @@ B_CITY = LifePathNode(
     next=(C_AUTODIDACT,C_UNIVERSITY,C_MILITIA),
     auto_fx=LifePathOption("City Bonus", "+1 Knowledge, +1 Charm",
                            stat_mods={stats.Knowledge:1,stats.Charm:1},
+                           biomessage="[LPB_INTRO]",
+                           biogram = {
+                               "[LPB_INTRO]": {
+                                   Default: [
+                                       "You grew up in [city].", "You were born in [city]."
+                                   ]
+                               }
+                           }
                            )
 )
 
 FRON_WARZONE = LifePathOption("Our village was always under attack by bandits or raiders.","Grim trait",
-                                 personality_tags=(personality.Grim,))
+                                 personality_tags=(personality.Grim,),
+                              biomessage="[LPB_FRON]",
+                              biogram={
+                                  "[LPB_FRON]": {
+                                      Default: [
+                                          "Your community was under constant attack by [enemies]."
+                                      ]
+                                  }
+                              }
+                              )
 
 FRON_BORING = LifePathOption("Mostly it was boring; I longed to escape.","Passionate trait",
-                                 personality_tags=(personality.Passionate,))
+                                 personality_tags=(personality.Passionate,),
+                             biomessage="[LPB_FRON]",
+                             biogram={
+                                 "[LPB_FRON]": {
+                                     Default: [
+                                         "As a child you dreamed of going on big adventures.",
+                                         "Growing up, you always dreamed of becoming a mecha pilot."
+                                     ]
+                                 }
+                             }
+                             )
 
 FRON_COMMUNITY = LifePathOption("Life was hard, but everyone helped everyone else out.","Sociable trait",
-                                 personality_tags=(personality.Sociable,))
+                                 personality_tags=(personality.Sociable,),
+                                biomessage="[LPB_FRON]",
+                                biogram={
+                                    "[LPB_FRON]": {
+                                        Default: [
+                                            "Your community was very close knit."
+                                        ]
+                                    }
+                                }
+                                )
 
 B_FRONTIER = LifePathNode(
     "Frontier","You were born in a small town on the edge of civilization.",
@@ -315,14 +918,77 @@ B_FRONTIER = LifePathNode(
     next=(C_UNIVERSITY,C_MILITIA,C_SURVIVAL),
     auto_fx=LifePathOption("Frontier Bonus", "+1 Body, +1 Perception",
                            stat_mods={stats.Body:1,stats.Perception:1},
+                           biomessage="[LPB_INTRO]",
+                           biogram = {
+                               "[LPB_INTRO]": {
+                                   Default: [
+                                       "You grew up in [village].", "You were born in [village]."
+                                   ]
+                               }
+                           }
                            )
 )
 
 EART_GREENZONE = LifePathOption("The Terran Federation green zone.","GreenZone origin",
-                                 personality_tags=(personality.GreenZone,))
+                                 personality_tags=(personality.GreenZone,),
+                                biogram={
+                                    "[village]": {
+                                        Default: [
+                                            "Last Hope", "Hogye", "Ipshil", "Nara"
+                                        ]
+                                    },
+                                    "[city]": {
+                                        Default: [
+                                            "Snake Lake", "Wujung", "Gyori", "Namok", "Norstead"
+                                        ]
+                                    },
+                                    "[crisis]": {
+                                        Default: [
+                                            "Typhon awakened", "[enemies] attacked"
+                                        ]
+                                    },
+                                    '[enemies]': {
+                                        Default: [
+                                            "Aegis Overlord", "bandits", "Clan Ironwind", "the Bone Devils",
+                                        ]
+                                    },
+                                    "[town]": {
+                                        Default: [
+                                            "[village]", "[city]"
+                                        ]
+                                    }
+                                }
+                                )
 
 EART_DEADZONE = LifePathOption("A fortress in the dead zone.","DeadZone origin",
-                                 personality_tags=(personality.DeadZone,))
+                                 personality_tags=(personality.DeadZone,),
+                               biogram={
+                                   "[village]": {
+                                       Default: [
+                                           "Last Hope", "Kist", "Markheim Fortress"
+                                       ]
+                                   },
+                                   "[city]": {
+                                       Default: [
+                                           "Ironwind Fortress", "Pirate Point"
+                                       ]
+                                   },
+                                   "[crisis]": {
+                                       Default: [
+                                           "Typhon awakened", "[enemies] attacked"
+                                       ]
+                                   },
+                                   '[enemies]': {
+                                       Default: [
+                                           "ravagers", "bandits", "rival fortresses", "the Bone Devils",
+                                       ]
+                                   },
+                                   "[town]": {
+                                       Default: [
+                                           "[village]","[city]"
+                                       ]
+                                   }
+                               })
 
 A_EARTH = LifePathNode(
     "Earth","You are from Earth.",
@@ -336,14 +1002,35 @@ A_EARTH = LifePathNode(
 STARTING_CHOICES = (A_EARTH,)
 
 class BioBlock( object ):
-    def __init__(self,model,width=220,**kwargs):
+    def __init__(self,model,width=220,bio_font=None,**kwargs):
         self.model = model
         self.width = width
-        self.image = pbge.render_text(pbge.BIGFONT,model.bio,width,justify=0)
+        self.image=None
+        self.font = bio_font or pbge.MEDIUMFONT
+        self.update()
         self.height = self.image.get_height()
+
+    def update(self):
+        self.image = pbge.render_text(self.font, self.model.bio, self.width, justify=-1)
+
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
 
 class LifePathStatusPanel(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.NameBlock,BioBlock)
+    DEFAULT_BLOCKS = (gears.info.NameBlock,gears.info.PrimaryStatsBlock,gears.info.NonComSkillBlock,BioBlock)
+
+def generate_random_lifepath(cgen):
+    current = random.choice(STARTING_CHOICES)
+    while current:
+        if current.auto_fx:
+            current.auto_fx.apply(cgen)
+
+        for c in current.choices:
+            myop = random.choice(c.options)
+            myop.apply(cgen)
+
+        if current.next:
+            current = random.choice(current.next)
+        else:
+            break

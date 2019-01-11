@@ -25,6 +25,8 @@ import os
 import glob
 from color import ALL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS, MECHA_COLORS, DETAIL_COLORS, METAL_COLORS, \
     random_character_colors, random_mecha_colors
+import eggs
+import relationships
 
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()

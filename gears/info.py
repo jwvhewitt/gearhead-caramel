@@ -1,6 +1,7 @@
 import base
 import pbge
 import pygame
+import stats
 
 class InfoPanel( object ):
     # An InfoPanel contains a bunch of InfoBlocks which get arranged vertically.
@@ -28,6 +29,11 @@ class InfoPanel( object ):
         for block in self.info_blocks:
             block.render(x,y)
             y += block.height + self.padding
+
+    def update(self):
+        for block in self.info_blocks:
+            if hasattr(block,"update"):
+                block.update()
 
     def popup( self ):
         w,h = self.get_dimensions()
@@ -132,6 +138,52 @@ class OddsInfoBlock( object ):
             if t > 2:
                 break
 
+class PrimaryStatsBlock( object ):
+    def __init__(self,model,width=220,font=None,**kwargs):
+        if model:
+            self.model = model.get_pilot()
+            self.mover = model
+        else:
+            self.model = None
+        self.width = width
+        self.height = pbge.MEDIUMFONT.get_linesize() * len(stats.PRIMARY_STATS)
+        self.font = font or pbge.MEDIUMFONT
+
+    STAT_RANKS = ('Hopeless','Pathetic','Terrible','Poor','Average','Good','Great','Amazing','Incredible','Legendary')
+
+    def render(self,x,y):
+        mydest = pygame.Rect(x,y,self.width,self.height)
+        max_w = 0
+        for ps in stats.PRIMARY_STATS:
+            mytext = '{}: '.format(ps.name)
+            pbge.draw_text(self.font,mytext,mydest)
+            max_w = max(max_w,self.font.size(mytext)[0])
+            mydest.y += self.font.get_linesize()
+        if self.model:
+            mydest = pygame.Rect(x+max_w, y, 20, self.height)
+            rankdest = pygame.Rect(x+max_w+30, y, self.width - max_w - 30, self.height)
+            for ps in stats.PRIMARY_STATS:
+                statval = self.model.get_stat(ps)
+                pbge.draw_text(self.font, str(statval), mydest )
+                mydest.y += self.font.get_linesize()
+                pbge.draw_text(self.font, self.STAT_RANKS[max(min((statval-2)//2,len(self.STAT_RANKS)-1),0)], rankdest )
+                rankdest.y = mydest.y
+
+class NonComSkillBlock(object):
+    def __init__(self,model,width=220,skill_font=None,**kwargs):
+        self.model = model
+        self.width = width
+        self.image=None
+        self.font = skill_font or pbge.MEDIUMFONT
+        self.update()
+        self.height = self.image.get_height()
+
+    def update(self):
+        skillz = [sk.name for sk in self.model.statline.keys() if sk in stats.NONCOMBAT_SKILLS]
+        self.image = pbge.render_text(self.font, 'Skills: {}'.format(', '.join(skillz or ["None"])), self.width, justify=-1)
+
+    def render(self,x,y):
+        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
 class ModuleDisplay( object ):
     # The dest area should be 60x50.
