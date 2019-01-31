@@ -10,6 +10,8 @@ import pygame
 # Or, as the child of another widget. Removing it from that list
 # removes it.
 
+ACTIVE_FLASH = [(0,0,0),] * 5 + [(128,128,0),] * 5
+
 class Widget( frects.Frect ):
     def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), **kwargs ):
         super(Widget, self).__init__(dx,dy,w,h,**kwargs)
@@ -20,20 +22,27 @@ class Widget( frects.Frect ):
         self.children = list(children)
     def respond_event( self, ev ):
         if self.active:
-            if self.get_rect().collidepoint(pygame.mouse.get_pos()):
-                if self.on_click and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1):
-                    self.on_click(self,ev)
-                    my_state.widget_clicked = True
             for c in self.children:
                 c.respond_event(ev)
+            if self.get_rect().collidepoint(pygame.mouse.get_pos()):
+                if self.on_click and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1):
+                    if not my_state.widget_clicked:
+                        my_state.active_widget = self
+                    self.on_click(self,ev)
+                    my_state.widget_clicked = True
     def super_render( self ):
         # This renders the widget and children, setting tooltip and whatnot.
         if self.active:
             self.render()
+            if self is my_state.active_widget:
+                self.flash_when_active()
             if self.tooltip and self.get_rect().collidepoint(pygame.mouse.get_pos()):
                 my_state.widget_tooltip = self.tooltip
             for c in self.children:
                 c.super_render()
+    def flash_when_active(self):
+        if my_state.active_widget_hilight:
+            pygame.draw.rect(my_state.screen, ACTIVE_FLASH[my_state.anim_phase % len(ACTIVE_FLASH)], self.get_rect(), 1)
     def render( self ):
         pass
 

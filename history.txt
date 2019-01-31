@@ -1,3 +1,4 @@
+- NPC relationship with PC now tracked by Relationship object (gears/relationships.py)
 - Added merit badges (gears/meritbadges.py)
 - Added jobs system (gears/jobs.py)
 - Can activate waypoints via the popup menu (game/exploration.py)

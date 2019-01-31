@@ -16,6 +16,7 @@ import util
 import glob
 import random
 import exceptions
+import weakref
 
 # Import the android module. If we can't import it, set it to None - this
 # lets us test it, and check to see if we want android-specific behavior.
@@ -112,14 +113,20 @@ class GameState( object ):
         self.got_quit = False
         self.widgets = list()
         self.widgets_active = True
+        self.active_widget_hilight = False
+        self._active_widget = None
         self.widget_clicked = False
         self.music = None
         self.music_name = None
         self.music_library = dict()
+        self.anim_phase = 0
 
     def render_widgets( self ):
-        for w in self.widgets:
-            w.super_render()
+        if self.widgets:
+            for w in self.widgets:
+                w.super_render()
+        elif self.active_widget_hilight:
+            self.active_widget_hilight = False
 
     def do_flip( self, show_widgets=True ):
         self.widget_tooltip = None
@@ -132,6 +139,7 @@ class GameState( object ):
             myrect = pygame.rect.Rect(x,y,200,20)
             default_border.render(myrect)
             draw_text(self.small_font,self.widget_tooltip,myrect)
+        self.anim_phase = (self.anim_phase + 1) % 6000
         pygame.display.flip()
 
     def locate_music( self, mfname ):
@@ -154,13 +162,33 @@ class GameState( object ):
     def stop_music( self ):
         if self.music:
             self.music.stop()
+
     def resume_music( self ):
         if self.music_name:
             mname,self.music_name = self.music_name,None
             self.start_music(mname)
 
+    def _set_active_widget(self,widj):
+        self._active_widget = weakref.ref(widj)
 
+    def _get_active_widget(self):
+        if self._active_widget:
+            return self._active_widget()
 
+    def _del_active_widget(self):
+        self._active_widget = None
+
+    active_widget = property(_get_active_widget, _set_active_widget, _del_active_widget)
+
+    def get_keys_for(self, action):
+        keys = util.config.get("KEYS",action)
+        key_set = set()
+        for k in keys.split():
+            if k.startswith("K_"):
+                k = getattr(pygame,k,None)
+                if k:
+                    key_set.add(k)
+        return key_set
 
 
 INPUT_CURSOR = None
@@ -280,8 +308,11 @@ def wait_event():
         my_state.got_quit = True
     elif ev.type == TIMEREVENT:
         pygame.event.clear( TIMEREVENT )
-    elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_PRINT:
-        pygame.image.save( my_state.screen, util.user_dir( "out.png" ) )
+    elif ev.type == pygame.KEYDOWN:
+        if ev.key == pygame.K_PRINT:
+            pygame.image.save( my_state.screen, util.user_dir( "out.png" ) )
+        elif ev.key in my_state.get_keys_for("next_widget"):
+            my_state.active_widget_hilight = True
     elif ev.type == pygame.VIDEORESIZE:
         my_state.screen = pygame.display.set_mode( (max(ev.w,800),max(ev.h,600)), pygame.RESIZABLE )
 

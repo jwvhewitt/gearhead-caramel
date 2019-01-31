@@ -420,15 +420,16 @@ class BaseGear(scenes.PlaceableThing):
     DEFAULT_NAME = "Gear"
     DEFAULT_MATERIAL = materials.Metal
     DEFAULT_SCALE = scale.MechaScale
-    SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors')
+    SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid')
 
-    def __init__(self, **keywords):
+    def __init__(self, uniqueid=None, **keywords):
         self.name = keywords.pop("name", self.DEFAULT_NAME)
         self.desig = keywords.pop("desig", None)
         self.scale = keywords.pop("scale", self.DEFAULT_SCALE)
         self.material = keywords.pop("material", self.DEFAULT_MATERIAL)
         self.imagename = keywords.pop("imagename", "iso_item.png")
         self.colors = keywords.pop("colors", None)
+        self.uniqueid = uniqueid
 
         self.sub_com = SubComContainerList(owner=self)
         sc_to_add = keywords.pop("sub_com", [])
