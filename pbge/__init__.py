@@ -169,7 +169,10 @@ class GameState( object ):
             self.start_music(mname)
 
     def _set_active_widget(self,widj):
-        self._active_widget = weakref.ref(widj)
+        if widj:
+            self._active_widget = weakref.ref(widj)
+        else:
+            self._active_widget = None
 
     def _get_active_widget(self):
         if self._active_widget:
@@ -190,6 +193,8 @@ class GameState( object ):
                     key_set.add(k)
         return key_set
 
+    def activate_next_widget(self):
+        pass
 
 INPUT_CURSOR = None
 SMALLFONT = None
@@ -313,6 +318,7 @@ def wait_event():
             pygame.image.save( my_state.screen, util.user_dir( "out.png" ) )
         elif ev.key in my_state.get_keys_for("next_widget"):
             my_state.active_widget_hilight = True
+            my_state.activate_next_widget()
     elif ev.type == pygame.VIDEORESIZE:
         my_state.screen = pygame.display.set_mode( (max(ev.w,800),max(ev.h,600)), pygame.RESIZABLE )
 
