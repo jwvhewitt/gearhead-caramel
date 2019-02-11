@@ -15,6 +15,7 @@ class MemoBrowser(object):
         self.next_button = pbge.widgets.ButtonWidget(120,116,80,32,bfbuttonsprite,1,on_click=self.next_memo)
         closebuttonsprite = pbge.image.Image('sys_closeicon.png',13,14)
         self.close_button = pbge.widgets.ButtonWidget(200,-112,13,14,closebuttonsprite,0,on_click=self.close_browser)
+
         pbge.my_state.widgets += [self.prev_button,self.next_button,self.close_button]
 
     def render( self ):

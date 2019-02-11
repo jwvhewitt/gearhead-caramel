@@ -55,7 +55,7 @@ class FloorBorder( object ):
         # deal with.
         edges,corners = self.calc_edges_and_corners( view, x, y )
         if edges > 0 or corners > 16:
-            spr = view.get_named_sprite( self.border_image )
+            spr = view.get_terrain_sprite( self.border_image, (x,y) )
             if edges > 0:
                 spr.render( dest, edges )
             if corners > 16:
@@ -82,25 +82,25 @@ class Terrain( Singleton ):
     def render_top( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_top:
-            spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
             spr.render( dest, self.frame )
     @classmethod
     def render_biddle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_biddle:
-            spr = view.get_named_sprite( self.image_biddle, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_biddle, (x,y), transparent=self.transparent )
             spr.render( dest, self.frame )
     @classmethod
     def render_middle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_middle:
-            spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_middle, (x,y), transparent=self.transparent )
             spr.render( dest, self.frame )
     @classmethod
     def render_bottom( self, dest, view, x, y ):
         """Draw terrain that should appear behind a model in the same tile"""
         if self.image_bottom:
-            spr = view.get_named_sprite( self.image_bottom, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_bottom, (x,y), transparent=self.transparent )
             spr.render( dest, self.frame )
     @classmethod
     def place( self, scene, pos ):
@@ -110,7 +110,7 @@ class Terrain( Singleton ):
     def __str__( self ):
         return self.name
     @classmethod
-    def get_sprite( self ):
+    def getz_sprite( self ):
         """Generate the sprite for this terrain."""
         return image.Image(self.image_top,64,64)
 
@@ -120,25 +120,25 @@ class VariableTerrain( Terrain ):
     def render_top( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_top:
-            spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
             spr.render( dest, self.frames[view.get_pseudo_random(x,y) % len(self.frames)] )
     @classmethod
     def render_middle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_middle:
-            spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_middle, (x,y), transparent=self.transparent )
             spr.render( dest, self.frames[view.get_pseudo_random(x,y) % len(self.frames)] )
     @classmethod
     def render_biddle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_biddle:
-            spr = view.get_named_sprite( self.image_biddle, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_biddle, (x,y), transparent=self.transparent )
             spr.render( dest, self.frames[view.get_pseudo_random(x,y) % len(self.frames)] )
     @classmethod
     def render_bottom( self, dest, view, x, y ):
         """Draw terrain that should appear behind a model in the same tile"""
         if self.image_bottom:
-            spr = view.get_named_sprite( self.image_bottom, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_bottom, (x,y), transparent=self.transparent )
             spr.render( dest, self.frames[view.get_pseudo_random(x,y) % len(self.frames)] )
 
 class AnimTerrain( Terrain ):
@@ -148,25 +148,25 @@ class AnimTerrain( Terrain ):
     def render_top( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_top:
-            spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
             spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
     @classmethod
     def render_middle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_middle:
-            spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_middle, (x,y), transparent=self.transparent )
             spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
     @classmethod
     def render_biddle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model under the same tile"""
         if self.image_biddle:
-            spr = view.get_named_sprite( self.image_biddle, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_biddle, (x,y), transparent=self.transparent )
             spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
     @classmethod
     def render_bottom( self, dest, view, x, y ):
         """Draw terrain that should appear behind a model in the same tile"""
         if self.image_bottom:
-            spr = view.get_named_sprite( self.image_bottom, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_bottom, (x,y), transparent=self.transparent )
             spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
 
 
@@ -188,7 +188,7 @@ class WallTerrain( Terrain ):
             wal = view.calc_wall_score( x, y, WallTerrain )
 
         if wal:
-            spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
             spr.render( dest, wal )
         if bor > 0:
             spr = view.get_named_sprite( self.bordername )
@@ -203,7 +203,7 @@ class DoorTerrain( WallTerrain ):
         else:
             wal = 0
 
-        spr = view.get_named_sprite(self.image_bottom, transparent=self.transparent)
+        spr = view.get_terrain_sprite(self.image_bottom, (x,y), transparent=self.transparent)
         spr.render(dest, self.frame + wal)
     @classmethod
     def render_middle( self, dest, view, x, y ):
@@ -212,7 +212,7 @@ class DoorTerrain( WallTerrain ):
         else:
             wal = 0
 
-        spr = view.get_named_sprite(self.image_middle, transparent=self.transparent)
+        spr = view.get_terrain_sprite(self.image_middle, (x,y), transparent=self.transparent)
         spr.render(dest, self.frame + wal)
     @classmethod
     def render_top( self, dest, view, x, y ):
@@ -221,7 +221,7 @@ class DoorTerrain( WallTerrain ):
         else:
             wal = 0
 
-        spr = view.get_named_sprite(self.image_top, transparent=self.transparent)
+        spr = view.get_terrain_sprite(self.image_top, (x,y), transparent=self.transparent)
         spr.render(dest, self.frame + wal)
 
 
@@ -230,7 +230,7 @@ class RoadTerrain( Terrain ):
     def render_bottom( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         d = view.calc_decor_score( x, y, RoadTerrain )
-        spr = view.get_named_sprite( self.image_bottom, transparent=self.transparent )
+        spr = view.get_terrain_sprite( self.image_bottom, (x,y), transparent=self.transparent )
         spr.render( dest, d )
 
 class HillTerrain( Terrain ):
@@ -250,7 +250,7 @@ class HillTerrain( Terrain ):
             wal = view.calc_wall_score( x, y, HillTerrain )
 
         if wal:
-            spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_middle, (x,y), transparent=self.transparent )
             spr.render( dest, wal )
         if bor > 0:
             spr = view.get_named_sprite( self.bordername )
@@ -263,7 +263,7 @@ class OnTheWallTerrain( Terrain ):
             frame = 1
         else:
             frame = 0
-        spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
+        spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
         spr.render( dest, frame )
 
 class OnTheWallVariableTerrain( Terrain ):
@@ -273,7 +273,7 @@ class OnTheWallVariableTerrain( Terrain ):
     def render_top( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_top:
-            spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
             if view.space_to_south(x, y):
                 frame = self.south_frames[view.get_pseudo_random(x,y) % len(self.south_frames)]
             else:
@@ -288,24 +288,24 @@ class TerrSetTerrain( Terrain ):
     def render_top( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_top:
-            spr = view.get_named_sprite( self.image_top, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
             spr.render( dest, view.scene.data.get((x,y),0) )
     @classmethod
     def render_biddle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_biddle:
-            spr = view.get_named_sprite( self.image_biddle, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_biddle, (x,y), transparent=self.transparent )
             spr.render( dest, view.scene.data.get((x,y),0) )
     @classmethod
     def render_middle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_middle:
-            spr = view.get_named_sprite( self.image_middle, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_middle, (x,y), transparent=self.transparent )
             spr.render( dest, view.scene.data.get((x,y),0) )
     @classmethod
     def render_bottom( self, dest, view, x, y ):
         """Draw terrain that should appear behind a model in the same tile"""
         if self.image_bottom:
-            spr = view.get_named_sprite( self.image_bottom, transparent=self.transparent )
+            spr = view.get_terrain_sprite( self.image_bottom, (x,y), transparent=self.transparent )
             spr.render( dest, view.scene.data.get((x,y),0) )
 

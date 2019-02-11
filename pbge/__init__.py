@@ -193,8 +193,26 @@ class GameState( object ):
                     key_set.add(k)
         return key_set
 
+    def _get_all_kb_selectable_widgets(self,wlist):
+        mylist = list()
+        for w in wlist:
+            if w.active:
+                if w.is_kb_selectable():
+                    mylist.append(w)
+                if w.children:
+                    mylist += self._get_all_kb_selectable_widgets(w.children)
+        return mylist
+
     def activate_next_widget(self):
-        pass
+        wlist = self._get_all_kb_selectable_widgets(self.widgets)
+        awid = self.active_widget
+        if awid and awid in wlist:
+            n = wlist.index(awid) + 1
+            if n >= len(wlist):
+                n = 0
+            self.active_widget = wlist[n]
+        elif wlist:
+            self.active_widget = wlist[0]
 
 INPUT_CURSOR = None
 SMALLFONT = None
@@ -253,7 +271,7 @@ def wrapline(text, font, maxwidth):
     while not done:             
         nl, done, stext=truncline(text, font, maxwidth) 
         wrapped.append(stext.strip())                  
-        text=text[nl:]                                 
+        text=text[nl:]
     return wrapped
  
  

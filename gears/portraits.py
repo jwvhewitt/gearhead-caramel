@@ -21,23 +21,28 @@ class Portrait(object):
         self.color_channels = list(color.CHARACTER_COLOR_CHANNELS)
 
     @staticmethod
-    def get_bit_of_type(ptype, form_tags):
+    def get_list_of_type(ptype, form_tags,use_weight=True):
         candidates = list()
         for pb in PORTRAIT_BITS_BY_TYPE[ptype]:
             if pb.is_legal_bit(form_tags):
                 # Generate a list. The length of the list depends on the appropriateness of this bit.
                 pblist = [pb,]
-                if TAG_COMMON in pb.prefers:
-                    pblist *= 3
-                tags_in_common = len(pb.prefers.intersection(form_tags))
-                if tags_in_common > 0:
-                    pblist *= (3 + 2 * tags_in_common)
+                if use_weight:
+                    if TAG_COMMON in pb.prefers:
+                        pblist *= 3
+                    tags_in_common = len(pb.prefers.intersection(form_tags))
+                    if tags_in_common > 0:
+                        pblist *= (3 + 2 * tags_in_common)
                 candidates += pblist
+        return candidates
+
+    def get_bit_of_type(self, ptype, form_tags):
+        candidates = self.get_list_of_type(ptype, form_tags)
         if candidates:
             return random.choice(candidates)
 
-    def random_portrait(self, pc):
-        frontier = ["Base", ]
+    @staticmethod
+    def get_form_tags(pc):
         form_tags = list()
         if hasattr(pc, "gender"):
             form_tags += pc.gender.tags
@@ -51,6 +56,12 @@ class Portrait(object):
             form_tags.append("Noncombatant")
         if pc.faction:
             form_tags.append(pc.faction.get_faction_tag().name)
+        return form_tags
+
+    def random_portrait(self, pc):
+        frontier = ["Base", ]
+        self.bits = list()
+        form_tags = self.get_form_tags(pc)
         while frontier:
             nu_part = self.get_bit_of_type(frontier.pop(), form_tags)
             if nu_part:
@@ -58,12 +69,41 @@ class Portrait(object):
                 frontier += nu_part.children
                 form_tags += nu_part.form_tags
 
-    def build_portrait(self,pc,add_color=True):
+    def verify(self, pc):
+        # Check through the bits, make sure they're all legal, replace the ones that don't fit.
+        frontier = ["Base",]
+        form_tags = self.get_form_tags(pc)
+        bits_to_check = list(self.bits)
+        self.bits = list()
+        for bitname in bits_to_check:
+            bit = PORTRAIT_BITS[bitname]
+            if bit.btype in frontier:
+                frontier.remove(bit.btype)
+                if bit.is_legal_bit(form_tags):
+                    self.bits.append(bitname)
+                    frontier += bit.children
+                    form_tags += bit.form_tags
+                else:
+                    # This part is not legal, but it is needed.
+                    nu_part = self.get_bit_of_type(bit.btype, form_tags)
+                    if nu_part:
+                        self.bits.append(nu_part.name)
+                        frontier += nu_part.children
+                        form_tags += nu_part.form_tags
+        while frontier:
+            nu_part = self.get_bit_of_type(frontier.pop(), form_tags)
+            if nu_part:
+                self.bits.append(nu_part.name)
+                frontier += nu_part.children
+                form_tags += nu_part.form_tags
+
+
+    def build_portrait(self,pc,add_color=True,force_rebuild=False):
         porimage = pbge.image.Image(frame_width=400, frame_height=700)
         porimage.custom_frames = FRAMES
 
         # Check first to see if the portrait already exists.
-        if add_color and (self,repr(pc.colors)) in pbge.image.pre_loaded_images:
+        if add_color and (self,repr(pc.colors)) in pbge.image.pre_loaded_images and not force_rebuild:
             porimage.bitmap = pbge.image.pre_loaded_images[(self,repr(pc.colors))]
             return porimage
 

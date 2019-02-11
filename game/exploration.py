@@ -366,6 +366,8 @@ class Explorer( object ):
         self.order = None
 
         self.update_scene()
+        #self.scene.update_party_position(self.camp)
+
         # Clear the event queue, in case switching scenes took a long time.
         pygame.event.clear([pbge.TIMEREVENT,pygame.KEYDOWN])
 

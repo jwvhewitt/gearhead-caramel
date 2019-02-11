@@ -30,6 +30,7 @@ class SceneView( object ):
         self.fieldmap = dict()
         self.modelsprite = weakref.WeakKeyDictionary()
         self.namedsprite = dict()
+        self.darksprite = dict()
 
         self.randoms = list()
         seed = ord(scene.name[0])
@@ -68,6 +69,21 @@ class SceneView( object ):
                 spr.bitmap.set_alpha(alpha)
             self.namedsprite[fname] = spr
         return spr
+
+    def get_terrain_sprite(self,fname,pos,transparent=False):
+        if self.scene.in_sight:
+            if pos in self.scene.in_sight:
+                return self.get_named_sprite(fname,transparent=transparent)
+            else:
+                spr = self.darksprite.get(fname)
+                if not spr:
+                    spr = self.get_named_sprite(fname, transparent=transparent).copy()
+                    spr.bitmap.fill((190, 180, 200), special_flags=pygame.BLEND_MULT)
+                    spr.bitmap.set_colorkey((0, 0, 199))
+                    self.darksprite[fname] = spr
+                return spr
+        else:
+            return self.get_named_sprite(fname, transparent=transparent)
 
     def get_pseudo_random( self, x, y ):
         #self.seed = ( 73 * x + 101 * y + x * y ) % 1024
@@ -324,7 +340,7 @@ class SceneView( object ):
         self.undermap.clear()
         self.waypointmap.clear()
         for m in self.scene.contents:
-            if hasattr( m , 'render' ):
+            if hasattr( m , 'render' ) and self.PosToKey(m.pos) in self.scene.in_sight:
                 d_pos = self.PosToKey(m.pos)
                 if not m.hidden:
                     self.modelmap[d_pos].append(m)

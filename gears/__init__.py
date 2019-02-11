@@ -140,7 +140,7 @@ class GearHeadScene(pbge.scenes.Scene):
 
     def get_tile_info(self, pos):
         """Return an InfoPanel for the contents of this tile, if appropriate."""
-        if self.get_visible(*pos):
+        if self.get_visible(*pos) and pos in self.in_sight:
             # mmecha = pbge.my_state.view.modelmap.get(pos)
             mmecha = self.get_main_actor(pos)
             if mmecha and (self.local_teams.get(mmecha) == self.player_team or not mmecha.hidden):
@@ -243,7 +243,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     pos = self.entrance.pos
                 pc.place(self.scene, pos, self.scene.player_team)
                 pc.gear_up()
-                pbge.scenes.pfov.PCPointOfView(self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale))
+                #pbge.scenes.pfov.PCPointOfView(self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale))
+        self.scene.update_party_position(self)
 
     def remove_party_from_scene(self):
         for pc in list(self.party):

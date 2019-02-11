@@ -5,6 +5,7 @@ import weakref
 import util
 from . import my_state, render_text, TEXT_COLOR, Singleton
 import os.path
+import copy
 
 # import numpy
 
@@ -143,6 +144,12 @@ class Image(object):
 
         dest_surface.set_clip(None)
 
+    def copy(self,ident=None):
+        nu_sprite = Image(frame_height=self.frame_height,frame_width=self.frame_width,)
+        nu_sprite.bitmap = self.bitmap.copy()
+        if ident:
+            self.record_pre_loaded(ident, None, nu_sprite.bitmap)
+        return nu_sprite
 
 class TextImage(Image):
     def __init__(self, txt='?????', frame_width=128, color=None, font=None):

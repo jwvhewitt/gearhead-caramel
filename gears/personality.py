@@ -73,18 +73,20 @@ class Idealist(Singleton):
 class FelineMutation(Singleton):
     name = "Feline Mutation"
     @staticmethod
-    def apply(pc):
-        pc.statline[stats.Speed] += 2
-        pc.statline[stats.Body] -= 2
+    def apply(pc,stats_to_mod=None):
+        sl = stats_to_mod or pc.statline
+        sl[stats.Speed] += 2
+        sl[stats.Body] -= 2
         if pc.portrait_gen and random.randint(1,3) == 1:
             pc.portrait_gen.color_channels[1] = color.HAIR_COLORS
 
 class DraconicMutation(Singleton):
     name = "Draconic Mutation"
     @staticmethod
-    def apply(pc):
-        pc.statline[stats.Charm] -= 2
-        pc.statline[stats.Body] += 2
+    def apply(pc,stats_to_mod=None):
+        sl = stats_to_mod or pc.statline
+        sl[stats.Charm] -= 2
+        sl[stats.Body] += 2
         if pc.portrait_gen:
             pc.portrait_gen.color_channels[1] = color.MECHA_COLORS
             pc.portrait_gen.color_channels[2] = color.METAL_COLORS
@@ -92,10 +94,11 @@ class DraconicMutation(Singleton):
 class GeneralMutation(Singleton):
     name = "Mutation"
     @staticmethod
-    def apply(pc):
+    def apply(pc,stats_to_mod=None):
+        sl = stats_to_mod or pc.statline
         s1,s2 = random.sample(stats.PRIMARY_STATS,2)
-        pc.statline[s1] -= 2
-        pc.statline[s2] += 2
+        sl[s1] -= 2
+        sl[s2] += 2
         if pc.portrait_gen:
             pc.portrait_gen.color_channels[1] = color.ALL_COLORS
             pc.portrait_gen.color_channels[2] = color.ALL_COLORS

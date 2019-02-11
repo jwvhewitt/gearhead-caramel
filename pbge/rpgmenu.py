@@ -15,6 +15,9 @@ class MenuItem( object ):
         """ Comparison of menu items done by msg string """
         return( self.msg < other.msg )
 
+    def __str__(self):
+        return self.msg
+
 # The DescBox is the default MenuDesc. It takes a string stored in the menu
 # item and displays it. However, it is not the only menu description possible!
 # Any object with a render_desc(menu_item) method will work.

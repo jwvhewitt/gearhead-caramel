@@ -1,3 +1,4 @@
+- Currently visible area indicated (pbge/scenes/viewer.py)
 - NPC relationship with PC now tracked by Relationship object (gears/relationships.py)
 - Added merit badges (gears/meritbadges.py)
 - Added jobs system (gears/jobs.py)

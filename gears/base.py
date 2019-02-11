@@ -2645,21 +2645,26 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             return 1
 
     @staticmethod
-    def random_stats(points=80):
+    def random_stats(points=80,base_stats={}):
         statline = dict()
-        minstat = (points - 10) // 24
+        minstat = max((points - 10) // 24,0)
         leftovers = points - minstat * 8
         for s in stats.PRIMARY_STATS:
             statline[s] = minstat
         for t in range(leftovers):
             stat_to_improve = random.choice(stats.PRIMARY_STATS)
-            if statline[stat_to_improve] >= 15 and random.randint(1,5) != 5:
+            if (statline[stat_to_improve] + base_stats.get(stat_to_improve,0)) >= 15 and random.randint(1,5) != 5:
                 stat_to_improve = random.choice(stats.PRIMARY_STATS)
             statline[stat_to_improve] += 1
         return statline
-    def roll_stats(self,points=80):
-        nu_stats = self.random_stats(points)
-        self.statline.update(nu_stats)
+    def roll_stats(self,points=80,clear_first=True):
+        if clear_first:
+            nu_stats = self.random_stats(points)
+            self.statline.update(nu_stats)
+        else:
+            nu_stats = self.random_stats(points,self.statline)
+            for s in stats.PRIMARY_STATS:
+                self.statline[s] += nu_stats[s]
 
 class Character(Being):
     SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction', 'badges', 'bio', 'relationship')

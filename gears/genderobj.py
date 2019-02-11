@@ -26,6 +26,10 @@ class Gender(object):
         return cls("man", "male", "he", "him", "his", "his", "card_m_*.png", (TAG_MASC,))
 
     @classmethod
+    def get_default_nonbinary(cls):
+        return cls()
+
+    @classmethod
     def random_gender(cls):
         if random.randint(1, 20) == 20:
             # Nonbinary it is.

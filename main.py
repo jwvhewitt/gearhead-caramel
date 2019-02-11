@@ -98,7 +98,7 @@ def open_cosplay_menu(tsrd):
     game.cosplay.ColorEditor.explo_invoke(tsrd)
 
 def open_chargen_menu(tsrd):
-    game.chargen.CharacterGenerator.create_and_invoke(tsrd)
+    game.chargen.CharacterGeneratorW.create_and_invoke(tsrd)
 
 def play_the_game():
     try:

@@ -35,7 +35,7 @@ class LifePathOption(object):
             ghdialogue.trait_absorb(nugramdict,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,cgen.pc.get_tags())
             cgen.pc.bio += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
         for k,v in self.stat_mods.items():
-            cgen.pc.statline[k] += v
+            cgen.bio_bonuses[k] += v
 
 class LPIdealistBonus(object):
     def __init__(self,name,desc,biomessage='',biogram=None):
@@ -53,7 +53,7 @@ class LPIdealistBonus(object):
             cgen.pc.bio += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
         stat_list = random.sample(gears.stats.PRIMARY_STATS,3)
         for s in stat_list:
-            cgen.pc.statline[s] += 1
+            cgen.bio_bonuses[s] += 1
         cgen.pc.personality.add(personality.Idealist)
 
 
@@ -68,7 +68,7 @@ class LPRandomMutation(object):
     def apply(self,cgen):
         mutation = random.choice(personality.MUTATIONS)
         cgen.pc.personality.add(mutation)
-        mutation.apply(cgen.pc)
+        mutation.apply(cgen.pc,cgen.bio_bonuses)
         ghdialogue.trait_absorb(cgen.biogram,self.biogram,cgen.pc.get_tags())
         if self.biomessage:
             nugramdict = cgen.biogram.copy()
@@ -86,7 +86,7 @@ CHOOSE_PEACE = LifePathOption("Peace", "You vow to protect the weak, and prevent
                                      ]
                                  }
                              })
-CHOOSE_GLORY = LifePathOption("Glory", "", personality_tags = (personality.Glory,),
+CHOOSE_GLORY = LifePathOption("Glory", "You seek a life of danger and excitement. Riches and fame would be pretty good too.", personality_tags = (personality.Glory,),
                              biomessage = "[LPE_INTRO]",
                              biogram={
                                  "[LPE_INTRO]": {
@@ -96,7 +96,7 @@ CHOOSE_GLORY = LifePathOption("Glory", "", personality_tags = (personality.Glory
                                      ]
                                  }
                              })
-CHOOSE_JUSTICE = LifePathOption("Justice", "", personality_tags = (personality.Justice,),
+CHOOSE_JUSTICE = LifePathOption("Justice", "You have sworn to uphold the principles of justice, to see the good rewarded and the guilty punished.", personality_tags = (personality.Justice,),
                              biomessage = "[LPE_INTRO]",
                              biogram={
                                  "[LPE_INTRO]": {
@@ -106,7 +106,7 @@ CHOOSE_JUSTICE = LifePathOption("Justice", "", personality_tags = (personality.J
                                      ]
                                  }
                              })
-CHOOSE_FELLOWSHIP = LifePathOption("Fellowship", "", personality_tags=(personality.Fellowship,),
+CHOOSE_FELLOWSHIP = LifePathOption("Fellowship", "You want to build bridges instead of just blowing them up.", personality_tags=(personality.Fellowship,),
                              biomessage = "[LPE_INTRO]",
                              biogram={
                                  "[LPE_INTRO]": {
@@ -116,7 +116,7 @@ CHOOSE_FELLOWSHIP = LifePathOption("Fellowship", "", personality_tags=(personali
                                      ]
                                  }
                              })
-CHOOSE_DUTY = LifePathOption("Duty", "", personality_tags = (personality.Duty,),
+CHOOSE_DUTY = LifePathOption("Duty", "You know no life other than being a cavalier, and live in strict adherence to the Cavalier Code.", personality_tags = (personality.Duty,),
                              biomessage = "[LPE_INTRO]",
                              biogram={
                                  "[LPE_INTRO]": {
@@ -141,7 +141,7 @@ class LifePathNode(object):
         self.next_prompt = next_prompt
         self.auto_fx = auto_fx
 
-FAIL_POPSTAR = LifePathOption("My music career went nowhere.","Performance skill, Pop Star merit badge.",
+FAIL_POPSTAR = LifePathOption("One Hit Wonder","My music career went nowhere. (Performance skill, Pop Star merit badge)",
                               stat_mods={stats.Performance:1},badges=(BADGE_POPSTAR,),
                               biomessage="[LPD_FAIL]",
                               biogram={
@@ -152,7 +152,7 @@ FAIL_POPSTAR = LifePathOption("My music career went nowhere.","Performance skill
                                       ]
                                   }
                               })
-FAIL_FRIENDDIED = LifePathOption("My friend died and I couldn't save them.","Medicine skill, Grim trait",
+FAIL_FRIENDDIED = LifePathOption("Shadow of Death","My friend died and I couldn't save them. (Medicine skill, Grim trait)",
                                  stat_mods={stats.Medicine:1},personality_tags=(personality.Grim,),
                               biomessage="[LPD_FAIL]",
                               biogram={
@@ -182,7 +182,7 @@ D_FAILURE = LifePathNode(
         })
 )
 
-BETR_MENTOR = LifePathOption("I must never let my guard down again.","Scouting skill",
+BETR_MENTOR = LifePathOption("Caution","I must never let my guard down again. (Scouting skill)",
                              stat_mods={stats.Scouting:1},
                               biomessage="[LPD_BETR]",
                               biogram={
@@ -196,7 +196,7 @@ BETR_MENTOR = LifePathOption("I must never let my guard down again.","Scouting s
                               })
 
 
-BETR_LABMATE = LifePathOption("I will get strong enough to defeat them.","Mecha Fighting bonus",
+BETR_LABMATE = LifePathOption("Revenge","I will get strong enough to defeat them. (Mecha Fighting bonus)",
                              stat_mods={stats.MechaFighting:1},
                               biomessage="[LPD_BETR]",
                               biogram={
@@ -226,7 +226,7 @@ D_BETRAYAL = LifePathNode(
         })
 )
 
-DEST_MECHALOVE = LifePathOption("I was born to pilot mecha.","Repair skill, Gearhead badge",
+DEST_MECHALOVE = LifePathOption("Mecha Mania","I was born to pilot mecha. (Repair skill, Gearhead badge)",
                                 stat_mods={stats.Repair:1},badges=(BADGE_GEARHEAD,),
                                 biomessage="[LPD_DEST]",
                                 biogram={
@@ -236,7 +236,7 @@ DEST_MECHALOVE = LifePathOption("I was born to pilot mecha.","Repair skill, Gear
                                         ]
                                     }
                                 })
-DEST_GOLDENTONGUE = LifePathOption("I am both a problem solver and a troublemaker.","Negotiation skill",
+DEST_GOLDENTONGUE = LifePathOption("Golden Tongue","I am both a problem solver and a troublemaker. (Negotiation skill)",
                                    stat_mods={stats.Negotiation:1},
                                    biomessage="[LPD_DEST]",
                                    biogram={
@@ -253,7 +253,7 @@ DEST_GOLDENTONGUE = LifePathOption("I am both a problem solver and a troublemake
                                    })
 
 D_DESTINY = LifePathNode(
-    "Destiny","",
+    "Destiny","I felt a calling that I couldn't ignore.",
     choices=(
         LifePathChoice("What is your great destiny?",(DEST_MECHALOVE,DEST_GOLDENTONGUE)),
         LifePathChoice("How do you choose to deal with this destiny?",(CHOOSE_GLORY,CHOOSE_JUSTICE,CHOOSE_FELLOWSHIP)),
@@ -271,7 +271,7 @@ D_DESTINY = LifePathNode(
 
 )
 
-POVE_CRIME = LifePathOption("I stole what I needed to survive.","Stealth skill, Criminal badge",
+POVE_CRIME = LifePathOption("Turn to Crime","I stole what I needed to survive. (Stealth skill, Criminal badge)",
                             stat_mods={stats.Stealth:1},badges=(BADGE_CRIMINAL,),
                             biomessage="[LPD_POVE]",
                             biogram={
@@ -282,7 +282,7 @@ POVE_CRIME = LifePathOption("I stole what I needed to survive.","Stealth skill, 
                                     ]
                                 }
                             })
-POVE_MERCENARY = LifePathOption("I became a mercenary.","Ranged Combat bonus",
+POVE_MERCENARY = LifePathOption("Mercenary","I became a soldier of fortune. (Ranged Combat bonus)",
                                   stat_mods={stats.RangedCombat:1},
                                   biomessage="[LPD_POVE]",
                                   biogram={
@@ -313,7 +313,7 @@ D_POVERTY = LifePathNode(
 
 )
 
-WAR_SPECIALIST = LifePathOption("I fought, using my talents as an EW specialist.","Computers skill",
+WAR_SPECIALIST = LifePathOption("Mecha Specialist","I fought, using my talents as an EW specialist. (Computers skill)",
                                 stat_mods={stats.Computers:1},
                                 biomessage="[LPD_WAR]",
                                 biogram={
@@ -324,7 +324,7 @@ WAR_SPECIALIST = LifePathOption("I fought, using my talents as an EW specialist.
                                         ]
                                     }
                                 })
-WAR_BIOTECH = LifePathOption("I sought info about PreZero bioweapons to aid my side.","Biotechnology skill",
+WAR_BIOTECH = LifePathOption("Lostech Hunting","I sought info about PreZero bioweapons to aid my side. (Biotechnology skill)",
                              stat_mods={stats.Biotechnology:1},
                              biomessage="[LPD_WAR]",
                              biogram={
@@ -337,7 +337,7 @@ WAR_BIOTECH = LifePathOption("I sought info about PreZero bioweapons to aid my s
                              })
 
 D_WAR = LifePathNode(
-    "War","",
+    "War","Everything got put on hold when open warfare broke out.",
     choices=(
         LifePathChoice("What did you do during the war?",(WAR_SPECIALIST,WAR_BIOTECH)),
         LifePathChoice("How do you choose to deal with this conflict?",(CHOOSE_GLORY,CHOOSE_DUTY,CHOOSE_PEACE)),
@@ -364,7 +364,7 @@ D_WAR = LifePathNode(
 
 )
 
-SURV_PET = LifePathOption("I had a dog who kept me safe.","Dominate Animal skill",
+SURV_PET = LifePathOption("Animal Companion","I had a dog who kept me safe. (Dominate Animal skill)",
                           stat_mods={stats.DominateAnimal:1},
                           biomessage="[LPC_SURV]",
                           biogram={
@@ -380,7 +380,7 @@ SURV_PET = LifePathOption("I had a dog who kept me safe.","Dominate Animal skill
                                   ]
                               }
                           })
-SURV_TALK = LifePathOption("I learned to talk my way out of bad situations.","Negotiation skill",
+SURV_TALK = LifePathOption("Fast Talker","I learned to talk my way out of bad situations. (Negotiation skill)",
                            stat_mods={stats.Negotiation:1},
                            biomessage="[LPC_SURV]",
                            biogram={
@@ -393,7 +393,7 @@ SURV_TALK = LifePathOption("I learned to talk my way out of bad situations.","Ne
                            })
 
 C_SURVIVAL = LifePathNode(
-    "Survival","Life was tough. All you could do was to survive, and then just barely.",
+    "Survival","Life was tough. All you could do was to survive, and then just barely. (+2 Vitality)",
     choices=(
         LifePathChoice("What allowed you to get through this period?",(SURV_PET,SURV_TALK)),
     ),
@@ -412,7 +412,7 @@ C_SURVIVAL = LifePathNode(
                              })
 )
 
-HAKN_THIEF = LifePathOption("I was a thief.","Stealth skill",
+HAKN_THIEF = LifePathOption("Stealing Things","I was a thief. (Stealth skill)",
                             stat_mods={stats.Stealth:1},
                             biomessage="[LPC_HAKN]",
                             biogram={
@@ -428,7 +428,7 @@ HAKN_THIEF = LifePathOption("I was a thief.","Stealth skill",
                                     ]
                                 }
                             })
-HAKN_HACKER = LifePathOption("I was a computer hacker.","Computers skill",
+HAKN_HACKER = LifePathOption("Hacking","I was a computer hacker. (Computers skill)",
                              stat_mods={stats.Computers:1},
                              biomessage="[LPC_HAKN]",
                              biogram={
@@ -446,7 +446,7 @@ HAKN_HACKER = LifePathOption("I was a computer hacker.","Computers skill",
                              })
 
 C_HARDKNOCKS = LifePathNode(
-    "Hard Knocks","As a youth, you got mixed up in some dangerous times.",
+    "Hard Knocks","As a youth, you got mixed up in some dangerous times. (Athletics + 2, Criminal badge)",
     choices=(
         LifePathChoice("What sort of criminal activity were you involved in?",(HAKN_HACKER,HAKN_THIEF)),
     ),
@@ -465,7 +465,7 @@ C_HARDKNOCKS = LifePathNode(
                            })
 )
 
-AUTO_SCIENCE = LifePathOption("Science, especially the lost art of biotech.","Biotechnology skill",
+AUTO_SCIENCE = LifePathOption("The Sciences","Science, especially the lost art of biotech. (Biotechnology skill)",
                                 stat_mods={stats.Biotechnology:1},
                               biomessage="[LPC_AUTO]",
                               biogram={
@@ -476,7 +476,7 @@ AUTO_SCIENCE = LifePathOption("Science, especially the lost art of biotech.","Bi
                                       ]
                                   }
                               })
-AUTO_ART = LifePathOption("Art, especially music.","Performance skill",
+AUTO_ART = LifePathOption("The Arts","Art, especially music. (Performance skill)",
                           stat_mods={stats.Performance:1},
                           biomessage="[LPC_AUTO]",
                           biogram={
@@ -488,7 +488,7 @@ AUTO_ART = LifePathOption("Art, especially music.","Performance skill",
                           })
 
 C_AUTODIDACT = LifePathNode(
-    "Autodidact","You taught yourself everything you know, and were a very good teacher.",
+    "Autodidact","You taught yourself everything you know, and were a very good teacher. (Concentration + 2)",
     choices=(
         LifePathChoice("What subject captivated your interest?",(AUTO_ART,AUTO_SCIENCE)),
     ),
@@ -507,7 +507,7 @@ C_AUTODIDACT = LifePathNode(
                            })
 )
 
-UNI1_SCIENCE = LifePathOption("Science.","Science skill",
+UNI1_SCIENCE = LifePathOption("Science.","(Science skill)",
                               stat_mods={stats.Science:1},
                               biogram={
                                   "[major]": {
@@ -516,7 +516,7 @@ UNI1_SCIENCE = LifePathOption("Science.","Science skill",
                                       ]
                                   }
                               })
-UNI1_MEDICINE = LifePathOption("Medicine.","Medicine skill",
+UNI1_MEDICINE = LifePathOption("Medicine.","(Medicine skill)",
                               stat_mods={stats.Medicine:1},
                                biogram={
                                    "[major]": {
@@ -526,7 +526,7 @@ UNI1_MEDICINE = LifePathOption("Medicine.","Medicine skill",
                                    }
                                })
 
-UNI2_ENGINEERING = LifePathOption("Engineering.","Repair skill",
+UNI2_ENGINEERING = LifePathOption("Engineering.","(Repair skill)",
                                   stat_mods={stats.Repair:1},
                                   biomessage="[LPC_OUTRO]",
                                   biogram={
@@ -536,7 +536,7 @@ UNI2_ENGINEERING = LifePathOption("Engineering.","Repair skill",
                                           ]
                                       }
                                   })
-UNI2_COMPSCI = LifePathOption("Computer Science.","Computers skill",
+UNI2_COMPSCI = LifePathOption("Computer Science.","(Computers skill)",
                                   stat_mods={stats.Computers:1},
                               biomessage="[LPC_OUTRO]",
                               biogram={
@@ -547,7 +547,7 @@ UNI2_COMPSCI = LifePathOption("Computer Science.","Computers skill",
                                   }
                               })
 
-UNI2_MUSIC = LifePathOption("Music.","Performance skill",
+UNI2_MUSIC = LifePathOption("Music.","(Performance skill)",
                                   stat_mods={stats.Performance:1},
                                 biomessage="[LPC_OUTRO]",
                                   biogram={
@@ -559,7 +559,7 @@ UNI2_MUSIC = LifePathOption("Music.","Performance skill",
                                   }
                             )
 
-UNI2_POLYSCI = LifePathOption("Management.","Negotiation skill",
+UNI2_POLYSCI = LifePathOption("Management.","(Negotiation skill)",
                                   stat_mods={stats.Negotiation:1},
                                 biomessage = "[LPC_OUTRO]",
                                 biogram = {
@@ -570,7 +570,7 @@ UNI2_POLYSCI = LifePathOption("Management.","Negotiation skill",
                                     }
                                 })
 
-UNI2_PHYSED = LifePathOption("Physical Education.","Athletics skill bonus",
+UNI2_PHYSED = LifePathOption("Physical Education.","(Athletics skill bonus)",
                                   stat_mods={stats.Athletics:1},
                              biomessage="[LPC_OUTRO]",
                              biogram={
@@ -583,7 +583,7 @@ UNI2_PHYSED = LifePathOption("Physical Education.","Athletics skill bonus",
 
 
 C_UNIVERSITY = LifePathNode(
-    "University","You studied at a prestigious university.",
+    "University","You studied at a prestigious university. (Choose two skills, Academics badge)",
     choices=(
         LifePathChoice("What was your major in university?",(UNI1_SCIENCE,UNI1_MEDICINE)),
         LifePathChoice("What was your minor in university?", (UNI2_COMPSCI,UNI2_ENGINEERING,UNI2_MUSIC,UNI2_PHYSED,UNI2_POLYSCI)),
@@ -615,7 +615,7 @@ C_UNIVERSITY = LifePathNode(
                            )
 )
 
-MILI_SCOUT = LifePathOption("I was a scout pilot.","Scouting skill",
+MILI_SCOUT = LifePathOption("Scout","I was a recon pilot. (Scouting skill)",
                             stat_mods={stats.Scouting:1},
                             biomessage="[LPC_MILI]",
                             biogram={
@@ -626,7 +626,7 @@ MILI_SCOUT = LifePathOption("I was a scout pilot.","Scouting skill",
                                     ]
                                 }
                             })
-MILI_TECH = LifePathOption("I was a field tech.","Repair skill",
+MILI_TECH = LifePathOption("Technician","I was a field tech. (Repair skill)",
                             stat_mods={stats.Repair:1},
                            biomessage="[LPC_MILI]",
                            biogram={
@@ -637,7 +637,7 @@ MILI_TECH = LifePathOption("I was a field tech.","Repair skill",
                                    ]
                                }
                            })
-MILI_GRUNT = LifePathOption("I was just a grunt.","Mecha Gunnery bonus",
+MILI_GRUNT = LifePathOption("Mecha Pilot","I was just a grunt. (Mecha Gunnery bonus)",
                             stat_mods={stats.MechaGunnery:1},
                             biomessage="[LPC_MILI]",
                             biogram={
@@ -651,7 +651,7 @@ MILI_GRUNT = LifePathOption("I was just a grunt.","Mecha Gunnery bonus",
 
 
 C_MILITIA = LifePathNode(
-    "Militia","You joined the military and learned how to fight.",
+    "Militia","You joined the military and learned how to fight. (Mecha Piloting bonus, Soldier badge)",
     choices=(
         LifePathChoice("What was your position in the army?",(MILI_SCOUT,MILI_TECH,MILI_GRUNT)),
     ),
@@ -679,7 +679,7 @@ C_MILITIA = LifePathNode(
                            )
 )
 
-ORPH_LONER = LifePathOption("I became a loner, and still don't get close to people.","Shy trait",
+ORPH_LONER = LifePathOption("Loner","I kept to myself, and still don't get close to people. (Shy trait)",
                                  personality_tags=(personality.Shy,),
                             biomessage="[LPB_ORPH]",
                             biogram={
@@ -691,7 +691,7 @@ ORPH_LONER = LifePathOption("I became a loner, and still don't get close to peop
                                 }
                             })
 
-ORPH_SOCIABLE = LifePathOption("I took comfort in my friends and caretakers.","Sociable trait",
+ORPH_SOCIABLE = LifePathOption("New Family","I took comfort in my friends and caretakers. (Sociable trait)",
                                  personality_tags=(personality.Shy,),
                                biomessage="[LPB_ORPH]",
                                biogram={
@@ -705,7 +705,7 @@ ORPH_SOCIABLE = LifePathOption("I took comfort in my friends and caretakers.","S
                                })
 
 B_ORPHAN = LifePathNode(
-    "Orphan","You lost your parents at a young age.",
+    "Orphan","You lost your parents at a young age. (+1 Ego, +1 Speed)",
     choices=(
         LifePathChoice("How did you cope with the loss of your parents?",(ORPH_LONER,ORPH_SOCIABLE)),
     ),
@@ -727,7 +727,7 @@ B_ORPHAN = LifePathNode(
                            )
 )
 
-OUTC_MUTANT = LPRandomMutation("I have visible genetic mutations.", "Mutant trait",
+OUTC_MUTANT = LPRandomMutation("Obvious Mutation", "I have visible genetic mutations. (Mutant trait)",
                                biomessage="[LPB_OUTC]",
                                biogram={
                                    "[LPB_OUTC]": {
@@ -752,7 +752,7 @@ OUTC_MUTANT = LPRandomMutation("I have visible genetic mutations.", "Mutant trai
                                }
                              )
 
-OUTC_CRIMINAL = LifePathOption("I got started in crime at a young age.", "Criminal badge",
+OUTC_CRIMINAL = LifePathOption("Juvenile Delinquent", "I got started in crime at a young age. (Criminal badge)",
                              badges=(BADGE_CRIMINAL,),
                                biomessage="[LPB_OUTC]",
                                biogram={
@@ -765,7 +765,7 @@ OUTC_CRIMINAL = LifePathOption("I got started in crime at a young age.", "Crimin
                                })
 
 B_OUTCAST = LifePathNode(
-    "Outcast","You have always lived on the fringes of society.",
+    "Outcast","You have always lived on the fringes of society. (+1 Reflexes, +1 Craft)",
     choices=(
         LifePathChoice("What is it that set you apart from your peers?",(OUTC_CRIMINAL,OUTC_MUTANT)),
     ),
@@ -785,7 +785,7 @@ B_OUTCAST = LifePathNode(
                            )
 )
 
-IDEA_EASY = LifePathOption("My natural talents made me lazy at school.","Easygoing trait",
+IDEA_EASY = LifePathOption("Lazy Student","My natural talents made me lazy at school. (Easygoing trait)",
                                  personality_tags=(personality.Easygoing,),
                            biomessage="[LPB_IDEA]",
                            biogram = {
@@ -797,7 +797,7 @@ IDEA_EASY = LifePathOption("My natural talents made me lazy at school.","Easygoi
                                }
                            }                           )
 
-IDEA_HARD = LifePathOption("I was very competitive; Every subject was a challenge to be mastered.","Passionate trait",
+IDEA_HARD = LifePathOption("Overachiever","I was very competitive; Every subject was a challenge to be mastered. (Passionate trait)",
                                  personality_tags=(personality.Passionate,),
                            biomessage="[LPB_IDEA]",
                            biogram = {
@@ -809,7 +809,7 @@ IDEA_HARD = LifePathOption("I was very competitive; Every subject was a challeng
                            })
 
 B_IDEALIST = LifePathNode(
-    "Idealist","Your heritage includes a significant amount of genetic engineering.",
+    "Idealist","Your heritage includes a significant amount of genetic engineering. (+1 to three random stats)",
     choices=(
         LifePathChoice("How did you perform in school?",(IDEA_EASY,IDEA_HARD)),
     ),
@@ -828,7 +828,7 @@ B_IDEALIST = LifePathNode(
                            )
 )
 
-CITY_PROSPEROUS = LifePathOption("I lived on the good side of town.","Cheerful trait",
+CITY_PROSPEROUS = LifePathOption("Good Neighborhood","I lived on the good side of town. (Cheerful trait)",
                                  personality_tags=(personality.Cheerful,),
                                  biomessage="[LPB_CITY]",
                                  biogram={
@@ -840,7 +840,7 @@ CITY_PROSPEROUS = LifePathOption("I lived on the good side of town.","Cheerful t
                                      }
                                  })
 
-CITY_SLUMS = LifePathOption("I lived in the slums.", "Grim trait",
+CITY_SLUMS = LifePathOption("Slums", "I lived in the slums. (Grim trait)",
                  personality_tags=(personality.Grim,),
                             biomessage="[LPB_CITY]",
                             biogram = {
@@ -853,7 +853,7 @@ CITY_SLUMS = LifePathOption("I lived in the slums.", "Grim trait",
                             })
 
 B_CITY = LifePathNode(
-    "City","You were born in a city and led an average life there.",
+    "City","You were born in a city and led an average life there. (+1 Knowledge, +1 Charm)",
     choices=(
         LifePathChoice("What part of the city were you raised in?",(CITY_PROSPEROUS,CITY_SLUMS)),
     ),
@@ -872,7 +872,7 @@ B_CITY = LifePathNode(
                            )
 )
 
-FRON_WARZONE = LifePathOption("Our village was always under attack by bandits or raiders.","Grim trait",
+FRON_WARZONE = LifePathOption("Dangerous Place","Our village was always under attack by bandits or raiders. (Grim trait)",
                                  personality_tags=(personality.Grim,),
                               biomessage="[LPB_FRON]",
                               biogram={
@@ -884,7 +884,7 @@ FRON_WARZONE = LifePathOption("Our village was always under attack by bandits or
                               }
                               )
 
-FRON_BORING = LifePathOption("Mostly it was boring; I longed to escape.","Passionate trait",
+FRON_BORING = LifePathOption("Boring Life","Mostly it was boring; I longed to escape. (Passionate trait)",
                                  personality_tags=(personality.Passionate,),
                              biomessage="[LPB_FRON]",
                              biogram={
@@ -897,7 +897,7 @@ FRON_BORING = LifePathOption("Mostly it was boring; I longed to escape.","Passio
                              }
                              )
 
-FRON_COMMUNITY = LifePathOption("Life was hard, but everyone helped everyone else out.","Sociable trait",
+FRON_COMMUNITY = LifePathOption("Close Community","Life was hard, but everyone helped everyone else out. (Sociable trait)",
                                  personality_tags=(personality.Sociable,),
                                 biomessage="[LPB_FRON]",
                                 biogram={
@@ -910,7 +910,7 @@ FRON_COMMUNITY = LifePathOption("Life was hard, but everyone helped everyone els
                                 )
 
 B_FRONTIER = LifePathNode(
-    "Frontier","You were born in a small town on the edge of civilization.",
+    "Frontier","You were born in a small town on the edge of civilization. (+1 Body, +1 Perception)",
     choices=(
         LifePathChoice("How was growing up in your frontier town?",(FRON_BORING,FRON_COMMUNITY,FRON_WARZONE)),
     ),
@@ -929,7 +929,7 @@ B_FRONTIER = LifePathNode(
                            )
 )
 
-EART_GREENZONE = LifePathOption("The Terran Federation green zone.","GreenZone origin",
+EART_GREENZONE = LifePathOption("The Green Zone","The Terran Federation green zone, where there is at least some semblance of peace and stability.",
                                  personality_tags=(personality.GreenZone,),
                                 biogram={
                                     "[village]": {
@@ -960,7 +960,7 @@ EART_GREENZONE = LifePathOption("The Terran Federation green zone.","GreenZone o
                                 }
                                 )
 
-EART_DEADZONE = LifePathOption("A fortress in the dead zone.","DeadZone origin",
+EART_DEADZONE = LifePathOption("The Dead Zone","One of the fortresses in the dead zone. Food is scarce and life is precarious.",
                                  personality_tags=(personality.DeadZone,),
                                biogram={
                                    "[village]": {
@@ -1008,17 +1008,33 @@ class BioBlock( object ):
         self.image=None
         self.font = bio_font or pbge.MEDIUMFONT
         self.update()
-        self.height = self.image.get_height()
 
     def update(self):
         self.image = pbge.render_text(self.font, self.model.bio, self.width, justify=-1)
+        self.height = self.image.get_height()
+
+    def render(self,x,y):
+        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+
+class CGNonComSkillBlock(object):
+    def __init__(self,cgen,width=220,skill_font=None,**kwargs):
+        self.cgen = cgen
+        self.width = width
+        self.image=None
+        self.font = skill_font or pbge.MEDIUMFONT
+        self.update()
+        self.height = self.image.get_height()
+
+    def update(self):
+        skillz = [sk.name for sk in self.cgen.bio_bonuses.keys() if sk in stats.NONCOMBAT_SKILLS]
+        self.image = pbge.render_text(self.font, 'Skills: {}'.format(', '.join(skillz or ["None"])), self.width, justify=-1)
 
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
 
 class LifePathStatusPanel(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.NameBlock,gears.info.PrimaryStatsBlock,gears.info.NonComSkillBlock,BioBlock)
+    DEFAULT_BLOCKS = (BioBlock,CGNonComSkillBlock)
 
 def generate_random_lifepath(cgen):
     current = random.choice(STARTING_CHOICES)

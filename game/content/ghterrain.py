@@ -94,6 +94,9 @@ class DefaultWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_default.png'
     blocks = (Walking,Skimming,Rolling,Vision,Flying)
 
+
+import pygame
+
 class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_dragonteeth.png'
     bordername = None
