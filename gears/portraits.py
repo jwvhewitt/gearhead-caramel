@@ -141,7 +141,7 @@ class Portrait(object):
         if add_color:
             if not pc.colors:
                 # Generate random colors for this character.
-                pc.colors = [random.choice(chan) for chan in self.color_channels]
+                pc.colors = [random.choice(color.COLOR_LISTS[chan]) for chan in self.color_channels]
                 #If this character has a faction, update the colors with faction colors.
 
             porimage.recolor(pc.colors)
@@ -159,6 +159,7 @@ class Portrait(object):
             # Interesting bug- saving the image messes up the alpha.
             #pygame.image.save(porimage.bitmap,pbge.util.user_dir('testportrait.png'))
 
+        #print anchors
         return porimage
 
 class PortraitLayer(object):

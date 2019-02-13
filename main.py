@@ -117,6 +117,11 @@ def play_the_game():
     #mypic = pbge.image.Image('BuruBuru.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))
     #pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
 
+    #mypor = gears.portraits.Portrait()
+    #mypor.bits = ["FBA JustBod",]
+    #mypic = mypor.build_portrait(None,False,True)
+    #pygame.image.save(mypic.bitmap, pbge.util.user_dir("FBA JustBod.png"))
+
     tsrd = TitleScreenRedraw()
     mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
         TitleScreenRedraw.MENU_DEST.dy,

@@ -1,10 +1,10 @@
 import lifepath
 import pbge
 import gears
-import copy
 import pygame
 import collections
 import random
+from .. import cosplay
 
 
 class LifepathChooser(object):
@@ -130,12 +130,16 @@ class PortraitEditorW(pbge.widgets.Widget):
     def render(self):
         self.pc.portrait.render(self.portrait_zone.get_rect(),0)
 
+    def done_button(self,wid,ev):
+        self.finished = True
+
     @classmethod
     def create_and_invoke(cls, cgen):
         # Run the UI. Return a DoInvocation action if an invocation
         # was chosen, or None if the invocation was cancelled.
         myui = cls(cgen)
         pbge.my_state.widgets.append(myui)
+        myui.children.append(pbge.widgets.LabelWidget(150,220,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
 
         keepgoing = True
         while keepgoing and not myui.finished and not pbge.my_state.got_quit:
@@ -220,13 +224,15 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
         self.children.append(self.column_two)
 
-        self.column_three = pbge.widgets.ColumnWidget(-375,100,self.C3_WIDTH,120,draw_border=False)
+        self.column_three = pbge.widgets.ColumnWidget(-375,100,self.C3_WIDTH,120,draw_border=False,padding=10)
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,16,text="Random Portait",justify=0,on_click=self.portrait_random,draw_border=True))
         self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,16,text="Edit Portait",justify=0,on_click=self.portrait_edit,draw_border=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,16,text="Random Colors",justify=0,on_click=self.color_random,draw_border=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,16,text="Edit Colors",justify=0,on_click=self.color_edit,draw_border=True))
 
         self.children.append(self.column_three)
 
         self.pc.portrait = self.pc.portrait_gen.build_portrait(self.pc)
-
 
     def stat_display(self,wid):
         return str(self.pc.get_stat(wid.data) + self.bio_bonuses.get(wid.data,0))
@@ -283,6 +289,40 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.active = False
         PortraitEditorW.create_and_invoke(self)
         self.active = True
+
+    def portrait_random(self,wid,ev):
+        self.pc.portrait_gen.random_portrait(self.pc)
+        self.pc.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+
+    def color_edit(self,wid,ev):
+        self.active = False
+        myui = cosplay.ColorEditor(self.pc.portrait_gen.build_portrait(self.pc,add_color=False),0,channel_filters=self.pc.portrait_gen.color_channels,colors=self.pc.colors)
+        pbge.my_state.widgets.append(myui)
+        myui.finished = False
+        myui.children.append(pbge.widgets.LabelWidget(150,220,80,16,text="Done",justify=0,on_click=self.color_done,draw_border=True,data=myui))
+
+        keepgoing = True
+        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+
+        self.pc.colors = myui.colors
+        self.pc.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+
+        pbge.my_state.widgets.remove(myui)
+        self.active = True
+
+    def color_done(self,wid,ev):
+        wid.data.finished = True
+
+    def color_random(self,wid,ev):
+        self.pc.colors = [random.choice(gears.color.COLOR_LISTS[chan]) for chan in self.pc.portrait_gen.color_channels]
+        self.pc.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
     def render(self):
         self.pc.portrait.render(self.portrait_zone.get_rect(),0)

@@ -74,7 +74,7 @@ def harvest_color(dict_to_add_to):
                 DETAIL_COLORS.append(o)
             if color.METAL in o.SETS:
                 METAL_COLORS.append(o)
-
+    ALL_COLORS.sort(key=lambda c: c.FAMILY)
 
 import oldghloader
 import jobs
