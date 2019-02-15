@@ -150,6 +150,8 @@ class PortraitEditorW(pbge.widgets.Widget):
             elif ev.type == pygame.KEYDOWN:
                 if ev.key == pygame.K_ESCAPE:
                     keepgoing = False
+                elif ev.key == pygame.K_F1:
+                    pygame.image.save(myui.pc.portrait.bitmap, pbge.util.user_dir("out.png"))
 
         pbge.my_state.widgets.remove(myui)
 

@@ -78,7 +78,7 @@ class FelineMutation(Singleton):
         sl[stats.Speed] += 2
         sl[stats.Body] -= 2
         if pc.portrait_gen and random.randint(1,3) == 1:
-            pc.portrait_gen.color_channels[1] = color.HAIR_COLORS
+            pc.portrait_gen.color_channels[1] = color.HAIR
 
 class DraconicMutation(Singleton):
     name = "Draconic Mutation"
@@ -88,8 +88,8 @@ class DraconicMutation(Singleton):
         sl[stats.Charm] -= 2
         sl[stats.Body] += 2
         if pc.portrait_gen:
-            pc.portrait_gen.color_channels[1] = color.MECHA_COLORS
-            pc.portrait_gen.color_channels[2] = color.METAL_COLORS
+            pc.portrait_gen.color_channels[1] = color.MECHA
+            pc.portrait_gen.color_channels[2] = color.METAL
 
 class GeneralMutation(Singleton):
     name = "Mutation"
@@ -100,7 +100,7 @@ class GeneralMutation(Singleton):
         sl[s1] -= 2
         sl[s2] += 2
         if pc.portrait_gen:
-            pc.portrait_gen.color_channels[1] = color.ALL_COLORS
-            pc.portrait_gen.color_channels[2] = color.ALL_COLORS
+            pc.portrait_gen.color_channels[1] = color.DETAILS
+            pc.portrait_gen.color_channels[2] = color.DETAILS
 
 MUTATIONS = (FelineMutation,DraconicMutation,GeneralMutation)

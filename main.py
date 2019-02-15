@@ -118,9 +118,9 @@ def play_the_game():
     #pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
 
     #mypor = gears.portraits.Portrait()
-    #mypor.bits = ["FBA JustBod",]
+    #mypor.bits = ["FBA NoBody","Haywire B3 Head"]
     #mypic = mypor.build_portrait(None,False,True)
-    #pygame.image.save(mypic.bitmap, pbge.util.user_dir("FBA JustBod.png"))
+    #pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
 
     tsrd = TitleScreenRedraw()
     mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,

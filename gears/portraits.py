@@ -177,7 +177,7 @@ class PortraitLayer(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    LAYER_OFFSETS = {"left_eye": "head", "right_eye": "head", "mouth": "head", "ear": "head"}
+    LAYER_OFFSETS = {"left_eye": "head", "right_eye": "head", "mouth": "head", "ear": "head", "nose": "head"}
 
     def get_rect(self, limage, canvas, anchors):
         mydest = limage.get_rect(self.frame)
