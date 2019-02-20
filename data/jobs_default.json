@@ -171,6 +171,11 @@
     "tags": ["Politician"],
     "always_combatant": true,
     "local_requirements": ["DeadZone"]
+  },
+  {
+    "name": "Shopkeeper",
+    "skills": ["Repair"],
+    "tags": ["Merchant"]
   }
 
 

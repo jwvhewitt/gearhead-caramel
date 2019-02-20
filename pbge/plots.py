@@ -5,23 +5,31 @@ class PlotError( Exception ):
     """Plot init will call this if initialization impossible."""
     pass
 
-class Chapter( object ):
-    """ A chapter links a group of plots to a root plot and/or a world."""
-    def __init__( self, root=None, world = None ):
-        self.root = root
+class Adventure(object):
+    """ An adventure links a group of plots together."""
+    def __init__( self, name="Generic Adventure", world = None ):
+        self.name = name
         self.world = world
+    def end_adventure(self,camp):
+        # WARNING: Don't end the plot while the PC is standing in one of the temp scenes!
+        # Ending an adventure is best done when the PC leaves the adventure.
+        for p in list(camp.scripts):
+            if p.adv is self:
+                p.end_plot(camp,total_removal=False)
+    def __str__(self):
+        return self.name
 
 class PlotState( object ):
     """For passing state information to subplots."""
-    def __init__( self, chapter=None, rank=None, elements=None ):
-        self.chapter = chapter
+    def __init__(self, adv=None, rank=None, elements=None):
+        self.adv = adv
         self.rank = rank
         if elements:
             self.elements = elements.copy()
         else:
             self.elements = dict()
     def based_on( self, oplot, update_elements=None ):
-        self.chapter = self.chapter or oplot.chapter
+        self.adv = self.adv or oplot.adv
         self.rank = self.rank or oplot.rank
         # Only copy over the elements not marked as private.
         for k,v in oplot.elements.iteritems():
@@ -51,7 +59,6 @@ class Plot( object ):
     LABEL = ""
     UNIQUE = False
     COMMON = False
-    chapter = None
     rank = 1
     # You are free to set active manually, but it's better to use the
     # activate and deactivate functions, which trigger an UPDATE.
@@ -74,7 +81,7 @@ class Plot( object ):
         # pstate = The current plot state
 
         # Inherit the plot state.
-        self.chapter = pstate.chapter or self.chapter
+        self.adv = pstate.adv
         self.rank = pstate.rank or self.rank
         self.elements = pstate.elements.copy()
         self.subplots = dict()
@@ -85,6 +92,9 @@ class Plot( object ):
 
         # The move_records are stored in case this plot gets removed.
         self.move_records = list()
+
+        # The temp_scenes list contains scenes that get removed if this plot ends.
+        self._temp_scenes = list()
 
         # Do the custom initialization
         allok = self.custom_init( nart )
@@ -158,13 +168,16 @@ class Plot( object ):
         elif must_find:
             self.fail( nart )
 
-    def register_scene( self, nart, myscene, mygen, ident=None, dident=None, rank=None ):
-        if not myscene.name:
-            myscene.name = namegen.DEFAULT.gen_word()
+    def register_scene( self, nart, myscene, mygen, ident=None, dident=None, rank=None, temporary=False ):
+        # temporary scenes will be deleted when this plot ends. Use this feature responsibly!
+        # If you create a permanent waypoint door to a temporary scene, the door's link to the scene will
+        # keep that scene alive even after deletion, but the scene's contents and scripts will be gone.
+        # Best bet is to link temporary scenes to the permanent parts of the campaign using something that will
+        # disappear when this plot ends, such as a conversation option or a waypoint menu item.
         if not dident:
-            if self.chapter and self.chapter.world:
-                self.chapter.world.contents.append( myscene )
-                self.move_records.append( (myscene,self.chapter.world.contents) )
+            if self.adv and self.adv.world:
+                self.adv.world.contents.append( myscene )
+                self.move_records.append( (myscene,self.adv.world.contents) )
             else:
                 nart.camp.contents.append( myscene )
                 self.move_records.append( (myscene,nart.camp.contents) )
@@ -172,6 +185,8 @@ class Plot( object ):
         nart.generators.append( mygen )
         self.move_records.append( (mygen,nart.generators) )
         myscene.rank = rank or self.rank
+        if temporary:
+            self._temp_scenes.append(myscene)
         return myscene
 
     def custom_init( self, nart ):
@@ -252,7 +267,7 @@ class Plot( object ):
 
     def modify_puzzle_menu( self, camp, thing, thingmenu ):
         """Modify the thingmenu based on this plot."""
-        # Method [ELEMENTID]_menu will be called with the menu as parameter.
+        # Method [ELEMENTID]_menu will be called with the camp, menu as parameters.
         # This method should modify the menu as needed- typically by altering
         # the "desc" property (menu caption) and adding menu items.
         thing_ids = self.get_element_idents( thing )
@@ -284,6 +299,8 @@ class Plot( object ):
         camp.check_trigger( 'UPDATE' )
 
     def end_plot(self, camp, total_removal=False):
+        # WARNING: Don't end the plot while the PC is standing in one of the temp scenes!
+        # Ending an adventure is best done when the PC leaves the adventure.
         self.active = False
         for sp in self.subplots.itervalues():
             if total_removal or not sp.active:
@@ -292,6 +309,10 @@ class Plot( object ):
         # Remove self from the adventure.
         if hasattr( self, "container" ) and self.container:
             self.container.remove( self )
+
+        # Remove any temporary scenes.
+        for s in self._temp_scenes:
+            s.end_scene(camp)
 
         camp.check_trigger( 'UPDATE' )
 

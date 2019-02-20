@@ -3,7 +3,6 @@ import gears
 from pbge.scenes.movement import Walking, Flying, Vision
 from gears.geffects import Skimming, Rolling
 
-
 class Forest( pbge.scenes.terrain.VariableTerrain ):
     image_top = 'terrain_trees_fg.png'
     image_middle = 'terrain_trees_bg.png'
@@ -15,6 +14,13 @@ class Water( pbge.scenes.terrain.AnimTerrain ):
     altitude = -24
     transparent = True
     movement_cost={pbge.scenes.movement.Walking:3.0,gears.geffects.Rolling:3.0}
+
+class GreenZoneGrass( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_grass.png'
+
+class Flagstone( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_flagstone.png'
+    border = pbge.scenes.terrain.FloorBorder( GreenZoneGrass, 'terrain_border_grassy.png' )
 
 class DeadZoneGround( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_dzground.png'
@@ -94,6 +100,10 @@ class DefaultWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_default.png'
     blocks = (Walking,Skimming,Rolling,Vision,Flying)
 
+class CommercialWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_commercial.png'
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
 
 import pygame
 
@@ -129,6 +139,15 @@ class VictimTerrain(pbge.scenes.terrain.Terrain):
 
 class Window(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_window.png'
+
+class WindowSouth(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_window.png'
+    frame = 1
+
+class WindowEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_window.png'
+    frame = 0
+
 
 class RetroComputerTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_computer.png'
@@ -207,15 +226,33 @@ class VentFanSouth(pbge.scenes.terrain.AnimTerrain):
     image_top = 'terrain_decor_ventfan.png'
     anim_delay = 2
 
+class AlliedArmorSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_alliedarmor.png'
+
+class AlliedArmorSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_alliedarmor.png'
+
+class AlliedArmorSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_alliedarmor.png'
 
 class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = ScrapIronBuildingTerrain
-    WAYPOINT_POS = {
-        "DOOR": (3,8), "DRIFT": (3,9)
-    }
     DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((JunkWindowSouth,), (JunkWindowEast,)),
                              pbge.randmaps.terrset.WallHanger(SteelPipeSouthTop,SteelPipeSouthMid,SteelPipeSouthMid,SteelPipeEastTop,SteelPipeEastMid,SteelPipeEastMid),
                              pbge.randmaps.terrset.RoofDecor((RoofStuff,)),
                              pbge.randmaps.terrset.WallDecor((VentFanSouth,), (VentFanEast,)),
                              )
 
+class BrickBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_bottom = 'terrain_building_brick_b.png'
+    image_top = 'terrain_building_brick.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class BrickBuilding(pbge.randmaps.terrset.BuildingSet):
+    TERRAIN_TYPE = BrickBuildingTerrain
+    DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((WindowSouth,), (WindowEast,)),
+                             pbge.randmaps.terrset.WallHanger(SteelPipeSouthTop,SteelPipeSouthMid,SteelPipeSouthMid,SteelPipeEastTop,SteelPipeEastMid,SteelPipeEastMid),
+                             pbge.randmaps.terrset.RoofDecor((RoofStuff,)),
+                             )

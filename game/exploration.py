@@ -433,6 +433,8 @@ class Explorer( object ):
                     elif gdi.unicode == u"c":
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
+                    elif gdi.unicode == u"X":
+                        self.camp.save()
                     elif gdi.unicode == u"m":
                         memobrowser.MemoBrowser.browse(self.camp)
                     elif gdi.unicode == u"&":

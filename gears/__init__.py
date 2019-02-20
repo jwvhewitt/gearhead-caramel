@@ -164,10 +164,11 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None
     pc = None
 
-    def __init__(self, name="GHC Campaign", explo_class=None, year=158):
+    def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None):
         super(GearHeadCampaign, self).__init__(name, explo_class)
         self.tarot = pbge.container.ContainerDict()
         self.year = year
+        self.egg = egg
 
     def active_plots(self):
         for p in super(GearHeadCampaign, self).active_plots():

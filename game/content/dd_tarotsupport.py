@@ -1,6 +1,6 @@
 # This unit contains support plots for tarot cards.
 import game.content.ghwaypoints
-from pbge.plots import Plot, Chapter, PlotState
+from pbge.plots import Plot, Adventure, PlotState
 import ghwaypoints
 import ghterrain
 import gears

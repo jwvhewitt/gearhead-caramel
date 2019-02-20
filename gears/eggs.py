@@ -16,19 +16,23 @@ class Egg(object):
         self.major_npc_records = dict()
         if major_npc_records:
             self.major_npc_records.update(major_npc_records)
-        self.con_rec = dict()
+        # past_adventures lists names of adventure modules this character has done, to prevent double dipping.
+        self.past_adventures = list()
+
+        # _con_rec records containers for dramatis personae while saving the egg.
+        self._con_rec = dict()
 
     def _remove_container_for(self,thing):
         if hasattr(thing,"container") and thing.container:
-            self.con_rec[thing] = thing.container
+            self._con_rec[thing] = thing.container
             thing.container.remove(thing)
     def _reset_container_for(self,thing):
-        if thing in self.con_rec:
-            self.con_rec[thing].append(thing)
+        if thing in self._con_rec:
+            self._con_rec[thing].append(thing)
 
     def save( self ):
         # Save a record of all the containers.
-        self.con_rec.clear()
+        self._con_rec.clear()
         self._remove_container_for(self.pc)
         self._remove_container_for(self.mecha)
         for npc in self.dramatis_personae:

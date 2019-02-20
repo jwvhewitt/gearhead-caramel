@@ -91,3 +91,60 @@ class SceneGenerator( Room ):
                 #    self.gb.sub_scenes.append( t )
 
 
+class CityGridGenerator(SceneGenerator):
+    def __init__( self, myscene, archi, road_terrain, road_thickness=3, **kwargs ):
+        super(CityGridGenerator,self).__init__( myscene,archi,**kwargs )
+        self.road_terrain = road_terrain
+        self.road_thickness = road_thickness
+    def arrange_contents( self, gb ):
+        # Step Two: Arrange subcomponents within this area.
+        closed_area = list()
+        # Add already placed rooms to the closed_area list.
+        for r in self.contents:
+            if hasattr( r, "area" ) and r.area:
+                closed_area.append( r.area )
+        # Add rooms with defined anchors next
+        for r in self.contents:
+            if hasattr( r, "anchor" ) and r.anchor and hasattr(r,"area"):
+                myrect = pygame.Rect( 0, 0, r.width, r.height )
+                r.anchor( self.area, myrect )
+                if myrect.collidelist( closed_area ) == -1:
+                    r.area = myrect
+                    closed_area.append( myrect )
+
+        # Next we're gonna draw the road grid. I know that drawing is usually saved for near the end, but eff
+        # that, I'm the programmer. I can do whatever I like.
+        blocks = list()
+        column_info = list()
+        x = random.randint(2,4)
+        while x < (self.width - self.road_thickness):
+            # Draw a N-S road here.
+            self.fill(self.gb,pygame.Rect(x,0,self.road_thickness,self.height),floor=self.road_terrain)
+            room_width = random.randint(9,15)
+            if x + room_width + self.road_thickness < self.width:
+                column_info.append((x+self.road_thickness,room_width))
+            x += self.road_thickness + room_width
+
+        y = random.randint(2,4)
+        while y < (self.height - self.road_thickness - 7):
+            # Draw a W-E road here.
+            self.fill(self.gb,pygame.Rect(0,y,self.width,self.road_thickness),floor=self.road_terrain)
+            room_height = random.randint(9,15)
+            # Add the rooms.
+            for col_x,col_width in column_info:
+                blocks.append(pygame.Rect(col_x,y+self.road_thickness,col_width,room_height))
+            y += self.road_thickness + room_height
+
+        # Assign areas for unplaced rooms.
+        for r in self.contents:
+            if hasattr( r, "area" ) and not r.area:
+                if blocks:
+                    myblock = random.choice(blocks)
+                    blocks.remove(myblock)
+                    r.area = myblock
+                else:
+                    raise rooms.RoomError( "ROOM ERROR: {}:{} has no block for {}".format(str(self),str( self.__class__ ),str(r)) )
+
+
+    def connect_contents( self, gb, archi ):
+        pass

@@ -70,7 +70,9 @@ class BuildingSet( TerrSet ):
     GF4_TILE = (18,23)
     GF5_TILE = (19,24)
     DEFAULT_DECOR_OPTIONS = ()
-    def __init__(self, tags=(), dimx=0, dimy=0, dimz=0, anchor=None, parent=None, archi=None, waypoints=dict(), border=1, decor_options=()):
+    def __init__(self, tags=(), dimx=0, dimy=0, dimz=0, anchor=None, parent=None, archi=None, waypoints=dict(), border=1, decor_options=(), door_sign=None, other_sign=None):
+        # door_sign is a tuple containing the (south,east) versions of terrain to place above the door.
+        # other_sign is a tuple containing the (south,east) versions of terrain to place above the other waypoint.
         self.TERRAIN_MAP = list()
         dimx = max(dimx or random.randint(4,7),3)
         dimy = max(dimy or random.randint(4,7),3)
@@ -124,6 +126,26 @@ class BuildingSet( TerrSet ):
             self.WAYPOINT_POS["OTHER"] = (random.randint(1, dimx - 2) + dimz - 1, dimy - 2 + dimz)
         self.decor_tiles.remove(self.WAYPOINT_POS["DOOR"])
         self.decor_tiles.remove(self.WAYPOINT_POS["OTHER"])
+
+        # Add positions for the optional waypoints.
+        if door_sign:
+            x,y = self.WAYPOINT_POS["DOOR"]
+            self.WAYPOINT_POS["DOOR_SIGN"] = (x-1,y-1)
+            if self.WAYPOINT_POS["DOOR_SIGN"] in self.decor_tiles:
+                self.decor_tiles.remove(self.WAYPOINT_POS["DOOR_SIGN"])
+            if self.TERRAIN_MAP[y][x] in self.GF2_TILE:
+                waypoints["DOOR_SIGN"] = door_sign[0]
+            else:
+                waypoints["DOOR_SIGN"] = door_sign[1]
+        if other_sign:
+            x,y = self.WAYPOINT_POS["OTHER"]
+            self.WAYPOINT_POS["OTHER_SIGN"] = (x-1,y-1)
+            if self.WAYPOINT_POS["OTHER_SIGN"] in self.decor_tiles:
+                self.decor_tiles.remove(self.WAYPOINT_POS["OTHER_SIGN"])
+            if self.TERRAIN_MAP[y][x] in self.GF2_TILE:
+                waypoints["OTHER_SIGN"] = other_sign[0]
+            else:
+                waypoints["OTHER_SIGN"] = other_sign[1]
 
         super(BuildingSet,self).__init__(tags,anchor,parent,archi,waypoints,border)
 

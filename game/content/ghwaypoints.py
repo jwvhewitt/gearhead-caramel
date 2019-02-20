@@ -84,3 +84,8 @@ class MetalDoor( Waypoint ):
             camp.scene.set_wall(self.pos[0],self.pos[1],ghterrain.MetalDoorOpen)
         elif camp.scene.get_wall(*self.pos) is ghterrain.MetalDoorOpen and not camp.scene.get_actors(self.pos):
             camp.scene.set_wall(self.pos[0],self.pos[1],ghterrain.MetalDoorClosed)
+
+class AlliedArmorSignWP(Waypoint):
+    name = "Allied Armor"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.AlliedArmorSign)
+    ATTACH_TO_WALL = True

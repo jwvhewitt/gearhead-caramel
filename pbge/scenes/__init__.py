@@ -341,3 +341,15 @@ class Scene( object ):
         # Return all of the bumpables found at this position.
         return [a for a in self.contents if a.pos == pos and hasattr(a,'bump')]
 
+    def end_scene(self,camp):
+        for s in list(self.sub_scenes):
+            if hasattr(s, "end_scene"):
+                s.end_scene(camp)
+            else:
+                self.sub_scenes.remove(s)
+        for s in list(self.scripts):
+            self.scripts.remove(s)
+        for c in list(self.contents):
+            self.contents.remove(c)
+        if hasattr(self,"container") and self.container:
+            self.container.remove(self)

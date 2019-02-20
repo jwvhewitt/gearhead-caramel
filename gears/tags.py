@@ -52,6 +52,9 @@ class Criminal(Singleton):
 class Media(Singleton):
     name = "Media"
 
+class Merchant(Singleton):
+    name = "Merchant"
+
 class Military(Singleton):
     name = "Military"
 
@@ -61,6 +64,11 @@ class Police(Singleton):
 class Politician(Singleton):
     name = "Politician"
 
+
+
 # Scene Tags
 class Village(Singleton):
     name = "Village"
+
+class City(Singleton):
+    name = "City"

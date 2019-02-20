@@ -1,6 +1,6 @@
 import gears
 from game.content.ghwaypoints import DZDTown
-from pbge.plots import Plot, Chapter
+from pbge.plots import Plot, Adventure, NarrativeRequest
 import ghwaypoints
 import ghterrain
 import pbge
@@ -11,12 +11,94 @@ import dd_tarot
 import mechtarot
 import plotutility
 import gharchitecture
+from . import PLOT_LIST
 
 # Room tags
 ON_THE_ROAD = "ON_THE_ROAD" # This location is connected to the highway, if appropriate.
 
 class DeadzoneDrifterStub( Plot ):
     LABEL = "SCENARIO_DEADZONEDRIFTER"
+    # Creates a DeadZone Drifter adventure.
+    # - Start by creating the "home base" city that the player character will leave from.
+
+    def custom_init( self, nart ):
+        """Create Wujung."""
+        wplot = self.add_first_locale_sub_plot( nart, locale_type="DZD_HOME_BASE" )
+
+        return True
+
+
+class AdventureTestStub( Plot ):
+    # Initial: 43.1 kB
+    LABEL = "SCENARIO_ADVENTURETEST"
+    active = True
+    scope = True
+
+    def custom_init( self, nart ):
+        """Create the world + starting scene."""
+        wplot = self.add_first_locale_sub_plot( nart, locale_type="DZD_WORLD" )
+
+        xit = wplot.elements.get("EXIT")
+        self.register_element( "MACGUFFIN", xit )
+        xit.plot_locked = True
+
+        home_scene = self.register_element("HOME_SCENE",wplot.elements["LOCALE"])
+        home_base = self.register_element("HOME_BASE",wplot.elements["ENTRANCE"])
+
+        return True
+
+    def MACGUFFIN_menu(self,camp,thingmenu):
+        thingmenu.desc = "This exit leads to a world of infinite adventure. Do you want to go there?"
+        thingmenu.add_item("Sure, why not.",self.start_adventure)
+        thingmenu.add_item("No thanks.",None)
+    def start_adventure(self,camp):
+        init = pbge.plots.PlotState(rank=1,elements={"ADVENTURE_EXIT":(self.elements["HOME_SCENE"],self.elements["HOME_BASE"])})
+        nart = NarrativeRequest(camp,init,adv_type="TEST_ADVENTURE",plot_list=PLOT_LIST)
+        if nart.story:
+            nart.build()
+            #nart.story.start(camp)
+            camp.check_trigger('UPDATE')
+        else:
+            pbge.alert("Narrative build failed. Bummer.")
+
+class TheBigTest(Plot):
+    LABEL = "TEST_ADVENTURE"
+    active = True
+    scope = True
+
+    def custom_init( self, nart ):
+        """Create the world + starting scene."""
+        team1 = teams.Team(name="Player Team")
+        myscene = gears.GearHeadScene(35,35,"Starting Area",player_team=team1,scale=gears.scale.MechaScale)
+        myscenegen = pbge.randmaps.SceneGenerator(myscene,gharchitecture.MechaScaleDeadzone())
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True )
+        self.adv = Adventure(world=myscene)
+
+        myroom = self.register_element("_ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5),dident="LOCALE")
+        mydest = self.register_element("_ROOM2",pbge.randmaps.rooms.FuzzyRoom(3,3),dident="LOCALE")
+        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_ROOM")
+        myexit = self.register_element( "EXIT", ghwaypoints.Exit(name="Exit Scenario", anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_ROOM2")
+        self.entered_adventure = False
+
+        return True
+
+    def t_UPDATE(self,camp):
+        if not self.entered_adventure:
+            camp.destination = self.elements["LOCALE"]
+            camp.entrance = self.elements["ENTRANCE"]
+            self.entered_adventure = True
+
+    def EXIT_menu(self,camp,thingmenu):
+        thingmenu.desc = "This is the end of the adventure. Are you ready to go?"
+        thingmenu.add_item("Sure, why not.",self.end_adventure)
+        thingmenu.add_item("No thanks.",None)
+
+    def end_adventure(self, camp):
+        self.adv.end_adventure(camp)
+        camp.destination,camp.entrance = self.elements["ADVENTURE_EXIT"]
+
+class OldDeadzoneDrifterStub( Plot ):
+    LABEL = "zzzSCENARIO_DEADZONEDRIFTER"
     # Creates a DeadZone Drifter adventure.
     # - Create a patch of DeadZone to act as the "world"
     # - Add a village, including random cards for village resources
@@ -26,10 +108,10 @@ class DeadzoneDrifterStub( Plot ):
 
     def custom_init( self, nart ):
         """Create the world + starting scene."""
-        self.chapter = Chapter( world=nart.camp )
+        self.adv = Adventure(world=nart.camp)
         wplot = self.add_first_locale_sub_plot( nart, locale_type="DZD_WORLD" )
         w = wplot.elements.get("LOCALE")
-        self.chapter.world = w
+        self.adv.world = w
         self.register_element( "WORLD", w )
 
         # Add the village in trouble.

@@ -79,12 +79,14 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
 import mechtarot
 
 import mocha
+import dd_homebase
 import dd_main
 import dd_tarot
 import dd_tarotsupport
 import plotutility
 
 harvest(mocha)
+harvest(dd_homebase)
 harvest(dd_main)
 harvest(dd_tarot)
 harvest(dd_tarotsupport)

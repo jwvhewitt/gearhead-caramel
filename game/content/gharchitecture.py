@@ -24,6 +24,12 @@ class HumanScaleDeadzone(Architecture):
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.CrackedEarth
 
+class HumanScaleGreenzone(Architecture):
+#    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
+#    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
+    DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
+    DEFAULT_FLOOR_TERRAIN = ghterrain.GreenZoneGrass
+
 class DefaultBuilding(Architecture):
     DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
@@ -32,6 +38,12 @@ class DefaultBuilding(Architecture):
 
 class MakeScrapIronBuilding(Architecture):
     DEFAULT_WALL_TERRAIN = ghterrain.ScrapIronWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+class CommercialBuilding(Architecture):
+    DEFAULT_WALL_TERRAIN = ghterrain.CommercialWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor

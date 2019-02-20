@@ -1,4 +1,4 @@
-from pbge.plots import Plot, Chapter, PlotState
+from pbge.plots import Plot, Adventure, PlotState
 import ghwaypoints
 import ghterrain
 import gears
@@ -186,7 +186,7 @@ class MochaStub( Plot ):
         """Create the world + starting scene."""
         w = nart.camp
         self.register_element( "WORLD", w )
-        self.chapter = Chapter( world=w )
+        self.adv = Adventure(world=w)
         self.add_first_locale_sub_plot( nart, locale_type="MOCHA_MAUNA" )
 
 
