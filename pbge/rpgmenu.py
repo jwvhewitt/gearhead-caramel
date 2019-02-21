@@ -35,7 +35,7 @@ class DescBox( Frect ):
         self.font = font or my_state.small_font
         super(DescBox, self).__init__(dx,dy,w,h,anchor)
 
-    def render_desc(self,menu_item):
+    def __call__(self,menu_item):
         mydest = self.get_rect()
         if self.border:
             self.border.render( my_state.screen , mydest )
@@ -103,8 +103,8 @@ class Menu( Frect ):
 
         my_state.screen.set_clip(None)
 
-        if self.descobj != None:
-            self.descobj.render_desc(self.get_current_item())
+        if self.descobj:
+            self.descobj(self.get_current_item())
 
     def get_mouseover_item( self , pos ):
         # Return the menu item under this mouse position.

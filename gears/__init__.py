@@ -506,7 +506,7 @@ def init_gears():
     for f in design_files:
         selector.DESIGN_LIST += Loader(f).load()
     # print selector.DESIGN_LIST
-    # selector.check_design_list()
+    selector.check_design_list()
 
     portraits.init_portraits()
     jobs.init_jobs()

@@ -254,6 +254,9 @@ class Mover(KeyObject):
     def get_current_speed(self):
         return self.get_speed(self.mmode)
 
+    def get_max_speed(self):
+        return max(self.get_speed(scenes.movement.Walking),self.get_speed(geffects.Skimming),self.get_speed(geffects.Rolling))
+
     def count_module_points(self, module_form):
         # Count the number of active module points, reducing rating for damage taken.
         total = 0
@@ -420,9 +423,9 @@ class BaseGear(scenes.PlaceableThing):
     DEFAULT_NAME = "Gear"
     DEFAULT_MATERIAL = materials.Metal
     DEFAULT_SCALE = scale.MechaScale
-    SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid')
+    SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc')
 
-    def __init__(self, uniqueid=None, **keywords):
+    def __init__(self, uniqueid=None, shop_tags=(), desc="", **keywords):
         self.name = keywords.pop("name", self.DEFAULT_NAME)
         self.desig = keywords.pop("desig", None)
         self.scale = keywords.pop("scale", self.DEFAULT_SCALE)
@@ -430,6 +433,8 @@ class BaseGear(scenes.PlaceableThing):
         self.imagename = keywords.pop("imagename", "iso_item.png")
         self.colors = keywords.pop("colors", None)
         self.uniqueid = uniqueid
+        self.shop_tags = list(shop_tags)
+        self.desc = desc
 
         self.sub_com = SubComContainerList(owner=self)
         sc_to_add = keywords.pop("sub_com", [])
@@ -448,6 +453,12 @@ class BaseGear(scenes.PlaceableThing):
                 print("ERROR: {} cannot be equipped in {}".format(i, self))
 
         super(BaseGear, self).__init__(**keywords)
+
+    def get_full_name(self):
+        if self.desig:
+            return "{} {}".format(self.desig,self.name)
+        else:
+            return self.name
 
     @property
     def base_mass(self):
@@ -2301,6 +2312,8 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         self.role_list = role_list
         self.family = family
         super(Mecha, self).__init__(**keywords)
+        if tags.ST_MECHA not in self.shop_tags:
+            self.shop_tags.append(tags.ST_MECHA)
 
     def is_legal_sub_com(self, part):
         return self.form.is_legal_sub_com(part)

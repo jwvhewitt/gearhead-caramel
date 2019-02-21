@@ -466,7 +466,26 @@ DEFAULT_GRAMMAR = {
             ],
 
         },
-        
+
+    "[HELLO:OPEN_SHOP]": {
+        Default: ["I'd like to see what you have for sale.",
+                  "What do you have for sale?"
+                  ],
+        personality.Cheerful: ["Show me what you have!",
+                               ],
+        personality.Grim: ["Show me your goods.",
+                           ],
+        personality.Easygoing: ["Mind if I take a look at your stuff?",
+                                ],
+        personality.Passionate: ["I'm looking for new equipment.",
+                                 ],
+        personality.Sociable: ["Tell me about the things you have for sale.",
+                               ],
+        personality.Shy: ["I'll tell you if I need help.",
+                          ],
+
+    },
+
     "[INFO_PERSONAL]": {
         # This pattern should be supported by IP_* tokens gathered
         # from the plots involving this character. You don't need to

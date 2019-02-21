@@ -27,13 +27,15 @@ def calc_threat_points(level, percent=30):
     return it * percent
 
 
-def check_design_list():
-    for mek in DESIGN_LIST:
+def check_design_list(echo_on=False):
+    for mek in list(DESIGN_LIST):
         if isinstance(mek, base.Mecha):
             if not mek.check_design():
-                print "Warning: {} {} design is broken".format(mek.desig, mek)
-            else:
-                print "{} {}: ${}".format(mek.desig, mek, mek.cost)
+                if echo_on:
+                    print "Warning: {} {} design is broken".format(mek.desig, mek)
+                DESIGN_LIST.remove(mek)
+            elif echo_on:
+                print "{} {}: ${:,}".format(mek.desig, mek, mek.cost)
 
 def random_name(npc):
     candidates = list()

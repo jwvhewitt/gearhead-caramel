@@ -7,6 +7,7 @@ Mecha
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
     role_list = (Trooper,Command)
+    desc = "One of the oldest mecha designs still in common use, the BuruBuru is the dependable workhorse of the mecha world."
 
     SUB
         Head

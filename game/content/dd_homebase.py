@@ -1,5 +1,7 @@
 from pbge.plots import Plot, Adventure, NarrativeRequest
-from .. import teams
+from pbge.dialogue import Offer,ContextTag,Cue
+from .. import teams,services,ghdialogue
+from ..ghdialogue import context
 import gears
 import gharchitecture
 import pbge
@@ -61,4 +63,15 @@ class DZD_AlliedArmor(Plot):
         npc = self.register_element("SHOPKEEPER",gears.selector.random_character(50,local_tags=self.elements["LOCALE"].attributes, job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         npc.place(intscene,team=team2)
 
+        self.shop = services.Shop()
+
         return True
+
+    def SHOPKEEPER_offers(self,camp):
+        mylist = list()
+
+        mylist.append(Offer("Testing the shop.",
+            context=ContextTag([context.OPEN_SHOP]),effect=self.shop
+            ))
+
+        return mylist

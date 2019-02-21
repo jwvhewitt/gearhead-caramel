@@ -62,6 +62,10 @@ HELLO_JOIN = Reply( "[HELLO:JOIN]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.JOIN]) ) )
 
+HELLO_OPENSHOP = Reply( "[HELLO:OPEN_SHOP]" ,
+            context = ContextTag([context.HELLO]),
+            destination = Cue( ContextTag([context.OPEN_SHOP]) ) )
+
 INFOPERSONAL_GOODBYE = Reply( "[INFO_PERSONAL:GOODBYE]" ,
             context = ContextTag([context.INFO,context.PERSONAL]),
             destination = Cue( ContextTag([context.GOODBYE]) ) )

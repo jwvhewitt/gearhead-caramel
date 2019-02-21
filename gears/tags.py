@@ -72,3 +72,7 @@ class Village(Singleton):
 
 class City(Singleton):
     name = "City"
+
+# Shop Tags
+
+ST_MECHA = "MECHA"

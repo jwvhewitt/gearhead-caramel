@@ -53,11 +53,29 @@ class NameBlock( object ):
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
+class FullNameBlock( object ):
+    def __init__(self,model,width=220,**kwargs):
+        self.model = model
+        self.width = width
+        self.image = pbge.render_text(pbge.BIGFONT,model.get_full_name(),width,justify=0)
+        self.height = self.image.get_height()
+    def render(self,x,y):
+        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+
 class ListBlock( object ):
     def __init__(self,items,width=220,**kwargs):
         self.items = items
         self.width = width
         self.image = pbge.render_text(pbge.BIGFONT,'\n'.join([str(i) for i in items]),width,justify=-1)
+        self.height = self.image.get_height()
+    def render(self,x,y):
+        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+
+class DescBlock( object ):
+    def __init__(self,model,width=220,**kwargs):
+        self.model = model
+        self.width = width
+        self.image = pbge.render_text(pbge.MEDIUMFONT,model.desc,width,justify=0)
         self.height = self.image.get_height()
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))

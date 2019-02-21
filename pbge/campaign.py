@@ -38,6 +38,7 @@ class Campaign( object ):
         self.scripts = container.ContainerList()
         self.uniques = set()
         self.explo_class = explo_class
+        self.day = 1
 
 
     def save( self ):
