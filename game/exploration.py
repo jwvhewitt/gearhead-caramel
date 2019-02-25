@@ -8,6 +8,7 @@ import ghdialogue
 import configedit
 import invoker
 import memobrowser
+import fieldhq
 
 # Commands should be callable objects which take the explorer and return a value.
 # If untrue, the command stops.
@@ -441,6 +442,8 @@ class Explorer( object ):
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
                                 self.scene.set_visible(x,y,True)
+                    elif gdi.unicode == u"H":
+                        fieldhq.FieldHQ.create_and_invoke(self.camp)
                     elif gdi.key == pygame.K_ESCAPE:
                         mymenu = configedit.PopupGameMenu()
                         mymenu(self)

@@ -7,6 +7,11 @@ import random
 from . import random_character_colors,DETAIL_COLORS,CLOTHING_COLORS,SKIN_COLORS,HAIR_COLORS
 import color
 import base
+import eggs
+import meritbadges
+import portraits
+
+TYPHON_SLAYER = meritbadges.UniversalReactionBadge("Typhon Slayer","You led the team that defeated Typhon.",10)
 
 class RetroGear( object ):
     # A container for gear info.
@@ -60,6 +65,8 @@ class GH1Loader( object ):
     NAS_TEAM = 4
     NAV_DEFPLAYERTEAM = 1
 
+    GG_ADVENTURE = -7
+
     NAG_SKILL = 1
     NAS_MECHAGUNNERY = 1
     NAS_MECHAARTILLERY = 2
@@ -111,6 +118,11 @@ class GH1Loader( object ):
     NAS_CHEERFUL = -5
     NAS_RENOWNED = -6
     NAS_PRAGMATIC = -7
+
+    NAG_EXPERIENCE = 4
+    NAS_TOTAL_XP = 0
+    NAS_SPENT_XP = 1
+    NAS_CREDITS = 2
 
     SAVE_FILE_CONTINUE = 0
     SAVE_FILE_SENTINEL = -1
@@ -326,6 +338,14 @@ class GH1Loader( object ):
 
         return mylist
 
+    def _chuck_the_maps(self,myfile):
+        n = int(myfile.readline())
+        while n != -1:
+            # Read and dispose of the mapname and the map.
+            myfile.readline()
+            self._read_map(myfile)
+            n = int(myfile.readline())
+
     def _load_list(self,myfile):
         # Load a GH1 RPG_*.txt save file, and extract the useful bits.
         # Map definitions and anything we don't want just gets tossed.
@@ -343,6 +363,11 @@ class GH1Loader( object ):
         # Load the contents of the current gameboard.
         self.gb_contents = self._load_gears(myfile)
 
+        # Load and throw away all the frozen maps.
+        self._chuck_the_maps(myfile)
+
+        # Load the rest of the adventure.
+        self.gb_contents += self._load_gears(myfile)
 
     @classmethod
     def all_gears( self, mylist ):
@@ -362,6 +387,14 @@ class GH1Loader( object ):
             if mpc.g == self.GG_CHARACTER and mpc.natt.get((self.NAG_LOCATION,self.NAS_TEAM)) == self.NAV_DEFPLAYERTEAM:
                 pc = mpc
         return pc
+
+    def find_adventure(self):
+        adv = None
+        for g in self.all_gears(self.gb_contents):
+            if g.g == self.GG_ADVENTURE:
+                adv = g
+                break
+        return adv
 
     def _set_personality( self, pc, traits, nas, hi_trait, lo_trait ):
         oldval = pc.natt.get((self.NAG_CHARDESCRIPTION, nas),0)
@@ -440,11 +473,23 @@ class GH1Loader( object ):
         else:
             pc_colors = random_character_colors()
 
-        return base.Character(name=pc.satt.get('NAME',"Bob's Dwarf"),statline=statline,personality=traits,colors=pc_colors)
+        return base.Character(name=pc.satt.get('NAME',"Bob's Dwarf"),statline=statline,personality=traits,colors=pc_colors,portrait_gen=portraits.Portrait())
 
     def load( self ):
         with open(self.fname,'rb') as f:
             self._load_list(f)
+
+    def get_egg(self):
+        rpc = self.find_pc()
+        pc = self.convert_character(rpc)
+        my_egg = eggs.Egg(pc)
+        my_egg.past_adventures.append("The Typhon Incident")
+        my_egg.credits = rpc.natt.get((self.NAG_EXPERIENCE,self.NAS_CREDITS),0)
+        adv = self.find_adventure()
+        if adv:
+            if adv.s != 0:
+                pc.badges.append(TYPHON_SLAYER)
+        return my_egg
 
     @classmethod
     def seek_gh1_files( self ):

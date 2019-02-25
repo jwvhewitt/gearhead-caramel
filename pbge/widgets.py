@@ -20,11 +20,11 @@ widget_border_on = Border( border_width=8, tex_width=16, border_name="sys_widbor
 
 
 class Widget( frects.Frect ):
-    def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), **kwargs ):
+    def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True, **kwargs ):
         # on_click takes widget, event as parameters.
         super(Widget, self).__init__(dx,dy,w,h,**kwargs)
         self.data = data
-        self.active = True
+        self.active = active
         self.tooltip = tooltip
         self.on_click = on_click
         self.children = list(children)
@@ -203,6 +203,51 @@ class ColumnWidget(Widget):
             widg.anchor = frects.ANCHOR_UPPERLEFT
             dy += widg.h + self.padding
         self.h = dy
+
+    def render(self):
+        if self.draw_border:
+            self.border.render(self.get_rect())
+
+class ScrollColumnWidget(Widget):
+    def __init__( self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5, **kwargs ):
+        super(ScrollColumnWidget, self).__init__(dx,dy,w,h,**kwargs)
+        self.draw_border = draw_border
+        self.border = border
+        self._interior_widgets = list()
+        self.padding = padding
+        self.top_widget = 0
+        self.up_button = up_button
+        self.down_button = down_button
+
+    def add_interior(self,other_w):
+        self.children.append(other_w)
+        self._interior_widgets.append(other_w)
+        # Set the position of other_w inside this widget.
+        other_w.parent = self
+        other_w.dx = 0
+        other_w.anchor = frects.ANCHOR_UPPERLEFT
+        self._position_contents()
+
+    def clear(self):
+        for w in list(self._interior_widgets):
+            self._interior_widgets.remove(w)
+            self.children.remove(w)
+
+    def _position_contents(self):
+        # Disable all interior widgets, except those currently visible.
+        for w in self._interior_widgets:
+            w.active = False
+        dy = 0
+        n = self.top_widget
+        if n >= len(self._interior_widgets):
+            n = 0
+        while (dy < self.h) and (n < len(self._interior_widgets)):
+            widg = self._interior_widgets[n]
+            widg.dy = dy
+            if (dy==0) or (dy + widg.h + self.padding <= self.h):
+                widg.active = True
+            dy += widg.h + self.padding
+            n += 1
 
     def render(self):
         if self.draw_border:

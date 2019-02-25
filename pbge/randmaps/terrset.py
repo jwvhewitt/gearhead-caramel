@@ -74,9 +74,9 @@ class BuildingSet( TerrSet ):
         # door_sign is a tuple containing the (south,east) versions of terrain to place above the door.
         # other_sign is a tuple containing the (south,east) versions of terrain to place above the other waypoint.
         self.TERRAIN_MAP = list()
-        dimx = max(dimx or random.randint(4,7),3)
-        dimy = max(dimy or random.randint(4,7),3)
-        dimz = max(dimz or min(random.randint(2,5),random.randint(2,5)),2)
+        dimx = max(dimx or random.randint(4,6),3)
+        dimy = max(dimy or random.randint(4,6),3)
+        dimz = max(dimz or min(random.randint(2,4),random.randint(2,4)),2)
         self.dimz = dimz
         for mapy in range(dimy + dimz - 1):
             myrow = list()

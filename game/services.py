@@ -7,72 +7,85 @@ import copy
 
 MECHA_STORE = (tags.ST_MECHA,)
 
+
 class CostBlock(object):
-    def __init__(self,model,shop,camp,width=360,**kwargs):
+    def __init__(self, model, shop, camp, width=360, **kwargs):
         self.model = model
         self.shop = shop
         self.width = width
-        self.image = pbge.render_text(pbge.BIGFONT,"${:,}".format(shop.calc_purchase_price(camp,model)),width,justify=0,color=pbge.WHITE)
+        self.image = pbge.render_text(pbge.BIGFONT, "${:,}".format(shop.calc_purchase_price(camp, model)), width,
+                                      justify=0, color=pbge.WHITE)
         self.height = self.image.get_height()
-    def render(self,x,y):
-        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+
+    def render(self, x, y):
+        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+
 
 class MechaFeaturesBlock(object):
-    def __init__(self,model,shop,width=360,**kwargs):
+    def __init__(self, model, shop, width=360, **kwargs):
         self.model = model
         self.shop = shop
         self.width = width
         self.height = 136
-        mybmp = pygame.Surface( (128 , 128) )
-        mybmp.fill((0,0,255))
-        mybmp.set_colorkey((0,0,255),pygame.RLEACCEL)
+        mybmp = pygame.Surface((128, 128))
+        mybmp.fill((0, 0, 255))
+        mybmp.set_colorkey((0, 0, 255), pygame.RLEACCEL)
         myimg = self.model.get_sprite()
-        myimg.render( dest_surface=mybmp, dest=pygame.Rect(0,0,128,128), frame=self.model.frame )
-        self.image = pygame.transform.scale2x( mybmp )
-        self.bg = pbge.image.Image("sys_mechascalegrid.png",136,136)
+        myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 128, 128), frame=self.model.frame)
+        self.image = pygame.transform.scale2x(mybmp)
+        self.bg = pbge.image.Image("sys_mechascalegrid.png", 136, 136)
 
-    def render(self,x,y):
-        self.bg.render(pygame.Rect(x,y,136,136),0)
-        pbge.my_state.screen.blit(self.image,pygame.Rect(x+4,y+4,128,128))
-        mydest = pygame.Rect(x+140,y,self.width - 140,self.height)
-        # TODO: Add sensor range and electronic warfare capability
-        pbge.draw_text(pbge.MEDIUMFONT,"Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {}".format(self.model.mass/10000.0,self.model.calc_average_armor(),self.model.calc_mobility(),self.model.get_max_speed()),mydest)
+    def render(self, x, y):
+        self.bg.render(pygame.Rect(x, y, 136, 136), 0)
+        pbge.my_state.screen.blit(self.image, pygame.Rect(x + 4, y + 4, 128, 128))
+        mydest = pygame.Rect(x + 140, y, self.width - 140, self.height)
+        pbge.draw_text(pbge.MEDIUMFONT,
+                       "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {}".format(self.model.mass / 10000.0,
+                                                                                            self.model.calc_average_armor(),
+                                                                                            self.model.calc_mobility(),
+                                                                                            self.model.get_max_speed(),
+                                                                                            self.model.get_sensor_range(self.model.scale),
+                                                                                            self.model.get_ewar_rating()),
+                       mydest)
 
 
-class MechaSaleDisplay( gears.info.InfoPanel ):
+class MechaBuyIP(gears.info.InfoPanel):
     # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock,CostBlock,MechaFeaturesBlock,gears.info.DescBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, MechaFeaturesBlock, gears.info.DescBlock)
 
 
 class ShopDesc(object):
     # This is a DescObj for the shop menu.
-    ITEM_INFO_AREA = pbge.frects.Frect(-300,-200,300,400)
-    def __init__(self,shop,camp):
+    ITEM_INFO_AREA = pbge.frects.Frect(-300, -200, 300, 400)
+
+    def __init__(self, shop, camp):
         self.shop = shop
         self.camp = camp
-        self.sale_info_cache = dict()
-    def get_sale_info(self, item):
-        if item in self.sale_info_cache:
-            return self.sale_info_cache[item]
-        elif isinstance(item,gears.base.Mecha):
-            it = MechaSaleDisplay(model=item,shop=self.shop,camp=self.camp,width=self.ITEM_INFO_AREA.w)
+        self.buy_info_cache = dict()
+
+    def get_buy_info(self, item):
+        if item in self.buy_info_cache:
+            return self.buy_info_cache[item]
+        elif isinstance(item, gears.base.Mecha):
+            it = MechaBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w)
         else:
             it = None
-        self.sale_info_cache[item] = it
+        self.buy_info_cache[item] = it
         return it
-    def __call__(self,menuitem):
+
+    def __call__(self, menuitem):
         mydest = self.ITEM_INFO_AREA.get_rect()
-        #pbge.default_border.render(mydest)
+        # pbge.default_border.render(mydest)pc
         item = menuitem.value
         if item:
-            myinfo = self.get_sale_info(item)
+            myinfo = self.get_buy_info(item)
             if myinfo:
-                myinfo.render(mydest.x,mydest.y)
+                myinfo.render(mydest.x, mydest.y)
 
 
-
-class Shop( object ):
-    def __init__( self, ware_types = MECHA_STORE, allow_misc=True, caption="Shop", rank=25, shop_faction=None, num_items=25, turnover=1, npc=None, mecha_colors=None ):
+class Shop(object):
+    def __init__(self, ware_types=MECHA_STORE, allow_misc=True, caption="Shop", rank=25, shop_faction=None,
+                 num_items=25, turnover=1, npc=None, mecha_colors=None):
         self.wares = list()
         self.ware_types = ware_types
         self.allow_misc = allow_misc
@@ -86,25 +99,26 @@ class Shop( object ):
         self.shop_faction = shop_faction
         self.mecha_colors = mecha_colors or gears.color.random_mecha_colors()
 
-    def item_matches_shop(self,item):
+    def item_matches_shop(self, item):
         if item.get_full_name() in [a.get_full_name() for a in self.wares]:
             return False
-        elif self.shop_faction and hasattr(item,"faction_list"):
+        elif self.shop_faction and hasattr(item, "faction_list"):
             if (self.shop_faction in item.faction_list) or (None in item.faction_list):
                 return True
         else:
             return True
 
-    def generate_item( self, itype, rank ):
+    def generate_item(self, itype, rank):
         # TODO: Make rank work properly.
-        candidates = [item for item in gears.selector.DESIGN_LIST if itype in item.shop_tags and self.item_matches_shop(item)]
+        candidates = [item for item in gears.selector.DESIGN_LIST if
+                      itype in item.shop_tags and self.item_matches_shop(item)]
         if candidates:
             it = copy.deepcopy(random.choice(candidates))
-            if isinstance(it,gears.base.Mecha):
+            if isinstance(it, gears.base.Mecha):
                 it.colors = self.mecha_colors
             return it
 
-    def update_wares( self, camp ):
+    def update_wares(self, camp):
         # Once a day the wares get updated. Delete some items, make sure that
         # there's at least one item of every ware_type, and then fill up the
         # store to full capacity.
@@ -112,26 +126,26 @@ class Shop( object ):
         # A lot of stuff about the wares is going to depend on the shopkeeper's
         # friendliness.
         if self.npc:
-            friendliness = self.npc.get_reaction_score( camp.pc, camp )
+            friendliness = self.npc.get_reaction_score(camp.pc, camp)
         else:
             friendliness = 0
 
         # The number of items is highly dependent on friendliness, or more
         # specifically a lack thereof.
         if friendliness < 0:
-            num_items = max( 5, ( self.num_items * ( 100 + 2 * friendliness ) ) // 100 )
+            num_items = max(5, (self.num_items * (100 + 2 * friendliness)) // 100)
         else:
             num_items = self.num_items + friendliness // 10
 
         # Get rid of some of the old stock, to make room for new stock.
-        while len( self.wares ) > num_items:
-            it = random.choice( self.wares )
-            self.wares.remove( it )
+        while len(self.wares) > num_items:
+            it = random.choice(self.wares)
+            self.wares.remove(it)
         days = camp.day - self.last_updated
-        for n in range( max( 3, ( random.randint(1,6) + days ) * self.turnover )):
+        for n in range(max(3, (random.randint(1, 6) + days) * self.turnover)):
             if self.wares:
-                it = random.choice( self.wares )
-                self.wares.remove( it )
+                it = random.choice(self.wares)
+                self.wares.remove(it)
             else:
                 break
 
@@ -154,32 +168,31 @@ class Shop( object ):
 
         # Fill the rest of the store later.
         tries = 0
-        while len( self.wares ) < num_items:
+        while len(self.wares) < num_items:
             tries += 1
-            itype = random.choice( self.ware_types )
-            it = self.generate_item( itype, rank )
+            itype = random.choice(self.ware_types)
+            it = self.generate_item(itype, rank)
             if it:
-                self.wares.append( it )
+                self.wares.append(it)
             elif tries > 100:
                 break
 
-
-    def make_wares_menu( self, camp, shopdesc ):
+    def make_wares_menu(self, camp, shopdesc):
         mymenu = self.get_menu(shopdesc)
 
         for s in self.wares:
             sname = s.get_full_name()
-            scost = str( self.calc_purchase_price( camp, s ) )
-            mymenu.add_item( sname, s )
+            scost = str(self.calc_purchase_price(camp, s))
+            mymenu.add_item(sname, s)
         mymenu.sort()
         mymenu.add_alpha_keys()
-        mymenu.add_item( "Exit", False )
+        mymenu.add_item("Exit", False)
 
-        mymenu.quick_keys[ pygame.K_LEFT ] = -1
-        mymenu.quick_keys[ pygame.K_RIGHT ] = 1
+        mymenu.quick_keys[pygame.K_LEFT] = -1
+        mymenu.quick_keys[pygame.K_RIGHT] = 1
         return mymenu
 
-    def improve_friendliness( self, camp, item, modifier=0 ):
+    def improve_friendliness(self, camp, item, modifier=0):
         """Dealing with a shopkeeper will generally increase friendliness."""
         """if self.npc:
             target = abs( self.npc.get_friendliness( camp ) ) + 50 - 5 * item.min_rank()
@@ -189,34 +202,34 @@ class Shop( object ):
         """
         pass
 
-    def calc_purchase_price( self, camp, item ):
+    def calc_purchase_price(self, camp, item):
         """The sale price of an item depends on friendliness."""
         it = item.cost
         if self.npc:
-            f = self.npc.get_reaction_score( camp.pc, camp )
+            f = self.npc.get_reaction_score(camp.pc, camp)
             if f < 0:
-                it = ( it * ( 120 - 2 * f ) ) // 100
+                it = (it * (120 - 2 * f)) // 100
             else:
-                it = ( it * ( 240 - f ) ) // 200
+                it = (it * (240 - f)) // 200
         return it
 
-    def buy_items( self, camp, shopdesc ):
+    def buy_items(self, camp, shopdesc):
         keep_going = True
         last_selected = None
 
         while keep_going:
-            mymenu = self.make_wares_menu( camp, shopdesc )
+            mymenu = self.make_wares_menu(camp, shopdesc)
             if last_selected:
-                mymenu.set_item_by_position( last_selected )
+                mymenu.set_item_by_position(last_selected)
             it = mymenu.query()
             last_selected = mymenu.selected_item
             if not it:
                 keep_going = False
 
-    def sale_price( self, it ):
-        return max( it.cost // 2, 1 )
+    def sale_price(self, it):
+        return max(it.cost // 2, 1)
 
-    def sell_items( self, camp, shopdesc ):
+    def sell_items(self, camp, shopdesc):
         """
         keep_going = True
         myredraw = charsheet.CharacterViewRedrawer( csheet=self.charsheets[self.pc], screen=explo.screen, predraw=explo.view, caption="Sell Items" )
@@ -268,27 +281,28 @@ class Shop( object ):
                 keep_going = False
         """
 
-    MENU_AREA = pbge.frects.Frect(50,-200,300,300)
+    MENU_AREA = pbge.frects.Frect(50, -200, 300, 300)
 
-    def get_menu(self,menu_desc_fun=None):
-        mymenu = pbge.rpgmenu.Menu(self.MENU_AREA.dx,self.MENU_AREA.dy,self.MENU_AREA.w,self.MENU_AREA.h,font=pbge.BIGFONT)
+    def get_menu(self, menu_desc_fun=None):
+        mymenu = pbge.rpgmenu.Menu(self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h,
+                                   font=pbge.BIGFONT)
         mymenu.descobj = menu_desc_fun
         return mymenu
 
-    def enter_shop( self, camp ):
+    def enter_shop(self, camp):
         """Find out what the PC wants to do."""
         keep_going = True
 
         mydesc = ShopDesc(self, camp)
 
         mymenu = self.get_menu()
-        mymenu.add_item( "Buy Items", self.buy_items )
-        mymenu.add_item( "Sell Items", self.sell_items )
-        mymenu.add_item( "Exit", False )
+        mymenu.add_item("Buy Items", self.buy_items)
+        mymenu.add_item("Sell Items", self.sell_items)
+        mymenu.add_item("Exit", False)
         mymenu.add_alpha_keys()
 
-        #mymenu.quick_keys[ pygame.K_LEFT ] = -1
-        #mymenu.quick_keys[ pygame.K_RIGHT ] = 1
+        # mymenu.quick_keys[ pygame.K_LEFT ] = -1
+        # mymenu.quick_keys[ pygame.K_RIGHT ] = 1
 
         while keep_going:
             it = mymenu.query()
@@ -298,16 +312,14 @@ class Shop( object ):
                 pass
             elif it:
                 # A method was selected. Deal with it.
-                it( camp, mydesc )
-                #myredraw.csheet = self.charsheets[self.pc]
+                it(camp, mydesc)
+                # myredraw.csheet = self.charsheets[self.pc]
             else:
                 keep_going = False
 
-    def __call__( self, camp ):
+    def __call__(self, camp):
         if camp.day > self.last_updated:
-            self.update_wares( camp )
+            self.update_wares(camp)
             self.last_updated = camp.day
 
-        self.enter_shop( camp )
-
-
+        self.enter_shop(camp)

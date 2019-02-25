@@ -168,7 +168,14 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         super(GearHeadCampaign, self).__init__(name, explo_class)
         self.tarot = pbge.container.ContainerDict()
         self.year = year
-        self.egg = egg
+        if egg:
+            self.egg = egg
+            self.party = [egg.pc,]
+            if egg.mecha:
+                self.party.append(egg.mecha)
+                egg.mecha.pilot = egg.pc
+            self.pc = egg.pc
+
 
     def active_plots(self):
         for p in super(GearHeadCampaign, self).active_plots():

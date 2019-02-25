@@ -8,7 +8,7 @@ import cPickle
 # - Records regarding major GearHead NPCs
 
 class Egg(object):
-    def __init__(self,pc,mecha=None,stuff=(),dramatis_personae=(),major_npc_records = None):
+    def __init__(self,pc,mecha=None,stuff=(),dramatis_personae=(),major_npc_records = None,credits=0):
         self.pc = pc
         self.mecha = mecha
         self.stuff = container.ContainerList(stuff)
@@ -16,6 +16,8 @@ class Egg(object):
         self.major_npc_records = dict()
         if major_npc_records:
             self.major_npc_records.update(major_npc_records)
+        self.credits = credits
+        self.data = dict()
         # past_adventures lists names of adventure modules this character has done, to prevent double dipping.
         self.past_adventures = list()
 

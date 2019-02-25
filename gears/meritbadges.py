@@ -17,3 +17,10 @@ class TagReactionBadge(object):
                 total += v
         return total
 
+class UniversalReactionBadge(object):
+    def __init__(self,name,desc,reaction_modifier = 5):
+        self.name = name
+        self.desc = desc
+        self.reaction_modifier = reaction_modifier
+    def get_reaction_modifier(self,pc,npc,camp):
+        return self.reaction_modifier

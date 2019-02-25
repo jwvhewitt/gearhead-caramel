@@ -1048,6 +1048,9 @@ class EWSystem(BaseGear, StandardDamageHandler, MakesPower):
             if p not in invodict:
                 invodict[p] = p.get_invocations(pc)
 
+    def get_ewar_rating(self):
+        return self.size
+
 
 #   *******************
 #   ***   WEAPONS   ***
@@ -2496,6 +2499,13 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             if hasattr(sens, 'get_sensor_rating') and sens.is_operational():
                 it = max((sens.get_sensor_rating() / map_scale.RANGE_FACTOR) * 5, it)
         return it
+
+    def get_ewar_rating(self):
+        total = 0
+        for ewar in self.sub_sub_coms():
+            if hasattr(ewar,"get_ewar_rating") and ewar.is_operational():
+                total += ewar.get_ewar_rating()
+        return total
 
     def get_max_mental(self):
         pilot = self.get_pilot()

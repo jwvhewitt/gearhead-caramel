@@ -63,9 +63,10 @@ def start_game(tsrd):
         name = gears.selector.EARTH_NAMES.gen_word()
     pc = gears.selector.random_pilot(35)
     pc.name = name
-    pc.imagename = 'cha_wm_parka.png'
     pc.colors = gears.random_character_colors()
-    game.start_mocha(pc)
+    egg = gears.eggs.Egg(pc=pc,mecha=gears.Loader.load_design_file('Zerosaiko.txt')[0],credits=500000)
+    egg.mecha.colors = gears.color.random_mecha_colors()
+    game.start_campaign(egg)
 
 def import_arena_character(tsrd):
     myfiles = gears.oldghloader.GH1Loader.seek_gh1_files()
@@ -80,15 +81,16 @@ def import_arena_character(tsrd):
         mygears.load()
         rpc = mygears.find_pc()
         pc = mygears.convert_character(rpc)
-        mymenu.add_item(str(pc),pc)
+        egg = mygears.get_egg()
+        mymenu.add_item(str(pc),egg)
 
     if not mymenu.items:
         mymenu.add_item('[No GH1 characters found]',None)
 
-    pc = mymenu.query()
-    if pc:
-        pc.imagename = 'cha_wm_parka.png'
-        game.start_mocha(pc)
+    egg = mymenu.query()
+    if egg:
+        #pc.imagename = 'cha_wm_parka.png'
+        game.start_campaign(egg)
 
 def open_config_menu(tsrd):
     myconfigmenu = game.configedit.ConfigEditor(tsrd,dy=0)

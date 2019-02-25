@@ -63,7 +63,7 @@ class DZD_AlliedArmor(Plot):
         npc = self.register_element("SHOPKEEPER",gears.selector.random_character(50,local_tags=self.elements["LOCALE"].attributes, job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         npc.place(intscene,team=team2)
 
-        self.shop = services.Shop()
+        self.shop = services.Shop(npc=npc,shop_faction=gears.factions.TerranDefenseForce)
 
         return True
 
