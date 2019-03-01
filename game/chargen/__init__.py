@@ -79,6 +79,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.cgen = cgen
         self.pc = cgen.pc
         self.por = cgen.pc.portrait_gen
+        self.portrait = cgen.portrait
 
         self.portrait_zone = pbge.frects.Frect(-400,-300,400,600)
         self.minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
@@ -111,7 +112,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         bit_pos = self.por.bits.index(bname)
         self.por.bits[bit_pos] = mylist[new_i].name
         self.por.verify(self.pc)
-        self.pc.portrait = self.por.build_portrait(self.pc,force_rebuild=True)
+        self.portrait = self.por.build_portrait(self.pc,force_rebuild=True)
         self.rebuild_menu()
 
     def next_bit(self,wid,ev):
@@ -124,11 +125,11 @@ class PortraitEditorW(pbge.widgets.Widget):
         bit_pos = self.por.bits.index(bname)
         self.por.bits[bit_pos] = mylist[new_i].name
         self.por.verify(self.pc)
-        self.pc.portrait = self.por.build_portrait(self.pc,force_rebuild=True)
+        self.portrait = self.por.build_portrait(self.pc,force_rebuild=True)
         self.rebuild_menu()
 
     def render(self):
-        self.pc.portrait.render(self.portrait_zone.get_rect(),0)
+        self.portrait.render(self.portrait_zone.get_rect(),0)
 
     def done_button(self,wid,ev):
         self.finished = True
@@ -151,8 +152,9 @@ class PortraitEditorW(pbge.widgets.Widget):
                 if ev.key == pygame.K_ESCAPE:
                     keepgoing = False
                 elif ev.key == pygame.K_F1:
-                    pygame.image.save(myui.pc.portrait.bitmap, pbge.util.user_dir("out.png"))
+                    pygame.image.save(myui.portrait.bitmap, pbge.util.user_dir("out.png"))
 
+        cgen.portrait = myui.portrait
         pbge.my_state.widgets.remove(myui)
 
 
@@ -161,9 +163,10 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     C1_WIDTH = 260
     C2_WIDTH = 220
     C3_WIDTH = 120
-    def __init__(self,**kwargs):
+    def __init__(self,year=158,**kwargs):
         super(CharacterGeneratorW, self).__init__(-400, -300, 800, 600, **kwargs)
-        self.pc = gears.base.Character(name="New Character",portrait_gen=gears.portraits.Portrait())
+        self.pc = gears.base.Character(name="New Character",portrait_gen=gears.portraits.Portrait(),job=gears.jobs.Job("Cavalier"))
+        self.year = year
 
         self.pc.roll_stats(self.STAT_POINTS)
         self.bio_bonuses = collections.defaultdict(int)
@@ -183,12 +186,12 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.name_field = pbge.widgets.TextEntryWidget(0,0,200,30,justify=0,text=gears.selector.random_name(self.pc))
         self.column_one.set_header(self.name_field)
         age_gender_row = pbge.widgets.RowWidget(0,0,self.C1_WIDTH,30)
-        age_menu = pbge.widgets.DropdownWidget(0,0,140,30,font=pbge.BIGFONT)
+        age_menu = pbge.widgets.DropdownWidget(0,0,140,30,font=pbge.BIGFONT,on_select=self.set_age)
         for age in range(18,36):
             age_menu.add_item("{} year old".format(age),age)
         age_menu.menu.set_item_by_position(min(random.randint(0,17),random.randint(0,17)))
         age_gender_row.add_center(age_menu)
-        gender_menu = pbge.widgets.DropdownWidget(0,0,110,30,font=pbge.BIGFONT)
+        gender_menu = pbge.widgets.DropdownWidget(0,0,110,30,font=pbge.BIGFONT,on_select=self.set_gender)
         gender_menu.add_item("Male",gears.genderobj.Gender.get_default_male())
         gender_menu.add_item("Female",gears.genderobj.Gender.get_default_female())
         gender_menu.add_item("Nonbinary",gears.genderobj.Gender.get_default_nonbinary())
@@ -234,8 +237,15 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
         self.children.append(self.column_three)
 
-        self.pc.portrait = self.pc.portrait_gen.build_portrait(self.pc)
+        self.children.append(pbge.widgets.LabelWidget(160,210,self.C2_WIDTH,20,text="Save Character",justify=0,on_click=self.save_egg,draw_border=True,font=pbge.BIGFONT))
+        self.children.append(pbge.widgets.LabelWidget(160,240,self.C2_WIDTH,20,text="Cancel",justify=0,on_click=self.cancel,draw_border=True,font=pbge.BIGFONT))
 
+        self.portrait = self.pc.portrait_gen.build_portrait(self.pc)
+
+    def set_age(self,new_age):
+        self.pc.birth_year = self.year - new_age
+    def set_gender(self,new_gender):
+        self.pc.gender = new_gender
     def stat_display(self,wid):
         return str(self.pc.get_stat(wid.data) + self.bio_bonuses.get(wid.data,0))
     def stat_minus(self,wid,ev):
@@ -294,7 +304,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def portrait_random(self,wid,ev):
         self.pc.portrait_gen.random_portrait(self.pc)
-        self.pc.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+        self.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
     def color_edit(self,wid,ev):
         self.active = False
@@ -314,9 +324,10 @@ class CharacterGeneratorW(pbge.widgets.Widget):
                     keepgoing = False
 
         self.pc.colors = myui.colors
-        self.pc.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+        self.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
         pbge.my_state.widgets.remove(myui)
+        pygame.event.clear()
         self.active = True
 
     def color_done(self,wid,ev):
@@ -324,10 +335,33 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def color_random(self,wid,ev):
         self.pc.colors = [random.choice(gears.color.COLOR_LISTS[chan]) for chan in self.pc.portrait_gen.color_channels]
-        self.pc.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+        self.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+
+    def save_egg(self,wid,ev):
+        if not pbge.my_state.widget_clicked:
+            my_egg = gears.eggs.Egg(self.pc,credits=500000)
+            self.pc.name = self.name_field.text
+            if self.unspent_stat_points > 0:
+                self.pc.roll_stats(self.unspent_stat_points,clear_first=False)
+            for sk in gears.stats.COMBATANT_SKILLS:
+                self.pc.statline[sk] = 4
+            num_fives = 4
+            for k,v in self.bio_bonuses.items():
+                self.pc.statline[k] += v
+                if k in gears.stats.NONCOMBAT_SKILLS:
+                    self.pc.statline[k] += 3
+                    num_fives -= 1
+            if num_fives > 0:
+                for sk in random.sample(gears.stats.COMBATANT_SKILLS,num_fives):
+                    self.pc.statline[sk] += 1
+            self.finished = True
+            my_egg.save()
+
+    def cancel(self,wid,ev):
+        self.finished = True
 
     def render(self):
-        self.pc.portrait.render(self.portrait_zone.get_rect(),0)
+        self.portrait.render(self.portrait_zone.get_rect(),0)
 
     @classmethod
     def create_and_invoke(cls, redraw):
