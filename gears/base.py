@@ -173,15 +173,19 @@ class VisibleGear(pbge.scenes.PlaceableThing):
         else:
             return pbge.image.Image(self.imagename, self.imagewidth, self.imageheight, self.colors)
 
-    def get_portrait(self):
+    def get_portrait(self, add_color=True, force_rebuild=False):
         if self.portrait:
+            if add_color:
+                colorz = self.colors
+            else:
+                colorz = None
             if self.portrait.startswith('card_'):
-                return pbge.image.Image(self.portrait, self.imagewidth, self.imageheight, self.colors,
+                return pbge.image.Image(self.portrait, self.imagewidth, self.imageheight, colorz,
                                         custom_frames=portraits.FRAMES)
             else:
-                return pbge.image.Image(self.portrait, color=self.colors)
+                return pbge.image.Image(self.portrait, color=colorz)
         elif self.portrait_gen:
-            return self.portrait_gen.build_portrait(self)
+            return self.portrait_gen.build_portrait(self, add_color=add_color, force_rebuild=force_rebuild)
 
     def render(self, foot_pos, view):
         if self.destroyed_pose:
@@ -2317,6 +2321,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         super(Mecha, self).__init__(**keywords)
         if tags.ST_MECHA not in self.shop_tags:
             self.shop_tags.append(tags.ST_MECHA)
+        self.pilot = None
 
     def is_legal_sub_com(self, part):
         return self.form.is_legal_sub_com(part)
@@ -2692,7 +2697,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 class Character(Being):
     SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction', 'badges', 'bio', 'relationship')
 
-    def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="", relationship=None, **keywords):
+    def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="", relationship=None, add_body=True, **keywords):
         self.personality = set(personality)
         if not gender:
             gender = genderobj.Gender.random_gender()
@@ -2708,6 +2713,8 @@ class Character(Being):
         self.bio = bio
         self.relationship = relationship
         super(Character, self).__init__(**keywords)
+        if add_body:
+            self.build_body()
 
     def get_tacit_faction(self,camp):
         # Get this character's effective faction. Normally this will be the faction this character belongs to, but
@@ -2774,6 +2781,20 @@ class Character(Being):
         if self.job:
             myitems.append(str(self.job))
         return " ".join(myitems)
+
+    def build_body(self):
+        # I've heard of bodybuilding, but this is ridiculous.
+        self.sub_com.append(Head(size=5,material=self.material,scale=self.scale))
+        self.sub_com.append(Torso(size=5,material=self.material,scale=self.scale))
+        rarm = Arm(size=5,name="Right Arm",material=self.material,scale=self.scale)
+        rarm.sub_com.append(Hand(name="Right Hand",material=self.material,scale=self.scale))
+        self.sub_com.append(rarm)
+        larm = Arm(size=5,name="Left Arm",material=self.material,scale=self.scale)
+        larm.sub_com.append(Hand(name="Left Hand",material=self.material,scale=self.scale))
+        self.sub_com.append(larm)
+        self.sub_com.append(Leg(size=5,name="Right Leg",material=self.material,scale=self.scale))
+        self.sub_com.append(Leg(size=5,name="Left Leg",material=self.material,scale=self.scale))
+
 
 class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
     SAVE_PARAMETERS = ('size', 'statline')

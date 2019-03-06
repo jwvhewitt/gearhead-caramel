@@ -217,7 +217,9 @@ class ScrollColumnWidget(Widget):
         self.padding = padding
         self.top_widget = 0
         self.up_button = up_button
+        self.up_button.on_click = self.scroll_up
         self.down_button = down_button
+        self.down_button.on_click = self.scroll_down
 
     def add_interior(self,other_w):
         self.children.append(other_w)
@@ -248,6 +250,32 @@ class ScrollColumnWidget(Widget):
                 widg.active = True
             dy += widg.h + self.padding
             n += 1
+        # Activate or deactivate the up/down buttons.
+        if self.top_widget > 0:
+            self.up_button.frame = self.up_button.on_frame
+        else:
+            self.up_button.frame = self.up_button.off_frame
+        if self._interior_widgets and not self._interior_widgets[-1].active:
+            self.down_button.frame = self.down_button.on_frame
+        else:
+            self.down_button.frame = self.down_button.off_frame
+
+    def scroll_up(self,*args):
+        if self.top_widget > 0:
+            self.top_widget -= 1
+            self._position_contents()
+
+    def scroll_down(self,*args):
+        if self._interior_widgets and not self._interior_widgets[-1].active:
+            self.top_widget += 1
+            self._position_contents()
+
+    def _builtin_responder(self,ev):
+        if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(pygame.mouse.get_pos()):
+            if (ev.button == 4):
+                self.scroll_up()
+            elif (ev.button == 5):
+                self.scroll_down()
 
     def render(self):
         if self.draw_border:
@@ -343,4 +371,7 @@ class DropdownWidget( Widget ):
         result = self.menu.query()
         if self.on_select:
             self.on_select(result)
+    @property
+    def value(self):
+        return self.menu.get_current_value()
 

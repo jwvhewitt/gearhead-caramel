@@ -87,7 +87,7 @@ class ColorEditor(pbge.widgets.Widget):
     def explo_invoke(cls, redraw):
         # Run the UI. Return a DoInvocation action if an invocation
         # was chosen, or None if the invocation was cancelled.
-        myui = cls(pbge.image.Image("card_f_winterhyolee.png",400,600),0,(gears.color.CLOTHING,gears.color.SKIN,gears.color.HAIR,gears.color.DETAILS,gears.color.CLOTHING))
+        myui = cls(pbge.image.Image("card_n_wintermel.png",400,600),0,(gears.color.CLOTHING,gears.color.SKIN,gears.color.HAIR,gears.color.DETAILS,gears.color.CLOTHING))
         pbge.my_state.widgets.append(myui)
         keepgoing = True
         while keepgoing:
@@ -98,6 +98,8 @@ class ColorEditor(pbge.widgets.Widget):
             elif ev.type == pygame.KEYDOWN:
                 if ev.key == pygame.K_ESCAPE:
                     keepgoing = False
+                elif ev.key == pygame.K_F1:
+                    pygame.image.save(myui.display_sprite.bitmap, pbge.util.user_dir("out.png"))
 
         pbge.my_state.widgets.remove(myui)
         return myui.colors

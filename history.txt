@@ -1,3 +1,6 @@
+- Added character generator (game/chargen)
+- Added services (game/services.py)
+- Added FieldHQ command (game/fieldhq.py)
 - Currently visible area indicated (pbge/scenes/viewer.py)
 - NPC relationship with PC now tracked by Relationship object (gears/relationships.py)
 - Added merit badges (gears/meritbadges.py)

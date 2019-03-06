@@ -21,47 +21,42 @@ class CostBlock(object):
         pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
-class MechaFeaturesBlock(object):
-    def __init__(self, model, shop, width=360, **kwargs):
-        self.model = model
-        self.shop = shop
-        self.width = width
-        self.height = 136
-        mybmp = pygame.Surface((128, 128))
-        mybmp.fill((0, 0, 255))
-        mybmp.set_colorkey((0, 0, 255), pygame.RLEACCEL)
-        myimg = self.model.get_sprite()
-        myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 128, 128), frame=self.model.frame)
-        self.image = pygame.transform.scale2x(mybmp)
-        self.bg = pbge.image.Image("sys_mechascalegrid.png", 136, 136)
-
-    def render(self, x, y):
-        self.bg.render(pygame.Rect(x, y, 136, 136), 0)
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x + 4, y + 4, 128, 128))
-        mydest = pygame.Rect(x + 140, y, self.width - 140, self.height)
-        pbge.draw_text(pbge.MEDIUMFONT,
-                       "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {}".format(self.model.mass / 10000.0,
-                                                                                            self.model.calc_average_armor(),
-                                                                                            self.model.calc_mobility(),
-                                                                                            self.model.get_max_speed(),
-                                                                                            self.model.get_sensor_range(self.model.scale),
-                                                                                            self.model.get_ewar_rating()),
-                       mydest)
-
-
 class MechaBuyIP(gears.info.InfoPanel):
     # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, MechaFeaturesBlock, gears.info.DescBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MechaFeaturesAndSpriteBlock, gears.info.DescBlock)
 
+class CustomerPanel(object):
+    INFO_AREA = pbge.frects.Frect(50, 130, 300, 100)
+    def __init__(self,shop,camp):
+        self.shop = shop
+        self.camp = camp
+        self.portraits = dict()
+        #self.portraits[shop.customer] = shop.customer.get_portrait()
+    def render(self):
+        mydest = self.INFO_AREA.get_rect()
+        pbge.default_border.render(mydest)
+        if self.shop.customer not in self.portraits:
+            self.portraits[self.shop.customer] = self.shop.customer.get_portrait()
+        self.portraits[self.shop.customer].render(mydest,1)
+        mydest.x += 100
+        mydest.w -= 100
+        pbge.draw_text(pbge.MEDIUMFONT,"{} \n ${:,}".format(str(self.shop.customer),self.camp.credits),mydest,justify=0)
 
 class ShopDesc(object):
     # This is a DescObj for the shop menu.
-    ITEM_INFO_AREA = pbge.frects.Frect(-300, -200, 300, 400)
+    SHOP_INFO_AREA = pbge.frects.Frect(-300, -200, 300, 100)
+    ITEM_INFO_AREA = pbge.frects.Frect(-300, -80, 300, 300)
 
     def __init__(self, shop, camp):
         self.shop = shop
         self.camp = camp
         self.buy_info_cache = dict()
+        self.customer = CustomerPanel(shop,camp)
+        if shop.npc:
+            self.portrait = shop.npc.get_portrait()
+        else:
+            self.portrait = None
+        self.caption = ""
 
     def get_buy_info(self, item):
         if item in self.buy_info_cache:
@@ -74,16 +69,26 @@ class ShopDesc(object):
         return it
 
     def __call__(self, menuitem):
+        mydest = self.SHOP_INFO_AREA.get_rect()
+        pbge.default_border.render(mydest)
+        if self.portrait:
+            self.portrait.render(mydest,1)
+            mydest.x += 100
+            mydest.w -= 100
+        pbge.draw_text(pbge.MEDIUMFONT,self.caption,mydest)
+
         mydest = self.ITEM_INFO_AREA.get_rect()
-        # pbge.default_border.render(mydest)pc
         item = menuitem.value
         if item:
             myinfo = self.get_buy_info(item)
             if myinfo:
                 myinfo.render(mydest.x, mydest.y)
+        self.customer.render()
 
 
 class Shop(object):
+    MENU_AREA = pbge.frects.Frect(50, -200, 300, 300)
+
     def __init__(self, ware_types=MECHA_STORE, allow_misc=True, caption="Shop", rank=25, shop_faction=None,
                  num_items=25, turnover=1, npc=None, mecha_colors=None):
         self.wares = list()
@@ -98,6 +103,7 @@ class Shop(object):
         self.shopper = None
         self.shop_faction = shop_faction
         self.mecha_colors = mecha_colors or gears.color.random_mecha_colors()
+        self.customer = None
 
     def item_matches_shop(self, item):
         if item.get_full_name() in [a.get_full_name() for a in self.wares]:
@@ -223,7 +229,21 @@ class Shop(object):
                 mymenu.set_item_by_position(last_selected)
             it = mymenu.query()
             last_selected = mymenu.selected_item
-            if not it:
+            if it:
+                cost = self.calc_purchase_price( camp, it )
+                if cost > camp.credits:
+                    shopdesc.caption = "You can't afford it!"
+                else:
+                    it2 = copy.deepcopy( it )
+
+                    if self.customer.can_equip(it2):
+                        self.customer.inv_com.append( it2 )
+                    else:
+                        camp.party.append(it2)
+                    self.improve_friendliness( camp, it2 )
+                    camp.credits -= cost
+                    shopdesc.caption = "You have bought {0}.".format(it2)
+            else:
                 keep_going = False
 
     def sale_price(self, it):
@@ -281,7 +301,6 @@ class Shop(object):
                 keep_going = False
         """
 
-    MENU_AREA = pbge.frects.Frect(50, -200, 300, 300)
 
     def get_menu(self, menu_desc_fun=None):
         mymenu = pbge.rpgmenu.Menu(self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h,
@@ -292,6 +311,7 @@ class Shop(object):
     def enter_shop(self, camp):
         """Find out what the PC wants to do."""
         keep_going = True
+        self.customer = camp.pc
 
         mydesc = ShopDesc(self, camp)
 

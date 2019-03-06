@@ -5,6 +5,7 @@ import pygame
 import collections
 import random
 from .. import cosplay
+import copy
 
 
 class LifepathChooser(object):
@@ -200,6 +201,17 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
         age_gender_row.add_center(gender_menu)
         self.column_one.add_interior(age_gender_row)
+
+        mecha_shopping_list = gears.selector.MechaShoppingList(300000)
+        self.mecha_menu = pbge.widgets.DropdownWidget(0,0,self.C1_WIDTH,25,font=pbge.MEDIUMFONT)
+        for mek in mecha_shopping_list.best_choices:
+            self.mecha_menu.add_item(mek.get_full_name(),mek)
+        for mek in mecha_shopping_list.backup_choices:
+            self.mecha_menu.add_item(mek.get_full_name(),mek)
+        self.mecha_menu.menu.sort()
+        self.mecha_menu.menu.set_item_by_value(random.choice(mecha_shopping_list.best_choices))
+        self.column_one.add_interior(self.mecha_menu)
+
         self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,16,"===========",justify=0))
         minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
         for s in gears.stats.PRIMARY_STATS:
@@ -339,7 +351,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def save_egg(self,wid,ev):
         if not pbge.my_state.widget_clicked:
-            my_egg = gears.eggs.Egg(self.pc,credits=500000)
+            my_egg = gears.eggs.Egg(self.pc)
             self.pc.name = self.name_field.text
             if self.unspent_stat_points > 0:
                 self.pc.roll_stats(self.unspent_stat_points,clear_first=False)
@@ -355,6 +367,9 @@ class CharacterGeneratorW(pbge.widgets.Widget):
                 for sk in random.sample(gears.stats.COMBATANT_SKILLS,num_fives):
                     self.pc.statline[sk] += 1
             self.finished = True
+            my_egg.mecha = copy.deepcopy(self.mecha_menu.value)
+            my_egg.mecha.colors = gears.color.random_mecha_colors()
+            my_egg.credits = 200000 - my_egg.mecha.cost // 2
             my_egg.save()
 
     def cancel(self,wid,ev):

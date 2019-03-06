@@ -2,6 +2,7 @@ import pygame
 import glob
 import util
 from frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
+import random
 
 from . import default_border,render_text,wait_event,TIMEREVENT,my_state
 
@@ -258,9 +259,18 @@ class Menu( Frect ):
             self.selected_item = n
         self.reposition()
 
+    def set_random_item(self):
+        if self.items:
+            n = random.randint(0,len(self.items)-1)
+            self.set_item_by_position(n)
+
     def get_current_item( self ):
         if self.selected_item < len( self.items ):
             return self.items[self.selected_item]
+
+    def get_current_value( self ):
+        if self.selected_item < len( self.items ):
+            return self.items[self.selected_item].value
 
 
 class PopUpMenu( Menu ):

@@ -205,6 +205,14 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def get_party_skill(self, stat_id, skill_id):
         return max(pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party())
 
+    def get_pc_mecha(self,pc):
+        meklist = [mek for mek in self.party if isinstance(mek,base.Mecha) and mek.pilot is pc]
+        if meklist:
+            if len(meklist) > 1:
+                for mek in meklist[1:]:
+                    mek.pilot = None
+            return meklist[0]
+
     def keep_playing_campaign(self):
         # The default version of this method will keep playing forever.
         # You're probably gonna want to redefine this in your subclass.
@@ -264,6 +272,17 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if isinstance(pc,base.Squad):
                 self.party.remove(pc)
 
+    # Gonna set up the credits as a property.
+    def _get_credits(self):
+        return self.egg.credits
+
+    def _set_credits(self,nuval):
+        self.egg.credits = nuval
+
+    def _del_credits(self):
+        self.egg.credits = 0
+
+    credits = property(_get_credits,_set_credits,_del_credits)
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about string.partition at the time.

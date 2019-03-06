@@ -6,6 +6,8 @@ import gears
 import random
 import sys
 #import timeit
+import glob
+import cPickle
 
 VERSION = "v0.130"
 
@@ -26,7 +28,7 @@ class Snowflake(object):
 
 class TitleScreenRedraw(object):
     TITLE_DEST = pbge.frects.Frect(-325,-150,650,100)
-    MENU_DEST = pbge.frects.Frect(-150,0,300,150)
+    MENU_DEST = pbge.frects.Frect(-150,0,300,168)
     def __init__(self):
         self.title = pbge.image.Image("sys_wmtitle.png")
         self.bg = pbge.image.Image("poster_snowday.png")
@@ -58,15 +60,26 @@ class TitleScreenRedraw(object):
 TITLE_THEME = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
 
 def start_game(tsrd):
-    name = pbge.input_string(prompt="By what name will you be known?",redrawer=tsrd)
-    if not name:
-        name = gears.selector.EARTH_NAMES.gen_word()
-    pc = gears.selector.random_pilot(35)
-    pc.name = name
-    pc.colors = gears.random_character_colors()
-    egg = gears.eggs.Egg(pc=pc,mecha=gears.Loader.load_design_file('Zerosaiko.txt')[0],credits=500000)
-    egg.mecha.colors = gears.color.random_mecha_colors()
-    game.start_campaign(egg)
+    myfiles = glob.glob(pbge.util.user_dir("egg_*.sav"))
+    mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
+        TitleScreenRedraw.MENU_DEST.dy,
+        TitleScreenRedraw.MENU_DEST.w,TitleScreenRedraw.MENU_DEST.h,
+        predraw=tsrd,font=pbge.my_state.huge_font
+        )
+
+    for fname in myfiles:
+        with open( fname, "rb" ) as f:
+            egg = cPickle.load( f )
+        if egg:
+            mymenu.add_item(str(egg.pc),egg)
+
+    if not mymenu.items:
+        mymenu.add_item('[No characters found]',None)
+
+    egg = mymenu.query()
+    if egg:
+        game.start_campaign(egg)
+
 
 def import_arena_character(tsrd):
     myfiles = gears.oldghloader.GH1Loader.seek_gh1_files()
@@ -83,6 +96,7 @@ def import_arena_character(tsrd):
         pc = mygears.convert_character(rpc)
         egg = mygears.get_egg()
         mymenu.add_item(str(pc),egg)
+    mymenu.sort()
 
     if not mymenu.items:
         mymenu.add_item('[No GH1 characters found]',None)
@@ -132,10 +146,10 @@ def play_the_game():
         )
 
     mymenu.add_item("Start Game",start_game)
+    mymenu.add_item("Create Character",open_chargen_menu)
     mymenu.add_item("Import GH1 Character",import_arena_character)
     mymenu.add_item("Config Options",open_config_menu)
     mymenu.add_item("Cosplay Color Menu",open_cosplay_menu)
-    mymenu.add_item("Create Character",open_chargen_menu)
     mymenu.add_item("Quit",None)
 
     action = True
@@ -152,4 +166,5 @@ if __name__ == "__main__":
     #clay[0].statusdump()
 
     play_the_game()
+    pygame.quit()
 

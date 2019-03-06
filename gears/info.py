@@ -139,6 +139,24 @@ class PilotStatusBlock( object ):
                 mydest.midright = (x + self.width, y + self.height//2)
                 self.power_sprite.render(mydest,10-max(cp*10//mp,1))
 
+class CharacterStatusBlock( object ):
+    # Holds details on the pilot.
+    def __init__(self,model,width=220,csb_font=None,**kwargs):
+        if model:
+            self.model = model.get_pilot()
+        else:
+            self.model = None
+        self.font = csb_font or pbge.SMALLFONT
+        self.width = width
+        self.height = max(self.font.get_linesize() * 3,12)
+        self.rowheight = self.font.get_linesize()
+
+    def render(self,x,y):
+        if self.model:
+            pbge.draw_text(self.font, 'Health: {}/{}'.format(self.model.current_health,self.model.max_health), pygame.Rect(x,y,self.width,self.rowheight),justify=0)
+            pbge.draw_text(self.font, 'Mental: {}/{}'.format(self.model.get_current_mental(),self.model.get_max_mental()), pygame.Rect(x,y+self.rowheight,self.width,self.rowheight),justify=0)
+            pbge.draw_text(self.font, 'Stamina: {}/{}'.format(self.model.get_current_stamina(),self.model.get_max_stamina()), pygame.Rect(x,y+self.rowheight*2,self.width,self.rowheight),justify=0)
+
 class OddsInfoBlock( object ):
     def __init__(self,odds,modifiers,width=220,**kwargs):
         self.odds = odds
@@ -186,6 +204,25 @@ class PrimaryStatsBlock( object ):
                 mydest.y += self.font.get_linesize()
                 pbge.draw_text(self.font, self.STAT_RANKS[max(min((statval-2)//2,len(self.STAT_RANKS)-1),0)], rankdest )
                 rankdest.y = mydest.y
+
+class MechaStatsBlock(object):
+    def __init__(self, model, font=None, width=220, **kwargs):
+        self.model = model
+        self.width = width
+        self.font = font or pbge.MEDIUMFONT
+        self.height = self.font.get_linesize() * 6
+
+    def render(self, x, y):
+        mydest = pygame.Rect(x, y, self.width, self.height)
+        pbge.draw_text(self.font,
+                       "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {}".format(self.model.mass / 10000.0,
+                                                                                            self.model.calc_average_armor(),
+                                                                                            self.model.calc_mobility(),
+                                                                                            self.model.get_max_speed(),
+                                                                                            self.model.get_sensor_range(self.model.scale),
+                                                                                            self.model.get_ewar_rating()),
+                       mydest, justify=0)
+
 
 class NonComSkillBlock(object):
     def __init__(self,model,width=220,skill_font=None,**kwargs):
@@ -295,4 +332,28 @@ def get_status_display(model,**kwargs):
         return NameStatusDisplay(model=model,**kwargs)
 
 
+class MechaFeaturesAndSpriteBlock(object):
+    def __init__(self, model, width=360, **kwargs):
+        self.model = model
+        self.width = width
+        self.height = 136
+        mybmp = pygame.Surface((128, 128))
+        mybmp.fill((0, 0, 255))
+        mybmp.set_colorkey((0, 0, 255), pygame.RLEACCEL)
+        myimg = self.model.get_sprite()
+        myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 128, 128), frame=self.model.frame)
+        self.image = pygame.transform.scale2x(mybmp)
+        self.bg = pbge.image.Image("sys_mechascalegrid.png", 136, 136)
 
+    def render(self, x, y):
+        self.bg.render(pygame.Rect(x, y, 136, 136), 0)
+        pbge.my_state.screen.blit(self.image, pygame.Rect(x + 4, y + 4, 128, 128))
+        mydest = pygame.Rect(x + 140, y, self.width - 140, self.height)
+        pbge.draw_text(pbge.MEDIUMFONT,
+                       "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {}".format(self.model.mass / 10000.0,
+                                                                                            self.model.calc_average_armor(),
+                                                                                            self.model.calc_mobility(),
+                                                                                            self.model.get_max_speed(),
+                                                                                            self.model.get_sensor_range(self.model.scale),
+                                                                                            self.model.get_ewar_rating()),
+                       mydest)

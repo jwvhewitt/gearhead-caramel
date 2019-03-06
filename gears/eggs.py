@@ -39,7 +39,7 @@ class Egg(object):
         self._remove_container_for(self.mecha)
         for npc in self.dramatis_personae:
             self._remove_container_for(npc)
-        with open( util.user_dir( "egg_" + self.name + ".sav" ) , "wb" ) as f:
+        with open( util.user_dir( "egg_" + self.pc.name + ".sav" ) , "wb" ) as f:
             cPickle.dump( self , f, -1 )
         self._reset_container_for(self.pc)
         self._reset_container_for(self.mecha)
