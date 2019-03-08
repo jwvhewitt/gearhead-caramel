@@ -213,6 +213,14 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     mek.pilot = None
             return meklist[0]
 
+    def assign_pilot_to_mecha(self,pc,mek):
+        # either mek or pc can be None, to clear a mecha's assigned pilot.
+        for m in self.party:
+            if isinstance(m, base.Mecha) and m.pilot is pc:
+                m.pilot = None
+        if mek:
+            mek.pilot = pc
+
     def keep_playing_campaign(self):
         # The default version of this method will keep playing forever.
         # You're probably gonna want to redefine this in your subclass.

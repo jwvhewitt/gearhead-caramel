@@ -47,6 +47,12 @@ class StandardDamageHandler(KeyObject):
         """Returns a percent value showing how damaged this gear is."""
         return (self.hp_damage * 100) / self.max_health
 
+    def get_total_damage_status(self):
+        dstats = list()
+        for part in self.get_all_parts():
+            dstats.append(part.get_damage_status())
+        return sum(dstats)/len(dstats)
+
     def is_not_destroyed(self):
         """ Returns True if this gear is not destroyed.
             Note that this doesn't indicate the part is functional- just that
@@ -564,6 +570,11 @@ class BaseGear(scenes.PlaceableThing):
             yield self.container.owner
             for p in self.container.owner.ancestors():
                 yield p
+
+    @property
+    def parent(self):
+        if hasattr(self, "container") and isinstance(self.container.owner, BaseGear):
+            return self.container.owner
 
     def get_root(self):
         """Return the top level parent of this gear."""

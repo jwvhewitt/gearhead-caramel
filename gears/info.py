@@ -325,15 +325,9 @@ class NameStatusDisplay( InfoPanel ):
 class ListDisplay( InfoPanel ):
     DEFAULT_BLOCKS = (ListBlock,)
 
-def get_status_display(model,**kwargs):
-    if isinstance(model,(base.Mecha,base.Being,base.Prop)):
-        return MechaStatusDisplay(model=model,**kwargs)
-    else:
-        return NameStatusDisplay(model=model,**kwargs)
-
 
 class MechaFeaturesAndSpriteBlock(object):
-    def __init__(self, model, width=360, **kwargs):
+    def __init__(self, model, width=360, additional_info="", **kwargs):
         self.model = model
         self.width = width
         self.height = 136
@@ -344,16 +338,39 @@ class MechaFeaturesAndSpriteBlock(object):
         myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 128, 128), frame=self.model.frame)
         self.image = pygame.transform.scale2x(mybmp)
         self.bg = pbge.image.Image("sys_mechascalegrid.png", 136, 136)
+        self.additional_info = additional_info
 
     def render(self, x, y):
         self.bg.render(pygame.Rect(x, y, 136, 136), 0)
         pbge.my_state.screen.blit(self.image, pygame.Rect(x + 4, y + 4, 128, 128))
         mydest = pygame.Rect(x + 140, y, self.width - 140, self.height)
         pbge.draw_text(pbge.MEDIUMFONT,
-                       "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {}".format(self.model.mass / 10000.0,
+                       "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {} {}".format(self.model.mass / 10000.0,
                                                                                             self.model.calc_average_armor(),
                                                                                             self.model.calc_mobility(),
                                                                                             self.model.get_max_speed(),
                                                                                             self.model.get_sensor_range(self.model.scale),
-                                                                                            self.model.get_ewar_rating()),
+                                                                                            self.model.get_ewar_rating(),
+                                                                                            self.additional_info),
                        mydest)
+
+class CharaPortraitAndSkillsBlock(object):
+    def __init__(self, model, width=360, additional_info="", **kwargs):
+        self.model = model
+        self.width = width
+        self.height = 100
+        self.image = model.get_portrait()
+        self.additional_info = additional_info
+
+    def render(self, x, y):
+        self.image.render(pygame.Rect(x, y, 100, 100), 1)
+        mydest = pygame.Rect(x + 110, y, self.width - 110, self.height)
+        skillz = [sk.name for sk in self.model.statline.keys() if sk in stats.NONCOMBAT_SKILLS]
+        pbge.draw_text(pbge.MEDIUMFONT, 'Skills: {}'.format(', '.join(skillz or ["None"])), mydest, justify=-1)
+
+
+def get_status_display(model,**kwargs):
+    if isinstance(model,(base.Mecha,base.Being,base.Prop)):
+        return MechaStatusDisplay(model=model,**kwargs)
+    else:
+        return NameStatusDisplay(model=model,**kwargs)

@@ -3,6 +3,7 @@ from pbge import widgets
 import pygame
 import gears
 import cosplay
+import backpack
 
 LEFT_COLUMN = pbge.frects.Frect(-300,0,200,200)
 CENTER_COLUMN = pbge.frects.Frect(-50,-200,200,400)
@@ -56,7 +57,10 @@ class MechaFHQIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, MechasPilotBlock, gears.info.MechaStatsBlock, gears.info.DescBlock)
 
 class AssignMechaIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, MechasPilotBlock, gears.info.MechaFeaturesAndSpriteBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.MechaFeaturesAndSpriteBlock)
+
+class AssignPilotIP(gears.info.InfoPanel):
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.CharaPortraitAndSkillsBlock)
 
 class AssignMechaDescObject(object):
     def __init__(self,camp,portrait):
@@ -64,13 +68,22 @@ class AssignMechaDescObject(object):
         self.portrait = portrait
         self.infoz = dict()
     def __call__(self,menu_item):
-        mydest = self.portrait.get_rect(0)
-        mydest.midbottom = PORTRAIT_AREA.get_rect().midbottom
-        self.portrait.render(mydest, 0)
         mydest = UTIL_INFO.get_rect()
         if menu_item.value:
             if menu_item.value not in self.infoz:
-                self.infoz[menu_item.value] = AssignMechaIP(model=menu_item.value,width=UTIL_INFO.w,camp=self.camp)
+                self.infoz[menu_item.value] = AssignMechaIP(model=menu_item.value,width=UTIL_INFO.w,camp=self.camp,additional_info='\n Pilot: {} \n Damage: {}%'.format(str(menu_item.value.pilot),menu_item.value.get_total_damage_status()))
+            self.infoz[menu_item.value].render(mydest.x,mydest.y)
+
+class AssignPilotDescObject(object):
+    def __init__(self,camp,portrait):
+        self.camp = camp
+        self.portrait = portrait
+        self.infoz = dict()
+    def __call__(self,menu_item):
+        mydest = UTIL_INFO.get_rect()
+        if menu_item.value:
+            if menu_item.value not in self.infoz:
+                self.infoz[menu_item.value] = AssignPilotIP(model=menu_item.value,width=UTIL_INFO.w,camp=self.camp)
             self.infoz[menu_item.value].render(mydest.x,mydest.y)
 
 class CharacterInfoWidget(widgets.Widget):
@@ -89,13 +102,14 @@ class CharacterInfoWidget(widgets.Widget):
     def assign_mecha(self,wid,ev):
         self.fhq.active = False
 
-        mymenu = pbge.rpgmenu.Menu(UTIL_MENU.dx,UTIL_MENU.dy,UTIL_MENU.w,UTIL_MENU.h,font=pbge.MEDIUMFONT)
+        mymenu = pbge.rpgmenu.Menu(UTIL_MENU.dx,UTIL_MENU.dy,UTIL_MENU.w,UTIL_MENU.h,font=pbge.MEDIUMFONT,predraw=self.draw_portrait)
         for mek in self.camp.party:
             if isinstance(mek, gears.base.Mecha) and mek.is_not_destroyed():
                 mymenu.add_item(mek.get_full_name(),mek)
         mymenu.descobj = AssignMechaDescObject(self.camp,self.portrait)
         mek = mymenu.query()
 
+        self.camp.assign_pilot_to_mecha(self.pc,mek)
         self.fhq.active = True
 
     def change_colors(self,wid,ev):
@@ -133,10 +147,15 @@ class CharacterInfoWidget(widgets.Widget):
     def color_done(self, wid, ev):
         wid.data.finished = True
 
-    def render(self):
+    def draw_portrait(self,include_background=True):
+        if include_background:
+            pbge.my_state.view()
         mydest = self.portrait.get_rect(0)
         mydest.midbottom = PORTRAIT_AREA.get_rect().midbottom
         self.portrait.render(mydest, 0)
+
+    def render(self):
+        self.draw_portrait(False)
         mydest = CENTER_COLUMN.get_rect()
         self.info.render(mydest.x,mydest.y)
 
@@ -149,15 +168,62 @@ class MechaInfoWidget(widgets.Widget):
         self.info = MechaFHQIP(model=pc,width=CENTER_COLUMN.w,camp=camp)
         self.column = widgets.ColumnWidget(LEFT_COLUMN.dx,LEFT_COLUMN.dy,LEFT_COLUMN.w,LEFT_COLUMN.h,padding=10)
         self.children.append(self.column)
+        self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Inventory",justify=0,draw_border=True,on_click=self.open_backpack))
+        self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Assign Pilot",justify=0,draw_border=True,on_click=self.assign_pilot))
         self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Change Colors",justify=0,draw_border=True,on_click=self.change_colors))
         self.fhq = fhq
 
-    def render(self):
+    def draw_portrait(self,include_background=True):
+        if include_background:
+            pbge.my_state.view()
         mydest = self.portrait.get_rect(0)
         mydest.midbottom = PORTRAIT_AREA.get_rect().midbottom
         self.portrait.render(mydest, 0)
+
+    def render(self):
+        self.draw_portrait(False)
         mydest = CENTER_COLUMN.get_rect()
         self.info.render(mydest.x,mydest.y)
+
+    def assign_pilot(self,wid,ev):
+        self.fhq.active = False
+
+        mymenu = pbge.rpgmenu.Menu(UTIL_MENU.dx,UTIL_MENU.dy,UTIL_MENU.w,UTIL_MENU.h,font=pbge.MEDIUMFONT,predraw=self.draw_portrait)
+        for plr in self.camp.party:
+            if isinstance(plr, gears.base.Character) and plr.is_not_destroyed():
+                mymenu.add_item(plr.get_full_name(),plr)
+        mymenu.descobj = AssignPilotDescObject(self.camp,self.portrait)
+        pilot = mymenu.query()
+
+        self.camp.assign_pilot_to_mecha(pilot,self.pc)
+        self.fhq.active = True
+
+    def open_backpack(self,wid,ev):
+        self.fhq.active = False
+        myui = backpack.BackpackWidget(self.camp,self.pc)
+        pbge.my_state.widgets.append(myui)
+        myui.finished = False
+        myui.children.append(
+            pbge.widgets.LabelWidget(150, 220, 80, 16, text="Done", justify=0, on_click=self.bp_done,
+                                     draw_border=True, data=myui))
+
+        keepgoing = True
+        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+
+        pbge.my_state.widgets.remove(myui)
+        pygame.event.clear()
+        self.fhq.active = True
+
+    def bp_done(self, wid, ev):
+        wid.data.finished = True
+
 
     def change_colors(self,wid,ev):
         self.fhq.active = False
