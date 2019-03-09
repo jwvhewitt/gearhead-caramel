@@ -32,6 +32,9 @@ class MechaScale( object ):
     @classmethod
     def scale_power( self, power ):
         return power * self.SIZE_FACTOR ** 2
+    @staticmethod
+    def get_mass_string( mass ):
+        return '{:.1f} tons'.format(mass / 10000.0)
 
 class HumanScale( MechaScale ):
     SIZE_FACTOR = 1
@@ -39,6 +42,9 @@ class HumanScale( MechaScale ):
     COST_FACTOR = 5
     RANGED_SKILL = stats.RangedCombat
     MELEE_SKILL = stats.CloseCombat
+    @staticmethod
+    def get_mass_string( mass ):
+        return '{:.1f}kg'.format(mass / 10.0)
 
 class WorldScale( MechaScale ):
     SIZE_FACTOR = 100

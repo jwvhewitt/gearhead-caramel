@@ -76,3 +76,8 @@ class City(Singleton):
 # Shop Tags
 
 ST_MECHA = "MECHA"
+
+# Inventory Slots- note that these don't work exactly like slots in most RPGs.
+# Multiple items can be equipped in the same place as long as none of them have the same slot.
+SLOT_ITEM = "ITEM"
+SLOT_SHIELD = "SHIELD"

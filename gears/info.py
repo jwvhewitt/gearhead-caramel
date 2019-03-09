@@ -374,3 +374,6 @@ def get_status_display(model,**kwargs):
         return MechaStatusDisplay(model=model,**kwargs)
     else:
         return NameStatusDisplay(model=model,**kwargs)
+
+def get_longform_display(model,**kwargs):
+    return NameStatusDisplay(model=model,**kwargs)

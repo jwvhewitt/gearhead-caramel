@@ -433,9 +433,10 @@ class BaseGear(scenes.PlaceableThing):
     DEFAULT_NAME = "Gear"
     DEFAULT_MATERIAL = materials.Metal
     DEFAULT_SCALE = scale.MechaScale
-    SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc')
+    DEFAULT_SLOT = tags.SLOT_ITEM
+    SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot')
 
-    def __init__(self, uniqueid=None, shop_tags=(), desc="", **keywords):
+    def __init__(self, uniqueid=None, shop_tags=(), desc="", slot=None, **keywords):
         self.name = keywords.pop("name", self.DEFAULT_NAME)
         self.desig = keywords.pop("desig", None)
         self.scale = keywords.pop("scale", self.DEFAULT_SCALE)
@@ -445,6 +446,7 @@ class BaseGear(scenes.PlaceableThing):
         self.uniqueid = uniqueid
         self.shop_tags = list(shop_tags)
         self.desc = desc
+        self.slot = slot or self.DEFAULT_SLOT
 
         self.sub_com = SubComContainerList(owner=self)
         sc_to_add = keywords.pop("sub_com", [])
@@ -534,9 +536,12 @@ class BaseGear(scenes.PlaceableThing):
     def is_legal_inv_com(self, part):
         return False
 
-    def can_equip(self, part):
+    def can_equip(self, part, check_slots=True):
         """Returns True if part can be legally installed here under current conditions"""
-        return self.is_legal_inv_com(part) and part.scale == self.scale and not self.inv_com
+        if check_slots:
+            return self.is_legal_inv_com(part) and part.scale == self.scale and not bool([i for i in self.inv_com if i.slot == part.slot])
+        else:
+            return self.is_legal_inv_com(part) and part.scale == self.scale
 
     def sub_sub_coms(self):
         yield self
@@ -717,6 +722,7 @@ class Armor(BaseGear, StandardDamageHandler):
 
 class Shield(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "Shield"
+    DEFAULT_SLOT = tags.SLOT_SHIELD
     SAVE_PARAMETERS = ('size', 'bonus')
 
     def __init__(self, size=3, bonus=0, **keywords):

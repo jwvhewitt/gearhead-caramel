@@ -16,6 +16,7 @@ ACTIVE_FLASH = [(0,0,0),] * 5 + [(230,230,0),] * 20
 
 widget_border_off = Border( border_width=8, tex_width=16, border_name="sys_widbor_edge1.png", tex_name="sys_widbor_back.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=2 )
 widget_border_on = Border( border_width=8, tex_width=16, border_name="sys_widbor_edge2.png", tex_name="sys_widbor_back.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=2 )
+popup_menu_border = Border( border_width=8, tex_width=16, border_name="sys_widbor_edge2.png", tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=8, transparent=False )
 
 
 
@@ -33,7 +34,7 @@ class Widget( frects.Frect ):
             for c in self.children:
                 c.respond_event(ev)
             if self.get_rect().collidepoint(pygame.mouse.get_pos()):
-                if self.is_kb_selectable() and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1):
+                if self.is_kb_selectable() and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1) and not my_state.widget_clicked:
                     if not my_state.widget_clicked:
                         my_state.active_widget = self
                     if self.on_click:
@@ -218,8 +219,10 @@ class ScrollColumnWidget(Widget):
         self.top_widget = 0
         self.up_button = up_button
         self.up_button.on_click = self.scroll_up
+        self.up_button.frame = self.up_button.off_frame
         self.down_button = down_button
         self.down_button.on_click = self.scroll_down
+        self.down_button.frame = self.down_button.off_frame
 
     def add_interior(self,other_w):
         self.children.append(other_w)
@@ -269,6 +272,10 @@ class ScrollColumnWidget(Widget):
         if self._interior_widgets and not self._interior_widgets[-1].active:
             self.top_widget += 1
             self._position_contents()
+
+    def sort(self,key=None):
+        self._interior_widgets.sort(key=key)
+        self._position_contents()
 
     def _builtin_responder(self,ev):
         if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(pygame.mouse.get_pos()):
@@ -349,7 +356,7 @@ class DropdownWidget( Widget ):
         self.font = font or my_state.small_font
         self.on_select = on_select
         self.on_click = self.open_menu
-        self.menu = rpgmenu.Menu(dx,dy,w,150,border=widget_border_on,font=font,anchor=frects.ANCHOR_UPPERLEFT)
+        self.menu = rpgmenu.Menu(dx,dy,w,150,border=popup_menu_border,font=font,anchor=frects.ANCHOR_UPPERLEFT)
     def render( self ):
         mydest = self.get_rect()
         if self is my_state.active_widget:
