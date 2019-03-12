@@ -434,9 +434,9 @@ class BaseGear(scenes.PlaceableThing):
     DEFAULT_MATERIAL = materials.Metal
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_SLOT = tags.SLOT_ITEM
-    SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot')
+    SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot', 'faction_list')
 
-    def __init__(self, uniqueid=None, shop_tags=(), desc="", slot=None, **keywords):
+    def __init__(self, uniqueid=None, shop_tags=(), desc="", slot=None, faction_list=(None,), **keywords):
         self.name = keywords.pop("name", self.DEFAULT_NAME)
         self.desig = keywords.pop("desig", None)
         self.scale = keywords.pop("scale", self.DEFAULT_SCALE)
@@ -447,6 +447,7 @@ class BaseGear(scenes.PlaceableThing):
         self.shop_tags = list(shop_tags)
         self.desc = desc
         self.slot = slot or self.DEFAULT_SLOT
+        self.faction_list = faction_list
 
         self.sub_com = SubComContainerList(owner=self)
         sc_to_add = keywords.pop("sub_com", [])
@@ -653,6 +654,8 @@ class BaseGear(scenes.PlaceableThing):
                 initdict[k] = copy.deepcopy(v)
             elif k not in ('sub_com', 'inv_com', 'container'):
                 afterdict[k] = copy.deepcopy(v)
+        if hasattr(self,"DEEP_COPY_PARAMS"):
+            initdict.update(self.DEEP_COPY_PARAMS)
 
         initdict["sub_com"] = dcsubcom
         initdict["inv_com"] = dcinvcom
@@ -1313,6 +1316,16 @@ class MeleeWeapon(Weapon):
         if weapon_being_blocked:
             self.hp_damage += random.randint(1, weapon_being_blocked.scale.scale_health(1, materials.Metal))
 
+    def get_reach_str(self):
+        rstr = None
+        for aa in self.get_attributes():
+            if hasattr(aa, "get_reach_str"):
+                rstr = aa.get_reach_str(self)
+                break
+        if not rstr:
+            rstr = '{}'.format(self.reach)
+        return rstr
+
 
 class EnergyWeapon(Weapon):
     # Energy weapons do "hot knife" damage. It gets reduced by, but not stopped
@@ -1414,6 +1427,17 @@ class EnergyWeapon(Weapon):
         defender.spend_stamina(1)
         defender.consume_power(self.get_basic_power_cost())
 
+    def get_reach_str(self):
+        rstr = None
+        for aa in self.get_attributes():
+            if hasattr(aa, "get_reach_str"):
+                rstr = aa.get_reach_str(self)
+                break
+        if not rstr:
+            rstr = '{}'.format(self.reach)
+        return rstr
+
+
 
 class Ammo(BaseGear, Stackable, StandardDamageHandler):
     DEFAULT_NAME = "Ammo"
@@ -1444,21 +1468,27 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler):
             mult *= aa.MASS_MODIFIER
         return int(mult * self.ammo_type.bang * (self.quantity - self.spent) / 25)
 
+    @staticmethod
+    def ammo_volume(ammo_type, quantity):
+        int((ammo_type.bang * quantity + 49) / 50)
+
     @property
     def volume(self):
-        mult = 1.0
-        for aa in self.attributes:
-            mult *= aa.VOLUME_MODIFIER
-        return int((mult * self.ammo_type.bang * self.quantity + 49) / 50)
+        # Ammo volume is not adjusted for attack attributes- instead, that goes tacked onto the cost.
+        return self.ammo_volume(self.ammo_type,self.quantity)
 
     @property
     def base_cost(self):
         mult = 1.0
         for aa in self.attributes:
-            mult *= aa.COST_MODIFIER
+            mult *= aa.COST_MODIFIER * max(aa.VOLUME_MODIFIER,1.0)
         return int(mult * self.ammo_type.bang * self.quantity / 10)
 
     base_health = 1
+
+    def get_item_stats(self):
+        # Provide info on the ammo.
+        return(('Ammo','{}/{}'.format(self.quantity - self.spent, self.quantity)),)
 
 
 class BallisticWeapon(Weapon):
@@ -1471,7 +1501,7 @@ class BallisticWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 5
-    SAVE_PARAMETERS = ('ammo_type',)
+    SAVE_PARAMETERS = ('ammo_type','magazine')
     DEFAULT_CALIBRE = calibre.Shells_150mm
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
@@ -1480,8 +1510,20 @@ class BallisticWeapon(Weapon):
                         attackattributes.Intercept,
                         )
 
-    def __init__(self, ammo_type=None, **keywords):
+    def __init__(self, ammo_type=None, magazine=None, **keywords):
         self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
+
+        if magazine:
+            self.magazine = magazine
+        else:
+            self.magazine = 20
+            # Check the sub-coms, see if a magazine has been added.
+            sc = keywords.get("sub_com")
+            if sc:
+                for a in sc:
+                    if isinstance(a, Ammo):
+                        self.magazine = a.quantity
+                        break
 
         # Finally, call the gear initializer.
         super(BallisticWeapon, self).__init__(**keywords)
@@ -1490,7 +1532,7 @@ class BallisticWeapon(Weapon):
         if isinstance(part, Weapon):
             return part.integral
         else:
-            return isinstance(part, Ammo) and part.ammo_type is self.ammo_type
+            return isinstance(part, Ammo) and part.ammo_type is self.ammo_type and part.quantity <= self.magazine
 
     def get_ammo(self):
         for maybe_ammo in self.sub_com:
@@ -1544,6 +1586,14 @@ class BallisticWeapon(Weapon):
             it = it + '\n Ammo: 0'
         return it
 
+    def get_item_stats(self):
+        # Provide info on the ammo.
+        ammo = self.get_ammo()
+        if ammo:
+            return(('Ammo','{}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)),)
+        else:
+            return(('Ammo','0'),)
+
     def can_intercept(self):
         it = False
         for aa in self.get_attributes():
@@ -1572,6 +1622,11 @@ class BallisticWeapon(Weapon):
             return ammo.area_anim
         else:
             return self.area_anim
+
+    @property
+    def volume(self):
+        base = super(BallisticWeapon,self).volume
+        return max(base,Ammo.ammo_volume(self.ammo_type,self.magazine))
 
 
 class BeamWeapon(Weapon):
@@ -1734,18 +1789,33 @@ class Missile(BaseGear, StandardDamageHandler):
         """Returns the unscaled maximum health of this gear."""
         return self.volume // 2 + 1
 
+    def get_item_stats(self):
+        # Provide info on the ammo.
+        return(('Missiles','{}/{}'.format(self.quantity - self.spent, self.quantity)),)
+
+    def get_reach_str(self):
+        rstr = None
+        for aa in self.attributes:
+            if hasattr(aa, "get_reach_str"):
+                rstr = aa.get_reach_str(self)
+                break
+        if not rstr:
+            rstr = '{}-{}-{}'.format(self.reach,self.reach*2,self.reach*3)
+        return rstr
+
 
 class Launcher(BaseGear, ContainerDamageHandler):
     DEFAULT_NAME = "Launcher"
-    SAVE_PARAMETERS = ('size',)
+    SAVE_PARAMETERS = ('size','attack_stat')
 
-    def __init__(self, size=5, **keywords):
+    def __init__(self, size=5, attack_stat=stats.Perception, **keywords):
         # Check the range of all parameters before applying.
         if size < 1:
             size = 1
         elif size > 20:
             size = 20
         self.size = size
+        self.attack_stat = attack_stat
         super(Launcher, self).__init__(**keywords)
 
     @property
@@ -1762,6 +1832,9 @@ class Launcher(BaseGear, ContainerDamageHandler):
 
     def is_legal_sub_com(self, part):
         return isinstance(part, Missile) and part.volume <= self.volume
+
+    def get_attack_skill(self):
+        return self.scale.RANGED_SKILL
 
     def get_ammo(self):
         for maybe_ammo in self.sub_com:
@@ -1793,7 +1866,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
             ba = pbge.effects.Invocation(
                 name='Single Shot',
                 fx=geffects.AttackRoll(
-                    stats.Perception, self.scale.RANGED_SKILL,
+                    self.attack_stat, self.scale.RANGED_SKILL,
                     children=(geffects.DoDamage(ammo.damage, 6, scale=ammo.scale),),
                     accuracy=ammo.accuracy * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
@@ -1818,7 +1891,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
             ba = pbge.effects.Invocation(
                 name='Fire x{}'.format(num_missiles),
                 fx=geffects.MultiAttackRoll(
-                    stats.Perception, self.scale.RANGED_SKILL, num_attacks=num_missiles,
+                    self.attack_stat, self.scale.RANGED_SKILL, num_attacks=num_missiles,
                     children=(geffects.DoDamage(ammo.damage, 6, scale=ammo.scale),),
                     accuracy=ammo.accuracy * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
@@ -1861,6 +1934,14 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 ammo, ammo.reach * 2, ammo.reach * 3, ammo.quantity - ammo.spent)
         else:
             return 'Empty'
+
+    def get_item_stats(self):
+        # Provide info on the ammo.
+        ammo = self.get_ammo()
+        if ammo:
+            return(('Ammo','{}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)),)
+        else:
+            return(('Ammo','0'),)
 
     def get_area_anim(self):
         ammo = self.get_ammo()
@@ -1910,6 +1991,10 @@ class Chem(BaseGear, Stackable, StandardDamageHandler):
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER
         return int(10 * self.quantity * mult / 10)
+
+    def get_item_stats(self):
+        # Provide info on the ammo.
+        return(('Chem','{}/{}'.format(self.quantity - self.spent, self.quantity)),)
 
     base_health = 1
 
@@ -1998,6 +2083,14 @@ class ChemThrower(Weapon):
         else:
             it = it + '\n Chem: 0'
         return it
+
+    def get_item_stats(self):
+        # Provide info on the ammo.
+        ammo = self.get_ammo()
+        if ammo:
+            return(('Chem','{}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)),)
+        else:
+            return(('Chem','0'),)
 
     def get_shot_anim(self):
         ammo = self.get_ammo()
@@ -2322,16 +2415,15 @@ class MT_Battroid(Singleton):
 
 
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
-    SAVE_PARAMETERS = ('name', 'form', 'faction_list', 'environment_list', 'role_list', 'family')
+    SAVE_PARAMETERS = ('name', 'form', 'environment_list', 'role_list', 'family')
 
-    def __init__(self, form=MT_Battroid, faction_list=(None,),
+    def __init__(self, form=MT_Battroid,
                  environment_list=(tags.GroundEnv, tags.UrbanEnv, tags.SpaceEnv), role_list=(tags.Trooper,),
                  family='None', **keywords):
         name = keywords.get("name")
         if name is None:
             keywords["name"] = form.name
         self.form = form
-        self.faction_list = faction_list
         self.environment_list = environment_list
         self.role_list = role_list
         self.family = family
@@ -2579,6 +2671,8 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat
     DESTROYED_FRAME = 0
+    TOTAL_XP = "TOTAL_XP"
+    SPENT_XP = "SPENT_XP"
 
     def __init__(self, statline=None, combatant=True, **keywords):
         self.statline = collections.defaultdict(int)
@@ -2588,6 +2682,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
         self.mp_spent = 0
         self.sp_spent = 0
+        self.experience = collections.defaultdict(int)
 
         super(Being, self).__init__(**keywords)
 
@@ -2713,7 +2808,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
 class Character(Being):
     SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction', 'badges', 'bio', 'relationship')
-
+    DEEP_COPY_PARAMS = {"add_body": False}
     def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="", relationship=None, add_body=True, **keywords):
         self.personality = set(personality)
         if not gender:

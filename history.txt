@@ -1,3 +1,4 @@
+- Scale, material passed as defaults to children by text gear loader (gears/__init__.py)
 - Widgets only respond to clicks if first widget this tick (pbge/widgets.py)
 - Added fieldHQ and backpack (game/)
 - Added character generator (game/chargen)

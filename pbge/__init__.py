@@ -497,7 +497,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
 
 
         global ITALICFONT
-        ITALICFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Oblique.ttf" ) , 14 )
+        ITALICFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-BoldOblique.ttf" ) , 12 )
 
         global BIGFONT
         BIGFONT = pygame.font.Font( util.image_dir( "Anita semi square.ttf" ) , 16 )

@@ -27,7 +27,7 @@ class MechasPilotBlock(object):
         if pilot not in self.camp.party:
             self.model.pilot = None
             pilot = None
-        self.image = pbge.render_text(self.font,'Pilot: {}'.format(str(pilot)),self.width,justify=-1)
+        self.image = pbge.render_text(self.font,'Pilot: {}'.format(str(pilot)),self.width,justify=-1,color=pbge.INFO_HILIGHT)
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
@@ -43,15 +43,15 @@ class PilotsMechaBlock(object):
     def update(self):
         mek = self.camp.get_pc_mecha(self.model)
         if mek:
-            self.image = pbge.render_text(self.font,'Mecha: {}'.format(mek.get_full_name()),self.width,justify=-1)
+            self.image = pbge.render_text(self.font,'Mecha: {}'.format(mek.get_full_name()),self.width,justify=-1,color=pbge.INFO_HILIGHT)
         else:
-            self.image = pbge.render_text(self.font,'Mecha: None',self.width,justify=-1)
+            self.image = pbge.render_text(self.font,'Mecha: None',self.width,justify=-1,color=pbge.INFO_HILIGHT)
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
 
 class CharaFHQIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, PilotsMechaBlock, gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock,gears.info.NonComSkillBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, PilotsMechaBlock, gears.info.ExperienceBlock, gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.NonComSkillBlock, gears.info.MeritBadgesBlock, gears.info.CharacterTagsBlock)
 
 class MechaFHQIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, MechasPilotBlock, gears.info.MechaStatsBlock, gears.info.DescBlock)
@@ -94,10 +94,37 @@ class CharacterInfoWidget(widgets.Widget):
         self.portrait = pc.get_portrait()
         self.column = widgets.ColumnWidget(LEFT_COLUMN.dx,LEFT_COLUMN.dy,LEFT_COLUMN.w,LEFT_COLUMN.h,padding=10)
         self.children.append(self.column)
+        self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Inventory",justify=0,draw_border=True,on_click=self.open_backpack))
         self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Assign Mecha",justify=0,draw_border=True,on_click=self.assign_mecha))
         self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Change Colors",justify=0,draw_border=True,on_click=self.change_colors))
         self.fhq = fhq
-        self.info = CharaFHQIP(model=pc,width=CENTER_COLUMN.w,csb_font=pbge.MEDIUMFONT,camp=camp)
+        self.info = CharaFHQIP(model=pc,width=CENTER_COLUMN.w,font=pbge.SMALLFONT,camp=camp)
+
+    def open_backpack(self,wid,ev):
+        self.fhq.active = False
+        myui = backpack.BackpackWidget(self.camp,self.pc)
+        pbge.my_state.widgets.append(myui)
+        myui.finished = False
+        myui.children.append(
+            pbge.widgets.LabelWidget(150, 220, 80, 16, text="Done", justify=0, on_click=self.bp_done,
+                                     draw_border=True, data=myui))
+
+        keepgoing = True
+        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+
+        pbge.my_state.widgets.remove(myui)
+        pygame.event.clear()
+        self.fhq.active = True
+
+    def bp_done(self, wid, ev):
+        wid.data.finished = True
 
     def assign_mecha(self,wid,ev):
         self.fhq.active = False
@@ -165,7 +192,7 @@ class MechaInfoWidget(widgets.Widget):
         self.camp = camp
         self.pc = pc
         self.portrait = pc.get_portrait()
-        self.info = MechaFHQIP(model=pc,width=CENTER_COLUMN.w,camp=camp)
+        self.info = MechaFHQIP(model=pc,width=CENTER_COLUMN.w,camp=camp,font=pbge.SMALLFONT)
         self.column = widgets.ColumnWidget(LEFT_COLUMN.dx,LEFT_COLUMN.dy,LEFT_COLUMN.w,LEFT_COLUMN.h,padding=10)
         self.children.append(self.column)
         self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Inventory",justify=0,draw_border=True,on_click=self.open_backpack))

@@ -38,3 +38,8 @@ class Shells_150mm( BaseCalibre ):
 class Ferrous_70mm( BaseCalibre ):
     bang = 9
 
+class Rifle_5mm(BaseCalibre):
+    bang = 6
+
+class Pistol_6mm(BaseCalibre):
+    bang = 4

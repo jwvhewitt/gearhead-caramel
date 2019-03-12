@@ -1,0 +1,134 @@
+
+MeleeWeapon
+    name="Survival Knife"
+    desc = "A sturdy knife with a wide variety of uses."
+    reach=1
+    damage=1
+    accuracy=2
+    penetration=2
+    scale = HumanScale
+    material = Metal
+    shop_tags= ("WEAPON","MELEE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Longsword"
+    desc = "A ceramic blade. Not just an elegant weapon of a bygone age, this sword will come in handy should you need to defend yourself in close combat."
+    reach=1
+    damage=2
+    accuracy=3
+    penetration=1
+    scale = HumanScale
+    material = Ceramic
+    attributes = (Defender,)
+    shop_tags= ("WEAPON","MELEE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Combat Axe"
+    desc = "A large axe, balanced for combat. Though not the subtlest weapon it is great at hacking through thick armor."
+    reach=1
+    damage=3
+    accuracy=1
+    penetration=3
+    scale = HumanScale
+    material = Metal
+    shop_tags= ("WEAPON","MELEE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Solar Spear"
+    desc = "At the head of this spear is a plasma field generator. When activated, it can burn through just about anything."
+    reach=2
+    damage=4
+    accuracy=3
+    penetration=2
+    scale = HumanScale
+    material = Advanced
+    attributes = (BurnAttack,ChargeAttack)
+    shop_tags= ("WEAPON","MELEE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+
+
+
+# Ammo Bang = Damage x Penetration
+
+BallisticWeapon
+    name = "Slug Pistol"
+    desig = "Hounder"
+    desc = "A low velocity single firing pistol. Fires solid metal slugs."
+    reach = 3
+    damage = 3
+    accuracy = 2
+    penetration = 1
+    ammo_type = Pistol_6mm
+    attributes = (VariableFire2,)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+    magazine = 12
+    SUB
+        Ammo
+            ammo_type=Pistol_6mm
+            quantity=12
+    END
+
+BallisticWeapon
+    name = "Combat Rifle"
+    desig = "RIX-58"
+    desc = "A burst capable semiautomatic rifle designed for use against armored targets."
+    reach = 6
+    damage = 2
+    accuracy = 0
+    penetration = 3
+    ammo_type = Rifle_5mm
+    attributes = (Accurate,VariableFire3,)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+    magazine = 40
+    SUB
+        Ammo
+            ammo_type=Rifle_5mm
+            quantity=40
+    END
+
+BallisticWeapon
+    name = "Assault Rifle"
+    desig = "FS Valken"
+    desc = "A fully automatic chemically powered rifle."
+    reach = 6
+    damage = 3
+    accuracy = 1
+    penetration = 2
+    ammo_type = Rifle_5mm
+    attributes = (Automatic,BurstFire3)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+    magazine = 60
+    SUB
+        Ammo
+            ammo_type=Rifle_5mm
+            quantity=60
+    END
+
+BallisticWeapon
+    name = "Long Rifle"
+    desig = "L60"
+    desc = "The long rifled barrel of this firearm can increase the spin of its bullets, thus increasing its range without decreasing the gun's durability."
+    reach = 9
+    damage = 3
+    accuracy = 2
+    penetration = 2
+    ammo_type = Rifle_5mm
+    attributes = (Accurate,)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+    magazine = 40
+    SUB
+        Ammo
+            ammo_type=Rifle_5mm
+            quantity=40
+    END

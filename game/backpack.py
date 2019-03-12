@@ -142,6 +142,12 @@ class BackpackWidget(widgets.Widget):
             dest.inv_com.append(wid.item)
             self.update_selectors()
 
+    def _drop_item(self,wid):
+        wid.item.parent.inv_com.remove(wid.item)
+        self.camp.contents.append(wid.item)
+        wid.item.pos = self.pc.get_root().pos
+        self.update_selectors()
+
     def this_item_was_selected(self,wid,ev):
         """
 
@@ -158,8 +164,9 @@ class BackpackWidget(widgets.Widget):
         else:
             mymenu.add_item("Unequip {}".format(wid.item), self._unequip_item)
 
-        mymenu.add_item("Testing 2", None)
-        mymenu.add_item("Testing 3", None)
+        if self.pc.get_root() in self.camp.scene.contents:
+            mymenu.add_item("Drop {}".format(wid.item),self._drop_item)
+
         cmd = mymenu.query()
         if cmd:
             cmd(wid)

@@ -46,3 +46,4 @@ class Egg(object):
         for npc in self.dramatis_personae:
             self._reset_container_for(npc)
 
+

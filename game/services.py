@@ -5,7 +5,9 @@ import random
 import pbge
 import copy
 
-MECHA_STORE = (tags.ST_MECHA,)
+MECHA_STORE = (tags.ST_MECHA,tags.ST_WEAPON)
+WEAPON_STORE = (tags.ST_WEAPON,)
+GENERAL_STORE = (tags.ST_WEAPON,tags.ST_ESSENTIAL)
 
 
 class CostBlock(object):
@@ -14,7 +16,7 @@ class CostBlock(object):
         self.shop = shop
         self.width = width
         self.image = pbge.render_text(pbge.BIGFONT, "${:,}".format(shop.calc_purchase_price(camp, model)), width,
-                                      justify=0, color=pbge.WHITE)
+                                      justify=0, color=pbge.TEXT_COLOR)
         self.height = self.image.get_height()
 
     def render(self, x, y):
@@ -24,6 +26,12 @@ class CostBlock(object):
 class MechaBuyIP(gears.info.InfoPanel):
     # A floating status display, drawn wherever the mouse is pointing.
     DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MechaFeaturesAndSpriteBlock, gears.info.DescBlock)
+
+class ItemBuyIP(gears.info.InfoPanel):
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MassVolumeBlock, gears.info.DescBlock)
+
+class WeaponBuyIP(gears.info.InfoPanel):
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MassVolumeBlock, gears.info.WeaponStatsBlock, gears.info.ItemStatsBlock, gears.info.WeaponSkillBlock, gears.info.WeaponAttributesBlock, gears.info.DescBlock)
 
 class CustomerPanel(object):
     INFO_AREA = pbge.frects.Frect(50, 130, 300, 100)
@@ -63,8 +71,10 @@ class ShopDesc(object):
             return self.buy_info_cache[item]
         elif isinstance(item, gears.base.Mecha):
             it = MechaBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w)
+        elif isinstance(item, gears.base.Weapon):
+            it = WeaponBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w)
         else:
-            it = None
+            it = ItemBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w)
         self.buy_info_cache[item] = it
         return it
 

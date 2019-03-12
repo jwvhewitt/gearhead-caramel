@@ -441,12 +441,20 @@ class Loader(object):
 
         return masterlist
 
-    def convert(self, protolist):
+    def convert(self, protolist,defaults):
         # Convert the provided list to gears.
         mylist = list()
         for pg in protolist:
-            my_subs = self.convert(pg.sub_com)
-            my_invs = self.convert(pg.inv_com)
+            for k,v in defaults.items():
+                if k not in pg.gparam:
+                    pg.gparam[k] = v
+            nudefaults = dict()
+            if "scale" in pg.gparam:
+                nudefaults["scale"] = pg.gparam["scale"]
+            if "material" in pg.gparam:
+                nudefaults["material"] = pg.gparam["material"]
+            my_subs = self.convert(pg.sub_com,nudefaults)
+            my_invs = self.convert(pg.inv_com,nudefaults)
             mygear = pg.gclass(sub_com=my_subs, inv_com=my_invs, **pg.gparam)
             mylist.append(mygear)
         return mylist
@@ -454,7 +462,7 @@ class Loader(object):
     def load(self):
         with open(self.fname, 'rb') as f:
             mylist = self.load_list(f)
-        return self.convert(mylist)
+        return self.convert(mylist,dict())
 
     @classmethod
     def load_design_file(cls, dfname):

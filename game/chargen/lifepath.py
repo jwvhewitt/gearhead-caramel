@@ -3,12 +3,13 @@ import gears
 from gears import personality,tags,stats
 from gears.meritbadges import TagReactionBadge
 import pygame
+
+from gears.oldghloader import BADGE_CRIMINAL
 from .. import ghdialogue
 from ..ghdialogue.ghgrammar import Default
 import random
 
 BADGE_ACADEMIC = TagReactionBadge("Academic","You are familiar with the language and culture of academia.",remods={tags.Academic:10})
-BADGE_CRIMINAL = TagReactionBadge("Criminal","",remods={tags.Police:-10,tags.Criminal:10})
 BADGE_GEARHEAD = TagReactionBadge("Gearhead","You are obsessed with mecha and anything having to do with mecha.",remods={tags.Craftsperson:10})
 BADGE_POPSTAR = TagReactionBadge("Pop Star","You released a few songs and attained some notoriety as a pop star.",remods={tags.Media:10})
 BADGE_SOLDIER = TagReactionBadge("Soldier","Your time in the army taught you camraderie with all who serve.",remods={tags.Military:10})
@@ -272,7 +273,7 @@ D_DESTINY = LifePathNode(
 )
 
 POVE_CRIME = LifePathOption("Turn to Crime","I stole what I needed to survive. (Stealth skill, Criminal badge)",
-                            stat_mods={stats.Stealth:1},badges=(BADGE_CRIMINAL,),
+                            stat_mods={stats.Stealth:1}, badges=(BADGE_CRIMINAL,),
                             biomessage="[LPD_POVE]",
                             biogram={
                                 "[LPD_POVE]": {
@@ -753,7 +754,7 @@ OUTC_MUTANT = LPRandomMutation("Obvious Mutation", "I have visible genetic mutat
                              )
 
 OUTC_CRIMINAL = LifePathOption("Juvenile Delinquent", "I got started in crime at a young age. (Criminal badge)",
-                             badges=(BADGE_CRIMINAL,),
+                               badges=(BADGE_CRIMINAL,),
                                biomessage="[LPB_OUTC]",
                                biogram={
                                    "[LPB_OUTC]": {

@@ -4,6 +4,7 @@ import pbge
 
 class Accurate(Singleton):
     # This weapon has an Aim action that gives +20 accuracy for 4MP.
+    name = "Accurate"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.2
@@ -19,7 +20,7 @@ class Accurate(Singleton):
 
 class Automatic(Singleton):
     # This weapon has two extra modes: x5 ammo for 2 shots, or x10 ammo for 3 shots
-
+    name = "Automatic"
     MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 1.2
     COST_MODIFIER = 2.0
@@ -31,6 +32,7 @@ class Automatic(Singleton):
                 weapon.get_basic_attack(name='3 shots, x10 ammo',targets=3,ammo_cost=10,attack_icon=6)]
 
 class Blast1(Singleton):
+    name = "Blast 1"
     MASS_MODIFIER = 2.0
     VOLUME_MODIFIER = 2.0
     COST_MODIFIER = 2.0
@@ -50,6 +52,7 @@ class Blast1(Singleton):
         attack.fx.children[0].scatter = True
 
 class Blast2(Blast1):
+    name = "Blast 2"
     MASS_MODIFIER = 3.0
     VOLUME_MODIFIER = 3.0
     COST_MODIFIER = 3.0
@@ -58,6 +61,7 @@ class Blast2(Blast1):
 
 
 class BurnAttack(Singleton):
+    name = "Burn"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.0
@@ -71,6 +75,7 @@ class BurnAttack(Singleton):
 
 class BurstFire2(Singleton):
     # Default fire action fires multiple bullets.
+    name = "Burst Fire 2"
     MASS_MODIFIER = 1.2
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.5
@@ -98,6 +103,7 @@ class BurstFire2(Singleton):
 
 class BurstFire3(BurstFire2):
     # Default fire action fires multiple bullets.
+    name = "Burst Fire 3"
     MASS_MODIFIER = 1.3
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.0
@@ -107,6 +113,7 @@ class BurstFire3(BurstFire2):
 
 class BurstFire4(BurstFire2):
     # Default fire action fires multiple bullets.
+    name = "Burst Fire 4"
     MASS_MODIFIER = 1.4
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.5
@@ -116,6 +123,7 @@ class BurstFire4(BurstFire2):
 
 class BurstFire5(BurstFire2):
     # Default fire action fires multiple bullets.
+    name = "Burst Fire 5"
     MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 1.1
     COST_MODIFIER = 3.0
@@ -125,6 +133,7 @@ class BurstFire5(BurstFire2):
 
 class ChargeAttack(Singleton):
     # This weapon has a charge attack
+    name = "Charge Attack"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.5
     COST_MODIFIER = 1.5
@@ -141,6 +150,7 @@ class ChargeAttack(Singleton):
         return [aa]
 
 class ConeAttack(Singleton):
+    name = "Cone Area"
     MASS_MODIFIER = 2.0
     VOLUME_MODIFIER = 2.0
     COST_MODIFIER = 2.0
@@ -160,6 +170,7 @@ class ConeAttack(Singleton):
 
 
 class Defender(Singleton):
+    name = "Defender"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.5
@@ -167,6 +178,7 @@ class Defender(Singleton):
     PARRY_BONUS = 20
 
 class Flail(Singleton):
+    name = "Flail"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.5
@@ -180,6 +192,7 @@ class Flail(Singleton):
         attack.fx.defenses[geffects.BLOCK] = None
 
 class Intercept(Singleton):
+    name = "Intercept"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.5
@@ -187,6 +200,7 @@ class Intercept(Singleton):
     CAN_INTERCEPT = True
     
 class LineAttack(Singleton):
+    name = "Line Area"
     MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.5
@@ -203,6 +217,7 @@ class LineAttack(Singleton):
 
 
 class Scatter(Singleton):
+    name = "Scatter Shot"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.2
@@ -217,6 +232,7 @@ class Scatter(Singleton):
 
 class VariableFire2(Singleton):
     # This weapon can do Burst x2 fire in addition to single fire
+    name = "Variable Fire 2"
     MASS_MODIFIER = 1.2
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.0
@@ -228,6 +244,7 @@ class VariableFire2(Singleton):
 
 class VariableFire3(Singleton):
     # This weapon can do Burst x3 fire in addition to single fire
+    name = "Variable Fire 3"
     MASS_MODIFIER = 1.3
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.5
@@ -239,6 +256,7 @@ class VariableFire3(Singleton):
 
 class VariableFire4(Singleton):
     # This weapon can do Burst x4 fire in addition to single fire
+    name = "Variable Fire 4"
     MASS_MODIFIER = 1.4
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 3.0
@@ -250,6 +268,7 @@ class VariableFire4(Singleton):
 
 class VariableFire5(Singleton):
     # This weapon can do Burst x4 fire in addition to single fire
+    name = "Variable Fire 5"
     MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 1.1
     COST_MODIFIER = 3.5
