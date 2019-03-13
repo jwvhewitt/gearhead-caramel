@@ -1465,7 +1465,9 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler):
     def base_mass(self):
         mult = 1.0
         for aa in self.attributes:
-            mult *= aa.MASS_MODIFIER
+            # Gonna cube the mass multiplier since ammo doesn't usually weigh that much,
+            # and we need this modifier to make a difference.
+            mult *= max(aa.MASS_MODIFIER**3,1.0)
         return int(mult * self.ammo_type.bang * (self.quantity - self.spent) / 25)
 
     @staticmethod

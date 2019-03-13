@@ -37,6 +37,8 @@ class LifePathOption(object):
             cgen.pc.bio += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
         for k,v in self.stat_mods.items():
             cgen.bio_bonuses[k] += v
+        cgen.bio_badges += self.badges
+        cgen.bio_personality += self.personality_tags
 
 class LPIdealistBonus(object):
     def __init__(self,name,desc,biomessage='',biogram=None):
@@ -55,7 +57,7 @@ class LPIdealistBonus(object):
         stat_list = random.sample(gears.stats.PRIMARY_STATS,3)
         for s in stat_list:
             cgen.bio_bonuses[s] += 1
-        cgen.pc.personality.add(personality.Idealist)
+        cgen.bio_personality.append(personality.Idealist)
 
 
 class LPRandomMutation(object):
@@ -68,7 +70,7 @@ class LPRandomMutation(object):
             self.biogram.update(biogram)
     def apply(self,cgen):
         mutation = random.choice(personality.MUTATIONS)
-        cgen.pc.personality.add(mutation)
+        cgen.bio_personality.append(mutation)
         mutation.apply(cgen.pc,cgen.bio_bonuses)
         ghdialogue.trait_absorb(cgen.biogram,self.biogram,cgen.pc.get_tags())
         if self.biomessage:

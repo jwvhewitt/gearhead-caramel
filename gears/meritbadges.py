@@ -6,15 +6,16 @@ class TagReactionBadge(object):
     def __init__(self,name,desc,remods = None):
         self.name = name
         self.desc = desc
-        self.reaction_modifiers = dict
+        self.reaction_modifiers = dict()
         if remods:
             self.reaction_modifiers.update(remods)
     def get_reaction_modifier(self,pc,npc,camp):
         total = 0
         npc_tags = npc.get_tags()
-        for k,v in self.reaction_modifiers:
-            if k in npc_tags:
-                total += v
+        if self.reaction_modifiers:
+            for k,v in self.reaction_modifiers.iteritems():
+                if k in npc_tags:
+                    total += v
         return total
 
 class UniversalReactionBadge(object):

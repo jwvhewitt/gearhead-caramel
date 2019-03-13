@@ -241,6 +241,7 @@ class NonComSkillBlock(object):
 
     def update(self):
         skillz = [sk.name for sk in self.model.statline.keys() if sk in stats.NONCOMBAT_SKILLS]
+        skillz.sort()
         self.image = pbge.render_text(self.font, 'Skills: {}'.format(', '.join(skillz or ["None"])), self.width, justify=-1, color=pbge.INFO_GREEN)
 
     def render(self,x,y):
@@ -257,6 +258,7 @@ class MeritBadgesBlock(object):
 
     def update(self):
         badgez = [b.name for b in self.model.badges]
+        badgez.sort()
         self.image = pbge.render_text(self.font, 'Badges: {}'.format(', '.join(badgez or ["None"])), self.width, justify=-1, color=pbge.INFO_GREEN)
 
     def render(self,x,y):
@@ -273,6 +275,7 @@ class CharacterTagsBlock(object):
 
     def update(self):
         tagz = [b.name for b in self.model.get_tags()]
+        tagz.sort()
         self.image = pbge.render_text(self.font, 'Tags: {}'.format(', '.join(tagz or ["None"])), self.width, justify=-1, color=pbge.INFO_GREEN)
 
     def render(self,x,y):

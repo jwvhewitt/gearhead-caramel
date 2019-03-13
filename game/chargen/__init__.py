@@ -173,6 +173,8 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.bio_bonuses = collections.defaultdict(int)
 
         self.biogram = dict()
+        self.bio_personality = list()
+        self.bio_badges = list()
         lifepath.generate_random_lifepath(self)
 
         self.unspent_stat_points = 0
@@ -228,7 +230,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.column_one.add_interior(random_reset_row)
 
         self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,16,"===========",justify=0))
-        self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,50,text_fun=self.skill_display))
+        self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,100,text_fun=self.skill_display))
 
         self.children.append(self.column_one)
 
@@ -283,15 +285,26 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             self.unspent_stat_points -= 5
     def skill_display(self,wid):
         skillz = [sk.name for sk in self.bio_bonuses.keys() if sk in gears.stats.NONCOMBAT_SKILLS]
-        return 'Skills: {}'.format(', '.join(skillz or ["None"]))
+        skillz.sort()
+        sk_block = ', '.join(skillz or ["None"])
+        skillz = [b.name for b in self.bio_badges]
+        skillz.sort()
+        bad_block = ', '.join(skillz or ["None"])
+        skillz =  [b.name for b in self.bio_personality]
+        skillz.sort()
+        tag_block = ', '.join(skillz or ["None"])
+        return 'Skills: {}\n Badges: {}\n Tags: {}'.format(sk_block,bad_block,tag_block)
 
     def biography_display(self,wid):
         return self.pc.bio
     def _reset_biography(self):
         self.bio_bonuses.clear()
+        self.bio_personality = list()
+        self.bio_badges = list()
         self.biogram.clear()
         self.pc.bio = ""
         self.pc.portrait_gen.color_channels = list(gears.color.CHARACTER_COLOR_CHANNELS)
+
     def biography_randomize(self,wid,ev):
         self._reset_biography()
         lifepath.generate_random_lifepath(self)
@@ -366,6 +379,8 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             if num_fives > 0:
                 for sk in random.sample(gears.stats.COMBATANT_SKILLS,num_fives):
                     self.pc.statline[sk] += 1
+            self.pc.personality.update( self.bio_personality)
+            self.pc.badges += self.bio_badges
             self.finished = True
             my_egg.mecha = copy.deepcopy(self.mecha_menu.value)
             my_egg.mecha.colors = gears.color.random_mecha_colors()
