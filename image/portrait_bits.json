@@ -97,6 +97,23 @@
       "right_eye": [-1,2], "left_eye": [32,2], "mouth": [20,40], "ear": [-39,14], "nose": [24,14]
     }
   },
+  {
+    "name": "Stony Face",
+    "btype": "Head",
+    "layers": [
+      {"name":"Head","fname":"por_head_stony.png","anchor":"head","x_offset":0,"y_offset":-2,"depth":5000}
+    ],
+    "avatar_layers": [
+      {"name":"Head","fname":"avatar_head_a.png","anchor":"avatar_head","depth":5000}
+    ],
+    "children": [
+      "Eyes","Nose","Mouth","Hair","Ears"
+    ],
+    "anchors": {
+      "right_eye": [-1,-1], "left_eye": [32,-1], "mouth": [19,37], "ear": [-38,14], "nose": [23,12]
+    },
+    "requires": ["Masculine"]
+  },
 
   {
     "name": "Haywire B3 Head",
@@ -148,12 +165,37 @@
     "name": "Narrow Eyes",
     "btype": "Eyes",
     "layers": [
-      {"name":"Right Eye","fname":"por_eyes_narrow.png","anchor":"right_eye","depth":5100,"frame_width":21,"frame_height":11,"y_offset":2},
-      {"name":"Left Eye","fname":"por_eyes_narrow.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":21,"frame_height":11,"y_offset":2}
+      {"name":"Right Eye","fname":"por_eyes_narrow.png","anchor":"right_eye","depth":5100,"frame_width":24,"frame_height":11,"x_offset":0,"y_offset":2},
+      {"name":"Left Eye","fname":"por_eyes_narrow.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":24,"frame_height":11,"x_offset": 0,"y_offset":3}
     ],
     "children": [
       "Eyebrows"
-    ]
+    ],
+    "prefers": ["Shy"]
+  },
+  {
+    "name": "Serene Eyes",
+    "btype": "Eyes",
+    "layers": [
+      {"name":"Right Eye","fname":"por_eyes_serene.png","anchor":"right_eye","depth":5100,"frame_width":26,"frame_height":15,"x_offset":0,"y_offset":2},
+      {"name":"Left Eye","fname":"por_eyes_serene.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":26,"frame_height":15,"x_offset": 0,"y_offset":2}
+    ],
+    "children": [
+      "Eyebrows"
+    ],
+    "prefers": ["Easygoing"]
+  },
+  {
+    "name": "Smiling Eyes",
+    "btype": "Eyes",
+    "layers": [
+      {"name":"Right Eye","fname":"por_eyes_smiling.png","anchor":"right_eye","depth":5100,"frame_width":26,"frame_height":11,"x_offset":0,"y_offset":0},
+      {"name":"Left Eye","fname":"por_eyes_smiling.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":26,"frame_height":11,"x_offset": 0,"y_offset":0}
+    ],
+    "children": [
+      "Eyebrows"
+    ],
+    "prefers": ["Cheerful"]
   },
 
   {
@@ -433,6 +475,39 @@
     ],
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_brightperm.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
+    ],
+    "requires": ["Masculine"]
+  },
+  {
+    "name": "Modern Quiff",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_modquiff.png","anchor":"head","x_offset":0, "y_offset":-30, "depth":6000}
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_balding.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
+    ],
+    "requires": ["Masculine"]
+  },
+  {
+    "name": "Soft Spike",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_softspike.png","anchor":"head","x_offset":2, "y_offset":-58, "depth":6000}
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_balding.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
+    ],
+    "requires": ["Passionate"]
+  },
+  {
+    "name": "Slick Back",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_slickback.png","anchor":"head","x_offset":-9, "y_offset":-27, "depth":6000}
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_balding.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
     ],
     "requires": ["Masculine"]
   },

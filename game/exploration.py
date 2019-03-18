@@ -223,6 +223,14 @@ class InvoMenuCall( object ):
     def __call__(self):
         self.explo.order = invoker.InvocationUI.explo_invoke(self.explo,self.pc,self.pc.get_skill_library,self.source)
 
+class FieldHQCall( object ):
+    def __init__(self,camp):
+        # Creates a callable that opens the invocation UI and handles
+        # its effects.
+        self.camp = camp
+    def __call__(self):
+        fieldhq.FieldHQ.create_and_invoke(self.camp)
+
 class BumpToCall(object):
     def __init__(self,explo,wayp):
         self.explo = explo
@@ -253,6 +261,8 @@ class ExploMenu( object ):
         wayp_list = self.explo.camp.scene.get_bumpables(pbge.my_state.view.mouse_tile)
         for wayp in wayp_list:
             mymenu.add_item('Use {}'.format(str(wayp)),BumpToCall(self.explo,wayp))
+        # Add the standard options.
+        mymenu.add_item('Field HQ', FieldHQCall(self.explo.camp))
         mi = mymenu.query()
         if mi:
             mi()

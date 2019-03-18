@@ -16,10 +16,13 @@ class TerrSet( Room ):
         (None,None,None),
     )
     WAYPOINT_POS = dict()
-    def __init__(self,tags=(), anchor=None, parent=None, archi=None, waypoints=dict(),border=1):
+    def __init__(self,tags=(), anchor=None, parent=None, archi=None, waypoints=dict(),border=1,dont_calc_dimensions=False):
         self.border = border
-        self.width = max([len(a) for a in self.TERRAIN_MAP]) + 2*border
-        self.height = len(self.TERRAIN_MAP) + 2*border
+        if dont_calc_dimensions:
+            self.width,self.height = 0,0
+        else:
+            self.width = max([len(a) for a in self.TERRAIN_MAP]) + 2*border
+            self.height = len(self.TERRAIN_MAP) + 2*border
         self.tags = tags
         self.anchor = anchor
         self.archi = archi
@@ -70,13 +73,28 @@ class BuildingSet( TerrSet ):
     GF4_TILE = (18,23)
     GF5_TILE = (19,24)
     DEFAULT_DECOR_OPTIONS = ()
-    def __init__(self, tags=(), dimx=0, dimy=0, dimz=0, anchor=None, parent=None, archi=None, waypoints=dict(), border=1, decor_options=(), door_sign=None, other_sign=None):
+    def __init__(self, tags=(), anchor=None, parent=None, archi=None, waypoints=dict(), border=1, decor_options=(), door_sign=None, other_sign=None):
         # door_sign is a tuple containing the (south,east) versions of terrain to place above the door.
         # other_sign is a tuple containing the (south,east) versions of terrain to place above the other waypoint.
         self.TERRAIN_MAP = list()
-        dimx = max(dimx or random.randint(4,6),3)
-        dimy = max(dimy or random.randint(4,6),3)
-        dimz = max(dimz or min(random.randint(2,4),random.randint(2,4)),2)
+        self.door_sign = door_sign
+        self.other_sign = other_sign
+
+        self.decor_options = decor_options or self.DEFAULT_DECOR_OPTIONS
+
+        # Create the WAYPOINT_POS dictionary. Add a spot for a door and a spot for some other reachable ground tile.
+        self.WAYPOINT_POS = dict()
+
+        super(BuildingSet,self).__init__(tags,anchor,parent,archi,waypoints,border,dont_calc_dimensions=True)
+
+    def design(self):
+        # height = dimy + dimz - 1 + 2 * self.border
+        # width = dimx + dimz - 1 + 2 * self.border
+        dimz = min(random.randint(2,5),random.randint(2,5))
+
+        dimx = self.area.w - dimz + 1 - 2 * self.border
+        dimy = self.area.h - dimz + 1 - 2 * self.border
+
         self.dimz = dimz
         for mapy in range(dimy + dimz - 1):
             myrow = list()
@@ -116,8 +134,6 @@ class BuildingSet( TerrSet ):
                 if value:
                     self.decor_tiles.add((x,y))
 
-        # Create the WAYPOINT_POS dictionary. Add a spot for a door and a spot for some other reachable ground tile.
-        self.WAYPOINT_POS = dict()
         if random.randint(1,2) == 1:
             self.WAYPOINT_POS["DOOR"] = (random.randint(1,dimx-2)+dimz-1,dimy-2+dimz)
             self.WAYPOINT_POS["OTHER"] = (dimx - 2 + dimz, random.randint(1,dimy-2)+dimz-1)
@@ -128,32 +144,30 @@ class BuildingSet( TerrSet ):
         self.decor_tiles.remove(self.WAYPOINT_POS["OTHER"])
 
         # Add positions for the optional waypoints.
-        if door_sign:
+        if self.door_sign:
             x,y = self.WAYPOINT_POS["DOOR"]
             self.WAYPOINT_POS["DOOR_SIGN"] = (x-1,y-1)
             if self.WAYPOINT_POS["DOOR_SIGN"] in self.decor_tiles:
                 self.decor_tiles.remove(self.WAYPOINT_POS["DOOR_SIGN"])
             if self.TERRAIN_MAP[y][x] in self.GF2_TILE:
-                waypoints["DOOR_SIGN"] = door_sign[0]
+                self.waypoints["DOOR_SIGN"] = self.door_sign[0]
             else:
-                waypoints["DOOR_SIGN"] = door_sign[1]
-        if other_sign:
+                self.waypoints["DOOR_SIGN"] = self.door_sign[1]
+        if self.other_sign:
             x,y = self.WAYPOINT_POS["OTHER"]
             self.WAYPOINT_POS["OTHER_SIGN"] = (x-1,y-1)
             if self.WAYPOINT_POS["OTHER_SIGN"] in self.decor_tiles:
                 self.decor_tiles.remove(self.WAYPOINT_POS["OTHER_SIGN"])
             if self.TERRAIN_MAP[y][x] in self.GF2_TILE:
-                waypoints["OTHER_SIGN"] = other_sign[0]
+                self.waypoints["OTHER_SIGN"] = self.other_sign[0]
             else:
-                waypoints["OTHER_SIGN"] = other_sign[1]
+                self.waypoints["OTHER_SIGN"] = self.other_sign[1]
 
-        super(BuildingSet,self).__init__(tags,anchor,parent,archi,waypoints,border)
 
         # Add the decor.
-        decor_options = decor_options or self.DEFAULT_DECOR_OPTIONS
-        if decor_options:
+        if self.decor_options:
             for t in range(random.randint(5,10)):
-                mydecor = random.choice(decor_options)
+                mydecor = random.choice(self.decor_options)
                 self.install_decor(mydecor)
 
 
@@ -169,6 +183,10 @@ class BuildingSet( TerrSet ):
             return False
     def is_ground_level(self,x,y):
         return (y == len(self.TERRAIN_MAP)-1) or ((y < len(self.TERRAIN_MAP)-1) and (y >= self.dimz - 1 ) and (x == len(self.TERRAIN_MAP[y])-1))
+
+    def build( self, scene, archi):
+        self.design()
+        TerrSet.build(self,scene,archi)
 
 class WallDecor(object):
     def __init__(self,south_terrain=(),east_terrain=()):

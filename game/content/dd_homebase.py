@@ -45,7 +45,7 @@ class DZD_AlliedArmor(Plot):
     scope = "INTERIOR"
     def custom_init( self, nart ):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR",ghterrain.BrickBuilding(waypoints={"DOOR":ghwaypoints.ScrapIronDoor(name="Allied Armor")},door_sign=(ghterrain.AlliedArmorSignEast,ghterrain.AlliedArmorSignSouth)),dident="LOCALE")
+        building = self.register_element("_EXTERIOR",ghterrain.BrickBuilding(waypoints={"DOOR":ghwaypoints.ScrapIronDoor(name="Allied Armor")},door_sign=(ghterrain.AlliedArmorSignEast,ghterrain.AlliedArmorSignSouth),tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]),dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -57,8 +57,6 @@ class DZD_AlliedArmor(Plot):
         foyer.contents.append(ghwaypoints.AlliedArmorSignWP())
 
         mycon2 = plotutility.TownBuildingConnection(self,self.elements["LOCALE"],intscene,room1=building,room2=foyer,door1=building.waypoints["DOOR"],move_door1=False)
-        # Generate a criminal enterprise of some kind.
-        #cplot = self.add_sub_plot(nart, "DZD_CriminalEnterprise")
 
         npc = self.register_element("SHOPKEEPER",gears.selector.random_character(50,local_tags=self.elements["LOCALE"].attributes, job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         npc.place(intscene,team=team2)

@@ -5,7 +5,7 @@ import random
 import pbge
 import copy
 
-MECHA_STORE = (tags.ST_MECHA,tags.ST_WEAPON)
+MECHA_STORE = (tags.ST_MECHA,tags.ST_WEAPON,tags.ST_CLOTHING)
 WEAPON_STORE = (tags.ST_WEAPON,)
 GENERAL_STORE = (tags.ST_WEAPON,tags.ST_ESSENTIAL)
 

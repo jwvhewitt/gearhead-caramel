@@ -79,7 +79,7 @@ class Damage( object ):
         armor = target.get_armor()
         if armor and armor.is_not_destroyed():
             # Reduce penetration by the armor's rating.
-            tar = armor.get_rating()
+            tar = armor.get_armor_rating()
             if tar:
                 penetration -= tar
             # Armor that gets used gets damaged.

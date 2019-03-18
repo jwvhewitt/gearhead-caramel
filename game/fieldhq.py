@@ -372,3 +372,4 @@ class FieldHQ(widgets.Widget):
                     keepgoing = False
 
         pbge.my_state.widgets.remove(myui)
+

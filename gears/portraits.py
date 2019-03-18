@@ -42,26 +42,24 @@ class Portrait(object):
             return random.choice(candidates)
 
     @staticmethod
-    def get_form_tags(pc):
+    def get_form_tags(pc,year=158):
         form_tags = list()
-        if hasattr(pc, "gender"):
-            form_tags += pc.gender.tags
-        for pt in pc.personality:
+        for pt in pc.get_tags():
             form_tags.append(pt.name)
-        if pc.job:
-            form_tags += [tag.name for tag in pc.job.tags]
         if pc.combatant:
             form_tags.append("Combatant")
         else:
             form_tags.append("Noncombatant")
-        if pc.faction:
-            form_tags.append(pc.faction.get_faction_tag().name)
+        if pc.gender:
+            form_tags += pc.gender.tags
         return form_tags
 
-    def random_portrait(self, pc):
+    def random_portrait(self, pc=None, form_tags=()):
         frontier = ["Base", ]
         self.bits = list()
-        form_tags = self.get_form_tags(pc)
+        form_tags = list(form_tags)
+        if pc and not form_tags:
+            form_tags = self.get_form_tags(pc)
         while frontier:
             nu_part = self.get_bit_of_type(frontier.pop(), form_tags)
             if nu_part:
@@ -69,10 +67,10 @@ class Portrait(object):
                 frontier += nu_part.children
                 form_tags += nu_part.form_tags
 
-    def verify(self, pc):
+    def verify(self, pc, form_tags):
         # Check through the bits, make sure they're all legal, replace the ones that don't fit.
         frontier = ["Base",]
-        form_tags = self.get_form_tags(pc)
+        form_tags = list(form_tags)
         bits_to_check = list(self.bits)
         self.bits = list()
         for bitname in bits_to_check:
@@ -98,7 +96,7 @@ class Portrait(object):
                 form_tags += nu_part.form_tags
 
 
-    def build_portrait(self,pc,add_color=True,force_rebuild=False):
+    def build_portrait(self,pc,add_color=True,force_rebuild=False,form_tags=()):
         porimage = pbge.image.Image(frame_width=400, frame_height=700)
         porimage.custom_frames = FRAMES
 
@@ -109,7 +107,7 @@ class Portrait(object):
 
         # If the portrait has not been generated yet, generate it now.
         if not self.bits:
-            self.random_portrait(pc)
+            self.random_portrait(pc,form_tags=form_tags)
 
         portrait_bm = porimage.bitmap.subsurface(pygame.Rect(FRAMES[0]))
         avatar_bm = porimage.bitmap.subsurface(pygame.Rect(FRAMES[2]))
@@ -240,3 +238,4 @@ def init_portraits():
         pb = PortraitBit(**pbdict)
         PORTRAIT_BITS[pb.name] = pb
         PORTRAIT_BITS_BY_TYPE[pb.btype].append(pb)
+

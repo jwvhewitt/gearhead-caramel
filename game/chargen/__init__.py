@@ -75,12 +75,13 @@ class LifepathChooser(object):
         self.info = None
 
 class PortraitEditorW(pbge.widgets.Widget):
-    def __init__(self,cgen,**kwargs):
+    def __init__(self,cgen,form_tags,**kwargs):
         super(PortraitEditorW, self).__init__(-400, -300, 800, 600, **kwargs)
         self.cgen = cgen
         self.pc = cgen.pc
         self.por = cgen.pc.portrait_gen
         self.portrait = cgen.portrait
+        self.form_tags = form_tags
 
         self.portrait_zone = pbge.frects.Frect(-400,-300,400,600)
         self.minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
@@ -94,11 +95,11 @@ class PortraitEditorW(pbge.widgets.Widget):
     def rebuild_menu(self):
         if self.option_column.children:
             self.option_column.clear()
-        form_tags = gears.portraits.Portrait.get_form_tags(self.pc)
+        form_tags = list(self.form_tags)
         for bname in self.por.bits:
             myrow = pbge.widgets.RowWidget(0,0,300,32)
             myrow.add_center(pbge.widgets.LabelWidget(0,0,250,pbge.MEDIUMFONT.get_linesize()+4,bname,font=pbge.MEDIUMFONT,draw_border=True))
-            mylist = gears.portraits.Portrait.get_list_of_type(gears.portraits.PORTRAIT_BITS[bname].btype,form_tags,False)
+            mylist = sorted(gears.portraits.Portrait.get_list_of_type(gears.portraits.PORTRAIT_BITS[bname].btype,form_tags,False),key=lambda b: b.name)
             if len(mylist) > 1:
                 myrow.add_left(pbge.widgets.ButtonWidget(0,0,16,16,self.minus_plus_image,frame=0,data=(bname,mylist),on_click=self.prev_bit))
                 myrow.add_right(pbge.widgets.ButtonWidget(0,0,16,16,self.minus_plus_image,frame=1,data=(bname,mylist),on_click=self.next_bit))
@@ -109,11 +110,12 @@ class PortraitEditorW(pbge.widgets.Widget):
         # Change this bit.
         # bname is the name of the current bit, mylist is the list of potential replacements.
         bname,mylist = wid.data
-        new_i = mylist.index(gears.portraits.PORTRAIT_BITS[bname]) - 1
+        old_i = mylist.index(gears.portraits.PORTRAIT_BITS[bname])
+        new_i = old_i - 1
         bit_pos = self.por.bits.index(bname)
         self.por.bits[bit_pos] = mylist[new_i].name
-        self.por.verify(self.pc)
-        self.portrait = self.por.build_portrait(self.pc,force_rebuild=True)
+        self.por.verify(self.pc,self.form_tags)
+        self.portrait = self.por.build_portrait(self.pc,force_rebuild=True,form_tags=self.form_tags)
         self.rebuild_menu()
 
     def next_bit(self,wid,ev):
@@ -125,7 +127,7 @@ class PortraitEditorW(pbge.widgets.Widget):
             new_i = 0
         bit_pos = self.por.bits.index(bname)
         self.por.bits[bit_pos] = mylist[new_i].name
-        self.por.verify(self.pc)
+        self.por.verify(self.pc,self.form_tags)
         self.portrait = self.por.build_portrait(self.pc,force_rebuild=True)
         self.rebuild_menu()
 
@@ -136,10 +138,10 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.finished = True
 
     @classmethod
-    def create_and_invoke(cls, cgen):
+    def create_and_invoke(cls, cgen, formtags):
         # Run the UI. Return a DoInvocation action if an invocation
         # was chosen, or None if the invocation was cancelled.
-        myui = cls(cgen)
+        myui = cls(cgen,formtags)
         pbge.my_state.widgets.append(myui)
         myui.children.append(pbge.widgets.LabelWidget(150,220,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
 
@@ -254,7 +256,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.children.append(pbge.widgets.LabelWidget(160,210,self.C2_WIDTH,20,text="Save Character",justify=0,on_click=self.save_egg,draw_border=True,font=pbge.BIGFONT))
         self.children.append(pbge.widgets.LabelWidget(160,240,self.C2_WIDTH,20,text="Cancel",justify=0,on_click=self.cancel,draw_border=True,font=pbge.BIGFONT))
 
-        self.portrait = self.pc.portrait_gen.build_portrait(self.pc)
+        self.portrait = self.pc.portrait_gen.build_portrait(self.pc,form_tags=self.get_portrait_tags())
 
     def set_age(self,new_age):
         self.pc.birth_year = self.year - new_age
@@ -322,13 +324,19 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.column_two.active = True
         self.column_three.active = True
 
+    def get_portrait_tags(self):
+        mytags = gears.portraits.Portrait.get_form_tags(self.pc)
+        for pt in self.bio_personality:
+            mytags.append(pt.name)
+        return mytags
+
     def portrait_edit(self,wid,ev):
         self.active = False
-        PortraitEditorW.create_and_invoke(self)
+        PortraitEditorW.create_and_invoke(self,self.get_portrait_tags())
         self.active = True
 
     def portrait_random(self,wid,ev):
-        self.pc.portrait_gen.random_portrait(self.pc)
+        self.pc.portrait_gen.random_portrait(self.pc,form_tags=self.get_portrait_tags())
         self.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
     def color_edit(self,wid,ev):

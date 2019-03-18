@@ -1,18 +1,13 @@
 import pbge
 import gears
-from gears import personality,tags,stats
-from gears.meritbadges import TagReactionBadge
+from gears import personality, stats
+from gears.meritbadges import BADGE_ACADEMIC, BADGE_GEARHEAD, BADGE_POPSTAR, BADGE_SOLDIER, BADGE_CRIMINAL
 import pygame
 
-from gears.oldghloader import BADGE_CRIMINAL
 from .. import ghdialogue
 from ..ghdialogue.ghgrammar import Default
 import random
 
-BADGE_ACADEMIC = TagReactionBadge("Academic","You are familiar with the language and culture of academia.",remods={tags.Academic:10})
-BADGE_GEARHEAD = TagReactionBadge("Gearhead","You are obsessed with mecha and anything having to do with mecha.",remods={tags.Craftsperson:10})
-BADGE_POPSTAR = TagReactionBadge("Pop Star","You released a few songs and attained some notoriety as a pop star.",remods={tags.Media:10})
-BADGE_SOLDIER = TagReactionBadge("Soldier","Your time in the army taught you camraderie with all who serve.",remods={tags.Military:10})
 
 # Character generation is lifepath based.
 
@@ -145,7 +140,7 @@ class LifePathNode(object):
         self.auto_fx = auto_fx
 
 FAIL_POPSTAR = LifePathOption("One Hit Wonder","My music career went nowhere. (Performance skill, Pop Star merit badge)",
-                              stat_mods={stats.Performance:1},badges=(BADGE_POPSTAR,),
+                              stat_mods={stats.Performance:1}, badges=(BADGE_POPSTAR,),
                               biomessage="[LPD_FAIL]",
                               biogram={
                                   "[LPD_FAIL]": {
@@ -230,7 +225,7 @@ D_BETRAYAL = LifePathNode(
 )
 
 DEST_MECHALOVE = LifePathOption("Mecha Mania","I was born to pilot mecha. (Repair skill, Gearhead badge)",
-                                stat_mods={stats.Repair:1},badges=(BADGE_GEARHEAD,),
+                                stat_mods={stats.Repair:1}, badges=(BADGE_GEARHEAD,),
                                 biomessage="[LPD_DEST]",
                                 biogram={
                                     "[LPD_DEST]": {
@@ -661,7 +656,7 @@ C_MILITIA = LifePathNode(
     next_prompt="Pick a crisis.",
     next=(D_BETRAYAL,D_WAR,D_FAILURE),
     auto_fx=LifePathOption("Militia Bonus", "Mecha Piloting bonus, Soldier badge",
-                            stat_mods={stats.MechaPiloting:1},
+                           stat_mods={stats.MechaPiloting:1},
                            badges=(BADGE_SOLDIER,),
                            biomessage="[LPC_INTRO]",
                            biogram={

@@ -132,3 +132,27 @@ BallisticWeapon
             ammo_type=Rifle_5mm
             quantity=40
     END
+
+TorsoClothing
+    name = "Breastplate"
+    desc = "A strong armor plate made from metal."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 6
+    END
+
+TorsoClothing
+    name = "Ceram Breastplate"
+    desc = "A strong armor plate made from advanced ceramics."
+    scale = HumanScale
+    material = Ceramic
+    shop_tags = ("CLOTHING",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 6
+    END

@@ -599,7 +599,7 @@ class BaseGear(scenes.PlaceableThing):
         for part in self.sub_com:
             armor = part.get_armor()
             if armor:
-                alist.append(armor.get_rating())
+                alist.append(armor.get_armor_rating())
             else:
                 alist.append(0)
         if len(alist) > 0:
@@ -609,9 +609,10 @@ class BaseGear(scenes.PlaceableThing):
 
     def get_armor(self):
         """Returns the armor protecting this gear."""
-        for part in self.sub_com:
-            if isinstance(part, Armor):
-                return part
+        candidates = [part for part in self.sub_com if isinstance(part, Armor) and part.is_not_destroyed()]
+        candidates.sort(key= lambda a: a.get_armor_rating())
+        if candidates:
+            return candidates[0]
 
     def __str__(self):
         return self.name
@@ -709,7 +710,7 @@ class Armor(BaseGear, StandardDamageHandler):
         """Returns the armor protecting this gear."""
         return self
 
-    def get_rating(self):
+    def get_armor_rating(self):
         """Returns the penetration rating of this armor."""
         return (self.size * 10) * (self.max_health - self.hp_damage) // self.max_health
 
@@ -2139,10 +2140,11 @@ class Mount(BaseGear, StandardDamageHandler):
 #   ***   USABLES   ***
 #   *******************
 
-class Usable(BaseGear):
+class Usable(BaseGear,StandardDamageHandler):
     # No usable gears yet, but I wanted to include this class definition
     # because it's needed by the construction rules below.
     DEFAULT_NAME = "Do Nothing Usable"
+
 
 
 #   *******************
@@ -2308,12 +2310,28 @@ class Module(BaseGear, StandardDamageHandler):
         return self.form.is_legal_sub_com(part)
 
     def is_legal_inv_com(self, part):
-        return self.form.is_legal_inv_com(part)
+        if isinstance(part,Clothing):
+            return part.form is self.form
+        else:
+            return self.form.is_legal_inv_com(part)
 
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
         return 1 + self.form.MASS_X * self.size
+
+    def get_armor(self):
+        """Returns the armor protecting this gear."""
+        # Modules might have externally mounted armor in clothing or whatnot.
+        candidates = [part for part in self.sub_com if isinstance(part, Armor) and part.is_not_destroyed()]
+        for part in self.inv_com:
+            if part.is_not_destroyed():
+                armor = part.get_armor()
+                if armor and armor.is_not_destroyed():
+                    candidates.append(armor)
+        candidates.sort(key= lambda a: a.get_armor_rating())
+        if candidates:
+            return candidates[0]
 
     def get_defenses(self):
         return {geffects.DODGE: geffects.DodgeRoll(), geffects.BLOCK: geffects.BlockRoll(self),
@@ -2394,6 +2412,57 @@ class Storage(Module):
     def __init__(self, **keywords):
         keywords["form"] = MF_Storage
         super(Storage, self).__init__(**keywords)
+
+
+#   ********************
+#   ***   CLOTHING   ***
+#   ********************
+
+class Clothing(BaseGear,ContainerDamageHandler):
+    SAVE_PARAMETERS = ('form',)
+
+    def __init__(self, form=MF_Torso, **keywords):
+        # Check the range of all parameters before applying.
+        self.form = form
+        super(Clothing, self).__init__(**keywords)
+
+    @property
+    def base_mass(self):
+        return 1
+
+    @property
+    def base_cost(self):
+        return 25
+
+    @property
+    def volume(self):
+        return 5 * self.form.VOLUME_X
+
+    def is_legal_sub_com(self, part):
+        return isinstance(part,(Armor,MovementSystem,PowerSource,Weapon))
+
+class HeadClothing(Clothing):
+    def __init__(self, **keywords):
+        keywords["form"] = MF_Head
+        super(HeadClothing, self).__init__(**keywords)
+
+
+class TorsoClothing(Clothing):
+    def __init__(self, **keywords):
+        keywords["form"] = MF_Torso
+        super(TorsoClothing, self).__init__(**keywords)
+
+
+class ArmClothing(Module):
+    def __init__(self, **keywords):
+        keywords["form"] = MF_Arm
+        super(ArmClothing, self).__init__(**keywords)
+
+
+class LegClothing(Module):
+    def __init__(self, **keywords):
+        keywords["form"] = MF_Leg
+        super(LegClothing, self).__init__(**keywords)
 
 
 #   *****************
@@ -2807,6 +2876,24 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             nu_stats = self.random_stats(points,self.statline)
             for s in stats.PRIMARY_STATS:
                 self.statline[s] += nu_stats[s]
+
+    def get_armor(self):
+        return self
+
+    def get_armor_rating(self):
+        if self.get_current_stamina() > 0:
+            return self.calc_average_armor()
+        else:
+            return self.calc_average_armor()//2
+
+    def reduce_damage(self, dmg, dmg_request):
+        """Normally armor reduces damage, but gets damaged in the process."""
+        max_absorb = min(self.scale.scale_health(2, self.material), dmg)
+        absorb_amount = random.randint(max_absorb // 5, max_absorb)
+        if absorb_amount > 0:
+            self.spend_stamina(max(absorb_amount//2,1))
+            dmg -= absorb_amount
+        return dmg
 
 class Character(Being):
     SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction', 'badges', 'bio', 'relationship')

@@ -49,6 +49,9 @@ class Craftsperson(Singleton):
 class Criminal(Singleton):
     name = "Criminal"
 
+class Faithworker(Singleton):
+    name = "Faithworker"
+
 class Media(Singleton):
     name = "Media"
 
@@ -80,6 +83,7 @@ ST_WEAPON = "WEAPON"
 ST_MELEEWEAPON = "MELEE WEAPON"
 ST_ESSENTIAL = "ESSENTIAL"
 ST_MISSILEWEAPON = "MISSILE WEAPON"
+ST_CLOTHING = "CLOTHING"
 
 # Inventory Slots- note that these don't work exactly like slots in most RPGs.
 # Multiple items can be equipped in the same place as long as none of them have the same slot.

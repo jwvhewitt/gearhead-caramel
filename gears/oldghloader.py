@@ -5,8 +5,7 @@ import stats
 import personality
 import random
 
-from gears import tags
-from gears.meritbadges import TagReactionBadge
+from gears.meritbadges import BADGE_CRIMINAL
 from . import random_character_colors, DETAIL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS
 import color
 import base
@@ -14,9 +13,11 @@ import eggs
 import meritbadges
 import portraits
 import genderobj
+import tags
 
 TYPHON_SLAYER = meritbadges.UniversalReactionBadge("Typhon Slayer", "You led the team that defeated Typhon.", 10)
-BADGE_CRIMINAL = TagReactionBadge("Criminal","",remods={tags.Police:-10,tags.Criminal:10})
+ELEMENTAL_ADEPT = meritbadges.TagReactionBadge("Elemental Adept", "You meditated at the elemental shrines, attaining illumination.",{tags.Faithworker: 20})
+ROBOT_WARRIOR = meritbadges.TagReactionBadge("Robot Warrior", "You ranked in the Robot Warriors mecha tournament.",{tags.Adventurer: 10,tags.Military: 5})
 
 class RetroGear(object):
     # A container for gear info.
@@ -72,6 +73,8 @@ class GH1Loader(object):
     NAV_DEFPLAYERTEAM = 1
 
     GG_ADVENTURE = -7
+
+    NAG_SCRIPTVAR = 0
 
     NAG_SKILL = 1
     NAS_MECHAGUNNERY = 1
@@ -130,6 +133,9 @@ class GH1Loader(object):
     NAS_TOTAL_XP = 0
     NAS_SPENT_XP = 1
     NAS_CREDITS = 2
+
+    NAG_TALENT = 16
+    NAS_IDEALIST = 17
 
     SAVE_FILE_CONTINUE = 0
     SAVE_FILE_SENTINEL = -1
@@ -484,6 +490,11 @@ class GH1Loader(object):
                                             pc.natt.get((self.NAG_SKILL, self.NAS_SPOTWEAKNESS), 0),
                                             pc.natt.get((self.NAG_SKILL, self.NAS_MYSTICISM), 0))
 
+        # Delete any "skills" that don't actually exist.
+        for k in stats.COMBATANT_SKILLS + stats.NONCOMBAT_SKILLS:
+            if k in statline and statline[k] < 1:
+                del statline[k]
+
         # Generate the personality.
         traits = list()
         self._set_personality(pc, traits, self.NAS_SOCIABLE, personality.Sociable, personality.Shy)
@@ -495,6 +506,16 @@ class GH1Loader(object):
         random.shuffle(virtues)
         if numvirt > 0:
             traits += virtues[:numvirt - 1]
+
+        if pc.natt.get((self.NAG_TALENT,self.NAS_IDEALIST),0) != 0:
+            traits.append(personality.Idealist)
+
+        # We're gonna try to determine the PC's origin based on the first line of their life history.
+        adv = self.find_adventure()
+        if adv.satt.get("HISTORY1","Fire in the Taco Bell") in ("You arrived in Hogye as a refugee from Luna.","You fled Luna after deserting from Aegis Overlord Luna."):
+            traits.append(personality.Luna)
+        else:
+            traits.append(personality.GreenZone)
 
         # Generate the badges.
         badges = list()
@@ -512,17 +533,38 @@ class GH1Loader(object):
             pc_colors = random_character_colors()
 
         # Determine gender.
-        gender = pc.natt.get((self.NAG_CHARDESCRIPTION, self.NAS_GENDER), genderobj.Gender.get_default_nonbinary())
+        gender = self.GENDER_OPS.get(pc.natt.get((self.NAG_CHARDESCRIPTION, self.NAS_GENDER), 0),genderobj.Gender.get_default_nonbinary())
 
-        return base.Character(name=pc.satt.get('NAME', "Bob's Dwarf"), statline=statline, personality=traits,
+        ghcpc = base.Character(name=pc.satt.get('NAME', "Bob's Dwarf"), statline=statline, personality=traits,
                               colors=pc_colors, portrait_gen=portraits.Portrait(), gender=gender)
 
-    def record_pc_stuff(self, pc):
+        # Set experience totals.
+        ghcpc.experience[ghcpc.TOTAL_XP] = pc.natt.get((self.NAG_EXPERIENCE,self.NAS_TOTAL_XP),0)
+        ghcpc.experience[ghcpc.SPENT_XP] = pc.natt.get((self.NAG_EXPERIENCE, self.NAS_SPENT_XP), 0)
+
+        return ghcpc
+
+    def record_pc_stuff(self, rawpc, ghcpc):
         # Try to figure out as much as you can about the PC, and store that information.
         adv = self.find_adventure()
         if adv:
+            bio_bits = list()
+            bio_bits.append(rawpc.satt.get("BIO1", ""))
+            bio_bits.append(adv.satt.get("HISTORY1", ""))
+            bio_bits.append(adv.satt.get("HISTORY2", ""))
+
             if adv.s != 0:
-                pc.badges.append(TYPHON_SLAYER)
+                ghcpc.badges.append(TYPHON_SLAYER)
+                bio_bits.append("You defeated the biomonster Typhon.")
+
+            if adv.natt.get((self.NAG_SCRIPTVAR,16),0) != 0:
+                ghcpc.badges.append(ELEMENTAL_ADEPT)
+
+            if adv.natt.get((self.NAG_SCRIPTVAR,24),0) != 0:
+                ghcpc.badges.append(ROBOT_WARRIOR)
+
+            ghcpc.bio = ' '.join(bio_bits)
+
 
     def load(self):
         with open(self.fname, 'rb') as f:
@@ -534,7 +576,7 @@ class GH1Loader(object):
         my_egg = eggs.Egg(pc)
         my_egg.past_adventures.append("The Typhon Incident")
         my_egg.credits = max(rpc.natt.get((self.NAG_EXPERIENCE, self.NAS_CREDITS), 500000),500000)
-        self.record_pc_stuff(pc)
+        self.record_pc_stuff(rpc,pc)
         return my_egg
 
     @classmethod

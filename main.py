@@ -174,7 +174,7 @@ def play_the_game():
 
 
 if __name__ == "__main__":
-    # clay = gears.Loader.load_design_file('PC_Equipment.txt')
+    # clay = gears.Loader.load_design_file('Trailblazer.txt')
     # for item in clay:
     #    item.termdump()
     # clay[0].statusdump()

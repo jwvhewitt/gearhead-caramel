@@ -19,11 +19,15 @@ Mecha
 
                 Engine
                     size = 1000
+                    material = Metal
                 Gyroscope
+                    material = Metal
                 Cockpit
+                    material = Metal
 
                 Sensor
                     size = 2
+                    material = Metal
 
                 BeamWeapon
                     name = "Laser Cannon"
@@ -32,11 +36,14 @@ Mecha
                     accuracy = 1
                     penetration = 0
                     attributes = (VariableFire3)
+                    material = Metal
                 Mount
                     name = "Top Weapon Mount"
+                    material = Metal
                     INV
                         Launcher
                             size = 12
+                            material = Metal
                             SUB
                                 Missile
                                     name = "Swarm Missiles"
@@ -45,6 +52,7 @@ Mecha
                                     accuracy = 1
                                     penetration = 1
                                     quantity = 60
+                                    material = Metal
                             END
                     END
 
@@ -59,8 +67,10 @@ Mecha
                     material = Advanced
                 Hand
                     name = "Right Hand"
+                    material = Metal
                 Mount
                     name = "Right Arm Mount"
+                    material = Metal
                     INV
                         ChemThrower
                             name = "Flame Cannon"
@@ -69,11 +79,13 @@ Mecha
                             accuracy = 0
                             penetration = 1
                             attributes = (ConeAttack)
+                            material = Metal
                             SUB
                                 Chem
                                     name = "Napalm"
                                     quantity = 120
                                     attributes = (BurnAttack)
+                                    material = Metal
                             END
                     END
             END
@@ -87,8 +99,10 @@ Mecha
                     material = Advanced
                 Hand
                     name = "Left Hand"
+                    material = Metal
                 Mount
                     name = "Left Arm Mount"
+                    material = Metal
             END
         Leg
             name = "Right Leg"
@@ -100,6 +114,7 @@ Mecha
                     material = Advanced
                 HeavyActuators
                     size = 5
+                    material = Metal
             END
         Leg
             name = "Left Leg"
@@ -111,6 +126,7 @@ Mecha
                     material = Advanced
                 HeavyActuators
                     size = 5
+                    material = Metal
             END
     END
 

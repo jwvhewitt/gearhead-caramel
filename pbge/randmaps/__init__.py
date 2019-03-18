@@ -90,6 +90,7 @@ class SceneGenerator( Room ):
                 #elif isinstance( t, Room ):
                 #    self.gb.sub_scenes.append( t )
 
+CITY_GRID_ROAD_OVERLAP = "Overlap the Road, Y'All!"
 
 class CityGridGenerator(SceneGenerator):
     def __init__( self, myscene, archi, road_terrain, road_thickness=3, **kwargs ):
@@ -120,7 +121,7 @@ class CityGridGenerator(SceneGenerator):
         while x < (self.width - self.road_thickness):
             # Draw a N-S road here.
             self.fill(self.gb,pygame.Rect(x,0,self.road_thickness,self.height),floor=self.road_terrain)
-            room_width = random.randint(9,15)
+            room_width = random.randint(7,12)
             if x + room_width + self.road_thickness < self.width:
                 column_info.append((x+self.road_thickness,room_width))
             x += self.road_thickness + room_width
@@ -129,10 +130,12 @@ class CityGridGenerator(SceneGenerator):
         while y < (self.height - self.road_thickness - 7):
             # Draw a W-E road here.
             self.fill(self.gb,pygame.Rect(0,y,self.width,self.road_thickness),floor=self.road_terrain)
-            room_height = random.randint(9,15)
+            room_height = random.randint(7,12)
             # Add the rooms.
             for col_x,col_width in column_info:
-                blocks.append(pygame.Rect(col_x,y+self.road_thickness,col_width,room_height))
+                myroom = pygame.Rect(col_x,y+self.road_thickness,col_width,room_height)
+                if self.area.contains(myroom):
+                    blocks.append(myroom)
             y += self.road_thickness + room_height
 
         # Assign areas for unplaced rooms.
@@ -141,6 +144,11 @@ class CityGridGenerator(SceneGenerator):
                 if blocks:
                     myblock = random.choice(blocks)
                     blocks.remove(myblock)
+                    if CITY_GRID_ROAD_OVERLAP in r.tags:
+                        myblock.x -= 2
+                        myblock.y -= 2
+                        myblock.w += 2
+                        myblock.h += 2
                     r.area = myblock
                 else:
                     raise rooms.RoomError( "ROOM ERROR: {}:{} has no block for {}".format(str(self),str( self.__class__ ),str(r)) )

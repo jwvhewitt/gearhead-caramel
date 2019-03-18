@@ -17,6 +17,7 @@ Mecha
                     material = Advanced
                 Sensor
                     size = 4
+                    material = Metal
             END
         Torso
             size = 3
@@ -27,8 +28,11 @@ Mecha
                     material = Advanced
                 Engine
                     size = 600
+                    material = Metal
                 Gyroscope
+                    material = Metal
                 Cockpit
+                    material = Metal
                     SUB
                         Armor
                             size = 1
@@ -36,6 +40,7 @@ Mecha
                  EWSystem
                     size = 2
                     programs = (TargetAnalysis,Deflect)
+                    material = Metal
             END
         Arm
             name = "Right Arm"
@@ -47,10 +52,13 @@ Mecha
                     material = Advanced
                 Hand
                     name = "Right Hand"
+                    material = Metal
                 Mount
                     name = "Right Arm Mount"
+                    material = Metal
                     INV
                         BeamWeapon
+                        material = Metal
                         name = "Particle Cannon"
                         reach = 7
                         damage = 1
@@ -69,6 +77,7 @@ Mecha
                     material = Advanced
                 Hand
                     name = "Left Hand"
+                    material = Metal
                     INV
                         EnergyWeapon
                             name = "Plasma Spear"
@@ -77,9 +86,11 @@ Mecha
                             accuracy=1
                             penetration=4
                             attributes=(ChargeAttack)
+                            material = Metal
                     END
                  Mount
                     name = "Left Arm Mount"
+                    material = Metal
             END
         Leg
             name = "Right Leg"
@@ -91,6 +102,7 @@ Mecha
                     material = Advanced
                 HoverJets
                     size = 4
+                    material = Metal
             END
         Leg
             name = "Left Leg"
@@ -102,5 +114,6 @@ Mecha
                     material = Advanced
                 HoverJets
                     size = 4
+                    material = Metal
             END
     END

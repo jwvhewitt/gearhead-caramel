@@ -5,8 +5,19 @@ import pygame
 
 # The color selector for the GearHead games has been called Cosplay since forever.
 
+class ColorButtonWidget(pbge.widgets.ButtonWidget):
+    def __init__(self, dx, dy, w, h, color_edit, **kwargs):
+        # call_fun is a function to call with the color of the swatch clicked.
+        super(ColorButtonWidget, self).__init__(dx, dy, w, h, **kwargs)
+        self.color_edit = color_edit
+    def render( self ):
+        if self.color_edit and self.data is self.color_edit.colors[self.color_edit.active_menu]:
+            self.sprite.render(self.get_rect(), 1)
+        else:
+            self.sprite.render(self.get_rect(), 0)
+
 class ColorMenu(pbge.widgets.Widget):
-    def __init__(self, dx, dy, w, h, call_fun, colorset=None, **kwargs):
+    def __init__(self, dx, dy, w, h, call_fun, colorset=None, color_edit=None, **kwargs):
         # call_fun is a function to call with the color of the swatch clicked.
         super(ColorMenu, self).__init__(dx, dy, w, h, **kwargs)
         self.color_sprites = dict()
@@ -15,10 +26,10 @@ class ColorMenu(pbge.widgets.Widget):
         x, y = 0, 0
         for color in gears.ALL_COLORS:
             if colorset in color.SETS or colorset is None:
-                sprite = pbge.image.Image("sys_color_menu_swatch.png", color=[color, color, color, color, color])
+                sprite = pbge.image.Image("sys_color_menu_swatch.png", 24, 36, color=[color, color, color, color, color])
                 self.color_sprites[color] = sprite
 
-                self.children.append(pbge.widgets.ButtonWidget(x, y, sprite.frame_width, sprite.frame_height, sprite,
+                self.children.append(ColorButtonWidget(x, y, sprite.frame_width, sprite.frame_height,color_edit=color_edit, sprite=sprite,
                                                                on_click=self.click_swatch, data=color,
                                                                tooltip=color.NAME, parent=self,
                                                                anchor=pbge.frects.ANCHOR_UPPERLEFT))
@@ -75,7 +86,7 @@ class ColorEditor(pbge.widgets.Widget):
         self.display_sprite.recolor(self.colors)
 
     def create_menu(self,colorset):
-        cm = ColorMenu(0,25,self.w,self.h-25,self.click_swatch,colorset,parent=self,anchor=pbge.frects.ANCHOR_UPPERLEFT)
+        cm = ColorMenu(0,25,self.w,self.h-25,self.click_swatch,colorset,parent=self,anchor=pbge.frects.ANCHOR_UPPERLEFT,color_edit=self)
         self.children.append(cm)
         return cm
 
