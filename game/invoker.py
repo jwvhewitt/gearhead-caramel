@@ -8,7 +8,7 @@ import exploration
 # AttackData should be renamed InvoData
 
 class InvoMenuDesc( pbge.frects.Frect ):
-    def render_desc( self, menu_item ):
+    def __call__( self, menu_item ):
         # Just print this weapon's stats in the provided window.
         myrect = self.get_rect()
         pbge.default_border.render(myrect)

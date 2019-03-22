@@ -5,7 +5,7 @@ Mecha
     colors = (Cinnamon,Gold,BrightRed,SlateGrey,Cream)
     portrait = "mecha_blitzen.png"
     environment_list = (None,)
-    faction_list = (None,)
+    faction_list = ("Really None",)
     role_list = (Command)
 
     SUB

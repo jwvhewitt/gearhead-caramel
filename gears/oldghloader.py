@@ -538,9 +538,10 @@ class GH1Loader(object):
         ghcpc = base.Character(name=pc.satt.get('NAME', "Bob's Dwarf"), statline=statline, personality=traits,
                               colors=pc_colors, portrait_gen=portraits.Portrait(), gender=gender)
 
-        # Set experience totals.
+        # Set experience totals and renown.
         ghcpc.experience[ghcpc.TOTAL_XP] = pc.natt.get((self.NAG_EXPERIENCE,self.NAS_TOTAL_XP),0)
         ghcpc.experience[ghcpc.SPENT_XP] = pc.natt.get((self.NAG_EXPERIENCE, self.NAS_SPENT_XP), 0)
+        ghcpc.renown = pc.natt.get((self.NAG_CHARDESCRIPTION,self.NAS_RENOWNED),1)
 
         return ghcpc
 

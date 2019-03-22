@@ -81,6 +81,7 @@ import mechtarot
 import mocha
 import dd_homebase
 import dd_main
+import dd_missions
 import dd_tarot
 import dd_tarotsupport
 import plotutility
@@ -88,6 +89,7 @@ import plotutility
 harvest(mocha)
 harvest(dd_homebase)
 harvest(dd_main)
+harvest(dd_missions)
 harvest(dd_tarot)
 harvest(dd_tarotsupport)
 

@@ -6,6 +6,7 @@ import pygame
 INFO_COLUMN = pbge.frects.Frect(-300,-200,220,300)
 EQUIPMENT_COLUMN = pbge.frects.Frect(-50,-200,350,170)
 INVENTORY_COLUMN = pbge.frects.Frect(-50,0,350,200)
+PC_SWITCH_AREA = pbge.frects.Frect(-300,100,220,100)
 
 class InvItemWidget(widgets.Widget):
     def __init__(self, item, bp, show_parent=False, **kwargs):
@@ -49,6 +50,49 @@ class InvItemWidget(widgets.Widget):
         """ Comparison of menu items done by msg string """
         return( self.text < str(other) )
 
+class PlayerCharacterSwitch(widgets.RowWidget):
+    def __init__(self, camp, pc, set_pc_fun, **kwargs):
+        super(PlayerCharacterSwitch, self).__init__(PC_SWITCH_AREA.dx,PC_SWITCH_AREA.dy,PC_SWITCH_AREA.w,PC_SWITCH_AREA.h,**kwargs)
+        self.camp = camp
+        self.pc = pc
+        self.portraits = dict()
+        self.set_pc_fun = set_pc_fun
+
+        arrow_sprite = pbge.image.Image("sys_leftrightarrows.png",16,100)
+        self.add_left(widgets.ButtonWidget(0,0,16,100,sprite=arrow_sprite,on_click=self.click_left))
+        self.portrait_button = widgets.ButtonWidget(0,0,100,100,sprite=None,frame=1)
+        self.add_left(self.portrait_button)
+        self.add_left(widgets.ButtonWidget(0,0,16,100,sprite=arrow_sprite,on_click=self.click_right,frame=1))
+
+        self.add_right(widgets.LabelWidget(0,0,70,100,text_fun=self.get_label_text, justify=0, color=pbge.INFO_GREEN))
+
+        self.update()
+
+    def click_left(self,wid,ev):
+        party = self.camp.get_active_party()
+        if self.pc in party:
+            new_i = party.index(self.pc) - 1
+            self.pc = party[new_i]
+            self.update()
+
+    def click_right(self,wid,ev):
+        party = self.camp.get_active_party()
+        if self.pc in party:
+            new_i = party.index(self.pc) + 1
+            if new_i >= len(party):
+                new_i = 0
+            self.pc = party[new_i]
+            self.update()
+
+    def get_label_text(self,wid):
+        return "{}\n \n ${}\n {}".format(str(self.pc),self.camp.credits,self.pc.scale.get_mass_string(self.pc.get_inv_mass()))
+
+    def update(self):
+        if self.pc not in self.portraits:
+            self.portraits[self.pc] = self.pc.get_portrait()
+        self.portrait_button.sprite = self.portraits[self.pc]
+        self.set_pc_fun(self.pc)
+
 class BackpackWidget(widgets.Widget):
     active_item = None  # type: InvItemWidget
 
@@ -76,8 +120,6 @@ class BackpackWidget(widgets.Widget):
 
         self.children.append(self.equipment_column)
 
-        self.build_equipment_menu(self.equipment_selector)
-
         self.ic_up_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
         self.ic_down_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
         self.inventory_selector = widgets.ScrollColumnWidget(0, 0, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h - 42, up_button = self.ic_up_button, down_button=self.ic_down_button, padding=2)
@@ -89,8 +131,13 @@ class BackpackWidget(widgets.Widget):
         self.inventory_column.add_interior(self.ic_down_button)
 
         self.children.append(self.inventory_column)
-        self.build_inventory_menu(pc,self.inventory_selector)
+        self.children.append(PlayerCharacterSwitch(camp,pc,self.set_pc,draw_border=True))
 
+        self.update_selectors()
+
+    def set_pc(self,pc):
+        self.pc = pc
+        self.update_selectors()
 
     def _add_equipped_items(self, part_list, menu_widget, is_inv):
         """

@@ -493,6 +493,19 @@ class BaseGear(scenes.PlaceableThing):
             m = m + part.mass
         return m
 
+    def get_inv_mass(self,is_inv=False):
+        if is_inv:
+            m = self.mass
+            for part in self.sub_com:
+                m += part.mass
+        else:
+            m = 0
+            for part in self.sub_com:
+                m += part.get_inv_mass(False)
+        for part in self.inv_com:
+            m += part.mass
+        return m
+
     # volume is likely to be a property in more complex gear types, but here
     # it's just a constant value.
     volume = 1
@@ -2507,7 +2520,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         return self.form.is_legal_sub_com(part)
 
     def is_legal_inv_com(self, part):
-        return True
+        return not isinstance(part,(Mover,Combatant))
 
     # Overwriting a property with a value... isn't this the opposite of how
     # things are usually done?
@@ -2761,7 +2774,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return isinstance(part, Module)
 
     def is_legal_inv_com(self, part):
-        return True
+        return not isinstance(part,(Mover,Combatant))
 
     def can_install(self, part):
         return self.is_legal_sub_com(part) and part.scale is self.scale and self.check_multiplicity(part)
@@ -2804,10 +2817,19 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         """Return the character itself."""
         return self
 
+    def get_mobility_penalty(self):
+        inv_mass = self.get_inv_mass()
+        ccap = self.get_stat(stats.Body) * 30
+        if inv_mass > ccap:
+            return (inv_mass - ccap) // 5
+        else:
+            return 0
+
     def calc_mobility(self):
         """Calculate the mobility ranking of this character.
         """
-        return self.get_stat(stats.Speed) * 4
+        base_m = self.get_stat(stats.Speed) * 4
+        return max(base_m - self.get_mobility_penalty(),0)
 
     def get_dodge_score(self):
         return self.get_skill_score(stats.Speed, stats.Dodge)
