@@ -8,7 +8,7 @@ HELLO,ASK_FOR_ITEM,INFO,MISSION,PROBLEM,ACCEPT,ARREST,GOODBYE,JOIN,PERSONAL,ATTA
 #       The data property should contain "item"
 # INFO: The NPC offers the PC some information.
 #       The data property should contain "subject"
-# MISSION: 
+# MISSION: A mission is described or offered.
 # ACCEPT: The NPC responds to PC accepting a mission or offer
 # ARREST: The PC will attempt to arrest the NPC
 # CHAT: The NPC will provide miscellaneous chatter, maybe including rumors + news.

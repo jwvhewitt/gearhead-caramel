@@ -5,6 +5,7 @@ Non-Element Triggers:
 "STARTCOMBAT"   When combat begins
 "ENDCOMBAT"     When combat ends
 "UPDATE"        When the status of any plot changes
+"END"           When the PC is about to leave a scene
 
 With-Element Triggers:
 "ACTIVATE"      When a combatant is activated

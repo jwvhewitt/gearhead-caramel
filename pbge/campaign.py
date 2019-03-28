@@ -28,7 +28,8 @@ import cPickle
 
 class Campaign( object ):
     """Barebones campaign featuring functionality used by other pbge units."""
-    def __init__( self, name = "BobDwarf19", explo_class=None ):
+    def __init__( self, name = "BobDwarf19", explo_class=None, home_base=None ):
+        # home_base is a (scene,entrance) tuple to be used in case no scene is found.
         self.name = name
         self.party = list()
         self.scene = None 
@@ -39,6 +40,7 @@ class Campaign( object ):
         self.uniques = set()
         self.explo_class = explo_class
         self.day = 1
+        self.home_base = home_base
 
 
     def save( self ):
@@ -95,6 +97,10 @@ class Campaign( object ):
             elif not exp.no_quit:
                 # If the player quit in exploration mode, exit to main menu.
                 break
+            elif not self.first_active_pc() and self.home_base and self.scene != self.home_base[0]:
+                self.remove_party_from_scene()
+                self.scene, self.entrance = self.home_base
+                self.place_party()
 
     def dump_info( self ):
         # Print info on all scenes in this world.

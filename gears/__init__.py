@@ -222,9 +222,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             mek.pilot = pc
 
     def keep_playing_campaign(self):
-        # The default version of this method will keep playing forever.
-        # You're probably gonna want to redefine this in your subclass.
-        return self.first_active_pc()
+        return self.pc.is_not_destroyed()
 
     def get_usable_party(self,map_scale):
         usable_party = list()

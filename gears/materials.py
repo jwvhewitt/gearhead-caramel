@@ -17,6 +17,7 @@ class Material( Singleton ):
     damage_scale = 0
     cost_scale = 0
     repair_type = RT_REPAIR
+    repair_cost = 1
 
 class Metal( Material ):
     name = "Metal"
@@ -45,6 +46,7 @@ class Meat( Material ):
     damage_scale = 4
     cost_scale = 7
     repair_type = RT_MEDICINE
+    repair_cost = 2
 
 class Biotech( Material ):
     name = "Biotech"
@@ -52,6 +54,7 @@ class Biotech( Material ):
     damage_scale = 6
     cost_scale = 120
     repair_type = RT_BIOTECHNOLOGY
+    repair_cost = 2
 
 
 

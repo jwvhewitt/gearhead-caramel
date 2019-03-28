@@ -212,6 +212,23 @@ class RandomMechaUnit(object):
             mek.load_pilot(pilot)
             self.mecha_list.append(mek)
 
+def generate_ace(level,fac,env):
+    shopping_list = MechaShoppingList(
+        max(calc_threat_points(level+20), 350000),
+        fac, env)
+    if shopping_list.best_choices:
+        protomek = max([random.choice(shopping_list.best_choices) for t in range(5)],key=lambda m: m.cost)
+    else:
+        protomek = random.choice(shopping_list.backup_choices)
+    mek = copy.deepcopy(protomek)
+    if fac:
+        mek.colors = fac.mecha_colors
+    else:
+        mek.colors = color.random_mecha_colors()
+    ace = random_pilot(level + 10)
+    mek.load_pilot(ace)
+    return mek
+
 # print calc_threat_points(10)
 # print calc_threat_points(20)
 # print calc_threat_points(30)

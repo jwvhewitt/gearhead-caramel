@@ -480,3 +480,6 @@ class Explorer( object ):
                     else:
                         pc = self.scene.get_main_actor(self.view.mouse_tile)
                         ExploMenu(self,pc)
+
+        if not self.no_quit:
+            self.camp.check_trigger("END")

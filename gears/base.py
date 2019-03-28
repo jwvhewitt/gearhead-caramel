@@ -79,8 +79,20 @@ class StandardDamageHandler(KeyObject):
         """
         return True
 
+    def get_repair_cost(self,repairdict=None):
+        if not repairdict:
+            repairdict = collections.defaultdict(int)
+        repairdict[self.material.repair_type] += self.hp_damage * self.material.repair_cost
+        for p in self.sub_com:
+            p.get_repair_cost(repairdict)
+        for p in self.inv_com:
+            p.get_repair_cost(repairdict)
+        return repairdict
+
     def wipe_damage(self):
         self.hp_damage = 0
+        if hasattr(self,"ench_list"):
+            del self.ench_list[:]
         for p in self.sub_com:
             p.wipe_damage()
         for p in self.inv_com:
@@ -1506,6 +1518,8 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler):
         # Provide info on the ammo.
         return(('Ammo','{}/{}'.format(self.quantity - self.spent, self.quantity)),)
 
+    def get_reload_cost(self):
+        return ( self.cost * self.spent ) / self.quantity
 
 class BallisticWeapon(Weapon):
     MIN_REACH = 2
@@ -1819,6 +1833,9 @@ class Missile(BaseGear, StandardDamageHandler):
             rstr = '{}-{}-{}'.format(self.reach,self.reach*2,self.reach*3)
         return rstr
 
+    def get_reload_cost(self):
+        return ( self.cost * self.spent ) / self.quantity
+
 
 class Launcher(BaseGear, ContainerDamageHandler):
     DEFAULT_NAME = "Launcher"
@@ -2013,6 +2030,9 @@ class Chem(BaseGear, Stackable, StandardDamageHandler):
         return(('Chem','{}/{}'.format(self.quantity - self.spent, self.quantity)),)
 
     base_health = 1
+
+    def get_reload_cost(self):
+        return ( self.cost * self.spent ) / self.quantity
 
 
 class ChemThrower(Weapon):
@@ -2701,7 +2721,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def get_ewar_rating(self):
         total = 0
         for ewar in self.sub_sub_coms():
-            if hasattr(ewar,"get_ewar_rating") and ewar.is_operational():
+            if ewar is not self and hasattr(ewar,"get_ewar_rating") and ewar.is_operational():
                 total += ewar.get_ewar_rating()
         return total
 

@@ -1,6 +1,6 @@
-from pbge.plots import Plot, Adventure
-from pbge.dialogue import Offer, ContextTag, Cue
-from .. import teams, services, ghdialogue
+from pbge.plots import Plot
+from pbge.dialogue import Offer, ContextTag
+from .. import teams, services
 from ..ghdialogue import context
 import gears
 import gharchitecture
@@ -8,7 +8,7 @@ import pbge
 import plotutility
 import ghwaypoints
 import ghterrain
-from . import GHNarrativeRequest, PLOT_LIST
+from dd_combatmission import CombatMissionSeed
 
 
 class DZD_Wujung(Plot):
@@ -33,16 +33,14 @@ class DZD_Wujung(Plot):
 
         # myscene.contents.append(ghterrain.ScrapIronBuilding(waypoints={"DOOR":ghwaypoints.ScrapIronDoor(),"OTHER":ghwaypoints.RetroComputer()}))
 
-        myroom = self.register_element("_ROOM", pbge.randmaps.rooms.FuzzyRoom(5, 5), dident="LOCALE")
-        myent = self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle),
-                                      dident="_ROOM")
-
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.west),
                                         dident="LOCALE")
-        westgate = self.register_element("ADVENTURE_GATE", ghwaypoints.Exit(name="The West Gate",
+        westgate = self.register_element("ENTRANCE", ghwaypoints.Exit(name="The West Gate",
                                                                             desc="You stand at the western city gate of Wujung. Beyond this point lies the dead zone.",
                                                                             anchor=pbge.randmaps.anchors.west,
                                                                             plot_locked=True), dident="_ROOM2")
+
+        nart.camp.home_base = (myscene,westgate)
 
         # Add the services.
         tplot = self.add_sub_plot(nart, "DZDHB_AlliedArmor")
@@ -50,32 +48,6 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
 
         return True
-
-
-class AdventureSeed(Adventure):
-    def __init__(self, camp, name, adv_type, adv_return, pstate=None, auto_set_rank=True):
-        # adv_return is a (Destination,Entrance) tuple.
-        super(AdventureSeed, self).__init__(name=name, world=None)
-        self.pstate = pstate or pbge.plots.PlotState(adv=self,rank=camp.pc.renown)
-        self.pstate.adv = self
-        self.pstate.elements["ADVENTURE_RETURN"] = adv_return
-        self.adv_type = adv_type
-        self.auto_set_rank = auto_set_rank
-
-    def __call__(self, camp):
-        """
-
-        :type camp: gears.GearHeadCampaign
-        """
-        if self.auto_set_rank:
-            self.pstate.rank = camp.pc.renown
-        nart = GHNarrativeRequest(camp, self.pstate, self.adv_type, PLOT_LIST)
-        if nart.story:
-            nart.build()
-            camp.check_trigger("UPDATE")
-        else:
-            for e in nart.errors:
-                print e
 
 
 class DZD_BlueFortressHQ(Plot):
@@ -109,18 +81,18 @@ class DZD_BlueFortressHQ(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         npc.place(intscene, team=team2)
 
-        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce)
-
         self.adventure_seed = None
+        self.register_adventure(nart.camp)
 
         return True
 
-    def ADVENTURE_GATE_menu(self, camp, thingmenu):
+    def ENTRANCE_menu(self, camp, thingmenu):
         if self.adventure_seed:
             thingmenu.add_item(self.adventure_seed.name, self.adventure_seed)
 
     def register_adventure(self,camp):
-        self.adventure_seed = AdventureSeed(camp,"Boring Adventure","DZD_COMBAT_MISSION",(self.elements["LOCALE"],self.elements["ADVENTURE_GATE"]))
+        self.adventure_seed = CombatMissionSeed(camp, "Boring Adventure", (self.elements["LOCALE"], self.elements["ENTRANCE"]))
+
     def SHOPKEEPER_offers(self, camp):
         mylist = list()
 

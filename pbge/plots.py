@@ -10,12 +10,16 @@ class Adventure(object):
     def __init__( self, name="Generic Adventure", world = None ):
         self.name = name
         self.world = world
+        self.ended = False
     def end_adventure(self,camp):
         # WARNING: Don't end the plot while the PC is standing in one of the temp scenes!
         # Ending an adventure is best done when the PC leaves the adventure.
         for p in list(camp.scripts):
             if p.adv is self:
                 p.end_plot(camp,total_removal=False)
+        self.ended = True
+        camp.check_trigger("UPDATE")
+        camp.check_trigger("END",self)
     def __str__(self):
         return self.name
 

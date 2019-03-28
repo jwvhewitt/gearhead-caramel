@@ -98,7 +98,7 @@ class ColorEditor(pbge.widgets.Widget):
     def explo_invoke(cls, redraw):
         # Run the UI. Return a DoInvocation action if an invocation
         # was chosen, or None if the invocation was cancelled.
-        myui = cls(pbge.image.Image("card_n_wintermel.png",400,600),0,(gears.color.CLOTHING,gears.color.SKIN,gears.color.HAIR,gears.color.DETAILS,gears.color.CLOTHING))
+        myui = cls(pbge.image.Image("mecha_buruburu.png",400,600),0,channel_filters=gears.color.MECHA_COLOR_CHANNELS,colors=list(gears.factions.TerranDefenseForce.mecha_colors))
         pbge.my_state.widgets.append(myui)
         keepgoing = True
         while keepgoing:
