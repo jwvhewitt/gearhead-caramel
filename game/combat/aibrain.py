@@ -230,7 +230,7 @@ class BasicAI( object ):
         while camp.fight.still_fighting() and camp.fight.cstat[self.npc].action_points > 0:
             # If targets exist, call attack.
             # Otherwise attempt skill use again.
-            if not (self.target and self.target.is_operational()):
+            if not (self.target and self.target in camp.scene.contents and self.target.is_operational()):
                 self.target = self.select_target(camp)
             if self.target:
                 self.attempt_attack(camp)

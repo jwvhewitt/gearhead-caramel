@@ -163,7 +163,7 @@ class Combat( object ):
         """Return the number of active, hostile characters."""
         n = 0
         for m in self.active:
-            if self.scene.is_an_actor(m) and m.is_operational() and self.scene.player_team.is_enemy( self.scene.local_teams.get(m) ):
+            if m in self.scene.contents and self.scene.is_an_actor(m) and m.is_operational() and self.scene.player_team.is_enemy( self.scene.local_teams.get(m) ):
                 n += 1
         return n
 
@@ -277,7 +277,7 @@ class Combat( object ):
                 # It's the end of the round.
                 self.n = 0
                 self.end_round()
-            if self.active[self.n].is_operational():
+            if self.active[self.n] in self.camp.scene.contents and self.active[self.n].is_operational():
                 chara = self.active[self.n]
                 self.do_combat_turn( chara )
                 # After action, renew attacks of opportunity

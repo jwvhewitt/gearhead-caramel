@@ -51,10 +51,11 @@ ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 
 def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
     # If this NPC has no relationship with the PC, create that now.
-    if not npc.relationship:
-        npc.relationship = gears.relationships.Relationship()
+    realnpc = npc.get_pilot()
+    if realnpc and not realnpc.relationship:
+        realnpc.relationship = gears.relationships.Relationship()
     cviz = ghdview.ConvoVisualizer(npc,camp,pc=pc)
     cviz.rollout()
-    convo = pbge.dialogue.DynaConversation(camp,npc.get_pilot(),pc,cue,visualizer=cviz)
+    convo = pbge.dialogue.DynaConversation(camp,realnpc,pc,cue,visualizer=cviz)
     convo.converse()
 

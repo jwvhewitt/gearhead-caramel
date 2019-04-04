@@ -49,15 +49,17 @@ class Offer(object):
     # "effect" is a function that takes the campaign as its parameter.
     # "subject" is an identifier that limits conversation branches.
     # "subject_start" marks this offer as the entry point for a subject
+    # "dead_end" means this offer will have no automatically generated replies
 
     # "data" is a dict holding strings that may be requested by format.
-    def __init__(self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, data=None ):
+    def __init__(self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, dead_end=False, data=None ):
         self.msg = msg
         self.context = ContextTag(context)
         self.effect = effect
         self.subject = subject
         self.data = data or dict()
         self.subject_start = subject_start
+        self.dead_end = dead_end
 
         if not replies:
             self.replies = list()
@@ -211,15 +213,16 @@ class DynaConversation(object):
                 if r.destination in self.npc_offers:
                     self.npc_offers.remove(r.destination)
 
-        # Shuffle self.npc_offers.
-        random.shuffle(self.npc_offers)
+        if not self.root.dead_end:
+            # Shuffle self.npc_offers.
+            random.shuffle(self.npc_offers)
 
-        # Go through self.npc_offers, adding any offers that connect to current
-        for o in self.npc_offers:
-            r = self._get_reply_for_offers(self.root,o)
-            if r:
-                self.root.replies.append(r)
-                r.destination = o
+            # Go through self.npc_offers, adding any offers that connect to current
+            for o in self.npc_offers:
+                r = self._get_reply_for_offers(self.root,o)
+                if r:
+                    self.root.replies.append(r)
+                    r.destination = o
             
         # Add any needed standards: Goodbye, Can I ask something else
         # That's it.

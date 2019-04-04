@@ -78,7 +78,7 @@ class DeadZoneCombatMission( Plot ):
 
         #for ob in self.elements["OBJECTIVES"]:
         #    self.add_sub_plot(nart,ob)
-        self.add_sub_plot(nart, "DZDCM_DEFEAT_COMMANDER")
+        self.add_sub_plot(nart, "DZDCM_RESCUE_SURVIVORS")
 
         self.mission_entrance = (myscene,myent)
         self.started_mission = False
@@ -182,3 +182,67 @@ class AceCommanderFight( Plot ):
         myteam = self.elements["_eteam"]
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(100)
+
+#   ********************************
+#   ***  DZDCM_RESCUE_SURVIVORS  ***
+#   ********************************
+
+class BasicRescueSurvivors( Plot ):
+    LABEL = "DZDCM_RESCUE_SURVIVORS"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+        team3 = self.register_element("_ateam",teams.Team(enemies=(team2,),allies=(myscene.player_team,)),dident="ROOM")
+        myunit = gears.selector.RandomMechaUnit(self.rank,200,None,myscene.environment,add_commander=False)
+        team2.contents += myunit.mecha_list
+
+        mysurvivor = self.register_element("SURVIVOR",gears.selector.generate_ace(self.rank,None,myscene.environment))
+        self.register_element("PILOT", mysurvivor.get_pilot())
+        team3.contents.append(mysurvivor)
+
+        self.obj = adventureseed.MissionObjective("Find and rescue any survivors.",50)
+        self.adv.objectives.append(self.obj)
+        self.intro_ready = True
+        self.eteam_activated = False
+        self.eteam_defeated = False
+        self.pilot_fled = False
+
+        return True
+    def _eteam_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            self.eteam_activated = True
+            if not self.pilot_fled:
+                npc = self.elements["PILOT"]
+                ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.HELLO_STARTER)
+                camp.fight.active.append(self.elements["SURVIVOR"])
+            self.intro_ready = False
+    def PILOT_offers(self,camp):
+        mylist = list()
+        if self.eteam_defeated:
+            mylist.append(Offer("Thanks for your help! I better get back to base.",dead_end=True,context=ContextTag([ghdialogue.context.HELLO,]),
+                                effect=self.pilot_leaves_combat))
+        else:
+            myoffer = Offer("[HELP_ME_VS_MECHA_COMBAT]",dead_end=True,
+                context=ContextTag([ghdialogue.context.HELLO,]))
+            if not self.eteam_activated:
+                myoffer.replies.append(Reply("Get out of here, I can handle this.",destination=Offer("Thanks! I need to get back to base.",effect=self.pilot_leaves_before_combat,dead_end=True)))
+            mylist.append(myoffer)
+        return mylist
+    def pilot_leaves_before_combat(self,camp):
+        self.obj.win(120)
+        self.pilot_leaves_combat(camp)
+    def pilot_leaves_combat(self,camp):
+        camp.scene.contents.remove(self.elements["SURVIVOR"])
+        self.pilot_fled = True
+    def t_ENDCOMBAT(self,camp):
+        if self.eteam_activated and not self.pilot_fled:
+            myteam = self.elements["_ateam"]
+            eteam = self.elements["_eteam"]
+            if len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+                self.eteam_defeated = True
+                self.obj.win(100)
+                npc = self.elements["PILOT"]
+                ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.HELLO_STARTER)

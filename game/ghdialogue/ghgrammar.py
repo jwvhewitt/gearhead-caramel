@@ -318,6 +318,24 @@ DEFAULT_GRAMMAR = {
             ],
         },
 
+    "[enemy_meks]": {
+        # Insert your favorite euphemism or trash talk,
+        Default: ["mecha", "enemy mecha",
+                  ],
+        personality.Cheerful: ["killer garbage cans","giant lawn mowers",
+                               ],
+        personality.Grim: ["bastards","geared up arseholes",
+                           ],
+        personality.Easygoing: ["guys",
+                                ],
+        personality.Passionate: ["losers",
+                                 ],
+        personality.Sociable: ["hostile mecha",
+            ],
+        personality.Shy: ["enemies",
+                          ],
+    },
+
     "[fight_you]": {
         Default: ["defeat you","fight you","beat you"
             ],
@@ -484,6 +502,43 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["I'll tell you if I need help.",
                           ],
 
+    },
+
+    "[HELP_ME]": {
+        # Simple request for help; may be a component of other HELP_ME_* patterns.
+        Default: ["I need your help.", "Help me!"
+                  ],
+        personality.Cheerful: ["You've arrived just in time to help me!",
+                               ],
+        personality.Grim: ["Without your help, the situation looks hopeless.",
+                           ],
+        personality.Easygoing: ["Think you could help me out?",
+                                ],
+        personality.Passionate: ["Help me, please!",
+                                 ],
+        personality.Sociable: ["I could really use your help right about now.",
+                               "Any help you could give would be really appreciated."
+                               ],
+        personality.Shy: ["Assistance required.",
+                          ],
+    },
+
+    "[HELP_ME_VS_MECHA_COMBAT]": {
+        # The NPC is asking the PC with help during mecha combat.
+        Default: ["I am currently under attack... [HELP_ME]", "I'm under attack by [enemy_meks]. [HELP_ME]"
+                  ],
+        personality.Cheerful: ["These [enemy_meks] decided that they want a party. [HELP_ME]",
+                               ],
+        personality.Grim: ["I'm being attacked by [enemy_meks]... [HELP_ME]",
+                           ],
+        personality.Easygoing: ["I'm having some trouble with these [enemy_meks] shooting at me. [HELP_ME]",
+                                ],
+        personality.Passionate: ["[HELP_ME] I'm fighting some [enemy_meks]!",
+                                 ],
+        personality.Sociable: ["Finally, some reinforcements have arrived... I'm under attack by [enemy_meks]. [HELP_ME]",
+                               ],
+        personality.Shy: ["I am under attack. [HELP_ME]",
+                          ],
     },
 
     "[INFO_PERSONAL]": {
