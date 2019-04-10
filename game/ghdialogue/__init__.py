@@ -22,9 +22,19 @@ def trait_absorb(mygram,nugram,traits):
 
 def build_grammar( mygram, camp, speaker, audience ):
     speaker = speaker.get_pilot()
+    tags = speaker.get_tags()
     if audience:
         audience = audience.get_pilot()
-    trait_absorb(mygram,ghgrammar.DEFAULT_GRAMMAR,speaker.get_tags())
+        react = speaker.get_reaction_score(audience,camp)
+        if react > 60:
+            tags += [ghgrammar.LIKE,ghgrammar.LOVE]
+        elif react > 20:
+            tags += [ghgrammar.LIKE,]
+        elif react < -60:
+            tags += [ghgrammar.DISLIKE,ghgrammar.HATE]
+        elif react < -20:
+            tags += [ghgrammar.DISLIKE,]
+    trait_absorb(mygram,ghgrammar.DEFAULT_GRAMMAR,tags)
     for p in camp.active_plots():
         pgram = p.get_dialogue_grammar( speaker, camp )
         if pgram:

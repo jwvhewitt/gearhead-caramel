@@ -120,7 +120,7 @@ class Image(object):
             dims = (self.bitmap.get_width(), self.bitmap.get_height())
             data = numpy.zeros(dims, numpy.uint32)
             pygame.pixelcopy.surface_to_array(data, self.bitmap)
-            caramelrecolor.recolor(data, color_channels)
+            caramelrecolor.recolor(data, list(color_channels))
             pygame.pixelcopy.array_to_surface(self.bitmap, data)
         else:
             self.red_channel, self.yellow_channel, self.green_channel, self.cyan_channel, self.magenta_channel = color_channels

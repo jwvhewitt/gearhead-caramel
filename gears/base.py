@@ -2938,7 +2938,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return dmg
 
 class Character(Being):
-    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'reaction_mod', 'renown', 'faction', 'badges', 'bio', 'relationship')
+    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship')
     DEEP_COPY_PARAMS = {"add_body": False}
     def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="", relationship=None, add_body=True, **keywords):
         self.personality = set(personality)
@@ -2980,7 +2980,7 @@ class Character(Being):
         return mytags
 
     def get_reaction_score(self,pc,camp):
-        if self.relationship:
+        if self.relationship and pc is camp.pc:
             rs = self.relationship.reaction_mod
         else:
             rs = 0

@@ -471,7 +471,7 @@ class Explorer( object ):
                                 npteam = self.scene.local_teams.get(npc[0])
                                 if npteam and self.scene.player_team.is_enemy(npteam):
                                     self.activate_foe(npc[0])
-                                else:
+                                elif not isinstance(npc[0],gears.base.Prop):
                                     self.order = TalkTo( self, npc[0] )
                                     self.view.overlays.clear()
                             else:

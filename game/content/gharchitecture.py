@@ -36,6 +36,12 @@ class DefaultBuilding(Architecture):
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
+class ResidentialBuilding(Architecture):
+    DEFAULT_WALL_TERRAIN = ghterrain.ResidentialWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.HardwoodFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
 class MakeScrapIronBuilding(Architecture):
     DEFAULT_WALL_TERRAIN = ghterrain.ScrapIronWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor

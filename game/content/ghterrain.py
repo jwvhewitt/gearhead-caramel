@@ -37,6 +37,9 @@ class TechnoRubble( pbge.scenes.terrain.VariableTerrain ):
 class OldTilesFloor( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_oldtiles.png'
 
+class HardwoodFloor( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_hardwood.png'
+
 class CrackedEarth( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_crackedearth.png'
     border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
@@ -104,8 +107,9 @@ class CommercialWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_commercial.png'
     blocks = (Walking,Skimming,Rolling,Vision,Flying)
 
-
-import pygame
+class ResidentialWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_residential.png'
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
 
 class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_dragonteeth.png'
@@ -256,3 +260,26 @@ class BrickBuilding(pbge.randmaps.terrset.BuildingSet):
                              pbge.randmaps.terrset.WallHanger(SteelPipeSouthTop,SteelPipeSouthMid,SteelPipeSouthMid,SteelPipeEastTop,SteelPipeEastMid,SteelPipeEastMid),
                              pbge.randmaps.terrset.RoofDecor((RoofStuff,)),
                              )
+
+class ResidentialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_bottom = 'terrain_building_residential_b.png'
+    image_top = 'terrain_building_residential.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class ResidentialBuilding(pbge.randmaps.terrset.BuildingSet):
+    TERRAIN_TYPE = ResidentialBuildingTerrain
+    DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.RoofDecor((RoofStuff,)),
+                             )
+    UF1_TILE = (15,)
+    UF2_TILE = (16,)
+    UF3_TILE = (17,)
+    UF4_TILE = (18,)
+    UF5_TILE = (19,)
+    GF1_TILE = (20,)
+    GF2_TILE = (21,)
+    GF3_TILE = (22,)
+    GF4_TILE = (23,)
+    GF5_TILE = (24,)
+
+class ScreenDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_screendoor.png'

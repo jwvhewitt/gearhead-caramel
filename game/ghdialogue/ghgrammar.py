@@ -1,4 +1,4 @@
-from gears import personality
+from gears import personality,tags
 #
 #   GearHead Grammar
 #
@@ -18,6 +18,10 @@ from gears import personality
 
 # A meaningless constant
 Default = None
+LOVE = "LOVE"
+LIKE = "LIKE"
+DISLIKE = "DISLIKE"
+HATE = "HATE"
 
 DEFAULT_GRAMMAR = {
     "[ACCEPT_MISSION:GOODBYE]": {
@@ -326,7 +330,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: ["bastards","geared up arseholes",
                            ],
-        personality.Easygoing: ["guys",
+        personality.Easygoing: ["guys","meks",
                                 ],
         personality.Passionate: ["losers",
                                  ],
@@ -334,6 +338,9 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Shy: ["enemies",
                           ],
+        tags.Military: [
+            "hostiles",
+        ],
     },
 
     "[fight_you]": {
@@ -810,6 +817,59 @@ DEFAULT_GRAMMAR = {
         Default: [
             "him","her","zem"
         ]
+    },
+
+    "[THANK_YOU]": {
+        # A simple thank you is appropriate.
+        Default: ["Thank you.", "Thanks."
+                  ],
+    },
+
+    "[THANKS_FOR_HELP]": {
+        # The PC is being thanked for doing something.
+        Default: ["[THANK_YOU]", "Thanks for your help."
+                  ],
+        personality.Cheerful: ["I'm glad you decided to help out; thanks!","That went well. Thanks!"
+                               ],
+        personality.Grim: ["I guess I should thank you.","That could have gone a lot worse; thank you."
+                           ],
+        personality.Easygoing: ["Thanks.","Hey, thanks for helping me out.",
+                                ],
+        personality.Passionate: ["Thank you!!!","Thank you so much!",
+                                 ],
+        personality.Sociable: ["Thank you very much.",
+                               ],
+        personality.Shy: ["Thanks.",
+                          ],
+        personality.Duty: ["Thanks; I owe you one.",
+                           ],
+        LIKE: ["I knew I could depend on you.",
+               ],
+        DISLIKE: ["I'm surprised you came through.",
+                  ],
+    },
+
+    "[THANKS_FOR_MECHA_COMBAT_HELP]": {
+        # The PC is being thanked for helping with mecha combat.
+        Default: ["[THANKS_FOR_HELP]", "Thanks for your help against those [enemy_meks]."
+                  ],
+        personality.Cheerful: ["You're a pretty good pilot, you know?", "I'm glad to have fought at your side today.",
+                               ],
+        personality.Grim: ["The battle could have gone differently without you; thanks.",
+                           ],
+        personality.Easygoing: ["Those [enemy_meks] weren't so tough after all.",
+                                ],
+        personality.Passionate: ["Those [enemy_meks] didn't stand a chance against our combined might!",
+                                "Thanks for the assist against those [enemy_meks]!"
+                                 ],
+        personality.Sociable: ["Thanks; I don't know if I could have done that by myself.",
+                               ],
+        personality.Shy: ["I'm thankful you were here today.",
+                          ],
+        LIKE: ["It was a pleasure to fight at your side",
+               ],
+        DISLIKE: ["Maybe you're a better pilot than I thought."
+                  ],
     },
 
     "[threat]": {

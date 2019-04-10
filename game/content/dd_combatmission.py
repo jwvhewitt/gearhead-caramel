@@ -30,18 +30,18 @@ import adventureseed
 
 class CombatMissionSeed(adventureseed.AdventureSeed):
     OBJECTIVE_TAGS = ("DZDCM_DEFEAT_COMMANDER","DZDCM_RESCUE_SURVIVORS","DZDCM_RECOVER_CARGO")
-    def __init__(self, camp, name, adv_return, **kwargs):
-        cms_pstate = pbge.plots.PlotState(adv=self, rank=camp.pc.renown)
+    def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, **kwargs):
+        cms_pstate = pbge.plots.PlotState(adv=self, rank=max(camp.pc.renown+1,10))
         # Determine 2 to 3 objectives for the mission.
         cms_pstate.elements["OBJECTIVES"] = random.sample(self.OBJECTIVE_TAGS,2)
-
-        # Create a Circle for the enemy team.
+        cms_pstate.elements["enemy_faction"] = enemy_faction
+        cms_pstate.elements["allied_faction"] = allied_faction
 
         # Create a list in which to store the objectives. We'll use this to determine if the mission is
         # finished or failed or whatnot.
         self.objectives = list()
 
-        super(CombatMissionSeed, self).__init__(camp, name, adv_type="DZD_COMBAT_MISSION", adv_return=adv_return, pstate=cms_pstate, **kwargs)
+        super(CombatMissionSeed, self).__init__(camp, name, adv_type="DZD_COMBAT_MISSION", adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False, **kwargs)
 
     def get_completion(self):
         # Return the percent completion of this mission. Due to optional objectives and whatnot, this may fall
@@ -51,6 +51,9 @@ class CombatMissionSeed(adventureseed.AdventureSeed):
         return (awarded * 100)//total
     def is_completed(self):
         return all([(o.optional or (o.awarded_points > 0 and not o.failed)) for o in self.objectives])
+
+
+MAIN_OBJECTIVE_VALUE = 100
 
 #   ****************************
 #   ***  DZD_COMBAT_MISSION  ***
@@ -76,9 +79,9 @@ class DeadZoneCombatMission( Plot ):
         myroom = self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=random.choice(pbge.randmaps.anchors.EDGES)),dident="LOCALE")
         myent = self.register_element( "_ENTRANCE", ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_EROOM")
 
-        #for ob in self.elements["OBJECTIVES"]:
-        #    self.add_sub_plot(nart,ob)
-        self.add_sub_plot(nart, "DZDCM_RESCUE_SURVIVORS")
+        for ob in self.elements["OBJECTIVES"]:
+            self.add_sub_plot(nart,ob)
+        #self.add_sub_plot(nart, "DZDCM_RECOVER_CARGO")
 
         self.mission_entrance = (myscene,myent)
         self.started_mission = False
@@ -124,11 +127,11 @@ class BasicCommanderFight( Plot ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
-        myunit = gears.selector.RandomMechaUnit(self.rank,100,None,myscene.environment,add_commander=True)
+        myunit = gears.selector.RandomMechaUnit(self.rank,100,self.elements.get("enemy_faction"),myscene.environment,add_commander=True)
         team2.contents += myunit.mecha_list
         self.register_element("_commander",myunit.commander)
 
-        self.obj = adventureseed.MissionObjective("Defeat {}".format(myunit.commander),50)
+        self.obj = adventureseed.MissionObjective("Defeat {}".format(myunit.commander),MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj)
         self.intro_ready = True
 
@@ -159,11 +162,11 @@ class AceCommanderFight( Plot ):
         myscene = self.elements["LOCALE"]
         myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5),dident="LOCALE")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
-        myace = gears.selector.generate_ace(self.rank,None,myscene.environment)
+        myace = gears.selector.generate_ace(self.rank,self.elements.get("enemy_faction"),myscene.environment)
         team2.contents.append(myace)
         self.register_element("_commander",myace.get_pilot())
 
-        self.obj = adventureseed.MissionObjective("Defeat {}".format(myace.get_pilot()),50)
+        self.obj = adventureseed.MissionObjective("Defeat {}".format(myace.get_pilot()),MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj)
         self.intro_ready = True
 
@@ -183,6 +186,69 @@ class AceCommanderFight( Plot ):
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(100)
 
+#   *****************************
+#   ***  DZDCM_RECOVER_CARGO  ***
+#   *****************************
+
+class CargoContainer(gears.base.Prop):
+    DEFAULT_COLORS = (gears.color.White,gears.color.Aquamarine,gears.color.DeepGrey,gears.color.Black,gears.color.GullGrey)
+    def __init__(self,size=1,colors=None,**kwargs):
+        super(CargoContainer, self).__init__(name="Shipping Container",size=size,imagename="prop_shippingcontainer.png",**kwargs)
+        self.colors = colors or self.DEFAULT_COLORS
+
+    @staticmethod
+    def random_fleet_colors():
+        return [random.choice(gears.color.MECHA_COLORS),
+                random.choice(gears.color.DETAIL_COLORS),
+                random.choice(gears.color.METAL_COLORS),
+                gears.color.Black,
+                random.choice(gears.color.MECHA_COLORS)]
+    @classmethod
+    def generate_cargo_fleet(cls,rank,colors=None):
+        if not colors:
+            colors = cls.random_fleet_colors()
+        myfleet = [cls(colors=colors) for t in range(random.randint(2,3)+max(0,rank//25))]
+        return myfleet
+
+
+
+class BasicRecoverCargo( Plot ):
+    LABEL = "DZDCM_RECOVER_CARGO"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+        myunit = gears.selector.RandomMechaUnit(self.rank,120,self.elements.get("enemy_faction"),myscene.environment,add_commander=False)
+        team2.contents += myunit.mecha_list
+
+        team3 = self.register_element("_cargoteam",teams.Team(),dident="ROOM")
+        team3.contents += CargoContainer.generate_cargo_fleet(self.rank)
+        # Oh yeah, when using PyCharm, why not use ludicrously long variable names?
+        self.starting_number_of_containers = len(team3.contents)
+
+        self.obj = adventureseed.MissionObjective("Recover lost cargo",MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+        self.combat_entered = False
+        self.combat_finished = False
+
+        return True
+    def _eteam_ACTIVATETEAM(self,camp):
+        if not self.combat_entered:
+            self.combat_entered = True
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+        cargoteam = self.elements["_cargoteam"]
+        if len(cargoteam.get_active_members(camp)) < 1:
+            self.obj.failed = True
+        elif len(myteam.get_active_members(camp)) < 1:
+            self.obj.win((100 * len(cargoteam.get_active_members(camp)))//self.starting_number_of_containers )
+            if not self.combat_finished:
+                pbge.alert("The missing cargo has been secured.")
+                self.combat_finished = True
+
+
 #   ********************************
 #   ***  DZDCM_RESCUE_SURVIVORS  ***
 #   ********************************
@@ -196,14 +262,15 @@ class BasicRescueSurvivors( Plot ):
         myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
         team3 = self.register_element("_ateam",teams.Team(enemies=(team2,),allies=(myscene.player_team,)),dident="ROOM")
-        myunit = gears.selector.RandomMechaUnit(self.rank,200,None,myscene.environment,add_commander=False)
+        myunit = gears.selector.RandomMechaUnit(self.rank,200,self.elements.get("enemy_faction"),myscene.environment,add_commander=False)
+        print self.rank
         team2.contents += myunit.mecha_list
 
-        mysurvivor = self.register_element("SURVIVOR",gears.selector.generate_ace(self.rank,None,myscene.environment))
+        mysurvivor = self.register_element("SURVIVOR",gears.selector.generate_ace(self.rank,self.elements.get("allied_faction"),myscene.environment))
         self.register_element("PILOT", mysurvivor.get_pilot())
         team3.contents.append(mysurvivor)
 
-        self.obj = adventureseed.MissionObjective("Find and rescue any survivors.",50)
+        self.obj = adventureseed.MissionObjective("Find and rescue any survivors.",MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj)
         self.intro_ready = True
         self.eteam_activated = False
@@ -222,13 +289,13 @@ class BasicRescueSurvivors( Plot ):
     def PILOT_offers(self,camp):
         mylist = list()
         if self.eteam_defeated:
-            mylist.append(Offer("Thanks for your help! I better get back to base.",dead_end=True,context=ContextTag([ghdialogue.context.HELLO,]),
+            mylist.append(Offer("[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.",dead_end=True,context=ContextTag([ghdialogue.context.HELLO,]),
                                 effect=self.pilot_leaves_combat))
         else:
             myoffer = Offer("[HELP_ME_VS_MECHA_COMBAT]",dead_end=True,
                 context=ContextTag([ghdialogue.context.HELLO,]))
             if not self.eteam_activated:
-                myoffer.replies.append(Reply("Get out of here, I can handle this.",destination=Offer("Thanks! I need to get back to base.",effect=self.pilot_leaves_before_combat,dead_end=True)))
+                myoffer.replies.append(Reply("Get out of here, I can handle this.",destination=Offer("[THANK_YOU] I need to get back to base.",effect=self.pilot_leaves_before_combat,dead_end=True)))
             mylist.append(myoffer)
         return mylist
     def pilot_leaves_before_combat(self,camp):
@@ -241,7 +308,9 @@ class BasicRescueSurvivors( Plot ):
         if self.eteam_activated and not self.pilot_fled:
             myteam = self.elements["_ateam"]
             eteam = self.elements["_eteam"]
-            if len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+            if len(myteam.get_active_members(camp)) < 1:
+                self.obj.failed = True
+            elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
                 self.eteam_defeated = True
                 self.obj.win(100)
                 npc = self.elements["PILOT"]

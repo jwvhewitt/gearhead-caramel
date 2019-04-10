@@ -67,11 +67,17 @@ class BuildingSet( TerrSet ):
     LLT_TILE = (0,9)
     LMT_TILE = (1,10,)
     LRT_TILE = (2,11,12)
+    UF1_TILE = (15,20,)
+    UF2_TILE = (16,21)
+    UF3_TILE = (17,22)
+    UF4_TILE = (18,23)
+    UF5_TILE = (19,24)
     GF1_TILE = (15,20,)
     GF2_TILE = (16,21)
     GF3_TILE = (17,22)
     GF4_TILE = (18,23)
     GF5_TILE = (19,24)
+
     DEFAULT_DECOR_OPTIONS = ()
     def __init__(self, tags=(), anchor=None, parent=None, archi=None, waypoints=dict(), border=1, decor_options=(), door_sign=None, other_sign=None):
         # door_sign is a tuple containing the (south,east) versions of terrain to place above the door.
@@ -113,18 +119,29 @@ class BuildingSet( TerrSet ):
                 for t in range(dimx-2):
                     myrow.append(random.choice(self.LMT_TILE))
                 myrow.append(random.choice(self.LRT_TILE))
-            else:
+            elif mapy == dimy + dimz - 2:
                 myrow += [None,] * (mapy - dimy + 1)
                 myrow.append(random.choice(self.GF1_TILE))
                 for t in range(dimx-2):
                     myrow.append(random.choice(self.GF2_TILE))
                 myrow.append(random.choice(self.GF3_TILE))
+
+            else:
+                myrow += [None,] * (mapy - dimy + 1)
+                myrow.append(random.choice(self.UF1_TILE))
+                for t in range(dimx-2):
+                    myrow.append(random.choice(self.UF2_TILE))
+                myrow.append(random.choice(self.UF3_TILE))
             # Start on the East Face of the building, as appropriate.
             if mapy > 0 and mapy < dimz:
-                myrow += [random.choice(self.GF4_TILE) for x in range(min(max(mapy-1,0),dimz-1,dimy-2))]
-                myrow += [random.choice(self.GF5_TILE)]
-            elif mapy >= dimz:
-                myrow += [random.choice(self.GF4_TILE) for x in range(min(max(dimy + dimz - mapy - 2, 0), dimz - 1))]
+                myrow += [random.choice(self.UF4_TILE) for x in range(min(max(mapy-1,0),dimz-1,dimy-2))]
+                if mapy == dimz-1:
+                    myrow += [random.choice(self.GF5_TILE)]
+                else:
+                    myrow += [random.choice(self.UF5_TILE)]
+            elif mapy >= dimz and dimy + dimz - mapy - 2 > 0:
+                myrow += [random.choice(self.UF4_TILE) for x in range(min(max(dimy + dimz - mapy - 2, 0), dimz - 1) - 1)]
+                myrow.append(random.choice(self.GF4_TILE))
             self.TERRAIN_MAP.append(myrow)
 
         # Create the set of all terrain points.
@@ -178,7 +195,7 @@ class BuildingSet( TerrSet ):
 
     def is_wall_section(self,x,y):
         try:
-            return self.TERRAIN_MAP[y][x] in self.GF2_TILE + self.GF4_TILE
+            return self.TERRAIN_MAP[y][x] in self.GF2_TILE + self.GF4_TILE + self.UF2_TILE + self.UF4_TILE
         except IndexError:
             return False
     def is_ground_level(self,x,y):
@@ -187,6 +204,7 @@ class BuildingSet( TerrSet ):
     def build( self, scene, archi):
         self.design()
         TerrSet.build(self,scene,archi)
+
 
 class WallDecor(object):
     def __init__(self,south_terrain=(),east_terrain=()):
@@ -198,7 +216,7 @@ class WallDecor(object):
     def apply(self,terrset,p):
         id = "{}_{}_{}".format(hash(self),hash(terrset),len(terrset.WAYPOINT_POS))
         x,y = p
-        if terrset.TERRAIN_MAP[y][x] in terrset.GF2_TILE:
+        if terrset.TERRAIN_MAP[y][x] in terrset.GF2_TILE + terrset.UF2_TILE:
             terrset.waypoints[id] = random.choice(self.south_terrain)
         else:
             terrset.waypoints[id] = random.choice(self.east_terrain)
@@ -248,7 +266,7 @@ class WallHanger(object):
         x,y = op
         for p in self.get_terrain_points(terrset, x, y):
             id = "{}_{}_{}_{}".format(hash(self),hash(terrset),len(terrset.WAYPOINT_POS),p)
-            if terrset.TERRAIN_MAP[y][x] in terrset.GF2_TILE:
+            if terrset.TERRAIN_MAP[y][x] in terrset.GF2_TILE + terrset.UF2_TILE:
                 if p == op:
                     terrset.waypoints[id] = self.south_top
                 elif terrset.is_ground_level(*p):
