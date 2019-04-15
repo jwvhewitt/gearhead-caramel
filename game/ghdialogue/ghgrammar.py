@@ -314,6 +314,22 @@ DEFAULT_GRAMMAR = {
             ],
     },
 
+    "[DENY_JOIN]": {
+        Default: ["That's too bad.","Too bad, I could have been a great help to you."
+                  ],
+        personality.Cheerful: ["Aw, I was really looking forward to joining you."
+                               ],
+        personality.Grim: ["This is your loss, not mine.",
+                           ],
+        personality.Easygoing: ["Yeah, well, I'll be right here if you ever change your mind.",
+                                ],
+        personality.Passionate: ["You don't know what you're missing.",
+                                 ],
+        personality.Sociable: ["Maybe we'll get to work together some other time.",
+                               ],
+        personality.Shy: ["Fair enough.",
+                          ],
+    },
 
     "[DOTHEYHAVEITEM]": {
     # The data block should hold the item name as "item".
@@ -321,6 +337,42 @@ DEFAULT_GRAMMAR = {
             "They should have {item}.","What about their {item}?"
             ],
         },
+
+    "[DOYOUACCEPTMYOFFER]": {
+        Default: ["Do you accept my offer?",
+                  ],
+        personality.Cheerful: ["It's your lucky day.",
+                               ],
+        personality.Grim: ["You won't find a better offer.",
+                           ],
+        personality.Easygoing: ["So, what do you say?",
+                                ],
+        personality.Passionate: ["I promise you won't regret it.","You know you want it.",
+                                 ],
+        personality.Sociable: ["Don't you think that's a fair offer?",
+                               ],
+        personality.Shy: ["Take it or leave it.",
+                          ],
+    },
+
+    "[DOYOUWANTTOBELANCEMATE]": {
+        Default: ["I'm looking for a new lancemate.",
+                  "Would you like to be my lancemate?"
+                  ],
+        personality.Cheerful: ["Want to join my lance? We have cookies.",
+                               ],
+        personality.Grim: ["I need a new lancemate. You'll do.",
+                           ],
+        personality.Easygoing: ["Wanna join my lance?",
+                                ],
+        personality.Passionate: ["I need your talents in my lance.",
+                                 ],
+        personality.Sociable: ["How'd you like to be part of my lance?",
+                               ],
+        personality.Shy: ["I need a new lancemate.",
+                          ],
+
+    },
 
     "[enemy_meks]": {
         # Insert your favorite euphemism or trash talk,
@@ -508,7 +560,12 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["I'll tell you if I need help.",
                           ],
+    },
 
+    "[HELLO:PROPOSAL]": {
+        Default: ["I want to talk about {subject}.",
+                  "Let's talk about {subject}."
+                  ],
     },
 
     "[HELP_ME]": {
@@ -547,6 +604,30 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["I am under attack. [HELP_ME]",
                           ],
     },
+
+    "[ICANDOTHAT]": {
+        # Speaker is responding in the affirmative to a request.
+        Default: ["I can do that.",
+                  ],
+        personality.Cheerful: ["I'd be happy to do that.",
+                               ],
+        personality.Grim: ["I suppose it wouldn't kill me to do that.",
+                           ],
+        personality.Easygoing: ["I think I can manage that.",
+                                ],
+        personality.Passionate: ["I'll do it!",
+                                 ],
+        personality.Sociable: ["I can do that for you.",
+                               ],
+        personality.Shy: ["Alright.",
+                          ],
+        LIKE: ["For you, I can do it.",
+               ],
+        LOVE: ["For you, anything.",
+               ],
+
+    },
+
 
     "[INFO_PERSONAL]": {
         # This pattern should be supported by IP_* tokens gathered
@@ -696,7 +777,7 @@ DEFAULT_GRAMMAR = {
     # The data block should include "mission"
     "[IWILLDOMISSION]": {
         Default: [ "I'll get to work.",
-            "I'll {mission}."
+            "I'll {mission}.", "[ICANDOTHAT]"
             ],
         personality.Cheerful: ["Sounds like fun.",
             ],
@@ -712,6 +793,25 @@ DEFAULT_GRAMMAR = {
             ],
 
         },
+
+    "[JOIN]": {
+        Default: ["Alright, I'll join your lance. [LETSGO]",
+                  "Join your lance? [ICANDOTHAT]"
+                  ],
+        personality.Cheerful: ["Fantastic, I was getting bored just sitting around. [LETSGO]",
+                               ],
+        personality.Grim: ["To follow you into the jaws of death? [ICANDOTHAT]",
+                           ],
+        personality.Easygoing: ["Sure, why not? [LETSGO]",
+                                ],
+        personality.Passionate: ["I've been waiting for another chance to test myself in combat! [LETSGO]",
+                                 ],
+        personality.Sociable: ["Okay, I'll join your team. [LETSGO]",
+                               ],
+        personality.Shy: ["Alright. [LETSGO]",
+                          ],
+
+    },
 
     "[LETSFIGHT]": {
         Default: ["Let's fight.","Prepare for battle.","I will [fight_you]."
@@ -745,6 +845,26 @@ DEFAULT_GRAMMAR = {
             ],
     },
 
+    "[LETSGO]": {
+        Default: ["Let's go!",
+                  ],
+        personality.Cheerful: ["This will be fun!",
+                               ],
+        personality.Grim: [ "Let's go wreck some stuff.",
+                           ],
+        personality.Easygoing: ["No worries, right?",
+                                ],
+        personality.Passionate: ["Excelsior!","Gear up and roll out!"
+                                 ],
+        personality.Sociable: ["Here we go!","Shall we get started?"
+                               ],
+        personality.Shy: ["Let's go.",
+                          ],
+        DISLIKE: [ "Might as well get this over with.",
+                ],
+        LIKE:   ["It will be a pleasure to go with you.",
+                 ]
+    },
 
     "[LONGTIMENOSEE]": {
         Default: ["Hello [audience], long time no see.",
@@ -771,6 +891,24 @@ DEFAULT_GRAMMAR = {
             "not much is going on",
         ],
     },
+
+    "[NOEXPOSURE]": {
+        Default: ["I can't afford to work for exposure.",
+                  ],
+        personality.Cheerful: ["I'm willing to be paid in credits, Atheran wine, or vintage PreZero character figures.",
+                               ],
+        personality.Grim: ["First off, I expect to get paid.",
+                           ],
+        personality.Easygoing: ["Okay, so let's work out the business part.",
+                                ],
+        personality.Passionate: ["I'm the best, if you can afford my rates.",
+                                 ],
+        personality.Sociable: ["I can tell you're not the sort of person who would expect me to work for free.",
+                               ],
+        personality.Shy: ["I don't work for free.",
+                          ],
+    },
+
     "[Noun]": {
         Default: [
             "Hominid","Underwear","Paluke","Artifice","Lie","Knowledge","Battle","Weather","Food","News",
@@ -819,9 +957,109 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[PROPOSAL:ACCEPT]": {
+        Default: ["I accept your offer.", "Alright, I'll do it."
+                  ],
+        personality.Cheerful: ["Sounds good to me.",
+                               ],
+        personality.Grim: ["Not sure this is a good idea, but I accept."
+                           ],
+        personality.Easygoing: ["Okay."
+                                ],
+        personality.Passionate: ["Yes, I'll do it!",
+                                 ],
+        personality.Sociable: ["Alright, let's do it.",
+                               ],
+        personality.Shy: ["Yes, I accept.",
+                          ],
+        personality.Justice: ["That seems fair. I accept.",
+                              ],
+    },
+
+    "[PROPOSAL_JOIN:ACCEPT]": {
+        Default: ["[PROPOSAL:ACCEPT]", "I accept; join me."
+                  ],
+        personality.Cheerful: ["I'd love for you to join me.",
+                               ],
+        personality.Grim: ["Alright, as long as you pull your weight.", "You better be worth it."
+                           ],
+        personality.Easygoing: ["Okay. I could use the help."
+                                ],
+        personality.Passionate: ["Yes, join me!",
+                                 ],
+        personality.Sociable: ["Welcome to the team.",
+                               ],
+        personality.Shy: ["Okay. Come on, then.",
+                          ],
+        personality.Duty: ["Alright, but I expect you to do your duty.",
+                           ],
+        personality.Fellowship: ["Alright, the more the merrier.",
+                                 ],
+    },
+
+    "[PROPOSAL:DENY]": {
+        Default: ["I don't think so.","I will come back later."
+                  ],
+        personality.Cheerful: ["No for now, but maybe later.",
+                               ],
+        personality.Grim: ["No.","Absolutely not."
+                           ],
+        personality.Easygoing: ["I need some time to think about this.","Maybe later? I can't now..."
+                                ],
+        personality.Passionate: ["I reject your offer.",
+                                 ],
+        personality.Sociable: ["I'll get back to you on that.",
+                               ],
+        personality.Shy: ["Not right now.",
+                          ],
+    },
+
+    "[PROPOSAL_JOIN:DENY]": {
+        Default: ["[PROPOSAL:DENY]",
+                  ],
+        personality.Cheerful: ["Maybe you can join someone else's lance?",
+                               ],
+        personality.Grim: ["You overestimate your importance.",
+                           ],
+        personality.Easygoing: ["Maybe you can join my lance later?"
+                                ],
+        personality.Passionate: ["I cannot agree to this at the moment.",
+                                 ],
+        personality.Sociable: ["Not now, but let's keep in touch.",
+                               ],
+        personality.Shy: ["On second thought I'm happier alone.",
+                          ],
+    },
+
     "[THANK_YOU]": {
         # A simple thank you is appropriate.
         Default: ["Thank you.", "Thanks."
+                  ],
+    },
+
+    "[THANKS_FOR_CHOOSING_ME]": {
+        # The PC is being thanked for choosing the NPC to be a part of the lance or a team or whatever.
+        Default: ["[THANK_YOU]", "Thanks for choosing me."
+                  ],
+        personality.Cheerful: ["We're going to have such fun together."
+                               ],
+        personality.Grim: ["I will do my best, until one or the other of us bites it. Can't ask for more than that.",
+                           ],
+        personality.Easygoing: ["Alright!",
+                                ],
+        personality.Passionate: ["In time you will see the full extent of my power!",
+                                 ],
+        personality.Sociable: ["Thanks for letting me be a part of your team.",
+                               ],
+        personality.Shy: ["So I guess I'm part of your team now.",
+                          ],
+        personality.Duty: ["I will do my best.",
+                           ],
+        personality.Fellowship: ["So now we're all on the same team.",
+                                 ],
+        LIKE: ["Thanks. I am looking forward to working with you.",
+               ],
+        DISLIKE: ["Really? I guess that's good...",
                   ],
     },
 
@@ -904,6 +1142,25 @@ DEFAULT_GRAMMAR = {
         Default: ["I'm going to [threat]!","I will [threat]!",
         ],    
     },
+
+    "[WAITINGFORMISSION]": {
+        # Waiting for a mission.
+        Default: ["I'm just waiting for my next mission."
+                  ],
+        personality.Cheerful: ["The time spent waiting between missions is like a mini-vacation, when you think about it."
+                               ],
+        personality.Grim: ["I'm just temporarily unemployed. I'll find another mission soon.",
+                           ],
+        personality.Easygoing: ["I should probably be out there looking for a new mission, but whatever...",
+                                ],
+        personality.Passionate: ["I am currently between missions, but must remain ever vigilant. There could be an emergency at any time.",
+                                 ],
+        personality.Sociable: ["You wouldn't know of any mission openings, would you? I am between contracts at the moment.",
+                               ],
+        personality.Shy: ["Just waiting for my next mission.",
+                          ],
+    },
+
     "[WITHDRAW]": {
         # The PC is withdrawing from combat.
         Default: ["Off with you, then.", "Don't return to this place."

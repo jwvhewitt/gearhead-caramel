@@ -2,6 +2,8 @@
 Unless otherwise noted, game artwork is by Joseph Hewitt and released under
 a CC-BY-4.0 license.
 
+eyecatch_noppy_*.png screens by Thomas Noppers, https://www.etsy.com/shop/ToppyNoppy, CC-BY-4.0
+
 The font Anita Semi-Square is by Gustavo Paz L., CC-BY-SA 4.0
 The DejaVu fonts are released under a free license. https://dejavu-fonts.github.io/License.html
 

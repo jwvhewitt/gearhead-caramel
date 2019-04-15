@@ -483,3 +483,5 @@ class Explorer( object ):
 
         if not self.no_quit:
             self.camp.check_trigger("END")
+            self.camp.save()
+

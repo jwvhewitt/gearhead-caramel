@@ -3,7 +3,15 @@
     "name": "Mecha Pilot",
     "skills": [],
     "tags": ["Military"],
-    "always_combatant": true
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": 1,
+      "MechaPiloting": 1,
+      "CloseCombat": -1,
+      "RangedCombat": -1,
+      "Dodge": -1
+    }
   },
   {
     "name": "Commander",
@@ -15,6 +23,32 @@
       "Negotiation": -1
     }
   },
+    {
+    "name": "Soldier",
+    "skills": [],
+    "tags": ["Military"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": -1,
+      "MechaGunnery": -1,
+      "MechaPiloting": -1,
+      "CloseCombat": 1,
+      "RangedCombat": 1,
+      "Dodge": 1
+    }
+  },
+  {
+    "name": "Recon Pilot",
+    "skills": ["Scouting","Stealth"],
+    "tags": ["Military"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "CloseCombat": -1,
+      "RangedCombat": -1,
+      "Dodge": -1
+    }
+  },
+
   {
     "name": "Pirate",
     "skills": [],
@@ -58,7 +92,20 @@
     "always_combatant": false,
     "skill_modifiers": {
       "MechaFighting": -1,
-      "MechaGunnery": -1
+      "MechaGunnery": -1,
+      "Stealth": 1
+    }
+  },
+  {
+    "name": "Hacker",
+    "skills": ["Computers"],
+    "tags": ["Criminal","Adventurer"],
+    "always_combatant": false,
+    "skill_modifiers": {
+      "MechaFighting": -1,
+      "CloseCombat": -1,
+      "Athletics": -1,
+      "Computers": 1
     }
   },
   {
@@ -176,6 +223,26 @@
     "name": "Shopkeeper",
     "skills": ["Repair"],
     "tags": ["Merchant"]
+  },
+  {
+    "name": "Innkeeper",
+    "skills": ["Negotiation"],
+    "tags": ["Merchant"]
+  },
+  {
+    "name": "Trucker",
+    "skills": ["Mecha Piloting","Repair"],
+    "tags": ["Laborer"]
+  },
+  {
+    "name": "Dispatcher",
+    "skills": ["Negotiation","Repair"],
+    "tags": ["Laborer","Merchant"]
+  },
+    {
+    "name": "Mechanic",
+    "skills": ["Repair"],
+    "tags": ["Craftsperson"]
   }
 
 

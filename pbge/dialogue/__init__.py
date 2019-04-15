@@ -189,7 +189,7 @@ class DynaConversation(object):
 
     def _get_reply_for_offers(self,off1,off2):
         candidates = [r for r in STANDARD_REPLIES if off1.context.matches(r.context) and r.destination.context.matches(off2.context)
-                      and (off1.subject == off2.subject or off2.subject is None or off2.subject in off1.msg or off2.subject_start)]
+                      and (off1.subject == off2.subject or off2.subject is None or str(off2.subject) in off1.msg or off2.subject_start)]
         if candidates:
             return copy.deepcopy(random.choice(candidates))
 

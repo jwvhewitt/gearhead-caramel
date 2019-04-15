@@ -50,6 +50,14 @@ HELLO_GOODBYE = Reply( "[HELLO:GOODBYE]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.GOODBYE]) ) )
 
+HELLO_PROPOSAL = Reply( "[HELLO:PROPOSAL]" ,
+            context = ContextTag([context.HELLO]),
+            destination = Cue( ContextTag([context.PROPOSAL]) ) )
+
+HELLO_PROPOSALJOIN = Reply( "[DOYOUWANTTOBELANCEMATE]" ,
+            context = ContextTag([context.HELLO]),
+            destination = Cue( ContextTag([context.PROPOSAL,context.JOIN]) ) )
+
 HELLO_INFO = Reply( "[HELLO:INFO]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.INFO]) ) )
@@ -82,4 +90,20 @@ MISSIONPROBLEM_GOODBYE = Reply( "[MISSION_PROBLEM:GOODBYE]" ,
             context = ContextTag([context.MISSION,context.PROBLEM]),
             destination = Cue( ContextTag([context.GOODBYE]) ) )
 
+PROPOSAL_ACCEPT = Reply( "[PROPOSAL:ACCEPT]" ,
+            context = ContextTag([context.PROPOSAL]),
+            destination = Cue( ContextTag([context.ACCEPT]) ) )
+
+PROPOSALJOIN_ACCEPT = Reply( "[PROPOSAL_JOIN:ACCEPT]" ,
+            context = ContextTag([context.PROPOSAL,context.JOIN]),
+            destination = Cue( ContextTag([context.ACCEPT]) ) )
+
+
+PROPOSAL_DENY = Reply( "[PROPOSAL:DENY]" ,
+            context = ContextTag([context.PROPOSAL]),
+            destination = Cue( ContextTag([context.DENY]) ) )
+
+PROPOSALJOIN_DENY = Reply( "[PROPOSAL_JOIN:DENY]" ,
+            context = ContextTag([context.PROPOSAL,context.JOIN]),
+            destination = Cue( ContextTag([context.DENY]) ) )
 

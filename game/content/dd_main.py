@@ -4,7 +4,9 @@ from pbge.plots import Plot, Adventure, NarrativeRequest
 import ghwaypoints
 import ghterrain
 import pbge
-from .. import teams
+from pbge.dialogue import Offer,ContextTag
+from .. import teams,ghdialogue
+from ..ghdialogue import context
 import pygame
 import random
 import dd_tarot
@@ -18,6 +20,8 @@ ON_THE_ROAD = "ON_THE_ROAD" # This location is connected to the highway, if appr
 
 class DeadzoneDrifterStub( Plot ):
     LABEL = "SCENARIO_DEADZONEDRIFTER"
+    active = True
+    scope = True
     # Creates a DeadZone Drifter adventure.
     # - Start by creating the "home base" city that the player character will leave from.
 
@@ -26,6 +30,20 @@ class DeadzoneDrifterStub( Plot ):
         wplot = self.add_first_locale_sub_plot( nart, locale_type="DZD_HOME_BASE" )
 
         return True
+
+    def _get_generic_offers( self, npc, camp ):
+        """
+
+        :type camp: gears.GearHeadCampaign
+        :type npc: gears.base.Character
+        """
+        mylist = list()
+        if npc.relationship and gears.relationships.RT_LANCEMATE in npc.relationship.tags and camp.can_add_lancemate() and npc not in camp.party:
+            # If the NPC has the lancemate tag, they might join the party.
+            mylist.append(Offer("[JOIN]",
+                                context=ContextTag([context.JOIN]), effect=ghdialogue.AutoJoiner(npc)))
+
+        return mylist
 
 
 class AdventureTestStub( Plot ):

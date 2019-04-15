@@ -70,6 +70,12 @@ class ScreenDoor(Exit):
     TILE = pbge.scenes.Tile(None,None,ghterrain.ScreenDoorTerrain)
     desc = "A door."
 
+class WoodenDoor(Exit):
+    name = 'Door'
+    ATTACH_TO_WALL = True
+    TILE = pbge.scenes.Tile(None,None,ghterrain.WoodenDoorTerrain)
+    desc = "A door."
+
 class DZDWConcreteBuilding( Exit ):
     name = 'Concrete Building'
     TILE = pbge.scenes.Tile( None, ghterrain.DZDWConcreteBuilding, None )

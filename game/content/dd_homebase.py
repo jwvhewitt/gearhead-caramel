@@ -1,9 +1,9 @@
 from pbge.plots import Plot
 from pbge.dialogue import Offer, ContextTag
-from .. import teams, services
+from .. import teams, services, ghdialogue
 from ..ghdialogue import context
 import gears
-from gears import factions
+from gears import factions,personality
 import gharchitecture
 import pbge
 import plotutility
@@ -69,24 +69,211 @@ class DZD_BronzeHorseInn(Plot):
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team")
+        team2 = self.register_element("FOYER_TEAM",teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(35, 35, "Bronze Horse Inn", player_team=team1, civilian_team=team2,
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.CheeseShopDecor()),
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=10,height=10,
+                                                                                 anchor=pbge.randmaps.anchors.south,
+                                                                                 decorate=gharchitecture.ResidentialDecor()),
                                       dident="INTERIOR")
+        foyer.contents.append(team2)
 
         mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
                                                     room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
         # Add the elevator to the guest rooms- this can be used by subplots to also visit lancemate rooms and other stuff.
 
+        osmund = gears.base.Character(name="Osmund",statline={gears.stats.Reflexes:17,
+         gears.stats.Body:16,gears.stats.Speed:14,gears.stats.Perception:13,
+         gears.stats.Knowledge:13,gears.stats.Craft:7,gears.stats.Ego:9,
+         gears.stats.Charm:15,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
+         gears.stats.MechaFighting:7,gears.stats.Negotiation:8}, birth_year=102, portrait='card_m_osmund.png',
+         personality=[personality.Sociable,personality.Passionate,personality.Fellowship],
+         colors=(gears.color.Straw, gears.color.TannedSkin, gears.color.PlasmaBlue,gears.color.Gold, gears.color.AceScarlet),
+         gender=gears.genderobj.Gender.get_default_male(),job=gears.jobs.ALL_JOBS["Innkeeper"],renown=65,combatant=True)
 
+        team2.contents.append(osmund)
+        self.register_element("INNKEEPER",osmund)
+
+        self.add_sub_plot(nart,"DZD_BHIRandomLancemate")
+        self.add_sub_plot(nart,"DZD_BHIAdventurer")
+        self.add_sub_plot(nart,"DZD_BHIScout")
 
         return True
 
+#   ********************************
+#   ***  DZD_BHIRandomLancemate  ***
+#   ********************************
+#
+# A random lancemate for the Bronze Horse Inn in Wujung.
+
+class DZD_BHIRandomLancemate(Plot):
+    LABEL = "DZD_BHIRandomLancemate"
+
+    def custom_init(self, nart):
+        npc = gears.selector.random_character( statline=gears.base.Being.random_stats(random.randint(95,110)),
+                                               rank=random.randint(10,50), mecha_colors=gears.color.random_mecha_colors(),
+                                              local_tags=tuple(self.elements["LOCALE"].attributes),
+                                              combatant=True)
+        self.register_element("NPC",npc,dident="FOYER_TEAM")
+        self.add_sub_plot(nart,"RLM_Personality")
+        return True
+
+class DZD_BHIAdventurer(Plot):
+    LABEL = "DZD_BHIAdventurer"
+    JOBS = ("Soldier","Mecha Pilot","Scavenger","Arena Pilot","Martial Artist","Test Pilot")
+    def custom_init(self, nart):
+        npc = gears.selector.random_character( job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
+                                                statline=gears.base.Being.random_stats(random.randint(95,110)),
+                                               rank=random.randint(10,50), mecha_colors=gears.color.random_mecha_colors(),
+                                              local_tags=tuple(self.elements["LOCALE"].attributes),
+                                              combatant=True)
+        self.register_element("NPC",npc,dident="FOYER_TEAM")
+        self.add_sub_plot(nart,"RLM_Personality")
+        return True
+
+class DZD_BHIScout(Plot):
+    LABEL = "DZD_BHIScout"
+    JOBS = ("Bounty Hunter", "Recon Pilot", "Thief", "Explorer")
+    def custom_init(self, nart):
+        npc = gears.selector.random_character( job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
+                                                statline=gears.base.Being.random_stats(random.randint(95,110)),
+                                               rank=random.randint(10,50), mecha_colors=gears.color.random_mecha_colors(),
+                                              local_tags=tuple(self.elements["LOCALE"].attributes),
+                                              combatant=True)
+        self.register_element("NPC",npc,dident="FOYER_TEAM")
+        self.add_sub_plot(nart,"RLM_Personality")
+        return True
+
+
+#   *************************
+#   ***  RLM_Personality  ***
+#   *************************
+#
+# These subplots contain a personality for a random (potential) lancemate.
+# Also include a means for the lancemate to gain the "RT_LANCEMATE" tag.
+
+class RLMP_Friendly(Plot):
+    LABEL = "RLM_Personality"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.elements["NPC"]
+        npc.relationship = gears.relationships.Relationship(attitude=gears.relationships.A_FRIENDLY)
+        return True
+
+    def NPC_offers(self,camp):
+        mylist = list()
+        npc = self.elements["NPC"]
+        if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
+            if camp.can_add_lancemate():
+                mylist.append(Offer("[THANKS_FOR_CHOOSING_ME] [LETSGO]",
+                            context=ContextTag((context.JOIN,)),
+                            effect= self._join_lance
+                            ))
+            mylist.append(Offer(
+                "[HELLO] [WAITINGFORMISSION]", context=ContextTag((context.HELLO,))
+            ))
+        return mylist
+
+    def _join_lance(self,camp):
+        npc = self.elements["NPC"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        effect = ghdialogue.AutoJoiner(npc)
+        effect(camp)
+        self.end_plot(camp)
+
+
+class RLMP_Professional(Plot):
+    LABEL = "RLM_Personality"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.elements["NPC"]
+        npc.relationship = gears.relationships.Relationship(expectation=gears.relationships.E_PROFESSIONAL)
+        npc.roll_stats(10,clear_first=False)
+        return True
+
+    def NPC_offers(self,camp):
+        mylist = list()
+        npc = self.elements["NPC"]
+        self.hire_cost = npc.renown * (250 - npc.get_reaction_score(camp))
+        if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
+            if camp.can_add_lancemate():
+                mylist.append(Offer( "[NOEXPOSURE] I think ${} is a fair signing price. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                                     context=ContextTag((context.PROPOSAL,context.JOIN)), data={"subject":"joining my lance"},
+                                     subject=self,subject_start=True,
+                ))
+                mylist.append(Offer("[DENY_JOIN] [GOODBYE]",
+                                context=ContextTag((context.DENY, context.JOIN)), subject=self
+                                ))
+                if camp.credits >= self.hire_cost:
+                    mylist.append(Offer("[THANKS_FOR_CHOOSING_ME] [LETSGO]",
+                                context=ContextTag((context.ACCEPT, context.JOIN)), subject=self,
+                                effect= self._join_lance
+                                ))
+            mylist.append(Offer(
+                "[HELLO] I see you are also a cavalier.", context=ContextTag((context.HELLO,))
+            ))
+        return mylist
+
+    def _join_lance(self,camp):
+        npc = self.elements["NPC"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        camp.credits -= self.hire_cost
+        effect = ghdialogue.AutoJoiner(npc)
+        effect(camp)
+        self.end_plot(camp)
+
+
+class RLMP_Mercenary(Plot):
+    LABEL = "RLM_Personality"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.elements["NPC"]
+        npc.relationship = gears.relationships.Relationship(expectation=gears.relationships.E_MERCENARY)
+        npc.relationship.data["mecha_level_bonus"] = 10
+        return True
+
+    def NPC_offers(self,camp):
+        mylist = list()
+        npc = self.elements["NPC"]
+        self.hire_cost = npc.renown * (150 - npc.get_reaction_score(camp))
+        if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
+            if camp.can_add_lancemate():
+                mylist.append(Offer( "I'll join your lance for a mere ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                                     context=ContextTag((context.PROPOSAL,context.JOIN)), data={"subject":"joining my lance"},
+                                     subject=self,subject_start=True,
+                ))
+                mylist.append(Offer("[DENY_JOIN] [GOODBYE]",
+                                context=ContextTag((context.DENY, context.JOIN)), subject=self
+                                ))
+                if camp.credits >= self.hire_cost:
+                    mylist.append(Offer("[THANKS_FOR_CHOOSING_ME] [LETSGO]",
+                                context=ContextTag((context.ACCEPT, context.JOIN)), subject=self,
+                                effect= self._join_lance
+                                ))
+            mylist.append(Offer(
+                "[HELLO] I am a mercenary pilot, looking for my next contract.", context=ContextTag((context.HELLO,))
+            ))
+        return mylist
+
+    def _join_lance(self,camp):
+        npc = self.elements["NPC"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        camp.credits -= self.hire_cost
+        effect = ghdialogue.AutoJoiner(npc)
+        effect(camp)
+        self.end_plot(camp)
 
 
 class DZD_BlueFortressHQ(Plot):

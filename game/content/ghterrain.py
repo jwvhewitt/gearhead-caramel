@@ -269,6 +269,7 @@ class ResidentialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
 class ResidentialBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = ResidentialBuildingTerrain
     DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.RoofDecor((RoofStuff,)),
+
                              )
     UF1_TILE = (15,)
     UF2_TILE = (16,)
@@ -283,3 +284,9 @@ class ResidentialBuilding(pbge.randmaps.terrset.BuildingSet):
 
 class ScreenDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_screendoor.png'
+
+class WoodenDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_woodendoor.png'
+
+class ScreenWindow(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_screenwindow.png'

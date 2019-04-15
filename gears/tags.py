@@ -32,6 +32,8 @@ class Commander(Singleton):
 class Support(Singleton):
     name = "Support"
 
+class EWarSupport(Singleton):
+    name = "EWar Support"
 
 # Job tags
 class Academic(Singleton):
@@ -51,6 +53,9 @@ class Criminal(Singleton):
 
 class Faithworker(Singleton):
     name = "Faithworker"
+
+class Laborer(Singleton):
+    name = "Laborer"
 
 class Media(Singleton):
     name = "Media"

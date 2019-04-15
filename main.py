@@ -32,7 +32,7 @@ class Snowflake(object):
 
 class TitleScreenRedraw(object):
     TITLE_DEST = pbge.frects.Frect(-325, -150, 650, 100)
-    MENU_DEST = pbge.frects.Frect(-150, 0, 300, 168)
+    MENU_DEST = pbge.frects.Frect(-150, 0, 300, 196)
 
     def __init__(self):
         self.title = pbge.image.Image("sys_wmtitle.png")
@@ -88,6 +88,27 @@ def start_game(tsrd):
     egg = mymenu.query()
     if egg:
         game.start_campaign(egg)
+
+def load_game(tsrd):
+    myfiles = glob.glob(pbge.util.user_dir("rpg_*.sav"))
+    mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
+                               TitleScreenRedraw.MENU_DEST.dy,
+                               TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
+                               predraw=tsrd, font=pbge.BIGFONT
+                               )
+
+    for fname in myfiles:
+        with open(fname, "rb") as f:
+            camp = cPickle.load(f)
+        if camp:
+            mymenu.add_item(str(camp.pc), camp)
+
+    if not mymenu.items:
+        mymenu.add_item('[No campaigns found]', None)
+
+    camp = mymenu.query()
+    if camp:
+        camp.play()
 
 
 def import_arena_character(tsrd):
@@ -158,7 +179,8 @@ def play_the_game():
                                predraw=tsrd, font=pbge.my_state.huge_font
                                )
 
-    mymenu.add_item("Start Game", start_game)
+    mymenu.add_item("Load Campaign", load_game)
+    mymenu.add_item("Start Campaign", start_game)
     mymenu.add_item("Create Character", open_chargen_menu)
     mymenu.add_item("Import GH1 Character", import_arena_character)
     mymenu.add_item("Config Options", open_config_menu)

@@ -7,6 +7,10 @@ import ghwaypoints
 class CheeseShopDecor(OmniDec):
     WALL_DECOR = (ghterrain.WoodenShelves,)
 
+class ResidentialDecor(OmniDec):
+    WALL_DECOR = (ghterrain.WoodenShelves,)
+    WIN_DECOR = ghterrain.ScreenWindow
+
 class WorldScaleDeadzone(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()

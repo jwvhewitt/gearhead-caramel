@@ -164,10 +164,11 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None
     pc = None
 
-    def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None):
+    def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3):
         super(GearHeadCampaign, self).__init__(name, explo_class)
         self.tarot = pbge.container.ContainerDict()
         self.year = year
+        self.num_lancemates = num_lancemates
         if egg:
             self.egg = egg
             self.party = [egg.pc,]
@@ -201,6 +202,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def get_active_party(self):
         # Return a list of lancemates currently on the map.
         return [pc for pc in self.scene.contents if pc in self.party and pc.is_operational()]
+
+    def can_add_lancemate(self):
+        lancemates = [pc for pc in self.party if isinstance(pc,base.Character) and pc is not self.pc]
+        return len(lancemates) < self.num_lancemates
 
     def get_party_skill(self, stat_id, skill_id):
         return max(pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party())

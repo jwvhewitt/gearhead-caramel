@@ -166,7 +166,7 @@ class LemonYellow( Gradient ):
 
 class Gold( Gradient ):
     NAME = 'Gold'
-    COLOR_RANGE = (255,255,0,65,28,0)
+    COLOR_RANGE = (0xDB,0xF8,0x96,0xDD,0x7C,0x00)
     SETS = (CLOTHING,HAIR,MECHA,DETAILS,METAL)
     FAMILY = YELLOW
 

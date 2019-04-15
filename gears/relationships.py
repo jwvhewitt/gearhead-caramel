@@ -54,6 +54,6 @@ class Relationship(object):
         self.attitude = attitude
         self.expectation = expectation
         self.role = role
-        self.tags = list(tags)
+        self.tags = set(tags)
         self.data = dict()
 

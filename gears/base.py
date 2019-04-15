@@ -609,7 +609,7 @@ class BaseGear(scenes.PlaceableThing):
 
     def get_root(self):
         """Return the top level parent of this gear."""
-        if hasattr(self, "container") and isinstance(self.container.owner, BaseGear):
+        if hasattr(self, "container") and self.container and isinstance(self.container.owner, BaseGear):
             return self.container.owner.get_root()
         else:
             return self
@@ -2938,9 +2938,10 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return dmg
 
 class Character(Being):
-    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship')
+    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship', "mecha_colors")
     DEEP_COPY_PARAMS = {"add_body": False}
-    def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="", relationship=None, add_body=True, **keywords):
+    def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="",
+                 relationship=None, add_body=True, mecha_colors=None, **keywords):
         self.personality = set(personality)
         if not gender:
             gender = genderobj.Gender.random_gender()
@@ -2955,9 +2956,12 @@ class Character(Being):
         self.badges = list(badges)
         self.bio = bio
         self.relationship = relationship
+        self.mecha_colors = mecha_colors
         super(Character, self).__init__(**keywords)
         if add_body:
             self.build_body()
+            if job and renown:
+                job.scale_skills(self, renown)
 
     def get_tacit_faction(self,camp):
         # Get this character's effective faction. Normally this will be the faction this character belongs to, but

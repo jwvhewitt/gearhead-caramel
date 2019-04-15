@@ -96,7 +96,9 @@ class BuildingSet( TerrSet ):
     def design(self):
         # height = dimy + dimz - 1 + 2 * self.border
         # width = dimx + dimz - 1 + 2 * self.border
-        dimz = min(random.randint(2,5),random.randint(2,5))
+        dimz = min(random.randint(3,7),random.randint(3,7))
+        while ( self.area.w - dimz + 1 - 2 * self.border < 3 or self.area.h - dimz + 1 - 2 * self.border < 3 ) and dimz > 2:
+            dimz -= 1
 
         dimx = self.area.w - dimz + 1 - 2 * self.border
         dimy = self.area.h - dimz + 1 - 2 * self.border
