@@ -6,24 +6,42 @@ from .. import invoker
 
 
 class WeaponMenuDesc( pbge.frects.Frect ):
+    def __init__(self, dx, dy, w, h, anchor):
+        super(WeaponMenuDesc, self).__init__(dx, dy, w, h, anchor=anchor)
+        self.library = dict()
+
     def __call__( self, menu_item ):
         # Just print this weapon's stats in the provided window.
+        if menu_item.value not in self.library:
+            self.library[menu_item.value.source] = info.get_shortform_display(menu_item.value.source,width=self.w,font=pbge.SMALLFONT)
         myrect = self.get_rect()
-        pbge.default_border.render(myrect)
-        pbge.draw_text( pbge.SMALLFONT, self.get_desc(menu_item.value.source), self.get_rect(), justify = -1, color=pbge.WHITE )
-    def get_desc( self, weapon ):
-        # Return the weapon stats as a string.
-        if hasattr( weapon, 'get_weapon_desc' ):
-            return weapon.get_weapon_desc()
-        else:
-            return '???'
+        self.library[menu_item.value.source].render(myrect.x,myrect.y)
 
 class AttackWidget(invoker.InvocationsWidget):
     DESC_CLASS = WeaponMenuDesc
     IMAGE_NAME = 'sys_tacticsinterface_attackwidget.png'
+    MENU_POS = (-420,15,200,180)
+    DESC_POS = (-200, 15, 180, 180)
+    def __init__(self, camp, pc, build_library_function, update_callback, start_source=None, **kwargs):
+        super(AttackWidget, self).__init__(camp, pc, build_library_function, update_callback, start_source, **kwargs)
+        self.ammo_label = pbge.widgets.LabelWidget(26,37,212,14,text_fun=self._get_ammo_str,color=pbge.WHITE,
+                                                   parent=self,anchor=pbge.frects.ANCHOR_UPPERLEFT,
+                                                   justify=0, on_click=self.pop_invo_menu)
+        self.children.append(self.ammo_label)
+    def _get_ammo_str(self,wid):
+        if self.shelf and self.shelf.source and hasattr(self.shelf.source,"get_ammo_string"):
+            return self.shelf.source.get_ammo_string()
+        else:
+            return ""
+
 
 class TargetingUI(invoker.InvocationUI):
     LIBRARY_WIDGET = AttackWidget
     def __init__(self,camp,attacker,foo=None,bar=None):
         super(TargetingUI,self).__init__(camp,attacker,attacker.get_attack_library)
-
+    def activate( self ):
+        super(TargetingUI,self).activate()
+        self.my_widget.maybe_select_shelf_with_this_source(self.camp.fight.cstat[self.pc].last_weapon_used)
+    def launch(self):
+        super(TargetingUI,self).launch()
+        self.camp.fight.cstat[self.pc].last_weapon_used = self.my_widget.shelf.source

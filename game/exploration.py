@@ -400,9 +400,11 @@ class Explorer( object ):
                 self.camp.fight.go()
                 if pbge.my_state.got_quit or not self.camp.fight.no_quit:
                     self.no_quit = False
+                    self.camp.fight.no_quit = True
                     break
-                self.camp.fight = None
-                self.camp.check_trigger( "ENDCOMBAT" )
+                else:
+                    self.camp.fight = None
+                    self.camp.check_trigger( "ENDCOMBAT" )
 
             # Get input and process it.
             gdi = pbge.wait_event()

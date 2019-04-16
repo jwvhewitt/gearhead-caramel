@@ -176,7 +176,7 @@ class Scene( object ):
             for y in xrange(height) ]
                 for x in xrange(width) ]
 
-        self.local_teams = TeamDictionary()
+        self.local_teams = dict()
 
 
     def on_the_map( self , x , y ):

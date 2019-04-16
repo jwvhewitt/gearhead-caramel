@@ -78,6 +78,9 @@ def start_game(tsrd):
 
     for fname in myfiles:
         with open(fname, "rb") as f:
+            # Why deepcopy the freshly loaded pickle? Because that will update any gears involved
+            # to the latest version, and at this point in time it'll hopefully keep save games working
+            # despite rapid early-development changes.
             egg = copy.deepcopy(cPickle.load(f))
         if egg:
             mymenu.add_item(str(egg.pc), egg)
@@ -87,6 +90,9 @@ def start_game(tsrd):
 
     egg = mymenu.query()
     if egg:
+        egg.backup()
+        os.remove(pbge.util.user_dir("egg_{}.sav".format(egg.pc.name)))
+
         game.start_campaign(egg)
 
 def load_game(tsrd):
@@ -99,7 +105,8 @@ def load_game(tsrd):
 
     for fname in myfiles:
         with open(fname, "rb") as f:
-            camp = cPickle.load(f)
+            # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
+            camp = copy.deepcopy(cPickle.load(f))
         if camp:
             mymenu.add_item(str(camp.pc), camp)
 

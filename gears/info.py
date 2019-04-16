@@ -526,6 +526,15 @@ class WeaponIP(InfoPanel):
 class LauncherIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeBlock, LauncherStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock, DescBlock)
 
+class ShortItemIP(InfoPanel):
+    DEFAULT_BLOCKS = (DescBlock,)
+
+class ShortWeaponIP(InfoPanel):
+    DEFAULT_BLOCKS = (WeaponStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock)
+
+class ShortLauncherIP(InfoPanel):
+    DEFAULT_BLOCKS = (LauncherStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock)
+
 
 def get_status_display(model,**kwargs):
     if isinstance(model,(base.Mecha,base.Being,base.Prop)):
@@ -540,3 +549,11 @@ def get_longform_display(model,**kwargs):
         return LauncherIP(model=model, **kwargs)
     else:
         return ItemIP(model=model,**kwargs)
+
+def get_shortform_display(model,**kwargs):
+    if isinstance(model,base.Weapon):
+        return ShortWeaponIP(model=model,**kwargs)
+    elif isinstance(model,base.Launcher):
+        return ShortLauncherIP(model=model, **kwargs)
+    else:
+        return ShortItemIP(model=model,**kwargs)

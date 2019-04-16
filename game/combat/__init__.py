@@ -28,6 +28,7 @@ class CombatStat( object ):
         self.moves_this_round = 0
         self.mp_remaining = 0
         self.has_started_turn = False
+        self.last_weapon_used = None
     def can_act( self ):
         return self.action_points > 0
     def spend_ap( self, ap, mp_remaining=0 ):
@@ -284,7 +285,10 @@ class Combat( object ):
                 self.cstat[chara].aoo_readied = True
                 self.cstat[chara].attacks_this_round = 0
                 chara.renew_power()
-            self.n += 1
+            if self.no_quit and not pbge.my_state.got_quit:
+                # Only advance to the next character if we are not quitting. If we are quitting,
+                # the game will be saved and the player will probably want any APs they have left.
+                self.n += 1
 
         if self.no_quit and not pbge.my_state.got_quit:
             # Combat is over. Deal with things.

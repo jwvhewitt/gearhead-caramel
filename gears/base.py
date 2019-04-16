@@ -322,7 +322,7 @@ class Combatant(KeyObject):
 
     def get_attack_library(self):
         my_invos = list()
-        for p in self.descendants():
+        for p in self.descendants(include_pilot=False):
             if p.is_operational() and hasattr(p, 'get_attacks'):
                 p_list = geffects.InvoLibraryShelf(p, p.get_attacks())
                 if p_list.has_at_least_one_working_invo(self, True):
@@ -586,15 +586,17 @@ class BaseGear(scenes.PlaceableThing):
             for p in part.descendants():
                 yield p
 
-    def descendants(self):
+    def descendants(self,include_pilot=True):
         for part in self.sub_com:
             yield part
-            for p in part.descendants():
-                yield p
+            if include_pilot or not isinstance(part,Cockpit):
+                for p in part.descendants(include_pilot):
+                    yield p
         for part in self.inv_com:
             yield part
-            for p in part.descendants():
-                yield p
+            if include_pilot or not isinstance(part,Cockpit):
+                for p in part.descendants(include_pilot):
+                    yield p
 
     def ancestors(self):
         if hasattr(self, "container") and isinstance(self.container.owner, BaseGear):
@@ -669,17 +671,17 @@ class BaseGear(scenes.PlaceableThing):
                 my_params.update(ancestor.SAVE_PARAMETERS)
 
         # Copy the sub_com and inv_com
-        dcsubcom = [copy.deepcopy(sc) for sc in self.sub_com]
-        dcinvcom = [copy.deepcopy(sc) for sc in self.inv_com]
+        dcsubcom = [copy.deepcopy(sc,memo) for sc in self.sub_com]
+        dcinvcom = [copy.deepcopy(sc,memo) for sc in self.inv_com]
 
         # Go through this gear's dict, copying stuff 
         initdict = dict()
         afterdict = dict()
         for k, v in self.__dict__.items():
             if k in my_params:
-                initdict[k] = copy.deepcopy(v)
+                initdict[k] = copy.deepcopy(v,memo)
             elif k not in ('sub_com', 'inv_com', 'container'):
-                afterdict[k] = copy.deepcopy(v)
+                afterdict[k] = copy.deepcopy(v,memo)
         if hasattr(self,"DEEP_COPY_PARAMS"):
             initdict.update(self.DEEP_COPY_PARAMS)
 
@@ -1606,14 +1608,18 @@ class BallisticWeapon(Weapon):
                 aa.modify_basic_attack(self, ba)
         return ba
 
+    def get_ammo_string(self):
+        ammo = self.get_ammo()
+        if ammo:
+            return 'Ammo: {}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)
+        else:
+            return 'Ammo: 0'
+
     def get_weapon_desc(self):
         ammo = self.get_ammo()
-        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}'.format(self,
-                                                                                            self.get_reach_str())
-        if ammo:
-            it = it + '\n Ammo: {}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)
-        else:
-            it = it + '\n Ammo: 0'
+        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}\n {2}'.format(self,
+                    self.get_reach_str(),self.get_ammo_string())
+
         return it
 
     def get_item_stats(self):
@@ -1959,6 +1965,13 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 my_invos.append(self.get_multi_attack(max(ammo.quantity - ammo.spent, 2), 9))
         return my_invos
 
+    def get_ammo_string(self):
+        ammo = self.get_ammo()
+        if ammo:
+            return 'Ammo: {}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)
+        else:
+            return 'Empty'
+
     def get_weapon_desc(self):
         ammo = self.get_ammo()
         if ammo:
@@ -2110,14 +2123,17 @@ class ChemThrower(Weapon):
                 aa.modify_basic_attack(self, ba)
         return ba
 
+    def get_ammo_string(self):
+        ammo = self.get_ammo()
+        if ammo:
+            return 'Chem: {}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)
+        else:
+            return 'Chem: 0'
+
     def get_weapon_desc(self):
         ammo = self.get_ammo()
-        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}'.format(self,
-                                                                                                self.get_reach_str())
-        if ammo:
-            it = it + '\n Chem: {}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)
-        else:
-            it = it + '\n Chem: 0'
+        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}\n {2}'.format(self,
+                                                                                                self.get_reach_str(),self.get_ammo_string())
         return it
 
     def get_item_stats(self):
@@ -3116,7 +3132,7 @@ class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
 
     def get_attack_library(self):
         my_invos = list()
-        for p in self.descendants():
+        for p in self.descendants(include_pilot=False):
             if hasattr(p, 'get_attacks') and p.is_not_destroyed():
                 p_list = geffects.InvoLibraryShelf(p, p.get_attacks())
                 if p_list.has_at_least_one_working_invo(self, True):

@@ -231,7 +231,7 @@
   },
   {
     "name": "Trucker",
-    "skills": ["Mecha Piloting","Repair"],
+    "skills": ["MechaPiloting","Repair"],
     "tags": ["Laborer"]
   },
   {

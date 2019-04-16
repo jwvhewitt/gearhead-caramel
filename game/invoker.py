@@ -23,6 +23,8 @@ class InvocationsWidget(pbge.widgets.Widget):
     # to select which invocation to invoke.
     DESC_CLASS = InvoMenuDesc
     IMAGE_NAME = 'sys_invokerinterface_widget.png'
+    MENU_POS = (-380,15,200,180)
+    DESC_POS = (-160, 15, 140, 180)
     def __init__( self, camp, pc, build_library_function, update_callback, start_source=None, **kwargs ):
         # This widget holds the attack library and determines what invocation
         # from the library is going to be used.
@@ -56,20 +58,81 @@ class InvocationsWidget(pbge.widgets.Widget):
         else:
             self.select_first_usable_invo()
 
+    def _builtin_responder(self,ev):
+        # Respond to keyboard and mouse scroll events.
+        if ev.type == pygame.MOUSEBUTTONDOWN:
+            if (ev.button == 4):
+                self.prev_shelf()
+            elif (ev.button == 5):
+                self.next_shelf()
+            elif ev.button == 3:
+                self.pop_invo_menu()
+        elif ev.type == pygame.KEYDOWN:
+            if ev.key in pbge.my_state.get_keys_for("up"):
+                self.prev_shelf()
+            elif ev.key in pbge.my_state.get_keys_for("down"):
+                self.next_shelf()
+            elif ev.key in pbge.my_state.get_keys_for("left"):
+                self.prev_invo()
+            elif ev.key in pbge.my_state.get_keys_for("right"):
+                self.next_invo()
+
+    def prev_invo(self):
+        usable_invos = [i for i in self.shelf.invo_list if i.can_be_invoked(self.pc,bool(self.camp.fight)) or i is self.shelf.invo_list[self.invo]]
+        if len(usable_invos) > 1:
+            new_i = max(self.shelf.invo_list.index(self.shelf.invo_list[self.invo]) - 1,0)
+            self.set_shelf_invo( self.shelf, usable_invos[new_i] )
+
+    def next_invo(self):
+        usable_invos = [i for i in self.shelf.invo_list if i.can_be_invoked(self.pc,bool(self.camp.fight)) or i is self.shelf.invo_list[self.invo]]
+        if len(usable_invos) > 1:
+            new_i = min(self.shelf.invo_list.index(self.shelf.invo_list[self.invo]) + 1,len(usable_invos)-1)
+            self.set_shelf_invo( self.shelf, usable_invos[new_i] )
+
+    def prev_shelf(self):
+        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc) or s is self.shelf]
+        if len(usable_shelves) > 1:
+            old_i = usable_shelves.index(self.shelf)
+            nu_shelf = usable_shelves[old_i - 1]
+            self.set_shelf_invo( nu_shelf, nu_shelf.get_first_working_invo(self.pc) )
+
+    def next_shelf(self):
+        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc) or s is self.shelf]
+        if len(usable_shelves) > 1:
+            new_i = usable_shelves.index(self.shelf) + 1
+            if new_i >= len(usable_shelves):
+                new_i = 0
+            nu_shelf = usable_shelves[new_i]
+            self.set_shelf_invo( nu_shelf, nu_shelf.get_first_working_invo(self.pc) )
+
     def click_button(self,button,ev):
         target_invo = button.data + self.shelf_offset
         if self.shelf and target_invo < len(self.shelf.invo_list) and self.shelf.invo_list[target_invo].can_be_invoked(self.pc,self.camp.fight):
             self.set_shelf_invo(self.shelf,self.shelf.invo_list[target_invo])
 
-    def pop_invo_menu(self,button,ev):
-        mymenu = pbge.rpgmenu.Menu(-380,15,200,180,anchor=pbge.frects.ANCHOR_UPPERRIGHT,font=pbge.BIGFONT)
-        mymenu.descobj = self.DESC_CLASS( -160, 15, 140, 180, anchor=pbge.frects.ANCHOR_UPPERRIGHT )
+    def pop_invo_menu(self,button=None,ev=None):
+        mymenu = pbge.rpgmenu.Menu(*self.MENU_POS,anchor=pbge.frects.ANCHOR_UPPERRIGHT,font=pbge.BIGFONT)
+        mymenu.descobj = self.DESC_CLASS( *self.DESC_POS, anchor=pbge.frects.ANCHOR_UPPERRIGHT )
         for shelf in self.library:
             if shelf.has_at_least_one_working_invo(self.pc,self.camp.fight):
                 mymenu.add_item(str(shelf),shelf)
         nu_shelf = mymenu.query()
         if nu_shelf in self.library and nu_shelf != self.shelf:
             self.set_shelf_invo( nu_shelf, nu_shelf.get_first_working_invo(self.pc) )
+
+    def maybe_select_shelf_with_this_source(self,this_source):
+        if this_source:
+            self.library = self.build_library()
+            shelf_to_use = None
+            for shelf in self.library:
+                if this_source is shelf.source:
+                    shelf_to_use = shelf
+                    break
+            if shelf_to_use:
+                self.set_shelf_invo(shelf_to_use,
+                                    shelf_to_use.get_first_working_invo(self.pc, self.camp.fight) or shelf_to_use.invo_list[0])
+            else:
+                self.select_first_usable_invo()
 
     def select_shelf_with_this_source(self,this_source):
         self.library = self.build_library()

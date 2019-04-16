@@ -192,8 +192,8 @@ class AceCommanderFight( Plot ):
 
 class CargoContainer(gears.base.Prop):
     DEFAULT_COLORS = (gears.color.White,gears.color.Aquamarine,gears.color.DeepGrey,gears.color.Black,gears.color.GullGrey)
-    def __init__(self,size=1,colors=None,**kwargs):
-        super(CargoContainer, self).__init__(name="Shipping Container",size=size,imagename="prop_shippingcontainer.png",**kwargs)
+    def __init__(self,name="Shipping Container",size=1,colors=None,imagename="prop_shippingcontainer.png",**kwargs):
+        super(CargoContainer, self).__init__(name=name,size=size,imagename=imagename,**kwargs)
         self.colors = colors or self.DEFAULT_COLORS
 
     @staticmethod

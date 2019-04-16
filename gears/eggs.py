@@ -32,18 +32,20 @@ class Egg(object):
         if thing in self._con_rec:
             self._con_rec[thing].append(thing)
 
-    def save( self ):
+    def save( self, sfpat = 'egg_{}.sav' ):
         # Save a record of all the containers.
         self._con_rec.clear()
         self._remove_container_for(self.pc)
         self._remove_container_for(self.mecha)
         for npc in self.dramatis_personae:
             self._remove_container_for(npc)
-        with open( util.user_dir( "egg_" + self.pc.name + ".sav" ) , "wb" ) as f:
+        with open( util.user_dir( sfpat.format( self.pc.name ) ) , "wb" ) as f:
             cPickle.dump( self , f, -1 )
         self._reset_container_for(self.pc)
         self._reset_container_for(self.mecha)
         for npc in self.dramatis_personae:
             self._reset_container_for(npc)
 
-
+    def backup( self ):
+        # Save a record of all the containers.
+        self.save(sfpat='backup_{}.sav')
