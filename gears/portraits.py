@@ -3,6 +3,8 @@ import glob
 import json
 import os.path
 import random
+import stats
+import base
 
 import pbge
 import pygame
@@ -43,6 +45,10 @@ class Portrait(object):
 
     @staticmethod
     def get_form_tags(pc,year=158):
+        """
+
+        :type pc: base.Character
+        """
         form_tags = list()
         for pt in pc.get_tags():
             form_tags.append(pt.name)
@@ -52,6 +58,16 @@ class Portrait(object):
             form_tags.append("Noncombatant")
         if pc.gender:
             form_tags += pc.gender.tags
+        for s in stats.PRIMARY_STATS:
+            sval = pc.statline.get(s,12)
+            if sval < 10:
+                form_tags.append("-{}".format(s.name))
+            elif sval > 13:
+                form_tags.append("+{}".format(s.name))
+        if year - pc.birth_year <= 20:
+            form_tags.append("Young")
+        elif year - pc.birth_year >= 40:
+            form_tags.append("Old")
         return form_tags
 
     def random_portrait(self, pc=None, form_tags=()):

@@ -43,7 +43,7 @@ class MonologueDisplay( object ):
             mygrammar = pbge.dialogue.grammar.Grammar()
             pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,npc,None)
             myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
-            pbge.alert_display(myviz)
+            pbge.alert_display(myviz.render)
 
 class ExplosionDisplay(object):
     def __init__(self,dmg_n=2,dmg_d=6,radius=2,target="pc"):

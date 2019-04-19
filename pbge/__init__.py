@@ -374,7 +374,7 @@ def alert(text,font=None):
             my_state.screen.blit( mytext, mydest )
             my_state.do_flip()
 
-def alert_display(disp):
+def alert_display(display_fun):
     pygame.event.clear([TIMEREVENT,pygame.KEYDOWN])
     while True:
         ev = pygame.event.wait()
@@ -383,7 +383,7 @@ def alert_display(disp):
         elif ev.type == TIMEREVENT:
             if my_state.view:
                 my_state.view()
-            disp.render()
+            display_fun()
             my_state.do_flip()
     
 

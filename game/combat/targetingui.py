@@ -43,5 +43,5 @@ class TargetingUI(invoker.InvocationUI):
         super(TargetingUI,self).activate()
         self.my_widget.maybe_select_shelf_with_this_source(self.camp.fight.cstat[self.pc].last_weapon_used)
     def launch(self):
-        super(TargetingUI,self).launch()
         self.camp.fight.cstat[self.pc].last_weapon_used = self.my_widget.shelf.source
+        super(TargetingUI,self).launch()

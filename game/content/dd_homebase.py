@@ -203,7 +203,7 @@ class RLMP_Professional(Plot):
     def NPC_offers(self,camp):
         mylist = list()
         npc = self.elements["NPC"]
-        self.hire_cost = npc.renown * (250 - npc.get_reaction_score(camp))
+        self.hire_cost = npc.renown * (250 - npc.get_reaction_score(camp.pc,camp))
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
                 mylist.append(Offer( "[NOEXPOSURE] I think ${} is a fair signing price. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
@@ -247,7 +247,7 @@ class RLMP_Mercenary(Plot):
     def NPC_offers(self,camp):
         mylist = list()
         npc = self.elements["NPC"]
-        self.hire_cost = npc.renown * (150 - npc.get_reaction_score(camp))
+        self.hire_cost = npc.renown * (150 - npc.get_reaction_score(camp.pc,camp))
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
                 mylist.append(Offer( "I'll join your lance for a mere ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),

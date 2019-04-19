@@ -53,6 +53,15 @@ class NameBlock( object ):
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
+class TitleBlock( object ):
+    def __init__(self,title="Title Block!",title_color=pbge.INFO_HILIGHT,width=220,**kwargs):
+        self.title = title
+        self.width = width
+        self.image = pbge.render_text(pbge.my_state.huge_font,title,width,justify=0,color=title_color)
+        self.height = self.image.get_height()
+    def render(self,x,y):
+        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+
 class FullNameBlock( object ):
     def __init__(self,model,width=220,**kwargs):
         self.model = model

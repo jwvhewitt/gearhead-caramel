@@ -61,12 +61,13 @@ class MissionObjective(object):
     """
     An optional objectives record for missions to use.
     """
-    def __init__(self,name,mo_points,optional=False):
+    def __init__(self,name,mo_points,optional=False,secret=False):
         self.name = name
         self.mo_points = mo_points
         self.awarded_points = 0
         self.optional = optional
         self.failed = False
+        self.secret = secret
     def win(self,completion=100):
-        self.awarded_points = ( self.mo_points * completion ) // 100
+        self.awarded_points = max(( self.mo_points * completion ) // 100,1)
 
