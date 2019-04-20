@@ -193,7 +193,8 @@
     "children": [
       "Eyebrows"
     ],
-    "prefers": ["Shy"]
+    "prefers": ["Shy"],
+    "rejects": ["Young"]
   },
   {
     "name": "Serene Eyes",
@@ -430,7 +431,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_crewcut.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "prefers": ["Duty"]
+    "prefers": ["Duty","Military"]
   },
   {
     "name": "Pixie Hair",
@@ -476,7 +477,8 @@
       {"name":"Hair","fname":"avatar_hair_balding.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
     ],
     "requires": ["Masculine"],
-    "prefers": ["Old"]
+    "prefers": ["Old"],
+    "rejects": ["Young"]
   },
   {
     "name": "Windswept Hair",
