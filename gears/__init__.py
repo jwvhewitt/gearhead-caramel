@@ -169,6 +169,13 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.tarot = pbge.container.ContainerDict()
         self.year = year
         self.num_lancemates = num_lancemates
+
+        # Some containers for characters who have been either incapacitated or killed.
+        # It's the current scenario's responsibility to do something with these lists
+        # at an appropriate time.
+        self.incapacitated_party = list()
+        self.dead_party = list()
+
         if egg:
             self.egg = egg
             self.party = [egg.pc,]
@@ -229,6 +236,12 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def keep_playing_campaign(self):
         return self.pc.is_not_destroyed()
 
+    def play(self):
+        super(GearHeadCampaign, self).play()
+        if self.pc in self.dead_party:
+            pbge.alert("Game Over",font=pbge.my_state.hugefont)
+            self.delete_save_file()
+
     def get_usable_party(self,map_scale):
         usable_party = list()
         for pc in self.party:
@@ -273,8 +286,30 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 #pbge.scenes.pfov.PCPointOfView(self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale))
         self.scene.update_party_position(self)
 
-    def remove_party_from_scene(self):
+    def bring_out_your_dead(self):
         for pc in list(self.party):
+            if pc.is_destroyed():
+                self.party.remove(pc)
+                skill = self.get_party_skill(stats.Knowledge,pc.material.repair_type) + 50 - pc.total_damage_status()
+                if pc is self.pc:
+                    if pbge.util.config.get_boolean("DIFFICULTY","pc_can_die") and random.randint(1,100) > skill:
+                        self.dead_party.append(pc)
+                    else:
+                        self.incapacitated_party.append(pc)
+                elif isinstance(pc,base.Character):
+                    if pbge.util.config.get_boolean("DIFFICULTY","lancemates_can_die") and random.randint(1,100) > skill:
+                        self.dead_party.append(pc)
+                    else:
+                        self.incapacitated_party.append(pc)
+                elif random.randint(1,100) <= skill or not pbge.util.config.get_boolean("DIFFICULTY","mecha_can_die"):
+                    self.incapacitated_party.append(pc)
+
+    def remove_party_from_scene(self):
+        # Check for dead and/or incapacitated characters first.
+        self.bring_out_your_dead()
+
+        # Now remove the party from the map.
+        for pc in list(self.party + self.dead_party + self.incapacitated_party):
             pc.pos = None
             if pc in self.scene.contents:
                 self.scene.contents.remove(pc)

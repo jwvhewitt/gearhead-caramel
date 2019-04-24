@@ -354,7 +354,7 @@ class SceneView( object ):
                 # there.
                 self.waypointmap[m.pos].append(m)
 
-        show_names = util.config.getboolean( "DEFAULT", "names_above_heads" )
+        show_names = util.config.getboolean( "GENERAL", "names_above_heads" )
 
         while keep_going:
             # In order to allow smooth sub-tile movement of stuff, we have

@@ -36,8 +36,12 @@ class AdventureSeed(Adventure):
         Restore the party to health, removing the charge from their credits.
         :type camp: gears.GearHeadCampaign
         """
+        # Sort any incapacitated members first.
+        camp.bring_out_your_dead()
+
+        # Next, restore the party.
         repair_total = 0
-        for pc in camp.party:
+        for pc in camp.party + camp.incapacitated_party:
             rcdict = pc.get_repair_cost()
             pc.wipe_damage()
             repair_total += sum([v for k,v in rcdict.iteritems()])

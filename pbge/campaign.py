@@ -25,6 +25,7 @@ import container
 import exceptions
 import util
 import cPickle
+import os
 
 class Campaign( object ):
     """Barebones campaign featuring functionality used by other pbge units."""
@@ -46,6 +47,9 @@ class Campaign( object ):
     def save( self ):
         with open( util.user_dir( "rpg_" + self.name + ".sav" ) , "wb" ) as f:
             cPickle.dump( self , f, -1 )
+
+    def delete_save_file( self ):
+        os.remove(util.user_dir("rpg_{}.sav".format(self.name)))
 
     def keep_playing_campaign( self ):
         # The default version of this method will keep playing forever.

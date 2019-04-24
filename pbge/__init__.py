@@ -154,7 +154,7 @@ class GameState( object ):
             return sound
 
     def start_music( self, mfname ):
-        if mfname != self.music_name and util.config.getboolean( "DEFAULT", "music_on" ):
+        if mfname != self.music_name and util.config.getboolean( "GENERAL", "music_on" ):
             sound = self.locate_music(mfname)
             if self.music:
                 self.music.fadeout(2000)
@@ -471,7 +471,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
         pygame.display.set_caption(winname,appname)
         pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
         # Set the screen size.
-        if util.config.getboolean( "DEFAULT", "fullscreen" ):
+        if util.config.getboolean( "GENERAL", "fullscreen" ):
             my_state.screen = pygame.display.set_mode( (0,0), pygame.FULLSCREEN )
         else:
             my_state.screen = pygame.display.set_mode( (800,600), pygame.RESIZABLE )
@@ -509,7 +509,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
         POSTERS += glob.glob( util.image_dir(poster_pattern) )
 
         global FPS
-        FPS = util.config.getint( "DEFAULT", "frames_per_second" )
+        FPS = util.config.getint( "GENERAL", "frames_per_second" )
         pygame.time.set_timer(TIMEREVENT, 1000 / FPS)
 
         if android:

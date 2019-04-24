@@ -133,6 +133,7 @@ class PortraitEditorW(pbge.widgets.Widget):
 
     def render(self):
         self.portrait.render(self.portrait_zone.get_rect(),0)
+        self.portrait.render(self.portrait_zone.get_rect(),2)
 
     def done_button(self,wid,ev):
         self.finished = True

@@ -43,6 +43,9 @@ class Academic(Singleton):
 class Adventurer(Singleton):
     name = "Adventurer"
 
+class CorporateWorker(Singleton):
+    name = "Corporate Worker"
+
 
 class Craftsperson(Singleton):
     name = "Craftsperson"

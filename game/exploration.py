@@ -292,7 +292,7 @@ class Explorer( object ):
                 self.preloads.append(pc.get_sprite())
 
         # Preload the music as well.
-        if pbge.util.config.getboolean( "DEFAULT", "music_on" ):
+        if pbge.util.config.getboolean( "GENERAL", "music_on" ):
             if hasattr( self.scene, 'exploration_music'):
                 pbge.my_state.locate_music(self.scene.exploration_music)
             if hasattr( self.scene, 'combat_music'):
