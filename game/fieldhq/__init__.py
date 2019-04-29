@@ -1,66 +1,13 @@
 import pbge
+from game.fieldhq.fhqinfo import CharaFHQIP, MechaFHQIP, AssignMechaIP, AssignPilotIP
 from pbge import widgets
 import pygame
 import gears
-import cosplay
+from game import cosplay
 import backpack
+import training
+import fhqinfo
 
-LEFT_COLUMN = pbge.frects.Frect(-300,0,200,200)
-CENTER_COLUMN = pbge.frects.Frect(-50,-200,200,400)
-RIGHT_COLUMN = pbge.frects.Frect(175,-200,200,400)
-PORTRAIT_AREA = pbge.frects.Frect(-450, -300, 400, 600)
-
-UTIL_INFO = pbge.frects.Frect(-50,-200,300,200)
-UTIL_MENU = pbge.frects.Frect(-50,50,300,150)
-
-class MechasPilotBlock(object):
-    # There should be an apostrophe in there, but y'know...
-    def __init__(self, model, camp, font=None, width=220, **kwargs):
-        self.model = model
-        self.camp = camp
-        self.width = width
-        self.font = font or pbge.MEDIUMFONT
-        self.update()
-        self.height = self.image.get_height()
-    def update(self):
-        pilot = self.model.pilot
-        if pilot not in self.camp.party:
-            self.model.pilot = None
-            pilot = None
-        self.image = pbge.render_text(self.font,'Pilot: {}'.format(str(pilot)),self.width,justify=-1,color=pbge.INFO_HILIGHT)
-    def render(self,x,y):
-        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
-
-class PilotsMechaBlock(object):
-    # There should be an apostrophe in there, but y'know...
-    def __init__(self, model, camp, font=None, width=220, **kwargs):
-        self.model = model
-        self.camp = camp
-        self.width = width
-        self.font = font or pbge.MEDIUMFONT
-        self.update()
-        self.height = self.image.get_height()
-    def update(self):
-        mek = self.camp.get_pc_mecha(self.model)
-        if mek:
-            self.image = pbge.render_text(self.font,'Mecha: {}'.format(mek.get_full_name()),self.width,justify=-1,color=pbge.INFO_HILIGHT)
-        else:
-            self.image = pbge.render_text(self.font,'Mecha: None',self.width,justify=-1,color=pbge.INFO_HILIGHT)
-    def render(self,x,y):
-        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
-
-
-class CharaFHQIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, PilotsMechaBlock, gears.info.ExperienceBlock, gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.NonComSkillBlock, gears.info.MeritBadgesBlock, gears.info.CharacterTagsBlock)
-
-class MechaFHQIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, MechasPilotBlock, gears.info.MechaStatsBlock, gears.info.DescBlock)
-
-class AssignMechaIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.MechaFeaturesAndSpriteBlock)
-
-class AssignPilotIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.CharaPortraitAndSkillsBlock)
 
 class AssignMechaDescObject(object):
     def __init__(self,camp,portrait):
@@ -68,10 +15,10 @@ class AssignMechaDescObject(object):
         self.portrait = portrait
         self.infoz = dict()
     def __call__(self,menu_item):
-        mydest = UTIL_INFO.get_rect()
+        mydest = fhqinfo.UTIL_INFO.get_rect()
         if menu_item.value:
             if menu_item.value not in self.infoz:
-                self.infoz[menu_item.value] = AssignMechaIP(model=menu_item.value,width=UTIL_INFO.w,camp=self.camp,additional_info='\n Pilot: {} \n Damage: {}%'.format(str(menu_item.value.pilot),menu_item.value.get_total_damage_status()))
+                self.infoz[menu_item.value] = AssignMechaIP(model=menu_item.value, width=fhqinfo.UTIL_INFO.w, camp=self.camp, additional_info='\n Pilot: {} \n Damage: {}%'.format(str(menu_item.value.pilot), menu_item.value.get_total_damage_status()))
             self.infoz[menu_item.value].render(mydest.x,mydest.y)
 
 class AssignPilotDescObject(object):
@@ -80,10 +27,10 @@ class AssignPilotDescObject(object):
         self.portrait = portrait
         self.infoz = dict()
     def __call__(self,menu_item):
-        mydest = UTIL_INFO.get_rect()
+        mydest = fhqinfo.UTIL_INFO.get_rect()
         if menu_item.value:
             if menu_item.value not in self.infoz:
-                self.infoz[menu_item.value] = AssignPilotIP(model=menu_item.value,width=UTIL_INFO.w,camp=self.camp)
+                self.infoz[menu_item.value] = AssignPilotIP(model=menu_item.value, width=fhqinfo.UTIL_INFO.w, camp=self.camp)
             self.infoz[menu_item.value].render(mydest.x,mydest.y)
 
 class CharacterInfoWidget(widgets.Widget):
@@ -92,13 +39,20 @@ class CharacterInfoWidget(widgets.Widget):
         self.camp = camp
         self.pc = pc
         self.portrait = pc.get_portrait()
-        self.column = widgets.ColumnWidget(LEFT_COLUMN.dx,LEFT_COLUMN.dy,LEFT_COLUMN.w,LEFT_COLUMN.h,padding=10)
+        self.column = widgets.ColumnWidget(fhqinfo.LEFT_COLUMN.dx, fhqinfo.LEFT_COLUMN.dy, fhqinfo.LEFT_COLUMN.w, fhqinfo.LEFT_COLUMN.h, padding=10)
         self.children.append(self.column)
-        self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Inventory",justify=0,draw_border=True,on_click=self.open_backpack))
-        self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Assign Mecha",justify=0,draw_border=True,on_click=self.assign_mecha))
-        self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Change Colors",justify=0,draw_border=True,on_click=self.change_colors))
+        self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Inventory", justify=0, draw_border=True, on_click=self.open_backpack))
+        self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Do Training", justify=0, draw_border=True, on_click=self.open_training))
+        self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Assign Mecha", justify=0, draw_border=True, on_click=self.assign_mecha))
+        self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Change Colors", justify=0, draw_border=True, on_click=self.change_colors))
         self.fhq = fhq
-        self.info = CharaFHQIP(model=pc,width=CENTER_COLUMN.w,font=pbge.SMALLFONT,camp=camp)
+        self.info = CharaFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, font=pbge.SMALLFONT, camp=camp)
+
+    def open_training(self,wid,ev):
+        self.fhq.active = False
+        my_trainer = training.TrainingMenu(self.camp,self.pc)
+        my_trainer()
+        self.fhq.active = True
 
     def open_backpack(self,wid,ev):
         self.fhq.active = False
@@ -129,7 +83,7 @@ class CharacterInfoWidget(widgets.Widget):
     def assign_mecha(self,wid,ev):
         self.fhq.active = False
 
-        mymenu = pbge.rpgmenu.Menu(UTIL_MENU.dx,UTIL_MENU.dy,UTIL_MENU.w,UTIL_MENU.h,font=pbge.MEDIUMFONT,predraw=self.draw_portrait)
+        mymenu = pbge.rpgmenu.Menu(fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h, font=pbge.MEDIUMFONT, predraw=self.draw_portrait)
         for mek in self.camp.party:
             if isinstance(mek, gears.base.Mecha) and mek.is_not_destroyed():
                 mymenu.add_item(mek.get_full_name(),mek)
@@ -178,12 +132,12 @@ class CharacterInfoWidget(widgets.Widget):
         if include_background:
             pbge.my_state.view()
         mydest = self.portrait.get_rect(0)
-        mydest.midbottom = PORTRAIT_AREA.get_rect().midbottom
+        mydest.midbottom = fhqinfo.PORTRAIT_AREA.get_rect().midbottom
         self.portrait.render(mydest, 0)
 
     def render(self):
         self.draw_portrait(False)
-        mydest = CENTER_COLUMN.get_rect()
+        mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x,mydest.y)
 
 class MechaInfoWidget(widgets.Widget):
@@ -192,30 +146,30 @@ class MechaInfoWidget(widgets.Widget):
         self.camp = camp
         self.pc = pc
         self.portrait = pc.get_portrait()
-        self.info = MechaFHQIP(model=pc,width=CENTER_COLUMN.w,camp=camp,font=pbge.SMALLFONT)
-        self.column = widgets.ColumnWidget(LEFT_COLUMN.dx,LEFT_COLUMN.dy,LEFT_COLUMN.w,LEFT_COLUMN.h,padding=10)
+        self.info = MechaFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, camp=camp, font=pbge.SMALLFONT)
+        self.column = widgets.ColumnWidget(fhqinfo.LEFT_COLUMN.dx, fhqinfo.LEFT_COLUMN.dy, fhqinfo.LEFT_COLUMN.w, fhqinfo.LEFT_COLUMN.h, padding=10)
         self.children.append(self.column)
-        self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Inventory",justify=0,draw_border=True,on_click=self.open_backpack))
-        self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Assign Pilot",justify=0,draw_border=True,on_click=self.assign_pilot))
-        self.column.add_interior(widgets.LabelWidget(0,0,LEFT_COLUMN.w,16,text="Change Colors",justify=0,draw_border=True,on_click=self.change_colors))
+        self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Inventory", justify=0, draw_border=True, on_click=self.open_backpack))
+        self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Assign Pilot", justify=0, draw_border=True, on_click=self.assign_pilot))
+        self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Change Colors", justify=0, draw_border=True, on_click=self.change_colors))
         self.fhq = fhq
 
     def draw_portrait(self,include_background=True):
         if include_background:
             pbge.my_state.view()
         mydest = self.portrait.get_rect(0)
-        mydest.midbottom = PORTRAIT_AREA.get_rect().midbottom
+        mydest.midbottom = fhqinfo.PORTRAIT_AREA.get_rect().midbottom
         self.portrait.render(mydest, 0)
 
     def render(self):
         self.draw_portrait(False)
-        mydest = CENTER_COLUMN.get_rect()
+        mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x,mydest.y)
 
     def assign_pilot(self,wid,ev):
         self.fhq.active = False
 
-        mymenu = pbge.rpgmenu.Menu(UTIL_MENU.dx,UTIL_MENU.dy,UTIL_MENU.w,UTIL_MENU.h,font=pbge.MEDIUMFONT,predraw=self.draw_portrait)
+        mymenu = pbge.rpgmenu.Menu(fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h, font=pbge.MEDIUMFONT, predraw=self.draw_portrait)
         for plr in self.camp.party:
             if isinstance(plr, gears.base.Character) and plr.is_not_destroyed():
                 mymenu.add_item(plr.get_full_name(),plr)
@@ -286,7 +240,7 @@ class MechaInfoWidget(widgets.Widget):
 
 class PartyMemberButton(widgets.Widget):
     def __init__(self,camp,pc,fhq,**kwargs):
-        super(PartyMemberButton, self).__init__(0,0,RIGHT_COLUMN.w,72,**kwargs)
+        super(PartyMemberButton, self).__init__(0, 0, fhqinfo.RIGHT_COLUMN.w, 72, **kwargs)
         self.camp = camp
         self.pc = pc
         self.fhq = fhq
@@ -311,12 +265,12 @@ class FieldHQ(widgets.Widget):
     def __init__(self,camp):
         super(FieldHQ, self).__init__(0,0,0,0)
 
-        self.up_button = widgets.ButtonWidget(0,0,RIGHT_COLUMN.w,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),off_frame=1)
-        self.down_button = widgets.ButtonWidget(0,0,RIGHT_COLUMN.w,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),frame=2,on_frame=2,off_frame=3)
+        self.up_button = widgets.ButtonWidget(0, 0, fhqinfo.RIGHT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.down_button = widgets.ButtonWidget(0, 0, fhqinfo.RIGHT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
 
-        self.member_selector = widgets.ScrollColumnWidget(0,0,RIGHT_COLUMN.w,RIGHT_COLUMN.h-42,up_button = self.up_button,down_button=self.down_button)
+        self.member_selector = widgets.ScrollColumnWidget(0, 0, fhqinfo.RIGHT_COLUMN.w, fhqinfo.RIGHT_COLUMN.h - 42, up_button = self.up_button, down_button=self.down_button)
 
-        self.r_column = widgets.ColumnWidget(RIGHT_COLUMN.dx,RIGHT_COLUMN.dy,RIGHT_COLUMN.w,RIGHT_COLUMN.h)
+        self.r_column = widgets.ColumnWidget(fhqinfo.RIGHT_COLUMN.dx, fhqinfo.RIGHT_COLUMN.dy, fhqinfo.RIGHT_COLUMN.w, fhqinfo.RIGHT_COLUMN.h)
         self.r_column.add_interior(self.up_button)
         self.r_column.add_interior(self.member_selector)
         self.r_column.add_interior(self.down_button)

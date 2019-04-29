@@ -1,19 +1,18 @@
 import gears
-from game.content.ghwaypoints import DZDTown
 from pbge.plots import Plot, Adventure, NarrativeRequest
-import ghwaypoints
-import ghterrain
+import game.content.ghwaypoints
+import game.content.ghterrain
 import pbge
 from pbge.dialogue import Offer,ContextTag
-from .. import teams,ghdialogue
-from ..ghdialogue import context
+from game import teams,ghdialogue
+from game.ghdialogue import context
 import pygame
 import random
-import dd_tarot
-import mechtarot
-import plotutility
-import gharchitecture
-from . import PLOT_LIST
+import game.content.ghplots.dd_tarot
+import game.content.mechtarot
+import game.content.plotutility
+import game.content.gharchitecture
+from game.content import PLOT_LIST
 
 # Room tags
 ON_THE_ROAD = "ON_THE_ROAD" # This location is connected to the highway, if appropriate.
@@ -88,14 +87,14 @@ class TheBigTest(Plot):
         """Create the world + starting scene."""
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(35,35,"Starting Area",player_team=team1,scale=gears.scale.MechaScale)
-        myscenegen = pbge.randmaps.SceneGenerator(myscene,gharchitecture.MechaScaleDeadzone())
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True )
         self.adv = Adventure(world=myscene)
 
         myroom = self.register_element("_ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5),dident="LOCALE")
         mydest = self.register_element("_ROOM2",pbge.randmaps.rooms.FuzzyRoom(3,3),dident="LOCALE")
-        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_ROOM")
-        myexit = self.register_element( "EXIT", ghwaypoints.Exit(name="Exit Scenario", anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_ROOM2")
+        myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_ROOM")
+        myexit = self.register_element( "EXIT", game.content.ghwaypoints.Exit(name="Exit Scenario", anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_ROOM2")
         self.entered_adventure = False
 
         return True
@@ -137,8 +136,8 @@ class OldDeadzoneDrifterStub( Plot ):
         town = tplot.elements.get("LOCALE")
         self.register_element( "TOWN", town )
 
-        threat_card = nart.add_tarot_card(self,(dd_tarot.MT_THREAT,),)
-        mechtarot.Constellation(nart,self,threat_card,threat_card.get_negations()[0],steps=3)
+        threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
+        game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 
         return True
 
@@ -192,8 +191,8 @@ class DeadzoneHighwaySceneGen( pbge.randmaps.SceneGenerator ):
     def draw_road_connection( self, gb, x1,y1,x2,y2, archi ):
         path = pbge.scenes.animobs.get_line( x1,y1,x2,y2 )
         for p in path:
-            gb.fill(pygame.Rect(p[0]-1,p[1]-1,3,3),floor=ghterrain.DeadZoneGround,wall=None)
-            gb.set_decor(p[0],p[1],ghterrain.WorldMapRoad)
+            gb.fill(pygame.Rect(p[0]-1,p[1]-1,3,3), floor=game.content.ghterrain.DeadZoneGround, wall=None)
+            gb.set_decor(p[0], p[1], game.content.ghterrain.WorldMapRoad)
 
 
 class SomewhereOnTheHighway( Plot ):
@@ -206,14 +205,14 @@ class SomewhereOnTheHighway( Plot ):
 
         anc_a,anc_b = random.choice(pbge.randmaps.anchors.OPPOSING_CARDINALS)
 
-        myscenegen = DeadzoneHighwaySceneGen(myscene,gharchitecture.WorldScaleDeadzone())
+        myscenegen = DeadzoneHighwaySceneGen(myscene, game.content.gharchitecture.WorldScaleDeadzone())
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
         myroom = self.register_element("_ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5,tags=(ON_THE_ROAD),anchor=anc_a),dident="LOCALE")
         mydest = self.register_element("_ROOM2",pbge.randmaps.rooms.FuzzyRoom(3,3,tags=(ON_THE_ROAD,),anchor=anc_b),dident="LOCALE")
-        myent = self.register_element( "ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_ROOM")
-        myexit = self.register_element( "EXIT", ghwaypoints.Exit(name="Exit Scenario", anchor=pbge.randmaps.anchors.middle), dident="_ROOM2")
+        myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_ROOM")
+        myexit = self.register_element( "EXIT", game.content.ghwaypoints.Exit(name="Exit Scenario", anchor=pbge.randmaps.anchors.middle), dident="_ROOM2")
         return True
 
 
@@ -232,13 +231,13 @@ class BasicDeadZoneHighwayTown( Plot ):
         npc = gears.selector.random_character(50,local_tags=myscene.attributes)
         npc.place(myscene,team=team2)
 
-        myscenegen = pbge.randmaps.SceneGenerator(myscene,gharchitecture.HumanScaleDeadzone())
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.HumanScaleDeadzone())
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
         #myscene.contents.append(ghterrain.ScrapIronBuilding(waypoints={"DOOR":ghwaypoints.ScrapIronDoor(),"OTHER":ghwaypoints.RetroComputer()}))
 
-        wm_con = plotutility.WMDZTownConnection(self,self.elements["WORLD"],myscene)
+        wm_con = game.content.plotutility.WMDZTownConnection(self, self.elements["WORLD"], myscene)
         wm_con.room1.tags = (ON_THE_ROAD,)
 
         return True

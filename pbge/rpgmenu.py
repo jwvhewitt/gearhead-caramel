@@ -4,7 +4,7 @@ import util
 from frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
 import random
 
-from . import default_border,render_text,wait_event,TIMEREVENT,my_state
+from . import default_border,render_text,wait_event,TIMEREVENT,my_state,INFO_GREEN
 
 class MenuItem( object ):
     def __init__(self,msg,value,desc=None):
@@ -27,21 +27,22 @@ class MenuItem( object ):
 
 class DescBox( Frect ):
     # The DescBox inherits from Frect, since that's basically what it is.
-    def __init__(self,menu,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,border=default_border,justify=-1,font=None):
+    def __init__(self,menu,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,border=default_border,justify=-1,font=None,color=None):
         self.menu = menu
         self.border = border
         self.justify = justify
         if not anchor:
             anchor = menu.anchor
         self.font = font or my_state.small_font
+        self.color = color or INFO_GREEN
         super(DescBox, self).__init__(dx,dy,w,h,anchor)
 
     def __call__(self,menu_item):
         mydest = self.get_rect()
         if self.border:
-            self.border.render( my_state.screen , mydest )
+            self.border.render( mydest )
         if menu_item and menu_item.desc:
-            img = render_text( self.font, menu_item.desc, self.w, justify = self.justify )
+            img = render_text( self.font, menu_item.desc, self.w, justify = self.justify, color=self.color )
             my_state.screen.blit( img , mydest )
 
 

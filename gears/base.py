@@ -343,6 +343,18 @@ class Combatant(KeyObject):
                 my_invos.append(p_list)
         return my_invos
 
+    def get_program_library(self,in_combat=True):
+        my_invo_dict = dict()
+        for p in self.descendants(include_pilot=False):
+            if p.is_operational() and hasattr(p, 'add_program_invocations'):
+                p.add_program_invocations(self,my_invo_dict)
+        my_invos = list()
+        for k, v in my_invo_dict.items():
+            p_list = geffects.InvoLibraryShelf(k, v)
+            if p_list.has_at_least_one_working_invo(self, in_combat):
+                my_invos.append(p_list)
+        return my_invos
+
     def get_action_points(self):
         return 3
 
@@ -1095,7 +1107,7 @@ class EWSystem(BaseGear, StandardDamageHandler, MakesPower):
         mod = self.get_module()
         return self.is_not_destroyed() and mod and mod.is_operational()
 
-    def get_programs(self, pc, invodict):
+    def add_program_invocations(self, pc, invodict):
         for p in self.programs:
             if p not in invodict:
                 invodict[p] = p.get_invocations(pc)
@@ -2664,6 +2676,8 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             pmod = pilot.get_module()
             if pmod and pmod.form == MF_Head:
                 it += 10
+        # Add emchantment modifiers.
+        it += self.ench_list.get_funval(self, 'get_mobility_bonus')
         return it
 
     def calc_walking(self):
@@ -2865,6 +2879,10 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         """Calculate the mobility ranking of this character.
         """
         base_m = self.get_stat(stats.Speed) * 4
+
+        # Add emchantment modifiers.
+        base_m += self.ench_list.get_funval(self, 'get_mobility_bonus')
+
         return max(base_m - self.get_mobility_penalty(),0)
 
     def get_dodge_score(self):

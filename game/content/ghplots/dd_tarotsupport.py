@@ -1,24 +1,16 @@
 # This unit contains support plots for tarot cards.
+from pbge.plots import Plot, PlotState
 import game.content.ghwaypoints
-from pbge.plots import Plot, Adventure, PlotState
-import ghwaypoints
-import ghterrain
+import game.content.ghterrain
 import gears
 import pbge
-import pygame
-from .. import teams,ghdialogue
-from ..ghdialogue import context
-from pbge.scenes.movement import Walking, Flying, Vision
-from gears.geffects import Skimming, Rolling
+from game import teams,ghdialogue
+from game.ghdialogue import context
 import random
-import copy
-import os
-from pbge.dialogue import Cue,ContextTag,Offer,Reply
-from gears import personality,color,stats
-import ghcutscene
-import dd_main
-import plotutility
-import gharchitecture
+from pbge.dialogue import ContextTag,Offer
+from game.content.ghplots import dd_main
+import game.content.plotutility
+import game.content.gharchitecture
 
 
 #  **************************
@@ -34,7 +26,7 @@ class LostPersonRadioTower( Plot ):
     def custom_init( self, nart ):
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(35,35,"Radio Tower Area",player_team=team1,scale=gears.scale.MechaScale)
-        myscenegen = pbge.randmaps.SceneGenerator(myscene,gharchitecture.MechaScaleDeadzone())
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
@@ -44,20 +36,20 @@ class LostPersonRadioTower( Plot ):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(10,10,"Radio Tower Interior",player_team=team1,civilian_team=team2,scale= gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene,gharchitecture.DefaultBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.DefaultBuilding())
         self.register_scene( nart, intscene, intscenegen, ident="GOALSCENE" )
 
-        introom = self.register_element('_introom',pbge.randmaps.rooms.OpenRoom(7,7,anchor=pbge.randmaps.anchors.middle,decorate=pbge.randmaps.decor.OmniDec(win=ghterrain.Window)),dident="GOALSCENE")
+        introom = self.register_element('_introom', pbge.randmaps.rooms.OpenRoom(7, 7, anchor=pbge.randmaps.anchors.middle, decorate=pbge.randmaps.decor.OmniDec(win=game.content.ghterrain.Window)), dident="GOALSCENE")
         self.move_element(self.elements["PERSON"],introom)
         intscene.local_teams[self.elements["PERSON"]] = team2
-        self.register_element('WAYPOINT', ghwaypoints.RetroComputer(), dident="_introom")
+        self.register_element('WAYPOINT', game.content.ghwaypoints.RetroComputer(), dident="_introom")
 
         world_scene = self.elements["WORLD"]
 
-        wm_con = plotutility.WMCommTowerConnection(self,world_scene,myscene)
+        wm_con = game.content.plotutility.WMCommTowerConnection(self, world_scene, myscene)
         if random.randint(1,3) != 1:
             wm_con.room1.tags = (dd_main.ON_THE_ROAD,)
-        int_con = plotutility.IntCommTowerConnection(self,myscene,intscene,room1=mygoal,room2=introom)
+        int_con = game.content.plotutility.IntCommTowerConnection(self, myscene, intscene, room1=mygoal, room2=introom)
 
         tplot = self.add_sub_plot(nart, "DZD_MECHA_ENCOUNTER", spstate=PlotState().based_on(self,{"ROOM":mygoal}), necessary=False)
         return True
@@ -98,14 +90,14 @@ class BanditBase( Plot ):
 
     def custom_init(self, nart):
         # Create the outer grounds with the bandits and their leader.
-        mybandits = plotutility.RandomBanditCircle()
+        mybandits = game.content.plotutility.RandomBanditCircle()
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(35,35,"Bandit Base Area",player_team=team1,scale=gears.scale.MechaScale)
-        myscenegen = pbge.randmaps.SceneGenerator(myscene,gharchitecture.MechaScaleDeadzone())
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
 
         # Add the connection to the world map.
-        mycon = plotutility.WMConcreteBuildingConnection(self,self.elements["WORLD"],myscene,door2_id="_exit")
+        mycon = game.content.plotutility.WMConcreteBuildingConnection(self, self.elements["WORLD"], myscene, door2_id="_exit")
         if random.randint(1,10) == 1:
             mycon.room1.tags = (dd_main.ON_THE_ROAD,)
 
@@ -124,13 +116,13 @@ class BanditBase( Plot ):
         if random.randint(1,2) == 1:
             dimdiff = -dimdiff
         intscene = gears.GearHeadScene(35,35,"Bandit Base",player_team=team1,civilian_team=team2,scale= gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene,gharchitecture.DefaultBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.DefaultBuilding())
         self.register_scene( nart, intscene, intscenegen, ident="_interior" )
-        introom = self.register_element('_introom',pbge.randmaps.rooms.ClosedRoom(10+dimdiff,10-dimdiff,anchor=pbge.randmaps.anchors.south,decorate=pbge.randmaps.decor.OmniDec(win=ghterrain.Window)),dident="_interior")
+        introom = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(10 + dimdiff, 10 - dimdiff, anchor=pbge.randmaps.anchors.south, decorate=pbge.randmaps.decor.OmniDec(win=game.content.ghterrain.Window)), dident="_interior")
 
-        mycon2 = plotutility.IntConcreteBuildingConnection(self,myscene,intscene,room1=mygoal,room2=introom)
+        mycon2 = game.content.plotutility.IntConcreteBuildingConnection(self, myscene, intscene, room1=mygoal, room2=introom)
 
-        introom2 = self.register_element('OFFICE',pbge.randmaps.rooms.ClosedRoom(random.randint(7,10),random.randint(7,10),decorate=pbge.randmaps.decor.OmniDec(win=ghterrain.Window)),dident="_interior")
+        introom2 = self.register_element('OFFICE', pbge.randmaps.rooms.ClosedRoom(random.randint(7,10), random.randint(7,10), decorate=pbge.randmaps.decor.OmniDec(win=game.content.ghterrain.Window)), dident="_interior")
 
         return True
     def _eteam_ACTIVATETEAM(self,camp):
@@ -164,17 +156,17 @@ class LB_Cheesery(Plot):
     scope = True
     def custom_init( self, nart ):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR",ghterrain.ScrapIronBuilding(waypoints={"DOOR":ghwaypoints.ScrapIronDoor()}),dident="TOWN")
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.ScrapIronBuilding(waypoints={"DOOR": game.content.ghwaypoints.ScrapIronDoor()}), dident="TOWN")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35,35,"Cheesery",player_team=team1,civilian_team=team2,scale= gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene,gharchitecture.MakeScrapIronBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.MakeScrapIronBuilding())
         self.register_scene( nart, intscene, intscenegen, ident="LOCALE" )
-        foyer = self.register_element('_introom',pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,decorate=gharchitecture.CheeseShopDecor()),dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, decorate=game.content.gharchitecture.CheeseShopDecor()), dident="LOCALE")
 
-        mycon2 = plotutility.TownBuildingConnection(self,self.elements["TOWN"],intscene,room1=building,room2=foyer,door1=building.waypoints["DOOR"],move_door1=False)
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["TOWN"], intscene, room1=building, room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
         # Generate a criminal enterprise of some kind.
         #cplot = self.add_sub_plot(nart, "DZD_CriminalEnterprise")
@@ -211,7 +203,7 @@ class SubcontractedCrime( Plot ):
     scope = True
     def custom_init( self, nart ):
         # Create a filing cabinet or records computer for the PUZZLEITEM
-        my_item = self.register_element("PUZZLEITEM", ghwaypoints.RetroComputer(plot_locked=True))
+        my_item = self.register_element("PUZZLEITEM", game.content.ghwaypoints.RetroComputer(plot_locked=True))
 
         # Generate a criminal enterprise of some kind.
         cplot = self.add_sub_plot(nart, "DZD_CriminalEnterprise")
@@ -242,7 +234,7 @@ class HideAndSeekWithACorpse( Plot ):
     scope = True
     def custom_init( self, nart ):
         mynpc = self.elements["PERSON"]
-        mycorpse = self.register_element('PERSON', ghwaypoints.Victim(plot_locked=True, name=mynpc.name))
+        mycorpse = self.register_element('PERSON', game.content.ghwaypoints.Victim(plot_locked=True, name=mynpc.name))
         self.register_element('_the_deceased',mynpc)
         tplot = self.add_sub_plot(nart, "DZD_LostPerson")
         self.elements["GOALSCENE"] = tplot.elements.get("GOALSCENE")

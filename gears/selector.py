@@ -102,7 +102,6 @@ def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, *
                         )
     if "name" not in creation_matrix:
         pc.name = random_name(pc)
-    job.scale_skills(pc, rank)
     return pc
 
 

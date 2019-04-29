@@ -63,6 +63,9 @@ class Laborer(Singleton):
 class Media(Singleton):
     name = "Media"
 
+class Medic(Singleton):
+    name = "Medic"
+
 class Merchant(Singleton):
     name = "Merchant"
 
@@ -83,6 +86,16 @@ class Village(Singleton):
 
 class City(Singleton):
     name = "City"
+
+SCENE_PUBLIC = "PUBLIC"
+SCENE_SHOP = "SHOP"
+SCENE_GARAGE = "GARAGE"
+SCENE_HOSPITAL = "HOSPITAL"
+SCENE_ARENA = "ARENA"
+SCENE_BASE = "BASE"
+SCENE_MEETING = "MEETING"   # A good place to meet other people.
+SCENE_CULTURE = "CULTURE"   # A place to enjoy cultural activities. Music, art, whatever.
+SCENE_TRANSPORT = "TRANSPORT"   # Someplace like a bus station or a spaceport
 
 # Shop Tags
 

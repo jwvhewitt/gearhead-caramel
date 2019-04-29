@@ -1,5 +1,6 @@
 import random
 import pbge
+import gears
 
 # Determine impulses
 # Ask if each can be done
@@ -210,6 +211,9 @@ class BasicAI( object ):
         my_targets = dict()
         my_nav = camp.fight.get_action_nav(self.npc)
         my_library = self.npc.get_skill_library(True)
+        pilot = self.npc.get_pilot()
+        if gears.stats.Computers in pilot.statline or random.randint(1,5) == 1:
+            my_library += self.npc.get_program_library(True)
         for shelf in my_library:
             for invo in shelf.invo_list:
                 if invo.can_be_invoked(self.npc,True) and invo.ai_tar and invo.ai_tar.get_impulse(invo,camp,self.npc) > 0:

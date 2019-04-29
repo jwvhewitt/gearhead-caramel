@@ -34,6 +34,22 @@ class TargetAnalysis(Singleton):
             price=[],
             targets=1)
         progs.append(myprog)
+
+        myprog2 = pbge.effects.Invocation(
+            name = 'Sensor Lock',
+            fx= geffects.OpposedSkillRoll(stats.Knowledge,stats.Computers,stats.Ego,stats.Computers,
+                    roll_mod=25, min_chance=10,
+                    on_success=[geffects.AddEnchantment(geffects.SensorLock,anim=geffects.SearchAnim,)],
+                    on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim),],
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=15),
+            used_in_combat = True, used_in_exploration=False,
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.SensorLock)]),
+            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12),
+            price=[geffects.MentalPrice(3),],
+            targets=1)
+        progs.append(myprog2)
+
         return progs
 
 
@@ -44,7 +60,7 @@ class Deflect(Singleton):
 
     @classmethod
     def get_invocations(cls, pc):
-        pass
+        return ()
 
 
 class EMPPulse(Singleton):
@@ -54,4 +70,4 @@ class EMPPulse(Singleton):
 
     @classmethod
     def get_invocations(cls, pc):
-        pass
+        return ()

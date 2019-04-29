@@ -12,6 +12,7 @@ import collections
 import pygame
 import movementui
 import targetingui
+import programsui
 import aibrain
 import random
 import gears
@@ -29,6 +30,7 @@ class CombatStat( object ):
         self.mp_remaining = 0
         self.has_started_turn = False
         self.last_weapon_used = None
+        self.last_program_used = None
     def can_act( self ):
         return self.action_points > 0
     def spend_ap( self, ap, mp_remaining=0 ):
@@ -78,6 +80,16 @@ class PlayerTurn( object ):
             # If the attack UI can't be activated, switch back to movement UI.
             self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
+    def switch_programs( self, button=None, ev=None ):
+        if self.active_ui != self.program_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_program_library():
+            self.active_ui.deactivate()
+            self.program_ui.activate()
+            self.active_ui = self.program_ui
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[3])
+        else:
+            # If the attack UI can't be activated, switch back to movement UI.
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
+
     def go( self ):
         # Perform this character's turn.
         #Start by making a hotmap centered on PC, to see how far can move.
@@ -91,6 +103,8 @@ class PlayerTurn( object ):
         buttons_to_add = [(6,7,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),]
         if self.pc.get_skill_library():
             buttons_to_add.append((8,9,self.switch_skill,'Skills'))
+        if self.pc.get_program_library():
+            buttons_to_add.append((10, 11, self.switch_programs, 'Programs'))
         buttons_to_add.append((4,5,self.end_turn,'End Turn'))
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
@@ -102,6 +116,7 @@ class PlayerTurn( object ):
         self.attack_ui = targetingui.TargetingUI(self.camp,self.pc)
         #self.attack_ui.deactivate()
         self.skill_ui = invoker.InvocationUI(self.camp,self.pc,self.pc.get_skill_library)
+        self.program_ui = programsui.ProgramsUI(self.camp,self.pc)
 
         self.active_ui = self.movement_ui
 
@@ -127,6 +142,8 @@ class PlayerTurn( object ):
         self.movement_ui.dispose()
         self.attack_ui.dispose()
         self.skill_ui.dispose()
+        self.program_ui.dispose()
+
 
 class Combat( object ):
     def __init__( self, camp ):

@@ -1,8 +1,9 @@
-import mechtarot
-from mechtarot import TarotCard, Interaction, TagChecker, NameChecker, ME_TAROTPOSITION, ME_AUTOREVEAL
+import game.content.mechtarot
+from game.content.mechtarot import TarotCard, Interaction, TagChecker, NameChecker, ME_TAROTPOSITION, \
+    ME_AUTOREVEAL,AlphaCardDialogueTrigger,AlphaCardPuzzleItemTrigger,BetaCardDialogueTrigger
 import pbge
 import gears
-from ..ghdialogue import context
+from game.ghdialogue import context
 from pbge.dialogue import Offer
 import random
 
@@ -48,7 +49,7 @@ class Demagogue(TarotCard):
 
 class Warrant(TarotCard):
     INTERACTIONS = (Interaction(TagChecker([MT_PERSON], [ME_PERSON]), action_triggers=[
-        mechtarot.BetaCardDialogueTrigger(ME_PERSON, "You win!", [context.ARREST, ])], results=(None, "Convict", None),
+        BetaCardDialogueTrigger(ME_PERSON, "You win!", [context.ARREST, ])], results=(None, "Convict", None),
                                 passparams=(None, ((ME_PERSON,), None), None)),
                     )
 
@@ -58,7 +59,8 @@ class TheLaw(TarotCard):
         pass
 
     INTERACTIONS = (Interaction(NameChecker(["Evidence"]),
-                                action_triggers=[mechtarot.AlphaCardDialogueTrigger(ME_PERSON, "Here have a warrant",
+                                action_triggers=[
+                                    AlphaCardDialogueTrigger(ME_PERSON, "Here have a warrant",
                                                                                     [context.INFO, ],
                                                                                     data={"subject": "the evidence"})],
                                 results=(None, None, "Warrant"), passparams=(None, None, (None, (ME_PERSON,)))),
@@ -101,7 +103,7 @@ class LocalHero(TarotCard):
 
 class TheBadge(TarotCard):
     INTERACTIONS = (Interaction(TagChecker([MT_PERSON, MT_HEROIC]), action_triggers=[
-        mechtarot.BetaCardDialogueTrigger(ME_PERSON, "You win!", [context.INFO, ], data={"subject": "the badge"})],
+        BetaCardDialogueTrigger(ME_PERSON, "You win!", [context.INFO, ], data={"subject": "the badge"})],
                                 results=(None, "TheLaw", None), passparams=(None, (None, (ME_PERSON,)), None)),
                     )
 
@@ -176,8 +178,8 @@ class Clue(TarotCard):
 
     INTERACTIONS = (Interaction(TagChecker([MT_CRIME]),
                                 action_triggers=[
-                                    mechtarot.AlphaCardPuzzleItemTrigger(ME_PUZZLEITEM, menu_option="Search for clues.",
-                                                                         extra_fx=find_clue_from_puzzleitem)],
+                                    AlphaCardPuzzleItemTrigger(ME_PUZZLEITEM, menu_option="Search for clues.",
+                                                                                      extra_fx=find_clue_from_puzzleitem)],
                                 results=("Evidence", None, None),
                                 passparams=(((ME_PERSON,), (ME_CRIME, ME_CRIMED)), None, None)),
                     )

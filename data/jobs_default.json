@@ -243,6 +243,27 @@
     "name": "Mechanic",
     "skills": ["Repair"],
     "tags": ["Craftsperson"]
+  },
+  {
+    "name": "Doctor",
+    "skills": ["Medicine","Biotechnology"],
+    "tags": ["Medic"]
+  },
+  {
+    "name": "Nurse",
+    "skills": ["Medicine"],
+    "tags": ["Medic"]
+  },
+  {
+    "name": "Field Medic",
+    "skills": ["Medicine"],
+    "tags": ["Medic","Military"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaGunnery": -1,
+      "MechaFighting": -1,
+      "Concentration": 1
+    }
   }
 
 

@@ -1,21 +1,18 @@
-from pbge.plots import Plot, Adventure, PlotState
-import ghwaypoints
-import ghterrain
-import gharchitecture
+import random
+
+import pygame
+
+import game.content.gharchitecture
+import game.content.ghterrain
+import game.content.ghwaypoints
 import gears
 import pbge
-import pygame
-from .. import teams,ghdialogue
-from ..ghdialogue import context
-from pbge.scenes.movement import Walking, Flying, Vision
-from gears.geffects import Skimming, Rolling
-import random
-import copy
-import os
-from pbge.dialogue import Cue,ContextTag,Offer,Reply
-from gears import personality,color,stats
-import ghcutscene
-import adventureseed
+from game import teams, ghdialogue
+from game.content import adventureseed
+from game.ghdialogue import context
+from pbge.dialogue import ContextTag, Offer, Reply
+from pbge.plots import Plot
+
 
 # Mission Objectives:
 # - Defeat Enemy Commander
@@ -37,42 +34,19 @@ class CombatMissionSeed(adventureseed.AdventureSeed):
         cms_pstate.elements["enemy_faction"] = enemy_faction
         cms_pstate.elements["allied_faction"] = allied_faction
 
-        # Create a list in which to store the objectives. We'll use this to determine if the mission is
-        # finished or failed or whatnot.
-        self.objectives = list()
-
         super(CombatMissionSeed, self).__init__(camp, name, adv_type="DZD_COMBAT_MISSION", adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False, **kwargs)
 
-    def get_completion(self):
-        # Return the percent completion of this mission. Due to optional objectives and whatnot, this may fall
-        # outside of the 0..100 range.
-        awarded = sum([o.awarded_points for o in self.objectives if not o.failed])
-        total = max(sum([o.mo_points for o in self.objectives if not o.optional]),1)
-        return (awarded * 100)//total
-    def get_grade(self):
-        c = self.get_completion()
-        if c < 0:
-            return "F-"
-        elif c <= 50:
-            return "F"
-        elif c <= 60:
-            return "D"
-        elif c <= 70:
-            return "C"
-        elif c <= 80:
-            return "B"
-        elif c <= 90:
-            return "A"
-        elif c <= 100:
-            return "A+"
-        else:
-            return "S"
-    def is_completed(self):
-        return all([(o.optional or o.awarded_points > 0 or o.failed) for o in self.objectives])
+        self.rewards.append(adventureseed.CashReward())
+        self.rewards.append(adventureseed.ExperienceReward())
+        self.rewards.append(adventureseed.RenownReward())
+
+    def end_adventure(self,camp):
+        super(CombatMissionSeed, self).end_adventure(camp)
+        camp.day += 1
 
 class ComeBackInOnePieceObjective(adventureseed.MissionObjective):
     def __init__(self,camp):
-        super(ComeBackInOnePieceObjective, self).__init__(name="Come Back in One Piece", mo_points=50, optional=True, secret=True)
+        super(ComeBackInOnePieceObjective, self).__init__(name="Come Back in One Piece", mo_points=0, optional=True, secret=True)
         self.camp = camp
     def _set_awarded_points(self,val):
         pass
@@ -82,62 +56,20 @@ class ComeBackInOnePieceObjective(adventureseed.MissionObjective):
             if mek in self.camp.scene.contents:
                 if mek.is_operational():
                     tds = mek.get_total_damage_status()
-                    if tds <= 10:
-                        dstats.append(100)
-                    else:
-                        dstats.append(-tds*2)
+                    if tds <= 5:
+                        dstats.append(5)
+                    elif tds >= 25:
+                        dstats.append(-10)
+                    elif tds >= 10:
+                        dstats.append(-5)
                 else:
-                    dstats.append(-200)
+                    dstats.append(-20)
         if dstats:
-            return ( sum(dstats) * self.mo_points ) // len(dstats)
+            return sum(dstats) // len(dstats)
         else:
-            return -2 * self.mo_points
+            return 0
     awarded_points = property(_get_awarded_points,_set_awarded_points)
 
-class ObjectivesInfo(object):
-    PADDING = 5
-    RED = pygame.Color(255,50,0)
-    def __init__(self,mission_seed,font=None,width=300,**kwargs):
-        self.mission_seed = mission_seed
-        self.width = width
-        self.font = font or pbge.BIGFONT
-        self.images = dict()
-        self.update()
-    def update(self):
-        self.images = dict()
-        for o in self.mission_seed.objectives:
-            if not o.secret:
-                self.images[o] = pbge.render_text(self.font,self.get_objective_text(o),self.width,self.get_objective_color(o),justify=0)
-        self.height = sum(i.get_height() for i in self.images.values()) + self.PADDING * (len(self.images.values())-1)
-
-    def get_objective_text(self,obj):
-        if obj.awarded_points == 0 and not obj.failed:
-            return '- {} (INCOMPLETE)'.format(obj.name)
-        elif obj.awarded_points < obj.mo_points//2 or obj.failed:
-            return '- {} (FAILED)'.format(obj.name)
-        else:
-            return '- {} (COMPLETE)'.format(obj.name)
-
-    def get_objective_color(self,obj):
-        if obj.failed:
-            return self.RED
-        elif obj.optional:
-            return pbge.INFO_GREEN
-        else:
-            return pbge.TEXT_COLOR
-    def render(self,x,y):
-        mydest = pygame.Rect(x, y, self.width, self.height)
-        for obj,img in self.images.items():
-            pbge.my_state.screen.blit(img, mydest)
-            mydest.y += img.get_height() + self.PADDING
-
-
-class CombatMissionDisplay(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.TitleBlock,ObjectivesInfo)
-    def show(self):
-        w,h = self.get_dimensions()
-        mydest = pbge.frects.Frect(-w//2,-h//2,w,h).get_rect()
-        self.render(mydest.x,mydest.y)
 
 MAIN_OBJECTIVE_VALUE = 100
 
@@ -154,12 +86,12 @@ class DeadZoneCombatMission( Plot ):
         """An empty map that will add subplots for the mission's objectives."""
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(50,50,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
-        myscenegen = pbge.randmaps.SceneGenerator(myscene,gharchitecture.MechaScaleDeadzone())
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
         self.adv.world = myscene
 
-        myroom = self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=random.choice(pbge.randmaps.anchors.EDGES)),dident="LOCALE")
-        myent = self.register_element( "_ENTRANCE", ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_EROOM")
+        self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=random.choice(pbge.randmaps.anchors.EDGES)),dident="LOCALE")
+        myent = self.register_element( "_ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_EROOM")
 
         for ob in self.elements["OBJECTIVES"]:
             self.add_sub_plot(nart,ob)
@@ -179,7 +111,7 @@ class DeadZoneCombatMission( Plot ):
 
     def t_START(self,camp):
         if camp.scene is self.elements["LOCALE"] and not self.gave_mission_reminder:
-            mydisplay = CombatMissionDisplay(title=self.adv.name,mission_seed=self.adv,width=400)
+            mydisplay = adventureseed.CombatMissionDisplay(title=self.adv.name,mission_seed=self.adv,width=400)
             pbge.alert_display(mydisplay.show)
             self.gave_mission_reminder = True
 
@@ -199,16 +131,8 @@ class DeadZoneCombatMission( Plot ):
 
     def end_the_mission(self,camp):
         camp.destination, camp.entrance = self.elements["ADVENTURE_RETURN"]
-        completion = self.adv.get_completion()
-        if completion > 50:
-            mydisplay = CombatMissionDisplay(title="Victory: {}".format(self.adv.get_grade()), mission_seed=self.adv,
-                                             width=400)
-        else:
-            mydisplay = CombatMissionDisplay(title="Failure: {}".format(self.adv.get_grade()),
-                                             title_color=pygame.color.Color(250, 50, 0), mission_seed=self.adv,
-                                             width=400)
-        pbge.alert_display(mydisplay.show)
         self.adv.end_adventure(camp)
+
 
 #   ********************************
 #   ***  DZDCM_DEFEAT_COMMANDER  ***
@@ -220,13 +144,13 @@ class BasicCommanderFight( Plot ):
     scope = "LOCALE"
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
-        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
         myunit = gears.selector.RandomMechaUnit(self.rank,100,self.elements.get("enemy_faction"),myscene.environment,add_commander=True)
         team2.contents += myunit.mecha_list
         self.register_element("_commander",myunit.commander)
 
-        self.obj = adventureseed.MissionObjective("Defeat {}".format(myunit.commander),MAIN_OBJECTIVE_VALUE)
+        self.obj = adventureseed.MissionObjective("Defeat {}".format(myunit.commander), MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj)
         self.intro_ready = True
 
@@ -255,13 +179,13 @@ class AceCommanderFight( Plot ):
     scope = "LOCALE"
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
-        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5),dident="LOCALE")
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5),dident="LOCALE")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
         myace = gears.selector.generate_ace(self.rank,self.elements.get("enemy_faction"),myscene.environment)
         team2.contents.append(myace)
         self.register_element("_commander",myace.get_pilot())
 
-        self.obj = adventureseed.MissionObjective("Defeat {}".format(myace.get_pilot()),MAIN_OBJECTIVE_VALUE)
+        self.obj = adventureseed.MissionObjective("Defeat {}".format(myace.get_pilot()), MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj)
         self.intro_ready = True
 
@@ -323,7 +247,7 @@ class BasicRecoverCargo( Plot ):
         # Oh yeah, when using PyCharm, why not use ludicrously long variable names?
         self.starting_number_of_containers = len(team3.contents)
 
-        self.obj = adventureseed.MissionObjective("Recover lost cargo",MAIN_OBJECTIVE_VALUE)
+        self.obj = adventureseed.MissionObjective("Recover lost cargo", MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj)
         self.combat_entered = False
         self.combat_finished = False
@@ -365,7 +289,7 @@ class BasicRescueSurvivors( Plot ):
         self.register_element("PILOT", mysurvivor.get_pilot())
         team3.contents.append(mysurvivor)
 
-        self.obj = adventureseed.MissionObjective("Find and rescue any survivors.",MAIN_OBJECTIVE_VALUE)
+        self.obj = adventureseed.MissionObjective("Find and rescue any survivors.", MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj)
         self.intro_ready = True
         self.eteam_activated = False

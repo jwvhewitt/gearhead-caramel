@@ -290,7 +290,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         for pc in list(self.party):
             if pc.is_destroyed():
                 self.party.remove(pc)
-                skill = self.get_party_skill(stats.Knowledge,pc.material.repair_type) + 50 - pc.total_damage_status()
+                skill = self.get_party_skill(stats.Knowledge,pc.material.repair_type) + 50 - pc.get_total_damage_status()
                 if pc is self.pc:
                     if pbge.util.config.get_boolean("DIFFICULTY","pc_can_die") and random.randint(1,100) > skill:
                         self.dead_party.append(pc)
@@ -323,12 +323,25 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         return self.egg.credits
 
     def _set_credits(self,nuval):
-        self.egg.credits = nuval
+        self.egg.credits = max(nuval,0)
 
     def _del_credits(self):
         self.egg.credits = 0
 
     credits = property(_get_credits,_set_credits,_del_credits)
+
+    # Gonna set up the renown as a property.
+    def _get_renown(self):
+        return self.pc.renown
+
+    def _set_renown(self,nuval):
+        self.pc.renown = min(max(nuval,-100),100)
+
+    def _del_renown(self):
+        self.pc.renown = 0
+
+    renown = property(_get_renown,_set_renown,_del_renown)
+
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about string.partition at the time.

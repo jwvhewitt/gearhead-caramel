@@ -390,7 +390,7 @@ class AttackRoll( effects.NoEffect ):
                         break
             penetration = att_roll + att_bonus + self.penetration - hi_def_roll
             if hasattr(target,'ench_list'):
-                penetration += target.ench_list.get_funval(camp,target,'get_penetration_bonus')
+                penetration += target.ench_list.get_funval(target,'get_penetration_bonus')
             fx_record['penetration'] = penetration
 
             if camp.fight:
@@ -467,7 +467,7 @@ class MultiAttackRoll( effects.NoEffect ):
                         break
             penetration = att_roll + att_bonus + self.penetration - hi_def_roll - self.get_multi_bonus()
             if hasattr(target,'ench_list'):
-                penetration += target.ench_list.get_funval(camp,target,'get_penetration_bonus')
+                penetration += target.ench_list.get_funval(target,'get_penetration_bonus')
             fx_record['penetration'] = penetration
 
             if not failed:
@@ -940,7 +940,7 @@ class BlockRoll( object ):
         if shield:
             def_target = shield.get_block_bonus() + defender.get_skill_score(stats.Speed,shield.scale.MELEE_SKILL)
             # The chance to hit is clamped between 5% and 95%.
-            percent = min(max(50 + (att_bonus + atroller.accuracy) - (def_target + defender.calc_mobility()),5),95)
+            percent = min(max(50 + (att_bonus + atroller.accuracy) - def_target,5),95)
             return float(percent)/100
         else:
             return 1.0
@@ -1081,7 +1081,7 @@ class RevealPositionPrice(object):
         self.weapon_flash = weapon_flash
 
     def pay( self, chara ):
-        stealth_skill = min(chara.get_skill_score(stats.Ego,stats.Stealth) - self.weapon_flash * 25, 50)
+        stealth_skill = min(chara.get_skill_score(stats.Ego,stats.Stealth) - self.weapon_flash * 25, 75)
         if random.randint(1,100) > stealth_skill:
             chara.hidden = False
 
@@ -1092,6 +1092,10 @@ class RevealPositionPrice(object):
 #  ************************
 #  ***   ENCHANTMENTS   ***
 #  ************************
+# Existing funval types:
+#   get_mobility_bonus
+#   get_penetration_bonus
+
 
 class Burning(Enchantment):
     name = 'Burning'
@@ -1109,8 +1113,15 @@ class Burning(Enchantment):
 class WeakPoint(Enchantment):
     name = 'Weak Point'
     DEFAULT_DISPEL = (END_COMBAT,)
-    def get_penetration_bonus(self,camp,owner):
+    def get_penetration_bonus(self,owner):
         return 20
+
+class SensorLock(Enchantment):
+    name = 'Sensor Lock'
+    DEFAULT_DISPEL = (END_COMBAT,)
+    DEFAULT_DURATION = 2
+    def get_mobility_bonus(self,owner):
+        return -25
 
 
 class HaywireStatus(Enchantment):

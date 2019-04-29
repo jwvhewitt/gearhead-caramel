@@ -74,37 +74,49 @@ PRIMARY_STATS = (Reflexes,Body,Speed,Perception,Craft,Ego,Knowledge,Charm)
 #  ****************
 
 class Skill( Singleton ):
-    @classmethod
-    def __str__(self):
-        return self.name
+    name = ''
+    desc = ''
 
+    SKILL_COST = (100,100,200,300,400,
+		500,800,1300,2100,3400,
+		5500,8900,14400,23300,37700)
+    @classmethod
+    def improvement_cost(cls,pc,current_value):
+        return cls.SKILL_COST[min(max(current_value,0),14)]
 
 class MechaGunnery( Skill ):
     name = 'Mecha Gunnery'
+    desc = "Used when attacking with mecha scale ranged weapons such as guns, missile launchers, and flamethrowers."
 
 
 class MechaFighting( Skill ):
     name = 'Mecha Fighting'
+    desc = "Used when attacking with mecha scale close combat weapons and also when making unarmed attacks in a mecha."
 
 
 class MechaPiloting( Skill ):
     name = 'Mecha Piloting'
+    desc = "Determines your ability to evade attacks when piloting a mecha."
 
 
 class RangedCombat( Skill ):
     name = 'Ranged Combat'
+    desc = "Used when attacking with personal ranged weapons such as guns, missile launchers, and flamethrowers."
 
 
 class CloseCombat( Skill ):
     name = 'Close Combat'
+    desc = "Used when attacking with personal close combat weapons and also when making unarmed attacks."
 
 
 class Dodge( Skill ):
     name = 'Dodge'
+    desc = "Determines your ability to evade attacks in personal combat."
 
 
 class Repair( Skill ):
     name = 'Repair'
+    desc = "This skill allows you to repair damage to mecha and equipment. Use of this skill costs MP."
     @classmethod
     def get_invocations(self,pc,invodict):
         pc_skill = pc.get_skill_score(Craft,self)
@@ -129,6 +141,7 @@ class Repair( Skill ):
 
 class Medicine( Skill ):
     name = 'Medicine'
+    desc = "This skill allows you to heal wounded lancemates. Use of this skill costs MP."
     @classmethod
     def add_invocations(self,pc,invodict):
         pc_skill = pc.get_skill_score(Craft,self)
@@ -153,6 +166,7 @@ class Medicine( Skill ):
 
 class Biotechnology( Skill ):
     name = 'Biotechnology'
+    desc = "This skill allows you to repair biotechnological constructs. Use of this skill requires MP."
     @classmethod
     def add_invocations(self,pc,invodict):
         pc_skill = pc.get_skill_score(Craft,self)
@@ -177,6 +191,7 @@ class Biotechnology( Skill ):
 
 class Stealth( Skill ):
     name = 'Stealth'
+    desc = "This skill allows you to hide during combat. Stealth attacks get bonuses."
     @classmethod
     def add_invocations(self,pc,invodict):
         ba = pbge.effects.Invocation(
@@ -197,22 +212,27 @@ class Stealth( Skill ):
 
 class Science( Skill ):
     name = 'Science'
+    desc = "This skill allows you to craft advanced equipment."
 
 
 class Computers( Skill ):
     name = 'Computers'
+    desc = "This skill allows you to hack computers and use electronic warfare systems."
 
 
 class Performance( Skill ):
     name = 'Performance'
+    desc = "This skill enables you to play music. Do it well enough and you might even get paid."
 
 
 class Negotiation( Skill ):
     name = 'Negotiation'
+    desc = "This skill is used to verbally influence other characters."
 
 
 class Scouting( Skill ):
     name = 'Scouting'
+    desc = "This skill is used to spot hidden things, and may be used to identify an enemy's weak points."
     @classmethod
     def add_invocations(self,pc,invodict):
         ba = pbge.effects.Invocation(
@@ -233,18 +253,22 @@ class Scouting( Skill ):
 
 class DominateAnimal( Skill ):
     name = 'Dominate Animal'
+    desc = "This skill is used to train animals."
 
 
 class Vitality( Skill ):
     name = 'Vitality'
+    desc = "This skill determines your health point total."
 
 
 class Athletics( Skill ):
     name = 'Athletics'
+    desc = "This skill determines your stamina point total."
 
 
 class Concentration( Skill ):
     name = 'Concentration'
+    desc = "This skill determines your mental point total."
 
 
 COMBATANT_SKILLS = (MechaFighting,MechaGunnery,MechaPiloting,RangedCombat,CloseCombat,Dodge,Vitality,Athletics,Concentration)

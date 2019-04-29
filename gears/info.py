@@ -295,8 +295,13 @@ class ExperienceBlock(object):
         self.model = model
         self.width = width
         self.font = font or pbge.MEDIUMFONT
-        self.image = pbge.render_text(self.font,'XP: {}/{}'.format(model.experience[model.TOTAL_XP]-model.experience[model.SPENT_XP],model.experience[model.TOTAL_XP]),width,justify=0,color=pbge.INFO_GREEN)
+        self.update()
         self.height = self.image.get_height()
+    def update(self):
+        self.image = pbge.render_text(self.font, 'XP: {}/{}'.format(
+            self.model.experience[self.model.TOTAL_XP] - self.model.experience[self.model.SPENT_XP], self.model.experience[self.model.TOTAL_XP]),
+                                      self.width, justify=0, color=pbge.INFO_GREEN)
+
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 

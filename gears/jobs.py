@@ -34,6 +34,7 @@ class Job(object):
             else:
                 print "Unidentified symbol: {} in {}".format(t,self.name)
         ALL_JOBS[name] = self
+        #print "{} -> {}".format(name,[s.name for s in self.skills])
 
     def scale_skills(self,pc,rank):
         base_skill_rank = max((rank + 20) // 10, 1)

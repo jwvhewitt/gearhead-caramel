@@ -57,3 +57,15 @@ class CommercialBuilding(Architecture):
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+class HospitalBuilding(Architecture):
+    DEFAULT_WALL_TERRAIN = ghterrain.HospitalWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.WhiteTileFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+class IndustrialBuilding(Architecture):
+    DEFAULT_WALL_TERRAIN = ghterrain.IndustrialWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor

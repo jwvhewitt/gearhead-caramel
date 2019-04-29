@@ -1,3 +1,6 @@
+- Fixed bug with random NPCs getting wrong job skills (gears/selector.py)
+- Added training interface (game/fieldhq/training.py)
+- Moved all plot-defining units to game/content/ghplots
 - Pilot attacks no longer included in mecha attack list (gears/base.py)
 - Invocations UI now responds to mousewheel scroll, key commands (game/invoker.py)
 - Attack UI will remember the last weapon used (game/combat)

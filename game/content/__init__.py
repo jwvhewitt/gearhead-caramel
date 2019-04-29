@@ -1,10 +1,9 @@
 
 import collections
-from pbge.plots import Plot,PlotError
+from pbge.plots import PlotError
 import pbge
 import gears
 from .. import exploration
-import inspect
 
 import ghterrain
 import ghwaypoints
@@ -15,15 +14,6 @@ import ghcutscene
 PLOT_LIST = collections.defaultdict( list )
 UNSORTED_PLOT_LIST = list()
 CARDS_BY_NAME = dict()
-def harvest( mod ):
-    for name in dir( mod ):
-        o = getattr( mod, name )
-        if inspect.isclass( o ) and issubclass( o , Plot ) and o is not Plot and o is not mechtarot.TarotCard:
-            PLOT_LIST[ o.LABEL ].append( o )
-            UNSORTED_PLOT_LIST.append( o )
-            # print o.__name__
-            if issubclass(o,mechtarot.TarotCard):
-                CARDS_BY_NAME[o.__name__] = o
 
 
 class GHNarrativeRequest(pbge.plots.NarrativeRequest):
@@ -78,20 +68,12 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
 
 import mechtarot
 
-import mocha
-import dd_homebase
-import dd_main
-import dd_combatmission
-import dd_tarot
-import dd_tarotsupport
+from game.content.ghplots import dd_combatmission, dd_homebase, dd_main, dd_tarot, dd_tarotsupport, mocha, harvest
 import plotutility
 
-harvest(mocha)
-harvest(dd_homebase)
-harvest(dd_main)
-harvest(dd_combatmission)
-harvest(dd_tarot)
-harvest(dd_tarotsupport)
+import adventureseed
+
+
 
 
 def narrative_convenience_function( pc_egg, adv_type="SCENARIO_DEADZONEDRIFTER" ):
@@ -132,32 +114,32 @@ def test_mocha_encounters():
     done_stuff = set()
     for s in possible_states:
         if move_cost[repr(s)] < 2:
-            ec = (mocha.ENEMY,s.get(mocha.ENEMY,0),mocha.COMPLICATION,s.get(mocha.COMPLICATION,0))
-            EnemyComp = [ p for p in PLOT_LIST['MOCHA_MENCOUNTER']
-                            if s.get(mocha.ENEMY,0) == p.REQUIRES.get(mocha.ENEMY,0)
-                             and mocha.ENEMY in p.REQUIRES
-                             and mocha.COMPLICATION in p.REQUIRES
-                             and s.get(mocha.COMPLICATION,0) == p.REQUIRES.get(mocha.COMPLICATION,0)]
+            ec = (mocha.ENEMY, s.get(mocha.ENEMY, 0), mocha.COMPLICATION, s.get(mocha.COMPLICATION, 0))
+            EnemyComp = [p for p in PLOT_LIST['MOCHA_MENCOUNTER']
+                         if s.get(mocha.ENEMY, 0) == p.REQUIRES.get(mocha.ENEMY, 0)
+                         and mocha.ENEMY in p.REQUIRES
+                         and mocha.COMPLICATION in p.REQUIRES
+                         and s.get(mocha.COMPLICATION, 0) == p.REQUIRES.get(mocha.COMPLICATION, 0)]
             if ec not in done_stuff and not EnemyComp:
                 print "No encounter found for Enemy:{} Complication:{}".format(ec[1],ec[3])
             done_stuff.add(ec)
 
-            es = (mocha.ENEMY,s.get(mocha.ENEMY,0),mocha.STAKES,s.get(mocha.STAKES,0))
-            EnemyStakes = [ p for p in PLOT_LIST['MOCHA_MENCOUNTER']
-                            if s.get(mocha.ENEMY,0) == p.REQUIRES.get(mocha.ENEMY,0)
-                             and mocha.ENEMY in p.REQUIRES
-                             and mocha.STAKES in p.REQUIRES
-                             and s.get(mocha.STAKES,0) == p.REQUIRES.get(mocha.STAKES,0)]
+            es = (mocha.ENEMY, s.get(mocha.ENEMY, 0), mocha.STAKES, s.get(mocha.STAKES, 0))
+            EnemyStakes = [p for p in PLOT_LIST['MOCHA_MENCOUNTER']
+                           if s.get(mocha.ENEMY, 0) == p.REQUIRES.get(mocha.ENEMY, 0)
+                           and mocha.ENEMY in p.REQUIRES
+                           and mocha.STAKES in p.REQUIRES
+                           and s.get(mocha.STAKES, 0) == p.REQUIRES.get(mocha.STAKES, 0)]
             if es not in done_stuff and not EnemyStakes:
                 print "No encounter found for Enemy:{} Stakes:{}".format(es[1],es[3])
             done_stuff.add(es)
 
-            cs = (mocha.COMPLICATION,s.get(mocha.COMPLICATION,0),mocha.STAKES,s.get(mocha.STAKES,0))
-            CompStakes = [ p for p in PLOT_LIST['MOCHA_MENCOUNTER']
-                            if s.get(mocha.COMPLICATION,0) == p.REQUIRES.get(mocha.COMPLICATION,0)
-                             and mocha.COMPLICATION in p.REQUIRES
-                             and mocha.STAKES in p.REQUIRES
-                             and s.get(mocha.STAKES,0) == p.REQUIRES.get(mocha.STAKES,0)]
+            cs = (mocha.COMPLICATION, s.get(mocha.COMPLICATION, 0), mocha.STAKES, s.get(mocha.STAKES, 0))
+            CompStakes = [p for p in PLOT_LIST['MOCHA_MENCOUNTER']
+                          if s.get(mocha.COMPLICATION, 0) == p.REQUIRES.get(mocha.COMPLICATION, 0)
+                          and mocha.COMPLICATION in p.REQUIRES
+                          and mocha.STAKES in p.REQUIRES
+                          and s.get(mocha.STAKES, 0) == p.REQUIRES.get(mocha.STAKES, 0)]
             if cs not in done_stuff and not CompStakes:
                 print "No encounter found for Complication:{} Stakes:{}".format(cs[1],cs[3])
             done_stuff.add(cs)

@@ -1,11 +1,9 @@
 from pbge.plots import Plot, Adventure, PlotState
-import ghwaypoints
-import ghterrain
 import gears
 import pbge
 import pygame
-from .. import teams,ghdialogue
-from ..ghdialogue import context
+from game import teams,ghdialogue
+from game.ghdialogue import context
 from pbge.scenes.movement import Walking, Flying, Vision
 from gears.geffects import Skimming, Rolling
 import random
@@ -13,7 +11,8 @@ import copy
 import os
 from pbge.dialogue import Cue,ContextTag,Offer,Reply
 from gears import personality,color,stats
-import ghcutscene
+import game.content.ghcutscene
+from game.content import ghwaypoints,ghterrain
 
 
 
@@ -87,7 +86,7 @@ class WinterMochaGenerator(ghwaypoints.Waypoint):
 
 class WinterMochaToolbox(ghwaypoints.Waypoint):
     name = 'Toolbox'
-    TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaToolboxTerrain )
+    TILE = pbge.scenes.Tile(None, None, ghterrain.WinterMochaToolboxTerrain)
     desc = "You stand before an abandoned toolbox."
 
 class WinterMochaHeatLampTerrain(pbge.scenes.terrain.Terrain):
@@ -102,12 +101,12 @@ class WinterMochaHeatLamp(ghwaypoints.Waypoint):
 
 class WinterMochaBarrel(ghwaypoints.Waypoint):
     name = 'Barrel'
-    TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaBarrelTerrain )
+    TILE = pbge.scenes.Tile(None, None, ghterrain.WinterMochaBarrelTerrain)
     desc = "You stand before a big container of fuel."
 
 class WinterMochaShovel(ghwaypoints.Waypoint):
     name = 'Broken Shovel'
-    TILE = pbge.scenes.Tile( None, None, ghterrain.WinterMochaBrokenShovel )
+    TILE = pbge.scenes.Tile(None, None, ghterrain.WinterMochaBrokenShovel)
     desc = "You stand before a broken shovel."
 
 class WinterMochaDomeTerrain(pbge.scenes.terrain.Terrain):
@@ -132,7 +131,7 @@ class WinterMochaBlower(ghwaypoints.Waypoint):
 
 class WinterMochaPavement( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_wintermocha_pavement.png'
-    border = pbge.scenes.terrain.FloorBorder( ghterrain.Snow, 'terrain_border_snowline.png' )
+    border = pbge.scenes.terrain.FloorBorder(ghterrain.Snow, 'terrain_border_snowline.png')
 
 class WinterMochaTruckTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_wintermocha_mission.png'
@@ -158,16 +157,16 @@ class WinterMochaFortressRoom(pbge.randmaps.rooms.Room):
         gb.fill(self.area.inflate(2,2),floor=archi.floor_terrain,wall=None)
         width = self.area.w-2
         for x in range(width/2-1):
-            gb.set_wall(x+1+self.area.left,self.area.top+1,ghterrain.FortressWall)
-            gb.set_wall(self.area.right-x-1,self.area.top+1,ghterrain.FortressWall)
-            gb.set_wall(x+1+self.area.left,self.area.bottom-1,ghterrain.FortressWall)
-            gb.set_wall(self.area.right-x-1,self.area.bottom-1,ghterrain.FortressWall)
+            gb.set_wall(x + 1 + self.area.left, self.area.top + 1, ghterrain.FortressWall)
+            gb.set_wall(self.area.right - x - 1, self.area.top + 1, ghterrain.FortressWall)
+            gb.set_wall(x + 1 + self.area.left, self.area.bottom - 1, ghterrain.FortressWall)
+            gb.set_wall(self.area.right - x - 1, self.area.bottom - 1, ghterrain.FortressWall)
         height = self.area.h-2
         for y in range(height/2-1):
-            gb.set_wall(self.area.left+1,y+1+self.area.top,ghterrain.FortressWall)
-            gb.set_wall(self.area.left+1,self.area.bottom-y-1,ghterrain.FortressWall)
-            gb.set_wall(self.area.right-1,y+1+self.area.top,ghterrain.FortressWall)
-            gb.set_wall(self.area.right-1,self.area.bottom-y-1,ghterrain.FortressWall)
+            gb.set_wall(self.area.left + 1, y + 1 + self.area.top, ghterrain.FortressWall)
+            gb.set_wall(self.area.left + 1, self.area.bottom - y - 1, ghterrain.FortressWall)
+            gb.set_wall(self.area.right - 1, y + 1 + self.area.top, ghterrain.FortressWall)
+            gb.set_wall(self.area.right - 1, self.area.bottom - y - 1, ghterrain.FortressWall)
 
 # *****************
 # ***   PLOTS   ***
@@ -206,7 +205,7 @@ class FrozenHotSpringCity( Plot ):
 
         myfilter = pbge.randmaps.converter.BasicConverter(WinterMochaSnowdrift)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.SmallSnow,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.SmallSnow, myfilter, mutate=mymutate)
         myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
 
 
@@ -560,7 +559,7 @@ class MochaMissionBattleBuilder( Plot ):
 
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
         myscenegen1 = WinterHighwaySceneGen(myscene1,myarchi)
 
         myscene2 = gears.GearHeadScene(30,60,"Gyori Highway",player_team=team1,scale=gears.scale.MechaScale)
@@ -663,8 +662,8 @@ class Intro_GetTheLeader( Plot ):
             mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
               beats = (
                 pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("According to the mission offer you received, you just need to defeat the boss of the bandits.")),
-                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("According to the mission offer, all we have to do is catch the boss of the bandits.",'npc'),prep=ghcutscene.LancematePrep('npc')),
-                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("I've heard about this bandit we're going up against, {0}. If we can defeat him then his troops should scatter.".format(self.elements["BOSS_PILOT"]),'npc'),prep=ghcutscene.LancematePrep('npc')),
+                pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("According to the mission offer, all we have to do is catch the boss of the bandits.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc')),
+                pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("I've heard about this bandit we're going up against, {0}. If we can defeat him then his troops should scatter.".format(self.elements["BOSS_PILOT"]), 'npc'), prep=game.content.ghcutscene.LancematePrep('npc')),
               )
             )
             mycutscene(camp)
@@ -689,10 +688,10 @@ class Intro_ToyBandits( Plot ):
               beats = (
                 pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You come across one of the trucks from the convoy that was attacked. Its cargo of toys, bound for the orphanage in Wujung, has been stolen."),
                     children = [
-                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("What kind of meanie would steal a truckload of orphan's toys, and right before the solstice to boot?",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Cheerful,),)),
-                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("This is worse than a crime, it's a travesty! The villains who stole these toys must be brought to justice.",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Justice,),)),
-                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Toy thieves, huh? Let's catch them so I can go back to bed.",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Shy,),)),
-                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Who steals a truckload of toys in the middle of a blizzard? Do you think they planned this heist or were they expecting something else?",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Easygoing,),)),
+                    pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("What kind of meanie would steal a truckload of orphan's toys, and right before the solstice to boot?", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc', personality_traits=(personality.Cheerful,), )),
+                    pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("This is worse than a crime, it's a travesty! The villains who stole these toys must be brought to justice.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc', personality_traits=(personality.Justice,), )),
+                    pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("Toy thieves, huh? Let's catch them so I can go back to bed.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc', personality_traits=(personality.Shy,), )),
+                    pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("Who steals a truckload of toys in the middle of a blizzard? Do you think they planned this heist or were they expecting something else?", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc', personality_traits=(personality.Easygoing,), )),
                     ],),
               )
             )
@@ -717,10 +716,10 @@ class Intro_MysteriousMecha( Plot ):
               beats = (
                 pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You find the tracks in the snow where the bandits met the convoy. However, there is a second set of tracks just off the road, following the others at a distance."),
                     children = [
-                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("I recognize these tread marks from the battle of Snake Lake... Those are Aegis mecha. This mission just got a whole lot more serious.",'npc'),prep=ghcutscene.LancematePrep('npc',personality_traits=(personality.Grim,),)),
-                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("These tracks belong to a Chameleon; that's an Aegis mecha. We better be careful from here on out.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Scouting,),)),
+                    pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("I recognize these tread marks from the battle of Snake Lake... Those are Aegis mecha. This mission just got a whole lot more serious.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc', personality_traits=(personality.Grim,), )),
+                    pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("These tracks belong to a Chameleon; that's an Aegis mecha. We better be careful from here on out.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc', stats=(stats.Scouting,), )),
                     pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You recognize the third set of tracks as belonging to an Aegis patrol. Looks like you'll have more than bandits to worry about.")),
-                    pbge.cutscene.Beat(ghcutscene.MonologueDisplay("These tire marks don't belong to any bandit; they're Aegis mecha! I'd stake my reputation on that.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Repair,),)),
+                    pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("These tire marks don't belong to any bandit; they're Aegis mecha! I'd stake my reputation on that.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc', stats=(stats.Repair,), )),
 
                     ],),
               )
@@ -842,7 +841,7 @@ class Encounter_InstantKarma( Encounter_BasicBandits ):
             self.combat_entered = True
             mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
               beats = (
-                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Ashes... it's hunter synths! {} must have wandered into a nest of them. Serves them right for stealing toys from orphans.".format(ENEMY_NOUN[self.elements.get(ENEMY,0)]),'npc'),prep=ghcutscene.LancematePrep('npc')),
+                pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("Ashes... it's hunter synths! {} must have wandered into a nest of them. Serves them right for stealing toys from orphans.".format(ENEMY_NOUN[self.elements.get(ENEMY, 0)]), 'npc'), prep=game.content.ghcutscene.LancematePrep('npc')),
               )
             )
             mycutscene(camp)
@@ -1175,7 +1174,7 @@ class Encounter_AdvancedMecha( Encounter_BasicBandits ):
         if self.combat_entered and camp.first_active_pc():
             mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
               beats = (
-                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("That was some high end equipment for a bandit... Better not underestimate this gang.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+                pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("That was some high end equipment for a bandit... Better not underestimate this gang.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc')),
               )
             )
             mycutscene(camp)
@@ -1256,28 +1255,28 @@ class Encounter_WaitingAmbush( Encounter_BasicBandits ):
             mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
               beats = (
                 pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("You get the feeling that these aren't ordinary bandits. Better be careful from this point on.")),
-                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("This sentry was waiting for us. Whoever these raiders are, they're obviously pros.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+                pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("This sentry was waiting for us. Whoever these raiders are, they're obviously pros.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc')),
               )
             )
             mycutscene(camp)
             self.combat_entered = False
     def TRAP_ENTER(self,camp):
         if self.trap_ready:
-            mycutscene = ghcutscene.SkillRollCutscene( stats.Perception,stats.Scouting,50,
-              library={'pc':camp.pc},
-              on_success = (
-                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Watch out, [pc]- there are proximity mines under the snow. Seems like someone is expecting us.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Scouting,))),
+            mycutscene = game.content.ghcutscene.SkillRollCutscene(stats.Perception, stats.Scouting, 50,
+                                                                   library={'pc':camp.pc},
+                                                                   on_success = (
+                pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("Watch out, [pc]- there are proximity mines under the snow. Seems like someone is expecting us.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc', stats=(stats.Scouting,))),
                 pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("Your sensors detect some proximity mines just underneath the snow. It's a good thing you were paying attention, or you could have walked right into them.")),
               ),
-              on_failure = (
+                                                                   on_failure = (
                 pbge.cutscene.Beat(pbge.cutscene.AlertDisplay("Without warning, a proximity mine goes off at your feet."),children=(
-                    pbge.cutscene.Beat(ghcutscene.ExplosionDisplay(),children=(
-                        pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Tough luck. It's too bad we didn't have a scout in the lance... they might have been able to detect the mines.",'npc'),prep=ghcutscene.LancematePrep('npc')),
-                        pbge.cutscene.Beat(ghcutscene.MonologueDisplay("Sorry, I didn't spot the mines on the sensor feed. Guess I need to practice scouting more. Watch out... it looks like somebody is expecting us.",'npc'),prep=ghcutscene.LancematePrep('npc',stats=(stats.Scouting,))),
+                    pbge.cutscene.Beat(game.content.ghcutscene.ExplosionDisplay(), children=(
+                        pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("Tough luck. It's too bad we didn't have a scout in the lance... they might have been able to detect the mines.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc')),
+                        pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("Sorry, I didn't spot the mines on the sensor feed. Guess I need to practice scouting more. Watch out... it looks like somebody is expecting us.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc', stats=(stats.Scouting,))),
                     )),
                 )),
               )
-            )
+                                                                   )
             mycutscene(camp)
             self.trap_ready = False
 
@@ -1300,7 +1299,7 @@ class Encounter_CovertAegis( Encounter_BasicBandits ):
         if self.intro_ready:
             mycutscene = pbge.cutscene.Cutscene( library={'pc':camp.pc},
               beats = (
-                pbge.cutscene.Beat(ghcutscene.MonologueDisplay("These bandits we're fighting? I'm not entirely sure that they're bandits... Those look like Aegis colors.",'npc'),prep=ghcutscene.LancematePrep('npc')),
+                pbge.cutscene.Beat(game.content.ghcutscene.MonologueDisplay("These bandits we're fighting? I'm not entirely sure that they're bandits... Those look like Aegis colors.", 'npc'), prep=game.content.ghcutscene.LancematePrep('npc')),
               )
             )
             mycutscene(camp)
@@ -1740,7 +1739,7 @@ class FinalBattleAgainstSynths( Plot ):
         myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
         myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
         myscene.exploration_music = 'Lines.ogg'
@@ -1778,7 +1777,7 @@ class FinalBattleAgainstBase( Plot ):
         myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
         myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
         myscene.exploration_music = 'Lines.ogg'
@@ -1812,7 +1811,7 @@ class FinalBattleAgainstTrucks( Plot ):
         myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
         myscenegen = WinterHighwaySceneGen(myscene,myarchi)
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
         myscene.exploration_music = 'Lines.ogg'
@@ -1851,7 +1850,7 @@ class FinalBattleAgainstBoss( Plot ):
         myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
         myscenegen = WinterHighwaySceneGen(myscene,myarchi)
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
         myscene.exploration_music = 'Lines.ogg'
@@ -1887,7 +1886,7 @@ class FinalBattleAgainstBossInWoods( Plot ):
         myscene = gears.GearHeadScene(30,30,"Boss Battle",player_team=team1,scale=gears.scale.MechaScale)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
         myscenegen = pbge.randmaps.SceneGenerator(myscene,myarchi)
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )
         myscene.exploration_music = 'Lines.ogg'
@@ -1948,7 +1947,7 @@ class WinterBattle( Plot ):
 
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
-        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow,myfilter,mutate=mymutate)
+        myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
         myscenegen = WinterHighwaySceneGen(myscene,myarchi)
 
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE" )

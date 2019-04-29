@@ -46,7 +46,6 @@ class ConfigEditor( object ):
             mymenu.add_item("Names Above Heads: {}".format(util.config.getboolean( "GENERAL", "names_above_heads" )),self.toggle_names)
 
             for op in util.config.options("DIFFICULTY"):
-                print op
                 mymenu.add_item("{}: {}".format(op,util.config.getboolean("DIFFICULTY",op)),OptionToggler(op,"DIFFICULTY"))
 
             mymenu.add_item("Save and Exit",False)

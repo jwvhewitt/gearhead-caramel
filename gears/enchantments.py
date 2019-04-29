@@ -45,12 +45,15 @@ class EnchantmentList(list):
                 if thing.duration < 1:
                     self.remove(thing)
 
-    def get_funval(self, camp, owner, funname):
-        # The funval function takes camp,owner as parameters.
+    def get_funval(self, owner, funname):
+        # The funval function takes owner as parameter.
+        # Existing funval types:
+        #   get_mobility_bonus
+        #   get_penetration_bonus
         p_max,n_max = 0,0
         for thing in self:
             if hasattr( thing, funname ):
-                v = getattr(thing,funname)( camp,owner )
+                v = getattr(thing,funname)( owner )
                 if v > 0:
                     p_max = max( v , p_max )
                 elif v < 0:

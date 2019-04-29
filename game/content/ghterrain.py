@@ -37,6 +37,9 @@ class TechnoRubble( pbge.scenes.terrain.VariableTerrain ):
 class OldTilesFloor( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_oldtiles.png'
 
+class WhiteTileFloor( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_whitetile.png'
+
 class HardwoodFloor( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_hardwood.png'
 
@@ -111,11 +114,20 @@ class ResidentialWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_residential.png'
     blocks = (Walking,Skimming,Rolling,Vision,Flying)
 
+class HospitalWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_hospital.png'
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
+class IndustrialWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_industrial.png'
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
 class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_dragonteeth.png'
     bordername = None
     altitude = 20
     blocks = (Walking, Skimming, Rolling)
+    movement_cost={pbge.scenes.movement.Vision:5}
 
 
 class DZDTownTerrain(pbge.scenes.terrain.Terrain):

@@ -1,15 +1,15 @@
 from pbge.plots import Plot
 from pbge.dialogue import Offer, ContextTag
-from .. import teams, services, ghdialogue
-from ..ghdialogue import context
+from game import teams, services, ghdialogue
+from game.ghdialogue import context
 import gears
 from gears import factions,personality
-import gharchitecture
+import game.content.gharchitecture
 import pbge
-import plotutility
-import ghwaypoints
-import ghterrain
-from dd_combatmission import CombatMissionSeed
+import game.content.plotutility
+import game.content.ghwaypoints
+import game.content.ghterrain
+from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
 
 class DZD_Wujung(Plot):
@@ -30,8 +30,8 @@ class DZD_Wujung(Plot):
         npc = gears.selector.random_character(50, local_tags=myscene.attributes)
         npc.place(myscene, team=team2)
 
-        myscenegen = pbge.randmaps.CityGridGenerator(myscene, gharchitecture.HumanScaleGreenzone(),
-                                                     road_terrain=ghterrain.Flagstone)
+        myscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleGreenzone(),
+                                                     road_terrain=game.content.ghterrain.Flagstone)
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
 
@@ -39,10 +39,10 @@ class DZD_Wujung(Plot):
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.west),
                                         dident="LOCALE")
-        westgate = self.register_element("ENTRANCE", ghwaypoints.Exit(name="The West Gate",
-                                                                            desc="You stand at the western city gate of Wujung. Beyond this point lies the dead zone.",
-                                                                            anchor=pbge.randmaps.anchors.west,
-                                                                            plot_locked=True), dident="_ROOM2")
+        westgate = self.register_element("ENTRANCE", game.content.ghwaypoints.Exit(name="The West Gate",
+                                                                                   desc="You stand at the western city gate of Wujung. Beyond this point lies the dead zone.",
+                                                                                   anchor=pbge.randmaps.anchors.west,
+                                                                                   plot_locked=True), dident="_ROOM2")
 
         nart.camp.home_base = (myscene,westgate)
 
@@ -51,14 +51,21 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
         tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
+        tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
+        tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         # Black Isle Pub
-        # Long Road Logistics - Caravan missions, Salvage Contractor
         # Wujung Tires - Conversion supplies
+        # Hwang-Sa Mission
+        # Reconstruction Site
 
         return True
 
     def LOCALE_ENTER(self,camp):
+        # Upon entering this scene, deal with any dead or incapacitated party members.
+        # Also, deal with party members who have lost their mecha. This may include the PC.
         print("Entered Wujung")
+
+
 
 class DZD_BronzeHorseInn(Plot):
     LABEL = "DZDHB_BronzeHorseInn"
@@ -68,25 +75,26 @@ class DZD_BronzeHorseInn(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.ResidentialBuilding(
-            waypoints={"DOOR": ghwaypoints.ScreenDoor(name="Bronze Horse Inn")},
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.ResidentialBuilding(
+            waypoints={"DOOR": game.content.ghwaypoints.ScreenDoor(name="Bronze Horse Inn")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = self.register_element("FOYER_TEAM",teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(35, 35, "Bronze Horse Inn", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_MEETING),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=10,height=10,
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=10, height=10,
                                                                                  anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.ResidentialDecor()),
+                                                                                 decorate=game.content.gharchitecture.ResidentialDecor()),
                                       dident="INTERIOR")
         foyer.contents.append(team2)
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
-                                                    room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
         # Add the elevator to the guest rooms- this can be used by subplots to also visit lancemate rooms and other stuff.
 
@@ -175,7 +183,7 @@ class RLMP_Friendly(Plot):
         mylist = list()
         npc = self.elements["NPC"]
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
-            if camp.can_add_lancemate():
+            if camp.can_add_lancemate() and npc.get_reaction_score(camp.pc,camp) > 0:
                 mylist.append(Offer("[THANKS_FOR_CHOOSING_ME] [LETSGO]",
                             context=ContextTag((context.JOIN,)),
                             effect= self._join_lance
@@ -289,23 +297,24 @@ class DZD_BlueFortressHQ(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Blue Fortress")},
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+            waypoints={"DOOR": game.content.ghwaypoints.ScrapIronDoor(name="Blue Fortress")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Blue Fortress L1", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_BASE),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.DefaultBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.CheeseShopDecor()),
+                                                                                 decorate=game.content.gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
-                                                    room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
         npc = self.register_element("DISPATCHER",
                                     gears.selector.random_character(random.randint(26,70), local_tags=self.elements["LOCALE"].attributes,
@@ -355,25 +364,26 @@ class DZD_AlliedArmor(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Allied Armor")},
-            door_sign=(ghterrain.AlliedArmorSignEast, ghterrain.AlliedArmorSignSouth),
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+            waypoints={"DOOR": game.content.ghwaypoints.ScrapIronDoor(name="Allied Armor")},
+            door_sign=(game.content.ghterrain.AlliedArmorSignEast, game.content.ghterrain.AlliedArmorSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Allied Armor", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_SHOP,gears.tags.SCENE_GARAGE),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.CheeseShopDecor()),
+                                                                                 decorate=game.content.gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
-        foyer.contents.append(ghwaypoints.AlliedArmorSignWP())
+        foyer.contents.append(game.content.ghwaypoints.AlliedArmorSignWP())
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
-                                                    room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
         npc = self.register_element("SHOPKEEPER",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
@@ -402,23 +412,24 @@ class DZD_EliteEquipment(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Elite Equipment")},
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+            waypoints={"DOOR": game.content.ghwaypoints.ScrapIronDoor(name="Elite Equipment")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Elite Equipment", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.CheeseShopDecor()),
+                                                                                 decorate=game.content.gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
-                                                    room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
         npc = self.register_element("SHOPKEEPER",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
@@ -438,3 +449,80 @@ class DZD_EliteEquipment(Plot):
                             ))
 
         return mylist
+
+class DZD_WujungHospital(Plot):
+    LABEL = "DZDHB_WujungHospital"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+            waypoints={"DOOR": game.content.ghwaypoints.WoodenDoor(name="Wujung Hospital")},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, "Wujung Hospital", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_HOSPITAL),
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
+                                      dident="INTERIOR")
+
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        npc = self.register_element("DOCTOR",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Doctor"]))
+        npc.place(intscene, team=team2)
+
+        npc = self.register_element("NURSE",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Nurse"]))
+        npc.place(intscene, team=team2)
+
+        return True
+
+class DZD_LongRoadLogistics(Plot):
+    LABEL = "DZDHB_LongRoadLogistics"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+            waypoints={"DOOR": game.content.ghwaypoints.WoodenDoor(name="Long Road Logistics")},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, "Long Road Logistics", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_GARAGE,gears.tags.SCENE_TRANSPORT),
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
+                                      dident="INTERIOR")
+
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        npc = self.register_element("DISPATCHER",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Dispatcher"]))
+        npc.place(intscene, team=team2)
+
+        npc = self.register_element("TRUCKER",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Trucker"]))
+        npc.place(intscene, team=team2)
+
+        return True
+
