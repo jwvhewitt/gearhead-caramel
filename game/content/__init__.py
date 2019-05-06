@@ -8,6 +8,7 @@ from .. import exploration
 import ghterrain
 import ghwaypoints
 import ghcutscene
+import uuid
 
 
 # The list of plots will be stored as a dictionary based on label.
@@ -47,11 +48,15 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
         else:
             self.errors.append( "No plot found for {0}".format( tags ) )
 
-    def add_tarot_card( self, myplot, tarot_tags, spstate=None, ident=None, necessary=True ):
+    def add_tarot_card( self, myplot, tarot_tags, spstate=None, ident=None, necessary=True, tarot_position=None, tarot_scope="METRO" ):
         if not spstate:
             spstate = pbge.plots.PlotState().based_on(myplot)
         if not ident:
             ident = "_autoident_{0}".format( len( myplot.subplots ) )
+        if tarot_position or mechtarot.ME_TAROTPOSITION not in spstate.elements:
+            if not tarot_position:
+                tarot_position = uuid.uuid4()
+            spstate.elements[mechtarot.ME_TAROTPOSITION] = tarot_position
         sp = self.generate_tarot_card( spstate, tarot_tags )
         if necessary and not sp:
             #print "Fail: {}".format(splabel)

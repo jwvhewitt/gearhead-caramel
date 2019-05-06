@@ -27,12 +27,17 @@ from pbge.plots import Plot
 
 class CombatMissionSeed(adventureseed.AdventureSeed):
     OBJECTIVE_TAGS = ("DZDCM_DEFEAT_COMMANDER","DZDCM_RESCUE_SURVIVORS","DZDCM_RECOVER_CARGO")
-    def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, **kwargs):
+    CRIME_TAGS = ("DZDCM_DO_CRIMES",)
+    def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, include_war_crimes=False, **kwargs):
         cms_pstate = pbge.plots.PlotState(adv=self, rank=max(camp.pc.renown+1,10))
         # Determine 2 to 3 objectives for the mission.
-        cms_pstate.elements["OBJECTIVES"] = random.sample(self.OBJECTIVE_TAGS,2)
+        if include_war_crimes:
+            cms_pstate.elements["OBJECTIVES"] = random.sample(self.OBJECTIVE_TAGS+self.CRIME_TAGS,2)
+        else:
+            cms_pstate.elements["OBJECTIVES"] = random.sample(self.OBJECTIVE_TAGS,2)
         cms_pstate.elements["enemy_faction"] = enemy_faction
         cms_pstate.elements["allied_faction"] = allied_faction
+        self.crimes_happened = False
 
         super(CombatMissionSeed, self).__init__(camp, name, adv_type="DZD_COMBAT_MISSION", adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False, **kwargs)
 
@@ -204,6 +209,53 @@ class AceCommanderFight( Plot ):
         myteam = self.elements["_eteam"]
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(100)
+
+#   *************************
+#   ***  DZDCM_DO_CRIMES  ***
+#   *************************
+
+class EliminateWitnesses( Plot ):
+    LABEL = "DZDCM_DO_CRIMES"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(5,5),dident="LOCALE")
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+        myace = gears.selector.generate_ace(self.rank,self.elements.get("allied_faction"),myscene.environment)
+        team2.contents.append(myace)
+        self.register_element("_commander",myace.get_pilot())
+
+        self.obj = adventureseed.MissionObjective("Defeat {}".format(myace.get_pilot()), MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+        self.intro_ready = True
+
+        return True
+    def _eteam_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+            self.adv.crimes_happened = True
+    def _commander_offers(self,camp):
+        mylist = list()
+        myfac = self.elements["allied_faction"]
+        mylist.append(Offer("Hold your fire- I'm not an enemy! You were sent by {}, weren't you?! I know about their secret agenda, and they're trying to keep the word from getting out...".format(myfac),
+            context=ContextTag([context.ATTACK,])))
+        mylist.append(Offer("Very well, you've made it clear what side you're on. [CHALLENGE]",
+            context=ContextTag([context.CHALLENGE,])))
+        mylist.append(Offer("They've been taken over by extremists; {} is no longer taking orders from {}. I was ordered to attack a village, but refused... now they're after me. Be careful, they're going to come after you too.".format(myfac,myfac.parent_faction.name),
+            context=ContextTag([context.COMBAT_INFO,]), data={"subject":"Secret Agenda"}, effect=self._get_info))
+        return mylist
+    def _get_info(self,camp):
+        self.obj.failed = True
+        self.elements["_eteam"].retreat(camp)
+        camp.dole_xp(100)
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(100)
+
 
 #   *****************************
 #   ***  DZDCM_RECOVER_CARGO  ***

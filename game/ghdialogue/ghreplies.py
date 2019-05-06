@@ -50,6 +50,10 @@ HELLO_GOODBYE = Reply( "[HELLO:GOODBYE]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.GOODBYE]) ) )
 
+HELLO_MISSION = Reply( "[HELLO:MISSION]" ,
+            context = ContextTag([context.HELLO]),
+            destination = Cue( ContextTag([context.MISSION]) ) )
+
 HELLO_PROPOSAL = Reply( "[HELLO:PROPOSAL]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.PROPOSAL]) ) )
@@ -81,6 +85,14 @@ INFOPERSONAL_GOODBYE = Reply( "[INFO_PERSONAL:GOODBYE]" ,
 INFOPERSONAL_JOIN = Reply( "[INFO_PERSONAL:JOIN]" ,
             context = ContextTag([context.INFO,context.PERSONAL]),
             destination = Cue( ContextTag([context.JOIN]) ) )
+
+MISSION_ACCEPT = Reply( "[MISSION:ACCEPT]" ,
+            context = ContextTag([context.MISSION]),
+            destination = Cue( ContextTag([context.ACCEPT]) ) )
+
+MISSION_DENY = Reply( "[MISSION:DENY]" ,
+            context = ContextTag([context.MISSION]),
+            destination = Cue( ContextTag([context.DENY]) ) )
 
 MISSIONPROBLEM_JOIN = Reply( "[MISSION_PROBLEM:JOIN]" ,
             context = ContextTag([context.MISSION,context.PROBLEM]),

@@ -262,9 +262,7 @@ class ExperienceReward(object):
         else:
             xp = self.size//2
 
-        for pc in camp.party:
-            if hasattr(pc,"experience"):
-                pc.experience[pc.TOTAL_XP] += xp
+        camp.dole_xp(xp)
 
         adv.results.append(("Experience","+{:,}".format(xp)))
 

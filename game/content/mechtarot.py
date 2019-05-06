@@ -6,6 +6,7 @@ from . import GHNarrativeRequest, PLOT_LIST
 
 ME_TAROTPOSITION = "TAROT_POSITION"
 ME_AUTOREVEAL = "ME_AUTOREVEAL" # If this element is True, card is generated during adventure + doesn't need full init
+ME_TAROTSCOPE = "TAROT_SCOPE"
 
 class TarotCard(plots.Plot):
     LABEL = "TAROT"
@@ -23,13 +24,16 @@ class TarotCard(plots.Plot):
         for sp in self.subplots.itervalues():
             sp.install(nart)
         del self.move_records
+        scope = self.elements.get(ME_TAROTSCOPE)
+        if not (scope and hasattr(scope,"tarot")):
+            scope = nart.camp
         dest = self.elements.get(ME_TAROTPOSITION)
         if dest:
-            nart.camp.tarot[dest] = self
+            scope.tarot[dest] = self
         else:
             # No unique ID provided... sure wish we had a unique hashable identifier
             # that isn't already being used in the dictionary...
-            nart.camp.tarot[hash(self)] = self
+            scope.tarot[hash(self)] = self
             self.elements[ME_TAROTPOSITION] = hash(self)
 
     def get_negations(self, num_neg=2):
@@ -108,14 +112,14 @@ class Interaction(object):
 
     def get_interaction_dialogue_offers(self, npc, camp, alpha_card):
         ofrz = list()
-        for beta_card in camp.tarot.values():
+        for beta_card in camp.active_tarot_cards():
             if beta_card.visible and self.maybe_activated_by(beta_card):
                 for at in [a for a in self.action_triggers if hasattr(a,"get_at_dialogue_offers")]:
                     ofrz += at.get_at_dialogue_offers(npc, camp, alpha_card, beta_card, self.invoke)
         return ofrz
 
     def modify_interaction_puzzle_menu( self, camp, thing, thingmenu, alpha_card ):
-        for beta_card in camp.tarot.values():
+        for beta_card in camp.active_tarot_cards():
             if beta_card.visible and self.maybe_activated_by(beta_card):
                 for at in [a for a in self.action_triggers if hasattr(a,"can_modify_puzzle_menu") and a.can_modify_puzzle_menu(thing,alpha_card,beta_card)]:
                     at.modify_at_puzzle_menu(camp,thing,thingmenu,alpha_card,beta_card,self.invoke)
@@ -137,10 +141,13 @@ class Interaction(object):
                             pstate.elements[pp] = beta_card.elements.get(pp)
                 if t == 0:
                     pstate.elements[ME_TAROTPOSITION] = alpha_card.elements[ME_TAROTPOSITION]
+                    pstate.elements[ME_TAROTSCOPE] = alpha_card.elements[ME_TAROTSCOPE]
                     end_these_plots.append(alpha_card)
                 elif t == 1:
                     pstate.elements[ME_TAROTPOSITION] = beta_card.elements[ME_TAROTPOSITION]
+                    pstate.elements[ME_TAROTSCOPE] = alpha_card.elements[ME_TAROTSCOPE]
                     end_these_plots.append(beta_card)
+
                 newcard = nart.request_tarot_card_by_name(self.results[t], pstate)
                 if not newcard:
                     pbge.alert("New tarot card failed for {}".format(self.results[t]))

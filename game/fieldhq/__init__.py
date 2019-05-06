@@ -52,6 +52,7 @@ class CharacterInfoWidget(widgets.Widget):
         self.fhq.active = False
         my_trainer = training.TrainingMenu(self.camp,self.pc)
         my_trainer()
+        self.info.update()
         self.fhq.active = True
 
     def open_backpack(self,wid,ev):
@@ -75,6 +76,7 @@ class CharacterInfoWidget(widgets.Widget):
 
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
+        self.info.update()
         self.fhq.active = True
 
     def bp_done(self, wid, ev):
@@ -91,6 +93,7 @@ class CharacterInfoWidget(widgets.Widget):
         mek = mymenu.query()
 
         self.camp.assign_pilot_to_mecha(self.pc,mek)
+        self.info.update()
         self.fhq.active = True
 
     def change_colors(self,wid,ev):
@@ -123,6 +126,7 @@ class CharacterInfoWidget(widgets.Widget):
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
         self.fhq.active = True
+        self.info.update()
         pbge.my_state.view.regenerate_avatars([self.pc,])
 
     def color_done(self, wid, ev):
@@ -177,6 +181,7 @@ class MechaInfoWidget(widgets.Widget):
         pilot = mymenu.query()
 
         self.camp.assign_pilot_to_mecha(pilot,self.pc)
+        self.info.update()
         self.fhq.active = True
 
     def open_backpack(self,wid,ev):
@@ -200,6 +205,7 @@ class MechaInfoWidget(widgets.Widget):
 
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
+        self.info.update()
         self.fhq.active = True
 
     def bp_done(self, wid, ev):
@@ -302,6 +308,7 @@ class FieldHQ(widgets.Widget):
         self.active_pc = wid.pc
         if self.active_widget:
             self.active_widget.active = True
+            self.active_widget.info.update()
 
     def done_button(self,wid,ev):
         if not pbge.my_state.widget_clicked:

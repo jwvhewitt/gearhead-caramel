@@ -2169,7 +2169,7 @@ class BorrowAnItem( Plot ):
     def custom_init( self, nart ):
         mynpc = self.seek_element(nart,"NPC",self._seek_npc)
         return True
-    def _seek_npc( self, candidate ):
+    def _seek_npc( self, nart, candidate ):
         return isinstance( candidate, gears.base.Character )
     def _get_item( self, camp ):
         camp.check_trigger( "FIND", self.elements[ "TARGET" ])

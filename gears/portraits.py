@@ -157,6 +157,10 @@ class Portrait(object):
                 # Generate random colors for this character.
                 pc.colors = [random.choice(color.COLOR_LISTS[chan]) for chan in self.color_channels]
                 #If this character has a faction, update the colors with faction colors.
+                if pc.faction and pc.faction.uniform_colors:
+                    for t in range(len(pc.faction.uniform_colors)):
+                        if pc.faction.uniform_colors[t]:
+                            pc.colors[t] = pc.faction.uniform_colors[t]
 
             porimage.recolor(pc.colors)
             pbge.image.Image.record_pre_loaded(self,pc.colors,porimage.bitmap)

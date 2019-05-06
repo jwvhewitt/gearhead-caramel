@@ -11,16 +11,45 @@ MT_PERSON = "PERSON"
 MT_THREAT = "THREAT"
 MT_HEROIC = "HEROIC"
 MT_CRIME = "CRIME"
+MT_FACTION = "FACTION"
 
-ME_PERSON = "PERSON"
-ME_PUZZLEITEM = "PUZZLEITEM"
+ME_FACTION = "CARD_FACTION"
+ME_PERSON = "CARD_PERSON"
+ME_PUZZLEITEM = "CARD_PUZZLEITEM"
 ME_CRIME = "CRIME_TEXT"
 ME_CRIMED = "CRIME_VERBED_TEXT"
+
+
+class MilitantSplinter(TarotCard):
+    TAGS = (MT_FACTION,MT_THREAT)
+    NEGATIONS = ()
+    ASCENSIONS = ()
+
+    def custom_init( self, nart ):
+        # Add the subplot which will decide the splinter faction and provide a discovery route.
+        tplot = self.add_sub_plot(nart, "DZD_SplinterFaction", ident="REVEAL")
+        self.elements[ME_FACTION] = tplot.elements["FACTION"]
+
+        return True
+
+    def REVEAL_WIN(self,camp):
+        # The subplot has been won.
+        self.visible = True
+        self.memo = "You learned that {} has been taken over by extremists.".format(self.elements[ME_FACTION])
+
+    def get_dialogue_grammar(self, npc, camp):
+        if camp.scene.civilian_team and camp.scene.local_teams.get(npc) is camp.scene.civilian_team:
+            mygram = dict()
+            if not self.visible:
+                mygram["[News]"] = ["there has been a lot of hostility from {} lately".format(self.elements[ME_FACTION])]
+
+            return mygram
 
 
 class Convict(TarotCard):
     # This person has been arrested.
     TAGS = (MT_PERSON,)
+    LABEL = "zTAROT"
 
 
 class Demagogue(TarotCard):
@@ -31,6 +60,7 @@ class Demagogue(TarotCard):
     #
     TAGS = (MT_PERSON, MT_THREAT)
     NEGATIONS = (Convict,)
+    LABEL = "zTAROT"
 
     def custom_init(self, nart):
         if ME_PERSON not in self.elements:
@@ -48,6 +78,7 @@ class Demagogue(TarotCard):
 
 
 class Warrant(TarotCard):
+    LABEL = "zTAROT"
     INTERACTIONS = (Interaction(TagChecker([MT_PERSON], [ME_PERSON]), action_triggers=[
         BetaCardDialogueTrigger(ME_PERSON, "You win!", [context.ARREST, ])], results=(None, "Convict", None),
                                 passparams=(None, ((ME_PERSON,), None), None)),
@@ -55,6 +86,7 @@ class Warrant(TarotCard):
 
 
 class TheLaw(TarotCard):
+    LABEL = "zTAROT"
     def _fun(self, alpha, beta, camp):
         pass
 
@@ -81,6 +113,7 @@ class TheLaw(TarotCard):
 
 
 class LocalHero(TarotCard):
+    LABEL = "zTAROT"
     TAGS = (MT_PERSON, MT_HEROIC)
 
     def custom_init(self, nart):
@@ -102,6 +135,7 @@ class LocalHero(TarotCard):
 
 
 class TheBadge(TarotCard):
+    LABEL = "zTAROT"
     INTERACTIONS = (Interaction(TagChecker([MT_PERSON, MT_HEROIC]), action_triggers=[
         BetaCardDialogueTrigger(ME_PERSON, "You win!", [context.INFO, ], data={"subject": "the badge"})],
                                 results=(None, "TheLaw", None), passparams=(None, (None, (ME_PERSON,)), None)),
@@ -128,6 +162,7 @@ class TheBadge(TarotCard):
 class Evidence(TarotCard):
     # If first card, place the evidence right in a crime scene that the PC can discover-
     # correspondence in a bandit base, a personal effect at a murder scene, etc.
+    LABEL = "zTAROT"
     def custom_init(self, nart):
         if ME_PERSON not in self.elements:
             npc = gears.selector.random_character(self.rank + random.randint(1, 50),
@@ -154,6 +189,7 @@ class Evidence(TarotCard):
 
 
 class Clue(TarotCard):
+    LABEL = "zTAROT"
     def custom_init(self, nart):
         if ME_PERSON not in self.elements:
             npc = gears.selector.random_character(self.rank + random.randint(1, 50),
@@ -186,6 +222,7 @@ class Clue(TarotCard):
 
 
 class Murder(TarotCard):
+    LABEL = "zTAROT"
     TAGS = (MT_CRIME,)
     CRIMED_PATTERNS = ('murdered {}', 'had {} killed', 'had {} murdered', 'killed {}')
 

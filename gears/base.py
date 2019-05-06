@@ -2727,14 +2727,14 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def get_stat(self, stat_id):
         pilot = self.get_pilot()
         if pilot:
-            return pilot.get_stat(stat_id)
+            return pilot.get_stat(stat_id) + self.ench_list.get_stat(stat_id)
         else:
             return 0
 
     def get_skill_score(self, stat_id, skill_id):
         pilot = self.get_pilot()
         if pilot:
-            return pilot.get_skill_score(stat_id, skill_id)
+            return pilot.get_skill_score(stat_id, skill_id) + self.ench_list.get_stat(stat_id) + self.ench_list.get_stat(skill_id)
         else:
             return 0
 
@@ -2850,7 +2850,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return is_ok
 
     def get_stat(self, stat_id):
-        return self.statline.get(stat_id, 0)
+        return self.statline.get(stat_id, 0) + self.ench_list.get_stat(stat_id)
 
     def get_skill_score(self, stat_id, skill_id):
         it = self.get_stat(skill_id) * 5
@@ -3040,7 +3040,7 @@ class Character(Being):
         if fac:
             rs += pc.faction_scores.get(fac.get_faction_tag(),0)
             pc_fac = pc.get_tacit_faction(camp)
-            if pc_fac and (fac.is_enemy(pc_fac) or pc_fac.is_enemy(fac)):
+            if pc_fac and camp.are_enemy_factions(fac,pc_fac):
                 rs -= 20
 
         # Add bonuses from PC's merit badges
@@ -3101,7 +3101,7 @@ class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
         return self.size * 2
 
     def get_stat(self, stat_id):
-        return self.statline.get(stat_id, 0)
+        return self.statline.get(stat_id, 0) + self.ench_list.get_stat(stat_id)
 
     def get_skill_score(self, stat_id, skill_id):
         it = self.get_stat(skill_id) * 5
@@ -3198,7 +3198,7 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         return sum(i.volume for i in self.sub_com)
 
     def get_stat(self, stat_id):
-        return max( [0,]+[mem.statline.get(stat_id, 0) for mem in self.sub_com if hasattr(mem,"statline") and mem.is_operational()])
+        return max( [0,]+[mem.get_stat(stat_id) for mem in self.sub_com if hasattr(mem,"get_stat") and mem.is_operational()])
 
     def get_skill_score(self, stat_id, skill_id):
         it = self.get_stat(skill_id) * 5

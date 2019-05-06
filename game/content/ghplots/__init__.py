@@ -6,6 +6,7 @@ import dd_main
 import dd_tarot
 import dd_tarotsupport
 import mocha
+import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
 from pbge.plots import Plot
 
@@ -26,3 +27,4 @@ harvest(dd_main)
 harvest(dd_combatmission)
 harvest(dd_tarot)
 harvest(dd_tarotsupport)
+harvest(utility)

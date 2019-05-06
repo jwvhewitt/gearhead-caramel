@@ -11,6 +11,99 @@ from pbge.dialogue import ContextTag,Offer
 from game.content.ghplots import dd_main
 import game.content.plotutility
 import game.content.gharchitecture
+import dd_combatmission
+
+
+#  *******************************
+#  ***   DZD_SplinterFaction   ***
+#  *******************************
+#  Create the splinter faction's circle, add at least one NPC belonging to the faction, and set the ability to
+#  reveal the card.
+#
+#  Elements:
+#    FACTION: A circle created by this plot.
+#
+#  Signals:
+#    WIN: Send this trigger when it's time to reveal the tarot card.
+#
+
+class SpFa_MilitarySplinter(Plot):
+    LABEL = "DZD_SplinterFaction"
+    active = True
+    scope = True
+
+    @classmethod
+    def matches( cls, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return "LOCALE" in pstate.elements and pstate.elements["LOCALE"].faction and "METRO" in pstate.elements and "MISSION_GATE" in pstate.elements
+
+    def custom_init(self, nart):
+        # Step one: Determine the military faction that will be the basis of our splinter.
+        city = self.elements["LOCALE"]
+        city_fac = city.faction
+        if city_fac in nart.camp.faction_relations:
+            candidates = [fac for fac in nart.camp.faction_relations[city_fac].allies if gears.tags.Military in fac.factags]
+            if candidates:
+                myfac = random.choice(candidates)
+                mycircle = self.register_element("FACTION",gears.factions.Circle(myfac))
+                if myfac in nart.camp.faction_relations and nart.camp.faction_relations[myfac].enemies:
+                    hated_fac = random.choice(nart.camp.faction_relations[myfac].enemies)
+                    hated_origin = random.choice(hated_fac.LOCATIONS)
+                    if hated_origin not in myfac.LOCATIONS:
+                        self.hates = hated_origin
+                    else:
+                        self.hates = None
+                else:
+                    self.hates = None
+                self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES")
+
+            self.adventure_seed = None
+            self.mission_giver = None
+            return bool(candidates)
+
+    def register_adventure(self,camp):
+        self.adventure_seed = dd_combatmission.CombatMissionSeed(camp, "Mission for {}".format(self.elements["FACTION"]),
+                                                                 (self.elements["LOCALE"], self.elements["ENTRANCE"]),
+                                                enemy_faction=None, allied_faction=self.elements["FACTION"], include_war_crimes=True)
+        self.memo = "{} sent you to do a mysterious mecha mission for {}.".format(self.mission_giver,self.elements["FACTION"])
+
+    def t_UPDATE(self,camp):
+        # If the adventure has ended, get rid of it.
+        if self.adventure_seed and self.adventure_seed.ended:
+            self.memo = None
+            if self.adventure_seed.crimes_happened:
+                camp.check_trigger("WIN", self)
+                self.end_plot(camp)
+            self.adventure_seed = None
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.adventure_seed:
+            thingmenu.add_item(self.adventure_seed.name, self.adventure_seed)
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+
+        if npc.faction is self.elements["FACTION"]:
+            if not self.adventure_seed:
+                if self.hates in camp.pc.personality:
+                    # No mission for you, foreigner.
+                    goffs.append(Offer("Not for you; {} doesn't need the help of your kind.".format(self.elements["FACTION"]),context=ContextTag([context.MISSION,]),effect=self._no_mission_for_you))
+                else:
+                    self.mission_giver = npc
+                    goffs.append(Offer("As you know, {} is responsible for keeping {} safe. We have a mission coming up, and I could use your help.".format(self.elements["FACTION"],self.elements["LOCALE"]),context=ContextTag([context.MISSION,]),subject=self,subject_start=True))
+                    goffs.append(Offer("[GOOD] Report to the combat zone as quickly as possible; we will inform you of the mission objectives as soon as you arrive.",context=ContextTag([context.ACCEPT,]),subject=self,effect=self.register_adventure))
+                    goffs.append(Offer("Don't think I will forget this.",context=ContextTag([context.DENY,]),subject=self))
+
+        return goffs
+
+    def _no_mission_for_you(self,camp):
+        """
+
+        :type camp: gears.GearHeadCampaign
+        """
+        camp.check_trigger("WIN",self)
+        self.end_plot(camp)
 
 
 #  **************************

@@ -83,15 +83,32 @@ harvest_color(SINGLETON_TYPES)
 SINGLETON_TYPES.update(jobs.ALL_JOBS)
 jobs.SINGLETON_TYPES = SINGLETON_TYPES
 
+class MetroData(object):
+    def __init__(self):
+        self.tarot = pbge.container.ContainerDict()
+        self.scripts = pbge.container.ContainerList(owner=self)
+
 class GearHeadScene(pbge.scenes.Scene):
-    def __init__(self, width=128, height=128, name="", player_team=None, civilian_team=None,
-                 scale=scale.MechaScale, environment=tags.GroundEnv, attributes=()):
+    def __init__(self, width=128, height=128, name="", player_team=None, civilian_team=None, faction=None,
+                 scale=scale.MechaScale, environment=tags.GroundEnv, attributes=(), is_metro=False):
+        # A metro scene is one which will contain plots and tarot cards local to it and its children.
+        #   Generally it should be placed at root, as a direct child of the GHCampaign.
         super(GearHeadScene, self).__init__(width, height, name, player_team)
         self.civilian_team = civilian_team
+        self.faction = faction
         self.scale = scale
         self.environment = environment
         self.script_rooms = list()
         self.attributes = set(attributes)
+        if is_metro:
+            self.metrodat = MetroData()
+
+    def get_metro_scene(self):
+        myscene = self
+        while hasattr(myscene, "container") and myscene.container and not hasattr(myscene, "metrodat"):
+            myscene = myscene.container.owner
+        if hasattr(myscene, "metrodat"):
+            return myscene
 
     @staticmethod
     def is_an_actor(model):
@@ -164,11 +181,12 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None
     pc = None
 
-    def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3):
+    def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3, faction_relations=factions.DEFAULT_FACTION_DICT_NT158):
         super(GearHeadCampaign, self).__init__(name, explo_class)
         self.tarot = pbge.container.ContainerDict()
         self.year = year
         self.num_lancemates = num_lancemates
+        self.faction_relations = faction_relations.copy()
 
         # Some containers for characters who have been either incapacitated or killed.
         # It's the current scenario's responsibility to do something with these lists
@@ -184,12 +202,39 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 egg.mecha.pilot = egg.pc
             self.pc = egg.pc
 
+    def are_enemy_factions(self,fac1,fac2):
+        fac1 = fac1.get_faction_tag()
+        fac2 = fac2.get_faction_tag()
+        fac1_rel = self.faction_relations.get(fac1)
+        fac2_rel = self.faction_relations.get(fac2)
+        return (fac1_rel and fac2 in fac1_rel.enemies) or (fac2_rel and fac1 in fac2_rel.enemies)
+
+    def are_ally_factions(self,fac1,fac2):
+        fac1 = fac1.get_faction_tag()
+        fac2 = fac2.get_faction_tag()
+        fac1_rel = self.faction_relations.get(fac1)
+        fac2_rel = self.faction_relations.get(fac2)
+        return (fac1 is fac2) or (fac1_rel and fac2 in fac1_rel.allies) or (fac2_rel and fac1 in fac2_rel.allies)
 
     def active_plots(self):
         for p in super(GearHeadCampaign, self).active_plots():
             yield p
         for p in self.tarot.values():
             yield p
+        myscene = self.scene.get_metro_scene()
+        if myscene:
+            for p in myscene.metrodat.scripts:
+                yield p
+            for p in myscene.metrodat.tarot.values():
+                yield p
+
+    def active_tarot_cards(self):
+        for p in self.tarot.values():
+            yield p
+        myscene = self.scene.get_metro_scene()
+        if myscene:
+            for p in myscene.metrodat.tarot.values():
+                yield p
 
     def first_active_pc(self):
         # The first active PC is the first PC in the party list who is
@@ -341,6 +386,12 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.pc.renown = 0
 
     renown = property(_get_renown,_set_renown,_del_renown)
+
+    def dole_xp(self,amount):
+        for pc in self.party:
+            if hasattr(pc,"experience"):
+                pc.experience[pc.TOTAL_XP] += amount
+
 
 
 # Why did I create this complicated regular expression to parse lines of

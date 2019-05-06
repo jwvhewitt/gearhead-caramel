@@ -163,7 +163,7 @@ class Plot( object ):
             scope = nart.camp
         candidates = list()
         for e in all_contents( scope, check_subscenes ):
-            if seek_func( e ):
+            if seek_func( nart, e ):
                 candidates.append( e )
         if candidates:
             e = random.choice( candidates )

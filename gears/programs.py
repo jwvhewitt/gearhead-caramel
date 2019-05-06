@@ -31,7 +31,7 @@ class TargetAnalysis(Singleton):
                                                            aitargeters.TargetIsHidden()]),
             shot_anim=geffects.OriginSpotShotFactory(geffects.SearchTextAnim),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 6),
-            price=[],
+            price=[geffects.MentalPrice(1),],
             targets=1)
         progs.append(myprog)
 
@@ -60,8 +60,23 @@ class Deflect(Singleton):
 
     @classmethod
     def get_invocations(cls, pc):
-        return ()
+        progs = list()
 
+        myprog = pbge.effects.Invocation(
+            name='Prescience',
+            fx=geffects.AddEnchantment(geffects.Prescience,anim=geffects.SearchAnim,),
+            area=pbge.scenes.targetarea.SingleTarget(reach=15),
+            used_in_combat=True, used_in_exploration=False,
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),
+                                               conditions=[aitargeters.TargetIsOperational(),
+                                                           aitargeters.TargetIsAlly(),
+                                                           aitargeters.TargetDoesNotHaveEnchantment(geffects.Prescience)]),
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 12),
+            price=[geffects.MentalPrice(2),],
+            targets=1)
+        progs.append(myprog)
+
+        return progs
 
 class EMPPulse(Singleton):
     name = 'EM Pulse'

@@ -341,6 +341,12 @@ class Scene( object ):
         # Return all of the bumpables found at this position.
         return [a for a in self.contents if a.pos == pos and hasattr(a,'bump')]
 
+    def get_root_scene(self):
+        if hasattr(self, "container") and self.container and hasattr(self.container.owner, "get_root_scene"):
+            return self.container.owner.get_root_scene()
+        else:
+            return self
+
     def end_scene(self,camp):
         for s in list(self.sub_scenes):
             if hasattr(s, "end_scene"):

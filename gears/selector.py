@@ -76,7 +76,7 @@ def random_age():
 def random_pilot(rank=25, current_year=158, **kwargs):
     # Build the creation matrix, aka the dict.
     creation_matrix = dict(statline=base.Being.random_stats(points=max(rank+50,80)),portrait_gen=portraits.Portrait(),
-                           combatant=True,
+                           combatant=True, renown=rank,
                         personality=random_personality(), gender=genderobj.Gender.random_gender(),
                         birth_year=current_year - random_age(),
                            job=jobs.ALL_JOBS["Mecha Pilot"])
@@ -86,7 +86,7 @@ def random_pilot(rank=25, current_year=158, **kwargs):
                         )
     if "name" not in creation_matrix:
         pc.name = random_name(pc)
-    creation_matrix["job"].scale_skills(pc,rank)
+    #creation_matrix["job"].scale_skills(pc,rank)
     return pc
 
 def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, **kwargs):
@@ -95,7 +95,7 @@ def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, *
     job = jobs.choose_random_job(needed_tags,local_tags)
     creation_matrix = dict(statline=base.Being.random_stats(points=max(rank+50,80)), portrait_gen=portraits.Portrait(), job=job,
                            personality=random_personality(possible_origins), gender=genderobj.Gender.random_gender(),
-                           birth_year=current_year - random_age())
+                           birth_year=current_year - random_age(),renown=rank)
     if kwargs:
         creation_matrix.update(kwargs)
     pc = base.Character(**creation_matrix

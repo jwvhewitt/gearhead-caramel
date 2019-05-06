@@ -413,7 +413,24 @@ DEFAULT_GRAMMAR = {
         personality.Peace: [ "stop you","oppose you"
             ],
     },
-    
+
+    "[GOOD]": {
+        Default: ["Good.","Great!"
+                  ],
+        personality.Cheerful: ["Glad to hear it!",
+                               ],
+        personality.Grim: ["Fine.",
+                           ],
+        personality.Easygoing: ["Alright!",
+                                ],
+        personality.Passionate: ["Fantastic!",
+                                 ],
+        personality.Sociable: ["I'll see you later.",
+                               ],
+        personality.Shy: ["Okay.",
+                          ],
+    },
+
     "[GOODBYE]": {
         Default: ["Goodbye."
             ],
@@ -543,6 +560,25 @@ DEFAULT_GRAMMAR = {
             ],
 
         },
+
+    "[HELLO:MISSION]": {
+        Default: ["Do you have any missions available?",
+                  "I'm looking for a mission."
+                  ],
+        personality.Cheerful: ["Hey, are you looking for a pilot? It's your lucky day.",
+                               ],
+        personality.Grim: ["I don't suppose you'd have a mission available?",
+                           ],
+        personality.Easygoing: ["Know where I could find a mission around here?",
+                                ],
+        personality.Passionate: ["If you need a pilot, then you need me!",
+                                 ],
+        personality.Sociable: ["Word is that you need a pilot for a mission.",
+                               ],
+        personality.Shy: ["I'm here for a mission.",
+                          ],
+
+    },
 
     "[HELLO:OPEN_SHOP]": {
         Default: ["I'd like to see what you have for sale.",
@@ -885,6 +921,40 @@ DEFAULT_GRAMMAR = {
         Default: ["Well, I've heard enough about that.",
             ],
         },
+
+    "[MISSION:ACCEPT]": {
+        Default: ["I accept your mission.", "Alright, I'll get to work."
+                  ],
+        personality.Cheerful: ["Sounds good to me.",
+                               ],
+        personality.Grim: ["I'll make sure it gets done."
+                           ],
+        personality.Easygoing: ["Okay then, I'll do it."
+                                ],
+        personality.Passionate: ["I will not let you down!",
+                                 ],
+        personality.Sociable: ["Alright, let's do it.",
+                               ],
+        personality.Shy: ["I accept.",
+                          ],
+    },
+
+    "[MISSION:DENY]": {
+        Default: ["No, I don't want this mission.", "You'll have to find someone else."
+                  ],
+        personality.Cheerful: ["I'm going to have to give that a 'no'.",
+                               ],
+        personality.Grim: ["I reject your offer."
+                           ],
+        personality.Easygoing: ["Sorry, but I can't do it."
+                                ],
+        personality.Passionate: ["This job isn't my style.",
+                                 ],
+        personality.Sociable: ["Find someone else for this job.",
+                               ],
+        personality.Shy: ["I refuse.",
+                          ],
+    },
 
     "[News]": {
         Default: [

@@ -450,6 +450,9 @@ class Explorer( object ):
                         self.camp.save()
                     elif gdi.unicode == u"m":
                         memobrowser.MemoBrowser.browse(self.camp)
+                    elif gdi.unicode == u"R":
+                        print self.camp.scene.get_root_scene()
+
                     elif gdi.unicode == u"&":
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):

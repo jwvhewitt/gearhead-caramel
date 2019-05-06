@@ -1110,11 +1110,13 @@ class Burning(Enchantment):
         pbge.my_state.view.handle_anim_sequence()
 
 
-class WeakPoint(Enchantment):
-    name = 'Weak Point'
-    DEFAULT_DISPEL = (END_COMBAT,)
-    def get_penetration_bonus(self,owner):
-        return 20
+class HaywireStatus(Enchantment):
+    name = 'Haywire'
+    # The only top 10 status effect from Prince Edward Island
+    DEFAULT_DURATION = 3
+    DEFAULT_DISPEL = (END_COMBAT,materials.RT_REPAIR)
+    ALT_AI = 'HaywireAI'
+
 
 class SensorLock(Enchantment):
     name = 'Sensor Lock'
@@ -1124,9 +1126,20 @@ class SensorLock(Enchantment):
         return -25
 
 
-class HaywireStatus(Enchantment):
-    name = 'Haywire'
-    # The only top 10 status effect from Prince Edward Island
+class Prescience(Enchantment):
+    # +2 bonus to dodge skills while active.
+    name = 'Prescience'
+    DEFAULT_DISPEL = (END_COMBAT,)
     DEFAULT_DURATION = 3
-    DEFAULT_DISPEL = (END_COMBAT,materials.RT_REPAIR)
-    ALT_AI = 'HaywireAI'
+    def get_stat(self,stat):
+        if stat in (stats.MechaPiloting,stats.Dodge):
+            return 2
+        else:
+            return 0
+
+class WeakPoint(Enchantment):
+    name = 'Weak Point'
+    DEFAULT_DISPEL = (END_COMBAT,)
+    def get_penetration_bonus(self,owner):
+        return 20
+
