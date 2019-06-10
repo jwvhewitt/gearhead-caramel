@@ -127,7 +127,7 @@ class TerranDefenseForce(Faction):
 
 
 class Circle(object):
-    def __init__(self, parent_faction=None, mecha_colors=None, name="", faction_reactions=None, careers=None, locations=(), uniform_colors=None):
+    def __init__(self, parent_faction=None, mecha_colors=None, name="", faction_reactions=None, careers=None, locations=(), uniform_colors=None, active=True):
         if parent_faction and not name:
             name = parent_faction.get_circle_name()
         else:
@@ -149,6 +149,7 @@ class Circle(object):
         self.locations = list(locations)
         if self.parent_faction:
             self.locations += self.parent_faction.LOCATIONS
+        self.active = active
 
     def get_faction_tag(self):
         if self.parent_faction:

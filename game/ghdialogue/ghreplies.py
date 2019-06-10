@@ -78,6 +78,10 @@ HELLO_OPENSHOP = Reply( "[HELLO:OPEN_SHOP]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.OPEN_SHOP]) ) )
 
+HELLO_REVEAL = Reply( "[HELLO:REVEAL]" ,
+            destination = Cue( ContextTag([context.REVEAL]) ) ,
+            context = ContextTag([context.HELLO]) )
+
 INFOPERSONAL_GOODBYE = Reply( "[INFO_PERSONAL:GOODBYE]" ,
             context = ContextTag([context.INFO,context.PERSONAL]),
             destination = Cue( ContextTag([context.GOODBYE]) ) )

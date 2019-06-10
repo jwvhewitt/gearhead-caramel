@@ -173,6 +173,14 @@ class WoodenShelves(pbge.scenes.terrain.OnTheWallVariableTerrain):
     south_frames = (1,3,5,7,9)
     east_frames = (0,2,4,6,8)
 
+class StatueMTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_statue_m.png'
+
+class StatueFTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_statue_f.png'
+
+class GoldPlaqueTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_plaque.png'
 
 
 class DZDWConcreteBuilding(pbge.scenes.terrain.Terrain):

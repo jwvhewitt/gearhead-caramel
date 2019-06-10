@@ -4,8 +4,10 @@
 HELLO = "HELLO"                 # HELLO = NPC says hello. Usually the first offer in a peaceful conversation.
 ASK_FOR_ITEM = "ASK_FOR_ITEM"   # ASK_FOR_ITEM: The NPC gives the PC an item, or at least replies to the request.
                                 #       The data property should contain "item"
-INFO = "INFO"                   # INFO: The NPC offers the PC some information.
+INFO = "INFO"                   # INFO: The NPC gives the PC some information.
                                 #       The data property should contain "subject"
+REVEAL = "REVEAL"               # The NPC receives information from the PC.
+                                #       The data property should contain "reveal"
 MISSION = "MISSION"             # MISSION: A mission is described or offered.
 PROPOSAL = "PROPOSAL"           # The NPC will try to make a deal with the PC.
                                 # The data property should contain "subject"

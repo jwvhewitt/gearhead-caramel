@@ -387,10 +387,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     renown = property(_get_renown,_set_renown,_del_renown)
 
-    def dole_xp(self,amount):
+    def dole_xp(self,amount,type=base.Being.TOTAL_XP):
         for pc in self.party:
             if hasattr(pc,"experience"):
-                pc.experience[pc.TOTAL_XP] += amount
+                pc.experience[type] += amount
 
 
 

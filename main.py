@@ -171,8 +171,12 @@ def play_the_game():
 
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
-    # mypic = pbge.image.Image('BuruBuru.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))
-    # pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
+
+    mypic = pbge.image.Image('proto_plaque.png',color=(gears.color.NobleGold,gears.color.DarkBrown,gears.color.SlateGrey,gears.color.SteelBlue,gears.color.Black))
+    mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
+    mydest.fill((0, 0, 255))
+    mypic.render((0,0),dest_surface=mydest)
+    pygame.image.save(mydest, pbge.util.user_dir("out.png"))
 
     # mypor = gears.portraits.Portrait()
     # mypor.bits = ["FBA NoBody","Haywire B3 Head"]

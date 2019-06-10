@@ -212,6 +212,23 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["I'm leaving.", "So long.",
                           ],
     },
+    # The data block of this should contain "subject".
+    "[BeCarefulOfSubject]": {
+        Default: ["Be careful of {subject}",
+                  ],
+        personality.Cheerful: ["Maybe {subject} could really ruin your day",
+                               ],
+        personality.Grim: ["You should know that {subject} is dangerous","Keep your eyes on {subject}"
+                           ],
+        personality.Easygoing: ["You didn't hear this from me, but {subject} is scary",
+                                ],
+        personality.Passionate: ["Beware of {subject}",
+                                 ],
+        personality.Sociable: ["You should definitely be careful around {subject}",
+                               ],
+        personality.Shy: ["Don't trust {subject}",
+                          ],
+    },
 
     "[CHALLENGE]": {
         Default: ["[THREATEN]",
@@ -425,7 +442,7 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["Fantastic!",
                                  ],
-        personality.Sociable: ["I'll see you later.",
+        personality.Sociable: ["That's good to hear.",
                                ],
         personality.Shy: ["Okay.",
                           ],
@@ -601,6 +618,13 @@ DEFAULT_GRAMMAR = {
     "[HELLO:PROPOSAL]": {
         Default: ["I want to talk about {subject}.",
                   "Let's talk about {subject}."
+                  ],
+    },
+
+    # The data block should hold the info to reveal as "reveal".
+    "[HELLO:REVEAL]": {
+        Default: ["You should know that {reveal}.",
+                  "Did you know that {reveal}?"
                   ],
     },
 

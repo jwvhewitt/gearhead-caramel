@@ -101,3 +101,18 @@ class AlliedArmorSignWP(Waypoint):
     name = "Allied Armor"
     TILE = pbge.scenes.Tile(None,None,ghterrain.AlliedArmorSign)
     ATTACH_TO_WALL = True
+
+class StatueM(Waypoint):
+    name = "Statue"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.StatueMTerrain)
+    ATTACH_TO_WALL = True
+
+class StatueF(Waypoint):
+    name = "Statue"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.StatueFTerrain)
+    ATTACH_TO_WALL = True
+
+class GoldPlaque(Waypoint):
+    name = "Plaque"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.GoldPlaqueTerrain)
+    ATTACH_TO_WALL = True

@@ -7,7 +7,7 @@ from gears import factions,personality
 import game.content.gharchitecture
 import pbge
 import game.content.plotutility
-import game.content.ghwaypoints
+from game.content import ghwaypoints
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
@@ -40,7 +40,7 @@ class DZD_Wujung(Plot):
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.west),
                                         dident="LOCALE")
-        westgate = self.register_element("ENTRANCE", game.content.ghwaypoints.Exit(name="The West Gate",
+        westgate = self.register_element("ENTRANCE", ghwaypoints.Exit(name="The West Gate",
                                                                                    desc="You stand at the western city gate of Wujung. Beyond this point lies the dead zone.",
                                                                                    anchor=pbge.randmaps.anchors.west,
                                                                                    plot_locked=True), dident="_ROOM2")
@@ -64,7 +64,7 @@ class DZD_Wujung(Plot):
 
         # Add the local tarot.
         threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
-        #game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
+        game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 
 
         return True
@@ -85,7 +85,7 @@ class DZD_BronzeHorseInn(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", game.content.ghterrain.ResidentialBuilding(
-            waypoints={"DOOR": game.content.ghwaypoints.ScreenDoor(name="Bronze Horse Inn")},
+            waypoints={"DOOR": ghwaypoints.ScreenDoor(name="Bronze Horse Inn")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
@@ -112,7 +112,7 @@ class DZD_BronzeHorseInn(Plot):
          gears.stats.Knowledge:13,gears.stats.Craft:7,gears.stats.Ego:9,
          gears.stats.Charm:15,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
          gears.stats.MechaFighting:7,gears.stats.Negotiation:8}, birth_year=102, portrait='card_m_osmund.png',
-         personality=[personality.Sociable,personality.Passionate,personality.Fellowship],
+         personality=[personality.Sociable,personality.Passionate,personality.Fellowship,personality.DeadZone],
          colors=(gears.color.Straw, gears.color.TannedSkin, gears.color.PlasmaBlue,gears.color.Gold, gears.color.AceScarlet),
          gender=gears.genderobj.Gender.get_default_male(),job=gears.jobs.ALL_JOBS["Innkeeper"],renown=65,combatant=True)
 
@@ -307,7 +307,7 @@ class DZD_BlueFortressHQ(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
-            waypoints={"DOOR": game.content.ghwaypoints.ScrapIronDoor(name="Blue Fortress")},
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Blue Fortress")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
@@ -320,6 +320,10 @@ class DZD_BlueFortressHQ(Plot):
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
+
+        foyer.contents.append(ghwaypoints.StatueM(desc="""General Jae "Ripper Turtle" Cauchi is generally considered the first Post-Zero ruler of Wujung, and by extension the founder of the Terran Defense Force. His army united all of the local settlements under a single banner by NT37.\n His epithet is thought to derive from his habit of executing rivals by casting them into a pit of mutant carnivorous tortoises."""))
+        foyer.contents.append(ghwaypoints.StatueF(desc="""General Anna "The Pure" Greencrown was originally one of General Cauchi's lieutenants. She was instrumental in quashing the Ipshil Pirate Insurrection. Greencrown succeeded Cauchi as leader of Wujung following his mysterious death from blood loss in NT41.\n Following the Data Miner's Rebellion in NT59, Greencrown voluntarily retired from politics, ushering in a new age of peace and democracy."""))
+        foyer.contents.append(ghwaypoints.GoldPlaque(desc="""The Terran Defense Force\n Blue Fortress"""))
 
         mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
@@ -357,9 +361,12 @@ class DZD_BlueFortressHQ(Plot):
         mylist = list()
 
         if not self.adventure_seed:
-            mylist.append(Offer("Why don't you go have an adventure?",
-                            context=ContextTag([context.OPEN_SHOP]), effect=self.register_adventure
-                            ))
+            mylist.append(
+                Offer(
+                    "The Defense Force is short handed at the moment, so there are always missions available. I'll send the details to your navcomp.",
+                    context=ContextTag([context.MISSION, ]), effect=self.register_adventure
+                    )
+            )
 
         return mylist
 
@@ -373,7 +380,7 @@ class DZD_AlliedArmor(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
-            waypoints={"DOOR": game.content.ghwaypoints.ScrapIronDoor(name="Allied Armor")},
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Allied Armor")},
             door_sign=(game.content.ghterrain.AlliedArmorSignEast, game.content.ghterrain.AlliedArmorSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
@@ -388,7 +395,7 @@ class DZD_AlliedArmor(Plot):
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
                                                                                  decorate=game.content.gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
-        foyer.contents.append(game.content.ghwaypoints.AlliedArmorSignWP())
+        foyer.contents.append(ghwaypoints.AlliedArmorSignWP())
 
         mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
@@ -421,7 +428,7 @@ class DZD_EliteEquipment(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
-            waypoints={"DOOR": game.content.ghwaypoints.ScrapIronDoor(name="Elite Equipment")},
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Elite Equipment")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
@@ -467,7 +474,7 @@ class DZD_WujungHospital(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
-            waypoints={"DOOR": game.content.ghwaypoints.WoodenDoor(name="Wujung Hospital")},
+            waypoints={"DOOR": ghwaypoints.WoodenDoor(name="Wujung Hospital")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
@@ -505,7 +512,7 @@ class DZD_LongRoadLogistics(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
-            waypoints={"DOOR": game.content.ghwaypoints.WoodenDoor(name="Long Road Logistics")},
+            waypoints={"DOOR": ghwaypoints.WoodenDoor(name="Long Road Logistics")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
