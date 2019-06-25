@@ -7,8 +7,8 @@ import gears
 class ConvoVisualizer(object):
     # The visualizer is a class used by the conversation when conversing.
     # It has a "text" property and "render", "get_menu" methods.
-    TEXT_AREA = pbge.frects.Frect(0,-125,350,100)
-    MENU_AREA = pbge.frects.Frect(0,0,350,80)
+    TEXT_AREA = pbge.frects.Frect(0,-125,350,150)
+    MENU_AREA = pbge.frects.Frect(0,50,350,102)
     NAME_AREA = pbge.frects.Frect(25,-185,300,35)
     REACT_AREA = pbge.frects.Frect(290,-185,35,35)
     PORTRAIT_AREA = pbge.frects.Frect(-370,-300,400,600)

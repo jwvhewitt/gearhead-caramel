@@ -115,7 +115,8 @@
     "skill_modifiers": {
       "Athletics": -1,
       "Vitality": -1
-    }
+    },
+    "local_requirements": ["DeadZone"]
   },
   {
     "name": "Scientist",
@@ -152,7 +153,7 @@
   {
     "name": "Bounty Hunter",
     "skills": ["Scouting"],
-    "tags": ["Adventurer"],
+    "tags": ["Adventurer","Police"],
     "always_combatant": true,
     "skill_modifiers": {
       "MechaFighting": -1,
@@ -264,7 +265,16 @@
       "MechaFighting": -1,
       "Concentration": 1
     }
+  },
+  {
+    "name": "Sheriff",
+    "skills": ["Scouting","Negotiation"],
+    "tags": ["Police"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "CloseCombat": -1,
+      "MechaFighting": -1
+    },
+    "local_requirements": ["DeadZone"]
   }
-
-
 ]

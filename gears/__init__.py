@@ -187,6 +187,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.year = year
         self.num_lancemates = num_lancemates
         self.faction_relations = faction_relations.copy()
+        self.history = list()
 
         # Some containers for characters who have been either incapacitated or killed.
         # It's the current scenario's responsibility to do something with these lists
@@ -636,6 +637,7 @@ def init_gears():
     selector.MARS_NAMES = pbge.namegen.NameGen("ng_mars.txt")
     selector.LUNA_NAMES = pbge.namegen.NameGen("ng_lunar.txt")
     selector.GENERIC_NAMES = pbge.namegen.NameGen("ng_generic.txt")
+    selector.DEADZONE_TOWN_NAMES = pbge.namegen.NameGen("ng_dztowns.txt")
 
     if not os.path.exists(pbge.util.user_dir('design')):
         os.mkdir(pbge.util.user_dir('design'))

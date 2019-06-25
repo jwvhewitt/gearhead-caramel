@@ -1,0 +1,24 @@
+
+MeleeWeapon
+    name="Heat Axe"
+    desc = "A mecha scale axe with a heated blade. This weapon is capable of easily slicing through all but the thickest armor."
+    reach=1
+    damage=3
+    accuracy=2
+    penetration=3
+    scale = MechaScale
+    material = Ceramic
+    attributes = (BurnAttack,)
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+
+Shield
+    name = "Mecha Shield"
+    desc = "A high quality mecha body shield made of advanced composite materials for low mass and high durability."
+    scale = MechaScale
+    material = Advanced
+    size = 5
+    bonus = 2
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)

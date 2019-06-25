@@ -5,6 +5,7 @@ import dd_homebase
 import dd_main
 import dd_tarot
 import dd_tarotsupport
+import dd_intro
 import mocha
 import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
@@ -27,4 +28,5 @@ harvest(dd_main)
 harvest(dd_combatmission)
 harvest(dd_tarot)
 harvest(dd_tarotsupport)
+harvest(dd_intro)
 harvest(utility)

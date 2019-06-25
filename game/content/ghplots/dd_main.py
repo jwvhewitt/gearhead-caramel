@@ -26,7 +26,7 @@ class DeadzoneDrifterStub( Plot ):
 
     def custom_init( self, nart ):
         """Create Wujung."""
-        wplot = self.add_first_locale_sub_plot( nart, locale_type="DZD_HOME_BASE" )
+        wplot = self.add_first_locale_sub_plot( nart, locale_type="DZD_INTRO" )
 
         return True
 

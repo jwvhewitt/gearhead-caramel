@@ -56,4 +56,5 @@ class Relationship(object):
         self.role = role
         self.tags = set(tags)
         self.data = dict()
+        self.met_before = False
 

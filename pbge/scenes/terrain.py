@@ -280,6 +280,21 @@ class OnTheWallVariableTerrain( Terrain ):
                 frame = self.east_frames[view.get_pseudo_random(x,y) % len(self.east_frames)]
             spr.render( dest, frame )
 
+class OnTheWallAnimTerrain( Terrain ):
+    south_frames = (0,1,2,3,4)
+    east_frames = (5,6,7,8,9)
+    anim_delay = 4
+    @classmethod
+    def render_top( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        if self.image_top:
+            spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
+            if view.space_to_south(x, y):
+                frames = self.south_frames
+            else:
+                frames = self.east_frames
+            spr.render( dest, frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(frames)] )
+
 
 class TerrSetTerrain( Terrain ):
     # A terrain type that partners with a TerrSet to arrange a whole bunch of

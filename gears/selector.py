@@ -15,6 +15,7 @@ LUNA_NAMES = None
 ORBITAL_NAMES = None
 MARS_NAMES = None
 GENERIC_NAMES = None
+DEADZONE_TOWN_NAMES = None
 
 
 def calc_threat_points(level, percent=30):
@@ -235,6 +236,8 @@ def generate_ace(level,fac,env):
     ace = random_pilot(level + 10)
     mek.load_pilot(ace)
     return mek
+
+
 
 # print calc_threat_points(10)
 # print calc_threat_points(20)

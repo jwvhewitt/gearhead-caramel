@@ -23,6 +23,9 @@ LIKE = "LIKE"
 DISLIKE = "DISLIKE"
 HATE = "HATE"
 
+FIRST_TIME = "FIRST_TIME"
+MET_BEFORE = "MET_BEFORE"
+
 DEFAULT_GRAMMAR = {
     "[ACCEPT_MISSION:GOODBYE]": {
         Default: ["I'll be back when I'm finished."
@@ -228,6 +231,40 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Don't trust {subject}",
                           ],
+    },
+
+    "[BrowseWares]": {
+        Default: ["Take a look around","Browse my wares"
+                  ],
+        personality.Cheerful: ["There are so many exciting things here", "Enjoy browsing our selection"
+                               ],
+        personality.Grim: ["Caveat emptor","Make sure you don't break anything while browsing"
+                           ],
+        personality.Easygoing: [
+            "Take your time browsing", "Have a look around",
+            ],
+        personality.Passionate: ["Behold my unsurpassed selection", "My wares are glorious"
+                                 ],
+        personality.Sociable: ["Feel free to browse our excellent selection",
+                               "I can tell you all about everything we carry",
+                               "Look around all you want"
+                               ],
+        personality.Shy: ["Look around","Don't touch the merchandise unless you intend to buy"
+                          ],
+        LOVE: [
+            "It's a pleasure to have you in my store",
+            "Let me give you the VIP service"
+        ],
+        LIKE: [
+            "Always a pleasure to do business with you"
+        ],
+        DISLIKE: [
+            "Hurry up and find what you need","Browse the wares but don't try anything funny"
+        ],
+        HATE: [
+            "Find what you need and get lost", "I'll be keeping my eye on you", "Don't try any funny business in my shop",
+            "I'll sell you crap but don't expect me to be nice about it"
+        ],
     },
 
     "[CHALLENGE]": {
@@ -497,9 +534,13 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Shy: ["Ha!",
             ],
-        },    
-
+        },
     "[HELLO]": {
+        MET_BEFORE: ["[HELLO_AGAIN]",],
+        FIRST_TIME: ["[HELLO_FIRST]",],
+    },
+
+    "[HELLO_AGAIN]": {
         Default: ["Hello.","Hello [audience]."
             ],
         personality.Cheerful: ["Good to see you, [audience].",
@@ -514,7 +555,41 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Passionate: ['Hey [audience]!','[audience]!'
             ],
+        LOVE: ["Welcome back, [audience]!", "I was hoping to see you today, [audience]."
+               ],
+        LIKE: ["Glad to see you again, [audience].",
+               ],
+        DISLIKE: ["What do you want, [audience]?",
+                  ],
+        HATE: ["Ugh, it's you.",
+                  ],
         },
+
+    "[HELLO_FIRST]": {
+        Default: ["Hello, I'm [speaker].",
+                  ],
+        personality.Cheerful: ["Hi there, I'm [speaker]. It's a pleasure to meet you.",
+                               ],
+        personality.Grim: ["Yes, what do you want? The name's [speaker].",
+                           ],
+        personality.Sociable: ["Hello, I don't think we've been introduced. My name is [speaker].",
+                               ],
+        personality.Shy: ['Hey.',
+                          ],
+        personality.Easygoing: ["I don't believe we've met. My name's [speaker].",
+                                ],
+        personality.Passionate: ["I haven't seen you around before. I'm [speaker].",
+                                 ],
+        LOVE: ["Hello there! My name's [speaker], and I've been hoping for the chance to meet you.",
+               ],
+        LIKE: ["Hi, I'm [speaker]; it's nice to meet you.",
+               ],
+        HATE: ["Who the blazes are you?",
+                  ],
+        personality.Glory: [
+            "You've got the look of a cavalier about you. My name's [speaker]."
+        ],
+    },
 
     # The data block should hold the item name as "item".
     "[HELLO:ASK_FOR_ITEM]": {
@@ -545,10 +620,10 @@ DEFAULT_GRAMMAR = {
             ],
         },
 
-    # The data block should include "subject"
+    # The data block should include "subject"; if not a proper noun, subject should have "the".
     "[HELLO:INFO]": {
-        Default: [ "Tell me about the {subject}.",
-            "What can you tell me about the {subject}?"
+        Default: [ "Tell me about {subject}.",
+            "What can you tell me about {subject}?"
             ],
         },
 
@@ -688,6 +763,23 @@ DEFAULT_GRAMMAR = {
 
     },
 
+    "[INFO:INFO]": {
+        # The data block should include "subject"
+        Default: ["What was that about {subject}?",
+                  ],
+        personality.Cheerful: ["I'd like to hear about {subject}.",
+                               ],
+        personality.Grim: ["What does that have to do with {subject}?",
+                           ],
+        personality.Easygoing: ["Wait, what about {subject}?",
+                                ],
+        personality.Passionate: ["Tell me about {subject}.",
+                                 ],
+        personality.Sociable: ["What more can you tell me about {subject}?",
+                               ],
+        personality.Shy: ["And {subject}?",
+                          ],
+    },
 
     "[INFO_PERSONAL]": {
         # This pattern should be supported by IP_* tokens gathered
@@ -1049,6 +1141,70 @@ DEFAULT_GRAMMAR = {
         Default: [
             "him","her","zem"
         ]
+    },
+
+    "[OPENSHOP]": {
+        # The data block should include shop_name, wares (plural or uncountable)
+        Default: ["[BrowseWares]; you should find everything you need.",
+                  "[BrowseWares]. Remember, {shop_name} is your source for {wares}.",
+                  "At {shop_name}, you'll find the {wares} you need.",
+                  "[BrowseWares]. There's never a bad time to upgrade your {wares}.",
+                  ],
+        personality.Cheerful: ["[BrowseWares]; enjoy your shopping experience.",
+                               "I hope you enjoy shopping at {shop_name}.",
+                               "It's fun getting to play with all these {wares}. I hope you find something you like.",
+                               "Don't you enjoy checking out {wares}?",
+                               "[BrowseWares]. For this week only, we're offering complimentary gum with every purchase.",
+                               "I just know you'll find something you like!"
+                               ],
+        personality.Grim: ["Take your time. Remember, you get what you pay for.",
+                           "[BrowseWares]. Do not be frightened by all the {wares}.",
+                           "Remember, {shop_name} has no warranties, expressed or implied.",
+                           "[BrowseWares]. At {shop_name}, the lowest price is a happy accident.",
+                           "At {shop_name}, we have the {wares} if you have the credits.",
+                           "[BrowseWares]. Sometimes I get kind of sick of {wares} but a job's a job.",
+                           "I have all the {wares} you could ever need. Just {wares}.",
+                           "Having the right {wares} can mean the difference between life and death."
+                           ],
+        personality.Easygoing: ["If you can't find what you're looking for today, remember that it might be here tomorrow.",
+                                "[BrowseWares]. Remember, {shop_name} is chock full of {wares}.",
+                                "Do you want {wares}? Because {shop_name} has got a ton of {wares}."
+                                ],
+        personality.Passionate: ["I think you'll agree this shop has the best selection you've ever seen!",
+                                 "Whatever kind of {wares} you're looking for, you can bet that {shop_name} has it!",
+                                 "[BrowseWares]. If you love {wares} as much as I do, you will not be disappointed!",
+                                 "The best thing in life is {wares}! That's why {shop_name} was built.",
+                                 "Remember, you can never spend too much money on {wares}. Never."
+                                 ],
+        personality.Sociable: ["[BrowseWares], and let me know if you need any help.",
+                               "At {shop_name} we have all the {wares} you could ask for.",
+                               "I know quite a bit about the {wares} here, so feel free to ask if you have any questions.",
+                               "See anything that interests you? At {shop_name} we stock a great variety of {wares}.",
+                               "Thanks to my distributor connections, you'll find that the selection of {wares} at {shop_name} is second to none."
+                               ],
+        personality.Shy: ["Prices should be marked on everything.",
+                          "Look at the {wares}; I'll be here when you're ready to check out.",
+                          "These are the {wares}. Let me know when you want to pay.",
+                          "[BrowseWares]. I'll be here if you need me.",
+                          "I don't know what you need, but if it's {wares}, {shop_name} can fix you up.",
+                          "Make your selection, please.",
+                          ],
+        LOVE: [
+            "The {wares} of {shop_name} are yours to peruse. Shall I get you a coffee while you're browsing?",
+            "[BrowseWares]; {shop_name} welcomes you to examine our {wares}."
+        ],
+        LIKE: [
+            "[BrowseWares]; if you need anything at all then I'm eager to help."
+        ],
+        DISLIKE: [
+            "[BrowseWares]; you can figure out how everything works by yourself.",
+            "We sell {wares}. The sooner you buy what you need and get out of here, the happier we'll both be."
+        ],
+        HATE: [
+            "[BrowseWares]; let's just get this over with.",
+            "Don't try any funny business in my shop",
+            "I'll sell you crap but don't expect me to be nice about it"
+        ],
     },
 
     "[PROPOSAL:ACCEPT]": {

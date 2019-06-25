@@ -3076,6 +3076,9 @@ class Character(Being):
         self.sub_com.append(Leg(size=5,name="Right Leg",material=self.material,scale=self.scale))
         self.sub_com.append(Leg(size=5,name="Left Leg",material=self.material,scale=self.scale))
 
+    def has_badge(self,badge_name):
+        return any(b for b in self.badges if b.name == badge_name)
+
 
 class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
     SAVE_PARAMETERS = ('size', 'statline')

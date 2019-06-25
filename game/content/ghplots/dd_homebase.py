@@ -12,6 +12,17 @@ import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
 
+class OneShotInfoBlast(object):
+    def __init__(self,subject,message):
+        self.subject = subject
+        self.message = message
+        self.active = True
+    def build_offer(self):
+        return Offer(msg=self.message, context=ContextTag((context.INFO,)), effect=self.blast_that_info,
+                     subject=self.subject, data={"subject":self.subject}, no_repeats=True)
+    def blast_that_info(self,*args):
+        self.active = False
+
 class DZD_Wujung(Plot):
     LABEL = "DZD_HOME_BASE"
     active = True
@@ -35,8 +46,6 @@ class DZD_Wujung(Plot):
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
         self.register_element("METRO",myscene.metrodat)
-
-        # myscene.contents.append(ghterrain.ScrapIronBuilding(waypoints={"DOOR":ghwaypoints.ScrapIronDoor(),"OTHER":ghwaypoints.RetroComputer()}))
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.west),
                                         dident="LOCALE")
@@ -66,6 +75,11 @@ class DZD_Wujung(Plot):
         threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
         game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 
+        # Local info counters.
+        self.local_info = (
+            OneShotInfoBlast("Wujung","Wujung is an old fortress-city; it's the home base of the Terran Defense Force and known as the gateway to the Dead Zone. Unfortunately, it's also the first city Typhon attacked."),
+            OneShotInfoBlast("Typhon","Typhon was a biomonster created during the Age of Superpowers. It awoke and attacked Wujung last year... [TyphonDesc]"),
+        )
 
         return True
 
@@ -75,6 +89,26 @@ class DZD_Wujung(Plot):
         print("Entered Wujung")
 
 
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if camp.scene.get_root_scene() is self.elements["LOCALE"]:
+            # This is an NPC in Wujung. Give them sone Info's to disclose.
+            for inf in self.local_info:
+                if inf.active:
+                    goffs.append(inf.build_offer())
+        return goffs
+
+    def get_dialogue_grammar( self, npc, camp ):
+        mygram = dict()
+        if camp.scene.get_root_scene() is self.elements["LOCALE"]:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[News]"] = ["Wujung is still repairing the damage Typhon caused",]
+            if camp.pc.has_badge("Typhon Slayer"):
+                mygram["[TyphonDesc]"] = ["Why am I telling you this? You should know more about Typhon that I do!", ]
+            else:
+                mygram["[TyphonDesc]"] = ["It caused a lot of damage and killed a lot of people, but finally got taken down by a team of cavaliers.", ]
+        return mygram
 
 class DZD_BronzeHorseInn(Plot):
     LABEL = "DZDHB_BronzeHorseInn"
@@ -118,12 +152,64 @@ class DZD_BronzeHorseInn(Plot):
 
         team2.contents.append(osmund)
         self.register_element("INNKEEPER",osmund)
+        self.did_intro = False
+        self.told_about_services = False
+
+        self.osmund_info = (
+            OneShotInfoBlast("cavaliers","Freelance mecha pilots. Some people prefer the term mercenaries, or adventurers. Cavalier is what I used to call myself back when I was doing that sort of work."),
+            OneShotInfoBlast("the Bronze Horse","In PreZero times, around this area, a bronze medallion with a horse on it was the symbol of a special agent. These agents were heroes of the common people; they'd go around fixing problems and punishing the slagheads who abused their power. Kind of like cavaliers do today."),
+            OneShotInfoBlast("lancemates","You won't get very far around here if you try running off by yourself; you'll get even less far if you head out into the dead zone. Try talking to some of the pilots here and see if you can get them to join your lance."),
+            OneShotInfoBlast("the dead zone","Well, the dead zone is kind of a funny name, because really it's a whole lot of different places. All that area to the west of here, where life hasn't really recovered since the Night of Fire. Of course that doesn't mean there's nobody there. I'm from the dead zone myself, originally."),
+            OneShotInfoBlast("the Night of Fire","You didn't pay much attention in school, did you? The nuclear war that ended the Age of Superpowers and created the world as we knows it now. They say that two thirds of everybody alive was dead in a week."),
+        )
+
 
         self.add_sub_plot(nart,"DZD_BHIRandomLancemate")
         self.add_sub_plot(nart,"DZD_BHIAdventurer")
         self.add_sub_plot(nart,"DZD_BHIScout")
 
         return True
+
+    def _do_intro(self,camp):
+        self.did_intro = True
+
+    def _tell_about_services(self,camp):
+        self.told_about_services = True
+
+    def INNKEEPER_offers(self, camp):
+        mylist = list()
+
+        if self.did_intro:
+            mylist.append(Offer("[HELLO] [_BRONZE_HORSE_SPIEL]",
+                            context=ContextTag([context.HELLO]),
+                            ))
+        else:
+            mylist.append(Offer("[HELLO] I am the owner of the Bronze Horse Inn; our facilities were designed especially for cavaliers. If you need a place to stay or just want to pick up some lancemates you've come to the right place.",
+                            context=ContextTag([context.HELLO]), effect=self._do_intro
+                            ))
+        if not self.told_about_services:
+            mylist.append(Offer("",
+                                context=ContextTag([context.INFO]),effect=self._tell_about_services,
+                                data={"subject":"your services"}, no_repeats=True,
+                                ))
+        for inf in self.osmund_info:
+            if inf.active:
+                mylist.append(inf.build_offer())
+
+
+        return mylist
+
+    def get_dialogue_grammar( self, npc, camp ):
+        mygram = dict()
+        if camp.scene.get_root_scene() is self.elements["LOCALE"]:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[_BRONZE_HORSE_SPIEL]"] = [
+                "Let me know if you need any help.","Have you met the other cavaliers staying here?",
+                "I hope you enjoy your stay at the Bronze Horse Inn.","This is the best place in town to find lancemates."
+            ]
+
+        return mygram
+
 
 #   ********************************
 #   ***  DZD_BHIRandomLancemate  ***
@@ -209,6 +295,13 @@ class RLMP_Friendly(Plot):
         effect(camp)
         self.end_plot(camp)
 
+    def get_dialogue_grammar( self, npc, camp ):
+        mygram = dict()
+        if camp.scene is self.elements["INTERIOR"] and npc is not self.elements["NPC"]:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[News]"] = ["{} is looking for a lance to join".format(self.elements["NPC"]),]
+        return mygram
+
 
 class RLMP_Professional(Plot):
     LABEL = "RLM_Personality"
@@ -244,6 +337,13 @@ class RLMP_Professional(Plot):
                 "[HELLO] I see you are also a cavalier.", context=ContextTag((context.HELLO,))
             ))
         return mylist
+
+    def get_dialogue_grammar( self, npc, camp ):
+        mygram = dict()
+        if camp.scene is self.elements["INTERIOR"] and npc is not self.elements["NPC"]:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[News]"] = ["{} is an experienced pilot looking for work".format(self.elements["NPC"]),]
+        return mygram
 
     def _join_lance(self,camp):
         npc = self.elements["NPC"]
@@ -288,6 +388,13 @@ class RLMP_Mercenary(Plot):
                 "[HELLO] I am a mercenary pilot, looking for my next contract.", context=ContextTag((context.HELLO,))
             ))
         return mylist
+
+    def get_dialogue_grammar( self, npc, camp ):
+        mygram = dict()
+        if camp.scene is self.elements["INTERIOR"] and npc is not self.elements["NPC"]:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[News]"] = ["{} is hoping to make some quick cash".format(self.elements["NPC"]),]
+        return mygram
 
     def _join_lance(self,camp):
         npc = self.elements["NPC"]
@@ -386,16 +493,16 @@ class DZD_AlliedArmor(Plot):
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team")
-        intscene = gears.GearHeadScene(35, 35, "Allied Armor", player_team=team1, civilian_team=team2,
+        team2 = teams.Team(name="Civilian Team",allies=(team1,))
+        intscene = gears.GearHeadScene(40, 40, "Allied Armor", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_SHOP,gears.tags.SCENE_GARAGE),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=game.content.gharchitecture.CheeseShopDecor()),
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
         foyer.contents.append(ghwaypoints.AlliedArmorSignWP())
+        foyer.contents.append(team2)
 
         mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene, room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
@@ -403,17 +510,57 @@ class DZD_AlliedArmor(Plot):
         npc = self.register_element("SHOPKEEPER",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
-        npc.place(intscene, team=team2)
+        team2.contents.append(npc)
 
         self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce)
 
+        custom_shop = pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.southwest,parent=intscene)
+        npc2 = self.register_element("MECHANIC",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Mechanic"]))
+        team3 = teams.Team(name="Custom Shop Team",allies=(team1,team2))
+        team3.contents.append(npc2)
+        custom_shop.contents.append(team3)
+        custom_shop.contents.append(ghwaypoints.MechEngTerminal())
+        self.custom_shop = services.Shop(npc=npc2, shop_faction=gears.factions.TerranDefenseForce, ware_types=services.MECHA_PARTS_STORE)
+
+        self.asked_about_terminal = False
+
         return True
+
+    def _ask_about_terminal(self,camp):
+        self.asked_about_terminal = True
+
+    def MECHANIC_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] This is the Allied Armor custom shop; we sell all kinds of mecha upgrades and replacement parts.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.custom_shop,
+                            data={"shop_name":"the Allied Armor customization shop","wares":"parts"}
+                            ))
+
+        if not self.asked_about_terminal:
+            mylist.append(Offer("That's a mecha engineering terminal. You can find them at garages and shops all over the place. It's out of order right now, but should be working soon.",
+                            context=ContextTag([context.INFO]), effect=self._ask_about_terminal,
+                            data={"subject":"the terminal"}, no_repeats=True,
+                            ))
+
+        return mylist
 
     def SHOPKEEPER_offers(self, camp):
         mylist = list()
 
-        mylist.append(Offer("Testing the shop.",
-                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop
+        mylist.append(Offer("[HELLO] Allied Armor is Wujung's best source for mecha and custom parts.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name":"Allied Armor","wares":"mecha"}
                             ))
 
         return mylist
@@ -459,7 +606,11 @@ class DZD_EliteEquipment(Plot):
     def SHOPKEEPER_offers(self, camp):
         mylist = list()
 
-        mylist.append(Offer("Testing the shop.",
+        mylist.append(Offer("[HELLO] Elite Equipment is your one stop source for deadzone survival gear.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
                             context=ContextTag([context.OPEN_SHOP]), effect=self.shop
                             ))
 
@@ -503,6 +654,15 @@ class DZD_WujungHospital(Plot):
 
         return True
 
+    def DOCTOR_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] You seem to be in good health today.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        return mylist
+
 class DZD_LongRoadLogistics(Plot):
     LABEL = "DZDHB_LongRoadLogistics"
 
@@ -541,3 +701,20 @@ class DZD_LongRoadLogistics(Plot):
 
         return True
 
+    def DISPATCHER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] This is Long Road Logistics. Our job is to keep goods moving from the Joseon green zone through the dead zone all the way to the Pan-Eurasian territories.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        return mylist
+
+    def TRUCKER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Normally I'd get you up to date on how salvage works, but our recovery service is on hold for the time being.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        return mylist

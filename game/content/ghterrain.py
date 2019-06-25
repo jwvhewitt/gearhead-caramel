@@ -43,6 +43,9 @@ class WhiteTileFloor( pbge.scenes.terrain.VariableTerrain ):
 class HardwoodFloor( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_hardwood.png'
 
+class GrateFloor( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_grate.png'
+
 class CrackedEarth( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_crackedearth.png'
     border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
@@ -182,6 +185,9 @@ class StatueFTerrain(pbge.scenes.terrain.OnTheWallTerrain):
 class GoldPlaqueTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_plaque.png'
 
+class MechEngTerminalTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_mechengterminal.png'
+
 
 class DZDWConcreteBuilding(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'
@@ -249,6 +255,24 @@ class VentFanSouth(pbge.scenes.terrain.AnimTerrain):
     frames = (3,4,5)
     image_top = 'terrain_decor_ventfan.png'
     anim_delay = 2
+
+class VentFanTerrain(pbge.scenes.terrain.OnTheWallAnimTerrain):
+    east_frames = (0,1,2)
+    south_frames = (3,4,5)
+    image_top = 'terrain_decor_ventfan.png'
+    anim_delay = 2
+
+class GreenBoardingChuteTerrain(pbge.scenes.terrain.OnTheWallAnimTerrain):
+    east_frames = (0,2)
+    south_frames = (1,3)
+    image_top = 'terrain_decor_boardingchute_green.png'
+    anim_delay = 5
+
+class RedBoardingChuteTerrain(pbge.scenes.terrain.OnTheWallAnimTerrain):
+    east_frames = (0,2)
+    south_frames = (1,3)
+    image_top = 'terrain_decor_boardingchute_red.png'
+    anim_delay = 5
 
 class AlliedArmorSign(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_alliedarmor.png'

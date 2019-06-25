@@ -90,6 +90,10 @@ INFOPERSONAL_JOIN = Reply( "[INFO_PERSONAL:JOIN]" ,
             context = ContextTag([context.INFO,context.PERSONAL]),
             destination = Cue( ContextTag([context.JOIN]) ) )
 
+INFO_INFO = Reply( "[INFO:INFO]" ,
+            context = ContextTag([context.INFO]),
+            destination = Cue( ContextTag([context.INFO]) ) )
+
 MISSION_ACCEPT = Reply( "[MISSION:ACCEPT]" ,
             context = ContextTag([context.MISSION]),
             destination = Cue( ContextTag([context.ACCEPT]) ) )

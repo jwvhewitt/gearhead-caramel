@@ -48,17 +48,19 @@ class Offer(object):
     # effect, and a list of replies.
     # "effect" is a function that takes the campaign as its parameter.
     # "subject" is an identifier that limits conversation branches.
-    # "subject_start" marks this offer as the entry point for a subject
+    # "subject_start" marks this offer as the entry point for a subject; it can be branched to from a different subject
+    # "no_repeats" means this offer can't be replied by an offer with the same context + subject
     # "dead_end" means this offer will have no automatically generated replies
 
     # "data" is a dict holding strings that may be requested by format.
-    def __init__(self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, dead_end=False, data=None ):
+    def __init__(self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, no_repeats=False, dead_end=False, data=None ):
         self.msg = msg
         self.context = ContextTag(context)
         self.effect = effect
         self.subject = subject
         self.data = data or dict()
         self.subject_start = subject_start
+        self.no_repeats = no_repeats
         self.dead_end = dead_end
 
         if not replies:
@@ -188,10 +190,11 @@ class DynaConversation(object):
             return self._find_std_offer_to_match_cue(cue)
 
     def _get_reply_for_offers(self,off1,off2):
-        candidates = [r for r in STANDARD_REPLIES if off1.context.matches(r.context) and r.destination.context.matches(off2.context)
-                      and (off1.subject == off2.subject or off2.subject is None or str(off2.subject) in off1.msg or off2.subject_start)]
-        if candidates:
-            return copy.deepcopy(random.choice(candidates))
+        if not (off1.no_repeats and off1.subject == off2.subject and off1.context == off2.context):
+            candidates = [r for r in STANDARD_REPLIES if off1.context.matches(r.context) and r.destination.context.matches(off2.context)
+                          and (off1.subject == off2.subject or off2.subject is None or str(off2.subject) in off1.msg or off2.subject_start)]
+            if candidates:
+                return copy.deepcopy(random.choice(candidates))
 
     def build( self,current ):
         # Renew the data

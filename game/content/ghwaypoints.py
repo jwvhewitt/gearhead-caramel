@@ -116,3 +116,21 @@ class GoldPlaque(Waypoint):
     name = "Plaque"
     TILE = pbge.scenes.Tile(None,None,ghterrain.GoldPlaqueTerrain)
     ATTACH_TO_WALL = True
+
+class MechEngTerminal(Waypoint):
+    name = "Mecha Engineering Terminal"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.MechEngTerminalTerrain)
+    ATTACH_TO_WALL = True
+
+class VentFan(Waypoint):
+    TILE = pbge.scenes.Tile(None,None,ghterrain.VentFanTerrain)
+    ATTACH_TO_WALL = True
+
+class BoardingChute(Waypoint):
+    name = "Boarding Chute"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.GreenBoardingChuteTerrain)
+    ATTACH_TO_WALL = True
+
+class ClosedBoardingChute(Waypoint):
+    TILE = pbge.scenes.Tile(None,None,ghterrain.RedBoardingChuteTerrain)
+    ATTACH_TO_WALL = True

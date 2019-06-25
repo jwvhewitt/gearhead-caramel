@@ -105,6 +105,8 @@ ST_MELEEWEAPON = "MELEE WEAPON"
 ST_ESSENTIAL = "ESSENTIAL"
 ST_MISSILEWEAPON = "MISSILE WEAPON"
 ST_CLOTHING = "CLOTHING"
+ST_MECHA_EQUIPMENT = "MEXTRA"
+ST_MECHA_WEAPON = "MECHA_WEAPON"
 
 # Inventory Slots- note that these don't work exactly like slots in most RPGs.
 # Multiple items can be equipped in the same place as long as none of them have the same slot.

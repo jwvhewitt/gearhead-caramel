@@ -23,6 +23,10 @@ def trait_absorb(mygram,nugram,traits):
 def build_grammar( mygram, camp, speaker, audience ):
     speaker = speaker.get_pilot()
     tags = speaker.get_tags()
+    if speaker.relationship and not speaker.relationship.met_before:
+        tags.append(ghgrammar.FIRST_TIME)
+    else:
+        tags.append(ghgrammar.MET_BEFORE)
     if audience:
         audience = audience.get_pilot()
         react = speaker.get_reaction_score(audience,camp)
@@ -68,6 +72,8 @@ def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
     cviz.rollout()
     convo = pbge.dialogue.DynaConversation(camp,realnpc,pc,cue,visualizer=cviz)
     convo.converse()
+    if realnpc:
+        realnpc.relationship.met_before = True
 
 class AutoJoiner(object):
     # A callable to handle lancemate join requests. The NPC will join the party,
