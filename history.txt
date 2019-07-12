@@ -1,3 +1,4 @@
+- Added dev_mode_on config option (main.py)
 - Fixed bug with random NPCs getting wrong job skills (gears/selector.py)
 - Added training interface (game/fieldhq/training.py)
 - Moved all plot-defining units to game/content/ghplots

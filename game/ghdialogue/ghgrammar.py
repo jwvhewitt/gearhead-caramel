@@ -946,9 +946,44 @@ DEFAULT_GRAMMAR = {
 
         },
 
+    "[IWOULDLOVETO]": {
+        Default: ["I'd love to.", "Sounds good to me."
+                  ],
+        personality.Cheerful: ["That sounds like fun!",
+                               ],
+        personality.Grim: ["I wouldn't miss it for the world.",
+                           ],
+        personality.Easygoing: ["Sure, why not? I have nothing better to do."
+                                ],
+        personality.Passionate: ["Yes, I would love to do that!","I have been waiting for this!"
+                                 ],
+        personality.Sociable: ["Alright, that sounds like a good idea.",
+                               ],
+        personality.Shy: ["Okay.",
+                          ],
+    },
+
+    "[IWillSendMissionDetails]": {
+        Default: [ "I'll send you the mission details",
+            ],
+        personality.Cheerful: ["I just sent all the mission details to your navcomp",
+            ],
+        personality.Grim: ["Pay close attention to the mission data I'm sending",
+            ],
+        personality.Easygoing: [ "Everything you need to know should already be uploaded to your mek",
+            ],
+        personality.Passionate: ["All the info you need will be sent to your navcomp",
+            ],
+        personality.Sociable: ["I've transmitted all the relevant dats to your mek's navcomp",
+            ],
+        personality.Shy: ["Mission details will be sent to your mek",
+            ],
+
+        },
+
     "[JOIN]": {
-        Default: ["Alright, I'll join your lance. [LETSGO]",
-                  "Join your lance? [ICANDOTHAT]"
+        Default: ["Alright, I'll join your [lance]. [LETSGO]",
+                  "Join your [lance]? [ICANDOTHAT]"
                   ],
         personality.Cheerful: ["Fantastic, I was getting bored just sitting around. [LETSGO]",
                                ],
@@ -963,6 +998,18 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Alright. [LETSGO]",
                           ],
 
+    },
+
+    "[lance]": {
+        Default: [
+            "lance", "mecha team"
+        ],
+        personality.Easygoing: [
+            "group of meks",
+        ],
+        tags.Military: [
+            "mecha squad", "squad"
+        ],
     },
 
     "[LETSFIGHT]": {
@@ -1018,6 +1065,27 @@ DEFAULT_GRAMMAR = {
                  ]
     },
 
+    "[LETS_START_MECHA_MISSION]": {
+        Default: ["I'm ready to start the mission.",
+                  ],
+        personality.Cheerful: ["I'm all ready to start.",
+                               ],
+        personality.Grim: ["We must start this mission immediately.",
+                           "Time is wasting; let's suit up and go."
+                           ],
+        personality.Easygoing: ["Yeah, let's go.",
+                                "Alright, we might as well start the mission."
+                                ],
+        personality.Passionate: ["Once more unto the breach!",
+                                 ],
+        personality.Sociable: ["Let's get this mission started.",
+                               ],
+        personality.Shy: ["Let's begin.",
+                          ],
+        DISLIKE: ["Might as well get this over with.",
+                  ],
+    },
+
     "[LONGTIMENOSEE]": {
         Default: ["Hello [audience], long time no see.",
             "Long time no see, [audience].",],
@@ -1026,6 +1094,38 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Long time no see.",
             ],
         },
+
+    "[MechaMissionVsEnemyFaction]": {
+        # The data block should include enemy_faction
+        Default: ["You will be fighting {enemy_faction}"
+                  ],
+        personality.Cheerful: ["Your targets this time around are from {enemy_faction}",
+                               ],
+        personality.Grim: ["You must destroy all [enemy_meks] from {enemy_faction}"
+                           ],
+        personality.Easygoing: ["There are some meks from {enemy_faction} that you need to fight"
+                                ],
+        personality.Passionate: ["The pilots of {enemy_faction} must pay for crossing us",
+                                 "We need to show {enemy_faction} that they can't mess with us"
+                                 ],
+        personality.Sociable: ["During this mission you will be fighting against a [lance] sent by {enemy_faction}",
+                               ],
+        personality.Shy: ["This mission is against {enemy_faction}",
+                          "A [lance] from {enemy_faction} has gotten too close for comfort"
+                          ],
+        personality.Justice: [
+            "{enemy_faction} must be brought to justice",
+            "A [lance] from {enemy_faction} has violated our treaties"
+        ],
+        personality.Duty: [
+            "Mecha from {enemy_faction} have crossed the line into our territory",
+            "Our enemies {enemy_faction} have been sighted nearby"
+        ],
+        personality.Peace: [
+            "Our people are being endangered by {enemy_faction}"
+        ],
+    },
+
     "[MISSION_PROBLEM:JOIN]": {
         Default: ["I could really use your help out there.",
             "Sounds like I could use some backup.",
@@ -1092,6 +1192,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I can tell you're not the sort of person who would expect me to work for free.",
                                ],
         personality.Shy: ["I don't work for free.",
+                          ],
+    },
+
+    "[NOTHANKYOU]": {
+        # May be coupled with [YESPLEASE]
+        Default: ["No thank you.", "No thanks."
+                  ],
+        personality.Cheerful: ["No, but thanks anyway!",
+                               ],
+        personality.Grim: ["Not on your life.",
+                           ],
+        personality.Easygoing: ["Nah.",
+                                ],
+        personality.Passionate: ["No, absolutely not!",
+                                 ],
+        personality.Sociable: ["I'm afraid I have to say no.",
+                               ],
+        personality.Shy: ["No.",
                           ],
     },
 
@@ -1360,6 +1478,26 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[THATSUCKS]": {
+        Default: ["Too bad."
+                  ],
+        personality.Cheerful: [
+            "Aww..."
+            ],
+        personality.Grim: ["Ashes.","Blazes.",
+                           ],
+        personality.Easygoing: ["Aw, nuts.",
+                                ],
+        personality.Passionate: [
+            "That sucks.",
+            ],
+        personality.Sociable: [
+            "That is unfortunate.",
+            ],
+        personality.Shy: ["Oh no.",
+                          ],
+    },
+
     "[threat]": {
         Default: ["rend you limb from limb",
             "mop the floor with you","defeat you","humiliate you",
@@ -1426,6 +1564,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Alright, I'll see you later... just not around here, okay?", "We really ought to put up some signs on the perimeter, keep people like you from wandering in. [GOODBYE]",
                                ],
         personality.Shy: ["Go. Now.", "Smart choice.",
+                          ],
+    },
+
+    "[YESPLEASE]": {
+        # May be coupled with [NOTHANKYOU]
+        Default: ["Yes, please."
+                  ],
+        personality.Cheerful: ["Oh yeah!",
+                               ],
+        personality.Grim: ["By blazes, yes.",
+                           ],
+        personality.Easygoing: ["Okay.","Alright.",
+                                ],
+        personality.Passionate: ["Yes, definitely!",
+                                 ],
+        personality.Sociable: ["Yes, please. That would be good.",
+                               ],
+        personality.Shy: ["Yes.",
                           ],
     },
 

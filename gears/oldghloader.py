@@ -510,13 +510,6 @@ class GH1Loader(object):
         if pc.natt.get((self.NAG_TALENT,self.NAS_IDEALIST),0) != 0:
             traits.append(personality.Idealist)
 
-        # We're gonna try to determine the PC's origin based on the first line of their life history.
-        adv = self.find_adventure()
-        if adv.satt.get("HISTORY1","Fire in the Taco Bell") in ("You arrived in Hogye as a refugee from Luna.","You fled Luna after deserting from Aegis Overlord Luna."):
-            traits.append(personality.Luna)
-        else:
-            traits.append(personality.GreenZone)
-
         # Generate the badges.
         badges = list()
         if pc.natt.get((self.NAG_CHARDESCRIPTION, self.NAS_LAWFUL), 0) < -10:
@@ -549,10 +542,27 @@ class GH1Loader(object):
         # Try to figure out as much as you can about the PC, and store that information.
         adv = self.find_adventure()
         if adv:
+            # We're gonna try to determine the PC's origin based on the first line of their life history.
+            if adv.satt.get("HISTORY1", "Fire in the Taco Bell") in (
+                "You arrived in Hogye as a refugee from Luna.",
+                "You fled Luna after deserting from Aegis Overlord Luna."
+            ):
+                ghcpc.personality.append(personality.Luna)
+            else:
+                ghcpc.personality.append(personality.GreenZone)
+
             bio_bits = list()
             bio_bits.append(rawpc.satt.get("BIO1", ""))
             bio_bits.append(adv.satt.get("HISTORY1", ""))
             bio_bits.append(adv.satt.get("HISTORY2", ""))
+
+            history_list = list()
+            for k,v in adv.satt:
+                if k.startswith("HISTORY"):
+                    history_list.append(v)
+
+            if any(h.startswith("You killed the biomonster Cetus in") for h in history_list):
+                print "Killed Cetus!"
 
             if adv.s != 0:
                 ghcpc.badges.append(TYPHON_SLAYER)

@@ -90,8 +90,9 @@ def start_game(tsrd):
 
     egg = mymenu.query()
     if egg:
-        egg.backup()
-        os.remove(pbge.util.user_dir("egg_{}.sav".format(egg.pc.name)))
+        if not pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+            egg.backup()
+            os.remove(pbge.util.user_dir("egg_{}.sav".format(egg.pc.name)))
 
         game.start_campaign(egg)
 
