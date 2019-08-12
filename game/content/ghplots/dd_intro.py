@@ -40,7 +40,11 @@ class DZDIntro_GetInTheMekShimli(Plot):
                                                             job=gears.jobs.ALL_JOBS["Sheriff"]))
         npc.place(myscene, team=team2)
 
-        self.mission_entrance = (myscene,myent)
+        self.register_element("MISSION_RETURN", (myscene,myent))
+
+        # Request the intro mission.
+        self.add_sub_plot(nart,"DZD_INTRO_MISSION",ident="MISSION")
+
         self.started_the_intro = False
         self._tutorial_on = False
 
@@ -174,7 +178,8 @@ class DZDIntro_GetInTheMekShimli(Plot):
         return mylist
 
     def _start_mission(self, camp):
-        pass
+        ghdialogue.AutoJoiner(self.elements["SHERIFF"])(camp)
+        self.subplots["MISSION"].start_mission(camp,self._tutorial_on)
 
     def _CHUTE_menu(self, camp, thingmenu):
         thingmenu.desc = "This boarding chute leads to\n your {}.".format(camp.get_pc_mecha(camp.pc).get_full_name())
@@ -189,9 +194,11 @@ class DZDIntroMission( Plot ):
     def custom_init( self, nart ):
         """An empty map that will add subplots for the mission's objectives."""
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(50,50,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(40,40,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
         myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
+
+        player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
 
         self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=random.choice(pbge.randmaps.anchors.EDGES)),dident="LOCALE")
         myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
@@ -202,6 +209,10 @@ class DZDIntroMission( Plot ):
         self.started_the_intro = False
 
         return True
+
+    def start_mission(self,camp,tutorial_on):
+        self.tutorial_on = tutorial_on
+        camp.destination,camp.entrance=self.elements["LOCALE"],self.elements["ENTRANCE"]
 
     def t_START(self,camp):
         if camp.scene is self.elements["LOCALE"] and not self.started_the_intro:
@@ -214,5 +225,5 @@ class DZDIntroMission( Plot ):
             self.end_the_mission(camp)
 
     def end_the_mission(self,camp):
-        camp.destination, camp.entrance = self.elements["ADVENTURE_RETURN"]
-        self.adv.end_adventure(camp)
+        camp.destination, camp.entrance = self.elements["MISSION_RETURN"]
+
