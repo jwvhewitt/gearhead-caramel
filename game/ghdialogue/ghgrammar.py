@@ -703,6 +703,12 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[HELLO:SOLUTION]": {
+        Default: ["Do you have any bright ideas?",
+                  "What do you suggest we do about it?"
+                  ],
+    },
+
     "[HELP_ME]": {
         # Simple request for help; may be a component of other HELP_ME_* patterns.
         Default: ["I need your help.", "Help me!"

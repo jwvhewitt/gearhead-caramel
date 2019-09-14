@@ -73,3 +73,14 @@ class SkillRollCutscene(cutscene.Cutscene):
             self.play_list(camp,self.on_success)
         else:
             self.play_list(camp,self.on_failure)
+
+class SimpleMonologueDisplay( object ):
+    def __init__(self,text,npc):
+        self.text=text
+        self.npc=npc
+    def __call__(self,camp):
+        myviz = ghdialogue.ghdview.ConvoVisualizer(self.npc,camp)
+        mygrammar = pbge.dialogue.grammar.Grammar()
+        pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,None)
+        myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
+        pbge.alert_display(myviz.render)

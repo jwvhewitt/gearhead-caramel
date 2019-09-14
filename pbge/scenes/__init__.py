@@ -139,6 +139,7 @@ import viewer
 import animobs
 import targetarea
 import waypoints
+import areaindicator
 
 class TeamDictionary( weakref.WeakKeyDictionary ):
     # It's like a regular WeakKeyDictionary but it pickles.

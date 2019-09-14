@@ -6,6 +6,7 @@ Non-Element Triggers:
 "ENDCOMBAT"     When combat ends
 "UPDATE"        When the status of any plot changes
 "END"           When the PC is about to leave a scene
+"PCMOVE"        When the party position is updated
 
 With-Element Triggers:
 "ACTIVATE"      When a combatant is activated
@@ -13,5 +14,9 @@ With-Element Triggers:
 "BUMP"          When a bumpable is bumped
 "ENTER"         When a scene entered or reloaded from disk
 "ENTER"         When a scene.script_room rect is entered by a party member
-"WIN"           When a subplot is won
+"WIN"           When a subplot is won*
+"LOSE"		When a subplot is lost*
+"END"		When a subplot is ended*
 
+
+*Manual trigger- may be set by the plot using it, but doesn't get set automatically.

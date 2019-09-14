@@ -11,6 +11,7 @@ REVEAL = "REVEAL"               # The NPC receives information from the PC.
 MISSION = "MISSION"             # MISSION: A mission is described or offered.
 PROPOSAL = "PROPOSAL"           # The NPC will try to make a deal with the PC.
                                 # The data property should contain "subject"
+SOLUTION = "SOLUTION"           # The NPC will propose a solution to a problem being faced
 PROBLEM ="PROBLEM"              # A problem is described.
 ACCEPT = "ACCEPT"               # The PC has accepted the mission or proposal; the NPC responds.
 DENY = "DENY"                   # The PC has refused the mission or proposal; the NPC responds.

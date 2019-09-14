@@ -9,9 +9,12 @@ import configedit
 import invoker
 import memobrowser
 import fieldhq
+import random
 
 # Commands should be callable objects which take the explorer and return a value.
 # If untrue, the command stops.
+
+current_explo = None
 
 class MoveTo( object ):
     """A command for moving to a particular point."""
@@ -279,6 +282,11 @@ class Explorer( object ):
         self.mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
         self.time = 0
 
+        self.threat_tiles = set()
+        self.threat_viewer = pbge.scenes.areaindicator.AreaIndicator("sys_threatarea.png")
+
+        self.record_count = 0
+
         # Preload some portraits and sprites.
         self.preloads = list()
         for pc in self.scene.contents:
@@ -342,13 +350,21 @@ class Explorer( object ):
 
     def update_npcs( self ):
         my_actors = self.scene.get_operational_actors()
+        self.threat_tiles.clear()
         for npc in my_actors:
             npc.renew_power()
             if self.npc_inactive(npc):
+                # Find the NPC's team- important for all kinds of things.
+                npteam = self.scene.local_teams.get(npc)
+
                 # First handle movement.
+                if hasattr(npc,"get_max_speed") and random.randint(1,100) < npc.get_max_speed():
+                    dir = random.choice(self.scene.ANGDIR)
+                    dest = (npc.pos[0] + dir[0],npc.pos[1]+dir[1])
+                    if self.scene.on_the_map(*dest) and not self.scene.tile_blocks_movement(dest[0],dest[1],npc.mmode) and (not npteam or not npteam.home or npteam.home.collidepoint(dest)) and not self.scene.get_operational_actors(dest):
+                        npc.pos = dest
 
                 # Next, check visibility to PC.
-                npteam = self.scene.local_teams.get(npc)
                 if npteam and self.scene.player_team.is_enemy( npteam ):
                     pov = scenes.pfov.PointOfView( self.scene, npc.pos[0], npc.pos[1], npc.get_sensor_range(self.scene.scale)//2+1 )
                     in_sight = False
@@ -366,6 +382,8 @@ class Explorer( object ):
                                 break
                     if in_sight:
                         self.activate_foe( npc )
+                    else:
+                        self.threat_tiles.update(pov.tiles)
 
     def update_enchantments(self):
         for thing in self.scene.contents:
@@ -375,6 +393,9 @@ class Explorer( object ):
     def go( self ):
         self.no_quit = True
         self.order = None
+
+        global current_explo
+        current_explo = self
 
         self.update_scene()
         #self.scene.update_party_position(self.camp)
@@ -413,8 +434,12 @@ class Explorer( object ):
                 pass
             elif gdi.type == pbge.TIMEREVENT:
                 self.view.overlays.clear()
+                self.threat_viewer.update(self.view, self.threat_tiles)
                 self.view.overlays[ self.view.mouse_tile ] = (self.mapcursor,0)
                 self.view()
+                if self.record_count > 0:
+                    pygame.image.save(pbge.my_state.screen, pbge.util.user_dir("exanim_{}.png".format(100000-self.record_count)))
+                    self.record_count -= 1
 
                 # Display info for this tile.
                 my_info = self.scene.get_tile_info(self.view.mouse_tile)
@@ -430,8 +455,10 @@ class Explorer( object ):
                 if self.order:
                     if not self.order( self ):
                         self.order = None
+                    self.update_npcs()
+                elif self.time % 50 == 0:
+                    self.update_npcs()
 
-                self.update_npcs()
                 if self.time % 150 == 0:
                     self.update_enchantments()
 
@@ -452,6 +479,8 @@ class Explorer( object ):
                         memobrowser.MemoBrowser.browse(self.camp)
                     elif gdi.unicode == u"R":
                         print self.camp.scene.get_root_scene()
+                    elif gdi.unicode == u"A":
+                        self.record_count = 20
 
                     elif gdi.unicode == u"&":
                         for x in range(self.scene.width):
@@ -490,3 +519,4 @@ class Explorer( object ):
             self.camp.check_trigger("END")
             self.camp.save()
 
+        current_explo = None

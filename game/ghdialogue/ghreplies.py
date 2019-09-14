@@ -82,6 +82,10 @@ HELLO_REVEAL = Reply( "[HELLO:REVEAL]" ,
             destination = Cue( ContextTag([context.REVEAL]) ) ,
             context = ContextTag([context.HELLO]) )
 
+HELLO_SOLUTION = Reply( "[HELLO:SOLUTION]" ,
+            destination = Cue( ContextTag([context.SOLUTION]) ) ,
+            context = ContextTag([context.HELLO]) )
+
 INFOPERSONAL_GOODBYE = Reply( "[INFO_PERSONAL:GOODBYE]" ,
             context = ContextTag([context.INFO,context.PERSONAL]),
             destination = Cue( ContextTag([context.GOODBYE]) ) )
@@ -127,3 +131,6 @@ PROPOSALJOIN_DENY = Reply( "[PROPOSAL_JOIN:DENY]" ,
             context = ContextTag([context.PROPOSAL,context.JOIN]),
             destination = Cue( ContextTag([context.DENY]) ) )
 
+SOLUTION_ACCEPT = Reply( "[ICANDOTHAT]" ,
+            context = ContextTag([context.SOLUTION]),
+            destination = Cue( ContextTag([context.ACCEPT]) ) )

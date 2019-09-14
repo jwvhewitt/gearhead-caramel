@@ -364,7 +364,7 @@ def alert(text,font=None):
 
     pygame.event.clear([TIMEREVENT,pygame.KEYDOWN])
     while True:
-        ev = pygame.event.wait()
+        ev = wait_event()
         if ( ev.type == pygame.MOUSEBUTTONUP) or ( ev.type == pygame.QUIT ) or (ev.type == pygame.KEYDOWN):
             break
         elif ev.type == TIMEREVENT:
@@ -377,7 +377,7 @@ def alert(text,font=None):
 def alert_display(display_fun):
     pygame.event.clear([TIMEREVENT,pygame.KEYDOWN])
     while True:
-        ev = pygame.event.wait()
+        ev = wait_event()
         if ( ev.type == pygame.MOUSEBUTTONUP) or ( ev.type == pygame.QUIT ) or (ev.type == pygame.KEYDOWN):
             break
         elif ev.type == TIMEREVENT:

@@ -154,6 +154,7 @@ class GearHeadScene(pbge.scenes.Scene):
                         if r.area.collidepoint(*pc.pos):
                             camp.check_trigger("ENTER", r)
                     first = False
+        camp.check_trigger("PCMOVE")
 
     def get_tile_info(self, pos):
         """Return an InfoPanel for the contents of this tile, if appropriate."""

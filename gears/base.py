@@ -355,6 +355,15 @@ class Combatant(KeyObject):
                 my_invos.append(p_list)
         return my_invos
 
+    def has_program(self,wanted_prog):
+        has_it = False
+        for p in self.descendants(include_pilot=False):
+            if p.is_operational() and hasattr(p, 'programs'):
+                has_it = wanted_prog in p.programs
+            if has_it:
+                break
+        return has_it
+
     def get_action_points(self):
         return 3
 

@@ -33,6 +33,8 @@ class ConvoVisualizer(object):
         self.text = ''
         if pc:
             self.pc = pc.get_pilot()
+        else:
+            self.pc = None
     def get_portrait_area(self):
         if self.npc_sprite:
             mydest = self.npc_sprite.get_rect(0)
