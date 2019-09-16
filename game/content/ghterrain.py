@@ -15,6 +15,24 @@ class Water( pbge.scenes.terrain.AnimTerrain ):
     transparent = True
     movement_cost={pbge.scenes.movement.Walking:3.0,gears.geffects.Rolling:3.0}
 
+class MSWreckage(pbge.scenes.terrain.VariableTerrain):
+    image_top = 'terrain_decor_mswreckage.png'
+    frames = (0,1)
+    blocks = (Walking,Skimming,Rolling)
+    movement_cost={pbge.scenes.movement.Vision:10}
+
+class Smoke( pbge.scenes.terrain.AnimTerrain ):
+    image_top = 'terrain_decor_smoke.png'
+    anim_delay = 5
+    transparent = True
+    movement_cost={pbge.scenes.movement.Vision:10}
+    @classmethod
+    def render_top( self, original_dest, view, x, y ):
+        """Custom rendering, because we can do that."""
+        dest = original_dest.move(0,-32)
+        spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
+        spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
+
 class GreenZoneGrass( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_grass.png'
 
@@ -25,6 +43,11 @@ class Flagstone( pbge.scenes.terrain.VariableTerrain ):
 class DeadZoneGround( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_dzground.png'
     border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
+
+class SemiDeadZoneGround( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_dzground.png'
+    border = pbge.scenes.terrain.FloorBorder( GreenZoneGrass, 'terrain_border_grassy.png' )
+
 
 class SmallDeadZoneGround( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_dzground2.png'

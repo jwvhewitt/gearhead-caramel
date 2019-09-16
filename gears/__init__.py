@@ -394,6 +394,23 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if hasattr(pc,"experience"):
                 pc.experience[type] += amount
 
+    def totally_restore_party(self):
+        # Restore the party to health, returning the cost of doing so.
+        repair_total = 0
+        for pc in self.party + self.incapacitated_party:
+            rcdict = pc.get_repair_cost()
+            pc.wipe_damage()
+            repair_total += sum([v for k,v in rcdict.iteritems()])
+            if hasattr(pc, "mp_spent"):
+                pc.mp_spent = 0
+            if hasattr(pc, "sp_spent"):
+                pc.sp_spent = 0
+
+            for part in pc.descendants():
+                if hasattr(part,"get_reload_cost"):
+                    repair_total += part.get_reload_cost()
+                    part.spent = 0
+        return repair_total
 
 
 # Why did I create this complicated regular expression to parse lines of

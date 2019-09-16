@@ -20,7 +20,13 @@ class WorldScaleDeadzone(Architecture):
 class MechaScaleDeadzone(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
-    DEFAULT_FLOOR_TERRAIN = ghterrain.SmallDeadZoneGround
+    DEFAULT_FLOOR_TERRAIN = ghterrain.DeadZoneGround
+
+class MechaScaleSemiDeadzone(Architecture):
+    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
+    DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
+    DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
+    DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.SemiDeadZoneGround, ghterrain.SemiDeadZoneGround, ghterrain.GreenZoneGrass, higround=0.65)
 
 class HumanScaleDeadzone(Architecture):
 #    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall

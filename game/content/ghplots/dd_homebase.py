@@ -93,7 +93,7 @@ class DZD_Wujung(Plot):
     def LOCALE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
-        print("Entered Wujung")
+        pass
 
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""
@@ -480,7 +480,7 @@ class DZD_BlueFortressHQ(Plot):
 
         self.adventure_seed = None
         self.next_enemy_faction = self.generate_enemy_faction()
-        self.register_adventure(nart.camp)
+        #self.register_adventure(nart.camp)
 
         return True
 

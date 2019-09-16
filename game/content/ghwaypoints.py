@@ -134,3 +134,6 @@ class BoardingChute(Waypoint):
 class ClosedBoardingChute(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.RedBoardingChuteTerrain)
     ATTACH_TO_WALL = True
+
+class SmokingWreckage(Waypoint):
+    TILE = pbge.scenes.Tile(None,ghterrain.MSWreckage,ghterrain.Smoke)

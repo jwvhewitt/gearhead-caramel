@@ -31,10 +31,9 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
         myroom = self.register_element("_EROOM",pbge.randmaps.rooms.ClosedRoom(10,7),dident="LOCALE")
         myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
-        self.register_element("_CHUTE",ghwaypoints.BoardingChute(plot_locked=True),dident="_EROOM")
+        self.register_element("CHUTE",ghwaypoints.BoardingChute(plot_locked=True),dident="_EROOM")
         myroom.contents.append(ghwaypoints.ClosedBoardingChute())
         myroom.contents.append(ghwaypoints.VentFan())
-
 
         npc = self.register_element("SHERIFF",
                             gears.selector.random_character(55, local_tags=self.elements["LOCALE"].attributes,
@@ -119,11 +118,11 @@ class DZDIntro_GetInTheMekShimli(Plot):
                         context=ContextTag([context.HELLO]), dead_end=True,
                 )
                 myfriend = Offer(
-                    "[GOOD] You've been a big help to {}, and to me. One more question: Do you want me to walk you through the new mecha control upgrade?".format(self.elements["DZ_TOWN_NAME"]),
+                    "[GOOD] You've been a true friend to {}, and to me personally. One more question: Do you want me to walk you through the new mecha control upgrade?".format(self.elements["DZ_TOWN_NAME"]),
                     dead_end=True, effect=self._choose_friendly_reply
                 )
                 mypro = Offer(
-                    "I would have had a hard time defending {} without your assistance. One question before we go: Do you want me to walk you through the new mecha control upgrade?".format(self.elements["DZ_TOWN_NAME"]),
+                    "I would have had a hard time defending {} without a pilot like you on our side. One question before we go: Do you want me to walk you through the new mecha control upgrade?".format(self.elements["DZ_TOWN_NAME"]),
                     dead_end=True, effect=self._choose_professional_reply
                 )
                 myflirt = Offer(
@@ -187,7 +186,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
         self.active = False
         self.subplots["DEBRIEFING"].activate(camp)
 
-    def _CHUTE_menu(self, camp, thingmenu):
+    def CHUTE_menu(self, camp, thingmenu):
         thingmenu.desc = "This boarding chute leads to\n your {}.".format(camp.get_pc_mecha(camp.pc).get_full_name())
         thingmenu.add_item("Board mecha",self._start_mission)
 
@@ -218,7 +217,7 @@ class DZDPostMissionScene(Plot):
         )
 
         mylist.append( Offer(
-            "I'd like for you to head to Wujung. Hire some lancemates. Find someone who can help us with our energy problems. Then come back here and we'll see if we can put a permanent stop to our raider problem.",
+            "I'd like for you to head to Wujung. Hire some lancemates. Find someone who can help us with our energy problems. Then come back here and we'll see if we can put a permanent stop to those raiders.",
             context=ContextTag([context.SOLUTION]), subject_start=True, subject=self
         ))
 
@@ -230,6 +229,14 @@ class DZDPostMissionScene(Plot):
         mylist.append(myhello)
         return mylist
 
+    def CHUTE_menu(self, camp, thingmenu):
+        thingmenu.desc = "This boarding chute leads to\n your {}.".format(camp.get_pc_mecha(camp.pc).get_full_name())
+        thingmenu.add_item("Board mecha and go to Wujung",self._finish_mission)
+
+    def _finish_mission(self, camp):
+        camp.check_trigger("END",self)
+        self.adv.end_adventure(camp)
+
 class DZDIntroMission( Plot ):
     # Set up the decoy story for Dead Zone Drifter.
     LABEL = "DZD_INTRO_MISSION"
@@ -239,7 +246,7 @@ class DZDIntroMission( Plot ):
         """An empty map that will add subplots for the mission's objectives."""
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(40,40,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
-        myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleSemiDeadzone())
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
 
         player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
@@ -247,10 +254,13 @@ class DZDIntroMission( Plot ):
         self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=player_a),dident="LOCALE")
         myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
 
-        self.register_element("ENEMY_ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10,anchor=enemy_a),dident="LOCALE")
+        enemy_room = self.register_element("ENEMY_ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10,anchor=enemy_a),dident="LOCALE")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ENEMY_ROOM")
         myunit = gears.selector.RandomMechaUnit(level=10,strength=50,fac=None,env=myscene.environment)
         team2.contents += myunit.mecha_list
+        enemy_room.contents.append(ghwaypoints.SmokingWreckage())
+        enemy_room.contents.append(ghwaypoints.SmokingWreckage())
+        enemy_room.contents.append(ghterrain.DZDConcreteBuilding)
 
         self.mission_entrance = (myscene,myent)
         self.started_the_intro = False
@@ -297,7 +307,7 @@ class DZDIntroMission( Plot ):
     def t_STARTCOMBAT(self,camp):
         if camp.scene is self.elements["LOCALE"] and self.tutorial_on and not self.combat_tutorial_done:
             mycutscene = SimpleMonologueDisplay(
-                "Alright- combat has started. Each round you get to take two actions; you can move and attack, or attack twice, or anything else you want to do.",
+                "Combat has started. Each round you get to take two actions; you can move and attack, or attack twice, or anything else you want to do.",
                 self.elements["SHERIFF"])
             mycutscene(camp)
             mycutscene.text = "There on the upper left you'll see the icons for the different types of action you can take: movement, attack, skills, and ending your turn. On the upper right is the interface for your currently selected action."
@@ -323,6 +333,8 @@ class DZDIntroMission( Plot ):
 
 
     def end_the_mission(self,camp):
+        # Restore the party at the end of the mission, then send them back to the hangar.
+        camp.totally_restore_party()
         camp.destination, camp.entrance = self.elements["MISSION_RETURN"]
         camp.check_trigger("END", self)
 

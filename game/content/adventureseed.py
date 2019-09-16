@@ -73,6 +73,7 @@ class AdventureSeed(Adventure):
     def is_completed(self):
         return all([(o.optional or o.awarded_points > 0 or o.failed) for o in self.objectives])
 
+
     def restore_party(self, camp):
         """
         Restore the party to health, removing the charge from their credits.
@@ -82,20 +83,7 @@ class AdventureSeed(Adventure):
         camp.bring_out_your_dead()
 
         # Next, restore the party.
-        repair_total = 0
-        for pc in camp.party + camp.incapacitated_party:
-            rcdict = pc.get_repair_cost()
-            pc.wipe_damage()
-            repair_total += sum([v for k,v in rcdict.iteritems()])
-            if hasattr(pc, "mp_spent"):
-                pc.mp_spent = 0
-            if hasattr(pc, "sp_spent"):
-                pc.sp_spent = 0
-
-            for part in pc.descendants():
-                if hasattr(part,"get_reload_cost"):
-                    repair_total += part.get_reload_cost()
-                    part.spent = 0
+        repair_total = camp.totally_restore_party()
         camp.credits -= repair_total
         self.results.append(("Repair/Reload","-${:,}".format(repair_total)))
 
