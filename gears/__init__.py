@@ -59,7 +59,7 @@ harvest(personality, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 def harvest_color(dict_to_add_to):
     for name in dir(color):
         o = getattr(color, name)
-        if inspect.isclass(o) and issubclass(o, pbge.image.Gradient) and o is not pbge.image.Gradient:
+        if inspect.isclass(o) and issubclass(o, color.GHGradient) and o is not color.GHGradient:
             dict_to_add_to[o.__name__] = o
             ALL_COLORS.append(o)
             if color.CLOTHING in o.SETS:
@@ -82,6 +82,17 @@ import jobs
 harvest_color(SINGLETON_TYPES)
 SINGLETON_TYPES.update(jobs.ALL_JOBS)
 jobs.SINGLETON_TYPES = SINGLETON_TYPES
+
+import colorstyle
+
+def harvest_styles(mod):
+    for name in dir(mod):
+        o = getattr(mod, name)
+        if isinstance(o,colorstyle.Style):
+            colorstyle.ALL_STYLES.append(o)
+
+harvest_styles(colorstyle)
+
 
 class MetroData(object):
     def __init__(self):

@@ -4,7 +4,7 @@
     "btype": "Base",
     "layers": [
       {"name":"Body","fname":"por_mba_body.png","anchor":"midbottom","depth":2000},
-      {"name":"Right Arm","fname":"por_mba_rightarm.png","anchor":"right arm","depth":12000},
+      {"name":"Right Arm","fname":"por_mba_rightarm.png","anchor":"right arm","depth":4000},
       {"name":"Left Arm","fname":"por_mba_leftarm.png","anchor":"left arm","depth":1000}
     ],
     "avatar_layers": [
@@ -45,7 +45,7 @@
     "btype": "Base",
     "layers": [
       {"name":"Body","fname":"por_bodmb_body.png","anchor":"midbottom","depth":2000,"x_offset": -5},
-      {"name":"Right Arm","fname":"por_bodmb_arms.png","anchor":"right arm","depth":12000,"frame_width": 140,"frame_height": 330},
+      {"name":"Right Arm","fname":"por_bodmb_arms.png","anchor":"right arm","depth":4000,"frame_width": 140,"frame_height": 330},
       {"name":"Left Arm","fname":"por_bodmb_arms.png","anchor":"left arm","depth":1000,"frame_width": 140,"frame_height": 330, "frame": 1}
     ],
     "avatar_layers": [
@@ -67,7 +67,7 @@
     "btype": "Base",
     "layers": [
       {"name":"Body","fname":"por_bodfa_body.png","anchor":"midbottom","depth":2000},
-      {"name":"Right Arm","fname":"por_bodfa_arms.png","frame_width":136,"frame_height":310,"anchor":"right arm","depth":12000},
+      {"name":"Right Arm","fname":"por_bodfa_arms.png","frame_width":136,"frame_height":310,"anchor":"right arm","depth":4000},
       {"name":"Left Arm","fname":"por_bodfa_arms.png","frame_width":136,"frame_height":310,"frame":1,"anchor":"left arm","depth":1000}
     ],
     "avatar_layers": [
@@ -108,7 +108,7 @@
     "btype": "Base",
     "layers": [
       {"name":"Body","fname":"por_bodsmol_body.png","anchor":"midbottom","depth":2000},
-      {"name":"Right Arm","fname":"por_bodsmol_rarm.png","anchor":"right arm","depth":12000},
+      {"name":"Right Arm","fname":"por_bodsmol_rarm.png","anchor":"right arm","depth":4000},
       {"name":"Left Arm","fname":"por_bodsmol_larm.png","anchor":"left arm","depth":1000}
     ],
     "avatar_layers": [
@@ -624,6 +624,25 @@
     "requires": ["Feminine"]
   },
   {
+    "name": "Halftail Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_halftail.png","anchor":"head","x_offset":-22, "y_offset":46, "frame": 1, "depth":6000,
+        "custom_frames": [[0,0,85,118],[85,0,110,236],[195,0,67,152]]
+      },
+      {"name":"Bangs","fname":"por_hair_halftail.png","anchor":"head","x_offset":13, "y_offset":0, "frame": 0, "depth":10000,
+        "custom_frames": [[0,0,85,118],[85,0,110,236],[195,0,67,152]]
+      },
+      {"name":"Back","fname":"por_hair_halftail.png","anchor":"head","x_offset":11, "y_offset":82, "frame": 2, "depth":100,
+        "custom_frames": [[0,0,85,118],[85,0,110,236],[195,0,67,152]]
+      }
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_pixie.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
+    ],
+    "requires": ["Feminine"]
+  },
+  {
     "name": "Ear A",
     "btype": "Ears",
     "layers": [
@@ -958,7 +977,7 @@
     "name": "BodMA Sleeves 1",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodmasleeves1.png","anchor":"center","depth":15000,"frame_width":124,"frame_height":134,"x_offset":-100,"y_offset":1},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodmasleeves1.png","anchor":"center","depth":5000,"frame_width":124,"frame_height":134,"x_offset":-100,"y_offset":1},
       {"name":"Left Sleeve","fname":"por_sleeves_bodmasleeves1.png","anchor":"center","depth":1500,"frame":1,"frame_width":124,"frame_height":134,"x_offset":77,"y_offset":12}
     ],
     "avatar_layers": [
@@ -971,7 +990,7 @@
     "name": "BodMA Sleeves 2",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodmasleeves2.png","anchor":"center","depth":15000,"frame_width":103,"frame_height":115,"x_offset":-90,"y_offset":-10},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodmasleeves2.png","anchor":"center","depth":5000,"frame_width":103,"frame_height":115,"x_offset":-90,"y_offset":-10},
       {"name":"Left Sleeve","fname":"por_sleeves_bodmasleeves2.png","anchor":"center","depth":1500,"frame":1,"frame_width":103,"frame_height":115,"x_offset":75,"y_offset":-1}
     ],
     "avatar_layers": [
@@ -984,7 +1003,7 @@
     "name": "BodMA Sleeves 3 Armor",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodmasleeves3_armor.png","anchor":"center","depth":15000,"frame_width":146,"frame_height":153,"x_offset":-81,"y_offset":-66},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodmasleeves3_armor.png","anchor":"center","depth":5000,"frame_width":146,"frame_height":153,"x_offset":-81,"y_offset":-66},
       {"name":"Left Sleeve","fname":"por_sleeves_bodmasleeves3_armor.png","anchor":"center","depth":1500,"frame":1,"frame_width":146,"frame_height":153,"x_offset":89,"y_offset":-44}
     ],
     "avatar_layers": [
@@ -997,7 +1016,7 @@
     "name": "BodMB Sleeves 1",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bmb_1.png","anchor":"center","depth":15000,"frame_width":110,"frame_height":144,"x_offset":-102,"y_offset":14},
+      {"name":"Right Sleeve","fname":"por_sleeves_bmb_1.png","anchor":"center","depth":5000,"frame_width":110,"frame_height":144,"x_offset":-102,"y_offset":14},
       {"name":"Left Sleeve","fname":"por_sleeves_bmb_1.png","anchor":"center","depth":1500,"frame":1,"frame_width":110,"frame_height":144,"x_offset":87,"y_offset":13}
     ],
     "avatar_layers": [
@@ -1010,7 +1029,7 @@
     "name": "BodMB Sleeves 2",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bmb_2.png","anchor":"center","depth":15000,"frame_width":124,"frame_height":127,"x_offset":-96,"y_offset":3},
+      {"name":"Right Sleeve","fname":"por_sleeves_bmb_2.png","anchor":"center","depth":5000,"frame_width":124,"frame_height":127,"x_offset":-96,"y_offset":3},
       {"name":"Left Sleeve","fname":"por_sleeves_bmb_2.png","anchor":"center","depth":1500,"frame":1,"frame_width":124,"frame_height":127,"x_offset":87,"y_offset":-6}
     ],
     "avatar_layers": [
@@ -1024,7 +1043,7 @@
     "name": "BodSmall Sleeves 1",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodsmol1.png","anchor":"center","depth":15000,"frame_width":77,"frame_height":144,"x_offset":-81,"y_offset":23},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodsmol1.png","anchor":"center","depth":5000,"frame_width":77,"frame_height":144,"x_offset":-81,"y_offset":23},
       {"name":"Left Sleeve","fname":"por_sleeves_bodsmol1.png","anchor":"center","depth":1500,"frame":1,"frame_width":77,"frame_height":144,"x_offset":60,"y_offset":20}
     ],
     "avatar_layers": [
@@ -1038,7 +1057,7 @@
     "name": "BodSmall Sleeves 2",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodsmol2.png","anchor":"center","depth":15000,"frame_width":84,"frame_height":138,"x_offset":-84,"y_offset":22},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodsmol2.png","anchor":"center","depth":5000,"frame_width":84,"frame_height":138,"x_offset":-84,"y_offset":22},
       {"name":"Left Sleeve","fname":"por_sleeves_bodsmol2.png","anchor":"center","depth":1500,"frame":1,"frame_width":84,"frame_height":138,"x_offset":62,"y_offset":18}
     ],
     "avatar_layers": [
@@ -1052,7 +1071,7 @@
     "name": "BodSmall Poofy Sleeves",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodsmol_poofy.png","anchor":"center","depth":15000,"frame_width":88,"frame_height":138,"x_offset":-82,"y_offset":15},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodsmol_poofy.png","anchor":"center","depth":5000,"frame_width":88,"frame_height":138,"x_offset":-82,"y_offset":15},
       {"name":"Left Sleeve","fname":"por_sleeves_bodsmol_poofy.png","anchor":"center","depth":1500,"frame":1,"frame_width":88,"frame_height":138,"x_offset":69,"y_offset":10}
     ],
     "avatar_layers": [
@@ -1123,7 +1142,7 @@
     "name": "BodFA Sleeves 1",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodfasleeves1.png","anchor":"center","depth":15000,"frame_width":102,"frame_height":149,"x_offset":-98,"y_offset":8},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodfasleeves1.png","anchor":"center","depth":5000,"frame_width":102,"frame_height":149,"x_offset":-98,"y_offset":8},
       {"name":"Left Sleeve","fname":"por_sleeves_bodfasleeves1.png","anchor":"center","depth":1500,"frame":1,"frame_width":102,"frame_height":149,"x_offset":70,"y_offset":17}
     ],
     "avatar_layers": [
@@ -1136,7 +1155,7 @@
     "name": "BodFA Sleeves 2",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodfasleeves2.png","anchor":"center","depth":15000,"frame_width":106,"frame_height":116,"x_offset":-102,"y_offset":0},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodfasleeves2.png","anchor":"center","depth":5000,"frame_width":106,"frame_height":116,"x_offset":-102,"y_offset":0},
       {"name":"Left Sleeve","fname":"por_sleeves_bodfasleeves2.png","anchor":"center","depth":1500,"frame":1,"frame_width":106,"frame_height":116,"x_offset":68,"y_offset":-2}
     ],
     "avatar_layers": [
@@ -1149,7 +1168,7 @@
     "name": "BodFA Sleeves 3 Armor",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodfasleeves3_armor.png","anchor":"center","depth":15000,"frame_width":130,"frame_height":164,"x_offset":-95,"y_offset":-33},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodfasleeves3_armor.png","anchor":"center","depth":5000,"frame_width":130,"frame_height":164,"x_offset":-95,"y_offset":-33},
       {"name":"Left Sleeve","fname":"por_sleeves_bodfasleeves3_armor.png","anchor":"center","depth":1500,"frame":1,"frame_width":130,"frame_height":164,"x_offset":64,"y_offset":-9}
     ],
     "avatar_layers": [
@@ -1162,7 +1181,7 @@
     "name": "BodFA Sleeves 4 Armor",
     "btype": "Sleeves",
     "layers": [
-      {"name":"Right Sleeve","fname":"por_sleeves_bodfasleeves4_armor.png","anchor":"center","depth":15000,"frame_width":148,"frame_height":188,"x_offset":-103,"y_offset":27},
+      {"name":"Right Sleeve","fname":"por_sleeves_bodfasleeves4_armor.png","anchor":"center","depth":5000,"frame_width":148,"frame_height":188,"x_offset":-103,"y_offset":27},
       {"name":"Left Sleeve","fname":"por_sleeves_bodfasleeves4_armor.png","anchor":"center","depth":1500,"frame":1,"frame_width":148,"frame_height":188,"x_offset":73,"y_offset":31}
     ],
     "avatar_layers": [

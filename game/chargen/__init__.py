@@ -368,7 +368,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         wid.data.finished = True
 
     def color_random(self,wid,ev):
-        self.pc.colors = [random.choice(gears.color.COLOR_LISTS[chan]) for chan in self.pc.portrait_gen.color_channels]
+        self.pc.colors = self.pc.portrait_gen.generate_random_colors(self.pc)
         self.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
     def save_egg(self,wid,ev):

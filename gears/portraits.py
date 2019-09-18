@@ -9,6 +9,7 @@ import base
 import pbge
 import pygame
 import color
+import colorstyle
 
 PORTRAIT_BITS = dict()
 PORTRAIT_BITS_BY_TYPE = collections.defaultdict(list)
@@ -111,6 +112,18 @@ class Portrait(object):
                 frontier += nu_part.children
                 form_tags += nu_part.form_tags
 
+    def generate_random_colors(self,pc):
+        mystyle = colorstyle.choose_style(pc)
+        if mystyle:
+            mycolors = mystyle.generate_colors(self.color_channels)
+        else:
+            mycolors = [random.choice(color.COLOR_LISTS[chan]) for chan in self.color_channels]
+        # If this character has a faction, update the colors with faction colors.
+        if pc.faction and pc.faction.uniform_colors:
+            for t in range(len(pc.faction.uniform_colors)):
+                if pc.faction.uniform_colors[t]:
+                    mycolors[t] = pc.faction.uniform_colors[t]
+        return mycolors
 
     def build_portrait(self,pc,add_color=True,force_rebuild=False,form_tags=()):
         porimage = pbge.image.Image(frame_width=400, frame_height=700)
@@ -155,12 +168,7 @@ class Portrait(object):
         if add_color:
             if not pc.colors:
                 # Generate random colors for this character.
-                pc.colors = [random.choice(color.COLOR_LISTS[chan]) for chan in self.color_channels]
-                #If this character has a faction, update the colors with faction colors.
-                if pc.faction and pc.faction.uniform_colors:
-                    for t in range(len(pc.faction.uniform_colors)):
-                        if pc.faction.uniform_colors[t]:
-                            pc.colors[t] = pc.faction.uniform_colors[t]
+                pc.colors = self.generate_random_colors(pc)
 
             porimage.recolor(pc.colors)
             pbge.image.Image.record_pre_loaded(self,pc.colors,porimage.bitmap)
