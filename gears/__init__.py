@@ -273,7 +273,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         return len(lancemates) < self.num_lancemates
 
     def get_party_skill(self, stat_id, skill_id):
-        return max(pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party())
+        return max([pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party()] + [0])
 
     def get_pc_mecha(self,pc):
         meklist = [mek for mek in self.party if isinstance(mek,base.Mecha) and mek.pilot is pc]

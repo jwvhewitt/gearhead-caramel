@@ -14,6 +14,7 @@ class PuzzleMenu( rpgmenu.Menu ):
     def __init__( self, camp, wp ):
         super(PuzzleMenu, self).__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,border=None,predraw=self.pre)
         self.desc = wp.desc
+        self.waypoint = wp
 
     def pre( self ):
         if my_state.view:
@@ -25,6 +26,7 @@ class PuzzleMenu( rpgmenu.Menu ):
 class Waypoint( object ):
     TILE = None
     ATTACH_TO_WALL = False
+    MENU_CLASS = PuzzleMenu # Custom classes should follow the same interface as the PuzzleMenu above
     name = None
     desc = ""
     desctags = tuple()
@@ -80,7 +82,7 @@ class Waypoint( object ):
         # If plot_locked, check plots for possible actions.
         # Otherwise, use the normal unlocked_use.
         if self.plot_locked:
-            rpm = PuzzleMenu( camp, self )
+            rpm = self.MENU_CLASS( camp, self )
             camp.expand_puzzle_menu( self, rpm )
             fx = rpm.query()
             if fx:

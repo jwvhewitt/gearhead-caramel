@@ -11,6 +11,7 @@ from game.content import ghwaypoints
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
+from dd_main import DZDRoadMapExit
 
 
 class OneShotInfoBlast(object):
@@ -55,10 +56,12 @@ class DZD_Wujung(Plot):
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.west),
                                         dident="LOCALE")
-        westgate = self.register_element("ENTRANCE", ghwaypoints.Exit(name="The West Gate",
-                                                                      desc="You stand at the western city gate of Wujung. Beyond this point lies the dead zone.",
-                                                                      anchor=pbge.randmaps.anchors.west,
-                                                                      plot_locked=True), dident="_ROOM2")
+        westgate = self.register_element("ENTRANCE", DZDRoadMapExit(roadmap=self.elements["DZ_ROADMAP"],
+                                                                    node=self.elements["DZ_NODE"],
+                                                                    name="The West Gate",
+                                                                    desc="You stand at the western city gate of Wujung. Beyond this point lies the dead zone.",
+                                                                    anchor=pbge.randmaps.anchors.west,
+                                                                    plot_locked=True), dident="_ROOM2")
         # Gonna register the entrance under another name for the subplots.
         self.register_element("MISSION_GATE", westgate)
 
@@ -72,11 +75,11 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
         tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         # Black Isle Pub
-        # Wujung Tires - Conversion supplies
         # Hwang-Sa Mission
         # Reconstruction Site
 
         # Add the local tarot.
+        self.register_element(game.content.mechtarot.ME_TAROTSCOPE,myscene.metrodat)
         threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
         game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 

@@ -65,14 +65,15 @@ class Border( object ):
         # We're gonna draw a decorative border to surround the provided area.
         if self.border == None:
             self.border = image.Image( self.border_name, self.border_width, self.border_width )
-        if self.tex == None:
+        if self.tex_name and not self.tex:
             self.tex = image.Image( self.tex_name, self.tex_width, self.tex_width )
             if self.transparent:
                 self.tex.bitmap.set_alpha(224)
 
 
         # Draw the backdrop.
-        self.tex.tile(dest.inflate(self.padding,self.padding))
+        if self.tex:
+            self.tex.tile(dest.inflate(self.padding,self.padding))
 
         # Expand the dimensions to their complete size.
         # The method inflate_ip doesn't seem to be working... :(
@@ -98,6 +99,7 @@ class Border( object ):
 
 
 default_border = Border( border_width=8, tex_width=16, border_name="sys_defborder.png", tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2 )
+notex_border = Border( border_width=8, border_name="sys_defborder.png", padding=4, tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2 )
 #map_border = Border( border_name="sys_mapborder.png", tex_name="sys_maptexture.png", tl=0, tr=1, bl=2, br=3, t=4, b=6, l=7, r=5 )
 #gold_border = Border( border_width=8, tex_width=16, border_name="sys_rixsborder.png", tex_name="sys_rixstexture.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2 )
 

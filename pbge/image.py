@@ -83,7 +83,7 @@ class Image(object):
     def record_pre_loaded(ident, colorset, bitmap):
         pre_loaded_images[(ident, repr(colorset))] = bitmap
 
-    def render(self, dest=(0, 0), frame=0, dest_surface=None):
+    def render(self, dest=(0, 0), frame=0, dest_surface=None ):
         # Render this Image onto the provided surface.
         # Start by determining the correct sub-area of the image.
         if self.custom_frames and frame < len(self.custom_frames):
@@ -95,6 +95,20 @@ class Image(object):
             area = pygame.Rect(area_x, area_y, self.frame_width, self.frame_height)
         dest_surface = dest_surface or my_state.screen
         dest_surface.blit(self.bitmap, dest, area)
+
+    def render_c(self, dest=(0, 0), frame=0, dest_surface=None ):
+        # As above, but the dest coordinates point to the center of the image.
+        if self.custom_frames and frame < len(self.custom_frames):
+            area = pygame.Rect(self.custom_frames[frame])
+        else:
+            frames_per_row = self.bitmap.get_width() / self.frame_width
+            area_x = (frame % frames_per_row) * self.frame_width
+            area_y = (frame / frames_per_row) * self.frame_height
+            area = pygame.Rect(area_x, area_y, self.frame_width, self.frame_height)
+        dest_c = self.get_rect(frame)
+        dest_c.center = dest
+        dest_surface = dest_surface or my_state.screen
+        dest_surface.blit(self.bitmap, dest_c, area)
 
     def get_rect(self, frame):
         # Return a rect of the correct size for this frame.
