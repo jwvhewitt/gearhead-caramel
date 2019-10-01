@@ -81,10 +81,19 @@ class MilitantSplinter(TarotCard):
 class Atrocity(TarotCard):
     TAGS = (MT_FACTION,MT_INCRIMINATING)
 
-    def t_START(self,camp):
-        if not self.visible:
-            pbge.alert("This is a test: {} did something bad.".format(self.elements[ME_FACTION]))
-            self.visible = True
+    def custom_init( self, nart ):
+        # Add the subplot which will decide the splinter faction and provide a discovery route.
+        if not self.elements.get(ME_AUTOREVEAL):
+            tplot = self.add_sub_plot(nart, "DZD_WarCrimes", ident="REVEAL")
+        else:
+            self.memo = "You discovered atrocities committed by {}.".format(self.elements[ME_FACTION])
+        return True
+
+    def REVEAL_WIN(self,camp):
+        # The subplot has been won.
+        self.visible = True
+        self.memo = "You learned that {} has committed atrocities.".format(self.elements[ME_FACTION])
+
 
 # class Convict(TarotCard):
 #     # This person has been arrested.

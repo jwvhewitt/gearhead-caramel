@@ -29,6 +29,7 @@ E_RIVAL = "Rival"               # NPC just wants to beat the PC
 E_GREATERGOOD = "Greater Good"  # NPC sees self as working for a greater good
 E_DESPAIR = "Despair"           # NPC has been consumed by despair
 E_SEEKER = "Seeker"             # NPC looking for a new way
+E_AVENGER = "Avenger"           # NPC seeking retribution for some past wrong
 E_REVENGE = "Revenge"           # NPC seeks revenge against the PC
 E_ATONEMENT = "Atonement"       # NPC seeks atonement for some past failing
 E_DOOMSEEKER = "Doomseeker"     # NPC seeks destruction
@@ -49,7 +50,7 @@ R_NEMESIS = "Nemesis"           # Like "Adversary" but now it's personal
 
 class Relationship(object):
     # Contains info about the relationship between this NPC and the player character.
-    def __init__(self,reaction_mod=0,attitude=None,expectation=None,role=None,tags=()):
+    def __init__(self,reaction_mod=0,attitude=None,expectation=None,role=None,tags=(),history=()):
         self.reaction_mod = reaction_mod
         self.attitude = attitude
         self.expectation = expectation
@@ -57,4 +58,5 @@ class Relationship(object):
         self.tags = set(tags)
         self.data = dict()
         self.met_before = False
+        self.history = list(history)
 

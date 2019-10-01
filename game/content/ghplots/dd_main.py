@@ -48,10 +48,14 @@ class DeadzoneDrifterStub( Plot ):
         :type npc: gears.base.Character
         """
         mylist = list()
-        if npc.relationship and gears.relationships.RT_LANCEMATE in npc.relationship.tags and camp.can_add_lancemate() and npc not in camp.party:
-            # If the NPC has the lancemate tag, they might join the party.
-            mylist.append(Offer("[JOIN]",
-                                context=ContextTag([context.JOIN]), effect=ghdialogue.AutoJoiner(npc)))
+        if npc.relationship and gears.relationships.RT_LANCEMATE in npc.relationship.tags:
+            if camp.can_add_lancemate() and npc not in camp.party:
+                # If the NPC has the lancemate tag, they might join the party.
+                mylist.append(Offer("[JOIN]",
+                                    context=ContextTag([context.JOIN]), effect=ghdialogue.AutoJoiner(npc)))
+            elif npc in camp.party and gears.tags.SCENE_PUBLIC in camp.scene.attributes:
+                mylist.append(Offer("[LEAVEPARTY]",
+                                    context=ContextTag([context.LEAVEPARTY]), effect=ghdialogue.AutoLeaver(npc)))
 
         return mylist
 

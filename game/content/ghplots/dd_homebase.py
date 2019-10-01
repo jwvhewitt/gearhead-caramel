@@ -89,6 +89,8 @@ class DZD_Wujung(Plot):
                              "Wujung is an old fortress-city; it's the home base of the Terran Defense Force and known as the gateway to the Dead Zone. Unfortunately, it's also the first city Typhon attacked."),
             OneShotInfoBlast("Typhon",
                              "Typhon was a biomonster created during the Age of Superpowers. It awoke and attacked Wujung last year... [TyphonDesc]"),
+            OneShotInfoBlast("Aegis",
+                             "They're the military government that controls [Luna] right now. [chat_lead_in] Aegis operatives are the ones who activated Typhon and led it to Wujung."),
         )
 
         return True

@@ -11,6 +11,8 @@ REVEAL = "REVEAL"               # The NPC receives information from the PC.
 MISSION = "MISSION"             # MISSION: A mission is described or offered.
 PROPOSAL = "PROPOSAL"           # The NPC will try to make a deal with the PC.
                                 # The data property should contain "subject"
+CUSTOM = "CUSTOM"               # The PC will say something to the NPC that doesn't fit elsewhere...
+                                # The data property should contain "reply", which is the PC's line
 SOLUTION = "SOLUTION"           # The NPC will propose a solution to a problem being faced
 PROBLEM ="PROBLEM"              # A problem is described.
 ACCEPT = "ACCEPT"               # The PC has accepted the mission or proposal; the NPC responds.
@@ -18,6 +20,7 @@ DENY = "DENY"                   # The PC has refused the mission or proposal; th
 ARREST = "ARREST"               # The PC attempts to arrest the NPC; the NPC responds.
 GOODBYE = "GOODBYE"             # The NPC says goodbye to the PC.
 JOIN = "JOIN"                   # The NPC will join the party
+LEAVEPARTY = "LEAVEPARTY"       # The NPC will leave the party
 PERSONAL = "PERSONAL"           # The NPC gives some personal information
 ATTACK  = "ATTACK"              # The greeting from a hostile NPC
 CHALLENGE = "CHALLENGE"         # The reply from a hostile (or now hostile) NPC when challenged by the PC

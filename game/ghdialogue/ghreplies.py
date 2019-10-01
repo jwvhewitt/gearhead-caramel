@@ -46,6 +46,10 @@ HELLO_CHAT = Reply( "[HELLO:CHAT]" ,
             destination = Cue( ContextTag([context.CHAT]) ) ,
             context = ContextTag([context.HELLO]) )
 
+HELLO_CUSTOM = Reply( "{reply}" ,
+            destination = Cue( ContextTag([context.CUSTOM]) ) ,
+            context = ContextTag([context.HELLO]) )
+
 HELLO_GOODBYE = Reply( "[HELLO:GOODBYE]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.GOODBYE]) ) )
@@ -73,6 +77,10 @@ HELLO_INFOPERSONAL = Reply( "[HELLO:INFO_PERSONAL]" ,
 HELLO_JOIN = Reply( "[HELLO:JOIN]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.JOIN]) ) )
+
+HELLO_LEAVEPARTY = Reply( "[HELLO:LEAVEPARTY]" ,
+            context = ContextTag([context.HELLO]),
+            destination = Cue( ContextTag([context.LEAVEPARTY]) ) )
 
 HELLO_OPENSHOP = Reply( "[HELLO:OPEN_SHOP]" ,
             context = ContextTag([context.HELLO]),

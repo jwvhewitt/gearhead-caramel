@@ -193,13 +193,14 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None
     pc = None
 
-    def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3, faction_relations=factions.DEFAULT_FACTION_DICT_NT158):
+    def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3, faction_relations=factions.DEFAULT_FACTION_DICT_NT158, convoborder="dzd_convoborder.png"):
         super(GearHeadCampaign, self).__init__(name, explo_class)
         self.tarot = pbge.container.ContainerDict()
         self.year = year
         self.num_lancemates = num_lancemates
         self.faction_relations = faction_relations.copy()
         self.history = list()
+        self.convoborder = convoborder
 
         # Some containers for characters who have been either incapacitated or killed.
         # It's the current scenario's responsibility to do something with these lists
@@ -350,16 +351,16 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 self.party.remove(pc)
                 skill = self.get_party_skill(stats.Knowledge,pc.material.repair_type) + 50 - pc.get_total_damage_status()
                 if pc is self.pc:
-                    if pbge.util.config.get_boolean("DIFFICULTY","pc_can_die") and random.randint(1,100) > skill:
+                    if pbge.util.config.getboolean("DIFFICULTY","pc_can_die") and random.randint(1,100) > skill:
                         self.dead_party.append(pc)
                     else:
                         self.incapacitated_party.append(pc)
                 elif isinstance(pc,base.Character):
-                    if pbge.util.config.get_boolean("DIFFICULTY","lancemates_can_die") and random.randint(1,100) > skill:
+                    if pbge.util.config.getboolean("DIFFICULTY","lancemates_can_die") and random.randint(1,100) > skill:
                         self.dead_party.append(pc)
                     else:
                         self.incapacitated_party.append(pc)
-                elif random.randint(1,100) <= skill or not pbge.util.config.get_boolean("DIFFICULTY","mecha_can_die"):
+                elif random.randint(1,100) <= skill or not pbge.util.config.getboolean("DIFFICULTY","mecha_can_die"):
                     self.incapacitated_party.append(pc)
 
     def remove_party_from_scene(self):

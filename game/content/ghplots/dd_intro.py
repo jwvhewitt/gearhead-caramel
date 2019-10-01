@@ -318,18 +318,19 @@ class DZDIntroMission( Plot ):
             self.combat_tutorial_done = True
 
     def t_ENDCOMBAT(self,camp):
-        # If the player team gets wiped out, end the mission.
-        myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
-            mycutscene = SimpleMonologueDisplay(
-                "We won! Let's head back to base and discuss our next move...",
-                self.elements["SHERIFF"])
-            mycutscene(camp)
-            self.end_the_mission(camp)
-            camp.check_trigger("WIN",self)
-        elif not camp.first_active_pc():
-            self.end_the_mission(camp)
-            camp.check_trigger("LOSE",self)
+        if camp.scene is self.elements["LOCALE"]:
+            # If the player team gets wiped out, end the mission.
+            myteam = self.elements["_eteam"]
+            if len(myteam.get_active_members(camp)) < 1:
+                mycutscene = SimpleMonologueDisplay(
+                    "We won! Let's head back to base and discuss our next move...",
+                    self.elements["SHERIFF"])
+                mycutscene(camp)
+                self.end_the_mission(camp)
+                camp.check_trigger("WIN",self)
+            elif not camp.first_active_pc():
+                self.end_the_mission(camp)
+                camp.check_trigger("LOSE",self)
 
 
     def end_the_mission(self,camp):

@@ -8,10 +8,14 @@ from game import teams,ghdialogue
 from game.ghdialogue import context
 import random
 from pbge.dialogue import ContextTag,Offer
-from game.content.ghplots import dd_main
+import dd_main
+import dd_tarot
+from game.content import mechtarot
 import game.content.plotutility
 import game.content.gharchitecture
 import dd_combatmission
+import collections
+
 
 
 #  *******************************
@@ -68,7 +72,7 @@ class SpFa_MilitarySplinter(Plot):
         self.memo = "{} sent you to do a mysterious mecha mission for {}.".format(self.mission_giver,self.elements["FACTION"])
 
     def t_UPDATE(self,camp):
-        # If the adventure has ended, get rid of it.
+        # If the mission has ended, get rid of it.
         if self.adventure_seed and self.adventure_seed.ended:
             self.memo = None
             if self.adventure_seed.crimes_happened:
@@ -108,6 +112,144 @@ class SpFa_MilitarySplinter(Plot):
         camp.check_trigger("WIN",self)
         self.end_plot(camp)
 
+
+#  *************************
+#  ***   DZD_WarCrimes   ***
+#  *************************
+#  Discover war crimes committed by someone.
+#
+#  Inherited Elements:
+#    CARD_FACTION: The committer of the atrocities. May be None.
+#
+#  Signals:
+#    WIN: Send this trigger when the crimes are revealed to the player.
+#
+
+class LunarRefugeeLost( Plot ):
+    LABEL = "DZD_WarCrimes"
+    active = True
+    scope = True
+
+    # Meet a Lunar refugee who got separated from their group.
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        enemy_fac = self.elements.get(dd_tarot.ME_FACTION)
+        destscene = self.seek_element(nart,"_DEST",self._is_best_scene,scope=myscene)
+
+        mynpc = self.register_element("NPC",gears.selector.random_character(rank=random.randint(self.rank-10,self.rank+10),local_tags=(gears.personality.Luna,)),dident="_DEST")
+        destscene.local_teams[mynpc] = destscene.civilian_team
+
+        sp = self.add_sub_plot(nart,"WAR_CRIME_WITNESS",spstate=PlotState(elements={"FACTION":enemy_fac,"MISSION_RETURN":(self.elements["LOCALE"],self.elements["MISSION_GATE"])}).based_on(self),ident="MISSION")
+        self.mission_accepted = False
+        self.mission_finished = False
+        self.got_rumor = False
+
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if camp.scene.get_root_scene() is self.elements["LOCALE"] and npc is not self.elements["NPC"]:
+            mygram["[News]"].append("some Aegis refugees have moved into the area")
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.got_rumor and camp.scene.get_root_scene() is self.elements["LOCALE"] and npc is not self.elements["NPC"]:
+            mynpc = self.elements["NPC"]
+            goffs.append(Offer(
+                msg="You can ask {} about that; {}'s one of them. You can usually find {} at {}.".format(mynpc,mynpc.gender.subject_pronoun,mynpc.gender.object_pronoun,self.elements["_DEST"]),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject="Aegis refugees", data={"subject": "the refugees"}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self,camp):
+        self.got_rumor = True
+        self.memo = "{} is a refugee from Luna who can usually be found at {}.".format(self.elements["NPC"],self.elements["_DEST"])
+
+    def NPC_offers(self,camp):
+        mylist = list()
+
+        # This plot has three phases: Before PC has accepted mission, while PC is doing mission, and
+        # after PC has completed mission.
+        if not self.mission_accepted:
+            mylist.append(Offer(
+                "[HELP_ME_BY_DOING_SOMETHING] I am a refugee from Luna, seeking asylum on Earth, but my camp was attacked by mecha in the dead zone and I became separated from the others...",
+                context=(context.HELLO,)
+            ))
+            mylist.append(Offer(
+                "If you could visit our camp site and make sure that everything is okay, I'd greatly appreciate it.",
+                context=(context.PROPOSAL,),subject=self,subject_start=True,data={"subject":"your camp"}
+            ))
+            mylist.append(Offer(
+                "Thank you so much. Here are the coordinates where they were last.",
+                context=(context.ACCEPT,),subject=self,effect=self._accept_mission
+            ))
+        else:
+            if not self.mission_finished:
+                mylist.append(Offer(
+                    "Come back and let me know when you've found out what's happening at the camp.",
+                    context=(context.HELLO,)
+                ))
+            else:
+                mylist.append(Offer(
+                    "[HELLO] Did you find out anything about what happened to my camp?",
+                    context=(context.HELLO,)
+                ))
+                enemy_fac = self.elements.get(dd_tarot.ME_FACTION)
+                if enemy_fac:
+                    mylist.append(Offer(
+                        "[THANKS_FOR_BAD_NEWS] [I_MUST_CONSIDER_MY_NEXT_STEP] Above all, I know that {} must pay for what they did.".format(enemy_fac),
+                        context=(context.CUSTOM,), data={"reply":"The camp was destroyed by {}.".format(enemy_fac)},
+                        effect=self._deliver_the_news
+                    ))
+                else:
+                    mylist.append(Offer(
+                        "[THANKS_FOR_BAD_NEWS] [I_MUST_CONSIDER_MY_NEXT_STEP] I am now alone on this world, or nearly so... I hope that I can see you again.",
+                        context=(context.CUSTOM,), data={"reply":"The camp was destroyed."},
+                        effect=self._deliver_the_news
+                    ))
+
+        return mylist
+
+    def _deliver_the_news(self,camp):
+        if self.elements["NPC"].combatant:
+            self.elements["NPC"].relationship.tags.add(gears.relationships.RT_LANCEMATE)
+            self.elements["NPC"].relationship.expectation = gears.relationships.E_AVENGER
+            self.elements["NPC"].relationship.role = gears.relationships.R_ACQUAINTANCE
+        self.end_plot(camp)
+
+    def _accept_mission(self,camp):
+        self.mission_accepted = True
+        self.elements["NPC"].relationship.reaction_mod += random.randint(1,50)
+        self.memo = "{} at {} asked you to investigate what happened to {} refugee camp.".format(self.elements["NPC"],self.elements["_DEST"],self.elements["NPC"].gender.possessive_determiner)
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_accepted and not self.mission_finished:
+            thingmenu.add_item("Investigate {}'s village".format(self.elements["NPC"]), self._go_to_mission)
+
+    def _go_to_mission(self,camp):
+        self.subplots["MISSION"].start_mission(camp)
+
+    def MISSION_WIN(self,camp):
+        if not self.mission_finished:
+            enemy_fac = self.elements.get(dd_tarot.ME_FACTION)
+            if enemy_fac:
+                pbge.alert("You approach the campsite of the Lunar refugees, and see that it has been utterly destroyed by {}.".format(enemy_fac))
+            else:
+                pbge.alert("You approach the campsite of the Lunar refugees, and see that it has been utterly destroyed.")
+            camp.check_trigger("WIN", self)
+            self.mission_finished = True
+
+    def MISSION_END(self,camp):
+        self.MISSION_WIN(camp)
+
+
+#  *** OLD PLOTS - MAYBE NOT USEFUL ANYMORE? ***
 
 #  **************************
 #  ***   DZD_LostPerson   ***

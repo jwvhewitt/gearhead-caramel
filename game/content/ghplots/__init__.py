@@ -1,5 +1,6 @@
 import inspect
 
+import actionscenes
 import dd_combatmission
 import dd_distanttown
 import dd_homebase
@@ -8,6 +9,7 @@ import dd_main
 import dd_roadstops
 import dd_tarot
 import dd_tarotsupport
+import encounters
 import mocha
 import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
@@ -24,7 +26,7 @@ def harvest( mod ):
             if issubclass(o,mechtarot.TarotCard):
                 CARDS_BY_NAME[o.__name__] = o
 
-harvest(mocha)
+harvest(actionscenes)
 harvest(dd_homebase)
 harvest(dd_main)
 harvest(dd_combatmission)
@@ -33,4 +35,6 @@ harvest(dd_tarotsupport)
 harvest(dd_intro)
 harvest(dd_roadstops)
 harvest(dd_distanttown)
+harvest(encounters)
+harvest(mocha)
 harvest(utility)

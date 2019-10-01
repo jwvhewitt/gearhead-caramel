@@ -1,3 +1,6 @@
+- Conversation border is now set by campaign
+- You can now ask lancemates to leave the party
+- Added road map to DeadZone Drifter
 - Fixed bug with Alert, AlertDisplay locking
 - NPCs move during exploration
 - Added dev_mode_on config option (main.py)

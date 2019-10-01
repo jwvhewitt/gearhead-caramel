@@ -28,7 +28,7 @@ class ConvoVisualizer(object):
             self.pilot_sprite = None
         self.npc_desc = self.npc.get_text_desc(camp)
         self.camp = camp
-        self.bottom_sprite = pbge.image.Image('sys_wintermocha_convoborder.png',32,200)
+        self.bottom_sprite = pbge.image.Image(camp.convoborder)
         self.react_sprite = pbge.image.Image('sys_reaction_emoji.png',35,35)
         self.text = ''
         if pc:

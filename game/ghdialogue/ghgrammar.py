@@ -653,6 +653,24 @@ DEFAULT_GRAMMAR = {
 
         },
 
+    "[HELLO:LEAVEPARTY]": {
+        Default: ["I need you to leave the [lance].",
+                  ],
+        personality.Cheerful: ["I'd like you to stay here for a while.",
+                               ],
+        personality.Grim: ["You're off the [lance], for now.",
+                           ],
+        personality.Easygoing: ["Sorry, but I need you to stay behind.",
+                                ],
+        personality.Passionate: ["Your next mission will be to stay here.",
+                                 ],
+        personality.Sociable: ["Your services won't be needed on our next mission.",
+                               ],
+        personality.Shy: ["The [lance] will continue without you.",
+                          ],
+
+    },
+
     "[HELLO:MISSION]": {
         Default: ["Do you have any missions available?",
                   "I'm looking for a mission."
@@ -728,6 +746,25 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[HELP_ME_BY_DOING_SOMETHING]": {
+        # The NPC is going to ask the PC to do some kind of mission, quest, or housework.
+        Default: ["You're a cavalier, right? I could use your help...", "[HELP_ME]"
+                  ],
+        personality.Cheerful: ["Am I glad to see you...",
+                               ],
+        personality.Grim: ["It seems as though all hope is lost.",
+                           ],
+        personality.Easygoing: ["Do you think you could help me with something?",
+                                ],
+        personality.Passionate: ["You look like the type of person who could solve this problem!",
+                                 ],
+        personality.Sociable: [
+            "I've been searching for anybody who can help me...",
+            ],
+        personality.Shy: ["I hate to ask, but I need help.",
+                          ],
+    },
+
     "[HELP_ME_VS_MECHA_COMBAT]": {
         # The NPC is asking the PC with help during mecha combat.
         Default: ["I am currently under attack... [HELP_ME]", "I'm under attack by [enemy_meks]. [HELP_ME]"
@@ -767,6 +804,33 @@ DEFAULT_GRAMMAR = {
         LOVE: ["For you, anything.",
                ],
 
+    },
+
+    "[I_MUST_CONSIDER_MY_NEXT_STEP]": {
+        Default: ["I must consider what I'm going to do next...",
+                  ],
+        personality.Cheerful: ["I don't know what I'm going to do next, but I know I'll think of something.",
+                               ],
+        personality.Grim: ["For now, all I can do is to contemplate my next move.",
+                           ],
+        personality.Easygoing: ["I'm going to need a bit of time to process all this.",
+                                ],
+        personality.Passionate: ["What will I do next? I can't say, not yet...",
+                                 ],
+        personality.Sociable: ["I think I'm going to have to talk this through with some people.",
+                               ],
+        personality.Shy: ["I need time to think.",
+                          ],
+        personality.Peace: ["I have to think deeply about how to proceed while minimizing harm.",
+                        ],
+        personality.Justice: ["I must think about how justice can be achieved.",
+                            ],
+        personality.Glory: ["It's clear that I'm going to need a new master plan.",
+                            ],
+        personality.Fellowship: ["After all this, I need to think about where I fit in.",
+                            ],
+        personality.Duty: ["I'm going to have to think about how best to fulfil my duty.",
+                            ],
     },
 
     "[INFO:INFO]": {
@@ -1010,12 +1074,38 @@ DEFAULT_GRAMMAR = {
         Default: [
             "lance", "mecha team"
         ],
+        personality.Cheerful: [
+            "party",
+        ],
         personality.Easygoing: [
             "group of meks",
         ],
         tags.Military: [
             "mecha squad", "squad"
         ],
+    },
+
+    "[LEAVEPARTY]": {
+        Default: ["I'll be around here if you need me again. [GOODBYE]", "[OK] Come back here if you need my services again.",
+                  ],
+        personality.Cheerful: ["Let me know when you want me to join your lance again. [GOODBYE]",
+                               ],
+        personality.Grim: ["[THATSUCKS] [GOODBYE]",
+                           ],
+        personality.Easygoing: ["[GOODLUCK] Come and see me again some time.",
+                                "Alright, I could use a bit of a vacation anyhow. [GOODBYE]"
+                                ],
+        personality.Passionate: ["Understood. [GOODLUCK]",
+                                 "It was an honor to fight at your side. [GOODBYE]"
+                                 ],
+        personality.Sociable: ["[OK] I'll see you later, I guess.",
+                               ],
+        personality.Shy: ["[OK] [GOODBYE]",
+                          ],
+        DISLIKE: ["[IWOULDLOVETO] [GOODBYE]",
+                  ],
+        LIKE: ["Make sure you come back sometime to let me know how you're doing. [GOODBYE]",
+               ]
     },
 
     "[LETSFIGHT]": {
@@ -1100,6 +1190,12 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Long time no see.",
             ],
         },
+
+    "[Luna]": {
+        Default: ["Luna", ],
+        personality.GreenZone: ["the moon","the moon",],
+        personality.DeadZone: ["the moon","the moon","the moon",],
+    },
 
     "[MechaMissionVsEnemyFaction]": {
         # The data block should include enemy_faction
@@ -1267,6 +1363,28 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[OK]": {
+        # A not necessarily enthusiastic agreement or assent...
+        Default: ["Okay.","Alright."
+                  ],
+        personality.Cheerful: ["Okay!",
+                               ],
+        personality.Grim: ["Whatever...",
+                           ],
+        personality.Easygoing: ["Sure, why not?", "That's fine by me."
+                                ],
+        personality.Passionate: ["I, [speaker], assent to this.",
+                                 ],
+        personality.Sociable: ["If that's what you want.",
+                               ],
+        personality.Shy: ["OK.",
+                          ],
+        DISLIKE: ["I guess...",
+                  ],
+        LIKE: ["As you wish.",
+               ]
+    },
+
     "[OPENSHOP]": {
         # The data block should include shop_name, wares (plural or uncountable)
         Default: ["[BrowseWares]; you should find everything you need.",
@@ -1409,6 +1527,24 @@ DEFAULT_GRAMMAR = {
         # A simple thank you is appropriate.
         Default: ["Thank you.", "Thanks."
                   ],
+    },
+
+    "[THANKS_FOR_BAD_NEWS]": {
+        # The PC has just delivered some bad, but presumably important, news.
+        Default: ["Thank you for letting me know."
+                  ],
+        personality.Cheerful: ["This is not the news that I had been hoping for."
+                               ],
+        personality.Grim: ["I should have seen this coming...",
+                           ],
+        personality.Easygoing: ["Thanks for telling me.",
+                                ],
+        personality.Passionate: ["You have done well in bringing me this terrible news.",
+                                 ],
+        personality.Sociable: ["The truth hurts, but I want to thank you for bringing this to me.",
+                               ],
+        personality.Shy: ["So that's the way it is.",
+                          ],
     },
 
     "[THANKS_FOR_CHOOSING_ME]": {
