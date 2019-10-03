@@ -10,6 +10,7 @@ import dd_roadstops
 import dd_tarot
 import dd_tarotsupport
 import encounters
+import missionbuilder
 import mocha
 import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
@@ -36,5 +37,6 @@ harvest(dd_intro)
 harvest(dd_roadstops)
 harvest(dd_distanttown)
 harvest(encounters)
+harvest(missionbuilder)
 harvest(mocha)
 harvest(utility)

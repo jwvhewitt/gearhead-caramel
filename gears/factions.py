@@ -116,14 +116,28 @@ class TerranDefenseForce(Faction):
     factags = (tags.Military,)
     mecha_colors = (color.ArmyDrab, color.Olive, color.ElectricYellow, color.GullGrey, color.Terracotta)
     CAREERS = {
-        tags.Trooper: ("Mecha Pilot",),
+        tags.Trooper: ("Mecha Pilot","Soldier"),
         tags.Commander: ("Commander",),
-        tags.Support: ("Mecha Pilot",),
+        tags.Support: ("Recon Pilot",),
     }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("Terran",)
     NOUNS = ("Defense Team","Militia")
     uniform_colors = (color.GriffinGreen,None,None,None,color.Khaki)
+
+class Guardians(Faction):
+    name = "the Guardians"
+    factags = (tags.Police,)
+    mecha_colors = (color.ShiningWhite, color.PrussianBlue, color.BrightRed, color.WarmGrey, color.Black)
+    CAREERS = {
+        tags.Trooper: ("Mecha Pilot","Police Officer"),
+        tags.Commander: ("Detective",),
+        tags.Support: ("Bounty Hunter",),
+    }
+    LOCATIONS = (personality.GreenZone,)
+    ADJECTIVES = ("Investigation","Peacekeeping")
+    NOUNS = ("Unit","Squad")
+    uniform_colors = (color.Black,None,None,None,color.FreedomBlue)
 
 
 class Circle(object):
@@ -186,19 +200,24 @@ DEFAULT_FACTION_DICT_NT158 = {
     ),
     BladesOfCrihna: FactionRelations(
         allies = (),
-        enemies = (AegisOverlord,)
+        enemies = (AegisOverlord,Guardians)
     ),
     BoneDevils: FactionRelations(
         allies = (),
-        enemies = (TerranDefenseForce,)
+        enemies = (TerranDefenseForce,Guardians)
     ),
     TerranFederation: FactionRelations(
-        allies = (TerranDefenseForce,),
+        allies = (TerranDefenseForce,Guardians),
         enemies= (AegisOverlord,)
     ),
     TerranDefenseForce: FactionRelations(
         allies= (TerranFederation,),
         enemies= (AegisOverlord,BoneDevils)
+    ),
+    Guardians: FactionRelations(
+        allies=(TerranFederation,),
+        enemies=(BoneDevils,BladesOfCrihna)
     )
+
 }
 

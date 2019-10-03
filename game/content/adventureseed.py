@@ -18,6 +18,7 @@ class AdventureSeed(Adventure):
         self.restore_at_end = restore_at_end
         self.started = False
         self.display_results_at_end = display_results_at_end
+        self.root_plot = None
 
         # Auto-apply rewards when the mission ends.
         self.rewards = list()
@@ -33,16 +34,20 @@ class AdventureSeed(Adventure):
 
         :type camp: gears.GearHeadCampaign
         """
-        if self.auto_set_rank:
-            self.pstate.rank = camp.pc.renown
-        nart = GHNarrativeRequest(camp, self.pstate, self.adv_type, PLOT_LIST)
-        if nart.story:
-            nart.build()
-            self.started = True
-            camp.check_trigger("UPDATE")
-        else:
-            for e in nart.errors:
-                print e
+        if not self.started:
+            if self.auto_set_rank:
+                self.pstate.rank = camp.pc.renown
+            nart = GHNarrativeRequest(camp, self.pstate, self.adv_type, PLOT_LIST)
+            if nart.story:
+                self.root_plot = nart.story
+                nart.build()
+                self.started = True
+                camp.check_trigger("UPDATE")
+            else:
+                for e in nart.errors:
+                    print e
+        self.root_plot.start_mission(camp)
+
 
     def get_completion(self):
         # Return the percent completion of this mission. Due to optional objectives and whatnot, this may fall
@@ -104,6 +109,7 @@ class AdventureSeed(Adventure):
             pbge.alert_display(mydisplay.show)
 
         super(AdventureSeed,self).end_adventure(camp)
+
 
 #   **********************
 #   ***  INFO DISPLAY  ***

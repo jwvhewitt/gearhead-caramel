@@ -684,5 +684,10 @@ def init_gears():
     # print selector.DESIGN_LIST
     selector.check_design_list()
 
+    for d in selector.DESIGN_LIST:
+        if d.get_full_name() in selector.DESIGN_BY_NAME:
+            print "Warning: Multiple designs named {}".format(d.get_full_name())
+        selector.DESIGN_BY_NAME[d.get_full_name()] = d
+
     portraits.init_portraits()
     jobs.init_jobs()

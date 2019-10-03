@@ -80,7 +80,7 @@ class DZD_Wujung(Plot):
 
         # Add the local tarot.
         self.register_element(game.content.mechtarot.ME_TAROTSCOPE,myscene.metrodat)
-        threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
+        threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), spstate = pbge.plots.PlotState(rank=15).based_on(self))
         game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 
         # Local info counters.
@@ -505,6 +505,13 @@ class DZD_BlueFortressHQ(Plot):
                                                 (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
                                                 enemy_faction=self.next_enemy_faction,
                                                 allied_faction=factions.TerranDefenseForce)
+
+    def Zregister_adventure(self, camp):
+        self.adventure_seed = game.content.ghplots.missionbuilder.BuildAMissionSeed(camp, "{}'s Mission".format(self.elements["DISPATCHER"]),
+                                                (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+                                                enemy_faction=self.next_enemy_faction,
+                                                allied_faction=factions.TerranDefenseForce,
+                                                objectives=("BAMO_StormTheCastle",))
 
     def t_UPDATE(self, camp):
         # If the adventure has ended, get rid of it.

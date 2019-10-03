@@ -48,7 +48,7 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
         else:
             self.errors.append( "No plot found for {0}".format( tags ) )
 
-    def add_tarot_card( self, myplot, tarot_tags, spstate=None, ident=None, necessary=True, tarot_position=None, tarot_scope="METRO" ):
+    def add_tarot_card( self, myplot, tarot_tags, spstate=None, ident=None, necessary=True, tarot_position=None ):
         if not spstate:
             spstate = pbge.plots.PlotState().based_on(myplot)
         if not ident:

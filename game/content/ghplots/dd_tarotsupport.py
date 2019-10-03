@@ -60,6 +60,8 @@ class SpFa_MilitarySplinter(Plot):
                 else:
                     self.hates = None
                 self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES")
+                # Add at least one loyalist, too.
+                self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",spstate=PlotState(elements={"FACTION":myfac}).based_on(self))
 
             self.adventure_seed = None
             self.mission_giver = None
@@ -121,6 +123,9 @@ class SpFa_MilitarySplinter(Plot):
 #  Inherited Elements:
 #    CARD_FACTION: The committer of the atrocities. May be None.
 #
+#  Elements Set:
+#    ME_CRIME, ME_CRIMED: Noun and verb forms of the war crime committed
+#
 #  Signals:
 #    WIN: Send this trigger when the crimes are revealed to the player.
 #
@@ -138,6 +143,9 @@ class LunarRefugeeLost( Plot ):
 
         mynpc = self.register_element("NPC",gears.selector.random_character(rank=random.randint(self.rank-10,self.rank+10),local_tags=(gears.personality.Luna,)),dident="_DEST")
         destscene.local_teams[mynpc] = destscene.civilian_team
+
+        self.register_element(dd_tarot.ME_CRIME,"the destruction of a Lunar refugee camp")
+        self.register_element(dd_tarot.ME_CRIMED,"destroyed {}'s refugee camp".format(mynpc))
 
         sp = self.add_sub_plot(nart,"WAR_CRIME_WITNESS",spstate=PlotState(elements={"FACTION":enemy_fac,"MISSION_RETURN":(self.elements["LOCALE"],self.elements["MISSION_GATE"])}).based_on(self),ident="MISSION")
         self.mission_accepted = False

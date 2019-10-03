@@ -7,6 +7,8 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer
 import random
 import collections
+import actionscenes
+import missionbuilder
 
 MT_CRIME = "CRIME"
 MT_FACTION = "FACTION"
@@ -30,13 +32,41 @@ class MilitantSplinter(TarotCard):
     ASCENSIONS = ()
 
     def get_incrimination_offers(self, beta_card, npc, camp, interaction):
+        """
+
+        :type camp: gears.GearHeadCampaign
+        """
         myoff = list()
         myfac = self.elements[ME_FACTION]
+        mycity = camp.scene.get_metro_scene()
         if npc.faction and npc.faction.get_faction_tag() == myfac.get_faction_tag() and npc.faction != myfac:
             # This character is a member of the main faction, but not a member of the splinter faction.
             myoff.append(
-                Offer("Thanks for letting me know.", context=(context.REVEAL,), subject=self, subject_start=True, data={"reveal": "{} has gone rogue".format(myfac)})
+                Offer(
+                    "Thanks for letting me know.",
+                    context=(context.REVEAL,), subject=self, subject_start=True,
+                    data={"reveal": "{} has {}".format(myfac,beta_card.elements.get(ME_CRIMED,"gone rogue"))}
+                )
             )
+        elif npc.faction and npc.faction != myfac and gears.tags.Police in npc.faction.get_faction_tag().factags:
+            # This character is a police officer; they can also authorize action against the lawbreakers.
+            myoff.append(
+                Offer(
+                    "Thanks for letting me know.",
+                    context=(context.REVEAL,), subject=self, subject_start=True,
+                    data={"reveal": "{} has {}".format(myfac,beta_card.elements.get(ME_CRIMED,"gone rogue"))}
+                )
+            )
+        elif mycity and mycity.faction and npc.faction and npc.faction != myfac and npc.faction.get_faction_tag() is mycity.faction.get_faction_tag():
+            # This character belongs to the city's ruling faction. They too can authorize a mecha strike.
+            myoff.append(
+                Offer(
+                    "Thanks for letting me know.",
+                    context=(context.REVEAL,), subject=self, subject_start=True,
+                    data={"reveal": "{} has {}".format(myfac,beta_card.elements.get(ME_CRIMED,"gone rogue"))}
+                )
+            )
+
 
         return myoff
 
@@ -61,6 +91,8 @@ class MilitantSplinter(TarotCard):
         else:
             self.memo = "You learned that {} has been taken over by extremists.".format(self.elements[ME_FACTION])
 
+        self.adventure_seed = None
+
         return True
 
     def REVEAL_WIN(self,camp):
@@ -77,22 +109,46 @@ class MilitantSplinter(TarotCard):
             mygram["[HELLO]"].append("I am proud to be a member of {}.".format(self.elements[ME_FACTION]))
         return mygram
 
+    def _start_disbanding_mission(self,camp):
+        self.adventure_seed = missionbuilder.BuildAMissionSeed(
+            camp, "Strike {}'s command center".format(self.elements[ME_FACTION]),
+            (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+            enemy_faction=self.elements[ME_FACTION],
+            objectives=(missionbuilder.BAMO_STORM_THE_CASTLE,)
+        )
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.adventure_seed:
+            thingmenu.add_item(self.adventure_seed.name, self.adventure_seed)
+
+    def t_UPDATE(self, camp):
+        # If the adventure has ended, get rid of it.
+        if self.adventure_seed and self.adventure_seed.ended:
+            self.adventure_seed = None
+
 
 class Atrocity(TarotCard):
+    # A faction has been implicated in serious wrongdoing.
     TAGS = (MT_FACTION,MT_INCRIMINATING)
 
     def custom_init( self, nart ):
         # Add the subplot which will decide the splinter faction and provide a discovery route.
         if not self.elements.get(ME_AUTOREVEAL):
             tplot = self.add_sub_plot(nart, "DZD_WarCrimes", ident="REVEAL")
+            self.elements[ME_CRIME] = tplot.elements[ME_CRIME]
+            self.elements[ME_CRIMED] = tplot.elements[ME_CRIMED]
         else:
-            self.memo = "You discovered atrocities committed by {}.".format(self.elements[ME_FACTION])
+            if not self.elements.get(ME_CRIME):
+                self.register_element(ME_CRIME,"an atrocity")
+            if not self.elements.get(ME_CRIMED):
+                self.register_element(ME_CRIMED,"committed atrocities")
+            self.memo = "You know that {} {}.".format(self.elements[ME_FACTION],self.elements[ME_CRIMED])
         return True
 
     def REVEAL_WIN(self,camp):
         # The subplot has been won.
         self.visible = True
-        self.memo = "You learned that {} has committed atrocities.".format(self.elements[ME_FACTION])
+        self.memo = "You learned that {} has {}.".format(self.elements[ME_FACTION],self.elements[ME_CRIMED])
 
 
 # class Convict(TarotCard):

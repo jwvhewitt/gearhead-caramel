@@ -165,6 +165,27 @@
     }
   },
   {
+    "name": "Police Officer",
+    "skills": [],
+    "tags": ["Police"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": -1,
+      "RangedCombat": 1
+    }
+  },
+  {
+    "name": "Detective",
+    "skills": ["Negotiation"],
+    "tags": ["Police"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": -1,
+      "RangedCombat": 1
+    }
+  },
+
+  {
     "name": "Explorer",
     "skills": ["Scouting"],
     "tags": ["Adventurer"],

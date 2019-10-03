@@ -10,6 +10,7 @@ import color
 import jobs
 
 DESIGN_LIST = list()
+DESIGN_BY_NAME = dict()
 EARTH_NAMES = None
 LUNA_NAMES = None
 ORBITAL_NAMES = None
@@ -237,7 +238,15 @@ def generate_ace(level,fac,env):
     mek.load_pilot(ace)
     return mek
 
+def generate_fortification(level,fac,env):
+    # TODO: Add different buildings for different levels + environments
+    return get_design_by_full_name("Bunker")
 
+def get_design_by_full_name(name):
+    if name in DESIGN_BY_NAME:
+        return copy.deepcopy(DESIGN_BY_NAME[name])
+    else:
+        print "Error: design {} not found".format(name)
 
 # print calc_threat_points(10)
 # print calc_threat_points(20)

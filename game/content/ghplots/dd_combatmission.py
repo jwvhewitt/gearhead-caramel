@@ -109,7 +109,7 @@ class DeadZoneCombatMission( Plot ):
 
         return True
 
-    def t_UPDATE(self,camp):
+    def start_mission(self,camp):
         if not self.started_mission:
             camp.destination,camp.entrance = self.mission_entrance
             self.started_mission = True
