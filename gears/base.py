@@ -655,9 +655,9 @@ class BaseGear(scenes.PlaceableThing):
         else:
             return 0
 
-    def get_armor(self):
+    def get_armor(self,destroyed_ok=False):
         """Returns the armor protecting this gear."""
-        candidates = [part for part in self.sub_com if isinstance(part, Armor) and part.is_not_destroyed()]
+        candidates = [part for part in self.sub_com if isinstance(part, Armor) and (destroyed_ok or part.is_not_destroyed())]
         candidates.sort(key= lambda a: a.get_armor_rating())
         if candidates:
             return candidates[0]
@@ -2390,10 +2390,10 @@ class Module(BaseGear, StandardDamageHandler):
         """Returns the unscaled maximum health of this gear."""
         return 1 + self.form.MASS_X * self.size
 
-    def get_armor(self):
+    def get_armor(self,destroyed_ok=False):
         """Returns the armor protecting this gear."""
         # Modules might have externally mounted armor in clothing or whatnot.
-        candidates = [part for part in self.sub_com if isinstance(part, Armor) and part.is_not_destroyed()]
+        candidates = [part for part in self.sub_com if isinstance(part, Armor) and (destroyed_ok or part.is_not_destroyed())]
         for part in self.inv_com:
             if part.is_not_destroyed():
                 armor = part.get_armor()
@@ -3090,15 +3090,17 @@ class Character(Being):
 
 
 class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
-    SAVE_PARAMETERS = ('size', 'statline')
+    SAVE_PARAMETERS = ('size', 'statline', 'destroyed_frame' )
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_MATERIAL = materials.Metal
 
-    def __init__(self, statline=None, size=10, **keywords):
+    def __init__(self, statline=None, size=10, destroyed_frame=1, **keywords):
         self.statline = collections.defaultdict(int)
         if statline:
             self.statline.update(statline)
         self.size = size
+        self.destroyed_frame = destroyed_frame
+        self.destroyed_pose = False
 
         super(Prop, self).__init__(**keywords)
 
@@ -3190,7 +3192,14 @@ class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
         mydest = spr.get_rect(self.frame)
         mydest.midbottom = foot_pos
         mydest.top += view.HTH
-        spr.render(mydest, self.frame)
+        if self.destroyed_pose:
+            spr.render(mydest, self.destroyed_frame)
+        else:
+            spr.render(mydest, self.frame)
+
+    def update_graphics(self):
+        self.destroyed_pose = not self.is_operational()
+
 
 class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
     DEFAULT_SCALE = scale.WorldScale

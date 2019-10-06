@@ -53,6 +53,7 @@ class DZD_Wujung(Plot):
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
         self.register_element("METRO", myscene.metrodat)
+        self.register_element("METROSCENE", myscene)
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.west),
                                         dident="LOCALE")
@@ -116,7 +117,7 @@ class DZD_Wujung(Plot):
             # This is an NPC in Wujung. Give them some news.
             mygram["[News]"] = ["Wujung is still repairing the damage Typhon caused", ]
             if camp.pc.has_badge("Typhon Slayer"):
-                mygram["[TyphonDesc]"] = ["Why am I telling you this? You should know more about Typhon that I do!", ]
+                mygram["[TyphonDesc]"] = ["Why am I telling you this? You should know more about Typhon than I do!", ]
             else:
                 mygram["[TyphonDesc]"] = [
                     "It caused a lot of damage and killed a lot of people, but finally got taken down by a team of cavaliers.", ]

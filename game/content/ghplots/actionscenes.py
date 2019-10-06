@@ -24,6 +24,7 @@ from game.content import adventureseed
 #  Inherited Elements:
 #    FACTION: The committer of the atrocities. If None, a random faction may be created.
 #    MISSION_RETURN:  A tuple containing the Destination, Entrance for returning the player character
+#    METROSCENE: The city/town where this takes place. May be None.
 #
 #  Signals:
 #    LOSE:  Send this trigger when the party faints out of the scene. Ignore if you want to allow multiple attempts.
@@ -38,7 +39,7 @@ class STC_DeadZoneFortress( Plot ):
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(50,50,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
         myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
-        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True, dident=self.elements["MISSION_RETURN"][0])
 
         player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
 
@@ -109,6 +110,7 @@ class STC_DeadZoneFortress( Plot ):
 #  Inherited Elements:
 #    FACTION: The committer of the atrocities. If None, a random faction may be created.
 #    MISSION_RETURN:  A tuple containing the Destination, Entrance for returning the player character
+#    METROSCENE: The city or location where this action scene takes place
 #
 #  Signals:
 #    END:   The action scene has been cleared out; there's nothing left to do there.
@@ -127,7 +129,7 @@ class DeadZoneRazedVillage( Plot ):
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(50,50,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
         myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
-        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True, dident="METROSCENE")
 
         player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
 

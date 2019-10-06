@@ -10,7 +10,7 @@ from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
 
-BAMO_STORM_THE_CASTLE = "BAMO_StormTheCastle"
+BAMO_STORM_THE_CASTLE = "BAMO_StormTheCastle"   # 4 points
 
 
 MAIN_OBJECTIVE_VALUE = 100
@@ -22,7 +22,8 @@ MAIN_OBJECTIVE_VALUE = 100
 class BuildAMissionSeed(adventureseed.AdventureSeed):
     def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, rank=None, objectives=(),
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone,
-                 one_chance=True, **kwargs):
+                 cash_reward=100,experience_reward=100,
+                 one_chance=True, data=None, **kwargs):
         cms_pstate = pbge.plots.PlotState(adv=self, rank=rank or max(camp.pc.renown+1,10))
 
         cms_pstate.elements["ENEMY_FACTION"] = enemy_faction
@@ -31,11 +32,19 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         cms_pstate.elements["SCENEGEN"] = scenegen
         cms_pstate.elements["ARCHITECTURE"] = architecture
         cms_pstate.elements["ONE_CHANCE"] = one_chance      # If False, you can return to the combat zone until all objectives are complete.
+        cms_pstate.elements["METROSCENE"] = adv_return[0]
+
+        # Data is a dict of stuff that will get used by whatever plot created this adventure seed, or maybe it
+        # can be used by some of the objectives. I dunno! It's just a dict of stuff! Do with it as you will.
+        # Currently used by DZD tarot cards to record the win,lose outcomes of a mission.
+        self.data = dict()
+        if data:
+            self.data.update(data)
 
         super(BuildAMissionSeed, self).__init__(camp, name, adv_type="BAM_MISSION", adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False, **kwargs)
 
-        self.rewards.append(adventureseed.CashReward())
-        self.rewards.append(adventureseed.ExperienceReward())
+        self.rewards.append(adventureseed.CashReward(size=cash_reward))
+        self.rewards.append(adventureseed.ExperienceReward(size=experience_reward))
         self.rewards.append(adventureseed.RenownReward())
 
     def end_adventure(self,camp):
@@ -53,7 +62,7 @@ class BuildAMissionPlot( Plot ):
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(50,50,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
         myscenegen = self.elements["SCENEGEN"](myscene, self.elements["ARCHITECTURE"]() )
-        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True, dident="METROSCENE")
         self.adv.world = myscene
 
         self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=random.choice(pbge.randmaps.anchors.EDGES)),dident="LOCALE")
@@ -115,13 +124,13 @@ class BAM_StormTheCastle( Plot ):
         self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
 
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
-        myunit = gears.selector.RandomMechaUnit(self.rank,100,myfac,myscene.environment,add_commander=True)
+        myunit = gears.selector.RandomMechaUnit(self.rank,150,myfac,myscene.environment,add_commander=True)
         team2.contents += myunit.mecha_list
         self.register_element("_commander",myunit.commander)
         self.starting_guards = len(team2.contents)
 
-        team3 = self.register_element("_cteam",teams.Team(enemies=(myscene.player_team,),allies=(team2,)),dident="ROOM")
-        team3.contents.append( gears.selector.generate_fortification(self.rank,myfac,myscene.environment))
+        myfort = self.register_element("_FORT",gears.selector.generate_fortification(self.rank,myfac,myscene.environment))
+        team2.contents.append( myfort)
 
         self.obj1 = adventureseed.MissionObjective("Destroy {} command center".format(myfac), MAIN_OBJECTIVE_VALUE*3)
         self.adv.objectives.append(self.obj1)
@@ -145,11 +154,12 @@ class BAM_StormTheCastle( Plot ):
 
     def t_ENDCOMBAT(self,camp):
         myteam = self.elements["_eteam"]
-        castleteam = self.elements["_cteam"]
+        myboss = self.elements["_FORT"]
+        myguards = [npc for npc in myteam.get_active_members(camp) if npc is not myboss]
 
-        if len(myteam.get_active_members(camp)) < self.starting_guards:
-            self.obj2.win(100 * len(myteam.get_active_members(camp)) // self.starting_guards)
-        if len(castleteam.get_active_members(camp)) < 1:
+        if len(myguards) < self.starting_guards:
+            self.obj2.win(100 * (self.starting_guards - len(myguards)) // self.starting_guards)
+        if not myboss.is_operational():
             self.obj1.win(100)
 
 

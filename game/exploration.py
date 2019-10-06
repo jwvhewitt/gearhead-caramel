@@ -418,7 +418,7 @@ class Explorer( object ):
             if self.camp.fight:
                 self.camp.check_trigger( "STARTCOMBAT" )
                 self.order = None
-                self.camp.fight.go()
+                self.camp.fight.go(self)
                 if pbge.my_state.got_quit or not self.camp.fight.no_quit:
                     self.no_quit = False
                     self.camp.fight.no_quit = True
@@ -455,8 +455,8 @@ class Explorer( object ):
                 if self.order:
                     if not self.order( self ):
                         self.order = None
-                    self.update_npcs()
-                elif self.time % 50 == 0:
+                    #self.update_npcs()
+                if self.time % 50 == 0:
                     self.update_npcs()
 
                 if self.time % 150 == 0:

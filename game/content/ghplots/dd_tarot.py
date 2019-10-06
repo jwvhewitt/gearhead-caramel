@@ -1,6 +1,6 @@
 from game.content import mechtarot
 from game.content.mechtarot import TarotCard, Interaction, TagChecker, NameChecker, ME_TAROTPOSITION, \
-    ME_AUTOREVEAL,CardTransformer, Consequence
+    ME_AUTOREVEAL,CardTransformer, Consequence, CardCaller, CardDeactivator
 import pbge
 import gears
 from game.ghdialogue import context
@@ -26,6 +26,9 @@ ME_CRIMED = "CRIME_VERBED_TEXT"
 class TheDisbanded(TarotCard):
     TAGS = (MT_FACTION,)
 
+class Renegades(TarotCard):
+    TAGS = (MT_FACTION,)
+
 class MilitantSplinter(TarotCard):
     TAGS = (MT_FACTION,MT_THREAT)
     NEGATIONS = (TheDisbanded,)
@@ -43,27 +46,30 @@ class MilitantSplinter(TarotCard):
             # This character is a member of the main faction, but not a member of the splinter faction.
             myoff.append(
                 Offer(
-                    "Thanks for letting me know.",
+                    "[THIS_IS_TERRIBLE_NEWS] [FACTION_MUST_BE_PUNISHED] You are authorized to launch a mecha strike against their command center.",
                     context=(context.REVEAL,), subject=self, subject_start=True,
-                    data={"reveal": "{} has {}".format(myfac,beta_card.elements.get(ME_CRIMED,"gone rogue"))}
+                    data={"reveal": "{} has {}".format(myfac,beta_card.elements.get(ME_CRIMED,"gone rogue")),"faction":str(self.elements[ME_FACTION])},
+                    effect=CardCaller(beta_card,interaction,self._start_disbanding_mission)
                 )
             )
         elif npc.faction and npc.faction != myfac and gears.tags.Police in npc.faction.get_faction_tag().factags:
             # This character is a police officer; they can also authorize action against the lawbreakers.
             myoff.append(
                 Offer(
-                    "Thanks for letting me know.",
+                    "[THIS_IS_TERRIBLE_NEWS] [FACTION_MUST_BE_PUNISHED] You are authorized to launch a mecha strike against their command center.",
                     context=(context.REVEAL,), subject=self, subject_start=True,
-                    data={"reveal": "{} has {}".format(myfac,beta_card.elements.get(ME_CRIMED,"gone rogue"))}
+                    data={"reveal": "{} has {}".format(myfac,beta_card.elements.get(ME_CRIMED,"gone rogue")),"faction":str(self.elements[ME_FACTION])},
+                    effect=CardCaller(beta_card,interaction,self._start_disbanding_mission)
                 )
             )
         elif mycity and mycity.faction and npc.faction and npc.faction != myfac and npc.faction.get_faction_tag() is mycity.faction.get_faction_tag():
             # This character belongs to the city's ruling faction. They too can authorize a mecha strike.
             myoff.append(
                 Offer(
-                    "Thanks for letting me know.",
+                    "[THIS_IS_TERRIBLE_NEWS] [FACTION_MUST_BE_PUNISHED] You are authorized to launch a mecha strike against their command center.",
                     context=(context.REVEAL,), subject=self, subject_start=True,
-                    data={"reveal": "{} has {}".format(myfac,beta_card.elements.get(ME_CRIMED,"gone rogue"))}
+                    data={"reveal": "{} has {}".format(myfac,beta_card.elements.get(ME_CRIMED,"gone rogue")),"faction":str(self.elements[ME_FACTION])},
+                    effect=CardCaller(beta_card,interaction,self._start_disbanding_mission)
                 )
             )
 
@@ -78,7 +84,8 @@ class MilitantSplinter(TarotCard):
                 mechtarot.AT_GET_DIALOGUE_OFFERS: get_incrimination_offers,
             },
             consequences = {
-                "Justice": Consequence(alpha_card_tf=CardTransformer("TheDisbanded",alpha_params=(ME_FACTION,)))
+                "Justice": Consequence(alpha_card_tf=CardTransformer("TheDisbanded",alpha_params=(ME_FACTION,)),beta_card_tf=CardDeactivator()),
+                "Lose": Consequence(alpha_card_tf=CardTransformer("Renegades", alpha_params=(ME_FACTION,)),beta_card_tf=CardDeactivator()),
             }
         ),
     )
@@ -102,20 +109,29 @@ class MilitantSplinter(TarotCard):
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
-        if camp.scene.civilian_team and camp.scene.local_teams.get(npc) is camp.scene.civilian_team:
+        if npc.faction is not self.elements[ME_FACTION]:
             if not self.visible:
                 mygram["[News]"].append("there has been a lot of hostility from {} lately".format(self.elements[ME_FACTION]))
         if npc.faction is self.elements[ME_FACTION]:
             mygram["[HELLO]"].append("I am proud to be a member of {}.".format(self.elements[ME_FACTION]))
         return mygram
 
-    def _start_disbanding_mission(self,camp):
+    def _start_disbanding_mission(self,camp,beta_card,interaction):
         self.adventure_seed = missionbuilder.BuildAMissionSeed(
             camp, "Strike {}'s command center".format(self.elements[ME_FACTION]),
             (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
-            enemy_faction=self.elements[ME_FACTION],
-            objectives=(missionbuilder.BAMO_STORM_THE_CASTLE,)
+            enemy_faction=self.elements[ME_FACTION], rank=self.rank,
+            objectives=(missionbuilder.BAMO_STORM_THE_CASTLE,),
+            cash_reward=500, experience_reward=250,
+            data={
+                "win":CardCaller(self,beta_card,interaction.consequences["Justice"]),
+                "lose": CardCaller(self, beta_card, interaction.consequences["Lose"]),
+                "win_message": "With their command center destroyed, the remnants of {} are quickly brought to justice.".format(self.elements[ME_FACTION]),
+                "lose_message": "Following the attack on their command center, the remnants of {} scatter to the wind. They will continue to be a thorn in the side of {} for years to come.".format(self.elements[ME_FACTION],self.elements["LOCALE"]),
+            }
         )
+        self.memo = "You have been authorized to take action against {}'s command center.".format(self.elements[ME_FACTION])
+        self.elements["METROSCENE"].purge_faction(camp,self.elements[ME_FACTION])
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.adventure_seed:
@@ -124,6 +140,12 @@ class MilitantSplinter(TarotCard):
     def t_UPDATE(self, camp):
         # If the adventure has ended, get rid of it.
         if self.adventure_seed and self.adventure_seed.ended:
+            if self.adventure_seed.is_won():
+                pbge.alert(self.adventure_seed.data["win_message"])
+                self.adventure_seed.data["win"](camp)
+            else:
+                pbge.alert(self.adventure_seed.data["lose_message"])
+                self.adventure_seed.data["lose"](camp)
             self.adventure_seed = None
 
 

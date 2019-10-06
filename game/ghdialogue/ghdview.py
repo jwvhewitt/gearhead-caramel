@@ -87,5 +87,5 @@ class ConvoVisualizer(object):
             t += 1
 
     def get_menu(self):
-        return pbge.rpgmenu.Menu(self.MENU_AREA.dx,self.MENU_AREA.dy,self.MENU_AREA.w,self.MENU_AREA.h,border=None,predraw=self.render,font=my_state.medium_font)
+        return pbge.rpgmenu.Menu(self.MENU_AREA.dx,self.MENU_AREA.dy,self.MENU_AREA.w,self.MENU_AREA.h,border=None,predraw=self.render,font=my_state.medium_font,padding=5)
 

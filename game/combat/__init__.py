@@ -287,13 +287,14 @@ class Combat( object ):
         for chara in self.active:
             self.cstat[chara].has_started_turn = False
 
-    def go( self ):
+    def go( self, explo ):
         """Perform this combat."""
 
         while self.still_fighting():
             if self.n >= len( self.active ):
                 # It's the end of the round.
                 self.n = 0
+                explo.update_npcs()
                 self.end_round()
             if self.active[self.n] in self.camp.scene.contents and self.active[self.n].is_operational():
                 chara = self.active[self.n]

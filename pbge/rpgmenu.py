@@ -3,21 +3,48 @@ import glob
 import util
 from frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
 import random
+import collections
 
 from . import default_border,render_text,wait_event,TIMEREVENT,my_state,INFO_GREEN
 
 class MenuItem( object ):
-    def __init__(self,msg,value,desc=None):
-        self.msg = msg
+    def __init__(self,msg,value,desc,menu):
         self.value = value
         self.desc = desc
+        self.font = menu.font
+        self.width = menu.w
+        self.justify = -1
+        self.menuitem = menu.menuitem
+        self.menuselect = menu.menuselect
+        self.item_image = None
+        self.select_image = None
+        self.height = 0
+        self.msg = msg
+
+    def _get_msg(self):
+        return self._msg
+
+    def _set_msg(self,msg):
+        self._msg = msg
+        self.item_image = render_text(self.font,self._msg,self.width,justify=self.justify,color=self.menuitem)
+        self.select_image = render_text(self.font,self._msg,self.width,justify=self.justify,color=self.menuselect)
+        self.height = self.select_image.get_height()
+
+    msg = property(_get_msg,_set_msg)
 
     def __lt__(self,other):
         """ Comparison of menu items done by msg string """
-        return( self.msg < other.msg )
+        return( self._msg < other._msg )
 
     def __str__(self):
-        return self.msg
+        return self._msg
+
+    def render(self,dest,selected=False):
+        if selected:
+            my_state.screen.blit(self.select_image, dest)
+        else:
+            my_state.screen.blit(self.item_image, dest)
+
 
 # The DescBox is the default MenuDesc. It takes a string stored in the menu
 # item and displays it. However, it is not the only menu description possible!
@@ -49,12 +76,15 @@ class DescBox( Frect ):
 
 class Menu( Frect ):
 
-    def __init__(self,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,menuitem=(150,145,130),menuselect=(128,250,230),border=default_border,predraw=None,font=None):
+    def __init__(self,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,menuitem=(150,145,130),menuselect=(128,250,230),border=default_border,predraw=None,font=None,padding=0,item_class=MenuItem):
         super(Menu, self).__init__(dx,dy,w,h,anchor)
         self.menuitem = menuitem
         self.menuselect = menuselect
         self.border = border
         self.font = font or my_state.small_font
+        self.more_image = self.font.render("+",True,menuselect)
+        self.padding = padding
+        self.item_class = item_class
 
         self.items = []
         self.top_item = 0
@@ -63,16 +93,48 @@ class Menu( Frect ):
         self.descobj = None
         self.quick_keys = {}
 
+        self._item_rects = collections.OrderedDict()
+        self._the_highest_top = 0
+
         # predraw is a function that
         # redraws/clears the screen before the menu is rendered.
         self.predraw = predraw
 
     def add_item(self,msg,value,desc=None):
-        item = MenuItem( msg , value , desc )
+        item = self.item_class( msg , value , desc, self )
         self.items.append( item )
 
     def add_descbox(self,x,y,w=30,h=10,justify=-1,font=None):
         self.descobj = DescBox( self, x , y , w , h, border=self.border, justify=justify, font=font or self.font )
+
+    def arrange(self):
+        # Set the position of all on-screen menu items.
+        mydest = self.get_rect()
+        item_num = self.top_item
+        self._item_rects.clear()
+        y = mydest.top
+        while y < mydest.bottom:
+            if item_num < len( self.items ):
+                itemdest = pygame.Rect(mydest.x,y,self.w,self.items[item_num].height)
+                # Only add this item to the menu if it fits inside the menu or is the first menu item.
+                if itemdest.bottom <= mydest.bottom or not self._item_rects:
+                    self._item_rects[item_num] = itemdest
+                y += self.items[item_num].height + self.padding
+            else:
+                break
+            item_num += 1
+
+        # While we're here, might as well calculate the highest top.
+        self._the_highest_top = len(self.items) - 1
+        item_num = self._the_highest_top
+        y = mydest.bottom
+        while y >= mydest.top and item_num >= 0:
+            y -= self.items[item_num].height
+            if y >= mydest.top:
+                self._the_highest_top = item_num
+            item_num -= 1
+            y -= self.padding
+
 
     def render(self,do_extras=True):
         mydest = self.get_rect()
@@ -86,39 +148,31 @@ class Menu( Frect ):
                 self.border.render( mydest )
 
         my_state.screen.set_clip(mydest)
-
-        item_num = self.top_item
-        y = mydest.top
-        while y < mydest.bottom:
-            if item_num < len( self.items ):
-                # The color of this item depends on whether or not it's the selected one.
-                if ( item_num == self.selected_item ) and do_extras:
-                    color = self.menuselect
-                else:
-                    color = self.menuitem
-                img = self.font.render(self.items[item_num].msg, True, color )
-                my_state.screen.blit( img , ( mydest.left , y ) )
-                y += self.font.get_linesize()
-            else:
-                break
-            item_num += 1
+        self.arrange()
+        for item_num,area in self._item_rects.items():
+            self.items[item_num].render(area, ( item_num == self.selected_item ) and do_extras)
 
         my_state.screen.set_clip(None)
 
         if self.descobj:
             self.descobj(self.get_current_item())
 
+        # Draw the "more" indicators
+        if do_extras and (( my_state.anim_phase // 10 ) % 2) == 1:
+            if self.top_item > 0:
+                area = self.more_image.get_rect(topright=mydest.topright)
+                my_state.screen.blit(self.more_image, area)
+            if self._item_rects.keys()[-1] < len(self.items) - 1:
+                area = self.more_image.get_rect(bottomright=mydest.bottomright)
+                my_state.screen.blit(self.more_image, area)
+
+
     def get_mouseover_item( self , pos ):
         # Return the menu item under this mouse position.
-        mydest = self.get_rect()
-        x,y = pos
-        if mydest.collidepoint( pos ):
-            the_item = ( y - mydest.top ) // self.font.get_linesize() + self.top_item
-            if the_item >= len( self.items ):
-                the_item = None
-            return the_item
-        else:
-            return None
+        # self.arrange must have been called previously!
+        for item_num,area in self._item_rects.items():
+            if area.collidepoint(pos):
+                return item_num
 
     def query(self):
         # A return of False means selection was cancelled. 
@@ -133,36 +187,16 @@ class Menu( Frect ):
         push_widget_state = my_state.widgets_active
         my_state.widgets_active = False
 
-        menu_height = self.menu_height()
+        # Do an initial arrangement of the menu.
+        self.arrange()
 
-        mouse_button_down = False
-        first_mouse_selection = None
-        first_mouse_y = 0
-        current_mouse_selection = None
- 
         while no_choice_made:
             pc_input = wait_event()
 
             if pc_input.type == TIMEREVENT:
                 # Redraw the menu on each timer event.
                 self.render()
-                pygame.display.flip()
-
-                # Also deal with mouse stuff then...
-                if mouse_button_down:
-                    pos = pygame.mouse.get_pos()
-                    dy = pos[1] - first_mouse_y
-
-                    if dy > 10 and self.top_item > 0:
-                        self.top_item += -1
-                        first_mouse_selection = None
-                    elif dy < -10 and self.top_item < len( self.items ) - menu_height:
-                        self.top_item += 1
-                        first_mouse_selection = None
-
-                    current_mouse_selection = self.get_mouseover_item( pos )
-                    if current_mouse_selection != None:
-                        self.selected_item = current_mouse_selection
+                my_state.do_flip()
 
             elif pc_input.type == pygame.KEYDOWN:
                 # A key was pressed, oh happy day! See what key it was and act
@@ -171,14 +205,14 @@ class Menu( Frect ):
                     self.selected_item -= 1
                     if self.selected_item < 0:
                         self.selected_item = len( self.items ) - 1
-                    if ( self.selected_item < self.top_item ) or ( self.selected_item >= self.top_item + menu_height ):
-                        self.top_item = self.selected_item
+                    if self.selected_item not in self._item_rects:
+                        self.top_item = min(self.selected_item,self._the_highest_top)
                 elif pc_input.key == pygame.K_DOWN:
                     self.selected_item += 1
                     if self.selected_item >= len( self.items ):
                         self.selected_item = 0
-                    if ( self.selected_item < self.top_item ) or ( self.selected_item >= self.top_item + menu_height ):
-                        self.top_item = self.selected_item
+                    if self.selected_item not in self._item_rects:
+                        self.top_item = min(self.selected_item,self._the_highest_top)
                 elif pc_input.key == pygame.K_SPACE or pc_input.key == pygame.K_RETURN:
                     choice = self.items[ self.selected_item ].value
                     no_choice_made = False
@@ -191,24 +225,29 @@ class Menu( Frect ):
                     choice = self.quick_keys[ pc_input.key ]
                     no_choice_made = False
 
-            elif pc_input.type == pygame.MOUSEBUTTONDOWN and not mouse_button_down:
-                # Mouse down does nothing but set the first mouse selection, and a
-                # counter telling that the button is down.
-                first_mouse_selection = self.get_mouseover_item( pc_input.pos )
-                first_mouse_y = pc_input.pos[1]
-                if first_mouse_selection != None:
-                    self.selected_item = first_mouse_selection
-                mouse_button_down = True
-            elif pc_input.type == pygame.MOUSEBUTTONUP:
-                # Mouse button up makes a selection, as long as your finger is still
-                # on the first item selected.
-                mouse_button_down = False
+            elif pc_input.type == pygame.MOUSEBUTTONDOWN:
+                if (pc_input.button == 1):
+                    moi = self.get_mouseover_item(pc_input.pos)
+                    if moi is not None:
+                        self.set_item_by_position(moi)
+                elif (pc_input.button == 4):
+                    self.top_item = max(self.top_item - 1, 0)
+                elif (pc_input.button == 5):
+                    self.top_item = min(self.top_item + 1, self._the_highest_top)
 
-                current_mouse_selection = self.get_mouseover_item( pc_input.pos )
-                if current_mouse_selection == first_mouse_selection and first_mouse_selection != None:
-                    self.selected_item = current_mouse_selection
-                    choice = self.items[ current_mouse_selection ].value
+            elif pc_input.type == pygame.MOUSEBUTTONUP:
+                if pc_input.button == 1:
+                    moi = self.get_mouseover_item(pc_input.pos)
+                    if moi is self.selected_item:
+                        choice = self.items[self.selected_item].value
+                        no_choice_made = False
+                elif pc_input.button == 3 and self.can_cancel:
                     no_choice_made = False
+
+            elif pc_input.type == pygame.MOUSEMOTION:
+                moi = self.get_mouseover_item(pc_input.pos)
+                if moi is not None:
+                    self.set_item_by_position(moi)
 
             elif pc_input.type == pygame.QUIT:
                 no_choice_made = False
@@ -240,14 +279,13 @@ class Menu( Frect ):
             self.add_item( f , f )
         self.sort()
 
-    def menu_height( self ):
-        return self.h // self.font.get_linesize()
-
     def reposition( self ):
+        self.arrange()
         if self.selected_item < self.top_item:
             self.top_item = self.selected_item
-        elif self.selected_item > ( self.top_item + self.menu_height() - 1 ):
-            self.top_item = max( self.selected_item - self.menu_height() + 1 , 0 )
+        elif self.selected_item > max(self._item_rects.keys()):
+            self.top_item = max(self._item_rects.keys() + [self._the_highest_top])
+        self.arrange()
 
     def set_item_by_value( self , v ):
         for n,i in enumerate( self.items ):

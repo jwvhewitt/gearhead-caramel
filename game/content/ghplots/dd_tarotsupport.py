@@ -243,6 +243,12 @@ class LunarRefugeeLost( Plot ):
     def _go_to_mission(self,camp):
         self.subplots["MISSION"].start_mission(camp)
 
+    def tzzz_START(self,camp):
+        if self.mission_finished:
+            print "Mission finished"
+        else:
+            print "Mission not finished?"
+
     def MISSION_WIN(self,camp):
         if not self.mission_finished:
             enemy_fac = self.elements.get(dd_tarot.ME_FACTION)
@@ -252,6 +258,10 @@ class LunarRefugeeLost( Plot ):
                 pbge.alert("You approach the campsite of the Lunar refugees, and see that it has been utterly destroyed.")
             camp.check_trigger("WIN", self)
             self.mission_finished = True
+            myscene = camp.scene.get_metro_scene()
+            print "{} -> {}, root {}".format(camp.scene,myscene,camp.scene.get_root_scene())
+            for p in camp.active_plots():
+                print p
 
     def MISSION_END(self,camp):
         self.MISSION_WIN(camp)

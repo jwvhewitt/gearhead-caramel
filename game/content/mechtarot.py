@@ -135,6 +135,16 @@ class CardTransformer(object):
             nart.story.visible = True
             nart.build()
 
+class CardDeactivator(object):
+    # Uses the same signature as the above, but only deactivates the card.
+    def __call__(self,camp,alpha_card,beta_card=None,transform_card=None):
+        """
+
+        :type alpha_card: TarotCard
+        """
+        if transform_card:
+            transform_card.active = False
+
 
 class Consequence(object):
     # An object that handles the transformation of tarot cards.
@@ -166,6 +176,19 @@ class Consequence(object):
         for p in end_these_plots:
             p.end_plot(camp)
 
+class CardCaller(object):
+    # A utility class for calling consequences along with their cards.
+    # Note that alpha and beta are meant to be the alpha and beta cards for a consequence, but feel free to abuse
+    # this class by sticking any old data in there.
+    def __init__(self, alpha, beta, camp_card_fun, kwargs=None):
+        self.alpha = alpha
+        self.beta = beta
+        self.camp_card_fun = camp_card_fun
+        self.kwargs = dict()
+        if kwargs:
+            self.kwargs.update(kwargs)
+    def __call__(self,camp):
+        self.camp_card_fun(camp, self.alpha, self.beta, **self.kwargs)
 
 class Interaction(object):
     def __init__(self, card_checker=None, action_triggers=None, consequences=None):

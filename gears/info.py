@@ -338,7 +338,7 @@ class ModuleDisplay( object ):
         else:
             self.module_dest.centerx = self.dest.centerx + 12 * self.module_num//2
         self.module_sprite.render( self.module_dest, self.part_struct_frame( module ) )
-        armor = module.get_armor()
+        armor = module.get_armor(destroyed_ok=True)
         if armor:
             self.module_sprite.render( self.module_dest, self.part_armor_frame( module, armor ) )
         self.module_num += 1
@@ -378,10 +378,43 @@ class ModuleDisplay( object ):
         self.add_parts_of_type( base.MF_Leg )
         self.add_parts_of_tier( 3 )
 
+class PropStatusBlock( object ):
+    # This block contains the armor/damage graphic.
+    def __init__(self,model,width=220,**kwargs):
+        self.model = model
+        self.width = width
+        self.height = 32
+        self.status_sprite = pbge.image.Image("sys_propstatus.png",32,32)
+
+    def prop_struct_frame( self ):
+        if self.model.is_destroyed():
+            return 8
+        else:
+            return min((self.model.get_damage_status()+5)/14, 7 )
+
+    def prop_armor_frame( self, armor ):
+        if armor.is_destroyed():
+            return 18
+        else:
+            return 10 + min((armor.get_damage_status()+5)/14, 7 )
+
+    def render(self,x,y):
+        mydest = pygame.Rect(x+self.width//2-16,y,32,32)
+
+        self.status_sprite.render( mydest, self.prop_struct_frame() )
+        armor = self.model.get_armor(destroyed_ok=True)
+        if armor:
+            self.status_sprite.render(mydest, self.prop_armor_frame(armor))
+
+
 
 class MechaStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
     DEFAULT_BLOCKS = (NameBlock,ModuleStatusBlock,PilotStatusBlock,EnchantmentBlock)
+
+class PropStatusDisplay( InfoPanel ):
+    # A floating status display, drawn wherever the mouse is pointing.
+    DEFAULT_BLOCKS = (NameBlock,PropStatusBlock,EnchantmentBlock)
 
 class NameStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
@@ -551,8 +584,10 @@ class ShortLauncherIP(InfoPanel):
 
 
 def get_status_display(model,**kwargs):
-    if isinstance(model,(base.Mecha,base.Being,base.Prop)):
+    if isinstance(model,(base.Mecha,base.Being)):
         return MechaStatusDisplay(model=model,**kwargs)
+    elif isinstance(model,base.Prop):
+        return PropStatusDisplay(model=model,**kwargs)
     else:
         return NameStatusDisplay(model=model,**kwargs)
 

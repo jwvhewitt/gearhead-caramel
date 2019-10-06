@@ -188,6 +188,12 @@ class GearHeadScene(pbge.scenes.Scene):
             actor.place(self, (x0, y0), team)
         actor.gear_up()
 
+    def purge_faction(self,camp,fac):
+        for npc in list(self.contents):
+            if hasattr(npc,"faction") and npc.faction is fac and npc not in camp.party:
+                self.contents.remove(npc)
+        for subscene in self.sub_scenes:
+            subscene.purge_faction(camp,fac)
 
 class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None

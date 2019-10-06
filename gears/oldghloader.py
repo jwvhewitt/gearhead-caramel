@@ -547,9 +547,9 @@ class GH1Loader(object):
                 "You arrived in Hogye as a refugee from Luna.",
                 "You fled Luna after deserting from Aegis Overlord Luna."
             ):
-                ghcpc.personality.append(personality.Luna)
+                ghcpc.personality.add(personality.Luna)
             else:
-                ghcpc.personality.append(personality.GreenZone)
+                ghcpc.personality.add(personality.GreenZone)
 
             bio_bits = list()
             bio_bits.append(rawpc.satt.get("BIO1", ""))
@@ -557,7 +557,7 @@ class GH1Loader(object):
             bio_bits.append(adv.satt.get("HISTORY2", ""))
 
             history_list = list()
-            for k,v in adv.satt:
+            for k,v in adv.satt.iteritems():
                 if k.startswith("HISTORY"):
                     history_list.append(v)
 
