@@ -1,3 +1,4 @@
+- Reworked the menu unit for better mouse support
 - Conversation border is now set by campaign
 - You can now ask lancemates to leave the party
 - Added road map to DeadZone Drifter

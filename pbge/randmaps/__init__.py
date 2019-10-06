@@ -89,6 +89,10 @@ class SceneGenerator( Room ):
                     self.gb.sub_scenes.append( t )
                 #elif isinstance( t, Room ):
                 #    self.gb.sub_scenes.append( t )
+        if self.gb.container and isinstance(self.gb.container,scenes.Scene) and self.gb in self.gb.container.contents:
+            myscene = self.gb.container
+            myscene.contents.remove(self.gb)
+            myscene.sub_scenes.append(self.gb)
 
 CITY_GRID_ROAD_OVERLAP = "Overlap the Road, Y'All!"
 

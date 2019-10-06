@@ -28,11 +28,13 @@ class TheDisbanded(TarotCard):
 
 class Renegades(TarotCard):
     TAGS = (MT_FACTION,)
+    QOL = gears.QualityOfLife(defense=-1)
 
 class MilitantSplinter(TarotCard):
     TAGS = (MT_FACTION,MT_THREAT)
     NEGATIONS = (TheDisbanded,)
     ASCENSIONS = ()
+    QOL = gears.QualityOfLife(stability=-2,community=-2,defense=2)
 
     def get_incrimination_offers(self, beta_card, npc, camp, interaction):
         """
@@ -152,6 +154,7 @@ class MilitantSplinter(TarotCard):
 class Atrocity(TarotCard):
     # A faction has been implicated in serious wrongdoing.
     TAGS = (MT_FACTION,MT_INCRIMINATING)
+    QOL = gears.QualityOfLife(stability=-2)
 
     def custom_init( self, nart ):
         # Add the subplot which will decide the splinter faction and provide a discovery route.

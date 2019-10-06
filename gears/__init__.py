@@ -93,11 +93,45 @@ def harvest_styles(mod):
 
 harvest_styles(colorstyle)
 
+class QualityOfLife(object):
+    # A measurement of a community's quality of life. I'll have you know I was up all night reading Wikipedia
+    # articles to come up with these QOL measures. Positive = good, negative = bad.
+    # Prosperity: Poverty is low, public works get done.
+    # Stability: Expectation of fairness and ability to plan for the future.
+    # Health: Medical care and sanitation.
+    # Community: Cultural works and sense of togetherness.
+    # Defense: Ability to resist external military threats.
+    # Tags: Special city-wide status effects not covered by the above indicies.
+    def __init__(self,prosperity=0,stability=0,health=0,community=0,defense=0,tags=()):
+        self.prosperity = prosperity
+        self.stability = stability
+        self.health = health
+        self.community = community
+        self.defense = defense
+        self.tags = list(tags)
+    def add(self,other):
+        self.prosperity += other.prosperity
+        self.stability += other.stability
+        self.health += other.health
+        self.community += other.community
+        self.defense += other.defense
+        self.tags += other.tags
+
 
 class MetroData(object):
     def __init__(self):
         self.tarot = pbge.container.ContainerDict()
         self.scripts = pbge.container.ContainerList(owner=self)
+    def get_quality_of_life(self):
+        qol = QualityOfLife()
+        for card in self.tarot.values():
+            if card.active and hasattr(card,"QOL"):
+                qol.add(card.QOL)
+        for plot in self.scripts:
+            if plot.active and hasattr(plot,"QOL"):
+                qol.add(plot.QOL)
+        return qol
+
 
 class GearHeadScene(pbge.scenes.Scene):
     def __init__(self, width=128, height=128, name="", player_team=None, civilian_team=None, faction=None,

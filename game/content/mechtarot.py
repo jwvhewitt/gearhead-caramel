@@ -229,7 +229,7 @@ class Interaction(object):
     def can_produce_target(self, target_card):
         mycon = list()
         for k,v in self.consequences.items():
-            if not k.startswith("_"):
+            if isinstance(v,CardTransformer) and not k.startswith("_"):
                 if (v.alpha_card_tf and v.alpha_card_tf.new_card_name == target_card) or (v.beta_card_tf and v.beta_card_tf.new_card_name == target_card) or (v.new_card_tf and v.new_card_tf.new_card_name == target_card):
                     mycon.append(v)
         return mycon
