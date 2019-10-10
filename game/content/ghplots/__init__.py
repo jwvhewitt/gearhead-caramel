@@ -6,6 +6,7 @@ import dd_distanttown
 import dd_homebase
 import dd_intro
 import dd_main
+import dd_roadedge
 import dd_roadstops
 import dd_tarot
 import dd_tarotsupport
@@ -28,14 +29,15 @@ def harvest( mod ):
                 CARDS_BY_NAME[o.__name__] = o
 
 harvest(actionscenes)
-harvest(dd_homebase)
-harvest(dd_main)
 harvest(dd_combatmission)
+harvest(dd_distanttown)
+harvest(dd_homebase)
+harvest(dd_intro)
+harvest(dd_main)
+harvest(dd_roadedge)
+harvest(dd_roadstops)
 harvest(dd_tarot)
 harvest(dd_tarotsupport)
-harvest(dd_intro)
-harvest(dd_roadstops)
-harvest(dd_distanttown)
 harvest(encounters)
 harvest(missionbuilder)
 harvest(mocha)

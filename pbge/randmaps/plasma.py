@@ -4,15 +4,17 @@ import random
 class Plasma( object ):
     """Creates a plasma; cels have value from 0.0 to 1.0."""
     # Converted to Python from https://github.com/jseyster/plasmafractal/blob/master/Plasma.java
-    def __init__( self, noise=5.0, width=129, height=129 ):
+    def __init__( self, noise=5.0, map_width=50, map_height=50 ):
         self.noise = noise
-        self.width = width
-        self.height = height
+        plasma_size = self.find_power_of_two_plus_one(max(map_width,map_height))
+        self.width = plasma_size
+        self.height = plasma_size
         self.map = [[ float()
-            for y in range(height) ]
-                for x in range(width) ]
-        self.divide_grid(0,0,width,height,random.random(),random.random(),random.random(),random.random())
+            for y in range(self.height) ]
+                for x in range(self.width) ]
+        self.divide_grid(0,0,self.width,self.height,random.random(),random.random(),random.random(),random.random())
 
+    @staticmethod
     def find_power_of_two_plus_one(x):
         return 1<<(x-1).bit_length() + 1
 

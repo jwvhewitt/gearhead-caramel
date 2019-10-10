@@ -30,7 +30,7 @@ class HeightfieldPrep( object ):
         self.maxloground = maxloground
         self.maxhiground = maxhiground
     def __call__( self, mapgen ):
-        mapgen.plasma = plasma.Plasma()
+        mapgen.plasma = plasma.Plasma(map_width=mapgen.area.w,map_height=mapgen.area.h)
         all_plasma_values = list()
         for column in mapgen.plasma.map[:mapgen.width]:
             all_plasma_values += column[:mapgen.height]

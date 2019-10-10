@@ -10,6 +10,7 @@ from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
 
+BAMO_DEFEAT_THE_BANDITS = "BAMO_DefeatTheBandits"
 BAMO_STORM_THE_CASTLE = "BAMO_StormTheCastle"   # 4 points
 
 
@@ -20,7 +21,10 @@ MAIN_OBJECTIVE_VALUE = 100
 #   **************************
 
 class BuildAMissionSeed(adventureseed.AdventureSeed):
+    # Optional elements:
+    #   ENTRANCE_ANCHOR:    Anchor for the PC's entrance
     def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, rank=None, objectives=(),
+                 adv_type="BAM_MISSION", custom_elements=None,
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone,
                  cash_reward=100,experience_reward=100,
                  one_chance=True, data=None, **kwargs):
@@ -33,6 +37,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         cms_pstate.elements["ARCHITECTURE"] = architecture
         cms_pstate.elements["ONE_CHANCE"] = one_chance      # If False, you can return to the combat zone until all objectives are complete.
         cms_pstate.elements["METROSCENE"] = adv_return[0]
+        if custom_elements:
+            cms_pstate.elements.update(custom_elements)
 
         # Data is a dict of stuff that will get used by whatever plot created this adventure seed, or maybe it
         # can be used by some of the objectives. I dunno! It's just a dict of stuff! Do with it as you will.
@@ -41,10 +47,12 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         if data:
             self.data.update(data)
 
-        super(BuildAMissionSeed, self).__init__(camp, name, adv_type="BAM_MISSION", adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False, **kwargs)
+        super(BuildAMissionSeed, self).__init__(camp, name, adv_type=adv_type, adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False, **kwargs)
 
-        self.rewards.append(adventureseed.CashReward(size=cash_reward))
-        self.rewards.append(adventureseed.ExperienceReward(size=experience_reward))
+        if cash_reward > 0:
+            self.rewards.append(adventureseed.CashReward(size=cash_reward))
+        if experience_reward > 0:
+            self.rewards.append(adventureseed.ExperienceReward(size=experience_reward))
         self.rewards.append(adventureseed.RenownReward())
 
     def end_adventure(self,camp):
@@ -65,7 +73,8 @@ class BuildAMissionPlot( Plot ):
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True, dident="METROSCENE")
         self.adv.world = myscene
 
-        self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=random.choice(pbge.randmaps.anchors.EDGES)),dident="LOCALE")
+        myanchor = self.elements.get("ENTRANCE_ANCHOR",None) or random.choice(pbge.randmaps.anchors.EDGES)
+        self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=myanchor),dident="LOCALE")
         myent = self.register_element( "_ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_EROOM")
 
         for ob in self.elements["OBJECTIVES"]:
@@ -111,6 +120,44 @@ class BuildAMissionPlot( Plot ):
 #   **********************
 #   ***   OBJECTIVES   ***
 #   **********************
+
+class BAM_DefeatTheBandits( Plot ):
+    LABEL = BAMO_DEFEAT_THE_BANDITS
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(15,15,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+        myunit = gears.selector.RandomMechaUnit(self.rank,100,myfac,myscene.environment,add_commander=True)
+        team2.contents += myunit.mecha_list
+        self.register_element("_commander",myunit.commander)
+
+        self.obj = adventureseed.MissionObjective("Defeat the bandits".format(myfac), MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+    def _eteam_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+    def _commander_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("[CHALLENGE]",
+            context=ContextTag([context.CHALLENGE,])))
+        return mylist
+
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(100)
+
 
 
 

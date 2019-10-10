@@ -243,12 +243,6 @@ class LunarRefugeeLost( Plot ):
     def _go_to_mission(self,camp):
         self.subplots["MISSION"].start_mission(camp)
 
-    def tzzz_START(self,camp):
-        if self.mission_finished:
-            print "Mission finished"
-        else:
-            print "Mission not finished?"
-
     def MISSION_WIN(self,camp):
         if not self.mission_finished:
             enemy_fac = self.elements.get(dd_tarot.ME_FACTION)

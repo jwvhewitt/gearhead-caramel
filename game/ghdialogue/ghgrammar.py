@@ -94,6 +94,23 @@ DEFAULT_GRAMMAR = {
             "hated","loved","feared"
         ]
     },
+    "[as_far_as_I_know]": {
+        Default: ["As far as I know"
+                  ],
+        personality.Cheerful: ["You'll be happy to know","To the best of my knowledge"
+                               ],
+        personality.Grim: ["I'm afraid that",
+                           ],
+        personality.Easygoing: ["I kinda think","I could be wrong, but I've heard that"
+                                ],
+        personality.Passionate: ["I know that",
+                                 ],
+        personality.Sociable: ["I've heard people saying that",
+                               ],
+        personality.Shy: ["I believe",
+                          ],
+    },
+
     "[ATTACK]": {
         Default: ["I don't know what you're doing here, but you'll feel my wrath. [LETSFIGHT]",
             "You shouldn't have come here. [LETSFIGHT]"
@@ -305,7 +322,7 @@ DEFAULT_GRAMMAR = {
             "My friend said that","All my friends say that","My friend told me that",
             "You may have heard this already, but","I bet","You'd never guess it, but","I bet you didn't know that",
             "There's been a rumour going around that","For your information,","Don't say I told you so, but",
-            "To be completely honest with you,","Word is that"
+            "To be completely honest with you,","Word is that", "[as_far_as_I_know]"
         ],
     },
 
@@ -1551,6 +1568,33 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[shop_slogan]": {
+        Default: [
+            "[shop_feature] is [shop_descriptive_phrase]",
+            "[shop_features] are [shop_descriptive_phrase]",
+        ]
+    },
+
+    "[shop_feature]": {
+        Default: [
+            "quality", "good service", "value for money", "the latest gear", "the [adjective] [noun]",
+            "your satisfaction", "something"
+        ]
+    },
+
+    "[shop_features]": {
+        Default: [
+            "the lowest prices", "happy customers", "great deals", "friendly staff"
+        ]
+    },
+
+    "[shop_descriptive_phrase]": {
+        Default: [
+            "our legal obligation", "a happy accident", "an unexpected surprise", "possible", "everything",
+            "better than a [noun]", "the law", "truly [adjective]", "job one"
+        ]
+    },
+
     "[THANK_YOU]": {
         # A simple thank you is appropriate.
         Default: ["Thank you.", "Thanks."
@@ -1694,6 +1738,8 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Fellowship: ["We will all need to come together to deal with this.",
                            ],
+        LIKE: ["[THANKS_FOR_BAD_NEWS]",
+               ],
     },
 
     "[threat]": {

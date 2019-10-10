@@ -104,15 +104,28 @@ class RoadEdge(object):
         self.discoverable = discoverable
         self.path = list()
         self.style = style
+        self.eplot = None
     def get_link(self,node_a):
         # If node_a is one of the nodes for this edge, return the other node.
         if node_a is self.start_node:
             return self.end_node
         elif node_a is self.end_node:
             return self.start_node
+    def get_city_link(self,city_a):
+        # If node_a is one of the nodes for this edge, return the other node.
+        if city_a is self.start_node.destination:
+            return self.end_node.destination
+        elif city_a is self.end_node.destination:
+            return self.start_node.destination
     def connects_to(self,some_node):
         return some_node is self.start_node or some_node is self.end_node
-    def get_menu_fun(self,node_a):
+    def connects_to_city(self,some_city):
+        return some_city is self.start_node.destination or some_city is self.end_node.destination
+    def get_menu_fun(self,camp,node_a):
+        if self.eplot:
+            myadv = self.eplot.get_road_adventure(camp,node_a)
+            if myadv:
+                return myadv
         if node_a is self.start_node:
             return self.go_to_start_node
         else:
@@ -171,6 +184,7 @@ class RoadMap(object):
                 edg.style = RoadEdge.STYLE_ORANGE
             else:
                 edg.style = RoadEdge.STYLE_YELLOW
+                edg.sub_plot_label = "DZD_ROADEDGE_YELLOW"
 
     def add_node(self,node_to_add,x,y):
         self.nodes.append(node_to_add)
@@ -201,7 +215,11 @@ class RoadMap(object):
         for e in self.edges:
             if e.sub_plot_label:
                 ok = plot.add_sub_plot(nart,e.sub_plot_label,ident=e.sub_plot_ident,spstate=PlotState(elements={"DZ_EDGE":e}).based_on( plot ))
-                if not ok:
+                if ok:
+                    e.eplot = ok
+                    if "DZ_EDGE_STYLE" in ok.elements:
+                        e.style = ok.elements["DZ_EDGE_STYLE"]
+                else:
                     break
         return ok
 
@@ -212,7 +230,7 @@ class RoadMap(object):
             mydest = e.get_link(mymenu.waypoint.node)
             e.visible = True
             mydest.visible = True
-            mymenu.add_item("Go to {}".format(mydest),e.get_menu_fun(mydest),e)
+            mymenu.add_item("Go to {}".format(mydest),e.get_menu_fun(camp,mydest),e)
 
 class DZDRoadMapMenu(pbge.rpgmenu.Menu):
     WIDTH = 640

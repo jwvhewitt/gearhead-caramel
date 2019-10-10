@@ -130,7 +130,7 @@ class WinterMochaBlower(ghwaypoints.Waypoint):
     desc = "You stand before an industrial air blower. It's probably being used in the construction of the new arena."
 
 class WinterMochaPavement( pbge.scenes.terrain.VariableTerrain ):
-    image_bottom = 'terrain_wintermocha_pavement.png'
+    image_bottom = 'terrain_floor_pavement.png'
     border = pbge.scenes.terrain.FloorBorder(ghterrain.Snow, 'terrain_border_snowline.png')
 
 class WinterMochaTruckTerrain(pbge.scenes.terrain.Terrain):

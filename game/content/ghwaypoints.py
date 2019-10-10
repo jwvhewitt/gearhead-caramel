@@ -122,6 +122,10 @@ class MechEngTerminal(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.MechEngTerminalTerrain)
     ATTACH_TO_WALL = True
 
+class MechaPoster(Waypoint):
+    TILE = pbge.scenes.Tile(None,None,ghterrain.MechaPosterTerrain)
+    ATTACH_TO_WALL = True
+
 class VentFan(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.VentFanTerrain)
     ATTACH_TO_WALL = True

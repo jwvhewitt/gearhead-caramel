@@ -71,18 +71,19 @@ class ConvoVisualizer(object):
 
     def rollout(self):
         bx = my_state.screen.get_width()
+        pxspeed = bx//15
         t = 0
         myrect = self.PORTRAIT_AREA.get_rect()
         myrect.x = -400
         while (myrect.x < self.get_portrait_area().x):
             if my_state.view:
                 my_state.view()
-            self.bottom_sprite.tile(pygame.Rect(max(0,bx-t*75),my_state.screen.get_height()//2+100,my_state.screen.get_width(),200))
+            self.bottom_sprite.tile(pygame.Rect(max(0,bx-t*pxspeed),my_state.screen.get_height()//2+100,my_state.screen.get_width(),200))
             if self.npc_sprite:
                 self.npc_sprite.render(myrect)
 
             my_state.do_flip()
-            myrect.x += 25
+            myrect.x += pxspeed//2
             anim_delay()
             t += 1
 

@@ -99,7 +99,10 @@ class DZD_Wujung(Plot):
     def LOCALE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
-        pass
+        creds = camp.totally_restore_party()
+        if creds > 0:
+            pbge.alert("Repair/Reload: ${}".format(creds))
+            camp.credits -= creds
 
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""
@@ -571,7 +574,7 @@ class DZD_AlliedArmor(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         team2.contents.append(npc)
 
-        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce)
+        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce, rank=50)
 
         custom_shop = pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.southwest, parent=intscene)
         npc2 = self.register_element("MECHANIC",
@@ -582,7 +585,7 @@ class DZD_AlliedArmor(Plot):
         custom_shop.contents.append(team3)
         custom_shop.contents.append(ghwaypoints.MechEngTerminal())
         self.custom_shop = services.Shop(npc=npc2, shop_faction=gears.factions.TerranDefenseForce,
-                                         ware_types=services.MECHA_PARTS_STORE)
+                                         ware_types=services.MECHA_PARTS_STORE,rank=50)
 
         self.asked_about_terminal = False
 
@@ -675,7 +678,8 @@ class DZD_EliteEquipment(Plot):
                             ))
 
         mylist.append(Offer("[OPENSHOP]",
-                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": "Elite Equipment", "wares": "gear"},
                             ))
 
         return mylist

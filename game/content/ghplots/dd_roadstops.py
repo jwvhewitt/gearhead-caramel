@@ -9,6 +9,7 @@ import game.content.plotutility
 import game.content.ghterrain
 from dd_main import DZDRoadMapExit,RoadNode
 import random
+from game.content import gharchitecture,ghwaypoints
 
 class DZD_DeadZoneTown(Plot):
     LABEL = "DZD_ROADSTOP"
@@ -47,7 +48,7 @@ class DZD_DeadZoneTown(Plot):
         self.register_element("MISSION_GATE", towngate)
 
         # Add the services.
-        #tplot = self.add_sub_plot(nart, "DZDHB_AlliedArmor")
+        tplot = self.add_sub_plot(nart, "DZRS_Garage")
         #tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
         #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
@@ -106,7 +107,7 @@ class DZD_DeadZoneVillage(Plot):
         self.register_element("MISSION_GATE", towngate)
 
         # Add the services.
-        #tplot = self.add_sub_plot(nart, "DZDHB_AlliedArmor")
+        tplot = self.add_sub_plot(nart, "DZRS_Garage")
         #tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
         #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
@@ -126,3 +127,148 @@ class DZD_DeadZoneVillage(Plot):
     TOWN_NAME_PATTERNS = ("{} Village","{} Hamlet","Camp {}","Mount {}", "{}", "{} Ruins" )
     def _generate_town_name(self):
         return random.choice(self.TOWN_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
+
+
+#   ***********************
+#   ***   DZRS_GARAGE   ***
+#   ***********************
+
+class SomewhatOkayGarage(Plot):
+    LABEL = "DZRS_Garage"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create a building within the town.
+        npc_name,garage_name = self.generate_npc_and_building_name()
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.ScrapIronBuilding(
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, garage_name, player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP),
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.ScrapIronWorkshop())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
+                                    dident="INTERIOR")
+        foyer.contents.append(ghwaypoints.MechEngTerminal())
+        foyer.contents.append(ghwaypoints.MechaPoster())
+
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        npc = self.register_element("SHOPKEEPER",
+                                    gears.selector.random_character(
+                                        self.rank, name=npc_name, local_tags=self.elements["LOCALE"].attributes,
+                                        job=gears.jobs.ALL_JOBS["Mechanic"]
+                                    ))
+        npc.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce,
+                                  ware_types=services.GENERAL_STORE_PLUS_MECHA, rank=self.rank)
+
+        return True
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Welcome to {}, where [shop_slogan]!".format(str(self.elements["INTERIOR"])),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": str(self.elements["INTERIOR"]), "wares": "good stuff"}
+                            ))
+
+        return mylist
+
+    NAME_PATTERNS = ("{npc}'s Service","{town} Garage", "{npc}'s Sales & Service", "{npc}'s Mechastop")
+    def generate_npc_and_building_name(self):
+        npc_name = gears.selector.EARTH_NAMES.gen_word()
+        building_name = random.choice(self.NAME_PATTERNS).format(npc=npc_name,town=str(self.elements["LOCALE"]))
+        return npc_name,building_name
+
+
+class FranklyBoringGarage(Plot):
+    LABEL = "DZRS_Garage"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create a building within the town.
+        npc_name,garage_name = self.generate_npc_and_building_name()
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.ScrapIronBuilding(
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, garage_name, player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE),
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.ScrapIronWorkshop())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
+                                    dident="INTERIOR")
+        foyer.contents.append(ghwaypoints.MechEngTerminal())
+        foyer.contents.append(ghwaypoints.MechaPoster())
+
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        npc = self.register_element("SHOPKEEPER",
+                                    gears.selector.random_character(
+                                        self.rank, name=npc_name, local_tags=self.elements["LOCALE"].attributes,
+                                        job=gears.jobs.ALL_JOBS["Mechanic"]
+                                    ))
+        npc.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce,
+                                  ware_types=services.BARE_ESSENTIALS_STORE, rank=self.rank - 15)
+
+        return True
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO]".format(str(self.elements["INTERIOR"])),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": str(self.elements["INTERIOR"]), "wares": "essentials"}
+                            ))
+
+        return mylist
+
+    NAME_PATTERNS = ("{npc}'s Garage","{town} Garage","{town} Repairs", "{town} Service Center", "{town} Fixit Shop")
+    def generate_npc_and_building_name(self):
+        npc_name = gears.selector.EARTH_NAMES.gen_word()
+        building_name = random.choice(self.NAME_PATTERNS).format(npc=npc_name,town=str(self.elements["LOCALE"]))
+        return npc_name,building_name
+
+
+#   *************************
+#   ***   DZRS_HOSPITAL   ***
+#   *************************
+
+
+
+#   *********************
+#   ***   DZRS_SHOP   ***
+#   *********************
+
+

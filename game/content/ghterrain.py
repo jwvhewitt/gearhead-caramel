@@ -48,6 +48,9 @@ class SemiDeadZoneGround( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_dzground.png'
     border = pbge.scenes.terrain.FloorBorder( GreenZoneGrass, 'terrain_border_grassy.png' )
 
+class Pavement( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_floor_pavement.png'
+
 
 class SmallDeadZoneGround( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_dzground2.png'
@@ -210,6 +213,11 @@ class GoldPlaqueTerrain(pbge.scenes.terrain.OnTheWallTerrain):
 
 class MechEngTerminalTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_mechengterminal.png'
+
+class MechaPosterTerrain(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    image_top = 'terrain_decor_posters_mecha.png'
+    south_frames = (1,3,5,7)
+    east_frames = (0,2,4,6)
 
 
 class DZDWConcreteBuilding(pbge.scenes.terrain.Terrain):

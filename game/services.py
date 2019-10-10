@@ -10,7 +10,8 @@ ARMOR_STORE = (tags.ST_CLOTHING,)
 WEAPON_STORE = (tags.ST_WEAPON,)
 GENERAL_STORE = (tags.ST_WEAPON,tags.ST_CLOTHING,tags.ST_ESSENTIAL)
 MECHA_PARTS_STORE = (tags.ST_MECHA_EQUIPMENT,)
-
+GENERAL_STORE_PLUS_MECHA = (tags.ST_WEAPON,tags.ST_CLOTHING,tags.ST_ESSENTIAL,tags.ST_MECHA,tags.ST_MECHA_EQUIPMENT)
+BARE_ESSENTIALS_STORE = (tags.ST_ESSENTIAL,)
 
 class CostBlock(object):
     def __init__(self, model, shop, camp, width=360, **kwargs):

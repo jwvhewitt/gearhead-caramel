@@ -179,7 +179,6 @@ class DeadZoneRazedVillage( Plot ):
 
     def end_the_mission(self,camp):
         # Restore the party at the end of the mission, then send them back to the hangar.
-        camp.totally_restore_party()
         camp.destination, camp.entrance = self.elements["MISSION_RETURN"]
         camp.check_trigger("END", self)
 
