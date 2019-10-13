@@ -124,7 +124,7 @@ class DZREPR_BasePlot(Plot):
             num_miss = 0
             miss_num = 0
             while num_miss < 2 and miss_num < len(self.MISSION_LABELS):
-                init = pbge.plots.PlotState().based_on(self)
+                init = pbge.plots.PlotState(rank=self.rank + self.elements[E_MISSION_NUMBER]*3).based_on(self)
                 nart = game.content.GHNarrativeRequest(camp, init, self.MISSION_LABELS[miss_num], game.content.PLOT_LIST)
                 if nart.story:
                     nart.build()
@@ -155,19 +155,21 @@ class DZREPR_BasePlot(Plot):
 
 class DZREPR_BaseMission(Plot):
     # Will activate the adventure when property mission_active set to True
-    # Required Elements: METRO, LOCALE, MISSION_GATE
+    # Required Elements: METRO, LOCALE, MISSION_GATE, FACTION
     LABEL = "DZRE_MOTIVE_ACE_TOWN"
     active = True
     scope = "METRO"
     REQUIRES = {E_MOTIVE: None, E_ACE: None, E_TOWN: None}
     CHANGES = {E_MOTIVE: None, E_ACE: None, E_TOWN: None}
-    MISSION_NAME = "Go do mission"
+    MISSION_NAME = "The Mission"
+    MISSION_PROMPT = "Go do mission"
     OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,)
+    WIN_MESSAGE = ""
 
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return all(pstate.elements.get(k,0) == cls.REQUIRES[k] for k in cls.REQUIRES.iterkeys())
+        return all(pstate.elements.get(k,0) == cls.REQUIRES[k] for k in cls.REQUIRES.iterkeys()) or cls.LABEL == "DZRE_TEST"
 
     def custom_init(self, nart):
         self.mission_seed = None
@@ -175,11 +177,12 @@ class DZREPR_BaseMission(Plot):
         return True
 
     def build_mission(self,camp):
-        myadv = missionbuilder.BuildAMissionSeed(
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, self.MISSION_NAME, (self.elements["LOCALE"],self.elements["MISSION_GATE"]),
             enemy_faction = self.elements["FACTION"], rank=self.rank,
             objectives = self.OBJECTIVES, one_chance=False,
             architecture=gharchitecture.MechaScaleDeadzone,
+            win_message=self.WIN_MESSAGE.format(**self.elements)
         )
 
     def t_UPDATE(self,camp):
@@ -193,8 +196,8 @@ class DZREPR_BaseMission(Plot):
             other_plot.elements[k] = v
 
     def MISSION_GATE_menu(self, camp, thingmenu):
-        if self.mission_seed:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+        if self.mission_seed and self.mission_active:
+            thingmenu.add_item(self.MISSION_PROMPT, self.mission_seed)
 
 #   *****************************************
 #   ***   ROAD  EDGE  RATCHET  MISSIONS   ***
@@ -202,6 +205,37 @@ class DZREPR_BaseMission(Plot):
 #
 # The missions leading up to the boss fight against the bandits or whoever.
 
+class DZREPR_LookForTrouble(DZREPR_BaseMission):
+    #LABEL = "DZRE_MOTIVE_ACE"
+    LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_UNKNOWN, E_ACE: DZRE_ACE_UNKNOWN}
+    CHANGES = {E_ACE: DZRE_ACE_HIDDENBASE}
+    MISSION_NAME = "Looking for Trouble"
+    MISSION_PROMPT = "Search the backroads for bandit base"
+    OBJECTIVES = (missionbuilder.BAMO_SURVIVE_THE_AMBUSH,missionbuilder.BAMO_LOCATE_ENEMY_FORCES)
+    WIN_MESSAGE = "After the battle, you find no tracks indicating where {FACTION} came from. It's clear that they know this area and their hideout must be well hidden."
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and npc.combatant and npc not in camp.party:
+            goffs.append(Offer(
+                msg="[GOODQUESTION] My best guess would be to check the backroads [direction] of town.",
+                context=ContextTag((context.CUSTOM,)), effect=self._activate_mission,
+                data={"reply": "Do you have any idea where {} have their base?".format(self.elements["FACTION"])}, no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if not npc.combatant and not self.mission_active:
+            mygram["[News]"].append("maybe a pilot would know how to find {}.".format(self.elements["FACTION"]))
+        return mygram
+
+    def _activate_mission(self,camp):
+        self.mission_active = True
+        self.MISSION_PROMPT = "Search the backroads for {}".format(self.elements["FACTION"])
+        camp.check_trigger("UPDATE")
 
 #   ***************************************
 #   ***   ROAD  EDGE  RATCHET  SETUPS   ***
@@ -231,11 +265,12 @@ class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
         destscene.local_teams[mynpc] = destscene.civilian_team
 
         self.got_rumor = False
+        self.offered_services = False
 
         return True
 
     def _is_best_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_GARAGE in candidate.attributes
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and (gears.tags.SCENE_GARAGE in candidate.attributes or gears.tags.SCENE_TRANSPORT in candidate.attributes)
 
     def _is_good_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
@@ -258,7 +293,7 @@ class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
                 context=ContextTag((context.INFO,)), effect=self._get_rumor,
                 subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
             ))
-        if not self.start_missions and camp.scene.get_root_scene() is self.elements["LOCALE"]:
+        if not self.start_missions and npc is not self.elements["NPC"] and npc not in camp.party:
             goffs.append(Offer(
                 msg="[as_far_as_I_know] they call themselves {}. Hopefully they will leave this place as quickly as they arrived.".format(self.elements["FACTION"]),
                 context=ContextTag((context.INFO,)), effect=self._get_rumor,
@@ -271,6 +306,53 @@ class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
         self.got_rumor = True
         mynpc = self.elements["NPC"]
         self.memo = "{} is a trucker who lost {} convoy; {} can be found at {}.".format(mynpc,mynpc.gender.possessive_determiner,mynpc.gender.subject_pronoun,self.elements["_DEST"])
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.start_missions:
+            mylist.append(Offer("[HELLO] While bringing in a convoy from {}, I got attacked by bandits and lost everything.".format(self.elements["DZ_EDGE"].get_city_link(self.elements["LOCALE"])),
+                                context=ContextTag([context.HELLO]),
+                                ))
+
+            mylist.append(Offer("I can tell you that {} haven't been around for long- if I knew there were raiders working this stretch I would have brought along more muscle. If you can find their base it shouldn't be hard to get rid of them.".format(self.elements["FACTION"]),
+                                context=ContextTag([context.INFO]), effect=self._get_briefed,
+                                data={"subject": "the bandits"}, no_repeats=True
+                                ))
+
+        elif self.elements[E_MISSION_NUMBER] > 1 and self.elements["NPC"].get_reaction_score(camp.pc, camp) > 0 and not self.offered_services:
+            mylist.append(Offer(
+                "[HELLO] Now that my mek's repaired, I'd love a chance to take on {} myself.".format(self.elements["FACTION"]),
+                context=ContextTag([context.HELLO]),
+                ))
+            if camp.can_add_lancemate():
+                mylist.append(Offer(
+                    "[THANKS_FOR_CHOOSING_ME] Let's roll out.", context=ContextTag((context.JOIN,)),
+                    effect=self._join_lance
+                    ))
+            else:
+                mylist.append(Offer(
+                    "Seems like it'd be a little crowded to join your [lance] now, but if you need my help in the future come back and find me.", context=ContextTag((context.JOIN,)),
+                    effect=self._join_lance
+                    ))
+        else:
+            mylist.append(Offer("[HELLO] Give {} hell.".format(self.elements["FACTION"]),
+                                context=ContextTag([context.HELLO]),
+                                ))
+        return mylist
+
+    def _get_briefed(self,camp):
+        self.start_missions = True
+        camp.check_trigger("UPDATE")
+        self.memo = "You learned that {} must have a base near {}.".format(self.elements["FACTION"],self.elements["LOCALE"])
+
+    def _join_lance(self, camp):
+        npc = self.elements["NPC"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        self.offered_services = True
+        if camp.can_add_lancemate():
+            effect = ghdialogue.AutoJoiner(npc)
+            effect(camp)
 
 
 #   *******************************

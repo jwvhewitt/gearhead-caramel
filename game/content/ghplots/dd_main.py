@@ -64,6 +64,9 @@ class DeadzoneDrifterStub( Plot ):
         camp.destination,camp.entrance = camp.home_base
         del self.subplots["INTRO"]
 
+    def t_START(self,camp):
+        camp.check_trigger("UPDATE")
+
 
 class RoadNode(object):
     # A node in the RoadMap graph; represents a town or other visitable location.

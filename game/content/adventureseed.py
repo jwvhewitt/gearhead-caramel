@@ -7,7 +7,7 @@ import pygame
 
 class AdventureSeed(Adventure):
     def __init__(self, camp, name, adv_type, adv_return, pstate=None, auto_set_rank=True, restore_at_end=True,
-                 display_results_at_end=True):
+                 display_results_at_end=True, include_health_objective=True ):
         # adv_return is a (Destination,Entrance) tuple.
         super(AdventureSeed, self).__init__(name=name, world=None)
         self.pstate = pstate or pbge.plots.PlotState(adv=self,rank=camp.pc.renown)
@@ -28,6 +28,8 @@ class AdventureSeed(Adventure):
         # Create a list in which to store the objectives. We'll use this to determine if the mission is
         # finished or failed or whatnot. Or we can just ignore it, It all depends on what kind of adventure this is.
         self.objectives = list()
+        if include_health_objective:
+            self.objectives.append(ComeBackInOnePieceObjective(camp))
 
     def __call__(self, camp):
         """
@@ -49,20 +51,28 @@ class AdventureSeed(Adventure):
         self.root_plot.start_mission(camp)
 
 
-    def get_completion(self):
+    def get_completion(self,include_optional=False):
         # Return the percent completion of this mission. Due to optional objectives and whatnot, this may fall
         # outside of the 0..100 range.
-        awarded = sum([o.awarded_points for o in self.objectives if not o.failed])
+        if include_optional:
+            awarded = sum([o.awarded_points for o in self.objectives if not o.failed])
+        else:
+            awarded = sum([o.awarded_points for o in self.objectives if not o.failed and not o.optional])
         total = max(sum([o.mo_points for o in self.objectives if not o.optional]),1)
         return (awarded * 100)//total
     def is_won(self):
         return self.get_completion() > 50
     def get_grade(self):
-        c = self.get_completion()
-        if c < 0:
+        c = self.get_completion(True)
+        won = self.is_won()
+        if c < 0 and not won:
             return "F-"
-        elif c <= 50:
+        elif c < 0 and won:
+            return "D--"
+        elif c <= 50 and not won:
             return "F"
+        elif c <= 50 and won:
+            return "D-"
         elif c <= 60:
             return "D"
         elif c <= 70:
@@ -181,20 +191,55 @@ class CombatResultsDisplay(CombatMissionDisplay):
 #   ***  OBJECTIVES  ***
 #   ********************
 
+MAIN_OBJECTIVE_VALUE = 100
+
 class MissionObjective(object):
     """
     An optional objectives record for missions to use.
     """
-    def __init__(self,name,mo_points,optional=False,secret=False):
+    def __init__(self,name,mo_points,optional=False,secret=False,can_reset=True):
         self.name = name
         self.mo_points = mo_points
         self.awarded_points = 0
         self.optional = optional
         self.failed = False
         self.secret = secret
-    def win(self,completion=100):
+        self.can_reset = can_reset
+    def win(self,camp,completion=100):
         self.awarded_points = max(( self.mo_points * completion ) // 100,1)
+        camp.check_trigger("UPDATE")
+    def reset_objective(self):
+        if self.can_reset:
+            self.awarded_points = 0
+            self.failed = 0
 
+class ComeBackInOnePieceObjective(MissionObjective):
+    def __init__(self,camp):
+        super(ComeBackInOnePieceObjective, self).__init__(name="Come Back in One Piece", mo_points=0, optional=True, secret=True)
+        self.camp = camp
+    def _set_awarded_points(self,val):
+        pass
+    def _get_awarded_points(self):
+        dstats = list()
+        for mek in self.camp.party:
+            if mek in self.camp.scene.contents:
+                if mek.is_operational():
+                    tds = mek.get_total_damage_status()
+                    if tds < 1:
+                        dstats.append(15)
+                    elif tds >= 15:
+                        dstats.append(-50)
+                    elif tds >= 10:
+                        dstats.append(-30)
+                    elif tds >= 5:
+                        dstats.append(-15)
+                else:
+                    dstats.append(-75)
+        if dstats:
+            return sum(dstats)
+        else:
+            return 0
+    awarded_points = property(_get_awarded_points,_set_awarded_points)
 
 #   *****************
 #   ***  REWARDS  ***
@@ -259,4 +304,5 @@ class ExperienceReward(object):
         camp.dole_xp(xp)
 
         adv.results.append(("Experience","+{:,}".format(xp)))
+
 

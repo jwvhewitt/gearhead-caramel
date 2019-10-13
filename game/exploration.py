@@ -411,7 +411,8 @@ class Explorer( object ):
         if not self.camp.fight:
             self.camp.check_trigger( "START" )
             self.camp.check_trigger( "ENTER", self.scene )
-
+        self.camp.check_trigger( "UPDATE" )
+        self.update_npcs()
 
         while self.keep_exploring():
             first_pc_pos=self.camp.first_active_pc().pos
@@ -482,6 +483,9 @@ class Explorer( object ):
                     elif gdi.unicode == u"A":
                         self.record_count = 20
 
+                    elif gdi.unicode == u"d":
+                        print self.camp.first_active_pc().get_total_damage_status()
+
                     elif gdi.unicode == u"&":
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
@@ -516,7 +520,8 @@ class Explorer( object ):
                         ExploMenu(self,pc)
 
         if not self.no_quit:
-            self.camp.check_trigger("END")
             self.camp.save()
+        else:
+            self.camp.check_trigger("END")
 
         current_explo = None

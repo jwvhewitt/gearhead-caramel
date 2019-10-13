@@ -22,7 +22,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
         self.elements["DZ_TOWN_NAME"] = self.generate_town_name()
 
-        myscene = gears.GearHeadScene(15,15,"{} Mecha Hangar".format(self.elements["DZ_TOWN_NAME"]),player_team=team1,scale=gears.scale.HumanScale,civilian_team=team2,attributes=(gears.personality.DeadZone,))
+        myscene = gears.GearHeadScene(15,15,"{} Mecha Hangar".format(self.elements["DZ_TOWN_NAME"]),player_team=team1,scale=gears.scale.HumanScale,civilian_team=team2,attributes=(gears.personality.DeadZone,),is_metro=True)
         myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.IndustrialBuilding(floor_terrain=ghterrain.GrateFloor))
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
 
@@ -31,7 +31,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
         myroom = self.register_element("_EROOM",pbge.randmaps.rooms.ClosedRoom(10,7),dident="LOCALE")
         myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
-        self.register_element("CHUTE",ghwaypoints.BoardingChute(plot_locked=True),dident="_EROOM")
+        mychute = self.register_element("CHUTE",ghwaypoints.BoardingChute(plot_locked=True),dident="_EROOM")
         myroom.contents.append(ghwaypoints.ClosedBoardingChute())
         myroom.contents.append(ghwaypoints.VentFan())
 
@@ -45,6 +45,12 @@ class DZDIntro_GetInTheMekShimli(Plot):
         # Request the intro mission and debriefing.
         self.add_sub_plot(nart,"DZD_INTRO_MISSION",ident="MISSION")
         self.add_sub_plot(nart,"DZD_MISSION_DEBRIEFING",ident="DEBRIEFING")
+
+        # Attempt to load the test mission.
+        mytest = self.add_sub_plot(nart,"DZRE_TEST",spstate=pbge.plots.PlotState(rank=1,elements={"METRO":myscene.metrodat,"MISSION_GATE":mychute,"FACTION":game.content.plotutility.RandomBanditCircle()}).based_on(self),necessary=False)
+        if mytest:
+            print "Loaded test!"
+            mytest.mission_active = True
 
         self.started_the_intro = False
         self._tutorial_on = False

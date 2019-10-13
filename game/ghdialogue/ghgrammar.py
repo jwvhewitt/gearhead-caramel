@@ -402,6 +402,11 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[direction]": {
+        Default: ["north", "south", "west", "east"
+                  ],
+    },
+
     "[DOTHEYHAVEITEM]": {
     # The data block should hold the item name as "item".
         Default: [ "Don't they have {item}?",
@@ -464,6 +469,11 @@ DEFAULT_GRAMMAR = {
         tags.Military: [
             "hostiles",
         ],
+    },
+
+    "[expletive]": {
+        Default: ["ashes","blazes","hell"
+                  ],
     },
 
     "[FACTION_MUST_BE_PUNISHED]": {
@@ -562,7 +572,24 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Shy: ["Good luck.",
             ],
-        },    
+        },
+
+    "[GOODQUESTION]": {
+        Default: ["That's a good question."
+                  ],
+        personality.Cheerful: ["That's a real puzzler.",
+                               ],
+        personality.Grim: ["How the [expletive] would I know that?!",
+                           ],
+        personality.Easygoing: ["I'm not sure I know how to answer that.",
+                                ],
+        personality.Passionate: ["It's a great mystery!",
+                                 ],
+        personality.Sociable: ["Now, I don't know anything more than what I've heard.",
+                               ],
+        personality.Shy: ["Good question.",
+                          ],
+    },
 
     "[HAGOODONE]": {
         Default: ["Ha! That's a good one.","Yeah, right."

@@ -1,7 +1,5 @@
 import random
 
-import pygame
-
 import game.content.gharchitecture
 import game.content.ghterrain
 import game.content.ghwaypoints
@@ -9,6 +7,7 @@ import gears
 import pbge
 from game import teams, ghdialogue
 from game.content import adventureseed
+from game.content.adventureseed import ComeBackInOnePieceObjective, MAIN_OBJECTIVE_VALUE
 from game.ghdialogue import context
 from pbge.dialogue import ContextTag, Offer, Reply
 from pbge.plots import Plot
@@ -49,34 +48,6 @@ class CombatMissionSeed(adventureseed.AdventureSeed):
         super(CombatMissionSeed, self).end_adventure(camp)
         camp.day += 1
 
-class ComeBackInOnePieceObjective(adventureseed.MissionObjective):
-    def __init__(self,camp):
-        super(ComeBackInOnePieceObjective, self).__init__(name="Come Back in One Piece", mo_points=0, optional=True, secret=True)
-        self.camp = camp
-    def _set_awarded_points(self,val):
-        pass
-    def _get_awarded_points(self):
-        dstats = list()
-        for mek in self.camp.party:
-            if mek in self.camp.scene.contents:
-                if mek.is_operational():
-                    tds = mek.get_total_damage_status()
-                    if tds <= 5:
-                        dstats.append(5)
-                    elif tds >= 25:
-                        dstats.append(-10)
-                    elif tds >= 10:
-                        dstats.append(-5)
-                else:
-                    dstats.append(-20)
-        if dstats:
-            return sum(dstats) // len(dstats)
-        else:
-            return 0
-    awarded_points = property(_get_awarded_points,_set_awarded_points)
-
-
-MAIN_OBJECTIVE_VALUE = 100
 
 #   ****************************
 #   ***  DZD_COMBAT_MISSION  ***
@@ -101,7 +72,7 @@ class DeadZoneCombatMission( Plot ):
         for ob in self.elements["OBJECTIVES"]:
             self.add_sub_plot(nart,ob)
         #self.add_sub_plot(nart, "DZDCM_RECOVER_CARGO")
-        self.adv.objectives.append(ComeBackInOnePieceObjective(nart.camp))
+        #self.adv.objectives.append(ComeBackInOnePieceObjective(nart.camp))
 
         self.mission_entrance = (myscene,myent)
         self.started_mission = False
