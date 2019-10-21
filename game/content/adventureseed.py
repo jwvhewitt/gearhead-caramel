@@ -224,15 +224,11 @@ class ComeBackInOnePieceObjective(MissionObjective):
         for mek in self.camp.party:
             if mek in self.camp.scene.contents:
                 if mek.is_operational():
-                    tds = mek.get_total_damage_status()
+                    tds = mek.get_percent_damage_over_health()
                     if tds < 1:
                         dstats.append(15)
-                    elif tds >= 15:
-                        dstats.append(-50)
-                    elif tds >= 10:
-                        dstats.append(-30)
                     elif tds >= 5:
-                        dstats.append(-15)
+                        dstats.append(max(-tds*2,-50))
                 else:
                     dstats.append(-75)
         if dstats:

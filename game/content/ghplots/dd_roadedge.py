@@ -195,9 +195,13 @@ class DZREPR_BaseMission(Plot):
         for k,v in self.CHANGES.items():
             other_plot.elements[k] = v
 
+    def activate_mission(self,camp):
+        self.mission_active = True
+        camp.check_trigger("UPDATE")
+
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.MISSION_PROMPT, self.mission_seed)
+            thingmenu.add_item(self.MISSION_PROMPT.format(**self.elements), self.mission_seed)
 
 #   *****************************************
 #   ***   ROAD  EDGE  RATCHET  MISSIONS   ***
@@ -206,12 +210,11 @@ class DZREPR_BaseMission(Plot):
 # The missions leading up to the boss fight against the bandits or whoever.
 
 class DZREPR_LookForTrouble(DZREPR_BaseMission):
-    #LABEL = "DZRE_MOTIVE_ACE"
-    LABEL = "DZRE_TEST"
+    LABEL = "DZRE_MOTIVE_ACE"
     REQUIRES = {E_MOTIVE: DZRE_MOTIVE_UNKNOWN, E_ACE: DZRE_ACE_UNKNOWN}
     CHANGES = {E_ACE: DZRE_ACE_HIDDENBASE}
     MISSION_NAME = "Looking for Trouble"
-    MISSION_PROMPT = "Search the backroads for bandit base"
+    MISSION_PROMPT = "Search the backroads for {FACTION}"
     OBJECTIVES = (missionbuilder.BAMO_SURVIVE_THE_AMBUSH,missionbuilder.BAMO_LOCATE_ENEMY_FORCES)
     WIN_MESSAGE = "After the battle, you find no tracks indicating where {FACTION} came from. It's clear that they know this area and their hideout must be well hidden."
 
@@ -221,7 +224,7 @@ class DZREPR_LookForTrouble(DZREPR_BaseMission):
         if not self.mission_active and npc.combatant and npc not in camp.party:
             goffs.append(Offer(
                 msg="[GOODQUESTION] My best guess would be to check the backroads [direction] of town.",
-                context=ContextTag((context.CUSTOM,)), effect=self._activate_mission,
+                context=ContextTag((context.CUSTOM,)), effect=self.activate_mission,
                 data={"reply": "Do you have any idea where {} have their base?".format(self.elements["FACTION"])}, no_repeats=True
             ))
         return goffs
@@ -232,10 +235,33 @@ class DZREPR_LookForTrouble(DZREPR_BaseMission):
             mygram["[News]"].append("maybe a pilot would know how to find {}.".format(self.elements["FACTION"]))
         return mygram
 
-    def _activate_mission(self,camp):
-        self.mission_active = True
-        self.MISSION_PROMPT = "Search the backroads for {}".format(self.elements["FACTION"])
-        camp.check_trigger("UPDATE")
+class DZREPR_HighwayPatrol(DZREPR_BaseMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_UNKNOWN, E_TOWN: DZRE_TOWN_NEUTRAL}
+    CHANGES = {E_MOTIVE: DZRE_MOTIVE_PROFIT}
+    MISSION_NAME = "Highway Patrol"
+    MISSION_PROMPT = "Patrol highway for {FACTION}"
+    OBJECTIVES = (missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL,missionbuilder.BAMO_LOCATE_ENEMY_FORCES)
+    WIN_MESSAGE = "You have confirmed that {FACTION} are targeting convoys along the highway."
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and gears.tags.Politician in npc.get_tags() and npc not in camp.party:
+            goffs.append(Offer(
+                msg="Since {} showed up, several convoys have gone missing between here and {}. If you patrol the highway you might be able to catch them in the act.".format(self.elements["FACTION"],self.elements["DZ_EDGE"].get_city_link(self.elements["LOCALE"])),
+                context=ContextTag((context.CUSTOM,)), effect=self.activate_mission,
+                data={"reply": "Do you know what {} want?".format(self.elements["FACTION"])}, no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if gears.tags.Politician not in npc.get_tags() and not self.mission_active:
+            mygram["[News]"].append("the people in charge know more about {} than they're letting on.".format(self.elements["FACTION"]))
+        return mygram
+
 
 #   ***************************************
 #   ***   ROAD  EDGE  RATCHET  SETUPS   ***

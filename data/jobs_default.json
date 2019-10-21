@@ -188,7 +188,7 @@
   {
     "name": "Explorer",
     "skills": ["Scouting"],
-    "tags": ["Adventurer"],
+    "tags": ["Adventurer","Academic"],
     "skill_modifiers": {
       "MechaFighting": -1,
       "Vitality": 1
@@ -242,6 +242,18 @@
     "local_requirements": ["DeadZone"]
   },
   {
+    "name": "Mayor",
+    "skills": ["Negotiation"],
+    "tags": ["Politician"]
+  },
+  {
+    "name": "Warlord",
+    "skills": ["Scouting"],
+    "tags": ["Politician","Military"],
+    "always_combatant": true,
+    "local_requirements": ["DeadZone"]
+  },
+  {
     "name": "Shopkeeper",
     "skills": ["Repair"],
     "tags": ["Merchant"]
@@ -250,6 +262,22 @@
     "name": "Innkeeper",
     "skills": ["Negotiation"],
     "tags": ["Merchant"]
+  },
+  {
+    "name": "Citizen",
+    "skills": ["Negotiation"],
+    "tags": ["Laborer"]
+  },
+  {
+    "name": "Buttonpusher",
+    "skills": ["Computers"],
+    "tags": ["Laborer"],
+    "local_requirements": ["DeadZone"]
+  },
+  {
+    "name": "Miner",
+    "skills": ["Vitality"],
+    "tags": ["Laborer"]
   },
   {
     "name": "Trucker",
@@ -265,6 +293,12 @@
     "name": "Mechanic",
     "skills": ["Repair"],
     "tags": ["Craftsperson"]
+  },
+  {
+    "name": "Tekno",
+    "skills": ["Computers","Science","Biotechnology"],
+    "tags": ["Craftsperson"],
+    "local_requirements": ["DeadZone"]
   },
   {
     "name": "Doctor",

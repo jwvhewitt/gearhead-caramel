@@ -7,7 +7,8 @@ import gears
 import pbge
 from game import teams, ghdialogue
 from game.content import adventureseed
-from game.content.adventureseed import ComeBackInOnePieceObjective, MAIN_OBJECTIVE_VALUE
+from game.content.adventureseed import MAIN_OBJECTIVE_VALUE
+from game.content.plotutility import CargoContainer
 from game.ghdialogue import context
 from pbge.dialogue import ContextTag, Offer, Reply
 from pbge.plots import Plot
@@ -231,27 +232,6 @@ class EliminateWitnesses( Plot ):
 #   *****************************
 #   ***  DZDCM_RECOVER_CARGO  ***
 #   *****************************
-
-class CargoContainer(gears.base.Prop):
-    DEFAULT_COLORS = (gears.color.White,gears.color.Aquamarine,gears.color.DeepGrey,gears.color.Black,gears.color.GullGrey)
-    def __init__(self,name="Shipping Container",size=1,colors=None,imagename="prop_shippingcontainer.png",**kwargs):
-        super(CargoContainer, self).__init__(name=name,size=size,imagename=imagename,**kwargs)
-        self.colors = colors or self.DEFAULT_COLORS
-
-    @staticmethod
-    def random_fleet_colors():
-        return [random.choice(gears.color.MECHA_COLORS),
-                random.choice(gears.color.DETAIL_COLORS),
-                random.choice(gears.color.METAL_COLORS),
-                gears.color.Black,
-                random.choice(gears.color.MECHA_COLORS)]
-    @classmethod
-    def generate_cargo_fleet(cls,rank,colors=None):
-        if not colors:
-            colors = cls.random_fleet_colors()
-        myfleet = [cls(colors=colors) for t in range(random.randint(2,3)+max(0,rank//25))]
-        return myfleet
-
 
 
 class BasicRecoverCargo( Plot ):

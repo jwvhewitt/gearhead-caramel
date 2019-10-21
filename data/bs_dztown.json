@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Heroic Founder",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "Our town was founded by {NPC} the [adjective]."
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "next_command": "NPC_HISTORY"
+  },
+  {
+    "name": "NPC from Space",
+    "command": "NPC_HISTORY",
+    "results": {
+      "text": "{NPC_subject_pronoun} returned from the orbitals with a group of settlers, and claimed this part of the dead zone."
+    },
+    "requires": ["DZTOWN_FOUNDING"]
+  }
+
+]

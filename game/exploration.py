@@ -484,7 +484,7 @@ class Explorer( object ):
                         self.record_count = 20
 
                     elif gdi.unicode == u"d":
-                        print self.camp.first_active_pc().get_total_damage_status()
+                        print self.camp.first_active_pc().get_percent_damage_over_health()
 
                     elif gdi.unicode == u"&":
                         for x in range(self.scene.width):

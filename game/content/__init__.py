@@ -9,6 +9,7 @@ import ghterrain
 import ghwaypoints
 import ghcutscene
 import uuid
+import backstory
 
 
 # The list of plots will be stored as a dictionary based on label.

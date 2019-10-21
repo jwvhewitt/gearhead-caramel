@@ -13,6 +13,7 @@ from game.content import adventureseed
 
 BAMO_DEFEAT_THE_BANDITS = "BAMO_DefeatTheBandits"
 BAMO_LOCATE_ENEMY_FORCES = "BAMO_LocateEnemyForces"
+BAMO_RESPOND_TO_DISTRESS_CALL = "BAMO_RespondToDistressCall"
 BAMO_STORM_THE_CASTLE = "BAMO_StormTheCastle"   # 4 points
 BAMO_SURVIVE_THE_AMBUSH = "BAMO_SurviveTheAmbush"
 
@@ -242,6 +243,43 @@ class BAM_LocateEnemyForces( Plot ):
 
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp,100)
+
+
+class BAM_RespondToDistressCall( Plot ):
+    LABEL = BAMO_RESPOND_TO_DISTRESS_CALL
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+        myunit = gears.selector.RandomMechaUnit(self.rank,120,self.elements.get("ENEMY_FACTION"),myscene.environment,add_commander=False)
+        team2.contents += myunit.mecha_list
+
+        team3 = self.register_element("_cargoteam",teams.Team(),dident="ROOM")
+        team3.contents += game.content.plotutility.CargoContainer.generate_cargo_fleet(self.rank)
+        # Oh yeah, when using PyCharm, why not use ludicrously long variable names?
+        self.starting_number_of_containers = len(team3.contents)
+
+        self.obj = adventureseed.MissionObjective("Respond to convoy distress call", MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+        self.combat_entered = False
+        self.combat_finished = False
+
+        return True
+    def _eteam_ACTIVATETEAM(self,camp):
+        if not self.combat_entered:
+            self.combat_entered = True
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+        cargoteam = self.elements["_cargoteam"]
+        if len(cargoteam.get_active_members(camp)) < 1:
+            self.obj.failed = True
+        elif len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp,(sum([(100-c.get_total_damage_status()) for c in cargoteam.get_active_members(camp)]))//self.starting_number_of_containers )
+            if not self.combat_finished:
+                pbge.alert("The missing cargo has been secured.")
+                self.combat_finished = True
 
 
 class BAM_StormTheCastle( Plot ):

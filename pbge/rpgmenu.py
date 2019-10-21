@@ -196,7 +196,7 @@ class Menu( Frect ):
             if pc_input.type == TIMEREVENT:
                 # Redraw the menu on each timer event.
                 self.render()
-                my_state.do_flip()
+                my_state.do_flip(show_widgets=False)
 
             elif pc_input.type == pygame.KEYDOWN:
                 # A key was pressed, oh happy day! See what key it was and act

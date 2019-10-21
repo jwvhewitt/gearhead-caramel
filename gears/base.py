@@ -53,6 +53,23 @@ class StandardDamageHandler(KeyObject):
             dstats.append(part.get_damage_status())
         return sum(dstats)/len(dstats)
 
+    def get_total_damage_and_health(self,destroyed_branch=False):
+        health = self.max_health
+        if destroyed_branch or self.is_destroyed():
+            dmg = health
+            destroyed_branch = True
+        else:
+            dmg = self.hp_damage
+        for part in self.sub_com:
+            pd,ph = part.get_total_damage_and_health(destroyed_branch)
+            dmg += pd
+            health += ph
+        return dmg,health
+
+    def get_percent_damage_over_health(self):
+        dmg,health = self.get_total_damage_and_health()
+        return (dmg * 100)//max(health,1)
+
     def is_not_destroyed(self):
         """ Returns True if this gear is not destroyed.
             Note that this doesn't indicate the part is functional- just that
