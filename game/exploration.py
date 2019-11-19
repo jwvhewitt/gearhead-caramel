@@ -353,7 +353,7 @@ class Explorer( object ):
         self.threat_tiles.clear()
         for npc in my_actors:
             npc.renew_power()
-            if self.npc_inactive(npc):
+            if self.npc_inactive(npc) and npc.pos and self.scene.on_the_map(*npc.pos):
                 # Find the NPC's team- important for all kinds of things.
                 npteam = self.scene.local_teams.get(npc)
 
@@ -457,6 +457,10 @@ class Explorer( object ):
                     if not self.order( self ):
                         self.order = None
                     #self.update_npcs()
+                    pcpos = {pc.pos for pc in self.camp.get_active_party()}
+                    if pcpos.intersection(self.threat_tiles):
+                        self.update_npcs()
+
                 if self.time % 50 == 0:
                     self.update_npcs()
 
@@ -483,8 +487,9 @@ class Explorer( object ):
                     elif gdi.unicode == u"A":
                         self.record_count = 20
 
-                    elif gdi.unicode == u"d":
-                        print self.camp.first_active_pc().get_percent_damage_over_health()
+                    elif gdi.unicode == u"P":
+                        for p in self.camp.all_plots():
+                            print p
 
                     elif gdi.unicode == u"&":
                         for x in range(self.scene.width):

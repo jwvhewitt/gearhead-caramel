@@ -229,6 +229,40 @@ class GearHeadScene(pbge.scenes.Scene):
         for subscene in self.sub_scenes:
             subscene.purge_faction(camp,fac)
 
+    def list_empty_spots( self, room=None ):
+        good_spots = set()
+        if not room:
+            room = self.get_rect()
+        for x in range( room.x, room.x + room.width - 1 ):
+            for y in range( room.y, room.y + room.height-1 ):
+                if not self.tile_blocks_walking(x,y):
+                    good_spots.add( (x,y) )
+        good_spots -= self.get_blocked_tiles()
+        return good_spots
+
+
+    def tidy_at_start(self,camp):
+        for npc in self.contents:
+            if hasattr(npc,"pos"):
+                myteam = self.local_teams.get(npc,None)
+                if myteam:
+                    home = myteam.home
+                    if home and npc.pos and not home.collidepoint(npc.pos):
+                        npc.pos = None
+                else:
+                    home = None
+                if not npc.pos or not self.on_the_map(*npc.pos):
+                    if home:
+                        good_spots = self.list_empty_spots(home)
+                        if not good_spots:
+                            good_spots = self.list_empty_spots()
+                    else:
+                        good_spots = self.list_empty_spots()
+                    if good_spots:
+                        npc.pos = random.choice(list(good_spots))
+                    else:
+                        print "Warning: {} could not be placed in {}".format(npc,self)
+
 class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None
     pc = None
@@ -281,6 +315,15 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 yield p
             for p in myscene.metrodat.tarot.values():
                 yield p
+
+    def all_plots(self):
+        for ob in self.all_contents(self):
+            if hasattr(ob,"scripts"):
+                for p in ob.scripts:
+                    yield p
+            if hasattr(ob,"tarot"):
+                for p in ob.tarot.values():
+                    yield p
 
     def active_tarot_cards(self):
         for p in self.tarot.values():
@@ -384,6 +427,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 pc.gear_up()
                 #pbge.scenes.pfov.PCPointOfView(self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale))
         self.scene.update_party_position(self)
+
+        # Also update NPC positions when placing the party.
+        self.scene.tidy_at_start(self)
 
     def bring_out_your_dead(self):
         for pc in list(self.party):

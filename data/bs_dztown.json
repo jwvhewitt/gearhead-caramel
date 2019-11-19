@@ -3,7 +3,7 @@
     "name": "Heroic Founder",
     "command": "DZTOWN_FOUNDING",
     "results": {
-      "text": "Our town was founded by {NPC} the [adjective]."
+      "text": "Our town was founded by {NPC} the [Adjective]."
     },
     "add_elements": {
       "NPC": ["CHARACTER",{}]
@@ -11,12 +11,301 @@
     "next_command": "NPC_HISTORY"
   },
   {
+    "name": "Professional Founder",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "{LOCALE} was founded by {NPC} the {NPC.job}."
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "next_command": "NPC_HISTORY"
+  },
+  {
+    "name": "Unimportant Founder",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "According to legend, {LOCALE} was founded by {NPC} the [Adjective]."
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "next_command": "TOWN_HISTORY"
+  },
+  {
+    "name": "Warlord Founder",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "The region around {LOCALE} was conquered by {NPC} the {NPC.job}."
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "add_keywords": ["CONFLICT"],
+    "next_command": "NPC_HISTORY"
+  },
+  {
+    "name": "Orphan Founder",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "{LOCALE} was originally an orphanage built by {NPC} for children that had lost their parents after the Night of Fire."
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "add_keywords": ["HAVEN"],
+    "next_command": "NPC_HISTORY"
+  },
+  {
+    "name": "Civil Defense Founder",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "{NPC} founded {LOCALE} at the site of the civil defense shelter {NPC.gender.subject_pronoun} had been Captain of."
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "add_keywords": ["FALLOUT_SHELTER"],
+    "next_command": "NPC_HISTORY"
+  },
+  {
+    "name": "Orbital Founder",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "Our founder, {NPC}, was one of the refugees who fled Earth during the exodus. As an adult {NPC.gender.subject_pronoun} returned and established this town."
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "add_keywords": ["SPACE"],
+    "next_command": "NPC_HISTORY"
+  },
+  {
+    "name": "Bandit Founder",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "{LOCALE} was founded by {NPC}, a wandering [bandit] who lucked upon a defenseless fallout shelter and made {NPC.gender.reflexive_pronoun} its tyrant."
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "add_keywords": ["CONFLICT","FALLOUT_SHELTER"],
+    "next_command": "NPC_HISTORY"
+  },
+  {
+    "name": "Unknown Origins",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "The origin of {LOCALE} is lost to history."
+    },
+    "add_keywords": ["MYSTERY"],
+    "next_command": "TOWN_HISTORY"
+  },
+  {
+    "name": "Always Here",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "{LOCALE} has been here since before the Night of Fire. When our ancestors emerged from their fallout shelter, they found that the world outside had changed irrevocably."
+    },
+    "add_keywords": ["HAVEN","FALLOUT_SHELTER"],
+    "next_command": "TOWN_HISTORY"
+  },
+  {
+    "name": "Homecoming Orbitals",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "{LOCALE} was founded by people from the orbital colonies returning to Earth during the homecoming."
+    },
+    "add_keywords": ["SPACE"],
+    "next_command": "TOWN_HISTORY"
+  },
+  {
+    "name": "Prime Real Estate",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "Ever since the night of fire, rival gangs have fought for posession of {LOCALE}."
+    },
+    "add_keywords": ["CONFLICT"],
+    "next_command": "TOWN_HISTORY"
+  },
+  {
+    "name": "Peaceful Village",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "{LOCALE} is a peaceful village, and has been for as long as anyone can remember."
+    },
+    "add_keywords": ["HAVEN","PEACE"],
+    "next_command": "TOWN_HISTORY"
+  },
+  {
+    "name": "Exact Center of Nowhere",
+    "command": "DZTOWN_FOUNDING",
+    "results": {
+      "text": "{LOCALE} was founded by outcasts with nowhere left to turn. Against the odds we survived in this harsh land."
+    },
+    "add_keywords": ["DESOLATE","PEACE"],
+    "next_command": "TOWN_HISTORY"
+  },
+
+
+  {
     "name": "NPC from Space",
     "command": "NPC_HISTORY",
     "results": {
-      "text": "{NPC_subject_pronoun} returned from the orbitals with a group of settlers, and claimed this part of the dead zone."
+      "text": "{NPC.gender.subject_pronoun} returned from the orbitals with a group of settlers, and claimed this part of the dead zone."
     },
+    "requires": ["DZTOWN_FOUNDING"],
+    "none_of": ["SPACE","FALLOUT_SHELTER"],
+    "add_keywords": ["SPACE"]
+  },
+  {
+    "name": "NPC Takes a Level in Badass",
+    "command": "NPC_HISTORY",
+    "results": {
+      "text": "Before the war {NPC.gender.subject_pronoun} had been a {NPC.job}, but after civilization fell {NPC.gender.subject_pronoun} became a conqueror."
+    },
+    "requires": ["DZTOWN_FOUNDING","CONFLICT"]
+  },
+  {
+    "name": "NPC Brings Peace",
+    "command": "NPC_HISTORY",
+    "results": {
+      "text": "{NPC.gender.subject_pronoun} united the local warlords and brought peace to this area."
+    },
+    "none_of": ["CONFLICT"],
+    "requires": ["DZTOWN_FOUNDING"],
+    "add_keywords": ["PEACE"]
+  },
+  {
+    "name": "NPC brings War",
+    "command": "NPC_HISTORY",
+    "results": {
+      "text": "{NPC.gender.subject_pronoun} sought to build an empire by conquering the neighboring villages."
+    },
+    "requires": ["DZTOWN_FOUNDING"],
+    "none_of": ["CONFLICT","HAVEN"],
+    "add_keywords": ["CONFLICT"]
+  },
+  {
+    "name": "Actually forget about NPC",
+    "command": "NPC_HISTORY",
+    "results": {
+      "text": "There are lots of conflicting stories about {NPC}, but the truth about {NPC.gender.object_pronoun} remains a mystery."
+    },
+    "requires": ["DZTOWN_FOUNDING"],
+    "none_of": ["MYSTERY"],
+    "add_keywords": ["MYSTERY"]
+  },
+  {
+    "name": "NPC helped Spacers",
+    "command": "NPC_HISTORY",
+    "results": {
+      "text": "{NPC.gender.subject_pronoun} found a group of returners from the orbital colonies and helped them learn to survive in the dead zone."
+    },
+    "requires": ["DZTOWN_FOUNDING"],
+    "none_of": ["SPACE"]
+  },
+  {
+    "name": "Settling Down",
+    "command": "NPC_HISTORY",
+    "results": {
+      "text": "Our people were wandering ravagers until {NPC} discovered this valley and convinced the others to make a permanent settlement here."
+    },
+    "requires": ["DZTOWN_FOUNDING"],
+    "none_of": ["HAVEN","SPACE","FALLOUT_SHELTER"],
+    "add_keywords": ["HAVEN"]
+  },
+
+
+
+  {
+    "name": "Safe Haven",
+    "command": "TOWN_HISTORY",
+    "results": {
+      "text": "This place has clean water, edible crops. Over time more people settled here and the community grew."
+    },
+    "add_keywords": ["HAVEN"],
+    "requires": ["DZTOWN_FOUNDING"]
+  },
+  {
+    "name": "Dangerous NonHaven",
+    "command": "TOWN_HISTORY",
+    "results": {
+      "text": "We've seen plenty of conflict in this region, but so far have always managed to survive."
+    },
+    "none_of": ["CONFLICT","PEACE"],
+    "add_keywords": ["CONFLICT"],
+    "requires": ["DZTOWN_FOUNDING"]
+  },
+  {
+    "name": "Cadia Stands",
+    "command": "TOWN_HISTORY",
+    "results": {
+      "text": "Over the years the people who live here have learned to be tough. You need to be tough to survive in the dead zone."
+    },
+    "requires": ["CONFLICT","DZTOWN_FOUNDING"]
+  },
+    {
+    "name": "UnSafe Haven",
+    "command": "TOWN_HISTORY",
+    "results": {
+      "text": "There have been plenty of outsiders who envy our resources, so our town has seen more than its fair share of conflict."
+    },
+    "none_of": ["PEACE"],
+    "add_keywords": ["CONFLICT"],
+    "requires": ["DZTOWN_FOUNDING","HAVEN"]
+  },
+  {
+    "name": "Terraforming Failure",
+    "command": "TOWN_HISTORY",
+    "results": {
+      "text": "Our ancestors thought that their technology could make this land green again, but as you can see it didn't work."
+    },
+    "none_of": ["HAVEN"],
+    "add_keywords": ["DESOLATE"],
+    "any_of": ["SPACE","FALLOUT_SHELTER"],
+    "requires": ["DZTOWN_FOUNDING"]
+  },
+  {
+    "name": "Naive Settlers",
+    "command": "TOWN_HISTORY",
+    "results": {
+      "text": "The space colonists were almost immediately [vanquished] by local [bandits], who used their technology to wage war on neighboring villages."
+    },
+    "add_keywords": ["CONFLICT"],
+    "requires": ["DZTOWN_FOUNDING","SPACE"]
+  },
+  {
+    "name": "Unnatural Nature",
+    "command": "TOWN_HISTORY",
+    "results": {
+      "text": "The ground beneath our feet was once a mega-city, pounded to rubble by nuclear fire. We try not to think of what might still be lurking down there."
+    },
+    "add_keywords": ["MYSTERY"],
+    "requires": ["DZTOWN_FOUNDING","DESOLATE"]
+  },
+  {
+    "name": "Lucky Find",
+    "command": "TOWN_HISTORY",
+    "results": {
+      "text": "The only thing that saved us was when {NPC} the [Adjective] discovered a PreZero shelter stocked with survival goods. That gave our town enough of a head start to survive."
+    },
+    "not_these_elements": ["NPC"],
+    "add_keywords": ["FALLOUT_SHELTER"],
+    "requires": ["DZTOWN_FOUNDING","DESOLATE"],
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    }
+  },
+  {
+    "name": "Terraforming Success",
+    "command": "TOWN_HISTORY",
+    "results": {
+      "text": "It's been difficult making a life in the dead zone, but with time and sweat we've learned how to make it work."
+    },
+    "none_of": ["DESOLATE"],
+    "add_keywords": ["HAVEN"],
+    "any_of": ["PEACE","FALLOUT_SHELTER"],
     "requires": ["DZTOWN_FOUNDING"]
   }
-
 ]

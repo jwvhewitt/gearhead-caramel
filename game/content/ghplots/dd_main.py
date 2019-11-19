@@ -52,10 +52,10 @@ class DeadzoneDrifterStub( Plot ):
             if camp.can_add_lancemate() and npc not in camp.party:
                 # If the NPC has the lancemate tag, they might join the party.
                 mylist.append(Offer("[JOIN]",
-                                    context=ContextTag([context.JOIN]), effect=ghdialogue.AutoJoiner(npc)))
+                                    context=ContextTag([context.JOIN]), effect=game.content.plotutility.AutoJoiner(npc)))
             elif npc in camp.party and gears.tags.SCENE_PUBLIC in camp.scene.attributes:
                 mylist.append(Offer("[LEAVEPARTY]",
-                                    context=ContextTag([context.LEAVEPARTY]), effect=ghdialogue.AutoLeaver(npc)))
+                                    context=ContextTag([context.LEAVEPARTY]), effect=game.content.plotutility.AutoLeaver(npc)))
 
         return mylist
 

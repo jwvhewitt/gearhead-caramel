@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Radishes",
+    "command": "MOTIF",
+    "any_of": ["Vegetable","Food"],
+    "add_keywords": ["Vegetable","Food" ]
+  }
+]

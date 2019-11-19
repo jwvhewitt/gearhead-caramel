@@ -156,7 +156,49 @@ def test_mocha_encounters():
             if len(choices) < 4:
                 print "Only {} choices for {}".format(len(choices),s)
 
+import ghplots
+
+def test_roadedge_missions():
+    frontier = list()
+    possible_states = list()
+    move_cost = collections.defaultdict(int)
+    for p in PLOT_LIST['DZRE_BanditProblem']:
+        frontier.append({ghplots.dd_roadedge.E_MOTIVE:p.STARTING_MOTIVE,ghplots.dd_roadedge.E_ACE:p.STARTING_ACE,ghplots.dd_roadedge.E_TOWN:p.STARTING_TOWN})
+
+    while frontier:
+        current = frontier.pop()
+        possible_states.append(current)
+        # Find the neighbors
+        for p in PLOT_LIST['DZRE_ACE_TOWN'] + PLOT_LIST['DZRE_MOTIVE_TOWN'] + PLOT_LIST['DZRE_MOTIVE_ACE']:
+            if all( p.REQUIRES[k] == current.get(k,0) for k in p.REQUIRES.iterkeys() ):
+                dest = current.copy()
+                dest.update(p.CHANGES)
+                new_cost = move_cost[repr(current)] + 1
+                if new_cost <= 3 and ( repr(dest) not in move_cost or new_cost < move_cost[repr(dest)] ):
+                    move_cost[repr(dest)] = new_cost
+                    frontier.append(dest)
+    # Finally, print an analysis.
+    print "Number of Possible States: {}".format(len(possible_states))
+    print "Possible States: {}".format(possible_states)
+    done_stuff = set()
+    for s in possible_states:
+        if move_cost[repr(s)] < 3:
+            num_plots_for_s = 0
+            pat = [p for p in PLOT_LIST['DZRE_ACE_TOWN'] if all(p.REQUIRES[k] == s.get(k, 0) for k in p.REQUIRES.iterkeys())]
+            if not pat and (s[ghplots.dd_roadedge.E_ACE],s[ghplots.dd_roadedge.E_TOWN]) not in done_stuff:
+                print "No missions for Ace: {} Town: {}".format(s[ghplots.dd_roadedge.E_ACE],s[ghplots.dd_roadedge.E_TOWN])
+                done_stuff.add((s[ghplots.dd_roadedge.E_ACE],s[ghplots.dd_roadedge.E_TOWN]))
+
+            pat = [p for p in PLOT_LIST['DZRE_MOTIVE_TOWN'] if all(p.REQUIRES[k] == s.get(k, 0) for k in p.REQUIRES.iterkeys())]
+            if not pat and (s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_TOWN]) not in done_stuff:
+                print "No missions for Motive: {} Town: {}".format(s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_TOWN])
+                done_stuff.add((s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_TOWN]))
+
+            pat = [p for p in PLOT_LIST['DZRE_MOTIVE_ACE'] if all(p.REQUIRES[k] == s.get(k, 0) for k in p.REQUIRES.iterkeys())]
+            if not pat and (s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_ACE]) not in done_stuff:
+                print "No missions for Motive: {} Ace: {}".format(s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_ACE])
+                done_stuff.add((s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_ACE]))
 
 
-
+test_roadedge_missions()
 #test_mocha_encounters()

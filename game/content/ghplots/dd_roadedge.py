@@ -1,3 +1,4 @@
+import game.content.plotutility
 from pbge.plots import Plot,PlotState
 import game
 import gears
@@ -136,10 +137,13 @@ class DZREPR_BasePlot(Plot):
                 print "DeadEnd Error!!!"
 
     def reset_missions(self,camp):
+        old_plots = list()
         for mid in self.MISSION_IDENTS:
             if mid in self.subplots and self.subplots[mid]:
-                self.subplots[mid].end_plot(camp,True)
+                old_plots.append(self.subplots[mid])
                 del self.subplots[mid]
+        for m in old_plots:
+            m.end_plot(camp,True)
 
     def ALPHA_MISSION_WIN(self,camp):
         self.subplots["ALPHA_MISSION"].alter_the_context(self)
@@ -203,6 +207,57 @@ class DZREPR_BaseMission(Plot):
         if self.mission_seed and self.mission_active:
             thingmenu.add_item(self.MISSION_PROMPT.format(**self.elements), self.mission_seed)
 
+
+class DZREPR_NPCMission(DZREPR_BaseMission):
+    # As above, but includes a specific NPC who gives the PC the mission.
+    DEFAULT_NEWS = "{NPC} knows something about {FACTION}"
+    DEFAULT_INFO = "You can ask {NPC.gender.object_pronoun} about {FACTION} yourself; speak to {NPC.gender.object_pronoun} at {NPC_SCENE}."
+    DEFAULT_MEMO = "You can ask {NPC} about {FACTION} at {NPC_SCENE}."
+    CUSTOM_REPLY = "What do you know about {FACTION}?"
+    CUSTOM_OFFER = "I can tell you that you can go do a mission in {LOCALE} so go do it."
+    def custom_init(self, nart):
+        super(DZREPR_NPCMission,self).custom_init(nart)
+        mynpc = self.seek_element(nart, "NPC", self._npc_matches, scope=self.elements["LOCALE"])
+        npcscene = self.register_element("NPC_SCENE",mynpc.container.owner)
+        self.got_rumor = False
+        return True
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character)
+    def t_UPDATE(self,camp):
+        if not self.elements["NPC"].is_not_destroyed():
+            self.activate_mission(camp)
+        super(DZREPR_NPCMission,self).t_UPDATE(camp)
+    def NPC_offers(self, camp):
+        mylist = list()
+        if not self.mission_active:
+            mylist.append(Offer(self.CUSTOM_OFFER.format(**self.elements),
+                            context=ContextTag((context.CUSTOM,)), effect=self.activate_mission,
+                            data={"reply": self.CUSTOM_REPLY.format(**self.elements)},
+                            no_repeats=True
+                            ))
+        return mylist
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if npc is not self.elements["NPC"] and not self.got_rumor:
+            mygram["[News]"].append(self.DEFAULT_NEWS.format(**self.elements))
+        return mygram
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        mynpc = self.elements["NPC"]
+        if self.DEFAULT_INFO and not self.got_rumor and npc is not mynpc:
+            goffs.append(Offer(
+                msg=self.DEFAULT_INFO.format(**self.elements),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self,camp):
+        self.got_rumor = True
+        self.memo = self.DEFAULT_MEMO.format(**self.elements)
+
+
 #   *****************************************
 #   ***   ROAD  EDGE  RATCHET  MISSIONS   ***
 #   *****************************************
@@ -262,6 +317,204 @@ class DZREPR_HighwayPatrol(DZREPR_BaseMission):
             mygram["[News]"].append("the people in charge know more about {} than they're letting on.".format(self.elements["FACTION"]))
         return mygram
 
+class DZREPR_NoBigDealMaybe(DZREPR_NPCMission):
+    LABEL = "DZRE_ACE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_ACE: DZRE_ACE_UNKNOWN, E_TOWN: DZRE_TOWN_NEUTRAL}
+    CHANGES = {E_TOWN: DZRE_TOWN_AGAINST}
+    MISSION_NAME = "The Patrol Patrol"
+    MISSION_PROMPT = "Investigate {NPC}'s missing patrol"
+    OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES,missionbuilder.BAMO_EXTRACT_ALLIED_FORCES)
+    WIN_MESSAGE = ""
+    DEFAULT_NEWS = "{NPC} says that {FACTION} are nothing to be worried about"
+    DEFAULT_INFO = "You can ask {NPC} about {FACTION} yourself; speak to {NPC.gender.object_pronoun} at {NPC_SCENE}."
+    DEFAULT_MEMO = "{NPC} said that {FACTION} is nothing to worry about; you can ask {NPC.gender.object_pronoun} about this at {NPC_SCENE}."
+    CUSTOM_REPLY = "What can you tell me about {FACTION}?"
+    CUSTOM_OFFER = "The highway outside {LOCALE} is full of bandits and raiders and whoever; {FACTION} is nothing special. A patrol went out to check on them this morning... they should be reporting back any time now."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Military,gears.tags.Politician))
+
+class DZREPR_MedicineShipment(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_PROFIT, E_TOWN: DZRE_TOWN_NEUTRAL}
+    CHANGES = {E_TOWN: DZRE_TOWN_AGAINST}
+    MISSION_NAME = "Medicine Shipment"
+    MISSION_PROMPT = "Protect {NPC}'s medicine shipment"
+    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,missionbuilder.BAMO_RECOVER_CARGO)
+    WIN_MESSAGE = ""
+    DEFAULT_NEWS = "{NPC} at {NPC_SCENE} is waiting on a shipment of medicine"
+    DEFAULT_INFO = None
+    CUSTOM_REPLY = "Have you had any trouble getting supplies lately?"
+    CUSTOM_OFFER = "Yes, actually. Thanks to {FACTION} shipments from the green zone have become iffy. I'm waiting on a vital order of medicine, but I don't know if it's going to get through."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Medic,))
+
+class DZREPR_SeekAndDestroy(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_ACE"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_PROFIT, E_ACE: DZRE_ACE_UNKNOWN}
+    CHANGES = {E_ACE: DZRE_ACE_HIDDENBASE}
+    MISSION_NAME = "Highway Patrol"
+    MISSION_PROMPT = "Search the highway looking for {FACTION}"
+    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL)
+    WIN_MESSAGE = "Following the battle, you are no closer to finding the base of {FACTION} than you were before. Perhaps a change of tactics will be needed."
+    DEFAULT_NEWS = "{NPC} at {NPC_SCENE} has been trying to find the {FACTION} base"
+    DEFAULT_INFO = None
+    CUSTOM_REPLY = "Have you found where the {FACTION} base is?"
+    CUSTOM_OFFER = "No, and I'm beginning to think they can just disappear into thin air. {FACTION} has been raiding convoys up and down the highway then disappearing into the deadzone like ghosts. Maybe if I were lucky enough to stumble across them right as they're on the move I could figure out where they're coming from."
+    def z_npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant
+
+class DZREPR_ThoseAreNotBandits(DZREPR_BaseMission):
+    LABEL = "DZRE_MOTIVE_ACE"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_UNKNOWN, E_ACE: DZRE_ACE_HIDDENBASE}
+    CHANGES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST}
+    MISSION_NAME = "Defend the Defenders"
+    MISSION_PROMPT = "Go see if the {LOCALE} defense force needs any help against {FACTION}"
+    OBJECTIVES = (missionbuilder.BAMO_EXTRACT_ALLIED_FORCES,missionbuilder.BAMO_LOCATE_ENEMY_FORCES)
+    WIN_MESSAGE = "The actions of {FACTION} point to one conclusion- that they are planning a takeover of {LOCALE}."
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and npc.combatant and npc not in camp.party:
+            goffs.append(Offer(
+                msg="For one thing, they spend at least as much time fighting the {LOCALE} defense force as they do stealing things.".format(**self.elements ),
+                context=ContextTag((context.INFO,)), effect=self.activate_mission,
+                data={"subject": str(self.elements["FACTION"])}, subject="regular bandits", no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if npc.combatant and not self.mission_active and npc not in camp.party:
+            mygram["[News]"].append("{FACTION} aren't acting like regular bandits".format(**self.elements))
+        return mygram
+
+class DZREPR_DefendOurSoverignty(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_TOWN: DZRE_TOWN_NEUTRAL}
+    CHANGES = {E_TOWN: DZRE_TOWN_AGAINST}
+    MISSION_NAME = "Strike Back"
+    MISSION_PROMPT = "Launch a strike against {FACTION} for {NPC}"
+    OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES,missionbuilder.BAMO_DEFEAT_COMMANDER)
+    WIN_MESSAGE = ""
+    DEFAULT_NEWS = "{NPC} is coordinating defense against {FACTION}"
+    DEFAULT_INFO = "You can ask {NPC} about {FACTION} yourself; speak to {NPC.gender.object_pronoun} at {NPC_SCENE}."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} is coordinating defenses against {FACTION}."
+    CUSTOM_REPLY = "I've come to help you against {FACTION}."
+    CUSTOM_OFFER = "Good; {LOCALE} needs all the help it can get, and I'm not sure that anyone else in this town is taking {FACTION} seriously. Scouts have been following one of their commanders. If you hurry to this location, you might be able to deal them a crushing blow."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Military,gears.tags.Politician))
+
+class DZREPR_TheyHaveUsSurrounded(DZREPR_BaseMission):
+    LABEL = "DZRE_ACE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_ACE: DZRE_ACE_HIDDENBASE, E_TOWN: DZRE_TOWN_NEUTRAL}
+    CHANGES = {E_TOWN: DZRE_TOWN_AFRAID}
+    MISSION_NAME = "They Have Us Surrounded"
+    MISSION_PROMPT = "Scout for agents of {FACTION} near {LOCALE}"
+    OBJECTIVES = (missionbuilder.BAMO_SURVIVE_THE_AMBUSH,missionbuilder.BAMO_LOCATE_ENEMY_FORCES)
+    WIN_MESSAGE = ""
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and not npc.combatant and npc not in camp.party:
+            goffs.append(Offer(
+                msg="I've heard they have a hidden base, and are keeping watch over all the traffic that comes into or out of {LOCALE}. We're essentially at their mercy.".format(**self.elements ),
+                context=ContextTag((context.INFO,)), effect=self.activate_mission,
+                data={"subject": str(self.elements["FACTION"])}, subject="get nervous about {FACTION}".format(**self.elements), no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if not npc.combatant and not self.mission_active and npc not in camp.party:
+            mygram["[News]"].append("people are starting to get nervous about {FACTION}".format(**self.elements))
+        return mygram
+
+class DZREPR_ClarifyTheirMotives(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_UNKNOWN, E_TOWN: DZRE_TOWN_AGAINST}
+    CHANGES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST}
+    MISSION_NAME = "Clarifying Their Motives"
+    MISSION_PROMPT = "Scout out {FACTION} for {NPC}"
+    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,missionbuilder.BAMO_LOCATE_ENEMY_FORCES)
+    WIN_MESSAGE = "From the amount of force they have deployed, it seems clear that {FACTION} are not ordinary bandits. They are planning something big."
+    DEFAULT_NEWS = "we ought to attack {FACTION} as soon as possible, but {NPC} says more information is needed first"
+    DEFAULT_INFO = "You can ask {NPC} about {FACTION} yourself; speak to {NPC.gender.object_pronoun} at {NPC_SCENE}."
+    DEFAULT_MEMO = "{NPC} wants to understand the threat posed by {FACTION}; you can ask {NPC.gender.object_pronoun} about this at {NPC_SCENE}."
+    CUSTOM_REPLY = "I heard you are collecting information about {FACTION}?"
+    CUSTOM_OFFER = "I know that most people in town expect the militia to act right away, but first I think we ought to know what {FACTION} wants. I would be grateful if you could scout out their position and see what they're up to."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Politician))
+
+class DZREPR_TheConflictIntensifies(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_TOWN: DZRE_TOWN_AGAINST}
+    CHANGES = {E_TOWN: DZRE_TOWN_AFRAID}
+    MISSION_NAME = "The Conflict Intensifies"
+    MISSION_PROMPT = "Strike {FACTION} for {NPC}"
+    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER,missionbuilder.BAMO_LOCATE_ENEMY_FORCES)
+    WIN_MESSAGE = ""
+    DEFAULT_NEWS = "{FACTION} are planning to take over {LOCALE} but {NPC} has a plan to stop them"
+    DEFAULT_INFO = "Maybe {NPC} will have a mission for you? You can find {NPC.gender.object_pronoun} at {NPC_SCENE}."
+    DEFAULT_MEMO = "{NPC} is organizing defense against {FACTION}; you can ask {NPC.gender.object_pronoun} about this at {NPC_SCENE}."
+    CUSTOM_REPLY = "Do you have a plan to defeat {FACTION}?"
+    CUSTOM_OFFER = "Not exactly. The {LOCALE} militia is overwhelmed; the most we can do right now is try to keep them at bay with the few resources we have available. The situation doesn't look good. We could use all the help we can get."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Politician,gears.tags.Military))
+
+class DZREPR_BanditAbductions(DZREPR_BaseMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_UNKNOWN, E_TOWN: DZRE_TOWN_AFRAID}
+    CHANGES = {E_MOTIVE: DZRE_MOTIVE_PROFIT}
+    MISSION_NAME = "Respond to Distress Call"
+    MISSION_PROMPT = "Patrol highway for travelers being attacked by {FACTION}"
+    OBJECTIVES = (missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL,missionbuilder.BAMO_RECOVER_CARGO)
+    WIN_MESSAGE = ""
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and not npc.combatant and npc not in camp.party:
+            goffs.append(Offer(
+                msg="If you spend any time at all on the highway leading into town, you're certain to receive a distress call from someone being attacked by {FACTION}.".format(**self.elements ),
+                context=ContextTag((context.INFO,)), effect=self.activate_mission,
+                data={"subject": "these abductions"}, subject="{FACTION} has been abducting".format(**self.elements), no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if not npc.combatant and not self.mission_active and npc not in camp.party:
+            mygram["[News]"].append("{FACTION} has been abducting travelers coming into or leaving {LOCALE}".format(**self.elements))
+        return mygram
+
+class DZREPR_HuntingForSecretBase(DZREPR_NPCMission):
+    LABEL = "DZRE_ACE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_ACE: DZRE_ACE_HIDDENBASE, E_TOWN: DZRE_TOWN_AGAINST}
+    CHANGES = {E_TOWN: DZRE_TOWN_AFRAID}
+    MISSION_NAME = "Hunting for Secret Base"
+    MISSION_PROMPT = "Join {NPC}'s search for the hidden base"
+    OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES,missionbuilder.BAMO_EXTRACT_ALLIED_FORCES)
+    WIN_MESSAGE = "The patrol sent by {NPC} didn't turn up anything. This failure is sure to raise tensions in {LOCALE}."
+    DEFAULT_NEWS = "{NPC} is organizing a patrol to find the hidden base belonging to {FACTION}"
+    DEFAULT_INFO = "If you want to join {NPC}'s mission, you can find {NPC.gender.object_pronoun} at {NPC_SCENE}."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} is organizing a mission to locate the hidden base belonging to {FACTION}."
+    CUSTOM_REPLY = "I heard that you're looking for {FACTION}."
+    CUSTOM_OFFER = "People in town are starting to get nervous because it seems like {FACTION} can strike from anywhere. I've dispatched search parties to try and find their hidden base; you can join them, if you have time."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Military,gears.tags.Politician))
+
 
 #   ***************************************
 #   ***   ROAD  EDGE  RATCHET  SETUPS   ***
@@ -278,9 +531,9 @@ class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
 
         # Add a trucker to town.
         myscene = self.elements["LOCALE"]
-        destscene = self.seek_element(nart,"_DEST",self._is_best_scene,scope=myscene,must_find=False)
+        destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene, must_find=False)
         if not destscene:
-            destscene = self.seek_element(nart,"_DEST",self._is_good_scene,scope=myscene)
+            destscene = self.seek_element(nart, "_DEST", self._is_good_scene, scope=myscene)
 
         mynpc = self.register_element(
             "NPC", gears.selector.random_character(
@@ -377,7 +630,7 @@ class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
         self.offered_services = True
         if camp.can_add_lancemate():
-            effect = ghdialogue.AutoJoiner(npc)
+            effect = game.content.plotutility.AutoJoiner(npc)
             effect(camp)
 
 

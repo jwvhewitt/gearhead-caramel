@@ -296,8 +296,11 @@ class SceneView( object ):
 
     def PosToKey( self, pos ):
         # Convert the x,y coordinates to a model_map key...
-        x,y = pos
-        return ( int(round(x)), int(round(y)) )
+        if pos:
+            x,y = pos
+            return ( int(round(x)), int(round(y)) )
+        else:
+            return "IT'S NOT ON THE MAP ALRIGHT?!"
 
     def model_depth( self, model ):
         return self.relative_y( model.pos[0], model.pos[1] )

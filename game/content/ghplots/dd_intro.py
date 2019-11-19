@@ -1,3 +1,4 @@
+import game.content.plotutility
 from pbge.plots import Plot
 import game
 import gears
@@ -185,7 +186,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
         return mylist
 
     def _start_mission(self, camp):
-        ghdialogue.AutoJoiner(self.elements["SHERIFF"])(camp)
+        game.content.plotutility.AutoJoiner(self.elements["SHERIFF"])(camp)
         self.subplots["MISSION"].start_mission(camp,self._tutorial_on)
 
     def MISSION_END(self, camp):
@@ -208,7 +209,7 @@ class DZDPostMissionScene(Plot):
 
     def t_START(self,camp):
         if camp.scene is self.elements["LOCALE"] and not self.did_intro:
-            ghdialogue.AutoLeaver(self.elements["SHERIFF"])(camp)
+            game.content.plotutility.AutoLeaver(self.elements["SHERIFF"])(camp)
 
             npc = self.elements["SHERIFF"]
             ghdialogue.start_conversation(camp,camp.pc,npc)

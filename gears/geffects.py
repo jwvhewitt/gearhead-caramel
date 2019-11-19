@@ -759,16 +759,24 @@ class CoverModifier( object ):
 
 class SpeedModifier( object ):
     name = 'Target Movement'
-    IMMOBILE_MODIFIER = 25
     MOD_PER_TILE = -3
+    def calc_modifier( self, camp, attacker, pos ):
+        targets = camp.scene.get_operational_actors(pos)
+        my_mod = 0
+        if camp.fight:
+            for t in targets:
+                my_mod += camp.fight.cstat[t].moves_this_round * self.MOD_PER_TILE
+        return my_mod
+
+class ImmobileModifier( object ):
+    name = 'Target Immobile'
+    IMMOBILE_MODIFIER = 25
     def calc_modifier( self, camp, attacker, pos ):
         targets = camp.scene.get_operational_actors(pos)
         my_mod = 0
         for t in targets:
             if hasattr(t,"get_current_speed") and t.get_current_speed() < 1:
                 my_mod += self.IMMOBILE_MODIFIER
-            elif camp.fight:
-                my_mod += camp.fight.cstat[t].moves_this_round * self.MOD_PER_TILE
         return my_mod
 
 

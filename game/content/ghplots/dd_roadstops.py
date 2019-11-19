@@ -47,6 +47,10 @@ class DZD_DeadZoneTown(Plot):
                                                      road_terrain=game.content.ghterrain.Flagstone)
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
+
+        mystory = self.register_element("BACKSTORY",game.content.backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
+        print " ".join(mystory.results["text"])
+
         self.register_element("METRO", myscene.metrodat)
         self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_TOWN)
 
@@ -64,11 +68,11 @@ class DZD_DeadZoneTown(Plot):
         tplot = self.add_sub_plot(nart, "DZRS_ORDER")
 
         # Add the services.
-        tplot = self.add_sub_plot(nart, "DZRS_Garage")
+        tplot = self.add_sub_plot(nart, "DZRS_GARAGE")
+        tplot = self.add_sub_plot(nart, "DZRS_HOSPITAL")
         #tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
         #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
-        #tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
         #tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         # Black Isle Pub
         # Wujung Tires - Conversion supplies
@@ -119,6 +123,10 @@ class DZD_DeadZoneVillage(Plot):
         self.register_element("METRO", myscene.metrodat)
         self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_VILLAGE)
 
+        mystory = self.register_element("BACKSTORY",game.content.backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
+        print " ".join(mystory.results["text"])
+
+
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.east),
                                         dident="LOCALE")
         towngate = self.register_element("ENTRANCE", DZDRoadMapExit(roadmap=self.elements["DZ_ROADMAP"],
@@ -133,11 +141,11 @@ class DZD_DeadZoneVillage(Plot):
         tplot = self.add_sub_plot(nart, "DZRS_ORDER")
 
         # Add the services.
-        tplot = self.add_sub_plot(nart, "DZRS_Garage")
+        tplot = self.add_sub_plot(nart, "DZRS_GARAGE")
+        tplot = self.add_sub_plot(nart, "DZRS_HOSPITAL")
         #tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
         #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
-        #tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
         #tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         # Black Isle Pub
         # Wujung Tires - Conversion supplies
@@ -187,9 +195,6 @@ class DemocraticOrder(Plot):
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
 
-        # TODO: Add random city details, backstory, etc.
-        mystory = self.register_element("BACKSTORY",game.content.backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
-        print " ".join(mystory.results["text"])
 
         npc = self.register_element("LEADER",
                                     gears.selector.random_character(
@@ -222,7 +227,7 @@ class DemocraticOrder(Plot):
 #   ***********************
 
 class SomewhatOkayGarage(Plot):
-    LABEL = "DZRS_Garage"
+    LABEL = "DZRS_GARAGE"
 
     active = True
     scope = "INTERIOR"
@@ -286,7 +291,7 @@ class SomewhatOkayGarage(Plot):
 
 
 class FranklyBoringGarage(Plot):
-    LABEL = "DZRS_Garage"
+    LABEL = "DZRS_GARAGE"
 
     active = True
     scope = "INTERIOR"
@@ -352,6 +357,51 @@ class FranklyBoringGarage(Plot):
 #   *************************
 #   ***   DZRS_HOSPITAL   ***
 #   *************************
+
+class DeadzoneClinic(Plot):
+    LABEL = "DZRS_HOSPITAL"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create a building within the town.
+        myname = "{} Clinic".format(self.elements["LOCALE"])
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+            waypoints={"DOOR": ghwaypoints.WoodenDoor(name=myname)},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, myname, player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_HOSPITAL),
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
+                                      dident="INTERIOR")
+
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        npc = self.register_element("DOCTOR",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Doctor"]))
+        npc.place(intscene, team=team2)
+
+        return True
+
+    def DOCTOR_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] How are you feeling today?",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        return mylist
 
 
 

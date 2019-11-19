@@ -330,7 +330,7 @@ class RLMP_Friendly(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = ghdialogue.AutoJoiner(npc)
+        effect = game.content.plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -389,7 +389,7 @@ class RLMP_Professional(Plot):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
         camp.credits -= self.hire_cost
-        effect = ghdialogue.AutoJoiner(npc)
+        effect = game.content.plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -441,7 +441,7 @@ class RLMP_Mercenary(Plot):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
         camp.credits -= self.hire_cost
-        effect = ghdialogue.AutoJoiner(npc)
+        effect = game.content.plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 

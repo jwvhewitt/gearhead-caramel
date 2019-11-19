@@ -115,15 +115,22 @@ class Portrait(object):
     def generate_random_colors(self,pc):
         mystyle = colorstyle.choose_style(pc)
         if mystyle:
-            mycolors = mystyle.generate_colors(self.color_channels)
+            mycolors = mystyle.generate_chara_colors(self.color_channels)
+            mekcolors = mystyle.generate_mecha_colors()
         else:
             mycolors = [random.choice(color.COLOR_LISTS[chan]) for chan in self.color_channels]
+            mekcolors = [random.choice(color.COLOR_LISTS[chan]) for chan in color.MECHA_COLOR_CHANNELS]
         # If this character has a faction, update the colors with faction colors.
         if pc.faction and pc.faction.uniform_colors:
             for t in range(len(pc.faction.uniform_colors)):
                 if pc.faction.uniform_colors[t]:
                     mycolors[t] = pc.faction.uniform_colors[t]
-        return mycolors
+        if pc.faction and pc.faction.mecha_colors:
+            for t in range(len(pc.faction.mecha_colors)):
+                if pc.faction.mecha_colors[t] and random.randint(1,3) != 2:
+                    mekcolors[t] = pc.faction.mecha_colors[t]
+        pc.colors = mycolors
+        pc.mecha_colors = mekcolors
 
     def build_portrait(self,pc,add_color=True,force_rebuild=False,form_tags=()):
         porimage = pbge.image.Image(frame_width=400, frame_height=700)
@@ -168,7 +175,7 @@ class Portrait(object):
         if add_color:
             if not pc.colors:
                 # Generate random colors for this character.
-                pc.colors = self.generate_random_colors(pc)
+                self.generate_random_colors(pc)
 
             porimage.recolor(pc.colors)
             pbge.image.Image.record_pre_loaded(self,pc.colors,porimage.bitmap)

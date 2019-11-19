@@ -1247,7 +1247,7 @@ class Weapon(BaseGear, StandardDamageHandler):
     def get_modifiers(self):
         return [geffects.RangeModifier(self.reach), geffects.CoverModifier(), geffects.SpeedModifier(),
                 geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self.get_module()),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier()]
+                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier()]
 
     def get_basic_attack(self):
         ba = pbge.effects.Invocation(
@@ -1329,7 +1329,8 @@ class MeleeWeapon(Weapon):
 
     def get_modifiers(self):
         return [geffects.CoverModifier(), geffects.SensorModifier(), geffects.OverwhelmModifier(),
-                geffects.ModuleBonus(self.get_module()), geffects.SneakAttackBonus(), geffects.HiddenModifier()]
+                geffects.ModuleBonus(self.get_module()), geffects.SneakAttackBonus(), geffects.HiddenModifier(),
+                geffects.ImmobileModifier()]
 
     def get_basic_attack(self, name='Basic Attack', attack_icon=0):
         ba = pbge.effects.Invocation(
@@ -1413,7 +1414,8 @@ class EnergyWeapon(Weapon):
 
     def get_modifiers(self):
         return [geffects.CoverModifier(), geffects.SensorModifier(), geffects.OverwhelmModifier(),
-                geffects.ModuleBonus(self.get_module()), geffects.SneakAttackBonus(), geffects.HiddenModifier()]
+                geffects.ModuleBonus(self.get_module()), geffects.SneakAttackBonus(), geffects.HiddenModifier(),
+                geffects.ImmobileModifier()]
 
     def get_basic_power_cost(self):
         mult = 0.25
@@ -1931,7 +1933,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
     def get_modifiers(self, ammo):
         return [geffects.RangeModifier(ammo.reach), geffects.CoverModifier(), geffects.SpeedModifier(),
                 geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self.get_module()),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier()]
+                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier()]
 
     def get_attributes(self):
         ammo = self.get_ammo()
@@ -2126,7 +2128,7 @@ class ChemThrower(Weapon):
     def get_modifiers(self):
         return [geffects.RangeModifier(self.reach), geffects.CoverModifier(), geffects.SpeedModifier(),
                 geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self.get_module()),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier()]
+                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier()]
 
     def get_chem_cost(self):
         mult = 1.0
@@ -2426,7 +2428,7 @@ class Module(BaseGear, StandardDamageHandler):
 
     def get_modifiers(self):
         return [geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier()]
+                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier()]
 
     def get_attacks(self):
         # Return a list of invocations associated with this module.
@@ -2998,10 +3000,10 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return dmg
 
 class Character(Being):
-    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship', "mecha_colors")
+    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship', "mecha_colors", "mecha_pref")
     DEEP_COPY_PARAMS = {"add_body": False}
     def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="",
-                 relationship=None, add_body=True, mecha_colors=None, **keywords):
+                 relationship=None, add_body=True, mecha_colors=None, mecha_pref=None, **keywords):
         self.personality = set(personality)
         if not gender:
             gender = genderobj.Gender.random_gender()
@@ -3017,6 +3019,7 @@ class Character(Being):
         self.bio = bio
         self.relationship = relationship
         self.mecha_colors = mecha_colors
+        self.mecha_pref = mecha_pref
         super(Character, self).__init__(**keywords)
         if add_body:
             self.build_body()

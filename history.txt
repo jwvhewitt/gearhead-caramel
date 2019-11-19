@@ -1,3 +1,5 @@
+- Immobility modifier separated from speed modifier (gears/geffects.py)
+- Added reflexive pronoun to gender
 - Randmaps plasma now scales to be close to map size
 - Reworked the menu unit for better mouse support
 - Conversation border is now set by campaign

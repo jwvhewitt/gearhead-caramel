@@ -96,6 +96,7 @@ class PlaceableThing( KeyObject ):
     # By default, a hidden thing just isn't displayed.
     def __init__(self, hidden=False, **keywords ):
         self.hidden = hidden
+        self.pos = None
         super(PlaceableThing, self).__init__(**keywords)
     def place( self, scene, pos=None, team=None ):
         if hasattr( self, "container" ) and self.container:
@@ -360,3 +361,6 @@ class Scene( object ):
             self.contents.remove(c)
         if hasattr(self,"container") and self.container:
             self.container.remove(self)
+
+    def get_rect(self):
+        return pygame.Rect(0,0,self.width,self.height)

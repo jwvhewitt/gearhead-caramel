@@ -240,7 +240,7 @@ class DynaConversation(object):
         # coff is the "current offer"
         coff = self.root
         while coff:
-            self.visualizer.text = self.format_text( coff.msg , self.npc_grammar, coff )
+            self.visualizer.text = coff.msg # self.format_text( coff.msg , self.npc_grammar, coff )
             mymenu = self.visualizer.get_menu()
             for i in coff.replies:
                 mymenu.add_item( self.format_text( i.msg, self.pc_grammar, i.destination ), i.destination )

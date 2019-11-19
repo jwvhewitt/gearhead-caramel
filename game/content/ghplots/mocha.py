@@ -2167,7 +2167,7 @@ class BorrowAnItem( Plot ):
     active = False
     scope = True
     def custom_init( self, nart ):
-        mynpc = self.seek_element(nart,"NPC",self._seek_npc)
+        mynpc = self.seek_element(nart, "NPC", self._seek_npc)
         return True
     def _seek_npc( self, nart, candidate ):
         return isinstance( candidate, gears.base.Character )

@@ -232,6 +232,16 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["I'm leaving.", "So long.",
                           ],
     },
+    "[bandit]": {
+        Default: [
+            "bandit","brigand","thief","ravager","pirate","criminal","crimepunk","raider","blackheart"
+        ],
+    },
+    "[bandits]": {
+        Default: [
+            "bandits","brigands","thieves","ravagers","pirates","criminals","crimepunks","raiders","blackhearts"
+        ],
+    },
     # The data block of this should contain "subject".
     "[BeCarefulOfSubject]": {
         Default: ["Be careful of {subject}",
@@ -1800,6 +1810,12 @@ DEFAULT_GRAMMAR = {
     "[THREATEN]": {
         Default: ["I'm going to [threat]!","I will [threat]!",
         ],    
+    },
+
+    "[vanquished]": {
+        Default: ["vanquished", "defeated","wiped out","subjugated","overwhelmed","conquered","trounced",
+                  "annihilated","subdued","crushed","demolished","destroyed","slaughtered"
+                  ],
     },
 
     "[WAITINGFORMISSION]": {

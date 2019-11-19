@@ -1,5 +1,4 @@
 import random
-import weakref
 
 class PlotError( Exception ):
     """Plot init will call this if initialization impossible."""
@@ -46,17 +45,8 @@ class PlotState( object ):
         # from the generator.
         return self
 
-ALL_CONTENTS_SEARCH_PATH = ["contents","sub_scenes"]
 
-def all_contents( thing, check_subscenes=True ):
-    """Iterate over this thing and all of its descendants."""
-    yield thing
-    for cs in ALL_CONTENTS_SEARCH_PATH:
-        if hasattr( thing, cs ):
-            for t in getattr(thing,cs):
-                if check_subscenes or not isinstance( t, maps.Scene ):
-                    for tt in all_contents( t, check_subscenes ):
-                        yield tt
+
 
 class Plot( object ):
     """The building block of the adventure."""
@@ -100,6 +90,12 @@ class Plot( object ):
         # The temp_scenes list contains scenes that get removed if this plot ends.
         self._temp_scenes = list()
 
+        # The locked elements set contains element IDs of elements this plot doesn't want other plots to touch.
+        self.locked_elements = set()
+
+        # The call_on_end list contains functions that should be called when this plot ends.
+        self.call_on_end = list()
+
         # Do the custom initialization
         allok = self.custom_init( nart )
 
@@ -138,7 +134,7 @@ class Plot( object ):
             nart.camp.entrance = sp.elements.get( "ENTRANCE" )
         return sp
 
-    def move_element( self, ele, dest ):
+    def place_element( self, ele, dest ):
         # Record when a plot places an element; if this plot is removed, the
         # element will be removed from its location as well.
         if hasattr( ele, "container" ) and ele.container:
@@ -146,7 +142,7 @@ class Plot( object ):
         dest.contents.append( ele )
         self.move_records.append( (ele,dest.contents) )
 
-    def register_element( self, ident, ele, dident=None ):
+    def register_element( self, ident, ele, dident=None, lock=False ):
         # dident is an element itent for this element's destination.
         if not ident:
             ident = "_autoelement_{0}_{1}".format( len( self.elements ), hash(ele) )
@@ -154,23 +150,42 @@ class Plot( object ):
         if dident:
             mydest = self.elements.get(dident)
             if mydest:
-                self.move_element( ele, mydest )
+                self.place_element( ele, mydest )
+        if lock:
+            self.locked_elements.add(ident)
         return ele
 
-    def seek_element( self, nart, ident, seek_func, dident=None, scope=None, must_find=True, check_subscenes=True ):
+    def seek_element(self, nart, ident, seek_func, scope=None, must_find=True, check_subscenes=True, lock=False):
         """Check scope and all children for a gear that seek_func returns True"""
         if not scope:
             scope = nart.camp
         candidates = list()
-        for e in all_contents( scope, check_subscenes ):
+        for e in nart.camp.all_contents( scope, check_subscenes ):
             if seek_func( nart, e ):
                 candidates.append( e )
+        if lock and candidates:
+            mylocked = self.get_all_locked_elements(nart.camp)
+            for le in mylocked:
+                if le and le in candidates:
+                    candidates.remove(le)
         if candidates:
             e = random.choice( candidates )
-            self.register_element( ident, e, dident )
+            self.register_element( ident, e, lock=lock )
             return e
         elif must_find:
             self.fail( nart )
+
+    def get_locked_elements(self):
+        mylist = list()
+        for le in self.locked_elements:
+            mylist.append(self.elements.get(le,None))
+        return mylist
+
+    def get_all_locked_elements(self,camp):
+        mylist = list()
+        for p in camp.all_plots():
+            mylist += p.get_locked_elements()
+        return mylist
 
     def register_scene( self, nart, myscene, mygen, ident=None, dident=None, rank=None, temporary=False ):
         # temporary scenes will be deleted when this plot ends. Use this feature responsibly!
@@ -317,6 +332,10 @@ class Plot( object ):
         # Remove any temporary scenes.
         for s in self._temp_scenes:
             s.end_scene(camp)
+
+        # Call the call-on-end functions.
+        for coef in self.call_on_end:
+            coef(camp)
 
         camp.check_trigger( 'UPDATE' )
 

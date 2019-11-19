@@ -26,6 +26,9 @@ import exceptions
 import util
 import cPickle
 import os
+import scenes
+
+ALL_CONTENTS_SEARCH_PATH = ["contents","sub_scenes"]
 
 class Campaign( object ):
     """Barebones campaign featuring functionality used by other pbge units."""
@@ -63,6 +66,12 @@ class Campaign( object ):
         for p in self.scripts:
             if p.active:
                 yield p
+
+    def all_plots(self):
+        for ob in self.all_contents(self):
+            if hasattr(ob,"scripts"):
+                for p in ob.scripts:
+                    yield p
 
     def check_trigger( self, trigger, thing=None ):
         # Something is happened that plots may need to react to.
@@ -111,4 +120,12 @@ class Campaign( object ):
         for c in self.contents:
             c.dump_info()
 
-
+    def all_contents( self, thing, check_subscenes=True, search_path=ALL_CONTENTS_SEARCH_PATH ):
+        """Iterate over this thing and all of its descendants."""
+        yield thing
+        for cs in search_path:
+            if hasattr( thing, cs ):
+                for t in getattr(thing,cs):
+                    if check_subscenes or not isinstance( t, scenes.Scene ):
+                        for tt in self.all_contents( t, check_subscenes ):
+                            yield tt

@@ -139,7 +139,7 @@ class LunarRefugeeLost( Plot ):
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
         enemy_fac = self.elements.get(dd_tarot.ME_FACTION)
-        destscene = self.seek_element(nart,"_DEST",self._is_best_scene,scope=myscene)
+        destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene)
 
         mynpc = self.register_element("NPC",gears.selector.random_character(rank=random.randint(self.rank-10,self.rank+10),local_tags=(gears.personality.Luna,)),dident="_DEST")
         destscene.local_teams[mynpc] = destscene.civilian_team
@@ -252,10 +252,6 @@ class LunarRefugeeLost( Plot ):
                 pbge.alert("You approach the campsite of the Lunar refugees, and see that it has been utterly destroyed.")
             camp.check_trigger("WIN", self)
             self.mission_finished = True
-            myscene = camp.scene.get_metro_scene()
-            print "{} -> {}, root {}".format(camp.scene,myscene,camp.scene.get_root_scene())
-            for p in camp.active_plots():
-                print p
 
     def MISSION_END(self,camp):
         self.MISSION_WIN(camp)

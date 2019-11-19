@@ -18,17 +18,8 @@ class BackstoryState(object):
 
     def get_format_dict(self):
         fdic = dict()
-        #ghdialogue.trait_absorb(fdic,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,())
         for k,v in self.elements.items():
-            fdic[str(k)] = str(v)
-            if isinstance(v,gears.base.Character):
-                fdic["{}_job".format(k)] = str(v.job)
-                fdic["{}_gender_noun".format(k)] = str(v.gender.noun)
-                fdic["{}_gender_adjective".format(k)] = str(v.gender.adjective)
-                fdic["{}_subject_pronoun".format(k)] = str(v.gender.subject_pronoun)
-                fdic["{}_object_pronoun".format(k)] = str(v.gender.object_pronoun)
-                fdic["{}_possessive_determiner".format(k)] = str(v.gender.possessive_determiner)
-                fdic["{}_absolute_pronoun".format(k)] = str(v.gender.absolute_pronoun)
+            fdic[str(k)] = v
         return fdic
 
     def copy(self):
@@ -58,7 +49,6 @@ class Backstory(object):
             mycmd = kw
             while mycmd:
                 mybit = self.choose_bit(mycmd,self.generated_state)
-                print mycmd, str(mybit)
                 if mybit:
                     mybit.alter_state(self,self.generated_state)
                     mycmd = mybit.next_command
