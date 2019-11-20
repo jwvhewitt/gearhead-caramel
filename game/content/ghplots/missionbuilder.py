@@ -5,7 +5,7 @@ import pbge
 import pygame
 import random
 from game import teams,ghdialogue
-from game.content import gharchitecture,ghterrain,ghwaypoints
+from game.content import gharchitecture,ghterrain,ghwaypoints,plotutility
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
@@ -147,19 +147,7 @@ class BuildAMissionPlot( Plot ):
 
             for npc in [n for n in camp.scene.contents if isinstance(n,gears.base.BaseGear)]:
                 if npc not in camp.party:
-                    if hasattr(npc,"wipe_damage"):
-                        npc.wipe_damage()
-                    if hasattr(npc, "mp_spent"):
-                        npc.mp_spent = 0
-                    if hasattr(npc, "sp_spent"):
-                        npc.sp_spent = 0
-                    for part in npc.descendants():
-                        if hasattr(part, "get_reload_cost"):
-                            part.spent = 0
-                        if hasattr(part, "mp_spent"):
-                            part.mp_spent = 0
-                        if hasattr(part, "sp_spent"):
-                            part.sp_spent = 0
+                    npc.restore_all()
             for o in self.adv.objectives:
                 o.reset_objective()
 
@@ -254,11 +242,17 @@ class BAM_ExtractAllies( Plot ):
         myunit = gears.selector.RandomMechaUnit(self.rank,200,self.elements.get("ENEMY_FACTION"),myscene.environment,add_commander=False)
         team2.contents += myunit.mecha_list
 
-        mysurvivor = self.register_element("SURVIVOR",gears.selector.generate_ace(self.rank,self.elements.get("ALLIED_FACTION"),myscene.environment))
-        self.register_element("PILOT", mysurvivor.get_pilot())
-        team3.contents.append(mysurvivor)
+        mynpc = self.seek_element(nart,"PILOT",self._npc_is_good,scope=self.elements["METROSCENE"],must_find=False,lock=True)
+        if mynpc:
+            plotutility.CharacterMover(self,mynpc,myscene,team3)
+            mek = mynpc.get_root()
+            self.register_element("SURVIVOR",mek)
+        else:
+            mysurvivor = self.register_element("SURVIVOR",gears.selector.generate_ace(self.rank,self.elements.get("ALLIED_FACTION"),myscene.environment))
+            self.register_element("PILOT", mysurvivor.get_pilot())
+            team3.contents.append(mysurvivor)
 
-        self.obj = adventureseed.MissionObjective("Extract allied forces", MAIN_OBJECTIVE_VALUE, can_reset=False)
+        self.obj = adventureseed.MissionObjective("Extract allied pilot {}".format(self.elements["PILOT"]), MAIN_OBJECTIVE_VALUE, can_reset=False)
         self.adv.objectives.append(self.obj)
         self.intro_ready = True
         self.eteam_activated = False
@@ -266,6 +260,10 @@ class BAM_ExtractAllies( Plot ):
         self.pilot_fled = False
 
         return True
+
+    def _npc_is_good(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate.faction == self.elements["ALLIED_FACTION"]
+
     def _eteam_ACTIVATETEAM(self,camp):
         if self.intro_ready:
             self.eteam_activated = True
@@ -290,6 +288,9 @@ class BAM_ExtractAllies( Plot ):
         self.obj.win(camp,105)
         self.pilot_leaves_combat(camp)
     def pilot_leaves_combat(self,camp):
+        if not self.pilot_fled:
+            npc = self.elements["PILOT"]
+            npc.relationship.reaction_mod += 10
         camp.scene.contents.remove(self.elements["SURVIVOR"])
         self.pilot_fled = True
     def t_ENDCOMBAT(self,camp):

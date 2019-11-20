@@ -141,3 +141,28 @@ class ClosedBoardingChute(Waypoint):
 
 class SmokingWreckage(Waypoint):
     TILE = pbge.scenes.Tile(None,ghterrain.MSWreckage,ghterrain.Smoke)
+
+class KojedoModel(Waypoint):
+    name = "Kojedo Statue"
+    TILE = pbge.scenes.Tile(None, None, ghterrain.KojedoModelTerrain)
+
+class BuruBuruModel(Waypoint):
+    name = "Buru Buru Statue"
+    TILE = pbge.scenes.Tile(None, None, ghterrain.BuruBuruModelTerrain)
+
+class GladiusModel(Waypoint):
+    name = "Gladius Statue"
+    TILE = pbge.scenes.Tile(None, None, ghterrain.GladiusModelTerrain)
+
+class VadelModel(Waypoint):
+    name = "Vadel Statue"
+    TILE = pbge.scenes.Tile(None, None, ghterrain.VadelModelTerrain)
+
+class HarpyModel(Waypoint):
+    name = "Harpy Statue"
+    TILE = pbge.scenes.Tile(None, None, ghterrain.HarpyModelTerrain)
+
+class ClaymoreModel(Waypoint):
+    name = "Claymore Statue"
+    TILE = pbge.scenes.Tile(None, None, ghterrain.ClaymoreModelTerrain)
+

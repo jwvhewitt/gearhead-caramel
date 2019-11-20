@@ -30,78 +30,19 @@ class CombatMissionSeed(missionbuilder.BuildAMissionSeed):
     OBJECTIVE_TAGS = (missionbuilder.BAMO_DEFEAT_COMMANDER,missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL,missionbuilder.BAMO_EXTRACT_ALLIED_FORCES)
     CRIME_TAGS = ("DZDCM_DO_CRIMES",)
     def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, include_war_crimes=False, **kwargs):
-        cms_pstate = pbge.plots.PlotState(adv=self, rank=max(camp.pc.renown+1,10))
         # Determine 2 to 3 objectives for the mission.
         if include_war_crimes:
-            cms_pstate.elements["OBJECTIVES"] = random.sample(self.OBJECTIVE_TAGS+self.CRIME_TAGS,2)
+            objs = random.sample(self.OBJECTIVE_TAGS+self.CRIME_TAGS,2)
         else:
-            cms_pstate.elements["OBJECTIVES"] = random.sample(self.OBJECTIVE_TAGS,2)
+            objs = random.sample(self.OBJECTIVE_TAGS,2)
         self.crimes_happened = False
 
-        super(CombatMissionSeed, self).__init__(camp, name, adv_return=adv_return, pstate=cms_pstate,
+        super(CombatMissionSeed, self).__init__(camp, name, adv_return=adv_return, rank=max(camp.pc.renown+1,10),
+                                                objectives=objs, win_message="You have completed the mission.",
                                                 enemy_faction=enemy_faction, allied_faction=allied_faction, **kwargs)
 
 
 
-#   ****************************
-#   ***  DZD_COMBAT_MISSION  ***
-#   ****************************
-
-class DeadZoneCombatMission( Plot ):
-    # Go fight mecha. Repeatedly.
-    LABEL = "DZD_COMBAT_MISSION"
-    active = True
-    scope = True
-    def custom_init( self, nart ):
-        """An empty map that will add subplots for the mission's objectives."""
-        team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(50,50,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
-        myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
-        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
-        self.adv.world = myscene
-
-        self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=random.choice(pbge.randmaps.anchors.EDGES)),dident="LOCALE")
-        myent = self.register_element( "_ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_EROOM")
-
-        for ob in self.elements["OBJECTIVES"]:
-            self.add_sub_plot(nart,ob)
-        #self.add_sub_plot(nart, "DZDCM_RECOVER_CARGO")
-        #self.adv.objectives.append(ComeBackInOnePieceObjective(nart.camp))
-
-        self.mission_entrance = (myscene,myent)
-        self.started_mission = False
-        self.gave_mission_reminder = False
-
-        return True
-
-    def start_mission(self,camp):
-        if not self.started_mission:
-            camp.destination,camp.entrance = self.mission_entrance
-            self.started_mission = True
-
-    def t_START(self,camp):
-        if camp.scene is self.elements["LOCALE"] and not self.gave_mission_reminder:
-            mydisplay = adventureseed.CombatMissionDisplay(title=self.adv.name,mission_seed=self.adv,width=400)
-            pbge.alert_display(mydisplay.show)
-            self.gave_mission_reminder = True
-
-    def t_ENDCOMBAT(self,camp):
-        # If the player team gets wiped out, end the mission.
-        if not camp.first_active_pc():
-            self.end_the_mission(camp)
-
-    def _ENTRANCE_menu(self, camp, thingmenu):
-        if self.adv.is_completed():
-            thingmenu.desc = "Are you ready to return to {}?".format(self.elements["ADVENTURE_RETURN"][0])
-        else:
-            thingmenu.desc = "Do you want to abort this mission and return to {}?".format(self.elements["ADVENTURE_RETURN"][0])
-
-        thingmenu.add_item("End Mission",self.end_the_mission)
-        thingmenu.add_item("Continue Mission", None)
-
-    def end_the_mission(self,camp):
-        camp.destination, camp.entrance = self.elements["ADVENTURE_RETURN"]
-        self.adv.end_adventure(camp)
 
 
 #   *************************

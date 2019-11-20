@@ -365,3 +365,38 @@ class WoodenDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
 
 class ScreenWindow(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_screenwindow.png'
+
+class KojedoModelTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_mechamodels.png'
+    frame = 0
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class BuruBuruModelTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_mechamodels.png'
+    frame = 1
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class GladiusModelTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_mechamodels.png'
+    frame = 2
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class VadelModelTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_mechamodels.png'
+    frame = 3
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class HarpyModelTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_mechamodels.png'
+    frame = 4
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class ClaymoreModelTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_mechamodels.png'
+    frame = 5
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class MechaModelTerrain(pbge.scenes.terrain.VariableTerrain):
+    image_top = 'terrain_decor_mechamodels.png'
+    frames = (0,1,2,3,4,5)
+    blocks = (Walking,Skimming,Rolling,Flying)

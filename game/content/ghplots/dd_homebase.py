@@ -142,7 +142,7 @@ class DZD_BronzeHorseInn(Plot):
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = self.register_element("FOYER_TEAM", teams.Team(name="Civilian Team"))
-        intscene = gears.GearHeadScene(35, 35, "Bronze Horse Inn", player_team=team1, civilian_team=team2,
+        intscene = gears.GearHeadScene(50, 35, "Bronze Horse Inn", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_MEETING),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.ResidentialBuilding())
@@ -157,6 +157,16 @@ class DZD_BronzeHorseInn(Plot):
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
+
+        museum = self.register_element('_museum', pbge.randmaps.rooms.ClosedRoom(width=10, height=10),
+                                      dident="INTERIOR")
+        museum.contents.append(ghwaypoints.BuruBuruModel(desc="The BuruBuru is arguably the most popular mecha in the world. It is cheap, durable, and versatile. This may not be the most glamorous mecha you'll ever pilot, but at least it's better than having to ride an Ice Wind."))
+        museum.contents.append(ghwaypoints.KojedoModel(desc="The Kojedo is a new mecha designed by Biocorp for the Terran Defense Force. It's not exactly a replacement for the Corsair, more of a companion. This mecha packs some heavy firepower and an electronic warfare system."))
+        museum.contents.append(ghwaypoints.GladiusModel(desc="Since NT152, the Gladius mecha has been awarded to the winner of Snake Lake City's annual Robot Warriors competition. This makes it one of the rarest mecha in the world since only five of them have been constructed so far. The Gladius is based on a Savin frame, but has been heavily modified by the Ran Magnus workshop."))
+        museum.contents.append(ghwaypoints.GoldPlaque(desc="This plaque confirms that the BRONZE HORSE INN has been designated an official CAVALIER CLUB by the PRO DUELIST ASSOCIATION."))
+        museum.contents.append(ghwaypoints.VadelModel(desc="For sixty years the Vadel has been Earth's foremost high end sports battroid. Designed and built right here in Wujung, this mecha combines unsurpassed speed with a versatile array of powerful weapons."))
+        museum.contents.append(ghwaypoints.HarpyModel(desc="The Harpy transatmospheric fighter is a hybrid aerobatroid used by the Solar Navy. This is one nasty piece of work. Its heavy missiles can take down an entire lance at once, then it swoops in and picks off the survivors with twin laser cannons. Avoid avoid avoid. Unless you're the one piloting it, in which case enjoy."))
+        museum.contents.append(ghwaypoints.ClaymoreModel(desc="The Claymore holds the distinction of being the oldest mecha design still in production. It may be heavy and slow, but it is also well armored and usually loaded with enough firepower to raze a small city."))
 
         # Add the elevator to the guest rooms- this can be used by subplots to also visit lancemate rooms and other stuff.
 
@@ -220,7 +230,7 @@ class DZD_BronzeHorseInn(Plot):
                 context=ContextTag([context.HELLO]), effect=self._do_intro
                 ))
         if not self.told_about_services:
-            mylist.append(Offer("",
+            mylist.append(Offer("While you rest in one of our suites, your mecha will be taken care of in our offsite hangar with full repair and customization services. We have a physical training room, a mecha museum, and a twenty four hour breakfast buffet. It's everything a cavalier could want.",
                                 context=ContextTag([context.INFO]), effect=self._tell_about_services,
                                 data={"subject": "your services"}, no_repeats=True,
                                 ))
@@ -484,7 +494,7 @@ class DZD_BlueFortressHQ(Plot):
                                     gears.selector.random_character(random.randint(26, 70),
                                                                     local_tags=self.elements["LOCALE"].attributes,
                                                                     faction=factions.TerranDefenseForce,
-                                                                    job=gears.jobs.ALL_JOBS["Commander"]))
+                                                                    job=gears.jobs.ALL_JOBS["Commander"]), lock=True)
         npc.place(intscene, team=team2)
 
         self.adventure_seed = None

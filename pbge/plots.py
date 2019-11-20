@@ -13,7 +13,7 @@ class Adventure(object):
     def end_adventure(self,camp):
         # WARNING: Don't end the plot while the PC is standing in one of the temp scenes!
         # Ending an adventure is best done when the PC leaves the adventure.
-        for p in list(camp.scripts):
+        for p in list(camp.all_plots()):
             if p.adv is self:
                 p.end_plot(camp,total_removal=False)
         self.ended = True
@@ -320,6 +320,8 @@ class Plot( object ):
     def end_plot(self, camp, total_removal=False):
         # WARNING: Don't end the plot while the PC is standing in one of the temp scenes!
         # Ending an adventure is best done when the PC leaves the adventure.
+        # NOTE: Depending on how the plot is ended, this method might be called several times.
+        #  Better it be called too often than not to be called at all. Just keep it in mind.
         self.active = False
         for sp in self.subplots.itervalues():
             if total_removal or not sp.active:

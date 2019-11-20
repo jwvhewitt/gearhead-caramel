@@ -17,6 +17,11 @@ import portraits
 import pygame
 import personality
 
+class Restoreable(object):
+    def restore(self):
+        # Remove all damage and other stuff. Return the restoration cost in credits.
+        return 0
+
 
 #
 # Damage Handlers
@@ -24,7 +29,7 @@ import personality
 #  Each "practical" gear should subclass one of the damage handlers.
 #
 
-class StandardDamageHandler(KeyObject):
+class StandardDamageHandler(KeyObject,Restoreable):
     # This gear type has health and takes damage. It is destroyed when the
     # amount of damage taken exceeds its maximum capacity.
     def __init__(self, **keywords):
@@ -96,14 +101,15 @@ class StandardDamageHandler(KeyObject):
         """
         return True
 
-    def get_repair_cost(self,repairdict=None):
+    def get_repair_cost(self,repairdict=None,check_descendants=True):
         if not repairdict:
             repairdict = collections.defaultdict(int)
         repairdict[self.material.repair_type] += self.hp_damage * self.material.repair_cost
-        for p in self.sub_com:
-            p.get_repair_cost(repairdict)
-        for p in self.inv_com:
-            p.get_repair_cost(repairdict)
+        if check_descendants:
+            for p in self.sub_com:
+                p.get_repair_cost(repairdict)
+            for p in self.inv_com:
+                p.get_repair_cost(repairdict)
         return repairdict
 
     def wipe_damage(self):
@@ -114,6 +120,14 @@ class StandardDamageHandler(KeyObject):
             p.wipe_damage()
         for p in self.inv_com:
             p.wipe_damage()
+
+    def restore(self):
+        # Remove all damage and other stuff. Return the restoration cost in credits.
+        rdic = self.get_repair_cost(check_descendants=False)
+        self.hp_damage = 0
+        if hasattr(self,"ench_list"):
+            del self.ench_list[:]
+        return sum(rdic.values()) + super(StandardDamageHandler, self).restore()
 
 
 class InvulnerableDamageHandler(StandardDamageHandler):
@@ -409,7 +423,7 @@ class HasPower(KeyObject):
                 p.regen_power()
 
 
-class MakesPower(KeyObject):
+class MakesPower(KeyObject,Restoreable):
     # In addition to this inheritance, the subclass needs to define a max_power
     # method.
     def __init__(self, **keywords):
@@ -431,6 +445,11 @@ class MakesPower(KeyObject):
     def regen_power(self):
         if self.spent > 0:
             self.spent = max(self.spent - self.scale.SIZE_FACTOR, 0)
+
+    def restore(self):
+        # Remove all damage and other stuff. Return the restoration cost in credits.
+        self.spent = 0
+        return 0 + super(MakesPower, self).restore()
 
 
 # Custom Containers
@@ -732,6 +751,11 @@ class BaseGear(scenes.PlaceableThing):
 
         return newgear
 
+    def restore_all(self):
+        total = 0
+        for part in self.get_all_parts():
+            total += part.restore()
+        return total
 
 #
 #  Practical Gears
@@ -1096,7 +1120,7 @@ class PowerSource(BaseGear, StandardDamageHandler, MakesPower):
 #   ***   COMPUTERS AND EW GEAR   ***
 #   *********************************
 
-class EWSystem(BaseGear, StandardDamageHandler, MakesPower):
+class EWSystem(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "EW System"
     SAVE_PARAMETERS = ('size', 'programs')
 
@@ -1507,7 +1531,7 @@ class EnergyWeapon(Weapon):
 
 
 
-class Ammo(BaseGear, Stackable, StandardDamageHandler):
+class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Ammo"
     STACK_CRITERIA = ("ammo_type", 'attributes')
     SAVE_PARAMETERS = ('ammo_type', 'quantity', 'area_anim', 'attributes')
@@ -1562,6 +1586,11 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler):
 
     def get_reload_cost(self):
         return ( self.cost * self.spent ) / self.quantity
+
+    def restore(self):
+        ac = self.get_reload_cost()
+        self.spent = 0
+        return ac + super(Ammo,self).restore()
 
 class BallisticWeapon(Weapon):
     MIN_REACH = 2
@@ -1779,7 +1808,7 @@ class BeamWeapon(Weapon):
         defender.consume_power(self.get_basic_power_cost())
 
 
-class Missile(BaseGear, StandardDamageHandler):
+class Missile(BaseGear, StandardDamageHandler,Restoreable):
     DEFAULT_NAME = "Missile"
     SAVE_PARAMETERS = ('reach', 'damage', 'accuracy', 'penetration', 'quantity', 'area_anim', 'attributes')
     MIN_REACH = 2
@@ -1881,6 +1910,11 @@ class Missile(BaseGear, StandardDamageHandler):
 
     def get_reload_cost(self):
         return ( self.cost * self.spent ) / self.quantity
+
+    def restore(self):
+        ac = self.get_reload_cost()
+        self.spent = 0
+        return ac + super(Missile,self).restore()
 
 
 class Launcher(BaseGear, ContainerDamageHandler):
@@ -2037,7 +2071,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
             return geffects.BigBoom
 
 
-class Chem(BaseGear, Stackable, StandardDamageHandler):
+class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Chem"
     STACK_CRITERIA = ('attributes',)
     SAVE_PARAMETERS = ('quantity', 'attributes', 'shot_anim', 'area_anim')
@@ -2086,6 +2120,11 @@ class Chem(BaseGear, Stackable, StandardDamageHandler):
 
     def get_reload_cost(self):
         return ( self.cost * self.spent ) / self.quantity
+
+    def restore(self):
+        ac = self.get_reload_cost()
+        self.spent = 0
+        return ac + super(Chem,self).restore()
 
 
 class ChemThrower(Weapon):
@@ -2828,7 +2867,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             return 1
 
 
-class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Combatant):
+class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Combatant, Restoreable):
     SAVE_PARAMETERS = ('statline', 'combatant')
     DEFAULT_SCALE = scale.HumanScale
     DEFAULT_MATERIAL = materials.Meat
@@ -2998,6 +3037,12 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             self.spend_stamina(max(absorb_amount//2,1))
             dmg -= absorb_amount
         return dmg
+
+    def restore(self):
+        self.mp_spent = 0
+        self.sp_spent = 0
+        return super(Being,self).restore()
+
 
 class Character(Being):
     SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship', "mecha_colors", "mecha_pref")

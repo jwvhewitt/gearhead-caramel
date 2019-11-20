@@ -218,8 +218,46 @@ class AutoLeaver(object):
                     camp.party.remove(mek)
 
 class CharacterMover(object):
-    def __init__(self,plot,character,dest_scene,dest_team):
-        pass
+    def __init__(self,plot,character,dest_scene,dest_team,allow_death=False):
+        # Record the character's original location, move them to the new location.
+        if character not in plot.get_locked_elements():
+            print "Warning: Character {} should be locked by {} before moving!".format(character,plot)
+        if not character.container:
+            print "Warning: Character {} moved by {} has no original container!".format(character,plot)
+        if not plot.active:
+            print "Warning: Plot {} not active"
+        if not plot.scope:
+            print "Warning: Plot {} has no scope set"
+
+        character.restore_all()
+        self.character = character
+        self.original_container = character.container
+
+        # Check to see if the character can use a mecha in the destination scene.
+        if character.combatant and dest_scene.scale is gears.scale.MechaScale:
+            if character.mecha_pref and character.mecha_pref in gears.selector.DESIGN_BY_NAME:
+                mek = gears.selector.get_design_by_full_name(character.mecha_pref)
+            else:
+                level = max(character.renown,15)
+                if hasattr(character,"relationship") and character.relationship:
+                    level = max(level + character.relationship.data.get("mecha_level_bonus",0),10)
+                mek = gears.selector.MechaShoppingList.generate_single_mecha(level,character.faction,gears.tags.GroundEnv)
+                character.mecha_pref = mek.get_full_name()
+            if mek:
+                mek.load_pilot(character)
+                character = mek
+
+        character.place(dest_scene,team=dest_team)
+
+        self.allow_death = allow_death
+        plot.call_on_end.append(self)
+        plot.move_records.append((character,dest_scene.contents))
+
     def __call__(self,camp):
-        pass
+        if self.character.is_not_destroyed() or not self.allow_death:
+            if hasattr(self.character, "container") and self.character.container:
+                self.character.container.remove(self.character)
+            self.character.restore_all()
+            self.original_container.append(self.character)
+
 

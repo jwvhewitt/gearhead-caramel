@@ -336,12 +336,12 @@ class Scene( object ):
         # Return the first bumpable found at this position. If more than one
         # bumpable is there, tough cookies.
         for a in self.contents:
-            if a.pos == pos and hasattr(a,'bump'):
+            if hasattr(a,"pos") and a.pos == pos and hasattr(a,'bump'):
                 return a
 
     def get_bumpables(self,pos):
         # Return all of the bumpables found at this position.
-        return [a for a in self.contents if a.pos == pos and hasattr(a,'bump')]
+        return [a for a in self.contents if hasattr(a,"pos") and a.pos == pos and hasattr(a,'bump')]
 
     def get_root_scene(self):
         if hasattr(self, "container") and self.container and hasattr(self.container.owner, "get_root_scene"):
