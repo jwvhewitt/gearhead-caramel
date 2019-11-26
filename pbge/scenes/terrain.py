@@ -257,12 +257,14 @@ class HillTerrain( Terrain ):
             spr.render( dest, bor )
 
 class OnTheWallTerrain( Terrain ):
+    SOUTH_FRAME = 1
+    EAST_FRAME = 0
     @classmethod
     def render_top( self, dest, view, x, y ):
         if view.space_to_south( x, y ):
-            frame = 1
+            frame = self.SOUTH_FRAME
         else:
-            frame = 0
+            frame = self.EAST_FRAME
         spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
         spr.render( dest, frame )
 

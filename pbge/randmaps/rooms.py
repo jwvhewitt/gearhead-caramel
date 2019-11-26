@@ -93,7 +93,7 @@ class Room( object ):
                 if myrect.collidelist( closed_area ) == -1:
                     r.area = myrect
                     closed_area.append( myrect )
-        old_closed = list(closed_area)
+        #old_closed = list(closed_area)
         # Assign areas for unplaced rooms.
         for r in self.contents:
             if hasattr( r, "area" ) and not r.area:
@@ -157,7 +157,7 @@ class Room( object ):
                 i.predeploy( gb, self )
 
         # Find a list of good walls for stuff that must be mounted on a wall.
-        good_walls = [p for p in self.get_west_north_wall_points() if self.is_good_spot_for_wall_decor(gb,p)]
+        good_walls = [p for p in self.get_west_north_wall_points(gb) if self.is_good_spot_for_wall_decor(gb,p)]
 
         for i in list(self.contents):
             # Only place contents which can be placed, but haven't yet.
@@ -242,11 +242,14 @@ class Room( object ):
           not gb.tile_blocks_walking(x+1,y) ):
             return True
 
-    def get_west_north_wall_points(self):
+    def get_west_north_wall_points(self, gb):
         # The western and northern walls are the two that should be visible to the player, and so this is where
         # wall mounted decor and waypoints will go.
         mylist = [(x,self.area.y) for x in range( self.area.x + 1, self.area.x + self.area.width - 2 )]
         mylist += [(self.area.x,y) for y in range( self.area.y + 1, self.area.y + self.area.height - 2 )]
+        for m in [m for m in gb.contents if hasattr(m,"pos")]:
+            if m.pos in mylist:
+                mylist.remove(m.pos)
         return mylist
 
 
@@ -265,11 +268,43 @@ class OpenRoom( Room ):
     def build( self, gb, archi ):
         archi = self.archi or archi
         gb.fill(self.area,floor=archi.floor_terrain,wall=None)
-    def get_west_north_wall_points(self):
+    def get_west_north_wall_points(self,gb):
         # The western and northern walls are the two that should be visible to the player, and so this is where
         # wall mounted decor and waypoints will go.
         mylist = [(x,self.area.y-1) for x in range( self.area.x, self.area.x + self.area.width - 1 )]
         mylist += [(self.area.x-1,y) for y in range( self.area.y, self.area.y + self.area.height - 1 )]
+        for m in [m for m in gb.contents if hasattr(m,"pos")]:
+            if m.pos in mylist:
+                mylist.remove(m.pos)
+        return mylist
+
+class MostlyOpenRoom( OpenRoom ):
+    """A room with floor and no walls unless it's on the edge, in which case it gets walls."""
+    def build( self, gb, archi ):
+        archi = self.archi or archi
+        gb.fill(self.area,floor=archi.floor_terrain,wall=None)
+        if self.area.x == 0:
+            # Draw a west wall.
+            gb.fill(pygame.Rect(0,self.area.y,0,self.area.y+self.area.height-1),wall=archi.wall_terrain)
+        elif self.area.right == gb.width:
+            # Draw an east wall.
+            gb.fill(pygame.Rect(self.area.right-1, self.area.y, self.area.right-1, self.area.y + self.area.height - 1), wall=archi.wall_terrain)
+
+        if self.area.y == 0:
+            # Draw a north wall.
+            gb.fill(pygame.Rect(self.area.x,0,self.area.x+self.area.width-1,0),wall=archi.wall_terrain)
+        elif self.area.bottom == gb.width:
+            # Draw an south wall.
+            gb.fill(pygame.Rect(self.area.x, self.area.bottom-1, self.area.right-1, self.area.bottom - 1), wall=archi.wall_terrain)
+
+    def get_west_north_wall_points(self,gb):
+        # The western and northern walls are the two that should be visible to the player, and so this is where
+        # wall mounted decor and waypoints will go.
+        mylist = [(x,max(self.area.y-1,0)) for x in range( self.area.x, self.area.x + self.area.width - 1 )]
+        mylist += [(max(self.area.x-1,0),y) for y in range( self.area.y, self.area.y + self.area.height - 1 )]
+        for m in [m for m in gb.contents if hasattr(m,"pos")]:
+            if m.pos in mylist:
+                mylist.remove(m.pos)
         return mylist
 
 

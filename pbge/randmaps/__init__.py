@@ -160,3 +160,83 @@ class CityGridGenerator(SceneGenerator):
 
     def connect_contents( self, gb, archi ):
         pass
+
+
+class PackedBuildingGenerator(SceneGenerator):
+    def put_room_north(self,closed_room,open_room):
+        open_room.midbottom = closed_room.midtop
+        open_room.y -= 1
+        open_room.clamp_ip(self.area)
+    def put_room_south(self,closed_room,open_room):
+        open_room.midtop = closed_room.midbottom
+        open_room.y += 1
+        open_room.clamp_ip(self.area)
+    def put_room_west(self,closed_room,open_room):
+        open_room.midright = closed_room.midleft
+        open_room.x -= 1
+        open_room.clamp_ip(self.area)
+    def put_room_east(self,closed_room,open_room):
+        open_room.midleft = closed_room.midright
+        open_room.x += 1
+        open_room.clamp_ip(self.area)
+
+    def arrange_contents( self, gb ):
+        # Step Two: Arrange subcomponents within this area.
+        closed_area = list()
+        # Add already placed rooms to the closed_area list.
+        for r in self.contents:
+            if hasattr( r, "area" ) and r.area:
+                closed_area.append( r.area )
+        # Add rooms with defined anchors next
+        for r in self.contents:
+            if hasattr( r, "anchor" ) and r.anchor and hasattr(r,"area"):
+                myrect = pygame.Rect( 0, 0, r.width, r.height )
+                r.anchor( self.area, myrect )
+                if myrect.collidelist( closed_area ) == -1:
+                    r.area = myrect
+                    closed_area.append( myrect )
+
+        # Assign areas for unplaced rooms.
+        positions = (self.put_room_east,self.put_room_north,self.put_room_south,self.put_room_west)
+        rooms_to_add = [r for r in self.contents if hasattr( r, "area" ) and not r.area]
+        random.shuffle(rooms_to_add)
+        for r in rooms_to_add:
+            myrect = pygame.Rect( 0, 0, r.width, r.height )
+            candidates = list()
+            for croom in closed_area:
+                for dirf in positions:
+                    dirf(croom,myrect)
+                    if myrect.collidelist( closed_area ) == -1:
+                        candidates.append((dirf,croom))
+            if candidates:
+                dirf,croom = random.choice(candidates)
+                dirf(croom,myrect)
+                r.area = myrect
+                closed_area.append(myrect)
+            else:
+                raise rooms.RoomError("ROOM ERROR: {}:{} cannot place {}".format(str(self), str(self.__class__), str(r)))
+
+    def connect_contents( self, gb, archi ):
+        # Step Three: Connect all rooms in contents, making trails on map.
+
+        # Generate list of rooms.
+        connected = list()
+        unconnected = [r for r in self.contents if hasattr(r,"area")]
+        room1 = random.choice(unconnected)
+        unconnected.remove(room1)
+        connected.append(room1)
+        unconnected.sort( key=room1.find_distance_to )
+
+        # Process them
+        for r in unconnected:
+            # Connect r to a connected room
+            croom = min(connected,key=r.find_distance_to)
+            self.draw_L_connection( gb, r.area.centerx, r.area.centery, croom.area.centerx, croom.area.centery, archi )
+            connected.append(r)
+
+    def thin_draw_direct_connection( self, gb, x1,y1,x2,y2, archi ):
+        # Paths between rooms will only be one block wide.
+        path = scenes.animobs.get_line( x1,y1,x2,y2 )
+        for p in path:
+            archi.draw_fuzzy_ground( gb, p[0], p[1] )
+

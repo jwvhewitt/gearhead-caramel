@@ -166,3 +166,31 @@ class ClaymoreModel(Waypoint):
     name = "Claymore Statue"
     TILE = pbge.scenes.Tile(None, None, ghterrain.ClaymoreModelTerrain)
 
+class MechaModel(Waypoint):
+    name = "Mecha Statue"
+    TILE = pbge.scenes.Tile(None, None, ghterrain.MechaModelTerrain)
+
+class WallMap(Waypoint):
+    TILE = pbge.scenes.Tile(None,None,ghterrain.MapTerrain)
+    ATTACH_TO_WALL = True
+
+class EarthMap(Waypoint):
+    TILE = pbge.scenes.Tile(None,None,ghterrain.EarthMapTerrain)
+    ATTACH_TO_WALL = True
+
+class Lockers(Waypoint):
+    TILE = pbge.scenes.Tile(None,None,ghterrain.LockersTerrain)
+    ATTACH_TO_WALL = True
+
+class ShippingShelves(Waypoint):
+    TILE = pbge.scenes.Tile(None,None,ghterrain.ShippingShelvesTerrain)
+    ATTACH_TO_WALL = True
+
+class RegExLogo(Waypoint):
+    name = "RegEx Corporation Logo"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.RegExLogoTerrain)
+    ATTACH_TO_WALL = True
+
+class HamsterCage(Waypoint):
+    TILE = pbge.scenes.Tile(None,None,ghterrain.HamsterCageTerrain)
+    ATTACH_TO_WALL = True

@@ -125,6 +125,7 @@ class GameState( object ):
         self.music_name = None
         self.music_library = dict()
         self.anim_phase = 0
+        self.standing_by = False
 
     def render_widgets( self ):
         if self.widgets:
@@ -145,6 +146,7 @@ class GameState( object ):
             default_border.render(myrect)
             draw_text(self.small_font,self.widget_tooltip,myrect)
         self.anim_phase = (self.anim_phase + 1) % 6000
+        self.standing_by = False
         pygame.display.flip()
 
     def locate_music( self, mfname ):
@@ -434,16 +436,18 @@ def input_string( font = None, redrawer = None, prompt = "Enter text below", pro
 
 
 def please_stand_by( caption=None ):
-    img = pygame.image.load( random.choice( POSTERS ) ).convert()
-    dest = img.get_rect( center=(my_state.screen.get_width()//2,my_state.screen.get_height()//2) )
-    my_state.screen.fill( (0,0,0) )
-    my_state.screen.blit(img,dest)
-    if caption:
-        mytext = BIGFONT.render(caption, True, TEXT_COLOR )
-        dest2 = mytext.get_rect( topleft = (dest.x+32,dest.y+32) )
-        gold_border.render( my_state.screen, dest2 )
-        my_state.screen.blit( mytext, dest2 )
-    pygame.display.flip()
+    if not my_state.standing_by:
+        img = pygame.image.load( random.choice( POSTERS ) ).convert()
+        dest = img.get_rect( center=(my_state.screen.get_width()//2,my_state.screen.get_height()//2) )
+        my_state.screen.fill( (0,0,0) )
+        my_state.screen.blit(img,dest)
+        if caption:
+            mytext = BIGFONT.render(caption, True, TEXT_COLOR )
+            dest2 = mytext.get_rect( topleft = (dest.x+32,dest.y+32) )
+            gold_border.render( my_state.screen, dest2 )
+            my_state.screen.blit( mytext, dest2 )
+        my_state.standing_by = True
+        pygame.display.flip()
 
 
 import frects

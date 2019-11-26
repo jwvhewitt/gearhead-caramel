@@ -1098,6 +1098,24 @@ DEFAULT_GRAMMAR = {
 
         },
 
+    "[IWILLSEEWHATICANDO]": {
+        # A vague promise of help for a problem of some kind.
+        Default: ["I'll see what I can do about that.", "Maybe I could do something about that."
+                  ],
+        personality.Cheerful: ["I will do my best to fix this!",
+                               ],
+        personality.Grim: ["I don't know what I can do to help, but I'll try anyways.",
+                           ],
+        personality.Easygoing: ["Gimme a while to see what I can do about that."
+                                ],
+        personality.Passionate: ["I swear to you, this problem will be solved!"
+                                 ],
+        personality.Sociable: ["I'll ask around and see if there's anything I can do about that.",
+                               ],
+        personality.Shy: ["I'll see what I can do.",
+                          ],
+    },
+
     "[IWOULDLOVETO]": {
         Default: ["I'd love to.", "Sounds good to me."
                   ],
@@ -1810,6 +1828,27 @@ DEFAULT_GRAMMAR = {
     "[THREATEN]": {
         Default: ["I'm going to [threat]!","I will [threat]!",
         ],    
+    },
+
+    "[UNDERSTOOD]": {
+        # The NPC understands, but doesn't necessarily agree.
+        Default: ["Understood."
+                  ],
+        personality.Cheerful: [
+            "I can accept that."
+            ],
+        personality.Grim: ["So I see.",
+                           ],
+        personality.Easygoing: ["Whatever.",
+                                ],
+        personality.Passionate: [
+            "I hear and understand.",
+            ],
+        personality.Sociable: [
+            "I understand what you're saying.",
+            ],
+        personality.Shy: ["Uh-huh.",
+                          ],
     },
 
     "[vanquished]": {

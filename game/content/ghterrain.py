@@ -400,3 +400,50 @@ class MechaModelTerrain(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_decor_mechamodels.png'
     frames = (0,1,2,3,4,5)
     blocks = (Walking,Skimming,Rolling,Flying)
+
+class MapTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_map.png'
+
+class EarthMapTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_earthmap.png'
+
+class LockersTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_lockers.png'
+
+class ShippingShelvesTerrain(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    image_top = 'terrain_decor_shippingshelves.png'
+    south_frames = (1,3,5,7)
+    east_frames = (0,2,4,6)
+
+class NorthSouthShelvesTerrain(pbge.scenes.terrain.VariableTerrain):
+    image_top = 'terrain_decor_nsshelves.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+    movement_cost={pbge.scenes.movement.Vision:10}
+
+class UlsaniteDesk(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_office_ulsanite.png'
+    frame = 0
+    blocks = (Walking,Skimming,Rolling)
+    movement_cost={pbge.scenes.movement.Vision:5}
+
+class UlsaniteChair(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_office_ulsanite.png'
+    frame = 1
+    blocks = (Walking,Skimming,Rolling)
+    movement_cost={pbge.scenes.movement.Vision:5}
+
+class UlsaniteFilingCabinetTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_office_ulsanite.png'
+    SOUTH_FRAME = 3
+    EAST_FRAME = 2
+
+class UlsaniteBookshelfTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_office_ulsanite.png'
+    SOUTH_FRAME = 5
+    EAST_FRAME = 4
+
+class RegExLogoTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_logo_regex.png'
+
+class HamsterCageTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_hamstercage.png'

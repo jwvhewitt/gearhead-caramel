@@ -3045,10 +3045,10 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
 
 class Character(Being):
-    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship', "mecha_colors", "mecha_pref")
+    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship', "mecha_colors", "mecha_pref", 'mnpcid')
     DEEP_COPY_PARAMS = {"add_body": False}
     def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="",
-                 relationship=None, add_body=True, mecha_colors=None, mecha_pref=None, **keywords):
+                 relationship=None, add_body=True, mecha_colors=None, mecha_pref=None, mnpcid=None, **keywords):
         self.personality = set(personality)
         if not gender:
             gender = genderobj.Gender.random_gender()
@@ -3065,6 +3065,8 @@ class Character(Being):
         self.relationship = relationship
         self.mecha_colors = mecha_colors
         self.mecha_pref = mecha_pref
+        # Major NPC ID: unique identifier so NPC relationships get carried between scenarios.
+        self.mnpcid = mnpcid
         super(Character, self).__init__(**keywords)
         if add_body:
             self.build_body()

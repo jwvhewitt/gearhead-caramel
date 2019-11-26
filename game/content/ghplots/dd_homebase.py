@@ -1,4 +1,4 @@
-from pbge.plots import Plot
+from pbge.plots import Plot, PlotState
 from pbge.dialogue import Offer, ContextTag
 from game import teams, services, ghdialogue
 from game.ghdialogue import context
@@ -7,7 +7,7 @@ from gears import factions, personality
 import game.content.gharchitecture
 import pbge
 import game.content.plotutility
-from game.content import ghwaypoints
+from game.content import ghwaypoints, gharchitecture
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
@@ -145,7 +145,7 @@ class DZD_BronzeHorseInn(Plot):
         intscene = gears.GearHeadScene(50, 35, "Bronze Horse Inn", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_MEETING),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.ResidentialBuilding())
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=10, height=10,
                                                                                  anchor=pbge.randmaps.anchors.south,
@@ -167,6 +167,8 @@ class DZD_BronzeHorseInn(Plot):
         museum.contents.append(ghwaypoints.VadelModel(desc="For sixty years the Vadel has been Earth's foremost high end sports battroid. Designed and built right here in Wujung, this mecha combines unsurpassed speed with a versatile array of powerful weapons."))
         museum.contents.append(ghwaypoints.HarpyModel(desc="The Harpy transatmospheric fighter is a hybrid aerobatroid used by the Solar Navy. This is one nasty piece of work. Its heavy missiles can take down an entire lance at once, then it swoops in and picks off the survivors with twin laser cannons. Avoid avoid avoid. Unless you're the one piloting it, in which case enjoy."))
         museum.contents.append(ghwaypoints.ClaymoreModel(desc="The Claymore holds the distinction of being the oldest mecha design still in production. It may be heavy and slow, but it is also well armored and usually loaded with enough firepower to raze a small city."))
+        team3 = self.register_element("MUSEUM_TEAM", teams.Team(name="Museum Team"))
+        museum.contents.append(team3)
 
         # Add the elevator to the guest rooms- this can be used by subplots to also visit lancemate rooms and other stuff.
 
@@ -206,8 +208,8 @@ class DZD_BronzeHorseInn(Plot):
         )
 
         self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
-        self.add_sub_plot(nart, "DZD_BHIAdventurer")
-        self.add_sub_plot(nart, "DZD_BHIScout")
+        self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
+        self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
 
         return True
 
@@ -261,6 +263,7 @@ class DZD_BronzeHorseInn(Plot):
 
 class DZD_BHIRandomLancemate(Plot):
     LABEL = "DZD_BHIRandomLancemate"
+    UNIQUE = True
 
     def custom_init(self, nart):
         npc = gears.selector.random_character(statline=gears.base.Being.random_stats(random.randint(95, 110)),
@@ -268,13 +271,14 @@ class DZD_BHIRandomLancemate(Plot):
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["LOCALE"].attributes),
                                               combatant=True)
-        self.register_element("NPC", npc, dident="FOYER_TEAM")
+        self.register_element("NPC", npc, dident=random.choice(("MUSEUM_TEAM","FOYER_TEAM")))
         self.add_sub_plot(nart, "RLM_Personality")
         return True
 
 
 class DZD_BHIAdventurer(Plot):
-    LABEL = "DZD_BHIAdventurer"
+    LABEL = "DZD_BHIRandomLancemate"
+    UNIQUE = True
     JOBS = ("Soldier", "Mecha Pilot", "Scavenger", "Arena Pilot", "Martial Artist", "Test Pilot")
 
     def custom_init(self, nart):
@@ -290,7 +294,8 @@ class DZD_BHIAdventurer(Plot):
 
 
 class DZD_BHIScout(Plot):
-    LABEL = "DZD_BHIScout"
+    LABEL = "DZD_BHIRandomLancemate"
+    UNIQUE = True
     JOBS = ("Bounty Hunter", "Recon Pilot", "Thief", "Explorer")
 
     def custom_init(self, nart):
@@ -300,7 +305,7 @@ class DZD_BHIScout(Plot):
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["LOCALE"].attributes),
                                               combatant=True)
-        self.register_element("NPC", npc, dident="FOYER_TEAM")
+        self.register_element("NPC", npc, dident=random.choice(("MUSEUM_TEAM","FOYER_TEAM")))
         self.add_sub_plot(nart, "RLM_Personality")
         return True
 
@@ -471,10 +476,10 @@ class DZD_BlueFortressHQ(Plot):
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
-        intscene = gears.GearHeadScene(35, 35, "Blue Fortress L1", player_team=team1, civilian_team=team2,
+        intscene = gears.GearHeadScene(35, 35, "Blue Fortress", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BASE),
                                        scale=gears.scale.HumanScale, faction=factions.TerranDefenseForce)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.DefaultBuilding())
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.DefaultBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
@@ -500,6 +505,24 @@ class DZD_BlueFortressHQ(Plot):
         self.adventure_seed = None
         self.next_enemy_faction = self.generate_enemy_faction()
         #self.register_adventure(nart.camp)
+
+        room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(), dident="INTERIOR")
+        team3 = teams.Team(name="Lounge Team")
+        room2.contents.append(ghwaypoints.EarthMap())
+        for t in range(random.randint(3,7)):
+            room2.contents.append(ghwaypoints.Lockers())
+
+        vikki = gears.base.Character(name="Vikki",statline={gears.stats.Reflexes:15,
+         gears.stats.Body:10,gears.stats.Speed:13,gears.stats.Perception:13,
+         gears.stats.Knowledge:10,gears.stats.Craft:10,gears.stats.Ego:10,
+         gears.stats.Charm:12}, mecha_pref = "THD-35 Thorshammer",
+         job=gears.jobs.ALL_JOBS["Mecha Pilot"], renown=50, birth_year=138, combatant=True, faction=gears.factions.TerranDefenseForce,
+         personality=[personality.Cheerful,personality.Shy,personality.Fellowship], mnpcid="Vikki Shingo",
+         gender=gears.genderobj.Gender.get_default_female(),portrait='card_f_vikki_dzd.png',
+         colors=(gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive),
+         mecha_colors=(gears.color.ShiningWhite,gears.color.Olive,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))
+        self.register_element( "VIKKI", vikki )
+        vikki.place(intscene, team=team3)
 
         return True
 
@@ -563,11 +586,11 @@ class DZD_AlliedArmor(Plot):
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1,))
-        intscene = gears.GearHeadScene(40, 40, "Allied Armor", player_team=team1, civilian_team=team2,
+        intscene = gears.GearHeadScene(50, 40, "Allied Armor", player_team=team1, civilian_team=team2,
                                        attributes=(
                                        gears.tags.SCENE_PUBLIC, gears.tags.SCENE_SHOP, gears.tags.SCENE_GARAGE),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
@@ -586,7 +609,7 @@ class DZD_AlliedArmor(Plot):
 
         self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce, rank=50)
 
-        custom_shop = pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.southwest, parent=intscene)
+        custom_shop = pbge.randmaps.rooms.ClosedRoom(parent=intscene)
         npc2 = self.register_element("MECHANIC",
                                      gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
                                                                      job=gears.jobs.ALL_JOBS["Mechanic"]))
@@ -713,7 +736,7 @@ class DZD_WujungHospital(Plot):
         intscene = gears.GearHeadScene(35, 35, "Wujung Hospital", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
                                       dident="INTERIOR")
@@ -760,14 +783,17 @@ class DZD_LongRoadLogistics(Plot):
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
-        intscene = gears.GearHeadScene(35, 35, "Long Road Logistics", player_team=team1, civilian_team=team2,
+        intscene = gears.GearHeadScene(50, 50, "Long Road Logistics", player_team=team1, civilian_team=team2,
                                        attributes=(
                                        gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE, gears.tags.SCENE_TRANSPORT),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.MostlyOpenRoom(12,15,anchor=pbge.randmaps.anchors.south, ),
                                       dident="INTERIOR")
+        foyer.contents.append(team2)
+        for t in range(random.randint(5,12)):
+            foyer.contents.append(ghwaypoints.ShippingShelves())
 
         mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
@@ -784,7 +810,123 @@ class DZD_LongRoadLogistics(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Trucker"]))
         npc.place(intscene, team=team2)
 
+        room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="INTERIOR")
+        room3 = self.register_element('_room3', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="INTERIOR")
+        room4 = self.register_element('regex_room', pbge.randmaps.rooms.MostlyOpenRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
+        room5 = self.register_element('_room5', pbge.randmaps.rooms.MostlyOpenRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
+
+        room4.contents.append(ghwaypoints.RegExLogo())
+        team4 = teams.Team(name="RegEx Team")
+        room4.contents.append(team4)
+        npc = self.register_element("REGEXNPC",
+                                    gears.selector.random_character(30, local_tags=self.elements["LOCALE"].attributes,
+                                                                    faction=gears.factions.RegExCorporation, job=gears.jobs.ALL_JOBS["Corporate Executive"]))
+        team4.contents.append(npc)
+        self._asked_about_construction = False
+
+        team5 = teams.Team(name="BioCorp Team")
+        room5.contents.append(team5)
+        npc = self.register_element("BIOCORPNPC",
+                                    gears.selector.random_character(30, local_tags=self.elements["LOCALE"].attributes,
+                                                                    faction=gears.factions.BioCorp, job=gears.jobs.ALL_JOBS["Researcher"]))
+        team5.contents.append(npc)
+        self._asked_about_bc_mission = False
+        self._asked_about_biomonsters = False
+        self._hamster_state = 0
+
+        cage = self.register_element("_HAMSTER", ghwaypoints.HamsterCage(name="Hamster Cage",desc="You stand before a cage of cute, fluffy hamsters. Oddly, all of the hamsters appear to be walking on their back legs. Other than that they seem perfectly normal and content.",plot_locked=True))
+        room5.contents.append(cage)
+
         return True
+
+    def _HAMSTER_BUMP(self, camp):
+        if self._hamster_state == 0:
+            self._hamster_state = 1
+
+    def _HAMSTER_menu(self, camp, thingmenu):
+        thingmenu.add_item("Pet the hamsters.", self._pet_hamster)
+        thingmenu.add_item("Leave the hamsters alone.", None)
+
+    def _pet_hamster(self,camp):
+        pbge.alert("You play with the hamsters for a little while and make some new friends.")
+
+    def REGEXNPC_offers(self, camp):
+        mylist = list()
+
+        if not self._asked_about_construction:
+            mylist.append(Offer(
+                "[HELLO] Welcome to RegEx Construction Services, temporarily relocated to the Long Road Industrial Complex since Typhon smooshed the hell out of our old offices last summer.",
+                context=ContextTag([context.HELLO]),
+            ))
+            mylist.append(Offer(
+                "I'd love to help, but road security to the dead zone isn't what it used to be. Building a power plant is going to involve lots of materials and heavy machinery. We're going to need a secure transit route from here to {} before we can even talk about starting.".format(self.elements["DZ_TOWN_NAME"]),
+                context=ContextTag([context.INFO]), subject=self, subject_start=True,
+                data={"subject": "building a new power plant for {}".format(self.elements["DZ_TOWN_NAME"])}, no_repeats=True,
+            ))
+        else:
+            mylist.append(Offer(
+                "[HELLO] Any update on the road situation leading to {}?".format(self.elements["DZ_TOWN_NAME"]),
+                context=ContextTag([context.HELLO]),
+                ))
+
+        mylist.append(Offer(
+            "That would be great. More work will help us to rebuild our office faster, and I for one can't wait to get out of this building. It always smells like coffee and magnetic grease in here.",
+            context=ContextTag([context.CUSTOM]),subject=self,
+            data={"reply": "I'll see what I can do about that."}, effect=self._tell_about_services
+        ))
+
+        return mylist
+
+    def BIOCORPNPC_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] This is the BioCorp Research Support Office. We coordinate efforts between the main office in Snake Lake and projects like Mesa Lab in Last Hope and the various expeditions currently working in the dead zone.",
+            context=ContextTag([context.HELLO]),
+        ))
+
+        if not self._asked_about_bc_mission:
+            mylist.append(Offer(
+                "No mission exactly, but if you're heading into the dead zone there may be something you can do for me. BioCorp is offering cash rewards for lostech artifacts or any data regarding PreZero synthoid technology. If you find anything interesting during your travels I can pay you for the information.",
+                context=ContextTag([context.MISSION]), subject_start=True, subject=self, effect=self._tell_about_bc_mission
+            ))
+        mylist.append(Offer(
+            "[GOOD] I look forward to hearing about what you find out there.",
+            context=ContextTag([context.ACCEPT]), subject=self
+        ))
+        mylist.append(Offer(
+            "[UNDERSTOOD] The offer remains, if you ever change your mind.",
+            context=ContextTag([context.DENY]), subject=self
+        ))
+
+        if not self._asked_about_biomonsters:
+            mylist.append(Offer(
+                "What, you think that just because this is a BioCorp office we're going to have Hunter-X synths running around all over the place?! BioCorp has been out of the autonomous bioweapon business for thirty years now. Seriously, you raze one tiny village to the ground with an experiment gone horribly wrong and they never let you forget...",
+                context=ContextTag([context.CUSTOM]), effect=self._tell_about_biomonsters,
+                data={"reply": "I expected this place to be full of biomonsters."}, no_repeats=True,
+            ))
+
+        if self._hamster_state == 1:
+            mylist.append(Offer(
+                "They are my pets. They're 'golden tallboys', imported from Amazonia. People say they're supposed to be highly intelligent but mine are only interested in eating and sleeping. Still, they're good company for the nights when I have to work overtime.",
+                context=ContextTag([context.INFO]), effect=self._tell_about_hamsters,
+                data={"subject": "those hamsters"}, no_repeats=True,
+            ))
+
+        return mylist
+
+    def _tell_about_hamsters(self, camp):
+        self._hamster_state = 2
+
+    def _tell_about_biomonsters(self, camp):
+        self._asked_about_biomonsters = True
+
+    def _tell_about_bc_mission(self,camp):
+        self._asked_about_bc_mission = True
+
+    def _tell_about_services(self,camp):
+        self.memo = "You spoke to {REGEXNPC} of RegEx Construction about building a new power plant for {DZ_TOWN_NAME}. In order for {REGEXNPC.gender.object_pronoun} to do that, there must be a secure trade route between there an Wujung.".format(**self.elements)
+        self._asked_about_construction = True
 
     def DISPATCHER_offers(self, camp):
         mylist = list()

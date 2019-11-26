@@ -1,6 +1,6 @@
 import ghterrain
 from pbge.randmaps.architect import Architecture
-from pbge.randmaps.decor import OmniDec
+from pbge.randmaps.decor import OmniDec,ColumnsDecor,OfficeDecor
 import pbge
 import ghwaypoints
 
@@ -10,6 +10,16 @@ class CheeseShopDecor(OmniDec):
 class ResidentialDecor(OmniDec):
     WALL_DECOR = (ghterrain.WoodenShelves,)
     WIN_DECOR = ghterrain.ScreenWindow
+
+class StorageRoomDecor(ColumnsDecor):
+    WALL_DECOR = (ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.VentFanTerrain)
+    WALL_FILL_FACTOR = 0.6
+    FLOOR_DECOR = (ghterrain.NorthSouthShelvesTerrain,)
+
+class UlsaniteOfficeDecor(OfficeDecor):
+    DESK_TERRAIN = (ghterrain.UlsaniteDesk,)
+    CHAIR_TERRAIN = (ghterrain.UlsaniteChair,)
+    WALL_DECOR = (ghterrain.UlsaniteBookshelfTerrain,ghterrain.UlsaniteFilingCabinetTerrain)
 
 class WorldScaleDeadzone(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)

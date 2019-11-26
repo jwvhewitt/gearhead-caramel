@@ -322,6 +322,24 @@
     }
   },
   {
+    "name": "Corporate Executive",
+    "skills": ["Negotiation"],
+    "tags": ["CorporateWorker"],
+    "always_combatant": false
+  },
+  {
+    "name": "Factory Worker",
+    "skills": ["Repair"],
+    "tags": ["CorporateWorker","Laborer"],
+    "always_combatant": false
+  },
+  {
+    "name": "Researcher",
+    "skills": ["Science"],
+    "tags": ["CorporateWorker","Academic"],
+    "always_combatant": false
+  },
+  {
     "name": "Sheriff",
     "skills": ["Scouting","Negotiation"],
     "tags": ["Police"],

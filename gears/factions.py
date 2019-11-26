@@ -139,6 +139,24 @@ class Guardians(Faction):
     NOUNS = ("Unit","Squad")
     uniform_colors = (color.Black,None,None,None,color.FreedomBlue)
 
+class RegExCorporation(Faction):
+    name = "RegEx Corporation"
+    factags = (tags.CorporateWorker,)
+    mecha_colors = (color.Turquoise,color.AeroBlue,color.OrangeRed,color.FieldGrey,color.ElectricYellow)
+    LOCATIONS = (personality.GreenZone,)
+    ADJECTIVES = ("RegEx","Corporate")
+    NOUNS = ("Team","Division")
+    uniform_colors = (color.Turquoise,None,None,None,color.ElectricYellow)
+
+class BioCorp(Faction):
+    name = "BioCorp"
+    factags = (tags.CorporateWorker,)
+    mecha_colors = (color.RoyalPink,color.Cream,color.BrightRed,color.GothSkin,color.DeepSeaBlue)
+    LOCATIONS = (personality.GreenZone,)
+    ADJECTIVES = ("BioCorp","Research")
+    NOUNS = ("Team","Division")
+    uniform_colors = (color.Cream,None,None,None,color.RoyalPink)
+
 
 class Circle(object):
     def __init__(self, parent_faction=None, mecha_colors=None, name="", faction_reactions=None, careers=None, locations=(), uniform_colors=None, active=True):

@@ -88,6 +88,7 @@ def start_game(tsrd):
     if not mymenu.items:
         mymenu.add_item('[No characters found]', None)
 
+    mymenu.sort()
     egg = mymenu.query()
     if egg:
         if not pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
@@ -101,21 +102,26 @@ def load_game(tsrd):
     mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
                                TitleScreenRedraw.MENU_DEST.dy,
                                TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
-                               predraw=tsrd, font=pbge.BIGFONT
+                               predraw=tsrd, font=pbge.my_state.huge_font
                                )
 
     for fname in myfiles:
-        with open(fname, "rb") as f:
-            # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
-            camp = copy.deepcopy(cPickle.load(f))
-        if camp:
-            mymenu.add_item(str(camp.pc), camp)
+        #with open(fname, "rb") as f:
+        #    # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
+        #    camp = copy.deepcopy(cPickle.load(f))
+        start_index = fname.find("rpg_")
+        mymenu.add_item(fname[start_index+4:-4], fname)
 
     if not mymenu.items:
         mymenu.add_item('[No campaigns found]', None)
 
-    camp = mymenu.query()
-    if camp:
+    mymenu.sort()
+    fname = mymenu.query()
+    if fname:
+        pbge.please_stand_by()
+        with open(fname, "rb") as f:
+            # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
+            camp = copy.deepcopy(cPickle.load(f))
         camp.play()
 
 
