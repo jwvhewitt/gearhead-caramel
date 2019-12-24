@@ -673,6 +673,12 @@ class BaseGear(scenes.PlaceableThing):
         else:
             return self
 
+    def get_scene(self):
+        # Return the scene this gear is in, if it can be found. None otherwise.
+        rgear = self.get_root()
+        if rgear and hasattr(rgear, "container") and rgear.container:
+            return rgear.container.owner
+
     def get_module(self):
         for g in self.ancestors():
             if isinstance(g, Module):

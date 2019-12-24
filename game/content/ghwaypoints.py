@@ -194,3 +194,14 @@ class RegExLogo(Waypoint):
 class HamsterCage(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.HamsterCageTerrain)
     ATTACH_TO_WALL = True
+
+class Bookshelf(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.UlsaniteBookshelfTerrain)
+    ATTACH_TO_WALL = True
+
+class StoneStairsUp(Exit):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.StoneStairsUpTerrain)
+
+class RecoveryBed(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.BedTerrain)
+    recovery_entrance = True

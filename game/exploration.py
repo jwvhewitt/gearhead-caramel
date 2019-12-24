@@ -487,9 +487,8 @@ class Explorer( object ):
                     elif gdi.unicode == u"A":
                         self.record_count = 20
 
-                    elif gdi.unicode == u"P":
-                        for p in self.camp.all_plots():
-                            print p
+                    elif gdi.unicode == u"K":
+                        self.camp.pc.hp_damage += 100
 
                     elif gdi.unicode == u"&":
                         for x in range(self.scene.width):

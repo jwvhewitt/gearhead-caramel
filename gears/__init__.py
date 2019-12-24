@@ -441,13 +441,16 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                         self.dead_party.append(pc)
                     else:
                         self.incapacitated_party.append(pc)
+                        pc.restore_all()
                 elif isinstance(pc,base.Character):
                     if pbge.util.config.getboolean("DIFFICULTY","lancemates_can_die") and random.randint(1,100) > skill:
                         self.dead_party.append(pc)
                     else:
                         self.incapacitated_party.append(pc)
+                        pc.restore_all()
                 elif random.randint(1,100) <= skill or not pbge.util.config.getboolean("DIFFICULTY","mecha_can_die"):
                     self.incapacitated_party.append(pc)
+                    pc.restore_all()
 
     def remove_party_from_scene(self):
         # Check for dead and/or incapacitated characters first.

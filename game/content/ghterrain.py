@@ -336,6 +336,14 @@ class BrickBuilding(pbge.randmaps.terrset.BuildingSet):
                              pbge.randmaps.terrset.RoofDecor((RoofStuff,)),
                              )
 
+class WhiteBrickBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_bottom = 'terrain_building_brick_b.png'
+    image_top = 'terrain_building_whitebrick.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class WhiteBrickBuilding(BrickBuilding):
+    TERRAIN_TYPE = WhiteBrickBuildingTerrain
+
 class ResidentialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_bottom = 'terrain_building_residential_b.png'
     image_top = 'terrain_building_residential.png'
@@ -447,3 +455,25 @@ class RegExLogoTerrain(pbge.scenes.terrain.OnTheWallTerrain):
 
 class HamsterCageTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_hamstercage.png'
+
+class StoneStairsUpTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_stonestairs.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+    movement_cost={pbge.scenes.movement.Vision:5}
+
+class HospitalSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_hospitalsign.png'
+
+class HospitalSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_hospitalsign.png'
+
+class HospitalSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_hospitalsign.png'
+
+class BedTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_bed.png'
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+

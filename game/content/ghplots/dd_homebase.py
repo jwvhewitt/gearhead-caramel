@@ -7,7 +7,7 @@ from gears import factions, personality
 import game.content.gharchitecture
 import pbge
 import game.content.plotutility
-from game.content import ghwaypoints, gharchitecture
+from game.content import ghwaypoints, gharchitecture, plotutility
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
@@ -66,6 +66,7 @@ class DZD_Wujung(Plot):
         # Gonna register the entrance under another name for the subplots.
         self.register_element("MISSION_GATE", westgate)
 
+        # Setting Wujung to the home base.
         nart.camp.home_base = (myscene, westgate)
 
         # Add the services.
@@ -103,6 +104,9 @@ class DZD_Wujung(Plot):
         if creds > 0:
             pbge.alert("Repair/Reload: ${}".format(creds))
             camp.credits -= creds
+        if camp.incapacitated_party or camp.dead_party:
+            plotutility.LanceStatusReporter(camp,self.elements["METROSCENE"],self.elements["METRO"])
+
 
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""
@@ -622,7 +626,52 @@ class DZD_AlliedArmor(Plot):
 
         self.asked_about_terminal = False
 
+        secretstairs = self.register_element("STAIRSDOWN",ghwaypoints.Bookshelf(name="Bookshelf",plot_locked=True))
+        foyer.contents.append(secretstairs)
+
+        otherscene = gears.GearHeadScene(50, 40, "Secret Scene", player_team=team1,
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(otherscene, game.content.gharchitecture.CommercialBuilding())
+        self.register_scene(nart, otherscene, intscenegen, ident="OTHERSCENE", dident="INTERIOR")
+        hiddenroom = pbge.randmaps.rooms.ClosedRoom()
+        otherscene.contents.append(hiddenroom)
+        mystairs = self.register_element("STAIRSUP",ghwaypoints.StoneStairsUp(dest_scene=intscene,dest_entrance=secretstairs))
+        hiddenroom.contents.append(mystairs)
+
         return True
+
+    def STAIRSDOWN_menu(self,camp,thingmenu):
+        thingmenu.desc = "You stand before a bookshelf. Do you want to read a book?"
+        thingmenu.add_item("Read black book", self._read_black_book)
+        thingmenu.add_item("Read blue book", self._read_blue_book)
+        thingmenu.add_item("Read green book", self._read_green_book)
+        thingmenu.add_item("Read purple book", self._read_purple_book)
+        thingmenu.add_item("Read red book", self._read_red_book)
+        thingmenu.add_item("Read white book", self._use_bookshelf)
+
+    def _read_black_book(self,camp):
+        # First sentence by me, the rest of the story written by TalkToTransformer.
+        pbge.alert("""The black battlemech looked utterly invincible. It struck out a slash from its chest, the mercenary's chest pierced through. The mercenary found that the black battlemech's combat speed and its lethal reflexes were far surpassing that of the robot. At the same time, the mercenary could feel how quick the black battlemech was on its movements.\n \n Vayu punched back, swinging his spear, a wooden sword, even though the axe came in seconds. The black battlemech didn't even show any reaction at all.\n \n This opponent was very tough.""")
+
+    def _read_blue_book(self,camp):
+        # First sentence by me, the rest of the story written by TalkToTransformer.
+        pbge.alert("""All that stood between the space pirates and the treasure was a lone blue mecha. It seemed to be at the point of becoming an ordinary mecha.\n \n That was the one the pirates had called a new type of mecha, one that defeated enemy machines in a single blow. They were machines that changed shapes and could create weapons.\n \n These were ZEBES, what the space pirates had named this mecha.\n \n Thinking of ZEBES, Thomas muttered "All the metal on that one is metal. Looks like its ability is to take the energy".""")
+
+    def _read_green_book(self,camp):
+        # First sentence by me, the rest of the story written by TalkToTransformer.
+        pbge.alert("""A green mecha rolled into the dead zone. He was an Angel wearing a cape. A great horned helmet with a great ornate skull appeared on his head. He raised his arms, each joint jutting out sharply.\n \n Sasha ripped through space at speeds faster than bullets, but could only manage to keep up with one of the machines, and even then he only managed a glimpse of his face. The Angel helmet had received damage, and was covered in more scars. It made him look scarier.\n \n "Now, this will be fun!" the Angel said.""")
+
+    def _read_purple_book(self,camp):
+        # First sentence by me, the rest of the story written by TalkToTransformer.
+        pbge.alert("""Carolyn stepped out from the cockpit of her purple mecha. "So he's not being as good as before?"\n \n "Er... well, not in the way you might think," said the mechanic, lowering his shoulder visor and turning his sunglasses to face her.\n \n "Then why is he still so confident?" asked Carolyn. "It doesn't make any sense."\n \n "His taste for politics is legendary," said the mechanic, indicating the facade that had kept Kiri's consciousness isolated and that had been the victim of Kimberly's advances.""")
+
+    def _read_red_book(self,camp):
+        # First sentence by me, the rest of the story written by TalkToTransformer.
+        pbge.alert("""The battle was going poorly for the defenders, when out of nowhere a red mecha appeared. In the hands of this mecha the industrial city was seemingly taken over by metal, lifting everything that was in the way of the construction project above the buildings. The clock tower and factory buildings were falling in on themselves.\n \n A smile spread on Jondal's face as he saw this. "By the Emperor's clock... this is a miracle of construction."\n \n Conde winced. "What's a miracle of construction? I was raised as an engineer, and our government has a contract that we need a certain percentage to receive." """)
+
+    def _use_bookshelf(self,camp):
+        pbge.alert("Moving the white book activates a hidden staircase!")
+        camp.destination,camp.entrance = self.elements["OTHERSCENE"],self.elements["STAIRSUP"]
 
     def _ask_about_terminal(self, camp):
         self.asked_about_terminal = True
@@ -726,8 +775,9 @@ class DZD_WujungHospital(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.WhiteBrickBuilding(
             waypoints={"DOOR": ghwaypoints.WoodenDoor(name="Wujung Hospital")},
+            door_sign=(game.content.ghterrain.HospitalSignEast, game.content.ghterrain.HospitalSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
@@ -740,6 +790,7 @@ class DZD_WujungHospital(Plot):
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
                                       dident="INTERIOR")
+        foyer.contents.append(team2)
 
         mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
@@ -756,7 +807,85 @@ class DZD_WujungHospital(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Nurse"]))
         npc.place(intscene, team=team2)
 
+        room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(),dident="INTERIOR")
+        room2.contents.append(ghwaypoints.RecoveryBed())
+        room2.contents.append(ghwaypoints.RecoveryBed())
+
+        room5 = self.register_element('_room5', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
+
+        team5 = teams.Team(name="BioCorp Team")
+        room5.contents.append(team5)
+        npc = self.register_element("BIOCORPNPC",
+                                    gears.selector.random_character(30, local_tags=self.elements["LOCALE"].attributes,
+                                                                    faction=gears.factions.BioCorp, job=gears.jobs.ALL_JOBS["Researcher"]))
+        team5.contents.append(npc)
+        self._asked_about_bc_mission = False
+        self._asked_about_biomonsters = False
+        self._hamster_state = 0
+
+        cage = self.register_element("_HAMSTER", ghwaypoints.HamsterCage(name="Hamster Cage",desc="You stand before a cage of cute, fluffy hamsters. Oddly, all of the hamsters appear to be walking on their back legs. Other than that they seem perfectly normal and content.",plot_locked=True))
+        room5.contents.append(cage)
+
+
         return True
+
+    def BIOCORPNPC_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] This is the BioCorp Medical Research Office. We coordinate efforts between the main office in Snake Lake and projects like Mesa Lab in Last Hope and the various expeditions currently working in the dead zone.",
+            context=ContextTag([context.HELLO]),
+        ))
+
+        if not self._asked_about_bc_mission:
+            mylist.append(Offer(
+                "No mission exactly, but if you're heading into the dead zone there may be something you can do for me. BioCorp is offering cash rewards for lostech artifacts or any data regarding PreZero synthoid technology. If you find anything interesting during your travels I can pay you for the information.",
+                context=ContextTag([context.MISSION]), subject_start=True, subject=self, effect=self._tell_about_bc_mission
+            ))
+        mylist.append(Offer(
+            "[GOOD] I look forward to hearing about what you find out there.",
+            context=ContextTag([context.ACCEPT]), subject=self
+        ))
+        mylist.append(Offer(
+            "[UNDERSTOOD] The offer remains, if you ever change your mind.",
+            context=ContextTag([context.DENY]), subject=self
+        ))
+
+        if not self._asked_about_biomonsters:
+            mylist.append(Offer(
+                "What, you think that just because this is a BioCorp office we're going to have Hunter-X synths running around all over the place?! BioCorp has been out of the autonomous bioweapon business for thirty years now. Seriously, you raze one tiny village to the ground with an experiment gone horribly wrong and they never let you forget...",
+                context=ContextTag([context.CUSTOM]), effect=self._tell_about_biomonsters,
+                data={"reply": "I expected this place to be full of biomonsters."}, no_repeats=True,
+            ))
+
+        if self._hamster_state == 1:
+            mylist.append(Offer(
+                "They are my pets. They're 'golden tallboys', imported from Amazonia. People say they're supposed to be highly intelligent but mine are only interested in eating and sleeping. Still, they're good company for the nights when I have to work overtime.",
+                context=ContextTag([context.INFO]), effect=self._tell_about_hamsters,
+                data={"subject": "those hamsters"}, no_repeats=True,
+            ))
+
+        return mylist
+
+    def _tell_about_hamsters(self, camp):
+        self._hamster_state = 2
+
+    def _tell_about_biomonsters(self, camp):
+        self._asked_about_biomonsters = True
+
+    def _tell_about_bc_mission(self,camp):
+        self._asked_about_bc_mission = True
+
+    def _HAMSTER_BUMP(self, camp):
+        if self._hamster_state == 0:
+            self._hamster_state = 1
+
+    def _HAMSTER_menu(self, camp, thingmenu):
+        thingmenu.add_item("Pet the hamsters.", self._pet_hamster)
+        thingmenu.add_item("Leave the hamsters alone.", None)
+
+    def _pet_hamster(self,camp):
+        pbge.alert("You play with the hamsters for a little while and make some new friends.")
 
     def DOCTOR_offers(self, camp):
         mylist = list()
@@ -813,7 +942,7 @@ class DZD_LongRoadLogistics(Plot):
         room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="INTERIOR")
         room3 = self.register_element('_room3', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="INTERIOR")
         room4 = self.register_element('regex_room', pbge.randmaps.rooms.MostlyOpenRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
-        room5 = self.register_element('_room5', pbge.randmaps.rooms.MostlyOpenRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
+        room5 = self.register_element('kettel_room', pbge.randmaps.rooms.MostlyOpenRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
 
         room4.contents.append(ghwaypoints.RegExLogo())
         team4 = teams.Team(name="RegEx Team")
@@ -824,31 +953,7 @@ class DZD_LongRoadLogistics(Plot):
         team4.contents.append(npc)
         self._asked_about_construction = False
 
-        team5 = teams.Team(name="BioCorp Team")
-        room5.contents.append(team5)
-        npc = self.register_element("BIOCORPNPC",
-                                    gears.selector.random_character(30, local_tags=self.elements["LOCALE"].attributes,
-                                                                    faction=gears.factions.BioCorp, job=gears.jobs.ALL_JOBS["Researcher"]))
-        team5.contents.append(npc)
-        self._asked_about_bc_mission = False
-        self._asked_about_biomonsters = False
-        self._hamster_state = 0
-
-        cage = self.register_element("_HAMSTER", ghwaypoints.HamsterCage(name="Hamster Cage",desc="You stand before a cage of cute, fluffy hamsters. Oddly, all of the hamsters appear to be walking on their back legs. Other than that they seem perfectly normal and content.",plot_locked=True))
-        room5.contents.append(cage)
-
         return True
-
-    def _HAMSTER_BUMP(self, camp):
-        if self._hamster_state == 0:
-            self._hamster_state = 1
-
-    def _HAMSTER_menu(self, camp, thingmenu):
-        thingmenu.add_item("Pet the hamsters.", self._pet_hamster)
-        thingmenu.add_item("Leave the hamsters alone.", None)
-
-    def _pet_hamster(self,camp):
-        pbge.alert("You play with the hamsters for a little while and make some new friends.")
 
     def REGEXNPC_offers(self, camp):
         mylist = list()
@@ -876,53 +981,6 @@ class DZD_LongRoadLogistics(Plot):
         ))
 
         return mylist
-
-    def BIOCORPNPC_offers(self, camp):
-        mylist = list()
-
-        mylist.append(Offer(
-            "[HELLO] This is the BioCorp Research Support Office. We coordinate efforts between the main office in Snake Lake and projects like Mesa Lab in Last Hope and the various expeditions currently working in the dead zone.",
-            context=ContextTag([context.HELLO]),
-        ))
-
-        if not self._asked_about_bc_mission:
-            mylist.append(Offer(
-                "No mission exactly, but if you're heading into the dead zone there may be something you can do for me. BioCorp is offering cash rewards for lostech artifacts or any data regarding PreZero synthoid technology. If you find anything interesting during your travels I can pay you for the information.",
-                context=ContextTag([context.MISSION]), subject_start=True, subject=self, effect=self._tell_about_bc_mission
-            ))
-        mylist.append(Offer(
-            "[GOOD] I look forward to hearing about what you find out there.",
-            context=ContextTag([context.ACCEPT]), subject=self
-        ))
-        mylist.append(Offer(
-            "[UNDERSTOOD] The offer remains, if you ever change your mind.",
-            context=ContextTag([context.DENY]), subject=self
-        ))
-
-        if not self._asked_about_biomonsters:
-            mylist.append(Offer(
-                "What, you think that just because this is a BioCorp office we're going to have Hunter-X synths running around all over the place?! BioCorp has been out of the autonomous bioweapon business for thirty years now. Seriously, you raze one tiny village to the ground with an experiment gone horribly wrong and they never let you forget...",
-                context=ContextTag([context.CUSTOM]), effect=self._tell_about_biomonsters,
-                data={"reply": "I expected this place to be full of biomonsters."}, no_repeats=True,
-            ))
-
-        if self._hamster_state == 1:
-            mylist.append(Offer(
-                "They are my pets. They're 'golden tallboys', imported from Amazonia. People say they're supposed to be highly intelligent but mine are only interested in eating and sleeping. Still, they're good company for the nights when I have to work overtime.",
-                context=ContextTag([context.INFO]), effect=self._tell_about_hamsters,
-                data={"subject": "those hamsters"}, no_repeats=True,
-            ))
-
-        return mylist
-
-    def _tell_about_hamsters(self, camp):
-        self._hamster_state = 2
-
-    def _tell_about_biomonsters(self, camp):
-        self._asked_about_biomonsters = True
-
-    def _tell_about_bc_mission(self,camp):
-        self._asked_about_bc_mission = True
 
     def _tell_about_services(self,camp):
         self.memo = "You spoke to {REGEXNPC} of RegEx Construction about building a new power plant for {DZ_TOWN_NAME}. In order for {REGEXNPC.gender.object_pronoun} to do that, there must be a secure trade route between there an Wujung.".format(**self.elements)

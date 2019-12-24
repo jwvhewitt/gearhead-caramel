@@ -2,6 +2,7 @@ import ghwaypoints
 import random
 import pbge
 import gears
+from game.content import GHNarrativeRequest,PLOT_LIST
 
 
 class SceneConnection(object):
@@ -181,20 +182,24 @@ class AutoJoiner(object):
         """
         if self.npc not in camp.party:
             camp.party.append(self.npc)
-            if self.npc.mecha_pref and self.npc.mecha_pref in gears.selector.DESIGN_BY_NAME:
-                mek = gears.selector.get_design_by_full_name(self.npc.mecha_pref)
-            else:
-                level = max(self.npc.renown,15)
-                if hasattr(self.npc,"relationship") and self.npc.relationship:
-                    level = max(level + self.npc.relationship.data.get("mecha_level_bonus",0),10)
-                mek = gears.selector.MechaShoppingList.generate_single_mecha(level,self.npc.faction,gears.tags.GroundEnv)
-                self.npc.mecha_pref = mek.get_full_name()
-            if self.npc.mecha_colors:
-                mek.colors = self.npc.mecha_colors
+            mek = self.get_mecha_for_character(self.npc)
             camp.party.append(mek)
             camp.assign_pilot_to_mecha(self.npc,mek)
             for part in mek.get_all_parts():
                 part.owner = self.npc
+    @staticmethod
+    def get_mecha_for_character(npc,choose_new_one=False):
+        if npc.mecha_pref and npc.mecha_pref in gears.selector.DESIGN_BY_NAME and not choose_new_one:
+            mek = gears.selector.get_design_by_full_name(npc.mecha_pref)
+        else:
+            level = max(npc.renown, 15)
+            if hasattr(npc, "relationship") and npc.relationship:
+                level = max(level + npc.relationship.data.get("mecha_level_bonus", 0), 10)
+            mek = gears.selector.MechaShoppingList.generate_single_mecha(level, npc.faction, gears.tags.GroundEnv)
+            npc.mecha_pref = mek.get_full_name()
+        if npc.mecha_colors:
+            mek.colors = npc.mecha_colors
+        return mek
 
 
 class AutoLeaver(object):
@@ -216,6 +221,9 @@ class AutoLeaver(object):
             for mek in list(camp.party):
                 if hasattr(mek,"owner") and mek.owner is self.npc:
                     camp.party.remove(mek)
+            for mek in list(camp.incapacitated_party):
+                if hasattr(mek,"owner") and mek.owner is self.npc:
+                    camp.incapacitated_party.remove(mek)
 
 class CharacterMover(object):
     def __init__(self,plot,character,dest_scene,dest_team,allow_death=False):
@@ -235,14 +243,7 @@ class CharacterMover(object):
 
         # Check to see if the character can use a mecha in the destination scene.
         if character.combatant and dest_scene.scale is gears.scale.MechaScale:
-            if character.mecha_pref and character.mecha_pref in gears.selector.DESIGN_BY_NAME:
-                mek = gears.selector.get_design_by_full_name(character.mecha_pref)
-            else:
-                level = max(character.renown,15)
-                if hasattr(character,"relationship") and character.relationship:
-                    level = max(level + character.relationship.data.get("mecha_level_bonus",0),10)
-                mek = gears.selector.MechaShoppingList.generate_single_mecha(level,character.faction,gears.tags.GroundEnv)
-                character.mecha_pref = mek.get_full_name()
+            mek = AutoJoiner.get_mecha_for_character(character)
             if mek:
                 mek.load_pilot(character)
                 character = mek
@@ -260,4 +261,17 @@ class CharacterMover(object):
             self.character.restore_all()
             self.original_container.append(self.character)
 
+class LanceStatusReporter(object):
+    def __init__(self,camp,metroscene,metro):
+        # Go through the injured/dead lists and see who needs help.
+        myreports = list()
+        if camp.pc not in camp.party:
+            # This is serious.
+            init = pbge.plots.PlotState(elements={"METRO":metro,"METROSCENE":metroscene})
+            nart = GHNarrativeRequest(camp,init,adv_type="RECOVER_PC",plot_list=PLOT_LIST)
+            if nart.story:
+                nart.build()
+                nart.story.start_recovery(camp)
+        else:
+            pass
 

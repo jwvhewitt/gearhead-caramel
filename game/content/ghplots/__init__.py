@@ -13,6 +13,7 @@ import dd_tarotsupport
 import encounters
 import missionbuilder
 import mocha
+import recovery
 import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
 from pbge.plots import Plot
@@ -41,4 +42,5 @@ harvest(dd_tarotsupport)
 harvest(encounters)
 harvest(missionbuilder)
 harvest(mocha)
+harvest(recovery)
 harvest(utility)

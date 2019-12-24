@@ -222,10 +222,11 @@ class PackedBuildingGenerator(SceneGenerator):
         # Generate list of rooms.
         connected = list()
         unconnected = [r for r in self.contents if hasattr(r,"area")]
-        room1 = random.choice(unconnected)
-        unconnected.remove(room1)
-        connected.append(room1)
-        unconnected.sort( key=room1.find_distance_to )
+        if unconnected:
+            room1 = random.choice(unconnected)
+            unconnected.remove(room1)
+            connected.append(room1)
+            unconnected.sort( key=room1.find_distance_to )
 
         # Process them
         for r in unconnected:

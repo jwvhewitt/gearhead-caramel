@@ -44,6 +44,8 @@ class Campaign( object ):
         self.uniques = set()
         self.explo_class = explo_class
         self.day = 1
+        # home_base is a scene where the party gets sent if they get utterly defeated in combat.
+        # It must have scripts in place to restore the party or end the game.
         self.home_base = home_base
 
 
@@ -110,7 +112,9 @@ class Campaign( object ):
             elif not exp.no_quit:
                 # If the player quit in exploration mode, exit to main menu.
                 break
-            elif not self.first_active_pc() and self.home_base and self.scene != self.home_base[0]:
+            elif not self.first_active_pc() and self.home_base:
+                # IMPORTANT: If home_base is defined, it MUST have some kind of code to deal with a defeated party!
+                # Otherwise this is gonna get stuck in an endless loop of going to home base over and over.
                 self.remove_party_from_scene()
                 self.scene, self.entrance = self.home_base
                 self.place_party()
