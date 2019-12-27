@@ -1,5 +1,5 @@
 import random
-import plasma
+from . import plasma
 
 #  **********************
 #  ***   CONVERTERS   ***

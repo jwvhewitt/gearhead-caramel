@@ -18,7 +18,7 @@ class LancematePrep( object ):
         if self.personality_traits:
             ok = pc.personality >= self.personality_traits
         if ok and self.stats:
-            ok = pc.statline.keys() >= self.stats
+            ok = list(pc.statline.keys()) >= self.stats
         if ok and self.exclude:
             ok = not bool([e for e in self.exclude if cscene.library.get(e,None) is pc])
         return ok

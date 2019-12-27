@@ -1,8 +1,8 @@
-import converter
-import mutator
-import prep
+from . import converter
+from . import mutator
+from . import prep
 import random
-import decor
+from . import decor
 
 # An Architecture defines a style for a random map. The same architecture can
 # be shared across several scenes, ensuring a consistent style throughout.

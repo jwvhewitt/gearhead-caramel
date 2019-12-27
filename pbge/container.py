@@ -162,7 +162,7 @@ class ContainerDict(dict,Container):
             dict.__init__(self, **kwargs)
         else:
             dict.__init__(self, contents, **kwargs)
-        self._set_container_multi(self.values())
+        self._set_container_multi(list(self.values()))
 
     def __repr__(self):
         return "<CD %s>" % dict.__repr__(self)
@@ -194,10 +194,10 @@ class ContainerDict(dict,Container):
             self._set_container(default)
         dict.setdefault(self, key, default)
     def update(self, other):
-        for (k,v) in other.items():
+        for (k,v) in list(other.items()):
             self[k] = v
     def remove(self,value):
-        keys = [key for key, v in self.iteritems() if v == value]
+        keys = [key for key, v in self.items() if v == value]
         for k in keys:
             del self[k]
 
@@ -222,72 +222,72 @@ if __name__=='__main__':
 
     p = ContainerList([a,b,c])
 
-    print p
+    print(p)
 
     try:
         p.append(a)
-    except ContainerError, err:
-        print err
+    except ContainerError as err:
+        print(err)
     else:
         raise AssertionError
 
-    print p[1]
-    print p[::2]
+    print(p[1])
+    print(p[::2])
     p[1] = d
-    print p
+    print(p)
 
     p[1] = b
     p[::2] = [d,e]
-    print p
+    print(p)
 
     del p[:]
 
     p2 = ContainerList([a,b,c])
-    print p2
+    print(p2)
 
     p2.extend([d,e])
-    print p2
+    print(p2)
     
-    print p2.pop()
-    print p2
+    print(p2.pop())
+    print(p2)
 
     p2.remove(d)
-    print p2
+    print(p2)
 
     p2 += [d,e]
-    print p2    
+    print(p2)    
 
     try:
         d = ContainerDict(a=a, b=b, c=c)
-    except ContainerError, err:
-        print err
+    except ContainerError as err:
+        print(err)
     else:
         raise AssertionError
     del p2[:]
 
     d = ContainerDict(a=a, b=b, c=c)
 
-    print d
-    print d["a"]
+    print(d)
+    print(d["a"])
     d["a"] = a
     try:
         d["a"] = b
-    except ContainerError, err:
-        print err
+    except ContainerError as err:
+        print(err)
     else:
         raise AssertionError
     del d["a"]
     d["a"] = a
     d.pop("a")
-    print d
+    print(d)
     d["a"] = a
     k,v = d.popitem()
     d[k] = v
 
     d.setdefault("e",e)
     d.setdefault("e",e)
-    print d
+    print(d)
 
     del d["e"]
     d.update(dict(e=e))
-    print d
+    print(d)

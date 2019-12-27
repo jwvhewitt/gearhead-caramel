@@ -4,7 +4,7 @@
 #
 # The scales are singletons- instead of instancing, just point to the class.
 
-import stats
+from . import stats
 
 class MechaScale( object ):
     SIZE_FACTOR = 10

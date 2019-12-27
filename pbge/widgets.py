@@ -1,8 +1,8 @@
-import frects
+from . import frects
 from . import my_state,render_text,draw_text,TEXT_COLOR,Border,default_border
 import pygame
-import image
-import rpgmenu
+from . import image
+from . import rpgmenu
 
 # respond_event: Receives an event.
 #   If the widget has a method corresponding to the event,
@@ -97,7 +97,7 @@ class LabelWidget( Widget ):
         draw_text(self.font,self.text,self.get_rect(),self.color,self.justify)
 
 class TextEntryWidget( Widget ):
-    ALLOWABLE_CHARACTERS = u'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
+    ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
     def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, **kwargs ):
         super(TextEntryWidget, self).__init__(dx,dy,w,h,**kwargs)
         self.char_list = list(text)
@@ -125,8 +125,8 @@ class TextEntryWidget( Widget ):
             if ev.type == pygame.KEYDOWN:
                 if (ev.key == pygame.K_BACKSPACE) and (len(self.char_list) > 0):
                     del self.char_list[-1]
-                elif (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
-                    self.char_list.append(ev.unicode)
+                elif (ev.str in self.ALLOWABLE_CHARACTERS) and (len(ev.str) > 0):
+                    self.char_list.append(ev.str)
 
     def is_kb_selectable(self):
         return True

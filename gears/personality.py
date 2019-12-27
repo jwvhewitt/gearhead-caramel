@@ -1,6 +1,6 @@
 from pbge import Singleton
-import stats
-import color
+from . import stats
+from . import color
 import random
 
 class Cheerful(Singleton):

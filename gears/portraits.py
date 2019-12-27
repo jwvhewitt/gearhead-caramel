@@ -3,13 +3,13 @@ import glob
 import json
 import os.path
 import random
-import stats
-import base
+from . import stats
+from . import base
 
 import pbge
 import pygame
-import color
-import colorstyle
+from . import color
+from . import colorstyle
 
 PORTRAIT_BITS = dict()
 PORTRAIT_BITS_BY_TYPE = collections.defaultdict(list)
@@ -207,16 +207,16 @@ class PortraitLayer(object):
         self.custom_frames = custom_frames
         self.x_offset = x_offset
         self.y_offset = y_offset
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
     LAYER_OFFSETS = {"left_eye": "head", "right_eye": "head", "mouth": "head", "ear": "head", "nose": "head"}
 
     def get_rect(self, limage, canvas, anchors):
         mydest = limage.get_rect(self.frame)
-        if self.anchor == u"midbottom":
+        if self.anchor == "midbottom":
             mydest.midbottom = canvas.get_rect().midbottom
-        elif self.anchor == u"center":
+        elif self.anchor == "center":
             mydest.center = canvas.get_rect().center
         elif self.anchor in anchors:
             mydest.center = canvas.get_rect().center
@@ -247,7 +247,7 @@ class PortraitBit(object):
         self.requires = set(requires)
         self.prefers = set(prefers)
         self.rejects = set(rejects)
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
     def is_legal_bit(self, existing_form_tags):

@@ -1,5 +1,5 @@
 from pbge.dialogue import Reply,Cue,ContextTag
-import context
+from . import context
 
 ACCEPTMISSION_JOIN = Reply( "[ACCEPT_MISSION:JOIN]" ,
             context = ContextTag([context.ACCEPT,context.MISSION]),

@@ -12,7 +12,7 @@ class CellMutator( object ):
         self.do_carving = do_carving
         self.noise_throttle = max( noise_throttle, 10 )
 
-    DO_NOTHING, WALL_ON, WALL_OFF = range( 3 )
+    DO_NOTHING, WALL_ON, WALL_OFF = list(range( 3))
 
     def num_nearby_walls( self, gb, x0, y0 ):
         n = 0
@@ -36,8 +36,8 @@ class CellMutator( object ):
     def carve_noise( self, gb, area ):
         myrect = pygame.Rect(0,0,5,5)
         for t in range( gb.width * gb.height // self.noise_throttle ):
-            myrect.x = random.choice( range( area.x + 1 , area.x + area.width - myrect.width - 1 ) )
-            myrect.y = random.choice( range( area.y + 1 , area.y + area.height - myrect.height - 1 ) )
+            myrect.x = random.choice( list(range( area.x + 1 , area.x + area.width - myrect.width - 1)) )
+            myrect.y = random.choice( list(range( area.y + 1 , area.y + area.height - myrect.height - 1)) )
             if self.contains_a_space( gb, myrect ):
                 for x in range( myrect.x, myrect.x + myrect.width ):
                     for y in range( myrect.y, myrect.y + myrect.height ):

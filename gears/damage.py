@@ -1,8 +1,8 @@
 import random
 import pbge
-import geffects
+from . import geffects
 from pbge.scenes import animobs
-import base
+from . import base
 
 
 
@@ -212,7 +212,7 @@ def combat_test( mecha, weapon ):
         if t > highest:
             highest = t 
         total += t
-    print "On average, mecha destroyed in {} shots".format( total/1000.0 )
-    print "    Fastest Destruction: {}".format(lowest)
-    print "    Slowest Destruction: {}".format(highest)
+    print("On average, mecha destroyed in {} shots".format( total/1000.0 ))
+    print("    Fastest Destruction: {}".format(lowest))
+    print("    Slowest Destruction: {}".format(highest))
 

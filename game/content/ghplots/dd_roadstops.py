@@ -7,7 +7,7 @@ import game.content.gharchitecture
 import pbge
 import game.content.plotutility
 import game.content.ghterrain
-from dd_main import DZDRoadMapExit,RoadNode
+from .dd_main import DZDRoadMapExit,RoadNode
 import random
 from game.content import gharchitecture,ghwaypoints
 
@@ -49,7 +49,7 @@ class DZD_DeadZoneTown(Plot):
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
 
         mystory = self.register_element("BACKSTORY",game.content.backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
-        print " ".join(mystory.results["text"])
+        print(" ".join(mystory.results["text"]))
 
         self.register_element("METRO", myscene.metrodat)
         self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_TOWN)
@@ -124,7 +124,7 @@ class DZD_DeadZoneVillage(Plot):
         self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_VILLAGE)
 
         mystory = self.register_element("BACKSTORY",game.content.backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
-        print " ".join(mystory.results["text"])
+        print(" ".join(mystory.results["text"]))
 
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.east),

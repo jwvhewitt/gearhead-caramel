@@ -1,4 +1,4 @@
-from rooms import Room
+from .rooms import Room
 from .. import container,scenes
 import inspect
 import random
@@ -50,7 +50,7 @@ class TerrSet( Room ):
                         scene.data[(x,y)] = col
                 x += 1
             y += 1
-        for k,v in self.waypoints.iteritems():
+        for k,v in self.waypoints.items():
             x,y = self.WAYPOINT_POS.get(k,(0,0))
             x += x0
             y += y0

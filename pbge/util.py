@@ -20,7 +20,7 @@
 #       
 # 
 import os
-import ConfigParser
+import configparser
 
 GAMEDIR = '.'
 USERDIR = '.'
@@ -48,7 +48,7 @@ def init( appname,gamedir ):
         os.mkdir( USERDIR )
 
     global config
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     with open(data_dir("config_defaults.cfg")) as f:
         config.readfp( f )
     if not config.read( [user_dir( "config.cfg" )] ):

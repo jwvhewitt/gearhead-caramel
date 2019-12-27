@@ -1,8 +1,8 @@
-import ghterrain
+from . import ghterrain
 from pbge.randmaps.architect import Architecture
 from pbge.randmaps.decor import OmniDec,ColumnsDecor,OfficeDecor
 import pbge
-import ghwaypoints
+from . import ghwaypoints
 
 class CheeseShopDecor(OmniDec):
     WALL_DECOR = (ghterrain.WoodenShelves,)

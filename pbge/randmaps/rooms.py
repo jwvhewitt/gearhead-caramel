@@ -100,8 +100,8 @@ class Room( object ):
                 myrect = pygame.Rect( 0, 0, r.width, r.height )
                 count = 0
                 while ( count < 1000 ) and not r.area:
-                    myrect.x = random.choice( range( self.area.x , self.area.x + self.area.width - r.width ) )
-                    myrect.y = random.choice( range( self.area.y , self.area.y + self.area.height - r.height ) )
+                    myrect.x = random.choice( list(range( self.area.x , self.area.x + self.area.width - r.width)) )
+                    myrect.y = random.choice( list(range( self.area.y , self.area.y + self.area.height - r.height)) )
                     if self.ON_THE_EDGE and count < 500:
                         if random.randint(1,2) == 1:
                             myrect.x = random.choice(( self.area.x, self.area.x + self.area.width - r.width ))

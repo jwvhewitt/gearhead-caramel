@@ -1,13 +1,13 @@
-import tags
-import base
+from . import tags
+from . import base
 import random
 import copy
-import personality
-import stats
-import portraits
-import genderobj
-import color
-import jobs
+from . import personality
+from . import stats
+from . import portraits
+from . import genderobj
+from . import color
+from . import jobs
 
 DESIGN_LIST = list()
 DESIGN_BY_NAME = dict()
@@ -34,10 +34,10 @@ def check_design_list(echo_on=False):
         if isinstance(mek, base.Mecha):
             if not mek.check_design():
                 if echo_on:
-                    print "Warning: {} {} design is broken".format(mek.desig, mek)
+                    print("Warning: {} {} design is broken".format(mek.desig, mek))
                 DESIGN_LIST.remove(mek)
             elif echo_on:
-                print "{} {}: ${:,}".format(mek.desig, mek, mek.cost)
+                print("{} {}: ${:,}".format(mek.desig, mek, mek.cost))
 
 def random_name(npc):
     candidates = list()
@@ -185,7 +185,7 @@ class RandomMechaUnit(object):
                 self.mecha_list.append(mek)
 
         else:
-            print "No mecha to buy for {} {} {}".format(level, fac, env)
+            print("No mecha to buy for {} {} {}".format(level, fac, env))
 
     def generate_pilot(self,pilot_level,tag=tags.Trooper):
         if self.fac:
@@ -246,7 +246,7 @@ def get_design_by_full_name(name):
     if name in DESIGN_BY_NAME:
         return copy.deepcopy(DESIGN_BY_NAME[name])
     else:
-        print "Error: design {} not found".format(name)
+        print("Error: design {} not found".format(name))
 
 # print calc_threat_points(10)
 # print calc_threat_points(20)

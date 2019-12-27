@@ -1,7 +1,7 @@
-import base
+from . import base
 import pbge
 import pygame
-import stats
+from . import stats
 
 class InfoPanel( object ):
     # An InfoPanel contains a bunch of InfoBlocks which get arranged vertically.
@@ -249,7 +249,7 @@ class NonComSkillBlock(object):
         self.height = self.image.get_height()
 
     def update(self):
-        skillz = [sk.name for sk in self.model.statline.keys() if sk in stats.NONCOMBAT_SKILLS]
+        skillz = [sk.name for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS]
         skillz.sort()
         self.image = pbge.render_text(self.font, 'Skills: {}'.format(', '.join(skillz or ["None"])), self.width, justify=-1, color=pbge.INFO_GREEN)
 
@@ -463,7 +463,7 @@ class CharaPortraitAndSkillsBlock(object):
     def render(self, x, y):
         self.image.render(pygame.Rect(x, y, 100, 100), 1)
         mydest = pygame.Rect(x + 110, y, self.width - 110, self.height)
-        skillz = [sk.name for sk in self.model.statline.keys() if sk in stats.NONCOMBAT_SKILLS]
+        skillz = [sk.name for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS]
         pbge.draw_text(pbge.MEDIUMFONT, 'Skills: {}'.format(', '.join(skillz or ["None"])), mydest, justify=-1, color=pbge.INFO_GREEN)
 
 class MassVolumeBlock(object):

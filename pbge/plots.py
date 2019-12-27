@@ -35,7 +35,7 @@ class PlotState( object ):
         self.adv = self.adv or oplot.adv
         self.rank = self.rank or oplot.rank
         # Only copy over the elements not marked as private.
-        for k,v in oplot.elements.iteritems():
+        for k,v in oplot.elements.items():
             if isinstance( k, str ) and len(k)>0 and k[0]!="_":
                 if k not in self.elements:
                     self.elements[k] = v
@@ -109,7 +109,7 @@ class Plot( object ):
 
     def get_element_idents( self, ele ):
         """Return list of element idents assigned to this object."""
-        return [key for key,value in self.elements.items() + self.subplots.items() if value is ele]
+        return [key for key,value in list(self.elements.items()) + list(self.subplots.items()) if value is ele]
 
     def add_sub_plot( self, nart, splabel, spstate=None, ident=None, necessary=True ):
         if not spstate:
@@ -215,7 +215,7 @@ class Plot( object ):
     def remove( self, nart=None ):
         """Remove this plot, including subplots and new elements, from campaign."""
         # First, remove all subplots.
-        for sp in self.subplots.itervalues():
+        for sp in self.subplots.values():
             sp.remove( nart )
         # Next, remove any elements created by this plot.
         if hasattr( self, "move_records" ):
@@ -235,7 +235,7 @@ class Plot( object ):
 
     def install( self, nart ):
         """Plot generation complete. Mesh plot with campaign."""
-        for sp in self.subplots.itervalues():
+        for sp in self.subplots.values():
             sp.install( nart )
         del self.move_records
         if self.scope:
@@ -246,8 +246,8 @@ class Plot( object ):
                 nart.camp.scripts.append( self )
 
     def display( self, lead="" ):
-        print lead + str( self.__class__ )
-        for sp in self.subplots.itervalues():
+        print(lead + str( self.__class__ ))
+        for sp in self.subplots.values():
             sp.display(lead+" ")
 
     def handle_trigger( self, camp, trigger, thing=None ):
@@ -323,7 +323,7 @@ class Plot( object ):
         # NOTE: Depending on how the plot is ended, this method might be called several times.
         #  Better it be called too often than not to be called at all. Just keep it in mind.
         self.active = False
-        for sp in self.subplots.itervalues():
+        for sp in self.subplots.values():
             if total_removal or not sp.active:
                 sp.end_plot( camp, total_removal )
 

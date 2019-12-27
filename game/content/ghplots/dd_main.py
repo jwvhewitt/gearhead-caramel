@@ -153,7 +153,7 @@ class RoadMap(object):
 
         north_road = list()
         prev = start_node
-        ys = range(0,4)
+        ys = list(range(0,4))
         random.shuffle(ys)
         for t in range(3):
             north_road.append(RoadNode("DZD_ROADSTOP",visible=False))
@@ -164,7 +164,7 @@ class RoadMap(object):
 
         south_road = list()
         prev = start_node
-        ys = range(5,9)
+        ys = list(range(5,9))
         random.shuffle(ys)
         for t in range(3):
             south_road.append(RoadNode("DZD_ROADSTOP",visible=False))

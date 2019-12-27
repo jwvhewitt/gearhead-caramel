@@ -5,7 +5,7 @@
 
 from pbge import Singleton
 
-RT_REPAIR,RT_MEDICINE,RT_BIOTECHNOLOGY = range(3)
+RT_REPAIR,RT_MEDICINE,RT_BIOTECHNOLOGY = list(range(3))
 
 class Material( Singleton ):
     # This base class is just used so all other materials count as subclasses

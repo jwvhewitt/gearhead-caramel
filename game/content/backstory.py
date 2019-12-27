@@ -18,7 +18,7 @@ class BackstoryState(object):
 
     def get_format_dict(self):
         fdic = dict()
-        for k,v in self.elements.items():
+        for k,v in list(self.elements.items()):
             fdic[str(k)] = v
         return fdic
 
@@ -85,7 +85,7 @@ class BackstoryBit(object):
         for k in self.remove_elements:
             if k in mystate.elements:
                 del mystate.elements[k]
-        for k,v in self.add_elements.items():
+        for k,v in list(self.add_elements.items()):
             if v[0] == "CHARACTER":
                 v = gears.selector.random_character(**v[1])
             mystate.elements[k] = v
@@ -97,17 +97,17 @@ class BackstoryBit(object):
         mytextdict = mystate.get_format_dict()
         mygram = dict()
         ghdialogue.trait_absorb(mygram, ghdialogue.ghgrammar.DEFAULT_GRAMMAR, ())
-        for k,v in self.results.items():
+        for k,v in list(self.results.items()):
             mystory.results[k].append(pbge.dialogue.grammar.convert_tokens(v.format(**mytextdict),mygram))
 
     def matches_context(self,command,bsstate):
         return (
                 self.command == command and
                 (self.requires.issubset(bsstate.keywords) or not self.requires) and
-                (self.requires_elements.issubset(bsstate.elements.keys()) or not self.requires_elements) and
+                (self.requires_elements.issubset(list(bsstate.elements.keys())) or not self.requires_elements) and
                 (self.any_of.intersection(bsstate.keywords) or not self.any_of) and
                 not self.none_of.intersection(bsstate.keywords) and
-                not self.not_these_elements.intersection(bsstate.elements.keys())
+                not self.not_these_elements.intersection(list(bsstate.elements.keys()))
                 )
 
     def __str__(self):

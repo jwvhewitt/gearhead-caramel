@@ -1,6 +1,6 @@
 
 import copy
-import grammar
+from . import grammar
 from .. import my_state,default_border,frects,draw_text,rpgmenu
 import random
 

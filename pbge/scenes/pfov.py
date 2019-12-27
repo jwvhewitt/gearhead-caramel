@@ -20,7 +20,7 @@
 
 import copy
 import math
-import movement
+from . import movement
 
 def get_line( x1, y1, x2, y2):
     # Bresenham's line drawing algorithm, as obtained from RogueBasin.
@@ -462,6 +462,6 @@ if __name__=="__main__":
     t1 = timeit.Timer( UseRound() )
     t2 = timeit.Timer( UseInt() )
 
-    print t1.timeit(10000000)
-    print t2.timeit(10000000)
+    print(t1.timeit(10000000))
+    print(t2.timeit(10000000))
 

@@ -2,10 +2,10 @@ import pbge
 from pbge import effects
 from pbge.scenes import animobs,movement,pfov
 import random
-import materials
-import damage
-import stats
-from enchantments import Enchantment,END_COMBAT
+from . import materials
+from . import damage
+from . import stats
+from .enchantments import Enchantment,END_COMBAT
 import math
 
 #  *************************
@@ -382,7 +382,7 @@ class AttackRoll( effects.NoEffect ):
         next_fx = []
         for target in targets:
             hi_def_roll = 50
-            for defense in self.defenses.values():
+            for defense in list(self.defenses.values()):
                 if defense.can_attempt(originator,target):
                     next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll,fx_record)
                     hi_def_roll = max(def_roll,hi_def_roll)
@@ -412,7 +412,7 @@ class AttackRoll( effects.NoEffect ):
             if mval != 0:
                 modifiers.append((mval,m.name))
         odds = 1.0
-        for defense in self.defenses.values():
+        for defense in list(self.defenses.values()):
             if defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers
@@ -458,7 +458,7 @@ class MultiAttackRoll( effects.NoEffect ):
         for target in targets:
             hi_def_roll = 50
             failed = False
-            for defense in self.defenses.values():
+            for defense in list(self.defenses.values()):
                 if defense.can_attempt(originator,target):
                     next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll,fx_record)
                     hi_def_roll = max(def_roll,hi_def_roll)
@@ -497,7 +497,7 @@ class MultiAttackRoll( effects.NoEffect ):
             if mval != 0:
                 modifiers.append((mval,m.name))
         odds = 1.0
-        for defense in self.defenses.values():
+        for defense in list(self.defenses.values()):
             if defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers

@@ -1,5 +1,5 @@
 from pbge import container,util
-import cPickle
+import pickle
 
 # An Egg is a container for a player character and all of that player character's associated data:
 # - The PC object itself
@@ -40,7 +40,7 @@ class Egg(object):
         for npc in self.dramatis_personae:
             self._remove_container_for(npc)
         with open( util.user_dir( sfpat.format( self.pc.name ) ) , "wb" ) as f:
-            cPickle.dump( self , f, -1 )
+            pickle.dump( self , f, -1 )
         self._reset_container_for(self.pc)
         self._reset_container_for(self.mecha)
         for npc in self.dramatis_personae:

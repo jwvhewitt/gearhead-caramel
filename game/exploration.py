@@ -3,12 +3,12 @@ import pbge
 import pygame
 import gears
 from gears import stats,geffects
-import combat
-import ghdialogue
-import configedit
-import invoker
-import memobrowser
-import fieldhq
+from . import combat
+from . import ghdialogue
+from . import configedit
+from . import invoker
+from . import memobrowser
+from . import fieldhq
 import random
 
 # Commands should be callable objects which take the explorer and return a value.
@@ -472,29 +472,29 @@ class Explorer( object ):
                 #self.view.overlays[ self.view.mouse_tile ] = maps.OVERLAY_CURSOR
 
                 if gdi.type == pygame.KEYDOWN:
-                    if gdi.unicode == u"Q":
+                    if gdi.str == "Q":
                         #self.camp.save(self.screen)
                         self.no_quit = False
-                    elif gdi.unicode == u"c":
+                    elif gdi.str == "c":
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
-                    elif gdi.unicode == u"X":
+                    elif gdi.str == "X":
                         self.camp.save()
-                    elif gdi.unicode == u"m":
+                    elif gdi.str == "m":
                         memobrowser.MemoBrowser.browse(self.camp)
-                    elif gdi.unicode == u"R":
-                        print self.camp.scene.get_root_scene()
-                    elif gdi.unicode == u"A":
+                    elif gdi.str == "R":
+                        print(self.camp.scene.get_root_scene())
+                    elif gdi.str == "A":
                         self.record_count = 20
 
-                    elif gdi.unicode == u"K":
+                    elif gdi.str == "K":
                         self.camp.pc.hp_damage += 100
 
-                    elif gdi.unicode == u"&":
+                    elif gdi.str == "&":
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
                                 self.scene.set_visible(x,y,True)
-                    elif gdi.unicode == u"H":
+                    elif gdi.str == "H":
                         fieldhq.FieldHQ.create_and_invoke(self.camp)
                     elif gdi.key == pygame.K_ESCAPE:
                         mymenu = configedit.PopupGameMenu()

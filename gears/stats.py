@@ -1,9 +1,9 @@
 from pbge import Singleton
-import geffects
+from . import geffects
 import pbge
 import random
-import materials
-import aitargeters
+from . import materials
+from . import aitargeters
 
 
 #  ***************

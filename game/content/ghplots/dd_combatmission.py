@@ -12,7 +12,7 @@ from game.content.plotutility import CargoContainer
 from game.ghdialogue import context
 from pbge.dialogue import ContextTag, Offer, Reply
 from pbge.plots import Plot
-import missionbuilder
+from . import missionbuilder
 
 
 # Mission Objectives:

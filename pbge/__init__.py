@@ -12,10 +12,9 @@
 
 import pygame
 from itertools import chain
-import util
+from . import util
 import glob
 import random
-import exceptions
 import weakref
 
 # Import the android module. If we can't import it, set it to None - this
@@ -31,13 +30,13 @@ class KeyObject( object ):
        you're going to use multiple inheritence, so that erroneous keywords
        will get caught and identified."""
     def __init__( self, **keywords ):
-        for k,i in keywords.iteritems():
-            print "WARNING: KeyObject got parameters {}={}".format(k,i)
+        for k,i in keywords.items():
+            print("WARNING: KeyObject got parameters {}={}".format(k,i))
 
 class Singleton( object ):
     """For game constants that don't need to be instanced."""
     def __init__( self ):
-        raise exceptions.NotImplementedError("Singleton can't be instantiated.")
+        raise NotImplementedError("Singleton can't be instantiated.")
 
 class Border( object ):
     def __init__( self , border_width=16, tex_width=32, border_name="", tex_name="", padding=16, tl=0, tr=0, bl=0, br=0, t=1, b=1, l=2, r=2, transparent=True ):
@@ -79,20 +78,20 @@ class Border( object ):
         # The method inflate_ip doesn't seem to be working... :(
         fdest = dest.inflate(self.padding,self.padding)
 
-        self.border.render( ( fdest.x-self.border_width/2 , fdest.y-self.border_width/2 ) , self.tl )
-        self.border.render( ( fdest.x-self.border_width/2 , fdest.y+fdest.height-self.border_width/2 ) , self.bl )
-        self.border.render( ( fdest.x+fdest.width-self.border_width/2 , fdest.y-self.border_width/2 ) , self.tr )
-        self.border.render( ( fdest.x+fdest.width-self.border_width/2 , fdest.y+fdest.height-self.border_width/2 ) , self.br )
+        self.border.render( ( fdest.x-self.border_width//2 , fdest.y-self.border_width//2 ) , self.tl )
+        self.border.render( ( fdest.x-self.border_width//2 , fdest.y+fdest.height-self.border_width//2 ) , self.bl )
+        self.border.render( ( fdest.x+fdest.width-self.border_width//2 , fdest.y-self.border_width//2 ) , self.tr )
+        self.border.render( ( fdest.x+fdest.width-self.border_width//2 , fdest.y+fdest.height-self.border_width//2 ) , self.br )
 
         fdest = dest.inflate(self.padding-self.border_width,self.padding+self.border_width)
         my_state.screen.set_clip(fdest)
-        for x in range(0,fdest.w/self.border_width+2):
+        for x in range(0,fdest.w//self.border_width+2):
             self.border.render( ( fdest.x+x*self.border_width , fdest.y ) , self.t )
             self.border.render( ( fdest.x+x*self.border_width , fdest.y+fdest.height-self.border_width ) , self.b )
 
         fdest = dest.inflate(self.padding+self.border_width,self.padding-self.border_width)
         my_state.screen.set_clip(fdest)
-        for y in range(0,fdest.h/self.border_width+2):
+        for y in range(0,fdest.h//self.border_width+2):
             self.border.render( ( fdest.x , fdest.y+y*self.border_width ) , self.l )
             self.border.render( ( fdest.x+fdest.width-self.border_width , fdest.y+y*self.border_width ) , self.r )
         my_state.screen.set_clip(None)
@@ -391,7 +390,7 @@ def alert_display(display_fun):
             my_state.do_flip()
     
 
-ALLOWABLE_CHARACTERS = u'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
+ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
 
 def input_string( font = None, redrawer = None, prompt = "Enter text below", prompt_color = (255,255,255), input_color = TEXT_COLOR, border=default_border ):
     # Input a string from the user.
@@ -428,8 +427,8 @@ def input_string( font = None, redrawer = None, prompt = "Enter text below", pro
                 del it[-1]
             elif ( ev.key == pygame.K_RETURN ) or ( ev.key == pygame.K_ESCAPE ):
                 keep_going = False
-            elif ( ev.unicode in ALLOWABLE_CHARACTERS ) and ( len( ev.unicode ) > 0 ):
-                it.append( ev.unicode )
+            elif ( ev.str in ALLOWABLE_CHARACTERS ) and ( len( ev.str ) > 0 ):
+                it.append( ev.str )
         elif ev.type == pygame.QUIT:
             keep_going = False
     return "".join( it )
@@ -450,19 +449,19 @@ def please_stand_by( caption=None ):
         pygame.display.flip()
 
 
-import frects
-import rpgmenu
-import container
-import namegen
-import randmaps
-import scenes
-import plots
-import image
-import effects
-import campaign
-import widgets
-import dialogue
-import cutscene
+from . import frects
+from . import rpgmenu
+from . import container
+from . import namegen
+from . import randmaps
+from . import scenes
+from . import plots
+from . import image
+from . import effects
+from . import campaign
+from . import widgets
+from . import dialogue
+from . import cutscene
 
 
 def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.png"):
@@ -516,7 +515,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
 
         global FPS
         FPS = util.config.getint( "GENERAL", "frames_per_second" )
-        pygame.time.set_timer(TIMEREVENT, 1000 / FPS)
+        pygame.time.set_timer(TIMEREVENT, int(1000 / FPS))
 
         if android:
             android.init()

@@ -1,4 +1,4 @@
-import fhqinfo
+from . import fhqinfo
 import pbge
 import gears
 
@@ -44,7 +44,7 @@ class TrainingMenu(object):
         while choice:
             mymenu = self._get_menu()
             mymenu.descobj = self._get_standard_desc_box(mymenu)
-            for skill,value in self.active_pc.statline.iteritems():
+            for skill,value in self.active_pc.statline.items():
                 if issubclass(skill,gears.stats.Skill):
                     mymenu.add_item('{} {:+} ({}XP)'.format(skill.name,value,skill.improvement_cost(self.active_pc,value)),skill,skill.desc)
             mymenu.sort()

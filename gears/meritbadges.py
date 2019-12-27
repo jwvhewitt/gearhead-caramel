@@ -14,7 +14,7 @@ class TagReactionBadge(object):
         total = 0
         npc_tags = npc.get_tags()
         if self.reaction_modifiers:
-            for k,v in self.reaction_modifiers.iteritems():
+            for k,v in self.reaction_modifiers.items():
                 if k in npc_tags:
                     total += v
         return total

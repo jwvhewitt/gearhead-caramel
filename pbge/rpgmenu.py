@@ -1,7 +1,7 @@
 import pygame
 import glob
-import util
-from frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
+from . import util
+from .frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
 import random
 import collections
 
@@ -149,7 +149,7 @@ class Menu( Frect ):
 
         my_state.screen.set_clip(mydest)
         self.arrange()
-        for item_num,area in self._item_rects.items():
+        for item_num,area in list(self._item_rects.items()):
             self.items[item_num].render(area, ( item_num == self.selected_item ) and do_extras)
 
         my_state.screen.set_clip(None)
@@ -162,7 +162,7 @@ class Menu( Frect ):
             if self.top_item > 0:
                 area = self.more_image.get_rect(topright=mydest.topright)
                 my_state.screen.blit(self.more_image, area)
-            if self._item_rects.keys()[-1] < len(self.items) - 1:
+            if list(self._item_rects.keys())[-1] < len(self.items) - 1:
                 area = self.more_image.get_rect(bottomright=mydest.bottomright)
                 my_state.screen.blit(self.more_image, area)
 
@@ -170,7 +170,7 @@ class Menu( Frect ):
     def get_mouseover_item( self , pos ):
         # Return the menu item under this mouse position.
         # self.arrange must have been called previously!
-        for item_num,area in self._item_rects.items():
+        for item_num,area in list(self._item_rects.items()):
             if area.collidepoint(pos):
                 return item_num
 
@@ -284,7 +284,7 @@ class Menu( Frect ):
         if self.selected_item < self.top_item:
             self.top_item = self.selected_item
         elif self.selected_item > max(self._item_rects.keys()):
-            self.top_item = max(self._item_rects.keys() + [self._the_highest_top])
+            self.top_item = max(list(self._item_rects.keys()) + [self._the_highest_top])
         self.arrange()
 
     def set_item_by_value( self , v ):

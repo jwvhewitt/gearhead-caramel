@@ -1,19 +1,19 @@
 import glob
 import pbge
 import os
-import stats
-import personality
+from . import stats
+from . import personality
 import random
 
 from gears.meritbadges import BADGE_CRIMINAL
 from . import random_character_colors, DETAIL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS
-import color
-import base
-import eggs
-import meritbadges
-import portraits
-import genderobj
-import tags
+from . import color
+from . import base
+from . import eggs
+from . import meritbadges
+from . import portraits
+from . import genderobj
+from . import tags
 
 TYPHON_SLAYER = meritbadges.UniversalReactionBadge("Typhon Slayer", "You led the team that defeated Typhon.", 10)
 ELEMENTAL_ADEPT = meritbadges.TagReactionBadge("Elemental Adept", "You meditated at the elemental shrines, attaining illumination.",{tags.Faithworker: 20})
@@ -282,7 +282,7 @@ class GH1Loader(object):
                 elif n == self.SAVE_FILE_SENTINEL:
                     keep_going = False
                 else:
-                    print "GH1Loader Error... no idea what action code {} is.".format(n)
+                    print("GH1Loader Error... no idea what action code {} is.".format(n))
         return mydict
 
     def _read_string_attributes(self, myfile):
@@ -353,7 +353,7 @@ class GH1Loader(object):
                 elif n == self.SAVE_FILE_SENTINEL:
                     keep_going = False
                 else:
-                    print "GH1Loader Error... no idea what action code {} is.".format(n)
+                    print("GH1Loader Error... no idea what action code {} is.".format(n))
 
         return mylist
 
@@ -557,12 +557,12 @@ class GH1Loader(object):
             bio_bits.append(adv.satt.get("HISTORY2", ""))
 
             history_list = list()
-            for k,v in adv.satt.iteritems():
+            for k,v in adv.satt.items():
                 if k.startswith("HISTORY"):
                     history_list.append(v)
 
             if any(h.startswith("You killed the biomonster Cetus in") for h in history_list):
-                print "Killed Cetus!"
+                print("Killed Cetus!")
 
             if adv.s != 0:
                 ghcpc.badges.append(TYPHON_SLAYER)

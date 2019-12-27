@@ -1,8 +1,8 @@
 
 import random
 import pygame
-import decor
-import rooms
+from . import decor
+from . import rooms
 
 
 #  **********************
@@ -34,8 +34,8 @@ class MonsterFiller( object ):
             myrect = pygame.Rect( 0, 0, myroom.width, myroom.height )
             count = 0
             while ( count < 100 ) and not myroom.area:
-                myrect.x = random.choice( range( room.area.x , room.area.x + room.area.width - myroom.width ) )
-                myrect.y = random.choice( range( room.area.y , room.area.y + room.area.height - myroom.height ) )
+                myrect.x = random.choice( list(range( room.area.x , room.area.x + room.area.width - myroom.width)) )
+                myrect.y = random.choice( list(range( room.area.y , room.area.y + room.area.height - myroom.height)) )
                 if myrect.inflate(self.spacing,self.spacing).collidelist( closed_area ) == -1:
                     myroom.area = myrect
                     closed_area.append( myrect )

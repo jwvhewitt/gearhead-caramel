@@ -2,7 +2,7 @@
 import pbge
 from gears import info
 import pygame
-import exploration
+from . import exploration
 
 
 # Shelf needs name, desc properties & __str__ method.
@@ -241,7 +241,7 @@ class InvocationUI(object):
         elif not self.camp.fight:
             self.firing_points = self.invo.area.get_targets(self.camp, target_pos)
             mynav = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.pc.pos, target_pos, self.pc.mmode)
-            if self.firing_points.intersection(mynav.cost_to_tile.keys()):
+            if self.firing_points.intersection(list(mynav.cost_to_tile.keys())):
                 fp = min(self.firing_points, key=lambda r: mynav.cost_to_tile.get(r, 10000))
                 self.mypath = mynav.get_path(fp)
                 return True
@@ -339,10 +339,10 @@ class InvocationUI(object):
                 self.launch()
 
         elif ev.type == pygame.KEYDOWN:
-            if ev.unicode == u"r":
+            if ev.str == "r":
                 # self.camp.save(self.screen)
                 self.record = True
-                print "Recording"
+                print("Recording")
             elif ev.key == pygame.K_ESCAPE:
                 self.keep_exploring = False
 
@@ -366,7 +366,7 @@ class InvocationUI(object):
         else:
             self.firing_points = self.invo.area.get_targets(self.camp, self.targets[0])
             mynav = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.pc.pos, self.targets[0], self.pc.mmode)
-            if self.firing_points.intersection(mynav.cost_to_tile.keys()):
+            if self.firing_points.intersection(list(mynav.cost_to_tile.keys())):
                 return min(self.firing_points, key=lambda r: mynav.cost_to_tile.get(r, 10000))
             else:
                 return self.pc.pos

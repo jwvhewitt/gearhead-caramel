@@ -8,12 +8,12 @@ from game import teams,ghdialogue
 from game.ghdialogue import context
 import random
 from pbge.dialogue import ContextTag,Offer
-import dd_main
-import dd_tarot
+from . import dd_main
+from . import dd_tarot
 from game.content import mechtarot
 import game.content.plotutility
 import game.content.gharchitecture
-import dd_combatmission
+from . import dd_combatmission
 import collections
 
 

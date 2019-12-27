@@ -4,7 +4,7 @@ from . import Tile
 from .. import my_state,anim_delay,WHITE
 from .. import util, image
 import pygame
-import waypoints
+from . import waypoints
 import random
 
 OVERLAY_ITEM = 0

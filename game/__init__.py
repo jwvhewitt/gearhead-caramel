@@ -1,14 +1,14 @@
-import exploration
-import combat
-import teams
-import content
-import ghdialogue
-import configedit
-import invoker
-import cosplay
-import chargen
-import services
-import fieldhq
+from . import exploration
+from . import combat
+from . import teams
+from . import content
+from . import ghdialogue
+from . import configedit
+from . import invoker
+from . import cosplay
+from . import chargen
+from . import services
+from . import fieldhq
 from game.fieldhq import backpack
 import pbge
 

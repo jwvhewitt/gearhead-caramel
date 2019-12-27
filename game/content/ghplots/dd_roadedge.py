@@ -8,8 +8,8 @@ from game import teams,ghdialogue
 from game.content import gharchitecture,ghterrain,ghwaypoints,plotutility, adventureseed
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
-from dd_main import RoadEdge
-import missionbuilder
+from .dd_main import RoadEdge
+from . import missionbuilder
 import pygame
 import collections
 
@@ -118,7 +118,7 @@ class DZREPR_BasePlot(Plot):
 
     def load_missions(self,camp):
         if self.elements[E_MISSION_NUMBER] >= self.NUMBER_OF_MISSIONS_BEFORE_CONCLUSION:
-            print "Load the conclusion now!"
+            print("Load the conclusion now!")
         else:
             self.elements[E_MISSION_NUMBER] += 1
             random.shuffle(self.MISSION_LABELS)
@@ -134,7 +134,7 @@ class DZREPR_BasePlot(Plot):
                 miss_num += 1
             if num_miss < 1:
                 # Drat- we have apparently hit a deadend.
-                print "DeadEnd Error!!!"
+                print("DeadEnd Error!!!")
 
     def reset_missions(self,camp):
         old_plots = list()
@@ -173,7 +173,7 @@ class DZREPR_BaseMission(Plot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return all(pstate.elements.get(k,0) == cls.REQUIRES[k] for k in cls.REQUIRES.iterkeys()) or cls.LABEL == "DZRE_TEST"
+        return all(pstate.elements.get(k,0) == cls.REQUIRES[k] for k in cls.REQUIRES.keys()) or cls.LABEL == "DZRE_TEST"
 
     def custom_init(self, nart):
         self.mission_seed = None
@@ -196,7 +196,7 @@ class DZREPR_BaseMission(Plot):
             camp.check_trigger("WIN",self)
 
     def alter_the_context(self,other_plot):
-        for k,v in self.CHANGES.items():
+        for k,v in list(self.CHANGES.items()):
             other_plot.elements[k] = v
 
     def activate_mission(self,camp):

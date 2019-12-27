@@ -7,7 +7,7 @@ import random
 import sys
 # import timeit
 import glob
-import cPickle
+import pickle
 import copy
 
 VERSION = "v0.130"
@@ -81,7 +81,7 @@ def start_game(tsrd):
             # Why deepcopy the freshly loaded pickle? Because that will update any gears involved
             # to the latest version, and at this point in time it'll hopefully keep save games working
             # despite rapid early-development changes.
-            egg = copy.deepcopy(cPickle.load(f))
+            egg = copy.deepcopy(pickle.load(f))
         if egg:
             mymenu.add_item(str(egg.pc), egg)
 
@@ -121,7 +121,7 @@ def load_game(tsrd):
         pbge.please_stand_by()
         with open(fname, "rb") as f:
             # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
-            camp = copy.deepcopy(cPickle.load(f))
+            camp = copy.deepcopy(pickle.load(f))
         camp.play()
 
 

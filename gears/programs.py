@@ -1,9 +1,9 @@
 import pbge
 from pbge import Singleton
-import geffects
-import scale
-import stats
-import aitargeters
+from . import geffects
+from . import scale
+from . import stats
+from . import aitargeters
 
 
 class TargetAnalysis(Singleton):

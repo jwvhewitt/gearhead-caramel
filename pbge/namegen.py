@@ -23,7 +23,7 @@ License along with name-gen.  If not, see
 import itertools
 import random
 import locale
-import util
+from . import util
 
 class NameGen:
 	"""
@@ -54,11 +54,11 @@ class NameGen:
 			
 			starts_ids = [int(n) for n in lines[1].split(',')]  #next 2 lines, start syllable indexes and counts
 			starts_counts = [int(n) for n in lines[2].split(',')]
-			self.starts = zip(starts_ids, starts_counts)  #zip into a list of tuples
+			self.starts = list(zip(starts_ids, starts_counts))  #zip into a list of tuples
 			
 			ends_ids = [int(n) for n in lines[3].split(',')]  #next 2, same for syllable ends
 			ends_counts = [int(n) for n in lines[4].split(',')]
-			self.ends = zip(ends_ids, ends_counts)
+			self.ends = list(zip(ends_ids, ends_counts))
 			
 			#starting with the 6th and 7th lines, each pair of lines holds ids and counts
 			#of the "next syllables" for a previous syllable.
@@ -69,7 +69,7 @@ class NameGen:
 				else:
 					line_ids = [int(n) for n in ids_str.split(',')]
 					line_counts = [int(n) for n in counts_str.split(',')]
-					self.combinations.append(zip(line_ids, line_counts))
+					self.combinations.append(list(zip(line_ids, line_counts)))
 		
 		#load forbidden words file if needed
 		if forbidden_file is None:
@@ -157,9 +157,9 @@ def test_names( ng, trials ):
         mn1 = min( len( n1 ) , mn1 )
         s1.add( n1 )
 
-    print "  average length: " + str( float( tot1 )/trials )
-    print "  unique names: " + str( len( s1 ) )
-    print "  max/min: " + str( mx1 ) + "/" + str( mn1 )
+    print("  average length: " + str( float( tot1 )/trials ))
+    print("  unique names: " + str( len( s1 ) ))
+    print("  max/min: " + str( mx1 ) + "/" + str( mn1 ))
 
 #ALL_NAME_GENERATORS = ( DEFAULT, DWARF, DRAGON, ELF, ORC, GREEK, JAPANESE, GNOME, HURTHLING, ELDRITCH )
 #

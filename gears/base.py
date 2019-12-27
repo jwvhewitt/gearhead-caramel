@@ -1,21 +1,21 @@
-import materials
-import scale
-import calibre
+from . import materials
+from . import scale
+from . import calibre
 import pbge
-import genderobj
+from . import genderobj
 from pbge import container, scenes, KeyObject, Singleton
 import random
 import collections
-import stats
+from . import stats
 import copy
-import geffects
-import attackattributes
-import tags
-import aitargeters
-import enchantments
-import portraits
+from . import geffects
+from . import attackattributes
+from . import tags
+from . import aitargeters
+from . import enchantments
+from . import portraits
 import pygame
-import personality
+from . import personality
 
 class Restoreable(object):
     def restore(self):
@@ -50,13 +50,13 @@ class StandardDamageHandler(KeyObject,Restoreable):
 
     def get_damage_status(self):
         """Returns a percent value showing how damaged this gear is."""
-        return (self.hp_damage * 100) / self.max_health
+        return (self.hp_damage * 100) // self.max_health
 
     def get_total_damage_status(self):
         dstats = list()
         for part in self.get_all_parts():
             dstats.append(part.get_damage_status())
-        return sum(dstats)/len(dstats)
+        return sum(dstats)//len(dstats)
 
     def get_total_damage_and_health(self,destroyed_branch=False):
         health = self.max_health
@@ -172,7 +172,7 @@ class ContainerDamageHandler(StandardDamageHandler):
         """Returns a percent value showing how damaged this gear is."""
         mysubs = [sc.get_damage_status() for sc in self.sub_com]
         if mysubs:
-            return sum(mysubs) / len(mysubs)
+            return sum(mysubs) // len(mysubs)
         else:
             return 0
 
@@ -364,11 +364,11 @@ class Combatant(KeyObject):
     def get_skill_library(self, in_combat=False):
         my_invo_dict = collections.defaultdict(list)
         pilot = self.get_pilot()
-        for p in pilot.statline.keys():
+        for p in list(pilot.statline.keys()):
             if hasattr(p, 'add_invocations'):
                 p.add_invocations(pilot, my_invo_dict)
         my_invos = list()
-        for k, v in my_invo_dict.items():
+        for k, v in list(my_invo_dict.items()):
             p_list = geffects.InvoLibraryShelf(k, v)
             if p_list.has_at_least_one_working_invo(self, in_combat):
                 my_invos.append(p_list)
@@ -380,7 +380,7 @@ class Combatant(KeyObject):
             if p.is_operational() and hasattr(p, 'add_program_invocations'):
                 p.add_program_invocations(self,my_invo_dict)
         my_invos = list()
-        for k, v in my_invo_dict.items():
+        for k, v in list(my_invo_dict.items()):
             p_list = geffects.InvoLibraryShelf(k, v)
             if p_list.has_at_least_one_working_invo(self, in_combat):
                 my_invos.append(p_list)
@@ -524,7 +524,7 @@ class BaseGear(scenes.PlaceableThing):
             try:
                 self.sub_com.append(i)
             except container.ContainerError as err:
-                print("ERROR: {}".format(err))
+                print(("ERROR: {}".format(err)))
 
         self.inv_com = InvComContainerList(owner=self)
         ic_to_add = keywords.pop("inv_com", [])
@@ -532,7 +532,7 @@ class BaseGear(scenes.PlaceableThing):
             if self.can_equip(i):
                 self.inv_com.append(i)
             else:
-                print("ERROR: {} cannot be equipped in {}".format(i, self))
+                print(("ERROR: {} cannot be equipped in {}".format(i, self)))
 
         super(BaseGear, self).__init__(**keywords)
 
@@ -606,7 +606,7 @@ class BaseGear(scenes.PlaceableThing):
     def check_multiplicity(self, part):
         """Returns True if part within acceptable limits for its kind."""
         ok = True
-        for k, v in self.MULTIPLICITY_LIMITS.items():
+        for k, v in list(self.MULTIPLICITY_LIMITS.items()):
             if isinstance(part, k):
                 ok = ok and len([item for item in self.sub_com if isinstance(item, k)]) < v
         return ok
@@ -614,7 +614,7 @@ class BaseGear(scenes.PlaceableThing):
     def can_install(self, part):
         """Returns True if part can be legally installed here under current conditions"""
         return self.is_legal_sub_com(
-            part) and part.scale <= self.scale and part.volume <= self.free_volume and self.check_multiplicity(part)
+            part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and part.volume <= self.free_volume and self.check_multiplicity(part)
 
     def is_legal_inv_com(self, part):
         return False
@@ -709,8 +709,8 @@ class BaseGear(scenes.PlaceableThing):
 
     def termdump(self, prefix=' ', indent=1):
         """Dump some info about this gear to the terminal."""
-        print " " * indent + prefix + self.name + ' mass:' + str(self.mass) + ' cost:$' + str(
-            self.cost) + " vol:" + str(self.free_volume) + "/" + str(self.volume)
+        print(" " * indent + prefix + self.name + ' mass:' + str(self.mass) + ' cost:$' + str(
+            self.cost) + " vol:" + str(self.free_volume) + "/" + str(self.volume))
         for g in self.sub_com:
             g.termdump(prefix='>', indent=indent + 1)
         for g in self.inv_com:
@@ -718,8 +718,8 @@ class BaseGear(scenes.PlaceableThing):
 
     def statusdump(self, prefix=' ', indent=1):
         """Dump some info about this gear to the terminal."""
-        print " " * indent + prefix + self.name + ' HP:{1}/{0}'.format(self.max_health,
-                                                                       self.max_health - self.hp_damage)
+        print(" " * indent + prefix + self.name + ' HP:{1}/{0}'.format(self.max_health,
+                                                                       self.max_health - self.hp_damage))
         for g in self.sub_com:
             g.statusdump(prefix='>', indent=indent + 1)
         for g in self.inv_com:
@@ -740,7 +740,7 @@ class BaseGear(scenes.PlaceableThing):
         # Go through this gear's dict, copying stuff 
         initdict = dict()
         afterdict = dict()
-        for k, v in self.__dict__.items():
+        for k, v in list(self.__dict__.items()):
             if k in my_params:
                 initdict[k] = copy.deepcopy(v,memo)
             elif k not in ('sub_com', 'inv_com', 'container'):
@@ -954,7 +954,7 @@ class Cockpit(BaseGear, StandardDamageHandler):
             # Only one character per cockpit.
             return len([item for item in self.sub_com if isinstance(item, Character)]) < 1
         else:
-            return self.is_legal_sub_com(part) and part.scale <= self.scale and self.check_multiplicity(part)
+            return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part)
 
     volume = 2
     base_cost = 5
@@ -1237,7 +1237,7 @@ class Weapon(BaseGear, StandardDamageHandler):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.VOLUME_MODIFIER
-        v = max(self.reach + self.accuracy + (self.damage + self.penetration) / 2, 1)
+        v = max(self.reach + self.accuracy + (self.damage + self.penetration) // 2, 1)
         if self.integral:
             v -= 1
         return int(v * mult)
@@ -1249,7 +1249,7 @@ class Weapon(BaseGear, StandardDamageHandler):
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER
         return int((self.COST_FACTOR * (self.damage ** 2) * (self.accuracy + 1) * (self.penetration + 1) * (
-                (self.reach ** 2 - self.reach) / 2 + 1)) * mult)
+                (self.reach ** 2 - self.reach) // 2 + 1)) * mult)
 
     def is_legal_sub_com(self, part):
         if isinstance(part, Weapon):
@@ -1566,11 +1566,11 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
             # Gonna cube the mass multiplier since ammo doesn't usually weigh that much,
             # and we need this modifier to make a difference.
             mult *= max(aa.MASS_MODIFIER**3,1.0)
-        return int(mult * self.ammo_type.bang * (self.quantity - self.spent) / 25)
+        return int(mult * self.ammo_type.bang * (self.quantity - self.spent) // 25)
 
     @staticmethod
     def ammo_volume(ammo_type, quantity):
-        int((ammo_type.bang * quantity + 49) / 50)
+        return int((ammo_type.bang * quantity + 49) // 50)
 
     @property
     def volume(self):
@@ -1582,7 +1582,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER * max(aa.VOLUME_MODIFIER,1.0)
-        return int(mult * self.ammo_type.bang * self.quantity / 10)
+        return int(mult * self.ammo_type.bang * self.quantity // 10)
 
     base_health = 1
 
@@ -1591,7 +1591,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         return(('Ammo','{}/{}'.format(self.quantity - self.spent, self.quantity)),)
 
     def get_reload_cost(self):
-        return ( self.cost * self.spent ) / self.quantity
+        return ( self.cost * self.spent ) // self.quantity
 
     def restore(self):
         ac = self.get_reload_cost()
@@ -1736,7 +1736,7 @@ class BallisticWeapon(Weapon):
 
     @property
     def volume(self):
-        base = super(BallisticWeapon,self).volume
+        base = super().volume
         return max(base,Ammo.ammo_volume(self.ammo_type,self.magazine))
 
 
@@ -1893,7 +1893,7 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER
         return int((((self.damage ** 2) * (self.accuracy + 1) * (self.penetration + 1) * (
-                self.reach ** 2 - self.reach + 2)) * self.quantity / 8) * mult)
+                self.reach ** 2 - self.reach + 2)) * self.quantity // 8) * mult)
 
     @property
     def base_health(self):
@@ -1915,7 +1915,7 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
         return rstr
 
     def get_reload_cost(self):
-        return ( self.cost * self.spent ) / self.quantity
+        return ( self.cost * self.spent ) // self.quantity
 
     def restore(self):
         ac = self.get_reload_cost()
@@ -2036,11 +2036,11 @@ class Launcher(BaseGear, ContainerDamageHandler):
         ammo = self.get_ammo()
         if ammo:
             my_invos.append(self.get_basic_attack())
-            last_n = int(ammo.quantity / 4)
+            last_n = int(ammo.quantity // 4)
             if last_n > 1:
                 my_invos.append(self.get_multi_attack(last_n, 3))
-            if 0 < last_n < int(ammo.quantity / 2):
-                my_invos.append(self.get_multi_attack(int(ammo.quantity / 2), 6))
+            if 0 < last_n < int(ammo.quantity // 2):
+                my_invos.append(self.get_multi_attack(int(ammo.quantity // 2), 6))
             if ammo.quantity > 1:
                 my_invos.append(self.get_multi_attack(max(ammo.quantity - ammo.spent, 2), 9))
         return my_invos
@@ -2102,21 +2102,21 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.MASS_MODIFIER
-        return int(mult * 10 * (self.quantity - self.spent) / 25)
+        return int(mult * 10 * (self.quantity - self.spent) // 25)
 
     @property
     def volume(self):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.VOLUME_MODIFIER
-        return int((mult * 5 * self.quantity + 49) / 50)
+        return int((mult * 5 * self.quantity + 49) // 50)
 
     @property
     def base_cost(self):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER
-        return int(10 * self.quantity * mult / 10)
+        return int(10 * self.quantity * mult // 10)
 
     def get_item_stats(self):
         # Provide info on the ammo.
@@ -2125,7 +2125,7 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     base_health = 1
 
     def get_reload_cost(self):
-        return ( self.cost * self.spent ) / self.quantity
+        return ( self.cost * self.spent ) // self.quantity
 
     def restore(self):
         ac = self.get_reload_cost()
@@ -2302,7 +2302,7 @@ class ModuleForm(Singleton):
     def check_multiplicity(self, mod, part):
         """Returns True if part within acceptable limits for its kind."""
         ok = True
-        for k, v in self.MULTIPLICITY_LIMITS.items():
+        for k, v in list(self.MULTIPLICITY_LIMITS.items()):
             if isinstance(part, k):
                 ok = ok and len([item for item in mod.sub_com if isinstance(item, k)]) < v
         return ok
@@ -2659,7 +2659,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             return True
 
     def can_install(self, part):
-        return self.is_legal_sub_com(part) and part.scale <= self.scale and self.check_multiplicity(part)
+        return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part)
 
     def can_equip(self, part):
         """Returns True if part can be legally equipped under current conditions"""
@@ -2764,7 +2764,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             if active_legs < ((total_legs // 2) + 1):
                 return 0
 
-            speed = (1125 - norm_mass + engine_rating / 5) // 15
+            speed = (1125 - norm_mass + engine_rating // 5) // 15
 
             # Depending on the mecha's mass, it needs a minimum number of
             # leg points to support it. If it has less than that number
@@ -2772,7 +2772,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             min_leg_points = norm_mass // 50 - 2
             actual_leg_points = self.count_module_points(MF_Leg)
             if actual_leg_points < min_leg_points:
-                speed = (speed * actual_leg_points) / min_leg_points
+                speed = (speed * actual_leg_points) // min_leg_points
 
             # Add thrust bonus.
             thrust = self.count_thrust_points(scenes.movement.Walking)
@@ -2818,7 +2818,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         it = 3
         for sens in self.sub_sub_coms():
             if hasattr(sens, 'get_sensor_rating') and sens.is_operational():
-                it = max((sens.get_sensor_rating() / map_scale.RANGE_FACTOR) * 5, it)
+                it = max((sens.get_sensor_rating() // map_scale.RANGE_FACTOR) * 5, it)
         return it
 
     def get_ewar_rating(self):
@@ -2977,7 +2977,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return speed
 
     def get_sensor_range(self, map_scale):
-        return self.get_stat(stats.Perception) * self.scale.RANGE_FACTOR / map_scale.RANGE_FACTOR
+        return self.get_stat(stats.Perception) * self.scale.RANGE_FACTOR // map_scale.RANGE_FACTOR
 
     def get_max_mental(self):
         return (self.get_stat(stats.Knowledge) + self.get_stat(stats.Ego) + 5) // 2 + self.get_stat(
@@ -3247,11 +3247,11 @@ class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
 
     def get_skill_library(self, in_combat=False):
         my_invo_dict = collections.defaultdict(list)
-        for p in self.statline.keys():
+        for p in list(self.statline.keys()):
             if hasattr(p, 'add_invocations'):
                 p.add_invocations(self, my_invo_dict)
         my_invos = list()
-        for k, v in my_invo_dict.items():
+        for k, v in list(my_invo_dict.items()):
             p_list = geffects.InvoLibraryShelf(k, v)
             if p_list.has_at_least_one_working_invo(self, in_combat):
                 my_invos.append(p_list)

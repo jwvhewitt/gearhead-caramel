@@ -4,17 +4,17 @@ from .. import scenes
 import math
 from .. import container
 
-import plasma
-import anchors
-import mutator
-import decor
-import gapfiller
-import converter
-import prep
-import rooms
-from rooms import Room
-import architect
-import terrset
+from . import plasma
+from . import anchors
+from . import mutator
+from . import decor
+from . import gapfiller
+from . import converter
+from . import prep
+from . import rooms
+from .rooms import Room
+from . import architect
+from . import terrset
 
 
 # A scene is constructed in the following steps:

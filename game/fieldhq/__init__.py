@@ -4,9 +4,9 @@ from pbge import widgets
 import pygame
 import gears
 from game import cosplay
-import backpack
-import training
-import fhqinfo
+from . import backpack
+from . import training
+from . import fhqinfo
 
 
 class AssignMechaDescObject(object):

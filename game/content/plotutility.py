@@ -1,4 +1,4 @@
-import ghwaypoints
+from . import ghwaypoints
 import random
 import pbge
 import gears
@@ -229,13 +229,13 @@ class CharacterMover(object):
     def __init__(self,plot,character,dest_scene,dest_team,allow_death=False):
         # Record the character's original location, move them to the new location.
         if character not in plot.get_locked_elements():
-            print "Warning: Character {} should be locked by {} before moving!".format(character,plot)
+            print("Warning: Character {} should be locked by {} before moving!".format(character,plot))
         if not character.container:
-            print "Warning: Character {} moved by {} has no original container!".format(character,plot)
+            print("Warning: Character {} moved by {} has no original container!".format(character,plot))
         if not plot.active:
-            print "Warning: Plot {} not active"
+            print("Warning: Plot {} not active")
         if not plot.scope:
-            print "Warning: Plot {} has no scope set"
+            print("Warning: Plot {} has no scope set")
 
         character.restore_all()
         self.character = character

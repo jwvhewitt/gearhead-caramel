@@ -21,12 +21,11 @@
 # 
 
 from . import my_state
-import container
-import exceptions
-import util
-import cPickle
+from . import container
+from . import util
+import pickle
 import os
-import scenes
+from . import scenes
 
 ALL_CONTENTS_SEARCH_PATH = ["contents","sub_scenes"]
 
@@ -51,7 +50,7 @@ class Campaign( object ):
 
     def save( self ):
         with open( util.user_dir( "rpg_" + self.name + ".sav" ) , "wb" ) as f:
-            cPickle.dump( self , f, -1 )
+            pickle.dump( self , f, -1 )
 
     def delete_save_file( self ):
         os.remove(util.user_dir("rpg_{}.sav".format(self.name)))
@@ -93,7 +92,7 @@ class Campaign( object ):
 
     def place_party( self ):
         """Stick the party close to the waypoint."""
-        raise exceptions.NotImplementedError("Method place_party needs custom implementation.")
+        raise NotImplementedError("Method place_party needs custom implementation.")
 
     def remove_party_from_scene( self ):
         for pc in self.party:

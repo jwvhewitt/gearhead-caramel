@@ -618,14 +618,14 @@ class MochaMissionBattleBuilder( Plot ):
 #  **************************************
 
 ENEMY = 'MENCOUNTER_ENEMY'
-NO_ENEMY,BANDITS,MERCENARY,PIRATES,AEGIS = range(5)
+NO_ENEMY,BANDITS,MERCENARY,PIRATES,AEGIS = list(range(5))
 ENEMY_NOUN = ('the raiders','the bandits','the raiders','the pirates','Aegis Overlord')
 
 COMPLICATION = 'MENCOUNTER_COMPLICATION'
-NO_COMPLICATION,CONTRABAND_CARGO,FERAL_SYNTHS,PROFESSIONAL_OPERATION,AEGIS_SCOUTS = range(5)
+NO_COMPLICATION,CONTRABAND_CARGO,FERAL_SYNTHS,PROFESSIONAL_OPERATION,AEGIS_SCOUTS = list(range(5))
 
 STAKES = 'MENCOUNTER_STAKES'
-NO_STAKES,STOLEN_TOYS,GET_THE_LEADER,PROTOTYPE_MECHA = range(4)
+NO_STAKES,STOLEN_TOYS,GET_THE_LEADER,PROTOTYPE_MECHA = list(range(4))
 
 class MercFaction(object):
     # This is an instant faction for the mercenaries.
@@ -745,7 +745,7 @@ class Encounter_StealthTest( Plot ):
         """Returns True if this plot matches the current plot state."""
         # Note that the lack of an ENCOUNTER_NUMBER implies that this
         # plot is being loaded as a debug encounter.
-        return "ENCOUNTER_NUMBER" not in pstate.elements or all( pstate.elements.get(k,0) == self.REQUIRES[k] for k in self.REQUIRES.iterkeys() )
+        return "ENCOUNTER_NUMBER" not in pstate.elements or all( pstate.elements.get(k,0) == self.REQUIRES[k] for k in self.REQUIRES.keys() )
     def load_next( self, nart ):
         self.elements.update(self.CHANGES)
         enc_num = self.elements.get("ENCOUNTER_NUMBER",0)
@@ -782,7 +782,7 @@ class Encounter_BasicBandits( Plot ):
         """Returns True if this plot matches the current plot state."""
         # Note that the lack of an ENCOUNTER_NUMBER implies that this
         # plot is being loaded as a debug encounter.
-        return "ENCOUNTER_NUMBER" not in pstate.elements or all( pstate.elements.get(k,0) == self.REQUIRES[k] for k in self.REQUIRES.iterkeys() )
+        return "ENCOUNTER_NUMBER" not in pstate.elements or all( pstate.elements.get(k,0) == self.REQUIRES[k] for k in self.REQUIRES.keys() )
     def load_next( self, nart ):
         self.elements.update(self.CHANGES)
         enc_num = self.elements.get("ENCOUNTER_NUMBER",0)

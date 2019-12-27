@@ -1,5 +1,5 @@
-import pfov
-import animobs
+from . import pfov
+from . import animobs
 
 # Each of the classes here describes a targeting type. Instantiation can set
 # targeting details such as range, whether the center tile is included in a

@@ -17,7 +17,7 @@ import random
 
 class Grammar( dict ):
     def absorb( self, othergram ):
-        for k,v in othergram.iteritems():
+        for k,v in othergram.items():
             if k not in self:
                 self[k] = list()
             self[k] += v

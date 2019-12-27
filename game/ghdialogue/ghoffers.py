@@ -1,5 +1,5 @@
 from pbge.dialogue import Offer,Reply,Cue,ContextTag
-import context
+from . import context
 
 
 HELLO = Offer('[HELLO]',context=ContextTag([context.HELLO,]))

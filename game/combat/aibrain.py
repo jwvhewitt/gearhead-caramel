@@ -144,7 +144,7 @@ class BasicAI( object ):
                 # target, maybe we should pick a new preferred target.
                 if random.randint(1,3) != 1:
                     self.target = None
-                invo,possible_targets = random.choice(invo_x_targets.items())
+                invo,possible_targets = random.choice(list(invo_x_targets.items()))
                 targets = list()
                 for t in range(invo.targets):
                     targets.append(random.choice(possible_targets).pos)
@@ -163,7 +163,7 @@ class BasicAI( object ):
         if hasattr(self.npc,"get_current_speed") and self.npc.get_current_speed > 10 and camp.fight.cstat[self.npc].action_points > 1:
             # Check for a better tile.
             mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,self.npc.get_current_speed()+camp.fight.cstat[self.npc].mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
-            sample = random.sample(mynav.cost_to_tile.keys(),max(len(mynav.cost_to_tile)//4,min(5,len(mynav.cost_to_tile))))
+            sample = random.sample(list(mynav.cost_to_tile.keys()),max(len(mynav.cost_to_tile)//4,min(5,len(mynav.cost_to_tile))))
             #sample = sample[:len(sample)//4]
             self.camp = camp
             self.minr,self.midr,self.maxr = self.get_min_mid_max_range(self.npc.get_attack_library())

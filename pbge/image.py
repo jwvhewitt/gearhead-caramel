@@ -2,7 +2,7 @@
 
 import pygame
 import weakref
-import util
+from . import util
 from . import my_state, render_text, TEXT_COLOR, Singleton
 import os.path
 import copy
@@ -15,9 +15,9 @@ try:
     import numpy
 except ImportError:
     caramelrecolor = None
-    print "Modules caramelrecolor+numpy not found; using slow recolor method."
+    print("Modules caramelrecolor+numpy not found; using slow recolor method.")
 if not hasattr(pygame,"pixelcopy"):
-    print "Module caramelrecolor needs PyGame 1.9.2+; using slow recolor method."
+    print("Module caramelrecolor needs PyGame 1.9.2+; using slow recolor method.")
     caramelrecolor = None
 
 # Keep a list of already-loaded images, to save memory when multiple objects
@@ -35,9 +35,9 @@ class Gradient(Singleton):
         # The COLOR_RANGE is a tuple of six values: r g b at highest intensity,
         # and r g b at lowest intensity.
         color_level = max(color_level - 40, 0)
-        r = max(min(((cls.COLOR_RANGE[0] - cls.COLOR_RANGE[3]) * color_level) / 215 + cls.COLOR_RANGE[3], 255), 0)
-        g = max(min(((cls.COLOR_RANGE[1] - cls.COLOR_RANGE[4]) * color_level) / 215 + cls.COLOR_RANGE[4], 255), 0)
-        b = max(min(((cls.COLOR_RANGE[2] - cls.COLOR_RANGE[5]) * color_level) / 215 + cls.COLOR_RANGE[5], 255), 0)
+        r = max(min(((cls.COLOR_RANGE[0] - cls.COLOR_RANGE[3]) * color_level) // 215 + cls.COLOR_RANGE[3], 255), 0)
+        g = max(min(((cls.COLOR_RANGE[1] - cls.COLOR_RANGE[4]) * color_level) // 215 + cls.COLOR_RANGE[4], 255), 0)
+        b = max(min(((cls.COLOR_RANGE[2] - cls.COLOR_RANGE[5]) * color_level) // 215 + cls.COLOR_RANGE[5], 255), 0)
         return r, g, b
 
 
@@ -89,9 +89,9 @@ class Image(object):
         if self.custom_frames and frame < len(self.custom_frames):
             area = pygame.Rect(self.custom_frames[frame])
         else:
-            frames_per_row = self.bitmap.get_width() / self.frame_width
+            frames_per_row = self.bitmap.get_width() // self.frame_width
             area_x = (frame % frames_per_row) * self.frame_width
-            area_y = (frame / frames_per_row) * self.frame_height
+            area_y = (frame // frames_per_row) * self.frame_height
             area = pygame.Rect(area_x, area_y, self.frame_width, self.frame_height)
         dest_surface = dest_surface or my_state.screen
         dest_surface.blit(self.bitmap, dest, area)
@@ -101,9 +101,9 @@ class Image(object):
         if self.custom_frames and frame < len(self.custom_frames):
             area = pygame.Rect(self.custom_frames[frame])
         else:
-            frames_per_row = self.bitmap.get_width() / self.frame_width
+            frames_per_row = self.bitmap.get_width() // self.frame_width
             area_x = (frame % frames_per_row) * self.frame_width
-            area_y = (frame / frames_per_row) * self.frame_height
+            area_y = (frame // frames_per_row) * self.frame_height
             area = pygame.Rect(area_x, area_y, self.frame_width, self.frame_height)
         dest_c = self.get_rect(frame)
         dest_c.center = dest
@@ -121,8 +121,8 @@ class Image(object):
         if self.custom_frames:
             return len(self.custom_frames)
         else:
-            frames_per_row = self.bitmap.get_width() / self.frame_width
-            frames_per_column = self.bitmap.get_height() / self.frame_height
+            frames_per_row = self.bitmap.get_width() // self.frame_width
+            frames_per_column = self.bitmap.get_height() // self.frame_height
             return frames_per_row * frames_per_column
 
     def recolor(self, color_channels):
@@ -165,8 +165,8 @@ class Image(object):
         dest_surface = dest_surface or my_state.screen
         if not dest:
             dest = my_state.screen.get_rect()
-        grid_w = dest.w / self.frame_width + 2
-        grid_h = dest.h / self.frame_height + 2
+        grid_w = dest.w // self.frame_width + 2
+        grid_h = dest.h // self.frame_height + 2
         dest_surface.set_clip(dest)
         my_rect = pygame.Rect(0, 0, 0, 0)
 

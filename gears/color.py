@@ -8,10 +8,10 @@ class GHGradient( Gradient ):
     SETS = ()
     FAMILY = -1
 
-CLOTHING,SKIN,HAIR,MECHA,DETAILS,METAL = range(6)
+CLOTHING,SKIN,HAIR,MECHA,DETAILS,METAL = list(range(6))
 
 # Color Families- the eleven basic color words in English.
-PINK,RED,ORANGE,YELLOW,GREEN,BLUE,PURPLE,BROWN,GREY,BLACK,WHITE = range(100,111)
+PINK,RED,ORANGE,YELLOW,GREEN,BLUE,PURPLE,BROWN,GREY,BLACK,WHITE = list(range(100,111))
 
 class ChannelRed( GHGradient ):
     NAME = 'Channel Red'

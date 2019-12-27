@@ -10,10 +10,10 @@
 import pbge
 import collections
 import pygame
-import movementui
-import targetingui
-import programsui
-import aibrain
+from . import movementui
+from . import targetingui
+from . import programsui
+from . import aibrain
 import random
 import gears
 from .. import configedit,invoker
@@ -128,10 +128,10 @@ class PlayerTurn( object ):
             self.active_ui.update( gdi, self )
 
             if gdi.type == pygame.KEYDOWN:
-                if gdi.unicode == u"Q":
+                if gdi.str == "Q":
                     keep_going = False
                     self.camp.fight.no_quit = False
-                elif gdi.unicode == u"c":
+                elif gdi.str == "c":
                     pbge.my_state.view.focus( self.pc.pos[0], self.pc.pos[1] )
                 elif gdi.key == pygame.K_ESCAPE:
                     mymenu = configedit.PopupGameMenu()
@@ -238,7 +238,7 @@ class Combat( object ):
         else:
             firing_points = invo.area.get_firing_points(self.camp, target_pos)
             if nav:
-                return firing_points.intersection(nav.cost_to_tile.keys())
+                return firing_points.intersection(list(nav.cost_to_tile.keys()))
             else:
                 return set([chara.pos]).intersection(firing_points)
 
@@ -260,7 +260,7 @@ class Combat( object ):
         # This character is under some kind of action-affecting effect.
         while self.camp.fight.still_fighting() and self.camp.fight.cstat[chara].action_points > 0 and random.randint(1,3) != 1:
             mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,chara.pos,chara.get_current_speed(),chara.mmode,self.camp.scene.get_blocked_tiles())
-            mydest = random.choice(mynav.cost_to_tile.keys())
+            mydest = random.choice(list(mynav.cost_to_tile.keys()))
             self.move_model_to(chara,mynav,mydest)
 
     def do_combat_turn( self, chara ):

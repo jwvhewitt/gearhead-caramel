@@ -7,8 +7,8 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer
 import random
 import collections
-import actionscenes
-import missionbuilder
+from . import actionscenes
+from . import missionbuilder
 
 MT_CRIME = "CRIME"
 MT_FACTION = "FACTION"

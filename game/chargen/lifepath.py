@@ -30,7 +30,7 @@ class LifePathOption(object):
             nugramdict = cgen.biogram.copy()
             ghdialogue.trait_absorb(nugramdict,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,cgen.pc.get_tags())
             cgen.pc.bio += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
-        for k,v in self.stat_mods.items():
+        for k,v in list(self.stat_mods.items()):
             cgen.bio_bonuses[k] += v
         cgen.bio_badges += self.badges
         cgen.bio_personality += self.personality_tags
@@ -1024,7 +1024,7 @@ class CGNonComSkillBlock(object):
         self.height = self.image.get_height()
 
     def update(self):
-        skillz = [sk.name for sk in self.cgen.bio_bonuses.keys() if sk in stats.NONCOMBAT_SKILLS]
+        skillz = [sk.name for sk in list(self.cgen.bio_bonuses.keys()) if sk in stats.NONCOMBAT_SKILLS]
         self.image = pbge.render_text(self.font, 'Skills: {}'.format(', '.join(skillz or ["None"])), self.width, justify=-1)
 
     def render(self,x,y):

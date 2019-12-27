@@ -1,4 +1,4 @@
-import lifepath
+from . import lifepath
 import pbge
 import gears
 import pygame
@@ -68,7 +68,7 @@ class LifepathChooser(object):
                     else:
                         self.cancelled = True
                 self.title = mychoice.next_prompt
-                choices = mychoice.next
+                choices = mychoice.__next__
             else:
                 self.cancelled = True
 
@@ -287,7 +287,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             self.pc.statline[s] = 5
             self.unspent_stat_points -= 5
     def skill_display(self,wid):
-        skillz = [sk.name for sk in self.bio_bonuses.keys() if sk in gears.stats.NONCOMBAT_SKILLS]
+        skillz = [sk.name for sk in list(self.bio_bonuses.keys()) if sk in gears.stats.NONCOMBAT_SKILLS]
         skillz.sort()
         sk_block = ', '.join(skillz or ["None"])
         skillz = [b.name for b in self.bio_badges]
@@ -380,7 +380,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             for sk in gears.stats.COMBATANT_SKILLS:
                 self.pc.statline[sk] = 4
             num_fives = 4
-            for k,v in self.bio_bonuses.items():
+            for k,v in list(self.bio_bonuses.items()):
                 self.pc.statline[k] += v
                 if k in gears.stats.NONCOMBAT_SKILLS:
                     self.pc.statline[k] += 3

@@ -1,7 +1,7 @@
 import glob
 import json
 import pbge
-import stats
+from . import stats
 import random
 
 SINGLETON_TYPES = dict()
@@ -15,24 +15,24 @@ class Job(object):
             if sk in SINGLETON_TYPES:
                 self.skills.add(SINGLETON_TYPES[sk])
             else:
-                print "Unidentified symbol: {} in {}".format(sk,self.name)
+                print("Unidentified symbol: {} in {}".format(sk,self.name))
         self.tags = set()
         for t in tags:
             if t in SINGLETON_TYPES:
                 self.tags.add(SINGLETON_TYPES[t])
             else:
-                print "Unidentified symbol: {} in {}".format(t,self.name)
+                print("Unidentified symbol: {} in {}".format(t,self.name))
         self.always_combatant = always_combatant
         self.skill_modifiers = dict()
         if skill_modifiers:
-            for sk,mod in skill_modifiers.items():
+            for sk,mod in list(skill_modifiers.items()):
                 self.skill_modifiers[SINGLETON_TYPES[sk]] = mod
         self.local_requirements = set()
         for t in local_requirements:
             if t in SINGLETON_TYPES:
                 self.local_requirements.add(SINGLETON_TYPES[t])
             else:
-                print "Unidentified symbol: {} in {}".format(t,self.name)
+                print("Unidentified symbol: {} in {}".format(t,self.name))
         ALL_JOBS[name] = self
         #print "{} -> {}".format(name,[s.name for s in self.skills])
 
@@ -50,11 +50,11 @@ class Job(object):
 
 def choose_random_job(needed_tags=(),local_tags=()):
     lt_set = set(local_tags)
-    candidates = [job for job in ALL_JOBS.values() if job.tags.issuperset(needed_tags) and lt_set.issuperset(job.local_requirements)]
+    candidates = [job for job in list(ALL_JOBS.values()) if job.tags.issuperset(needed_tags) and lt_set.issuperset(job.local_requirements)]
     if candidates:
         return random.choice(candidates)
     else:
-        return random.choice(ALL_JOBS.values())
+        return random.choice(list(ALL_JOBS.values()))
 
 def init_jobs():
     protojobs = list()

@@ -8,7 +8,7 @@ import pbge
 import game.content.plotutility
 from game.content import ghwaypoints
 import game.content.ghterrain
-from dd_main import DZDRoadMapExit
+from .dd_main import DZDRoadMapExit
 
 
 

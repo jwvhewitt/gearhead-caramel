@@ -1,32 +1,32 @@
 import pbge
 import random
 
-import base
-import calibre
-import damage
-import materials
-import scale
-import stats
-import geffects
-import info
-import color
-import attackattributes
-import personality
-import factions
-import tags
-import selector
-import enchantments
-import programs
-import portraits
-import genderobj
+from . import base
+from . import calibre
+from . import damage
+from . import materials
+from . import scale
+from . import stats
+from . import geffects
+from . import info
+from . import color
+from . import attackattributes
+from . import personality
+from . import factions
+from . import tags
+from . import selector
+from . import enchantments
+from . import programs
+from . import portraits
+from . import genderobj
 
 import inspect
 import os
 import glob
-from color import ALL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS, MECHA_COLORS, DETAIL_COLORS, METAL_COLORS, \
+from .color import ALL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS, MECHA_COLORS, DETAIL_COLORS, METAL_COLORS, \
     random_character_colors, random_mecha_colors
-import eggs
-import relationships
+from . import eggs
+from . import relationships
 
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()
@@ -76,14 +76,14 @@ def harvest_color(dict_to_add_to):
                 METAL_COLORS.append(o)
     ALL_COLORS.sort(key=lambda c: c.FAMILY)
 
-import oldghloader
-import jobs
+from . import oldghloader
+from . import jobs
 
 harvest_color(SINGLETON_TYPES)
 SINGLETON_TYPES.update(jobs.ALL_JOBS)
 jobs.SINGLETON_TYPES = SINGLETON_TYPES
 
-import colorstyle
+from . import colorstyle
 
 def harvest_styles(mod):
     for name in dir(mod):
@@ -124,7 +124,7 @@ class MetroData(object):
         self.scripts = pbge.container.ContainerList(owner=self)
     def get_quality_of_life(self):
         qol = QualityOfLife()
-        for card in self.tarot.values():
+        for card in list(self.tarot.values()):
             if card.active and hasattr(card,"QOL"):
                 qol.add(card.QOL)
         for plot in self.scripts:
@@ -261,7 +261,7 @@ class GearHeadScene(pbge.scenes.Scene):
                     if good_spots:
                         npc.pos = random.choice(list(good_spots))
                     else:
-                        print "Warning: {} could not be placed in {}".format(npc,self)
+                        print("Warning: {} could not be placed in {}".format(npc,self))
 
 class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None
@@ -307,13 +307,13 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def active_plots(self):
         for p in super(GearHeadCampaign, self).active_plots():
             yield p
-        for p in self.tarot.values():
+        for p in list(self.tarot.values()):
             yield p
         myscene = self.scene.get_metro_scene()
         if myscene:
             for p in myscene.metrodat.scripts:
                 yield p
-            for p in myscene.metrodat.tarot.values():
+            for p in list(myscene.metrodat.tarot.values()):
                 yield p
 
     def all_plots(self):
@@ -322,15 +322,15 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 for p in ob.scripts:
                     yield p
             if hasattr(ob,"tarot"):
-                for p in ob.tarot.values():
+                for p in list(ob.tarot.values()):
                     yield p
 
     def active_tarot_cards(self):
-        for p in self.tarot.values():
+        for p in list(self.tarot.values()):
             yield p
         myscene = self.scene.get_metro_scene()
         if myscene:
-            for p in myscene.metrodat.tarot.values():
+            for p in list(myscene.metrodat.tarot.values()):
                 yield p
 
     def first_active_pc(self):
@@ -656,7 +656,7 @@ class Loader(object):
         # Convert the provided list to gears.
         mylist = list()
         for pg in protolist:
-            for k,v in defaults.items():
+            for k,v in list(defaults.items()):
                 if k not in pg.gparam:
                     pg.gparam[k] = v
             nudefaults = dict()
@@ -671,7 +671,7 @@ class Loader(object):
         return mylist
 
     def load(self):
-        with open(self.fname, 'rb') as f:
+        with open(self.fname, 'rt') as f:
             mylist = self.load_list(f)
         return self.convert(mylist,dict())
 
@@ -690,13 +690,13 @@ class Saver(object):
         # Given wotzit, return the string to be output to the file.
         if wotzit is None:
             return 'None'
-        elif wotzit in SINGLETON_TYPES.values():
+        elif wotzit in list(SINGLETON_TYPES.values()):
             return wotzit.__name__
         elif isinstance(wotzit, str) and wotzit not in SINGLETON_TYPES and ' ' not in wotzit:
             return wotzit
         elif isinstance(wotzit, dict):
             mylist = list()
-            for k, v in wotzit.iteritems():
+            for k, v in wotzit.items():
                 mylist.append(self.hashable_to_string(k) + ' = ' + self.hashable_to_string(v))
             return '{' + ', '.join(mylist) + '}'
         else:
@@ -731,7 +731,7 @@ class Saver(object):
                     f.write('{}  END\n'.format(indent))
 
     def save(self, glist):
-        with open(self.fname, 'wb') as f:
+        with open(self.fname, 'wt') as f:
             self.save_list(f, glist)
 
 
@@ -764,7 +764,7 @@ def init_gears():
 
     for d in selector.DESIGN_LIST:
         if d.get_full_name() in selector.DESIGN_BY_NAME:
-            print "Warning: Multiple designs named {}".format(d.get_full_name())
+            print("Warning: Multiple designs named {}".format(d.get_full_name()))
         selector.DESIGN_BY_NAME[d.get_full_name()] = d
 
     portraits.init_portraits()

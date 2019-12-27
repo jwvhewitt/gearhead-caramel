@@ -10,7 +10,7 @@
 from .. import container,image,KeyObject
 import pygame
 import math
-import movement
+from . import movement
 import weakref
 
 class Tile( object ):
@@ -133,20 +133,20 @@ class PlaceableThing( KeyObject ):
 
 
 
-import pathfinding
-import pfov
-import terrain
-import viewer
-import animobs
-import targetarea
-import waypoints
-import areaindicator
+from . import pathfinding
+from . import pfov
+from . import terrain
+from . import viewer
+from . import animobs
+from . import targetarea
+from . import waypoints
+from . import areaindicator
 
 class TeamDictionary( weakref.WeakKeyDictionary ):
     # It's like a regular WeakKeyDictionary but it pickles.
     def __getstate__( self ):
         state = dict()
-        for key,val in self.iteritems():
+        for key,val in self.items():
             state[key] = val
         return state
     def __setstate__( self, state ):
@@ -175,8 +175,8 @@ class Scene( object ):
         # Fill the map with empty tiles
         self.contents = container.ContainerList(owner=self)
         self._map = [[ Tile()
-            for y in xrange(height) ]
-                for x in xrange(width) ]
+            for y in range(height) ]
+                for x in range(width) ]
 
         self.local_teams = dict()
 

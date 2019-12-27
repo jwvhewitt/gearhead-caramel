@@ -1,9 +1,9 @@
 from pbge import Singleton
-import color
-import jobs
-import tags
+from . import color
+from . import jobs
+from . import tags
 import random
-import personality
+from . import personality
 
 FR_ENEMY = "ENEMY"
 

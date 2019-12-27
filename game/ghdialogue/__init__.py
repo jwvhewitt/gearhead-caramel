@@ -1,15 +1,15 @@
 
 import pbge
-import ghgrammar
-import context
-import ghdview
-import ghreplies
-import ghoffers
+from . import ghgrammar
+from . import context
+from . import ghdview
+from . import ghreplies
+from . import ghoffers
 import gears
 
 def trait_absorb(mygram,nugram,traits):
-    for pat,gramdic in nugram.iteritems():
-        for k,v in gramdic.iteritems():
+    for pat,gramdic in nugram.items():
+        for k,v in gramdic.items():
             if k is ghgrammar.Default:
                 if pat not in mygram:
                     mygram[pat] = list()

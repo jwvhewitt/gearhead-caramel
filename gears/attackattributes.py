@@ -1,5 +1,5 @@
 from pbge import Singleton
-import geffects
+from . import geffects
 import pbge
 
 class Accurate(Singleton):

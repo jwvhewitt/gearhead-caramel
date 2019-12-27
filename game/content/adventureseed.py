@@ -47,7 +47,7 @@ class AdventureSeed(Adventure):
                 camp.check_trigger("UPDATE")
             else:
                 for e in nart.errors:
-                    print e
+                    print(e)
         self.root_plot.start_mission(camp)
 
 
@@ -139,7 +139,7 @@ class ObjectivesInfo(object):
         for o in self.mission_seed.objectives:
             if not o.secret:
                 self.images[o] = pbge.render_text(self.font,self.get_objective_text(o),self.width,self.get_objective_color(o),justify=0)
-        self.height = sum(i.get_height() for i in self.images.values()) + self.PADDING * (len(self.images.values())-1)
+        self.height = sum(i.get_height() for i in list(self.images.values())) + self.PADDING * (len(list(self.images.values()))-1)
 
     def get_objective_text(self,obj):
         if obj.awarded_points == 0 and not obj.failed:
@@ -158,7 +158,7 @@ class ObjectivesInfo(object):
             return pbge.TEXT_COLOR
     def render(self,x,y):
         mydest = pygame.Rect(x, y, self.width, self.height)
-        for obj,img in self.images.items():
+        for obj,img in list(self.images.items()):
             pbge.my_state.screen.blit(img, mydest)
             mydest.y += img.get_height() + self.PADDING
 

@@ -32,7 +32,7 @@ class TarotCard(plots.Plot):
 
     def install(self, nart):
         """Plot generation complete. Mesh plot with campaign."""
-        for sp in self.subplots.itervalues():
+        for sp in self.subplots.values():
             sp.install(nart)
         del self.move_records
         scope = self.elements.get(ME_TAROTSCOPE)
@@ -210,7 +210,7 @@ class Interaction(object):
         # Return a list of consequences that will turn card_to_change into target_card, ignoring fail states
         mycon = list()
         if self.maybe_activated_by(card_to_change):
-            for k,v in self.consequences.items():
+            for k,v in list(self.consequences.items()):
                 if not k.startswith("_"):
                     if v.beta_card_tf and v.beta_card_tf.new_card_name == target_card:
                         mycon.append(v)
@@ -220,7 +220,7 @@ class Interaction(object):
         # Return a list of consequences that will turn self into target_card, ignoring fail states
         mycon = list()
         if self.maybe_activated_by(reaction_card):
-            for k,v in self.consequences.items():
+            for k,v in list(self.consequences.items()):
                 if not k.startswith("_"):
                     if v.alpha_card_tf and v.alpha_card_tf.new_card_name == target_card:
                         mycon.append(v)
@@ -228,7 +228,7 @@ class Interaction(object):
 
     def can_produce_target(self, target_card):
         mycon = list()
-        for k,v in self.consequences.items():
+        for k,v in list(self.consequences.items()):
             if isinstance(v,CardTransformer) and not k.startswith("_"):
                 if (v.alpha_card_tf and v.alpha_card_tf.new_card_name == target_card) or (v.beta_card_tf and v.beta_card_tf.new_card_name == target_card) or (v.new_card_tf and v.new_card_tf.new_card_name == target_card):
                     mycon.append(v)
@@ -257,7 +257,7 @@ class Interaction(object):
         if consequence in self.consequences:
             self.consequences[consequence](camp,alpha_card,beta_card)
         else:
-            print "Error: No consequence {}".format(consequence)
+            print("Error: No consequence {}".format(consequence))
 
 
 
@@ -284,13 +284,13 @@ class Constellation(object):
                 # Add these cards to the adventure.
                 for pcard in initial_cards:
                     pstate = pbge.plots.PlotState().based_on(root_plot)
-                    for k, v in pcard.elements.items():
+                    for k, v in list(pcard.elements.items()):
                         # Copy any known elements to this tarot plot.
                         elem = self.element_lookup.get(v)
                         if elem:
                             pstate.elements[k] = elem
                     tcplot = nart.init_tarot_card(root_plot, pcard.card, pstate)
-                    for k, v in pcard.elements.items():
+                    for k, v in list(pcard.elements.items()):
                         # Copy any newly defined elements to the lookup table.
                         if v not in self.element_lookup:
                             elem = tcplot.elements.get(k)

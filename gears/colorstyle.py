@@ -1,7 +1,7 @@
-import color
+from . import color
 import random
-import tags
-import personality
+from . import tags
+from . import personality
 
 ALL_STYLES = list()
 

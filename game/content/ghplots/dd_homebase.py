@@ -11,7 +11,7 @@ from game.content import ghwaypoints, gharchitecture, plotutility
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
-from dd_main import DZDRoadMapExit
+from .dd_main import DZDRoadMapExit
 
 
 class OneShotInfoBlast(object):

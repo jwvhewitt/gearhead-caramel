@@ -5,9 +5,8 @@
     terrain type, create a subclass of the closest match and change its
     constants.
 """
-import exceptions
 from .. import image, Singleton
-from movement import Walking,Flying,Vision
+from .movement import Walking,Flying,Vision
 
 # Each terrain type can have up to four rendering actions:
 # - render_bottom draws a layer beneath all models

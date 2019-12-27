@@ -1,20 +1,20 @@
 import inspect
 
-import actionscenes
-import dd_combatmission
-import dd_distanttown
-import dd_homebase
-import dd_intro
-import dd_main
-import dd_roadedge
-import dd_roadstops
-import dd_tarot
-import dd_tarotsupport
-import encounters
-import missionbuilder
-import mocha
-import recovery
-import utility
+from . import actionscenes
+from . import dd_combatmission
+from . import dd_distanttown
+from . import dd_homebase
+from . import dd_intro
+from . import dd_main
+from . import dd_roadedge
+from . import dd_roadstops
+from . import dd_tarot
+from . import dd_tarotsupport
+from . import encounters
+from . import missionbuilder
+from . import mocha
+from . import recovery
+from . import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
 from pbge.plots import Plot
 
