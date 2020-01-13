@@ -457,8 +457,9 @@ class MakesPower(KeyObject,Restoreable):
 
 class SubComContainerList(container.ContainerList):
     def _set_container(self, item):
-        if self.owner.can_install(item):
-            super(SubComContainerList, self)._set_container(item)
+        # If no owner, that means we're probably loading a file from disk and so assume this part is legal.
+        if not hasattr(self,"owner") or self.owner.can_install(item):
+            super()._set_container(item)
         else:
             raise container.ContainerError("Error: {} cannot subcom {}".format(self.owner, item))
 
@@ -475,7 +476,8 @@ class SubComContainerList(container.ContainerList):
 
 class InvComContainerList(container.ContainerList):
     def _set_container(self, item):
-        if self.owner.can_equip(item):
+        # If no owner, that means we're probably loading a file from disk and so assume this part is legal.
+        if not hasattr(self,"owner") or self.owner.can_equip(item):
             super(InvComContainerList, self)._set_container(item)
         else:
             raise container.ContainerError("Error: {} cannot invcom {}".format(self.owner, item))
@@ -756,6 +758,8 @@ class BaseGear(scenes.PlaceableThing):
         memo[id(self)] = newgear
 
         return newgear
+
+
 
     def restore_all(self):
         total = 0
@@ -2423,7 +2427,7 @@ class Module(BaseGear, StandardDamageHandler):
         if info_tier not in (None, 1, 2, 3):
             info_tier = None
         self.info_tier = info_tier
-        super(Module, self).__init__(**keywords)
+        super().__init__(**keywords)
 
     @property
     def base_mass(self):

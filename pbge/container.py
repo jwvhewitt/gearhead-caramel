@@ -82,8 +82,8 @@ class ContainerList(list,Container):
     to the ContainerList itself. This container pointer is maintained automatically.
     """
     def __init__(self, items=[], owner=None):
-        list.__init__(self, items)
         self.owner = owner
+        list.__init__(self, items)
         self._set_container_multi(items)
 
     def __repr__(self):

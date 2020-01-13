@@ -24,6 +24,8 @@
 # [authors:]
 # Sander in 't Veld (sander@abunchofhacks.coop)
 
+# cython: language_level=3
+
 
 import pygame
 
@@ -49,7 +51,7 @@ ctypedef np.uint32_t DTYPE_t
 ctypedef np.uint8_t CHANTYPE_t
 
 cdef CHANTYPE_t generate_value(CHANTYPE_t vmax, CHANTYPE_t vmin, CHANTYPE_t level):
-    return vmin + ((vmax - vmin) * level / 215)
+    return vmin + ((vmax - vmin) * level // 215)
 
 
 cdef class Gradient(object):
