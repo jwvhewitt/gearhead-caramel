@@ -7,38 +7,15 @@ from . import my_state, render_text, TEXT_COLOR, Singleton
 import os.path
 import copy
 
-# Try to import the caramelrecolor module. This requires caramelrecolor, numpy,
-# and a recent enough version of pygame that has pixelcopy. If import fails,
-# fall back to the original slow recoloring method.
-try:
-    import caramelrecolor
-    import numpy
-except ImportError:
-    caramelrecolor = None
-    print("Modules caramelrecolor+numpy not found; using slow recolor method.")
-if not hasattr(pygame,"pixelcopy"):
-    print("Module caramelrecolor needs PyGame 1.9.2+; using slow recolor method.")
-    caramelrecolor = None
+import pbgerecolor
+import numpy
+from pbgerecolor import Gradient
+
 
 # Keep a list of already-loaded images, to save memory when multiple objects
 # need to use the same image file.
 pre_loaded_images = weakref.WeakValueDictionary()
 search_path = list()
-
-
-class Gradient(Singleton):
-    NAME = 'Gradient'
-    COLOR_RANGE = (0, 0, 0, 255, 255, 255)
-
-    @classmethod
-    def generate_color(cls, color_level):
-        # The COLOR_RANGE is a tuple of six values: r g b at highest intensity,
-        # and r g b at lowest intensity.
-        color_level = max(color_level - 40, 0)
-        r = max(min(((cls.COLOR_RANGE[0] - cls.COLOR_RANGE[3]) * color_level) // 215 + cls.COLOR_RANGE[3], 255), 0)
-        g = max(min(((cls.COLOR_RANGE[1] - cls.COLOR_RANGE[4]) * color_level) // 215 + cls.COLOR_RANGE[4], 255), 0)
-        b = max(min(((cls.COLOR_RANGE[2] - cls.COLOR_RANGE[5]) * color_level) // 215 + cls.COLOR_RANGE[5], 255), 0)
-        return r, g, b
 
 
 class Image(object):
@@ -126,36 +103,12 @@ class Image(object):
             return frames_per_row * frames_per_column
 
     def recolor(self, color_channels):
-        # Just gonna brute force this. It could probably be speeded up by using
-        # a pixel array, but that would add dependencies. Besides- this should get
-        # called just once, when the image is created, so speed isn't that
-        # important.
-        if caramelrecolor:
-            dims = (self.bitmap.get_width(), self.bitmap.get_height())
-            data = numpy.zeros(dims, numpy.uint32)
-            pygame.pixelcopy.surface_to_array(data, self.bitmap)
-            caramelrecolor.recolor(data, list(color_channels))
-            pygame.pixelcopy.array_to_surface(self.bitmap, data)
-        else:
-            self.red_channel, self.yellow_channel, self.green_channel, self.cyan_channel, self.magenta_channel = color_channels
-            self.bitmap.lock()
-            par = pygame.PixelArray(self.bitmap)
-            for y in range(self.bitmap.get_height()):
-                for x in range(self.bitmap.get_width()):
-                    c = self.bitmap.unmap_rgb(par[x,y])
-                    if (c.r > 0) and (c.g == 0) and (c.b == 0):
-                        par[x, y] = self.red_channel.generate_color(c.r)
-                        # par[x,y] = self.generate_color(red_channel,c.r)
-                    elif (c.r > 0) and (c.g > 0) and (c.b == 0):
-                        par[x, y] = self.yellow_channel.generate_color(c.r)
-                    elif (c.r > 0) and (c.g == 0) and (c.b > 0):
-                        par[x, y] = self.magenta_channel.generate_color(c.r)
-                    elif (c.r == 0) and (c.g > 0) and (c.b == 0):
-                        par[x, y] = self.green_channel.generate_color(c.g)
-                    elif (c.r == 0) and (c.g > 0) and (c.b > 0):
-                        par[x, y] = self.cyan_channel.generate_color(c.g)
-            del par
-            self.bitmap.unlock()
+        # Uses the pbgerecolor extension module.
+        dims = (self.bitmap.get_width(), self.bitmap.get_height())
+        data = numpy.zeros(dims, numpy.uint32)
+        pygame.pixelcopy.surface_to_array(data, self.bitmap)
+        pbgerecolor.recolor(data, list(color_channels))
+        pygame.pixelcopy.array_to_surface(self.bitmap, data)
 
     def __reduce__(self):
         # Rather than trying to save the bitmap image, just save the filename.

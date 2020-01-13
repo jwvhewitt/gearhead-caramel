@@ -59,22 +59,22 @@ harvest(personality, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 def harvest_color(dict_to_add_to):
     for name in dir(color):
         o = getattr(color, name)
-        if inspect.isclass(o) and issubclass(o, color.GHGradient) and o is not color.GHGradient:
-            dict_to_add_to[o.__name__] = o
+        if isinstance(o, color.GHGradient):
+            dict_to_add_to[name] = o
             ALL_COLORS.append(o)
-            if color.CLOTHING in o.SETS:
+            if color.CLOTHING in o.sets:
                 CLOTHING_COLORS.append(o)
-            if color.SKIN in o.SETS:
+            if color.SKIN in o.sets:
                 SKIN_COLORS.append(o)
-            if color.HAIR in o.SETS:
+            if color.HAIR in o.sets:
                 HAIR_COLORS.append(o)
-            if color.MECHA in o.SETS:
+            if color.MECHA in o.sets:
                 MECHA_COLORS.append(o)
-            if color.DETAILS in o.SETS:
+            if color.DETAILS in o.sets:
                 DETAIL_COLORS.append(o)
-            if color.METAL in o.SETS:
+            if color.METAL in o.sets:
                 METAL_COLORS.append(o)
-    ALL_COLORS.sort(key=lambda c: c.FAMILY)
+    ALL_COLORS.sort(key=lambda c: c.family)
 
 from . import oldghloader
 from . import jobs

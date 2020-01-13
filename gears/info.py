@@ -325,12 +325,12 @@ class ModuleDisplay( object ):
         if module.is_destroyed():
             return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 8
         else:
-            return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + min((module.get_damage_status()+5)/14, 7 )
+            return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + min((module.get_damage_status()+5)//14, 7 )
     def part_armor_frame( self, module, armor ):
         if armor.is_destroyed():
             return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 80
         else:
-            return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 72 + min((armor.get_damage_status()+5)/14, 7 )
+            return self.MODULE_FORM_FRAME_OFFSET.get(module.form,0) + 72 + min((armor.get_damage_status()+5)//14, 7 )
 
     def draw_this_part( self, module ):
         if (self.module_num % 2 ) == 1:
@@ -390,13 +390,13 @@ class PropStatusBlock( object ):
         if self.model.is_destroyed():
             return 8
         else:
-            return min((self.model.get_damage_status()+5)/14, 7 )
+            return min((self.model.get_damage_status()+5)//14, 7 )
 
     def prop_armor_frame( self, armor ):
         if armor.is_destroyed():
             return 18
         else:
-            return 10 + min((armor.get_damage_status()+5)/14, 7 )
+            return 10 + min((armor.get_damage_status()+5)//14, 7 )
 
     def render(self,x,y):
         mydest = pygame.Rect(x+self.width//2-16,y,32,32)

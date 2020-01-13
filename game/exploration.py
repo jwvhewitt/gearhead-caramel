@@ -472,29 +472,29 @@ class Explorer( object ):
                 #self.view.overlays[ self.view.mouse_tile ] = maps.OVERLAY_CURSOR
 
                 if gdi.type == pygame.KEYDOWN:
-                    if gdi.str == "Q":
+                    if gdi.unicode == "Q":
                         #self.camp.save(self.screen)
                         self.no_quit = False
-                    elif gdi.str == "c":
+                    elif gdi.unicode == "c":
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
-                    elif gdi.str == "X":
+                    elif gdi.unicode == "X":
                         self.camp.save()
-                    elif gdi.str == "m":
+                    elif gdi.unicode == "m":
                         memobrowser.MemoBrowser.browse(self.camp)
-                    elif gdi.str == "R":
+                    elif gdi.unicode == "R":
                         print(self.camp.scene.get_root_scene())
-                    elif gdi.str == "A":
+                    elif gdi.unicode == "A":
                         self.record_count = 20
 
-                    elif gdi.str == "K":
+                    elif gdi.unicode == "K":
                         self.camp.pc.hp_damage += 100
 
-                    elif gdi.str == "&":
+                    elif gdi.unicode == "&":
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
                                 self.scene.set_visible(x,y,True)
-                    elif gdi.str == "H":
+                    elif gdi.unicode == "H":
                         fieldhq.FieldHQ.create_and_invoke(self.camp)
                     elif gdi.key == pygame.K_ESCAPE:
                         mymenu = configedit.PopupGameMenu()

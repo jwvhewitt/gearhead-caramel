@@ -3,7 +3,9 @@ GearHead Caramel
 
 GearHead Caramel- Third game in the GearHead series, first written in Python.
 
-Requires Python 2 and PyGame.
+To install, just unzip the standalone distribution to a convenient place and
+double click "ghcaramel". To do a DIY installation from source code, see the
+instructions below.
 
 ![Screenshot](image/screenshot.png)
 
@@ -18,28 +20,22 @@ This is an early alpha release- there are tons of things that aren't finished
 yet. However, it's a fun little scenario, and will show you some of the new
 things that GearHead Caramel can do.
 
-INSTALLATION
-============
+BUILDING FROM SOURCE
+====================
 
-If you are installing from source, you will need both Python 2.7 and
-PyGame installed.
+Things have gotten a bit more complicated since the last time I updated
+this file. To build GearHead Caramel from source, first you will need to
+install Python3. After that you need to install the PyGame, Numpy, and
+Cython packages. The easiest way to install these is with "pip". You may
+also need to install a C compiler for Cython; see the Cython page for
+details.
 
   https://www.python.org/
-
-  http://www.pygame.org/
-
-Unzip the game files and put them in a convenient folder. The file you want
-to run is "main.py"; with any luck you will just be able to double click that
-file and the game will start. If not, try right clicking and select "open
-with Python".
 
 The first time it's run, the game will create a "ghcaramel" folder in your
 home directory and place a configuration file there. This is where all of your
 characters and saved games are stored, in case you want to delete them or
 make backups. The configuration file can be edited in any text editor.
-
-In fact, the entire game can be edited in any text editor. Go ahead and look at
-how things work.
 
 
 COMMANDS

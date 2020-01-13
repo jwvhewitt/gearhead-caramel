@@ -25,13 +25,13 @@ class ColorMenu(pbge.widgets.Widget):
         self.buttons = list()
         x, y = 0, 0
         for color in gears.ALL_COLORS:
-            if colorset in color.SETS or colorset is None:
+            if colorset in color.sets or colorset is None:
                 sprite = pbge.image.Image("sys_color_menu_swatch.png", 24, 36, color=[color, color, color, color, color])
                 self.color_sprites[color] = sprite
 
                 self.children.append(ColorButtonWidget(x, y, sprite.frame_width, sprite.frame_height,color_edit=color_edit, sprite=sprite,
                                                                on_click=self.click_swatch, data=color,
-                                                               tooltip=color.NAME, parent=self,
+                                                               tooltip=color.name, parent=self,
                                                                anchor=pbge.frects.ANCHOR_UPPERLEFT))
                 x += sprite.frame_width
                 if x > self.w:

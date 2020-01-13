@@ -69,6 +69,8 @@ class GenericTargeter(object):
         # An impulse of 10 is the default attack action.
         if self.get_potential_targets(invo, camp, pc):
             return self.impulse_score
+        else:
+            return 0
 
     def can_use_immediately(self):
         # Return True if this invocation can be used right away.

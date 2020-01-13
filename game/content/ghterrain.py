@@ -31,7 +31,7 @@ class Smoke( pbge.scenes.terrain.AnimTerrain ):
         """Custom rendering, because we can do that."""
         dest = original_dest.move(0,-32)
         spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
-        spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
+        spr.render( dest, self.frames[(view.phase // self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
 
 class GreenZoneGrass( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_grass.png'

@@ -125,8 +125,8 @@ class TextEntryWidget( Widget ):
             if ev.type == pygame.KEYDOWN:
                 if (ev.key == pygame.K_BACKSPACE) and (len(self.char_list) > 0):
                     del self.char_list[-1]
-                elif (ev.str in self.ALLOWABLE_CHARACTERS) and (len(ev.str) > 0):
-                    self.char_list.append(ev.str)
+                elif (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
+                    self.char_list.append(ev.unicode)
 
     def is_kb_selectable(self):
         return True

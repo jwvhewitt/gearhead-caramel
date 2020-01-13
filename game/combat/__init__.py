@@ -128,10 +128,10 @@ class PlayerTurn( object ):
             self.active_ui.update( gdi, self )
 
             if gdi.type == pygame.KEYDOWN:
-                if gdi.str == "Q":
+                if gdi.unicode == "Q":
                     keep_going = False
                     self.camp.fight.no_quit = False
-                elif gdi.str == "c":
+                elif gdi.unicode == "c":
                     pbge.my_state.view.focus( self.pc.pos[0], self.pc.pos[1] )
                 elif gdi.key == pygame.K_ESCAPE:
                     mymenu = configedit.PopupGameMenu()

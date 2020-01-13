@@ -244,8 +244,8 @@ class SceneView( object ):
         if (sx + self.TILE_WIDTH) > ( screen_area.x + screen_area.w ):
             if ( sy+self.HTH ) > ( screen_area.y + screen_area.h ):
                 keep_going = False
-            x = x0 + line / 2
-            y = y0 + ( line + 1 ) / 2
+            x = x0 + line // 2
+            y = y0 + ( line + 1 ) // 2
             line += 1
         else:
             x += 1

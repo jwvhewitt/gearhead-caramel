@@ -148,25 +148,25 @@ class AnimTerrain( Terrain ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_top:
             spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
-            spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
+            spr.render( dest, self.frames[(view.phase // self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
     @classmethod
     def render_middle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model in the same tile"""
         if self.image_middle:
             spr = view.get_terrain_sprite( self.image_middle, (x,y), transparent=self.transparent )
-            spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
+            spr.render( dest, self.frames[(view.phase // self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
     @classmethod
     def render_biddle( self, dest, view, x, y ):
         """Draw terrain that should appear in front of a model under the same tile"""
         if self.image_biddle:
             spr = view.get_terrain_sprite( self.image_biddle, (x,y), transparent=self.transparent )
-            spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
+            spr.render( dest, self.frames[(view.phase // self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
     @classmethod
     def render_bottom( self, dest, view, x, y ):
         """Draw terrain that should appear behind a model in the same tile"""
         if self.image_bottom:
             spr = view.get_terrain_sprite( self.image_bottom, (x,y), transparent=self.transparent )
-            spr.render( dest, self.frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
+            spr.render( dest, self.frames[(view.phase // self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
 
 
 class WallTerrain( Terrain ):
@@ -294,7 +294,7 @@ class OnTheWallAnimTerrain( Terrain ):
                 frames = self.south_frames
             else:
                 frames = self.east_frames
-            spr.render( dest, frames[(view.phase / self.anim_delay + ( x + y ) * 4 ) % len(frames)] )
+            spr.render( dest, frames[(view.phase // self.anim_delay + ( x + y ) * 4 ) % len(frames)] )
 
 
 class TerrSetTerrain( Terrain ):

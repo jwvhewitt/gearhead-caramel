@@ -320,7 +320,7 @@ class FieldHQ(widgets.Widget):
         # was chosen, or None if the invocation was cancelled.
         myui = cls(camp)
         pbge.my_state.widgets.append(myui)
-        myui.children.append(pbge.widgets.LabelWidget(150,220,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
+        myui.children.append(pbge.widgets.LabelWidget(fhqinfo.RIGHT_COLUMN.dx + 64, fhqinfo.RIGHT_COLUMN.dy + fhqinfo.RIGHT_COLUMN.h + 20,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
 
         keepgoing = True
         while keepgoing and not myui.finished and not pbge.my_state.got_quit:

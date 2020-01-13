@@ -427,8 +427,8 @@ def input_string( font = None, redrawer = None, prompt = "Enter text below", pro
                 del it[-1]
             elif ( ev.key == pygame.K_RETURN ) or ( ev.key == pygame.K_ESCAPE ):
                 keep_going = False
-            elif ( ev.str in ALLOWABLE_CHARACTERS ) and ( len( ev.str ) > 0 ):
-                it.append( ev.str )
+            elif ( ev.unicode in ALLOWABLE_CHARACTERS ) and ( len( ev.unicode ) > 0 ):
+                it.append( ev.unicode )
         elif ev.type == pygame.QUIT:
             keep_going = False
     return "".join( it )

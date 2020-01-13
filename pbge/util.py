@@ -48,9 +48,9 @@ def init( appname,gamedir ):
         os.mkdir( USERDIR )
 
     global config
-    config = configparser.SafeConfigParser()
+    config = configparser.ConfigParser()
     with open(data_dir("config_defaults.cfg")) as f:
-        config.readfp( f )
+        config.read_file( f )
     if not config.read( [user_dir( "config.cfg" )] ):
         with open( user_dir( "config.cfg" ) , "wb" ) as f:
             config.write( f )

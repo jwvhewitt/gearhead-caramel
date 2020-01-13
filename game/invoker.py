@@ -339,7 +339,7 @@ class InvocationUI(object):
                 self.launch()
 
         elif ev.type == pygame.KEYDOWN:
-            if ev.str == "r":
+            if ev.unicode == "r":
                 # self.camp.save(self.screen)
                 self.record = True
                 print("Recording")

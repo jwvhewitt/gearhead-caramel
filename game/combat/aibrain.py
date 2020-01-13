@@ -160,7 +160,7 @@ class BasicAI( object ):
         #    - Preferred target is usually closest enemy within LOS
         #    - If can't hit preferred target, see if anyone else is in range
         #    - If no attacks possible, move closer
-        if hasattr(self.npc,"get_current_speed") and self.npc.get_current_speed > 10 and camp.fight.cstat[self.npc].action_points > 1:
+        if hasattr(self.npc,"get_current_speed") and self.npc.get_current_speed() > 10 and camp.fight.cstat[self.npc].action_points > 1:
             # Check for a better tile.
             mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,self.npc.get_current_speed()+camp.fight.cstat[self.npc].mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
             sample = random.sample(list(mynav.cost_to_tile.keys()),max(len(mynav.cost_to_tile)//4,min(5,len(mynav.cost_to_tile))))
@@ -184,7 +184,7 @@ class BasicAI( object ):
                 my_invo.invoke(camp, self.npc, my_targets, pbge.my_state.view.anim_list )
                 pbge.my_state.view.handle_anim_sequence()
                 camp.fight.cstat[self.npc].spend_ap(1)
-            elif hasattr(self.npc,"get_current_speed") and self.npc.get_current_speed > 10:
+            elif hasattr(self.npc,"get_current_speed") and self.npc.get_current_speed() > 10:
                 # Attempt to move closer to the target.
                 mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,self.npc.get_current_speed()+camp.fight.cstat[self.npc].mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
                 mypath = pbge.scenes.pathfinding.AStarPath(camp.scene,self.npc.pos,self.target.pos,self.npc.mmode,camp.scene.get_blocked_tiles()).get_path(self.target.pos)
