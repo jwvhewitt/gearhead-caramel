@@ -32,7 +32,7 @@ class LifePathOption(object):
             cgen.pc.bio += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
         for k,v in list(self.stat_mods.items()):
             cgen.bio_bonuses[k] += v
-        cgen.bio_badges += self.badges
+        gears.meritbadges.add_badges(cgen.bio_badges,self.badges)
         cgen.bio_personality += self.personality_tags
 
 class LPIdealistBonus(object):

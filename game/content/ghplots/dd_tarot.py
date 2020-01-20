@@ -133,6 +133,7 @@ class MilitantSplinter(TarotCard):
             }
         )
         self.memo = "You have been authorized to take action against {}'s command center.".format(self.elements[ME_FACTION])
+        missionbuilder.NewMissionNotification(self.adventure_seed.name, self.elements["MISSION_GATE"])
         self.elements["METROSCENE"].purge_faction(camp,self.elements[ME_FACTION])
 
     def MISSION_GATE_menu(self, camp, thingmenu):

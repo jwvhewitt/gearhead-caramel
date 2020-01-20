@@ -205,7 +205,7 @@ class VisibleGear(pbge.scenes.PlaceableThing):
         self.portrait = portrait
         self.portrait_gen = portrait_gen
         self.destroyed_pose = False
-        super(VisibleGear, self).__init__(**keywords)
+        super().__init__(**keywords)
 
     SAVE_PARAMETERS = ('portrait',)
     DESTROYED_FRAME = 1
@@ -3167,15 +3167,16 @@ class Character(Being):
 
 
 class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
-    SAVE_PARAMETERS = ('size', 'statline', 'destroyed_frame' )
+    SAVE_PARAMETERS = ('size', 'statline', 'frame', 'destroyed_frame' )
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_MATERIAL = materials.Metal
 
-    def __init__(self, statline=None, size=10, destroyed_frame=1, **keywords):
+    def __init__(self, statline=None, size=10, frame=0, destroyed_frame=1, **keywords):
         self.statline = collections.defaultdict(int)
         if statline:
             self.statline.update(statline)
         self.size = size
+        self.frame = frame
         self.destroyed_frame = destroyed_frame
         self.destroyed_pose = False
 

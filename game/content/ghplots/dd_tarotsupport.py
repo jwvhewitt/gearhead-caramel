@@ -15,6 +15,7 @@ import game.content.plotutility
 import game.content.gharchitecture
 from . import dd_combatmission
 import collections
+from . import missionbuilder
 
 
 
@@ -72,6 +73,7 @@ class SpFa_MilitarySplinter(Plot):
                                                                  (self.elements["LOCALE"], self.elements["ENTRANCE"]),
                                                 enemy_faction=None, allied_faction=self.elements["FACTION"], include_war_crimes=True)
         self.memo = "{} sent you to do a mysterious mecha mission for {}.".format(self.mission_giver,self.elements["FACTION"])
+        missionbuilder.NewMissionNotification(self.adventure_seed.name, self.elements["MISSION_GATE"])
 
     def t_UPDATE(self,camp):
         # If the mission has ended, get rid of it.
@@ -235,6 +237,7 @@ class LunarRefugeeLost( Plot ):
         self.mission_accepted = True
         self.elements["NPC"].relationship.reaction_mod += random.randint(1,50)
         self.memo = "{} at {} asked you to investigate what happened to {} refugee camp.".format(self.elements["NPC"],self.elements["_DEST"],self.elements["NPC"].gender.possessive_determiner)
+        missionbuilder.NewMissionNotification("Investigate {}'s village".format(self.elements["NPC"]), self.elements["MISSION_GATE"])
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_accepted and not self.mission_finished:

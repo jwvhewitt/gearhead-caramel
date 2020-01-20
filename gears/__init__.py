@@ -352,8 +352,11 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         # Return a list of lancemates currently on the map.
         return [pc for pc in self.scene.contents if pc in self.party and pc.is_operational()]
 
+    def get_lancemates(self):
+        return [pc for pc in self.party if isinstance(pc,base.Character) and pc is not self.pc]
+
     def can_add_lancemate(self):
-        lancemates = [pc for pc in self.party if isinstance(pc,base.Character) and pc is not self.pc]
+        lancemates = self.get_lancemates()
         return len(lancemates) < self.num_lancemates
 
     def get_party_skill(self, stat_id, skill_id):

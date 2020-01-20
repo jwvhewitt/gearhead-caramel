@@ -27,6 +27,15 @@ class UniversalReactionBadge(object):
     def get_reaction_modifier(self,pc,npc,camp):
         return self.reaction_modifier
 
+def add_badge(mylist,mybadge):
+    for b in list(mylist):
+        if b.name == mybadge.name:
+            mylist.remove(b)
+    mylist.append(mybadge)
+
+def add_badges(mylist,badgelist):
+    for b in badgelist:
+        add_badge(mylist,b)
 
 
 BADGE_ACADEMIC = TagReactionBadge("Academic","You are familiar with the language and culture of academia.",remods={tags.Academic:10})

@@ -12,6 +12,7 @@ import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
 from .dd_main import DZDRoadMapExit
+from . import missionbuilder
 
 
 class OneShotInfoBlast(object):
@@ -197,6 +198,14 @@ class DZD_BronzeHorseInn(Plot):
         self.register_element("INNKEEPER", osmund)
         self.did_intro = False
         self.told_about_services = False
+        self.gave_mission = False
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            nart.camp,"Help Osmund's Friend",(self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            objectives=(missionbuilder.BAMO_CAPTURE_THE_MINE,),cash_reward=500,
+            architecture = gharchitecture.MechaScaleSemiDeadzone,
+            win_message = "You have liberated the mining camp from the bandits who stole it.",
+            one_chance = False
+        )
 
         self.osmund_info = (
             OneShotInfoBlast("cavaliers",
@@ -204,7 +213,7 @@ class DZD_BronzeHorseInn(Plot):
             OneShotInfoBlast("the Bronze Horse",
                              "In PreZero times, around this area, a bronze medallion with a horse on it was the symbol of a special agent. These agents were heroes of the common people; they'd go around fixing problems and punishing the slagheads who abused their power. Kind of like cavaliers do today."),
             OneShotInfoBlast("lancemates",
-                             "You won't get very far around here if you try running off by yourself; you'll get even less far if you head out into the dead zone. Try talking to some of the pilots here and see if you can get them to join your lance."),
+                             "You won't get very far around here if you try running off by yourself; you'll get even less far if you head out into the dead zone. Try talking to some of the pilots here and see if you can get them to join you. Come back and see me when you get three lancemates and I may have some work for you."),
             OneShotInfoBlast("the dead zone",
                              "Well, the dead zone is kind of a funny name, because really it's a whole lot of different places. All that area to the west of here, where life hasn't really recovered since the Night of Fire. Of course that doesn't mean there's nobody there. I'm from the dead zone myself, originally."),
             OneShotInfoBlast("the Night of Fire",
@@ -240,11 +249,46 @@ class DZD_BronzeHorseInn(Plot):
                                 context=ContextTag([context.INFO]), effect=self._tell_about_services,
                                 data={"subject": "your services"}, no_repeats=True,
                                 ))
+        if self.did_intro and not self.gave_mission and len(camp.get_lancemates()) >= 3:
+            mylist.append(Offer("[HELLO] You know, A friend of mine has a problem that you might be able to help with...",
+                                context=ContextTag([context.HELLO]),
+                                ))
+            mylist.append(
+                Offer("A buddy of mine from back home set up a robotic mining operation just outside of Last Hope. Unfortunately, as soon as she started hitting the good stuff, a gang of bandits rolled in and took over the site for themselves. What I'd like you to do is go clear 'em out.",
+                      context=ContextTag([context.MISSION]),subject=self,subject_start=True
+                      ))
+            mylist.append(
+                Offer(
+                    "Fantastic. You can access the mission by heading to the West Gate of Wujung and following the nav coordinates I'm sending to you now. [GOODLUCK]",
+                    context=ContextTag([context.ACCEPT]), subject=self, effect=self._accept_mission
+                    ))
+            mylist.append(
+                Offer(
+                    "[UNDERSTOOD] You're going to want to keep your eyes open for mission offers, though, since they're the main way for cavaliers to earn money.",
+                    context=ContextTag([context.DENY]), subject=self, effect=self._deny_mission
+                ))
         for inf in self.osmund_info:
             if inf.active:
                 mylist.append(inf.build_offer())
 
         return mylist
+
+    def _accept_mission(self,camp):
+        missionbuilder.NewMissionNotification(self.mission_seed.name,self.elements["MISSION_GATE"])
+        self.gave_mission = True
+
+    def _deny_mission(self,camp):
+        self.gave_mission = True
+        self.mission_seed = None
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed and self.gave_mission:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+    def t_UPDATE(self, camp):
+        # If the adventure has ended, get rid of it.
+        if self.mission_seed and self.mission_seed.ended:
+            self.mission_seed = None
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -546,13 +590,7 @@ class DZD_BlueFortressHQ(Plot):
                                                 (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
                                                 enemy_faction=self.next_enemy_faction,
                                                 allied_faction=factions.TerranDefenseForce)
-
-    def Zregister_adventure(self, camp):
-        self.adventure_seed = game.content.ghplots.missionbuilder.BuildAMissionSeed(camp, "{}'s Mission".format(self.elements["DISPATCHER"]),
-                                                (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
-                                                enemy_faction=self.next_enemy_faction,
-                                                allied_faction=factions.TerranDefenseForce,
-                                                objectives=("BAMO_StormTheCastle",))
+        missionbuilder.NewMissionNotification(self.adventure_seed.name,self.elements["MISSION_GATE"])
 
     def t_UPDATE(self, camp):
         # If the adventure has ended, get rid of it.

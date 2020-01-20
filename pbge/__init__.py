@@ -125,6 +125,7 @@ class GameState( object ):
         self.music_library = dict()
         self.anim_phase = 0
         self.standing_by = False
+        self.notifications = list()
 
     def render_widgets( self ):
         if self.widgets:
@@ -133,10 +134,18 @@ class GameState( object ):
         elif self.active_widget_hilight:
             self.active_widget_hilight = False
 
+    def render_notifications(self):
+        for n in list(self.notifications):
+            n.render()
+            if n.is_done():
+                self.notifications.remove(n)
+
     def do_flip( self, show_widgets=True ):
         self.widget_tooltip = None
         if show_widgets:
             self.render_widgets()
+        if self.notifications:
+            self.render_notifications()
         if self.widget_tooltip:
             x,y = pygame.mouse.get_pos()
             if x + 200 > self.screen.get_width():
@@ -229,7 +238,6 @@ ANIMFONT = None
 MEDIUMFONT = None
 POSTERS = list()
 my_state = GameState()
-
 
 
 INIT_DONE = False
@@ -462,6 +470,47 @@ from . import campaign
 from . import widgets
 from . import dialogue
 from . import cutscene
+
+class BasicNotification(frects.Frect):
+    IP_INFLATE = 0
+    IP_DISPLAY = 1
+    IP_DEFLATE = 2
+    IP_DONE = 3
+    def __init__(self,text,font=None,dx=16,dy=16,w=256,h=10,anchor=frects.ANCHOR_UPPERLEFT,border=default_border,count=60,**kwargs):
+        font = font or my_state.big_font
+        w = min(w,font.size(text)[0])
+        self.text_bitmap = render_text(font,text,w)
+        h = max(h,self.text_bitmap.get_height())
+        super().__init__(dx,dy,w,h,anchor,**kwargs)
+        self.border = border
+        self.count = count
+        self._inflation_phase = self.IP_INFLATE
+        self._inflation_count = 0
+        my_state.notifications.append(self)
+
+    def render(self):
+        if self._inflation_phase == self.IP_INFLATE:
+            # Inflating
+            mydest = self.get_rect()
+            mydest.inflate_ip(-(self.w * (5-self._inflation_count))//6,-(self.h * (5-self._inflation_count))//6)
+            self.border.render(mydest)
+            self._inflation_count += 1
+            if self._inflation_count >= 5:
+                self._inflation_phase = self.IP_DISPLAY
+        elif self._inflation_phase == self.IP_DISPLAY and self.count > 0:
+            self.border.render(self.get_rect())
+            my_state.screen.blit(self.text_bitmap,self.get_rect())
+            self.count -= 1
+        else:
+            mydest = self.get_rect()
+            mydest.inflate_ip(-(self.w * (5-self._inflation_count))//6,-(self.h * (5-self._inflation_count))//6)
+            self.border.render(mydest)
+            self._inflation_count -= 1
+            if self._inflation_count <= 0:
+                self._inflation_phase = self.IP_DONE
+
+    def is_done(self):
+        return self._inflation_phase == self.IP_DONE
 
 
 def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.png"):

@@ -11,6 +11,7 @@ from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
 
+BAMO_CAPTURE_THE_MINE = "BAMO_CaptureMine"
 BAMO_DEFEAT_COMMANDER = "BAMO_DefeatCommander"  # 2 points
 BAMO_DEFEAT_THE_BANDITS = "BAMO_DefeatTheBandits"
 BAMO_EXTRACT_ALLIED_FORCES = "BAMO_ExtractAlliedForces"
@@ -27,7 +28,17 @@ MAIN_OBJECTIVE_VALUE = 100
 #   ***  ADVENTURE  SEEDS  ***
 #   **************************
 
+class NewMissionNotification(pbge.BasicNotification):
+    def __init__(self,mission_name,mission_gate=None):
+        if mission_gate:
+            text = 'New mission "{}" added to {}.'.format(mission_name,mission_gate.name)
+        else:
+            text = 'New mission "{}" added.'.format(mission_name)
+        super().__init__(w=400,text=text,count=160)
+
+
 class BuildAMissionSeed(adventureseed.AdventureSeed):
+    # adv_return: a tuple containing the (scene,entrance) to go to when the mission is over.
     # Optional elements:
     #   ENTRANCE_ANCHOR:    Anchor for the PC's entrance
     def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, rank=None, objectives=(),
@@ -119,8 +130,10 @@ class BuildAMissionPlot( Plot ):
             if self.adv.is_won():
                 if "WIN_MESSAGE" in self.elements:
                     pbge.alert(self.elements["WIN_MESSAGE"])
+                pbge.BasicNotification("Mission Complete",count=160)
             elif "LOSS_MESSAGE" in self.elements:
                 pbge.alert(self.elements["LOSS_MESSAGE"])
+                pbge.BasicNotification("Mission Failed",count=160)
             self.gave_ending_message = True
 
     def _ENTRANCE_menu(self, camp, thingmenu):
@@ -155,6 +168,43 @@ class BuildAMissionPlot( Plot ):
 #   **********************
 #   ***   OBJECTIVES   ***
 #   **********************
+
+class BAM_CaptureMine( Plot ):
+    LABEL = BAMO_CAPTURE_THE_MINE
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+        myunit = gears.selector.RandomMechaUnit(self.rank,100,self.elements.get("ENEMY_FACTION"),myscene.environment,add_commander=True)
+        team2.contents += myunit.mecha_list
+
+        team3 = self.register_element("_propteam",teams.Team(),dident="ROOM")
+        team3.contents += [gears.selector.get_design_by_full_name("Mine Entrance"),gears.selector.get_design_by_full_name("Chemical Tanks")]
+        # Oh yeah, when using PyCharm, why not use ludicrously long variable names?
+        self.starting_number_of_props = len(team3.contents)
+
+        self.obj = adventureseed.MissionObjective("Capture the mine", MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+        self.combat_entered = False
+        self.combat_finished = False
+
+        return True
+    def _eteam_ACTIVATETEAM(self,camp):
+        if not self.combat_entered:
+            self.combat_entered = True
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+        propteam = self.elements["_propteam"]
+        if len(propteam.get_active_members(camp)) < 1:
+            self.obj.failed = True
+        elif len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp, (sum([(100-c.get_total_damage_status()) for c in propteam.get_active_members(camp)])) // self.starting_number_of_props)
+            if not self.combat_finished:
+                pbge.alert("The mine has been secured.")
+                self.combat_finished = True
+
 
 class BAM_DefeatCommander( Plot ):
     LABEL = BAMO_DEFEAT_COMMANDER
@@ -262,7 +312,7 @@ class BAM_ExtractAllies( Plot ):
         return True
 
     def _npc_is_good(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate.faction == self.elements["ALLIED_FACTION"]
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate.faction == self.elements["ALLIED_FACTION"] and candidate not in nart.camp.party
 
     def _eteam_ACTIVATETEAM(self,camp):
         if self.intro_ready:

@@ -201,6 +201,7 @@ class DZREPR_BaseMission(Plot):
 
     def activate_mission(self,camp):
         self.mission_active = True
+        missionbuilder.NewMissionNotification(self.MISSION_NAME,self.elements["MISSION_GATE"])
         camp.check_trigger("UPDATE")
 
     def MISSION_GATE_menu(self, camp, thingmenu):

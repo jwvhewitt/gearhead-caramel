@@ -9,6 +9,7 @@ from game.content import gharchitecture,ghterrain,ghwaypoints
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
+from . import missionbuilder
 
 
 class DZDIntro_GetInTheMekShimli(Plot):
@@ -88,18 +89,21 @@ class DZDIntro_GetInTheMekShimli(Plot):
         npc = self.elements["SHERIFF"]
         npc.relationship.role = gears.relationships.R_COLLEAGUE
         npc.relationship.attitude = gears.relationships.A_FRIENDLY
+        missionbuilder.NewMissionNotification("Protect the Powerplant")
 
     def _choose_professional_reply(self,camp):
         self._did_first_reply = True
         npc = self.elements["SHERIFF"]
         npc.relationship.role = gears.relationships.R_COLLEAGUE
         npc.relationship.attitude = gears.relationships.A_THANKFUL
+        missionbuilder.NewMissionNotification("Protect the Powerplant")
 
     def _choose_flirty_reply(self,camp):
         self._did_first_reply = True
         npc = self.elements["SHERIFF"]
         npc.relationship.role = gears.relationships.R_CRUSH
         npc.relationship.attitude = gears.relationships.A_FRIENDLY
+        missionbuilder.NewMissionNotification("Protect the Powerplant")
 
     def _activate_tutorial(self,camp):
         self._tutorial_on = True
@@ -220,6 +224,9 @@ class DZDPostMissionScene(Plot):
 
             self.did_intro = True
 
+    def _announce_mission(self,camp):
+        missionbuilder.NewMissionNotification("Go to Wujung")
+
     def SHERIFF_offers(self,camp):
         mylist = list()
         myhello = Offer(
@@ -229,7 +236,7 @@ class DZDPostMissionScene(Plot):
 
         mylist.append( Offer(
             "I'd like for you to head to Wujung. Hire some lancemates. Find someone who can help us with our energy problems. Then come back here and we'll see if we can put a permanent stop to those raiders.",
-            context=ContextTag([context.SOLUTION]), subject_start=True, subject=self
+            context=ContextTag([context.SOLUTION]), subject_start=True, subject=self, effect=self._announce_mission
         ))
 
         mylist.append( Offer(

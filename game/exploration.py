@@ -406,6 +406,10 @@ class Explorer( object ):
         # Do one view first, just to prep the model map and mouse tile.
         self.view()
         pbge.my_state.do_flip()
+        #self.record_count = 120
+
+        del pbge.my_state.notifications[:]
+        pbge.BasicNotification(str(self.scene))
 
         # Do a start trigger, unless we're in combat.
         if not self.camp.fight:
@@ -438,9 +442,6 @@ class Explorer( object ):
                 self.threat_viewer.update(self.view, self.threat_tiles)
                 self.view.overlays[ self.view.mouse_tile ] = (self.mapcursor,0)
                 self.view()
-                if self.record_count > 0:
-                    pygame.image.save(pbge.my_state.screen, pbge.util.user_dir("exanim_{}.png".format(100000-self.record_count)))
-                    self.record_count -= 1
 
                 # Display info for this tile.
                 my_info = self.scene.get_tile_info(self.view.mouse_tile)
@@ -448,6 +449,10 @@ class Explorer( object ):
                     my_info.popup()
 
                 pbge.my_state.do_flip()
+
+                if self.record_count > 0:
+                    pygame.image.save(pbge.my_state.screen, pbge.util.user_dir("exanim_{}.png".format(100000-self.record_count)))
+                    self.record_count -= 1
 
                 self.time += 1
                 if hasattr(self.scene,"exploration_music"):
