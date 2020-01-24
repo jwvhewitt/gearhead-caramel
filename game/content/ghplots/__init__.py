@@ -11,6 +11,7 @@ from . import dd_roadstops
 from . import dd_tarot
 from . import dd_tarotsupport
 from . import encounters
+from . import lancemates
 from . import missionbuilder
 from . import mocha
 from . import recovery
@@ -40,6 +41,7 @@ harvest(dd_roadstops)
 harvest(dd_tarot)
 harvest(dd_tarotsupport)
 harvest(encounters)
+harvest(lancemates)
 harvest(missionbuilder)
 harvest(mocha)
 harvest(recovery)

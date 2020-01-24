@@ -422,6 +422,12 @@ class HasPower(KeyObject):
             if hasattr(p, 'regen_power') and p.is_operational():
                 p.regen_power()
 
+class HasInfinitePower(HasPower):
+    def get_current_and_max_power(self):
+        return 1000000,1000000
+
+    def consume_power(self, amount):
+        pass
 
 class MakesPower(KeyObject,Restoreable):
     # In addition to this inheritance, the subclass needs to define a max_power
@@ -1758,7 +1764,7 @@ class BeamWeapon(Weapon):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
                         attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4,
-                        attackattributes.Intercept,
+                        attackattributes.Intercept,attackattributes.SwarmFire2,attackattributes.SwarmFire3
                         )
 
     def get_weapon_desc(self):
@@ -2908,7 +2914,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
     def can_equip(self, part):
         """Returns True if part can be legally equipped under current conditions"""
-        return self.is_legal_inv_com(part) and part.scale <= self.scale
+        return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
     @property
     def volume(self):
@@ -3166,7 +3172,7 @@ class Character(Being):
         return any(b for b in self.badges if b.name == badge_name)
 
 
-class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
+class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
     SAVE_PARAMETERS = ('size', 'statline', 'frame', 'destroyed_frame' )
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_MATERIAL = materials.Metal
@@ -3190,7 +3196,7 @@ class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
 
     @property
     def volume(self):
-        return self.size * 2
+        return self.size * 4
 
     def get_stat(self, stat_id):
         return self.statline.get(stat_id, 0) + self.ench_list.get_stat(stat_id)
@@ -3219,7 +3225,7 @@ class Prop(BaseGear, StandardDamageHandler, HasPower, Combatant):
         return 0
 
     def get_sensor_range(self, map_scale):
-        return 25
+        return max(15,self.get_stat(stats.Perception)+5)
 
     def get_max_mental(self):
         return (self.get_stat(stats.Knowledge) + self.get_stat(stats.Ego) + 5) // 2 + self.get_stat(

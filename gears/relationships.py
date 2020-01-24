@@ -1,3 +1,5 @@
+import random
+
 # Relationship tags- describe the history of this character in relation to the PC.
 RT_FAMILY = "Family"
 RT_SCHOOLMATE = "Schoolmate"
@@ -59,4 +61,10 @@ class Relationship(object):
         self.data = dict()
         self.met_before = False
         self.history = list(history)
+        # The following properties are mostly for lancemates.
+        self.missions_together = 0  # Increment each time NPC completes mission as part of lance
+        self.development_plots = 0  # Increment each time NPC gets a character development plot
 
+    def can_do_development(self):
+        # Return True if this lancemate is currently eligible for a character development plot.
+        return self.missions_together > self.development_plots ** 2 - self.development_plots + self.data.setdefault("DEVELOPMENT_PLOTS_APTITUDE",random.randint(1,10))

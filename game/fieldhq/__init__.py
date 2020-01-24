@@ -87,7 +87,7 @@ class CharacterInfoWidget(widgets.Widget):
 
         mymenu = pbge.rpgmenu.Menu(fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h, font=pbge.MEDIUMFONT, predraw=self.draw_portrait)
         for mek in self.camp.party:
-            if isinstance(mek, gears.base.Mecha) and mek.is_not_destroyed():
+            if isinstance(mek, gears.base.Mecha) and mek.is_not_destroyed() and (not hasattr(mek,"owner") or mek.owner is self.pc):
                 mymenu.add_item(mek.get_full_name(),mek)
         mymenu.descobj = AssignMechaDescObject(self.camp,self.portrait)
         mek = mymenu.query()
@@ -175,7 +175,7 @@ class MechaInfoWidget(widgets.Widget):
 
         mymenu = pbge.rpgmenu.Menu(fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h, font=pbge.MEDIUMFONT, predraw=self.draw_portrait)
         for plr in self.camp.party:
-            if isinstance(plr, gears.base.Character) and plr.is_not_destroyed():
+            if isinstance(plr, gears.base.Character) and plr.is_not_destroyed() and (not hasattr(self.pc,"owner") or self.pc.owner is plr):
                 mymenu.add_item(plr.get_full_name(),plr)
         mymenu.descobj = AssignPilotDescObject(self.camp,self.portrait)
         pilot = mymenu.query()

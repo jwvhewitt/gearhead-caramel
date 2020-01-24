@@ -370,6 +370,11 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     mek.pilot = None
             return meklist[0]
 
+    def get_backup_mek(self,npc):
+        for mek in self.party:
+            if isinstance(mek,base.Mecha) and hasattr(mek,"owner") and mek.owner is npc:
+                return mek
+
     def assign_pilot_to_mecha(self,pc,mek):
         # either mek or pc can be None, to clear a mecha's assigned pilot.
         for m in self.party:
@@ -452,8 +457,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
                 elif random.randint(1,100) <= skill or not pbge.util.config.getboolean("DIFFICULTY","mecha_can_die"):
-                    self.incapacitated_party.append(pc)
-                    pc.restore_all()
+                    self.party.append(pc)
 
     def remove_party_from_scene(self):
         # Check for dead and/or incapacitated characters first.
@@ -487,6 +491,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def _set_renown(self,nuval):
         self.pc.renown = min(max(nuval,-100),100)
+        for pc in self.party:
+            if hasattr(pc,"renown") and pc is not self.pc:
+                pc.renown = min(max(nuval, -100, pc.renown), 100)
 
     def _del_renown(self):
         self.pc.renown = 0

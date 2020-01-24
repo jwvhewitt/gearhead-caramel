@@ -27,7 +27,11 @@ class MechasPilotBlock(object):
         if pilot not in self.camp.party:
             self.model.pilot = None
             pilot = None
-        self.image = pbge.render_text(self.font,'Pilot: {}'.format(str(pilot)),self.width,justify=-1,color=pbge.INFO_HILIGHT)
+        if not pilot and hasattr(self.model,"owner") and self.model.owner:
+            self.image = pbge.render_text(self.font, 'Owner: {}'.format(str(self.model.owner)), self.width,
+                                          justify=-1, color=pbge.INFO_HILIGHT)
+        else:
+            self.image = pbge.render_text(self.font,'Pilot: {}'.format(str(pilot)),self.width,justify=-1,color=pbge.INFO_HILIGHT)
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 

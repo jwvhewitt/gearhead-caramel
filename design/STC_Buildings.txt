@@ -49,3 +49,28 @@ Prop
 		Reflexes = 10, Body=10, Speed=10, Perception=10, Craft=10, Knowledge=10, Ego=10, Charm = 10,
 		MechaGunnery = 5, MechaFighting = 5,
 	}
+
+Prop
+	name = "Sentry Drone"
+	desig = "DZD-01"
+	imagename = "prop_dzd_sentrydrones.png"
+	size = 3
+    frame = 0
+	scale = MechaScale
+	statline = {
+		Reflexes = 10, Body=10, Speed=10, Perception=10, Craft=10, Knowledge=10, Ego=10, Charm = 10,
+		MechaGunnery = 5, MechaFighting = 5,
+	}
+	SUB
+		BeamWeapon
+			name = "Laser Cannon"
+			reach = 6
+			damage = 1
+			accuracy = 0
+			penetration = 0
+			attributes = (SwarmFire2,Intercept)
+            shot_anim = SmallBeam
+            integral = True
+		Armor
+			size = 3
+	END

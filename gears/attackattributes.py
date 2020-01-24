@@ -229,6 +229,29 @@ class Scatter(Singleton):
         attack.fx.children[0].scatter = True
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
 
+class SwarmFire2(Singleton):
+    # Default fire action fires at multiple targets.
+    name = "Swarm Fire 2"
+    MASS_MODIFIER = 1.5
+    VOLUME_MODIFIER = 1.2
+    COST_MODIFIER = 2.5
+    POWER_MODIFIER = 2.5
+    SWARM_VALUE = 2
+
+    @classmethod
+    def replace_primary_attack( self, weapon ):
+        base = weapon.get_basic_attack(name='Swarm x{}'.format(self.SWARM_VALUE),ammo_cost=self.SWARM_VALUE,targets=self.SWARM_VALUE,attack_icon=9)
+        return [base,]
+
+class SwarmFire3(SwarmFire2):
+    # Default fire action fires at multiple targets.
+    name = "Swarm Fire 3"
+    MASS_MODIFIER = 2.0
+    VOLUME_MODIFIER = 1.5
+    COST_MODIFIER = 3.5
+    POWER_MODIFIER = 3.5
+    SWARM_VALUE = 3
+
 
 class VariableFire2(Singleton):
     # This weapon can do Burst x2 fire in addition to single fire

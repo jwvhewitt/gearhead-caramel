@@ -376,6 +376,40 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[COMEBACKTOMORROW]": {
+        Default: ["Come back and see me tomorrow.", "Come back later and we'll see then."
+                  ],
+        personality.Cheerful: ["Sounds like fun, but you'll have to come back tomorrow.",
+                               ],
+        personality.Grim: ["That is not going to happen today.",
+                           ],
+        personality.Easygoing: ["Sorry, you'll have to come back later."
+                                ],
+        personality.Passionate: ["Impossible, for now. Come see me tomorrow."
+                                 ],
+        personality.Sociable: ["I'll make a note on my dataslate that you're going to come back tomorrow.",
+                               ],
+        personality.Shy: ["Come back tomorrow.",
+                          ],
+    },
+
+    "[COMEBACKTOMORROW_JOIN]": {
+        Default: ["[COMEBACKTOMORROW]",
+                  ],
+        personality.Cheerful: ["Much as I enjoy going with you, I really can't today.",
+                               ],
+        personality.Grim: ["I am in no condition to go with you right now... but ask me again tomorrow, if I'm still alive.",
+                           ],
+        personality.Easygoing: ["Nope. Not right now. But come ask again tomorrow when I'm finished with this."
+                                ],
+        personality.Passionate: ["Afraid I wouldn't be much help to you in my current condition... come back later."
+                                 ],
+        personality.Sociable: ["Come back tomorrow and I'll be able to go with you then.",
+                               ],
+        personality.Shy: ["Not right now. Maybe later.",
+                          ],
+    },
+
     "[defeating_you]": {
         Default: ["defeating you","beating you"
             ],

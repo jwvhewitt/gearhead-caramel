@@ -69,9 +69,9 @@ class AdventureSeed(Adventure):
             return "F-"
         elif c < 0 and won:
             return "D--"
-        elif c <= 50 and not won:
+        elif c <= 50 or not won:
             return "F"
-        elif c <= 50 and won:
+        elif c <= 50:
             return "D-"
         elif c <= 60:
             return "D"
@@ -107,6 +107,10 @@ class AdventureSeed(Adventure):
             rfun(camp,self)
         if self.restore_at_end:
             self.restore_party(camp)
+
+        for pc in camp.party:
+            if hasattr(pc,"relationship") and pc.relationship:
+                pc.relationship.missions_together += 1
 
         if self.display_results_at_end:
             if self.is_won():
@@ -226,8 +230,8 @@ class ComeBackInOnePieceObjective(MissionObjective):
                 if mek.is_operational():
                     tds = mek.get_percent_damage_over_health()
                     if tds < 1:
-                        dstats.append(15)
-                    elif tds >= 5:
+                        dstats.append(5)
+                    elif tds >= 4:
                         dstats.append(max(-tds*2,-50))
                 else:
                     dstats.append(-75)

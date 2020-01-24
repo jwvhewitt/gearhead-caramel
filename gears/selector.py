@@ -95,7 +95,8 @@ def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, *
     # Build the creation matrix, aka the dict.
     possible_origins = [o for o in local_tags if o in personality.ORIGINS]
     job = jobs.choose_random_job(needed_tags,local_tags)
-    creation_matrix = dict(statline=base.Being.random_stats(points=max(rank+50,80)), portrait_gen=portraits.Portrait(), job=job,
+    meanstatpts = max(rank+50,80)
+    creation_matrix = dict(statline=base.Being.random_stats(points=random.randint(meanstatpts-15,meanstatpts+15)), portrait_gen=portraits.Portrait(), job=job,
                            personality=random_personality(possible_origins), gender=genderobj.Gender.random_gender(),
                            birth_year=current_year - random_age(),renown=rank)
     if kwargs:

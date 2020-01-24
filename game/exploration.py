@@ -266,6 +266,7 @@ class ExploMenu( object ):
             mymenu.add_item('Use {}'.format(str(wayp)),BumpToCall(self.explo,wayp))
         # Add the standard options.
         mymenu.add_item('Field HQ', FieldHQCall(self.explo.camp))
+        mymenu.add_item('View Memos',memobrowser.MemoBrowser(self.explo.camp))
         mi = mymenu.query()
         if mi:
             mi()
@@ -499,6 +500,10 @@ class Explorer( object ):
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
                                 self.scene.set_visible(x,y,True)
+                    elif gdi.unicode == "@":
+                        for thing in self.scene.contents:
+                            if hasattr(thing,"pos"):
+                                print("{}: {}".format(thing,thing.pos))
                     elif gdi.unicode == "H":
                         fieldhq.FieldHQ.create_and_invoke(self.camp)
                     elif gdi.key == pygame.K_ESCAPE:

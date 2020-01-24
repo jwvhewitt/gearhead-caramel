@@ -16,8 +16,6 @@ class MemoBrowser(object):
         closebuttonsprite = pbge.image.Image('sys_closeicon.png',13,14)
         self.close_button = pbge.widgets.ButtonWidget(200,-112,13,14,closebuttonsprite,0,on_click=self.close_browser)
 
-        pbge.my_state.widgets += [self.prev_button,self.next_button,self.close_button]
-
     def render( self ):
         pbge.my_state.view()
         myrect = self.text_area.get_rect()
@@ -48,18 +46,24 @@ class MemoBrowser(object):
             elif ev.key == pygame.K_ESCAPE:
                 self.keep_browsing = False
 
-    def dispose(self):
+    def activate(self):
+        pbge.my_state.widgets += [self.prev_button,self.next_button,self.close_button]
+
+    def deactivate(self):
         pbge.my_state.widgets.remove(self.prev_button)
         pbge.my_state.widgets.remove(self.next_button)
         pbge.my_state.widgets.remove(self.close_button)
+
+    def __call__(self):
+        self.activate()
+        while self.keep_browsing:
+            gdi = pbge.wait_event()
+            self.update(gdi)
+        self.deactivate()
 
     @classmethod
     def browse(self, camp):
         # Run the UI. Return a DoInvocation action if an invocation
         # was chosen, or None if the invocation was cancelled.
         myui = self(camp)
-        while myui.keep_browsing:
-            gdi = pbge.wait_event()
-            myui.update(gdi)
-
-        myui.dispose()
+        myui()

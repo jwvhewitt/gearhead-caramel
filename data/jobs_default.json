@@ -144,10 +144,8 @@
     "skill_modifiers": {
       "MechaFighting": 1,
       "MechaGunnery": 1,
-      "MechaPiloting": 1,
       "CloseCombat": -1,
-      "RangedCombat": -1,
-      "Dodge": -1
+      "RangedCombat": -1
     }
   },
   {
@@ -259,6 +257,11 @@
     "tags": ["Merchant"]
   },
   {
+    "name": "Trader",
+    "skills": ["Repair","Negotiation"],
+    "tags": ["Merchant"]
+  },
+  {
     "name": "Innkeeper",
     "skills": ["Negotiation"],
     "tags": ["Merchant"]
@@ -322,6 +325,32 @@
     }
   },
   {
+    "name": "Paramedic",
+    "skills": ["Medicine"],
+    "tags": ["Medic"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaPiloting": 1,
+      "RangedCombat": -1,
+      "CloseCombat": -1,
+      "Medicine": -1
+    }
+  },
+  {
+    "name": "Firefighter",
+    "skills": ["Medicine"],
+    "tags": ["Medic"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": -1,
+      "RangedCombat": -1,
+      "CloseCombat": 1,
+      "Athletics": 1,
+      "Medicine": -1
+    }
+  },
+  {
     "name": "Corporate Executive",
     "skills": ["Negotiation"],
     "tags": ["CorporateWorker"],
@@ -332,6 +361,16 @@
     "skills": ["Repair"],
     "tags": ["CorporateWorker","Laborer"],
     "always_combatant": false
+  },
+  {
+    "name": "Construction Worker",
+    "skills": ["Repair"],
+    "tags": ["Laborer"],
+    "always_combatant": false,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": -1
+    }
   },
   {
     "name": "Researcher",

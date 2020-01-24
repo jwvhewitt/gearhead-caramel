@@ -221,9 +221,9 @@ class AutoLeaver(object):
             for mek in list(camp.party):
                 if hasattr(mek,"owner") and mek.owner is self.npc:
                     camp.party.remove(mek)
-            for mek in list(camp.incapacitated_party):
-                if hasattr(mek,"owner") and mek.owner is self.npc:
-                    camp.incapacitated_party.remove(mek)
+            #for mek in list(camp.incapacitated_party):
+            #    if hasattr(mek,"owner") and mek.owner is self.npc:
+            #        camp.incapacitated_party.remove(mek)
 
 class CharacterMover(object):
     def __init__(self,plot,character,dest_scene,dest_team,allow_death=False):
@@ -261,17 +261,27 @@ class CharacterMover(object):
             self.character.restore_all()
             self.original_container.append(self.character)
 
-class LanceStatusReporter(object):
+class EnterTownLanceRecovery(object):
+    # When you enter a town, call this to restore the party and deal with dead/incapacitated members
     def __init__(self,camp,metroscene,metro):
-        # Go through the injured/dead lists and see who needs help.
-        myreports = list()
-        if camp.pc not in camp.party:
-            # This is serious.
-            init = pbge.plots.PlotState(elements={"METRO":metro,"METROSCENE":metroscene})
-            nart = GHNarrativeRequest(camp,init,adv_type="RECOVER_PC",plot_list=PLOT_LIST)
-            if nart.story:
-                nart.build()
-                nart.story.start_recovery(camp)
-        else:
-            pass
+        creds = camp.totally_restore_party()
+        if creds > 0:
+            pbge.alert("Repair/Reload: ${}".format(creds))
+            camp.credits -= creds
+        if camp.incapacitated_party or camp.dead_party or any([pc for pc in camp.get_lancemates() if not camp.get_pc_mecha(pc)]):
+            # Go through the injured/dead lists and see who needs help.
+            if camp.pc not in camp.party:
+                # This is serious.
+                init = pbge.plots.PlotState(elements={"METRO":metro,"METROSCENE":metroscene})
+                nart = GHNarrativeRequest(camp,init,adv_type="RECOVER_PC",plot_list=PLOT_LIST)
+                if nart.story:
+                    nart.build()
+                    nart.story.start_recovery(camp)
+            else:
+                init = pbge.plots.PlotState(elements={"METRO":metro,"METROSCENE":metroscene})
+                nart = GHNarrativeRequest(camp,init,adv_type="RECOVER_LANCE",plot_list=PLOT_LIST)
+                if nart.story:
+                    nart.build()
+                    nart.story.start_recovery(camp)
+
 

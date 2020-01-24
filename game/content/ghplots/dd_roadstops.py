@@ -3,13 +3,10 @@ from pbge.dialogue import Offer, ContextTag
 from game import teams, services, ghdialogue
 from game.ghdialogue import context
 import gears
-import game.content.gharchitecture
 import pbge
-import game.content.plotutility
-import game.content.ghterrain
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
-from game.content import gharchitecture,ghwaypoints
+from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory
 
 
 
@@ -43,15 +40,16 @@ class DZD_DeadZoneTown(Plot):
         ))
         defender.place(myscene, team=team2)
 
-        myscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleGreenzone(),
-                                                     road_terrain=game.content.ghterrain.Flagstone)
+        myscenegen = pbge.randmaps.CityGridGenerator(myscene, gharchitecture.HumanScaleGreenzone(),
+                                                     road_terrain=ghterrain.Flagstone)
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
 
-        mystory = self.register_element("BACKSTORY",game.content.backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
+        mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
         print(" ".join(mystory.results["text"]))
 
         self.register_element("METRO", myscene.metrodat)
+        self.register_element("METROSCENE", myscene)
         self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_TOWN)
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.east),
@@ -90,6 +88,12 @@ class DZD_DeadZoneTown(Plot):
     def _generate_town_name(self):
         return random.choice(self.TOWN_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
 
+    def METROSCENE_ENTER(self, camp):
+        # Upon entering this scene, deal with any dead or incapacitated party members.
+        # Also, deal with party members who have lost their mecha. This may include the PC.
+        plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
+
+
 class DZD_DeadZoneVillage(Plot):
     LABEL = "DZD_ROADSTOP"
     active = True
@@ -116,14 +120,15 @@ class DZD_DeadZoneVillage(Plot):
         ))
         defender.place(myscene, team=team2)
 
-        myscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleDeadzone(),
-                                                     road_terrain=game.content.ghterrain.Flagstone)
+        myscenegen = pbge.randmaps.CityGridGenerator(myscene, gharchitecture.HumanScaleDeadzone(),
+                                                     road_terrain=ghterrain.Flagstone)
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
         self.register_element("METRO", myscene.metrodat)
+        self.register_element("METROSCENE", myscene)
         self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_VILLAGE)
 
-        mystory = self.register_element("BACKSTORY",game.content.backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
+        mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
         print(" ".join(mystory.results["text"]))
 
 
@@ -162,6 +167,12 @@ class DZD_DeadZoneVillage(Plot):
     def _generate_town_name(self):
         return random.choice(self.TOWN_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
 
+    def METROSCENE_ENTER(self, camp):
+        # Upon entering this scene, deal with any dead or incapacitated party members.
+        # Also, deal with party members who have lost their mecha. This may include the PC.
+        plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
+
+
 #   **********************
 #   ***   DZRS_ORDER   ***
 #   **********************
@@ -175,7 +186,7 @@ class DemocraticOrder(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.ResidentialBuilding(
+        building = self.register_element("_EXTERIOR", ghterrain.ResidentialBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
@@ -185,12 +196,12 @@ class DemocraticOrder(Plot):
         intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GOVERNMENT),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.ResidentialBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                     dident="INTERIOR")
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -235,7 +246,7 @@ class SomewhatOkayGarage(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         npc_name,garage_name = self.generate_npc_and_building_name()
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.ScrapIronBuilding(
+        building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
@@ -245,14 +256,14 @@ class SomewhatOkayGarage(Plot):
         intscene = gears.GearHeadScene(35, 35, garage_name, player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.ScrapIronWorkshop())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ScrapIronWorkshop())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                     dident="INTERIOR")
         foyer.contents.append(ghwaypoints.MechEngTerminal())
         foyer.contents.append(ghwaypoints.MechaPoster())
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -299,7 +310,7 @@ class FranklyBoringGarage(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         npc_name,garage_name = self.generate_npc_and_building_name()
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.ScrapIronBuilding(
+        building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
@@ -309,14 +320,14 @@ class FranklyBoringGarage(Plot):
         intscene = gears.GearHeadScene(35, 35, garage_name, player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.ScrapIronWorkshop())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ScrapIronWorkshop())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                     dident="INTERIOR")
         foyer.contents.append(ghwaypoints.MechEngTerminal())
         foyer.contents.append(ghwaypoints.MechaPoster())
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -367,7 +378,7 @@ class DeadzoneClinic(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         myname = "{} Clinic".format(self.elements["LOCALE"])
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+        building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
             waypoints={"DOOR": ghwaypoints.WoodenDoor(name=myname)},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
@@ -377,12 +388,12 @@ class DeadzoneClinic(Plot):
         intscene = gears.GearHeadScene(35, 35, myname, player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.HospitalBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
                                       dident="INTERIOR")
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)

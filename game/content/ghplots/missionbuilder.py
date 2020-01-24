@@ -16,6 +16,7 @@ BAMO_DEFEAT_COMMANDER = "BAMO_DefeatCommander"  # 2 points
 BAMO_DEFEAT_THE_BANDITS = "BAMO_DefeatTheBandits"
 BAMO_EXTRACT_ALLIED_FORCES = "BAMO_ExtractAlliedForces"
 BAMO_LOCATE_ENEMY_FORCES = "BAMO_LocateEnemyForces"
+BAMO_NEUTRALIZE_ALL_DRONES = "BAMO_NeutralizeAllDrones"
 BAMO_RECOVER_CARGO = "BAMO_RecoverCargo"
 BAMO_RESPOND_TO_DISTRESS_CALL = "BAMO_RespondToDistressCall"
 BAMO_STORM_THE_CASTLE = "BAMO_StormTheCastle"   # 4 points
@@ -200,7 +201,7 @@ class BAM_CaptureMine( Plot ):
         if len(propteam.get_active_members(camp)) < 1:
             self.obj.failed = True
         elif len(myteam.get_active_members(camp)) < 1:
-            self.obj.win(camp, (sum([(100-c.get_total_damage_status()) for c in propteam.get_active_members(camp)])) // self.starting_number_of_props)
+            self.obj.win(camp, (sum([(100-c.get_percent_damage_over_health()) for c in propteam.get_active_members(camp)])) // self.starting_number_of_props)
             if not self.combat_finished:
                 pbge.alert("The mine has been secured.")
                 self.combat_finished = True
@@ -351,7 +352,7 @@ class BAM_ExtractAllies( Plot ):
                 self.obj.failed = True
             elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
                 self.eteam_defeated = True
-                self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_total_damage_status())
+                self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
                 npc = self.elements["PILOT"]
                 ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.HELLO_STARTER)
 
@@ -397,6 +398,37 @@ class BAM_LocateEnemyForces( Plot ):
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp,100)
 
+class BAM_NeutralizeAllDrones( Plot ):
+    LABEL = BAMO_NEUTRALIZE_ALL_DRONES
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        if myfac:
+            colors = myfac.mecha_colors
+        else:
+            colors = gears.color.random_mecha_colors()
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(8,8,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+        for t in range(random.randint(3,4)):
+            mydrone = gears.selector.get_design_by_full_name("DZD-01 Sentry Drone")
+            mydrone.colors = colors
+            team2.contents.append(mydrone)
+
+        self.obj = adventureseed.MissionObjective("Neutralize all security drones".format(myfac), MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        return True
+
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp,100)
+
+
 class BAM_RecoverCargo( Plot ):
     LABEL = BAMO_RECOVER_CARGO
     active = True
@@ -428,7 +460,7 @@ class BAM_RecoverCargo( Plot ):
         if len(cargoteam.get_active_members(camp)) < 1:
             self.obj.failed = True
         elif len(myteam.get_active_members(camp)) < 1:
-            self.obj.win(camp,(sum([(100-c.get_total_damage_status()) for c in cargoteam.get_active_members(camp)]))//self.starting_number_of_containers )
+            self.obj.win(camp,(sum([(100-c.get_percent_damage_over_health()) for c in cargoteam.get_active_members(camp)]))//self.starting_number_of_containers )
             if not self.combat_finished:
                 pbge.alert("The missing cargo has been secured.")
                 self.combat_finished = True
@@ -465,7 +497,7 @@ class BAM_RespondToDistressCall( Plot ):
         if len(cargoteam.get_active_members(camp)) < 1:
             self.obj.failed = True
         elif len(myteam.get_active_members(camp)) < 1:
-            self.obj.win(camp,(sum([(100-c.get_total_damage_status()) for c in cargoteam.get_active_members(camp)]))//self.starting_number_of_containers )
+            self.obj.win(camp,(sum([(100-c.get_percent_damage_over_health()) for c in cargoteam.get_active_members(camp)]))//self.starting_number_of_containers )
             if not self.combat_finished:
                 pbge.alert("The missing cargo has been secured.")
                 self.combat_finished = True
