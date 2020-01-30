@@ -512,6 +512,11 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             repair_total += pc.restore_all()
         return repair_total
 
+    def get_relationship(self,npc):
+        if npc.mnpcid:
+            return self.egg.major_npc_records.setdefault(npc.mnpcid,relationships.Relationship())
+        else:
+            return relationships.Relationship()
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about string.partition at the time.

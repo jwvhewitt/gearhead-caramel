@@ -273,7 +273,13 @@ class Concentration( Skill ):
 
 COMBATANT_SKILLS = (MechaFighting,MechaGunnery,MechaPiloting,RangedCombat,CloseCombat,Dodge,Vitality,Athletics,Concentration)
 NONCOMBAT_SKILLS = (Repair,Medicine,Biotechnology,Stealth,Science,Computers,Performance,Negotiation,Scouting,DominateAnimal)
+ALL_SKILLS = COMBATANT_SKILLS + NONCOMBAT_SKILLS
 
+REPAIR_SKILLS = {
+    materials.RT_BIOTECHNOLOGY: Biotechnology,
+    materials.RT_MEDICINE: Medicine,
+    materials.RT_REPAIR: Repair
+}
 
 
 

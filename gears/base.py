@@ -640,6 +640,19 @@ class BaseGear(scenes.PlaceableThing):
             for p in part.sub_sub_coms():
                 yield p
 
+    def sub_sub_coms(self):
+        yield self
+        for part in self.sub_com:
+            for p in part.sub_sub_coms():
+                yield p
+
+    def ok_sub_sub_coms(self):
+        if self.is_not_destroyed():
+            yield self
+            for part in self.sub_com:
+                for p in part.ok_sub_sub_coms():
+                    yield p
+
     def get_all_parts(self):
         yield self
         for part in self.sub_com:
@@ -2631,6 +2644,7 @@ class MT_Battroid(Singleton):
 
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
     SAVE_PARAMETERS = ('name', 'form', 'environment_list', 'role_list', 'family')
+    DODGE_SKILL = stats.MechaPiloting
 
     def __init__(self, form=MT_Battroid,
                  environment_list=(tags.GroundEnv, tags.UrbanEnv, tags.SpaceEnv), role_list=(tags.Trooper,),
@@ -2709,7 +2723,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
 
     def get_pilot(self):
         """Return the character who is operating this mecha."""
-        for m in self.sub_sub_coms():
+        for m in self.ok_sub_sub_coms():
             if isinstance(m, Character):
                 return m
 
@@ -2822,7 +2836,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             return 0
 
     def get_dodge_score(self):
-        return self.get_skill_score(stats.Speed, stats.MechaPiloting)
+        return self.get_skill_score(stats.Speed, self.DODGE_SKILL)
 
     def get_sensor_range(self, map_scale):
         it = 3
@@ -2882,6 +2896,10 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         else:
             return 1
 
+    def dole_experience(self,xp,xp_type=None):
+        pilot = self.get_pilot()
+        if pilot:
+            pilot.dole_experience(xp,xp_type)
 
 class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Combatant, Restoreable):
     SAVE_PARAMETERS = ('statline', 'combatant')
@@ -2890,6 +2908,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     DESTROYED_FRAME = 0
     TOTAL_XP = "TOTAL_XP"
     SPENT_XP = "SPENT_XP"
+    DODGE_SKILL = stats.Dodge
 
     def __init__(self, statline=None, combatant=True, **keywords):
         self.statline = collections.defaultdict(int)
@@ -2969,7 +2988,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return max(base_m - self.get_mobility_penalty(),0)
 
     def get_dodge_score(self):
-        return self.get_skill_score(stats.Speed, stats.Dodge)
+        return self.get_skill_score(stats.Speed, self.DODGE_SKILL)
 
     MIN_WALK_SPEED = 20
 
@@ -3004,9 +3023,11 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
     def spend_mental(self, amount):
         self.mp_spent += amount
+        self.dole_experience(amount,stats.Concentration)
 
     def spend_stamina(self, amount):
         self.sp_spent += amount
+        self.dole_experience(amount,stats.Athletics)
 
     def get_action_points(self):
         if self.get_current_speed() > 0:
@@ -3058,6 +3079,12 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         self.mp_spent = 0
         self.sp_spent = 0
         return super(Being,self).restore()
+
+    def dole_experience(self,xp,xp_type=TOTAL_XP):
+        self.experience[xp_type or self.TOTAL_XP] += xp
+        if xp_type in stats.ALL_SKILLS and xp_type in self.statline and xp_type.improvement_cost(self,self.statline[xp_type]) <= self.experience[xp_type]:
+            self.experience[xp_type] -= xp_type.improvement_cost(self,self.statline[xp_type])
+            self.statline[xp_type] += 1
 
 
 class Character(Being):

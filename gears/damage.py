@@ -2,7 +2,7 @@ import random
 import pbge
 from . import geffects
 from pbge.scenes import animobs
-from . import base
+from . import base,stats
 
 
 
@@ -130,7 +130,9 @@ class Damage( object ):
 
         # A surrendered master that is damaged will un-surrender.
         # Check for engine explosions and crashing/falling here.
-        # Give experience to vitality, if that's still a thing.
+        # Give beings experience to vitality.
+        if self.damage_done > 0 and isinstance(self.target_root,base.Being):
+            self.target_root.dole_experience(self.damage_done,stats.Vitality)
 
         # Record the animations.
         random.shuffle(self.BOOM_SPRITES)
@@ -170,49 +172,4 @@ class Damage( object ):
 
 
 
-
-class ShakaCannon( object ):
-    damage = 4000
-    accuracy = 0
-    penetration = 30
-
-class Smartgun( object ):
-    damage = 4000
-    accuracy = 30
-    penetration = 0
-
-class Railgun( object ):
-    damage = 4000
-    accuracy = 10
-    penetration = 10
-
-class GlassCow( object ):
-    damage = 2000
-    accuracy = 0
-    penetration = 0
-
-total = 0
-def combat_test( mecha, weapon ):
-    total = 0
-    lowest = 999
-    highest = 0
-    for trial in range(1000):
-        mecha.wipe_damage()
-
-        t = 0
-        while mecha.is_operational() and t < 1000:
-            t += 1
-            hitroll = random.randint(1,100)
-            target = random.randint(1,100)
-#            if hitroll + weapon.accuracy > target + mecha.calc_mobility():
-#                Damage( weapon.damage, hitroll - target + weapon.penetration, mecha )
-            Damage( weapon.damage, abs(hitroll - target) + weapon.penetration, mecha )
-        if t < lowest:
-            lowest = t
-        if t > highest:
-            highest = t 
-        total += t
-    print("On average, mecha destroyed in {} shots".format( total/1000.0 ))
-    print("    Fastest Destruction: {}".format(lowest))
-    print("    Slowest Destruction: {}".format(highest))
 

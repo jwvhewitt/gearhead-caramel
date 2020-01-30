@@ -396,6 +396,9 @@ class AttackRoll( effects.NoEffect ):
             if camp.fight:
                 camp.fight.cstat[target].attacks_this_round += 1
 
+        if not next_fx and originator and hasattr(originator, "dole_experience"):
+            originator.dole_experience(3, self.att_skill)
+
         return next_fx or self.children
 
     def get_odds( self, camp, originator, target ):
@@ -471,6 +474,8 @@ class MultiAttackRoll( effects.NoEffect ):
             fx_record['penetration'] = penetration
 
             if not failed:
+                if originator and hasattr(originator, "dole_experience"):
+                    originator.dole_experience(3, self.att_skill)
                 if self.num_attacks <= 10:
                     num_hits = max(int(min( min( att_roll + att_bonus - hi_def_roll, 45 ) // 5 + 1, self.num_attacks )),1)
                 else:
@@ -539,8 +544,12 @@ class OpposedSkillRoll( effects.NoEffect ):
         if target:
             odds = self._calc_percent(camp,originator,target)
             if random.randint(1,100) <= odds:
+                if originator and hasattr(originator, "dole_experience"):
+                    originator.dole_experience(max((75 - odds) // 5, 2), self.att_skill)
                 return self.on_success
             else:
+                if hasattr(target, "dole_experience"):
+                    target.dole_experience(max((odds - 25) // 5, 2), self.def_skill)
                 return self.on_failure
         else:
             return self.on_no_target
@@ -609,6 +618,8 @@ class StealthSkillRoll( effects.NoEffect ):
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         odds = self._calc_percent(camp,originator,pos)
         if random.randint(1,100) <= odds:
+            if originator and hasattr(originator,"dole_experience"):
+                originator.dole_experience(max((75-odds)//5,2),self.att_skill)
             return self.on_success
         else:
             return self.on_failure
@@ -617,6 +628,7 @@ class StealthSkillRoll( effects.NoEffect ):
 class DoDamage( effects.NoEffect ):
     """ Whatever is in this tile is going to take damage.
     """
+    DESTROY_TARGET_XP = 45
     def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False, scatter=False ):
         if not children:
             children = list()
@@ -648,6 +660,15 @@ class DoDamage( effects.NoEffect ):
             # Hidden targets struck by an attack get revealed.
             myanim = animobs.RevealModel( target,delay=delay)
             anims.append(myanim)
+
+            # If the target is destroyed, give experience to the originator.
+            if originator and hasattr(originator,"dole_experience") and camp.scene.are_hostile(originator,target):
+                if mydamage.operational_at_start and not target.is_operational():
+                    originator.dole_experience(max(self.DESTROY_TARGET_XP * target.cost // originator.cost,1))
+                elif mydamage.damage_done > 0:
+                    originator.dole_experience(2)
+                else:
+                    originator.dole_experience(1)
         return self.children
 
 class DoHealing( effects.NoEffect ):
@@ -681,6 +702,9 @@ class DoHealing( effects.NoEffect ):
                 pos=target.pos, delay=delay,
                 y_off=-camp.scene.model_altitude(target,*target.pos))
             anims.append( myanim )
+
+            if originator and hasattr(originator, "dole_experience") and self.repair_type in stats.REPAIR_SKILLS:
+                originator.dole_experience(max(hp_restored//(scale.SIZE_FACTOR ** 2),5), stats.REPAIR_SKILLS[self.repair_type])
 
             if hasattr(target, "ench_list"):
                 target.ench_list.tidy(self.repair_type)
@@ -868,13 +892,19 @@ class DodgeRoll( object ):
 
         if att_roll > 95:
             # A roll greater than 95 always hits.
+            if attacker and hasattr(attacker,"dole_experience"):
+                attacker.dole_experience(1)
             return (None,def_target)
         elif att_roll <= 5:
             # A roll of 5 or less always misses.
+            if defender and hasattr(defender,"dole_experience") and hasattr(defender,"DODGE_SKILL"):
+                defender.dole_experience(3,defender.DODGE_SKILL)
             return (self.CHILDREN, def_target)
         elif (att_roll + att_bonus + atroller.accuracy) > (def_target + defender.calc_mobility()):
             return (None,def_target)
         else:
+            if defender and hasattr(defender,"dole_experience") and hasattr(defender,"DODGE_SKILL"):
+                defender.dole_experience(2,defender.DODGE_SKILL)
             return (self.CHILDREN, def_target)
 
     def can_attempt( self, attacker, defender ):
@@ -902,6 +932,8 @@ class ReflexSaveRoll( object ):
         if diff >= 0:
             # Record a damage reduction.
             fx_record['damage_percent'] = max( 75- diff, 25 )
+            if defender and hasattr(defender,"dole_experience") and hasattr(defender,"DODGE_SKILL"):
+                defender.dole_experience(2,defender.DODGE_SKILL)
         return (None,def_target)
 
     def can_attempt( self, attacker, defender ):
@@ -924,6 +956,8 @@ class BlockRoll( object ):
             if def_roll > 95:
                 # A roll greater than 95 always defends.
                 shield.pay_for_block(defender,self.weapon_to_block)
+                if defender and hasattr(defender, "dole_experience"):
+                    defender.dole_experience(3, shield.scale.MELEE_SKILL)
                 return (self.CHILDREN,def_roll + def_bonus)
             elif def_roll <= 5:
                 # A roll of 5 or less always fails.
@@ -932,6 +966,8 @@ class BlockRoll( object ):
                 return (None,def_roll + def_bonus)
             else:
                 shield.pay_for_block(defender,self.weapon_to_block)
+                if defender and hasattr(defender, "dole_experience"):
+                    defender.dole_experience(2, shield.scale.MELEE_SKILL)
                 return (self.CHILDREN, def_roll + def_bonus)
         else:
             return (None,0)
@@ -968,6 +1004,8 @@ class ParryRoll( object ):
             if def_roll > 95:
                 # A roll greater than 95 always defends.
                 parrier.pay_for_parry(defender,self.weapon_to_parry)
+                if defender and hasattr(defender, "dole_experience"):
+                    defender.dole_experience(3, parrier.scale.MELEE_SKILL)
                 return (self.CHILDREN,def_roll + def_bonus)
             elif def_roll <= 5:
                 # A roll of 5 or less always fails.
@@ -976,6 +1014,8 @@ class ParryRoll( object ):
                 return (None,def_roll + def_bonus)
             else:
                 parrier.pay_for_parry(defender,self.weapon_to_parry)
+                if defender and hasattr(defender, "dole_experience"):
+                    defender.dole_experience(2, parrier.scale.MELEE_SKILL)
                 return (self.CHILDREN, def_roll + def_bonus)
         else:
             return (None,0)
@@ -1012,6 +1052,8 @@ class InterceptRoll( object ):
             if def_roll > 95:
                 # A roll greater than 95 always defends.
                 interceptor.pay_for_intercept(defender,self.weapon_to_intercept)
+                if defender and hasattr(defender, "dole_experience"):
+                    defender.dole_experience(3, interceptor.scale.RANGED_SKILL)
                 return (self.CHILDREN,def_roll + def_bonus)
             elif def_roll <= 5:
                 # A roll of 5 or less always fails.
@@ -1020,6 +1062,8 @@ class InterceptRoll( object ):
                 return (None,def_roll + def_bonus)
             else:
                 interceptor.pay_for_intercept(defender,self.weapon_to_intercept)
+                if defender and hasattr(defender, "dole_experience"):
+                    defender.dole_experience(2, interceptor.scale.RANGED_SKILL)
                 return (self.CHILDREN, def_roll + def_bonus)
         else:
             return (None,0)

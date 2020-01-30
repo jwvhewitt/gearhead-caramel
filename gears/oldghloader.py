@@ -247,6 +247,14 @@ class GH1Loader(object):
         2: genderobj.Gender.get_default_nonbinary()
     }
 
+    NPC_VIKKI = "Vikki Shingo"
+
+    # This dictionary lists Character IDs for major NPCs.
+    # The G,S for the Character ID is 5,0
+    MAJOR_NPCS = {
+        NPC_VIKKI: 6
+    }
+
     def _extract_value(self, myline):
         bits = myline.split(None, 1)
         if bits:
@@ -407,6 +415,13 @@ class GH1Loader(object):
                     (self.NAG_LOCATION, self.NAS_TEAM)) == self.NAV_DEFPLAYERTEAM:
                 pc = mpc
         return pc
+
+    def find_npc(self,characterid):
+        npc = None
+        for candidate in self.all_gears(self.gb_contents):
+            if candidate.g == self.GG_CHARACTER and candidate.natt.get((5,0)) == characterid:
+                npc = candidate
+        return npc
 
     def find_adventure(self):
         adv = None
@@ -580,6 +595,9 @@ class GH1Loader(object):
     def load(self):
         with open(self.fname, 'rb') as f:
             self._load_list(f)
+
+    def get_relationships(self,egg):
+        pass
 
     def get_egg(self):
         rpc = self.find_pc()

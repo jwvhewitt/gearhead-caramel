@@ -67,7 +67,7 @@ def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
     # If this NPC has no relationship with the PC, create that now.
     realnpc = npc.get_pilot()
     if realnpc and not realnpc.relationship:
-        realnpc.relationship = gears.relationships.Relationship()
+        realnpc.relationship = camp.get_relationship(realnpc)
     cviz = ghdview.ConvoVisualizer(npc,camp,pc=pc)
     cviz.rollout()
     convo = pbge.dialogue.DynaConversation(camp,realnpc,pc,cue,visualizer=cviz)

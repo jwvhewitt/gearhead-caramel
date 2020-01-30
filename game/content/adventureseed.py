@@ -3,6 +3,7 @@ from game.content import GHNarrativeRequest, PLOT_LIST
 from pbge.plots import Adventure
 import gears
 import pygame
+import random
 
 
 class AdventureSeed(Adventure):
@@ -69,10 +70,10 @@ class AdventureSeed(Adventure):
             return "F-"
         elif c < 0 and won:
             return "D--"
+        elif c <= 50 and won:
+            return "D-"
         elif c <= 50 or not won:
             return "F"
-        elif c <= 50:
-            return "D-"
         elif c <= 60:
             return "D"
         elif c <= 70:
@@ -105,19 +106,26 @@ class AdventureSeed(Adventure):
     def end_adventure(self,camp):
         for rfun in self.rewards:
             rfun(camp,self)
-        if self.restore_at_end:
-            self.restore_party(camp)
 
         for pc in camp.party:
             if hasattr(pc,"relationship") and pc.relationship:
                 pc.relationship.missions_together += 1
+                if self.is_won():
+                    pc.relationship.reaction_mod += random.randint(1,5)
+                else:
+                    pc.relationship.reaction_mod -= random.randint(1,5)
+
+        grade = self.get_grade()
+
+        if self.restore_at_end:
+            self.restore_party(camp)
 
         if self.display_results_at_end:
             if self.is_won():
-                mydisplay = CombatResultsDisplay(title="Victory: {}".format(self.get_grade()), mission_seed=self,
+                mydisplay = CombatResultsDisplay(title="Victory: {}".format(grade), mission_seed=self,
                                                  width=400)
             else:
-                mydisplay = CombatResultsDisplay(title="Failure: {}".format(self.get_grade()),
+                mydisplay = CombatResultsDisplay(title="Failure: {}".format(grade),
                                                  title_color=pygame.color.Color(250, 50, 0), mission_seed=self,
                                                  width=400)
             pbge.alert_display(mydisplay.show)
@@ -231,10 +239,10 @@ class ComeBackInOnePieceObjective(MissionObjective):
                     tds = mek.get_percent_damage_over_health()
                     if tds < 1:
                         dstats.append(5)
-                    elif tds >= 4:
-                        dstats.append(max(-tds*2,-50))
+                    elif tds > 5:
+                        dstats.append(max(-tds + 5,-30))
                 else:
-                    dstats.append(-75)
+                    dstats.append(-50)
         if dstats:
             return sum(dstats)
         else:
@@ -274,9 +282,12 @@ class RenownReward(object):
         comp = adv.get_completion()
         rank = self.rank or adv.pstate.rank
         original_renown = camp.renown
-        if comp > 100:
-            # The party did very well; jump to this renown if much lower.
+        if comp > 100 and camp.renown <= (rank+10):
+            # The party did very well; jump to this renown if lower.
             camp.renown = max(rank+1,camp.renown+1)
+        elif comp > 90 and camp.renown < rank:
+            # The party did well; jump to this renown if much lower.
+            camp.renown = min(camp.renown + 5, rank)
         elif comp > 70 and camp.renown <= (rank+10):
             camp.renown += 1
         elif comp < 60:
@@ -297,7 +308,7 @@ class ExperienceReward(object):
         """
         # Only give a cash reward if the adventure is won.
         if adv.is_won():
-            xp = max(self.size,adv.get_completion())
+            xp = max(self.size,adv.get_completion() * self.size // 100)
         else:
             xp = self.size//2
 

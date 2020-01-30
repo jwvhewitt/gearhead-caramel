@@ -413,7 +413,7 @@ class DZD_BlueFortressHQ(Plot):
          gears.stats.Knowledge:10,gears.stats.Craft:10,gears.stats.Ego:10,
          gears.stats.Charm:12}, mecha_pref = "THD-35 Thorshammer",
          job=gears.jobs.ALL_JOBS["Mecha Pilot"], renown=50, birth_year=138, combatant=True, faction=gears.factions.TerranDefenseForce,
-         personality=[personality.Cheerful,personality.Shy,personality.Fellowship], mnpcid="Vikki Shingo",
+         personality=[personality.Cheerful,personality.Shy,personality.Fellowship], mnpcid=gears.oldghloader.GH1Loader.NPC_VIKKI,
          gender=gears.genderobj.Gender.get_default_female(),portrait='card_f_vikki_dzd.png',
          colors=(gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive),
          mecha_colors=(gears.color.ShiningWhite,gears.color.Olive,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))

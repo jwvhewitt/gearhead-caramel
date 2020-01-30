@@ -94,7 +94,11 @@ class LanceRecoveryStub( Plot ):
 
         # Deal with dispossessed lancemates.
         for pc in [pc for pc in nart.camp.get_lancemates() if not nart.camp.get_pc_mecha(pc)]:
-            self.plots_to_run.append(self.add_sub_plot(nart,"LANCEMATE_NEEDS_MECHA",spstate=PlotState().based_on(self,{"NPC":pc})))
+            mek = nart.camp.get_backup_mek(pc)
+            if mek:
+                nart.camp.assign_pilot_to_mecha(pc, mek)
+            else:
+                self.plots_to_run.append(self.add_sub_plot(nart,"LANCEMATE_NEEDS_MECHA",spstate=PlotState().based_on(self,{"NPC":pc})))
 
         # Deal with incapacitated lancemates.
         for pc in list(nart.camp.incapacitated_party):

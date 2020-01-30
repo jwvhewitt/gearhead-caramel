@@ -70,7 +70,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         if data:
             self.data.update(data)
 
-        super(BuildAMissionSeed, self).__init__(camp, name, adv_type=adv_type, adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False, **kwargs)
+        super().__init__(camp, name, adv_type=adv_type, adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False, **kwargs)
 
         if cash_reward > 0:
             self.rewards.append(adventureseed.CashReward(size=cash_reward))
