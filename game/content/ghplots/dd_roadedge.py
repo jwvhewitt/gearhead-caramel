@@ -99,6 +99,8 @@ class DZREPR_BasePlot(Plot):
 
     MISSION_LABELS = ["DZRE_MOTIVE_ACE","DZRE_ACE_TOWN", "DZRE_MOTIVE_TOWN"]
     MISSION_IDENTS = ("ALPHA_MISSION","BETA_MISSION")
+    CONCLUSION_IDENT = "FINAL_MISSION"
+    CONCLUSION_LABEL = "DZRE_CONCLUSION"
 
     NUMBER_OF_MISSIONS_BEFORE_CONCLUSION = 3
 
@@ -108,17 +110,23 @@ class DZREPR_BasePlot(Plot):
         self.register_element(E_TOWN,self.STARTING_TOWN)
         self.register_element(E_MISSION_NUMBER, 0)
         self.start_missions = False
+        self.final_loaded = False
 
         return True
 
     def t_UPDATE(self,camp):
         if self.start_missions:
-            if self.MISSION_IDENTS[0] not in self.subplots or not self.subplots[self.MISSION_IDENTS[0]]:
+            if (self.MISSION_IDENTS[0] not in self.subplots or not self.subplots[self.MISSION_IDENTS[0]]) and not self.final_loaded:
                 self.load_missions(camp)
 
     def load_missions(self,camp):
         if self.elements[E_MISSION_NUMBER] >= self.NUMBER_OF_MISSIONS_BEFORE_CONCLUSION:
-            print("Load the conclusion now!")
+            init = pbge.plots.PlotState(rank=self.rank + self.elements[E_MISSION_NUMBER] * 3 + 5).based_on(self)
+            nart = game.content.GHNarrativeRequest(camp, init, self.CONCLUSION_LABEL, game.content.PLOT_LIST)
+            if nart.story:
+                nart.build()
+                self.subplots[self.CONCLUSION_IDENT] = nart.story
+            self.final_loaded = True
         else:
             self.elements[E_MISSION_NUMBER] += 1
             random.shuffle(self.MISSION_LABELS)
@@ -155,7 +163,13 @@ class DZREPR_BasePlot(Plot):
 
     def FINAL_MISSION_WIN(self,camp):
         camp.check_trigger("WIN",self)
+        self.elements["METRO"].local_reputation = max(self.elements["METRO"].local_reputation+10,0)
         self.end_plot(camp)
+
+    def FINAL_MISSION_LOSE(self,camp):
+        self.elements["METRO"].local_reputation -= 5
+        self.final_loaded = False
+
 
 class DZREPR_BaseMission(Plot):
     # Will activate the adventure when property mission_active set to True
@@ -333,7 +347,7 @@ class DZREPR_NoBigDealMaybe(DZREPR_NPCMission):
     CUSTOM_REPLY = "What can you tell me about {FACTION}?"
     CUSTOM_OFFER = "The highway outside {LOCALE} is full of bandits and raiders and whoever; {FACTION} is nothing special. A patrol went out to check on them this morning... they should be reporting back any time now."
     def _npc_matches(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Military,gears.tags.Politician))
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Military,gears.tags.Politician)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
 class DZREPR_MedicineShipment(DZREPR_NPCMission):
     LABEL = "DZRE_MOTIVE_TOWN"
@@ -349,7 +363,7 @@ class DZREPR_MedicineShipment(DZREPR_NPCMission):
     CUSTOM_REPLY = "Have you had any trouble getting supplies lately?"
     CUSTOM_OFFER = "Yes, actually. Thanks to {FACTION} shipments from the green zone have become iffy. I'm waiting on a vital order of medicine, but I don't know if it's going to get through."
     def _npc_matches(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Medic,))
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Medic,)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
 class DZREPR_SeekAndDestroy(DZREPR_NPCMission):
     LABEL = "DZRE_MOTIVE_ACE"
@@ -364,8 +378,8 @@ class DZREPR_SeekAndDestroy(DZREPR_NPCMission):
     DEFAULT_INFO = None
     CUSTOM_REPLY = "Have you found where the {FACTION} base is?"
     CUSTOM_OFFER = "No, and I'm beginning to think they can just disappear into thin air. {FACTION} has been raiding convoys up and down the highway then disappearing into the deadzone like ghosts. Maybe if I were lucky enough to stumble across them right as they're on the move I could figure out where they're coming from."
-    def z_npc_matches(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.combatant
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
 class DZREPR_ThoseAreNotBandits(DZREPR_BaseMission):
     LABEL = "DZRE_MOTIVE_ACE"
@@ -409,7 +423,7 @@ class DZREPR_DefendOurSoverignty(DZREPR_NPCMission):
     CUSTOM_REPLY = "I've come to help you against {FACTION}."
     CUSTOM_OFFER = "Good; {LOCALE} needs all the help it can get, and I'm not sure that anyone else in this town is taking {FACTION} seriously. Scouts have been following one of their commanders. If you hurry to this location, you might be able to deal them a crushing blow."
     def _npc_matches(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Military,gears.tags.Politician))
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Military,gears.tags.Politician)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
 class DZREPR_TheyHaveUsSurrounded(DZREPR_BaseMission):
     LABEL = "DZRE_ACE_TOWN"
@@ -453,7 +467,7 @@ class DZREPR_ClarifyTheirMotives(DZREPR_NPCMission):
     CUSTOM_REPLY = "I heard you are collecting information about {FACTION}?"
     CUSTOM_OFFER = "I know that most people in town expect the militia to act right away, but first I think we ought to know what {FACTION} wants. I would be grateful if you could scout out their position and see what they're up to."
     def _npc_matches(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Politician))
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Politician)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
 class DZREPR_TheConflictIntensifies(DZREPR_NPCMission):
     LABEL = "DZRE_MOTIVE_TOWN"
@@ -470,7 +484,7 @@ class DZREPR_TheConflictIntensifies(DZREPR_NPCMission):
     CUSTOM_REPLY = "Do you have a plan to defeat {FACTION}?"
     CUSTOM_OFFER = "Not exactly. The {LOCALE} militia is overwhelmed; the most we can do right now is try to keep them at bay with the few resources we have available. The situation doesn't look good. We could use all the help we can get."
     def _npc_matches(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Politician,gears.tags.Military))
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Politician,gears.tags.Military)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
 class DZREPR_BanditAbductions(DZREPR_BaseMission):
     LABEL = "DZRE_MOTIVE_TOWN"
@@ -514,7 +528,77 @@ class DZREPR_HuntingForSecretBase(DZREPR_NPCMission):
     CUSTOM_REPLY = "I heard that you're looking for {FACTION}."
     CUSTOM_OFFER = "People in town are starting to get nervous because it seems like {FACTION} can strike from anywhere. I've dispatched search parties to try and find their hidden base; you can join them, if you have time."
     def _npc_matches(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Military,gears.tags.Politician))
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Military,gears.tags.Politician)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+
+#   *******************************************
+#   ***   ROAD  EDGE  RATCHET  CONCLUSION   ***
+#   *******************************************
+
+class DZREPRC_CallOutBattle(Plot):
+    # Will activate the adventure when property mission_active set to True
+    # Required Elements: METRO, LOCALE, MISSION_GATE, FACTION
+    LABEL = "DZRE_CONCLUSION"
+    active = True
+    scope = "METRO"
+    MISSION_NAME = "Ultimate Challenge"
+    MISSION_PROMPT = "Go meet {FACTION}'s challenge."
+    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER,)
+    WIN_MESSAGE = "With their leaders defeated and their mecha forces destroyed, {FACTION} cease to be a danger to travelers in the dead zone."
+
+    def custom_init(self, nart):
+        self.build_mission(nart.camp)
+        self.mission_active = False
+        return True
+
+    def build_mission(self,camp):
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            camp, self.MISSION_NAME, (self.elements["LOCALE"],self.elements["MISSION_GATE"]),
+            enemy_faction = self.elements["FACTION"], rank=self.rank,
+            objectives = self.OBJECTIVES, one_chance=False,
+            architecture=gharchitecture.MechaScaleDeadzone,
+            win_message=self.WIN_MESSAGE.format(**self.elements)
+        )
+
+    def t_UPDATE(self,camp):
+        if self.mission_seed.ended:
+            if self.mission_seed.is_won():
+                camp.check_trigger("WIN",self)
+            else:
+                camp.check_trigger("LOSE",self)
+            self.end_plot(camp,True)
+
+    def activate_mission(self,camp):
+        self.mission_active = True
+        self.memo = "You learned that {FACTION} are waiting just outside of {LOCALE} to challenge you to a final battle.".format(**self.elements)
+        missionbuilder.NewMissionNotification(self.MISSION_NAME,self.elements["MISSION_GATE"])
+        camp.check_trigger("UPDATE")
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed and self.mission_active:
+            thingmenu.add_item(self.MISSION_PROMPT.format(**self.elements), self.mission_seed)
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and npc not in camp.party:
+            goffs.append(Offer(
+                msg="You've caused a lot of trouble for {FACTION}, so they've mobilized all of their forces in {LOCALE} to finish you off once and for all.".format(**self.elements ),
+                context=ContextTag((context.INFO,)), effect=self.activate_mission,
+                data={"subject": "this challenge"}, subject="{FACTION} have challenged".format(**self.elements),
+                no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if not self.mission_active and npc not in camp.party:
+            mygram["[News]"].append("{FACTION} have challenged you to one final battle".format(**self.elements))
+            mygram["[HELLO_AGAIN]"].append("What are you doing here, [audience]?! Didn't you hear that {FACTION} have challenged you to one final battle?".format(**self.elements))
+            mygram["[HELLO_FIRST]"].append(
+                "You're [audience], aren't you? [chat_lead_in] {FACTION} have challenged you to one final battle.".format(**self.elements)
+            )
+        return mygram
 
 
 #   ***************************************
@@ -648,11 +732,12 @@ class BanditsPalooza(Plot):
     scope = True
 
     def custom_init(self, nart):
+        myedge = self.elements["DZ_EDGE"]
         self.rank = 15 + random.randint(1,6) - random.randint(1,6)
         self.register_element("DZ_EDGE_STYLE",RoadEdge.STYLE_YELLOW)
-        self.register_element("FACTION",plotutility.RandomBanditCircle())
+        self.register_element("FACTION",plotutility.RandomBanditCircle(nart.camp,enemies=(myedge.start_node.destination.faction,)))
 
-        myedge = self.elements["DZ_EDGE"]
+        self.add_sub_plot(nart,"ADD_REMOTE_OFFICE",ident="BANDITRO",spstate=PlotState(rank=self.rank+5,elements={"METRO":myedge.start_node.destination.metrodat,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
         self.add_sub_plot(nart,"DZRE_BanditProblem",ident="MISSION",spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
 
         return True
@@ -687,3 +772,5 @@ class BanditsPalooza(Plot):
         if self.active and random.randint(1,100) <= 45:
             return self.get_bandit_adventure(camp,dest_node)
 
+    def MISSION_WIN(self,camp):
+        self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE

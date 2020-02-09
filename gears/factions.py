@@ -14,7 +14,7 @@ class Faction(Singleton):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot",),
         tags.Commander: ("Commander",),
-        tags.Support: ("Mecha Pilot",),
+        tags.Support: ("Recon Pilot","Field Medic"),
     }
     LOCATIONS = ()
     NAME_PATTERNS = ("the {number} {noun}","the {adjective} {noun}")
@@ -57,9 +57,9 @@ class AegisOverlord(Faction):
     factags = (tags.Politician, tags.Military)
     mecha_colors = (color.LunarGrey, color.AegisCrimson, color.LemonYellow, color.CeramicColor, color.LunarGrey)
     CAREERS = {
-        tags.Trooper: ("Mecha Pilot",),
+        tags.Trooper: ("Mecha Pilot","Soldier"),
         tags.Commander: ("Commander",),
-        tags.Support: ("Mecha Pilot",),
+        tags.Support: ("Recon Pilot","Field Medic"),
     }
     LOCATIONS = (personality.Luna,)
     ADJECTIVES = ("Expedition","Strike Force")
@@ -103,7 +103,7 @@ class TerranFederation(Faction):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot",),
         tags.Commander: ("Commander",),
-        tags.Support: ("Mecha Pilot",),
+        tags.Support: ("Recon Pilot",),
     }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("Terran",)
@@ -118,7 +118,7 @@ class TerranDefenseForce(Faction):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot","Soldier"),
         tags.Commander: ("Commander",),
-        tags.Support: ("Recon Pilot",),
+        tags.Support: ("Recon Pilot","Field Medic"),
     }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("Terran",)
@@ -157,24 +157,55 @@ class BioCorp(Faction):
     NOUNS = ("Team","Division")
     uniform_colors = (color.Cream,None,None,None,color.RoyalPink)
 
+class DeadzoneFederation(Faction):
+    name = "the Deadzone Federation"
+    factags = (tags.Politician,)
+    mecha_colors = (color.DesertYellow, color.DarkBrown, color.GunRed, color.Charcoal, color.Gold)
+    CAREERS = {
+        tags.Trooper: ("Mecha Pilot","Mercenary"),
+        tags.Commander: ("Commander","Aristo","Warlord"),
+        tags.Support: ("Recon Pilot","Scavenger"),
+    }
+    LOCATIONS = (personality.DeadZone,)
+    ADJECTIVES = ("Deadzone","Wasteland","Frontier")
+    NOUNS = ("Council",)
+    uniform_colors = (color.DesertYellow,None,None,None,color.DarkBrown)
+
+class ClanIronwind(Faction):
+    name = "Clan Ironwind"
+    factags = (tags.Politician,tags.Military)
+    mecha_colors = (color.CometRed,color.DimGrey,color.GreenYellow,color.Black,color.BlackRose)
+    CAREERS = {
+        tags.Trooper: ("Mecha Pilot","Mercenary","Bandit"),
+        tags.Commander: ("Aristo","Warlord"),
+        tags.Support: ("Recon Pilot","Scavenger"),
+    }
+    LOCATIONS = (personality.DeadZone,)
+    ADJECTIVES = ("Deadzone","Wasteland","Iron")
+    NOUNS = ("Legion","Warriors","Warband")
+    uniform_colors = (color.BlackRose,None,None,None,None)
+
 
 class Circle(object):
-    def __init__(self, parent_faction=None, mecha_colors=None, name="", faction_reactions=None, careers=None, locations=(), uniform_colors=None, active=True):
+    def __init__(self, camp, parent_faction=None, mecha_colors=None, name="", careers=None, locations=(), uniform_colors=None, active=True, allies=(), enemies=()):
         if parent_faction and not name:
             name = parent_faction.get_circle_name()
         elif not name:
             name = Faction.get_circle_name()
         self.name = name
         self.parent_faction = parent_faction
+        random_colors = color.random_mecha_colors()
         if parent_faction and not mecha_colors:
-            mecha_colors = parent_faction.mecha_colors
-        self.mecha_colors = mecha_colors or color.random_mecha_colors()
+            mecha_colors = list(parent_faction.mecha_colors)
+            for col_i in range(len(mecha_colors)):
+                if random.randint(1,5) == 3:
+                    mecha_colors[col_i] = color.choose_color_by_tags((mecha_colors[col_i].family,))
+                elif random.randint(1,10) == 7:
+                    mecha_colors[col_i] = random_colors[col_i]
+        self.mecha_colors = mecha_colors or random_colors
         if parent_faction and not uniform_colors:
             uniform_colors = parent_faction.uniform_colors
         self.uniform_colors = uniform_colors or (None,None,None,None,None)
-        self.faction_reactions = dict()
-        if faction_reactions:
-            self.faction_reactions.update(faction_reactions)
         self.careers = dict()
         if careers:
             self.careers.update(careers)
@@ -182,6 +213,8 @@ class Circle(object):
         if self.parent_faction:
             self.locations += self.parent_faction.LOCATIONS
         self.active = active
+        if camp and (allies or enemies):
+            camp.faction_relations[self] = FactionRelations(allies=allies,enemies=enemies)
 
     def get_faction_tag(self):
         if self.parent_faction:
@@ -230,11 +263,19 @@ DEFAULT_FACTION_DICT_NT158 = {
     ),
     TerranDefenseForce: FactionRelations(
         allies= (TerranFederation,),
-        enemies= (AegisOverlord,BoneDevils)
+        enemies= (AegisOverlord,BoneDevils,ClanIronwind)
     ),
     Guardians: FactionRelations(
-        allies=(TerranFederation,),
+        allies=(TerranFederation,DeadzoneFederation),
         enemies=(BoneDevils,BladesOfCrihna)
+    ),
+    DeadzoneFederation: FactionRelations(
+        allies=(Guardians,),
+        enemies=(BoneDevils,ClanIronwind),
+    ),
+    ClanIronwind: FactionRelations(
+        allies=(),
+        enemies=(TerranFederation,TerranDefenseForce,DeadzoneFederation)
     )
 
 }

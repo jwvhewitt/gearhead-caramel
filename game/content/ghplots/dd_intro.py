@@ -49,7 +49,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
         self.add_sub_plot(nart,"DZD_MISSION_DEBRIEFING",ident="DEBRIEFING")
 
         # Attempt to load the test mission.
-        mytest = self.add_sub_plot(nart,"DZRE_TEST",spstate=pbge.plots.PlotState(rank=1,elements={"METRO":myscene.metrodat,"MISSION_GATE":mychute,"FACTION":game.content.plotutility.RandomBanditCircle()}).based_on(self),necessary=False)
+        mytest = self.add_sub_plot(nart,"DZRE_TEST",spstate=pbge.plots.PlotState(rank=1,elements={"METRO":myscene.metrodat,"MISSION_GATE":mychute,"FACTION":game.content.plotutility.RandomBanditCircle(nart.camp)}).based_on(self),necessary=False)
         if mytest:
             print("Loaded test!")
             mytest.mission_active = True

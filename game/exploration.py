@@ -484,23 +484,28 @@ class Explorer( object ):
                     elif gdi.unicode == "c":
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
-                    elif gdi.unicode == "X":
-                        self.camp.save()
                     elif gdi.unicode == "m":
                         memobrowser.MemoBrowser.browse(self.camp)
-                    elif gdi.unicode == "R":
+                    elif gdi.unicode == "R" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         print(self.camp.scene.get_root_scene())
-                    elif gdi.unicode == "A":
+                    elif gdi.unicode == "A" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         self.record_count = 20
 
-                    elif gdi.unicode == "K":
-                        self.camp.pc.hp_damage += 100
+#                    elif gdi.unicode == "K" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+#                        self.camp.pc.hp_damage += 100
 
-                    elif gdi.unicode == "&":
+                    elif gdi.unicode == "&" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
                                 self.scene.set_visible(x,y,True)
-                    elif gdi.unicode == "@":
+                    elif gdi.unicode == "!" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+                        for mpc in self.camp.get_active_party():
+                            pc = mpc.get_pilot()
+                            if pc:
+                                for skill in pc.statline:
+                                    if skill in gears.stats.COMBATANT_SKILLS:
+                                        pc.statline[skill] += 10
+                    elif gdi.unicode == "@" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         for thing in self.scene.contents:
                             if hasattr(thing,"pos"):
                                 print("{}: {}".format(thing,thing.pos))

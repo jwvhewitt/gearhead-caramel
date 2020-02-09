@@ -44,7 +44,7 @@ class STC_DeadZoneFortress( Plot ):
         player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
 
         if not self.elements.get("FACTION"):
-            self.register_element("FACTION",gears.factions.Circle())
+            self.register_element("FACTION",gears.factions.Circle(nart.camp))
 
         self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=player_a),dident="LOCALE")
         destination,entrance = self.elements["MISSION_RETURN"]
@@ -134,7 +134,7 @@ class DeadZoneRazedVillage( Plot ):
         player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
 
         if not self.elements.get("FACTION"):
-            self.register_element("FACTION",gears.factions.Circle())
+            self.register_element("FACTION",gears.factions.Circle(nart.camp))
 
         self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=player_a),dident="LOCALE")
         destination,entrance = self.elements["MISSION_RETURN"]

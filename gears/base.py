@@ -3139,6 +3139,11 @@ class Character(Being):
     def get_reaction_score(self,pc,camp):
         if self.relationship and pc is camp.pc:
             rs = self.relationship.reaction_mod
+            # Check for local reputation, if no relationship tags.
+            if not self.relationship.tags:
+                myscene = camp.scene.get_metro_scene()
+                if myscene:
+                    rs += myscene.metrodat.local_reputation
         else:
             rs = 0
         for a,b in personality.OPPOSED_PAIRS:

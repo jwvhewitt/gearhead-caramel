@@ -166,6 +166,9 @@ class BuildAMissionPlot( Plot ):
                 o.reset_objective()
 
 
+
+
+
 #   **********************
 #   ***   OBJECTIVES   ***
 #   **********************
@@ -217,16 +220,27 @@ class BAM_DefeatCommander( Plot ):
         self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(15,15,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
 
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
-        myunit = gears.selector.RandomMechaUnit(self.rank,150,myfac,myscene.environment,add_commander=True)
-        team2.contents += myunit.mecha_list
-        self.register_element("_commander",myunit.commander)
 
-        self.obj = adventureseed.MissionObjective("Defeat enemy commander {}".format(myunit.commander), MAIN_OBJECTIVE_VALUE * 2)
+        mynpc = self.seek_element(nart,"_commander",self._npc_is_good,scope=self.elements["METROSCENE"],must_find=False,lock=True)
+        if mynpc:
+            plotutility.CharacterMover(self,mynpc,myscene,team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+            self.register_element("_commander",myunit.commander)
+
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Defeat enemy commander {}".format(self.elements["_commander"]), MAIN_OBJECTIVE_VALUE * 2)
         self.adv.objectives.append(self.obj)
 
         self.intro_ready = True
 
         return True
+
+    def _npc_is_good(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate.faction == self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
+
     def _eteam_ACTIVATETEAM(self,camp):
         if self.intro_ready:
             npc = self.elements["_commander"]

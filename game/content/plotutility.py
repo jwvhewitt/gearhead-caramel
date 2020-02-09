@@ -138,11 +138,14 @@ class RandomBanditCircle(gears.factions.Circle):
     "Mob", "Ogres", "Queenz", "Kingz", "Raptors", "Slashers", "Titanz", "Vizigoths", "Freakz", "Junk Ratz",
     "Rippers", "Gougers", "Horde")
 
-    def __init__(self):
+    def __init__(self,camp,**kwargs):
         parent_faction = random.choice(
             [gears.factions.BoneDevils, gears.factions.BoneDevils, gears.factions.BladesOfCrihna, None])
-        name = "the {} {}".format(random.choice(self.CHART_A), random.choice(self.CHART_B))
-        super(RandomBanditCircle, self).__init__(name=name, parent_faction=parent_faction)
+        if parent_faction and random.randint(1,3) != 1:
+            name = parent_faction.get_circle_name()
+        else:
+            name = "the {} {}".format(random.choice(self.CHART_A), random.choice(self.CHART_B))
+        super().__init__(camp, name=name, parent_faction=parent_faction,**kwargs)
 
 
 class CargoContainer(gears.base.Prop):

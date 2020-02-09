@@ -17,12 +17,16 @@ class DZD_DeadZoneTown(Plot):
     scope = True
 
     def custom_init(self, nart):
+        town_name = self._generate_town_name()
+        town_fac = self.register_element( "METRO_FACTION",
+            gears.factions.Circle(nart.camp,parent_faction=gears.factions.DeadzoneFederation,name="the {} Council".format(town_name))
+        )
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team", allies=(team1,))
+        team2 = teams.Team(name="Civilian Team", allies=(team1,), faction=town_fac)
 
-        myscene = gears.GearHeadScene(50, 50, self._generate_town_name(), player_team=team1, civilian_team=team2,
+        myscene = gears.GearHeadScene(50, 50, town_name, player_team=team1, civilian_team=team2,
                                       scale=gears.scale.HumanScale, is_metro=True,
-                                      faction=gears.factions.TerranFederation,
+                                      faction=town_fac,
                                       attributes=(
                                       gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC))
         myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
@@ -36,7 +40,8 @@ class DZD_DeadZoneTown(Plot):
         defender = self.register_element(
             "DEFENDER", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
-                job=gears.jobs.choose_random_job((gears.tags.Police,),self.elements["LOCALE"].attributes)
+                job=gears.jobs.choose_random_job((gears.tags.Police,),self.elements["LOCALE"].attributes),
+                faction=town_fac
         ))
         defender.place(myscene, team=team2)
 
@@ -46,7 +51,6 @@ class DZD_DeadZoneTown(Plot):
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
 
         mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
-        print(" ".join(mystory.results["text"]))
 
         self.register_element("METRO", myscene.metrodat)
         self.register_element("METROSCENE", myscene)
@@ -100,12 +104,16 @@ class DZD_DeadZoneVillage(Plot):
     scope = True
 
     def custom_init(self, nart):
+        town_name = self._generate_town_name()
+        town_fac = self.register_element( "METRO_FACTION",
+            gears.factions.Circle(nart.camp,parent_faction=gears.factions.DeadzoneFederation,name="the {} Council".format(town_name))
+        )
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team", allies=(team1,))
+        team2 = teams.Team(name="Civilian Team", allies=(team1,), faction=town_fac)
 
-        myscene = gears.GearHeadScene(50, 50, self._generate_town_name(), player_team=team1, civilian_team=team2,
+        myscene = gears.GearHeadScene(50, 50, town_name, player_team=team1, civilian_team=team2,
                                       scale=gears.scale.HumanScale, is_metro=True,
-                                      faction=gears.factions.TerranFederation,
+                                      faction=town_fac,
                                       attributes=(
                                       gears.personality.DeadZone, gears.tags.Village, gears.tags.SCENE_PUBLIC))
         myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
@@ -116,7 +124,8 @@ class DZD_DeadZoneVillage(Plot):
         defender = self.register_element(
             "DEFENDER", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
-                job=gears.jobs.choose_random_job((gears.tags.Police,),self.elements["LOCALE"].attributes)
+                job=gears.jobs.choose_random_job((gears.tags.Police,),self.elements["LOCALE"].attributes),
+                faction=town_fac
         ))
         defender.place(myscene, team=team2)
 
@@ -129,8 +138,6 @@ class DZD_DeadZoneVillage(Plot):
         self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_VILLAGE)
 
         mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
-        print(" ".join(mystory.results["text"]))
-
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.east),
                                         dident="LOCALE")
@@ -192,7 +199,7 @@ class DemocraticOrder(Plot):
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team")
+        team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
         intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GOVERNMENT),
                                        scale=gears.scale.HumanScale)
@@ -210,14 +217,16 @@ class DemocraticOrder(Plot):
         npc = self.register_element("LEADER",
                                     gears.selector.random_character(
                                         self.rank, local_tags=self.elements["LOCALE"].attributes,
-                                        job=gears.jobs.ALL_JOBS["Mayor"]
+                                        job=gears.jobs.ALL_JOBS["Mayor"],
+                                        faction = self.elements["METRO_FACTION"]
                                     ))
         npc.place(intscene, team=team2)
 
         bodyguard = self.register_element(
             "BODYGUARD", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
-                job=gears.jobs.choose_random_job((gears.tags.Military,),self.elements["LOCALE"].attributes)
+                job=gears.jobs.choose_random_job((gears.tags.Military,),self.elements["LOCALE"].attributes),
+                faction = self.elements["METRO_FACTION"]
         ))
         bodyguard.place(intscene, team=team2)
 

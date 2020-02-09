@@ -50,7 +50,7 @@ class SpFa_MilitarySplinter(Plot):
             candidates = [fac for fac in nart.camp.faction_relations[city_fac].allies if gears.tags.Military in fac.factags]
             if candidates:
                 myfac = random.choice(candidates)
-                mycircle = self.register_element("FACTION",gears.factions.Circle(myfac))
+                mycircle = self.register_element("FACTION",gears.factions.Circle(nart.camp,parent_faction=myfac))
                 if myfac in nart.camp.faction_relations and nart.camp.faction_relations[myfac].enemies:
                     hated_fac = random.choice(nart.camp.faction_relations[myfac].enemies)
                     hated_origin = random.choice(hated_fac.LOCATIONS)
@@ -339,7 +339,7 @@ class BanditBase( Plot ):
 
     def custom_init(self, nart):
         # Create the outer grounds with the bandits and their leader.
-        mybandits = game.content.plotutility.RandomBanditCircle()
+        mybandits = game.content.plotutility.RandomBanditCircle(nart.camp)
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(35,35,"Bandit Base Area",player_team=team1,scale=gears.scale.MechaScale)
         myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())

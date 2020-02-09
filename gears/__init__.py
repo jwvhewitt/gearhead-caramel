@@ -122,6 +122,7 @@ class MetroData(object):
     def __init__(self):
         self.tarot = pbge.container.ContainerDict()
         self.scripts = pbge.container.ContainerList(owner=self)
+        self.local_reputation = 0
     def get_quality_of_life(self):
         qol = QualityOfLife()
         for card in list(self.tarot.values()):
@@ -517,6 +518,43 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             return self.egg.major_npc_records.setdefault(npc.mnpcid,relationships.Relationship())
         else:
             return relationships.Relationship()
+
+    # Faction Methods
+    def get_faction(self,mything):
+        if isinstance(mything,factions.Circle):
+            return mything
+        elif inspect.isclass(mything) and issubclass(mything,factions.Faction):
+            return mything
+        elif hasattr(mything,"faction"):
+            return mything.faction
+        elif hasattr(mything,"get_tacit_faction"):
+            return mything.get_tacit_faction(self)
+
+    def _get_faction_family(self,myfac):
+        facfam = [myfac,]
+        while hasattr(myfac,"parent_faction") and myfac.parent_faction:
+            facfam.append(myfac.parent_faction)
+            myfac = myfac.parent_faction
+        return facfam
+
+    def are_faction_allies(self,a,b):
+        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+        if a_fac and b_fac:
+            a_fam,b_fam = self._get_faction_family(a_fac),self._get_faction_family(b_fac)
+            for fac1 in a_fam:
+                for fac2 in b_fam:
+                    if fac1 is fac2 or (fac1 in self.faction_relations and fac2 in self.faction_relations[fac1].allies) or (fac2 in self.faction_relations and fac1 in self.faction_relations[fac2].allies):
+                        return True
+
+    def are_faction_enemies(self,a,b):
+        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+        if a_fac and b_fac:
+            a_fam,b_fam = self._get_faction_family(a_fac),self._get_faction_family(b_fac)
+            for fac1 in a_fam:
+                for fac2 in b_fam:
+                    if (fac1 in self.faction_relations and fac2 in self.faction_relations[fac1].enemies) or (fac2 in self.faction_relations and fac1 in self.faction_relations[fac2].enemies):
+                        return True
+
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about string.partition at the time.

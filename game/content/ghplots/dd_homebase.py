@@ -202,7 +202,7 @@ class DZD_BronzeHorseInn(Plot):
             nart.camp,"Help Osmund's Friend",(self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
             objectives=(missionbuilder.BAMO_CAPTURE_THE_MINE,missionbuilder.BAMO_NEUTRALIZE_ALL_DRONES),cash_reward=500,
             architecture = gharchitecture.MechaScaleSemiDeadzone,
-            enemy_faction=plotutility.RandomBanditCircle(),
+            enemy_faction=plotutility.RandomBanditCircle(nart.camp),
             win_message = "You have liberated the mining camp from the bandits who stole it.",
             one_chance = False
         )
