@@ -178,6 +178,7 @@ class DZREPR_BaseMission(Plot):
     active = True
     scope = "METRO"
     REQUIRES = {E_MOTIVE: None, E_ACE: None, E_TOWN: None}
+    REQUIRED_FACTAGS = set()
     CHANGES = {E_MOTIVE: None, E_ACE: None, E_TOWN: None}
     MISSION_NAME = "The Mission"
     MISSION_PROMPT = "Go do mission"
@@ -187,7 +188,7 @@ class DZREPR_BaseMission(Plot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return all(pstate.elements.get(k,0) == cls.REQUIRES[k] for k in cls.REQUIRES.keys()) or cls.LABEL == "DZRE_TEST"
+        return (all(pstate.elements.get(k,0) == cls.REQUIRES[k] for k in cls.REQUIRES.keys()) and cls.REQUIRED_FACTAGS.issubset(pstate.elements["FACTION"].factags)) or cls.LABEL == "DZRE_TEST"
 
     def custom_init(self, nart):
         self.mission_seed = None
@@ -351,8 +352,9 @@ class DZREPR_NoBigDealMaybe(DZREPR_NPCMission):
 
 class DZREPR_MedicineShipment(DZREPR_NPCMission):
     LABEL = "DZRE_MOTIVE_TOWN"
-    #LABEL = "DZRE_TEST"
+    #TODO: Add a non-bandit mission for this Propp State
     REQUIRES = {E_MOTIVE: DZRE_MOTIVE_PROFIT, E_TOWN: DZRE_TOWN_NEUTRAL}
+    REQUIRED_FACTAGS = {gears.tags.Criminal,}
     CHANGES = {E_TOWN: DZRE_TOWN_AGAINST}
     MISSION_NAME = "Medicine Shipment"
     MISSION_PROMPT = "Protect {NPC}'s medicine shipment"
@@ -367,8 +369,9 @@ class DZREPR_MedicineShipment(DZREPR_NPCMission):
 
 class DZREPR_SeekAndDestroy(DZREPR_NPCMission):
     LABEL = "DZRE_MOTIVE_ACE"
-    #LABEL = "DZRE_TEST"
+    #TODO: Add a non-bandit mission for this Propp State
     REQUIRES = {E_MOTIVE: DZRE_MOTIVE_PROFIT, E_ACE: DZRE_ACE_UNKNOWN}
+    REQUIRED_FACTAGS = {gears.tags.Criminal,}
     CHANGES = {E_ACE: DZRE_ACE_HIDDENBASE}
     MISSION_NAME = "Highway Patrol"
     MISSION_PROMPT = "Search the highway looking for {FACTION}"
@@ -454,8 +457,8 @@ class DZREPR_TheyHaveUsSurrounded(DZREPR_BaseMission):
 
 class DZREPR_ClarifyTheirMotives(DZREPR_NPCMission):
     LABEL = "DZRE_MOTIVE_TOWN"
-    #LABEL = "DZRE_TEST"
     REQUIRES = {E_MOTIVE: DZRE_MOTIVE_UNKNOWN, E_TOWN: DZRE_TOWN_AGAINST}
+    REQUIRED_FACTAGS = {gears.tags.Criminal,}
     CHANGES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST}
     MISSION_NAME = "Clarifying Their Motives"
     MISSION_PROMPT = "Scout out {FACTION} for {NPC}"
@@ -468,6 +471,50 @@ class DZREPR_ClarifyTheirMotives(DZREPR_NPCMission):
     CUSTOM_OFFER = "I know that most people in town expect the militia to act right away, but first I think we ought to know what {FACTION} wants. I would be grateful if you could scout out their position and see what they're up to."
     def _npc_matches(self,nart,candidate):
         return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Politician)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_GetTheVotesKillTheBaddies(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_UNKNOWN, E_TOWN: DZRE_TOWN_AGAINST}
+    CHANGES = {E_MOTIVE: DZRE_TOWN_AFRAID}
+    MISSION_NAME = "Eliminate the Problem"
+    MISSION_PROMPT = "Get rid of {FACTION} for {NPC}"
+    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER,missionbuilder.BAMO_LOCATE_ENEMY_FORCES)
+    WIN_MESSAGE = "As the battle ends, you receive news over the comms that {FACTION} have struck the {LOCALE} Militia headquarters. This mission was merely a diversion."
+    DEFAULT_NEWS = "{NPC} has promised to get rid of {FACTION}"
+    DEFAULT_INFO = "You can ask {NPC} about {FACTION} yourself; speak to {NPC.gender.object_pronoun} at {NPC_SCENE}."
+    DEFAULT_MEMO = "{NPC} wants to rid {LOCALE} of {FACTION}; you can ask {NPC.gender.object_pronoun} about this at {NPC_SCENE}."
+    CUSTOM_REPLY = "What are you going to do about {FACTION}?"
+    CUSTOM_OFFER = "[THEYAREOURENEMY] People in town expect me to get rid of them, and that's what I'm going to do. I happen to know the current whereabouts of their commander."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Politician)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_JustThwackThem(DZREPR_BaseMission):
+    LABEL = "DZRE_ACE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_ACE: DZRE_ACE_UNKNOWN, E_TOWN: DZRE_TOWN_AGAINST}
+    CHANGES = {E_ACE: DZRE_ACE_ZEUSCANNON}
+    MISSION_NAME = "Just Fight Them"
+    MISSION_PROMPT = "Attack the camp occupied by {FACTION}"
+    OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES,missionbuilder.BAMO_CAPTURE_BUILDINGS)
+    WIN_MESSAGE = "As the battle ends, news comes in over the comms that {LOCALE} has been hit by artillery fire. Clearly, {FACTION} have an ace up their sleeve."
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and not npc.combatant and npc not in camp.party:
+            goffs.append(Offer(
+                msg="Everybody knows that {FACTION} has a camp in a [deadzone_residence] just [direction] of here. I don't understand why we can't simply attack them there.".format(**self.elements ),
+                context=ContextTag((context.INFO,)), effect=self.activate_mission,
+                data={"subject": str(self.elements["FACTION"])}, subject="go and fight {FACTION}".format(**self.elements), no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if not npc.combatant and not self.mission_active and npc not in camp.party:
+            mygram["[News]"].append("someone should just go and fight {FACTION}".format(**self.elements))
+        return mygram
+
 
 class DZREPR_TheConflictIntensifies(DZREPR_NPCMission):
     LABEL = "DZRE_MOTIVE_TOWN"
@@ -543,7 +590,7 @@ class DZREPRC_CallOutBattle(Plot):
     scope = "METRO"
     MISSION_NAME = "Ultimate Challenge"
     MISSION_PROMPT = "Go meet {FACTION}'s challenge."
-    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER,)
+    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER,missionbuilder.BAMO_DEFEAT_ARMY)
     WIN_MESSAGE = "With their leaders defeated and their mecha forces destroyed, {FACTION} cease to be a danger to travelers in the dead zone."
 
     def custom_init(self, nart):
@@ -608,8 +655,128 @@ class DZREPRC_CallOutBattle(Plot):
 # The base plot that launches the initial missions and eventually sends a win signal to the roadedge plot.
 # Mostly, what this plot has to do is provide backstory and set the start_mission property to True.
 
+class DZREPR_PrettyStandardBandits(DZREPR_BasePlot):
+    LABEL = "DZRE_BanditProblem"
+
+    STARTING_MOTIVE = DZRE_MOTIVE_PROFIT
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if npc not in camp.party and not self.start_missions:
+            mygram["[News]"].append("{FACTION} have been robbing travelers from {LOCALE}".format(**self.elements))
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.start_missions and npc not in camp.party and not camp.are_faction_allies(npc,self.elements["FACTION"]):
+            goffs.append(Offer(
+                msg="[THEYARETHIEVES] They work the highway between here and {}, taking what they can from who they can.".format(self.elements["DZ_EDGE"].get_city_link(self.elements["LOCALE"])),
+                context=ContextTag((context.INFO,)), effect=self._get_briefed,
+                subject=str(self.elements["FACTION"]),
+                data={"subject": str(self.elements["FACTION"]),"they":str(self.elements["FACTION"])}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_briefed(self,camp):
+        self.start_missions = True
+        camp.check_trigger("UPDATE")
+        self.memo = "You learned that {} have been robbing travelers near {}.".format(self.elements["FACTION"],self.elements["LOCALE"])
+
+
+class DZREPR_HiddenBandits(DZREPR_BasePlot):
+    LABEL = "DZRE_BanditProblem"
+
+    STARTING_ACE = DZRE_ACE_HIDDENBASE
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if npc not in camp.party and not self.start_missions:
+            mygram["[News]"].append("nobody knows much about {FACTION}, except that they can seemingly strike from nowhere ".format(**self.elements))
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.start_missions and npc not in camp.party and not camp.are_faction_allies(npc,self.elements["FACTION"]):
+            goffs.append(Offer(
+                msg="[THEYAREAMYSTERY] They've been raiding between here and {} but nobody knows where their base is.".format(self.elements["DZ_EDGE"].get_city_link(self.elements["LOCALE"])),
+                context=ContextTag((context.INFO,)), effect=self._get_briefed,
+                subject=str(self.elements["FACTION"]),
+                data={"subject": str(self.elements["FACTION"]),"they":str(self.elements["FACTION"])}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_briefed(self,camp):
+        self.start_missions = True
+        camp.check_trigger("UPDATE")
+        self.memo = "You learned that {} must have have a hidden base near {}.".format(self.elements["FACTION"],self.elements["LOCALE"])
+
+
+class DZREPR_ToleratedBandits(DZREPR_BasePlot):
+    LABEL = "DZRE_BanditProblem"
+    UNIQUE = True
+
+    STARTING_MOTIVE = DZRE_MOTIVE_PROFIT
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if npc not in camp.party and not self.start_missions:
+            mygram["[News]"].append("{} have been raiding convoys between here and {}".format(self.elements["FACTION"],self.elements["DZ_EDGE"].get_city_link(self.elements["LOCALE"])))
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.start_missions and npc not in camp.party and not camp.are_faction_allies(npc,self.elements["FACTION"]):
+            goffs.append(Offer(
+                msg="The dead zone has always been full of bandits; {FACTION} may be a big deal now, but in time they will fade away or get taken out by a bigger gang.".format(**self.elements),
+                context=ContextTag((context.INFO,)), effect=self._get_briefed,
+                subject=str(self.elements["FACTION"]),
+                data={"subject": str(self.elements["FACTION"]),"they":str(self.elements["FACTION"])}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_briefed(self,camp):
+        self.start_missions = True
+        camp.check_trigger("UPDATE")
+        self.memo = "You learned that {} have been raiding convoys near {}.".format(self.elements["FACTION"],self.elements["LOCALE"])
+
+
+class DZREPR_DislikedBandits(DZREPR_BasePlot):
+    LABEL = "DZRE_BanditProblem"
+
+    STARTING_MOTIVE = DZRE_MOTIVE_UNKNOWN
+    STARTING_ACE = DZRE_ACE_UNKNOWN
+    STARTING_TOWN = DZRE_TOWN_AGAINST
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if npc not in camp.party and not self.start_missions:
+            mygram["[News]"].append("{FACTION} have been causing a lot of problems in {LOCALE}".format(**self.elements))
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.start_missions and npc not in camp.party and not camp.are_faction_allies(npc,self.elements["FACTION"]):
+            goffs.append(Offer(
+                msg="[THEYAREOURENEMY] It's because of their raids that we can't trade freely with {}.".format(self.elements["DZ_EDGE"].get_city_link(self.elements["LOCALE"])),
+                context=ContextTag((context.INFO,)), effect=self._get_briefed,
+                subject=str(self.elements["FACTION"]),
+                data={"subject": str(self.elements["FACTION"]),"they":str(self.elements["FACTION"])}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_briefed(self,camp):
+        self.start_missions = True
+        camp.check_trigger("UPDATE")
+        self.memo = "You learned that {} have been causing trouble in {}.".format(self.elements["FACTION"],self.elements["LOCALE"])
+
+
 class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
     LABEL = "DZRE_BanditProblem"
+    UNIQUE = True
 
     def custom_init(self, nart):
         super(DZREPR_NewBanditsWhoThis,self).custom_init(nart)
@@ -622,7 +789,7 @@ class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
 
         mynpc = self.register_element(
             "NPC", gears.selector.random_character(
-                job=gears.jobs.ALL_JOBS["Trucker"], rank=random.randint(self.rank-10,self.rank+10),
+                job=gears.jobs.ALL_JOBS["Trucker"], rank=random.randint(self.rank-10,self.rank+20),
                 local_tags=(gears.personality.GreenZone,), combatant=True,
             ), dident="_DEST"
         )

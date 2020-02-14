@@ -12,6 +12,8 @@ from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
 
 BAMO_CAPTURE_THE_MINE = "BAMO_CaptureMine"
+BAMO_CAPTURE_BUILDINGS = "BAMO_CaptureBuildings"
+BAMO_DEFEAT_ARMY = "BAMO_DefeatArmy"  # 3 points
 BAMO_DEFEAT_COMMANDER = "BAMO_DefeatCommander"  # 2 points
 BAMO_DEFEAT_THE_BANDITS = "BAMO_DefeatTheBandits"
 BAMO_EXTRACT_ALLIED_FORCES = "BAMO_ExtractAlliedForces"
@@ -209,6 +211,102 @@ class BAM_CaptureMine( Plot ):
                 pbge.alert("The mine has been secured.")
                 self.combat_finished = True
 
+class BAM_CaptureBuildings( Plot ):
+    LABEL = BAMO_CAPTURE_BUILDINGS
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+        myunit = gears.selector.RandomMechaUnit(self.rank,100,self.elements.get("ENEMY_FACTION"),myscene.environment,add_commander=True)
+        team2.contents += myunit.mecha_list
+
+        team3 = self.register_element("_propteam",teams.Team(),dident="ROOM")
+        for t in range(random.randint(1,2+self.rank//25)):
+            team3.contents.append(gears.selector.get_design_by_full_name("Concrete Building"))
+        # Oh yeah, when using PyCharm, why not use ludicrously long variable names?
+        self.starting_number_of_props = len(team3.contents)
+
+        self.obj = adventureseed.MissionObjective("Capture the buildings", MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+        self.combat_entered = False
+        self.combat_finished = False
+
+        return True
+    def _eteam_ACTIVATETEAM(self,camp):
+        if not self.combat_entered:
+            self.combat_entered = True
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+        propteam = self.elements["_propteam"]
+        if len(propteam.get_active_members(camp)) < 1:
+            self.obj.failed = True
+        elif len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp, (sum([(100-c.get_percent_damage_over_health()) for c in propteam.get_active_members(camp)])) // self.starting_number_of_props)
+            if not self.combat_finished:
+                pbge.alert("The complex been secured.")
+                self.combat_finished = True
+
+
+class BAM_DefeatArmy( Plot ):
+    LABEL = BAMO_DEFEAT_ARMY
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(15,15,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+
+        npc1 = self.seek_element(nart,"_commander",self._npc_is_good,scope=self.elements["METROSCENE"],must_find=False,lock=True)
+        if npc1:
+            plotutility.CharacterMover(self,npc1,myscene,team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+            self.register_element("_commander",myunit.commander)
+
+        team2.contents += myunit.mecha_list
+
+        npc2 = self.seek_element(nart,"_assistant",self._npc_is_good,scope=self.elements["METROSCENE"],must_find=False,lock=True)
+        if npc2:
+            plotutility.CharacterMover(self,npc2,myscene,team2)
+        else:
+            npc2 = self.register_element("_assistant",gears.selector.generate_ace(self.rank,myfac,myscene.environment),dident="_eteam")
+
+        self.obj = adventureseed.MissionObjective("Defeat {_commander} and {_assistant}".format(**self.elements), MAIN_OBJECTIVE_VALUE * 3)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def _npc_is_good(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate.faction == self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
+
+    def _eteam_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def _commander_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("Hey {_assistant}, why don't we [defeat_them]?".format(**self.elements), effect=self._assistant_monologue,
+            context=ContextTag([context.CHALLENGE,])))
+        return mylist
+
+    def _assistant_monologue(self,camp):
+        SimpleMonologueDisplay("[NO_PROBLEM_FOR_TWO_OF_US]",self.elements["_assistant"])(camp)
+
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp,100)
+
 
 class BAM_DefeatCommander( Plot ):
     LABEL = BAMO_DEFEAT_COMMANDER
@@ -268,9 +366,22 @@ class BAM_DefeatTheBandits( Plot ):
         self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(15,15,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
 
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
-        myunit = gears.selector.RandomMechaUnit(self.rank,100,myfac,myscene.environment,add_commander=True)
+
+        if myfac:
+            mynpc = self.seek_element(nart,"_commander",self._npc_is_good,must_find=False,lock=True)
+        else:
+            mynpc = None
+        if mynpc:
+            unit_size = 120
+            if mynpc.renown > self.rank:
+                unit_size = max(unit_size + self.rank - mynpc.renown, 50)
+            plotutility.CharacterMover(self,mynpc,myscene,team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, unit_size, myfac, myscene.environment, add_commander=False)
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+            self.register_element("_commander",myunit.commander)
+
         team2.contents += myunit.mecha_list
-        self.register_element("_commander",myunit.commander)
 
         self.obj = adventureseed.MissionObjective("Defeat the bandits".format(myfac), MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj)
@@ -278,6 +389,10 @@ class BAM_DefeatTheBandits( Plot ):
         self.intro_ready = True
 
         return True
+
+    def _npc_is_good(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate.faction == self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
+
     def _eteam_ACTIVATETEAM(self,camp):
         if self.intro_ready:
             npc = self.elements["_commander"]
@@ -294,6 +409,35 @@ class BAM_DefeatTheBandits( Plot ):
 
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp,100)
+
+class BAM_DefeatTheBandits_NoCommander( Plot ):
+    LABEL = BAMO_DEFEAT_THE_BANDITS
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(15,15,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+
+        myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=False)
+
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Defeat the bandits".format(myfac), MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp,100)
+
 
 class BAM_ExtractAllies( Plot ):
     LABEL = BAMO_EXTRACT_ALLIED_FORCES

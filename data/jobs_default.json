@@ -252,6 +252,12 @@
     "local_requirements": ["DeadZone"]
   },
   {
+    "name": "Technocrat",
+    "skills": ["Science","Biotechnology","Computers"],
+    "tags": ["Politician","Academic"],
+    "local_requirements": ["L5Spinners"]
+  },
+  {
     "name": "Shopkeeper",
     "skills": ["Repair"],
     "tags": ["Merchant"]

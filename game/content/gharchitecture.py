@@ -92,3 +92,9 @@ class IndustrialBuilding(Architecture):
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+class FortressBuilding(Architecture):
+    DEFAULT_WALL_TERRAIN = ghterrain.FortressWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor

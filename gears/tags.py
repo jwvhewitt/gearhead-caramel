@@ -97,6 +97,7 @@ SCENE_MEETING = "MEETING"   # A good place to meet other people.
 SCENE_CULTURE = "CULTURE"   # A place to enjoy cultural activities. Music, art, whatever.
 SCENE_TRANSPORT = "TRANSPORT"   # Someplace like a bus station or a spaceport
 SCENE_GOVERNMENT = "GOVERNMENT"
+SCENE_RUINS = "RUINS"
 
 # Shop Tags
 

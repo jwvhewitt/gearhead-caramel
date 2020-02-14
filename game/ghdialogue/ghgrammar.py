@@ -410,6 +410,14 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[deadzone_residence]": {
+        # Some place where people might be living in the dead zone.
+        Default: [
+            "abandoned factory","prezero ruin","low-rad zone","smuggler point","deserted fortress",
+            "ancient fallout shelter","shantytown","ruined city","demolition zone","scavenger camp"
+        ]
+    },
+
     "[defeating_you]": {
         Default: ["defeating you","beating you"
             ],
@@ -427,6 +435,23 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Shy: ["stopping you",
             ],
+    },
+
+    "[defeat_them]": {
+        Default: ["defeat them", "beat them"
+                  ],
+        personality.Cheerful: ["kick their arses", "show them a good time"
+                               ],
+        personality.Grim: ["destroy them", "crush them", "annihilate them", "break them"
+                           ],
+        personality.Easygoing: ["fight them", "try to defeat them", "show them what we can do"
+                                ],
+        personality.Passionate: ["show them our full power", "put them in their place", "unleash the fires of destruction"
+                                 ],
+        personality.Sociable: ["humiliate them",
+                               ],
+        personality.Shy: ["stop them",
+                          ],
     },
 
     "[DENY_JOIN]": {
@@ -1431,6 +1456,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[NO_PROBLEM_FOR_TWO_OF_US]": {
+        Default: ["This will be no problem for the two of us."
+                  ],
+        personality.Cheerful: ["Easy peasy atomic squeegie!",
+                               ],
+        personality.Grim: ["All will crumble beneath our combined power!",
+                           ],
+        personality.Easygoing: ["Between the two of us, I'd say we can do it.",
+                                ],
+        personality.Passionate: ["Together, there's nothing that can stop us!",
+                                 ],
+        personality.Sociable: ["With you by my side, this will be a piece of cake.",
+                               ],
+        personality.Shy: ["No problem.",
+                          ],
+    },
+
     "[NOTHANKYOU]": {
         # May be coupled with [YESPLEASE]
         Default: ["No thank you.", "No thanks."
@@ -1799,6 +1841,85 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Shy: ["Oh no.",
                           ],
+    },
+
+    "[THEYAREAMYSTERY]": {
+        # Those folks we're talking about? All I know is that I know nothing about them.
+        # The data block should include "they"
+        Default: ["They are a real mystery.", "{they} are a mystery."
+                  ],
+        personality.Cheerful: [
+            "If you find out anything about {they}, you can let the rest of us know."
+        ],
+        personality.Grim: [
+            "{they} keep their secrets well hidden. Nobody knows much about them... or at least, nobody alive.",
+        ],
+        personality.Easygoing: [
+            "I'll be honest, I don't know much about them. I don't think anybody does.",
+        ],
+        personality.Passionate: [
+            "{they} are a mysterious order; no one knows who they are or what they are doing, but their legacy remains.",
+        ],
+        personality.Sociable: [
+            "{they} aren't the most talkative bunch, that's for sure.",
+        ],
+        personality.Shy: [
+            "{they} keep to themselves.",
+        ],
+    },
+
+    "[THEYARETHIEVES]": {
+        # Those folks we're talking about? Keep one hand on your wallet.
+        # The data block should include "they"
+        Default: ["They are no-good thieves.", "{they} are thieves."
+                  ],
+        personality.Cheerful: [
+            "{they} will steal anything that isn't nailed down, and if they have a claw hammer they'll steal that too."
+        ],
+        personality.Grim: [
+            "They are a gang of petty criminals, the lowest of the low.",
+        ],
+        personality.Easygoing: [
+            "I guess you could say that {they} are criminals.",
+        ],
+        personality.Passionate: [
+            "{they} are dishonorable scoundrels, nothing but robbers and thieves.",
+        ],
+        personality.Sociable: [
+            "{they} are well known as a bunch of crooks.",
+        ],
+        personality.Shy: [
+            "{they} are thieves.",
+        ],
+        personality.Justice: [
+            "{they} are thieves; they steal from the rich. And the poor. And everybody else, for that matter.",
+        ],
+    },
+
+    "[THEYAREOURENEMY]": {
+        # Those folks we're talking about? Me and my folks don't like them.
+        # The data block should include "they"
+        Default: ["They are our enemies!", "{they} are our enemies."
+                  ],
+        personality.Cheerful: [
+            "[chat_lead_in] {they} are not very popular around here."
+        ],
+        personality.Grim: [
+            "The world would be a better place without them in it.",
+            "{they} are truly despicable villains."
+        ],
+        personality.Easygoing: [
+            "{they} are not exactly the nicest group of people...",
+        ],
+        personality.Passionate: [
+            "{they} are our sworn enemy, and soon will taste vengeance!",
+        ],
+        personality.Sociable: [
+            "{they} are the enemies of my people, and we have tolerated them for too long.",
+        ],
+        personality.Shy: [
+            "They are our enemy.",
+        ],
     },
 
     "[THIS_IS_TERRIBLE_NEWS]": {

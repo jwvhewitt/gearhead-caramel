@@ -50,7 +50,7 @@ class DZD_DeadZoneTown(Plot):
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
 
-        mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
+        mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]}))
 
         self.register_element("METRO", myscene.metrodat)
         self.register_element("METROSCENE", myscene)
@@ -137,7 +137,7 @@ class DZD_DeadZoneVillage(Plot):
         self.register_element("METROSCENE", myscene)
         self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_VILLAGE)
 
-        mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]},keywords=("DEMOCRACY",)))
+        mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]}))
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.east),
                                         dident="LOCALE")
@@ -222,6 +222,8 @@ class DemocraticOrder(Plot):
                                     ))
         npc.place(intscene, team=team2)
 
+        self.town_origin_ready = True
+
         bodyguard = self.register_element(
             "BODYGUARD", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
@@ -232,14 +234,230 @@ class DemocraticOrder(Plot):
 
         return True
 
+    def _tell_town_origin(self,camp):
+        self.town_origin_ready = False
+
     def LEADER_offers(self, camp):
         mylist = list()
         mylist.append(Offer("[HELLO] Welcome to {}.".format(str(self.elements["LOCALE"])),
                             context=ContextTag([context.HELLO]),
                             ))
 
+        if self.town_origin_ready:
+            mylist.append(Offer(" ".join(self.elements["BACKSTORY"].results["text"]),
+                                context=ContextTag([context.INFO]),effect=self._tell_town_origin,
+                                data={"subject":"this place"}, no_repeats=True
+                                ))
+
         return mylist
 
+class MilitaryOrder(Plot):
+    # This town is governed by a warlord.
+    LABEL = "DZRS_ORDER"
+
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches(cls, pstate):
+        """Returns True if this town has a CONFLICT background."""
+        return pstate.elements["BACKSTORY"] and "CONFLICT" in pstate.elements["BACKSTORY"].generated_state.keywords
+
+    def custom_init(self, nart):
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
+        intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GOVERNMENT),
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.FortressBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
+                                    dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+
+        npc = self.register_element("LEADER",
+                                    gears.selector.random_character(
+                                        self.rank, local_tags=self.elements["LOCALE"].attributes,
+                                        job=gears.jobs.ALL_JOBS["Warlord"],
+                                        faction = self.elements["METRO_FACTION"]
+                                    ))
+        npc.place(intscene, team=team2)
+
+        self.town_origin_ready = True
+
+        bodyguard = self.register_element(
+            "BODYGUARD", gears.selector.random_character(
+                self.rank, local_tags=self.elements["LOCALE"].attributes,
+                job=gears.jobs.choose_random_job((gears.tags.Military,),self.elements["LOCALE"].attributes),
+                faction = self.elements["METRO_FACTION"]
+        ))
+        bodyguard.place(intscene, team=team2)
+
+        return True
+
+    def _tell_town_origin(self,camp):
+        self.town_origin_ready = False
+
+    def LEADER_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer("[HELLO] This is {}.".format(str(self.elements["LOCALE"])),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        if self.town_origin_ready:
+            mylist.append(Offer(" ".join(self.elements["BACKSTORY"].results["text"]),
+                                context=ContextTag([context.INFO]),effect=self._tell_town_origin,
+                                data={"subject":"this place"}, no_repeats=True
+                                ))
+
+        return mylist
+
+
+class TechnocraticOrder(Plot):
+    # This town is governed by a technocrat.
+    LABEL = "DZRS_ORDER"
+
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches(cls, pstate):
+        """Returns True if this town has a SPACE background."""
+        return pstate.elements["BACKSTORY"] and "SPACE" in pstate.elements["BACKSTORY"].generated_state.keywords
+
+    def custom_init(self, nart):
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
+        intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GOVERNMENT),
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding(floor_terrain=ghterrain.WhiteTileFloor))
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
+                                    dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        npc = self.register_element("LEADER",
+                                    gears.selector.random_character(
+                                        self.rank, local_tags=self.elements["LOCALE"].attributes,
+                                        job=gears.jobs.ALL_JOBS["Technocrat"],
+                                        faction = self.elements["METRO_FACTION"]
+                                    ))
+        npc.place(intscene, team=team2)
+
+        self.town_origin_ready = True
+
+        bodyguard = self.register_element(
+            "BODYGUARD", gears.selector.random_character(
+                self.rank, local_tags=self.elements["LOCALE"].attributes,
+                job=gears.jobs.choose_random_job((gears.tags.Adventurer,),self.elements["LOCALE"].attributes),
+                faction = self.elements["METRO_FACTION"]
+        ))
+        bodyguard.place(intscene, team=team2)
+
+        return True
+
+    def _tell_town_origin(self,camp):
+        self.town_origin_ready = False
+
+    def LEADER_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer("[HELLO] You are in {}.".format(str(self.elements["LOCALE"])),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        if self.town_origin_ready:
+            mylist.append(Offer(" ".join(self.elements["BACKSTORY"].results["text"]),
+                                context=ContextTag([context.INFO]),effect=self._tell_town_origin,
+                                data={"subject":"this place"}, no_repeats=True
+                                ))
+
+        return mylist
+
+class VaultOrder(Plot):
+    # This town is governed by a technocrat.
+    LABEL = "DZRS_ORDER"
+
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches(cls, pstate):
+        """Returns True if this town has a FALLOUT_SHELTER background."""
+        return pstate.elements["BACKSTORY"] and "FALLOUT_SHELTER" in pstate.elements["BACKSTORY"].generated_state.keywords
+
+    def custom_init(self, nart):
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
+        intscene = gears.GearHeadScene(35, 35, "Fallout Shelter", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GOVERNMENT, gears.tags.SCENE_RUINS),
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
+                                    dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room2=foyer, door1=ghwaypoints.UndergroundEntrance(name="Fallout Shelter"))
+
+        npc = self.register_element("LEADER",
+                                    gears.selector.random_character(
+                                      self.rank, local_tags=self.elements["LOCALE"].attributes,
+                                        job=gears.jobs.ALL_JOBS["Mayor"],
+                                        faction = self.elements["METRO_FACTION"]
+                                    ))
+        npc.place(intscene, team=team2)
+
+        self.town_origin_ready = True
+
+        bodyguard = self.register_element(
+            "BODYGUARD", gears.selector.random_character(
+                self.rank, local_tags=self.elements["LOCALE"].attributes,
+                job=gears.jobs.choose_random_job((gears.tags.Adventurer,),self.elements["LOCALE"].attributes),
+                faction = self.elements["METRO_FACTION"]
+        ))
+        bodyguard.place(intscene, team=team2)
+
+        return True
+
+    def _tell_town_origin(self,camp):
+        self.town_origin_ready = False
+
+    def LEADER_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer("[HELLO] Welcome to the heart of {}.".format(str(self.elements["LOCALE"])),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        if self.town_origin_ready:
+            mylist.append(Offer(" ".join(self.elements["BACKSTORY"].results["text"]),
+                                context=ContextTag([context.INFO]),effect=self._tell_town_origin,
+                                data={"subject":"this place"}, no_repeats=True
+                                ))
+
+        return mylist
 
 
 #   ***********************

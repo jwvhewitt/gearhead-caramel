@@ -187,7 +187,7 @@ class ClanIronwind(Faction):
 
 
 class Circle(object):
-    def __init__(self, camp, parent_faction=None, mecha_colors=None, name="", careers=None, locations=(), uniform_colors=None, active=True, allies=(), enemies=()):
+    def __init__(self, camp, parent_faction=None, mecha_colors=None, name="", careers=None, factags=(), locations=(), uniform_colors=None, active=True, allies=(), enemies=()):
         if parent_faction and not name:
             name = parent_faction.get_circle_name()
         elif not name:
@@ -209,6 +209,9 @@ class Circle(object):
         self.careers = dict()
         if careers:
             self.careers.update(careers)
+        self.factags = list(factags)
+        if parent_faction and not factags:
+            self.factags = list(parent_faction.factags)
         self.locations = list(locations)
         if self.parent_faction:
             self.locations += self.parent_faction.LOCATIONS

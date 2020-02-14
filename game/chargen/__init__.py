@@ -68,7 +68,7 @@ class LifepathChooser(object):
                     else:
                         self.cancelled = True
                 self.title = mychoice.next_prompt
-                choices = mychoice.__next__
+                choices = mychoice.next
             else:
                 self.cancelled = True
 

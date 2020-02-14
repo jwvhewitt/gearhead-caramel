@@ -40,6 +40,23 @@ Prop
 	END
 
 Prop
+	name = "Concrete Building"
+	imagename = "terrain_dzd_mechaprops.png"
+    frame = 0
+    destroyed_frame = 4
+    size = 3
+	scale = MechaScale
+	statline = {
+		Reflexes = 10, Body=10, Speed=10, Perception=10, Craft=10, Knowledge=10, Ego=10, Charm = 10,
+		MechaGunnery = 5, MechaFighting = 5,
+	}
+	SUB
+		Armor
+			size = 2
+	END
+
+
+Prop
 	name = "Chemical Tanks"
 	imagename = "prop_dzd_buildings.png"
     frame = 1

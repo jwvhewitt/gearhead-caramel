@@ -48,9 +48,6 @@ class BoringRemoteOffice( Plot ):
                                                                   job=self.elements["FACTION"].choose_job(
                                                                       gears.tags.Trooper), combatant=True))
 
-        for npc in team2.contents:
-            npc.name = "Jimbob {}".format(npc.name)
-
         return True
 
 #  ***************************************

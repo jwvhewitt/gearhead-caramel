@@ -477,3 +477,44 @@ class BedTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking, Skimming, Rolling)
     movement_cost = {pbge.scenes.movement.Vision: 5}
 
+class ParkStatueTerrain(pbge.scenes.terrain.VariableTerrain):
+    image_top = 'terrain_decor_parkstatues.png'
+    frames = (0,1,2,3,4)
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class ParkStatueManTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_parkstatues.png'
+    frame = 0
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class ParkStatueWomanTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_parkstatues.png'
+    frame = 1
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class ParkStatueMechaTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_parkstatues.png'
+    frame = 2
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class ParkStatueSynthTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_parkstatues.png'
+    frame = 3
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class ParkStatueSerpentTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_parkstatues.png'
+    frame = 4
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class UndergroundEntranceTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_undergroundentrance.png'
+    frame = 0
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}

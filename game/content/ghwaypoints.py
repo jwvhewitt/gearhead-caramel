@@ -205,3 +205,6 @@ class StoneStairsUp(Exit):
 class RecoveryBed(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.BedTerrain)
     recovery_entrance = True
+
+class UndergroundEntrance(Exit):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.UndergroundEntranceTerrain)
