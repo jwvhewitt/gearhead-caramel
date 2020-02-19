@@ -218,6 +218,8 @@ class PortraitLayer(object):
             mydest.midbottom = canvas.get_rect().midbottom
         elif self.anchor == "center":
             mydest.center = canvas.get_rect().center
+        elif self.anchor == "topleft":
+            mydest.center = canvas.get_rect().topleft
         elif self.anchor in anchors:
             mydest.center = canvas.get_rect().center
             mydest.right += anchors[self.anchor][0]

@@ -1,0 +1,88 @@
+[
+    {
+    "name": "Masculine Body B",
+    "btype": "Base",
+    "layers": [
+      {"name":"Body","fname":"por_bodmb_body.png","anchor":"midbottom","depth":2000,"x_offset": -5},
+      {"name":"Right Arm","fname":"por_bodmb_arms.png","anchor":"right arm","depth":4000,"frame_width": 140,"frame_height": 330},
+      {"name":"Left Arm","fname":"por_bodmb_arms.png","anchor":"left arm","depth":1000,"frame_width": 140,"frame_height": 330, "frame": 1}
+    ],
+    "avatar_layers": [
+      {"name":"Body","fname":"avatar_body_mb.png","anchor":"midbottom","depth":2000}
+    ],
+    "children": [
+      "Clothing","Head"
+    ],
+    "anchors": {
+      "head": [8,-132],"right arm":[-104,110],"left arm":[109,109],
+      "avatar_head": [-1,-2], "avatar_body": [-1,8], "avatar_right_shoulder": [-8,2], "avatar_left_shoulder": [6,2]
+    },
+    "requires": ["Masculine"],
+    "rejects": ["-Body"],
+    "form_tags": ["BodMB"]
+  },
+    {
+    "name": "BodMB Hoodie 1",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_clothing_bmb_shirt1.png","anchor":"center","depth":3000,"x_offset":-7,"y_offset":55}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_shirt_mb1.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
+    ],
+    "requires": ["BodMB"],
+    "children": [
+      "Sleeves","Pants"
+    ]
+  },
+  {
+    "name": "BodMB Pants 1R",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_pants_bmb_pants1.png","anchor":"midbottom","depth":2000,"x_offset":-4,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_pants_bodmb1_red.png","anchor":"midbottom","depth":2000,"x_offset":-1,"y_offset": -2}
+    ],
+    "requires": ["BodMB"],
+    "children": ["Shoes"]
+  },
+  {
+    "name": "BodMB Pants 1M",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_pants_bmb_pants1m.png","anchor":"midbottom","depth":2000,"x_offset":-4,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_pants_bodmb1_magenta.png","anchor":"midbottom","depth":2000,"x_offset":-1,"y_offset": -2}
+    ],
+    "requires": ["BodMB"],
+    "children": ["Shoes"]
+  },
+    {
+    "name": "BodMB Sleeves 1",
+    "btype": "Sleeves",
+    "layers": [
+      {"name":"Right Sleeve","fname":"por_sleeves_bmb_1.png","anchor":"center","depth":5000,"frame_width":110,"frame_height":144,"x_offset":-102,"y_offset":14},
+      {"name":"Left Sleeve","fname":"por_sleeves_bmb_1.png","anchor":"center","depth":1500,"frame":1,"frame_width":110,"frame_height":144,"x_offset":87,"y_offset":13}
+    ],
+    "avatar_layers": [
+      {"name":"Right Sleeve","fname":"avatar_sleeves_ma1.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":5,"frame_height":9,"y_offset":4},
+      {"name":"Left Sleeve","fname":"avatar_sleeves_ma1.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":5,"frame_height":9,"y_offset":4}
+    ],
+    "requires": ["BodMB"]
+  },
+  {
+    "name": "BodMB Sleeves 2",
+    "btype": "Sleeves",
+    "layers": [
+      {"name":"Right Sleeve","fname":"por_sleeves_bmb_2.png","anchor":"center","depth":5000,"frame_width":124,"frame_height":127,"x_offset":-96,"y_offset":3},
+      {"name":"Left Sleeve","fname":"por_sleeves_bmb_2.png","anchor":"center","depth":1500,"frame":1,"frame_width":124,"frame_height":127,"x_offset":87,"y_offset":-6}
+    ],
+    "avatar_layers": [
+      {"name":"Right Sleeve","fname":"avatar_sleeves_mb2.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":7,"frame_height":9,"y_offset":4},
+      {"name":"Left Sleeve","fname":"avatar_sleeves_mb2.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":7,"frame_height":9,"y_offset":4}
+    ],
+    "requires": ["BodMB","Combatant"]
+  }
+]

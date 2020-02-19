@@ -555,6 +555,14 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     if (fac1 in self.faction_relations and fac2 in self.faction_relations[fac1].enemies) or (fac2 in self.faction_relations and fac1 in self.faction_relations[fac2].enemies):
                         return True
 
+    def set_faction_ally(self,a,b):
+        if a not in self.faction_relations:
+            self.faction_relations[a] = factions.FactionRelations()
+        self.faction_relations[a].allies.append(b)
+        if b in self.faction_relations[a].enemies:
+            self.faction_relations[a].enemies.remove(b)
+
+
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about string.partition at the time.

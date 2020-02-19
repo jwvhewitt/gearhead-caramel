@@ -1157,6 +1157,23 @@ DEFAULT_GRAMMAR = {
 
         },
 
+    "[I_WANT_YOU_TO_INVESTIGATE]": {
+        Default: ["I want you to investigate this matter.","I'd appreciate if you could go see what's going on."
+                  ],
+        personality.Cheerful: ["It'd be super if you could go find out what's going on.",
+                               ],
+        personality.Grim: ["I would like you to delve this mystery, if you dare.",
+                           ],
+        personality.Easygoing: ["You should go investigate, see if you can find out anything."
+                                ],
+        personality.Passionate: ["You may be the only person who can get to the bottom of this!"
+                                 ],
+        personality.Sociable: ["I would personally appreciate it if you could go see what you can find out.",
+                               ],
+        personality.Shy: ["I want you to investigate.",
+                          ],
+    },
+
     "[IWILLSEEWHATICANDO]": {
         # A vague promise of help for a problem of some kind.
         Default: ["I'll see what I can do about that.", "Maybe I could do something about that."

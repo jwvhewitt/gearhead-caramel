@@ -16,6 +16,7 @@ BAMO_CAPTURE_BUILDINGS = "BAMO_CaptureBuildings"
 BAMO_DEFEAT_ARMY = "BAMO_DefeatArmy"  # 3 points
 BAMO_DEFEAT_COMMANDER = "BAMO_DefeatCommander"  # 2 points
 BAMO_DEFEAT_THE_BANDITS = "BAMO_DefeatTheBandits"
+BAMO_DESTROY_ARTILLERY = "BAMO_Destroy_Artillery"   # 2 points
 BAMO_EXTRACT_ALLIED_FORCES = "BAMO_ExtractAlliedForces"
 BAMO_LOCATE_ENEMY_FORCES = "BAMO_LocateEnemyForces"
 BAMO_NEUTRALIZE_ALL_DRONES = "BAMO_NeutralizeAllDrones"
@@ -431,6 +432,66 @@ class BAM_DefeatTheBandits_NoCommander( Plot ):
         self.intro_ready = True
 
         return True
+
+    def t_ENDCOMBAT(self,camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp,100)
+
+
+class BAM_DestroyArtillery( Plot ):
+    LABEL = BAMO_DESTROY_ARTILLERY
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(15,15,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+
+        mynpc = self.seek_element(nart,"_commander",self._npc_is_good,scope=self.elements["METROSCENE"],must_find=False,lock=True)
+        if mynpc:
+            plotutility.CharacterMover(self,mynpc,myscene,team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 70, myfac, myscene.environment, add_commander=False)
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 100, myfac, myscene.environment, add_commander=True)
+            self.register_element("_commander",myunit.commander)
+
+        team2.contents += myunit.mecha_list
+
+        myfac = self.elements.get("ENEMY_FACTION")
+        if myfac:
+            colors = myfac.mecha_colors
+        else:
+            colors = gears.color.random_mecha_colors()
+
+        for t in range(random.randint(1,2) + max(self.rank//20,0)):
+            team2.contents.append(gears.selector.get_design_by_full_name("HAL-82 Artillery"))
+            team2.contents[-1].colors = colors
+
+        self.obj = adventureseed.MissionObjective("Destroy enemy artillery", MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def _npc_is_good(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate.faction == self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
+
+    def _eteam_ACTIVATETEAM(self,camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def _commander_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("[CHALLENGE]",
+            context=ContextTag([context.CHALLENGE,])))
+        return mylist
 
     def t_ENDCOMBAT(self,camp):
         myteam = self.elements["_eteam"]

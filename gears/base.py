@@ -3205,11 +3205,11 @@ class Character(Being):
 
 
 class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
-    SAVE_PARAMETERS = ('size', 'statline', 'frame', 'destroyed_frame' )
+    SAVE_PARAMETERS = ('size', 'statline', 'frame', 'destroyed_frame', 'action_points' )
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_MATERIAL = materials.Metal
 
-    def __init__(self, statline=None, size=10, frame=0, destroyed_frame=1, **keywords):
+    def __init__(self, statline=None, size=10, frame=0, destroyed_frame=1, action_points=3, **keywords):
         self.statline = collections.defaultdict(int)
         if statline:
             self.statline.update(statline)
@@ -3217,6 +3217,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
         self.frame = frame
         self.destroyed_frame = destroyed_frame
         self.destroyed_pose = False
+        self.action_points = max(action_points,1)
 
         super(Prop, self).__init__(**keywords)
 
@@ -3301,7 +3302,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
         return my_invos
 
     def get_action_points(self):
-        return 3
+        return self.action_points
 
     def render(self, foot_pos, view):
         spr = view.get_sprite(self)

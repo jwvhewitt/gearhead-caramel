@@ -1,5 +1,6 @@
 
 import collections
+
 from pbge.plots import PlotError
 import pbge
 import gears
@@ -73,6 +74,7 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
             return self.story
 
 from . import mechtarot
+from . import ghplots
 
 from game.content.ghplots import dd_combatmission, dd_homebase, dd_main, dd_tarot, dd_tarotsupport, mocha, harvest
 from . import plotutility
@@ -163,7 +165,9 @@ def test_roadedge_missions():
     possible_states = list()
     move_cost = collections.defaultdict(int)
     for p in PLOT_LIST['DZRE_BanditProblem']:
-        frontier.append({ghplots.dd_roadedge.E_MOTIVE:p.STARTING_MOTIVE,ghplots.dd_roadedge.E_ACE:p.STARTING_ACE,ghplots.dd_roadedge.E_TOWN:p.STARTING_TOWN})
+        frontier.append({ghplots.dd_roadedge_propp.E_MOTIVE:p.STARTING_MOTIVE,
+                         ghplots.dd_roadedge_propp.E_ACE:p.STARTING_ACE,
+                         ghplots.dd_roadedge_propp.E_TOWN:p.STARTING_TOWN})
 
     while frontier:
         current = frontier.pop()
@@ -185,20 +189,29 @@ def test_roadedge_missions():
         if move_cost[repr(s)] < 3:
             num_plots_for_s = 0
             pat = [p for p in PLOT_LIST['DZRE_ACE_TOWN'] if all(p.REQUIRES[k] == s.get(k, 0) for k in p.REQUIRES.keys())]
-            if not pat and (s[ghplots.dd_roadedge.E_ACE],s[ghplots.dd_roadedge.E_TOWN]) not in done_stuff:
-                print("No missions for Ace: {} Town: {}".format(s[ghplots.dd_roadedge.E_ACE],s[ghplots.dd_roadedge.E_TOWN]))
-                done_stuff.add((s[ghplots.dd_roadedge.E_ACE],s[ghplots.dd_roadedge.E_TOWN]))
+            if not pat and (s[ghplots.dd_roadedge_propp.E_ACE], s[
+                ghplots.dd_roadedge_propp.E_TOWN]) not in done_stuff:
+                print("No missions for Ace: {} Town: {}".format(s[ghplots.dd_roadedge_propp.E_ACE], s[
+                    ghplots.dd_roadedge_propp.E_TOWN]))
+                done_stuff.add((s[ghplots.dd_roadedge_propp.E_ACE], s[
+                    ghplots.dd_roadedge_propp.E_TOWN]))
 
             pat = [p for p in PLOT_LIST['DZRE_MOTIVE_TOWN'] if all(p.REQUIRES[k] == s.get(k, 0) for k in p.REQUIRES.keys())]
-            if not pat and (s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_TOWN]) not in done_stuff:
-                print("No missions for Motive: {} Town: {}".format(s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_TOWN]))
-                done_stuff.add((s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_TOWN]))
+            if not pat and (s[ghplots.dd_roadedge_propp.E_MOTIVE], s[
+                ghplots.dd_roadedge_propp.E_TOWN]) not in done_stuff:
+                print("No missions for Motive: {} Town: {}".format(s[ghplots.dd_roadedge_propp.E_MOTIVE], s[
+                    ghplots.dd_roadedge_propp.E_TOWN]))
+                done_stuff.add((s[ghplots.dd_roadedge_propp.E_MOTIVE], s[
+                    ghplots.dd_roadedge_propp.E_TOWN]))
 
             pat = [p for p in PLOT_LIST['DZRE_MOTIVE_ACE'] if all(p.REQUIRES[k] == s.get(k, 0) for k in p.REQUIRES.keys())]
-            if not pat and (s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_ACE]) not in done_stuff:
-                print("No missions for Motive: {} Ace: {}".format(s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_ACE]))
-                done_stuff.add((s[ghplots.dd_roadedge.E_MOTIVE],s[ghplots.dd_roadedge.E_ACE]))
+            if not pat and (s[ghplots.dd_roadedge_propp.E_MOTIVE], s[
+                ghplots.dd_roadedge_propp.E_ACE]) not in done_stuff:
+                print("No missions for Motive: {} Ace: {}".format(s[ghplots.dd_roadedge_propp.E_MOTIVE], s[
+                    ghplots.dd_roadedge_propp.E_ACE]))
+                done_stuff.add((s[ghplots.dd_roadedge_propp.E_MOTIVE], s[
+                    ghplots.dd_roadedge_propp.E_ACE]))
 
 
-test_roadedge_missions()
+#test_roadedge_missions()
 #test_mocha_encounters()

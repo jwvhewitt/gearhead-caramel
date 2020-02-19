@@ -38,6 +38,7 @@ Mecha
                     penetration = 0
                     integral = True
                     attributes = (Intercept)
+                    shot_anim = SmallBeam
             END
         Arm
             name = "Right Arm"
@@ -57,6 +58,7 @@ Mecha
                             accuracy = 2
                             penetration = 0
                             attributes = (VariableFire4)
+                            shot_anim = SmallBeam
                     END
                 Mount
                     name = "Right Arm Mount"
@@ -170,6 +172,7 @@ Mecha
                     penetration = 0
                     integral = True
                     attributes = (Intercept)
+                    shot_anim = SmallBeam
             END
         Arm
             name = "Right Arm"
@@ -309,6 +312,7 @@ Mecha
                     penetration = 0
                     integral = True
                     attributes = (Intercept)
+                    shot_anim = SmallBeam
             END
         Arm
             name = "Right Arm"
@@ -328,6 +332,7 @@ Mecha
                             accuracy = 0
                             penetration = 2
                             attributes = (Scatter)
+                            shot_anim = GunBeam
                     END
                 Mount
                     name = "Right Arm Mount"

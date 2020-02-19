@@ -25,6 +25,33 @@ Prop
 	END
 
 Prop
+	name = "Artillery"
+	desig = "HAL-82"
+	imagename = "prop_artillery.png"
+	scale = MechaScale
+	frame = 0
+	destroyed_frame = 4
+	size = 5
+	action_points = 1
+	statline = {
+		Reflexes = 10, Body=10, Speed=10, Perception=10, Craft=10, Knowledge=10, Ego=10, Charm = 10,
+		MechaGunnery = 5, MechaFighting = 5,
+	}
+	SUB
+		BeamWeapon
+			name = "Laser Cannon"
+			reach = 5
+			damage = 3
+			accuracy = 0
+			penetration = 4
+            shot_anim = HugeBullet
+            integral = True
+		Armor
+			size = 5
+	END
+
+
+Prop
 	name = "Mine Entrance"
 	imagename = "prop_dzd_buildings.png"
     frame = 0
@@ -74,9 +101,10 @@ Prop
 	size = 3
     frame = 0
 	scale = MechaScale
+    action_points = 1
 	statline = {
 		Reflexes = 10, Body=10, Speed=10, Perception=10, Craft=10, Knowledge=10, Ego=10, Charm = 10,
-		MechaGunnery = 5, MechaFighting = 5,
+		MechaGunnery = 10, MechaFighting = 10,
 	}
 	SUB
 		BeamWeapon

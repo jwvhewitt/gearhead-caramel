@@ -508,7 +508,7 @@ class DZD_AlliedArmor(Plot):
         custom_shop.contents.append(team3)
         custom_shop.contents.append(ghwaypoints.MechEngTerminal())
         self.custom_shop = services.Shop(npc=npc2, shop_faction=gears.factions.TerranDefenseForce,
-                                         ware_types=services.MECHA_PARTS_STORE,rank=50)
+                                         ware_types=services.MECHA_PARTS_STORE,rank=75)
 
         self.asked_about_terminal = False
 
@@ -633,7 +633,7 @@ class DZD_EliteEquipment(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         npc.place(intscene, team=team2)
 
-        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce,
+        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce, rank=50,
                                   ware_types=services.GENERAL_STORE)
 
         return True

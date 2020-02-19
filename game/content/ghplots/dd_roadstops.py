@@ -396,7 +396,6 @@ class TechnocraticOrder(Plot):
         return mylist
 
 class VaultOrder(Plot):
-    # This town is governed by a technocrat.
     LABEL = "DZRS_ORDER"
 
     active = True
@@ -503,7 +502,7 @@ class SomewhatOkayGarage(Plot):
         npc.place(intscene, team=team2)
 
         self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce,
-                                  ware_types=services.GENERAL_STORE_PLUS_MECHA, rank=self.rank)
+                                  ware_types=services.GENERAL_STORE_PLUS_MECHA, rank=self.rank // 2)
 
         return True
 
@@ -567,7 +566,7 @@ class FranklyBoringGarage(Plot):
         npc.place(intscene, team=team2)
 
         self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce,
-                                  ware_types=services.BARE_ESSENTIALS_STORE, rank=self.rank - 15)
+                                  ware_types=services.BARE_ESSENTIALS_STORE, rank=self.rank // 4)
 
         return True
 

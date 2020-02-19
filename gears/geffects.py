@@ -224,8 +224,14 @@ class SearchTextAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Search!'
 
 
+class SmallBullet( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_bullet.png"
+
 class BigBullet( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_bigbullet.png"
+
+class HugeBullet( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_hugebullet.png"
 
 
 class GunBeam( animobs.ShotAnim ):

@@ -7,6 +7,7 @@ from . import dd_homebase
 from . import dd_intro
 from . import dd_main
 from . import dd_roadedge
+from . import dd_roadedge_propp
 from . import dd_roadstops
 from . import dd_tarot
 from . import dd_tarotsupport
@@ -37,6 +38,7 @@ harvest(dd_homebase)
 harvest(dd_intro)
 harvest(dd_main)
 harvest(dd_roadedge)
+harvest(dd_roadedge_propp)
 harvest(dd_roadstops)
 harvest(dd_tarot)
 harvest(dd_tarotsupport)
