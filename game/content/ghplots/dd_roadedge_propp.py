@@ -629,7 +629,7 @@ class DZREPR_GetTheVotesKillTheBaddies(DZREPR_NPCMission):
     DEFAULT_INFO = "You can ask {NPC} about {FACTION} yourself; speak to {NPC.gender.object_pronoun} at {NPC_SCENE}."
     DEFAULT_MEMO = "{NPC} wants to rid {LOCALE} of {FACTION}; you can ask {NPC.gender.object_pronoun} about this at {NPC_SCENE}."
     CUSTOM_REPLY = "What are you going to do about {FACTION}?"
-    CUSTOM_OFFER = "[THEYAREOURENEMY] People in town expect me to get rid of them, and that's what I'm going to do. I happen to know the current whereabouts of their commander."
+    CUSTOM_OFFER = "People in town expect me to get rid of them, and that's what I'm going to do. I happen to know the current whereabouts of their commander."
     def _npc_matches(self,nart,candidate):
         return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Politician)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
@@ -868,7 +868,7 @@ class DZREPRC_RazeTheFortress(DZREPRC_ConclusionTemplate):
         return mylist
     def get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
-        if npc is not self.elements["NPC"] and not self.got_rumor:
+        if npc is not self.elements["NPC"] and not self.mission_active:
             mygram["[News]"].append("{NPC} at {NPC_SCENE} has been looking for you".format(**self.elements))
         return mygram
 

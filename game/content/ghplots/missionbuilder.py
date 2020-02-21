@@ -246,7 +246,7 @@ class BAM_CaptureBuildings( Plot ):
         elif len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp, (sum([(100-c.get_percent_damage_over_health()) for c in propteam.get_active_members(camp)])) // self.starting_number_of_props)
             if not self.combat_finished:
-                pbge.alert("The complex been secured.")
+                pbge.alert("The complex has been secured.")
                 self.combat_finished = True
 
 

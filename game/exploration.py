@@ -326,6 +326,10 @@ class Explorer( object ):
             if hasattr(thing,'update_graphics'):
                 thing.update_graphics()
 
+        # Save the game, if the config says to.
+        if pbge.util.config.getboolean( "GENERAL", "auto_save" ):
+            camp.save()
+
 
     def update_scene( self ):
         for npc in self.scene.contents:

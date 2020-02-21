@@ -2687,7 +2687,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
 
     def can_equip(self, part):
         """Returns True if part can be legally equipped under current conditions"""
-        return self.is_legal_inv_com(part) and part.scale <= self.scale
+        return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
     @property
     def volume(self):

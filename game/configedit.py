@@ -44,6 +44,7 @@ class ConfigEditor( object ):
             mymenu.add_item("Fullscreen: {}".format(util.config.getboolean( "GENERAL", "fullscreen" )),self.toggle_fullscreen)
             mymenu.add_item("Music On: {}".format(util.config.getboolean( "GENERAL", "music_on" )),self.toggle_music)
             mymenu.add_item("Names Above Heads: {}".format(util.config.getboolean( "GENERAL", "names_above_heads" )),self.toggle_names)
+            mymenu.add_item("Auto Save on Scene Change: {}".format(util.config.getboolean( "GENERAL", "auto_save" )),self.toggle_names)
 
             for op in util.config.options("DIFFICULTY"):
                 mymenu.add_item("{}: {}".format(op,util.config.getboolean("DIFFICULTY",op)),OptionToggler(op,"DIFFICULTY"))
@@ -56,7 +57,7 @@ class ConfigEditor( object ):
                 action()
 
         # Export the new config options.
-        with open( util.user_dir( "config.cfg" ) , "wb" ) as f:
+        with open( util.user_dir( "config.cfg" ) , "wt" ) as f:
             util.config.write( f )
 
 class PopupGameMenu(object):
