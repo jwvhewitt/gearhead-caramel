@@ -21,13 +21,10 @@ import game.content.gharchitecture
 #   access later if you want.
 #
 #  FACTION: The Faction to add a remote office for
-#  LOCALE:  The city in which they will be placed
-#  METRO:   The scope for this plot
 
 class BoringRemoteOffice( Plot ):
     LABEL = "ADD_REMOTE_OFFICE"
-    active = True
-    scope = "METRO"
+    active = False
     def custom_init( self, nart ):
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -35,7 +32,7 @@ class BoringRemoteOffice( Plot ):
         intscene = gears.GearHeadScene(35, 35, "{} Base".format(self.elements["FACTION"]), player_team=team1,
                                        civilian_team=team2, scale=gears.scale.HumanScale, faction=self.elements["FACTION"])
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding())
-        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR")
 
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                     dident="INTERIOR")
@@ -43,8 +40,7 @@ class BoringRemoteOffice( Plot ):
         # Add the NPCs.
         team2.contents.append(gears.selector.random_character(self.rank+10,job=self.elements["FACTION"].choose_job(gears.tags.Commander),combatant=True,faction=self.elements["FACTION"]))
         team2.contents.append(gears.selector.random_character(self.rank+5,job=self.elements["FACTION"].choose_job(gears.tags.Support),combatant=True,faction=self.elements["FACTION"]))
-        for t in range(random.randint(1,2)):
-            team2.contents.append(gears.selector.random_character(self.rank,faction=self.elements["FACTION"],
+        team2.contents.append(gears.selector.random_character(self.rank,faction=self.elements["FACTION"],
                                                                   job=self.elements["FACTION"].choose_job(
                                                                       gears.tags.Trooper), combatant=True))
 

@@ -3,10 +3,10 @@ from pbge import effects
 from pbge.scenes import animobs,movement,pfov
 import random
 from . import materials
-from . import damage
-from . import stats
+from . import damage, stats
 from .enchantments import Enchantment,END_COMBAT
 import math
+from . import base
 
 #  *************************
 #  ***   Utility  Junk   ***
@@ -15,6 +15,10 @@ import math
 class InvoLibraryShelf( object ):
     def __init__(self,source,invo_list):
         self.source = source
+        if hasattr(source,"get_shelf_name"):
+            self.name = source.get_shelf_name()
+        else:
+            self.name = source.name
         self.invo_list = invo_list
     def has_at_least_one_working_invo(self,chara,in_combat=True):
         has_one = False
@@ -37,7 +41,7 @@ class InvoLibraryShelf( object ):
         else:
             return 0
     def __str__(self):
-        return self.source.name
+        return self.name
 
 
 class AttackData( object ):
@@ -178,6 +182,14 @@ class Fireball( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_fireball.png"
     DEFAULT_END_FRAME = 7
 
+class HaywireAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_haywire.png"
+    DEFAULT_END_FRAME = 19
+
+class OverloadAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_overload.png"
+    DEFAULT_END_FRAME = 15
+
 class RepairAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_repair.png"
     DEFAULT_END_FRAME = 7
@@ -222,6 +234,10 @@ class FailAnim( animobs.Caption ):
 
 class SearchTextAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Search!'
+
+
+class InflictHaywireAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Haywire!'
 
 
 class SmallBullet( animobs.ShotAnim ):
@@ -566,6 +582,56 @@ class OpposedSkillRoll( effects.NoEffect ):
         modifiers = [(self.roll_mod,'Base Modifier')]
         return self._calc_percent(camp,originator,target)/100.0,modifiers
 
+class ResistanceRoll( effects.NoEffect ):
+    """ Two actors make a skill roll based on defense skill. One will succeed, one will fail.
+    """
+    def __init__(self, att_stat, def_stat, on_success=(), on_failure=(), on_no_target=(), anim=None, roll_mod=0, min_chance=5, max_chance=95 ):
+        self.att_stat = att_stat
+        self.def_stat = def_stat
+        self.on_success = list(on_success)
+        self.on_failure = list(on_failure)
+        self.on_no_target = list(on_no_target)
+        self.anim = anim
+        self.roll_mod = roll_mod
+        self.min_chance = min_chance
+        self.max_chance = max_chance
+
+    def _get_dodge_skill(self,npc):
+        if hasattr(npc,"DODGE_SKILL"):
+            return npc.DODGE_SKILL
+        else:
+            return stats.Concentration
+
+    def _calc_percent(self, camp, originator, target):
+        if originator:
+            percent = originator.get_skill_score(self.att_stat,self._get_dodge_skill(originator)) + self.roll_mod
+        else:
+            percent = self.roll_mod
+        if target:
+            percent -= target.get_skill_score(self.def_stat,self._get_dodge_skill(target))
+        return max(min(percent,self.max_chance),self.min_chance)
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        target = camp.scene.get_main_actor(pos)
+        if target:
+            odds = self._calc_percent(camp,originator,target)
+            if random.randint(1,100) <= odds:
+                if originator and hasattr(originator, "dole_experience"):
+                    originator.dole_experience(max((75 - odds) // 5, 2), self._get_dodge_skill(originator))
+                return self.on_success
+            else:
+                if hasattr(target, "dole_experience"):
+                    target.dole_experience(max((odds - 25) // 5, 2), self._get_dodge_skill(target))
+                return self.on_failure
+        else:
+            return self.on_no_target
+
+    def get_odds( self, camp, originator, target ):
+        # Return the percent chance that this attack will hit and the list of
+        # modifiers in (value,name) form.
+        modifiers = [(self.roll_mod,'Base Modifier')]
+        return self._calc_percent(camp,originator,target)/100.0,modifiers
+
 
 class CheckConditions( effects.NoEffect ):
     """ This tile will be checked for something.
@@ -739,6 +805,22 @@ class SetVisible( effects.NoEffect ):
             anims.append(myanim)
         return self.children
 
+class IfEnchantmentOK( effects.NoEffect ):
+    """
+    Go to either on_success or on_failure depending on whether the target can be affected.
+    """
+    def __init__(self, enchant_type, on_success=(), on_failure=(), anim=None ):
+        self.enchant_type = enchant_type
+        self.on_success = list(on_success)
+        self.on_failure = list(on_failure)
+        self.anim = anim
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        target = camp.scene.get_main_actor(pos)
+        if target and hasattr(target,'ench_list') and self.enchant_type.can_affect(target):
+            return self.on_success
+        else:
+            return self.on_failure
+
 
 class AddEnchantment( effects.NoEffect ):
     """ Apply an enchantment to the actor in this tile.
@@ -752,11 +834,11 @@ class AddEnchantment( effects.NoEffect ):
         self.anim = anim
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         target = camp.scene.get_main_actor(pos)
-        if target and hasattr(target,'ench_list'):
+        if target and hasattr(target,'ench_list') and self.enchant_type.can_affect(target):
             params = self.enchant_params.copy()
             if self.dur_n and self.dur_d:
                 params['duration'] = sum(random.randint(1, self.dur_d) for n in range(self.dur_n))
-            target.ench_list.add_enchantment(self.enchant_type,params)
+            target.ench_list.add_enchantment(target,self.enchant_type,params)
         return self.children
 
 
@@ -1174,6 +1256,19 @@ class HaywireStatus(Enchantment):
     DEFAULT_DURATION = 3
     DEFAULT_DISPEL = (END_COMBAT,materials.RT_REPAIR)
     ALT_AI = 'HaywireAI'
+    @classmethod
+    def can_affect(cls,target):
+        return isinstance(target,base.Mecha)
+
+class OverloadStatus(Enchantment):
+    name = 'Overloaded'
+    DEFAULT_DISPEL = (END_COMBAT,)
+    DEFAULT_DURATION = 5
+    def get_mobility_bonus(self,owner):
+        return -(max(self.duration//2,1)*5)
+    @classmethod
+    def can_affect(cls,target):
+        return isinstance(target,base.Mecha)
 
 
 class SensorLock(Enchantment):

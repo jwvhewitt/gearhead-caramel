@@ -43,8 +43,8 @@ class DZD_Wujung(Plot):
                                       scale=gears.scale.HumanScale, is_metro=True,
                                       faction=gears.factions.TerranFederation,
                                       attributes=(
-                                      gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC))
-        myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
+                                      gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC),
+                                      exploration_music='jlbrock44_-_The_Stars_Look_Different_(Ziggy_Stardust_Mix).ogg')
 
         npc = gears.selector.random_character(50, local_tags=myscene.attributes)
         npc.place(myscene, team=team2)
@@ -149,6 +149,7 @@ class DZD_BronzeHorseInn(Plot):
         intscene = gears.GearHeadScene(50, 35, "Bronze Horse Inn", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_MEETING),
                                        scale=gears.scale.HumanScale)
+
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=10, height=10,
@@ -375,6 +376,7 @@ class DZD_BlueFortressHQ(Plot):
         intscene = gears.GearHeadScene(35, 35, "Blue Fortress", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BASE),
                                        scale=gears.scale.HumanScale, faction=factions.TerranDefenseForce)
+
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.DefaultBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
@@ -480,6 +482,7 @@ class DZD_AlliedArmor(Plot):
                                        attributes=(
                                        gears.tags.SCENE_PUBLIC, gears.tags.SCENE_SHOP, gears.tags.SCENE_GARAGE),
                                        scale=gears.scale.HumanScale)
+
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
@@ -517,6 +520,7 @@ class DZD_AlliedArmor(Plot):
 
         otherscene = gears.GearHeadScene(50, 40, "Secret Scene", player_team=team1,
                                        scale=gears.scale.HumanScale)
+
         intscenegen = pbge.randmaps.SceneGenerator(otherscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, otherscene, intscenegen, ident="OTHERSCENE", dident="INTERIOR")
         hiddenroom = pbge.randmaps.rooms.ClosedRoom()
@@ -617,6 +621,7 @@ class DZD_EliteEquipment(Plot):
         intscene = gears.GearHeadScene(35, 35, "Elite Equipment", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
+
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
@@ -672,6 +677,7 @@ class DZD_WujungHospital(Plot):
         intscene = gears.GearHeadScene(35, 35, "Wujung Hospital", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
+
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
@@ -823,6 +829,7 @@ class DZD_LongRoadLogistics(Plot):
                                        attributes=(
                                        gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE, gears.tags.SCENE_TRANSPORT),
                                        scale=gears.scale.HumanScale)
+
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.MostlyOpenRoom(12,15,anchor=pbge.randmaps.anchors.south, ),

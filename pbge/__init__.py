@@ -166,7 +166,7 @@ class GameState( object ):
             return sound
 
     def start_music( self, mfname ):
-        if mfname != self.music_name and util.config.getboolean( "GENERAL", "music_on" ):
+        if mfname and mfname != self.music_name and util.config.getboolean( "GENERAL", "music_on" ):
             sound = self.locate_music(mfname)
             if self.music:
                 self.music.fadeout(2000)

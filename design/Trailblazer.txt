@@ -6,6 +6,7 @@ Mecha
 
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
+    role_list = (Support,)
 
     SUB
         Head
@@ -62,8 +63,8 @@ Mecha
                         name = "Particle Cannon"
                         reach = 7
                         damage = 1
-                        accuracy = 2
-                        penetration = 2
+                        accuracy = 3
+                        attributes=(OverloadAttack)
                         shot_anim = SmallBeam
                     END
             END
@@ -91,6 +92,21 @@ Mecha
                  Mount
                     name = "Left Arm Mount"
                     material = Metal
+                    INV
+                            Launcher
+                            size = 2
+                            SUB
+                                Missile
+                                    name = "Haywire Missiles"
+                                    reach = 6
+                                    damage = 2
+                                    accuracy = 2
+                                    penetration = 2
+                                    attributes=(HaywireAttack)
+                                    quantity = 2
+                            END
+
+                    END
             END
         Leg
             name = "Right Leg"

@@ -14,10 +14,15 @@ from . import movementui
 from . import targetingui
 from . import programsui
 from . import aibrain
+from . import aihaywire
 import random
 import gears
 from .. import configedit,invoker
 
+
+ALT_AIS = {
+    "HaywireAI": aihaywire.HaywireTurn
+}
 
 
 class CombatStat( object ):
@@ -256,13 +261,6 @@ class Combat( object ):
         else:
             self.cstat[pc].spend_ap(1)
 
-    def do_alt_turn(self,chara,alt_ais):
-        # This character is under some kind of action-affecting effect.
-        while self.camp.fight.still_fighting() and self.camp.fight.cstat[chara].action_points > 0 and random.randint(1,3) != 1:
-            mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,chara.pos,chara.get_current_speed(),chara.mmode,self.camp.scene.get_blocked_tiles())
-            mydest = random.choice(list(mynav.cost_to_tile.keys()))
-            self.move_model_to(chara,mynav,mydest)
-
     def do_combat_turn( self, chara ):
         if not self.cstat[chara].has_started_turn:
             self.cstat[chara].start_turn(chara)
@@ -270,7 +268,9 @@ class Combat( object ):
                 chara.ench_list.update(self.camp,chara)
                 alt_ais = chara.ench_list.get_tags('ALT_AI')
                 if alt_ais:
-                    self.do_alt_turn(chara,alt_ais)
+                    current_ai = random.choice(alt_ais)
+                    if current_ai in ALT_AIS:
+                        ALT_AIS[current_ai](chara,self.camp)
         if chara in self.camp.party and chara.is_operational():
             # Outsource the turn-taking.
             my_turn = PlayerTurn( chara, self.camp )

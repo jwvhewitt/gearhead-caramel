@@ -178,7 +178,8 @@ class RoadMap(object):
             prev = south_road[-1]
         self.connect_nodes(prev,end_node,RoadEdge())
 
-        self.connect_nodes(random.choice(north_road),random.choice(south_road),RoadEdge())
+        cross_road = RoadEdge()
+        self.connect_nodes(random.choice(north_road),random.choice(south_road),cross_road)
 
         # At this point we have all the main locations joined. Gonna sort roads according to "westerliness"
         # and assign difficulty ratings based on that.

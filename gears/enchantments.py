@@ -14,11 +14,11 @@ class EnchantmentList(list):
                     n_max = min( v , n_max )
         return p_max + n_max
 
-    def add_enchantment(self, ench_type, ench_params):
+    def add_enchantment(self, target, ench_type, ench_params):
         current_ench = self.get_enchantment_of_class(ench_type)
         if current_ench and hasattr(current_ench,'add_enchantment'):
-            current_ench.add_enchantment(**ench_params)
-        elif not current_ench:
+            current_ench.merge_enchantment(**ench_params)
+        elif ench_type.can_affect(target) and not current_ench:
             self.append(ench_type(**ench_params))
 
     def tidy( self, dispel_this ):
@@ -70,12 +70,19 @@ class Enchantment(object):
         self.duration = duration or self.DEFAULT_DURATION
         self.dispel = dispel or self.DEFAULT_DISPEL
 
-    def add_enchantment(self, **kwargs):
+    def merge_enchantment(self, **kwargs):
         # An enchantment of the same type is being added to this one.
         if self.duration:
             d = kwargs.get('duration') or self.DEFAULT_DURATION
             if d:
                 self.duration += max(d-1,1)
+
+    def end(self):
+        self.duration = 0
+
+    @classmethod
+    def can_affect(cls,target):
+        return True
 
 
 

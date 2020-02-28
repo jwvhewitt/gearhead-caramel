@@ -1375,7 +1375,8 @@ class MeleeWeapon(Weapon):
     MAX_PENETRATION = 5
     COST_FACTOR = 3
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.Flail,
-                        attackattributes.Defender, attackattributes.ChargeAttack)
+                        attackattributes.HaywireAttack,
+                        attackattributes.Defender, attackattributes.ChargeAttack, attackattributes.OverloadAttack)
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
@@ -1460,7 +1461,8 @@ class EnergyWeapon(Weapon):
     MAX_PENETRATION = 5
     COST_FACTOR = 20
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.Flail,
-                        attackattributes.Defender, attackattributes.Intercept, attackattributes.ChargeAttack)
+                        attackattributes.Defender, attackattributes.Intercept, attackattributes.ChargeAttack,
+                        attackattributes.OverloadAttack)
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
@@ -1565,7 +1567,8 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     STACK_CRITERIA = ("ammo_type", 'attributes')
     SAVE_PARAMETERS = ('ammo_type', 'quantity', 'area_anim', 'attributes')
     LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2,
-                        attackattributes.BurnAttack, attackattributes.Scatter,
+                        attackattributes.BurnAttack, attackattributes.HaywireAttack,
+                        attackattributes.OverloadAttack, attackattributes.Scatter,
                         )
 
     def __init__(self, ammo_type=calibre.Shells_150mm, quantity=12, area_anim=None, attributes=(), **keywords):
@@ -1776,6 +1779,7 @@ class BeamWeapon(Weapon):
     DEFAULT_SHOT_ANIM = geffects.GunBeam
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
+                        attackattributes.OverloadAttack,
                         attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4,
                         attackattributes.Intercept,attackattributes.SwarmFire2,attackattributes.SwarmFire3
                         )
@@ -1850,7 +1854,8 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
     MAX_PENETRATION = 5
     STACK_CRITERIA = ("reach", "damage", "accuracy", "penetration")
     LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2,
-                        attackattributes.BurnAttack, attackattributes.Scatter,
+                        attackattributes.BurnAttack, attackattributes.HaywireAttack, attackattributes.OverloadAttack,
+                        attackattributes.Scatter,
                         )
 
     def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, quantity=12, area_anim=None, attributes=(),
@@ -2067,6 +2072,13 @@ class Launcher(BaseGear, ContainerDamageHandler):
             if ammo.quantity > 1:
                 my_invos.append(self.get_multi_attack(max(ammo.quantity - ammo.spent, 2), 9))
         return my_invos
+
+    def get_shelf_name(self):
+        ammo = self.get_ammo()
+        if ammo:
+            return ammo.name
+        else:
+            return self.name
 
     def get_ammo_string(self):
         ammo = self.get_ammo()
@@ -3208,6 +3220,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
     SAVE_PARAMETERS = ('size', 'statline', 'frame', 'destroyed_frame', 'action_points' )
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_MATERIAL = materials.Metal
+    DODGE_SKILL = stats.MechaPiloting
 
     def __init__(self, statline=None, size=10, frame=0, destroyed_frame=1, action_points=3, **keywords):
         self.statline = collections.defaultdict(int)

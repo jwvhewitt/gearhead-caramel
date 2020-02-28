@@ -293,6 +293,9 @@ class SceneView( object ):
             if hasattr(thing,'update_graphics'):
                 thing.update_graphics()
 
+    def play_anims(self,*args):
+        self.anim_list += args
+        self.handle_anim_sequence()
 
     def PosToKey( self, pos ):
         # Convert the x,y coordinates to a model_map key...

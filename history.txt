@@ -1,3 +1,4 @@
+- Added Haywire, Overload attack attributes
 - Effects, combat now grant experience, skill experience
 - Switched to Python3
 - Added restore method which refreshes gears, returns repair/reload cost (gears/base.py)

@@ -51,7 +51,7 @@ class UtterlyGenericLancemate(Plot):
 class GiftedNewbieLancemate(Plot):
     # Amazing stats, amazingly crap skills.
     LABEL = "RANDOM_LANCEMATE"
-    JOBS = ("Mecha Pilot","Arena Pilot","Civilian","Explorer","Factory Worker")
+    JOBS = ("Mecha Pilot","Arena Pilot","Citizen","Explorer","Factory Worker")
     UNIQUE = True
 
     def custom_init(self, nart):

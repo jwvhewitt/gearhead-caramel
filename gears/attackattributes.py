@@ -1,5 +1,5 @@
 from pbge import Singleton
-from . import geffects
+from . import geffects,stats
 import pbge
 
 class Accurate(Singleton):
@@ -191,6 +191,27 @@ class Flail(Singleton):
         attack.fx.defenses[geffects.PARRY] = None
         attack.fx.defenses[geffects.BLOCK] = None
 
+class HaywireAttack(Singleton):
+    name = "Haywire"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 2.0
+    COST_MODIFIER = 2.0
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def modify_basic_attack(self, weapon, attack):
+        # Add a burn status to the children.
+        attack.fx.children[0].children.append(
+            geffects.IfEnchantmentOK(
+                geffects.HaywireStatus,
+                on_success=(
+                    geffects.ResistanceRoll(stats.Knowledge,stats.Ego,roll_mod=25,min_chance=25,
+                        on_success=(geffects.AddEnchantment(geffects.HaywireStatus,dur_n=2,dur_d=4,anim=geffects.InflictHaywireAnim),)
+                    ),
+                ),
+            )
+        )
+
 class Intercept(Singleton):
     name = "Intercept"
     MASS_MODIFIER = 1.0
@@ -214,6 +235,24 @@ class LineAttack(Singleton):
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
         attack.fx.anim = weapon.get_area_anim()
         attack.fx.children[0].scatter = True
+
+
+class OverloadAttack(Singleton):
+    name = "Overload"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.5
+    POWER_MODIFIER = 1.5
+
+    @classmethod
+    def modify_basic_attack(self, weapon, attack):
+        # Add a burn status to the children.
+        attack.fx.children[0].children.append(
+            geffects.IfEnchantmentOK(
+                geffects.OverloadStatus,
+                on_success=(geffects.AddEnchantment(geffects.OverloadStatus,dur_n=2,dur_d=4,anim=geffects.OverloadAnim),),
+            )
+        )
 
 
 class Scatter(Singleton):
