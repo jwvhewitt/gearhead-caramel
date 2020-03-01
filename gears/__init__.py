@@ -584,6 +584,51 @@ class ProtoGear(object):
         self.sub_com = list()
         self.inv_com = list()
 
+    def build(self,defaults=None):
+        if not defaults:
+            defaults = dict()
+        for k, v in defaults.items():
+            if k not in self.gparam:
+                self.gparam[k] = v
+        nudefaults = dict()
+        if "scale" in self.gparam:
+            nudefaults["scale"] = self.gparam["scale"]
+        if "material" in self.gparam:
+            nudefaults["material"] = self.gparam["material"]
+        my_subs = [pg.build(nudefaults) for pg in self.sub_com]
+        my_invs = [pg.build(nudefaults) for pg in self.inv_com]
+        return self.gclass(sub_com=my_subs, inv_com=my_invs, **self.gparam)
+
+class ProtoSTC(object):
+    """Used by the loader to hold gear definitions before creating the actual gear."""
+
+    def __init__(self, stc_ident):
+        self.stc_ident = stc_ident
+        self.gparam = dict()
+        self.sub_com = list()
+        self.inv_com = list()
+
+    def build(self,defaults=None):
+        if not defaults:
+            defaults = dict()
+        for k, v in defaults.items():
+            if k not in self.gparam:
+                self.gparam[k] = v
+        nudefaults = dict()
+        if "scale" in self.gparam:
+            nudefaults["scale"] = self.gparam["scale"]
+        if "material" in self.gparam:
+            nudefaults["material"] = self.gparam["material"]
+
+        mygear = selector.get_design_by_full_name(self.stc_ident)
+
+        mygear.sub_com += [pg.build(nudefaults) for pg in self.sub_com]
+        mygear.inv_com += [pg.build(nudefaults) for pg in self.inv_com]
+        for k,v in self.gparam.items():
+            if hasattr(mygear,k):
+                setattr(mygear,k,v)
+        return mygear
+
 
 class Loader(object):
     def __init__(self, fname):
@@ -703,6 +748,14 @@ class Loader(object):
                     current_gear = ProtoGear(GEAR_TYPES[line])
                     masterlist.append(current_gear)
 
+                elif line.startswith("STC "):
+                    stc_ident = line[4:]
+                    if stc_ident in selector.DESIGN_BY_NAME:
+                        current_gear = ProtoSTC(stc_ident)
+                        masterlist.append(current_gear)
+                    else:
+                        print("Unknown STC '{}'".format(stc_ident))
+
                 elif line == "SUB":
                     # This is a SUB command.
                     current_gear.sub_com = self.load_list(g_file)
@@ -716,28 +769,18 @@ class Loader(object):
 
         return masterlist
 
-    def convert(self, protolist,defaults):
+    def convert(self, protolist):
         # Convert the provided list to gears.
         mylist = list()
         for pg in protolist:
-            for k,v in list(defaults.items()):
-                if k not in pg.gparam:
-                    pg.gparam[k] = v
-            nudefaults = dict()
-            if "scale" in pg.gparam:
-                nudefaults["scale"] = pg.gparam["scale"]
-            if "material" in pg.gparam:
-                nudefaults["material"] = pg.gparam["material"]
-            my_subs = self.convert(pg.sub_com,nudefaults)
-            my_invs = self.convert(pg.inv_com,nudefaults)
-            mygear = pg.gclass(sub_com=my_subs, inv_com=my_invs, **pg.gparam)
+            mygear = pg.build()
             mylist.append(mygear)
         return mylist
 
     def load(self):
         with open(self.fname, 'rt') as f:
             mylist = self.load_list(f)
-        return self.convert(mylist,dict())
+        return self.convert(mylist)
 
     @classmethod
     def load_design_file(cls, dfname):
@@ -818,9 +861,8 @@ def init_gears():
     pbge.image.search_path.append(pbge.util.user_dir('image'))
     pbge.POSTERS += glob.glob(os.path.join(pbge.util.user_dir('image'), "eyecatch_*.png"))
 
-    # Load all design files.
-    design_files = glob.glob(os.path.join(pbge.util.game_dir('design'), '*.txt')) + glob.glob(
-        os.path.join(pbge.util.user_dir('design'), '*.txt'))
+    # Load the STC files first.
+    design_files = glob.glob(pbge.util.data_dir('stc_*.txt'))
     for f in design_files:
         selector.DESIGN_LIST += Loader(f).load()
     # print selector.DESIGN_LIST
@@ -830,6 +872,22 @@ def init_gears():
         if d.get_full_name() in selector.DESIGN_BY_NAME:
             print("Warning: Multiple designs named {}".format(d.get_full_name()))
         selector.DESIGN_BY_NAME[d.get_full_name()] = d
+        d.stc = True
+
+
+    # Load all design files.
+    design_files = glob.glob(os.path.join(pbge.util.game_dir('design'), '*.txt')) + glob.glob(
+        os.path.join(pbge.util.user_dir('design'), '*.txt'))
+    for f in design_files:
+        selector.DESIGN_LIST += Loader(f).load()
+    # print selector.DESIGN_LIST
+    selector.check_design_list()
+
+    for d in selector.DESIGN_LIST:
+        if not hasattr(d,"stc"):
+            if d.get_full_name() in selector.DESIGN_BY_NAME:
+                print("Warning: Multiple designs named {}".format(d.get_full_name()))
+            selector.DESIGN_BY_NAME[d.get_full_name()] = d
 
     portraits.init_portraits()
     jobs.init_jobs()

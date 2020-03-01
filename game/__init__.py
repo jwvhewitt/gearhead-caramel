@@ -9,6 +9,8 @@ from . import cosplay
 from . import chargen
 from . import services
 from . import fieldhq
+from . import mechabrowser
+from . import geareditor
 from game.fieldhq import backpack
 import pbge
 

@@ -872,7 +872,7 @@ class Shield(BaseGear, StandardDamageHandler):
 
     @property
     def volume(self):
-        return self.size
+        return max(self.size - self.bonus + 1, 1)
 
     @property
     def base_cost(self):
@@ -1374,9 +1374,10 @@ class MeleeWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 3
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.Flail,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.ChargeAttack,
+                        attackattributes.Defender, attackattributes.Flail,
                         attackattributes.HaywireAttack,
-                        attackattributes.Defender, attackattributes.ChargeAttack, attackattributes.OverloadAttack)
+                        attackattributes.OverloadAttack)
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
@@ -2653,6 +2654,7 @@ class MT_Battroid(Singleton):
         # Return the modified speed.
         return base_speed
 
+MECHA_FORMS = (MT_Battroid,)
 
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
     SAVE_PARAMETERS = ('name', 'form', 'environment_list', 'role_list', 'family')

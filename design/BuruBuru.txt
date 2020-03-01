@@ -1,7 +1,7 @@
 Mecha
     name = "Buru Buru"
     desig = "SAN-X9"
-    imagename = "btr_buruburu.png"
+    imagename = "btr_buruburu_x9.png"
     portrait = "mecha_buruburu.png"
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
@@ -65,19 +65,7 @@ Mecha
                 Hand
                     name = "Right Hand"
                     INV
-                        BallisticWeapon
-                            name = "Shaka Cannon"
-                            reach = 5
-                            damage = 3
-                            accuracy = 0
-                            penetration = 3
-                            ammo_type = Shells_150mm
-                            attributes = (Accurate)
-                            SUB
-                                Ammo
-                                    ammo_type=Shells_150mm
-                                    quantity=15
-                            END
+                        STC Shaka Cannon
                     END
             END
         Arm
@@ -116,3 +104,497 @@ Mecha
                     size = 4
             END
     END
+
+Mecha
+    name = "Buru Buru"
+    desig = "SAN-X9c Urban"
+    imagename = "btr_buruburu_x9c.png"
+    portrait = "mecha_buruburu.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Trooper,Command)
+    desc = "A variant on the BuruBuru design. This version features a shield and improved short range weapons for close quarters city fighting."
+
+    SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Intercept Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 605
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BallisticWeapon
+                            name = "Repeater Cannon"
+                            reach = 4
+                            damage = 2
+                            accuracy = 0
+                            penetration = 3
+                            ammo_type = Shells_80mm
+                            attributes = (BurstFire2)
+                            SUB
+                                Ammo
+                                    ammo_type=Shells_80mm
+                                    quantity=40
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                    INV
+                        MeleeWeapon
+                            name="Axe"
+                            reach=1
+                            damage=3
+                            accuracy=1
+                            penetration=2
+                    END
+            END
+            INV
+				Shield
+				    name = "Metro Shield"
+					size = 5
+					bonus = 1
+					SUB
+					    BallisticWeapon
+                        name = "Light Machine Gun"
+                        reach = 2
+                        damage = 1
+                        accuracy = 3
+                        penetration = 0
+                        ammo_type = Shells_20mm
+                        attributes = (BurstFire4)
+                        integral = True
+                        SUB
+                            Ammo
+                                ammo_type=Shells_20mm
+                                quantity=40
+                        END
+					END
+            END
+
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+    END
+
+Mecha
+    name = "Buru Buru"
+    desig = "SAN-X9g Heavyfoot"
+    imagename = "btr_buruburu_x9g.png"
+    portrait = "mecha_buruburu.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Support)
+    desc = "A variant on the BuruBuru design. This version is equipped with a powerful gauss cannon."
+
+    SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Intercept Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 605
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        STC Heavy Gauss Rifle
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+            END
+            INV
+				Shield
+				    name = "Gun Buckler"
+					size = 2
+					SUB
+					    BallisticWeapon
+                        name = "Buckler Machine Gun"
+                        reach = 2
+                        damage = 1
+                        accuracy = 1
+                        penetration = 0
+                        ammo_type = Shells_20mm
+                        attributes = (BurstFire4)
+                        integral = True
+                        SUB
+                            Ammo
+                                ammo_type=Shells_20mm
+                                quantity=40
+                        END
+					END
+            END
+
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+    END
+
+Mecha
+    name = "Buru Buru"
+    desig = "SAN-X9e Phalanx"
+    imagename = "btr_buruburu_x9e.png"
+    portrait = "mecha_buruburu.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (TerranFederation,Guardians)
+    role_list = (Trooper,Command)
+    desc = "A variant on the BuruBuru design. This version features a heavy body shield."
+
+    SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Intercept Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 605
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        STC Shaka Cannon
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+            END
+            INV
+				Shield
+				    name = "Phalanx Shield"
+					size = 8
+					bonus = 4
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+    END
+
+Mecha
+    name = "Buru Buru"
+    desig = "SAN-X9cb Crossbone"
+    imagename = "btr_buruburu_x9cb.png"
+    portrait = "mecha_buruburu.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (BladesOfCrihna,)
+    role_list = (Trooper,Command)
+    desc = "This variant of the ubiquitous Buru Buru is favored by pirates in the L5 region."
+
+    SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Intercept Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 605
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BallisticWeapon
+                            name = "Mecha Blunderbuss"
+                            reach = 4
+                            damage = 4
+                            accuracy = 2
+                            penetration = 2
+                            ammo_type = Ferrous_Frag
+                            attributes = (Scatter)
+                            SUB
+                                Ammo
+                                    ammo_type=Ferrous_Frag
+                                    quantity=25
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                    INV
+                        MeleeWeapon
+                            name="Cutlass"
+                            reach=1
+                            damage=3
+                            accuracy=2
+                            penetration=1
+                    END
+                MeleeWeapon
+                    name="Shoulder Spike"
+                    reach=1
+                    damage=2
+                    accuracy=0
+                    penetration=3
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+    END
+

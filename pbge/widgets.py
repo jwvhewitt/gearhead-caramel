@@ -98,13 +98,17 @@ class LabelWidget( Widget ):
 
 class TextEntryWidget( Widget ):
     ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
-    def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, **kwargs ):
+    def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, on_change=None, **kwargs ):
+        # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
         super(TextEntryWidget, self).__init__(dx,dy,w,h,**kwargs)
+        if not text:
+            text = ''
         self.char_list = list(text)
         self.color = color or TEXT_COLOR
         self.font = font or my_state.big_font
         self.justify = justify
         self.input_cursor = image.Image( "sys_textcursor.png" , 8 , 16 )
+        self.on_change = on_change
 
     def render( self ):
         mydest = self.get_rect()
@@ -125,8 +129,12 @@ class TextEntryWidget( Widget ):
             if ev.type == pygame.KEYDOWN:
                 if (ev.key == pygame.K_BACKSPACE) and (len(self.char_list) > 0):
                     del self.char_list[-1]
+                    if self.on_change:
+                        self.on_change(self,ev)
                 elif (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
                     self.char_list.append(ev.unicode)
+                    if self.on_change:
+                        self.on_change(self,ev)
 
     def is_kb_selectable(self):
         return True
@@ -165,13 +173,15 @@ class RadioButtonWidget( Widget ):
             button.data(button,ev)
 
 class ColumnWidget(Widget):
-    def __init__( self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, **kwargs ):
+    def __init__( self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, center_interior=False, **kwargs ):
         super(ColumnWidget, self).__init__(dx,dy,w,h,**kwargs)
         self.draw_border = draw_border
         self.border = border
         self._interior_widgets = list()
         self._header_widget = None
         self.padding = padding
+        self.center_interior = center_interior
+
     def add_interior(self,other_w):
         self.children.append(other_w)
         self._interior_widgets.append(other_w)
@@ -199,7 +209,10 @@ class ColumnWidget(Widget):
             self._header_widget.anchor = frects.ANCHOR_TOP
             dy += self._header_widget.h // 2 + self.padding
         for widg in self._interior_widgets:
-            widg.dx = 0
+            if self.center_interior:
+                widg.dx = ( self.w - widg.w ) // 2
+            else:
+                widg.dx = 0
             widg.dy = dy
             widg.anchor = frects.ANCHOR_UPPERLEFT
             dy += widg.h + self.padding

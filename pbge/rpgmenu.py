@@ -72,11 +72,12 @@ class DescBox( Frect ):
             img = render_text( self.font, menu_item.desc, self.w, justify = self.justify, color=self.color )
             my_state.screen.blit( img , mydest )
 
-
+MENU_ITEM_COLOR = pygame.Color(150,145,130)
+MENU_SELECT_COLOR = pygame.Color(128,250,230)
 
 class Menu( Frect ):
 
-    def __init__(self,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,menuitem=(150,145,130),menuselect=(128,250,230),border=default_border,predraw=None,font=None,padding=0,item_class=MenuItem):
+    def __init__(self,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,menuitem=MENU_ITEM_COLOR,menuselect=MENU_SELECT_COLOR,border=default_border,predraw=None,font=None,padding=0,item_class=MenuItem):
         super(Menu, self).__init__(dx,dy,w,h,anchor)
         self.menuitem = menuitem
         self.menuselect = menuselect

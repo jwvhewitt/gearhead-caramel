@@ -30,7 +30,7 @@ class Snowflake(object):
             return True
 
 
-class TitleScreenRedraw(object):
+class MochaTitleScreenRedraw(object):
     TITLE_DEST = pbge.frects.Frect(-325, -150, 650, 100)
     MENU_DEST = pbge.frects.Frect(-150, 0, 300, 196)
 
@@ -60,6 +60,27 @@ class TitleScreenRedraw(object):
             else:
                 self.snow.render((sf.x, sf.y), sf.frame)
         pbge.my_state.screen.set_clip(None)
+        versid = pbge.render_text(pbge.my_state.medium_font, VERSION, 120, justify=1)
+        pbge.my_state.screen.blit(versid, versid.get_rect(
+            bottomright=(pbge.my_state.screen.get_width() - 8, pbge.my_state.screen.get_height() - 8)))
+
+
+class TitleScreenRedraw(object):
+    TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
+    MENU_DEST = pbge.frects.Frect(-150, 0, 300, 226)
+
+    def __init__(self):
+        self.title = pbge.image.Image("sys_maintitle.png")
+        self.bg = pbge.image.Image("poster_snowday.png")
+
+    def __call__(self):
+        pbge.my_state.screen.fill((0, 0, 0))
+        dest = self.bg.bitmap.get_rect(
+            center=(pbge.my_state.screen.get_width() // 2, pbge.my_state.screen.get_height() // 2))
+        self.bg.render(dest)
+
+        self.title.render(self.TITLE_DEST.get_rect())
+
         versid = pbge.render_text(pbge.my_state.medium_font, VERSION, 120, justify=1)
         pbge.my_state.screen.blit(versid, versid.get_rect(
             bottomright=(pbge.my_state.screen.get_width() - 8, pbge.my_state.screen.get_height() - 8)))
@@ -203,7 +224,8 @@ def play_the_game():
     mymenu.add_item("Create Character", open_chargen_menu)
     mymenu.add_item("Import GH1 Character", import_arena_character)
     mymenu.add_item("Config Options", open_config_menu)
-    mymenu.add_item("Cosplay Color Menu", open_cosplay_menu)
+    mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
+    mymenu.add_item("Edit Mecha", game.geareditor.GearEditor.create_and_invoke)
     mymenu.add_item("Quit", None)
 
     action = True

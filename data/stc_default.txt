@@ -1,0 +1,28 @@
+BallisticWeapon
+    name = "Shaka Cannon"
+    reach = 5
+    damage = 3
+    accuracy = 0
+    penetration = 3
+    ammo_type = Shells_150mm
+    attributes = (Accurate)
+    SUB
+        Ammo
+            ammo_type=Shells_150mm
+            quantity=15
+    END
+
+BallisticWeapon
+    name = "Heavy Gauss Rifle"
+    reach = 8
+    damage = 5
+    accuracy = 0
+    penetration = 3
+    ammo_type = Ferrous_120mm
+    attributes = (Accurate)
+    SUB
+        Ammo
+            ammo_type=Ferrous_120mm
+            quantity=16
+    END
+

@@ -35,8 +35,17 @@ class Shells_150mm( BaseCalibre ):
     """The ammunition used by the BuruBuru's Shaka Cannon."""
     bang = 9
 
+class Ferrous_50mm( BaseCalibre ):
+    bang = 7
+
 class Ferrous_70mm( BaseCalibre ):
     bang = 9
+
+class Ferrous_120mm( BaseCalibre ):
+    bang = 15
+
+class Ferrous_Frag( BaseCalibre ):
+    bang = 8
 
 class Rifle_5mm(BaseCalibre):
     bang = 6

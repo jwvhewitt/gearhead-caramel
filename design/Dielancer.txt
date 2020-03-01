@@ -1,0 +1,101 @@
+Mecha
+    name = "Dielancer"
+    desig = "SDH-22C"
+    imagename = "btr_dielancer.png"
+    portrait = "mecha_dielancer.png"
+    family = "Corsair"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (BoneDevils,DeadzoneFederation,ClanIronwind)
+    role_list = (Trooper,Command)
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                Cockpit
+                SUB
+                    Armor
+                        size = 1
+                END
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 700
+                Gyroscope
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        BallisticWeapon
+                            name = "Heavy Railgun"
+                            reach = 5
+                            damage = 3
+                            accuracy = 2
+                            penetration = 2
+                            ammo_type = Ferrous_50mm
+                            attributes = (VariableFire4)
+                            SUB
+                                Ammo
+                                    ammo_type=Ferrous_50mm
+                                    quantity=60
+                            END
+
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        MeleeWeapon
+                            name="Ion Lance"
+                            reach=2
+                            damage=3
+                            penetration=1
+                            attributes=(HaywireAttack,OverloadAttack,ChargeAttack)
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+            END
+            INV
+				Shield
+					size = 3
+					bonus = 2
+			END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Wheels
+                    size = 6
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Wheels
+                    size = 6
+            END
+    END
