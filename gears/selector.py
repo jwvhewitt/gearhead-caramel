@@ -10,6 +10,8 @@ from . import color
 from . import jobs
 
 DESIGN_LIST = list()
+STC_LIST = list()
+
 DESIGN_BY_NAME = dict()
 EARTH_NAMES = None
 LUNA_NAMES = None

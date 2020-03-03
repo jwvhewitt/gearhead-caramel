@@ -684,7 +684,7 @@ class BaseGear(scenes.PlaceableThing):
 
     @property
     def parent(self):
-        if hasattr(self, "container") and isinstance(self.container.owner, BaseGear):
+        if hasattr(self, "container") and self.container and isinstance(self.container.owner, BaseGear):
             return self.container.owner
 
     def get_root(self):

@@ -867,6 +867,8 @@ def init_gears():
         selector.DESIGN_LIST += Loader(f).load()
     # print selector.DESIGN_LIST
     selector.check_design_list()
+    # Copy this list to the STC_LIST.
+    selector.STC_LIST = list(selector.DESIGN_LIST)
 
     for d in selector.DESIGN_LIST:
         if d.get_full_name() in selector.DESIGN_BY_NAME:

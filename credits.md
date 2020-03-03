@@ -22,6 +22,9 @@ missile by Lluisa Iborra from the Noun Project CC-BY-3.0
 aim by amante de icono from the Noun Project CC-BY-3.0
 Shield by Alena Artemova from the Noun Project CC-BY-3.0
 Gear by Aya Sofya from the Noun Project CC-BY-3.0
+
+Settings by Aya Sofya from the Noun Project
+
 Battery by Wawan Hermawan from the Noun Project CC-BY-3.0
 Wrench by Ralf Schmitzer from the Noun Project CC-BY-3.0
 Heart by Khomsun Chaiwong from the Noun Project CC-BY-3.0
@@ -42,7 +45,9 @@ MUSIC
 =====
 
 Let's Just Get Through Christmas by Doctor Turtle is licensed under a Attribution License. CC-BY-4.0
+
 Lines and Late by Alexandr Zhelanov, https://soundcloud.com/alexandr-zhelanov CC-BY-3.0
+
 The Stars Look Different (Ziggy Stardust Mix) by spinningmerkaba (c) copyright 2016 Licensed under a Creative Commons
  Attribution (3.0) license. http://dig.ccmixter.org/files/jlbrock44/52765 Ft: stefsax and Dimitri Artemenko
 

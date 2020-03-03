@@ -148,6 +148,8 @@ class GameState( object ):
             self.render_notifications()
         if self.widget_tooltip:
             x,y = pygame.mouse.get_pos()
+            x += 16
+            y += 16
             if x + 200 > self.screen.get_width():
                 x -= 200
             myrect = pygame.rect.Rect(x,y,200,20)
