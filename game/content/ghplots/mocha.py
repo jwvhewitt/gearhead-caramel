@@ -1789,7 +1789,7 @@ class FinalBattleAgainstBase( Plot ):
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
         team2.contents += gears.selector.RandomMechaUnit(35,50,self.elements["ENEMY_FACTION"],myscene.environment).mecha_list
 
-        meks = gears.Loader.load_design_file('STC_Buildings.txt')
+        meks = gears.Loader.load_design_file('etc_Buildings.txt')
         team2.contents.append(meks[0])
         self.register_element("BOSS",meks[0])
         return True

@@ -1,7 +1,7 @@
 Mecha
     name = "Thorshammer"
     desig = "THD-35"
-    imagename = "btr_thorshammer.png"
+    imagename = "mav_thorshammer.png"
     portrait = "mecha_thorshammer.png"
 
     environment_list = (GroundEnv,UrbanEnv,)

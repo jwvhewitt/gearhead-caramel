@@ -1,7 +1,7 @@
 Mecha
     name = "Claymore"
     desig = "ITM-01"
-    imagename = "btr_claymore.png"
+    imagename = "mav_claymore.png"
     portrait = "mecha_claymore.png"
 
     environment_list = (GroundEnv,UrbanEnv,)

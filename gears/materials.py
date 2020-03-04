@@ -57,4 +57,4 @@ class Biotech( Material ):
     repair_cost = 2
 
 
-
+MECHA_MATERIALS = (Metal,Advanced,Ceramic,Biotech)

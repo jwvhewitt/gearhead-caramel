@@ -6,6 +6,7 @@ from . import util
 from . import my_state, render_text, TEXT_COLOR, Singleton
 import os.path
 import copy
+import glob
 
 import pbgerecolor
 import numpy
@@ -16,6 +17,15 @@ from pbgerecolor import Gradient
 # need to use the same image file.
 pre_loaded_images = weakref.WeakValueDictionary()
 search_path = list()
+
+def glob_images(pattern):
+    mylist = list()
+    for p in search_path:
+        myglob = glob.glob(os.path.join(p,pattern))
+        for fname in myglob:
+            mylist.append(os.path.basename(fname))
+    mylist.sort()
+    return mylist
 
 
 class Image(object):

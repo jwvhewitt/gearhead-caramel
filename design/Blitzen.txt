@@ -1,7 +1,7 @@
 Mecha
     name = "Blitzen"
     desig = "WM Custom"
-    imagename = "btr_blitzen.png"
+    imagename = "mav_blitzen.png"
     colors = (Cinnamon,Gold,BrightRed,SlateGrey,Cream)
     portrait = "mecha_blitzen.png"
     environment_list = (None,)

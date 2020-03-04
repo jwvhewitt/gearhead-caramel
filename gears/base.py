@@ -619,10 +619,13 @@ class BaseGear(scenes.PlaceableThing):
                 ok = ok and len([item for item in self.sub_com if isinstance(item, k)]) < v
         return ok
 
-    def can_install(self, part):
+    def can_install(self, part, check_volume=True):
         """Returns True if part can be legally installed here under current conditions"""
-        return self.is_legal_sub_com(
-            part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and part.volume <= self.free_volume and self.check_multiplicity(part)
+        if check_volume:
+            return self.is_legal_sub_com(
+                part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and part.volume <= self.free_volume and self.check_multiplicity(part)
+        else:
+            return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
     def is_legal_inv_com(self, part):
         return False
@@ -630,9 +633,9 @@ class BaseGear(scenes.PlaceableThing):
     def can_equip(self, part, check_slots=True):
         """Returns True if part can be legally installed here under current conditions"""
         if check_slots:
-            return self.is_legal_inv_com(part) and part.scale == self.scale and not bool([i for i in self.inv_com if i.slot == part.slot])
+            return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR == self.scale.SIZE_FACTOR and not bool([i for i in self.inv_com if i.slot == part.slot])
         else:
-            return self.is_legal_inv_com(part) and part.scale == self.scale
+            return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR == self.scale.SIZE_FACTOR
 
     def sub_sub_coms(self):
         yield self
@@ -797,13 +800,15 @@ class BaseGear(scenes.PlaceableThing):
 class Armor(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "Armor"
     SAVE_PARAMETERS = ('size',)
+    MIN_SIZE = 1
+    MAX_SIZE = 25
 
     def __init__(self, size=1, **keywords):
         # Check the range of all parameters before applying.
-        if size < 1:
-            size = 1
-        elif size > 10:
-            size = 10
+        if size < self.MIN_SIZE:
+            size = self.MIN_SIZE
+        elif size > self.MAX_SIZE:
+            size = self.MAX_SIZE
         self.size = size
         super(Armor, self).__init__(**keywords)
 
@@ -846,18 +851,22 @@ class Shield(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "Shield"
     DEFAULT_SLOT = tags.SLOT_SHIELD
     SAVE_PARAMETERS = ('size', 'bonus')
+    MIN_SIZE = 1
+    MAX_SIZE = 10
+    MIN_BONUS = 0
+    MAX_BONUS = 5
 
     def __init__(self, size=3, bonus=0, **keywords):
         # Check the range of all parameters before applying.
-        if size < 1:
-            size = 1
-        elif size > 10:
-            size = 10
+        if size < self.MIN_SIZE:
+            size = self.MIN_SIZE
+        elif size > self.MAX_SIZE:
+            size = self.MAX_SIZE
         self.size = size
-        if bonus < 0:
-            bonus = 0
-        elif bonus > 5:
-            bonus = 5
+        if bonus < self.MIN_BONUS:
+            bonus = self.MIN_BONUS
+        elif bonus > self.MAX_BONUS:
+            bonus = self.MAX_BONUS
         self.bonus = bonus
         super(Shield, self).__init__(**keywords)
 
@@ -910,12 +919,15 @@ class Engine(BaseGear, StandardDamageHandler, MakesPower):
     DEFAULT_NAME = "Engine"
     SAVE_PARAMETERS = ('size',)
 
+    MIN_SIZE = 100
+    MAX_SIZE = 2000
+
     def __init__(self, size=750, **keywords):
         # Check the range of all parameters before applying.
-        if size < 100:
-            size = 100
-        elif size > 2000:
-            size = 2000
+        if size < self.MIN_SIZE:
+            size = self.MIN_SIZE
+        elif size > self.MAX_SIZE:
+            size = self.MAX_SIZE
         self.size = size
         super(Engine, self).__init__(**keywords)
 
@@ -972,13 +984,15 @@ class Cockpit(BaseGear, StandardDamageHandler):
     def is_legal_sub_com(self, part):
         return isinstance(part, (Armor, Character))
 
-    def can_install(self, part):
+    def can_install(self, part, check_volume=True):
         if isinstance(part, Character):
             # Only one character per cockpit.
             return len([item for item in self.sub_com if isinstance(item, Character)]) < 1
         else:
-            return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part)
-
+            if check_volume:
+                return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part) and self.free_volume >= part.volume
+            else:
+                return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
     volume = 2
     base_cost = 5
     base_health = 2
@@ -987,13 +1001,15 @@ class Cockpit(BaseGear, StandardDamageHandler):
 class Sensor(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "Sensor"
     SAVE_PARAMETERS = ('size',)
+    MIN_SIZE = 1
+    MAX_SIZE = 5
 
     def __init__(self, size=1, **keywords):
         # Check the range of all parameters before applying.
-        if size < 1:
-            size = 1
-        elif size > 5:
-            size = 5
+        if size < self.MIN_SIZE:
+            size = self.MIN_SIZE
+        elif size > self.MAX_SIZE:
+            size = self.MAX_SIZE
         self.size = size
         super(Sensor, self).__init__(**keywords)
 

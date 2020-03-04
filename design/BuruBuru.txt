@@ -1,7 +1,7 @@
 Mecha
     name = "Buru Buru"
     desig = "SAN-X9"
-    imagename = "btr_buruburu_x9.png"
+    imagename = "mav_buruburu_x9.png"
     portrait = "mecha_buruburu.png"
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
@@ -108,7 +108,7 @@ Mecha
 Mecha
     name = "Buru Buru"
     desig = "SAN-X9c Urban"
-    imagename = "btr_buruburu_x9c.png"
+    imagename = "mav_buruburu_x9c.png"
     portrait = "mecha_buruburu.png"
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
@@ -250,7 +250,7 @@ Mecha
 Mecha
     name = "Buru Buru"
     desig = "SAN-X9g Heavyfoot"
-    imagename = "btr_buruburu_x9g.png"
+    imagename = "mav_buruburu_x9g.png"
     portrait = "mecha_buruburu.png"
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
@@ -371,7 +371,7 @@ Mecha
 Mecha
     name = "Buru Buru"
     desig = "SAN-X9e Phalanx"
-    imagename = "btr_buruburu_x9e.png"
+    imagename = "mav_buruburu_x9e.png"
     portrait = "mecha_buruburu.png"
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
@@ -476,7 +476,7 @@ Mecha
 Mecha
     name = "Buru Buru"
     desig = "SAN-X9cb Crossbone"
-    imagename = "btr_buruburu_x9cb.png"
+    imagename = "mav_buruburu_x9cb.png"
     portrait = "mecha_buruburu.png"
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)

@@ -1,7 +1,7 @@
 Mecha
     name = "Joust"
     desig = "A7800"
-    imagename = "btr_joust.png"
+    imagename = "mav_joust.png"
     portrait = "mecha_joust.png"
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)

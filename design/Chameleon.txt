@@ -1,7 +1,7 @@
 Mecha
     name = "Chameleon"
     desig = "CHA-01"
-    imagename = "btr_chameleon1.png"
+    imagename = "mav_chameleon1.png"
     portrait = "mecha_chameleon.png"
     family = "Chameleon"
     environment_list = (GroundEnv,UrbanEnv,)
@@ -135,7 +135,7 @@ Mecha
 Mecha
     name = "Chameleon"
     desig = "CHA-02b Sniper"
-    imagename = "btr_chameleon2.png"
+    imagename = "mav_chameleon2.png"
     portrait = "mecha_chameleon.png"
     family = "Chameleon"
     environment_list = (GroundEnv,UrbanEnv,)
@@ -270,7 +270,7 @@ Mecha
 Mecha
     name = "Chameleon"
     desig = "CHA-03 Command"
-    imagename = "btr_chameleon3.png"
+    imagename = "mav_chameleon3.png"
     portrait = "mecha_chameleon.png"
     family = "Chameleon"
     environment_list = (GroundEnv,UrbanEnv,)

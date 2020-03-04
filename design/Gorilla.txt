@@ -1,7 +1,7 @@
 Mecha
     name = "Gorilla"
     desig = "Crihna"
-    imagename = "btr_gorilla.png"
+    imagename = "mav_gorilla.png"
     portrait = "mecha_gorilla.png"
     family = "Crihna"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)

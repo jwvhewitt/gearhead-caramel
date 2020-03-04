@@ -1,7 +1,7 @@
 Mecha
     name = "Dielancer"
     desig = "SDH-22C"
-    imagename = "btr_dielancer.png"
+    imagename = "mav_dielancer.png"
     portrait = "mecha_dielancer.png"
     family = "Corsair"
     environment_list = (GroundEnv,UrbanEnv,)

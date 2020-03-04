@@ -1,7 +1,7 @@
 Mecha
     name = "Trailblazer"
     desig = "TR9-02"
-    imagename = "btr_trailblazer.png"
+    imagename = "mav_trailblazer.png"
     portrait = "mecha_trailblazer.png"
 
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
