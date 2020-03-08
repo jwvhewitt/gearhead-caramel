@@ -1643,7 +1643,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
 
 class BallisticWeapon(Weapon):
     MIN_REACH = 2
-    MAX_REACH = 7
+    MAX_REACH = 9
     MIN_DAMAGE = 1
     MAX_DAMAGE = 5
     MIN_ACCURACY = 0
@@ -1696,11 +1696,14 @@ class BallisticWeapon(Weapon):
         else:
             return self.attributes
 
+    def get_needed_bang(self):
+        return self.damage * max(self.penetration, 1)
+
     def get_basic_attack(self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
         # Check the ammunition. If it doesn't have enough bang, downgrade the attack.
         my_ammo = self.get_ammo()
         penetration = self.penetration * 10
-        if my_ammo.ammo_type.bang < (self.damage * max(self.penetration, 1)):
+        if my_ammo.ammo_type.bang < self.get_needed_bang():
             penetration -= (self.damage * max(self.penetration, 1) - my_ammo.ammo_type.bang) * 15
 
         ba = pbge.effects.Invocation(
@@ -1785,7 +1788,7 @@ class BallisticWeapon(Weapon):
 
 class BeamWeapon(Weapon):
     MIN_REACH = 2
-    MAX_REACH = 7
+    MAX_REACH = 9
     MIN_DAMAGE = 1
     MAX_DAMAGE = 5
     MIN_ACCURACY = 0
@@ -1862,7 +1865,7 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
     DEFAULT_NAME = "Missile"
     SAVE_PARAMETERS = ('reach', 'damage', 'accuracy', 'penetration', 'quantity', 'area_anim', 'attributes')
     MIN_REACH = 2
-    MAX_REACH = 7
+    MAX_REACH = 10
     MIN_DAMAGE = 1
     MAX_DAMAGE = 5
     MIN_ACCURACY = 0
@@ -1971,13 +1974,15 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
 class Launcher(BaseGear, ContainerDamageHandler):
     DEFAULT_NAME = "Launcher"
     SAVE_PARAMETERS = ('size','attack_stat')
+    MIN_SIZE = 1
+    MAX_SIZE = 20
 
     def __init__(self, size=5, attack_stat=stats.Perception, **keywords):
         # Check the range of all parameters before applying.
-        if size < 1:
-            size = 1
-        elif size > 20:
-            size = 20
+        if size < self.MIN_SIZE:
+            size = self.MIN_SIZE
+        elif size > self.MAX_SIZE:
+            size = self.MAX_SIZE
         self.size = size
         self.attack_stat = attack_stat
         super(Launcher, self).__init__(**keywords)
@@ -2712,10 +2717,13 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         else:
             return True
 
-    def can_install(self, part):
-        return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part)
+    def can_install(self, part, check_volume=True):
+        if check_volume:
+            return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part)
+        else:
+            return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
-    def can_equip(self, part):
+    def can_equip(self, part, check_volume = True):
         """Returns True if part can be legally equipped under current conditions"""
         return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
@@ -2958,10 +2966,13 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     def is_legal_inv_com(self, part):
         return not isinstance(part,(Mover,Combatant))
 
-    def can_install(self, part):
-        return self.is_legal_sub_com(part) and part.scale is self.scale and self.check_multiplicity(part)
+    def can_install(self, part, check_volume=True):
+        if check_volume:
+            return self.is_legal_sub_com(part) and part.scale is self.scale and self.check_multiplicity(part)
+        else:
+            return self.is_legal_sub_com(part) and part.scale is self.scale
 
-    def can_equip(self, part):
+    def can_equip(self, part, check_volume=True):
         """Returns True if part can be legally equipped under current conditions"""
         return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
@@ -3359,7 +3370,7 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def is_legal_inv_com(self, part):
         return False
 
-    def can_install(self, part):
+    def can_install(self, part, check_volume=True):
         return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR < self.scale.SIZE_FACTOR
 
     @property

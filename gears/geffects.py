@@ -368,6 +368,9 @@ class DashFactory( object ):
         mydust = DustCloud(pos=self.dasher.pos,delay=2)
         return AnimBox([mydash,mydust])
 
+# A curated list for the gear editor.
+SHOT_ANIMS = (SmallBullet,BigBullet,HugeBullet,SmallBeam,GunBeam,Missile1,Missile2,Missile3,Missile4,Missile5)
+AREA_ANIMS = (BigBoom,SuperBoom,SmallBoom,NoDamageBoom,SmokePoof,DustCloud,Fireball,BurnAnim,HaywireAnim,OverloadAnim)
 
 #  *******************
 #  ***   Effects   ***

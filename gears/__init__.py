@@ -30,27 +30,30 @@ from . import relationships
 
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()
+ALL_CALIBRES = list()
+ALL_FACTIONS = list()
 
-
-def harvest(mod, subclass_of, dict_to_add_to, exclude_these):
+def harvest(mod, subclass_of, dict_to_add_to, exclude_these, list_to_add_to=None):
     for name in dir(mod):
         o = getattr(mod, name)
         if inspect.isclass(o) and issubclass(o, subclass_of) and o not in exclude_these:
             dict_to_add_to[o.__name__] = o
+            if list_to_add_to is not None:
+                list_to_add_to.append(o)
 
 
 harvest(base, base.BaseGear, GEAR_TYPES, (base.BaseGear, base.MovementSystem, base.Weapon, base.Usable))
 harvest(scale, scale.MechaScale, SINGLETON_TYPES, ())
 harvest(base, base.ModuleForm, SINGLETON_TYPES, (base.ModuleForm,))
 harvest(materials, materials.Material, SINGLETON_TYPES, (materials.Material,))
-harvest(calibre, calibre.BaseCalibre, SINGLETON_TYPES, (calibre.BaseCalibre,))
+harvest(calibre, calibre.BaseCalibre, SINGLETON_TYPES, (calibre.BaseCalibre,),list_to_add_to=ALL_CALIBRES)
 harvest(base, base.MT_Battroid, SINGLETON_TYPES, ())
 SINGLETON_TYPES['None'] = None
 harvest(stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,))
 harvest(stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,))
 harvest(geffects, pbge.scenes.animobs.AnimOb, SINGLETON_TYPES, ())
 harvest(attackattributes, pbge.Singleton, SINGLETON_TYPES, ())
-harvest(factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,factions.Faction))
+harvest(factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,factions.Faction),list_to_add_to=ALL_FACTIONS)
 harvest(tags, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(programs, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(personality, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))

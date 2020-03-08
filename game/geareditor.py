@@ -10,8 +10,25 @@ MODE_RESTRICTED = "RESTRICTED"
 #   ***  UTILITY  WIDGETS  ***
 #   **************************
 
-class PlusMinusWidget(pbge.widgets.RowWidget):
-    def __init__(self,mygear,att_name,att_min,att_max,on_change,step=1,x=0,y=0,w=350,**kwargs):
+class WidgetThatChangesSomething(object):
+    # Inherit this to get the method below. Make sure you set a mygear property.
+    def change_is_okay(self):
+        # Return True if the recent change doesn't break anything, False otherwise.
+        ok = self.mygear.free_volume >= 0
+        if ok:
+            parent = self.mygear.parent
+            if parent:
+                if self.mygear in parent.sub_com:
+                    ok = parent.can_install(self.mygear,False) and parent.free_volume >= 0
+                else:
+                    ok = parent.can_equip(self.mygear,False)
+        if ok:
+            ok = all(self.mygear.can_install(g,False) for g in self.mygear.sub_com) and all(self.mygear.can_equip(g,False) for g in self.mygear.inv_com)
+        return ok
+
+
+class PlusMinusWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
+    def __init__(self,mygear,att_name,att_min,att_max,on_change=None,step=1,x=0,y=0,w=350,**kwargs):
         super().__init__(x,y,w,max(pbge.BIGFONT.get_linesize(),16),**kwargs)
         minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
 
@@ -48,17 +65,78 @@ class PlusMinusWidget(pbge.widgets.RowWidget):
         if self.on_change:
             self.on_change()
 
-    def change_is_okay(self):
-        # Return True if the recent change doesn't break anything, False otherwise.
-        ok = self.mygear.free_volume >= 0
-        if ok:
-            parent = self.mygear.parent
-            if parent:
-                if self.mygear in parent.sub_com:
-                    ok = parent.can_install(self.mygear,False) and parent.free_volume >= 0
-                else:
-                    ok = parent.can_equip(self.mygear,False)
-        return ok
+
+class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomething):
+    def __init__(self,mygear,title,ops_taken,op_candidates,max_ops,on_change=None,**kwargs):
+        super().__init__(0,0,350,100,center_interior=True,**kwargs)
+        self.mygear = mygear
+        self.ops_taken = ops_taken
+        self.op_candidates = op_candidates
+        self.max_ops = max_ops
+        self.on_change = on_change
+        mytitle = pbge.widgets.RowWidget(0,0,self.w,max(pbge.BIGFONT.get_linesize(),16))
+        minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
+        mytitle.add_left(pbge.widgets.LabelWidget(0,0,250,pbge.BIGFONT.get_linesize(),font=pbge.BIGFONT,text=title))
+        mytitle.add_right(pbge.widgets.ButtonWidget(0,0,16,16,minus_plus_image,on_click=self._delete_op))
+        mytitle.add_right(pbge.widgets.ButtonWidget(0,0,16,16,minus_plus_image,frame=1,on_click=self._add_op))
+        self.add_interior(mytitle)
+        self.add_interior(pbge.widgets.LabelWidget(0,0,300,50,font=pbge.MEDIUMFONT,draw_border=True,text_fun=self._get_op_string))
+
+    def _get_op_string(self,widg):
+        if not self.ops_taken:
+            return "None"
+        elif len(self.ops_taken) == 1:
+            return self._get_name(self.ops_taken[0])
+        else:
+            return ', '.join([self._get_name(p) for p in self.ops_taken])
+
+    def _get_name(self,op):
+        if hasattr(op,"name"):
+            return op.name
+        else:
+            return str(op)
+
+    def _delete_op(self,widg,ev):
+        if self.ops_taken:
+            mymenu = pbge.rpgmenu.PopUpMenu()
+            for p in self.ops_taken:
+                mymenu.add_item(self._get_name(p),p)
+            delete_this_one = mymenu.query()
+            if delete_this_one in self.ops_taken:
+                self.ops_taken.remove(delete_this_one)
+                if not self.change_is_okay():
+                    self.ops_taken.append(delete_this_one)
+            if self.on_change:
+                self.on_change()
+
+    def _add_op(self,widg,ev):
+        if self.max_ops > len(self.ops_taken):
+            mymenu = pbge.rpgmenu.PopUpMenu()
+            for p in self.op_candidates:
+                if p not in self.ops_taken:
+                    mymenu.add_item(self._get_name(p),p)
+            add_this_one = mymenu.query()
+            if add_this_one:
+                self.ops_taken.append(add_this_one)
+                if not self.change_is_okay():
+                    self.ops_taken.remove(add_this_one)
+            if self.on_change:
+                self.on_change()
+
+class LabeledDropdownWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
+    # nameoptions is a list of (name,value) tuples for filling the menu.
+    def __init__(self,mygear,title,on_select,options=(),nameoptions=(),**kwargs):
+        super().__init__(0,0,350,pbge.BIGFONT.get_linesize()+8,**kwargs)
+        self.mygear = mygear
+        self.add_left(pbge.widgets.LabelWidget(0,0,150,pbge.BIGFONT.get_linesize()+8,title,font=pbge.BIGFONT))
+        self.ddwid = pbge.widgets.DropdownWidget(0,0,200,pbge.BIGFONT.get_linesize()+8,font=pbge.BIGFONT,justify=0,on_select=on_select)
+        self.menu = self.ddwid.menu
+        for o in options:
+            self.menu.add_item(str(o),o)
+        for name,o in nameoptions:
+            self.menu.add_item(name, o)
+        self.menu.sort()
+        self.add_right(self.ddwid)
 
 #   ***********************
 #   ***  PART  EDITORS  ***
@@ -84,6 +162,27 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
         name_field = pbge.widgets.TextEntryWidget(0, 0, 280, name_row.h, text=str(mygear), font=pbge.BIGFONT, on_change=self._set_name)
         name_row.add_center(name_field)
         self.add_interior(name_row)
+
+        mass_volume_row = pbge.widgets.RowWidget(0,0,self.w,pbge.MEDIUMFONT.get_linesize()+8)
+        mass_volume_row.add_left(pbge.widgets.LabelWidget(0,0,75,pbge.MEDIUMFONT.get_linesize(),font=pbge.MEDIUMFONT,text_fun=self._get_mass_string))
+        material_dropdown = pbge.widgets.DropdownWidget(0,0,100,pbge.MEDIUMFONT.get_linesize()+8,font=pbge.MEDIUMFONT,justify=0,on_select=self._set_material)
+        for m in gears.materials.MECHA_MATERIALS:
+            material_dropdown.add_item(m.name,m)
+        material_dropdown.menu.sort()
+        material_dropdown.menu.set_item_by_value(self.mygear.material)
+        mass_volume_row.add_center(material_dropdown)
+        mass_volume_row.add_right(pbge.widgets.LabelWidget(0,0,75,pbge.MEDIUMFONT.get_linesize(),font=pbge.MEDIUMFONT,text_fun=self._get_volume_string,justify=1))
+        self.add_interior(mass_volume_row)
+
+    def _set_material(self,result):
+        if result:
+            self.mygear.material = result
+
+    def _get_mass_string(self,widg):
+        return self.mygear.scale.get_mass_string(self.mygear.mass)
+
+    def _get_volume_string(self,widg):
+        return '{} slots'.format(self.mygear.volume)
 
     def _set_desig(self,widg,ev):
         self.mygear.desig = widg.text
@@ -124,6 +223,171 @@ class PowerSourceEditWidget(PartEditWidget):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",1,25,None))
 
+class EWSystemEditWidget(PartEditWidget):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+        self.add_interior(PlusMinusWidget(mygear,"size",1,10,on_change=self._check_progs))
+        self.prog_widget = AddRemoveOptionsWidget(mygear,"programs",mygear.programs,gears.programs.ALL_PROGRAMS,mygear.size)
+        self.add_interior(self.prog_widget)
+
+    def _check_progs(self):
+        if self.mygear.size < len(self.mygear.programs):
+            del self.mygear.programs[self.mygear.size:]
+        self.prog_widget.max_ops = self.mygear.size
+
+class WeaponEditWidget(PartEditWidget):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+        self.add_interior(PlusMinusWidget(mygear,"reach",mygear.MIN_REACH,mygear.MAX_REACH))
+        self.add_interior(PlusMinusWidget(mygear,"damage",mygear.MIN_DAMAGE,mygear.MAX_DAMAGE))
+        self.add_interior(PlusMinusWidget(mygear,"accuracy",mygear.MIN_ACCURACY,mygear.MAX_ACCURACY))
+        self.add_interior(PlusMinusWidget(mygear,"penetration",mygear.MIN_PENETRATION,mygear.MAX_PENETRATION))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10))
+        self.shot_anim_menu = LabeledDropdownWidget(mygear,"shot_anim",self._set_shot_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.SHOT_ANIMS])
+        self.shot_anim_menu.menu.add_item("None", None)
+        self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
+        self.add_interior(self.shot_anim_menu)
+        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS])
+        self.area_anim_menu.menu.add_item("None", None)
+        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.add_interior(self.area_anim_menu)
+        self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS])
+        self.stat_menu.menu.set_item_by_value(self.mygear.attack_stat)
+        self.add_interior(self.stat_menu)
+
+    def _set_attack_stat(self,result):
+        if result:
+            self.mygear.attack_stat = result
+
+    def _set_shot_anim(self,result):
+        self.mygear.shot_anim = result
+        self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
+
+    def _set_area_anim(self,result):
+        self.mygear.area_anim = result
+        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+
+class BallisticWeaponEditWidget(WeaponEditWidget,WidgetThatChangesSomething):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+
+        self.calibre_menu = LabeledDropdownWidget(mygear,"ammo_type",self._set_calibre,nameoptions=[(s.__name__,s) for s in gears.ALL_CALIBRES if s.scale is self.mygear.scale])
+        self.calibre_menu.menu.set_item_by_value(self.mygear.ammo_type)
+        self.add_interior(self.calibre_menu)
+
+        self.add_interior(PlusMinusWidget(mygear,"magazine",1,1000))
+
+    def _set_calibre(self,value):
+        if value:
+            old_calibre = self.mygear.ammo_type
+            ammo = self.mygear.get_ammo()
+            self.mygear.ammo_type = value
+            if ammo:
+                ammo.ammo_type = value
+            if not self.change_is_okay():
+                self.mygear.ammo_type = old_calibre
+                if ammo:
+                    ammo.ammo_type = old_calibre
+            elif value.bang < self.mygear.get_needed_bang():
+                pbge.BasicNotification("Your selected ammo type doesn't have enough bang; penetration will be decreased.")
+
+class AmmoEditWidget(PartEditWidget):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+
+        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10))
+
+        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS])
+        self.area_anim_menu.menu.add_item("None", None)
+        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.add_interior(self.area_anim_menu)
+
+        self.add_interior(PlusMinusWidget(mygear,"quantity",1,1000))
+
+    def _set_area_anim(self,result):
+        self.mygear.area_anim = result
+        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+
+class MissileEditWidget(PartEditWidget):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+        self.add_interior(PlusMinusWidget(mygear,"reach",mygear.MIN_REACH,mygear.MAX_REACH))
+        self.add_interior(PlusMinusWidget(mygear,"damage",mygear.MIN_DAMAGE,mygear.MAX_DAMAGE))
+        self.add_interior(PlusMinusWidget(mygear,"accuracy",mygear.MIN_ACCURACY,mygear.MAX_ACCURACY))
+        self.add_interior(PlusMinusWidget(mygear,"penetration",mygear.MIN_PENETRATION,mygear.MAX_PENETRATION))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10))
+        self.add_interior(PlusMinusWidget(mygear,"quantity",1,1000))
+
+        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS])
+        self.area_anim_menu.menu.add_item("None", None)
+        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.add_interior(self.area_anim_menu)
+
+    def _set_area_anim(self,result):
+        self.mygear.area_anim = result
+        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+
+class LauncherEditWidget(PartEditWidget):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE))
+        self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS])
+        self.stat_menu.menu.set_item_by_value(self.mygear.attack_stat)
+        self.add_interior(self.stat_menu)
+
+    def _set_attack_stat(self,result):
+        if result:
+            self.mygear.attack_stat = result
+
+
+class ChemEditWidget(PartEditWidget):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+        self.add_interior(PlusMinusWidget(mygear,"quantity",1,10000,step=10))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10))
+        self.shot_anim_menu = LabeledDropdownWidget(mygear,"shot_anim",self._set_shot_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.SHOT_ANIMS])
+        self.shot_anim_menu.menu.add_item("None", None)
+        self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
+        self.add_interior(self.shot_anim_menu)
+        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS])
+        self.area_anim_menu.menu.add_item("None", None)
+        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.add_interior(self.area_anim_menu)
+
+    def _set_shot_anim(self,result):
+        self.mygear.shot_anim = result
+        self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
+
+    def _set_area_anim(self,result):
+        self.mygear.area_anim = result
+        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+
+class ModuleEditWidget(PartEditWidget):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+        self.add_interior(PlusMinusWidget(mygear,"size",1,10))
+
+class MechaEditWidget(PartEditWidget):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+        self.portrait_menu = LabeledDropdownWidget(mygear,"portrait",self._set_portrait,options=pbge.image.glob_images("mecha_*.png"))
+        self.portrait_menu.menu.set_item_by_value(self.mygear.portrait)
+        self.add_interior(self.portrait_menu)
+
+        self.add_interior(AddRemoveOptionsWidget(mygear,"environment_list",mygear.environment_list,gears.tags.ALL_ENVIRONMENTS,10))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"role_list",mygear.role_list,gears.tags.ALL_ROLES,10))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"faction_list",mygear.faction_list,gears.ALL_FACTIONS,10,on_change=self._check_factions))
+
+    def _set_portrait(self,result):
+        if result:
+            self.mygear.portrait = result
+
+    def _check_factions(self):
+        if not self.mygear.faction_list:
+            self.mygear.faction_list.append(None)
+        elif len(self.mygear.faction_list) > 1 and None in self.mygear.faction_list:
+            self.mygear.faction_list.remove(None)
+
 
 CLASS_EDITORS = {
     gears.base.Armor: ArmorEditWidget,
@@ -132,6 +396,18 @@ CLASS_EDITORS = {
     gears.base.Sensor: SensorEditWidget,
     gears.base.MovementSystem: MoveSysEditWidget,
     gears.base.PowerSource: PowerSourceEditWidget,
+    gears.base.EWSystem: EWSystemEditWidget,
+    gears.base.MeleeWeapon: WeaponEditWidget,
+    gears.base.EnergyWeapon: WeaponEditWidget,
+    gears.base.BeamWeapon: WeaponEditWidget,
+    gears.base.BallisticWeapon: BallisticWeaponEditWidget,
+    gears.base.Ammo: AmmoEditWidget,
+    gears.base.Missile: MissileEditWidget,
+    gears.base.Launcher: LauncherEditWidget,
+    gears.base.Chem: ChemEditWidget,
+    gears.base.ChemThrower: WeaponEditWidget,
+    gears.base.Module: ModuleEditWidget,
+    gears.base.Mecha: MechaEditWidget,
 }
 
 #   *********************
@@ -513,7 +789,8 @@ class GearEditor(pbge.widgets.Widget):
     @classmethod
     def create_and_invoke(cls, redraw):
         # Create the UI. Run the UI. Clean up after you leave.
-        mymek = gears.selector.get_design_by_full_name("SAN-X9c Urban Buru Buru")
+        #mymek = gears.selector.get_design_by_full_name("TR9-02 Trailblazer")
+        mymek = gears.selector.get_design_by_full_name("SAN-X9 Buru Buru")
         mymek.colors = (gears.color.ShiningWhite,gears.color.FreedomBlue,gears.color.ElectricYellow,gears.color.WarmGrey,gears.color.GunRed)
         myui = cls(mymek)
         pbge.my_state.widgets.append(myui)

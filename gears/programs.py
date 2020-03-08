@@ -86,3 +86,5 @@ class EMPPulse(Singleton):
     @classmethod
     def get_invocations(cls, pc):
         return ()
+
+ALL_PROGRAMS = (TargetAnalysis,Deflect,EMPPulse)

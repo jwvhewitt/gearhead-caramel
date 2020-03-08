@@ -18,6 +18,7 @@ class SpaceEnv(Singleton):
 class AquaticEnv(Singleton):
     name = "Aquatic"
 
+ALL_ENVIRONMENTS = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
 
 # Battlefield Roles
 
@@ -34,6 +35,8 @@ class Support(Singleton):
 
 class EWarSupport(Singleton):
     name = "EWar Support"
+
+ALL_ROLES = (Trooper,Commander,Support,EWarSupport)
 
 # Job tags
 class Academic(Singleton):
