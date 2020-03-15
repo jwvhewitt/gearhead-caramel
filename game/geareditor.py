@@ -463,6 +463,7 @@ class PartsTreeWidget(pbge.widgets.ColumnWidget):
         self.scroll_column.clear()
         self.add_gear(self.mygear)
 
+
     def add_gear(self,part,prefix='',indent=0):
         self.scroll_column.add_interior(PartsNodeWidget(part,prefix,indent,self.editor,on_click=self.editor.click_part))
         for bit in part.sub_com:
@@ -713,16 +714,24 @@ class GearEditor(pbge.widgets.Widget):
         left_column.add_interior(self.parts_widget)
 
         mybuttons = pbge.image.Image("sys_geareditor_buttons.png",40,40)
-        mybuttonrow = pbge.widgets.RowWidget(25,-255,325,40)
+        mybuttonrow = pbge.widgets.RowWidget(25,-255,350,40)
         self.children.append(mybuttonrow)
         mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=0,on_frame=0,off_frame=1,on_click=self._add_subcom,tooltip="Add Component"))
         mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=2,on_frame=2,off_frame=3,on_click=self._add_invcom,tooltip="Add Inventory"))
         mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=4,on_frame=4,off_frame=5,on_click=self._remove_gear,tooltip="Remove Gear"))
+        if mode == MODE_CREATIVE:
+            mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=8,on_frame=8,off_frame=9,on_click=self._save_design,tooltip="Save Design"))
         mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=6,on_frame=6,off_frame=7,on_click=self._exit_editor,tooltip="Exit Editor"))
 
         self.part_selector = None
 
         self.finished = False
+
+    def _save_design(self,widj,ev):
+        save_version = copy.deepcopy(self.mygear)
+        save_version.colors = None
+        mysaver = gears.Saver(pbge.util.user_dir("design","{}.txt".format(self.mygear.get_full_name())))
+        mysaver.save([save_version,])
 
     def _add_subcom(self,widj,ev):
         self.part_selector = PartAcceptCancelWidget(self.sources,self.active_part.can_install,self._return_add_subcom)
@@ -808,3 +817,51 @@ class GearEditor(pbge.widgets.Widget):
         pbge.my_state.widgets.remove(myui)
 
 
+class LetsEditSomeMeks(object):
+    # A frontend for calling the mecha editor from the main menu.
+    EDITOR_COLORS = (gears.color.ShiningWhite,gears.color.FreedomBlue,gears.color.ElectricYellow,gears.color.WarmGrey,gears.color.GunRed)
+    def __init__(self,redraw):
+        mainmenu = pbge.rpgmenu.Menu(-150,0,300,226,predraw=redraw,font=pbge.my_state.huge_font)
+        mainmenu.add_item("Create New Mecha",self._create_new_mecha)
+        mainmenu.add_item("Edit Mecha Variant",self._edit_user_mecha)
+        mainmenu.add_item("Exit Mecha Editor",None)
+
+        pbge.my_state.view = redraw
+        keep_going = True
+        while keep_going and not pbge.my_state.got_quit:
+            result = mainmenu.query()
+            if not result:
+                keep_going = False
+            else:
+                result()
+
+    def _create_new_mecha(self):
+        pass
+
+    def _edit_user_mecha(self):
+        mymenu = pbge.rpgmenu.Menu(-150,0,300,226,font=pbge.MEDIUMFONT)
+        meklist = [m for m in gears.selector.DESIGN_LIST if isinstance(m,gears.base.Mecha)]
+        for m in meklist:
+            mymenu.add_item(m.get_full_name(),m)
+        mymenu.sort()
+        result = mymenu.query()
+        if result:
+            mymek = copy.deepcopy(result)
+            mymek.colors = self.EDITOR_COLORS
+            self.enter_the_editor(mymek)
+
+    def enter_the_editor(self,mymek):
+        # Create the UI. Run the UI. Clean up after you leave.
+        myui = GearEditor(mymek)
+        pbge.my_state.widgets.append(myui)
+        keepgoing = True
+        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+
+        pbge.my_state.widgets.remove(myui)

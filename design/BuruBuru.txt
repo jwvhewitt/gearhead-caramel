@@ -11,7 +11,7 @@ Mecha
 
     SUB
         Head
-            size = 5
+            size = 4
             SUB
                 Armor
                     size = 4
@@ -118,7 +118,7 @@ Mecha
 
     SUB
         Head
-            size = 5
+            size = 4
             SUB
                 Armor
                     size = 4
@@ -260,7 +260,7 @@ Mecha
 
     SUB
         Head
-            size = 5
+            size = 4
             SUB
                 Armor
                     size = 4
@@ -381,7 +381,7 @@ Mecha
 
     SUB
         Head
-            size = 5
+            size = 4
             SUB
                 Armor
                     size = 4
@@ -486,7 +486,7 @@ Mecha
 
     SUB
         Head
-            size = 5
+            size = 4
             SUB
                 Armor
                     size = 4

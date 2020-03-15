@@ -25,14 +25,14 @@ import configparser
 GAMEDIR = '.'
 USERDIR = '.'
 
-def game_dir(fname=""):
-    return os.path.join(GAMEDIR,fname)
+def game_dir(*args):
+    return os.path.join(GAMEDIR,*args)
 def image_dir(fname=""):
     return os.path.join(game_dir('image'),fname)
 def data_dir(fname=""):
     return os.path.join(game_dir('data'),fname)
-def user_dir( fname=""):
-    return os.path.join(USERDIR,fname)
+def user_dir( *args):
+    return os.path.join(USERDIR,*args)
 def music_dir(fname=""):
     return os.path.join(game_dir('music'),fname)
 

@@ -86,7 +86,6 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")
 
         # Add the local tarot.
-        self.register_element(game.content.mechtarot.ME_TAROTSCOPE,myscene.metrodat)
         threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), spstate = pbge.plots.PlotState(rank=15).based_on(self))
         game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 

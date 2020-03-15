@@ -1279,7 +1279,7 @@ class Weapon(BaseGear, StandardDamageHandler):
         v = max(self.reach + self.accuracy + (self.damage + self.penetration) // 2, 1)
         if self.integral:
             v -= 1
-        return int(v * mult)
+        return max( (int(v * mult)+1)//2, 1)
 
     @property
     def base_cost(self):

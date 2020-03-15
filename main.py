@@ -225,7 +225,7 @@ def play_the_game():
     mymenu.add_item("Import GH1 Character", import_arena_character)
     mymenu.add_item("Config Options", open_config_menu)
     mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
-    mymenu.add_item("Edit Mecha", game.geareditor.GearEditor.create_and_invoke)
+    mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
     mymenu.add_item("Quit", None)
 
     action = True

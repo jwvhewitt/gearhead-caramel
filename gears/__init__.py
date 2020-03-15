@@ -30,6 +30,7 @@ from . import relationships
 
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()
+SINGLETON_REVERSE = dict()
 ALL_CALIBRES = list()
 ALL_FACTIONS = list()
 
@@ -38,6 +39,8 @@ def harvest(mod, subclass_of, dict_to_add_to, exclude_these, list_to_add_to=None
         o = getattr(mod, name)
         if inspect.isclass(o) and issubclass(o, subclass_of) and o not in exclude_these:
             dict_to_add_to[o.__name__] = o
+            if dict_to_add_to is SINGLETON_TYPES:
+                SINGLETON_REVERSE[o] = o.__name__
             if list_to_add_to is not None:
                 list_to_add_to.append(o)
 
@@ -123,14 +126,10 @@ class QualityOfLife(object):
 
 class MetroData(object):
     def __init__(self):
-        self.tarot = pbge.container.ContainerDict()
         self.scripts = pbge.container.ContainerList(owner=self)
         self.local_reputation = 0
     def get_quality_of_life(self):
         qol = QualityOfLife()
-        for card in list(self.tarot.values()):
-            if card.active and hasattr(card,"QOL"):
-                qol.add(card.QOL)
         for plot in self.scripts:
             if plot.active and hasattr(plot,"QOL"):
                 qol.add(plot.QOL)
@@ -276,7 +275,6 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3, faction_relations=factions.DEFAULT_FACTION_DICT_NT158, convoborder="dzd_convoborder.png"):
         super(GearHeadCampaign, self).__init__(name, explo_class)
-        self.tarot = pbge.container.ContainerDict()
         self.year = year
         self.num_lancemates = num_lancemates
         self.faction_relations = faction_relations.copy()
@@ -314,13 +312,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def active_plots(self):
         for p in super(GearHeadCampaign, self).active_plots():
             yield p
-        for p in list(self.tarot.values()):
-            yield p
         myscene = self.scene.get_metro_scene()
         if myscene:
             for p in myscene.metrodat.scripts:
-                yield p
-            for p in list(myscene.metrodat.tarot.values()):
                 yield p
 
     def all_plots(self):
@@ -328,17 +322,16 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if hasattr(ob,"scripts"):
                 for p in ob.scripts:
                     yield p
-            if hasattr(ob,"tarot"):
-                for p in list(ob.tarot.values()):
-                    yield p
 
     def active_tarot_cards(self):
-        for p in list(self.tarot.values()):
-            yield p
-        myscene = self.scene.get_metro_scene()
-        if myscene:
-            for p in list(myscene.metrodat.tarot.values()):
+        for p in self.active_plots():
+            if hasattr(p,"tarot_position"):
                 yield p
+
+    def get_tarot_card_by_position(self,pos):
+        for card in self.active_tarot_cards():
+            if card.tarot_position == pos:
+                return card
 
     def first_active_pc(self):
         # The first active PC is the first PC in the party list who is
@@ -800,8 +793,10 @@ class Saver(object):
         # Given wotzit, return the string to be output to the file.
         if wotzit is None:
             return 'None'
-        elif wotzit in list(SINGLETON_TYPES.values()):
-            return wotzit.__name__
+        elif isinstance(wotzit,(list,tuple)):
+            return "[{}]".format(", ".join([self.hashable_to_string(t) for t in wotzit]))
+        elif wotzit in SINGLETON_REVERSE:
+            return SINGLETON_REVERSE[wotzit]
         elif isinstance(wotzit, str) and wotzit not in SINGLETON_TYPES and ' ' not in wotzit:
             return wotzit
         elif isinstance(wotzit, dict):
@@ -836,7 +831,7 @@ class Saver(object):
                     f.write('{}  END\n'.format(indent))
 
                 if save_the_gear.inv_com:
-                    f.write('{}  SUB\n'.format(indent))
+                    f.write('{}  INV\n'.format(indent))
                     self.save_list(f, save_the_gear.inv_com, indent + '    ')
                     f.write('{}  END\n'.format(indent))
 

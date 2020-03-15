@@ -177,6 +177,9 @@ class Atrocity(TarotCard):
         self.memo = "You learned that {} has {}.".format(self.elements[ME_FACTION],self.elements[ME_CRIMED])
 
 
+# Disaster + Suspicions -> Atrocity
+# Crime + Clue -> Incrimination
+
 # class Convict(TarotCard):
 #     # This person has been arrested.
 #     TAGS = (MT_PERSON,)

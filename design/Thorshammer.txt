@@ -83,7 +83,7 @@ Mecha
                             SUB
                                 Chem
                                     name = "Napalm"
-                                    quantity = 120
+                                    quantity = 80
                                     attributes = (BurnAttack)
                                     material = Metal
                             END

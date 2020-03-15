@@ -1,3 +1,4 @@
+- Reduced weapon volume
 - Added mecha editor, mecha browser
 - Added Haywire, Overload attack attributes
 - Effects, combat now grant experience, skill experience

@@ -6,7 +6,6 @@ from . import GHNarrativeRequest, PLOT_LIST
 
 ME_TAROTPOSITION = "TAROT_POSITION"
 ME_AUTOREVEAL = "ME_AUTOREVEAL" # If this element is True, card is generated during adventure + doesn't need full init
-ME_TAROTSCOPE = "TAROT_SCOPE"
 
 # Action Trigger Keys
 # These store functions that get called to generate dialogue, alter puzzle menus, or whatever
@@ -22,30 +21,15 @@ AT_ALTER_BETA_PUZZLE_MENU = "AT_ALTER_BETA_PUZZLE_MENU"
 class TarotCard(plots.Plot):
     LABEL = "TAROT"
     UNIQUE = False
+    SCOPE = "METRO"
     TAGS = ()
     INTERACTIONS = ()
     NEGATIONS = ()
 
     def __init__(self, nart, pstate):
+        self.tarot_position = pstate.elements.get(ME_TAROTPOSITION,None)
         self.visible = False
-        super(TarotCard, self).__init__(nart, pstate)
-
-    def install(self, nart):
-        """Plot generation complete. Mesh plot with campaign."""
-        for sp in self.subplots.values():
-            sp.install(nart)
-        del self.move_records
-        scope = self.elements.get(ME_TAROTSCOPE)
-        if not (scope and hasattr(scope,"tarot")):
-            scope = nart.camp
-        dest = self.elements.get(ME_TAROTPOSITION)
-        if dest:
-            scope.tarot[dest] = self
-        else:
-            # No unique ID provided... sure wish we had a unique hashable identifier
-            # that isn't already being used in the dictionary...
-            scope.tarot[hash(self)] = self
-            self.elements[ME_TAROTPOSITION] = hash(self)
+        super().__init__(nart, pstate)
 
     def get_negations(self, num_neg=2):
         # Return a list of tarot cards that this card can turn into to negate itself.
@@ -125,9 +109,6 @@ class CardTransformer(object):
                 pstate.elements[pp] = beta_card.elements.get(pp)
         if transform_card:
             pstate.elements[ME_TAROTPOSITION] = transform_card.elements[ME_TAROTPOSITION]
-            pstate.elements[ME_TAROTSCOPE] = transform_card.elements[ME_TAROTSCOPE]
-        else:
-            pstate.elements[ME_TAROTSCOPE] = alpha_card.elements[ME_TAROTSCOPE]
         newcard = nart.request_tarot_card_by_name(self.new_card_name, pstate)
         if not newcard:
             pbge.alert("New tarot card failed for {}".format(self.new_card_name))
@@ -167,7 +148,7 @@ class Consequence(object):
             self.alpha_card_tf(camp, alpha_card, beta_card, alpha_card)
             end_these_plots.append(alpha_card)
         if self.beta_card_tf:
-            self.alpha_card_tf(camp, alpha_card, beta_card, beta_card)
+            self.beta_card_tf(camp, alpha_card, beta_card, beta_card)
             if beta_card:
                 end_these_plots.append(beta_card)
         if self.new_card_tf:

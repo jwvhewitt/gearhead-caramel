@@ -27,12 +27,12 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
                 ident = "_autoident_{0}".format(len(myplot.subplots))
             myplot.subplots[ident] = cp
         return cp
-    def generate_tarot_card( self, pstate, tags ):
+    def generate_tarot_card( self, pstate, tags, tarot_ident="TAROT" ):
         """Locate a plot which matches the request, init it, and return it."""
         # Create a list of potential plots.
         candidates = list()
         tagset = set(tags)
-        for sp in self.plot_list['TAROT']:
+        for sp in self.plot_list[tarot_ident]:
             if tagset.issubset(sp.TAGS) and sp.matches( pstate ):
                 candidates.append( sp )
         if candidates:
@@ -50,15 +50,11 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
         else:
             self.errors.append( "No plot found for {0}".format( tags ) )
 
-    def add_tarot_card( self, myplot, tarot_tags, spstate=None, ident=None, necessary=True, tarot_position=None ):
+    def add_tarot_card( self, myplot, tarot_tags, spstate=None, ident=None, necessary=True ):
         if not spstate:
             spstate = pbge.plots.PlotState().based_on(myplot)
         if not ident:
             ident = "_autoident_{0}".format( len( myplot.subplots ) )
-        if tarot_position or mechtarot.ME_TAROTPOSITION not in spstate.elements:
-            if not tarot_position:
-                tarot_position = uuid.uuid4()
-            spstate.elements[mechtarot.ME_TAROTPOSITION] = tarot_position
         sp = self.generate_tarot_card( spstate, tarot_tags )
         if necessary and not sp:
             #print "Fail: {}".format(splabel)
