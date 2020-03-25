@@ -2027,7 +2027,10 @@ class Launcher(BaseGear, ContainerDamageHandler):
 
     def get_attributes(self):
         ammo = self.get_ammo()
-        return ammo.attributes or []
+        if ammo:
+            return ammo.attributes or []
+        else:
+            return []
 
     def get_basic_attack(self):
         ammo = self.get_ammo()
@@ -2589,7 +2592,7 @@ class Wing(Module):
 
 class Turret(Module):
     def __init__(self, **keywords):
-        keywords["form"] = MF_Turret()
+        keywords["form"] = MF_Turret
         Module.__init__(self, **keywords)
 
 

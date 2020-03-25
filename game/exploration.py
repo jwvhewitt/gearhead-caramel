@@ -491,7 +491,7 @@ class Explorer( object ):
                     elif gdi.unicode == "m":
                         memobrowser.MemoBrowser.browse(self.camp)
                     elif gdi.unicode == "R" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
-                        print(self.camp.scene.get_root_scene())
+                        print(self.camp.renown)
                     elif gdi.unicode == "A" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         self.record_count = 20
 

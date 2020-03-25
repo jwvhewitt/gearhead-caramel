@@ -514,11 +514,45 @@ class LimitedPartsSource(object):
 
 class UnlimitedPartsSource(object):
     # A supply object for the STC templates.
-    def __init__(self, name, part_list):
+    def __init__(self, name, part_list, add_prototypes=True):
         self.name = name
-        self.part_list = part_list
+        self.part_list = list(part_list)
+        if add_prototypes:
+            self._add_prototypes()
     def get_part(self,part):
         return copy.deepcopy(part)
+    def _add_prototypes(self):
+        self.part_list.append(gears.base.Armor(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Shield(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Engine(size=1000,scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Sensor(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.HoverJets(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.HeavyActuators(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Wheels(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.PowerSource(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.EWSystem(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.MeleeWeapon(name="Melee Weapon",scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.EnergyWeapon(name="Energy Melee Weapon",scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.BeamWeapon(name="Beam Weapon",scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Launcher(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Missile(scale=gears.scale.MechaScale))
+
+        self.part_list.append(gears.base.BallisticWeapon(name="Ballistic Weapon",scale=gears.scale.MechaScale,sub_com=[gears.base.Ammo(scale=gears.scale.MechaScale)]))
+
+        self.part_list.append(gears.base.ChemThrower(name="Chem Thrower",scale=gears.scale.MechaScale,sub_com=[gears.base.Chem(quantity=10,scale=gears.scale.MechaScale),]))
+
+        self.part_list.append(gears.base.Arm(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Head(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Leg(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Wing(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Storage(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Turret(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Tail(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Hand(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Mount(scale=gears.scale.MechaScale))
+
+
+
 
 class SourceSelectorTab(pbge.widgets.LabelWidget):
     def __init__(self,source,**kwargs):

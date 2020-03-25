@@ -74,7 +74,7 @@ class DZREPR_BasePlot(Plot):
 
     def load_missions(self,camp):
         if self.elements[E_MISSION_NUMBER] >= self.NUMBER_OF_MISSIONS_BEFORE_CONCLUSION:
-            init = pbge.plots.PlotState(rank=self.rank + self.elements[E_MISSION_WINS] * 3 + 5).based_on(self)
+            init = pbge.plots.PlotState(rank=max(self.rank,camp.renown-3) + self.elements[E_MISSION_WINS] * 3 + 5).based_on(self)
             nart = game.content.GHNarrativeRequest(camp, init, self.CONCLUSION_LABEL, game.content.PLOT_LIST)
             if nart.story:
                 nart.build()
@@ -85,7 +85,7 @@ class DZREPR_BasePlot(Plot):
             num_miss = 0
             miss_num = 0
             while num_miss < 2 and miss_num < len(self.MISSION_LABELS):
-                init = pbge.plots.PlotState(rank=self.rank + self.elements[E_MISSION_WINS]*3).based_on(self)
+                init = pbge.plots.PlotState(rank=max(self.rank,camp.renown-3) + self.elements[E_MISSION_WINS]*3).based_on(self)
                 nart = game.content.GHNarrativeRequest(camp, init, self.MISSION_LABELS[miss_num], game.content.PLOT_LIST)
                 if nart.story:
                     nart.build()
@@ -881,6 +881,9 @@ class DZREPRC_RazeTheFortress(DZREPRC_ConclusionTemplate):
 # The base plot that launches the initial missions and eventually sends a win signal to the roadedge plot.
 # Mostly, what this plot has to do is provide backstory and set the start_mission property to True.
 
+#   ******************************
+#   ***   DZRE_BanditProblem   ***
+#   ******************************
 
 class DZREPR_PrettyStandardBandits(DZREPR_BasePlot):
     LABEL = "DZRE_BanditProblem"

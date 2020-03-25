@@ -60,7 +60,7 @@ class RoadMissionPlot( missionbuilder.BuildAMissionPlot ):
 #   ***   DZD_ROADEDGE_YELLOW   ***
 #   *******************************
 #
-# Yellow road edges have a difficulty rank of around 20.
+# Yellow road edges have a difficulty rank of around 15.
 
 class BanditsPalooza(Plot):
     LABEL = "DZD_ROADEDGE_YELLOW"
@@ -111,3 +111,18 @@ class BanditsPalooza(Plot):
 
     def MISSION_WIN(self,camp):
         self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE
+
+
+#   *******************************
+#   ***   DZD_ROADEDGE_ORANGE   ***
+#   *******************************
+#
+# Orange road edges have a difficulty rank of around 25.
+
+
+#   ****************************
+#   ***   DZD_ROADEDGE_RED   ***
+#   ****************************
+#
+# Red road edges have a difficulty rank of around 40.
+

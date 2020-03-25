@@ -124,7 +124,7 @@ class Image(object):
         # Rather than trying to save the bitmap image, just save the filename.
         return Image, (self.fname, self.frame_width, self.frame_height)
 
-    def tile(self, dest=None, frame=0, dest_surface=None):
+    def tile(self, dest=None, frame=0, dest_surface=None, x_offset=0, y_offset=0):
         dest_surface = dest_surface or my_state.screen
         if not dest:
             dest = my_state.screen.get_rect()
@@ -133,10 +133,10 @@ class Image(object):
         dest_surface.set_clip(dest)
         my_rect = pygame.Rect(0, 0, 0, 0)
 
-        for x in range(0, grid_w):
-            my_rect.x = dest.x + x * self.frame_width
-            for y in range(0, grid_h):
-                my_rect.y = dest.y + y * self.frame_height
+        for x in range(-1, grid_w):
+            my_rect.x = dest.x + x * self.frame_width +x_offset
+            for y in range(-1, grid_h):
+                my_rect.y = dest.y + y * self.frame_height +y_offset
                 self.render(my_rect, frame, dest_surface)
 
         dest_surface.set_clip(None)

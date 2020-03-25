@@ -71,13 +71,39 @@ class TitleScreenRedraw(object):
 
     def __init__(self):
         self.title = pbge.image.Image("sys_maintitle.png")
-        self.bg = pbge.image.Image("poster_snowday.png")
+        self.sky = pbge.image.Image("sys_dzd_ts_skyburn.png")
+        self.rubble = pbge.image.Image("sys_dzd_ts_rubble.png")
+        self.mecha = pbge.image.Image("sys_dzd_ts_dielancer.png")
+        self.cameo = pbge.image.Image("sys_silhouette.png")
+        self.cameo_pos = (random.randint(-400,400),random.randint(-300,50))
+        self.mecha_x = 600
+        self.sky_x = 0
+        self.rubble_x = 0
 
     def __call__(self):
         pbge.my_state.screen.fill((0, 0, 0))
-        dest = self.bg.bitmap.get_rect(
-            center=(pbge.my_state.screen.get_width() // 2, pbge.my_state.screen.get_height() // 2))
-        self.bg.render(dest)
+
+        w,h = pbge.my_state.screen.get_size()
+        bigrect = pygame.Rect(0,(h-600)//2,w,600)
+        rubblerect = pygame.Rect(0,(h-600)//2+600-self.rubble.frame_height,w,self.rubble.frame_height)
+
+        self.sky.tile(bigrect,x_offset=self.sky_x)
+        self.sky_x += 1
+        if self.sky_x >= self.sky.frame_width:
+            self.sky_x = 0
+
+        self.cameo.render((w//2+self.cameo_pos[0],h//2+self.cameo_pos[1]))
+
+        self.rubble.tile(rubblerect, x_offset=self.rubble_x)
+        self.rubble_x += 2
+        if self.rubble_x >= self.rubble.frame_width:
+            self.rubble_x = 0
+
+        self.mecha.render((self.mecha_x,(h-600)//2))
+        self.mecha_x -= 1
+        if self.mecha_x < -self.mecha.frame_width:
+            self.mecha_x = w
+
 
         self.title.render(self.TITLE_DEST.get_rect())
 
