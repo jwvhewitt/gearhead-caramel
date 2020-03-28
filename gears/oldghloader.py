@@ -14,6 +14,7 @@ from . import meritbadges
 from . import portraits
 from . import genderobj
 from . import tags
+from . import relationships
 
 TYPHON_SLAYER = meritbadges.UniversalReactionBadge("Typhon Slayer", "You led the team that defeated Typhon.", 10)
 ELEMENTAL_ADEPT = meritbadges.TagReactionBadge("Elemental Adept", "You meditated at the elemental shrines, attaining illumination.",{tags.Faithworker: 20})
@@ -133,6 +134,17 @@ class GH1Loader(object):
     NAS_TOTAL_XP = 0
     NAS_SPENT_XP = 1
     NAS_CREDITS = 2
+
+    NAG_PERSONAL = 5
+    NAS_CHARACTERID = 0
+
+    NAG_REACTIONSCORE = 6
+
+    NAG_RELATIONSHIP = 10
+    NAS_ARCHENEMY = -1
+    NAS_ARCHALLY = 1
+    NAS_FAMILY = 2
+    NAS_LOVER = 3
 
     NAG_TALENT = 16
     NAS_IDEALIST = 17
@@ -419,9 +431,16 @@ class GH1Loader(object):
     def find_npc(self,characterid):
         npc = None
         for candidate in self.all_gears(self.gb_contents):
-            if candidate.g == self.GG_CHARACTER and candidate.natt.get((5,0)) == characterid:
+            if candidate.g == self.GG_CHARACTER and candidate.natt.get((self.NAG_PERSONAL,self.NAS_CHARACTERID)) == characterid:
                 npc = candidate
         return npc
+
+    def get_major_npcs(self):
+        npcs = list()
+        for candidate in self.all_gears(self.gb_contents):
+            if candidate.g == self.GG_CHARACTER and candidate.natt.get((self.NAG_RELATIONSHIP,0)) != 0:
+                npcs.append(candidate)
+        return npcs
 
     def find_adventure(self):
         adv = None
@@ -593,19 +612,57 @@ class GH1Loader(object):
 
 
     def load(self):
-        with open(self.fname, 'rb') as f:
+        with open(self.fname, 'rt') as f:
             self._load_list(f)
 
-    def get_relationships(self,egg):
-        pass
+    def get_relationships(self,rpc,egg):
+        # Grab the NPC info
+        major_npcs = set()
+        for k, v in self.MAJOR_NPCS.items():
+            # k is the NPC's major ident, v is the character ID from GH1.
+            mynpc = self.find_npc(v)
+            if mynpc:
+                nu_relationship = relationships.Relationship(
+                    reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,v),0),
+                )
+                rtype = mynpc.natt.get((self.NAG_RELATIONSHIP,0),0)
+                if rtype == self.NAS_ARCHALLY:
+                    nu_relationship.tags.add(relationships.RT_LANCEMATE)
+                elif rtype == self.NAS_FAMILY:
+                    nu_relationship.tags.add(relationships.RT_FAMILY)
+                elif rtype == self.NAS_LOVER:
+                    nu_relationship.role = relationships.R_ROMANCE
+                nu_relationship.met_before = True
+                egg.major_npc_records[k] = nu_relationship
+                major_npcs.add(mynpc)
+        for mynpc in self.get_major_npcs():
+            if mynpc not in major_npcs:
+                nu_npc = self.convert_character(mynpc)
+                nu_relationship = relationships.Relationship(
+                    reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,mynpc.natt.get(self.NAG_PERSONAL,self.NAS_CHARACTERID)),0),
+                )
+                nu_relationship.met_before = True
+                rtype = mynpc.natt.get((self.NAG_RELATIONSHIP,0),0)
+                if rtype == self.NAS_ARCHALLY:
+                    nu_relationship.tags.add(relationships.RT_LANCEMATE)
+                elif rtype == self.NAS_FAMILY:
+                    nu_relationship.tags.add(relationships.RT_FAMILY)
+                elif rtype == self.NAS_LOVER:
+                    nu_relationship.role = relationships.R_ROMANCE
+                elif rtype == self.NAS_ARCHENEMY:
+                    nu_relationship.role = relationships.R_ADVERSARY
+                nu_npc.relationship = nu_relationship
+                egg.dramatis_personae.append(mynpc)
 
     def get_egg(self):
         rpc = self.find_pc()
         pc = self.convert_character(rpc)
+        pc.renown = pc.renown // 2
         my_egg = eggs.Egg(pc)
         my_egg.past_adventures.append("The Typhon Incident")
         my_egg.credits = max(rpc.natt.get((self.NAG_EXPERIENCE, self.NAS_CREDITS), 500000),500000)
         self.record_pc_stuff(rpc,pc)
+        self.get_relationships(rpc,my_egg)
         return my_egg
 
     @classmethod

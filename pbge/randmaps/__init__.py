@@ -74,7 +74,11 @@ class SceneGenerator( Room ):
         #self.gb.validate_terrain()
 
         self.step_six( self.gb ) # Deploy for self, then children
-        self.step_seven( self.gb ) # Decorate for self, then children
+
+        # Decorate for self, then children
+        if self.archi and self.archi.decorate:
+            self.archi.decorate(self.gb,self)
+        self.step_seven( self.gb )
 
         self.clean_contents()
 

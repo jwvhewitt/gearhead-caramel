@@ -377,8 +377,10 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             self.pc.name = self.name_field.text
             if self.unspent_stat_points > 0:
                 self.pc.roll_stats(self.unspent_stat_points,clear_first=False)
-            for sk in gears.stats.COMBATANT_SKILLS:
+            for sk in gears.stats.FUNDAMENTAL_COMBATANT_SKILLS:
                 self.pc.statline[sk] = 4
+            for sk in gears.stats.EXTRA_COMBAT_SKILLS:
+                self.pc.statline[sk] = 1
             num_fives = 4
             for k,v in list(self.bio_bonuses.items()):
                 self.pc.statline[k] += v

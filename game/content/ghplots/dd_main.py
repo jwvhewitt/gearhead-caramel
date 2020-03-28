@@ -191,6 +191,7 @@ class RoadMap(object):
                 edg.style = RoadEdge.STYLE_RED
             elif sorted_edges.index(edg) < len(sorted_edges)*2//3:
                 edg.style = RoadEdge.STYLE_ORANGE
+                edg.sub_plot_label = "DZD_ROADEDGE_ORANGE"
             else:
                 edg.style = RoadEdge.STYLE_YELLOW
                 edg.sub_plot_label = "DZD_ROADEDGE_YELLOW"

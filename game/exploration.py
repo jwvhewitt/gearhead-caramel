@@ -418,6 +418,8 @@ class Explorer( object ):
 
         # Do a start trigger, unless we're in combat.
         if not self.camp.fight:
+            if hasattr(self.scene, "exploration_music"):
+                pbge.my_state.start_music(self.scene.exploration_music)
             self.camp.check_trigger( "START" )
             self.camp.check_trigger( "ENTER", self.scene )
         self.camp.check_trigger( "UPDATE" )

@@ -112,7 +112,7 @@ class TitleScreenRedraw(object):
             bottomright=(pbge.my_state.screen.get_width() - 8, pbge.my_state.screen.get_height() - 8)))
 
 
-TITLE_THEME = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
+TITLE_THEME = 'A wintertale.ogg'
 
 
 def start_game(tsrd):

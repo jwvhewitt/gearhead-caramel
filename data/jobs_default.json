@@ -14,6 +14,17 @@
     }
   },
   {
+    "name": "Knight",
+    "skills": [],
+    "tags": ["Military"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": 1,
+      "MechaPiloting": 1
+    }
+  },
+  {
     "name": "Commander",
     "skills": ["Scouting","Negotiation"],
     "tags": ["Military"],

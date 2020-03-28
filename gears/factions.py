@@ -185,6 +185,20 @@ class ClanIronwind(Faction):
     NOUNS = ("Legion","Warriors","Warband")
     uniform_colors = (color.BlackRose,None,None,None,None)
 
+class TheSilverKnights(Faction):
+    name = "the Silver Knights"
+    factags = (tags.Military,)
+    mecha_colors = (color.SkyBlue, color.ShiningWhite, color.BrightRed, color.SlateGrey, color.AeroBlue)
+    CAREERS = {
+        tags.Trooper: ("Mecha Pilot","Knight"),
+        tags.Commander: ("Commander",),
+        tags.Support: ("Recon Pilot","Field Medic"),
+    }
+    LOCATIONS = (personality.L5Spinners,)
+    ADJECTIVES = ("Silver",)
+    NOUNS = ("Knights","Order")
+    uniform_colors = (color.AeroBlue,None,None,None,color.SkyBlue)
+
 
 class Circle(object):
     def __init__(self, camp, parent_faction=None, mecha_colors=None, name="", careers=None, factags=(), locations=(), uniform_colors=None, active=True, allies=(), enemies=()):
@@ -279,6 +293,10 @@ DEFAULT_FACTION_DICT_NT158 = {
     ClanIronwind: FactionRelations(
         allies=(),
         enemies=(TerranFederation,TerranDefenseForce,DeadzoneFederation)
+    ),
+    TheSilverKnights: FactionRelations(
+        allies=(),
+        enemies=(AegisOverlord,BladesOfCrihna)
     )
 
 }

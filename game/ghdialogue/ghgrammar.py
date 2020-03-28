@@ -2047,6 +2047,24 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[WHATAREYOUDOINGHERE]": {
+        # The PC has wandered into someplace and is about to get attacked, maybe.
+        Default: ["What are you doing here?!",
+                  ],
+        personality.Cheerful: ["You aren't invited to this party, and we don't deal too kindly with crashers.",
+                               ],
+        personality.Grim: ["Welcome to your doom, foolish intruder!",
+                           ],
+        personality.Easygoing: ["You're not supposed to be here right now.",
+                                ],
+        personality.Passionate: ["I don't know what you're doing here, but I look forward to [defeating_you]!",
+                                 ],
+        personality.Sociable: ["Sorry to say that I'm not in the mood for visitors right now.",
+                               ],
+        personality.Shy: ["An intruder!",
+                          ],
+    },
+
     "[WITHDRAW]": {
         # The PC is withdrawing from combat.
         Default: ["Off with you, then.", "Don't return to this place."

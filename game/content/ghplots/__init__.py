@@ -2,6 +2,7 @@ import inspect
 
 from . import actionscenes
 from . import dd_combatmission
+from . import dd_customobjectives
 from . import dd_distanttown
 from . import dd_homebase
 from . import dd_intro
@@ -33,6 +34,7 @@ def harvest( mod ):
 
 harvest(actionscenes)
 harvest(dd_combatmission)
+harvest(dd_customobjectives)
 harvest(dd_distanttown)
 harvest(dd_homebase)
 harvest(dd_intro)

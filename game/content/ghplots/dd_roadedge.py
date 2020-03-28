@@ -53,6 +53,60 @@ class RoadMissionPlot( missionbuilder.BuildAMissionPlot ):
         if self.elements["ONE_CHANCE"] or self.adv.is_completed():
             self.adv.end_adventure(camp)
 
+class DZDREProppStarterPlot(Plot):
+    LABEL = "UTILITY_PARENT"
+
+    active = True
+    scope = True
+    BASE_RANK = 15
+    RATCHET_SETUP = "DZRE_BanditProblem"
+    ENCOUNTER_CHANCE = BASE_RANK + 30
+    ENCOUNTER_NAME = "Bandit Ambush!"
+    ENCOUNTER_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,)
+    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleSemiDeadzone
+
+    def custom_init(self, nart):
+        myedge = self.elements["DZ_EDGE"]
+        self.rank = self.BASE_RANK + random.randint(1,6) - random.randint(1,6)
+        self.register_element("DZ_EDGE_STYLE",myedge.style)
+        self.register_element("FACTION",self.get_enemy_faction(nart))
+
+        self.add_sub_plot(nart,"ADD_REMOTE_OFFICE",ident="ENEMYRO",spstate=PlotState(rank=self.rank+5,elements={"METRO":myedge.start_node.destination.metrodat,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+        self.add_sub_plot(nart,self.RATCHET_SETUP,ident="MISSION",spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+
+        self.road_cleared = False
+
+        return True
+
+    def get_enemy_faction(self,nart):
+        myedge = self.elements["DZ_EDGE"]
+        return plotutility.RandomBanditCircle(nart.camp, enemies=(myedge.start_node.destination.faction,))
+
+    def get_enemy_encounter(self, camp, dest_node):
+        start_node = self.elements["DZ_EDGE"].get_link(dest_node)
+        if start_node.pos[0] < dest_node.pos[0]:
+            myanchor = pbge.randmaps.anchors.west
+        else:
+            myanchor = pbge.randmaps.anchors.east
+        myadv = missionbuilder.BuildAMissionSeed(
+            camp, self.ENCOUNTER_NAME, (start_node.destination,start_node.entrance),
+            enemy_faction = self.elements["FACTION"], rank=self.rank,
+            objectives = self.ENCOUNTER_OBJECTIVES,
+            adv_type = "DZD_ROAD_MISSION",
+            custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
+            scenegen=DeadZoneHighwaySceneGen, architecture=self.ENCOUNTER_ARCHITECTURE,
+            cash_reward=0,
+        )
+        return myadv
+
+    def get_road_adventure(self, camp, dest_node):
+        # Return an adventure if there's going to be an adventure. Otherwise return nothing.
+        if self.active and random.randint(1,100) <= self.ENCOUNTER_CHANCE and not self.road_cleared:
+            return self.get_enemy_encounter(camp, dest_node)
+
+    def MISSION_WIN(self,camp):
+        self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE
+        self.road_cleared = True
 
 
 
@@ -62,22 +116,8 @@ class RoadMissionPlot( missionbuilder.BuildAMissionPlot ):
 #
 # Yellow road edges have a difficulty rank of around 15.
 
-class BanditsPalooza(Plot):
+class BanditsPalooza(DZDREProppStarterPlot):
     LABEL = "DZD_ROADEDGE_YELLOW"
-
-    active = True
-    scope = True
-
-    def custom_init(self, nart):
-        myedge = self.elements["DZ_EDGE"]
-        self.rank = 15 + random.randint(1,6) - random.randint(1,6)
-        self.register_element("DZ_EDGE_STYLE",RoadEdge.STYLE_YELLOW)
-        self.register_element("FACTION",plotutility.RandomBanditCircle(nart.camp,enemies=(myedge.start_node.destination.faction,)))
-
-        self.add_sub_plot(nart,"ADD_REMOTE_OFFICE",ident="BANDITRO",spstate=PlotState(rank=self.rank+5,elements={"METRO":myedge.start_node.destination.metrodat,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
-        self.add_sub_plot(nart,"DZRE_BanditProblem",ident="MISSION",spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
-
-        return True
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -87,37 +127,42 @@ class BanditsPalooza(Plot):
             mygram["[News]"] = ["you should beware {} when traveling to {}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
         return mygram
 
-    def get_bandit_adventure(self, camp, dest_node):
-        start_node = self.elements["DZ_EDGE"].get_link(dest_node)
-        if start_node.pos[0] < dest_node.pos[0]:
-            myanchor = pbge.randmaps.anchors.west
-        else:
-            myanchor = pbge.randmaps.anchors.east
-        myadv = missionbuilder.BuildAMissionSeed(
-            camp, "Bandit Ambush!", (start_node.destination,start_node.entrance),
-            enemy_faction = self.elements["FACTION"], rank=self.rank,
-            objectives = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,),
-            adv_type = "DZD_ROAD_MISSION",
-            custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
-            scenegen=DeadZoneHighwaySceneGen, architecture=gharchitecture.MechaScaleSemiDeadzone,
-            cash_reward=0,
-        )
-        return myadv
-
-    def get_road_adventure(self, camp, dest_node):
-        # Return an adventure if there's going to be an adventure. Otherwise return nothing.
-        if self.active and random.randint(1,100) <= 45:
-            return self.get_bandit_adventure(camp,dest_node)
-
-    def MISSION_WIN(self,camp):
-        self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE
-
 
 #   *******************************
 #   ***   DZD_ROADEDGE_ORANGE   ***
 #   *******************************
 #
 # Orange road edges have a difficulty rank of around 25.
+
+class InvadersPalooza(DZDREProppStarterPlot):
+    LABEL = "DZD_ROADEDGE_ORANGE"
+    BASE_RANK = 25
+    RATCHET_SETUP = "DZRE_InvaderProblem"
+    ENCOUNTER_CHANCE = BASE_RANK + 30
+    ENCOUNTER_NAME = "Invader Ambush!"
+    ENCOUNTER_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER,)
+    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleDeadzone
+
+    GOOD_INVADERS = (
+        gears.factions.AegisOverlord, gears.factions.ClanIronwind, gears.factions.AegisOverlord,
+        gears.factions.ClanIronwind, gears.factions.AegisOverlord, gears.factions.ClanIronwind,
+        gears.factions.AegisOverlord, gears.factions.ClanIronwind, gears.factions.AegisOverlord,
+        gears.factions.ClanIronwind, gears.factions.AegisOverlord, gears.factions.ClanIronwind,
+        gears.factions.BoneDevils, gears.factions.BladesOfCrihna
+    )
+
+    def get_enemy_faction(self,nart):
+        myedge = self.elements["DZ_EDGE"]
+        base_faction = random.choice(self.GOOD_INVADERS)
+        return gears.factions.Circle(nart.camp,base_faction,enemies=(myedge.start_node.destination.faction,))
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        myscene = camp.scene.get_root_scene()
+        if self.elements["DZ_EDGE"].connects_to_city(myscene):
+            # This city is on this road.
+            mygram["[News]"] = ["the road to {1} is controlled by {0}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
+        return mygram
 
 
 #   ****************************

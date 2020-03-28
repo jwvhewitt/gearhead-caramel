@@ -11,6 +11,10 @@ class ResidentialDecor(OmniDec):
     WALL_DECOR = (ghterrain.WoodenShelves,)
     WIN_DECOR = ghterrain.ScreenWindow
 
+class MSWreckageDecor(OmniDec):
+    FLOOR_DECOR = (ghterrain.MSWreckage,)
+    FLOOR_FILL_FACTOR = 0.15
+
 class StorageRoomDecor(ColumnsDecor):
     WALL_DECOR = (ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.VentFanTerrain)
     WALL_FILL_FACTOR = 0.6
@@ -31,6 +35,13 @@ class MechaScaleDeadzone(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.DeadZoneGround
+
+class MechaScaleRuins(Architecture):
+    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.FortressWall)
+    DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
+    DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.Water,ghterrain.DeadZoneGround,ghterrain.TechnoRubble,loground=0.0,higround=0.3,maxhiground=0.9)
+    DEFAULT_FLOOR_TERRAIN = ghterrain.TechnoRubble
+    DEFAULT_DECORATE = MSWreckageDecor()
 
 class MechaScaleSemiDeadzone(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.PlasmaConverter(ghterrain.DragonTeethWall,ghterrain.DragonTeethWall,ghterrain.Forest)

@@ -160,7 +160,7 @@ def test_roadedge_missions():
     frontier = list()
     possible_states = list()
     move_cost = collections.defaultdict(int)
-    for p in PLOT_LIST['DZRE_BanditProblem']:
+    for p in PLOT_LIST['DZRE_InvaderProblem']:
         frontier.append({ghplots.dd_roadedge_propp.E_MOTIVE:p.STARTING_MOTIVE,
                          ghplots.dd_roadedge_propp.E_ACE:p.STARTING_ACE,
                          ghplots.dd_roadedge_propp.E_TOWN:p.STARTING_TOWN})
@@ -209,5 +209,5 @@ def test_roadedge_missions():
                     ghplots.dd_roadedge_propp.E_ACE]))
 
 
-#test_roadedge_missions()
+test_roadedge_missions()
 #test_mocha_encounters()

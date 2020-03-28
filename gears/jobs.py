@@ -39,8 +39,10 @@ class Job(object):
     def scale_skills(self,pc,rank):
         base_skill_rank = max((rank + 20) // 10, 1)
         if pc.combatant or self.always_combatant:
-            for sk in stats.COMBATANT_SKILLS:
+            for sk in stats.FUNDAMENTAL_COMBATANT_SKILLS:
                 pc.statline[sk] = max(base_skill_rank + self.skill_modifiers.get(sk,0),1)
+            for sk in stats.EXTRA_COMBAT_SKILLS:
+                pc.statline[sk] = max(base_skill_rank//3 + self.skill_modifiers.get(sk, 0), 1)
         for sk in self.skills:
             pc.statline[sk] = max(base_skill_rank + self.skill_modifiers.get(sk, 0),1)
         pc.renown = rank

@@ -167,7 +167,7 @@ class RandomMechaUnit(object):
         #   mecha you will face.
         # strength refers to the size of this encounter. It determines
         #   the number of mecha you will face.
-        self.level = level
+        self.level = max(level,1)
         self.strength = strength
         self.fac = fac
         if fac:
@@ -177,7 +177,7 @@ class RandomMechaUnit(object):
         self.shopping_list = MechaShoppingList(
             max(calc_threat_points(level), self.MIN_HI_PRICE),
             fac, env)
-        self.points = calc_threat_points(level, strength)
+        self.points = max(calc_threat_points(level, strength),10)
         self.mecha_list = list()
         if self.shopping_list.best_choices or self.shopping_list.backup_choices:
             self.buy_mecha()

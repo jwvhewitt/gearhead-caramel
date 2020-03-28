@@ -9,6 +9,7 @@ from game.content.ghplots import missionbuilder
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot
+from . import dd_customobjectives
 
 
 #   *****************************************
@@ -23,15 +24,20 @@ E_MOTIVE = "DZREPR_MOTIVE"
 DZRE_MOTIVE_UNKNOWN = "DZRE_EGOAL_UNKNOWN"
 DZRE_MOTIVE_PROFIT = "DZRE_MOTIVE_PROFIT"
 DZRE_MOTIVE_CONQUEST = "DZRE_MOTIVE_CONQUEST"
+
 E_ACE = "DZREPR_ACE"
 DZRE_ACE_UNKNOWN = "DZRE_ACE_UNKNOWN"
 DZRE_ACE_HIDDENBASE = "DZRE_ACE_HIDDENBASE"
 DZRE_ACE_ZEUSCANNON = "DZRE_ACE_ZEUSCANNON"
 DZRE_ACE_SPONSOR = "DZRE_ACE_SPONSOR"
+
 E_TOWN = "DZREPR_TOWN"
 DZRE_TOWN_NEUTRAL = "DZRE_TOWN_NEUTRAL"
 DZRE_TOWN_AGAINST = "DZRE_TOWN_AGAINST"
 DZRE_TOWN_AFRAID = "DZRE_TOWN_AFRAID"
+DZRE_TOWN_DEVASTATED = "DZRE_TOWN_DEVASTATED"
+DZRE_TOWN_INSPIRED = "DZRE_TOWN_INSPIRED"
+
 E_MISSION_NUMBER = "DZREPR_MISSION_NUMBER"
 E_MISSION_WINS = "DZREPR_MISSION_WINS"
 
@@ -150,6 +156,7 @@ class DZREPR_BaseMission(Plot):
     CHANGES = {E_MOTIVE: None, E_ACE: None, E_TOWN: None}
     MISSION_NAME = "The Mission"
     MISSION_PROMPT = "Go do mission"
+    MISSION_ARCHITECTURE = gharchitecture.MechaScaleDeadzone
     OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,)
     WIN_MESSAGE = ""
     LOSS_MESSAGE = ""
@@ -169,7 +176,7 @@ class DZREPR_BaseMission(Plot):
             camp, self.MISSION_NAME, (self.elements["LOCALE"],self.elements["MISSION_GATE"]),
             enemy_faction = self.elements["FACTION"], rank=self.rank,
             objectives = self.OBJECTIVES, one_chance=True,
-            architecture=gharchitecture.MechaScaleDeadzone,
+            architecture=self.MISSION_ARCHITECTURE,
             win_message=self.WIN_MESSAGE.format(**self.elements),
             loss_message=self.LOSS_MESSAGE.format(**self.elements),
             cash_reward=100 + self.elements[E_MISSION_WINS] ** 2 * 25
@@ -790,6 +797,165 @@ class DZREPR_JustifiedParanoia(DZREPR_BaseMission):
         return mygram
 
 
+class DZREPR_HowitzerShotFirst(DZREPR_NPCMission):
+    LABEL = "DZRE_ACE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_ACE: DZRE_ACE_ZEUSCANNON, E_TOWN: DZRE_TOWN_NEUTRAL}
+    CHANGES = {E_TOWN: DZRE_TOWN_AGAINST}
+    MISSION_NAME = "Howitzer Shot First"
+    MISSION_PROMPT = "Help {LOCALE} scouts to withdraw so artillery can fire on {FACTION}'s base"
+    OBJECTIVES = (missionbuilder.BAMO_EXTRACT_ALLIED_FORCES,missionbuilder.BAMO_SURVIVE_THE_AMBUSH)
+    WIN_MESSAGE = "As you withdraw from the battlefield, you hear the mighty cannons of {LOCALE} shelling {FACTION}. Moments later, the enemy begins to return fire. From your position it's not clear which side is winning this encounter."
+    DEFAULT_NEWS = "{FACTION} are no match against {NPC}'s artillery"
+    DEFAULT_INFO = "Go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} for a mission."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} is defending {LOCALE} against {FACTION}."
+    CUSTOM_REPLY = "[HELLO:MISSION]"
+    CUSTOM_OFFER = "So far we haven't had to worry much about {FACTION} since {LOCALE} has enough firepower to keep them well outside of town. Lately, though, they've been getting bolder. I sent some scouts to locate their main base; I need you to extract those scouts so we can start shelling the enemy."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and nart.camp.are_faction_allies(candidate,self.elements["LOCALE"]) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+
+class DZREPR_FallingStarSponsorship(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_ACE"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_ACE: DZRE_ACE_ZEUSCANNON}
+    CHANGES = {E_ACE: DZRE_ACE_SPONSOR}
+    MISSION_NAME = "A Falling Star"
+    MISSION_PROMPT = "Investigate the site where {NPC} saw the falling star."
+    OBJECTIVES = (dd_customobjectives.DDBAMO_INVESTIGATE_METEOR,)
+    DEFAULT_NEWS = "{NPC} said {NPC.gender.subject_pronoun} saw a meteor land outside of town"
+    DEFAULT_INFO = "You can go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about it. I'm sure {NPC.gender.subject_pronoun} will be overjoyed that someone is interested."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} saw something land outside of town."
+    CUSTOM_REPLY = "Did I hear you saw a falling star last night?"
+    CUSTOM_OFFER = "Yes, I did! Nobody wants to talk about it because of all the drama with {FACTION}, but I'm quite sure it landed just outside of town. I'd go looking for it myself if I had a mecha."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and not candidate.combatant and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+
+class DZREPR_InspireTheMilitia(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_TOWN: DZRE_TOWN_AFRAID}
+    CHANGES = {E_TOWN: DZRE_TOWN_INSPIRED}
+    MISSION_NAME = "A New Hope?"
+    MISSION_PROMPT = "Help the {LOCALE} militia to turn back {FACTION}."
+    OBJECTIVES = (missionbuilder.BAMO_AID_ALLIED_FORCES,missionbuilder.BAMO_DEFEAT_COMMANDER)
+    DEFAULT_NEWS = "{FACTION} are beginning their final invasion; {NPC} is trying to fight them but it's hopeless"
+    DEFAULT_INFO = "You can go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about it. Maybe with your help it wouldn't be so hopeless?"
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} is coordinating defense against {FACTION}."
+    CUSTOM_REPLY = "[HELLO:MISSION]"
+    CUSTOM_OFFER = "It's clear that {FACTION} are closing in on us. The militia has lost too many good pilots already. With your help maybe we can hold them back for just one more day... or maybe not."
+    WIN_MESSAGE = "With {FACTION} driven back, the people of {LOCALE} regain their will to fight."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and nart.camp.are_faction_allies(candidate,self.elements["LOCALE"]) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+
+class DZREPR_AngryAtSponsorship(DZREPR_BaseMission):
+    LABEL = "DZRE_ACE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_ACE: DZRE_ACE_SPONSOR, E_TOWN: DZRE_TOWN_NEUTRAL}
+    CHANGES = {E_TOWN: DZRE_TOWN_AGAINST}
+    MISSION_NAME = "Knock Them Down"
+    MISSION_PROMPT = "Go demonstrate to {FACTION} that they don't own {LOCALE}"
+    OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES,missionbuilder.BAMO_DEFEAT_COMMANDER)
+    WIN_MESSAGE = "That'll show them."
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and not npc.combatant and npc not in camp.party:
+            goffs.append(Offer(
+                msg="[THEYAREOURENEMY] They think that just because they're strong, they can do what they like in {LOCALE}. I say it's time to knock them down a peg.".format(**self.elements ),
+                context=ContextTag((context.INFO,)), effect=self.activate_mission,
+                data={"subject": "{FACTION}'s attitude".format(**self.elements)}, subject="{FACTION} have been acting like they own".format(**self.elements), no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if not npc.combatant and not self.mission_active and npc not in camp.party:
+            mygram["[News]"].append("{FACTION} have been acting like they own {LOCALE}".format(**self.elements))
+        return mygram
+
+
+class DZREPR_OldNewYork(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_ACE"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_ACE: DZRE_ACE_UNKNOWN}
+    CHANGES = {E_ACE: DZRE_ACE_HIDDENBASE}
+    MISSION_NAME = "Going Underground"
+    MISSION_PROMPT = "Explore the ruins around {LOCALE} to search for {FACTION}"
+    MISSION_ARCHITECTURE = gharchitecture.MechaScaleRuins
+    OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES,missionbuilder.BAMO_DEFEAT_COMMANDER)
+    DEFAULT_NEWS = "{NPC} has a theory about why {FACTION} are so hard to find"
+    DEFAULT_INFO = "Go ask {NPC.gender.object_pronoun} about it at {NPC_SCENE}."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} has a theory about {FACTION}."
+    CUSTOM_REPLY = "What do you think about {FACTION}?"
+    CUSTOM_OFFER = "Well, they're definitely getting resupplied from somewhere, and no-one has been able to figure out where their main base is. The land around here used to be a PreZero megacity. I think they've found one of the big underground sections, and that's where they're hiding out."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_FearOfTheInvaders(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_TOWN: DZRE_TOWN_NEUTRAL}
+    CHANGES = {E_TOWN: DZRE_TOWN_AFRAID}
+    MISSION_NAME = "A New Hope?"
+    MISSION_PROMPT = "Help the {LOCALE} militia to turn back {FACTION}."
+    OBJECTIVES = (missionbuilder.BAMO_AID_ALLIED_FORCES,missionbuilder.BAMO_DEFEAT_COMMANDER)
+    DEFAULT_NEWS = "{FACTION} are beginning their final invasion; {NPC} is trying to fight them but it's hopeless"
+    DEFAULT_INFO = "You can go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about it. Maybe with your help it wouldn't be so hopeless?"
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} is coordinating defense against {FACTION}."
+    CUSTOM_REPLY = "[HELLO:MISSION]"
+    CUSTOM_OFFER = "It's clear that {FACTION} are closing in on us. The militia has lost too many good pilots already. With your help maybe we can hold them back for just one more day... or maybe not."
+    WIN_MESSAGE = "With {FACTION} driven back, the people of {LOCALE} regain their will to fight."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and nart.camp.are_faction_allies(candidate,self.elements["LOCALE"]) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_FearOfTheInvaders(DZREPR_BaseMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_TOWN: DZRE_TOWN_NEUTRAL}
+    CHANGES = {E_TOWN: DZRE_TOWN_AFRAID}
+    MISSION_NAME = "Bounty Hunting"
+    MISSION_PROMPT = "Search for {FACTION} and try to collect that bounty"
+    OBJECTIVES = (missionbuilder.BAMO_SURVIVE_THE_AMBUSH,missionbuilder.BAMO_DEFEAT_ARMY)
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and not npc.combatant and npc not in camp.party:
+            goffs.append(Offer(
+                msg="Whatever they're up to, I'm sure it's dreadful. The leaders of {LOCALE} have offered a bounty for anyone who can defeat {FACTION}, but I doubt it's going to do any good.".format(**self.elements ),
+                context=ContextTag((context.INFO,)), effect=self.activate_mission,
+                data={"subject": "{FACTION}'s plans".format(**self.elements)}, subject="{FACTION} has in store".format(**self.elements), no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if not npc.combatant and not self.mission_active and npc not in camp.party:
+            mygram["[News]"].append("nobody knows what {FACTION} has in store for {LOCALE}".format(**self.elements))
+        return mygram
+
+
+class DZREPR_StealTheirThunder(DZREPR_NPCMission):
+    LABEL = "DZRE_ACE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_ACE: DZRE_ACE_ZEUSCANNON, E_TOWN: DZRE_TOWN_AFRAID}
+    CHANGES = {E_TOWN: DZRE_TOWN_INSPIRED}
+    MISSION_NAME = "Steal Their Thunder"
+    MISSION_PROMPT = "Help the {LOCALE} militia to destroy {FACTION}'s artillery"
+    OBJECTIVES = (missionbuilder.BAMO_AID_ALLIED_FORCES,missionbuilder.BAMO_DESTROY_ARTILLERY)
+    DEFAULT_NEWS = "{NPC}'s attempt to destroy {FACTION}'s artillery isn't going well"
+    DEFAULT_INFO = "You can go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about it. Between you and me {NPC.gender.subject_pronoun} could use some reinforcements."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} is attempting to destroy {FACTION}'s artillery."
+    CUSTOM_REPLY = "How is the fight against {FACTION} going?"
+    CUSTOM_OFFER = "Terrible; {FACTION} has been able to outmaneuver us at every turn. I sent the militia to disable their artillery, thinking that would help to even the odds. Unfortunately, their base is better guarded than I expected, and we're losing the battle. If you would be willing to aid us..."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and nart.camp.are_faction_allies(candidate,self.elements["LOCALE"]) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+
 #   *******************************************
 #   ***   ROAD  EDGE  RATCHET  CONCLUSION   ***
 #   *******************************************
@@ -1114,3 +1280,36 @@ class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
         if camp.can_add_lancemate():
             effect = game.content.plotutility.AutoJoiner(npc)
             effect(camp)
+
+#   ******************************
+#   ***   DZRE_InvaderProblem   ***
+#   ******************************
+
+class DZREPR_PrettyStandardInvaders(DZREPR_BasePlot):
+    LABEL = "DZRE_InvaderProblem"
+
+    STARTING_MOTIVE = DZRE_MOTIVE_CONQUEST
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if npc not in camp.party and not self.start_missions:
+            mygram["[News]"].append("{FACTION} have been trying to establish a stronghold nearby".format(**self.elements))
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.start_missions and npc not in camp.party and not camp.are_faction_allies(npc,self.elements["FACTION"]):
+            goffs.append(Offer(
+                msg="[THEYAREOURENEMY] They want to take over this area, but we will fight them to the last.",
+                context=ContextTag((context.INFO,)), effect=self._get_briefed,
+                subject=str(self.elements["FACTION"]),
+                data={"subject": str(self.elements["FACTION"]),"they":str(self.elements["FACTION"])}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_briefed(self,camp):
+        self.start_missions = True
+        camp.check_trigger("UPDATE")
+        self.memo = "You learned that {} are trying to establish a stronghold near {}.".format(self.elements["FACTION"],self.elements["LOCALE"])
+

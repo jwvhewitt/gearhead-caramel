@@ -24,7 +24,11 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
         self.elements["DZ_TOWN_NAME"] = self.generate_town_name()
 
-        myscene = gears.GearHeadScene(15,15,"{} Mecha Hangar".format(self.elements["DZ_TOWN_NAME"]),player_team=team1,scale=gears.scale.HumanScale,civilian_team=team2,attributes=(gears.personality.DeadZone,),is_metro=True)
+        myscene = gears.GearHeadScene(
+            15,15,"{} Mecha Hangar".format(self.elements["DZ_TOWN_NAME"]),player_team=team1,
+            scale=gears.scale.HumanScale,civilian_team=team2,attributes=(gears.personality.DeadZone,),is_metro=True,
+            exploration_music='A wintertale.ogg', combat_music='Chronos.ogg'
+        )
         myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.IndustrialBuilding(floor_terrain=ghterrain.GrateFloor))
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
 
@@ -49,7 +53,8 @@ class DZDIntro_GetInTheMekShimli(Plot):
         self.add_sub_plot(nart,"DZD_MISSION_DEBRIEFING",ident="DEBRIEFING")
 
         # Attempt to load the test mission.
-        mytest = self.add_sub_plot(nart,"DZRE_TEST",spstate=pbge.plots.PlotState(rank=1,elements={"METRO":myscene.metrodat,"MISSION_GATE":mychute,"FACTION":game.content.plotutility.RandomBanditCircle(nart.camp)}).based_on(self),necessary=False)
+        mytest = self.add_sub_plot(nart,"DZRE_TEST",spstate=pbge.plots.PlotState(rank=1,elements={"METRO":myscene.metrodat,"MISSION_GATE":mychute,"FACTION":game.content.plotutility.RandomBanditCircle(nart.camp),"DZREPR_MISSION_WINS":0}).based_on(self),necessary=False)
+
         if mytest:
             print("Loaded test!")
             mytest.mission_active = True
@@ -263,7 +268,10 @@ class DZDIntroMission( Plot ):
     def custom_init( self, nart ):
         """An empty map that will add subplots for the mission's objectives."""
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(40,40,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(
+            40,40,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale,
+            exploration_music='A wintertale.ogg', combat_music='Chronos.ogg',
+        )
         myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleSemiDeadzone())
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
 

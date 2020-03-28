@@ -44,7 +44,7 @@ class DZD_Wujung(Plot):
                                       faction=gears.factions.TerranFederation,
                                       attributes=(
                                       gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC),
-                                      exploration_music='jlbrock44_-_The_Stars_Look_Different_(Ziggy_Stardust_Mix).ogg')
+                                      exploration_music='Heroic Adventure.ogg')
 
         npc = gears.selector.random_character(50, local_tags=myscene.attributes)
         npc.place(myscene, team=team2)
@@ -99,13 +99,29 @@ class DZD_Wujung(Plot):
                              "They're the military government that controls [Luna] right now. [chat_lead_in] Aegis operatives are the ones who activated Typhon and led it to Wujung."),
         )
 
+        self.intro_ready = True
+
         return True
 
     def METROSCENE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
         plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
-
+        if self.intro_ready:
+            # Give a different entry message depending on the nature of the PC.
+            if camp.pc.has_badge("Typhon Slayer"):
+                pbge.alert("You enter Wujung. Your battle with Typhon nearly ended before it began in this very spot. It feels like that happened years ago and a lifetime away... Yet here you are.")
+                pbge.alert("The Bronze Horse Inn doesn't sound familiar. It's probably part of the new construction happening alongside the rebuilding efforts.")
+            elif gears.personality.DeadZone in camp.pc.personality:
+                pbge.alert("You arrive in Wujung, gateway to the Green Zone. The air here is clean and crisp; the grass is soft beneath your feet. Majestic buildings reach skyward like a picture of the PreZero age.")
+                pbge.alert("From the stories you heard about the biomonster Typhon, you were expecting this city to be half in ruins. Time to find the Bronze Horse Inn.")
+            elif gears.personality.GreenZone in camp.pc.personality:
+                pbge.alert("You arrive in Wujung, the city known as the gateway to the Dead Zone. Once this place was considered unassailable; now, the damage caused by the biomonster Typhon provides a permanent reminder that no place on Earth is truly safe.")
+                pbge.alert("The Bronze Horse Inn is a new addition to the city. Might as well take a look around and see if you can find it.")
+            else:
+                pbge.alert("You enter Wujung, the gateway to the Dead Zone. The harsh wasteland outside the wall quickly gives way to lush grass and busy streets. This section of the city is where traders and merchants operate.")
+                pbge.alert("According to its thrupage, the Bronze Horse Inn is somewhere in this neighborhood. You can check out some of these other buildings while trying to find it.")
+            self.intro_ready = False
 
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""
