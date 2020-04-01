@@ -160,14 +160,15 @@ def test_roadedge_missions():
     frontier = list()
     possible_states = list()
     move_cost = collections.defaultdict(int)
-    for p in PLOT_LIST['DZRE_InvaderProblem']:
+    for p in PLOT_LIST['DZRE_InvaderProblem'] + PLOT_LIST["DZRE_BanditProblem"]:
         frontier.append({ghplots.dd_roadedge_propp.E_MOTIVE:p.STARTING_MOTIVE,
                          ghplots.dd_roadedge_propp.E_ACE:p.STARTING_ACE,
                          ghplots.dd_roadedge_propp.E_TOWN:p.STARTING_TOWN})
 
     while frontier:
         current = frontier.pop()
-        possible_states.append(current)
+        if current not in possible_states:
+            possible_states.append(current)
         # Find the neighbors
         for p in PLOT_LIST['DZRE_ACE_TOWN'] + PLOT_LIST['DZRE_MOTIVE_TOWN'] + PLOT_LIST['DZRE_MOTIVE_ACE']:
             if all( p.REQUIRES[k] == current.get(k,0) for k in p.REQUIRES.keys() ):

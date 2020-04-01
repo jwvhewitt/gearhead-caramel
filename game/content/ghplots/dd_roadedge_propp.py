@@ -24,6 +24,7 @@ E_MOTIVE = "DZREPR_MOTIVE"
 DZRE_MOTIVE_UNKNOWN = "DZRE_EGOAL_UNKNOWN"
 DZRE_MOTIVE_PROFIT = "DZRE_MOTIVE_PROFIT"
 DZRE_MOTIVE_CONQUEST = "DZRE_MOTIVE_CONQUEST"
+DZRE_MOTIVE_TREASURE = "DZRE_MOTIVE_TREASURE"   # There's some kind of hidden treasure they're after. Lostech?
 
 E_ACE = "DZREPR_ACE"
 DZRE_ACE_UNKNOWN = "DZRE_ACE_UNKNOWN"
@@ -954,6 +955,136 @@ class DZREPR_StealTheirThunder(DZREPR_NPCMission):
     CUSTOM_OFFER = "Terrible; {FACTION} has been able to outmaneuver us at every turn. I sent the militia to disable their artillery, thinking that would help to even the odds. Unfortunately, their base is better guarded than I expected, and we're losing the battle. If you would be willing to aid us..."
     def _npc_matches(self,nart,candidate):
         return isinstance(candidate,gears.base.Character) and candidate.combatant and nart.camp.are_faction_allies(candidate,self.elements["LOCALE"]) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+
+class DZREPR_GoneToGround(DZREPR_NPCMission):
+    LABEL = "DZRE_ACE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_ACE: DZRE_ACE_UNKNOWN, E_TOWN: DZRE_TOWN_INSPIRED}
+    CHANGES = {E_ACE: DZRE_ACE_HIDDENBASE}
+    MISSION_NAME = "Gone To Ground"
+    MISSION_PROMPT = "Patrol the highway around {LOCALE} for {FACTION} strike teams"
+    OBJECTIVES = (missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL,missionbuilder.BAMO_LOCATE_ENEMY_FORCES)
+    DEFAULT_NEWS = "{NPC} is leading the fight to wipe out {FACTION} once and for all"
+    DEFAULT_INFO = "{NPC.gender.subject_pronoun} is at {NPC_SCENE}."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} is leading the fight to wipe out {FACTION}."
+    CUSTOM_REPLY = "How is the fight against {FACTION} going?"
+    CUSTOM_OFFER = "Due to our recent victories, {FACTION} have gone to ground. Instead of operating in broad daylight they've been reduced to petty raiding along the highway. Still, they remain a threat to {LOCALE}. I want you to go patrol the area for them. Make sure they aren't causing any trouble."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and nart.camp.are_faction_allies(candidate,self.elements["LOCALE"]) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_TheyWantItBad(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_TOWN: DZRE_TOWN_INSPIRED}
+    CHANGES = {E_MOTIVE: DZRE_MOTIVE_TREASURE}
+    MISSION_NAME = "Seeking Secrets"
+    MISSION_PROMPT = "Explore the ruins for {FACTION} activity"
+    MISSION_ARCHITECTURE = gharchitecture.MechaScaleRuins
+    OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES,missionbuilder.BAMO_CAPTURE_BUILDINGS)
+    WIN_MESSAGE = "A quick search of the encampment confirms that {FACTION} are searching the ruins for something, though you still don't know exactly what."
+    DEFAULT_NEWS = "{NPC} has a theory for why {FACTION} are still sticking around"
+    DEFAULT_INFO = "You can go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about it."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} has a theory about {FACTION}."
+    CUSTOM_REPLY = "What is your theory about {FACTION}?"
+    CUSTOM_OFFER = "Everyone always thought that {FACTION} was trying to invade {LOCALE}; if that were true, they would have packed up and left once it became obvious that wasn't going to happen. I think they're searching the ruins around town for some kind of hidden treasure or lost technology."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and nart.camp.are_faction_allies(candidate,self.elements["LOCALE"]) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_UndergroundConstruction(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_ACE"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_ACE: DZRE_ACE_HIDDENBASE}
+    CHANGES = {E_ACE: DZRE_ACE_ZEUSCANNON}
+    MISSION_NAME = "Underground Construction"
+    MISSION_PROMPT = "Explore the ruins for {FACTION}'s hidden base"
+    MISSION_ARCHITECTURE = gharchitecture.MechaScaleRuins
+    OBJECTIVES = (missionbuilder.BAMO_CAPTURE_THE_MINE,missionbuilder.BAMO_DESTROY_ARTILLERY)
+    WIN_MESSAGE = "You have disabled this production center belonging to {FACTION}, but who knows how much artillery they have already produced?"
+    DEFAULT_NEWS = "{NPC} thinks {FACTION} are up to something in their base"
+    DEFAULT_INFO = "Just go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about {FACTION}; maybe you can get a mission out of it."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} believes {FACTION} are up to something."
+    CUSTOM_REPLY = "What do you think {FACTION} are doing?"
+    CUSTOM_OFFER = "Based on their history of raids, it seems like {FACTION} are building something big. In PreZero times this was an industrial area; it's possible they've found some autofac equipment in the ruins and have gotten it back online."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and nart.camp.are_faction_allies(candidate,self.elements["LOCALE"]) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_TheSponsorWantsSomething(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_ACE"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST, E_ACE: DZRE_ACE_SPONSOR}
+    CHANGES = {E_MOTIVE: DZRE_MOTIVE_TREASURE}
+    MISSION_NAME = "Sponsor Message"
+    MISSION_PROMPT = "Deliver a message to {FACTION}'s bosses from {LOCALE}"
+    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_ARMY,missionbuilder.BAMO_CAPTURE_BUILDINGS)
+    DEFAULT_NEWS = "{NPC} wants to send {FACTION} a message"
+    DEFAULT_INFO = "I think you're just the sort of person to deliver this message... go to {NPC_SCENE} and ask {NPC} for a mission."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} wants to send {FACTION} a message."
+    CUSTOM_REPLY = "I hear you have a message for {FACTION}."
+    CUSTOM_OFFER = "It's obvious that the forces providing {FACTION} with equipment want more than just to take over {LOCALE}. They're probably searching for PreZero treasure, maybe something to do with the biomonsters that have been showing up lately. Well, I want you to send them a message- whatever they're up to, we aren't going to let them do it."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and nart.camp.are_faction_allies(candidate,self.elements["LOCALE"]) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_LegendaryTreasure(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_PROFIT, E_TOWN: DZRE_TOWN_AGAINST}
+    CHANGES = {E_MOTIVE: DZRE_MOTIVE_TREASURE}
+    MISSION_NAME = "Legendary Treasure"
+    MISSION_PROMPT = "Protect {LOCALE}'s legendary treasure from {FACTION}"
+    OBJECTIVES = (missionbuilder.BAMO_CAPTURE_THE_MINE,missionbuilder.BAMO_CAPTURE_BUILDINGS)
+    WIN_MESSAGE = "It's pretty clear that whatever the legendary treasure is, {FACTION} didn't find it here. Hopefully there is still time to beat them to it."
+    DEFAULT_NEWS = "{NPC} says {FACTION} are after our treasure"
+    DEFAULT_INFO = "I don't know why {FACTION} would be after anything we have in {LOCALE}; it never did us any good. But you can go ask {NPC} about it at {NPC_SCENE}."
+    DEFAULT_MEMO = "{NPC} at {NPC_SCENE} says {FACTION} are after {LOCALE}'s legendary treasure."
+    CUSTOM_REPLY = "What do you think {FACTION} are looking for?"
+    CUSTOM_OFFER = "Isn't it obvious? Legends say that there is an ancient treasure buried in the ruins beneath {LOCALE}. Some think it's a miraculous supercomputer, while others believe it's a biomonster of unbelievable power. Whatever it is, {FACTION} have been hunting high and low to find it!"
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and not candidate.combatant and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_HelpFromAbove(DZREPR_NPCMission):
+    LABEL = "DZRE_MOTIVE_ACE"
+    #LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_TREASURE, E_ACE: DZRE_ACE_UNKNOWN}
+    CHANGES = {E_ACE: DZRE_ACE_SPONSOR}
+    MISSION_NAME = "Unidentified Falling Object"
+    MISSION_PROMPT = "Investigate the spot where {NPC} got the strange readings."
+    OBJECTIVES = (missionbuilder.BAMO_SURVIVE_THE_AMBUSH,dd_customobjectives.DDBAMO_INVESTIGATE_METEOR,)
+    WIN_MESSAGE = "As the smoke clears from the battlefield, one thing becomes clear: there are some powerful forces that want {FACTION} to find whatever it is they're looking for."
+    DEFAULT_NEWS = "{NPC} said {NPC.gender.subject_pronoun} saw something weird last night"
+    DEFAULT_INFO = "You can go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about it."
+    DEFAULT_MEMO = "{NPC.gender.subject_pronoun} is at {NPC_SCENE}, if you want to ask {NPC.gender.object_pronoun} about it."
+    CUSTOM_REPLY = "Have you seen anything odd recently?"
+    CUSTOM_OFFER = "As a matter of fact, I did. While I was out last night my mecha's sensors picked up a large flying object just outside of town. It was only on screen for a second, then it disappeared. I thought I saw something falling in the distance but I was too slow to take a video with my phone."
+    def _npc_matches(self,nart,candidate):
+        return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+
+class DZREPR_SleepingGiant(DZREPR_BaseMission):
+    #LABEL = "DZRE_MOTIVE_TOWN"
+    LABEL = "DZRE_TEST"
+    REQUIRES = {E_MOTIVE: DZRE_MOTIVE_TREASURE, E_TOWN: DZRE_TOWN_AGAINST}
+    CHANGES = {E_TOWN: DZRE_TOWN_AFRAID}
+    MISSION_NAME = "Sleeping Giants"
+    MISSION_PROMPT = "Try to prevent {FACTION} from unleashing anything locked in the ruins"
+    OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES,missionbuilder.BAMO_DEFEAT_ARMY)
+    MISSION_ARCHITECTURE = gharchitecture.MechaScaleRuins
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and not npc.combatant and npc not in camp.party:
+            goffs.append(Offer(
+                msg="I know that every deadzone town has a legend like this, but our elders used to say that there's something extremely dangerous locked down under there. I hate to think what would happen if {FACTION} find it.".format(**self.elements ),
+                context=ContextTag((context.INFO,)), effect=self.activate_mission,
+                data={"subject": "the undercity".format(**self.elements)}, subject="the {LOCALE} undercity".format(**self.elements), no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if not npc.combatant and not self.mission_active and npc not in camp.party:
+            mygram["[News]"].append("they say {FACTION} has been searching the {LOCALE} undercity".format(**self.elements))
+        return mygram
 
 
 #   *******************************************

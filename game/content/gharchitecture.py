@@ -39,7 +39,7 @@ class MechaScaleDeadzone(Architecture):
 class MechaScaleRuins(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.FortressWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
-    DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.Water,ghterrain.DeadZoneGround,ghterrain.TechnoRubble,loground=0.0,higround=0.3,maxhiground=0.9)
+    DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.Water,ghterrain.DeadZoneGround,ghterrain.TechnoRubble,loground=0.0,higround=0.3)
     DEFAULT_FLOOR_TERRAIN = ghterrain.TechnoRubble
     DEFAULT_DECORATE = MSWreckageDecor()
 
