@@ -52,6 +52,6 @@ def init( appname,gamedir ):
     with open(data_dir("config_defaults.cfg")) as f:
         config.read_file( f )
     if not config.read( [user_dir( "config.cfg" )] ):
-        with open( user_dir( "config.cfg" ) , "wb" ) as f:
+        with open( user_dir( "config.cfg" ) , "wt" ) as f:
             config.write( f )
 
