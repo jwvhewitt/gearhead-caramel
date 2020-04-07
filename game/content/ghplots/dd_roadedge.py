@@ -161,7 +161,7 @@ class InvadersPalooza(DZDREProppStarterPlot):
         myscene = camp.scene.get_root_scene()
         if self.elements["DZ_EDGE"].connects_to_city(myscene):
             # This city is on this road.
-            mygram["[News]"] = ["the road to {1} is controlled by {0}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
+            mygram["[News]"] = ["the road to {1} is frequented by {0}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
         return mygram
 
 
@@ -169,5 +169,32 @@ class InvadersPalooza(DZDREProppStarterPlot):
 #   ***   DZD_ROADEDGE_RED   ***
 #   ****************************
 #
-# Red road edges have a difficulty rank of around 40.
+# Red road edges have a difficulty rank of around 35.
+
+class UpgradedInvadersPalooza(DZDREProppStarterPlot):
+    LABEL = "DZD_ROADEDGE_RED"
+    BASE_RANK = 35
+    RATCHET_SETUP = "DZRE_InvaderProblem"
+    ENCOUNTER_CHANCE = BASE_RANK + 30
+    ENCOUNTER_NAME = "Invader Ambush!"
+    ENCOUNTER_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_ARMY,)
+    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleDeadzone
+
+    GOOD_INVADERS = (
+        gears.factions.AegisOverlord, gears.factions.ClanIronwind,
+        gears.factions.BoneDevils, gears.factions.BladesOfCrihna
+    )
+
+    def get_enemy_faction(self,nart):
+        myedge = self.elements["DZ_EDGE"]
+        base_faction = random.choice(self.GOOD_INVADERS)
+        return gears.factions.Circle(nart.camp,base_faction,enemies=(myedge.start_node.destination.faction,))
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        myscene = camp.scene.get_root_scene()
+        if self.elements["DZ_EDGE"].connects_to_city(myscene):
+            # This city is on this road.
+            mygram["[News]"] = ["the road to {1} is controlled by {0}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
+        return mygram
 

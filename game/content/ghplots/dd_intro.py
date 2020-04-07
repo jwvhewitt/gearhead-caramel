@@ -257,7 +257,7 @@ class DZDPostMissionScene(Plot):
         thingmenu.add_item("Board mecha and go to Wujung",self._finish_mission)
 
     def _finish_mission(self, camp):
-        camp.check_trigger("END",self)
+        camp.check_trigger("INTRO_END")
         self.adv.end_adventure(camp)
 
 class DZDIntroMission( Plot ):

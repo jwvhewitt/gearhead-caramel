@@ -64,9 +64,12 @@ class DeadzoneDrifterStub( Plot ):
 
         return mylist
 
-    def INTRO_END(self, camp):
+    def t_INTRO_END(self, camp):
         # Wujung should be registered as the home base, so send the player there.
         camp.destination,camp.entrance = camp.home_base
+        npc = self.elements["DZ_CONTACT"]
+        npc.place(camp.campdata["DISTANT_TOWN"],team=camp.campdata["DISTANT_TEAM"])
+
         del self.subplots["INTRO"]
 
     def t_START(self,camp):
@@ -149,15 +152,15 @@ class RoadMap(object):
     def __init__(self,):
         self.nodes = list()
         self.edges = list()
-        start_node = RoadNode("DZD_DISTANT_TOWN","GOALTOWN",visible=True,frame=RoadNode.FRAME_DISTANT_TOWN)
-        self.add_node(start_node,random.randint(3,4),random.randint(2,7))
+        self.start_node = RoadNode("DZD_DISTANT_TOWN","GOALTOWN",visible=True,frame=RoadNode.FRAME_DISTANT_TOWN)
+        self.add_node(self.start_node,random.randint(3,4),random.randint(2,7))
 
 
-        end_node = RoadNode("DZD_HOME_BASE","HOMEBASE",visible=True,frame=RoadNode.FRAME_WUJUNG)
-        self.add_node(end_node,self.MAP_WIDTH-1,self.MAP_HEIGHT//2-1)
+        self.end_node = RoadNode("DZD_HOME_BASE","HOMEBASE",visible=True,frame=RoadNode.FRAME_WUJUNG)
+        self.add_node(self.end_node,self.MAP_WIDTH-1,self.MAP_HEIGHT//2-1)
 
         north_road = list()
-        prev = start_node
+        prev = self.start_node
         ys = list(range(0,4))
         random.shuffle(ys)
         for t in range(3):
@@ -165,10 +168,10 @@ class RoadMap(object):
             self.add_node(north_road[-1],t*4+random.randint(5,7),ys[t])
             self.connect_nodes(prev,north_road[-1],RoadEdge())
             prev = north_road[-1]
-        self.connect_nodes(prev,end_node,RoadEdge())
+        self.connect_nodes(prev,self.end_node,RoadEdge())
 
         south_road = list()
-        prev = start_node
+        prev = self.start_node
         ys = list(range(5,9))
         random.shuffle(ys)
         for t in range(3):
@@ -176,7 +179,7 @@ class RoadMap(object):
             self.add_node(south_road[-1],t*4+random.randint(5,7),ys[t])
             self.connect_nodes(prev,south_road[-1],RoadEdge())
             prev = south_road[-1]
-        self.connect_nodes(prev,end_node,RoadEdge())
+        self.connect_nodes(prev,self.end_node,RoadEdge())
 
         cross_road = RoadEdge()
         self.connect_nodes(random.choice(north_road),random.choice(south_road),cross_road)
@@ -189,6 +192,7 @@ class RoadMap(object):
         for edg in sorted_edges:
             if sorted_edges.index(edg) < max(len(sorted_edges)//3,2):
                 edg.style = RoadEdge.STYLE_RED
+                edg.sub_plot_label = "DZD_ROADEDGE_RED"
             elif sorted_edges.index(edg) < len(sorted_edges)*2//3:
                 edg.style = RoadEdge.STYLE_ORANGE
                 edg.sub_plot_label = "DZD_ROADEDGE_ORANGE"
@@ -205,6 +209,18 @@ class RoadMap(object):
         edge_to_use.start_node = start_node
         edge_to_use.end_node = end_node
         edge_to_use.path = pbge.scenes.animobs.get_line(start_node.pos[0],start_node.pos[1],end_node.pos[0],end_node.pos[1])
+
+    def connection_is_made(self):
+        # Sooner or later.
+        # Return True if there's a STYLE_SAFE connection from self.start_node to self.end_node
+        visited_nodes = set()
+        frontier = [edge.end_node for edge in self.edges if edge.start_node is self.start_node and edge.style is edge.STYLE_SAFE]
+        while frontier:
+            nu_start = frontier.pop()
+            visited_nodes.add(nu_start)
+            frontier += [edge.end_node for edge in self.edges if edge.end_node not in visited_nodes and
+                        edge.start_node is nu_start and edge.style is edge.STYLE_SAFE]
+        return self.end_node in visited_nodes
 
     def initialize_plots(self,plot,nart):
         """

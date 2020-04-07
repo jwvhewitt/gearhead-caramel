@@ -461,7 +461,7 @@ class DZREPR_NoBigDealMaybe(DZREPR_NPCMission):
     CUSTOM_REPLY = "What can you tell me about {FACTION}?"
     CUSTOM_OFFER = "The highway outside {LOCALE} is full of bandits and raiders and whoever; {FACTION} is nothing special. A patrol went out to check on them this morning... they should be reporting back any time now."
     def _npc_matches(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Military,gears.tags.Politician)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+        return isinstance(candidate,gears.base.Character) and candidate.job and candidate.job.tags.intersection((gears.tags.Police,gears.tags.Military,gears.tags.Politician)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
 
 class DZREPR_MedicineShipment(DZREPR_NPCMission):
@@ -479,7 +479,7 @@ class DZREPR_MedicineShipment(DZREPR_NPCMission):
     CUSTOM_REPLY = "Have you had any trouble getting supplies lately?"
     CUSTOM_OFFER = "Yes, actually. Thanks to {FACTION} shipments from the green zone have become iffy. I'm waiting on a vital order of medicine, but I don't know if it's going to get through."
     def _npc_matches(self,nart,candidate):
-        return isinstance(candidate,gears.base.Character) and candidate.job.tags.intersection((gears.tags.Medic,)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
+        return isinstance(candidate,gears.base.Character) and candidate.job and candidate.job.tags.intersection((gears.tags.Medic,)) and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
 
 class DZREPR_SeekAndDestroy(DZREPR_NPCMission):
@@ -1060,8 +1060,8 @@ class DZREPR_HelpFromAbove(DZREPR_NPCMission):
         return isinstance(candidate,gears.base.Character) and candidate.combatant and candidate not in nart.camp.party and not nart.camp.are_faction_allies(candidate,self.elements["FACTION"])
 
 class DZREPR_SleepingGiant(DZREPR_BaseMission):
-    #LABEL = "DZRE_MOTIVE_TOWN"
-    LABEL = "DZRE_TEST"
+    LABEL = "DZRE_MOTIVE_TOWN"
+    #LABEL = "DZRE_TEST"
     REQUIRES = {E_MOTIVE: DZRE_MOTIVE_TREASURE, E_TOWN: DZRE_TOWN_AGAINST}
     CHANGES = {E_TOWN: DZRE_TOWN_AFRAID}
     MISSION_NAME = "Sleeping Giants"

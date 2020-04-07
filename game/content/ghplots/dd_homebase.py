@@ -916,6 +916,7 @@ class DZD_LongRoadLogistics(Plot):
     def _tell_about_services(self,camp):
         self.memo = "You spoke to {REGEXNPC} of RegEx Construction about building a new power plant for {DZ_TOWN_NAME}. In order for {REGEXNPC.gender.object_pronoun} to do that, there must be a secure trade route between there an Wujung.".format(**self.elements)
         self._asked_about_construction = True
+        camp.campdata["CONSTRUCTION_ARRANGED"] = True
 
     def DISPATCHER_offers(self, camp):
         mylist = list()

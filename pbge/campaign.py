@@ -43,6 +43,7 @@ class Campaign( object ):
         self.uniques = set()
         self.explo_class = explo_class
         self.day = 1
+        self.campdata = dict()
         # home_base is a scene where the party gets sent if they get utterly defeated in combat.
         # It must have scripts in place to restore the party or end the game.
         self.home_base = home_base

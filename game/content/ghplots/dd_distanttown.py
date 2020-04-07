@@ -15,8 +15,8 @@ from .dd_main import DZDRoadMapExit
 
 class DZD_TheTownYouStartedIn(Plot):
     LABEL = "DZD_DISTANT_TOWN"
-    active = False
-    scope = True
+    active = True
+    scope = "METRO"
 
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")
@@ -47,6 +47,15 @@ class DZD_TheTownYouStartedIn(Plot):
         # Gonna register the entrance under another name for the subplots.
         self.register_element("MISSION_GATE", towngate)
 
+        team3 = teams.Team(name="Sheriff Team", allies=(team1,team2))
+        myroom2.contents.append(team3)
+
+        self.first_quest_done = False
+
+        # Gonna store this town in the campdata, so it can be accessed elsewhere.
+        nart.camp.campdata["DISTANT_TOWN"] = myscene
+        nart.camp.campdata["DISTANT_TEAM"] = team3
+
         # Add the services.
         #tplot = self.add_sub_plot(nart, "DZDHB_AlliedArmor")
         #tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
@@ -64,3 +73,33 @@ class DZD_TheTownYouStartedIn(Plot):
         #game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 
         return True
+
+    def DZ_CONTACT_offers(self,camp):
+        mylist = list()
+
+        if not self.first_quest_done:
+            mylist.append(
+                Offer(
+                    "[HELLO] Have you found a solution for our powerplant problem yet?", context=(context.HELLO,),
+                )
+            )
+            if not camp.campdata.get("CONSTRUCTION_ARRANGED"):
+                mylist.append(
+                    Offer(
+                        "You were supposed to go to Wujung, find someone who can fix our powerplant, and bring them back here.",
+                        context=(context.CUSTOM,), data={"reply":"[I_FORGOT]"}
+                    )
+                )
+            elif not self.elements["DZ_ROADMAP"].connection_is_made():
+                mylist.append(
+                    Offer(
+                        "Those greenzoners won't move until a secure trade route is opened between here and Wujung.",
+                        context=(context.CUSTOM,), data={"reply":"[STILL_WORKING_ON_IT]"}
+                    )
+                )
+            else:
+                pass
+        else:
+            pass
+
+        return mylist

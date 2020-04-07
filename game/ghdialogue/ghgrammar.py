@@ -947,6 +947,24 @@ DEFAULT_GRAMMAR = {
 
     },
 
+    "[I_FORGOT]": {
+        # The PC has not even started their task yet. They may need a refresher.
+        Default: ["I... what was I supposed to do, again?", "I forgot what I was supposed to do."
+                  ],
+        personality.Cheerful: ["I can say with full confidence that I don't remember what you're talking about."
+                               ],
+        personality.Grim: ["I have not failed in this task; I cannot even remember what it is.",
+                           ],
+        personality.Easygoing: ["Could you refresh my memory about that?",
+                                ],
+        personality.Passionate: ["I got so excited doing this that I forgot what I was supposed to be doing.",
+                                 ],
+        personality.Sociable: ["I forgot about it. Could you explain things one more time?",
+                               ],
+        personality.Shy: ["I forgot.",
+                          ],
+    },
+
     "[I_MUST_CONSIDER_MY_NEXT_STEP]": {
         Default: ["I must consider what I'm going to do next...",
                   ],
@@ -1741,6 +1759,24 @@ DEFAULT_GRAMMAR = {
             "our legal obligation", "a happy accident", "an unexpected surprise", "possible", "everything",
             "better than a [noun]", "the law", "truly [adjective]", "job one"
         ]
+    },
+
+    "[STILL_WORKING_ON_IT]": {
+        # The PC has not completed their task yet.
+        Default: ["I'm still working on it."
+                  ],
+        personality.Cheerful: ["Things are going well, but I'm not quite done..."
+                               ],
+        personality.Grim: ["That is taking longer than expected.",
+                           ],
+        personality.Easygoing: ["Oh, right... I should probably get back to work on that.",
+                                ],
+        personality.Passionate: ["Not done yet, but I swear it will be!",
+                                 ],
+        personality.Sociable: ["Truth be told, I'm still working on that.",
+                               ],
+        personality.Shy: ["I'll let you know when I'm done.",
+                          ],
     },
 
     "[THANK_YOU]": {

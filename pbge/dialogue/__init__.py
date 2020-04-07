@@ -231,6 +231,8 @@ class DynaConversation(object):
         # That's it.
 
     def format_text( self, text, mygrammar, offer ):
+        if offer:
+            text = text.format(**offer.data)
         text = grammar.convert_tokens( text, mygrammar )
         if offer:
             text = text.format(**offer.data)
