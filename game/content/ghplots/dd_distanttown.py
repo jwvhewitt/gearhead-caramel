@@ -9,6 +9,8 @@ import game.content.plotutility
 from game.content import ghwaypoints
 import game.content.ghterrain
 from .dd_main import DZDRoadMapExit
+from game.content import backstory
+import random
 
 
 
@@ -21,15 +23,19 @@ class DZD_TheTownYouStartedIn(Plot):
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1,))
+        town_fac = self.register_element( "METRO_FACTION",
+            gears.factions.Circle(nart.camp,parent_faction=gears.factions.DeadzoneFederation,name="the {} Council".format(self.elements["DZ_TOWN_NAME"]))
+        )
         myscene = gears.GearHeadScene(50, 50, self.elements["DZ_TOWN_NAME"], player_team=team1, civilian_team=team2,
                                       scale=gears.scale.HumanScale, is_metro=True,
-                                      faction=gears.factions.TerranFederation,
+                                      faction=town_fac,
                                       attributes=(
                                       gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC))
         myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
 
-        npc = gears.selector.random_character(50, local_tags=myscene.attributes)
-        npc.place(myscene, team=team2)
+        for t in range(random.randint(1,3)):
+            npc = gears.selector.random_character(50, local_tags=myscene.attributes)
+            npc.place(myscene, team=team2)
 
         myscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleGreenzone(),
                                                      road_terrain=game.content.ghterrain.Flagstone)
@@ -46,6 +52,9 @@ class DZD_TheTownYouStartedIn(Plot):
                                                                     plot_locked=True), dident="_ROOM2")
         # Gonna register the entrance under another name for the subplots.
         self.register_element("MISSION_GATE", towngate)
+        self.register_element("METROSCENE", myscene)
+
+        mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]}))
 
         team3 = teams.Team(name="Sheriff Team", allies=(team1,team2))
         myroom2.contents.append(team3)
@@ -57,22 +66,18 @@ class DZD_TheTownYouStartedIn(Plot):
         nart.camp.campdata["DISTANT_TEAM"] = team3
 
         # Add the services.
-        #tplot = self.add_sub_plot(nart, "DZDHB_AlliedArmor")
-        #tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
-        #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
-        #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
-        #tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
-        #tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
-        # Black Isle Pub
-        # Wujung Tires - Conversion supplies
-        # Hwang-Sa Mission
-        # Reconstruction Site
+        tplot = self.add_sub_plot(nart, "DZRS_ORDER")
+        tplot = self.add_sub_plot(nart, "DZRS_GARAGE")
+        tplot = self.add_sub_plot(nart, "DZRS_HOSPITAL")
 
         # Add the local tarot.
         #threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
         #game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 
         return True
+
+    def _finish_first_quest(self,camp):
+        self.first_quest_done = True
 
     def DZ_CONTACT_offers(self,camp):
         mylist = list()
@@ -98,8 +103,17 @@ class DZD_TheTownYouStartedIn(Plot):
                     )
                 )
             else:
-                pass
+                mylist.append(
+                    Offer(
+                        "That's great to hear! [THANKS_FOR_HELP] I guess that means you've finished everything there is to do around here.",
+                        context=(context.CUSTOM,), data={"reply":"The repair crew is on the way."}, effect=self._finish_first_quest
+                    )
+                )
         else:
-            pass
+            mylist.append(
+                Offer(
+                    "Yep, it sure is boring around here since you finished that quest.", context=(context.HELLO,),
+                )
+            )
 
         return mylist

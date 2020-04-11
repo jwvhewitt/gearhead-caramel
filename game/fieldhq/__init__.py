@@ -1,5 +1,5 @@
 import pbge
-from game.fieldhq.fhqinfo import CharaFHQIP, MechaFHQIP, AssignMechaIP, AssignPilotIP
+from game.fieldhq.fhqinfo import CharaFHQIP, MechaFHQIP, AssignMechaIP, AssignPilotIP, ItemFHQIP
 from pbge import widgets
 import pygame
 import gears
@@ -77,6 +77,7 @@ class CharacterInfoWidget(widgets.Widget):
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
         self.info.update()
+        self.fhq.update_party()
         self.fhq.active = True
 
     def bp_done(self, wid, ev):
@@ -125,6 +126,7 @@ class CharacterInfoWidget(widgets.Widget):
 
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
+        self.fhq.update_party()
         self.fhq.active = True
         self.info.update()
         pbge.my_state.view.regenerate_avatars([self.pc,])
@@ -206,6 +208,7 @@ class MechaInfoWidget(widgets.Widget):
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
         self.info.update()
+        self.fhq.update_party()
         self.fhq.active = True
 
     def bp_done(self, wid, ev):
@@ -237,11 +240,45 @@ class MechaInfoWidget(widgets.Widget):
 
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
+        self.fhq.update_party()
         self.fhq.active = True
         pbge.my_state.view.regenerate_avatars([self.pc,])
 
     def color_done(self, wid, ev):
         wid.data.finished = True
+
+class ItemInfoWidget(widgets.Widget):
+    def __init__(self,camp,pc,fhq,**kwargs):
+        super().__init__(0,0,0,0,**kwargs)
+        self.camp = camp
+        self.pc = pc
+        self.info = ItemFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, camp=camp, font=pbge.SMALLFONT)
+        self.column = widgets.ColumnWidget(fhqinfo.LEFT_COLUMN.dx, fhqinfo.LEFT_COLUMN.dy, fhqinfo.LEFT_COLUMN.w, fhqinfo.LEFT_COLUMN.h, padding=10)
+        self.children.append(self.column)
+        self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Give Item", justify=0, draw_border=True, on_click=self.give_item))
+        self.fhq = fhq
+
+    def render(self):
+        mydest = fhqinfo.CENTER_COLUMN.get_rect()
+        self.info.render(mydest.x,mydest.y)
+
+    def give_item(self,wid,ev):
+        self.fhq.active = False
+
+        mymenu = pbge.rpgmenu.Menu(fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h, font=pbge.MEDIUMFONT)
+        for plr in self.camp.party:
+            if plr.can_equip(self.pc):
+                mymenu.add_item(plr.get_full_name(),plr)
+        pilot = mymenu.query()
+
+        if pilot:
+            self.camp.party.remove(self.pc)
+            pilot.inv_com.append(self.pc)
+
+        self.info.update()
+        self.fhq.update_party()
+        self.fhq.active = True
+
 
 
 class PartyMemberButton(widgets.Widget):
@@ -280,26 +317,32 @@ class FieldHQ(widgets.Widget):
         self.r_column.add_interior(self.up_button)
         self.r_column.add_interior(self.member_selector)
         self.r_column.add_interior(self.down_button)
-
         self.children.append(self.r_column)
-
         self.member_widgets = dict()
-
-        for pc in camp.party:
-            self.member_selector.add_interior(PartyMemberButton(camp,pc,fhq=self,on_click=self.click_member))
-            if isinstance(pc,gears.base.Character):
-                self.member_widgets[pc] = CharacterInfoWidget(camp,pc,self,active=False)
-                self.children.append(self.member_widgets[pc])
-            elif isinstance(pc,gears.base.Mecha):
-                self.member_widgets[pc] = MechaInfoWidget(camp,pc,self,active=False)
-                self.children.append(self.member_widgets[pc])
-
         self.camp = camp
+        self.update_party()
         self.finished = False
         self.active_pc = camp.pc
         self.active_widget = self.member_widgets.get(camp.pc,None)
         if self.active_widget:
             self.active_widget.active = True
+
+    def update_party(self):
+        self.member_selector.clear()
+        for v in self.member_widgets.values():
+            self.children.remove(v)
+        self.member_widgets.clear()
+        for pc in self.camp.party:
+            self.member_selector.add_interior(PartyMemberButton(self.camp,pc,fhq=self,on_click=self.click_member))
+            if isinstance(pc,gears.base.Character):
+                self.member_widgets[pc] = CharacterInfoWidget(self.camp,pc,self,active=False)
+                self.children.append(self.member_widgets[pc])
+            elif isinstance(pc,gears.base.Mecha):
+                self.member_widgets[pc] = MechaInfoWidget(self.camp,pc,self,active=False)
+                self.children.append(self.member_widgets[pc])
+            else:
+                self.member_widgets[pc] = ItemInfoWidget(self.camp,pc,self,active=False)
+                self.children.append(self.member_widgets[pc])
 
     def click_member(self,wid,ev):
         if self.active_widget:

@@ -177,6 +177,36 @@ class Defender(Singleton):
     POWER_MODIFIER = 1.0
     PARRY_BONUS = 20
 
+
+class FastAttack(Singleton):
+    # Extra fire action can hit twice.
+    name = "Fast Attack"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.5
+    POWER_MODIFIER = 2.0
+    BURST_VALUE = 2
+
+    @classmethod
+    def get_attacks( self, weapon ):
+        aa = weapon.get_basic_attack(name='2 attacks, 3 MP', attack_icon=9)
+        aa.price.append(geffects.MentalPrice(3))
+        aa.data.thrill_power += 2
+        old_fx = aa.fx
+        aa.fx = geffects.MultiAttackRoll(
+            att_stat = old_fx.att_stat,
+            att_skill = old_fx.att_skill,
+            num_attacks = self.BURST_VALUE,
+            children = old_fx.children,
+            anim = old_fx.anim,
+            accuracy = old_fx.accuracy,
+            penetration = old_fx.penetration,
+            modifiers = old_fx.modifiers,
+            defenses = old_fx.defenses,
+        )
+        return [aa]
+
+
 class Flail(Singleton):
     name = "Flail"
     MASS_MODIFIER = 1.0

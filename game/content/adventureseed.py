@@ -306,7 +306,7 @@ class ExperienceReward(object):
         :type camp: gears.GearHeadCampaign
         :type adv: AdventureSeed
         """
-        # Only give a cash reward if the adventure is won.
+        # Size of XP award depends on if the adventure is won.
         if adv.is_won():
             xp = max(self.size,adv.get_completion() * self.size // 100)
         else:
@@ -316,4 +316,29 @@ class ExperienceReward(object):
 
         adv.results.append(("Experience","+{:,}".format(xp)))
 
+class SalvageReward(object):
+    def __call__(self,camp,adv):
+        """
+
+        :type camp: gears.GearHeadCampaign
+        :type adv: AdventureSeed
+        """
+        # Only give a salvage reward if the adventure is won.
+        if adv.is_won():
+            pc = camp.first_active_pc()
+            candidates = list()
+            for mek in camp.scene.contents:
+                if isinstance(mek,gears.base.Mecha) and camp.scene.are_hostile(pc,mek):
+                    mek.free_pilots()
+                    skill = camp.get_party_skill(gears.stats.Knowledge,
+                                                 mek.material.repair_type) - mek.get_percent_damage_over_health()
+                    if mek.is_not_destroyed() and not mek.is_operational():
+                        candidates.append(mek)
+                    elif random.randint(1,100) <= skill:
+                        candidates.append(mek)
+            if candidates:
+                mek = random.choice(candidates)
+                camp.party.append(mek)
+                mek.restore_all()
+                adv.results.append(("Salvage",mek.get_full_name()))
 

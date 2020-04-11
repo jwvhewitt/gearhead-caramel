@@ -49,7 +49,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
     def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, rank=None, objectives=(),
                  adv_type="BAM_MISSION", custom_elements=None, auto_exit=False,
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone,
-                 cash_reward=100,experience_reward=100,
+                 cash_reward=100,experience_reward=100,salvage_reward=True,
                  one_chance=True, data=None, win_message="", loss_message="", **kwargs):
         cms_pstate = pbge.plots.PlotState(adv=self, rank=rank or max(camp.pc.renown+1,10))
 
@@ -81,6 +81,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             self.rewards.append(adventureseed.CashReward(size=cash_reward))
         if experience_reward > 0:
             self.rewards.append(adventureseed.ExperienceReward(size=experience_reward))
+        if salvage_reward:
+            self.rewards.append(adventureseed.SalvageReward())
         self.rewards.append(adventureseed.RenownReward())
 
     def end_adventure(self,camp):

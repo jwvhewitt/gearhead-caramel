@@ -443,7 +443,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         for pc in list(self.party):
             if pc.is_destroyed():
                 self.party.remove(pc)
-                skill = self.get_party_skill(stats.Knowledge,pc.material.repair_type) + 50 - pc.get_total_damage_status()
+                skill = self.get_party_skill(stats.Knowledge,pc.material.repair_type) + 50 - pc.get_percent_damage_over_health()
                 if pc is self.pc:
                     if pbge.util.config.getboolean("DIFFICULTY","pc_can_die") and random.randint(1,100) > skill:
                         self.dead_party.append(pc)

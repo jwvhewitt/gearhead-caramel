@@ -195,6 +195,11 @@ class BackpackWidget(widgets.Widget):
         wid.item.pos = self.pc.get_root().pos
         self.update_selectors()
 
+    def _stash_item(self,wid):
+        wid.item.parent.inv_com.remove(wid.item)
+        self.camp.party.append(wid.item)
+        self.update_selectors()
+
     def this_item_was_selected(self,wid,ev):
         """
 
@@ -213,6 +218,8 @@ class BackpackWidget(widgets.Widget):
 
         if self.pc.get_root() in self.camp.scene.contents:
             mymenu.add_item("Drop {}".format(wid.item),self._drop_item)
+        else:
+            mymenu.add_item("Stash {}".format(wid.item), self._stash_item)
 
         cmd = mymenu.query()
         if cmd:

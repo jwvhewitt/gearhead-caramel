@@ -7,6 +7,8 @@ import pbge
 from . import ghterrain
 from game.content.ghterrain import DZDTownTerrain, DZDWCommTowerTerrain, DZDCommTowerTerrain
 from pbge.scenes.waypoints import Waypoint
+from game import geareditor
+import gears
 
 
 class VendingMachine( Waypoint ):
@@ -121,6 +123,34 @@ class MechEngTerminal(Waypoint):
     name = "Mecha Engineering Terminal"
     TILE = pbge.scenes.Tile(None,None,ghterrain.MechEngTerminalTerrain)
     ATTACH_TO_WALL = True
+    MENU_TITLE = pbge.frects.Frect(-100,-150,200,16)
+
+    def _predraw(self):
+        pbge.my_state.view()
+        mydest = self.MENU_TITLE.get_rect()
+        pbge.default_border.render(mydest)
+        pbge.draw_text(pbge.MEDIUMFONT,"Choose mecha to edit",mydest,color=pbge.INFO_HILIGHT,justify=0)
+
+    def _get_meng_name(self,mek):
+        if hasattr(mek,"pilot") and mek.pilot:
+            return "{} [{}]".format(mek.get_full_name(),str(mek.pilot))
+        else:
+            return mek.get_full_name()
+
+    def unlocked_use( self, camp ):
+        mek = True
+        while mek:
+            mymenu = pbge.rpgmenu.Menu(-175,-100,350,250,predraw=self._predraw,font=pbge.BIGFONT)
+            for mek in camp.party:
+                if isinstance(mek,gears.base.Mecha) and not hasattr(mek,"owner"):
+                    mymenu.add_item(self._get_meng_name(mek),mek)
+            mymenu.sort()
+            mymenu.add_item("[EXIT]",None)
+            mek = mymenu.query()
+            if mek:
+                myui = geareditor.GearEditor(mek,camp.party,mode=geareditor.MODE_RESTRICTED)
+                myui.activate_and_run()
+
 
 class MechaPoster(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.MechaPosterTerrain)

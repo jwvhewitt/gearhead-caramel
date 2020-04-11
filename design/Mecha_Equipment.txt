@@ -1,3 +1,59 @@
+% Weapons
+
+STC Shaka Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC Heavy Gauss Rifle
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+BeamWeapon
+    desig = "LAS-5"
+    name = "Intercept Laser"
+    reach = 2
+    damage = 1
+    accuracy = 2
+    penetration = 0
+    scale = MechaScale
+    shot_anim = SmallBeam
+    attributes = (Intercept)
+
+MeleeWeapon
+    name="Mecha Knife"
+    desc = "A knife, but at mecha scale."
+    reach=1
+    damage=1
+    accuracy=4
+    penetration=2
+    scale = MechaScale
+    attributes = (Accurate,FastAttack)
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Mecha Sword"
+    desc = "A mecha scale sword for close quarters combat."
+    reach=1
+    damage=3
+    accuracy=3
+    penetration=2
+    scale = MechaScale
+    attributes = (Defender,)
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Mecha Morningstar"
+    desc = "A mecha scale ball and chain. Though not an elegant weapon, it is quite effective at bashing through armor."
+    reach=1
+    damage=4
+    accuracy=1
+    penetration=3
+    scale = MechaScale
+    attributes = (Flail,)
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
 
 MeleeWeapon
     name="Heat Axe"
@@ -20,5 +76,63 @@ Shield
     material = Advanced
     size = 5
     bonus = 2
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+Engine
+    desig = "MP-850 High Output"
+    size = 850
+    material = Ceramic
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+Engine
+    desig = "MP-1100 High Output"
+    size = 1100
+    material = Ceramic
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+Engine
+    desig = "MP-1350 High Output"
+    size = 1350
+    material = Ceramic
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+Engine
+    desig = "MP-750"
+    size = 750
+    material = Metal
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+Engine
+    desig = "MP-1000"
+    size = 1000
+    material = Metal
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+Engine
+    desig = "MP-1250 Advanced"
+    size = 1250
+    material = Advanced
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+Engine
+    desig = "MP-1500 Advanced"
+    size = 1500
+    material = Advanced
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+ EWSystem
+    desig = "Comet T92"
+    size = 2
+    programs = (TargetAnalysis,Deflect)
+    scale = MechaScale
+    material = Metal
     shop_tags= ("MEXTRA",)
     faction_list = (None,)

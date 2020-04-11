@@ -1,5 +1,5 @@
 from . import frects
-from . import my_state,render_text,draw_text,TEXT_COLOR,Border,default_border
+from . import my_state,render_text,draw_text,TEXT_COLOR,Border,default_border,wait_event
 import pygame
 from . import image
 from . import rpgmenu
@@ -21,7 +21,7 @@ popup_menu_border = Border( border_width=8, tex_width=16, border_name="sys_widbo
 
 
 class Widget( frects.Frect ):
-    def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True, **kwargs ):
+    def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True, show_when_inactive=False, **kwargs ):
         # on_click takes widget, event as parameters.
         super(Widget, self).__init__(dx,dy,w,h,**kwargs)
         self.data = data
@@ -29,6 +29,7 @@ class Widget( frects.Frect ):
         self.tooltip = tooltip
         self.on_click = on_click
         self.children = list(children)
+        self.show_when_inactive = show_when_inactive
     def respond_event( self, ev ):
         if self.active:
             for c in self.children:
@@ -51,7 +52,7 @@ class Widget( frects.Frect ):
 
     def super_render( self ):
         # This renders the widget and children, setting tooltip and whatnot.
-        if self.active:
+        if self.active or self.show_when_inactive:
             self.render()
             if self is my_state.active_widget:
                 self.flash_when_active()
@@ -66,6 +67,7 @@ class Widget( frects.Frect ):
         pass
     def is_kb_selectable(self):
         return self.on_click
+
 
 class ButtonWidget( Widget ):
     def __init__( self, dx, dy, w, h, sprite=None, frame=0, on_frame=0, off_frame=0, **kwargs ):

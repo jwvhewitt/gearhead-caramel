@@ -13,13 +13,18 @@ MECHA_PARTS_STORE = (tags.ST_MECHA_EQUIPMENT,)
 GENERAL_STORE_PLUS_MECHA = (tags.ST_WEAPON,tags.ST_CLOTHING,tags.ST_ESSENTIAL,tags.ST_MECHA,tags.ST_MECHA_EQUIPMENT)
 BARE_ESSENTIALS_STORE = (tags.ST_ESSENTIAL,)
 
+
 class CostBlock(object):
-    def __init__(self, model, shop, camp, width=360, **kwargs):
+    def __init__(self, model, shop, camp, width=360, purchase_price=True, **kwargs):
         self.model = model
         self.shop = shop
         self.width = width
-        self.image = pbge.render_text(pbge.BIGFONT, "${:,}".format(shop.calc_purchase_price(camp, model)), width,
+        if purchase_price:
+            self.image = pbge.render_text(pbge.BIGFONT, "${:,}".format(shop.calc_purchase_price(camp, model)), width,
                                       justify=0, color=pbge.TEXT_COLOR)
+        else:
+            self.image = pbge.render_text(pbge.BIGFONT, "${:,}".format(shop.calc_sale_price(camp, model)), width,
+                                          justify=0, color=pbge.TEXT_COLOR)
         self.height = self.image.get_height()
 
     def render(self, x, y):
@@ -73,11 +78,11 @@ class ShopDesc(object):
         if item in self.buy_info_cache:
             return self.buy_info_cache[item]
         elif isinstance(item, gears.base.Mecha):
-            it = MechaBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w)
+            it = MechaBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w, purchase_price=item in self.shop.wares)
         elif isinstance(item, gears.base.Weapon):
-            it = WeaponBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w)
+            it = WeaponBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w, purchase_price=item in self.shop.wares)
         else:
-            it = ItemBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w)
+            it = ItemBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w, purchase_price=item in self.shop.wares)
         self.buy_info_cache[item] = it
         return it
 
@@ -103,7 +108,7 @@ class Shop(object):
     MENU_AREA = pbge.frects.Frect(50, -200, 300, 300)
 
     def __init__(self, ware_types=MECHA_STORE, allow_misc=True, caption="Shop", rank=25, shop_faction=None,
-                 num_items=25, turnover=1, npc=None, mecha_colors=None):
+                 num_items=10, turnover=1, npc=None, mecha_colors=None):
         self.wares = list()
         self.ware_types = ware_types
         self.allow_misc = allow_misc
@@ -128,11 +133,21 @@ class Shop(object):
             return True
 
     def generate_item(self, itype, rank):
-        # TODO: Make rank work properly.
         candidates = [item for item in gears.selector.DESIGN_LIST if
                       itype in item.shop_tags and self.item_matches_shop(item)]
         if candidates:
-            it = copy.deepcopy(random.choice(candidates))
+            # Step one: Sort the candidates by cost.
+            random.shuffle(candidates)
+            candidates.sort(key=lambda i: i.cost)
+            # Step two: Determine this store's ideal index position.
+            ideal_index = len(candidates) * min(max(rank,0),100) / 100.0
+            # Step three: Create a new list sorted by distance from ideal_index.
+            sorted_candidates = candidates.copy()
+            sorted_candidates.sort(key=lambda i: abs(candidates.index(i) - ideal_index))
+            # Step four: Choose an item, the lower the better.
+            max_i = min(len(candidates)-1,max(5,len(candidates)//3))
+            i = min(random.randint(0,max_i),random.randint(0,max_i),random.randint(0,max_i))
+            it = copy.deepcopy(sorted_candidates[i])
             if isinstance(it, gears.base.Mecha):
                 it.colors = self.mecha_colors
             return it
@@ -213,16 +228,14 @@ class Shop(object):
 
     def improve_friendliness(self, camp, item, modifier=0):
         """Dealing with a shopkeeper will generally increase friendliness."""
-        """if self.npc:
-            target = abs( self.npc.get_friendliness( camp ) ) + 50 - 5 * item.min_rank()
-            roll = random.randint( 1, 100 ) + camp.party_spokesperson().get_stat_bonus( stats.CHARISMA ) + modifier
+        if self.npc:
+            target = abs( self.npc.get_reaction_score( self.customer, camp ) ) + 50
+            roll = random.randint( 1, 100 ) + camp.get_party_skill(gears.stats.Charm,gears.stats.Negotiation) + modifier
             if roll > target:
-                self.npc.friendliness += ( roll - target + 9 ) // 10
-        """
-        pass
+                self.npc.relationship.reaction_mod += random.randint(1,6)
 
     def calc_purchase_price(self, camp, item):
-        """The sale price of an item depends on friendliness."""
+        """The sale price of an item depends on friendliness. Min price = 70%"""
         it = item.cost
         if self.npc:
             f = self.npc.get_reaction_score(camp.pc, camp)
@@ -259,61 +272,63 @@ class Shop(object):
             else:
                 keep_going = False
 
-    def sale_price(self, it):
-        return max(it.cost // 2, 1)
+    def can_be_sold(self,item):
+        if isinstance(item,gears.base.Being):
+            return False
+        elif hasattr(item,"pilot") and item.pilot:
+            return False
+        elif hasattr(item,"owner") and item.owner:
+            return False
+        else:
+            return True
 
-    def sell_items(self, camp, shopdesc):
-        """
+    def make_sellitems_menu(self, camp, shopdesc, item_source):
+        mymenu = self.get_menu(shopdesc)
+
+        for s in item_source:
+            if self.can_be_sold(s):
+                sname = s.get_full_name()
+                scost = self.calc_sale_price(camp, s)
+                mymenu.add_item("{}: ${:,}".format(sname,scost), s)
+        mymenu.sort()
+        mymenu.add_alpha_keys()
+        mymenu.add_item("Exit", False)
+
+        mymenu.quick_keys[pygame.K_LEFT] = -1
+        mymenu.quick_keys[pygame.K_RIGHT] = 1
+        return mymenu
+
+    def calc_sale_price(self, camp, it):
+        # Max price = 60%
+        percent = 46
+        if self.npc:
+            f = self.npc.get_reaction_score(camp.pc, camp)
+            percent += f//7
+        return max((it.cost * percent)//100 , 1)
+
+    def call_sales_backend(self, camp, shopdesc, item_source):
         keep_going = True
-        myredraw = charsheet.CharacterViewRedrawer( csheet=self.charsheets[self.pc], screen=explo.screen, predraw=explo.view, caption="Sell Items" )
-        last_item = 1;
+        last_selected = None
 
         while keep_going:
-            mymenu = charsheet.RightMenu( explo.screen, predraw = myredraw )
-
-            self.pc.contents.tidy()
-            for s in self.pc.contents:
-                if s.equipped:
-                    mymenu.add_item( "*{0} ({1}gp)".format( s, self.sale_price( s )), s )
-                elif s.slot != items.NOSLOT and not self.pc.can_equip(s):
-                    mymenu.add_item( "#{0} ({1}gp)".format( s, self.sale_price( s ) ), s )
-                else:
-                    mymenu.add_item( "{0} ({1}gp)".format( s, self.sale_price( s ) ), s )
-            mymenu.sort()
-            mymenu.add_alpha_keys()
-            mymenu.add_item( "Exit", False )
-            mymenu.set_item_by_position( last_item )
-            myredraw.menu = mymenu
-            mymenu.quick_keys[ pygame.K_LEFT ] = -1
-            mymenu.quick_keys[ pygame.K_RIGHT ] = 1
-
+            mymenu = self.make_sellitems_menu(camp, shopdesc, item_source)
+            if last_selected:
+                mymenu.set_item_by_position(last_selected)
             it = mymenu.query()
-            last_item = mymenu.selected_item
-            if it is -1:
-                n = ( explo.camp.party.index(self.pc) + len( explo.camp.party ) - 1 ) % len( explo.camp.party )
-                self.pc = explo.camp.party[n]
-                myredraw.csheet = self.charsheets[self.pc]
-            elif it is 1:
-                n = ( explo.camp.party.index(self.pc) + 1 ) % len( explo.camp.party )
-                self.pc = explo.camp.party[n]
-                myredraw.csheet = self.charsheets[self.pc]
-            elif it:
-                # An item was selected. Deal with it.
-                self.pc.contents.remove( it )
-                explo.camp.gold += self.sale_price( it )
-                self.improve_friendliness( explo, it, modifier=-20 )
-                if it.enhancement:
-                    it.identified = True
-                    self.wares.append( it )
-                myredraw.caption = "You have sold {0}.".format(it)
-                if it.equipped:
-                    myredraw.csheet.regenerate_avatar()
-                    explo.view.regenerate_avatars( explo.camp.party )
-
+            last_selected = mymenu.selected_item
+            if it:
+                cost = self.calc_sale_price( camp, it )
+                camp.credits += cost
+                item_source.remove(it)
+                shopdesc.caption = "You have sold {} for ${:,}.".format(it,cost)
             else:
                 keep_going = False
-        """
 
+    def sell_items(self, camp, shopdesc):
+        self.call_sales_backend(camp,shopdesc,self.customer.inv_com)
+
+    def sell_mecha(self, camp, shopdesc):
+        self.call_sales_backend(camp,shopdesc,camp.party)
 
     def get_menu(self, menu_desc_fun=None):
         mymenu = pbge.rpgmenu.Menu(self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h,
@@ -331,6 +346,7 @@ class Shop(object):
         mymenu = self.get_menu()
         mymenu.add_item("Buy Items", self.buy_items)
         mymenu.add_item("Sell Items", self.sell_items)
+        mymenu.add_item("Sell Mecha", self.sell_mecha)
         mymenu.add_item("Exit", False)
         mymenu.add_alpha_keys()
 

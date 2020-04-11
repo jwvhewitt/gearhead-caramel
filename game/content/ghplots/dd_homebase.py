@@ -46,8 +46,9 @@ class DZD_Wujung(Plot):
                                       gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC),
                                       exploration_music='Heroic Adventure.ogg')
 
-        npc = gears.selector.random_character(50, local_tags=myscene.attributes)
-        npc.place(myscene, team=team2)
+        for t in range(random.randint(2,5)):
+            npc = gears.selector.random_character(30, local_tags=myscene.attributes)
+            npc.place(myscene, team=team2)
 
         myscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleGreenzone(),
                                                      road_terrain=game.content.ghterrain.Flagstone)
@@ -97,6 +98,9 @@ class DZD_Wujung(Plot):
                              "Typhon was a biomonster created during the Age of Superpowers. It awoke and attacked Wujung last year... [TyphonDesc]"),
             OneShotInfoBlast("Aegis",
                              "They're the military government that controls [Luna] right now. [chat_lead_in] Aegis operatives are the ones who activated Typhon and led it to Wujung."),
+            OneShotInfoBlast("salvage",
+                             "After completing a mission, you're entitled to claim any equipment left behind on the battlefield. Of course getting it off the battlefield before someone else nabs it can be a problem. You can up your chances by bringing along a repair expert."),
+
         )
 
         self.intro_ready = True
@@ -596,7 +600,7 @@ class DZD_AlliedArmor(Plot):
 
         if not self.asked_about_terminal:
             mylist.append(Offer(
-                "That's a mecha engineering terminal. You can find them at garages and shops all over the place. It's out of order right now, but should be working soon.",
+                "That's a mecha engineering terminal. You can find them at garages and shops all over the place. You can use it to add and remove parts from your mecha, if you have any spare parts laying around.",
                 context=ContextTag([context.INFO]), effect=self._ask_about_terminal,
                 data={"subject": "the terminal"}, no_repeats=True,
                 ))
@@ -932,7 +936,7 @@ class DZD_LongRoadLogistics(Plot):
         mylist = list()
 
         mylist.append(Offer(
-            "[HELLO] Normally I'd get you up to date on how salvage works, but our recovery service is on hold for the time being.",
+            "[HELLO] I'm in charge of salvage operations here at Long Road Logistics.",
             context=ContextTag([context.HELLO]),
             ))
 

@@ -207,7 +207,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         age_gender_row.add_center(gender_menu)
         self.column_one.add_interior(age_gender_row)
 
-        mecha_shopping_list = gears.selector.MechaShoppingList(300000)
+        mecha_shopping_list = gears.selector.MechaShoppingList(320000)
         self.mecha_menu = pbge.widgets.DropdownWidget(0,0,self.C1_WIDTH,25,font=pbge.MEDIUMFONT)
         for mek in mecha_shopping_list.best_choices:
             self.mecha_menu.add_item(mek.get_full_name(),mek)

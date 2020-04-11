@@ -63,6 +63,10 @@ class MechaFHQIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, MechasPilotBlock, gears.info.MechaStatsBlock, gears.info.DescBlock)
 
 
+class ItemFHQIP(gears.info.InfoPanel):
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.MassVolumeBlock, gears.info.DescBlock)
+
+
 class AssignMechaIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.MechaFeaturesAndSpriteBlock)
 

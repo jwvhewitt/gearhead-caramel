@@ -680,7 +680,7 @@ class BaseGear(scenes.PlaceableThing):
                     yield p
 
     def ancestors(self):
-        if hasattr(self, "container") and isinstance(self.container.owner, BaseGear):
+        if hasattr(self, "container") and self.container and isinstance(self.container.owner, BaseGear):
             yield self.container.owner
             for p in self.container.owner.ancestors():
                 yield p
@@ -941,7 +941,7 @@ class Engine(BaseGear, StandardDamageHandler, MakesPower):
 
     @property
     def base_cost(self):
-        return (self.size ** 2) // 1000
+        return (self.size ** 2) // 100 - self.size + 100
 
     base_health = 3
 
@@ -1391,7 +1391,7 @@ class MeleeWeapon(Weapon):
     MAX_PENETRATION = 5
     COST_FACTOR = 3
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.ChargeAttack,
-                        attackattributes.Defender, attackattributes.Flail,
+                        attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.HaywireAttack,
                         attackattributes.OverloadAttack)
 
@@ -1477,9 +1477,9 @@ class EnergyWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 20
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.Flail,
-                        attackattributes.Defender, attackattributes.Intercept, attackattributes.ChargeAttack,
-                        attackattributes.OverloadAttack)
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.ChargeAttack,
+                        attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
+                        attackattributes.Intercept, attackattributes.OverloadAttack)
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL

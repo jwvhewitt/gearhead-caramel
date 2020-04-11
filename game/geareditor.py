@@ -29,7 +29,7 @@ class WidgetThatChangesSomething(object):
 
 class PlusMinusWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
     def __init__(self,mygear,att_name,att_min,att_max,on_change=None,step=1,x=0,y=0,w=350,**kwargs):
-        super().__init__(x,y,w,max(pbge.BIGFONT.get_linesize(),16),**kwargs)
+        super().__init__(x,y,w,max(pbge.BIGFONT.get_linesize(),16),show_when_inactive=True,**kwargs)
         minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
 
         self.mygear = mygear
@@ -40,9 +40,9 @@ class PlusMinusWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
         self.step = step
 
         self.add_left(pbge.widgets.LabelWidget(0, 0, 200, pbge.BIGFONT.get_linesize(), text=att_name, font=pbge.BIGFONT))
-        self.add_right(pbge.widgets.ButtonWidget(0, 0, 16, 16, sprite=minus_plus_image, frame=0, on_click=self.stat_minus))
+        self.add_right(pbge.widgets.ButtonWidget(0, 0, 16, 16, sprite=minus_plus_image, frame=0, on_click=self.stat_minus,active=kwargs.get("active",True)))
         self.add_right(pbge.widgets.LabelWidget(0, 0, 64, pbge.BIGFONT.get_linesize(), text_fun=self.stat_display, font=pbge.BIGFONT, justify=0))
-        self.add_right(pbge.widgets.ButtonWidget(0, 0, 16, 16, sprite=minus_plus_image, frame=1, on_click=self.stat_plus))
+        self.add_right(pbge.widgets.ButtonWidget(0, 0, 16, 16, sprite=minus_plus_image, frame=1, on_click=self.stat_plus,active=kwargs.get("active",True)))
 
     def stat_display(self,widg):
         return str(getattr(self.mygear,self.att_name))
@@ -68,7 +68,7 @@ class PlusMinusWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
 
 class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomething):
     def __init__(self,mygear,title,ops_taken,op_candidates,max_ops,on_change=None,**kwargs):
-        super().__init__(0,0,350,100,center_interior=True,**kwargs)
+        super().__init__(0,0,350,100,center_interior=True,show_when_inactive=True,**kwargs)
         self.mygear = mygear
         self.ops_taken = ops_taken
         self.op_candidates = op_candidates
@@ -77,8 +77,8 @@ class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomethin
         mytitle = pbge.widgets.RowWidget(0,0,self.w,max(pbge.BIGFONT.get_linesize(),16))
         minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
         mytitle.add_left(pbge.widgets.LabelWidget(0,0,250,pbge.BIGFONT.get_linesize(),font=pbge.BIGFONT,text=title))
-        mytitle.add_right(pbge.widgets.ButtonWidget(0,0,16,16,minus_plus_image,on_click=self._delete_op))
-        mytitle.add_right(pbge.widgets.ButtonWidget(0,0,16,16,minus_plus_image,frame=1,on_click=self._add_op))
+        mytitle.add_right(pbge.widgets.ButtonWidget(0,0,16,16,minus_plus_image,on_click=self._delete_op,active=kwargs.get("active",True)))
+        mytitle.add_right(pbge.widgets.ButtonWidget(0,0,16,16,minus_plus_image,frame=1,on_click=self._add_op,active=kwargs.get("active",True)))
         self.add_interior(mytitle)
         self.add_interior(pbge.widgets.LabelWidget(0,0,300,50,font=pbge.MEDIUMFONT,draw_border=True,text_fun=self._get_op_string))
 
@@ -126,7 +126,7 @@ class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomethin
 class LabeledDropdownWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
     # nameoptions is a list of (name,value) tuples for filling the menu.
     def __init__(self,mygear,title,on_select,options=(),nameoptions=(),**kwargs):
-        super().__init__(0,0,350,pbge.BIGFONT.get_linesize()+8,**kwargs)
+        super().__init__(0,0,350,pbge.BIGFONT.get_linesize()+8,show_when_inactive=True,**kwargs)
         self.mygear = mygear
         self.add_left(pbge.widgets.LabelWidget(0,0,150,pbge.BIGFONT.get_linesize()+8,title,font=pbge.BIGFONT))
         self.ddwid = pbge.widgets.DropdownWidget(0,0,200,pbge.BIGFONT.get_linesize()+8,font=pbge.BIGFONT,justify=0,on_select=on_select)
@@ -165,7 +165,7 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
 
         mass_volume_row = pbge.widgets.RowWidget(0,0,self.w,pbge.MEDIUMFONT.get_linesize()+8)
         mass_volume_row.add_left(pbge.widgets.LabelWidget(0,0,75,pbge.MEDIUMFONT.get_linesize(),font=pbge.MEDIUMFONT,text_fun=self._get_mass_string))
-        material_dropdown = pbge.widgets.DropdownWidget(0,0,100,pbge.MEDIUMFONT.get_linesize()+8,font=pbge.MEDIUMFONT,justify=0,on_select=self._set_material)
+        material_dropdown = pbge.widgets.DropdownWidget(0,0,100,pbge.MEDIUMFONT.get_linesize()+8,font=pbge.MEDIUMFONT,justify=0,on_select=self._set_material,active=editor.mode==MODE_CREATIVE,show_when_inactive=True)
         for m in gears.materials.MECHA_MATERIALS:
             material_dropdown.add_item(m.name,m)
         material_dropdown.menu.sort()
@@ -196,38 +196,38 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
 class ArmorEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None))
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,active=editor.mode==MODE_CREATIVE))
 
 class ShieldEditWidget(ArmorEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"bonus",mygear.MIN_BONUS,mygear.MAX_BONUS,None))
+        self.add_interior(PlusMinusWidget(mygear,"bonus",mygear.MIN_BONUS,mygear.MAX_BONUS,None,active=editor.mode==MODE_CREATIVE))
 
 class EngineEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,step=5))
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,step=25,active=editor.mode==MODE_CREATIVE))
 
 class SensorEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None))
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,active=editor.mode==MODE_CREATIVE))
 
 class MoveSysEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",1,25,None))
+        self.add_interior(PlusMinusWidget(mygear,"size",1,25,None,active=editor.mode==MODE_CREATIVE))
 
 class PowerSourceEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",1,25,None))
+        self.add_interior(PlusMinusWidget(mygear,"size",1,25,None,active=editor.mode==MODE_CREATIVE))
 
 class EWSystemEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",1,10,on_change=self._check_progs))
-        self.prog_widget = AddRemoveOptionsWidget(mygear,"programs",mygear.programs,gears.programs.ALL_PROGRAMS,mygear.size)
+        self.add_interior(PlusMinusWidget(mygear,"size",1,10,on_change=self._check_progs,active=editor.mode==MODE_CREATIVE))
+        self.prog_widget = AddRemoveOptionsWidget(mygear,"programs",mygear.programs,gears.programs.ALL_PROGRAMS,mygear.size,active=editor.mode==MODE_CREATIVE)
         self.add_interior(self.prog_widget)
 
     def _check_progs(self):
@@ -238,20 +238,20 @@ class EWSystemEditWidget(PartEditWidget):
 class WeaponEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"reach",mygear.MIN_REACH,mygear.MAX_REACH))
-        self.add_interior(PlusMinusWidget(mygear,"damage",mygear.MIN_DAMAGE,mygear.MAX_DAMAGE))
-        self.add_interior(PlusMinusWidget(mygear,"accuracy",mygear.MIN_ACCURACY,mygear.MAX_ACCURACY))
-        self.add_interior(PlusMinusWidget(mygear,"penetration",mygear.MIN_PENETRATION,mygear.MAX_PENETRATION))
-        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10))
-        self.shot_anim_menu = LabeledDropdownWidget(mygear,"shot_anim",self._set_shot_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.SHOT_ANIMS])
+        self.add_interior(PlusMinusWidget(mygear,"reach",mygear.MIN_REACH,mygear.MAX_REACH,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"damage",mygear.MIN_DAMAGE,mygear.MAX_DAMAGE,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"accuracy",mygear.MIN_ACCURACY,mygear.MAX_ACCURACY,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"penetration",mygear.MIN_PENETRATION,mygear.MAX_PENETRATION,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10,active=editor.mode==MODE_CREATIVE))
+        self.shot_anim_menu = LabeledDropdownWidget(mygear,"shot_anim",self._set_shot_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.SHOT_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.shot_anim_menu.menu.add_item("None", None)
         self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
         self.add_interior(self.shot_anim_menu)
-        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS])
+        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.area_anim_menu.menu.add_item("None", None)
         self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
         self.add_interior(self.area_anim_menu)
-        self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS])
+        self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS],active=editor.mode==MODE_CREATIVE)
         self.stat_menu.menu.set_item_by_value(self.mygear.attack_stat)
         self.add_interior(self.stat_menu)
 
@@ -271,11 +271,11 @@ class BallisticWeaponEditWidget(WeaponEditWidget,WidgetThatChangesSomething):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
 
-        self.calibre_menu = LabeledDropdownWidget(mygear,"ammo_type",self._set_calibre,nameoptions=[(s.__name__,s) for s in gears.ALL_CALIBRES if s.scale is self.mygear.scale])
+        self.calibre_menu = LabeledDropdownWidget(mygear,"ammo_type",self._set_calibre,nameoptions=[(s.__name__,s) for s in gears.ALL_CALIBRES if s.scale is self.mygear.scale],active=editor.mode==MODE_CREATIVE)
         self.calibre_menu.menu.set_item_by_value(self.mygear.ammo_type)
         self.add_interior(self.calibre_menu)
 
-        self.add_interior(PlusMinusWidget(mygear,"magazine",1,1000))
+        self.add_interior(PlusMinusWidget(mygear,"magazine",1,1000,active=editor.mode==MODE_CREATIVE))
 
     def _set_calibre(self,value):
         if value:
@@ -295,14 +295,14 @@ class AmmoEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
 
-        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10,active=editor.mode==MODE_CREATIVE))
 
-        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS])
+        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.area_anim_menu.menu.add_item("None", None)
         self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
         self.add_interior(self.area_anim_menu)
 
-        self.add_interior(PlusMinusWidget(mygear,"quantity",1,1000))
+        self.add_interior(PlusMinusWidget(mygear,"quantity",1,1000,active=editor.mode==MODE_CREATIVE))
 
     def _set_area_anim(self,result):
         self.mygear.area_anim = result
@@ -311,14 +311,14 @@ class AmmoEditWidget(PartEditWidget):
 class MissileEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"reach",mygear.MIN_REACH,mygear.MAX_REACH))
-        self.add_interior(PlusMinusWidget(mygear,"damage",mygear.MIN_DAMAGE,mygear.MAX_DAMAGE))
-        self.add_interior(PlusMinusWidget(mygear,"accuracy",mygear.MIN_ACCURACY,mygear.MAX_ACCURACY))
-        self.add_interior(PlusMinusWidget(mygear,"penetration",mygear.MIN_PENETRATION,mygear.MAX_PENETRATION))
-        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10))
-        self.add_interior(PlusMinusWidget(mygear,"quantity",1,1000))
+        self.add_interior(PlusMinusWidget(mygear,"reach",mygear.MIN_REACH,mygear.MAX_REACH,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"damage",mygear.MIN_DAMAGE,mygear.MAX_DAMAGE,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"accuracy",mygear.MIN_ACCURACY,mygear.MAX_ACCURACY,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"penetration",mygear.MIN_PENETRATION,mygear.MAX_PENETRATION,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"quantity",1,1000,active=editor.mode==MODE_CREATIVE))
 
-        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS])
+        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.area_anim_menu.menu.add_item("None", None)
         self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
         self.add_interior(self.area_anim_menu)
@@ -330,8 +330,8 @@ class MissileEditWidget(PartEditWidget):
 class LauncherEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE))
-        self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS])
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,active=editor.mode==MODE_CREATIVE))
+        self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS],active=editor.mode==MODE_CREATIVE)
         self.stat_menu.menu.set_item_by_value(self.mygear.attack_stat)
         self.add_interior(self.stat_menu)
 
@@ -343,13 +343,13 @@ class LauncherEditWidget(PartEditWidget):
 class ChemEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"quantity",1,10000,step=10))
-        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10))
-        self.shot_anim_menu = LabeledDropdownWidget(mygear,"shot_anim",self._set_shot_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.SHOT_ANIMS])
+        self.add_interior(PlusMinusWidget(mygear,"quantity",1,10000,step=10,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10,active=editor.mode==MODE_CREATIVE))
+        self.shot_anim_menu = LabeledDropdownWidget(mygear,"shot_anim",self._set_shot_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.SHOT_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.shot_anim_menu.menu.add_item("None", None)
         self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
         self.add_interior(self.shot_anim_menu)
-        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS])
+        self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.area_anim_menu.menu.add_item("None", None)
         self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
         self.add_interior(self.area_anim_menu)
@@ -365,7 +365,7 @@ class ChemEditWidget(PartEditWidget):
 class ModuleEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",1,10))
+        self.add_interior(PlusMinusWidget(mygear,"size",1,10,active=editor.mode==MODE_CREATIVE))
 
 class MechaEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
@@ -374,9 +374,9 @@ class MechaEditWidget(PartEditWidget):
         self.portrait_menu.menu.set_item_by_value(self.mygear.portrait)
         self.add_interior(self.portrait_menu)
 
-        self.add_interior(AddRemoveOptionsWidget(mygear,"environment_list",mygear.environment_list,gears.tags.ALL_ENVIRONMENTS,10))
-        self.add_interior(AddRemoveOptionsWidget(mygear,"role_list",mygear.role_list,gears.tags.ALL_ROLES,10))
-        self.add_interior(AddRemoveOptionsWidget(mygear,"faction_list",mygear.faction_list,gears.ALL_FACTIONS,10,on_change=self._check_factions))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"environment_list",mygear.environment_list,gears.tags.ALL_ENVIRONMENTS,10,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"role_list",mygear.role_list,gears.tags.ALL_ROLES,10,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(AddRemoveOptionsWidget(mygear,"faction_list",mygear.faction_list,gears.ALL_FACTIONS,10,on_change=self._check_factions,active=editor.mode==MODE_CREATIVE))
 
     def _set_portrait(self,result):
         if result:
@@ -425,12 +425,18 @@ class PartsNodeWidget(pbge.widgets.Widget):
         self.regular_image = self._draw_image(pbge.INFO_GREEN)
         self.mouseover_image = self._draw_image(pbge.rpgmenu.MENU_SELECT_COLOR)
 
+    def _part_text(self):
+        if isinstance(self.data,gears.base.Module):
+            return "{} [{}/{} free]".format(self.data.get_full_name(),self.data.free_volume,self.data.volume)
+        else:
+            return self.data.get_full_name()
+
     def _draw_image(self,text_color):
         myimage = pygame.Surface((self.w,self.h))
         myimage.fill((0, 0, 0))
         myimage.set_colorkey((0, 0, 0), pygame.RLEACCEL)
 
-        myimage.blit(self.font.render(self.prefix + self.data.get_full_name(),True,text_color),(self.indent*12,0))
+        myimage.blit(self.font.render(self.prefix + self._part_text(),True,text_color),(self.indent*12,0))
         return myimage
 
     def render( self ):
@@ -828,6 +834,19 @@ class GearEditor(pbge.widgets.Widget):
 
     def update(self):
         self.parts_widget.refresh_gear_list()
+
+    def activate_and_run(self):
+        pbge.my_state.widgets.append(self)
+        keepgoing = True
+        while keepgoing and not self.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+        pbge.my_state.widgets.remove(self)
 
     @classmethod
     def create_and_invoke(cls, redraw):
