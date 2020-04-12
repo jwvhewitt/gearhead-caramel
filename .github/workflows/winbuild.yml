@@ -35,3 +35,8 @@ jobs:
     - name: build with pyinstaller
       run: |
         pyinstaller --onefile main.py
+    - name: Upload the file
+      uses: actions/upload-artifact@v1
+      with:
+        name: main.exe
+        path: .
