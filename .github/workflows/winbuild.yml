@@ -29,7 +29,9 @@ jobs:
         pip install pyinstaller
     - name: build caramel-recolor-cython
       run: |
-        python caramel-recolor-cython/setup.py install
+        cd caramel-recolor-cython
+        python setup.py install
+        cd ..
     - name: build with pyinstaller
       run: |
         pyinstaller --onefile main.py
