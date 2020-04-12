@@ -4,7 +4,6 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['Z:\\home\\joseph\\Documents\\Programming\\gearhead-caramel'],
              binaries=[],
              datas=[('data','data'),('design','design'),('image','image'),('music','music')],
              hiddenimports=[],

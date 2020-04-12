@@ -34,9 +34,9 @@ jobs:
         cd ..
     - name: build with pyinstaller
       run: |
-        pyinstaller --onefile main.py
+        pyinstaller --clean -y --onefile ghcaramel_win.spec
     - name: Upload the file
       uses: actions/upload-artifact@v1
       with:
-        name: main.exe
-        path: .
+        name: ghcwin
+        path: dist/
