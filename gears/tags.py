@@ -101,6 +101,7 @@ SCENE_CULTURE = "CULTURE"   # A place to enjoy cultural activities. Music, art, 
 SCENE_TRANSPORT = "TRANSPORT"   # Someplace like a bus station or a spaceport
 SCENE_GOVERNMENT = "GOVERNMENT"
 SCENE_RUINS = "RUINS"
+SCENE_SOLO = "SOLO"     # Only the PC will be deployed here.
 
 # Shop Tags
 

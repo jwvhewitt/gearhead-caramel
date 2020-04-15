@@ -268,6 +268,7 @@ class EnterTownLanceRecovery(object):
     # When you enter a town, call this to restore the party and deal with dead/incapacitated members
     def __init__(self,camp,metroscene,metro):
         creds = camp.totally_restore_party()
+        self.did_recovery = False
         if creds > 0:
             pbge.alert("Repair/Reload: ${}".format(creds))
             camp.credits -= creds
@@ -280,11 +281,14 @@ class EnterTownLanceRecovery(object):
                 if nart.story:
                     nart.build()
                     nart.story.start_recovery(camp)
+                    self.did_recovery = True
             else:
                 init = pbge.plots.PlotState(elements={"METRO":metro,"METROSCENE":metroscene})
                 nart = GHNarrativeRequest(camp,init,adv_type="RECOVER_LANCE",plot_list=PLOT_LIST)
                 if nart.story:
                     nart.build()
                     nart.story.start_recovery(camp)
+                    self.did_recovery = True
+
 
 

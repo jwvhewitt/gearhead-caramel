@@ -504,17 +504,24 @@ class Explorer( object ):
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
                                 self.scene.set_visible(x,y,True)
-                    elif gdi.unicode == "!" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
-                        for mpc in self.camp.get_active_party():
-                            pc = mpc.get_pilot()
-                            if pc:
-                                for skill in pc.statline:
-                                    if skill in gears.stats.COMBATANT_SKILLS:
-                                        pc.statline[skill] += 10
+#                    elif gdi.unicode == "!" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+#                        for mpc in self.camp.get_active_party():
+#                            pc = mpc.get_pilot()
+#                            if pc:
+#                                for skill in pc.statline:
+#                                    if skill in gears.stats.COMBATANT_SKILLS:
+#                                        pc.statline[skill] += 10
                     elif gdi.unicode == "@" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         for thing in self.scene.contents:
                             if hasattr(thing,"pos"):
                                 print("{}: {}".format(thing,thing.pos))
+                    elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        for thing in self.camp.active_plots():
+                            print("{}".format(thing.__class__.__name__))
+                    elif gdi.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        for pc in self.camp.get_active_party():
+                            if hasattr(pc,"relationship") and pc.relationship:
+                                print("{} {} {} OK:{}".format(pc,pc.renown,pc.relationship.hilights(),pc.relationship.can_do_development()))
                     elif gdi.unicode == "H":
                         fieldhq.FieldHQ.create_and_invoke(self.camp)
                     elif gdi.key == pygame.K_ESCAPE:

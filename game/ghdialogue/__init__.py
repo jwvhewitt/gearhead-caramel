@@ -63,6 +63,12 @@ pbge.dialogue.GENERIC_OFFERS.append(ghoffers.CHAT)
 HELLO_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.HELLO,)))
 ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 
+def SkillBasedPartyReply(object):
+    def __init__(self,camp,mylist,):
+        # Check the skill of each party member against a target number. If any party member can
+        # make the test, they get to say the line of dialogue.
+        pass
+
 def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
     # If this NPC has no relationship with the PC, create that now.
     realnpc = npc.get_pilot()

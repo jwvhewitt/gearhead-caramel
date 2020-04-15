@@ -251,9 +251,9 @@ class Scouting( Skill ):
         invodict[Scouting].append(ba)
 
 
-class DominateAnimal( Skill ):
-    name = 'Dominate Animal'
-    desc = "This skill is used to train animals."
+class Wildcraft(Skill):
+    name = 'Wildcraft'
+    desc = "This skill is used for wilderness survival and to train animals."
 
 
 class Vitality( Skill ):
@@ -275,7 +275,7 @@ COMBATANT_SKILLS = (MechaFighting,MechaGunnery,MechaPiloting,RangedCombat,CloseC
 FUNDAMENTAL_COMBATANT_SKILLS = (MechaFighting,MechaGunnery,MechaPiloting,RangedCombat,CloseCombat,Dodge)
 EXTRA_COMBAT_SKILLS = (Vitality,Athletics,Concentration)
 
-NONCOMBAT_SKILLS = (Repair,Medicine,Biotechnology,Stealth,Science,Computers,Performance,Negotiation,Scouting,DominateAnimal)
+NONCOMBAT_SKILLS = (Repair, Medicine, Biotechnology, Stealth, Science, Computers, Performance, Negotiation, Scouting, Wildcraft)
 ALL_SKILLS = COMBATANT_SKILLS + NONCOMBAT_SKILLS
 
 REPAIR_SKILLS = {

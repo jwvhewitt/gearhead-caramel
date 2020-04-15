@@ -51,9 +51,10 @@ class Offer(object):
     # "subject_start" marks this offer as the entry point for a subject; it can be branched to from a different subject
     # "no_repeats" means this offer can't be replied by an offer with the same context + subject
     # "dead_end" means this offer will have no automatically generated replies
+    # "custom_menu_fun" is a function that takes (reply,menu,pcgrammar) and alters the menu.
 
     # "data" is a dict holding strings that may be requested by format.
-    def __init__(self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, no_repeats=False, dead_end=False, data=None ):
+    def __init__(self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, no_repeats=False, dead_end=False, data=None, custom_menu_fun=None ):
         self.msg = msg
         self.context = ContextTag(context)
         self.effect = effect
@@ -62,6 +63,7 @@ class Offer(object):
         self.subject_start = subject_start
         self.no_repeats = no_repeats
         self.dead_end = dead_end
+        self.custom_menu_fun = custom_menu_fun
 
         if not replies:
             self.replies = list()
@@ -84,6 +86,15 @@ class Offer(object):
             cues += e.destination.get_cue_list()
         return cues
 
+    def format_text( self, mygrammar ):
+        text = self.msg
+        if self.data:
+            text = text.format(**self.data)
+        text = grammar.convert_tokens( text, mygrammar )
+        if self.data:
+            text = text.format(**self.data)
+        return text
+
     def __str__(self):
         return self.msg
     def __repr__(self):
@@ -104,6 +115,22 @@ class Reply(object):
 
     def __str__(self):
         return self.msg
+
+    def format_text( self, mygrammar ):
+        text = self.msg
+        if self.destination:
+            text = text.format(**self.destination.data)
+        text = grammar.convert_tokens( text, mygrammar )
+        if self.destination:
+            text = text.format(**self.destination.data)
+        return text
+
+    def apply_to_menu(self,mymenu,pcgrammar):
+        if self.destination and self.destination.custom_menu_fun:
+            self.destination.custom_menu_fun(self,mymenu,pcgrammar)
+        else:
+            mymenu.add_item(self.format_text(pcgrammar), self.destination)
+
 
 class SimpleVisualizer(object):
     # The visualizer is a class used by the conversation when conversing.
@@ -207,8 +234,8 @@ class DynaConversation(object):
         if self.root in self.npc_offers:
             self.npc_offers.remove(self.root)
         # Process the root offer message.
-        self.root.msg = self.format_text( self.root.msg , self.npc_grammar, self.root )
-        
+        self.root.msg = self.root.format_text( self.npc_grammar )
+
         # If the current offer has replies, fill them first.
         for r in self.root.replies:
             if isinstance(r.destination,Cue):
@@ -230,22 +257,14 @@ class DynaConversation(object):
         # Add any needed standards: Goodbye, Can I ask something else
         # That's it.
 
-    def format_text( self, text, mygrammar, offer ):
-        if offer:
-            text = text.format(**offer.data)
-        text = grammar.convert_tokens( text, mygrammar )
-        if offer:
-            text = text.format(**offer.data)
-        return text
-
     def converse( self ):
         # coff is the "current offer"
         coff = self.root
         while coff:
-            self.visualizer.text = coff.msg # self.format_text( coff.msg , self.npc_grammar, coff )
+            self.visualizer.text = coff.msg
             mymenu = self.visualizer.get_menu()
             for i in coff.replies:
-                mymenu.add_item( self.format_text( i.msg, self.pc_grammar, i.destination ), i.destination )
+                i.apply_to_menu(mymenu,self.pc_grammar)
             if self.visualizer.text and not mymenu.items:
                 mymenu.add_item( "[Continue]", None )
             else:

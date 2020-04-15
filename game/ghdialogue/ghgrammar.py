@@ -27,6 +27,25 @@ FIRST_TIME = "FIRST_TIME"
 MET_BEFORE = "MET_BEFORE"
 
 DEFAULT_GRAMMAR = {
+    "[ACCEPT_CHALLENGE]": {
+        Default: ["I accept your challenge!",
+                  ],
+        personality.Cheerful: ["Sounds good to me!",
+                               ],
+        personality.Grim: ["I will make you regret challenging me.",
+                           ],
+        personality.Easygoing: ["Sure, why not?",
+                                ],
+        personality.Passionate: ["Of course I accept your challenge! Let's go!",
+                                 ],
+        personality.Sociable: ["Your challenge has been accepted.",
+                               ],
+        personality.Shy: ["I accept.",
+                          ],
+        personality.Glory: ["You know I just can't refuse a challenge!",
+                            ],
+    },
+
     "[ACCEPT_MISSION:GOODBYE]": {
         Default: ["I'll be back when I'm finished."
             ],
@@ -292,6 +311,23 @@ DEFAULT_GRAMMAR = {
             "Find what you need and get lost", "I'll be keeping my eye on you", "Don't try any funny business in my shop",
             "I'll sell you crap but don't expect me to be nice about it"
         ],
+    },
+
+    "[CAN_I_ASK_A_QUESTION]": {
+        Default: ["Can I ask you a question?",
+                  ],
+        personality.Cheerful: ["Say [audience], seeing as the gang's all here right now, I have something to ask.",
+                               ],
+        personality.Grim: ["This is probably a bad time, but I have a question to ask you.",
+                           ],
+        personality.Easygoing: ["Mind if I ask you some stuff?",
+                                ],
+        personality.Passionate: ["[audience], I need to ask you something immediately.",
+                                 ],
+        personality.Sociable: ["I've been waiting to talk with you about something. I was wondering if you'd mind answering my questions.",
+                               ],
+        personality.Shy: ["[audience], I have something to ask.",
+                          ],
     },
 
     "[CHALLENGE]": {
@@ -626,6 +662,23 @@ DEFAULT_GRAMMAR = {
             ],
         },
 
+    "[GOOD]": {
+        Default: ["That's good.",
+                  ],
+        personality.Cheerful: ["Glad to hear it.",
+                               ],
+        personality.Grim: ["Alright, then...",
+                           ],
+        personality.Easygoing: ["Nice.",
+                                ],
+        personality.Passionate: ["Fantastic!","Amazing!","Wonderful!"
+                                 ],
+        personality.Sociable: ["That's good to hear.",
+                               ],
+        personality.Shy: ["Alright.","Okay."
+                          ],
+    },
+
     "[GOODLUCK]": {
         Default: ["Good luck.","Good luck with that."
             ],
@@ -855,6 +908,42 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[HELLO:QUERY]": {
+        Default: ["Is there something you want to ask me?",
+                  "You look like you have a question."
+                  ],
+        personality.Cheerful: ["You look like you're wondering something. Is it a riddle?",
+                               ],
+        personality.Grim: ["If there's something you want to ask, just spit it out already.",
+                           ],
+        personality.Easygoing: ["Do you have a question? You look like someone with a question.",
+                                ],
+        personality.Passionate: ["I can tell there's something on your mind. Go ahead and ask your question.",
+                                 ],
+        personality.Sociable: ["You've got a look like you want to ask me something.",
+                               ],
+        personality.Shy: ["If you have something to ask, just do it.",
+                          ],
+    },
+
+    "[HELLOQUERY:QUERY]": {
+        Default: ["What do you want to know?",
+                  "Go ahead and ask.","[HELLO:QUERY]"
+                  ],
+        personality.Cheerful: ["Is it a question or a quiz? I love quizzes.",
+                               ],
+        personality.Grim: ["Go ahead and ask; I can't stop you.",
+                           ],
+        personality.Easygoing: ["Alright, you can ask me a question.",
+                                ],
+        personality.Passionate: ["Ask away.",
+                                 ],
+        personality.Sociable: ["Alright. What is it that you want to know?",
+                               ],
+        personality.Shy: ["Go ahead.",
+                          ],
+    },
+
     # The data block should hold the info to reveal as "reveal".
     "[HELLO:REVEAL]": {
         Default: ["You should know that {reveal}.",
@@ -945,6 +1034,23 @@ DEFAULT_GRAMMAR = {
         LOVE: ["For you, anything.",
                ],
 
+    },
+
+    "[I_DONT_KNOW]": {
+        Default: ["I don't know.", "How should I know?"
+                  ],
+        personality.Cheerful: ["It's funny you say that, because I have no idea."
+                               ],
+        personality.Grim: ["You are speaking of things beyond my knowledge.",
+                           ],
+        personality.Easygoing: ["I really have no idea.","Did you really think I'd know that?"
+                                ],
+        personality.Passionate: ["I must confess my ignorance...",
+                                 ],
+        personality.Sociable: ["I'm sorry, but I really don't have any clue about this.",
+                               ],
+        personality.Shy: ["Good question.",
+                          ],
     },
 
     "[I_FORGOT]": {
@@ -1801,6 +1907,27 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["So that's the way it is.",
                           ],
+    },
+
+    "[THANKS_FOR_ADVICE]": {
+        Default: ["[THANK_YOU]", "Thanks for the advice."
+                  ],
+        personality.Cheerful: ["Thanks, it all makes perfect sense now!"
+                               ],
+        personality.Grim: ["Your words have helped me a great deal.",
+                           ],
+        personality.Easygoing: ["I think I understand now...",
+                                ],
+        personality.Passionate: ["Yes, you have shown me the way and the light!",
+                                 ],
+        personality.Sociable: ["It's been a great help talking this out with you.",
+                               ],
+        personality.Shy: ["Thanks for that.",
+                          ],
+        LIKE: ["Thanks, I knew I could count on you for good advice.",
+               ],
+        DISLIKE: ["Amazing. Your advice wasn't as useless as I expected...",
+                  ],
     },
 
     "[THANKS_FOR_CHOOSING_ME]": {

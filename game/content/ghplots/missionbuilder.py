@@ -954,7 +954,7 @@ class BAM_DefeatCommander( Plot ):
     def custom_init( self, nart ):
         myscene = self.elements["LOCALE"]
         myfac = self.elements.get("ENEMY_FACTION")
-        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(15,15,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(15,15),dident="LOCALE")
 
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
 

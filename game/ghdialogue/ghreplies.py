@@ -86,6 +86,14 @@ HELLO_OPENSHOP = Reply( "[HELLO:OPEN_SHOP]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.OPEN_SHOP]) ) )
 
+HELLO_QUERY = Reply( "[HELLO:QUERY]" ,
+            context = ContextTag([context.HELLO]),
+            destination = Cue( ContextTag([context.QUERY]) ) )
+
+HELLOQUERY_QUERY = Reply( "[HELLOQUERY:QUERY]" ,
+            context = ContextTag([context.HELLO,context.QUERY]),
+            destination = Cue( ContextTag([context.QUERY]) ) )
+
 HELLO_REVEAL = Reply( "[HELLO:REVEAL]" ,
             destination = Cue( ContextTag([context.REVEAL]) ) ,
             context = ContextTag([context.HELLO]) )
@@ -142,6 +150,10 @@ PROPOSAL_DENY = Reply( "[PROPOSAL:DENY]" ,
 PROPOSALJOIN_DENY = Reply( "[PROPOSAL_JOIN:DENY]" ,
             context = ContextTag([context.PROPOSAL,context.JOIN]),
             destination = Cue( ContextTag([context.DENY]) ) )
+
+QUERY_ANSWER = Reply( "{reply}" ,
+            destination = Cue( ContextTag([context.ANSWER]) ) ,
+            context = ContextTag([context.QUERY]) )
 
 SOLUTION_ACCEPT = Reply( "[ICANDOTHAT]" ,
             context = ContextTag([context.SOLUTION]),

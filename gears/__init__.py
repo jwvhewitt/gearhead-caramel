@@ -392,9 +392,13 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             pbge.alert("Game Over",font=pbge.my_state.hugefont)
             self.delete_save_file()
 
-    def get_usable_party(self,map_scale):
+    def get_usable_party(self,map_scale,solo_map=False):
         usable_party = list()
-        for pc in self.party:
+        if not solo_map:
+            party_candidates = self.party
+        else:
+            party_candidates = [pc for pc in self.party if pc is self.pc or (hasattr(pc,"pilot") and pc.pilot is self.pc)]
+        for pc in party_candidates:
             if pc.is_not_destroyed() and pc.scale == map_scale:
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational():
@@ -415,7 +419,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             usable_party.append(mysquad)
             self.party.append(mysquad)
         else:
-            usable_party += self.get_usable_party(self.scene.scale)
+            usable_party += self.get_usable_party(self.scene.scale,tags.SCENE_SOLO in self.scene.attributes)
         return usable_party
 
     def place_party(self):

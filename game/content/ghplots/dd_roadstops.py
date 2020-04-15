@@ -6,7 +6,7 @@ import gears
 import pbge
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
-from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory
+from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST
 
 
 
@@ -95,8 +95,12 @@ class DZD_DeadZoneTown(Plot):
     def METROSCENE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
-        plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
-
+        etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
+        if not etlr.did_recovery:
+            # We can maybe load a lancemate scene here. Yay!
+            nart = GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=PLOT_LIST)
+            if nart.story:
+                nart.build()
 
 class DZD_DeadZoneVillage(Plot):
     LABEL = "DZD_ROADSTOP"
@@ -177,7 +181,12 @@ class DZD_DeadZoneVillage(Plot):
     def METROSCENE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
-        plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
+        etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
+        if not etlr.did_recovery:
+            # We can maybe load a lancemate scene here. Yay!
+            nart = GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=PLOT_LIST)
+            if nart.story:
+                nart.build()
 
 
 #   **********************

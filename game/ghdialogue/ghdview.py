@@ -4,11 +4,26 @@ from pbge import my_state,draw_text,default_border,anim_delay
 
 import gears
 
+class LancemateConvoItem(pbge.rpgmenu.MenuItem):
+    PORTRAIT_AREA = pbge.frects.Frect(-120,50,100,100)
+    def __init__(self,msg,value,desc,menu,npc):
+        msg = '{} says "{}"'.format(npc,msg)
+        super().__init__(msg,value,desc,menu)
+        self.npc = npc
+        self.portrait = npc.get_portrait()
+    def render(self,dest,selected=False):
+        super().render(dest,selected)
+        if selected:
+            mydest = self.PORTRAIT_AREA.get_rect()
+            pbge.default_border.render(mydest)
+            self.portrait.render(mydest,1)
+
+
 class ConvoVisualizer(object):
     # The visualizer is a class used by the conversation when conversing.
     # It has a "text" property and "render", "get_menu" methods.
     TEXT_AREA = pbge.frects.Frect(0,-125,350,150)
-    MENU_AREA = pbge.frects.Frect(0,50,350,102)
+    MENU_AREA = pbge.frects.Frect(0,50,350,204)
     NAME_AREA = pbge.frects.Frect(25,-185,300,35)
     REACT_AREA = pbge.frects.Frect(290,-185,35,35)
     PORTRAIT_AREA = pbge.frects.Frect(-370,-300,400,600)

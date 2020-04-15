@@ -510,7 +510,7 @@ class GH1Loader(object):
         statline[stats.Scouting] = max(pc.natt.get((self.NAG_SKILL, self.NAS_AWARENESS), 0),
                                        pc.natt.get((self.NAG_SKILL, self.NAS_SURVIVAL), 0),
                                        pc.natt.get((self.NAG_SKILL, self.NAS_INVESTIGATION), 0))
-        statline[stats.DominateAnimal] = pc.natt.get((self.NAG_SKILL, self.NAS_DOMINATEANIMAL), 0)
+        statline[stats.Wildcraft] = pc.natt.get((self.NAG_SKILL, self.NAS_DOMINATEANIMAL), 0)
         statline[stats.Vitality] = max(pc.natt.get((self.NAG_SKILL, self.NAS_VITALITY), 0),
                                        pc.natt.get((self.NAG_SKILL, self.NAS_RESISTANCE), 0))
         statline[stats.Athletics] = max(pc.natt.get((self.NAG_SKILL, self.NAS_ATHLETICS), 0),

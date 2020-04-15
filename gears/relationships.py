@@ -63,8 +63,12 @@ class Relationship(object):
         self.history = list(history)
         # The following properties are mostly for lancemates.
         self.missions_together = 0  # Increment each time NPC completes mission as part of lance
-        self.development_plots = 0  # Increment each time NPC gets a character development plot
+        self.development_plots = 1  # Increment each time NPC gets a character development plot
+                                    # Start at 1 to prevent two plots loading simultaneously at 0/1
 
     def can_do_development(self):
         # Return True if this lancemate is currently eligible for a character development plot.
         return self.missions_together > self.development_plots ** 2 - self.development_plots + self.data.setdefault("DEVELOPMENT_PLOTS_APTITUDE",random.randint(1,10))
+
+    def hilights(self):
+        return ', '.join([str(self.attitude),str(self.expectation),str(self.role)])

@@ -32,9 +32,13 @@ class MenuItem( object ):
 
     msg = property(_get_msg,_set_msg)
 
+    SORT_LAYER = 0
+    def sort_order(self):
+        return (self.SORT_LAYER,self._msg)
+
     def __lt__(self,other):
-        """ Comparison of menu items done by msg string """
-        return( self._msg < other._msg )
+        """ Comparison of menu items done by sort order, as defined above """
+        return( self.sort_order() < other.sort_order() )
 
     def __str__(self):
         return self._msg
