@@ -74,7 +74,7 @@ class EliminateWitnesses( Plot ):
             self.adv.crimes_happened = True
     def _commander_offers(self,camp):
         mylist = list()
-        myfac = self.elements["allied_faction"]
+        myfac = self.elements["ALLIED_FACTION"]
         mylist.append(Offer("Hold your fire- I'm not an enemy! You were sent by {}, weren't you?! I know about their secret agenda, and they're trying to keep the word from getting out...".format(myfac),
             context=ContextTag([context.ATTACK,])))
         mylist.append(Offer("Very well, you've made it clear what side you're on. [CHALLENGE]",
