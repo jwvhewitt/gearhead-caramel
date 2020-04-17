@@ -279,7 +279,7 @@ class RenownReward(object):
         :type camp: gears.GearHeadCampaign
         :type adv: AdventureSeed
         """
-        comp = adv.get_completion()
+        comp = adv.get_completion(True)
         rank = self.rank or adv.pstate.rank
         original_renown = camp.renown
         if comp > 100 and camp.renown <= (rank+10):
@@ -288,7 +288,7 @@ class RenownReward(object):
         elif comp > 90 and camp.renown < rank:
             # The party did well; jump to this renown if much lower.
             camp.renown = min(camp.renown + 5, rank)
-        elif comp > 70 and camp.renown <= (rank+10):
+        elif comp > 70 and camp.renown <= rank:
             camp.renown += 1
         elif comp < 60:
             # Super loss.

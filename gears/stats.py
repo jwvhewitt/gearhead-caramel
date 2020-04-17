@@ -118,7 +118,7 @@ class Repair( Skill ):
     name = 'Repair'
     desc = "This skill allows you to repair damage to mecha and equipment. Use of this skill costs MP."
     @classmethod
-    def get_invocations(self,pc,invodict):
+    def add_invocations(self,pc,invodict):
         pc_skill = pc.get_skill_score(Craft,self)
         n,extra = divmod(pc_skill,6)
         if random.randint(1,6) <= extra:
@@ -249,6 +249,7 @@ class Scouting( Skill ):
             price=[geffects.MentalPrice(2),],
             targets=1)
         invodict[Scouting].append(ba)
+
 
 
 class Wildcraft(Skill):

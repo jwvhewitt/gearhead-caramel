@@ -408,7 +408,7 @@ class AttackRoll( effects.NoEffect ):
         for target in targets:
             hi_def_roll = 50
             for defense in list(self.defenses.values()):
-                if defense.can_attempt(originator,target):
+                if defense and defense.can_attempt(originator,target):
                     next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll,fx_record)
                     hi_def_roll = max(def_roll,hi_def_roll)
                     if next_fx:
@@ -441,7 +441,7 @@ class AttackRoll( effects.NoEffect ):
                 modifiers.append((mval,m.name))
         odds = 1.0
         for defense in list(self.defenses.values()):
-            if defense.can_attempt(originator,target):
+            if defense and defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers
 
@@ -487,7 +487,7 @@ class MultiAttackRoll( effects.NoEffect ):
             hi_def_roll = 50
             failed = False
             for defense in list(self.defenses.values()):
-                if defense.can_attempt(originator,target):
+                if defense and defense.can_attempt(originator,target):
                     next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll,fx_record)
                     hi_def_roll = max(def_roll,hi_def_roll)
                     if next_fx:
@@ -528,7 +528,7 @@ class MultiAttackRoll( effects.NoEffect ):
                 modifiers.append((mval,m.name))
         odds = 1.0
         for defense in list(self.defenses.values()):
-            if defense.can_attempt(originator,target):
+            if defense and defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers
 
@@ -980,6 +980,8 @@ class DodgeRoll( object ):
         # defender's defense bonus + maneuverability + 20, or if the attack roll
         # is greater than 95, the attack hits.
         def_target = defender.get_dodge_score() + 50
+        if defender.get_current_stamina() < 1:
+            def_target -= 25
 
         if att_roll > 95:
             # A roll greater than 95 always hits.
@@ -996,6 +998,7 @@ class DodgeRoll( object ):
         else:
             if defender and hasattr(defender,"dole_experience") and hasattr(defender,"DODGE_SKILL"):
                 defender.dole_experience(2,defender.DODGE_SKILL)
+            defender.spend_stamina(1)
             return (self.CHILDREN, def_target)
 
     def can_attempt( self, attacker, defender ):
@@ -1004,6 +1007,8 @@ class DodgeRoll( object ):
     def get_odds( self, atroller, attacker, defender, att_bonus ):
         # Return the odds as a float.
         def_target = defender.get_dodge_score()
+        if defender.get_current_stamina() < 1:
+            def_target -= 25
         # The chance to hit is clamped between 5% and 95%.
         percent = min(max(50 + (att_bonus + atroller.accuracy) - (def_target + defender.calc_mobility()),5),95)
         return float(percent)/100

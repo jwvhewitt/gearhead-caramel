@@ -174,13 +174,19 @@ class __Line(object):
             return (self.dy * (self.xf - x)) \
               - (self.dx * (self.yf - y))
 
-class __ViewBump:
+class __ViewBump(object):
     def __init__(self, x, y, parent):
         self.x = x
         self.y = y
         self.parent = parent
+    def __arghdeepcopy__(self, memo={}):
+        me = self.__class__(self.x,self.y,self.parent)
+        memo[id(self)] = me
+        return me
 
-class __View:
+
+
+class __View(object):
     def __init__(self, shallowLine, steepLine):
         self.shallowLine = shallowLine
         self.steepLine = steepLine
@@ -378,7 +384,8 @@ class PointOfView( object ):
         self.manhattan = manhattan
         self.tiles = set()
         self.vision_type = vision_type
-        fieldOfView( x0 , y0 , scene.width , scene.height , radius , self )
+        if scene.on_the_map(x0,y0):
+            fieldOfView( x0 , y0 , scene.width , scene.height , radius , self )
 
     def VisitTile( self , x , y ):
         if self.manhattan or ( self.radius == 1 ) or ( round( math.sqrt( ( x-self.x )**2 + ( y-self.y )**2 ) ) <= self.radius ):

@@ -90,7 +90,7 @@ class LanceRecoveryStub( Plot ):
     def custom_init( self, nart ):
         self.plots_to_run = list()
         if nart.camp.dead_party:
-            self.plots_to_run.append(self.add_sub_plot(nart,"RECOVERY_DEAD_PARTY"))
+            self.plots_to_run.append(self.add_sub_plot(nart,"RECOVER_DEAD_PARTY"))
 
         # Deal with dispossessed lancemates.
         for pc in [pc for pc in nart.camp.get_lancemates() if not nart.camp.get_pc_mecha(pc)]:
@@ -190,5 +190,11 @@ class BoringDeathNotification( Plot ):
         else:
             msg = dead_names[0]
         pbge.alert('{} did not survive the last mission.'.format(msg))
+        for npc in camp.dead_party:
+            for pc in list(camp.party):
+                if hasattr(pc,"owner") and pc.owner is npc:
+                    camp.party.remove(pc)
+                if hasattr(pc,"pilot") and pc.pilot is npc:
+                    pc.pilot = None
         camp.dead_party = list()
 

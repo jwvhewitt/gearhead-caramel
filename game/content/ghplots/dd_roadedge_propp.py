@@ -101,7 +101,10 @@ class DZREPR_BasePlot(Plot):
                 miss_num += 1
             if num_miss < 1:
                 # Drat- we have apparently hit a deadend.
-                print("DeadEnd Error!!!")
+                print("DeadEnd Error!!! {DZREPR_MOTIVE} {DZREPR_ACE} {DZREPR_TOWN}".format(**self.elements))
+            elif num_miss < 2:
+                # We have fewer plots than we wanted.
+                print("Only one plot warning! {DZREPR_MOTIVE} {DZREPR_ACE} {DZREPR_TOWN}".format(**self.elements))
             else:
                 self.elements[E_MISSION_NUMBER] += 1
 
@@ -357,7 +360,7 @@ class DZREPR_ShootThemInTheGun(DZREPR_NPCMission):
     REQUIRES = {E_MOTIVE: DZRE_MOTIVE_PROFIT, E_ACE: DZRE_ACE_ZEUSCANNON}
     CHANGES = {E_ACE: DZRE_ACE_SPONSOR}
     MISSION_NAME = "Disable Their Guns"
-    MISSION_PROMPT = "Strike against [FACTION]'s artillery"
+    MISSION_PROMPT = "Strike against {FACTION}'s artillery"
     OBJECTIVES = (missionbuilder.BAMO_DESTROY_ARTILLERY,)
     WIN_MESSAGE = "Examining the wreckage of the artillery, it's clear that these pieces were not locally made. Someone else must be backing {FACTION}."
     DEFAULT_NEWS = "after the recent artillery attack, {NPC} knows where {FACTION}'s cannons are"
@@ -655,7 +658,7 @@ class DZREPR_JustThwackThem(DZREPR_BaseMission):
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""
         goffs = list()
-        if not self.mission_active and not npc.combatant and npc not in camp.party:
+        if not self.mission_active and npc not in camp.party:
             goffs.append(Offer(
                 msg="Everybody knows that {FACTION} has a camp in a [deadzone_residence] just [direction] of here. I don't understand why we can't simply attack them there.".format(**self.elements ),
                 context=ContextTag((context.INFO,)), effect=self.activate_mission,
@@ -665,7 +668,7 @@ class DZREPR_JustThwackThem(DZREPR_BaseMission):
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
-        if not npc.combatant and not self.mission_active and npc not in camp.party:
+        if not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("someone should just go and fight {FACTION}".format(**self.elements))
         return mygram
 

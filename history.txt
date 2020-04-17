@@ -1,3 +1,12 @@
+- Fixed weird PFOV bug (at least one, hopefully two)
+- Repaired the Repair skill
+- Fixed crash from targeting with Flail weapons
+- Exhaustion happens sooner in combat, has bigger penalties
+- Adjusted renown rewards
+- Fixed random NPCs always combatants bug
+- Changed "Dominate Animal" skill to "Wildcraft"
+
+v0.500 April 12 2020
 - Reduced weapon volume
 - Added mecha editor, mecha browser
 - Added Haywire, Overload attack attributes

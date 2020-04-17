@@ -146,6 +146,8 @@ class RandomBanditCircle(gears.factions.Circle):
         else:
             name = "the {} {}".format(random.choice(self.CHART_A), random.choice(self.CHART_B))
         super().__init__(camp, name=name, parent_faction=parent_faction,**kwargs)
+        if gears.tags.Criminal not in self.factags:
+            self.factags.append(gears.tags.Criminal)
 
 
 class CargoContainer(gears.base.Prop):
