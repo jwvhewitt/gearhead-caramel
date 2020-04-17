@@ -54,6 +54,10 @@ class Ferrous_70mm( BaseCalibre ):
     bang = 9
     scale = scale.MechaScale
 
+class Ferrous_90mm( BaseCalibre ):
+    bang = 12
+    scale = scale.MechaScale
+
 class Ferrous_120mm( BaseCalibre ):
     bang = 15
     scale = scale.MechaScale

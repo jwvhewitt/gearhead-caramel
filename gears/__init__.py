@@ -399,7 +399,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         else:
             party_candidates = [pc for pc in self.party if pc is self.pc or (hasattr(pc,"pilot") and pc.pilot is self.pc)]
         for pc in party_candidates:
-            if pc.is_not_destroyed() and pc.scale == map_scale:
+            if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc,(base.Character,base.Mecha)):
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational():
                         pc.load_pilot(pc.pilot)

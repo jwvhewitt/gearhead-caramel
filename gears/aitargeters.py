@@ -31,7 +31,7 @@ class TargetIsDamaged(object):
     def __init__(self, damage_type):
         self.damage_type = damage_type
     def __call__(self, camp, pc, npc):
-        damage = sum(part.damage for part in npc.get_all_parts() if hasattr(part, "hp_damage") and part.hp_damage > 0 and part.material.repair_type == self.damage_type)
+        damage = sum(part.hp_damage for part in npc.get_all_parts() if hasattr(part, "hp_damage") and part.hp_damage > 0 and part.material.repair_type == self.damage_type)
         return damage > 0
 
 

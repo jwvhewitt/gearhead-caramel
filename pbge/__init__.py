@@ -120,6 +120,7 @@ class GameState( object ):
         self.active_widget_hilight = False
         self._active_widget = None
         self.widget_clicked = False
+        self.audio_enabled = True
         self.music = None
         self.music_name = None
         self.music_library = dict()
@@ -168,7 +169,9 @@ class GameState( object ):
             return sound
 
     def start_music( self, mfname ):
-        if mfname and mfname != self.music_name and util.config.getboolean( "GENERAL", "music_on" ):
+        if (mfname and mfname != self.music_name and self.audio_enabled and
+                util.config.getboolean( "GENERAL", "music_on" ) and
+                not util.config.getboolean( "TROUBLESHOOTING", "disable_audio_entirely" )):
             sound = self.locate_music(mfname)
             if self.music:
                 self.music.fadeout(2000)
@@ -523,7 +526,13 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
         image.init_image(util.image_dir(""))
 
         pygame.init()
-        pygame.mixer.init()
+        my_state.audio_enabled = not util.config.getboolean( "TROUBLESHOOTING", "disable_audio_entirely" )
+        if my_state.audio_enabled:
+            try:
+                pygame.mixer.init()
+            except pygame.error:
+                my_state.audio_enabled = False
+                print("Error: pygame.mixer failed to load.")
         pygame.display.set_caption(winname,appname)
         pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
         # Set the screen size.

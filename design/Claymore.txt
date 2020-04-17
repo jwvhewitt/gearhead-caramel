@@ -25,21 +25,7 @@ Mecha
                 Sensor
                     size = 2
 
-                BallisticWeapon
-                    name = "Light Autocannon"
-                    reach = 4
-                    damage = 1
-                    accuracy = 0
-                    penetration = 0
-                    ammo_type = Shells_20mm
-                    attributes = (BurstFire4)
-                    shot_anim = SmallBullet
-                    SUB
-                        Ammo
-                            ammo_type=Shells_20mm
-                            quantity=120
-                    END
-
+                STC Light Autocannon
 
             END
         Arm

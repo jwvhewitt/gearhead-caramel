@@ -941,7 +941,7 @@ class Engine(BaseGear, StandardDamageHandler, MakesPower):
 
     @property
     def base_cost(self):
-        return (self.size ** 2) // 100 - self.size + 100
+        return (self.size ** 3) // 100000 + (self.size ** 2) // 80 - 2 * self.size + 100
 
     base_health = 3
 
@@ -1299,7 +1299,7 @@ class Weapon(BaseGear, StandardDamageHandler):
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
-        return self.base_mass
+        return max(self.base_mass//5,2)
 
     def is_operational(self):
         """ To be operational, a weapon must be in an operational module.
@@ -2678,7 +2678,26 @@ class MT_Battroid(Singleton):
         # Return the modified speed.
         return base_speed
 
-MECHA_FORMS = (MT_Battroid,)
+class MT_Arachnoid(MT_Battroid):
+    name = "Arachnoid"
+
+    @classmethod
+    def is_legal_sub_com(self, part):
+        if isinstance(part, Module):
+            return not isinstance(part.form, (MF_Arm,MF_Wing,MF_Tail))
+        else:
+            return False
+
+    @classmethod
+    def modify_speed(self, base_speed, move_mode):
+        # Return the modified speed.
+        if move_mode == pbge.scenes.movement.Walking:
+            return int(base_speed * 1.2)
+        else:
+            return 0
+
+
+MECHA_FORMS = (MT_Battroid,MT_Arachnoid)
 
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
     SAVE_PARAMETERS = ('name', 'form', 'environment_list', 'role_list', 'family')

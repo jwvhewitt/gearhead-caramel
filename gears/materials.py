@@ -30,7 +30,7 @@ class Advanced( Material ):
     name = "Advanced"
     mass_scale = 8
     damage_scale = 5
-    cost_scale = 50
+    cost_scale = 20
     repair_type = RT_REPAIR
 
 class Ceramic( Material ):

@@ -479,6 +479,20 @@ class MassVolumeBlock(object):
         pbge.draw_text(self.font,self.model.scale.get_mass_string(self.model.mass),mydest,color=pbge.INFO_GREEN)
         pbge.draw_text(self.font, '{} slots'.format(self.model.volume), mydest, justify=1, color=pbge.INFO_GREEN)
 
+class MassVolumeHPBlock(object):
+    def __init__(self,model,width=220,info_font=None,**kwargs):
+        self.model = model
+        self.width = width
+        self.image=None
+        self.font = info_font or pbge.ITALICFONT
+        self.height = self.font.get_linesize()
+
+    def render(self,x,y):
+        mydest = pygame.Rect(x,y,self.width,self.height)
+        pbge.draw_text(self.font,self.model.scale.get_mass_string(self.model.mass),mydest,color=pbge.INFO_GREEN)
+        pbge.draw_text(self.font, '{} slots'.format(self.model.volume), mydest, justify=1, color=pbge.INFO_GREEN)
+        pbge.draw_text(self.font, '{} HP'.format(self.model.max_health), mydest, justify=0, color=pbge.INFO_GREEN)
+
 class WeaponStatsBlock( object ):
     def __init__(self,model,width=220,font=None,**kwargs):
         self.model = model
@@ -565,10 +579,10 @@ class WeaponAttributesBlock( object ):
 
 
 class ItemIP(InfoPanel):
-    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeBlock, DescBlock)
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, DescBlock)
 
 class WeaponIP(InfoPanel):
-    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeBlock, WeaponStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock, DescBlock)
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, WeaponStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock, DescBlock)
 
 class LauncherIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeBlock, LauncherStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock, DescBlock)

@@ -1,3 +1,7 @@
+- Fixed crash from TargetIsDamaged AI targeter
+- Added disable_audio_entirely troubleshooting config option
+- Game still loads if audio device fails
+- Fixed recovery plot when lancemate dies
 - Fixed weird PFOV bug (at least one, hopefully two)
 - Repaired the Repair skill
 - Fixed crash from targeting with Flail weapons

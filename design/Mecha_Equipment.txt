@@ -8,16 +8,21 @@ STC Heavy Gauss Rifle
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
-BeamWeapon
-    desig = "LAS-5"
-    name = "Intercept Laser"
-    reach = 2
-    damage = 1
-    accuracy = 2
-    penetration = 0
-    scale = MechaScale
-    shot_anim = SmallBeam
-    attributes = (Intercept)
+STC Light Autocannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC Gauss Rifle
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC LAS-5 Intercept Laser
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC Intercept Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
 
 MeleeWeapon
     name="Mecha Knife"

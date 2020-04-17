@@ -1,0 +1,102 @@
+Mecha
+    name = "Kojedo"
+    desig = "YD-8"
+    form = MT_Arachnoid
+    imagename = "mav_trailblazer.png"
+    portrait = "mecha_trailblazer.png"
+    desc = "The Federation Defense Force's advanced gun carrier and EW support unit."
+
+    environment_list = (GroundEnv,UrbanEnv)
+    faction_list = (TerranFederation,TerranDefenseForce,Guardians,BioCorp)
+    role_list = (Support,Command)
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 3
+                Sensor
+                    size = 3
+                Cockpit
+                    SUB
+                        Armor
+                            size = 1
+                    END
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                Engine
+                    size = 950
+                Gyroscope
+                EWSystem
+                    size = 3
+                    programs = (TargetAnalysis,Deflect)
+                Mount
+                    name = "Torso Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+                                    name = "Strike Missiles"
+                                    reach = 7
+                                    damage = 1
+                                    accuracy = 3
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Turret
+            size = 3
+            SUB
+                Mount
+                    name = "Turret Mount"
+                    INV
+                        STC Gauss Rifle
+                    END
+                Sensor
+                    size = 1
+                STC Intercept Cannon
+            END
+        Leg
+            name = "Right Leg 1"
+            size = 3
+            SUB
+                Armor
+                    size = 3
+                Mount
+                    name = "RL1 Mount"
+            END
+        Leg
+            name = "Left Leg 1"
+            size = 3
+            SUB
+                Armor
+                    size = 3
+                Mount
+                    name = "LL1 Mount"
+            END
+        Leg
+            name = "Right Leg 2"
+            size = 3
+            SUB
+                Armor
+                    size = 3
+                Mount
+                    name = "RL2 Mount"
+            END
+        Leg
+            name = "Left Leg 2"
+            size = 3
+            SUB
+                Armor
+                    size = 3
+                Mount
+                    name = "LL2 Mount"
+            END
+    END

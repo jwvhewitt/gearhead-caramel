@@ -36,10 +36,10 @@ class MechaBuyIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MechaFeaturesAndSpriteBlock, gears.info.DescBlock)
 
 class ItemBuyIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MassVolumeBlock, gears.info.DescBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MassVolumeHPBlock, gears.info.DescBlock)
 
 class WeaponBuyIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MassVolumeBlock, gears.info.WeaponStatsBlock, gears.info.ItemStatsBlock, gears.info.WeaponSkillBlock, gears.info.WeaponAttributesBlock, gears.info.DescBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MassVolumeHPBlock, gears.info.WeaponStatsBlock, gears.info.ItemStatsBlock, gears.info.WeaponSkillBlock, gears.info.WeaponAttributesBlock, gears.info.DescBlock)
 
 class CustomerPanel(object):
     INFO_AREA = pbge.frects.Frect(50, 130, 300, 100)

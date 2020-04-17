@@ -1,4 +1,35 @@
 BallisticWeapon
+    name = "Light Autocannon"
+    reach = 4
+    damage = 1
+    accuracy = 0
+    penetration = 0
+    ammo_type = Shells_20mm
+    attributes = (BurstFire4)
+    shot_anim = SmallBullet
+    SUB
+        Ammo
+            ammo_type=Shells_20mm
+            quantity=120
+    END
+
+BallisticWeapon
+    name = "Intercept Cannon"
+    reach = 4
+    damage = 1
+    accuracy = 2
+    penetration = 0
+    ammo_type = Shells_20mm
+    attributes = (BurstFire3,Intercept)
+    shot_anim = SmallBullet
+    SUB
+        Ammo
+            ammo_type=Shells_20mm
+            quantity=120
+    END
+
+
+BallisticWeapon
     name = "Shaka Cannon"
     reach = 5
     damage = 3
@@ -10,6 +41,21 @@ BallisticWeapon
         Ammo
             ammo_type=Shells_150mm
             quantity=15
+    END
+
+BallisticWeapon
+    name = "Gauss Rifle"
+    reach = 6
+    damage = 4
+    accuracy = 0
+    penetration = 3
+    ammo_type = Ferrous_90mm
+    attributes = (Accurate)
+    magazine = 24
+    SUB
+        Ammo
+            ammo_type=Ferrous_90mm
+            quantity=24
     END
 
 BallisticWeapon
@@ -26,3 +72,13 @@ BallisticWeapon
             quantity=16
     END
 
+BeamWeapon
+    desig = "LAS-5"
+    name = "Intercept Laser"
+    reach = 2
+    damage = 1
+    accuracy = 2
+    penetration = 0
+    scale = MechaScale
+    shot_anim = SmallBeam
+    attributes = (Intercept)
