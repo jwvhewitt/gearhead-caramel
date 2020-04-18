@@ -690,7 +690,7 @@ ORPH_LONER = LifePathOption("Loner","I kept to myself, and still don't get close
                             })
 
 ORPH_SOCIABLE = LifePathOption("New Family","I took comfort in my friends and caretakers. (Sociable trait)",
-                                 personality_tags=(personality.Shy,),
+                                 personality_tags=(personality.Sociable,),
                                biomessage="[LPB_ORPH]",
                                biogram={
                                    "[LPB_ORPH]": {

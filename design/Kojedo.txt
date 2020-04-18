@@ -3,7 +3,7 @@ Mecha
     desig = "YD-8"
     form = MT_Arachnoid
     imagename = "mav_kojedo.png"
-    portrait = "mecha_trailblazer.png"
+    portrait = "mecha_kojedo.png"
     desc = "The Federation Defense Force's advanced gun carrier and EW support unit."
 
     environment_list = (GroundEnv,UrbanEnv)
