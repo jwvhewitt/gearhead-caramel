@@ -310,11 +310,11 @@ class ExperienceReward(object):
         if adv.is_won():
             xp = max(self.size,adv.get_completion() * self.size // 100)
         else:
-            xp = self.size//2
+            xp = (self.size * min(adv.get_completion(),50))//100
 
-        camp.dole_xp(xp)
-
-        adv.results.append(("Experience","+{:,}".format(xp)))
+        if xp > 0:
+            camp.dole_xp(xp)
+            adv.results.append(("Experience","+{:,}".format(xp)))
 
 class SalvageReward(object):
     def __call__(self,camp,adv):

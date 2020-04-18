@@ -1,3 +1,6 @@
+- No experience award for missions you don't even attempt
+- Owner indicated for all items in FHQ
+- Cannot access inventory of mecha that don't belong to you
 - Fixed crash from TargetIsDamaged AI targeter
 - Added disable_audio_entirely troubleshooting config option
 - Game still loads if audio device fails

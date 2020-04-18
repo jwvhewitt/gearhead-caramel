@@ -35,6 +35,28 @@ class MechasPilotBlock(object):
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
+class ItemsOwnerBlock(object):
+    # There should be an apostrophe in there, but y'know...
+    def __init__(self, model, camp, font=None, width=220, **kwargs):
+        self.model = model
+        self.camp = camp
+        self.width = width
+        self.font = font or pbge.MEDIUMFONT
+        self.update()
+        if self.image:
+            self.height = self.image.get_height()
+        else:
+            self.height = 0
+    def update(self):
+        if hasattr(self.model,"owner") and self.model.owner:
+            self.image = pbge.render_text(self.font, 'Owner: {}'.format(str(self.model.owner)), self.width,
+                                          justify=-1, color=pbge.INFO_HILIGHT)
+        else:
+            self.image = None
+    def render(self,x,y):
+        if self.image:
+            pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+
 
 class PilotsMechaBlock(object):
     # There should be an apostrophe in there, but y'know...
@@ -64,7 +86,7 @@ class MechaFHQIP(gears.info.InfoPanel):
 
 
 class ItemFHQIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.MassVolumeBlock, gears.info.DescBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.MassVolumeBlock, ItemsOwnerBlock, gears.info.DescBlock)
 
 
 class AssignMechaIP(gears.info.InfoPanel):

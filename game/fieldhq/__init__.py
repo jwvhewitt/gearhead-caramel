@@ -155,7 +155,8 @@ class MechaInfoWidget(widgets.Widget):
         self.info = MechaFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, camp=camp, font=pbge.SMALLFONT)
         self.column = widgets.ColumnWidget(fhqinfo.LEFT_COLUMN.dx, fhqinfo.LEFT_COLUMN.dy, fhqinfo.LEFT_COLUMN.w, fhqinfo.LEFT_COLUMN.h, padding=10)
         self.children.append(self.column)
-        self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Inventory", justify=0, draw_border=True, on_click=self.open_backpack))
+        if not hasattr(pc,"owner") or not pc.owner:
+            self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Inventory", justify=0, draw_border=True, on_click=self.open_backpack))
         self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Assign Pilot", justify=0, draw_border=True, on_click=self.assign_pilot))
         self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Change Colors", justify=0, draw_border=True, on_click=self.change_colors))
         self.fhq = fhq

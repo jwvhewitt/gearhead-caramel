@@ -2,7 +2,7 @@ Mecha
     name = "Kojedo"
     desig = "YD-8"
     form = MT_Arachnoid
-    imagename = "mav_trailblazer.png"
+    imagename = "mav_kojedo.png"
     portrait = "mecha_trailblazer.png"
     desc = "The Federation Defense Force's advanced gun carrier and EW support unit."
 
@@ -16,25 +16,28 @@ Mecha
             SUB
                 Armor
                     size = 3
+                    material = Ceramic
                 Sensor
                     size = 3
                 Cockpit
                     SUB
                         Armor
                             size = 1
+                            material = Ceramic
                     END
             END
         Torso
             size = 4
             SUB
                 Armor
-                    size = 5
+                    size = 4
+                    material = Ceramic
                 Engine
                     size = 950
                 Gyroscope
                 EWSystem
                     size = 3
-                    programs = (TargetAnalysis,Deflect)
+                    programs = (Deflect,EMBlaster,TargetAnalysis)
                 Mount
                     name = "Torso Mount"
                     INV
@@ -52,8 +55,11 @@ Mecha
                     END
             END
         Turret
-            size = 3
+            size = 4
             SUB
+                Armor
+                    size = 2
+                    material = Ceramic
                 Mount
                     name = "Turret Mount"
                     INV
@@ -69,6 +75,7 @@ Mecha
             SUB
                 Armor
                     size = 3
+                    material = Ceramic
                 Mount
                     name = "RL1 Mount"
             END
@@ -78,6 +85,7 @@ Mecha
             SUB
                 Armor
                     size = 3
+                    material = Ceramic
                 Mount
                     name = "LL1 Mount"
             END
@@ -87,6 +95,7 @@ Mecha
             SUB
                 Armor
                     size = 3
+                    material = Ceramic
                 Mount
                     name = "RL2 Mount"
             END
@@ -96,6 +105,7 @@ Mecha
             SUB
                 Armor
                     size = 3
+                    material = Ceramic
                 Mount
                     name = "LL2 Mount"
             END
