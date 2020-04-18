@@ -52,6 +52,7 @@ BallisticWeapon
     ammo_type = Ferrous_90mm
     attributes = (Accurate)
     magazine = 24
+    attack_stat = Perception
     SUB
         Ammo
             ammo_type=Ferrous_90mm
@@ -66,6 +67,7 @@ BallisticWeapon
     penetration = 3
     ammo_type = Ferrous_120mm
     attributes = (Accurate)
+    attack_stat = Perception
     SUB
         Ammo
             ammo_type=Ferrous_120mm

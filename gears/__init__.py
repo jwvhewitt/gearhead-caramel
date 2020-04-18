@@ -187,6 +187,11 @@ class GearHeadScene(pbge.scenes.Scene):
             team_a = self.local_teams.get(a)
             return team_a and team_a.is_enemy(self.local_teams.get(b))
 
+    def is_hostile_to_player(self, a):
+        if a:
+            team_a = self.local_teams.get(a)
+            return team_a and team_a.is_enemy(self.player_team)
+
     def are_allies(self, a, b):
         if a and b:
             team_a = self.local_teams.get(a)
@@ -213,7 +218,7 @@ class GearHeadScene(pbge.scenes.Scene):
             # mmecha = pbge.my_state.view.modelmap.get(pos)
             mmecha = self.get_main_actor(pos)
             if mmecha and (self.local_teams.get(mmecha) == self.player_team or not mmecha.hidden):
-                return info.get_status_display(model=mmecha)
+                return info.get_status_display(model=mmecha,scene=self)
             elif pbge.my_state.view.waypointmap.get(pos):
                 wp = pbge.my_state.view.waypointmap.get(pos)
                 return info.ListDisplay(items=wp)

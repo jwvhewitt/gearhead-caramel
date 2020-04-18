@@ -408,20 +408,6 @@ class PropStatusBlock( object ):
 
 
 
-class MechaStatusDisplay( InfoPanel ):
-    # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (NameBlock,ModuleStatusBlock,PilotStatusBlock,EnchantmentBlock)
-
-class PropStatusDisplay( InfoPanel ):
-    # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (NameBlock,PropStatusBlock,EnchantmentBlock)
-
-class NameStatusDisplay( InfoPanel ):
-    # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (NameBlock,)
-
-class ListDisplay( InfoPanel ):
-    DEFAULT_BLOCKS = (ListBlock,)
 
 
 class MechaFeaturesAndSpriteBlock(object):
@@ -575,7 +561,41 @@ class WeaponAttributesBlock( object ):
         if self.height > 0:
             pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
+class HostilityStatusBlock(object):
+    def __init__(self,model,width=220,font=None,scene=None,**kwargs):
+        self.model = model
+        self.scene = scene
+        self.width = width
+        self.font = font or pbge.MEDIUMFONT
+        self.update()
 
+    def update(self):
+        if self.scene and self.scene.is_hostile_to_player(self.model):
+            self.image = pbge.render_text(self.font, 'HOSTILE UNIT', self.width,justify=0, color=pbge.ENEMY_RED)
+            self.height = self.image.get_height()
+        else:
+            self.image = None
+            self.height = 0
+
+    def render(self, x, y):
+        if self.image:
+            pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+
+
+class MechaStatusDisplay( InfoPanel ):
+    # A floating status display, drawn wherever the mouse is pointing.
+    DEFAULT_BLOCKS = (NameBlock, HostilityStatusBlock, ModuleStatusBlock, PilotStatusBlock, EnchantmentBlock)
+
+class PropStatusDisplay( InfoPanel ):
+    # A floating status display, drawn wherever the mouse is pointing.
+    DEFAULT_BLOCKS = (NameBlock, HostilityStatusBlock, PropStatusBlock, EnchantmentBlock)
+
+class NameStatusDisplay( InfoPanel ):
+    # A floating status display, drawn wherever the mouse is pointing.
+    DEFAULT_BLOCKS = (NameBlock,)
+
+class ListDisplay( InfoPanel ):
+    DEFAULT_BLOCKS = (ListBlock,)
 
 
 class ItemIP(InfoPanel):

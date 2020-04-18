@@ -108,6 +108,7 @@ GREY = (160,160,160)
 
 INFO_GREEN = (50,200,0)
 INFO_HILIGHT = (100,250,0)
+ENEMY_RED = (250,50,0)
 
 
 class GameState( object ):
