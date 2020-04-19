@@ -858,8 +858,10 @@ class RangeModifier( object ):
     def calc_modifier( self, camp, attacker, pos ):
         my_range = camp.scene.distance(attacker.pos,pos)
         my_mod = ((my_range - 1)//self.range_step) * -10
+        self.name = "Too Far"
         if my_range < (self.range_step-3):
             my_mod += (self.range_step-3-my_range) * -5
+            self.name = "Too Close"
         return my_mod
 
 

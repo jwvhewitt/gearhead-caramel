@@ -20,6 +20,33 @@ This is an early alpha release- there are tons of things that aren't finished
 yet. However, it's a fun little scenario, and will show you some of the new
 things that GearHead Caramel can do.
 
+CONTROLS
+========
+
+Most things in GearHead Caramel are done using the mouse, but there
+are keyboard shortcuts for some. 
+Note that commands are case sensitive- "Q" is different from "q".
+
+Left click: Move to spot
+
+Right click: Open skills menu during exploration
+
+c: Center the screen on the party/active character
+
+Q: Quit the game.
+
+H: Open the Field HQ (Exploration mode only)
+
+m: Browse memos (Exploration model only)
+
+In the attack/skill/EWar interface, click the name of your weapon/skill/program
+to change to a different one. You can
+scroll through weapons and attack options using the mouse wheel or the 
+arrow keys.
+
+In the combat movement interface, click the movemode to change movemode.
+
+
 BUILDING FROM SOURCE
 ====================
 
@@ -36,22 +63,3 @@ The first time it's run, the game will create a "ghcaramel" folder in your
 home directory and place a configuration file there. This is where all of your
 characters and saved games are stored, in case you want to delete them or
 make backups. The configuration file can be edited in any text editor.
-
-
-COMMANDS
-========
-
-Note that commands are case sensitive- "Q" is different from "q".
-
-Left click: Move to spot
-
-Right click: Open skills menu during exploration
-
-c: Center the screen on the party/active character
-
-Q: Quit the game.
-
-In the attack interface, click the name of your weapon to change weapons.
-
-In the combat movement interface, click the movemode to change movemode.
-

@@ -1,3 +1,7 @@
+v0.510 April 19 2020
+- Range attack modifier will now display "Too Far" or "Too Close"
+- Gauss Cannons now use Perception rather than Reflexes
+- Added HostilityStatusBlock
 - Fixed ORPH_SOCIABLE lifepath node
 - Added Kojedo mecha
 - No experience award for missions you don't even attempt

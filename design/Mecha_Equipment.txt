@@ -49,7 +49,7 @@ MeleeWeapon
     faction_list = (None,)
 
 MeleeWeapon
-    name="Mecha Morningstar"
+    name="Wrecking Ball"
     desc = "A mecha scale ball and chain. Though not an elegant weapon, it is quite effective at bashing through armor."
     reach=1
     damage=4
