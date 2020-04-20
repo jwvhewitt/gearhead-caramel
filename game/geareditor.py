@@ -189,7 +189,7 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
         self.editor.update()
 
     def _set_name(self,widg,ev):
-        self.mygear.desig = widg.text
+        self.mygear.name = widg.text
         self.editor.update()
 
 
