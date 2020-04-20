@@ -268,7 +268,7 @@ class ItemInfoWidget(widgets.Widget):
 
         mymenu = pbge.rpgmenu.Menu(fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h, font=pbge.MEDIUMFONT)
         for plr in self.camp.party:
-            if plr.can_equip(self.pc):
+            if plr.can_equip(self.pc) and not (hasattr(plr,"owner") and plr.owner):
                 mymenu.add_item(plr.get_full_name(),plr)
         pilot = mymenu.query()
 

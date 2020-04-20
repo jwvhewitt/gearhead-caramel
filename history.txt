@@ -1,3 +1,5 @@
+- Cannot give stash items to mecha that don't belong to you
+
 v0.510 April 19 2020
 - Range attack modifier will now display "Too Far" or "Too Close"
 - Gauss Cannons now use Perception rather than Reflexes
