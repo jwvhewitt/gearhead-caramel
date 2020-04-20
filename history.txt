@@ -1,3 +1,4 @@
+- Field of view will be updated after charge attacks
 - Cannot give stash items to mecha that don't belong to you
 
 v0.510 April 19 2020

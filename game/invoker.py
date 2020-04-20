@@ -301,6 +301,7 @@ class InvocationUI(object):
 
             # Recalculate the combat info.
             self.activate()
+            self.camp.scene.update_party_position(self.camp)
 
     def update(self, ev, player_turn):
         # We just got an event. Deal with it.
