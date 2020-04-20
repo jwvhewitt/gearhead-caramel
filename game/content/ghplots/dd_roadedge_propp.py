@@ -871,7 +871,9 @@ class DZREPR_AngryAtSponsorship(DZREPR_BaseMission):
             goffs.append(Offer(
                 msg="[THEYAREOURENEMY] They think that just because they're strong, they can do what they like in {LOCALE}. I say it's time to knock them down a peg.".format(**self.elements ),
                 context=ContextTag((context.INFO,)), effect=self.activate_mission,
-                data={"subject": "{FACTION}'s attitude".format(**self.elements)}, subject="{FACTION} have been acting like they own".format(**self.elements), no_repeats=True
+                data={"subject": "{FACTION}'s attitude".format(**self.elements),
+                      "they": str(self.elements["FACTION"])},
+                subject="{FACTION} have been acting like they own".format(**self.elements), no_repeats=True
             ))
         return goffs
 
