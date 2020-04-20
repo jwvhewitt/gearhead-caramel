@@ -20,6 +20,10 @@ This is an early alpha release- there are tons of things that aren't finished
 yet. However, it's a fun little scenario, and will show you some of the new
 things that GearHead Caramel can do.
 
+Note: If you have trouble running ghcaramel on MacOS, you may need to set
+the executable permission on the file (chmod a+x ghcaramel) or configure
+MacOS gatekeeper to allow it to run.
+
 CONTROLS
 ========
 
@@ -37,7 +41,7 @@ Q: Quit the game.
 
 H: Open the Field HQ (Exploration mode only)
 
-m: Browse memos (Exploration model only)
+m: Browse memos (Exploration mode only)
 
 In the attack/skill/EWar interface, click the name of your weapon/skill/program
 to change to a different one. You can
