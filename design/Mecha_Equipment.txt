@@ -49,6 +49,30 @@ MeleeWeapon
     faction_list = (None,)
 
 MeleeWeapon
+    name = "Mecha Glaive"
+    desc = "A mecha scale spear for charging into combat."
+    reach = 2
+    damage = 1
+    accuracy = 1
+    penetration = 3
+    scale = MechaScale
+    attributes = (ChargeAttack,)
+    shop_tags = ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Giant Drill"
+    desc = "A humongous drill for thoroughly piercing the mechas of your enemies."
+    reach = 1
+    damage = 4
+    accuracy = 1
+    penetration = 5
+    scale = MechaScale
+    attributes = (ChargeAttack,)
+    shop_tags = ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+MeleeWeapon
     name="Wrecking Ball"
     desc = "A mecha scale ball and chain. Though not an elegant weapon, it is quite effective at bashing through armor."
     reach=1
@@ -70,6 +94,31 @@ MeleeWeapon
     scale = MechaScale
     material = Ceramic
     attributes = (BurnAttack,)
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Flame Knout"
+    desc = "A series of ceramic heated rods connected into a long whip. It is difficult to aim but also hard to defend against."
+    reach = 1
+    damage = 3
+    accuracy = 1
+    penetration = 3
+    material = Ceramic
+    scale = MechaScale
+    attributes = (Flail,BurnAttack)
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Beam Scourge"
+    desc = "A highly prehensile whip of energy."
+    reach = 1
+    damage = 1
+    accuracy = 3
+    penetration = 4
+    scale = MechaScale
+    attributes = (Flail,FastAttack,Intercept)
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
