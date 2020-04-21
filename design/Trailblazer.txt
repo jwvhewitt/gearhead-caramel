@@ -58,14 +58,7 @@ Mecha
                     name = "Right Arm Mount"
                     material = Metal
                     INV
-                        BeamWeapon
-                        material = Metal
-                        name = "Particle Cannon"
-                        reach = 7
-                        damage = 1
-                        accuracy = 3
-                        attributes=(OverloadAttack)
-                        shot_anim = SmallBeam
+                        STC PAR-2 Particle Cannon
                     END
             END
         Arm

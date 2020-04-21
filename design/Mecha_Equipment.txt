@@ -24,6 +24,34 @@ STC Intercept Cannon
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
+STC LAS-5 Combat Laser
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC LAS-10 Laser Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC PAR-2 Particle Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC PAR-6 Heavy Particle Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC PAR-13 Superheavy Particle Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC PHS-8 Phase Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+STC PHS-25 Heavy Phase Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
 MeleeWeapon
     name="Mecha Knife"
     desc = "A knife, but at mecha scale."

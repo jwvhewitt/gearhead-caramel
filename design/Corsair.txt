@@ -52,13 +52,7 @@ Mecha
                 Hand
                     name = "Right Hand"
                     INV
-                        BeamWeapon
-                            name = "Laser Cannon"
-                            reach = 5
-                            damage = 3
-                            accuracy = 3
-                            penetration = 0
-                            attributes = (Accurate)
+                        STC LAS-10 Laser Cannon
                     END
             END
         Arm
