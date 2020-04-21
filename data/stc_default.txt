@@ -84,3 +84,77 @@ BeamWeapon
     scale = MechaScale
     shot_anim = SmallBeam
     attributes = (Intercept)
+
+BeamWeapon
+    desig = "LAS-5"
+    name = "Combat Laser"
+    reach = 2
+    damage = 1
+    accuracy = 2
+    penetration = 0
+    scale = MechaScale
+    shot_anim = SmallBeam
+
+BeamWeapon
+    desig = "LAS-10"
+    name = "Laser Cannon"
+    reach = 5
+    damage = 3
+    accuracy = 3
+    penetration = 0
+    scale = MechaScale
+    attributes = (Accurate)
+
+BeamWeapon
+    desig = "PAR-2"
+    name = "Particle Cannon"
+    material = Metal
+    reach = 7
+    damage = 1
+    accuracy = 3
+    shot_anim = SmallBeam
+    attributes = (OverloadAttack)
+
+BeamWeapon
+    desig = "PAR-6"
+    name = "Heavy Particle Cannon"
+    material = Metal
+    reach = 7
+    damage = 2
+    accuracy = 3
+    shot_anim = SmallBeam
+    attributes = (OverloadAttack)
+
+BeamWeapon
+    desig = "PAR-13"
+    name = "Superheavy Particle Cannon"
+    material = Metal
+    reach = 7
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    shot_anim = SmallBeam
+    attributes = (OverloadAttack)
+
+BeamWeapon
+    desig = "PHS-8"
+    name = "Phase Cannon"
+    reach = 8
+    damage = 2
+    accuracy = 2
+    penetration = 5
+    scale = MechaScale
+    shot_anim = SmallBeam
+    attributes = (Accurate)
+    attack_stat = Perception
+
+BeamWeapon
+    desig = "PHS-25"
+    name = "Heavy Phase Cannon"
+    reach = 6
+    damage = 4
+    accuracy = 2
+    penetration = 5
+    scale = MechaScale
+    shot_anim = GunBeam
+    attack_stat = Perception
