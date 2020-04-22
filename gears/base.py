@@ -619,6 +619,11 @@ class BaseGear(scenes.PlaceableThing):
                 ok = ok and len([item for item in self.sub_com if isinstance(item, k)]) < v
         return ok
 
+    # Called by the gear editor if the gear can be removed in the
+    # normal in-game Mecha Engineering Terminal.
+    def can_normally_remove(self):
+        return True
+
     def can_install(self, part, check_volume=True):
         """Returns True if part can be legally installed here under current conditions"""
         if check_volume:
@@ -1263,6 +1268,9 @@ class Weapon(BaseGear, StandardDamageHandler):
 
         # Finally, call the gear initializer.
         super(Weapon, self).__init__(**keywords)
+
+    def can_normally_remove(self):
+        return not self.integral
 
     @property
     def base_mass(self):

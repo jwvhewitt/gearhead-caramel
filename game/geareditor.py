@@ -238,6 +238,16 @@ class EWSystemEditWidget(PartEditWidget):
 class WeaponEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
+
+        # In the Mecha Engineering Terminal, do not
+        # show "Integral" field unless actually integral.
+        # Very few weapons are Integral, so reduce clutter
+        # in-game.
+        if (editor.mode == MODE_CREATIVE) or mygear.integral:
+            self.integral_menu = LabeledDropdownWidget(mygear, "Integral", self._set_integral,options=['False', 'True'], active=editor.mode==MODE_CREATIVE)
+            self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
+            self.add_interior(self.integral_menu)
+
         self.add_interior(PlusMinusWidget(mygear,"reach",mygear.MIN_REACH,mygear.MAX_REACH,active=editor.mode==MODE_CREATIVE))
         self.add_interior(PlusMinusWidget(mygear,"damage",mygear.MIN_DAMAGE,mygear.MAX_DAMAGE,active=editor.mode==MODE_CREATIVE))
         self.add_interior(PlusMinusWidget(mygear,"accuracy",mygear.MIN_ACCURACY,mygear.MAX_ACCURACY,active=editor.mode==MODE_CREATIVE))
@@ -254,6 +264,10 @@ class WeaponEditWidget(PartEditWidget):
         self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS],active=editor.mode==MODE_CREATIVE)
         self.stat_menu.menu.set_item_by_value(self.mygear.attack_stat)
         self.add_interior(self.stat_menu)
+
+    def _set_integral(self,result):
+        self.mygear.integral = result is 'True'
+        self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
 
     def _set_attack_stat(self,result):
         if result:
@@ -738,7 +752,6 @@ class GearEditor(pbge.widgets.Widget):
         else:
             self.stash = stash
         self.mode = mode
-        self.update_part_editor()
 
         self.sources = list()
         if mode is MODE_CREATIVE:
@@ -758,7 +771,8 @@ class GearEditor(pbge.widgets.Widget):
         self.children.append(mybuttonrow)
         mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=0,on_frame=0,off_frame=1,on_click=self._add_subcom,tooltip="Add Component"))
         mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=2,on_frame=2,off_frame=3,on_click=self._add_invcom,tooltip="Add Inventory"))
-        mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=4,on_frame=4,off_frame=5,on_click=self._remove_gear,tooltip="Remove Gear"))
+        self.remove_gear_button = pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=4,on_frame=4,off_frame=5,on_click=self._remove_gear,tooltip="Remove Gear", show_when_inactive=True)
+        mybuttonrow.add_left(self.remove_gear_button)
         if mode == MODE_CREATIVE:
             mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=8,on_frame=8,off_frame=9,on_click=self._save_design,tooltip="Save Design"))
         mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=6,on_frame=6,off_frame=7,on_click=self._exit_editor,tooltip="Exit Editor"))
@@ -766,6 +780,8 @@ class GearEditor(pbge.widgets.Widget):
         self.part_selector = None
 
         self.finished = False
+
+        self.update_part_editor()
 
     def _save_design(self,widj,ev):
         save_version = copy.deepcopy(self.mygear)
@@ -824,6 +840,13 @@ class GearEditor(pbge.widgets.Widget):
     def update_part_editor(self):
         if self.active_part_editor:
             self.children.remove(self.active_part_editor)
+        # IF gear is not supposed to be removable, do not allow removal.
+        # TODO: inactive buttons should look grayed out so that
+        # user knows "remove gear" is not possible.
+        if (self.mode is MODE_RESTRICTED) and (not self.active_part.can_normally_remove()):
+            self.remove_gear_button.active = False
+        else:
+            self.remove_gear_button.active = True
         # Determine what sort of editor to use.
         myeditor = PartEditWidget
         for k,v in CLASS_EDITORS.items():

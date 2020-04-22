@@ -1,3 +1,4 @@
+- Integral weapons can no longer be removed in-game, and are also shown as integral.
 - Field of view will be updated after charge attacks
 - Cannot give stash items to mecha that don't belong to you
 
