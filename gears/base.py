@@ -1664,7 +1664,7 @@ class BallisticWeapon(Weapon):
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
-                        attackattributes.VariableFire3, attackattributes.VariableFire4,
+                        attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5,
                         attackattributes.Intercept,
                         )
 
@@ -1808,7 +1808,7 @@ class BeamWeapon(Weapon):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
                         attackattributes.OverloadAttack,
-                        attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4,
+                        attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5,
                         attackattributes.Intercept,attackattributes.SwarmFire2,attackattributes.SwarmFire3
                         )
 
