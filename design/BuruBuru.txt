@@ -640,6 +640,9 @@ Mecha
                         Armor
                             size = 2
                     END
+                PowerSource
+                    size = 10
+                    integral = True
                 Mount
                     name = "Collar Mount"
                     INV
@@ -650,7 +653,7 @@ Mecha
                             accuracy = 1
                             penetration = 2
                             material = Advanced
-                            shot_anim = SmallBeam
+                            shot_anim = GunBeam
                             attack_stat = Perception
                     END
             END
@@ -671,7 +674,7 @@ Mecha
                             penetration = 0
                             material = Advanced
                             shot_anim = SmallBeam
-                            attributes = (VariableFire5)
+                            attributes = (BurstFire3,LinkedFire)
                     END
             END
         Arm
@@ -691,7 +694,7 @@ Mecha
                             penetration = 0
                             material = Advanced
                             shot_anim = SmallBeam
-                            attributes = (VariableFire5)
+                            attributes = (BurstFire3,LinkedFire)
                     END
             END
         Leg

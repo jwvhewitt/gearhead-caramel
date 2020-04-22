@@ -266,6 +266,46 @@ class LineAttack(Singleton):
         attack.fx.anim = weapon.get_area_anim()
         attack.fx.children[0].scatter = True
 
+class LinkedFire(Singleton):
+    name = "Linked Fire"
+    MASS_MODIFIER = 1.2
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.5
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def get_attacks(cls, weapon):
+        myroot = weapon.get_root()
+        weapons = cls.get_all_weapons(myroot,weapon)
+        invos = [wep.get_primary_attacks()[0] for wep in weapons]
+        mylist = list()
+        if invos and len(invos) > 1:
+            myattack = weapon.get_primary_attacks()[0]
+            myattack.targets = 0
+            for i in invos:
+                if i.can_be_invoked(myroot,True):
+                    myattack.targets += 1
+                    myattack.price += i.price
+            if myattack.targets > 1:
+                myattack.price.append(geffects.MentalPrice(myattack.targets+1))
+                myattack.name = "Link ({} shots, {}MP)".format(myattack.targets,myattack.targets+1)
+                mylist.append(myattack)
+        return mylist
+
+    @classmethod
+    def get_all_weapons(cls,myroot,weapon):
+        mylist = list()
+        for wep in myroot.ok_descendants(False):
+            if cls.matches(weapon,wep):
+                mylist.append(wep)
+        return mylist
+    @staticmethod
+    def matches(wep1,wep2):
+        return (
+            wep1.__class__ is wep2.__class__ and wep1.scale is wep2.scale and wep1.damage == wep2.damage and
+            wep1.reach == wep2.reach and wep1.accuracy == wep2.accuracy and wep1.penetration == wep2.penetration and
+            set(wep1.attributes) == set(wep2.attributes)
+        )
 
 class OverloadAttack(Singleton):
     name = "Overload"
@@ -359,7 +399,7 @@ class VariableFire4(Singleton):
         return BurstFire4.replace_primary_attack(weapon)
 
 class VariableFire5(Singleton):
-    # This weapon can do Burst x4 fire in addition to single fire
+    # This weapon can do Burst x5 fire in addition to single fire
     name = "Variable Fire 5"
     MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 1.1

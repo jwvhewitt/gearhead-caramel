@@ -504,7 +504,8 @@ class Explorer( object ):
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
                                 self.scene.set_visible(x,y,True)
-#                    elif gdi.unicode == "!" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+                    elif gdi.unicode == "!" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+                        self.camp.egg.credits += 1000000
 #                        for mpc in self.camp.get_active_party():
 #                            pc = mpc.get_pilot()
 #                            if pc:

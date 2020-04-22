@@ -56,17 +56,17 @@ cdef CHANTYPE_t generate_value(CHANTYPE_t vmax, CHANTYPE_t vmin, CHANTYPE_t leve
 
 cdef class Gradient(object):
     cdef (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range
-    def __init__(self, name, (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range):
-        self.name = name
-        self.color_range = color_range
+    def __init__(cls, name, (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range):
+        cls.name = name
+        cls.color_range = color_range
 
-    def generate_color( Gradient self, int color_level):
+    def generate_color( Gradient cls, int color_level):
         # The COLOR_RANGE is a tuple of six values: r g b at highest intensity,
         # and r g b at lowest intensity.
         color_level = max(color_level - 40, 0)
-        cdef int r = generate_value(self.color_range[0], self.color_range[3], color_level)
-        cdef int g = generate_value(self.color_range[1], self.color_range[4], color_level)
-        cdef int b = generate_value(self.color_range[2], self.color_range[5], color_level)
+        cdef int r = generate_value(cls.color_range[0], cls.color_range[3], color_level)
+        cdef int g = generate_value(cls.color_range[1], cls.color_range[4], color_level)
+        cdef int b = generate_value(cls.color_range[2], cls.color_range[5], color_level)
         return (r << 16) | (g << 8) | b
 
 
@@ -91,7 +91,7 @@ def recolor( np.ndarray[DTYPE_t, ndim=2] par,color_channels):
 
             if (r > 0) and (g == 0) and (b == 0):
                 par[x, y] = red_channel.generate_color(r)
-                # par[x,y] = self.generate_color(red_channel,c.r)
+                # par[x,y] = cls.generate_color(red_channel,c.r)
             elif (r > 0) and (g > 0) and (b == 0):
                 par[x, y] = yellow_channel.generate_color(r)
             elif (r > 0) and (g == 0) and (b > 0):

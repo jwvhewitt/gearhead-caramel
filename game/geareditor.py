@@ -237,7 +237,7 @@ class MoveSysEditWidget(ComponentEditWidget):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",1,25,None,active=editor.mode==MODE_CREATIVE))
 
-class PowerSourceEditWidget(PartEditWidget):
+class PowerSourceEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",1,25,None,active=editor.mode==MODE_CREATIVE))

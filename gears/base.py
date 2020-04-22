@@ -688,6 +688,20 @@ class BaseGear(scenes.PlaceableThing):
                 for p in part.descendants(include_pilot):
                     yield p
 
+    def ok_descendants(self,include_pilot=True):
+        for part in self.sub_com:
+            if part.is_not_destroyed():
+                yield part
+                if include_pilot or not isinstance(part,Cockpit):
+                    for p in part.ok_descendants(include_pilot):
+                        yield p
+        for part in self.inv_com:
+            if part.is_not_destroyed():
+                yield part
+                if include_pilot or not isinstance(part,Cockpit):
+                    for p in part.ok_descendants(include_pilot):
+                        yield p
+
     def ancestors(self):
         if hasattr(self, "container") and self.container and isinstance(self.container.owner, BaseGear):
             yield self.container.owner
@@ -806,7 +820,7 @@ class BaseGear(scenes.PlaceableThing):
 # and smaller, but cannot be removed in-game.
 class Component(BaseGear):
     DEFAULT_NAME = "Component"
-    SAVE_PARAMETERS = ('integral')
+    SAVE_PARAMETERS = ('integral',)
 
     # If the component is integral, what is the cost and
     # weight reduction, in percentage?
@@ -1187,7 +1201,7 @@ class HeavyActuators(MovementSystem, StandardDamageHandler):
 #   ***   POWER  SOURCE   ***
 #   *************************
 
-class PowerSource(BaseGear, StandardDamageHandler, MakesPower):
+class PowerSource(Component, StandardDamageHandler, MakesPower):
     DEFAULT_NAME = "Power Source"
     SAVE_PARAMETERS = ('size',)
 
@@ -1196,7 +1210,7 @@ class PowerSource(BaseGear, StandardDamageHandler, MakesPower):
         if size < 1:
             size = 1
         self.size = size
-        super(PowerSource, self).__init__(**keywords)
+        super().__init__(**keywords)
 
     @property
     def base_mass(self):
@@ -1472,7 +1486,7 @@ class MeleeWeapon(Weapon):
                 geffects.ModuleBonus(self.get_module()), geffects.SneakAttackBonus(), geffects.HiddenModifier(),
                 geffects.ImmobileModifier()]
 
-    def get_basic_attack(self, name='Basic Attack', attack_icon=0):
+    def get_basic_attack(self, name='Basic Attack', attack_icon=0, targets=1):
         ba = pbge.effects.Invocation(
             name=name,
             fx=geffects.AttackRoll(
@@ -1489,7 +1503,7 @@ class MeleeWeapon(Weapon):
             price=[geffects.RevealPositionPrice(self.damage - 1)],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
                                      thrill_power=self.damage * 2 + self.penetration),
-            targets=1)
+            targets=targets)
         for aa in self.get_attributes():
             if hasattr(aa, 'modify_basic_attack'):
                 aa.modify_basic_attack(self, ba)
@@ -1726,7 +1740,7 @@ class BallisticWeapon(Weapon):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
                         attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5,
-                        attackattributes.Intercept,
+                        attackattributes.Intercept,attackattributes.LinkedFire
                         )
 
     def __init__(self, ammo_type=None, magazine=None, **keywords):
@@ -1868,7 +1882,7 @@ class BeamWeapon(Weapon):
     DEFAULT_SHOT_ANIM = geffects.GunBeam
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
-                        attackattributes.OverloadAttack,
+                        attackattributes.OverloadAttack,attackattributes.LinkedFire,
                         attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5,
                         attackattributes.Intercept,attackattributes.SwarmFire2,attackattributes.SwarmFire3
                         )
@@ -2274,8 +2288,8 @@ class ChemThrower(Weapon):
     COST_FACTOR = 5
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     DEFAULT_AREA_ANIM = geffects.Fireball
-    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2,
-                        attackattributes.ConeAttack,
+    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.LineAttack,
+                        attackattributes.ConeAttack,attackattributes.LinkedFire
                         )
 
     def is_legal_sub_com(self, part):
