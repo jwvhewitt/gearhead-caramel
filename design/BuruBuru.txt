@@ -598,3 +598,119 @@ Mecha
             END
     END
 
+Mecha
+    name = "Buru Buru"
+    desig = "SAN-X9d Nova Storm"
+    imagename = "mav_buruburu_x9d.png"
+    portrait = "mecha_buruburu.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Commander)
+    desc = "The BuruBuru's powerplant is known as being very dependable. This variant uses that powerplant to fuel an array of energy weapons."
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Intercept Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 605
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        BeamWeapon
+                            name = "Nova Cannon"
+                            reach = 8
+                            damage = 3
+                            accuracy = 1
+                            penetration = 2
+                            material = Advanced
+                            shot_anim = SmallBeam
+                            attack_stat = Perception
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BeamWeapon
+                            name = "Storm Pistol"
+                            reach = 5
+                            damage = 1
+                            accuracy = 2
+                            penetration = 0
+                            material = Advanced
+                            shot_anim = SmallBeam
+                            attributes = (VariableFire5)
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                    INV
+                        BeamWeapon
+                            name = "Storm Pistol"
+                            reach = 5
+                            damage = 1
+                            accuracy = 2
+                            penetration = 0
+                            material = Advanced
+                            shot_anim = SmallBeam
+                            attributes = (VariableFire5)
+                    END
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+    END
+
