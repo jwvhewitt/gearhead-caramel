@@ -585,7 +585,11 @@ class BaseGear(scenes.PlaceableThing):
 
     # volume is likely to be a property in more complex gear types, but here
     # it's just a constant value.
-    volume = 1
+    base_volume = 1
+
+    @property
+    def volume(self):
+        return self.base_volume
 
     @property
     def free_volume(self):
@@ -794,6 +798,51 @@ class BaseGear(scenes.PlaceableThing):
             total += part.restore()
         return total
 
+# Component gears can be installed into modules,
+# or possibly other components.
+# Such components might be integral to the module
+# it is installed in.
+# Integral components can be cheaper, lighter-weight,
+# and smaller, but cannot be removed in-game.
+class Component(BaseGear):
+    DEFAULT_NAME = "Component"
+    SAVE_PARAMETERS = ('integral')
+
+    # If the component is integral, what is the cost and
+    # weight reduction, in percentage?
+    # Practical gears an adjust these.
+    INTEGRAL_COST_REDUCTION = 0.0
+    INTEGRAL_MASS_REDUCTION = 0.0
+
+    def __init__(self, **keywords):
+        self.integral = keywords.pop('integral', False)
+        super(Component, self).__init__(**keywords)
+
+    def can_normally_remove(self):
+        return not self.integral
+
+    @property
+    def self_cost(self):
+        normal_cost = super(Component,self).self_cost
+        if not self.integral:
+            return normal_cost
+        return int((normal_cost * (100.0 - self.INTEGRAL_COST_REDUCTION)) / 100.0)
+
+    @property
+    def self_mass(self):
+        normal_mass = super(Component,self).self_mass
+        if not self.integral:
+            return normal_mass
+        return int((normal_mass * (100.0 - self.INTEGRAL_MASS_REDUCTION)) / 100.0)
+
+    @property
+    def volume(self):
+        normal_volume = super(Component,self).volume
+        if not self.integral or normal_volume <= 1:
+            return normal_volume
+        return normal_volume - 1
+
+          
 #
 #  Practical Gears
 #
@@ -802,11 +851,16 @@ class BaseGear(scenes.PlaceableThing):
 #   ***   ARMOR   ***
 #   *****************
 
-class Armor(BaseGear, StandardDamageHandler):
+class Armor(Component, StandardDamageHandler):
     DEFAULT_NAME = "Armor"
     SAVE_PARAMETERS = ('size',)
     MIN_SIZE = 1
     MAX_SIZE = 25
+
+    # Armor that is shaped specifically to the module it's on
+    # can be cheaper/require less material than armor that
+    # can be removed and installed elsewhere.
+    INTEGRAL_COST_REDUCTION = 20.0
 
     def __init__(self, size=1, **keywords):
         # Check the range of all parameters before applying.
@@ -827,7 +881,7 @@ class Armor(BaseGear, StandardDamageHandler):
         return self.size
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.size
 
     @property
@@ -885,7 +939,7 @@ class Shield(BaseGear, StandardDamageHandler):
         return self.size
 
     @property
-    def volume(self):
+    def base_volume(self):
         return max(self.size - self.bonus + 1, 1)
 
     @property
@@ -920,12 +974,17 @@ class Shield(BaseGear, StandardDamageHandler):
 #   ***   SUPPORT  SYSTEMS   ***
 #   ****************************
 
-class Engine(BaseGear, StandardDamageHandler, MakesPower):
+class Engine(Component, StandardDamageHandler, MakesPower):
     DEFAULT_NAME = "Engine"
     SAVE_PARAMETERS = ('size',)
 
     MIN_SIZE = 100
     MAX_SIZE = 2000
+
+    # We save on cooling tubes and power cables when we integrate
+    # the engine directly to the mecha, so give cost and mass reduction.
+    INTEGRAL_COST_REDUCTION = 25.0
+    INTEGRAL_MASS_REDUCTION = 25.0
 
     def __init__(self, size=750, **keywords):
         # Check the range of all parameters before applying.
@@ -941,7 +1000,7 @@ class Engine(BaseGear, StandardDamageHandler, MakesPower):
         return self.size // 100 + 10
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.size // 400 + 1
 
     @property
@@ -970,7 +1029,7 @@ class Engine(BaseGear, StandardDamageHandler, MakesPower):
         return self.scale.scale_power(self.size // 25)
 
 
-class Gyroscope(BaseGear, StandardDamageHandler):
+class Gyroscope(Component, StandardDamageHandler):
     DEFAULT_NAME = "Gyroscope"
     base_mass = 10
 
@@ -982,7 +1041,7 @@ class Gyroscope(BaseGear, StandardDamageHandler):
     base_health = 2
 
 
-class Cockpit(BaseGear, StandardDamageHandler):
+class Cockpit(Component, StandardDamageHandler):
     DEFAULT_NAME = "Cockpit"
     base_mass = 5
 
@@ -1003,7 +1062,7 @@ class Cockpit(BaseGear, StandardDamageHandler):
     base_health = 2
 
 
-class Sensor(BaseGear, StandardDamageHandler):
+class Sensor(Component, StandardDamageHandler):
     DEFAULT_NAME = "Sensor"
     SAVE_PARAMETERS = ('size',)
     MIN_SIZE = 1
@@ -1027,7 +1086,7 @@ class Sensor(BaseGear, StandardDamageHandler):
         return self.size * self.size * 10
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.size
 
     base_health = 2
@@ -1044,7 +1103,7 @@ class Sensor(BaseGear, StandardDamageHandler):
 #   ***   MOVEMENT  SYSTEMS   ***
 #   *****************************
 
-class MovementSystem(BaseGear):
+class MovementSystem(Component):
     DEFAULT_NAME = "MoveSys"
     SAVE_PARAMETERS = ('size',)
 
@@ -1060,7 +1119,7 @@ class MovementSystem(BaseGear):
         return 10 * self.size
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.size
 
     @property
@@ -1144,7 +1203,7 @@ class PowerSource(BaseGear, StandardDamageHandler, MakesPower):
         return 5 * self.size
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.size
 
     @property
@@ -1170,7 +1229,7 @@ class PowerSource(BaseGear, StandardDamageHandler, MakesPower):
 #   ***   COMPUTERS AND EW GEAR   ***
 #   *********************************
 
-class EWSystem(BaseGear, StandardDamageHandler):
+class EWSystem(Component, StandardDamageHandler):
     DEFAULT_NAME = "EW System"
     SAVE_PARAMETERS = ('size', 'programs')
 
@@ -1189,7 +1248,7 @@ class EWSystem(BaseGear, StandardDamageHandler):
         return 2 * self.size
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.size
 
     @property
@@ -1220,10 +1279,10 @@ class EWSystem(BaseGear, StandardDamageHandler):
 #   ***   WEAPONS   ***
 #   *******************
 
-class Weapon(BaseGear, StandardDamageHandler):
+class Weapon(Component, StandardDamageHandler):
     DEFAULT_NAME = "Weapon"
     SAVE_PARAMETERS = (
-        'reach', 'damage', 'accuracy', 'penetration', 'integral', 'attack_stat', 'shot_anim', 'area_anim', 'attributes')
+        'reach', 'damage', 'accuracy', 'penetration', 'attack_stat', 'shot_anim', 'area_anim', 'attributes')
     DEFAULT_SHOT_ANIM = None
     DEFAULT_AREA_ANIM = geffects.BigBoom
     LEGAL_ATTRIBUTES = ()
@@ -1260,7 +1319,6 @@ class Weapon(BaseGear, StandardDamageHandler):
         self.attack_stat = attack_stat
         self.shot_anim = shot_anim or self.DEFAULT_SHOT_ANIM
         self.area_anim = area_anim or self.DEFAULT_AREA_ANIM
-        self.integral = keywords.pop("integral", False)
         self.attributes = list()
         for a in attributes:
             if a in self.LEGAL_ATTRIBUTES:
@@ -1269,9 +1327,6 @@ class Weapon(BaseGear, StandardDamageHandler):
         # Finally, call the gear initializer.
         super(Weapon, self).__init__(**keywords)
 
-    def can_normally_remove(self):
-        return not self.integral
-
     @property
     def base_mass(self):
         mult = 1.0
@@ -1279,12 +1334,18 @@ class Weapon(BaseGear, StandardDamageHandler):
             mult *= aa.MASS_MODIFIER
         return int(((self.damage + self.penetration) * 5 + self.accuracy + self.reach) * mult)
 
+    ## Should not happen, since Weapon overrides volume directly.
+    @property
+    def base_volume(self):
+        raise Exception('Weapon.base_volume called!')
+
     @property
     def volume(self):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.VOLUME_MODIFIER
         v = max(self.reach + self.accuracy + (self.damage + self.penetration) // 2, 1)
+        # Our own handling of integral weapon volume.
         if self.integral:
             v -= 1
         return max( (int(v * mult)+1)//2, 1)
@@ -1624,7 +1685,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         return int((ammo_type.bang * quantity + 49) // 50)
 
     @property
-    def volume(self):
+    def base_volume(self):
         # Ammo volume is not adjusted for attack attributes- instead, that goes tacked onto the cost.
         return self.ammo_volume(self.ammo_type,self.quantity)
 
@@ -1935,7 +1996,7 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
                 self.quantity - self.spent)) // 25) * mult)
 
     @property
-    def volume(self):
+    def base_volume(self):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.VOLUME_MODIFIER
@@ -2000,7 +2061,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
         return self.size
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.size
 
     @property
@@ -2173,7 +2234,7 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         return int(mult * 10 * (self.quantity - self.spent) // 25)
 
     @property
-    def volume(self):
+    def base_volume(self):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.VOLUME_MODIFIER
@@ -2502,7 +2563,7 @@ class Module(BaseGear, StandardDamageHandler):
         return self.size * 25
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.size * self.form.VOLUME_X
 
     def check_multiplicity(self, part):
@@ -2637,7 +2698,7 @@ class Clothing(BaseGear,ContainerDamageHandler):
         return 25
 
     @property
-    def volume(self):
+    def base_volume(self):
         return 5 * self.form.VOLUME_X
 
     def is_legal_sub_com(self, part):
@@ -2758,7 +2819,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
     @property
-    def volume(self):
+    def base_volume(self):
         return sum(i.volume for i in self.sub_com)
 
     def is_not_destroyed(self):
@@ -3007,7 +3068,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
     @property
-    def volume(self):
+    def base_volume(self):
         return sum(i.volume for i in self.sub_com)
 
     def is_not_destroyed(self):
@@ -3300,7 +3361,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
         return True
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.size * 4
 
     def get_stat(self, stat_id):
@@ -3404,7 +3465,7 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR < self.scale.SIZE_FACTOR
 
     @property
-    def volume(self):
+    def base_volume(self):
         return sum(i.volume for i in self.sub_com)
 
     def get_stat(self, stat_id):

@@ -193,27 +193,46 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
         self.editor.update()
 
 
-class ArmorEditWidget(PartEditWidget):
+class ComponentEditWidget(PartEditWidget):
+    def __init__(self, mygear, editor, **kwargs):
+        super().__init__(mygear, editor, **kwargs)
+
+        # In the Mecha Engineering Terminal, do not
+        # show "Integral" field unless actually integral.
+        # Very few components are Integral, so reduce clutter
+        # in-game.
+        if (editor.mode == MODE_CREATIVE) or mygear.integral:
+            self.integral_menu = LabeledDropdownWidget(mygear, "Integral", self._set_integral,options=['False', 'True'], active=editor.mode==MODE_CREATIVE)
+            self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
+            self.add_interior(self.integral_menu)
+
+    def _set_integral(self,result):
+        self.mygear.integral = result is 'True'
+        self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
+
+
+class ArmorEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,active=editor.mode==MODE_CREATIVE))
 
-class ShieldEditWidget(ArmorEditWidget):
+class ShieldEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,active=editor.mode==MODE_CREATIVE))
         self.add_interior(PlusMinusWidget(mygear,"bonus",mygear.MIN_BONUS,mygear.MAX_BONUS,None,active=editor.mode==MODE_CREATIVE))
 
-class EngineEditWidget(PartEditWidget):
+class EngineEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,step=25,active=editor.mode==MODE_CREATIVE))
 
-class SensorEditWidget(PartEditWidget):
+class SensorEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,active=editor.mode==MODE_CREATIVE))
 
-class MoveSysEditWidget(PartEditWidget):
+class MoveSysEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",1,25,None,active=editor.mode==MODE_CREATIVE))
@@ -223,7 +242,7 @@ class PowerSourceEditWidget(PartEditWidget):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",1,25,None,active=editor.mode==MODE_CREATIVE))
 
-class EWSystemEditWidget(PartEditWidget):
+class EWSystemEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",1,10,on_change=self._check_progs,active=editor.mode==MODE_CREATIVE))
@@ -235,18 +254,9 @@ class EWSystemEditWidget(PartEditWidget):
             del self.mygear.programs[self.mygear.size:]
         self.prog_widget.max_ops = self.mygear.size
 
-class WeaponEditWidget(PartEditWidget):
+class WeaponEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-
-        # In the Mecha Engineering Terminal, do not
-        # show "Integral" field unless actually integral.
-        # Very few weapons are Integral, so reduce clutter
-        # in-game.
-        if (editor.mode == MODE_CREATIVE) or mygear.integral:
-            self.integral_menu = LabeledDropdownWidget(mygear, "Integral", self._set_integral,options=['False', 'True'], active=editor.mode==MODE_CREATIVE)
-            self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
-            self.add_interior(self.integral_menu)
 
         self.add_interior(PlusMinusWidget(mygear,"reach",mygear.MIN_REACH,mygear.MAX_REACH,active=editor.mode==MODE_CREATIVE))
         self.add_interior(PlusMinusWidget(mygear,"damage",mygear.MIN_DAMAGE,mygear.MAX_DAMAGE,active=editor.mode==MODE_CREATIVE))
@@ -264,10 +274,6 @@ class WeaponEditWidget(PartEditWidget):
         self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS],active=editor.mode==MODE_CREATIVE)
         self.stat_menu.menu.set_item_by_value(self.mygear.attack_stat)
         self.add_interior(self.stat_menu)
-
-    def _set_integral(self,result):
-        self.mygear.integral = result is 'True'
-        self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
 
     def _set_attack_stat(self,result):
         if result:
@@ -420,6 +426,8 @@ CLASS_EDITORS = {
     gears.base.Launcher: LauncherEditWidget,
     gears.base.Chem: ChemEditWidget,
     gears.base.ChemThrower: WeaponEditWidget,
+    gears.base.Gyroscope: ComponentEditWidget,
+    gears.base.Cockpit: ComponentEditWidget,
     gears.base.Module: ModuleEditWidget,
     gears.base.Mecha: MechaEditWidget,
 }

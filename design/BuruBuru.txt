@@ -714,3 +714,117 @@ Mecha
             END
     END
 
+Mecha
+    name = "Buru Buru"
+    desig = "SAN-X9i iEA"
+    imagename = "mav_buruburu_x9i.png"
+    portrait = "mecha_buruburu.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Trooper,Commander)
+    desc = "An updated BuruBuru with advanced engines and armor integrated into its hull."
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                    integral = True
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Intercept Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                    integral = True
+                Engine
+                    size = 955
+                    integral = True
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 20
+                            END
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                    integral = True
+                Hand
+                    name = "Right Hand"
+                    INV
+                        STC Shaka Cannon
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                    integral = True
+                Hand
+                    name = "Left Hand"
+                    INV
+                        MeleeWeapon
+                            name="Axe"
+                            reach=1
+                            damage=3
+                            accuracy=1
+                            penetration=2
+                    END
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                    integral = True
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                    integral = True
+                HoverJets
+                    size = 4
+            END
+    END
+
