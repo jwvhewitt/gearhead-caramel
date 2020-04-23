@@ -347,7 +347,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         # both operational and on the map.
         flp = None
         for pc in self.party:
-            if pc.is_operational() and pc in self.scene.contents:
+            if pc.is_operational() and pc in self.scene.contents and hasattr(pc,"pos") and pc.pos and self.scene.on_the_map(*pc.pos):
                 flp = pc
                 break
         return flp
