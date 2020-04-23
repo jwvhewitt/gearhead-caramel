@@ -2,7 +2,9 @@ from . import ghterrain
 from pbge.randmaps.architect import Architecture
 from pbge.randmaps.decor import OmniDec,ColumnsDecor,OfficeDecor
 import pbge
-from . import ghwaypoints
+from . import ghwaypoints,ghrooms
+from .ghrooms import MSWreckageDecor
+
 
 class CheeseShopDecor(OmniDec):
     WALL_DECOR = (ghterrain.WoodenShelves,)
@@ -11,9 +13,6 @@ class ResidentialDecor(OmniDec):
     WALL_DECOR = (ghterrain.WoodenShelves,)
     WIN_DECOR = ghterrain.ScreenWindow
 
-class MSWreckageDecor(OmniDec):
-    FLOOR_DECOR = (ghterrain.MSWreckage,)
-    FLOOR_FILL_FACTOR = 0.15
 
 class StorageRoomDecor(ColumnsDecor):
     WALL_DECOR = (ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.VentFanTerrain)
@@ -35,6 +34,7 @@ class MechaScaleDeadzone(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.DeadZoneGround
+    DEFAULT_ROOM_CLASSES = (ghrooms.ForestRoom,ghrooms.LakeRoom,ghrooms.WreckageRoom,ghrooms.DragonToothRoom)
 
 class MechaScaleRuins(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.FortressWall)
@@ -48,6 +48,7 @@ class MechaScaleSemiDeadzone(Architecture):
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
     DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.SemiDeadZoneGround, ghterrain.SemiDeadZoneGround, ghterrain.GreenZoneGrass, higround=0.65)
+    DEFAULT_ROOM_CLASSES = (ghrooms.ForestRoom,ghrooms.LakeRoom,ghrooms.WreckageRoom,ghrooms.DragonToothRoom)
 
 class HumanScaleDeadzone(Architecture):
 #    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall

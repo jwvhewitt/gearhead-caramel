@@ -1,4 +1,5 @@
-- Enchantments can be dispelled on movement, but WARNING SAVEFILES MADE BEFORE THIS VERSION ARE NOT COMPATIBLE WITH THIS VERSION.
+- Mecha missions now feature a variety of room types
+- Enchantments can be dispelled on movement
 - Added tidy_enchantments method to GearHeadScene
 - Added LinkedFire attack attribute
 - Many non-weapon gears can now be integral (which makes them non-removable in-game, but gives volume reduction and possible cost and mass reduction).

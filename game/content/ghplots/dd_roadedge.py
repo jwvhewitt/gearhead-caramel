@@ -94,7 +94,7 @@ class DZDREProppStarterPlot(Plot):
             objectives = self.ENCOUNTER_OBJECTIVES,
             adv_type = "DZD_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
-            scenegen=DeadZoneHighwaySceneGen, architecture=self.ENCOUNTER_ARCHITECTURE,
+            scenegen=DeadZoneHighwaySceneGen, architecture=self.ENCOUNTER_ARCHITECTURE(),
             cash_reward=0,
         )
         return myadv

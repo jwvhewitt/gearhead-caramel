@@ -11,6 +11,7 @@ from . import ghwaypoints
 from . import ghcutscene
 import uuid
 from . import backstory
+from . import ghrooms
 
 
 # The list of plots will be stored as a dictionary based on label.

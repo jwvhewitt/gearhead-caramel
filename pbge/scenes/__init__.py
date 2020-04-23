@@ -289,6 +289,19 @@ class Scene( object ):
                     if decor != -1:
                         self._map[x][y].decor = decor
 
+    def fill_blob( self, dest, floor=-1, wall=-1, decor=-1 ):
+        # Fill the provided area with the provided terrain.
+        midpoint = dest.center
+        for x in range( dest.x, dest.x + dest.width ):
+            for y in range( dest.y, dest.y + dest.height ):
+                if self.on_the_map(x,y) and self.distance((x,y),midpoint) <= dest.width//2:
+                    if floor != -1:
+                        self._map[x][y].floor = floor
+                    if wall != -1:
+                        self._map[x][y].wall = wall
+                    if decor != -1:
+                        self._map[x][y].decor = decor
+
     def get_move_cost( self, a, b, movemode ):
         # a and b should be adjacent tiles.
         if self.on_the_map(b[0],b[1]) and self.on_the_map(a[0],a[1]):

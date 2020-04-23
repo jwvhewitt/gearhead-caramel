@@ -3,14 +3,13 @@ from pbge.dialogue import Offer, ContextTag
 from game import teams, services, ghdialogue
 from game.ghdialogue import context
 import gears
-import game.content.gharchitecture
 import pbge
-import game.content.plotutility
 from game.content import ghwaypoints
 import game.content.ghterrain
 from .dd_main import DZDRoadMapExit
-from game.content import backstory
+from game.content import backstory,plotutility
 import random
+
 
 
 
@@ -75,6 +74,16 @@ class DZD_TheTownYouStartedIn(Plot):
         #game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 
         return True
+
+    def METROSCENE_ENTER(self, camp):
+        # Upon entering this scene, deal with any dead or incapacitated party members.
+        # Also, deal with party members who have lost their mecha. This may include the PC.
+        etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
+        if not etlr.did_recovery:
+            # We can maybe load a lancemate scene here. Yay!
+            nart = game.content.GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=game.content.PLOT_LIST)
+            if nart.story:
+                nart.build()
 
     def _finish_first_quest(self,camp):
         self.first_quest_done = True

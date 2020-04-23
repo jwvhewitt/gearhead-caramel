@@ -180,7 +180,7 @@ class DZREPR_BaseMission(Plot):
             camp, self.MISSION_NAME, (self.elements["LOCALE"],self.elements["MISSION_GATE"]),
             enemy_faction = self.elements["FACTION"], rank=self.rank,
             objectives = self.OBJECTIVES, one_chance=True,
-            architecture=self.MISSION_ARCHITECTURE,
+            architecture=self.MISSION_ARCHITECTURE(),
             win_message=self.WIN_MESSAGE.format(**self.elements),
             loss_message=self.LOSS_MESSAGE.format(**self.elements),
             cash_reward=100 + self.elements[E_MISSION_WINS] ** 2 * 25
@@ -294,7 +294,7 @@ class DZREPRC_ConclusionTemplate(Plot):
             camp, self.MISSION_NAME, (self.elements["LOCALE"],self.elements["MISSION_GATE"]),
             enemy_faction = self.elements["FACTION"], rank=self.rank,
             objectives = self.OBJECTIVES, one_chance=True,
-            architecture=gharchitecture.MechaScaleDeadzone,
+            architecture=gharchitecture.MechaScaleDeadzone(),
             win_message=self.WIN_MESSAGE.format(**self.elements),
             loss_message=self.LOSS_MESSAGE.format(**self.elements),
             cash_reward=200 + self.elements[E_MISSION_WINS] ** 2 * 25
