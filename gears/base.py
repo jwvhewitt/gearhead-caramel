@@ -514,6 +514,7 @@ class BaseGear(scenes.PlaceableThing):
     SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot', 'faction_list')
 
     def __init__(self, uniqueid=None, shop_tags=(), desc="", slot=None, faction_list=(None,), **keywords):
+        self.__base_gear_pos = None
         self.name = keywords.pop("name", self.DEFAULT_NAME)
         self.desig = keywords.pop("desig", None)
         self.scale = keywords.pop("scale", self.DEFAULT_SCALE)
@@ -543,6 +544,20 @@ class BaseGear(scenes.PlaceableThing):
                 print(("ERROR: {} cannot be equipped in {}".format(i, self)))
 
         super(BaseGear, self).__init__(**keywords)
+
+    @property
+    def pos(self):
+        return self.__base_gear_pos
+
+    @pos.setter
+    def pos(self, nextpos):
+        if not hasattr(self, 'ench_list'):
+            self.__base_gear_pos = nextpos
+            return
+        curpos = self.__base_gear_pos
+        self.__base_gear_pos = nextpos
+        if not (nextpos is curpos):
+            self.ench_list.tidy(enchantments.ON_MOVE)
 
     def get_full_name(self):
         if self.desig:

@@ -1,5 +1,6 @@
 
 END_COMBAT = "END_COMBAT"
+ON_MOVE = "ON_MOVE"
 
 
 class EnchantmentList(list):
