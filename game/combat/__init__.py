@@ -317,11 +317,6 @@ class Combat( object ):
             #    # Provide some end-of-combat first aid.
             #    #self.do_first_aid(explo)
             #    self.recover_fainted(explo)
-
-            for thing in self.scene.contents:
-                # Tidy up any combat enchantments.
-                if hasattr(thing,"ench_list"):
-                    thing.ench_list.tidy( gears.enchantments.END_COMBAT )
-
+            self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)
 
 

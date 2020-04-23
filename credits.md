@@ -37,6 +37,7 @@ ICONS - MOSTLY FROM "THE NOUN PROJECT"
 * Reaction emoji from OpenMoji, CC-BY-SA 4.0. Slightly modified by me.
 Pouting Face, Slightly Frowning Face, Neutral Face by Mariella Steeb
 Slightly Smiling Face, Beaming Face with Smiling Eyes by Emily Jäger
+* link by Hassan ali from the Noun Project
 
 MUSIC
 =====

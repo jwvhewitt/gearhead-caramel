@@ -251,6 +251,10 @@ class GearHeadScene(pbge.scenes.Scene):
         good_spots -= self.get_blocked_tiles()
         return good_spots
 
+    def tidy_enchantments(self,dispel_type):
+        for thing in self.contents:
+            if hasattr(thing, "ench_list"):
+                thing.ench_list.tidy(dispel_type)
 
     def tidy_at_start(self,camp):
         for npc in self.contents:

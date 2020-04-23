@@ -289,6 +289,9 @@ class LinkedFire(Singleton):
             if myattack.targets > 1:
                 myattack.price.append(geffects.MentalPrice(myattack.targets+1))
                 myattack.name = "Link ({} shots, {}MP)".format(myattack.targets,myattack.targets+1)
+                myattack.data.active_frame = 18
+                myattack.data.inactive_frame = 19
+                myattack.data.disabled_frame = 20
                 mylist.append(myattack)
         return mylist
 
