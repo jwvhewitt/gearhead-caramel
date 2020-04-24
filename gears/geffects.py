@@ -4,7 +4,7 @@ from pbge.scenes import animobs,movement,pfov
 import random
 from . import materials
 from . import damage, stats
-from .enchantments import Enchantment,END_COMBAT
+from .enchantments import Enchantment,END_COMBAT,ON_MOVE
 import math
 from . import base
 
@@ -1349,3 +1349,36 @@ class WeakPoint(Enchantment):
     def get_penetration_bonus(self,owner):
         return 20
 
+
+class TakingCover(Enchantment):
+    name = 'Taking Cover'
+    DEFAULT_DISPEL = (END_COMBAT,ON_MOVE)
+    DEFAULT_DURATION = None
+    def __init__(self, percent_bonus=100, **kwargs):
+        super().__init__(**kwargs)
+        self.percent_bonus = percent_bonus
+    def merge_enchantment(self, **kwargs):
+        new_percent_bonus = kwargs.pop("percent_bonus")
+        super().merge_enchantment(**kwargs)
+        # Select larger bonus.
+        if new_percent_bonus and new_percent_bonus > self.percent_bonus:
+            self.percent_bonus = new_percent_bonus
+    def get_cover_enhance_bonus(self, owner):
+        return self.percent_bonus
+
+
+class BreakingCover(Enchantment):
+    name = 'Cover Broken'
+    DEFAULT_DISPEL = (END_COMBAT,)
+    DEFAULT_DURATION = 2
+    def __init__(self, percent_malus=100, **kwargs):
+        super().__init__(**kwargs)
+        self.percent_malus = percent_malus
+    def merge_enchantment(self, **kwargs):
+        new_percent_malus = kwargs.pop("percent_malus")
+        super().merge_enchantment(**kwargs)
+        # Select larger malus.
+        if new_percent_malus and new_percent_malus > self.percent_malus:
+            self.percent_malus = new_percent_malus
+    def get_cover_enhance_bonus(self, owner):
+        return -self.percent_malus
