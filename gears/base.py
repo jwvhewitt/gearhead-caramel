@@ -1414,7 +1414,8 @@ class Weapon(Component, StandardDamageHandler):
     def get_modifiers(self):
         return [geffects.RangeModifier(self.reach), geffects.CoverModifier(), geffects.SpeedModifier(),
                 geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self.get_module()),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier()]
+                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier(),
+                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
 
     def get_basic_attack(self):
         ba = pbge.effects.Invocation(
@@ -1499,7 +1500,8 @@ class MeleeWeapon(Weapon):
     def get_modifiers(self):
         return [geffects.CoverModifier(), geffects.SensorModifier(), geffects.OverwhelmModifier(),
                 geffects.ModuleBonus(self.get_module()), geffects.SneakAttackBonus(), geffects.HiddenModifier(),
-                geffects.ImmobileModifier()]
+                geffects.ImmobileModifier(),
+                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
 
     def get_basic_attack(self, name='Basic Attack', attack_icon=0, targets=1):
         ba = pbge.effects.Invocation(
@@ -1585,7 +1587,8 @@ class EnergyWeapon(Weapon):
     def get_modifiers(self):
         return [geffects.CoverModifier(), geffects.SensorModifier(), geffects.OverwhelmModifier(),
                 geffects.ModuleBonus(self.get_module()), geffects.SneakAttackBonus(), geffects.HiddenModifier(),
-                geffects.ImmobileModifier()]
+                geffects.ImmobileModifier(),
+                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
 
     def get_basic_power_cost(self):
         mult = 0.25
@@ -2121,7 +2124,8 @@ class Launcher(BaseGear, ContainerDamageHandler):
     def get_modifiers(self, ammo):
         return [geffects.RangeModifier(ammo.reach), geffects.CoverModifier(), geffects.SpeedModifier(),
                 geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self.get_module()),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier()]
+                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier(),
+                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
 
     def get_attributes(self):
         ammo = self.get_ammo()
@@ -2331,7 +2335,8 @@ class ChemThrower(Weapon):
     def get_modifiers(self):
         return [geffects.RangeModifier(self.reach), geffects.CoverModifier(), geffects.SpeedModifier(),
                 geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self.get_module()),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier()]
+                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier(),
+                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
 
     def get_chem_cost(self):
         mult = 1.0
