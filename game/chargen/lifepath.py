@@ -362,7 +362,7 @@ D_WAR = LifePathNode(
 
 )
 
-SURV_PET = LifePathOption("Animal Companion","I had a dog who kept me safe. (Dominate Animal skill)",
+SURV_PET = LifePathOption("Animal Companion","I had a dog who kept me safe. (Wildcraft skill)",
                           stat_mods={stats.Wildcraft:1},
                           biomessage="[LPC_SURV]",
                           biogram={
