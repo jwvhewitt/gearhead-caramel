@@ -4,7 +4,7 @@ from pbge.scenes import animobs,movement,pfov
 import random
 from . import materials
 from . import damage, stats
-from .enchantments import Enchantment,END_COMBAT
+from .enchantments import Enchantment,END_COMBAT,ON_MOVE
 import math
 from . import base
 
@@ -969,6 +969,47 @@ class HiddenModifier(object):
         else:
             return 0
 
+class CoverEnhanceModifier(object):
+    name = 'Cover Enhance'
+    def calc_modifier( self, camp, attacker, pos ):
+        target = camp.scene.get_main_actor(pos)
+        if not target or not hasattr(target, 'ench_list'):
+            return 0
+        percent = target.ench_list.get_funval(target, 'get_cover_enhance_bonus')
+        if percent == 0:
+            return 0
+        elif percent < 0:
+            self.name = 'Cover Blown'
+        else:
+            self.name = 'Taking Cover'
+
+        # Cannot remove more cover than the actual cover.
+        if percent < -100:
+            percent = -100
+
+        base_cover = camp.scene.get_cover(attacker.pos[0],attacker.pos[1],pos[0],pos[1])
+        return -((base_cover * percent) // 100)
+
+
+class CoverPierceModifier(object):
+    name = 'Cover Pierce'
+    def calc_modifier( self, camp, attacker, pos ):
+        if not attacker or not hasattr(attacker, 'ench_list'):
+            return 0
+        percent = attacker.ench_list.get_funval(attacker, 'get_cover_pierce_bonus')
+        if percent == 0:
+            return 0
+        elif percent < 0:
+            self.name = 'Confused By Cover'
+        else:
+            self.name = 'Pierce Cover'
+
+        # Cannot pierce more cover than the actual cover.
+        if percent > 100:
+            percent = 100
+
+        base_cover = camp.scene.get_cover(attacker.pos[0],attacker.pos[1],pos[0],pos[1])
+        return (base_cover * percent) // 100
 
 #  **************************
 #  ***   Defense  Rolls   ***
@@ -1249,6 +1290,8 @@ class RevealPositionPrice(object):
 # Existing funval types:
 #   get_mobility_bonus
 #   get_penetration_bonus
+#   get_cover_enhance_bonus
+#   get_cover_pierce_bonus
 
 
 class Burning(Enchantment):
@@ -1310,3 +1353,36 @@ class WeakPoint(Enchantment):
     def get_penetration_bonus(self,owner):
         return 20
 
+
+class TakingCover(Enchantment):
+    name = 'Taking Cover'
+    DEFAULT_DISPEL = (END_COMBAT,ON_MOVE)
+    DEFAULT_DURATION = None
+    def __init__(self, percent_bonus=100, **kwargs):
+        super().__init__(**kwargs)
+        self.percent_bonus = percent_bonus
+    def merge_enchantment(self, **kwargs):
+        new_percent_bonus = kwargs.pop("percent_bonus")
+        super().merge_enchantment(**kwargs)
+        # Select larger bonus.
+        if new_percent_bonus and new_percent_bonus > self.percent_bonus:
+            self.percent_bonus = new_percent_bonus
+    def get_cover_enhance_bonus(self, owner):
+        return self.percent_bonus
+
+
+class BreakingCover(Enchantment):
+    name = 'Cover Broken'
+    DEFAULT_DISPEL = (END_COMBAT,)
+    DEFAULT_DURATION = 2
+    def __init__(self, percent_malus=100, **kwargs):
+        super().__init__(**kwargs)
+        self.percent_malus = percent_malus
+    def merge_enchantment(self, **kwargs):
+        new_percent_malus = kwargs.pop("percent_malus")
+        super().merge_enchantment(**kwargs)
+        # Select larger malus.
+        if new_percent_malus and new_percent_malus > self.percent_malus:
+            self.percent_malus = new_percent_malus
+    def get_cover_enhance_bonus(self, owner):
+        return -self.percent_malus
