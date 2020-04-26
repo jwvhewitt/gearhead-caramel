@@ -41,3 +41,22 @@ class WreckageRoom(FuzzyRoom):
 
 class DragonToothRoom(FuzzyRoom):
     DECORATE = DragonToothDecor()
+
+class MSRuinsRoom(FuzzyRoom):
+    DECORATE = MSWreckageDecor(floor_fill_factor=0.05)
+    def build( self, gb, archi ):
+        super().build(gb,archi)
+
+        # Add some random ruins.
+        ruin_list = list()
+        safe_area = self.area.inflate(-4,-4)
+        for t in range(random.randint(3,8)):
+            x = random.randint(self.area.left+3,self.area.right-4)
+            y = random.randint(self.area.top+3,self.area.bottom-4)
+            myroomdest = pygame.Rect(0,0,random.randint(2,4),random.randint(2,4))
+            myroomdest.center = (x,y)
+            myroomdest = myroomdest.clamp(safe_area)
+            if myroomdest.inflate(2,2).collidelist(ruin_list) == -1:
+                gb.fill(myroomdest,wall=ghterrain.MSRuinedWall)
+                ruin_list.append(myroomdest)
+

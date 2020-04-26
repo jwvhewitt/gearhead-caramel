@@ -1,0 +1,95 @@
+Mecha
+    name = "Ultari"
+    desig = "ULT-16f"
+    imagename = "mav_ultari.png"
+    portrait = "mecha_ultari.png"
+    family = "Ultari"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (BoneDevils,TerranFederation,TerranDefenseForce,RegExCorporation,DeadzoneFederation,ClanIronwind)
+    role_list = (Trooper,Commander)
+    desc = ""
+    form = MT_Groundhugger
+
+    SUB
+        Turret
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                BallisticWeapon
+                    name = "Primary Cannon"
+                    reach = 6
+                    damage = 4
+                    accuracy = 2
+                    penetration = 2
+                    ammo_type = Shells_120mm
+                    attributes = (Accurate)
+                    magazine = 30
+                    integral = True
+                    shot_anim = HugeBullet
+                    SUB
+                        Ammo
+                            ammo_type=Shells_120mm
+                            quantity=30
+                    END
+
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 8
+                Sensor
+                    size = 2
+                Engine
+                    size = 650
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Right Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+                                    name = "Rocket Pod"
+                                    reach = 5
+                                    damage = 2
+                                    accuracy = 1
+                                    penetration = 3
+                                    quantity = 24
+                            END
+                    END
+                Mount
+                    name = "Left Mount"
+                    INV
+                        STC Intercept Cannon
+                    END
+            END
+        Storage
+            name = "Right Track"
+            size = 3
+            info_tier = 2
+            SUB
+                Armor
+                    size = 5
+                Tracks
+                    size = 6
+
+            END
+        Storage
+            name = "Left Track"
+            size = 3
+            info_tier = 2
+            SUB
+                Armor
+                    size = 5
+                Tracks
+                    size = 6
+
+            END
+    END

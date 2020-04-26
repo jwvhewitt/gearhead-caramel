@@ -151,13 +151,19 @@ class Room( object ):
         # Find a list of good spots for stuff that goes in the open.
         good_spots = self.list_good_deploy_spots( gb )
 
+        # Find a list of good walls for stuff that must be mounted on a wall.
+        good_walls = [p for p in self.get_west_north_wall_points(gb) if self.is_good_spot_for_wall_decor(gb,p)]
+
         # First pass- execute any deploy methods in any contents.
         for i in list(self.contents):
             if hasattr( i, "predeploy" ):
                 i.predeploy( gb, self )
-
-        # Find a list of good walls for stuff that must be mounted on a wall.
-        good_walls = [p for p in self.get_west_north_wall_points(gb) if self.is_good_spot_for_wall_decor(gb,p)]
+            # Remove the spaces occupied by map contents from the good spots lists.
+            if hasattr(i,"pos") and i.pos:
+                if i.pos in good_walls:
+                    good_walls.remove(i.pos)
+                if i.pos in good_spots:
+                    good_spots.remove(i.pos)
 
         for i in list(self.contents):
             # Only place contents which can be placed, but haven't yet.

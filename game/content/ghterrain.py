@@ -158,6 +158,10 @@ class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     blocks = (Walking, Skimming, Rolling)
     movement_cost={pbge.scenes.movement.Vision:5}
 
+class MSRuinedWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_msruins.png'
+    blocks = (Walking,Skimming,Rolling,Vision)
+
 
 class DZDTownTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'

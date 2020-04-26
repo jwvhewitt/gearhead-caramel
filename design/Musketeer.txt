@@ -1,0 +1,123 @@
+Mecha
+    name = "Musketeer"
+    desig = "TD-4B"
+    imagename = "mav_musketeer.png"
+    portrait = "mecha_musketeer.png"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (None,)
+    role_list = (Trooper,Support)
+    desc = ""
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                Cockpit
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 600
+                Gyroscope
+                Launcher
+                    size = 4
+                    SUB
+                        Missile
+                            name = "Light Missiles"
+                            reach = 7
+                            damage = 2
+                            accuracy = 3
+                            penetration = 1
+                            quantity = 12
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                BeamWeapon
+                    name = "Plasma Cannon"
+                    reach = 4
+                    damage = 3
+                    accuracy = 2
+                    penetration = 2
+                    attributes = (Scatter,LinkedFire)
+                    shot_anim = PlasmaBall
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                BeamWeapon
+                    name = "Plasma Cannon"
+                    reach = 4
+                    damage = 3
+                    accuracy = 2
+                    penetration = 2
+                    attributes = (Scatter,LinkedFire)
+                    shot_anim = PlasmaBall
+            END
+        Leg
+            name = "Right Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                HeavyActuators
+                    size = 3
+                Mount
+                    name = "Right Leg Mount"
+                    INV
+                        Launcher
+                            size = 3
+                            SUB
+                                Missile
+                                    name = "Heavy Missiles"
+                                    reach = 7
+                                    damage = 2
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 3
+                                    attributes = (Blast2)
+                            END
+
+                    END
+            END
+        Leg
+            name = "Left Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                HeavyActuators
+                    size = 3
+                Mount
+                    name = "Left Leg Mount"
+                    INV
+                        Launcher
+                            size = 3
+                            SUB
+                                Missile
+                                    name = "Heavy Missiles"
+                                    reach = 7
+                                    damage = 2
+                                    accuracy = 1
+                                    penetration = 1
+                                    quantity = 3
+                                    attributes = (Blast2)
+                            END
+
+                    END
+            END
+    END

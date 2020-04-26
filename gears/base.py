@@ -923,7 +923,11 @@ class Armor(Component, StandardDamageHandler):
 
     def get_armor_rating(self):
         """Returns the penetration rating of this armor."""
-        return (self.size * 10) * (self.max_health - self.hp_damage) // self.max_health
+        arat = (self.size * 10) * (self.max_health - self.hp_damage) // self.max_health
+        myroot = self.get_root()
+        if myroot and hasattr(myroot,"form") and hasattr(myroot.form,"modify_armor"):
+            arat = myroot.form.modify_armor(arat)
+        return arat
 
     def reduce_damage(self, dmg, dmg_request):
         """Armor reduces damage taken, but gets damaged in the process."""
@@ -1194,6 +1198,25 @@ class Wheels(MovementSystem, StandardDamageHandler):
     @property
     def base_mass(self):
         return 5 * self.size
+
+class Tracks(MovementSystem, StandardDamageHandler):
+    DEFAULT_NAME = "Tracks"
+    MOVESYS_COST = 10
+
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size * 2
+
+    def get_thrust(self, move_mode):
+        if move_mode is geffects.Rolling:
+            return (self.size * 4000 * self.current_health + self.max_health - 1) // self.max_health
+        else:
+            return 0
+
+    @property
+    def base_mass(self):
+        return 10 * self.size
 
 
 class HeavyActuators(MovementSystem, StandardDamageHandler):
@@ -2567,7 +2590,7 @@ class MF_Storage(ModuleForm):
 
 
 class Module(BaseGear, StandardDamageHandler):
-    SAVE_PARAMETERS = ('form', 'size')
+    SAVE_PARAMETERS = ('form', 'size', 'info_tier')
 
     def __init__(self, form=MF_Storage, size=1, info_tier=None, **keywords):
         keywords["name"] = keywords.pop("name", form.name)
@@ -2794,8 +2817,34 @@ class MT_Arachnoid(MT_Battroid):
         else:
             return 0
 
+class MT_Groundhugger(MT_Battroid):
+    name = "Groundhugger"
 
-MECHA_FORMS = (MT_Battroid,MT_Arachnoid)
+    @classmethod
+    def is_legal_sub_com(self, part):
+        if isinstance(part, Module):
+            return not isinstance(part.form, (MF_Arm,MF_Wing,MF_Tail,MF_Leg))
+        else:
+            return False
+
+    @classmethod
+    def modify_speed(self, base_speed, move_mode):
+        # Return the modified speed.
+        if move_mode in {geffects.Rolling,geffects.Skimming}:
+            return base_speed
+        else:
+            return 0
+
+    @classmethod
+    def modify_mobility(cls,base_mobility):
+        return max(base_mobility-20,0)
+
+    @classmethod
+    def modify_armor(cls,base_armor):
+        return int(base_armor * 1.25)
+
+
+MECHA_FORMS = (MT_Battroid,MT_Arachnoid,MT_Groundhugger)
 
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
     SAVE_PARAMETERS = ('name', 'form', 'environment_list', 'role_list', 'family')
@@ -2931,6 +2980,9 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             pmod = pilot.get_module()
             if pmod and pmod.form == MF_Head:
                 it += 10
+        # Add form modifiers
+        if hasattr(self.form,"modify_mobility"):
+            it = self.form.modify_mobility(it)
         # Add emchantment modifiers.
         it += self.ench_list.get_funval(self, 'get_mobility_bonus')
         return it

@@ -280,7 +280,7 @@ class DZDIntroMission( Plot ):
         self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=player_a),dident="LOCALE")
         myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
 
-        enemy_room = self.register_element("ENEMY_ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10,anchor=enemy_a),dident="LOCALE")
+        enemy_room = self.register_element("ENEMY_ROOM",game.content.ghrooms.MSRuinsRoom(15,15,anchor=enemy_a),dident="LOCALE")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ENEMY_ROOM")
         myunit = gears.selector.RandomMechaUnit(level=10,strength=50,fac=None,env=myscene.environment)
         team2.contents += myunit.mecha_list
