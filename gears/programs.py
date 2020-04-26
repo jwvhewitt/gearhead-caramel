@@ -28,8 +28,31 @@ class EMBlaster(Program):
     def get_invocations(cls, pc):
         progs = list()
 
+        def is_vulnerable(camp, pc, npc):
+            return geffects.HaywireStatus.can_affect(npc)
+
+        myprog = pbge.effects.Invocation(
+            name = 'Localized EMP',
+            fx = geffects.CheckConditions([is_vulnerable],
+                     anim = geffects.DustCloud,
+                     on_success = [
+                         geffects.OpposedSkillRoll(stats.Knowledge, stats.Computers, stats.Ego, stats.Computers,
+                             roll_mod = 50, min_chance=20,
+                             on_success = [geffects.AddEnchantment(geffects.HaywireStatus, anim = geffects.InflictHaywireAnim)],
+                             on_failure = [pbge.effects.NoEffect(anim=geffects.FailAnim)])]),
+            area = pbge.scenes.targetarea.SelfCentered(2),
+            used_in_combat = True, used_in_exploration = False,
+            ai_tar = aitargeters.GenericTargeter(targetable_types = (pbge.scenes.PlaceableThing,),
+                                                 conditions = [aitargeters.CasterIsSurrounded(2),
+                                                               aitargeters.CasterIsAlone(2),
+                                                               aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
+            data = geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=12),
+            price = [geffects.MentalPrice(2),],
+            targets = 1)
+        progs.append(myprog)
+
         myprog2 = pbge.effects.Invocation(
-            name = 'Scrambler',
+            name = 'Remote Scramble',
             fx= geffects.OpposedSkillRoll(stats.Knowledge,stats.Computers,stats.Ego,stats.Computers,
                     roll_mod=25, min_chance=10,
                     on_success=[geffects.AddEnchantment(geffects.HaywireStatus,anim=geffects.InflictHaywireAnim,)],
