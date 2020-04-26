@@ -852,6 +852,8 @@ class AddEnchantment( effects.NoEffect ):
             if self.dur_n and self.dur_d:
                 params['duration'] = sum(random.randint(1, self.dur_d) for n in range(self.dur_n))
             target.ench_list.add_enchantment(target,self.enchant_type,params)
+            # Adding a particular enchantment can dispel other enchantments.
+            target.ench_list.tidy(self.enchant_type)
         return self.children
 
 
