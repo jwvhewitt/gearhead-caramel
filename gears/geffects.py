@@ -1394,3 +1394,23 @@ class BreakingCover(Enchantment):
             self.percent_malus = new_percent_malus
     def get_cover_enhance_bonus(self, owner):
         return -self.percent_malus
+
+
+class AIAssisted(Enchantment):
+    name = 'AI Assisted'
+    DEFAULT_DISPEL = (END_COMBAT, HaywireStatus)
+    DEFAULT_DURATION = None
+    def get_stat(self, stat):
+        if stat in (stats.MechaFighting, stats.MechaGunnery, stats.MechaPiloting, stats.RangedCombat, stats.CloseCombat, stats.Dodge):
+            return 1
+        else:
+            return 0
+    # Cannot be AI-assisted if the mecha is Haywire.
+    @classmethod
+    def can_affect(cls, target):
+        if not hasattr(target, 'ench_list'):
+            return False
+        for ench in target.ench_list:
+            if isinstance(ench, HaywireStatus):
+                return False
+        return True
