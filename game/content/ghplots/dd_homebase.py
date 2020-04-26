@@ -73,6 +73,7 @@ class DZD_Wujung(Plot):
 
         # Add the services.
         tplot = self.add_sub_plot(nart, "DZDHB_AlliedArmor")
+        tplot = self.add_sub_plot(nart, "DZDHB_WujungTires")
         tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
         tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
@@ -622,6 +623,61 @@ class DZD_AlliedArmor(Plot):
         mylist.append(Offer("[OPENSHOP]",
                             context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
                             data={"shop_name": "Allied Armor", "wares": "mecha"}
+                            ))
+
+        return mylist
+
+
+class DZD_WujungTires(Plot):
+    LABEL = "DZDHB_WujungTires"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Wujung Tires")},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, "Wujung Tires", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_SHOP),
+                                       scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+                                                                                 decorate=game.content.gharchitecture.CheeseShopDecor()),
+                                      dident="INTERIOR")
+
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        npc = self.register_element("SHOPKEEPER",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+        npc.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce, rank=50,
+                                  ware_types=services.TIRE_STORE)
+
+        return True
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Wujung Tires, best mecha wheels and hover jets in town!",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": "Wujung Tires", "wares": "gear"},
                             ))
 
         return mylist

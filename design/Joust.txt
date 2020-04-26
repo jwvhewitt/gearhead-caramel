@@ -102,8 +102,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 6
+                STC Hover Jets Size 6
             END
         Leg
             name = "Left Leg"
@@ -111,7 +110,6 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 6
+                STC Hover Jets Size 6
             END
     END

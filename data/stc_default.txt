@@ -158,3 +158,51 @@ BeamWeapon
     scale = MechaScale
     shot_anim = GunBeam
     attack_stat = Perception
+
+HoverJets
+    name = "Hover Jets Size 2"
+    size = 2
+
+HoverJets
+    name = "Hover Jets Size 3"
+    size = 3
+
+HoverJets
+    name = "Hover Jets Size 4"
+    size = 4
+
+HoverJets
+    name = "Hover Jets Size 5"
+    size = 5
+
+HoverJets
+    name = "Hover Jets Size 6"
+    size = 6
+
+HoverJets
+    name = "Hover Jets Size 7"
+    size = 7
+
+Wheels
+    name = "Wheels Size 2"
+    size = 2
+
+Wheels
+    name = "Wheels Size 3"
+    size = 3
+
+Wheels
+    name = "Wheels Size 4"
+    size = 4
+
+Wheels
+    name = "Wheels Size 5"
+    size = 5
+
+Wheels
+    name = "Wheels Size 6"
+    size = 6
+
+Wheels
+    name = "Wheels Size 7"
+    size = 7

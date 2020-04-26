@@ -218,3 +218,51 @@ Engine
     material = Metal
     shop_tags= ("MEXTRA",)
     faction_list = (None,)
+
+STC Hover Jets Size 2
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Hover Jets Size 3
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Hover Jets Size 4
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Hover Jets Size 5
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Hover Jets Size 6
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Hover Jets Size 7
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Wheels Size 2
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Wheels Size 3
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Wheels Size 4
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Wheels Size 5
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Wheels Size 6
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+STC Wheels Size 7
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)

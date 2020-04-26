@@ -91,8 +91,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
         Leg
             name = "Left Leg"
@@ -100,8 +99,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
     END
 
@@ -233,8 +231,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
         Leg
             name = "Left Leg"
@@ -242,8 +239,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
     END
 
@@ -354,8 +350,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
         Leg
             name = "Left Leg"
@@ -363,8 +358,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
     END
 
@@ -459,8 +453,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
         Leg
             name = "Left Leg"
@@ -468,8 +461,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
     END
 
@@ -584,8 +576,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
         Leg
             name = "Left Leg"
@@ -593,8 +584,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
     END
 
@@ -703,8 +693,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
         Leg
             name = "Left Leg"
@@ -712,8 +701,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
     END
 
@@ -816,8 +804,7 @@ Mecha
                 Armor
                     size = 5
                     integral = True
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
         Leg
             name = "Left Leg"
@@ -826,8 +813,7 @@ Mecha
                 Armor
                     size = 5
                     integral = True
-                HoverJets
-                    size = 4
+                STC Hover Jets Size 4
             END
     END
 
