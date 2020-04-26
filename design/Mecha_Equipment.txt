@@ -219,6 +219,16 @@ Engine
     shop_tags= ("MEXTRA",)
     faction_list = (None,)
 
+EWSystem
+    desig = 'C99'
+    name = "AI Assistant"
+    size = 1
+    programs = (AIAssistant,)
+    scale = MechaScale
+    material = Metal
+    shop_tags = ("MEXTRA",)
+    faction_list = (None,)
+
 HoverJets
     size = 2
     shop_tags= ("MMOBILITY",)

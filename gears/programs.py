@@ -121,4 +121,30 @@ class Deflect(Program):
         return progs
 
 
+class AIAssistant(Program):
+    name = 'AI Assistant'
+    USE_AT = (scale.MechaScale,)
+    COST = 200
+
+    @classmethod
+    def get_invocations(cls, pc):
+        progs = list()
+
+        myprog = pbge.effects.Invocation(
+            name = 'AI Assistant',
+            fx = geffects.AddEnchantment(geffects.AIAssisted, anim = geffects.SearchAnim), #TODO: Animation
+            area = pbge.scenes.targetarea.SelfOnly(),
+            used_in_combat = True, used_in_exploration = False,
+            ai_tar = aitargeters.GenericTargeter(targetable_types = (pbge.scenes.PlaceableThing,),
+                                                 conditions = [aitargeters.TargetIsOperational(),
+                                                               aitargeters.TargetIsAlly(),
+                                                               aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
+            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12),
+            price=[],
+            targets=1)
+        progs.append(myprog)
+
+        return progs
+
+
 ALL_PROGRAMS = Program.__subclasses__()
