@@ -46,7 +46,8 @@ Mecha
 									attributes = (Blast1)
                             END
                     END
-                STC Hover Jets Size 2
+                HoverJets
+                    size = 2
             END
         Arm
             name = "Right Arm"
@@ -73,7 +74,8 @@ Mecha
                                     quantity=150
                             END
                     END
-                STC Hover Jets Size 2
+                HoverJets
+                    size = 2
                 MeleeWeapon
                     name="Claw"
                     reach=1
@@ -92,7 +94,8 @@ Mecha
                     name = "Left Grasper"
                 Mount
                     name = "Left Arm Mount"
-                STC Hover Jets Size 2
+                HoverJets
+                    size = 2
                 MeleeWeapon
                     name="Claw"
                     reach=1
@@ -107,7 +110,8 @@ Mecha
             SUB
                 Armor
                     size = 5
-                STC Hover Jets Size 3
+                HoverJets
+                    size = 3
             END
         Leg
             name = "Left Leg"
@@ -115,6 +119,7 @@ Mecha
             SUB
                 Armor
                     size = 5
-                STC Hover Jets Size 3
+                HoverJets
+                    size = 3
             END
     END

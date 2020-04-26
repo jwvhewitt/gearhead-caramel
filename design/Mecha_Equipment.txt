@@ -219,50 +219,62 @@ Engine
     shop_tags= ("MEXTRA",)
     faction_list = (None,)
 
-STC Hover Jets Size 2
+HoverJets
+    size = 2
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Hover Jets Size 3
+HoverJets
+    size = 3
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Hover Jets Size 4
+HoverJets
+    size = 4
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Hover Jets Size 5
+HoverJets
+    size = 5
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Hover Jets Size 6
+HoverJets
+    size = 6
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Hover Jets Size 7
+HoverJets
+    size = 7
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Wheels Size 2
+Wheels
+    size = 2
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Wheels Size 3
+Wheels
+    size = 3
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Wheels Size 4
+Wheels
+    size = 4
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Wheels Size 5
+Wheels
+    size = 5
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Wheels Size 6
+Wheels
+    size = 6
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
-STC Wheels Size 7
+Wheels
+    size = 7
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
