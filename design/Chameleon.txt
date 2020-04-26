@@ -399,8 +399,7 @@ Mecha
                 Armor
                     size = 2
                     material = Ceramic
-                Wheels
-                    size = 4
+                STC Wheels Size 4
             END
         Leg
             name = "Left Leg"
@@ -410,7 +409,6 @@ Mecha
                 Armor
                     size = 2
                     material = Ceramic
-                Wheels
-                    size = 4
+                STC Wheels Size 4
             END
     END
