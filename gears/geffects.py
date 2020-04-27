@@ -246,6 +246,11 @@ class InflictHaywireAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Haywire!'
 
 
+class AIAssistAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'AI Assisted!'
+
+
+
 class SmallBullet( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_bullet.png"
 
@@ -852,6 +857,8 @@ class AddEnchantment( effects.NoEffect ):
             if self.dur_n and self.dur_d:
                 params['duration'] = sum(random.randint(1, self.dur_d) for n in range(self.dur_n))
             target.ench_list.add_enchantment(target,self.enchant_type,params)
+            # Adding a particular enchantment can dispel other enchantments.
+            target.ench_list.tidy(self.enchant_type)
         return self.children
 
 
@@ -1392,3 +1399,49 @@ class BreakingCover(Enchantment):
             self.percent_malus = new_percent_malus
     def get_cover_enhance_bonus(self, owner):
         return -self.percent_malus
+
+
+class AIAssisted(Enchantment):
+    name = 'AI Assisted'
+    DEFAULT_DISPEL = (END_COMBAT, HaywireStatus)
+    DEFAULT_DURATION = None
+    def __init__(self, percent_prob = 100, **kwargs):
+        super().__init__(**kwargs)
+        self.percent_prob = percent_prob
+        self.in_effect = True
+    def merge_enchantment(self, **kwargs):
+        new_percent_prob = kwargs.pop('percent_prob')
+        super().merge_enchantment(**kwargs)
+        # Select larger probability.
+        if new_percent_prob and new_percent_prob > self.percent_prob:
+            self.percent_prob = new_percent_prob
+        # Force being enabled.
+        self.in_effect = True
+    def update(self, camp, owner):
+        # Roll if we will take effect, based on percent_prob.
+        self.in_effect = random.randint(1, 100) <= self.percent_prob
+        # If we took effect, animate it.
+        if self.in_effect:
+            assist = effects.Invocation(
+                name = 'AI Assist',
+                fx = effects.NoEffect(anim = AIAssistAnim),
+                area = pbge.scenes.targetarea.SingleTarget())
+            assist.invoke(camp, None, [owner.pos,], pbge.my_state.view.anim_list)
+            pbge.my_state.view.handle_anim_sequence()
+    def get_stat(self, stat):
+        # If not currently in effect, no bonus.
+        if not self.in_effect:
+            return 0
+        elif stat in (stats.MechaFighting, stats.MechaGunnery, stats.MechaPiloting, stats.RangedCombat, stats.CloseCombat, stats.Dodge):
+            return 1
+        else:
+            return 0
+    # Cannot be AI-assisted if the mecha is Haywire.
+    @classmethod
+    def can_affect(cls, target):
+        if not hasattr(target, 'ench_list'):
+            return False
+        for ench in target.ench_list:
+            if isinstance(ench, HaywireStatus):
+                return False
+        return True
