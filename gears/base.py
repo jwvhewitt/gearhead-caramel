@@ -871,7 +871,24 @@ class Component(BaseGear):
             return normal_volume
         return normal_volume - 1
 
-          
+
+# Size-classed components are Components which
+# append their size, material, and integral-ness
+# to their full names
+class SizeClassedComponent(Component):
+    def __init__(self, **keywords):
+        super(SizeClassedComponent, self).__init__(**keywords)
+
+    def get_full_name(self):
+        basename = super(SizeClassedComponent, self).get_full_name()
+        code = str(self.size)
+        if not ((self.material is None) or (self.material is materials.Metal)):
+            if hasattr(self.material, 'desig'):
+                code = code + self.material.desig
+        if self.integral:
+            code = code + 'i'
+        return '{} {}'.format(basename, code)
+
 #
 #  Practical Gears
 #
@@ -880,7 +897,7 @@ class Component(BaseGear):
 #   ***   ARMOR   ***
 #   *****************
 
-class Armor(Component, StandardDamageHandler):
+class Armor(SizeClassedComponent, StandardDamageHandler):
     DEFAULT_NAME = "Armor"
     SAVE_PARAMETERS = ('size',)
     MIN_SIZE = 1
@@ -1095,7 +1112,7 @@ class Cockpit(Component, StandardDamageHandler):
     base_health = 2
 
 
-class Sensor(Component, StandardDamageHandler):
+class Sensor(SizeClassedComponent, StandardDamageHandler):
     DEFAULT_NAME = "Sensor"
     SAVE_PARAMETERS = ('size',)
     MIN_SIZE = 1
@@ -1136,7 +1153,7 @@ class Sensor(Component, StandardDamageHandler):
 #   ***   MOVEMENT  SYSTEMS   ***
 #   *****************************
 
-class MovementSystem(Component):
+class MovementSystem(SizeClassedComponent):
     DEFAULT_NAME = "MoveSys"
     SAVE_PARAMETERS = ('size',)
 

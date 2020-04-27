@@ -109,7 +109,8 @@ Mecha
                 Armor
                     size = 2
                     material = Advanced
-                STC Hover Jets Size 4
+                HoverJets
+                    size = 4
             END
         Leg
             name = "Left Leg"
@@ -119,6 +120,7 @@ Mecha
                 Armor
                     size = 2
                     material = Advanced
-                STC Hover Jets Size 4
+                HoverJets
+                    size = 4
             END
     END

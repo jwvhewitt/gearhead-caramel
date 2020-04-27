@@ -157,8 +157,6 @@ Mecha
                     size = 5
                     material = Advanced
                 HoverJets
-                    desig = "ADV"
-                    name = "Hover Jets Size 5"
                     size = 5
                     material = Advanced
             END
@@ -171,8 +169,6 @@ Mecha
                     size = 5
                     material = Advanced
                 HoverJets
-                    desig = "ADV"
-                    name = "Hover Jets Size 5"
                     size = 5
                     material = Advanced
             END

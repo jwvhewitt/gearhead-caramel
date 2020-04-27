@@ -75,7 +75,8 @@ Mecha
             SUB
                 Armor
                     size = 4
-                STC Wheels Size 6
+                Wheels
+                    size = 6
             END
         Leg
             name = "Left Leg"
@@ -83,6 +84,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                STC Wheels Size 6
+                Wheels
+                    size = 6
             END
     END

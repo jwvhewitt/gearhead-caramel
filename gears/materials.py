@@ -12,6 +12,7 @@ class Material( Singleton ):
     # of "Material". I don't think this is an elegant way to handle things,
     # but do you have a better idea? Check out Dungeon Monkey Eternal for some
     # worse ways to handle game rule constants.
+    desig = "?"
     name = "Base Material"
     mass_scale = 0
     damage_scale = 0
@@ -20,6 +21,7 @@ class Material( Singleton ):
     repair_cost = 1
 
 class Metal( Material ):
+    desig = "M"
     name = "Metal"
     mass_scale = 10
     damage_scale = 5
@@ -27,6 +29,7 @@ class Metal( Material ):
     repair_type = RT_REPAIR
 
 class Advanced( Material ):
+    desig = "A"
     name = "Advanced"
     mass_scale = 8
     damage_scale = 5
@@ -34,6 +37,7 @@ class Advanced( Material ):
     repair_type = RT_REPAIR
 
 class Ceramic( Material ):
+    desig = "C"
     name = "Ceramic"
     mass_scale = 9
     damage_scale = 4
@@ -41,6 +45,7 @@ class Ceramic( Material ):
     repair_type = RT_REPAIR
 
 class Meat( Material ):
+    desig = "meat"
     name = "Meat"
     mass_scale = 16
     damage_scale = 4
@@ -49,6 +54,7 @@ class Meat( Material ):
     repair_cost = 2
 
 class Biotech( Material ):
+    desig = "B"
     name = "Biotech"
     mass_scale = 9
     damage_scale = 6

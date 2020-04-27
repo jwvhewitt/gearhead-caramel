@@ -177,6 +177,7 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
     def _set_material(self,result):
         if result:
             self.mygear.material = result
+            self.editor.update()
 
     def _get_mass_string(self,widg):
         return self.mygear.scale.get_mass_string(self.mygear.mass)
@@ -209,17 +210,18 @@ class ComponentEditWidget(PartEditWidget):
     def _set_integral(self,result):
         self.mygear.integral = result is 'True'
         self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
+        self.editor.update()
 
 
 class ArmorEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,editor.update,active=editor.mode==MODE_CREATIVE))
 
 class ShieldEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,editor.update,active=editor.mode==MODE_CREATIVE))
         self.add_interior(PlusMinusWidget(mygear,"bonus",mygear.MIN_BONUS,mygear.MAX_BONUS,None,active=editor.mode==MODE_CREATIVE))
 
 class EngineEditWidget(ComponentEditWidget):
@@ -230,12 +232,12 @@ class EngineEditWidget(ComponentEditWidget):
 class SensorEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,None,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,editor.update,active=editor.mode==MODE_CREATIVE))
 
 class MoveSysEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",1,25,None,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"size",1,25,editor.update,active=editor.mode==MODE_CREATIVE))
 
 class PowerSourceEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
