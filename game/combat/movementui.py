@@ -123,6 +123,10 @@ class MovementUI( object ):
                 mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
                 if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
                     player_turn.switch_attack()
+        elif ev.type == pygame.KEYDOWN and ev.unicode == "t":
+            mypos = pbge.my_state.view.mouse_tile
+            myscene = self.camp.scene
+            print ("Ground: {}\n Wall: {}\n Decor: {}".format(myscene.get_floor(*mypos),myscene.get_wall(*mypos),myscene.get_decor(*mypos)))
 
 
     def dispose( self ):

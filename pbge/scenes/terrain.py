@@ -186,7 +186,7 @@ class WallTerrain( Terrain ):
             bor = -1
             wal = view.calc_wall_score( x, y, WallTerrain )
 
-        if wal:
+        if wal is not None:
             spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent )
             spr.render( dest, wal )
         if bor > 0:

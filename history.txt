@@ -1,3 +1,4 @@
+- Solitary walls will be correctly displayed
 - Wall decor should not be placed on same tile as a door
 - Added Musketeer, Ultari mecha
 - Mecha missions now feature a variety of room types
