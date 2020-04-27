@@ -250,6 +250,29 @@ class Scouting( Skill ):
             targets=1)
         invodict[Scouting].append(ba)
 
+        cover_breaking_percent = min(max(pc.get_skill_score(Perception, self) * 2 - 50, 25), 100)
+        ba2 = pbge.effects.Invocation(
+            name = 'Spot Behind Cover',
+            fx = geffects.OpposedSkillRoll(Perception, self, Speed, Stealth,
+                     roll_mod = 50, min_chance = 10,
+                     on_success = [geffects.AddEnchantment(geffects.BreakingCover,
+                                       enchant_params = { 'percent_malus': cover_breaking_percent},
+                                       anim = geffects.SearchAnim)],
+                     on_failure = [pbge.effects.NoEffect(anim = geffects.FailAnim)]),
+            area = pbge.scenes.targetarea.Blast(radius = 2,
+                                                # I want to make this sensor-range, but
+                                                # I cannot find how to access that from here.
+                                                # The given pc is a Character, not a gear.
+                                                reach = 15),
+            ai_tar = aitargeters.GenericTargeter(targetable_types = (pbge.scenes.PlaceableThing,),
+                                                 conditions = [aitargeters.TargetIsOperational(),
+                                                               aitargeters.TargetIsEnemy(),
+                                                               aitargeters.TargetDoesNotHaveEnchantment(geffects.BreakingCover)]),
+            used_in_combat = True, used_in_exploration = False,
+            data = geffects.AttackData(pbge.image.Image('sys_skillicons.png',32, 32), 6),
+            price = [],
+            targets = 1)
+        invodict[Scouting].append(ba2)
 
 
 class Wildcraft(Skill):
