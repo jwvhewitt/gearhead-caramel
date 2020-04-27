@@ -6,7 +6,19 @@ from . import stats
 from . import aitargeters
 
 
-class EMBlaster(Singleton):
+class Program(Singleton):
+    # Actual programs MUST fill in the below
+    name = 'Unknown Program'
+    USE_AT = ()
+    COST = 500
+
+    @classmethod
+    def get_invocations(cls, pc):
+        raise NotImplementedError('Program must override get_invocations')
+        return list()
+
+
+class EMBlaster(Program):
     name = 'EM Blaster'
     desc = 'Blasts mecha with a strong electromagnetic pulse that makes them go haywire.'
     USE_AT = (scale.MechaScale,)
@@ -34,7 +46,7 @@ class EMBlaster(Singleton):
         return progs
 
 
-class TargetAnalysis(Singleton):
+class TargetAnalysis(Program):
     name = 'Target Analysis'
     desc = 'Analyzes sensor inputs and scans hidden targets, or locks onto visible targets.'
     USE_AT = (scale.HumanScale, scale.MechaScale)
@@ -82,7 +94,7 @@ class TargetAnalysis(Singleton):
         return progs
 
 
-class Deflect(Singleton):
+class Deflect(Program):
     name = 'Deflect'
     desc = 'Analyses the environment fully, predicting the paths of incoming fire to let the pilot more easily evade them.'
     USE_AT = (scale.MechaScale,)
@@ -109,4 +121,4 @@ class Deflect(Singleton):
         return progs
 
 
-ALL_PROGRAMS = (TargetAnalysis,Deflect,EMBlaster)
+ALL_PROGRAMS = Program.__subclasses__()
