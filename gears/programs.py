@@ -132,7 +132,9 @@ class AIAssistant(Program):
 
         myprog = pbge.effects.Invocation(
             name = 'AI Assistant',
-            fx = geffects.AddEnchantment(geffects.AIAssisted, anim = geffects.SearchAnim), #TODO: Animation
+            fx = geffects.AddEnchantment(geffects.AIAssisted,
+                                         enchant_params = {'percent_prob': pc.get_skill_score(stats.Knowledge, stats.Computers) * 2},
+                                         anim = geffects.AIAssistAnim),
             area = pbge.scenes.targetarea.SelfOnly(),
             used_in_combat = True, used_in_exploration = False,
             ai_tar = aitargeters.GenericTargeter(targetable_types = (pbge.scenes.PlaceableThing,),

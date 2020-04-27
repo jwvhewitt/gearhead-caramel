@@ -246,6 +246,11 @@ class InflictHaywireAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Haywire!'
 
 
+class AIAssistAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'AI Assisted!'
+
+
+
 class SmallBullet( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_bullet.png"
 
@@ -1400,8 +1405,34 @@ class AIAssisted(Enchantment):
     name = 'AI Assisted'
     DEFAULT_DISPEL = (END_COMBAT, HaywireStatus)
     DEFAULT_DURATION = None
+    def __init__(self, percent_prob = 100, **kwargs):
+        super().__init__(**kwargs)
+        self.percent_prob = percent_prob
+        self.in_effect = True
+    def merge_enchantment(self, **kwargs):
+        new_percent_prob = kwargs.pop('percent_prob')
+        super().merge_enchantment(**kwargs)
+        # Select larger probability.
+        if new_percent_prob and new_percent_prob > self.percent_prob:
+            self.percent_prob = new_percent_prob
+        # Force being enabled.
+        self.in_effect = True
+    def update(self, camp, owner):
+        # Roll if we will take effect, based on percent_prob.
+        self.in_effect = random.randint(1, 100) <= self.percent_prob
+        # If we took effect, animate it.
+        if self.in_effect:
+            assist = effects.Invocation(
+                name = 'AI Assist',
+                fx = effects.NoEffect(anim = AIAssistAnim),
+                area = pbge.scenes.targetarea.SingleTarget())
+            assist.invoke(camp, None, [owner.pos,], pbge.my_state.view.anim_list)
+            pbge.my_state.view.handle_anim_sequence()
     def get_stat(self, stat):
-        if stat in (stats.MechaFighting, stats.MechaGunnery, stats.MechaPiloting, stats.RangedCombat, stats.CloseCombat, stats.Dodge):
+        # If not currently in effect, no bonus.
+        if not self.in_effect:
+            return 0
+        elif stat in (stats.MechaFighting, stats.MechaGunnery, stats.MechaPiloting, stats.RangedCombat, stats.CloseCombat, stats.Dodge):
             return 1
         else:
             return 0
