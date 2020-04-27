@@ -8,6 +8,7 @@ from . import aitargeters
 
 class EMBlaster(Singleton):
     name = 'EM Blaster'
+    desc = 'Blasts mecha with a strong electromagnetic pulse that makes them go haywire.'
     USE_AT = (scale.MechaScale,)
     COST = 500
 
@@ -35,6 +36,7 @@ class EMBlaster(Singleton):
 
 class TargetAnalysis(Singleton):
     name = 'Target Analysis'
+    desc = 'Analyzes sensor inputs and scans hidden targets, or locks onto visible targets.'
     USE_AT = (scale.HumanScale, scale.MechaScale)
     COST = 100
 
@@ -82,6 +84,7 @@ class TargetAnalysis(Singleton):
 
 class Deflect(Singleton):
     name = 'Deflect'
+    desc = 'Analyses the environment fully, predicting the paths of incoming fire to let the pilot more easily evade them.'
     USE_AT = (scale.MechaScale,)
     COST = 200
 
