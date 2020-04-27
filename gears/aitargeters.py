@@ -42,6 +42,49 @@ class TargetDoesNotHaveEnchantment(object):
         return hasattr(npc,'ench_list') and not npc.ench_list.get_enchantment_of_class(self.enchantment_class)
 
 
+# AI will cast this only if there are 2 or more opponents/allies within reach.
+class CasterIsSurrounded(object):
+   # `by` can be 'are_hostile' or 'are_allies'.
+   def __init__(self, reach=2, by='are_hostile'):
+       self.reach = reach
+       self.by = by
+   def __call__(self, camp, pc, npc):
+       if (not hasattr(pc, 'pos')) or (pc.pos is None):
+           return False
+       pos = pc.pos
+       scene = camp.scene
+       pred = getattr(scene, self.by)
+       num = 0
+       for a in scene.get_operational_actors():
+           if (not hasattr(a, 'pos')) or (a.pos is None):
+               continue
+           if scene.distance(pos, a.pos) <= self.reach:
+               num = num + 1
+               if num > 1:
+                   return True
+       return False
+
+
+# AI will cast this only if it has no allies within reach.
+class CasterIsAlone(object):
+    # `by` can be 'are_allies' or 'are_hostile'.
+   def __init__(self, reach=2, by='are_allies'):
+       self.reach = reach
+       self.by = by
+   def __call__(self, camp, pc, npc):
+       if (not hasattr(pc, 'pos')) or (pc.pos is None):
+           return False
+       pos = pc.pos
+       scene = camp.scene
+       pred = getattr(scene, self.by)
+       for a in scene.get_operational_actors():
+           if (not hasattr(a, 'pos')) or (a.pos is None):
+               continue
+           if scene.distance(pos, a.pos) <= self.reach:
+               return False
+       return True
+
+
 class GenericTargeter(object):
     # This targeter will attempt to use its invocation against an enemy model.
     DEFAULT_CONDITIONS = ()
