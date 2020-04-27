@@ -19,6 +19,12 @@ class InvoLibraryShelf( object ):
             self.name = source.get_shelf_name()
         else:
             self.name = source.name
+        if hasattr(source, 'get_shelf_desc'):
+            self.desc = source.get_shelf_desc()
+        elif hasattr(source, 'desc'):
+            self.desc = source.desc
+        else:
+            self.desc = '???'
         self.invo_list = invo_list
     def has_at_least_one_working_invo(self,chara,in_combat=True):
         has_one = False
