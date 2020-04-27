@@ -58,12 +58,12 @@ class DDLD_SortingDuel(LMPlot):
             thingmenu.add_item("Travel into the deadzone to have a practice match with {}".format(self.elements["NPC"]), self.duel)
 
     def t_START(self,camp):
+        npc = self.elements["NPC"]
         if not self.accepted_duel:
             super().t_START(camp)
         elif npc.is_destroyed():
             self.end_plot(camp)
         if self.duel.is_completed():
-            npc = self.elements["NPC"]
             if self.duel.is_won():
                 npc.relationship.attitude = gears.relationships.A_JUNIOR
                 ghcutscene.SimpleMonologueDisplay("Your skills are incredible. It seems I have a lot to learn from you.",npc)(camp)
