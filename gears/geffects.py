@@ -1288,6 +1288,17 @@ class MentalPrice(object):
         return chara.get_current_mental() >= self.amount
 
 
+class StaminaPrice(object):
+    def __init__( self, amount ):
+        self.amount = amount
+
+    def pay( self, chara ):
+        chara.spend_stamina(self.amount)
+
+    def can_pay( self, chara ):
+        return chara.get_current_stamina() >= self.amount
+
+
 class RevealPositionPrice(object):
     def __init__( self, weapon_flash ):
         self.weapon_flash = weapon_flash
