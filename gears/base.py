@@ -819,6 +819,34 @@ class BaseGear(scenes.PlaceableThing):
 
         return newgear
 
+    #################
+    ### Modifiers ###
+    #################
+    def get_common_modifiers(self, module):
+        ''' Modifiers that we expect affect all things.
+        '''
+        return [ geffects.SensorModifier()
+               , geffects.OverwhelmModifier()
+               , geffects.ModuleBonus(module)
+               , geffects.SneakAttackBonus()
+               , geffects.HiddenModifier()
+               , geffects.ImmobileModifier()
+               , geffects.CoverModifier()
+               , geffects.CoverEnhanceModifier()
+               , geffects.CoverPierceModifier()
+               ]
+    def get_ranged_modifiers(self, reach):
+        ''' Modifiers that only affect ranged weapons.
+        '''
+        return [ geffects.RangeModifier(reach)
+               , geffects.SpeedModifier()
+               ]
+    def get_melee_modifiers(self):
+        ''' Modifiers that only affect melee weapons.
+        '''
+        return [
+               ]
+
 
 
     def restore_all(self):
@@ -1456,10 +1484,9 @@ class Weapon(Component, StandardDamageHandler):
         return {geffects.DODGE: geffects.DodgeRoll(), geffects.BLOCK: geffects.BlockRoll(self)}
 
     def get_modifiers(self):
-        return [geffects.RangeModifier(self.reach), geffects.CoverModifier(), geffects.SpeedModifier(),
-                geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self.get_module()),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier(),
-                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
+        return( self.get_common_modifiers(self.get_module())
+              + self.get_ranged_modifiers(self.reach)
+              )
 
     def get_basic_attack(self):
         ba = pbge.effects.Invocation(
@@ -1542,10 +1569,9 @@ class MeleeWeapon(Weapon):
         return self.scale.MELEE_SKILL
 
     def get_modifiers(self):
-        return [geffects.CoverModifier(), geffects.SensorModifier(), geffects.OverwhelmModifier(),
-                geffects.ModuleBonus(self.get_module()), geffects.SneakAttackBonus(), geffects.HiddenModifier(),
-                geffects.ImmobileModifier(),
-                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
+        return( self.get_common_modifiers(self.get_module())
+              + self.get_melee_modifiers()
+              )
 
     def get_basic_attack(self, name='Basic Attack', attack_icon=0, targets=1):
         ba = pbge.effects.Invocation(
@@ -1629,10 +1655,9 @@ class EnergyWeapon(Weapon):
         return self.scale.MELEE_SKILL
 
     def get_modifiers(self):
-        return [geffects.CoverModifier(), geffects.SensorModifier(), geffects.OverwhelmModifier(),
-                geffects.ModuleBonus(self.get_module()), geffects.SneakAttackBonus(), geffects.HiddenModifier(),
-                geffects.ImmobileModifier(),
-                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
+        return( self.get_common_modifiers(self.get_module())
+              + self.get_melee_modifiers()
+              )
 
     def get_basic_power_cost(self):
         mult = 0.25
@@ -2166,10 +2191,9 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 geffects.INTERCEPT: geffects.InterceptRoll(self)}
 
     def get_modifiers(self, ammo):
-        return [geffects.RangeModifier(ammo.reach), geffects.CoverModifier(), geffects.SpeedModifier(),
-                geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self.get_module()),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier(),
-                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
+        return( self.get_common_modifiers(self.get_module())
+              + self.get_ranged_modifiers(ammo.reach)
+              )
 
     def get_attributes(self):
         ammo = self.get_ammo()
@@ -2377,10 +2401,9 @@ class ChemThrower(Weapon):
         return {geffects.DODGE: geffects.ReflexSaveRoll(), geffects.BLOCK: geffects.BlockRoll(self)}
 
     def get_modifiers(self):
-        return [geffects.RangeModifier(self.reach), geffects.CoverModifier(), geffects.SpeedModifier(),
-                geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self.get_module()),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier(),
-                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
+        return( self.get_common_modifiers(self.get_module())
+              + self.get_ranged_modifiers(self.reach)
+              )
 
     def get_chem_cost(self):
         mult = 1.0
@@ -2679,10 +2702,9 @@ class Module(BaseGear, StandardDamageHandler):
                 geffects.PARRY: geffects.ParryRoll(self)}
 
     def get_modifiers(self):
-        return [geffects.CoverModifier(), geffects.SensorModifier(), geffects.OverwhelmModifier(),
-                geffects.ModuleBonus(self), geffects.SneakAttackBonus(), geffects.HiddenModifier(),
-                geffects.ImmobileModifier(),
-                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
+        return( self.get_common_modifiers(module = self)
+              + self.get_melee_modifiers()
+              )
 
     def get_attacks(self):
         # Return a list of invocations associated with this module.
