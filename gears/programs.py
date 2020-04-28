@@ -146,6 +146,7 @@ class Deflect(Program):
 
 class AIAssistant(Program):
     name = 'AI Assistant'
+    desc = 'Grants a bonus to your ranged, melee, and evasion skills throughout combat, but is cancelled if your mecha goes haywire.'
     USE_AT = (scale.MechaScale,)
     COST = 200
 
