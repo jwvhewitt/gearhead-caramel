@@ -253,12 +253,13 @@ class Scouting( Skill ):
         cover_breaking_percent = min(max(pc.get_skill_score(Perception, self) * 2 - 50, 25), 100)
         ba2 = pbge.effects.Invocation(
             name = 'Spot Behind Cover',
-            fx = geffects.OpposedSkillRoll(Perception, self, Speed, Stealth,
-                     roll_mod = 50, min_chance = 10,
-                     on_success = [geffects.AddEnchantment(geffects.BreakingCover,
-                                       enchant_params = { 'percent_malus': cover_breaking_percent},
-                                       anim = geffects.SearchAnim)],
-                     on_failure = [pbge.effects.NoEffect(anim = geffects.FailAnim)]),
+            fx = geffects.CheckConditions([aitargeters.TargetIsEnemy()],
+                     on_success = [geffects.OpposedSkillRoll(Perception, self, Speed, Stealth,
+                                       roll_mod = 50, min_chance = 10,
+                                       on_success = [geffects.AddEnchantment(geffects.BreakingCover,
+                                                         enchant_params = { 'percent_malus': cover_breaking_percent },
+                                                         anim = geffects.SearchAnim)],
+                                       on_failure = [pbge.effects.NoEffect(anim = geffects.FailAnim)])]),
             area = pbge.scenes.targetarea.Blast(radius = 2,
                                                 # I want to make this sensor-range, but
                                                 # I cannot find how to access that from here.
