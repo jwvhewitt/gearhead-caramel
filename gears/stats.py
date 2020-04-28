@@ -209,6 +209,28 @@ class Stealth( Skill ):
             targets=1)
         invodict[self].append(ba)
 
+        take_cover_skill = self
+        take_cover_stat = Speed
+        take_cover_bonus = min(max(pc.get_skill_score(take_cover_stat, take_cover_skill) * 2 - 50, 25), 100)
+        take_cover = pbge.effects.Invocation(
+            name = 'Take Cover',
+            fx = geffects.AddEnchantment(geffects.TakingCover,
+                     enchant_params = { 'percent_bonus': take_cover_bonus },
+                     anim = geffects.TakeCoverAnim),
+            area = pbge.scenes.targetarea.SelfOnly(),
+            ai_tar = aitargeters.GenericTargeter(
+                         targetable_types=(pbge.scenes.PlaceableThing,),
+                         conditions=[
+                             aitargeters.TargetIsOperational(),
+                             aitargeters.TargetIsAlly(),
+                             aitargeters.TargetDoesNotHaveEnchantment(geffects.TakingCover)]),
+            used_in_combat = True, used_in_exploration = True,
+            shot_anim = None,
+            data = geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),3),
+            price = [geffects.MentalPrice(3),],
+            targets = 1)
+        invodict[self].append(take_cover)
+
 
 class Science( Skill ):
     name = 'Science'
