@@ -806,6 +806,86 @@ class DoHealing( effects.NoEffect ):
         return self.children
 
 
+class DoEncourage( effects.NoEffect ):
+    """Increase the MP of the target based on skill and
+    stat of the originator.
+    Also checks the compatibility of the originiator and
+    the target's personalities.
+    """
+    def __init__(self, stat = None, skill = None, **keywords):
+        super().__init__(**keywords)
+        self.stat = stat or stats.Ego
+        self.skill = skill or stats.Negotiation
+
+    def _get_character(self, obj):
+        while True:
+            if isinstance(obj, base.Character):
+                return obj
+            elif hasattr(obj, 'get_pilot'):
+                # Who knows, maybe the character is a tiny alien
+                # riding a human-sized mecha that is itself the
+                # pilot of an 18-meter mecha...
+                nobj = obj.get_pilot()
+                if nobj is obj:
+                    # Some entitites may be self-piloted but are
+                    # not characters.
+                    return None
+                else:
+                    obj = nobj
+            else:
+                return None
+
+    def _get_personality_compatibility(self, o_char, t_char):
+        compat = 0
+        for p in o_char.personality:
+            if p in t_char.personality:
+                compat += 1
+        return compat
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay = 0):
+        if originator:
+            score = originator.get_skill_score(self.stat, self.skill)
+        else:
+            score = 0
+
+        o_char = self._get_character(originator)
+
+        for target in camp.scene.get_operational_actors(pos):
+            if not hasattr(target, 'partially_restore_mental'):
+                continue
+
+            if originator is target:
+                # Trying to psych yourself up?  Please.
+                to_heal = 0
+                if random.randint(1, 100) <= score // 2:
+                    to_heal += 1
+            else:
+                to_heal = 2
+
+                # Negotiation skill gives base MP restoration.
+                if random.randint(1, 100) <= score:
+                    to_heal += 1
+                if random.randint(1, 100) <= score:
+                    to_heal += 1
+
+                # Based on how compatible the originator and the
+                # target are, give bonus healing.
+                compat = self._get_personality_compatibility(o_char, self._get_character(target))
+                to_heal += random.randint(0, compat)
+
+                # cap to 5.
+                to_heal = min(to_heal, 5)
+
+            target.partially_restore_mental(to_heal)
+            myanim = animobs.Caption('+{} MP'.format(to_heal),
+                pos = target.pos,
+                delay = delay,
+                y_off = -camp.scene.model_altitude(target, *target.pos))
+            anims.append( myanim )
+
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
+
+
 class SetHidden( effects.NoEffect ):
     """An effect that hides a model."""
     def handle_effect( self, camp, fx_record, originator, pos, anims, delay=0 ):
