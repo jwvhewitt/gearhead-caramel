@@ -2679,8 +2679,10 @@ class Module(BaseGear, StandardDamageHandler):
                 geffects.PARRY: geffects.ParryRoll(self)}
 
     def get_modifiers(self):
-        return [geffects.SensorModifier(), geffects.OverwhelmModifier(), geffects.ModuleBonus(self),
-                geffects.SneakAttackBonus(), geffects.HiddenModifier(), geffects.ImmobileModifier()]
+        return [geffects.CoverModifier(), geffects.SensorModifier(), geffects.OverwhelmModifier(),
+                geffects.ModuleBonus(self), geffects.SneakAttackBonus(), geffects.HiddenModifier(),
+                geffects.ImmobileModifier(),
+                geffects.CoverEnhanceModifier(), geffects.CoverPierceModifier()]
 
     def get_attacks(self):
         # Return a list of invocations associated with this module.
