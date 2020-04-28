@@ -197,7 +197,7 @@ class DoorTerrain( WallTerrain ):
     # A singleton terrain class; use these objects as tokens for maps.
     @classmethod
     def render_bottom( self, dest, view, x, y ):
-        if view.space_to_south(x, y):
+        if view.space_or_door_to_south(x, y):
             wal = 1
         else:
             wal = 0

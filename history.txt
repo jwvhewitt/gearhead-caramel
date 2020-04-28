@@ -1,3 +1,4 @@
+- Hopefully prevented rooms from being completely blocked off
 - Add an AI Assistant program, and a C99 AI Assistant EW System
 - Fixed a bug in lance "friendly duel" challenge
 - Armor, Sensors, Wheels, Hover Jets, Heavy Actuators now show their size, material, and integral-ness in their displayed name

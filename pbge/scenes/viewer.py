@@ -4,7 +4,7 @@ from . import Tile
 from .. import my_state,anim_delay,WHITE
 from .. import util, image
 import pygame
-from . import waypoints
+from . import waypoints,terrain
 import random
 
 OVERLAY_ITEM = 0
@@ -170,6 +170,11 @@ class SceneView( object ):
     def space_to_south( self, x, y ):
         """Return True if no wall in tile to south."""
         return not self.scene.get_wall( x , y + 1 )
+
+    def space_or_door_to_south( self, x, y ):
+        """Return True if no wall in tile to south."""
+        wall = self.scene.get_wall(x, y+1)
+        return not wall or issubclass(wall,terrain.DoorTerrain)
 
     def space_nearby( self, x, y ):
         """Return True if a tile without a wall is adjacent."""

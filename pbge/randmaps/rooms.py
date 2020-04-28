@@ -203,6 +203,8 @@ class Room( object ):
             return True
         elif gb._map[x][y].wall is True:
             return True
+        elif inspect.isclass(gb.get_wall(x,y)) and issubclass(gb.get_wall(x,y),terrain.DoorTerrain):
+            return False
         else:
             return gb._map[x][y].blocks_walking()
 
