@@ -249,7 +249,24 @@ class Performance( Skill ):
 
 class Negotiation( Skill ):
     name = 'Negotiation'
-    desc = "This skill is used to verbally influence other characters."
+    desc = "This skill is used to verbally influence other characters, including encouraging lancemates, restoring mental points by spending your stamina."
+    @classmethod
+    def add_invocations(self, pc, invodict):
+        encourage = pbge.effects.Invocation(
+            name = "Encourage (5SP)",
+            fx = geffects.DoEncourage(),
+            area = pbge.scenes.targetarea.SingleTarget(reach = 11),
+            used_in_combat = True, used_in_exploration = True,
+            ai_tar = aitargeters.GenericTargeter(
+                         targetable_types = (pbge.scenes.PlaceableThing,),
+                         conditions = [ aitargeters.TargetIsAlly()
+                                      , aitargeters.TargetIsOperational()
+                                      , aitargeters.TargetIsLowMP()
+                                      ]),
+            data = geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 0),
+            price = [geffects.StaminaPrice(5)],
+            targets = 1)
+        invodict[self].append(encourage)
 
 
 class Scouting( Skill ):
