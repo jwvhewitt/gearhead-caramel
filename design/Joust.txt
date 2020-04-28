@@ -61,7 +61,7 @@ Mecha
                             reach=1
                             damage=3
                             accuracy=2
-                            penetration=2
+                            penetration=1
                             attributes=(ChargeAttack)
                     END
             END

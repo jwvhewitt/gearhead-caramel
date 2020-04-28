@@ -136,7 +136,7 @@ class ChargeAttack(Singleton):
     name = "Charge Attack"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.5
-    COST_MODIFIER = 1.5
+    COST_MODIFIER = 2.5
     POWER_MODIFIER = 1.0
 
     @classmethod

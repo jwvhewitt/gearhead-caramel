@@ -1425,8 +1425,12 @@ class Weapon(Component, StandardDamageHandler):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER
-        return int((self.COST_FACTOR * (self.damage ** 2) * (self.accuracy + 1) * (self.penetration + 1) * (
-                (self.reach ** 2 - self.reach) // 2 + 1)) * mult)
+        return int(
+            (self.COST_FACTOR * (self.damage ** 2) *
+            (self.accuracy ** 2 // 10 + self.accuracy + 1) *
+            (self.penetration ** 2 // 5 + self.penetration + 1) *
+            ((self.reach ** 2 - self.reach) // 2 + 1)) * mult
+        )
 
     def is_legal_sub_com(self, part):
         if isinstance(part, Weapon):
