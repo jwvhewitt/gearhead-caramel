@@ -250,6 +250,10 @@ class AIAssistAnim( animobs.Caption ):
     DEFAULT_TEXT = 'AI Assisted!'
 
 
+class TakeCoverAnim( SmokePoof ):
+    # TODO: derive from animobs and then fill with its own animation.
+    pass
+
 
 class SmallBullet( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_bullet.png"

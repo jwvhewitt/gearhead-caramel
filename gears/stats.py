@@ -209,6 +209,28 @@ class Stealth( Skill ):
             targets=1)
         invodict[self].append(ba)
 
+        take_cover_skill = self
+        take_cover_stat = Speed
+        take_cover_bonus = min(max(pc.get_skill_score(take_cover_stat, take_cover_skill) * 2 - 50, 25), 100)
+        take_cover = pbge.effects.Invocation(
+            name = 'Take Cover',
+            fx = geffects.AddEnchantment(geffects.TakingCover,
+                     enchant_params = { 'percent_bonus': take_cover_bonus },
+                     anim = geffects.TakeCoverAnim),
+            area = pbge.scenes.targetarea.SelfOnly(),
+            ai_tar = aitargeters.GenericTargeter(
+                         targetable_types=(pbge.scenes.PlaceableThing,),
+                         conditions=[
+                             aitargeters.TargetIsOperational(),
+                             aitargeters.TargetIsAlly(),
+                             aitargeters.TargetDoesNotHaveEnchantment(geffects.TakingCover)]),
+            used_in_combat = True, used_in_exploration = True,
+            shot_anim = None,
+            data = geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),3),
+            price = [geffects.MentalPrice(3),],
+            targets = 1)
+        invodict[self].append(take_cover)
+
 
 class Science( Skill ):
     name = 'Science'
@@ -253,12 +275,13 @@ class Scouting( Skill ):
         cover_breaking_percent = min(max(pc.get_skill_score(Perception, self) * 2 - 50, 25), 100)
         ba2 = pbge.effects.Invocation(
             name = 'Spot Behind Cover',
-            fx = geffects.OpposedSkillRoll(Perception, self, Speed, Stealth,
-                     roll_mod = 50, min_chance = 10,
-                     on_success = [geffects.AddEnchantment(geffects.BreakingCover,
-                                       enchant_params = { 'percent_malus': cover_breaking_percent},
-                                       anim = geffects.SearchAnim)],
-                     on_failure = [pbge.effects.NoEffect(anim = geffects.FailAnim)]),
+            fx = geffects.CheckConditions([aitargeters.TargetIsEnemy()],
+                     on_success = [geffects.OpposedSkillRoll(Perception, self, Speed, Stealth,
+                                       roll_mod = 50, min_chance = 10,
+                                       on_success = [geffects.AddEnchantment(geffects.BreakingCover,
+                                                         enchant_params = { 'percent_malus': cover_breaking_percent },
+                                                         anim = geffects.SearchAnim)],
+                                       on_failure = [pbge.effects.NoEffect(anim = geffects.FailAnim)])]),
             area = pbge.scenes.targetarea.Blast(radius = 2,
                                                 # I want to make this sensor-range, but
                                                 # I cannot find how to access that from here.
