@@ -3145,6 +3145,11 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         if pilot:
             pilot.spend_mental(amount)
 
+    def partially_restore_mental(self, amount):
+        pilot = self.get_pilot()
+        if pilot:
+            pilot.partially_restore_mental(amount)
+
     def spend_stamina(self, amount):
         pilot = self.get_pilot()
         if pilot:
@@ -3287,6 +3292,9 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     def spend_mental(self, amount):
         self.mp_spent += amount
         self.dole_experience(amount,stats.Concentration)
+
+    def partially_restore_mental(self, amount):
+        self.mp_spent = max(self.mp_spent - amount, 0)
 
     def spend_stamina(self, amount):
         self.sp_spent += amount
@@ -3540,6 +3548,9 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
     def spend_mental(self, amount):
         pass
 
+    def partially_restore_mental(self, amount):
+        pass
+
     def spend_stamina(self, amount):
         pass
 
@@ -3636,6 +3647,9 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
 
     def spend_mental(self, amount):
         self.mp_spent += amount
+
+    def partially_restore_mental(self, amount):
+        self.mp_spent = max(self.mp_spent - amount, 0)
 
     def spend_stamina(self, amount):
         self.sp_spent += amount
