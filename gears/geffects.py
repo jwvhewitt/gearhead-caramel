@@ -1660,3 +1660,29 @@ class AIAssisted(PositiveEnchantment):
             if isinstance(ench, HaywireStatus):
                 return False
         return True
+
+
+class Demoralized(NegativeEnchantment):
+    name = 'Demoralized'
+    DEFAULT_DURATION = None
+    def __init__(self, **kwargs):
+        # Inspired and Demoralized cancel each other, but we
+        # cannot set DEFAULT_DISPEL since Inspired is not
+        # yet defined.
+        super().__init__(dispel = (END_COMBAT, Inspired), **kwargs)
+    def get_stat(self, stat):
+        if isinstance(stat, stats.Stat):
+            return -1
+        else:
+            return 0
+
+
+class Inspired(PositiveEnchantment):
+    name = 'Inspired'
+    DEFAULT_DISPEL = (END_COMBAT, Demoralized)
+    DEFAULT_DURATION = None
+    def get_stat(self, stat):
+        if isinstance(stat, stats.Stat):
+            return 1
+        else:
+            return 0
