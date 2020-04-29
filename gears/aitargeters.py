@@ -55,6 +55,11 @@ class TargetIsLowMP(object):
         return False
 
 
+class TargetIsOriginator(object):
+    def __call__(self, camp, pc, npc):
+        return pc is npc
+
+
 # AI will cast this only if there are 2 or more opponents/allies within reach.
 class CasterIsSurrounded(object):
    # `by` can be 'are_hostile' or 'are_allies'.
