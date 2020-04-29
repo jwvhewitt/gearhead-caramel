@@ -255,6 +255,11 @@ class MusicAnim( animobs.AnimOb ):
     DEFAULT_END_FRAME = 15
 
 
+class BadMusicAnim( FailAnim ):
+    # TODO: Better bad music animation.
+    pass
+
+
 class ListenToMySongAnim( animobs.Caption ):
     DEFAULT_TEXT = 'LISTEN TO MY SONG!'
     DEFAULT_COLOR = (224, 192, 255)

@@ -91,7 +91,7 @@ class _PositiveSongInvocation(_SongInvocation):
         super().__init__(wrapfx)
 class _NegativeSongInvocation(_SongInvocation):
     def __init__(self, fx):
-        wrapfx = effects.NoEffect( anim = geffects.FailAnim
+        wrapfx = effects.NoEffect( anim = geffects.BadMusicAnim
                                  , children = [fx]
                                  )
         super().__init__(wrapfx)
