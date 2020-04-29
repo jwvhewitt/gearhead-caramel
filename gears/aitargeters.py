@@ -42,6 +42,19 @@ class TargetDoesNotHaveEnchantment(object):
         return hasattr(npc,'ench_list') and not npc.ench_list.get_enchantment_of_class(self.enchantment_class)
 
 
+class TargetIsLowMP(object):
+    def __init__(self, threshold = 6):
+        self.threshold = threshold
+    def __call__(self, camp, pc, npc):
+        if not npc:
+            return False
+        if hasattr(npc, 'get_pilot'):
+            npc = npc.get_pilot()
+        if hasattr(npc, 'get_current_mental'):
+            return npc.get_current_mental() <= self.threshold
+        return False
+
+
 # AI will cast this only if there are 2 or more opponents/allies within reach.
 class CasterIsSurrounded(object):
    # `by` can be 'are_hostile' or 'are_allies'.
