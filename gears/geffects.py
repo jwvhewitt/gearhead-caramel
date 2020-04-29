@@ -4,7 +4,7 @@ from pbge.scenes import animobs,movement,pfov
 import random
 from . import materials
 from . import damage, stats
-from .enchantments import Enchantment,END_COMBAT,ON_MOVE
+from .enchantments import Enchantment,END_COMBAT,ON_MOVE,ON_DISPEL_POSITIVE,ON_DISPEL_NEGATIVE
 import math
 from . import base
 
@@ -1021,6 +1021,22 @@ class RandomEffect( effects.NoEffect ):
         return [random.choice(self.possible_fx)] + self.children
 
 
+class DispelEnchantments( effects.NoEffect ):
+    """ Trigger dispelling enchantments with a specific dispel type.
+    Usually used with enchantments.ON_DISPEL_NEGATIVE or
+    enchantments.ON_DISPEL_POSITIVE.
+    """
+    def __init__(self, dispel_this = None, **keywords):
+        super().__init__(**keywords)
+        self.dispel_this = dispel_this or ON_DISPEL_NEGATIVE
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay = 0):
+        for target in camp.scene.get_operational_actors(pos):
+            if not hasattr(target, 'ench_list'):
+                continue
+            target.ench_list.tidy(self.dispel_this)
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
+
+
 #  ***************************
 #  ***   Roll  Modifiers   ***
 #  ***************************
@@ -1490,7 +1506,23 @@ class StatValuePrice(object):
 #   get_cover_pierce_bonus
 
 
-class Burning(Enchantment):
+# Enchantments should derive from either PositiveEnchantment
+# or NegativeEnchantment based on whether it is beneficial
+# or detrimental to the target.
+
+class PositiveEnchantment(Enchantment):
+    def __init__(self, **kwargs):
+        dispel = kwargs.pop('dispel', self.DEFAULT_DISPEL)
+        dispel += (ON_DISPEL_POSITIVE,)
+        super().__init__(dispel = dispel, **kwargs)
+class NegativeEnchantment(Enchantment):
+    def __init__(self, **kwargs):
+        dispel = kwargs.pop('dispel', self.DEFAULT_DISPEL)
+        dispel += (ON_DISPEL_NEGATIVE,)
+        super().__init__(dispel = dispel, **kwargs)
+
+
+class Burning(NegativeEnchantment):
     name = 'Burning'
     DEFAULT_DURATION = 3
     def update(self,camp,owner):
@@ -1503,7 +1535,7 @@ class Burning(Enchantment):
         pbge.my_state.view.handle_anim_sequence()
 
 
-class HaywireStatus(Enchantment):
+class HaywireStatus(NegativeEnchantment):
     name = 'Haywire'
     # The only top 10 status effect from Prince Edward Island
     DEFAULT_DURATION = 3
@@ -1513,7 +1545,7 @@ class HaywireStatus(Enchantment):
     def can_affect(cls,target):
         return isinstance(target,base.Mecha)
 
-class OverloadStatus(Enchantment):
+class OverloadStatus(NegativeEnchantment):
     name = 'Overloaded'
     DEFAULT_DISPEL = (END_COMBAT,)
     DEFAULT_DURATION = 5
@@ -1524,7 +1556,7 @@ class OverloadStatus(Enchantment):
         return isinstance(target,base.Mecha)
 
 
-class SensorLock(Enchantment):
+class SensorLock(NegativeEnchantment):
     name = 'Sensor Lock'
     DEFAULT_DISPEL = (END_COMBAT,)
     DEFAULT_DURATION = 2
@@ -1532,7 +1564,7 @@ class SensorLock(Enchantment):
         return -25
 
 
-class Prescience(Enchantment):
+class Prescience(PositiveEnchantment):
     # +2 bonus to dodge skills while active.
     name = 'Prescience'
     DEFAULT_DISPEL = (END_COMBAT,)
@@ -1543,14 +1575,14 @@ class Prescience(Enchantment):
         else:
             return 0
 
-class WeakPoint(Enchantment):
+class WeakPoint(NegativeEnchantment):
     name = 'Weak Point'
     DEFAULT_DISPEL = (END_COMBAT,)
     def get_penetration_bonus(self,owner):
         return 20
 
 
-class TakingCover(Enchantment):
+class TakingCover(PositiveEnchantment):
     name = 'Taking Cover'
     DEFAULT_DISPEL = (END_COMBAT,ON_MOVE)
     DEFAULT_DURATION = None
@@ -1567,7 +1599,7 @@ class TakingCover(Enchantment):
         return self.percent_bonus
 
 
-class BreakingCover(Enchantment):
+class BreakingCover(NegativeEnchantment):
     name = 'Cover Broken'
     DEFAULT_DISPEL = (END_COMBAT,)
     DEFAULT_DURATION = 2
@@ -1584,7 +1616,7 @@ class BreakingCover(Enchantment):
         return -self.percent_malus
 
 
-class AIAssisted(Enchantment):
+class AIAssisted(PositiveEnchantment):
     name = 'AI Assisted'
     DEFAULT_DISPEL = (END_COMBAT, HaywireStatus)
     DEFAULT_DURATION = None
