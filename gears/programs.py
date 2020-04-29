@@ -40,7 +40,7 @@ class EMBlaster(Program):
                              roll_mod = 50, min_chance=20,
                              on_success = [geffects.AddEnchantment(geffects.HaywireStatus, anim = geffects.InflictHaywireAnim)],
                              on_failure = [pbge.effects.NoEffect(anim=geffects.FailAnim)])]),
-            area = pbge.scenes.targetarea.SelfCentered(2,exclude_middle=True),
+            area = pbge.scenes.targetarea.SelfCentered(2,exclude_middle=True, delay_from = -1),
             used_in_combat = True, used_in_exploration = False,
             ai_tar = aitargeters.GenericTargeter(targetable_types = (pbge.scenes.PlaceableThing,),
                                                  conditions = [aitargeters.CasterIsSurrounded(2),
