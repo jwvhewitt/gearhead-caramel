@@ -270,6 +270,26 @@ class MusicAnim( animobs.AnimOb ):
                 self.needs_deletion = True
 
 
+class ListenToMySongAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'LISTEN TO MY SONG!'
+    DEFAULT_COLOR = (224, 192, 255)
+    SONG_LYRICS = ( 'HELLO DARKNESS MY OLD FRIEND!'
+                  , 'NEVER GONNA GIVE YOU UP!'
+                  , 'ZANKOKU NO TENSHI NO TEZE!'
+                  , "WE WILL WE WILL ROCK YOU!"
+                  , "LET IT GO!"
+                  , "OPPA GANGNAM STYLE!"
+                  , 'PEN PINEAPPLE APPLE PEN!'
+                  )
+    def __init__(self, txt = None, width = 256, **keywords):
+        if txt is None:
+            txt = self.DEFAULT_TEXT
+            # Occassionally mess with the player because WHY NOT?
+            if random.randint(1, 20) == 1:
+                txt = random.choice(self.SONG_LYRICS)
+        super().__init__(txt = txt, width = width, **keywords)
+
+
 class TakeCoverAnim( SmokePoof ):
     # TODO: derive from animobs and then fill with its own animation.
     pass
