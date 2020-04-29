@@ -250,6 +250,26 @@ class AIAssistAnim( animobs.Caption ):
     DEFAULT_TEXT = 'AI Assisted!'
 
 
+class MusicAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_music.png"
+    # AmkG: I am a better programmer than artist, so...
+    def __init__(self, pos = (0,0), loop = 16, delay = 1, y_off = 0):
+        super().__init__(pos = pos, loop = loop, delay = delay)
+        self.dy_off = y_off
+    def update(self, view):
+        if self.delay > 0:
+            self.delay -= 1
+        else:
+            view.anims[view.PosToKey(self.pos)].append( self )
+            self.counter += 1
+            if self.counter < self.loop / 2:
+                self.y_off = -32 - 4 * self.counter + self.dy_off
+            else:
+                self.y_off = -32 - 4 * self.loop + 4 * self.counter + self.dy_off
+            if self.counter >= self.loop:
+                self.needs_deletion = True
+
+
 class TakeCoverAnim( SmokePoof ):
     # TODO: derive from animobs and then fill with its own animation.
     pass
@@ -984,6 +1004,16 @@ class AddEnchantment( effects.NoEffect ):
             # Adding a particular enchantment can dispel other enchantments.
             target.ench_list.tidy(self.enchant_type)
         return self.children
+
+
+class RandomEffect( effects.NoEffect ):
+    """ Randomly applies one of the given effects.
+    """
+    def __init__(self, possible_fx, **keywords):
+        super().__init__(**keywords)
+        self.possible_fx = possible_fx
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay = 0):
+        return [random.choice(self.possible_fx)] + self.children
 
 
 #  ***************************
