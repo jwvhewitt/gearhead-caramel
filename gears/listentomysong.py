@@ -3,9 +3,11 @@ from pbge import effects
 import pbge
 import random
 from . import aitargeters
+from . import enchantments
 
 SONG_REACH = 12
 MENTAL_COST = 9
+
 
 class _Info(object):
     def __init__(self, att_stat, att_skill, def_stat, def_skill):
@@ -96,6 +98,19 @@ class _NegativeSongInvocation(_SongInvocation):
 
 ###############################################################################
 
+def _affect_enemies(fx):
+    return geffects.CheckConditions( [ aitargeters.TargetIsOperational()
+                                     , aitargeters.TargetIsEnemy()
+                                     ]
+                                   , on_success = [fx]
+                                   )
+def _affect_allies(fx):
+    return geffects.CheckConditions( [ aitargeters.TargetIsOperational()
+                                     , aitargeters.TargetIsAlly()
+                                     ]
+                                   , on_success = [fx]
+                                   )
+
 ########################
 ### Positive Effects ###
 ########################
@@ -103,12 +118,7 @@ class _NegativeSongInvocation(_SongInvocation):
 class _HaywireEnemies(_PositiveSongInvocation):
     # THis is mostly a placeholder for now.
     def __init__(self, info):
-        super().__init__(geffects.CheckConditions( [ aitargeters.TargetIsEnemy()
-                                                   , aitargeters.TargetIsOperational()
-                                                   ]
-                                                 , on_success = [self._get_fx(info)]
-                                                 )
-                        )
+        super().__init__(_affect_enemies(self._get_fx(info)))
     def _get_fx(self, info):
         return geffects.OpposedSkillRoll( info.att_stat, info.att_skill
                                         , info.def_stat, info.def_skill
@@ -119,29 +129,50 @@ class _HaywireEnemies(_PositiveSongInvocation):
                                                                                )
                                                        ]
                                         )
+
+
+class _InspireAllies(_PositiveSongInvocation):
+    def __init__(self, info):
+        super().__init__(_affect_allies(self._get_fx(info)))
+    def _get_fx(self, info):
+        return geffects.AddEnchantment( geffects.Inspired
+                                      , anim = geffects.BurnAnim
+                                      )
+
+
+class _DemoralizeEnemies(_PositiveSongInvocation):
+    def __init__(self, info):
+        super().__init__(_affect_enemies(self._get_fx(info)))
+    def _get_fx(self, info):
+        return geffects.AddEnchantment( geffects.Demoralized
+                                      , anim = geffects.SuperBoom
+                                      )
+
+
+class _EnergizeAllies(_PositiveSongInvocation):
+    def __init__(self, info):
+        super().__init__(_affect_allies(self._get_fx(info)))
+    def _get_fx(self, info):
+        children = [ geffects.DoEncourage(info.att_stat, info.att_skill)
+                   , geffects.DispelEnchantments(enchantments.ON_DISPEL_NEGATIVE)
+                   ]
+        return effects.NoEffect( children = children
+                               , anim = geffects.OverloadAnim
+                               )
+
 
 ########################
 ### Negative Effects ###
 ########################
 
-class _HaywireAllies(_NegativeSongInvocation):
+class _DemoralizeAllies(_NegativeSongInvocation):
     # THis is mostly a placeholder for now.
     def __init__(self, info):
-        super().__init__(geffects.CheckConditions( [ aitargeters.TargetIsAlly()
-                                                   , aitargeters.TargetIsOperational()
-                                                   ]
-                                                 , on_success = [self._get_fx(info)]
-                                                 ))
+        super().__init__(_affect_allies(self._get_fx(info)))
     def _get_fx(self, info):
-        return geffects.OpposedSkillRoll( info.att_stat, info.att_skill
-                                        , info.def_stat, info.def_skill
-                                        , roll_mod = 25
-                                        , min_chance = 25
-                                        , on_success = [geffects.AddEnchantment( geffects.HaywireStatus
-                                                                               , anim = geffects.InflictHaywireAnim
-                                                                               )
-                                                       ]
-                                        )
+        return geffects.AddEnchantment( geffects.Demoralized
+                                      , anim = geffects.SuperBoom
+                                      )
 
 ###############################################################################
 
