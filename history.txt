@@ -1,3 +1,4 @@
+- Performance now gives weaponized singing in combat.  LISTEN TO MY SONG
 - Added extra cost factor for high Accuracy, Penetration weapons
 - Increased Charge cost modifier to 2.5
 - Hopefully prevented rooms from being completely blocked off
