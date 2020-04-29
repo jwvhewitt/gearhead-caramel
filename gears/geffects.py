@@ -552,6 +552,46 @@ class MultiAttackRoll( effects.NoEffect ):
         return odds,modifiers
 
 
+class SkillRoll( effects.NoEffect ):
+    """ A single actor makes a skill roll unopposed.
+    """
+    def __init__(self, stat, skill, on_success = (), on_failure = (), anim = None, roll_mod = 0, min_chance = 5, max_chance = 95):
+        self.stat = stat
+        self.skill = skill
+        if not on_success:
+            on_success = list()
+        self.on_success = on_success
+        if not on_failure:
+            on_failure = list()
+        self.on_failure = on_failure
+        self.anim = anim
+        self.roll_mod = roll_mod
+        self.min_chance = min_chance
+        self.max_chance = max_chance
+
+    def _calc_percent(self, camp, originator):
+        if originator:
+            percent = originator.get_skill_score(self.stat, self.skill) + self.roll_mod
+        else:
+            percent = self.roll_mod
+        return max(min(percent,self.max_chance),self.min_chance)
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        odds = self._calc_percent(camp,originator)
+        if random.randint(1, 100) <= odds:
+            if originator and hasattr(originator, "dole_experience"):
+                originator.dole_experience(max((75 - odds) // 5, 2), self.skill)
+            return self.on_success
+        else:
+            return self.on_failure
+
+    def get_odds( self, camp, originator, target ):
+        # Return the percent chance that this attack will hit and the list of
+        # modifiers in (value,name) form.
+        modifiers = [(self.roll_mod,'Base Modifier')]
+        return self._calc_percent(camp, originator)/100.0, modifiers
+
+
 class OpposedSkillRoll( effects.NoEffect ):
     """ Two actors make a skill roll. One will succeed, one will fail.
     """
