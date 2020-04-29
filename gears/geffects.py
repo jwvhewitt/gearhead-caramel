@@ -252,22 +252,7 @@ class AIAssistAnim( animobs.Caption ):
 
 class MusicAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_music.png"
-    # AmkG: I am a better programmer than artist, so...
-    def __init__(self, pos = (0,0), loop = 16, delay = 1, y_off = 0):
-        super().__init__(pos = pos, loop = loop, delay = delay)
-        self.dy_off = y_off
-    def update(self, view):
-        if self.delay > 0:
-            self.delay -= 1
-        else:
-            view.anims[view.PosToKey(self.pos)].append( self )
-            self.counter += 1
-            if self.counter < self.loop / 2:
-                self.y_off = -32 - 4 * self.counter + self.dy_off
-            else:
-                self.y_off = -32 - 4 * self.loop + 4 * self.counter + self.dy_off
-            if self.counter >= self.loop:
-                self.needs_deletion = True
+    DEFAULT_END_FRAME = 15
 
 
 class ListenToMySongAnim( animobs.Caption ):
