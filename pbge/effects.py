@@ -117,3 +117,14 @@ class NoEffect( object ):
             anims = nfx( camp, fx_record, originator, pos, anims, delay )
         return anims
 
+class InvokeEffect( NoEffect ):
+    """ An effect that causes a given invocation to be invoked.
+    """
+    def __init__(self, invocation, **keywords):
+        super().__init__(**keywords)
+        self.invocation = invocation
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay = 0):
+        self.invocation.invoke(camp, originator, [pos], anims, fx_record)
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
+
