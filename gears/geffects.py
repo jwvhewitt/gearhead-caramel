@@ -1384,12 +1384,25 @@ class RevealPositionPrice(object):
         self.weapon_flash = weapon_flash
 
     def pay( self, chara ):
-        stealth_skill = min(chara.get_skill_score(stats.Ego,stats.Stealth) - self.weapon_flash * 25, 75)
+        stealth_skill = min(chara.get_skill_score(stats.Ego,stats.Stealth) - self.weapon_flash * 25 + 50, 75)
         if random.randint(1,100) > stealth_skill:
             chara.hidden = False
 
     def can_pay( self, chara ):
         return True
+
+class StatValuePrice(object):
+    # Not so much a price as a prerequisite; you must have a minimum stat value
+    # (or a skill, which is also stored in the statline) to use this invocation.
+    def __init__( self, statid, minvalue ):
+        self.statid = statid
+        self.minvalue = minvalue
+
+    def pay( self, chara ):
+        chara.dole_experience(self.minvalue,self.statid)
+
+    def can_pay( self, chara ):
+        return chara.statline.get(self.statid,0) >= self.minvalue
 
 
 #  ************************

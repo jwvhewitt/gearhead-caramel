@@ -40,14 +40,14 @@ class EMBlaster(Program):
                              roll_mod = 50, min_chance=20,
                              on_success = [geffects.AddEnchantment(geffects.HaywireStatus, anim = geffects.InflictHaywireAnim)],
                              on_failure = [pbge.effects.NoEffect(anim=geffects.FailAnim)])]),
-            area = pbge.scenes.targetarea.SelfCentered(2),
+            area = pbge.scenes.targetarea.SelfCentered(2,exclude_middle=True),
             used_in_combat = True, used_in_exploration = False,
             ai_tar = aitargeters.GenericTargeter(targetable_types = (pbge.scenes.PlaceableThing,),
                                                  conditions = [aitargeters.CasterIsSurrounded(2),
                                                                aitargeters.CasterIsAlone(2),
                                                                aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
             data = geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=12),
-            price = [geffects.MentalPrice(2),],
+            price = [geffects.MentalPrice(5),geffects.StatValuePrice(stats.Computers,5)],
             targets = 1)
         progs.append(myprog)
 
