@@ -98,18 +98,57 @@ class _NegativeSongInvocation(_SongInvocation):
 
 ###############################################################################
 
-def _affect_enemies(fx):
+# Utility functions for creating song effects.
+
+def _affect_enemies(fx, ally_anim = None):
+    """Give an effect that only affects enemies"""
+    if ally_anim:
+        on_failure = [geffects.CheckConditions( [ aitargeters.TargetIsOperational()
+                                                , aitargeters.TargetIsAlly()
+                                                ]
+                                              , on_success = [effects.NoEffect(anim = ally_anim)]
+                                              )]
+    else:
+        on_failure = []
     return geffects.CheckConditions( [ aitargeters.TargetIsOperational()
                                      , aitargeters.TargetIsEnemy()
                                      ]
                                    , on_success = [fx]
+                                   , on_failure = on_failure
                                    )
-def _affect_allies(fx):
+def _affect_allies(fx, enemy_anim = None):
+    """Give an effect that only affects allies"""
+    if enemy_anim:
+        on_failure = [geffects.CheckConditions( [ aitargeters.TargetIsOperational()
+                                                , aitargeters.TargetIsEnemy()
+                                                ]
+                                              , on_success = [effects.NoEffect(anim = enemy_anim)]
+                                              )]
+    else:
+        on_failure = []
     return geffects.CheckConditions( [ aitargeters.TargetIsOperational()
                                      , aitargeters.TargetIsAlly()
                                      ]
                                    , on_success = [fx]
+                                   , on_failure = on_failure
                                    )
+
+def _double_skill_roll(info, fx, roll_mod = 35, min_chance = 25):
+    """Do an opposed skill roll, if it fails do another skill roll."""
+    return geffects.OpposedSkillRoll( info.att_stat, info.att_skill
+                                    , info.def_stat, info.def_skill
+                                    , roll_mod = roll_mod
+                                    , min_chance = min_chance
+                                    , on_success = [fx]
+                                    , on_failure = [ geffects.OpposedSkillRoll( info.att_stat, info.att_skill
+                                                                              , info.def_stat, info.def_skill
+                                                                              , roll_mod = 25
+                                                                              , min_chance = 25
+                                                                              , on_success = [fx]
+                                                                              , on_failure = [effects.NoEffect(anim = geffects.ResistAnim)]
+                                                                              )
+                                                   ]
+                                    )
 
 ########################
 ### Positive Effects ###
@@ -118,17 +157,13 @@ def _affect_allies(fx):
 class _HaywireEnemies(_PositiveSongInvocation):
     # THis is mostly a placeholder for now.
     def __init__(self, info):
-        super().__init__(_affect_enemies(self._get_fx(info)))
+        super().__init__(_affect_enemies( self._get_fx(info)
+                                        , geffects.CheerAnim
+                                        ))
     def _get_fx(self, info):
-        return geffects.OpposedSkillRoll( info.att_stat, info.att_skill
-                                        , info.def_stat, info.def_skill
-                                        , roll_mod = 25
-                                        , min_chance = 25
-                                        , on_success = [geffects.AddEnchantment( geffects.HaywireStatus
-                                                                               , anim = geffects.InflictHaywireAnim
-                                                                               )
-                                                       ]
-                                        )
+        return _double_skill_roll(info, geffects.AddEnchantment( geffects.HaywireStatus
+                                                               , anim = geffects.InflictHaywireAnim
+                                                               ))
 
 
 class _InspireAllies(_PositiveSongInvocation):
@@ -142,11 +177,13 @@ class _InspireAllies(_PositiveSongInvocation):
 
 class _DemoralizeEnemies(_PositiveSongInvocation):
     def __init__(self, info):
-        super().__init__(_affect_enemies(self._get_fx(info)))
+        super().__init__(_affect_enemies( self._get_fx(info)
+                                        , geffects.CheerAnim
+                                        ))
     def _get_fx(self, info):
-        return geffects.AddEnchantment( geffects.Demoralized
-                                      , anim = geffects.SuperBoom
-                                      )
+        return  _double_skill_roll(info, geffects.AddEnchantment( geffects.Demoralized
+                                                                , anim = geffects.SuperBoom
+                                                                ))
 
 
 class _EnergizeAllies(_PositiveSongInvocation):
@@ -168,7 +205,9 @@ class _EnergizeAllies(_PositiveSongInvocation):
 class _DemoralizeAllies(_NegativeSongInvocation):
     # THis is mostly a placeholder for now.
     def __init__(self, info):
-        super().__init__(_affect_allies(self._get_fx(info)))
+        super().__init__(_affect_allies( self._get_fx(info)
+                                       , geffects.HeckleAnim
+                                       ))
     def _get_fx(self, info):
         return geffects.AddEnchantment( geffects.Demoralized
                                       , anim = geffects.SuperBoom
