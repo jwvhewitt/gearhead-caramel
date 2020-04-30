@@ -1004,8 +1004,12 @@ class SensorModifier( object ):
     def calc_modifier( self, camp, attacker, pos ):
         my_range = camp.scene.distance(attacker.pos,pos)
         my_sensor = attacker.get_sensor_range(camp.scene.scale)
+        my_target = camp.scene.get_main_actor(pos)
         if my_range > my_sensor:
-            return (my_range - my_sensor)*self.PENALTY
+            if hasattr(my_target,"ench_list") and my_target.ench_list.get_enchantment_of_class(SensorLock):
+                return 0
+            else:
+                return (my_range - my_sensor)*self.PENALTY
         else:
             return 0
 

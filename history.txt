@@ -1,3 +1,6 @@
+- SensorLock negates the SensorRange attack modifier
+- Added StatValuePrice effect price
+- GearHeadCampaign now has make_skill_roll method
 - Added extra cost factor for high Accuracy, Penetration weapons
 - Increased Charge cost modifier to 2.5
 - Hopefully prevented rooms from being completely blocked off

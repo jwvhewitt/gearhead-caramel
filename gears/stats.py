@@ -5,6 +5,14 @@ import random
 from . import materials
 from . import aitargeters
 
+DIFFICULTY_TRIVIAL = -50
+DIFFICULTY_EASY = -25
+DIFFICULTY_AVERAGE = 0
+DIFFICULTY_HARD = 25
+DIFFICULTY_LEGENDARY = 50
+
+def get_skill_target(rank,difficulty=DIFFICULTY_AVERAGE):
+    return rank + difficulty + 50
 
 #  ***************
 #  ***  STATS  ***
@@ -235,6 +243,21 @@ class Stealth( Skill ):
 class Science( Skill ):
     name = 'Science'
     desc = "This skill allows you to craft advanced equipment."
+    def add_invocations(cls, pc, invodict):
+        ba = pbge.effects.Invocation(
+            name = 'Spot Weakness',
+            fx= geffects.OpposedSkillRoll(Perception, cls, Ego, Vitality,
+                                          roll_mod=50, min_chance=25,
+                                          on_success=[geffects.AddEnchantment(geffects.WeakPoint,anim=geffects.SearchAnim,)],
+                                          on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim),],
+                                          ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=15),
+            used_in_combat = True, used_in_exploration=False,
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.WeakPoint)]),
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),9),
+            price=[geffects.MentalPrice(2),],
+            targets=1)
+        invodict[cls].append(ba)
 
 
 class Computers( Skill ):
@@ -274,21 +297,6 @@ class Scouting( Skill ):
     desc = "This skill is used to spot hidden things, and may be used to identify an enemy's weak points."
     @classmethod
     def add_invocations(cls, pc, invodict):
-        ba = pbge.effects.Invocation(
-            name = 'Spot Weakness',
-            fx= geffects.OpposedSkillRoll(Craft, cls, Ego, Vitality,
-                                          roll_mod=50, min_chance=10,
-                                          on_success=[geffects.AddEnchantment(geffects.WeakPoint,anim=geffects.SearchAnim,)],
-                                          on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim),],
-                                          ),
-            area=pbge.scenes.targetarea.SingleTarget(reach=15),
-            used_in_combat = True, used_in_exploration=False,
-            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.WeakPoint)]),
-            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),9),
-            price=[geffects.MentalPrice(2),],
-            targets=1)
-        invodict[Scouting].append(ba)
-
         cover_breaking_percent = min(max(pc.get_skill_score(Perception, cls) * 2 - 50, 25), 100)
         ba2 = pbge.effects.Invocation(
             name = 'Spot Behind Cover',
