@@ -6,6 +6,7 @@ from . import ghdview
 from . import ghreplies
 from . import ghoffers
 import gears
+import random
 
 def trait_absorb(mygram,nugram,traits):
     for pat,gramdic in nugram.items():
@@ -63,11 +64,54 @@ pbge.dialogue.GENERIC_OFFERS.append(ghoffers.CHAT)
 HELLO_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.HELLO,)))
 ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 
-def SkillBasedPartyReply(object):
-    def __init__(self,camp,mylist,):
+class SkillBasedPartyReply(object):
+    def __init__(self,myoffer,camp,mylist,stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_EASY, no_random=True, **kwargs):
         # Check the skill of each party member against a target number. If any party member can
         # make the test, they get to say the line of dialogue.
-        pass
+        # If nobody makes the test, don't add myoffer to mylist.
+        self.camp = camp
+        self.offer = myoffer
+        pc = camp.make_skill_roll(stat_id,skill_id,rank,no_random=no_random,difficulty=difficulty,**kwargs)
+        if pc:
+            if pc.get_pilot() is camp.pc:
+                mylist.append(myoffer)
+            else:
+                mylist.append(myoffer)
+                myoffer.custom_menu_fun = self.custom_menu_fun
+                self.pc = pc
+
+    def format_text( self, text ):
+        mygrammar = pbge.dialogue.grammar.Grammar()
+        pbge.dialogue.GRAMMAR_BUILDER(mygrammar,self.camp,self.pc,None)
+        if self.offer:
+            text = text.format(**self.offer.data)
+        text = pbge.dialogue.grammar.convert_tokens( text, mygrammar )
+        if self.offer:
+            text = text.format(**self.offer.data)
+        return text
+
+    def custom_menu_fun(self,reply,mymenu,pcgrammar):
+        mymenu.items.append(ghdview.LancemateConvoItem(self.format_text(reply.msg),self.offer,None,mymenu,self.pc))
+
+
+class TagBasedPartyReply(SkillBasedPartyReply):
+    def __init__(self,myoffer,camp,mylist,needed_tags):
+        # Check the skill of each party member against a target number. If any party member can
+        # make the test, they get to say the line of dialogue.
+        # If nobody makes the test, don't add myoffer to mylist.
+        self.camp = camp
+        self.offer = myoffer
+        needed_tags = set(needed_tags)
+        winners = [pc for pc in camp.get_active_party() if needed_tags.issubset( pc.get_pilot().get_tags())]
+        if winners:
+            pc = random.choice(winners)
+            if pc.get_pilot() is camp.pc:
+                mylist.append(myoffer)
+            else:
+                mylist.append(myoffer)
+                myoffer.custom_menu_fun = self.custom_menu_fun
+                self.pc = pc
+
 
 def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
     # If this NPC has no relationship with the PC, create that now.

@@ -121,8 +121,21 @@
     }
   },
   {
+    "name": "Gladiator",
+    "skills": [],
+    "tags": ["Adventurer"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 2,
+      "MechaPiloting": -1,
+      "CloseCombat": 1,
+      "RangedCombat": -1
+    },
+    "local_requirements": ["DeadZone"]
+  },
+  {
     "name": "Scavenger",
-    "skills": ["Repair"],
+    "skills": ["Repair","Wildcraft"],
     "tags": ["Craftsperson","Adventurer"],
     "skill_modifiers": {
       "Athletics": -1,
@@ -197,7 +210,7 @@
 
   {
     "name": "Explorer",
-    "skills": ["Scouting"],
+    "skills": ["Scouting","Wildcraft"],
     "tags": ["Adventurer","Academic"],
     "skill_modifiers": {
       "MechaFighting": -1,
@@ -288,6 +301,16 @@
     "name": "Citizen",
     "skills": ["Negotiation"],
     "tags": ["Laborer"]
+  },
+  {
+    "name": "Singer",
+    "skills": ["Performance"],
+    "tags": ["Media"]
+  },
+  {
+    "name": "Reporter",
+    "skills": ["Negotiation"],
+    "tags": ["Media"]
   },
   {
     "name": "Buttonpusher",

@@ -371,7 +371,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def get_party_skill(self, stat_id, skill_id):
         return max([pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party()] + [0])
 
-    def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False):
+    def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False,no_random=False):
         # Make a skill roll against a given difficulty. If successful, return the lancemate
         # who made the roll.
         if untrained_ok:
@@ -382,7 +382,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             winners = list()
             target = stats.get_skill_target(rank,difficulty)
             for roller in myparty:
-                roll = random.randint(1,100) + roller.get_skill_score(stat_id,skill_id)
+                if no_random:
+                    roll = 55 + roller.get_skill_score(stat_id,skill_id)
+                else:
+                    roll = random.randint(1,100) + roller.get_skill_score(stat_id,skill_id)
                 if roll >= target:
                     winners.append(roller)
             if winners:

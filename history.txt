@@ -1,3 +1,4 @@
+- Added SkillBasedPartyReply and TagBasedPartyReply
 - Add Take Cover action to Stealth and Spot Behind Cover to Scouting
 - Spot Weakness is now a Science skill
 - Negotiation now lets you recover lancemate Mental by spending your own Stamina

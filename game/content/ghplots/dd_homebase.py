@@ -297,6 +297,13 @@ class DZD_BronzeHorseInn(Plot):
             if inf.active:
                 mylist.append(inf.build_offer())
 
+        ghdialogue.TagBasedPartyReply(
+            Offer(
+                "Ran and I used to be in the same lance. Of course that was years before she set up her mecha factory, and I eventually set up this hotel...",
+                context=ContextTag([context.INFO]),data={"subject": "Ran Magnus"}, no_repeats=True,
+            ), camp, mylist, [gears.tags.Academic]
+        )
+
         return mylist
 
     def _accept_mission(self,camp):

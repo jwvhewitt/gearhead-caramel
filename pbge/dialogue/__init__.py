@@ -54,7 +54,10 @@ class Offer(object):
     # "custom_menu_fun" is a function that takes (reply,menu,pcgrammar) and alters the menu.
 
     # "data" is a dict holding strings that may be requested by format.
-    def __init__(self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, no_repeats=False, dead_end=False, data=None, custom_menu_fun=None ):
+    def __init__(
+            self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, no_repeats=False,
+            dead_end=False, data=None, custom_menu_fun=None
+    ):
         self.msg = msg
         self.context = ContextTag(context)
         self.effect = effect
