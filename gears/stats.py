@@ -244,6 +244,7 @@ class Stealth( Skill ):
 class Science( Skill ):
     name = 'Science'
     desc = "This skill allows you to craft advanced equipment."
+    @classmethod
     def add_invocations(cls, pc, invodict):
         ba = pbge.effects.Invocation(
             name = 'Spot Weakness',
