@@ -238,6 +238,10 @@ class FailAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Fail!'
 
 
+class ResistAnim( animobs.Caption ):
+    DEFAULT_TEXT = "Resist!"
+
+
 class SearchTextAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Search!'
 
@@ -258,6 +262,27 @@ class MusicAnim( animobs.AnimOb ):
 class BadMusicAnim( FailAnim ):
     # TODO: Better bad music animation.
     pass
+
+
+class HeckleAnim( animobs.Caption ):
+    HECKLES = ( "BOO!"
+              , "You suck!"
+              , "Eww!"
+              , "Epic Fail!"
+              , "Worst Attack Ever!"
+              )
+    def __init__(self, **keywords):
+        super().__init__(txt = random.choice(self.HECKLES), **keywords)
+
+
+class CheerAnim( animobs.Caption ):
+    CHEERS = ( "YEAH!"
+             , "Encore!"
+             , "Again!"
+             , "Whoo!"
+             )
+    def __init__(self, **keywords):
+        super().__init__(txt = random.choice(self.CHEERS), **keywords)
 
 
 class ListenToMySongAnim( animobs.Caption ):
