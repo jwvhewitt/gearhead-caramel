@@ -272,7 +272,7 @@ class Performance( Skill ):
 
     @classmethod
     def add_invocations(self, pc, invodict):
-        invodict[self].append(listentomysong.Invocation( att_stat = Ego
+        invodict[self].append(listentomysong.Invocation( att_stat = Charm
                                                        , att_skill = Performance
                                                        , def_stat = Ego
                                                        , def_skill = Concentration
@@ -286,7 +286,7 @@ class Negotiation( Skill ):
     def add_invocations(self, pc, invodict):
         encourage = pbge.effects.Invocation(
             name = "Encourage (5SP)",
-            fx = geffects.DoEncourage(),
+            fx = geffects.DoEncourage(Charm, self),
             area = pbge.scenes.targetarea.SingleTarget(reach = 11),
             used_in_combat = True, used_in_exploration = True,
             ai_tar = aitargeters.GenericTargeter(
