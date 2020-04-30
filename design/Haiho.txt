@@ -1,0 +1,123 @@
+Mecha
+    name = "Haiho"
+    desig = "MOG-07"
+    imagename = "mav_haiho.png"
+    portrait = "mecha_haiho.png"
+    family = "Haiho"
+    environment_list = (GroundEnv,UrbanEnv)
+    faction_list = (None,)
+    role_list = (Trooper,)
+    desc = "A compact asteroid mining battroid from MUGL Enterprises."
+
+    SUB
+        Torso
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 4
+                    material = Metal
+                Engine
+                    desig = "MOG-E6"
+                    material = Metal
+                    size = 600
+                Gyroscope
+                    integral = True
+                    material = Metal
+                Cockpit
+                    integral = True
+                    material = Metal
+                Sensor
+                    material = Metal
+                    size = 2
+                HeavyActuators
+                    name = "Heavy Myomer Muscles"
+                    size = 3
+                    material = Metal
+                    integral = True
+            END
+        Arm
+            name = "Right Arm"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Metal
+                Hand
+                    name = "Right Hand"
+                    INV
+                        MeleeWeapon
+                            name = "Rocket Hammer"
+                            desc = "A hammer that flies and hits a nearby target before returning to your hand."
+                            reach = 3
+                            damage = 3
+                            accuracy = 2
+                            penetration = 3
+                            attributes = (Smash,)
+                            shot_anim = ReturningHammer
+                    END
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                    END
+                HeavyActuators
+                    name = "Heavy Myomer Muscles"
+                    size = 2
+                    material = Metal
+                    integral = True
+            END
+        Arm
+            name = "Left Arm"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Metal
+                Hand
+                    name = "Left Hand"
+                    INV
+                        BeamWeapon
+                            name = "Mining Laser"
+                            reach = 2
+                            damage = 1
+                            accuracy = 2
+                            penetration = 0
+                            shot_anim = SmallBeam
+                    END
+                Mount
+                    name = "Left Arm Mount"
+                    INV
+                    END
+                HeavyActuators
+                    name = "Heavy Myomer Muscles"
+                    size = 2
+                    material = Metal
+                    integral = True
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Metal
+                HoverJets
+                    size = 4
+                    material = Metal
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            material = Ceramic
+            SUB
+                Armor
+                    size = 2
+                    material = Metal
+                HoverJets
+                    size = 4
+                    material = Metal
+            END
+    END

@@ -412,6 +412,30 @@ class OriginSpotShotFactory( object ):
         # Return the spot anim.
         return self.proto_spot(pos=start_pos,delay=delay)
 
+# A shot animation that also animates a return.
+class ReturnAnim( animobs.AnimOb ):
+    BASE_ANIM = SmallBullet
+    def __init__(self, start_pos, end_pos, delay = 0):
+        self.going = self.BASE_ANIM(start_pos = start_pos, end_pos = end_pos, delay = 0)
+        self.returning = self.BASE_ANIM(start_pos = end_pos, end_pos = start_pos, delay = 0)
+        self.children = list()
+        self.delay = delay
+        self.needs_deletion = False
+    def update(self, view):
+        if self.delay > 0:
+            self.delay -= 1
+        elif self.going:
+            self.going.update(view)
+            if self.going.needs_deletion:
+                self.going = None
+                self.children.append(self.returning)
+                self.needs_deletion = True
+    def render(self, foot_pos, view):
+       if self.delay > 0:
+           return
+       elif self.going:
+           self.going.render(foot_pos, view)
+
 class AnimBox( animobs.AnimOb ):
     # This anim does nothing but release other anims into the wild.
     def __init__( self, child_anims, delay=0 ):
@@ -442,8 +466,12 @@ class DashFactory( object ):
         mydust = DustCloud(pos=self.dasher.pos,delay=2)
         return AnimBox([mydash,mydust])
 
+class ReturningHammer(ReturnAnim):
+    # TODO: Implement an actual flying hammer animation.
+    BASE_ANIM = HugeBullet
+
 # A curated list for the gear editor.
-SHOT_ANIMS = (SmallBullet,BigBullet,HugeBullet,SmallBeam,GunBeam,Missile1,Missile2,Missile3,Missile4,Missile5)
+SHOT_ANIMS = (SmallBullet,BigBullet,HugeBullet,SmallBeam,GunBeam,Missile1,Missile2,Missile3,Missile4,Missile5,ReturningHammer)
 AREA_ANIMS = (BigBoom,SuperBoom,SmallBoom,NoDamageBoom,SmokePoof,DustCloud,Fireball,BurnAnim,HaywireAnim,OverloadAnim)
 
 #  *******************

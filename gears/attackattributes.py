@@ -341,6 +341,10 @@ class Scatter(Singleton):
         attack.fx.children[0].scatter = True
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
 
+class Smash(Scatter):
+    # Exactly the same as Scatter, but better name for melee.
+    name = "Smash"
+
 class SwarmFire2(Singleton):
     # Default fire action fires at multiple targets.
     name = "Swarm Fire 2"
