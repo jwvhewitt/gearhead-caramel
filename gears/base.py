@@ -3095,6 +3095,12 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         else:
             return 0
 
+    def has_skill(self,skill_id):
+        pilot = self.get_pilot()
+        if pilot:
+            return skill_id in pilot.statline
+
+
     def get_dodge_score(self):
         return self.get_skill_score(stats.Speed, self.DODGE_SKILL)
 
@@ -3227,6 +3233,9 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         if stat_id:
             it += self.get_stat(stat_id) * 2
         return it
+
+    def has_skill(self,skill_id):
+        return skill_id in self.statline
 
     @property
     def base_health(self):
@@ -3511,6 +3520,9 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
         if stat_id:
             it += self.get_stat(stat_id) * 2
         return it
+
+    def has_skill(self,skill_id):
+        return skill_id in self.statline
 
     @property
     def base_health(self):

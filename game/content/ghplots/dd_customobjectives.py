@@ -14,6 +14,7 @@ from . import missionbuilder
 
 DDBAMO_DUEL_LANCEMATE = "DDBAMO_DuelLancemate"      # Custom Element: LMNPC
 DDBAMO_INVESTIGATE_METEOR = "DDBAMO_InvestigateMeteor"
+DDBAMO_MAYBE_AVOID_FIGHT = "DDBAMO_MaybeAvoidFight"
 
 class DDBAMO_PracticeDuel( Plot ):
     LABEL = DDBAMO_DUEL_LANCEMATE
@@ -193,3 +194,16 @@ class DDBAMO_CargoFromTheStars( Plot ):
                 pbge.alert("You have captured the cargo.")
                 self.combat_finished = True
 
+
+class DDBAMO_SkilledAvoidance( Plot ):
+    LABEL = DDBAMO_MAYBE_AVOID_FIGHT
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        self.intro_ready = True
+        return True
+
+    def LOCALE_START(self,camp):
+        if self.intro_ready:
+            self.intro_ready = False
+            
