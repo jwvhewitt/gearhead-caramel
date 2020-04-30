@@ -907,10 +907,10 @@ class DoEncourage( effects.NoEffect ):
     Also checks the compatibility of the originiator and
     the target's personalities.
     """
-    def __init__(self, stat = None, skill = None, **keywords):
+    def __init__(self, stat, skill, **keywords):
         super().__init__(**keywords)
-        self.stat = stat or stats.Ego
-        self.skill = skill or stats.Negotiation
+        self.stat = stat
+        self.skill = skill
 
     def _get_character(self, obj):
         while True:
