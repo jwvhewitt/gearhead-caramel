@@ -251,6 +251,24 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["I'm leaving.", "So long.",
                           ],
     },
+    "[BAD_NEWS]": {
+        # NPC is about to announce something bad.
+        Default: ["Bad news...","Oh no..."
+                  ],
+        personality.Cheerful: ["Well that's not good...",
+                               ],
+        personality.Grim: ["That's just my luck.","Curses!"
+                           ],
+        personality.Easygoing: ["Guess what?",
+                                ],
+        personality.Passionate: ["Oh [expletive]...","This is terrible!"
+                                 ],
+        personality.Sociable: ["Bad news, everyone...",
+                               ],
+        personality.Shy: ["Bad news."
+                          ],
+    },
+
     "[bandit]": {
         Default: [
             "bandit","brigand","thief","ravager","pirate","criminal","crimepunk","raider","blackheart"
@@ -555,6 +573,45 @@ DEFAULT_GRAMMAR = {
 
     },
 
+    "[ENEMIES_HAVE_NOT_DETECTED_US]": {
+        # Enemies have been detected nearby. Generally used by a LM with Stealth when battle can be avoided.
+        Default: ["[HOLD_ON] There are enemy mecha ahead, but they haven't detected us yet.",
+                  "[HOLD_ON] There are [enemy_meks] nearby; they haven't seen us yet."
+                  ],
+        personality.Cheerful: ["[BAD_NEWS] There's a group of [enemy_meks] just around the turn. The good news is, they haven't spotted us yet.",
+                               "[GOOD_NEWS] The [enemy_meks] that are lurking up ahead don't even know we're here."
+                               ],
+        personality.Grim: ["[LISTEN_UP] There are enemies ahead; one more step and they'll spot the rest of you.",
+                           "[HOLD_ON] There's a lance of enemy mecha nearby, and you almost gave away our position."
+                           ],
+        personality.Easygoing: [
+            "Those [enemy_meks] up ahead haven't figured out that we're here yet... it would be a piece of cake to sneak around them.",
+            "I don't think the [enemy_meks] over there are paying attention. They don't even know we're here."
+            ],
+        personality.Passionate: ["They way ahead is choked with enemies. But, there is another way, if you follow me...",
+                                 "[LISTEN_UP] Those [enemy_meks] must be asleep at the console. Follow me and I can sneak us all around them."
+                                 ],
+        personality.Sociable: [
+            "[LISTEN_UP] If you don't want to fight those [enemy_meks], I can easily provide us with a way around them.",
+            "Did you notice those [enemy_meks] over there? I've been keeping my eye on them, but I don't think they've noticed us yet."
+            ],
+        personality.Shy: ["[HOLD_ON] They haven't detected us. I can get us around them.",
+                          "[GOOD_NEWS] We spotted them before they spotted us. I can get us around them."
+                          ],
+        personality.Peace: ["[GOOD_NEWS] The mecha up ahead haven't seen us yet; with a bit of trickery, we can find a safe path around them.",
+                            ],
+        personality.Justice: [
+            "The [enemy_meks] over there haven't spotted us yet. It's your call whether we challenge them or just slip by.",
+            ],
+        personality.Glory: [
+            "[LISTEN_UP] The [enemy_meks] over there? They don't even know we're here. We can do whatever we want.",
+            ],
+        personality.Fellowship: ["There's a group of mecha ahead; they appear to be hostile. They haven't spotted us yet.",
+                                 ],
+        personality.Duty: ["[HOLD_ON] The [enemy_meks] haven't seen us yet, so technically we could just sneak away.",
+                           ],
+    },
+
     "[enemy_meks]": {
         # Insert your favorite euphemism or trash talk,
         Default: ["mecha", "enemy mecha",
@@ -695,6 +752,24 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Good luck.",
             ],
         },
+
+    "[GOOD_NEWS]": {
+        # NPC is about to announce something good.
+        Default: ["Good news!",
+                  ],
+        personality.Cheerful: ["Great news!",
+                               ],
+        personality.Grim: ["I have something good to announce!",
+                           ],
+        personality.Easygoing: ["Guess what?",
+                                ],
+        personality.Passionate: ["This is fantastic!", "This is amazing!", "I have wonderful news!"
+                                 ],
+        personality.Sociable: ["Good news, everyone!",
+                               ],
+        personality.Shy: ["Listen up."
+                          ],
+    },
 
     "[GOODQUESTION]": {
         Default: ["That's a good question."
@@ -1013,6 +1088,25 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[HOLD_ON]": {
+        # Wait a minute...
+        Default: ["Hold on...", "Wait a sec..."
+                  ],
+        personality.Cheerful: ["Yikes!","Jinkies!"
+                               ],
+        personality.Grim: ["Halt...",
+                           ],
+        personality.Easygoing: ["Just a sec...","Woah..."
+                                ],
+        personality.Passionate: ["Stop!",
+                                 ],
+        personality.Sociable: [
+            "Everybody, hold on a second...",
+            ],
+        personality.Shy: ["Wait...",
+                          ],
+    },
+
     "[ICANDOTHAT]": {
         # Speaker is responding in the affirmative to a request.
         Default: ["I can do that.",
@@ -1069,6 +1163,41 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["I forgot.",
                           ],
+    },
+
+    "[I_HAVE_DETECTED_ENEMIES]": {
+        # Enemies have been detected nearby.
+        Default: ["[HOLD_ON] I have detected enemy mecha just ahead of us.",
+                  "[HOLD_ON] My sensors show [enemy_meks] nearby."
+                  ],
+        personality.Cheerful: ["I hate to be the bearer of bad news, but there are [enemy_meks] nearby.",
+                               "[GOOD_NEWS] We just avoided stepping right into an ambush."
+                               ],
+        personality.Grim: ["[HOLD_ON] The way ahead is blocked by [enemy_meks].",
+                           "My sensors indicate a significant force of [enemy_meks] nearby."
+                           ],
+        personality.Easygoing: ["I thought you'd all like to know that we're heading straight towards some [enemy_meks].",
+                                "Is anybody else picking up a big group of enemy meks ahead? Because I am picking up a big group of enemy meks ahead."
+                                ],
+        personality.Passionate: ["[GOOD_NEWS] I have detected our enemies, and they are nearby!",
+                                 "[HOLD_ON] According to my sensors, we are surrounded by enemy forces!"
+                                 ],
+        personality.Sociable: ["[HOLD_ON] We're not alone out here; I'm picking up a group of enemy mecha on my scanner.",
+                               "[LISTEN_UP] I just detected some [enemy_meks], and they're nearby."
+                               ],
+        personality.Shy: ["[HOLD_ON] I'm reading enemy forces ahead.",
+                          "There are [enemy_meks] nearby."
+                          ],
+        personality.Peace: ["[BAD_NEWS] My scanner has picked up some hostile mecha closing in on us.",
+                        ],
+        personality.Justice: ["[HOLD_ON] I just picked up some mecha ahead. I can't be sure what they want, but it probably isn't good.",
+                            ],
+        personality.Glory: ["[GOOD_NEWS] If you were looking forward to getting in a fight today, I just detected [enemy_meks].",
+                            ],
+        personality.Fellowship: ["[HOLD_ON] There's someone else out there; hostile mecha from the look of things.",
+                            ],
+        personality.Duty: ["[LISTEN_UP] My scanners just picked up some [enemy_meks] approaching our position.",
+                            ],
     },
 
     "[I_MUST_CONSIDER_MY_NEXT_STEP]": {
@@ -1218,6 +1347,28 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[INTERESTING_NEWS]": {
+        # Character has something interesting to reveal.
+        Default: ["Very interesting.",
+                  "This is interesting."
+                  ],
+        personality.Cheerful: [
+            "Oh, cool!",
+        ],
+        personality.Grim: ["Fascinating.",
+                           ],
+        personality.Easygoing: [
+            "Neat.",
+        ],
+        personality.Passionate: [
+            "Amazing!",
+        ],
+        personality.Sociable: [
+            "I have something quite interesting to tell you.",
+        ],
+        personality.Shy: ["Interesting.",
+                          ],
+    },
 
     "[IP_NEWS]": {
         Default: ["[IP_GoodNews].","[IP_BadNews].","[IP_Business].","[IP_Pleasure]."
@@ -1482,6 +1633,24 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[LISTEN_UP]": {
+        # The character is about to announce something important.
+        Default: ["Listen up;",
+                  ],
+        personality.Cheerful: ["Listen up!",
+                               ],
+        personality.Grim: ["Hear me...", "I am only going to say this once..."
+                           ],
+        personality.Easygoing: ["Hey...",
+                                ],
+        personality.Passionate: ["Listen to my words!",
+                                 ],
+        personality.Sociable: ["Hey everyone, listen up...",
+                               ],
+        personality.Shy: ["Listen;",
+                          ],
+    },
+
     "[LONGTIMENOSEE]": {
         Default: ["Hello [audience], long time no see.",
             "Long time no see, [audience].",],
@@ -1490,6 +1659,23 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Long time no see.",
             ],
         },
+
+    "[LOOK_AT_THIS]": {
+        Default: ["Look at this...", "[audience], look at this..."
+                  ],
+        personality.Cheerful: ["Hey, that's interesting...",
+                               ],
+        personality.Grim: ["Would you look at that...",
+                           ],
+        personality.Easygoing: ["Would you get a load of this?",
+                                ],
+        personality.Passionate: ["Look!", "[audience], look!"
+                                 ],
+        personality.Sociable: ["Everybody, come here, I found something...",
+                               ],
+        personality.Shy: ["Look at this.",
+                          ],
+    },
 
     "[Luna]": {
         Default: ["Luna", ],
@@ -2023,6 +2209,49 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[THERE_ARE_ENEMY_TRACKS]": {
+        # Enemies have been detected nearby. Not by sensors, but by more obvious signs.
+        Default: ["[HOLD_ON] This place bears all the signs of enemy activity.",
+                  "[LOOK_AT_THIS] From these tracks, I can tell there are [enemy_meks] nearby."
+                  ],
+        personality.Cheerful: [
+            "[INTERESTING_NEWS] I hope I'm wrong about this, but these tracks look like they came from a whole bunch of meks, and not friendly ones.",
+            "[LOOK_AT_THIS] These are definitely mecha tracks, and they're fresh."
+            ],
+        personality.Grim: ["[HOLD_ON] I've been picking up signs of enemy activity for a while now. We're almost on top of them.",
+                           "[LISTEN_UP] This area reeks of enemy activity. Fresh tracks are everywhere."
+                           ],
+        personality.Easygoing: [
+            "I don't want to alarm anyone, but this place has all the signs of recent enemy activity.",
+            "[LOOK_AT_THIS] A clear impression of a mecha footprint. Fresh, too. Some people just don't know how to cover their tracks."
+        ],
+        personality.Passionate: [
+            "[GOOD_NEWS] The [enemy_meks] I've been tracking are close now... possibly too close.",
+            "[HOLD_ON] There are signs of enemy patrols all over the place. We could be walking straight into a trap!"
+            ],
+        personality.Sociable: [
+            "[LISTEN_UP] I didn't want to say anything before I was sure, but I've been seeing signs of enemy activity, and I'm certain there are [enemy_meks] nearby.",
+            "[HOLD_ON] These tracks show signs of recent enemy movement. They are definitely nearby."
+        ],
+        personality.Shy: ["[LOOK_AT_THIS] Clear signs of enemy activity...",
+                          "[LISTEN_UP] There are [enemy_meks] nearby."
+                          ],
+        personality.Peace: [
+            "[BAD_NEWS] According to these tracks, there's an enemy patrol nearby, but we still have a chance to avoid it.",
+            ],
+        personality.Justice: [
+            "[HOLD_ON] I think I've found tracks belonging to an enemy patrol. They are close to here...",
+        ],
+        personality.Glory: [
+            "[LOOK_AT_THIS] These tracks are proof that there's an enemy patrol nearby. We could run into it at any minute.",
+        ],
+        personality.Fellowship: [
+            "[LOOK_AT_THIS] You see that mark? It was made by a mecha, and not one of ours. They must still be close to here.",
+            ],
+        personality.Duty: ["[LOOK_AT_THIS] I've been keeping an eye out for signs of enemy movement, and this is it. They must be close now.",
+                           ],
+    },
+
     "[THEYAREAMYSTERY]": {
         # Those folks we're talking about? All I know is that I know nothing about them.
         # The data block should include "they"
@@ -2208,6 +2437,42 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Just waiting for my next mission.",
                           ],
+    },
+
+    "[WE_CAN_AVOID_COMBAT]": {
+        # Usually for a lancemate who suggests a way around this combat.
+        Default: ["We can avoid this combat, if you want."
+                  ],
+        personality.Cheerful: [
+            "Luckily, there's nothing saying that we have to fight these [enemy_meks]."
+            ],
+        personality.Grim: ["The choice is yours: we can engage in mortal combat, or we can avoid them.",
+                           ],
+        personality.Easygoing: ["I'd just as soon avoid this conflict, but it's your choice.",
+                                ],
+        personality.Passionate: [
+            "We could just avoid this battle altogether, but I say we attack!",
+            ],
+        personality.Sociable: [
+            "Well, what do you say, [audience]? Do we go around them or do we go through them?",
+            ],
+        personality.Shy: ["Shall we just go around them?",
+                          ],
+        personality.Justice: [
+            "Do we strike them down, thereby preventing them from harming others; or do we leave them be, and abstain from causing harm ourselves?",
+        ],
+        personality.Duty: [
+            "We have no obligation to fight them now. What do you think?",
+        ],
+        personality.Peace: [
+            "I'd rather not enter combat when we don't absolutely need to, but it's your call.",
+        ],
+        personality.Glory: [
+            "We could just avoid them, but where's the glory in that?",
+        ],
+        personality.Fellowship: [
+            "We can fight them or avoid them. I'll go along with what everyone else wants.",
+        ],
     },
 
     "[WHATAREYOUDOINGHERE]": {

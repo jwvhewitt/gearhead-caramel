@@ -371,20 +371,27 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def get_party_skill(self, stat_id, skill_id):
         return max([pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party()] + [0])
 
-    def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=True):
+    def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False):
         # Make a skill roll against a given difficulty. If successful, return the lancemate
         # who made the roll.
         if untrained_ok:
             myparty = self.get_active_party()
         else:
-            myparty = self.get_active_party()
+            myparty = [pc for pc in self.get_active_party() if pc.has_skill(skill_id)]
         if myparty:
+            winners = list()
             target = stats.get_skill_target(rank,difficulty)
-            roller = max(self.get_active_party(), key=lambda pc: pc.get_skill_score(stat_id,skill_id))
-            roll = random.randint(1,100) + roller.get_skill_score(stat_id,skill_id)
-            if roll >= target:
-                roller.dole_experience(max(rank//3,5),skill_id)
-                return roller
+            for roller in myparty:
+                roll = random.randint(1,100) + roller.get_skill_score(stat_id,skill_id)
+                if roll >= target:
+                    winners.append(roller)
+            if winners:
+                pc = random.choice(winners)
+                pc.dole_experience(max(rank//3,5),skill_id)
+                return pc
+
+    def party_has_skill(self,skill_id):
+        return any(pc for pc in self.get_active_party() if pc.has_skill(skill_id))
 
     def get_pc_mecha(self,pc):
         meklist = [mek for mek in self.party if isinstance(mek,base.Mecha) and mek.pilot is pc]

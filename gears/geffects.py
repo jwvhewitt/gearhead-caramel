@@ -1527,7 +1527,9 @@ class StatValuePrice(object):
         chara.dole_experience(self.minvalue,self.statid)
 
     def can_pay( self, chara ):
-        return chara.statline.get(self.statid,0) >= self.minvalue
+        pc = chara.get_pilot()
+        if pc:
+            return pc.statline.get(self.statid,0) >= self.minvalue
 
 
 #  ************************

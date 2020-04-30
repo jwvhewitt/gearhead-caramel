@@ -103,6 +103,9 @@ class AdventureSeed(Adventure):
         camp.credits -= repair_total
         self.results.append(("Repair/Reload","-${:,}".format(repair_total)))
 
+    def cancel_adventure(self,camp):
+        super(AdventureSeed,self).end_adventure(camp)
+
     def end_adventure(self,camp):
         for rfun in self.rewards:
             rfun(camp,self)

@@ -81,6 +81,42 @@ class SimpleMonologueDisplay( object ):
     def __call__(self,camp):
         myviz = ghdialogue.ghdview.ConvoVisualizer(self.npc,camp)
         mygrammar = pbge.dialogue.grammar.Grammar()
-        pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,None)
+        pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc)
         myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
         pbge.alert_display(myviz.render)
+
+class PromptMenu( pbge.rpgmenu.Menu ):
+    WIDTH = 350
+    HEIGHT = 250
+    MENU_HEIGHT = 75
+
+    FULL_RECT = pbge.frects.Frect(-175,-125,350,250)
+    TEXT_RECT = pbge.frects.Frect(-175,-125,350,165)
+
+    def __init__( self, prompt ):
+        super().__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,border=None,predraw=self.pre)
+        self.prompt = prompt
+
+    def pre( self ):
+        if pbge.my_state.view:
+            pbge.my_state.view()
+        pbge.default_border.render( self.FULL_RECT.get_rect() )
+        pbge.draw_text( pbge.my_state.medium_font, self.prompt, self.TEXT_RECT.get_rect(), justify = 0 )
+
+
+class SimpleMonologueMenu(pbge.rpgmenu.Menu):
+    # Useful for times when you don't want or need to invoke the full conversation thingamajig.
+    def __init__(self,text,npc,camp):
+        super().__init__(
+            ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.dx,
+            ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.dy,
+            ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.w,
+            ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.h,
+            font=pbge.my_state.medium_font, padding=5
+        )
+        self.npc = npc
+        self.myviz = ghdialogue.ghdview.ConvoVisualizer(self.npc,camp)
+        self.predraw = self.myviz.render
+        mygrammar = pbge.dialogue.grammar.Grammar()
+        pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc)
+        self.myviz.text = pbge.dialogue.grammar.convert_tokens(text,mygrammar)

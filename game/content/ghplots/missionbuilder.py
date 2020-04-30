@@ -501,6 +501,7 @@ class BAM_DefeatTheBandits(Plot):
             self.obj.win(camp, 100)
 
 
+
 class BAM_DefeatTheBandits_NoCommander(Plot):
     LABEL = BAMO_DEFEAT_THE_BANDITS
     active = True

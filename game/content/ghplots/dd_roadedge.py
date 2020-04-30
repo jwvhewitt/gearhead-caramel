@@ -4,7 +4,7 @@ import pbge
 import random
 from game.content import gharchitecture,ghterrain, plotutility
 from .dd_main import RoadEdge
-from . import missionbuilder
+from . import missionbuilder,dd_customobjectives
 import pygame
 
 
@@ -91,7 +91,7 @@ class DZDREProppStarterPlot(Plot):
         myadv = missionbuilder.BuildAMissionSeed(
             camp, self.ENCOUNTER_NAME, (start_node.destination,start_node.entrance),
             enemy_faction = self.elements["FACTION"], rank=self.rank,
-            objectives = self.ENCOUNTER_OBJECTIVES,
+            objectives = self.ENCOUNTER_OBJECTIVES + (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
             adv_type = "DZD_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
             scenegen=DeadZoneHighwaySceneGen, architecture=self.ENCOUNTER_ARCHITECTURE(),
