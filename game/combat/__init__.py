@@ -76,7 +76,7 @@ class PlayerTurn( object ):
             self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
     def switch_skill( self, button=None, ev=None ):
-        if self.active_ui != self.skill_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_skill_library():
+        if self.active_ui != self.skill_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_skill_library(True):
             self.active_ui.deactivate()
             self.skill_ui.activate()
             self.active_ui = self.skill_ui
@@ -106,7 +106,7 @@ class PlayerTurn( object ):
         #  Then, this routine routes the input to the correct UI handler.
 
         buttons_to_add = [(6,7,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),]
-        if self.pc.get_skill_library():
+        if self.pc.get_skill_library(True):
             buttons_to_add.append((8,9,self.switch_skill,'Skills'))
         if self.pc.get_program_library():
             buttons_to_add.append((10, 11, self.switch_programs, 'Programs'))
@@ -120,7 +120,7 @@ class PlayerTurn( object ):
         self.movement_ui = movementui.MovementUI( self.camp, self.pc )
         self.attack_ui = targetingui.TargetingUI(self.camp,self.pc)
         #self.attack_ui.deactivate()
-        self.skill_ui = invoker.InvocationUI(self.camp,self.pc,self.pc.get_skill_library)
+        self.skill_ui = invoker.InvocationUI(self.camp,self.pc,self._get_skill_library)
         self.program_ui = programsui.ProgramsUI(self.camp,self.pc)
 
         self.active_ui = self.movement_ui
@@ -148,6 +148,9 @@ class PlayerTurn( object ):
         self.attack_ui.dispose()
         self.skill_ui.dispose()
         self.program_ui.dispose()
+
+    def _get_skill_library(self):
+        return self.pc.get_skill_library(True)
 
 
 class Combat( object ):
