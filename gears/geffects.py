@@ -4,7 +4,7 @@ from pbge.scenes import animobs,movement,pfov
 import random
 from . import materials
 from . import damage, stats
-from .enchantments import Enchantment,END_COMBAT,ON_MOVE
+from .enchantments import Enchantment,END_COMBAT,ON_MOVE,ON_DISPEL_POSITIVE,ON_DISPEL_NEGATIVE
 import math
 from . import base
 
@@ -248,6 +248,36 @@ class InflictHaywireAnim( animobs.Caption ):
 
 class AIAssistAnim( animobs.Caption ):
     DEFAULT_TEXT = 'AI Assisted!'
+
+
+class MusicAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_music.png"
+    DEFAULT_END_FRAME = 15
+
+
+class BadMusicAnim( FailAnim ):
+    # TODO: Better bad music animation.
+    pass
+
+
+class ListenToMySongAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'LISTEN TO MY SONG!'
+    DEFAULT_COLOR = (224, 192, 255)
+    SONG_LYRICS = ( 'HELLO DARKNESS MY OLD FRIEND!'
+                  , 'NEVER GONNA GIVE YOU UP!'
+                  , 'ZANKOKU NO TENSHI NO TEZE!'
+                  , "WE WILL WE WILL ROCK YOU!"
+                  , "LET IT GO!"
+                  , "OPPA GANGNAM STYLE!"
+                  , 'PEN PINEAPPLE APPLE PEN!'
+                  )
+    def __init__(self, txt = None, width = 256, **keywords):
+        if txt is None:
+            txt = self.DEFAULT_TEXT
+            # Occassionally mess with the player because WHY NOT?
+            if random.randint(1, 20) == 1:
+                txt = random.choice(self.SONG_LYRICS)
+        super().__init__(txt = txt, width = width, **keywords)
 
 
 class TakeCoverAnim( SmokePoof ):
@@ -550,6 +580,46 @@ class MultiAttackRoll( effects.NoEffect ):
             if defense and defense.can_attempt(originator,target):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers
+
+
+class SkillRoll( effects.NoEffect ):
+    """ A single actor makes a skill roll unopposed.
+    """
+    def __init__(self, stat, skill, on_success = (), on_failure = (), anim = None, roll_mod = 0, min_chance = 5, max_chance = 95):
+        self.stat = stat
+        self.skill = skill
+        if not on_success:
+            on_success = list()
+        self.on_success = on_success
+        if not on_failure:
+            on_failure = list()
+        self.on_failure = on_failure
+        self.anim = anim
+        self.roll_mod = roll_mod
+        self.min_chance = min_chance
+        self.max_chance = max_chance
+
+    def _calc_percent(self, camp, originator):
+        if originator:
+            percent = originator.get_skill_score(self.stat, self.skill) + self.roll_mod
+        else:
+            percent = self.roll_mod
+        return max(min(percent,self.max_chance),self.min_chance)
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        odds = self._calc_percent(camp,originator)
+        if random.randint(1, 100) <= odds:
+            if originator and hasattr(originator, "dole_experience"):
+                originator.dole_experience(max((75 - odds) // 5, 2), self.skill)
+            return self.on_success
+        else:
+            return self.on_failure
+
+    def get_odds( self, camp, originator, target ):
+        # Return the percent chance that this attack will hit and the list of
+        # modifiers in (value,name) form.
+        modifiers = [(self.roll_mod,'Base Modifier')]
+        return self._calc_percent(camp, originator)/100.0, modifiers
 
 
 class OpposedSkillRoll( effects.NoEffect ):
@@ -944,6 +1014,32 @@ class AddEnchantment( effects.NoEffect ):
             # Adding a particular enchantment can dispel other enchantments.
             target.ench_list.tidy(self.enchant_type)
         return self.children
+
+
+class RandomEffect( effects.NoEffect ):
+    """ Randomly applies one of the given effects.
+    """
+    def __init__(self, possible_fx, **keywords):
+        super().__init__(**keywords)
+        self.possible_fx = possible_fx
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay = 0):
+        return [random.choice(self.possible_fx)] + self.children
+
+
+class DispelEnchantments( effects.NoEffect ):
+    """ Trigger dispelling enchantments with a specific dispel type.
+    Usually used with enchantments.ON_DISPEL_NEGATIVE or
+    enchantments.ON_DISPEL_POSITIVE.
+    """
+    def __init__(self, dispel_this = None, **keywords):
+        super().__init__(**keywords)
+        self.dispel_this = dispel_this or ON_DISPEL_NEGATIVE
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay = 0):
+        for target in camp.scene.get_operational_actors(pos):
+            if not hasattr(target, 'ench_list'):
+                continue
+            target.ench_list.tidy(self.dispel_this)
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
 
 
 #  ***************************
@@ -1419,7 +1515,23 @@ class StatValuePrice(object):
 #   get_cover_pierce_bonus
 
 
-class Burning(Enchantment):
+# Enchantments should derive from either PositiveEnchantment
+# or NegativeEnchantment based on whether it is beneficial
+# or detrimental to the target.
+
+class PositiveEnchantment(Enchantment):
+    def __init__(self, **kwargs):
+        dispel = kwargs.pop('dispel', self.DEFAULT_DISPEL)
+        dispel += (ON_DISPEL_POSITIVE,)
+        super().__init__(dispel = dispel, **kwargs)
+class NegativeEnchantment(Enchantment):
+    def __init__(self, **kwargs):
+        dispel = kwargs.pop('dispel', self.DEFAULT_DISPEL)
+        dispel += (ON_DISPEL_NEGATIVE,)
+        super().__init__(dispel = dispel, **kwargs)
+
+
+class Burning(NegativeEnchantment):
     name = 'Burning'
     DEFAULT_DURATION = 3
     def update(self,camp,owner):
@@ -1432,7 +1544,7 @@ class Burning(Enchantment):
         pbge.my_state.view.handle_anim_sequence()
 
 
-class HaywireStatus(Enchantment):
+class HaywireStatus(NegativeEnchantment):
     name = 'Haywire'
     # The only top 10 status effect from Prince Edward Island
     DEFAULT_DURATION = 3
@@ -1442,7 +1554,7 @@ class HaywireStatus(Enchantment):
     def can_affect(cls,target):
         return isinstance(target,base.Mecha)
 
-class OverloadStatus(Enchantment):
+class OverloadStatus(NegativeEnchantment):
     name = 'Overloaded'
     DEFAULT_DISPEL = (END_COMBAT,)
     DEFAULT_DURATION = 5
@@ -1453,7 +1565,7 @@ class OverloadStatus(Enchantment):
         return isinstance(target,base.Mecha)
 
 
-class SensorLock(Enchantment):
+class SensorLock(NegativeEnchantment):
     name = 'Sensor Lock'
     DEFAULT_DISPEL = (END_COMBAT,)
     DEFAULT_DURATION = 2
@@ -1461,7 +1573,7 @@ class SensorLock(Enchantment):
         return -25
 
 
-class Prescience(Enchantment):
+class Prescience(PositiveEnchantment):
     # +2 bonus to dodge skills while active.
     name = 'Prescience'
     DEFAULT_DISPEL = (END_COMBAT,)
@@ -1472,14 +1584,14 @@ class Prescience(Enchantment):
         else:
             return 0
 
-class WeakPoint(Enchantment):
+class WeakPoint(NegativeEnchantment):
     name = 'Weak Point'
     DEFAULT_DISPEL = (END_COMBAT,)
     def get_penetration_bonus(self,owner):
         return 20
 
 
-class TakingCover(Enchantment):
+class TakingCover(PositiveEnchantment):
     name = 'Taking Cover'
     DEFAULT_DISPEL = (END_COMBAT,ON_MOVE)
     DEFAULT_DURATION = None
@@ -1496,7 +1608,7 @@ class TakingCover(Enchantment):
         return self.percent_bonus
 
 
-class BreakingCover(Enchantment):
+class BreakingCover(NegativeEnchantment):
     name = 'Cover Broken'
     DEFAULT_DISPEL = (END_COMBAT,)
     DEFAULT_DURATION = 2
@@ -1513,7 +1625,7 @@ class BreakingCover(Enchantment):
         return -self.percent_malus
 
 
-class AIAssisted(Enchantment):
+class AIAssisted(PositiveEnchantment):
     name = 'AI Assisted'
     DEFAULT_DISPEL = (END_COMBAT, HaywireStatus)
     DEFAULT_DURATION = None
@@ -1557,3 +1669,29 @@ class AIAssisted(Enchantment):
             if isinstance(ench, HaywireStatus):
                 return False
         return True
+
+
+class Demoralized(NegativeEnchantment):
+    name = 'Demoralized'
+    DEFAULT_DURATION = None
+    def __init__(self, **kwargs):
+        # Inspired and Demoralized cancel each other, but we
+        # cannot set DEFAULT_DISPEL since Inspired is not
+        # yet defined.
+        super().__init__(dispel = (END_COMBAT, Inspired), **kwargs)
+    def get_stat(self, stat):
+        if isinstance(stat, stats.Stat):
+            return -1
+        else:
+            return 0
+
+
+class Inspired(PositiveEnchantment):
+    name = 'Inspired'
+    DEFAULT_DISPEL = (END_COMBAT, Demoralized)
+    DEFAULT_DURATION = None
+    def get_stat(self, stat):
+        if isinstance(stat, stats.Stat):
+            return 1
+        else:
+            return 0

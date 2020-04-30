@@ -1,3 +1,4 @@
+- Performance now gives weaponized singing in combat.  LISTEN TO MY SONG
 - SensorLock negates the SensorRange attack modifier
 - Added StatValuePrice effect price
 - GearHeadCampaign now has make_skill_roll method

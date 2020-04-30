@@ -4,6 +4,7 @@ import pbge
 import random
 from . import materials
 from . import aitargeters
+from . import listentomysong
 
 DIFFICULTY_TRIVIAL = -50
 DIFFICULTY_EASY = -25
@@ -268,6 +269,14 @@ class Computers( Skill ):
 class Performance( Skill ):
     name = 'Performance'
     desc = "This skill enables you to play music. Do it well enough and you might even get paid."
+
+    @classmethod
+    def add_invocations(self, pc, invodict):
+        invodict[self].append(listentomysong.Invocation( att_stat = Ego
+                                                       , att_skill = Performance
+                                                       , def_stat = Ego
+                                                       , def_skill = Concentration
+                                                       ))
 
 
 class Negotiation( Skill ):
