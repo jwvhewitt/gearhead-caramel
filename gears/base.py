@@ -1114,7 +1114,7 @@ class Gyroscope(Component, StandardDamageHandler):
     def is_legal_sub_com(self, part):
         return isinstance(part, Armor)
 
-    volume = 2
+    base_volume = 2
     base_cost = 10
     base_health = 2
 
@@ -1135,7 +1135,7 @@ class Cockpit(Component, StandardDamageHandler):
                 return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part) and self.free_volume >= part.volume
             else:
                 return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
-    volume = 2
+    base_volume = 2
     base_cost = 5
     base_health = 2
 
