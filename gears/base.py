@@ -1563,7 +1563,7 @@ class MeleeWeapon(Weapon):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.HaywireAttack,
-                        attackattributes.OverloadAttack)
+                        attackattributes.OverloadAttack, attackattributes.Smash)
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL

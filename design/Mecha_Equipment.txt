@@ -108,7 +108,7 @@ MeleeWeapon
     accuracy=1
     penetration=3
     scale = MechaScale
-    attributes = (Flail,)
+    attributes = (Flail,Smash)
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
