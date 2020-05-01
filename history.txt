@@ -1,3 +1,4 @@
+- EWSystems now show their programs, Engines now show their ratings in their info panels when buying or choosing parts to install
 - Added SkillBasedPartyReply and TagBasedPartyReply
 - Add Take Cover action to Stealth and Spot Behind Cover to Scouting
 - Spot Weakness is now a Science skill
