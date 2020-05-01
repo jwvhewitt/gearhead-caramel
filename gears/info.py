@@ -569,6 +569,11 @@ class WeaponAttributesBlock( ItemsListBlock ):
         attatts = self.model.get_attributes()
         return [att.name for att in attatts]
 
+class ProgramsBlock( ItemsListBlock ):
+    def get_items(self):
+        programs = self.model.programs
+        return [program.name for program in programs]
+
 class HostilityStatusBlock(object):
     def __init__(self,model,width=220,font=None,scene=None,**kwargs):
         self.model = model
@@ -614,6 +619,9 @@ class WeaponIP(InfoPanel):
 class LauncherIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeBlock, LauncherStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock, DescBlock)
 
+class EWSystemIP(InfoPanel):
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ProgramsBlock, DescBlock)
+
 class ShortItemIP(InfoPanel):
     DEFAULT_BLOCKS = (DescBlock,)
 
@@ -637,6 +645,8 @@ def get_longform_display(model,**kwargs):
         return WeaponIP(model=model,**kwargs)
     elif isinstance(model,base.Launcher):
         return LauncherIP(model=model, **kwargs)
+    elif isinstance(model, base.EWSystem):
+        return EWSystemIP(model=model, **kwargs)
     else:
         return ItemIP(model=model,**kwargs)
 
