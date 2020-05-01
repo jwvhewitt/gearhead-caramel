@@ -543,23 +543,31 @@ class WeaponSkillBlock( object ):
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
-class WeaponAttributesBlock( object ):
-    def __init__(self,model,width=220,font=None,**kwargs):
+class ItemsListBlock( object ):
+    def __init__(self, model, width = 220, font = None, color = None, **kwargs):
         self.model = model
         self.width = width
         self.font = font or pbge.MEDIUMFONT
-        attatts = model.get_attributes()
-        if attatts:
-            attnames = [att.name for att in attatts]
-            attnames.sort()
-            self.image = pbge.render_text(self.font,', '.join(attnames),width,justify=0,color=pbge.INFO_HILIGHT)
+        self.color = color or pbge.INFO_HILIGHT
+        items = list(self.get_items())
+        if items:
+            items.sort()
+            self.image = pbge.render_text(self.font, ', '.join(items), width, justify = 0, color = self.color)
             self.height = self.image.get_height()
         else:
             self.image = None
             self.height = 0
-    def render(self,x,y):
+    # Override this in your derived class
+    def get_items(self):
+        raise RuntimeError("ItemsListBlock.get_items not overridden!")
+    def render(self, x, y):
         if self.height > 0:
-            pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+            pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+
+class WeaponAttributesBlock( ItemsListBlock ):
+    def get_items(self):
+        attatts = self.model.get_attributes()
+        return [att.name for att in attatts]
 
 class HostilityStatusBlock(object):
     def __init__(self,model,width=220,font=None,scene=None,**kwargs):
@@ -580,7 +588,6 @@ class HostilityStatusBlock(object):
     def render(self, x, y):
         if self.image:
             pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
-
 
 class MechaStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
