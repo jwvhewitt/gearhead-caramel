@@ -574,6 +574,21 @@ class ProgramsBlock( ItemsListBlock ):
         programs = self.model.programs
         return [program.name for program in programs]
 
+class SizeBlock( object ):
+    label = "Size"
+    def __init__(self, model, width = 220, font = None, color = None, **kwargs):
+        self.model = model
+        self.width = width
+        self.font = font or pbge.SMALLFONT
+        self.color = color or pbge.INFO_GREEN
+        self.image = pbge.render_text(self.font, '{}: {}'.format(self.label, model.size), width, justify = -1, color = self.color)
+        self.height = self.image.get_height()
+    def render(self, x, y):
+        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+
+class EngineSizeBlock( SizeBlock ):
+    label = "Rating"
+
 class HostilityStatusBlock(object):
     def __init__(self,model,width=220,font=None,scene=None,**kwargs):
         self.model = model
@@ -622,6 +637,9 @@ class LauncherIP(InfoPanel):
 class EWSystemIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ProgramsBlock, DescBlock)
 
+class EngineIP(InfoPanel):
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, EngineSizeBlock, DescBlock)
+
 class ShortItemIP(InfoPanel):
     DEFAULT_BLOCKS = (DescBlock,)
 
@@ -647,6 +665,8 @@ def get_longform_display(model,**kwargs):
         return LauncherIP(model=model, **kwargs)
     elif isinstance(model, base.EWSystem):
         return EWSystemIP(model=model, **kwargs)
+    elif isinstance(model, base.Engine):
+        return EngineIP(model=model, **kwargs)
     else:
         return ItemIP(model=model,**kwargs)
 
