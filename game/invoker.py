@@ -18,7 +18,6 @@ class InvoMenuDesc(pbge.frects.Frect):
         else:
             pbge.draw_text(pbge.SMALLFONT, '???', self.get_rect(), justify=-1, color=pbge.WHITE)
 
-
 class InvocationsWidget(pbge.widgets.Widget):
     # This widget stores the invocation library and allows the player
     # to select which invocation to invoke.
@@ -27,18 +26,26 @@ class InvocationsWidget(pbge.widgets.Widget):
     MENU_POS = (-380, 15, 200, 180)
     DESC_POS = (-160, 15, 140, 180)
 
-    def __init__(self, camp, pc, build_library_function, update_callback, start_source=None, **kwargs):
+    def __init__(
+            self, camp, pc, build_library_function, update_callback, start_source=None,
+            top_shelf_fun=None, bottom_shelf_fun=None, **kwargs
+    ):
         # This widget holds the attack library and determines what invocation
         # from the library is going to be used.
         # build_library_function is a function that builds the library. Duh.
         # update_callback is a function that gets called when the invocation
         #   is changed. It passes the new invocation as a parameter.
+        # top_shelf_fun and bottom_shelf_fun are functions called when the user
+        #   tries to scroll above the top item or below the bottom item. If None,
+        #   this widget will just loop around to the other end of the list.
         super(InvocationsWidget, self).__init__(-383, -5, 383, 57, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
         self.camp = camp
         self.pc = pc
         self.build_library = build_library_function
         self.library = build_library_function()
         self.update_callback = update_callback
+        self.top_shelf_fun = top_shelf_fun
+        self.bottom_shelf_fun = bottom_shelf_fun
         self.shelf = None
         self.invo = 0
         # The shelf_offset tells the index of the first invocation in the menu.
@@ -98,15 +105,20 @@ class InvocationsWidget(pbge.widgets.Widget):
 
     def prev_shelf(self):
         usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc) or s is self.shelf]
-        if len(usable_shelves) > 1:
-            old_i = usable_shelves.index(self.shelf)
+        old_i = usable_shelves.index(self.shelf)
+        if old_i == 0 and self.top_shelf_fun:
+            self.top_shelf_fun()
+        elif len(usable_shelves) > 1:
             nu_shelf = usable_shelves[old_i - 1]
             self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
 
     def next_shelf(self):
         usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc) or s is self.shelf]
-        if len(usable_shelves) > 1:
-            new_i = usable_shelves.index(self.shelf) + 1
+        old_i = usable_shelves.index(self.shelf)
+        if old_i == len(usable_shelves)-1 and self.bottom_shelf_fun:
+            self.bottom_shelf_fun()
+        elif len(usable_shelves) > 1:
+            new_i = old_i + 1
             if new_i >= len(usable_shelves):
                 new_i = 0
             nu_shelf = usable_shelves[new_i]
@@ -211,13 +223,16 @@ class InvocationUI(object):
     SC_ZEROCURSOR = 7
     LIBRARY_WIDGET = InvocationsWidget
 
-    def __init__(self, camp, pc, build_library_function, source=None):
+    def __init__(self, camp, pc, build_library_function, source=None, top_shelf_fun=None, bottom_shelf_fun=None):
         self.camp = camp
         self.pc = pc
         # self.change_invo(invo)
         self.cursor_sprite = pbge.image.Image('sys_mapcursor.png', 64, 64)
 
-        self.my_widget = self.LIBRARY_WIDGET(camp, pc, build_library_function, self.change_invo, source)
+        self.my_widget = self.LIBRARY_WIDGET(
+            camp, pc, build_library_function, self.change_invo, source,
+            top_shelf_fun=top_shelf_fun, bottom_shelf_fun=bottom_shelf_fun
+        )
         self.my_widget.active = False
         pbge.my_state.widgets.append(self.my_widget)
         self.record = False

@@ -50,11 +50,13 @@ class MovementUI( object ):
     SC_VOIDCURSOR = 0
     SC_TRAILMARKER = 6
     SC_ZEROCURSOR = 7
-    def __init__(self, camp, mover):
+    def __init__(self, camp, mover, top_shelf_fun=None, bottom_shelf_fun=None):
         self.camp = camp
         self.mover = mover
         self.origin = mover.pos
         self.needs_tile_update = True
+        self.top_shelf_fun = top_shelf_fun
+        self.bottom_shelf_fun = bottom_shelf_fun
 
         self.cursor_sprite = pbge.image.Image('sys_mapcursor.png',64,64)
         self.my_widget = MoveWidget(camp,mover,on_click=self.open_movemode_menu)
@@ -114,6 +116,11 @@ class MovementUI( object ):
             self.camp.fight.cstat[self.mover].mp_remaining = 0
         elif ev.type == pbge.TIMEREVENT:
             self.render()
+        if ev.type == pygame.MOUSEBUTTONDOWN:
+            if ev.button == 4 and self.top_shelf_fun:
+                self.top_shelf_fun()
+            elif ev.button == 5 and self.bottom_shelf_fun:
+                self.bottom_shelf_fun()
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
             if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
                 # Move!
@@ -123,10 +130,16 @@ class MovementUI( object ):
                 mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
                 if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
                     player_turn.switch_attack()
-        elif ev.type == pygame.KEYDOWN and ev.unicode == "t":
-            mypos = pbge.my_state.view.mouse_tile
-            myscene = self.camp.scene
-            print ("Ground: {}\n Wall: {}\n Decor: {}".format(myscene.get_floor(*mypos),myscene.get_wall(*mypos),myscene.get_decor(*mypos)))
+        elif ev.type == pygame.KEYDOWN:
+            if ev.key in pbge.my_state.get_keys_for("up") and self.top_shelf_fun:
+                self.top_shelf_fun()
+            elif ev.key in pbge.my_state.get_keys_for("down") and self.bottom_shelf_fun:
+                self.bottom_shelf_fun()
+
+            elif ev.unicode == "t":
+                mypos = pbge.my_state.view.mouse_tile
+                myscene = self.camp.scene
+                print ("Ground: {}\n Wall: {}\n Decor: {}".format(myscene.get_floor(*mypos),myscene.get_wall(*mypos),myscene.get_decor(*mypos)))
 
 
     def dispose( self ):

@@ -23,7 +23,7 @@ class AttackWidget(invoker.InvocationsWidget):
     MENU_POS = (-420,15,200,180)
     DESC_POS = (-200, 15, 180, 180)
     def __init__(self, camp, pc, build_library_function, update_callback, start_source=None, **kwargs):
-        super(AttackWidget, self).__init__(camp, pc, build_library_function, update_callback, start_source, **kwargs)
+        super().__init__(camp, pc, build_library_function, update_callback, start_source, **kwargs)
         self.ammo_label = pbge.widgets.LabelWidget(26,37,212,14,text_fun=self._get_ammo_str,color=pbge.WHITE,
                                                    parent=self,anchor=pbge.frects.ANCHOR_UPPERLEFT,
                                                    justify=0, on_click=self.pop_invo_menu)
@@ -37,8 +37,8 @@ class AttackWidget(invoker.InvocationsWidget):
 
 class TargetingUI(invoker.InvocationUI):
     LIBRARY_WIDGET = AttackWidget
-    def __init__(self,camp,attacker,foo=None,bar=None):
-        super(TargetingUI,self).__init__(camp,attacker,attacker.get_attack_library)
+    def __init__(self,camp,attacker,**kwargs):
+        super(TargetingUI,self).__init__(camp,attacker,attacker.get_attack_library,**kwargs)
     def activate( self ):
         super(TargetingUI,self).activate()
         self.my_widget.maybe_select_shelf_with_this_source(self.camp.fight.cstat[self.pc].last_weapon_used)

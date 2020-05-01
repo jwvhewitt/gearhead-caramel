@@ -32,6 +32,7 @@ class LancematePrep( object ):
             cscene.library[self.id_tag] = random.choice(candidates)
             return True
 
+
 class MonologueDisplay( object ):
     def __init__(self,text,id_tag):
         self.text=text
@@ -45,6 +46,7 @@ class MonologueDisplay( object ):
             myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
             pbge.alert_display(myviz.render)
 
+
 class ExplosionDisplay(object):
     def __init__(self,dmg_n=2,dmg_d=6,radius=2,target="pc"):
         self.fx = pbge.effects.Invocation(
@@ -57,6 +59,7 @@ class ExplosionDisplay(object):
             target = target.get_root()
             self.fx.invoke(camp,None,[target.pos,],pbge.my_state.view.anim_list)
             pbge.my_state.view.handle_anim_sequence()
+
 
 class SkillRollCutscene(cutscene.Cutscene):
     def __init__( self,stat_id,skill_id,target,library=dict(),on_success=(),on_failure=()):
@@ -74,6 +77,7 @@ class SkillRollCutscene(cutscene.Cutscene):
         else:
             self.play_list(camp,self.on_failure)
 
+
 class SimpleMonologueDisplay( object ):
     def __init__(self,text,npc):
         self.text=text
@@ -84,6 +88,7 @@ class SimpleMonologueDisplay( object ):
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc)
         myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
         pbge.alert_display(myviz.render)
+
 
 class PromptMenu( pbge.rpgmenu.Menu ):
     WIDTH = 350

@@ -101,7 +101,10 @@ class BuildAMissionPlot(Plot):
     def custom_init(self, nart):
         """An empty map that will add subplots for the mission's objectives."""
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(50, 50, "Combat Zone", player_team=team1, scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(
+            50, 50, "Combat Zone", player_team=team1, scale=gears.scale.MechaScale,
+            combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg"
+        )
         myscenegen = self.elements["SCENEGEN"](myscene, self.elements["ARCHITECTURE"])
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE", temporary=True, dident="METROSCENE")
         self.adv.world = myscene

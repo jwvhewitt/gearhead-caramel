@@ -10,8 +10,8 @@ class ProgramWidget(invoker.InvocationsWidget):
 
 class ProgramsUI(invoker.InvocationUI):
     LIBRARY_WIDGET = ProgramWidget
-    def __init__(self,camp,attacker,foo=None,bar=None):
-        super(ProgramsUI,self).__init__(camp,attacker,attacker.get_program_library)
+    def __init__(self,camp,attacker,**kwargs):
+        super().__init__(camp,attacker,attacker.get_program_library,**kwargs)
     def activate( self ):
         super(ProgramsUI,self).activate()
         self.my_widget.maybe_select_shelf_with_this_source(self.camp.fight.cstat[self.pc].last_program_used)

@@ -1,6 +1,7 @@
 
 import pbge
-from . import ghgrammar
+from pbge.dialogue import Offer, ContextTag
+from . import ghgrammar, context
 from . import context
 from . import ghdview
 from . import ghreplies
@@ -126,3 +127,15 @@ def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
         realnpc.relationship.met_before = True
 
 
+class OneShotInfoBlast(object):
+    def __init__(self, subject, message):
+        self.subject = subject
+        self.message = message
+        self.active = True
+
+    def build_offer(self):
+        return Offer(msg=self.message, context=ContextTag((context.INFO,)), effect=self.blast_that_info,
+                     subject=self.subject, data={"subject": self.subject}, no_repeats=True)
+
+    def blast_that_info(self, *args):
+        self.active = False

@@ -1,3 +1,5 @@
+v0.511 May 1 2020
+- May scroll up/down or use up/down keys to page through all combat modes
 - EWSystems now show their programs, Engines now show their ratings in their info panels when buying or choosing parts to install
 - Added SkillBasedPartyReply and TagBasedPartyReply
 - Add Take Cover action to Stealth and Spot Behind Cover to Scouting

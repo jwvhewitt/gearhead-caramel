@@ -162,6 +162,10 @@ class MSRuinedWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_msruins.png'
     blocks = (Walking,Skimming,Rolling,Vision)
 
+class StoneWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_stone.png'
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
 
 class DZDTownTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'
@@ -295,6 +299,18 @@ class VentFanTerrain(pbge.scenes.terrain.OnTheWallAnimTerrain):
     east_frames = (0,1,2)
     south_frames = (3,4,5)
     image_top = 'terrain_decor_ventfan.png'
+    anim_delay = 2
+
+class TorchTerrain(pbge.scenes.terrain.OnTheWallAnimTerrain):
+    east_frames = (0,2)
+    south_frames = (1,3)
+    image_top = 'terrain_decor_torch.png'
+    anim_delay = 2
+
+class BlueTorchTerrain(pbge.scenes.terrain.OnTheWallAnimTerrain):
+    east_frames = (0,2)
+    south_frames = (1,3)
+    image_top = 'terrain_decor_torch_b.png'
     anim_delay = 2
 
 class GreenBoardingChuteTerrain(pbge.scenes.terrain.OnTheWallAnimTerrain):

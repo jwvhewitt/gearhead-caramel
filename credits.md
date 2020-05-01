@@ -52,5 +52,20 @@ MUSIC
 * A Winter Tale by Johan Brodd, copyright 2016, GPL 3.0
 * A Surprising Encounter by Kevin Macleod, Public Domain
 * Comic Game Loop - Mischief by Kevin Macleod, Public Domain
+* three stems remixt by Martin Cee (softmartin) (c) copyright 2020 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/softmartin/61013 Ft: canton
+* Good Night by Dub Alta Fidelidad (c) copyright 2020 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/dubaltafidelidad/61458 
+* reCreation by airtone (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/airtone/59721 
+* Kalte Ohren by Alex (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/AlexBeroza/59612 Ft: starfrosch & Jerry Spoon
+* Oreilles froides(Kalte Ohren) remix Blue by Bluemillenium (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/Bluemillenium/59613 
+* Run Against the Universe by Komiku, Public Domain
+* Battle Theme by Komiku, Public Domain
+* Run! That Boss Was a Bearing Wall! by Komiku, Public Domain
+* Nothing Will Grow Here by Komiku, Public Domain
+* Ancient Heavy Tech Donjon by Komiku, Public Domain
+* Friend's Theme by Komiku, Public Domain
+* Fight Run Breath Deeply by Komiku, Public Domain
+* This One is Tough by Komiku, Public Domain
+* Surfing by Komiku, Public Domain
+* Boss 2: Too Powerful For You by Komiku, Public Domain
 
 

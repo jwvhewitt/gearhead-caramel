@@ -13,6 +13,14 @@ class ResidentialDecor(OmniDec):
     WALL_DECOR = (ghterrain.WoodenShelves,)
     WIN_DECOR = ghterrain.ScreenWindow
 
+class DungeonDecor(OmniDec):
+    WALL_DECOR = (ghterrain.TorchTerrain,)
+    WALL_FILL_FACTOR = 0.33
+
+class MysteryDungeonDecor(OmniDec):
+    WALL_DECOR = (ghterrain.BlueTorchTerrain,)
+    WALL_FILL_FACTOR = 0.33
+
 
 class StorageRoomDecor(ColumnsDecor):
     WALL_DECOR = (ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.VentFanTerrain)
@@ -108,5 +116,11 @@ class IndustrialBuilding(Architecture):
 class FortressBuilding(Architecture):
     DEFAULT_WALL_TERRAIN = ghterrain.FortressWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+class StoneBuilding(Architecture):
+    DEFAULT_WALL_TERRAIN = ghterrain.StoneWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.Flagstone
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor

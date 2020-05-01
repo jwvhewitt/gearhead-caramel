@@ -1,7 +1,7 @@
-from pbge.plots import Plot, PlotState
+from pbge.plots import Plot
 from pbge.dialogue import Offer, ContextTag
-from game import teams, services, ghdialogue
-from game.ghdialogue import context
+from game import teams, services
+from game.ghdialogue import context, OneShotInfoBlast
 import gears
 from gears import factions, personality
 import game.content.gharchitecture
@@ -13,20 +13,6 @@ from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
 from .dd_main import DZDRoadMapExit
 from . import missionbuilder
-
-
-class OneShotInfoBlast(object):
-    def __init__(self, subject, message):
-        self.subject = subject
-        self.message = message
-        self.active = True
-
-    def build_offer(self):
-        return Offer(msg=self.message, context=ContextTag((context.INFO,)), effect=self.blast_that_info,
-                     subject=self.subject, data={"subject": self.subject}, no_repeats=True)
-
-    def blast_that_info(self, *args):
-        self.active = False
 
 
 class DZD_Wujung(Plot):
@@ -297,12 +283,12 @@ class DZD_BronzeHorseInn(Plot):
             if inf.active:
                 mylist.append(inf.build_offer())
 
-        ghdialogue.TagBasedPartyReply(
-            Offer(
-                "Ran and I used to be in the same lance. Of course that was years before she set up her mecha factory, and I eventually set up this hotel...",
-                context=ContextTag([context.INFO]),data={"subject": "Ran Magnus"}, no_repeats=True,
-            ), camp, mylist, [gears.tags.Academic]
-        )
+        #ghdialogue.TagBasedPartyReply(
+        #    Offer(
+        #        "Ran and I used to be in the same lance. Of course that was years before she set up her mecha factory, and I eventually set up this hotel...",
+        #        context=ContextTag([context.INFO]),data={"subject": "Ran Magnus"}, no_repeats=True,
+        #    ), camp, mylist, [gears.tags.Academic]
+        #)
 
         return mylist
 
@@ -553,7 +539,7 @@ class DZD_AlliedArmor(Plot):
         otherscene = gears.GearHeadScene(50, 40, "Secret Scene", player_team=team1,
                                        scale=gears.scale.HumanScale)
 
-        intscenegen = pbge.randmaps.SceneGenerator(otherscene, game.content.gharchitecture.CommercialBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(otherscene, game.content.gharchitecture.StoneBuilding(decorate=gharchitecture.MysteryDungeonDecor()))
         self.register_scene(nart, otherscene, intscenegen, ident="OTHERSCENE", dident="INTERIOR")
         hiddenroom = pbge.randmaps.rooms.ClosedRoom()
         otherscene.contents.append(hiddenroom)

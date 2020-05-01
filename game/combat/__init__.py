@@ -95,6 +95,14 @@ class PlayerTurn( object ):
             # If the attack UI can't be activated, switch back to movement UI.
             self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
+    def switch_top_shelf(self):
+        if self.active_ui in self.top_shelf_funs:
+            self.top_shelf_funs[self.active_ui]()
+
+    def switch_bottom_shelf(self):
+        if self.active_ui in self.bottom_shelf_funs:
+            self.bottom_shelf_funs[self.active_ui]()
+
     def go( self ):
         # Perform this character's turn.
         #Start by making a hotmap centered on PC, to see how far can move.
@@ -106,9 +114,11 @@ class PlayerTurn( object ):
         #  Then, this routine routes the input to the correct UI handler.
 
         buttons_to_add = [(6,7,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),]
-        if self.pc.get_skill_library(True):
+        has_skills = self.pc.get_skill_library(True)
+        if has_skills:
             buttons_to_add.append((8,9,self.switch_skill,'Skills'))
-        if self.pc.get_program_library():
+        has_programs = self.pc.get_program_library()
+        if has_programs:
             buttons_to_add.append((10, 11, self.switch_programs, 'Programs'))
         buttons_to_add.append((4,5,self.end_turn,'End Turn'))
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
@@ -117,11 +127,26 @@ class PlayerTurn( object ):
          anchor=pbge.frects.ANCHOR_UPPERLEFT )
         pbge.my_state.widgets.append(self.my_radio_buttons)
 
-        self.movement_ui = movementui.MovementUI( self.camp, self.pc )
-        self.attack_ui = targetingui.TargetingUI(self.camp,self.pc)
+        self.top_shelf_funs = dict()
+        self.bottom_shelf_funs = dict()
+        self.movement_ui = movementui.MovementUI( self.camp, self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf )
+        self.bottom_shelf_funs[self.movement_ui] = self.switch_attack
+        self.attack_ui = targetingui.TargetingUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
+        self.top_shelf_funs[self.attack_ui] = self.switch_movement
+        if has_skills:
+            self.bottom_shelf_funs[self.attack_ui] = self.switch_skill
+        elif has_programs:
+            self.bottom_shelf_funs[self.attack_ui] = self.switch_programs
         #self.attack_ui.deactivate()
-        self.skill_ui = invoker.InvocationUI(self.camp,self.pc,self._get_skill_library)
-        self.program_ui = programsui.ProgramsUI(self.camp,self.pc)
+        self.skill_ui = invoker.InvocationUI(self.camp,self.pc,self._get_skill_library,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
+        self.top_shelf_funs[self.skill_ui] = self.switch_attack
+        if has_programs:
+            self.bottom_shelf_funs[self.skill_ui] = self.switch_programs
+        self.program_ui = programsui.ProgramsUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
+        if has_skills:
+            self.top_shelf_funs[self.program_ui] = self.switch_skill
+        else:
+            self.top_shelf_funs[self.program_ui] = self.switch_attack
 
         self.active_ui = self.movement_ui
 
