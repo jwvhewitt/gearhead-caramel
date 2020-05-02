@@ -32,16 +32,6 @@ class CostBlock(object):
         pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
-class MechaBuyIP(gears.info.InfoPanel):
-    # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MechaFeaturesAndSpriteBlock, gears.info.DescBlock)
-
-class ItemBuyIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MassVolumeHPBlock, gears.info.DescBlock)
-
-class WeaponBuyIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, CostBlock, gears.info.MassVolumeHPBlock, gears.info.WeaponStatsBlock, gears.info.ItemStatsBlock, gears.info.WeaponSkillBlock, gears.info.WeaponAttributesBlock, gears.info.DescBlock)
-
 class CustomerPanel(object):
     INFO_AREA = pbge.frects.Frect(50, 130, 300, 100)
     def __init__(self,shop,camp):
@@ -78,14 +68,12 @@ class ShopDesc(object):
     def get_buy_info(self, item):
         if item in self.buy_info_cache:
             return self.buy_info_cache[item]
-        elif isinstance(item, gears.base.Mecha):
-            it = MechaBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w, purchase_price=item in self.shop.wares)
-        elif isinstance(item, gears.base.Weapon):
-            it = WeaponBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w, purchase_price=item in self.shop.wares)
         else:
-            it = ItemBuyIP(model=item, shop=self.shop, camp=self.camp, width=self.ITEM_INFO_AREA.w, purchase_price=item in self.shop.wares)
-        self.buy_info_cache[item] = it
-        return it
+            costblock = CostBlock(model = item, width = self.ITEM_INFO_AREA.w, shop = self.shop, camp = self.camp, purchase_price = item in self.shop.wares)
+            it = gears.info.get_longform_display(model = item, width = self.ITEM_INFO_AREA.w)
+            it.info_blocks.insert(1, costblock)
+            self.buy_info_cache[item] = it
+            return it
 
     def __call__(self, menuitem):
         mydest = self.SHOP_INFO_AREA.get_rect()
