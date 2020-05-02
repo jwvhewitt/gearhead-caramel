@@ -2495,6 +2495,10 @@ class Hand(BaseGear, StandardDamageHandler):
     base_cost = 50
     base_health = 2
 
+    def can_normally_remove(self):
+        # Human-scale hands cannot be removed at Cyberdoc Terminal.
+        return not (self.scale is scale.HumanScale)
+
 
 class Mount(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "Weapon Mount"
@@ -2650,7 +2654,7 @@ class MF_Head(ModuleForm):
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part, (
-            Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, EWSystem))
+            Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, EWSystem, EyesCyberware, EarsCyberware, ForebrainCyberware, BrainstemCyberware))
 
 
 class MF_Torso(ModuleForm):
@@ -2664,7 +2668,7 @@ class MF_Torso(ModuleForm):
     def is_legal_sub_com(self, part):
         return isinstance(part, (
             Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, Engine, Gyroscope,
-            EWSystem))
+            EWSystem, HeartCyberware, SpineCyberware, TorsoMusclesCyberware))
 
     VOLUME_X = 4
     MASS_X = 2
@@ -2684,7 +2688,7 @@ class MF_Arm(ModuleForm):
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part,
-                          (Weapon, Launcher, Armor, Hand, Mount, MovementSystem, PowerSource, Sensor, Usable, EWSystem))
+                          (Weapon, Launcher, Armor, Hand, Mount, MovementSystem, PowerSource, Sensor, Usable, EWSystem, ArmMusclesCyberware, ArmBonesCyberware))
 
     @classmethod
     def is_legal_inv_com(self, part):
@@ -2703,7 +2707,7 @@ class MF_Leg(ModuleForm):
 
     @classmethod
     def is_legal_sub_com(self, part):
-        return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem))
+        return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem, LegMusclesCyberware, LegBonesCyberware))
 
 
 class MF_Wing(ModuleForm):
@@ -2841,6 +2845,31 @@ class Module(BaseGear, StandardDamageHandler):
     def can_normally_remove(self):
         # Human-scale modules cannot be removed at Cyberdoc Terminal.
         return not (self.scale is scale.HumanScale)
+
+    def can_install(self, part, check_volume = True):
+        if super().can_install(part, check_volume):
+            if isinstance(part, BaseCyberware):
+                # Cyberware has to have correct scale.
+                if not self.scale is part.scale:
+                    return False
+                if check_volume:
+                    # Check trauma specs.
+                    parent = self.parent
+                    # Normally, only Beings can install cyberware.
+                    # However, while loading, the subcom is being
+                    # built without a parent for this module yet,
+                    # so we just pass this test.
+                    # The only other callers of can_install is the
+                    # geareditor, which gets the fully constructed
+                    # gear already.
+                    if not parent or not isinstance(parent, Being):
+                        return True
+                    # Make sure the being can take the trauma.
+                    if parent.current_trauma + part.trauma > parent.max_trauma:
+                        return False
+            return True
+        else:
+            return False
 
 
 class Head(Module):
@@ -3346,6 +3375,18 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         for cw in self.cyberware():
             bonus += cw.statline.get(stat_id, 0)
         return bonus
+
+    @property
+    def max_trauma(self):
+        # Use the base body.
+        return self.statline.get(stats.Body, 0)
+
+    @property
+    def current_trauma(self):
+        trauma = 0
+        for cw in self.cyberware():
+            trauma += cw.trauma
+        return trauma
 
     def get_stat(self, stat_id):
         return self.statline.get(stat_id, 0) + self.ench_list.get_stat(stat_id) + self.get_cyberware_bonus(stat_id)
