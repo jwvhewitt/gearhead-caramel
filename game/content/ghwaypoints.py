@@ -151,6 +151,16 @@ class MechEngTerminal(Waypoint):
                 myui = geareditor.GearEditor(mek,camp.party,mode=geareditor.MODE_RESTRICTED)
                 myui.activate_and_run()
 
+class CyberdocTerminal( Waypoint ):
+    name = "Cyberdoc Terminal"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.CyberdocTerminalTerrain)
+    ATTACH_TO_WALL = True
+    MENU_TITLE = pbge.frects.Frect(-100,-150,200,16)
+
+    def unlocked_use(self, camp):
+        ui = geareditor.GearEditor(camp.pc, camp.party, mode = geareditor.MODE_RESTRICTED)
+        ui.activate_and_run()
+
 
 class MechaPoster(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.MechaPosterTerrain)

@@ -222,6 +222,10 @@ class GoldPlaqueTerrain(pbge.scenes.terrain.OnTheWallTerrain):
 class MechEngTerminalTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_mechengterminal.png'
 
+class CyberdocTerminalTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    # TODO: Give the Cyberdoc Terminal its own graphic.
+    image_top = 'terrain_decor_mechengterminal.png'
+
 class MechaPosterTerrain(pbge.scenes.terrain.OnTheWallVariableTerrain):
     image_top = 'terrain_decor_posters_mecha.png'
     south_frames = (1,3,5,7)

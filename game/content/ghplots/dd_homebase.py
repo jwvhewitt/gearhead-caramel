@@ -777,6 +777,7 @@ class DZD_WujungHospital(Plot):
         room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(),dident="INTERIOR")
         room2.contents.append(ghwaypoints.RecoveryBed())
         room2.contents.append(ghwaypoints.RecoveryBed())
+        room2.contents.append(ghwaypoints.CyberdocTerminal())
 
         room5 = self.register_element('_room5', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
 
