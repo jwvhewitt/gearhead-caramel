@@ -579,12 +579,15 @@ class SizeBlock( object ):
     def __init__(self, model, width = 220, font = None, color = None, **kwargs):
         self.model = model
         self.width = width
-        self.font = font or pbge.SMALLFONT
+        self.font = font or pbge.MEDIUMFONT
         self.color = color or pbge.INFO_GREEN
-        self.image = pbge.render_text(self.font, '{}: {}'.format(self.label, model.size), width, justify = -1, color = self.color)
-        self.height = self.image.get_height()
+        self.linesize = max(self.font.get_linesize(), 16)
+        self.height = self.linesize
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        labeldest = pygame.Rect(x, y, self.width // 2, self.height)
+        pbge.draw_text(self.font, '{}: '.format(self.label), labeldest, justify = 1, color = self.color)
+        valuedest = pygame.Rect(x + self.width // 2 + 16, y, self.width // 2 - 16, self.height)
+        pbge.draw_text(self.font, str(self.model.size), valuedest, justify = -1, color = self.color)
 
 class EngineSizeBlock( SizeBlock ):
     label = "Rating"
