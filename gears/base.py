@@ -364,14 +364,7 @@ class Combatant(KeyObject):
     def get_skill_library(self, in_combat=False):
         my_invo_dict = collections.defaultdict(list)
         pilot = self.get_pilot()
-        ## TODO: Can Cyberware enable active skills you do not naturally have?
-        ## For now let's make Cyberware that only works on common skills all
-        ## Characters will have.
-        # statline = pilot.statline.copy()
-        # for cw in pilot.cyberware():
-        #     statline.update(cw.statline)
-        # skills = statline.keys()
-        for p in list(pilot.statline.keys()):
+        for p in list(pilot.get_all_skills()):
             if hasattr(p, 'add_invocations'):
                 p.add_invocations(pilot, my_invo_dict)
         my_invos = list()
@@ -3389,7 +3382,26 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return trauma
 
     def get_stat(self, stat_id):
-        return self.statline.get(stat_id, 0) + self.ench_list.get_stat(stat_id) + self.get_cyberware_bonus(stat_id)
+        # Cyberware can remove skill by giving them -999,
+        # but make sure not to actually affect gameplay
+        # beyond removing skills.
+        return( max(0, self.statline.get(stat_id, 0) + self.get_cyberware_bonus(stat_id))
+              + self.ench_list.get_stat(stat_id)
+              )
+
+    def get_all_skills(self):
+        effective_statline = self.statline.copy()
+        # Add any new skills cyberware gives you.
+        for cw in self.cyberware():
+            for s in cw.statline.keys():
+                effective_statline[s] = effective_statline.get(s, 0) + cw.statline[s]
+
+        # Clear entries that are at 0 or below, if
+        # a cyberware removes a skill.
+        for s in list(effective_statline.keys()):
+            if effective_statline[s] <= 0:
+                del effective_statline[s]
+        return effective_statline.keys()
 
     def get_skill_score(self, stat_id, skill_id):
         it = self.get_stat(skill_id) * 5
@@ -3398,7 +3410,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return it
 
     def has_skill(self,skill_id):
-        return skill_id in self.statline
+        return skill_id in self.get_all_skills()
 
     @property
     def base_health(self):
