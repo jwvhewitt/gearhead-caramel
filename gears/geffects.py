@@ -259,9 +259,9 @@ class MusicAnim( animobs.AnimOb ):
     DEFAULT_END_FRAME = 15
 
 
-class BadMusicAnim( FailAnim ):
-    # TODO: Better bad music animation.
-    pass
+class BadMusicAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_music_bad.png"
+    DEFAULT_END_FRAME = 7
 
 
 class HeckleAnim( animobs.Caption ):
