@@ -364,6 +364,13 @@ class Combatant(KeyObject):
     def get_skill_library(self, in_combat=False):
         my_invo_dict = collections.defaultdict(list)
         pilot = self.get_pilot()
+        ## TODO: Can Cyberware enable active skills you do not naturally have?
+        ## For now let's make Cyberware that only works on common skills all
+        ## Characters will have.
+        # statline = pilot.statline.copy()
+        # for cw in pilot.cyberware():
+        #     statline.update(cw.statline)
+        # skills = statline.keys()
         for p in list(pilot.statline.keys()):
             if hasattr(p, 'add_invocations'):
                 p.add_invocations(pilot, my_invo_dict)
@@ -2510,6 +2517,91 @@ class Usable(BaseGear,StandardDamageHandler):
     DEFAULT_NAME = "Do Nothing Usable"
 
 
+#   *****************
+#   *** CYBERWARE ***
+#   *****************
+
+class BaseCyberware(BaseGear, StandardDamageHandler):
+    DEFAULT_MATERIAL = materials.Biotech
+    DEFAULT_SCALE = scale.HumanScale
+    SAVE_PARAMETERS = ("statline",)
+
+    # Override in your derived class.
+    location = '???'
+    base_trauma = 4
+    cost_factor = 1.0
+
+    def __init__(self, statline = None, **keywords):
+        self.statline = collections.defaultdict(int)
+        if statline:
+            self.statline.update(statline)
+        super().__init__(**keywords)
+
+    base_volume = 0
+
+    @property
+    def base_cost(self):
+        benefit = 0
+        for s in self.statline.keys():
+            value = self.statline.get(s, 0)
+            if value < 0:
+                value = -1
+            elif s in stats.PRIMARY_STATS:
+                value *= 3
+            elif s in stats.NONCOMBAT_SKILLS:
+                value *= 5
+            else:
+                value *= 4
+            benefit += value
+        return int(benefit * 805 * self.cost_factor)
+
+    @property
+    def trauma(self):
+        benefit = self.base_trauma
+        for s in self.statline.keys():
+            value = self.statline.get(s, 0)
+            if value < 0:
+                value = -1
+            elif s in stats.PRIMARY_STATS:
+                value = (value + 1) // 2
+            else:
+                value *= 1
+            benefit += value
+        return int(max(benefit, self.base_trauma))
+
+
+class EyesCyberware(BaseCyberware):
+    location = 'Eyes'
+    base_trauma = 3
+    cost_factor = 1.1
+class EarsCyberware(BaseCyberware):
+    location = 'Ears'
+    base_trauma = 3
+    cost_factor = 0.9
+class ForebrainCyberware(BaseCyberware):
+    location = 'Forebrain'
+    cost_factor = 1.3
+class BrainstemCyberware(BaseCyberware):
+    location = 'Brainstem'
+    cost_factor = 1.3
+class HeartCyberware(BaseCyberware):
+    location = 'Heart'
+    base_trauma = 5
+class SpineCyberware(BaseCyberware):
+    location = 'Spine'
+    base_trauma = 5
+class TorsoMusclesCyberware(BaseCyberware):
+    location = 'Torso Muscles'
+    base_trauma = 5
+class ArmMusclesCyberware(BaseCyberware):
+    location = 'Arm Muscles'
+class ArmBonesCyberware(BaseCyberware):
+    location = 'Arm Bones'
+class LegMusclesCyberware(BaseCyberware):
+    location = 'Leg Muscles'
+class LegBonesCyberware(BaseCyberware):
+    location = 'Leg Bones'
+
 
 #   *******************
 #   ***   MODULES   ***
@@ -2550,6 +2642,11 @@ class MF_Head(ModuleForm):
     name = "Head"
     SENSOR_BONUS = 1
 
+    MULTIPLICITY_LIMITS = {
+        EyesCyberware: 1, EarsCyberware: 1, ForebrainCyberware: 1, BrainstemCyberware: 1,
+        **ModuleForm.MULTIPLICITY_LIMITS
+    }
+
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part, (
@@ -2559,7 +2656,8 @@ class MF_Head(ModuleForm):
 class MF_Torso(ModuleForm):
     name = "Torso"
     MULTIPLICITY_LIMITS = {
-        Engine: 1, Mount: 2, Cockpit: 1, Gyroscope: 1, Armor: 1
+        Engine: 1, Mount: 2, Cockpit: 1, Gyroscope: 1, Armor: 1,
+        HeartCyberware: 1, SpineCyberware: 1, TorsoMusclesCyberware: 1
     }
 
     @classmethod
@@ -2578,6 +2676,11 @@ class MF_Arm(ModuleForm):
     CAN_ATTACK = True
     ACCURACY = 1
 
+    MULTIPLICITY_LIMITS = {
+        ArmMusclesCyberware: 1, ArmBonesCyberware: 1,
+        **ModuleForm.MULTIPLICITY_LIMITS
+    }
+
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part,
@@ -2592,6 +2695,11 @@ class MF_Leg(ModuleForm):
     name = "Leg"
     CAN_ATTACK = True
     PENETRATION = 1
+
+    MULTIPLICITY_LIMITS = {
+        LegBonesCyberware: 1, LegMusclesCyberware: 1,
+        **ModuleForm.MULTIPLICITY_LIMITS
+    }
 
     @classmethod
     def is_legal_sub_com(self, part):
@@ -2730,6 +2838,10 @@ class Module(BaseGear, StandardDamageHandler):
 
         return my_invos
 
+    def can_normally_remove(self):
+        # Human-scale modules cannot be removed at Cyberdoc Terminal.
+        return not (self.scale is scale.HumanScale)
+
 
 class Head(Module):
     def __init__(self, **keywords):
@@ -2828,7 +2940,6 @@ class LegClothing(Clothing):
     def __init__(self, **keywords):
         keywords["form"] = MF_Leg
         super(LegClothing, self).__init__(**keywords)
-
 
 #   *****************
 #   ***   MECHA   ***
@@ -3225,8 +3336,19 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
                 break
         return is_ok
 
+    def cyberware(self):
+        for part in self.sub_sub_coms():
+            if isinstance(part, BaseCyberware):
+                yield part
+
+    def get_cyberware_bonus(self, stat_id):
+        bonus = 0
+        for cw in self.cyberware():
+            bonus += cw.statline.get(stat_id, 0)
+        return bonus
+
     def get_stat(self, stat_id):
-        return self.statline.get(stat_id, 0) + self.ench_list.get_stat(stat_id)
+        return self.statline.get(stat_id, 0) + self.ench_list.get_stat(stat_id) + self.get_cyberware_bonus(stat_id)
 
     def get_skill_score(self, stat_id, skill_id):
         it = self.get_stat(skill_id) * 5

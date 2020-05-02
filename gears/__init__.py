@@ -709,7 +709,7 @@ class Loader(object):
             elif rawval[0] in '([':
                 # Happy Happy Joy Joy it's a fucking list
                 truval = self.process_list(rawval)
-            elif rawval.isdigit():
+            elif rawval.isdigit() or rawval[0] in "+-":
                 # This is presumably a number. Convert.
                 truval = int(rawval)
 
