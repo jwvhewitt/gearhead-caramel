@@ -2815,16 +2815,16 @@ class HeadClothing(Clothing):
 class TorsoClothing(Clothing):
     def __init__(self, **keywords):
         keywords["form"] = MF_Torso
-        super(TorsoClothing, self).__init__(**keywords)
+        super().__init__(**keywords)
 
 
-class ArmClothing(Module):
+class ArmClothing(Clothing):
     def __init__(self, **keywords):
         keywords["form"] = MF_Arm
-        super(ArmClothing, self).__init__(**keywords)
+        super().__init__(**keywords)
 
 
-class LegClothing(Module):
+class LegClothing(Clothing):
     def __init__(self, **keywords):
         keywords["form"] = MF_Leg
         super(LegClothing, self).__init__(**keywords)
