@@ -574,20 +574,43 @@ class ProgramsBlock( ItemsListBlock ):
         programs = self.model.programs
         return [program.name for program in programs]
 
-class SizeBlock( object ):
-    label = "Size"
-    def __init__(self, model, width = 220, font = None, color = None, **kwargs):
+class GenericStatsBlock( object ):
+    # Tuple of strings.
+    DEFAULT_STATS = ()
+    def __init__(self, model, stats = None, width = 220, font = None, color = None, **kwargs):
         self.model = model
         self.width = width
         self.font = font or pbge.MEDIUMFONT
         self.color = color or pbge.INFO_GREEN
+        if stats:
+            self.stats = list(stats)
+        else:
+            self.stats = list(self.DEFAULT_STATS)
+
         self.linesize = max(self.font.get_linesize(), 16)
-        self.height = self.linesize
+        self.height = len(self.stats) * self.linesize
+    # Must be overridden in your derived class.
+    # This shold return a string, given a particular string stat.
+    def stat_lookup(self, stat):
+        raise RuntimeError("GenericStatsBlock.stat_lookup called!")
     def render(self, x, y):
-        labeldest = pygame.Rect(x, y, self.width // 2, self.height)
-        pbge.draw_text(self.font, '{}: '.format(self.label), labeldest, justify = 1, color = self.color)
-        valuedest = pygame.Rect(x + self.width // 2 + 16, y, self.width // 2 - 16, self.height)
-        pbge.draw_text(self.font, str(self.model.size), valuedest, justify = -1, color = self.color)
+        labelwidth = self.width // 2
+        valuex = self.width // 2 + 16
+        valuewidth = self.width // 2 - 16
+        for i,stat in enumerate(self.stats):
+            labeldest = pygame.Rect(x, y + i * self.linesize, labelwidth, self.linesize)
+            pbge.draw_text(self.font, '{}: '.format(stat), labeldest, justify = 1, color = self.color)
+            value = str(self.stat_lookup(stat))
+            valuedest = pygame.Rect(x + valuex, y + i * self.linesize, valuewidth, self.linesize)
+            pbge.draw_text(self.font, value, valuedest, justify = -1, color = self.color)
+
+class SizeBlock( GenericStatsBlock ):
+    label = "Size"
+    def __init__(self, **kwargs):
+        super().__init__(stats = [self.label], **kwargs)
+    def stat_lookup(self, stat):
+        # Only one stat to show, so...
+        return self.model.size
 
 class EngineSizeBlock( SizeBlock ):
     label = "Rating"
