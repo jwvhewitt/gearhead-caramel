@@ -615,6 +615,24 @@ class SizeBlock( GenericStatsBlock ):
 class EngineSizeBlock( SizeBlock ):
     label = "Rating"
 
+class CyberwareStatsBlock( GenericStatsBlock ):
+    DEFAULT_STATS = ('Location', 'Trauma')
+    def stat_lookup(self, stat):
+        if stat is 'Location':
+            return self.model.location
+        elif stat is 'Trauma':
+            return self.model.trauma
+
+class CyberwareStatlineBlock( ItemsListBlock ):
+    def get_items(self):
+        items = list()
+        for stat in self.model.statline.keys():
+            value = self.model.statline[stat]
+            if value == 0:
+                continue
+            items.append('{} {:+}'.format(stat.name, value))
+        return items
+
 class HostilityStatusBlock(object):
     def __init__(self,model,width=220,font=None,scene=None,**kwargs):
         self.model = model
@@ -666,6 +684,9 @@ class EWSystemIP(InfoPanel):
 class EngineIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, EngineSizeBlock, DescBlock)
 
+class CyberwareIP(InfoPanel):
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, CyberwareStatsBlock, CyberwareStatlineBlock, DescBlock)
+
 class ShortItemIP(InfoPanel):
     DEFAULT_BLOCKS = (DescBlock,)
 
@@ -693,6 +714,8 @@ def get_longform_display(model,**kwargs):
         return EWSystemIP(model=model, **kwargs)
     elif isinstance(model, base.Engine):
         return EngineIP(model=model, **kwargs)
+    elif isinstance(model, base.BaseCyberware):
+        return CyberwareIP(model = model, **kwargs)
     else:
         return ItemIP(model=model,**kwargs)
 
