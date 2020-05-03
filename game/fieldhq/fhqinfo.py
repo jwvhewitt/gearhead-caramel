@@ -85,8 +85,11 @@ class MechaFHQIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, MechasPilotBlock, gears.info.MechaStatsBlock, gears.info.DescBlock)
 
 
-class ItemFHQIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.MassVolumeBlock, ItemsOwnerBlock, gears.info.DescBlock)
+def create_item_fhq_ip(**keywords):
+    base_ip = gears.info.get_longform_display(**keywords)
+    owner_block = ItemsOwnerBlock(**keywords)
+    base_ip.info_blocks.insert(2, owner_block)
+    return base_ip
 
 
 class AssignMechaIP(gears.info.InfoPanel):

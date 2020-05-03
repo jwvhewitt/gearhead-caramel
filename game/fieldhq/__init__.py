@@ -1,5 +1,5 @@
 import pbge
-from game.fieldhq.fhqinfo import CharaFHQIP, MechaFHQIP, AssignMechaIP, AssignPilotIP, ItemFHQIP
+from game.fieldhq.fhqinfo import CharaFHQIP, MechaFHQIP, AssignMechaIP, AssignPilotIP, create_item_fhq_ip
 from pbge import widgets
 import pygame
 import gears
@@ -253,7 +253,7 @@ class ItemInfoWidget(widgets.Widget):
         super().__init__(0,0,0,0,**kwargs)
         self.camp = camp
         self.pc = pc
-        self.info = ItemFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, camp=camp, font=pbge.SMALLFONT)
+        self.info = create_item_fhq_ip(model=pc, width=fhqinfo.CENTER_COLUMN.w, camp=camp, font=pbge.SMALLFONT)
         self.column = widgets.ColumnWidget(fhqinfo.LEFT_COLUMN.dx, fhqinfo.LEFT_COLUMN.dy, fhqinfo.LEFT_COLUMN.w, fhqinfo.LEFT_COLUMN.h, padding=10)
         self.children.append(self.column)
         self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Give Item", justify=0, draw_border=True, on_click=self.give_item))
