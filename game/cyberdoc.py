@@ -203,6 +203,10 @@ class UI(pbge.widgets.Widget):
         for part in self.stash:
              if isinstance(part, base.BaseCyberware):
                  self.uninstalled.append(part)
+
+        self.installed.sort(key = lambda c: c.name)
+        self.uninstalled.sort(key = lambda c: c.name)
+
         self._installed_listwidget.refresh_item_list()
         self._available_listwidget.refresh_item_list()
 
