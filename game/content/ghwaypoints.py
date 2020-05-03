@@ -8,6 +8,7 @@ from . import ghterrain
 from game.content.ghterrain import DZDTownTerrain, DZDWCommTowerTerrain, DZDCommTowerTerrain
 from pbge.scenes.waypoints import Waypoint
 from game import geareditor
+from game import cyberdoc
 import gears
 
 
@@ -158,7 +159,8 @@ class CyberdocTerminal( Waypoint ):
     MENU_TITLE = pbge.frects.Frect(-100,-150,200,16)
 
     def unlocked_use(self, camp):
-        ui = geareditor.GearEditor(camp.pc, camp.party, mode = geareditor.MODE_RESTRICTED)
+        # TODO: get year from somewhere.
+        ui = cyberdoc.UI(camp.pc, camp.party, 158)
         ui.activate_and_run()
 
 
