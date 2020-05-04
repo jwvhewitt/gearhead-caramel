@@ -265,7 +265,7 @@ def init_portraits():
     for p in pbge.image.search_path:
         myfiles = glob.glob(os.path.join(p, "portrait_*.json"))
         for f in myfiles:
-            with open(f, 'rb') as fp:
+            with open(f, 'rt') as fp:
                 mylist = json.load(fp)
                 if mylist:
                     portrait_bits_list += mylist

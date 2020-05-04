@@ -102,6 +102,7 @@ class SpFa_MilitarySplinter(Plot):
                     goffs.append(Offer("As you know, {} is responsible for keeping {} safe. We have a mission coming up, and I could use your help.".format(self.elements["FACTION"],self.elements["LOCALE"]),context=ContextTag([context.MISSION,]),subject=self,subject_start=True))
                     goffs.append(Offer("[GOOD] Report to the combat zone as quickly as possible; we will inform you of the mission objectives as soon as you arrive.",context=ContextTag([context.ACCEPT,]),subject=self,effect=self.register_adventure))
                     goffs.append(Offer("Don't think I will forget this.",context=ContextTag([context.DENY,]),subject=self))
+
         elif self.hates in npc.personality:
             goffs.append(Offer("[BeCarefulOfSubject]; they say they're protecting {}, but really they've turned into a hate club. They want to get rid of all of us outsiders.".format(self.elements["LOCALE"]),
                                data={"subject":str(self.elements["FACTION"])},

@@ -62,7 +62,7 @@ def init_jobs():
     protojobs = list()
     myfiles = glob.glob(pbge.util.data_dir( "jobs_*.json"))
     for f in myfiles:
-        with open(f, 'rb') as fp:
+        with open(f, 'rt') as fp:
             mylist = json.load(fp)
             if mylist:
                 protojobs += mylist

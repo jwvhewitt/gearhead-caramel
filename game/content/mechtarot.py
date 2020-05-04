@@ -18,6 +18,22 @@ AT_ALTER_BETA_PUZZLE_MENU = "AT_ALTER_BETA_PUZZLE_MENU"
 # The key is (AT_ALTER_[x]_PUZZLEMENU,puzzle_item_element_id)
 # Params: alpha_card,beta_card,camp,thing,thingmenu,interaction
 
+# For every signal that a tarot card can catch, it should spawn a listener plot to listen for
+# the signal and to call the consequence/fail state depending on what happens.
+
+
+class TarotSignal(object):
+    def __init__(self,signal_type,signal_elements=()):
+        self.signal_type = signal_type
+        self.signal_elements = list(signal_elements)
+
+
+class TarotInteraction(object):
+    def __init__(self,signal_sought):
+        self.signal_sought = signal_sought
+
+
+
 class TarotCard(plots.Plot):
     LABEL = "TAROT"
     UNIQUE = False
@@ -61,28 +77,6 @@ class TarotCard(plots.Plot):
     def reveal(self,camp):
         self.visible = True
         camp.check_trigger("UPDATE")
-
-class TagChecker(object):
-    def __init__(self, needed_tags=(), needed_elements=()):
-        self.needed_tags = set(needed_tags)
-        self.needed_elements = set(needed_elements)
-
-    def check(self, card_to_check):
-        # Return True if the given card might activate this checker.
-        return self.needed_tags.issubset(card_to_check.TAGS)
-
-
-class NameChecker(object):
-    def __init__(self, name_set, needed_elements=()):
-        self.name_set = set(name_set)
-        self.needed_elements = set(needed_elements)
-
-    def check(self, card_to_check):
-        # Return True if the given card might activate this checker.
-        if inspect.isclass(card_to_check):
-            return card_to_check.__name__ in self.name_set
-        else:
-            return card_to_check.__class__.__name__ in self.name_set
 
 class CardTransformer(object):
     def __init__(self,new_card_name,alpha_params=(),beta_params=()):
