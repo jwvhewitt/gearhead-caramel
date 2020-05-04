@@ -46,6 +46,9 @@ AVAILABLE_LIST_FRECT = pbge.frects.Frect( RIGHT_COLUMN_X, LIST_Y
                                         , COLUMN_WIDTH, LIST_HEIGHT
                                         )
 
+REMOVE_BUTTON_FRECT = pbge.frects.Frect( MID_COLUMN_X, FOOTER_Y
+                                       , COLUMN_WIDTH, FOOTER_HEIGHT
+                                       )
 INSTALL_BUTTON_FRECT = pbge.frects.Frect( RIGHT_COLUMN_X, FOOTER_Y
                                         , COLUMN_WIDTH, FOOTER_HEIGHT
                                         )
@@ -99,7 +102,6 @@ class UI(pbge.widgets.Widget):
         self._installed_listwidget = ItemListWidget( self.installed
                                                    , INSTALLED_LIST_FRECT
                                                    , text_fn = self._get_gear_name
-                                                   , can_select = False
                                                    , on_enter = self._try_set_mouseoverinfopanel
                                                    , on_leave = self._try_clear_mouseoverinfopanel
                                                    )
@@ -117,6 +119,14 @@ class UI(pbge.widgets.Widget):
                                                    , on_leave = self._try_clear_mouseoverinfopanel
                                                    )
         self.children.append(self._available_listwidget)
+        remove_button = pbge.widgets.LabelWidget( REMOVE_BUTTON_FRECT.dx, REMOVE_BUTTON_FRECT.dy
+                                                , REMOVE_BUTTON_FRECT.w, REMOVE_BUTTON_FRECT.h
+                                                 , text = "Remove", justify = 0
+                                                 , draw_border = True
+                                                 , font = pbge.MEDIUMFONT
+                                                 , on_click = self._remove
+                                                )
+        self.children.append(remove_button)
         install_button = pbge.widgets.LabelWidget( INSTALL_BUTTON_FRECT.dx, INSTALL_BUTTON_FRECT.dy
                                                  , INSTALL_BUTTON_FRECT.w, INSTALL_BUTTON_FRECT.h
                                                  , text = "Install", justify = 0
@@ -232,6 +242,15 @@ class UI(pbge.widgets.Widget):
 
             self._active = False
             self._cyberware_installer.install(cw)
+            self._active = True
+
+            self._refresh_all()
+    def _remove(self, widj, ev):
+        if self._installed_listwidget.current_item:
+            cw = self._installed_listwidget.current_item
+
+            self._active = False
+            self._cyberware_installer.remove(cw)
             self._active = True
 
             self._refresh_all()
@@ -570,6 +589,14 @@ class _CyberwareInstaller(object):
         choice = choices[choice_index]
         choice[1]()
 
+    def remove(self, cyberware):
+        ''' Remove cyberware from its owner.
+        Note: we do not do any checks below, we presume the
+        caller has already determined that the cyberware is
+        installed in the given self.char!
+        '''
+        cyberware.parent.sub_com.remove(cyberware)
+        self._return_old_cyberware(cyberware)
 
     def _get_candidate_modules(self, cyberware):
         ''' Return all modules the cyberware can be installed in.
