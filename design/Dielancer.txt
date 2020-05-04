@@ -76,10 +76,110 @@ Mecha
                     name = "Left Hand"
             END
             INV
-				Shield
-					size = 3
-					bonus = 2
-			END
+                Shield
+                    size = 3
+                    bonus = 2
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Wheels
+                    size = 6
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Wheels
+                    size = 6
+            END
+    END
+
+Mecha
+    name = "Dielancer"
+    desig = "SDH-22I Iron"
+    imagename = "mav_dielancer_i.png"
+    portrait = "mecha_dielancer.png"
+    family = "Corsair"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (BoneDevils,DeadzoneFederation,ClanIronwind)
+    role_list = (Commander,)
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                Cockpit
+                SUB
+                    Armor
+                        size = 1
+                END
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 700
+                Gyroscope
+                Mount
+                    name = "Collar Mount"
+                    INV
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        MeleeWeapon
+                            name = "Iron Lance"
+                            desc = "A simple yet powerfully effective spike of iron."
+                            reach = 1
+                            damage = 5
+                            accuracy = 0
+                            penetration = 5
+                            attributes=(ChargeAttack,)
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                    INV
+                        MeleeWeapon
+                            name = "Ironbreaker Longsword"
+                            desc = "A high-quality mecha-scale sword with very good balance, leading to excellent accuracy."
+                            reach = 1
+                            damage = 4
+                            accuracy = 4
+                            penetration = 0
+                            attributes = (Defender,)
+                    END
+            END
+            INV
+                Shield
+                    size = 2
+                    bonus = 3
+            END
         Leg
             name = "Right Leg"
             size = 5
