@@ -270,7 +270,7 @@ class CoreUI(pbge.widgets.Widget):
 
     def _make_infopanel(self, gear):
         if isinstance(gear, base.Character):
-            return _CyberCharPanel(model = gear, width = COLUMN_WIDTH)
+            return _CyberCharPanel(model = gear, width = COLUMN_WIDTH, camp = self.camp)
         else:
             ip = gears.info.get_longform_display(model = gear, width = COLUMN_WIDTH)
             if gear.parent and isinstance(gear.parent, base.Module):
@@ -528,6 +528,14 @@ class _SourceAnnotationBlock(_TextLabelBlock):
     def get_text(self):
         return self.source.get_panel_annotation(self.model)
 
+class _CreditsBlock(_TextLabelBlock):
+    def __init__(self, camp, **keywords):
+        keywords.pop('color', None)
+        self.camp = camp
+        super().__init__(color = pbge.TEXT_COLOR, **keywords)
+    def get_text(self):
+        return '${:,}'.format(self.camp.credits)
+
 class _TraumaBlock(_TextLabelBlock):
     '''Displays the current and max trauma of the given model character.'''
     def get_text(self):
@@ -549,7 +557,7 @@ class _InstalledInBlock(_TextLabelBlock):
         return "Installed: {}".format(self.model.parent.name)
 
 class _CyberCharPanel(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, _TraumaBlock, _StaminaLostBlock, gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.NonComSkillBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, _CreditsBlock, gears.info.ModuleStatusBlock, _TraumaBlock, _StaminaLostBlock, gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.NonComSkillBlock)
 
 class _MedicalCommentaryBlock( object ):
     def __init__(self, model, width = 220, year = 158, font = None, color = None, **kwargs):
