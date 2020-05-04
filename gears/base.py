@@ -3153,6 +3153,12 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         """
         mass_factor = (self.mass ** 2) // (10000 * self.scale.SIZE_FACTOR ** 6)
         engine_rating, has_gyro = self.get_engine_rating_and_gyro_status()
+        # It is possible for mass_factor to drop to 0
+        # if the mecha is massless, e.g. if all modules
+        # are removed.
+        # mass_factor is always a non-negative integer.
+        if mass_factor == 0:
+            mass_factor = 1
         # We now have the mass_factor, engine_rating, and has_gyro.
         it = engine_rating // mass_factor
         if not has_gyro:
