@@ -337,6 +337,10 @@ class Wildcraft(Skill):
     name = 'Wildcraft'
     desc = "This skill is used for wilderness survival and to train animals."
 
+class Cybertech(Skill):
+    name = 'Cybertech'
+    desc = "This skill determines how much cyberware a person can safely have."
+
 
 class Vitality( Skill ):
     name = 'Vitality'

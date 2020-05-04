@@ -2525,7 +2525,7 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
 
     # Override in your derived class.
     location = '???'
-    base_trauma = 4
+    base_trauma = 2
     cost_factor = 1.0
 
     def __init__(self, statline = None, **keywords):
@@ -2558,12 +2558,12 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
         for s in self.statline.keys():
             value = self.statline.get(s, 0)
             if value < 0:
-                value = -1
-            elif s in stats.PRIMARY_STATS:
-                value = (value + 1) // 2
-            else:
                 value *= 1
-            benefit += value
+            elif s in stats.PRIMARY_STATS:
+                value *= 1
+            else:
+                value *= 2
+            benefit += value//2
         return int(max(benefit, self.base_trauma))
 
 
@@ -3153,6 +3153,12 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         """
         mass_factor = (self.mass ** 2) // (10000 * self.scale.SIZE_FACTOR ** 6)
         engine_rating, has_gyro = self.get_engine_rating_and_gyro_status()
+        # It is possible for mass_factor to drop to 0
+        # if the mecha is massless, e.g. if all modules
+        # are removed.
+        # mass_factor is always a non-negative integer.
+        if mass_factor == 0:
+            mass_factor = 1
         # We now have the mass_factor, engine_rating, and has_gyro.
         it = engine_rating // mass_factor
         if not has_gyro:
@@ -3372,7 +3378,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     @property
     def max_trauma(self):
         # Use the base body.
-        return self.statline.get(stats.Body, 0)
+        return self.statline.get(stats.Body, 0)//3 + self.statline.get(stats.Cybertech,0)
 
     @property
     def current_trauma(self):
