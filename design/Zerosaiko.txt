@@ -6,7 +6,7 @@ Mecha
 
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Command,)
+    role_list = (Commander,)
 
     SUB
         Head

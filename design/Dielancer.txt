@@ -6,7 +6,7 @@ Mecha
     family = "Corsair"
     environment_list = (GroundEnv,UrbanEnv,)
     faction_list = (BoneDevils,DeadzoneFederation,ClanIronwind)
-    role_list = (Trooper,Command)
+    role_list = (Trooper,Commander)
 
     SUB
         Head

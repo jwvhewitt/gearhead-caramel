@@ -6,7 +6,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Trooper,Command)
+    role_list = (Trooper,Commander)
 
     SUB
         Head

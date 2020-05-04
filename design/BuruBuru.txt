@@ -113,7 +113,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Trooper,Command)
+    role_list = (Trooper,Commander)
     desc = "A variant on the BuruBuru design. This version features a shield and improved short range weapons for close quarters city fighting."
 
     SUB
@@ -376,7 +376,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (TerranFederation,Guardians)
-    role_list = (Trooper,Command)
+    role_list = (Trooper,Commander)
     desc = "A variant on the BuruBuru design. This version features a heavy body shield."
 
     SUB
@@ -481,7 +481,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (BladesOfCrihna,)
-    role_list = (Trooper,Command)
+    role_list = (Trooper,Commander)
     desc = "This variant of the ubiquitous Buru Buru is favored by pirates in the L5 region."
 
     SUB
