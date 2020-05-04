@@ -468,7 +468,7 @@ class _MedicalCommentaryBlock( object ):
 
         nwares = len(cw)
         if nwares == 0:
-            text += "no history of cyberware usage"
+            text += "no installed cyberware"
         elif nwares == 1:
             text += ( "cyberware installed in {} of {}"
                     .format( cw[0].location.lower()
@@ -494,9 +494,9 @@ class _MedicalCommentaryBlock( object ):
         elif remaining_trauma > 3:
             text += "; still safe for minor cyberware installation"
         elif remaining_trauma > 0:
-            text += "; minimal scope for additional cyberware"
+            text += "; minimal scope for cyberware installation"
         else:
-            text += "; additional cyberware contraindicated"
+            text += "; cyberware installation contraindicated"
 
         text += "."
 
