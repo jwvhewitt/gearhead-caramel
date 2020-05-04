@@ -11,16 +11,16 @@ Mecha
 
     SUB
         Torso
-            size = 3
-            material = Ceramic
+            size = 4
+            material = Advanced
             SUB
                 Armor
-                    size = 4
-                    material = Metal
+                    size = 7
+                    material = Advanced
                 Engine
                     desig = "MOG-E6"
                     material = Metal
-                    size = 600
+                    size = 660
                 Gyroscope
                     integral = True
                     material = Metal
@@ -43,7 +43,7 @@ Mecha
             SUB
                 Armor
                     size = 2
-                    material = Metal
+                    material = Ceramic
                 Hand
                     name = "Right Hand"
                     INV
@@ -74,7 +74,7 @@ Mecha
             SUB
                 Armor
                     size = 2
-                    material = Metal
+                    material = Ceramic
                 Hand
                     name = "Left Hand"
                     INV
