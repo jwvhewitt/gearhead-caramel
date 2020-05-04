@@ -676,14 +676,45 @@ class PartAcceptCancelWidget(PartSelectorWidget):
         self.active_part = False
         self.on_selection(None)
 
+#   ****************
+#   ***  HEADER  ***
+#   ****************
+
+class CommonHeader(pbge.widgets.Widget):
+    def __init__(self):
+        super().__init__(0,0,350,136)
+
+    def get_pic_rect(self):
+        myrect = self.get_rect()
+        myrect.w = 172
+        return myrect
+
+    def get_text_rect(self):
+        myrect = self.get_rect()
+        myrect.x += 172
+        myrect.w -= 172
+        return myrect
+
+    def create_image(self, sprite, frame):
+        mybmp = pygame.Surface((64, 64))
+        mybmp.fill((0, 0, 255))
+        mybmp.set_colorkey((0, 0, 255), pygame.RLEACCEL)
+        myimg = sprite
+        myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 64, 64), frame=frame)
+        return pygame.transform.scale2x(mybmp)
+
+    def render(self):
+        mydest = self.get_rect()
+        pbge.default_border.render(mydest)
+
 
 #   ******************************
 #   ***  MECHA  STATS  HEADER  ***
 #   ******************************
 
-class MechaStatsHeader(pbge.widgets.Widget):
+class MechaStatsHeader(CommonHeader):
     def __init__(self,mecha):
-        super().__init__(0,0,350,136)
+        super().__init__()
         self.mecha = mecha
 
         self.bg = pbge.image.Image("sys_mechascalegrid.png", 136, 136)
@@ -713,18 +744,8 @@ class MechaStatsHeader(pbge.widgets.Widget):
         self.update_mecha_sprite()
 
     def update_mecha_sprite(self):
-        mybmp = pygame.Surface((64, 64))
-        mybmp.fill((0, 0, 255))
-        mybmp.set_colorkey((0, 0, 255), pygame.RLEACCEL)
-        myimg = self.mecha.get_sprite()
-        myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 64, 64), frame=self.mecha.frame)
-        self.image = pygame.transform.scale2x(mybmp)
-
-    def get_text_rect(self):
-        myrect = self.get_rect()
-        myrect.x += 172
-        myrect.w -= 172
-        return myrect
+        sprite = self.mecha.get_sprite()
+        self.image = self.create_image(sprite, self.mecha.frame)
 
     def render(self):
         mydest = self.get_rect()
@@ -745,6 +766,41 @@ class MechaStatsHeader(pbge.widgets.Widget):
                  self.mecha.get_ewar_rating()),
              self.get_text_rect(), justify=-1, color=pbge.INFO_GREEN
         )
+
+#   ******************************
+#   *** CHARACTER STATS HEADER ***
+#   ******************************
+
+class CharacterHeader(CommonHeader):
+    def __init__(self, char):
+        super().__init__()
+        self.char = char
+        self.update_char_sprite()
+
+    def update_char_sprite(self):
+        sprite = self.char.get_sprite()
+        self.image = self.create_image(sprite, self.char.frame)
+
+    def render(self):
+        mydest = self.get_rect()
+        pbge.default_border.render(mydest)
+
+        pbge.my_state.screen.blit(self.image, pygame.Rect(mydest.x + 20, mydest.y + 4, 128, 128))
+
+        pbge.draw_text(
+            pbge.MEDIUMFONT,
+            'Trauma: {}/{}\nCyberware: {}'.format(
+                self.char.current_trauma, self.char.max_trauma,
+                self._count_cyberware()
+            ),
+            self.get_text_rect(), justify = -1, color = pbge.INFO_GREEN
+        )
+
+    def _count_cyberware(self):
+        num = 0
+        for cw in self.char.cyberware():
+            num += 1
+        return num
 
 #   *****************************
 #   ***  THE  EDITOR  ITSELF  ***
@@ -771,7 +827,7 @@ class GearEditor(pbge.widgets.Widget):
         left_column = pbge.widgets.ColumnWidget(-350,-250,350,500,padding=25)
         self.children.append(left_column)
 
-        left_column.add_interior(MechaStatsHeader(mygear))
+        left_column.add_interior(self._make_header(mygear))
 
         self.parts_widget = PartsTreeWidget(mygear,self,h=300)
         left_column.add_interior(self.parts_widget)
@@ -792,6 +848,14 @@ class GearEditor(pbge.widgets.Widget):
         self.finished = False
 
         self.update_part_editor()
+
+    def _make_header(self, gear):
+        if isinstance(gear, gears.base.Mecha):
+            return MechaStatsHeader(gear)
+        elif isinstance(gear, gears.base.Character):
+            return CharacterHeader(gear)
+        else:
+            return CommonHeader()
 
     def _save_design(self,widj,ev):
         save_version = copy.deepcopy(self.mygear)

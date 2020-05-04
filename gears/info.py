@@ -206,11 +206,19 @@ class PrimaryStatsBlock( object ):
             max_w = max(max_w,self.font.size(mytext)[0])
             mydest.y += self.font.get_linesize()
         if self.model:
-            mydest = pygame.Rect(x+max_w, y, 20, self.height)
-            rankdest = pygame.Rect(x+max_w+30, y, self.width - max_w - 30, self.height)
+            mydest = pygame.Rect(x+max_w, y, 36, self.height)
+            rankdest = pygame.Rect(x+max_w+36, y, self.width - max_w - 36, self.height)
+            has_statline = hasattr(self.model, 'statline')
             for ps in stats.PRIMARY_STATS:
                 statval = self.model.get_stat(ps)
-                pbge.draw_text(self.font, str(statval), mydest, color=pbge.INFO_HILIGHT)
+                statstr = str(statval)
+                if has_statline:
+                    basestat = self.model.statline.get(ps, 0)
+                    if statval > basestat:
+                        statstr += ' +'
+                    elif statval < basestat:
+                        statstr += ' -'
+                pbge.draw_text(self.font, statstr, mydest, color=pbge.INFO_HILIGHT)
                 mydest.y += self.font.get_linesize()
                 pbge.draw_text(self.font, self.STAT_RANKS[max(min((statval-2)//2,len(self.STAT_RANKS)-1),0)], rankdest, color=pbge.INFO_GREEN )
                 rankdest.y = mydest.y
@@ -239,56 +247,72 @@ class MechaStatsBlock(object):
         pbge.my_state.screen.blit(myimg,mydest)
 
 
-class NonComSkillBlock(object):
-    def __init__(self,model,width=220,font=None,**kwargs):
+class LabeledItemsListBlock(object):
+    LABEL = "???"
+    def __init__(self, model, width = 220, font = None, color = None, **kwargs):
         self.model = model
         self.width = width
-        self.image=None
         self.font = font or pbge.MEDIUMFONT
+        self.color = color or pbge.INFO_GREEN
         self.update()
-        self.height = self.image.get_height()
 
     def update(self):
-        skillz = [sk.name for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS]
-        skillz.sort()
-        self.image = pbge.render_text(self.font, 'Skills: {}'.format(', '.join(skillz or ["None"])), self.width, justify=-1, color=pbge.INFO_GREEN)
+        itemz = self.get_sorted_items()
+        self.image = pbge.render_text(self.font, '{}: {}'.format(self.LABEL, ', '.join(itemz or ["None"])), self.width, justify = -1, color = self.color)
+        self.height = self.image.get_height()
 
     def render(self,x,y):
         pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
-class MeritBadgesBlock(object):
-    def __init__(self,model,width=220,font=None,**kwargs):
-        self.model = model
-        self.width = width
-        self.image=None
-        self.font = font or pbge.MEDIUMFONT
-        self.update()
-        self.height = self.image.get_height()
+    # Can override in derived class if you want your own sort.
+    # Return a list of strings.
+    def get_sorted_items(self):
+        itemz = self.get_items()
+        itemz.sort()
+        return itemz
 
-    def update(self):
-        badgez = [b.name for b in self.model.badges]
-        badgez.sort()
-        self.image = pbge.render_text(self.font, 'Badges: {}'.format(', '.join(badgez or ["None"])), self.width, justify=-1, color=pbge.INFO_GREEN)
+    # Override in derived class to give what you want to show.
+    # Return a list of strings.
+    def get_items(self):
+        raise RuntimeError('LabeldItemsListBlock.get_items called')
 
-    def render(self,x,y):
-        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+class InstalledCyberwaresBlock(LabeledItemsListBlock):
+    LABEL = "Cyberware"
+    def get_items(self):
+        return [c.name for c in self.model.cyberware()]
 
-class CharacterTagsBlock(object):
-    def __init__(self,model,width=220,font=None,**kwargs):
-        self.model = model
-        self.width = width
-        self.image=None
-        self.font = font or pbge.MEDIUMFONT
-        self.update()
-        self.height = self.image.get_height()
+class NonComSkillBlock(LabeledItemsListBlock):
+    LABEL = "Skills"
+    def get_sorted_items(self):
+        # First, generate the base skills and the effective skills.
+        base_skills = set([sk for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS])
+        all_skills = self.model.get_all_skills()
+        effective_skills = set([sk for sk in all_skills if sk in stats.NONCOMBAT_SKILLS])
+        # Now get normal skills everyone has that are lost.
+        lost_combat_skills = set(stats.COMBATANT_SKILLS).difference(all_skills)
+        # Get the union of all skills to be listed.
+        listed_skills = list(base_skills.union(effective_skills, lost_combat_skills))
+        # Sort it here.
+        listed_skills.sort(key = lambda sk: sk.name)
+        # For each skill, annotate.
+        def annotate(sk):
+            if not sk in effective_skills:
+                return '({})'.format(sk.name)
+            if not sk in base_skills:
+                return '+{}'.format(sk.name)
+            else:
+                return sk.name
+        return [annotate(sk) for sk in listed_skills]
 
-    def update(self):
-        tagz = [b.name for b in self.model.get_tags()]
-        tagz.sort()
-        self.image = pbge.render_text(self.font, 'Tags: {}'.format(', '.join(tagz or ["None"])), self.width, justify=-1, color=pbge.INFO_GREEN)
+class MeritBadgesBlock(LabeledItemsListBlock):
+    LABEL = "Badges"
+    def get_items(self):
+        return [b.name for b in self.model.badges]
 
-    def render(self,x,y):
-        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+class CharacterTagsBlock(LabeledItemsListBlock):
+    LABEL = "Tags"
+    def get_items(self):
+        return [b.name for b in self.model.get_tags()]
 
 class ExperienceBlock(object):
     def __init__(self,model,width=220,font=None,**kwargs):
@@ -574,23 +598,64 @@ class ProgramsBlock( ItemsListBlock ):
         programs = self.model.programs
         return [program.name for program in programs]
 
-class SizeBlock( object ):
-    label = "Size"
-    def __init__(self, model, width = 220, font = None, color = None, **kwargs):
+class GenericStatsBlock( object ):
+    # Tuple of strings.
+    DEFAULT_STATS = ()
+    def __init__(self, model, stats = None, width = 220, font = None, color = None, **kwargs):
         self.model = model
         self.width = width
         self.font = font or pbge.MEDIUMFONT
         self.color = color or pbge.INFO_GREEN
+        if stats:
+            self.stats = list(stats)
+        else:
+            self.stats = list(self.DEFAULT_STATS)
+
         self.linesize = max(self.font.get_linesize(), 16)
-        self.height = self.linesize
+        self.height = len(self.stats) * self.linesize
+    # Must be overridden in your derived class.
+    # This shold return a string, given a particular string stat.
+    def stat_lookup(self, stat):
+        raise RuntimeError("GenericStatsBlock.stat_lookup called!")
     def render(self, x, y):
-        labeldest = pygame.Rect(x, y, self.width // 2, self.height)
-        pbge.draw_text(self.font, '{}: '.format(self.label), labeldest, justify = 1, color = self.color)
-        valuedest = pygame.Rect(x + self.width // 2 + 16, y, self.width // 2 - 16, self.height)
-        pbge.draw_text(self.font, str(self.model.size), valuedest, justify = -1, color = self.color)
+        labelwidth = self.width // 2
+        valuex = self.width // 2 + 16
+        valuewidth = self.width // 2 - 16
+        for i,stat in enumerate(self.stats):
+            labeldest = pygame.Rect(x, y + i * self.linesize, labelwidth, self.linesize)
+            pbge.draw_text(self.font, '{}: '.format(stat), labeldest, justify = 1, color = self.color)
+            value = str(self.stat_lookup(stat))
+            valuedest = pygame.Rect(x + valuex, y + i * self.linesize, valuewidth, self.linesize)
+            pbge.draw_text(self.font, value, valuedest, justify = -1, color = self.color)
+
+class SizeBlock( GenericStatsBlock ):
+    label = "Size"
+    def __init__(self, **kwargs):
+        super().__init__(stats = [self.label], **kwargs)
+    def stat_lookup(self, stat):
+        # Only one stat to show, so...
+        return self.model.size
 
 class EngineSizeBlock( SizeBlock ):
     label = "Rating"
+
+class CyberwareStatsBlock( GenericStatsBlock ):
+    DEFAULT_STATS = ('Location', 'Trauma/Sta')
+    def stat_lookup(self, stat):
+        if stat is 'Location':
+            return self.model.location
+        elif stat == 'Trauma/Sta':
+            return self.model.trauma
+
+class CyberwareStatlineBlock( ItemsListBlock ):
+    def get_items(self):
+        items = list()
+        for stat in self.model.statline.keys():
+            value = self.model.statline[stat]
+            if value == 0:
+                continue
+            items.append('{} {:+}'.format(stat.name, value))
+        return items
 
 class HostilityStatusBlock(object):
     def __init__(self,model,width=220,font=None,scene=None,**kwargs):
@@ -643,6 +708,9 @@ class EWSystemIP(InfoPanel):
 class EngineIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, EngineSizeBlock, DescBlock)
 
+class CyberwareIP(InfoPanel):
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, CyberwareStatsBlock, CyberwareStatlineBlock, DescBlock)
+
 class ShortItemIP(InfoPanel):
     DEFAULT_BLOCKS = (DescBlock,)
 
@@ -670,6 +738,8 @@ def get_longform_display(model,**kwargs):
         return EWSystemIP(model=model, **kwargs)
     elif isinstance(model, base.Engine):
         return EngineIP(model=model, **kwargs)
+    elif isinstance(model, base.BaseCyberware):
+        return CyberwareIP(model = model, **kwargs)
     else:
         return ItemIP(model=model,**kwargs)
 

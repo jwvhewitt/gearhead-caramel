@@ -364,7 +364,7 @@ class Combatant(KeyObject):
     def get_skill_library(self, in_combat=False):
         my_invo_dict = collections.defaultdict(list)
         pilot = self.get_pilot()
-        for p in list(pilot.statline.keys()):
+        for p in list(pilot.get_all_skills()):
             if hasattr(p, 'add_invocations'):
                 p.add_invocations(pilot, my_invo_dict)
         my_invos = list()
@@ -2488,6 +2488,10 @@ class Hand(BaseGear, StandardDamageHandler):
     base_cost = 50
     base_health = 2
 
+    def can_normally_remove(self):
+        # Human-scale hands cannot be removed at Cyberdoc Terminal.
+        return not (self.scale is scale.HumanScale)
+
 
 class Mount(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "Weapon Mount"
@@ -2509,6 +2513,91 @@ class Usable(BaseGear,StandardDamageHandler):
     # because it's needed by the construction rules below.
     DEFAULT_NAME = "Do Nothing Usable"
 
+
+#   *****************
+#   *** CYBERWARE ***
+#   *****************
+
+class BaseCyberware(BaseGear, StandardDamageHandler):
+    DEFAULT_MATERIAL = materials.Biotech
+    DEFAULT_SCALE = scale.HumanScale
+    SAVE_PARAMETERS = ("statline",)
+
+    # Override in your derived class.
+    location = '???'
+    base_trauma = 4
+    cost_factor = 1.0
+
+    def __init__(self, statline = None, **keywords):
+        self.statline = collections.defaultdict(int)
+        if statline:
+            self.statline.update(statline)
+        super().__init__(**keywords)
+
+    base_volume = 0
+
+    @property
+    def base_cost(self):
+        benefit = 0
+        for s in self.statline.keys():
+            value = self.statline.get(s, 0)
+            if value < 0:
+                value = -1
+            elif s in stats.PRIMARY_STATS:
+                value *= 3
+            elif s in stats.NONCOMBAT_SKILLS:
+                value *= 5
+            else:
+                value *= 4
+            benefit += value
+        return int(benefit * 805 * self.cost_factor)
+
+    @property
+    def trauma(self):
+        benefit = self.base_trauma
+        for s in self.statline.keys():
+            value = self.statline.get(s, 0)
+            if value < 0:
+                value = -1
+            elif s in stats.PRIMARY_STATS:
+                value = (value + 1) // 2
+            else:
+                value *= 1
+            benefit += value
+        return int(max(benefit, self.base_trauma))
+
+
+class EyesCyberware(BaseCyberware):
+    location = 'Eyes'
+    base_trauma = 3
+    cost_factor = 1.1
+class EarsCyberware(BaseCyberware):
+    location = 'Ears'
+    base_trauma = 3
+    cost_factor = 0.9
+class ForebrainCyberware(BaseCyberware):
+    location = 'Forebrain'
+    cost_factor = 1.3
+class BrainstemCyberware(BaseCyberware):
+    location = 'Brainstem'
+    cost_factor = 1.3
+class HeartCyberware(BaseCyberware):
+    location = 'Heart'
+    base_trauma = 5
+class SpineCyberware(BaseCyberware):
+    location = 'Spine'
+    base_trauma = 5
+class TorsoMusclesCyberware(BaseCyberware):
+    location = 'Torso Muscles'
+    base_trauma = 5
+class ArmMusclesCyberware(BaseCyberware):
+    location = 'Arm Muscles'
+class ArmBonesCyberware(BaseCyberware):
+    location = 'Arm Bones'
+class LegMusclesCyberware(BaseCyberware):
+    location = 'Leg Muscles'
+class LegBonesCyberware(BaseCyberware):
+    location = 'Leg Bones'
 
 
 #   *******************
@@ -2550,23 +2639,29 @@ class MF_Head(ModuleForm):
     name = "Head"
     SENSOR_BONUS = 1
 
+    MULTIPLICITY_LIMITS = {
+        EyesCyberware: 1, EarsCyberware: 1, ForebrainCyberware: 1, BrainstemCyberware: 1,
+        **ModuleForm.MULTIPLICITY_LIMITS
+    }
+
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part, (
-            Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, EWSystem))
+            Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, EWSystem, EyesCyberware, EarsCyberware, ForebrainCyberware, BrainstemCyberware))
 
 
 class MF_Torso(ModuleForm):
     name = "Torso"
     MULTIPLICITY_LIMITS = {
-        Engine: 1, Mount: 2, Cockpit: 1, Gyroscope: 1, Armor: 1
+        Engine: 1, Mount: 2, Cockpit: 1, Gyroscope: 1, Armor: 1,
+        HeartCyberware: 1, SpineCyberware: 1, TorsoMusclesCyberware: 1
     }
 
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part, (
             Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, Engine, Gyroscope,
-            EWSystem))
+            EWSystem, HeartCyberware, SpineCyberware, TorsoMusclesCyberware))
 
     VOLUME_X = 4
     MASS_X = 2
@@ -2578,10 +2673,15 @@ class MF_Arm(ModuleForm):
     CAN_ATTACK = True
     ACCURACY = 1
 
+    MULTIPLICITY_LIMITS = {
+        ArmMusclesCyberware: 1, ArmBonesCyberware: 1,
+        **ModuleForm.MULTIPLICITY_LIMITS
+    }
+
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part,
-                          (Weapon, Launcher, Armor, Hand, Mount, MovementSystem, PowerSource, Sensor, Usable, EWSystem))
+                          (Weapon, Launcher, Armor, Hand, Mount, MovementSystem, PowerSource, Sensor, Usable, EWSystem, ArmMusclesCyberware, ArmBonesCyberware))
 
     @classmethod
     def is_legal_inv_com(self, part):
@@ -2593,9 +2693,14 @@ class MF_Leg(ModuleForm):
     CAN_ATTACK = True
     PENETRATION = 1
 
+    MULTIPLICITY_LIMITS = {
+        LegBonesCyberware: 1, LegMusclesCyberware: 1,
+        **ModuleForm.MULTIPLICITY_LIMITS
+    }
+
     @classmethod
     def is_legal_sub_com(self, part):
-        return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem))
+        return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem, LegMusclesCyberware, LegBonesCyberware))
 
 
 class MF_Wing(ModuleForm):
@@ -2730,6 +2835,35 @@ class Module(BaseGear, StandardDamageHandler):
 
         return my_invos
 
+    def can_normally_remove(self):
+        # Human-scale modules cannot be removed at Cyberdoc Terminal.
+        return not (self.scale is scale.HumanScale)
+
+    def can_install(self, part, check_volume = True):
+        if super().can_install(part, check_volume):
+            if isinstance(part, BaseCyberware):
+                # Cyberware has to have correct scale.
+                if not self.scale is part.scale:
+                    return False
+                if check_volume:
+                    # Check trauma specs.
+                    parent = self.parent
+                    # Normally, only Beings can install cyberware.
+                    # However, while loading, the subcom is being
+                    # built without a parent for this module yet,
+                    # so we just pass this test.
+                    # The only other callers of can_install is the
+                    # geareditor, which gets the fully constructed
+                    # gear already.
+                    if not parent or not isinstance(parent, Being):
+                        return True
+                    # Make sure the being can take the trauma.
+                    if parent.current_trauma + part.trauma > parent.max_trauma:
+                        return False
+            return True
+        else:
+            return False
+
 
 class Head(Module):
     def __init__(self, **keywords):
@@ -2828,7 +2962,6 @@ class LegClothing(Clothing):
     def __init__(self, **keywords):
         keywords["form"] = MF_Leg
         super(LegClothing, self).__init__(**keywords)
-
 
 #   *****************
 #   ***   MECHA   ***
@@ -3225,8 +3358,50 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
                 break
         return is_ok
 
+    def cyberware(self):
+        for part in self.sub_sub_coms():
+            if isinstance(part, BaseCyberware):
+                yield part
+
+    def get_cyberware_bonus(self, stat_id):
+        bonus = 0
+        for cw in self.cyberware():
+            bonus += cw.statline.get(stat_id, 0)
+        return bonus
+
+    @property
+    def max_trauma(self):
+        # Use the base body.
+        return self.statline.get(stats.Body, 0)
+
+    @property
+    def current_trauma(self):
+        trauma = 0
+        for cw in self.cyberware():
+            trauma += cw.trauma
+        return trauma
+
     def get_stat(self, stat_id):
-        return self.statline.get(stat_id, 0) + self.ench_list.get_stat(stat_id)
+        # Cyberware can remove skill by giving them -999,
+        # but make sure not to actually affect gameplay
+        # beyond removing skills.
+        return( max(0, self.statline.get(stat_id, 0) + self.get_cyberware_bonus(stat_id))
+              + self.ench_list.get_stat(stat_id)
+              )
+
+    def get_all_skills(self):
+        effective_statline = self.statline.copy()
+        # Add any new skills cyberware gives you.
+        for cw in self.cyberware():
+            for s in cw.statline.keys():
+                effective_statline[s] = effective_statline.get(s, 0) + cw.statline[s]
+
+        # Clear entries that are at 0 or below, if
+        # a cyberware removes a skill.
+        for s in list(effective_statline.keys()):
+            if effective_statline[s] <= 0:
+                del effective_statline[s]
+        return effective_statline.keys()
 
     def get_skill_score(self, stat_id, skill_id):
         it = self.get_stat(skill_id) * 5
@@ -3235,7 +3410,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return it
 
     def has_skill(self,skill_id):
-        return skill_id in self.statline
+        return skill_id in self.get_all_skills()
 
     @property
     def base_health(self):
@@ -3289,8 +3464,25 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return (self.get_stat(stats.Knowledge) + self.get_stat(stats.Ego) + 5) // 2 + self.get_stat(
             stats.Concentration) * 3
 
+    def _compute_max_stamina(self, body, ego, athletics):
+        return (body + ego + 5) // 2 + athletics * 3
+
+    def get_uncybered_max_stamina(self):
+        ''' Computes the max stamina if the
+        character did not had any cyberware.
+        '''
+        return self._compute_max_stamina( self.statline.get(stats.Body, 0)
+                                        , self.statline.get(stats.Ego, 0)
+                                        , self.statline.get(stats.Athletics, 0)
+                                        )
+
     def get_max_stamina(self):
-        return (self.get_stat(stats.Body) + self.get_stat(stats.Ego) + 5) // 2 + self.get_stat(stats.Athletics) * 3
+        base = self._compute_max_stamina( self.get_stat(stats.Body)
+                                        , self.get_stat(stats.Ego)
+                                        , self.get_stat(stats.Athletics)
+                                        )
+        # Give the character a minimum stamina of 1.
+        return max(1, base - self.current_trauma)
 
     def get_current_mental(self):
         return max(self.get_max_mental() - self.mp_spent, 0)

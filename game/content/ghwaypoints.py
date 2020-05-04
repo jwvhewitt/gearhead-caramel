@@ -8,6 +8,7 @@ from . import ghterrain
 from game.content.ghterrain import DZDTownTerrain, DZDWCommTowerTerrain, DZDCommTowerTerrain
 from pbge.scenes.waypoints import Waypoint
 from game import geareditor
+from game import cyberdoc
 import gears
 
 
@@ -150,6 +151,17 @@ class MechEngTerminal(Waypoint):
             if mek:
                 myui = geareditor.GearEditor(mek,camp.party,mode=geareditor.MODE_RESTRICTED)
                 myui.activate_and_run()
+
+class CyberdocTerminal( Waypoint ):
+    name = "Cyberdoc Terminal"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.CyberdocTerminalTerrain)
+    ATTACH_TO_WALL = True
+    MENU_TITLE = pbge.frects.Frect(-100,-150,200,16)
+
+    def unlocked_use(self, camp):
+        # TODO: get year from somewhere.
+        ui = cyberdoc.UI(camp.pc, camp.party, 158)
+        ui.activate_and_run()
 
 
 class MechaPoster(Waypoint):

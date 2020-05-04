@@ -156,3 +156,158 @@ TorsoClothing
         Armor
             size = 6
     END
+
+EyesCyberware
+    name = "Cyber Eye"
+    desc = "These eyes include resolution enhancers."
+    statline = { Perception = 2, Charm = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+EyesCyberware
+    name = "Fashion Eyes"
+    desc = "A pair of rather charming eyes."
+    statline = { Charm = 2, Perception = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+EyesCyberware
+    name = "Sniper Eye"
+    desc = "These eyes highlight potential ranged weapons targets, though it can sometimes be distracting."
+    statline = { Concentration = -1, RangedCombat = 1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+EarsCyberware
+    name = "Perfect Pitch Ears"
+    desc = "Ears used by some performance judges to dissect and analyse music."
+    statline = { Performance = 1, Perception = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+ForebrainCyberware
+    name = "Sensory Amplifier"
+    desc = "Tunes the mind to detect tiny inputs that would otherwise go unnoticed, but reduces mental focus."
+    statline = { Perception = 5, Concentration = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+ForebrainCyberware
+    name = "Data Link"
+    desc = "Provides direct links between some parts of the brain."
+    statline = { Body = -1, Knowledge = 2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+ForebrainCyberware
+    name = "Internet Link"
+    desc = "Gives direct access to the Internet, providing a few technology skills."
+    statline = { Science = 1, Computers = 1, Ego = -2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+BrainstemCyberware
+    name = "Predator Reflexes"
+    desc = "Takes advantage of certain predator instincts found in animals of prey."
+    statline = { Reflexes = 4, Perception = 3, Speed = 3, Ego = 1, Charm = -2, Knowledge = -2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+BrainstemCyberware
+    name = "Negotiator Instinct"
+    desc = "Research on predator reflexes revealed that the negotiation behaviors of humans use the same brain matter as hunting behavior, and a subtle reconfiguration can increase negotiation with relatively minimal drawbacks."
+    statline = { Negotiation = 1, Charm = -1, Knowledge = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+BrainstemCyberware
+    name = "Prey Instinct"
+    desc = "Takes advantage of certain prey reflexes found in prey animals, at the loss of some capability for high-level cognition."
+    statline = { Stealth = 1, Wildcraft = 1, Knowledge = -3, Craft = -3 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+BrainstemCyberware
+    name = "Spinal Pilot Link"
+    desc = "Interacts with a piloted mecha and provides neural feedback to the pilot, but the rewiring makes it more difficult to control one's body directly."
+    statline = { MechaPiloting = 2, Dodge = -2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+HeartCyberware
+    name = "Cyber Heart"
+    desc = "A heavy-duty replacement for a conventional organic heart."
+    statline = { Body = -1, Vitality = 3 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+HeartCyberware
+    name = "Adrenaline Heart"
+    desc = "A heart with artificial adrenal glands installed, for giving a few milliseconds faster edge in pumping your reflexes in critical situations."
+    statline = { Body = -2, Reflexes = 2, Speed = 1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+SpineCyberware
+    name = "Optical Spine"
+    desc = "Replaces many of the spinal nerves with fiber-optic data transmission wires."
+    statline = { Speed = 3, Reflexes = 1, Knowledge = 2, Body = -2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+SpineCyberware
+    name = "Armored Spine"
+    desc = "Does away with the fragile nature of a human's organic spine, at the cost of reducing general flexibility."
+    statline = { Vitality = 3, Dodge = -1, Speed = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+TorsoMusclesCyberware
+    name = "Perfect Musculature"
+    desc = "A carefully-shaped body musculature conforming to common standards of attractiveness, though weak in direct combat."
+    statline = { Body = -1, Dodge = -1, Charm = 5, CloseCombat = -1}
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+TorsoMusclesCyberware
+    name = "Enhanced Diaphragm"
+    desc = "Enhances the human capability to sing and convince others to listen to one's song."
+    statline = { Performance = 1, Body = -2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+ArmMusclesCyberware
+    name = "Hand Dexterity Muscles"
+    desc = "Provides fine control of hand movements needed for craft skill, but are unuseable when defending oneself."
+    statline = { Craft = 5, CloseCombat = -1, RangedCombat = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+ArmMusclesCyberware
+    name = "Rapid-strike Muscles"
+    desc = "Muscles tuned for quick reactions though with some loss of general toughness."
+    statline = { CloseCombat = 1, Speed = 1, Reflexes = 1, Body = -2}
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+
+
