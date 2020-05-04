@@ -436,6 +436,13 @@ class _TraumaBlock(_TextLabelBlock):
     def get_text(self):
         return "Trauma: {} / {}".format(self.model.current_trauma, self.model.max_trauma)
 
+class _StaminaLostBlock(_TextLabelBlock):
+    ''' Display the stamina lost by the character due to
+    cyberware
+    '''
+    def get_text(self):
+        return "Stamina Lost: {}".format(self.model.get_uncybered_max_stamina() - self.model.get_max_stamina())
+
 class _InstalledInBlock(_TextLabelBlock):
     '''Displays the module the given model is installed in.'''
     def __init__(self, **keywords):
@@ -445,7 +452,7 @@ class _InstalledInBlock(_TextLabelBlock):
         return "Installed: {}".format(self.model.parent.name)
 
 class _CyberCharPanel(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, _TraumaBlock, gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.NonComSkillBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, _TraumaBlock, _StaminaLostBlock, gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.NonComSkillBlock)
 
 class _MedicalCommentaryBlock( object ):
     def __init__(self, model, width = 220, year = 158, font = None, color = None, **kwargs):

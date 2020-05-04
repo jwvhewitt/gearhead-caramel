@@ -640,11 +640,11 @@ class EngineSizeBlock( SizeBlock ):
     label = "Rating"
 
 class CyberwareStatsBlock( GenericStatsBlock ):
-    DEFAULT_STATS = ('Location', 'Trauma')
+    DEFAULT_STATS = ('Location', 'Trauma/Sta')
     def stat_lookup(self, stat):
         if stat is 'Location':
             return self.model.location
-        elif stat is 'Trauma':
+        elif stat == 'Trauma/Sta':
             return self.model.trauma
 
 class CyberwareStatlineBlock( ItemsListBlock ):

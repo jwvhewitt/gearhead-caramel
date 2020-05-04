@@ -3464,8 +3464,23 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return (self.get_stat(stats.Knowledge) + self.get_stat(stats.Ego) + 5) // 2 + self.get_stat(
             stats.Concentration) * 3
 
+    def _compute_max_stamina(self, body, ego, athletics):
+        return (body + ego + 5) // 2 + athletics * 3
+
+    def get_uncybered_max_stamina(self):
+        ''' Computes the max stamina if the
+        character did not had any cyberware.
+        '''
+        return self._compute_max_stamina( self.statline.get(stats.Body, 0)
+                                        , self.statline.get(stats.Ego, 0)
+                                        , self.statline.get(stats.Athletics, 0)
+                                        )
+
     def get_max_stamina(self):
-        base = (self.get_stat(stats.Body) + self.get_stat(stats.Ego) + 5) // 2 + self.get_stat(stats.Athletics) * 3
+        base = self._compute_max_stamina( self.get_stat(stats.Body)
+                                        , self.get_stat(stats.Ego)
+                                        , self.get_stat(stats.Athletics)
+                                        )
         # Give the character a minimum stamina of 1.
         return max(1, base - self.current_trauma)
 
