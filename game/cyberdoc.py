@@ -57,23 +57,102 @@ EXIT_BUTTON_FRECT = pbge.frects.Frect( UL_X + SCREEN_WIDTH - (MARGIN + 40), UL_Y
                                      , 40, 40
                                      )
 
+###############################################################################
 
-class UI(pbge.widgets.Widget):
-    def __init__(self, char, stash = None, year = 158, **kwargs):
+# Users of the cyberdoc should provide an object providing this
+# interface.
+class CyberwareSource(object):
+    def get_cyberware_list(self):
+        ''' Return a list of cyberware this source
+        provides.
+        Cyberware are gears from BaseCyberware.
+        This implies to the caller that any of the
+        returned cyberware gears may, in the future,
+        be used in the other functions below.
+        '''
+        raise NotImplementedError()
+    def get_list_annotation(self, cyberware):
+        ''' Return either None, or a string.
+        If a string is returned, that string
+        will be appended with a space to
+        cyberware.name in the list of available
+        gears.
+        '''
+        return None
+    def get_panel_annotation(self, cyberware):
+        ''' Return either None, or a string.
+        If a string is returned, that string
+        will be added to the infopanel when
+        the cyberware is hovered.
+        '''
+        return None
+    def can_purchase(self, cyberware, camp):
+        ''' Determine if the given camp can
+        pay for the cyberware, or whatever.
+        Return true if the camp can buy.
+        '''
+        return True
+    def acquire_cyberware(self, cyberware, camp):
+        ''' Acquire a stock copy of the cyberware
+        and deduct money from the camp, or remove
+        this cyberware from this source.
+        Return the copy, or the same cyberware.
+        '''
+        raise NotImplementedError()
+
+
+class _AggregateCyberwareSource(CyberwareSource):
+    def __init__(self, sources):
+        self._sources = sources
+        self._cw_to_source = dict()
+
+    def get_cyberware_list(self):
+        self._cw_to_source.clear()
+
+        cws = list()
+        for source in self._sources:
+            source_cws = source.get_cyberware_list()
+
+            for cw in source_cws:
+                self._cw_to_source[cw] = source
+
+            cws.extend(source_cws)
+
+        return cws
+
+    # Get the delegatee.
+    def _get_source(self, cyberware):
+        return self._cw_to_source[cyberware]
+
+    def get_list_annotation(self, cyberware):
+        return self._get_source(cyberware).get_list_annotation(cyberware)
+    def get_panel_annotation(self, cyberware):
+        return self._get_source(cyberware).get_panel_annotation(cyberware)
+    def can_purchase(self, cyberware, camp):
+        return self._get_source(cyberware).can_purchase(cyberware, camp)
+    def acquire_cyberware(self, cyberware, camp):
+        return self._get_source(cyberware).acquire_cyberware(cyberware, camp)
+
+
+###############################################################################
+
+class CoreUI(pbge.widgets.Widget):
+    def __init__(self, char, source, camp, year = 158, **kwargs):
         super().__init__( UL_X, UL_Y
                         , SCREEN_WIDTH, SCREEN_HEIGHT
                         , **kwargs
                         )
 
         self.char = char
-        if stash is None:
-            self.stash = pbge.container.ContainerList(owner=self)
-        else:
-            self.stash = stash
+        self.source = source
+        self.camp = camp
         self.year = year
 
-        self._cyberware_installer = _CyberwareInstaller( self.char, self.stash
-                                                       , self._alert, self._choose
+        self._cyberware_installer = _CyberwareInstaller( self.char
+                                                       , self.source
+                                                       , self.camp
+                                                       , self._alert
+                                                       , self._choose
                                                        )
 
         self.running = False
@@ -114,7 +193,7 @@ class UI(pbge.widgets.Widget):
         self.children.append(available_label)
         self._available_listwidget = ItemListWidget( self.uninstalled
                                                    , AVAILABLE_LIST_FRECT
-                                                   , text_fn = self._get_gear_name
+                                                   , text_fn = self._get_list_annotated_gear_name
                                                    , on_enter = self._try_set_mouseoverinfopanel
                                                    , on_leave = self._try_clear_mouseoverinfopanel
                                                    )
@@ -182,6 +261,12 @@ class UI(pbge.widgets.Widget):
 
     def _get_gear_name(self, gear):
         return gear.name
+    def _get_list_annotated_gear_name(self, gear):
+        name = self._get_gear_name(gear)
+        ann = self.source.get_list_annotation(gear)
+        if ann:
+           name += " " + ann
+        return name
 
     def _make_infopanel(self, gear):
         if isinstance(gear, base.Character):
@@ -190,6 +275,8 @@ class UI(pbge.widgets.Widget):
             ip = gears.info.get_longform_display(model = gear, width = COLUMN_WIDTH)
             if gear.parent and isinstance(gear.parent, base.Module):
                 ip.info_blocks.insert(1, _InstalledInBlock(model = gear, width = COLUMN_WIDTH))
+            if gear in self.uninstalled:
+                ip.info_blocks.insert(1, _SourceAnnotationBlock(model = gear, width = COLUMN_WIDTH, source = self.source))
             return ip
 
     def _refresh_all(self):
@@ -207,12 +294,7 @@ class UI(pbge.widgets.Widget):
         for part in self.char.sub_sub_coms():
              if isinstance(part, base.BaseCyberware):
                  self.installed.append(part)
-        for part in self.char.inv_com:
-             if isinstance(part, base.BaseCyberware):
-                 self.uninstalled.append(part)
-        for part in self.stash:
-             if isinstance(part, base.BaseCyberware):
-                 self.uninstalled.append(part)
+        self.uninstalled.extend(self.source.get_cyberware_list())
 
         self.installed.sort(key = lambda c: c.name)
         self.uninstalled.sort(key = lambda c: c.name)
@@ -422,14 +504,29 @@ class _TextLabelBlock(object):
         self.color = color or pbge.WHITE
 
         msg = self.get_text()
-        self.image = pbge.render_text(self.font, msg, self.width, justify = 0, color = self.color)
-        self.height = self.image.get_height()
+        if msg:
+            self.image = pbge.render_text(self.font, msg, self.width, justify = 0, color = self.color)
+            self.height = self.image.get_height()
+        else:
+            self.image = None
+            self.height = 0
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        if self.image:
+            pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
     def get_text(self):
         raise RuntimeError("_TextLabelBlock.get_text called")
+
+class _SourceAnnotationBlock(_TextLabelBlock):
+    '''Displays the source-based annotation.
+    '''
+    def __init__(self, source, **keywords):
+        keywords.pop('color', None)
+        self.source = source
+        super().__init__(color = pbge.TEXT_COLOR, **keywords)
+    def get_text(self):
+        return self.source.get_panel_annotation(self.model)
 
 class _TraumaBlock(_TextLabelBlock):
     '''Displays the current and max trauma of the given model character.'''
@@ -522,17 +619,22 @@ class _MedicalCommentaryPanel(gears.info.InfoPanel):
 class _CyberwareInstaller(object):
     ''' Business logic for installing cyberware.
     '''
-    def __init__(self, char, stash, alert, choose):
+    def __init__(self, char, source, camp, alert, choose):
         # alert is a function that accepts a single string and shows it to
         # the user.
         # choose is a function given a list of strings, prompts the user
         # to choose one, then returns the 0-based index of the selection.
         self.char = char
-        self.stash = stash
+        self.source = source
+        self.camp = camp
         self.alert = alert
         self.choose = choose
 
     def install(self, cyberware):
+        if not self.source.can_purchase(cyberware, self.camp):
+            self.alert("You cannot afford it!")
+            return
+
         candidate_modules = self._get_candidate_modules(cyberware)
         if not candidate_modules:
             self.alert('Cannot install {}: cannot be installed in any body part.'.format(cyberware.name))
@@ -635,8 +737,8 @@ class _CyberwareInstaller(object):
         the cyberware into the specified module.
         '''
         def install():
-            self._acquire_new_cyberware(cyberware)
-            mod.sub_com.append(cyberware)
+            to_install = self._acquire_new_cyberware(cyberware)
+            mod.sub_com.append(to_install)
         return install
 
     def _make_replace_fun(self, mod, old, new):
@@ -647,20 +749,62 @@ class _CyberwareInstaller(object):
         def replace():
             mod.sub_com.remove(old)
             self._return_old_cyberware(old)
-            self._acquire_new_cyberware(new)
-            mod.sub_com.append(new)
+            to_install = self._acquire_new_cyberware(new)
+            mod.sub_com.append(to_install)
         return replace
 
     def _acquire_new_cyberware(self, cyberware):
         ''' Removes the cyberware from wherever it currently
         is so we can install it into the character.
         '''
-        if cyberware in self.stash:
-            self.stash.remove(cyberware)
-        elif cyberware in self.char.inv_com:
-            self.char.inv_com.remove(cyberware)
-        else:
-            raise RuntimeError("Don't know where cyberware to install currently is!")
+        return self.source.acquire_cyberware(cyberware, self.camp)
 
     def _return_old_cyberware(self, cyberware):
         self.char.inv_com.append(cyberware)
+
+
+###############################################################################
+
+class InventorySource(CyberwareSource):
+    def __init__(self, char):
+        self.char = char
+    def get_cyberware_list(self):
+        rv = list()
+        for cw in self.char.inv_com:
+            if isinstance(cw, base.BaseCyberware):
+                rv.append(cw)
+        return rv
+    def get_list_annotation(self, cyberware):
+        return '[Inv]'
+    def get_panel_annotation(self, cyberware):
+        return 'With {}'.format(self.char.name)
+    def acquire_cyberware(self, cyberware, camp):
+        self.char.inv_com.remove(cyberware)
+        return cyberware
+class StashSource(CyberwareSource):
+    def __init__(self, stash):
+        self.stash = stash
+    def get_cyberware_list(self):
+        rv = list()
+        for cw in self.stash:
+            if isinstance(cw, base.BaseCyberware):
+                rv.append(cw)
+        return rv
+    def get_list_annotation(self, cyberware):
+        return "[Stash]"
+    def get_panel_annottion(self, cyberware):
+        return "Stashed"
+    def acquire_cyberware(self, cyberware, camp):
+        self.stash.remove(cyberware)
+        return cyberware
+
+# Adaptor class, for existing interface.
+class UI(CoreUI):
+    def __init__(self, char, camp, stash = None, year = 158, **kwargs):
+        if stash is None:
+            stash = pbge.container.ContainerList(owner=self)
+        sources = [ InventorySource(char)
+                  , StashSource(stash)
+                  ]
+        super().__init__(char, _AggregateCyberwareSource(sources), camp, year)
+

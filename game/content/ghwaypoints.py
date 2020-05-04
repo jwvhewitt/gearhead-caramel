@@ -160,7 +160,7 @@ class CyberdocTerminal( Waypoint ):
 
     def unlocked_use(self, camp):
         # TODO: get year from somewhere.
-        ui = cyberdoc.UI(camp.pc, camp.party, 158)
+        ui = cyberdoc.UI(camp.pc, camp, camp.party, 158)
         ui.activate_and_run()
 
 
