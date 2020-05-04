@@ -8,7 +8,7 @@ Mecha
 
     environment_list = (GroundEnv,UrbanEnv)
     faction_list = (TerranFederation,TerranDefenseForce,Guardians,BioCorp)
-    role_list = (Support,Command)
+    role_list = (Support,Commander)
 
     SUB
         Head

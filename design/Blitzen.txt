@@ -6,7 +6,7 @@ Mecha
     portrait = "mecha_blitzen.png"
     environment_list = (None,)
     faction_list = ("Really None",)
-    role_list = (Command)
+    role_list = (Commander,)
 
     SUB
         Head
