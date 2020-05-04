@@ -117,7 +117,7 @@ def init_backstory():
     protobits = list()
     myfiles = glob.glob(pbge.util.data_dir( "bs_*.json"))
     for f in myfiles:
-        with open(f, 'rb') as fp:
+        with open(f, 'rt') as fp:
             mylist = json.load(fp)
             if mylist:
                 protobits += mylist

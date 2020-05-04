@@ -1,3 +1,4 @@
+- Argh. Maybe now wall decor will stop blocking doors?
 - Fixed json files not loading in Python 3.7+
 
 v0.511 May 1 2020

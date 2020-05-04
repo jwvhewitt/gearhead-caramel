@@ -239,7 +239,10 @@ class Room( object ):
         x,y = pos
         #if gb.get_bumpable_at_spot(pos) or not gb._map.get_wall(x,y) == maps.BASIC_WALL:
         #    return False
+        wall = gb.get_wall(x,y)
         if x >= gb.width-1 or y >= gb.height - 1:
+            return False
+        elif inspect.isclass(wall) and issubclass(wall,terrain.DoorTerrain):
             return False
         elif ( self.is_basic_wall(gb,x-1,y) and
           self.is_basic_wall(gb,x+1,y) and

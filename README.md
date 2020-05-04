@@ -62,6 +62,15 @@ also need to install a C compiler for Cython; see the Cython page for
 details.
 
   https://www.python.org/
+  
+Before running the program for the first time, you need to build the
+caramel-recolor-cython package. Open a terminal in the caramel-recolor-cython
+folder and type:
+
+  python setup.py install
+  
+Depending on your system, you may need to type "python3" instead of "python".
+Once this package is installed, you can run main.py to play the game.
 
 The first time it's run, the game will create a "ghcaramel" folder in your
 home directory and place a configuration file there. This is where all of your
