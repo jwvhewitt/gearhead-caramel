@@ -3465,7 +3465,9 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             stats.Concentration) * 3
 
     def get_max_stamina(self):
-        return (self.get_stat(stats.Body) + self.get_stat(stats.Ego) + 5) // 2 + self.get_stat(stats.Athletics) * 3
+        base = (self.get_stat(stats.Body) + self.get_stat(stats.Ego) + 5) // 2 + self.get_stat(stats.Athletics) * 3
+        # Give the character a minimum stamina of 1.
+        return max(1, base - self.current_trauma)
 
     def get_current_mental(self):
         return max(self.get_max_mental() - self.mp_spent, 0)

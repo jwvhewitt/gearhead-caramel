@@ -261,14 +261,6 @@ HeartCyberware
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
 
-HeartCyberware
-    name = "High-capacity Heart"
-    desc = "A heavy-duty heart that improves stamina."
-    statline = { Athletics = 3, Body = -1 }
-    scale = HumanScale
-    shop_tags = ("CYBERWARE",)
-    faction_list = (None,)
-
 SpineCyberware
     name = "Optical Spine"
     desc = "Replaces many of the spinal nerves with fiber-optic data transmission wires."
