@@ -1,3 +1,4 @@
+import copy
 import pbge
 import gears
 from gears import base
@@ -806,6 +807,21 @@ class StashSource(CyberwareSource):
         self.stash.remove(cyberware)
         return cyberware
 
+class AllCyberwareSource(CyberwareSource):
+    def __init__(self):
+        self._all_cyberware = [ cw for cw in gears.selector.DESIGN_LIST
+                             if isinstance(cw, base.BaseCyberware)
+                              ]
+    def get_cyberware_list(self):
+        return self._all_cyberware.copy()
+    def get_panel_annotation(self, cyberware):
+        return '${:,}'.format(cyberware.cost)
+    def can_purchase(self, cyberware, camp):
+        return cyberware.cost <= camp.credits
+    def acquire_cyberware(self, cyberware, camp):
+        camp.credits -= cyberware.cost
+        return copy.deepcopy(cyberware)
+
 # Adaptor class, for existing interface.
 class UI(CoreUI):
     def __init__(self, char, camp, stash = None, year = 158, **kwargs):
@@ -813,6 +829,7 @@ class UI(CoreUI):
             stash = pbge.container.ContainerList(owner=self)
         sources = [ InventorySource(char)
                   , StashSource(stash)
+                  , AllCyberwareSource()
                   ]
         super().__init__(char, _AggregateCyberwareSource(sources), camp, year)
 
