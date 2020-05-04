@@ -361,7 +361,7 @@ COMBATANT_SKILLS = (MechaFighting,MechaGunnery,MechaPiloting,RangedCombat,CloseC
 FUNDAMENTAL_COMBATANT_SKILLS = (MechaFighting,MechaGunnery,MechaPiloting,RangedCombat,CloseCombat,Dodge)
 EXTRA_COMBAT_SKILLS = (Vitality,Athletics,Concentration)
 
-NONCOMBAT_SKILLS = (Repair, Medicine, Biotechnology, Stealth, Science, Computers, Performance, Negotiation, Scouting, Wildcraft)
+NONCOMBAT_SKILLS = (Repair, Medicine, Biotechnology, Stealth, Science, Computers, Performance, Negotiation, Scouting, Wildcraft, Cybertech)
 ALL_SKILLS = COMBATANT_SKILLS + NONCOMBAT_SKILLS
 
 REPAIR_SKILLS = {
