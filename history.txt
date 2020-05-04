@@ -1,5 +1,4 @@
-- Added Cybertech skill
-- AmkG added cyberware
+- Cyberware!
 - Argh. Maybe now wall decor will stop blocking doors?
 - Fixed json files not loading in Python 3.7+
 
