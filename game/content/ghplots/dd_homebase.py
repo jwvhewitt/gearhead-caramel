@@ -767,8 +767,6 @@ class DZD_WujungHospital(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Doctor"]))
         npc.place(intscene, team=team2)
 
-        self.cybershop = services.Shop(npc = npc, shop_faction = gears.factions.TerranDefenseForce, ware_types = services.CYBERWARE_STORE, rank = 50)
-
         npc = self.register_element("NURSE",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
                                                                     job=gears.jobs.ALL_JOBS["Nurse"]))
@@ -862,13 +860,6 @@ class DZD_WujungHospital(Plot):
         mylist.append(Offer("[HELLO] You seem to be in good health today.",
                             context=ContextTag([context.HELLO]),
                             ))
-        mylist.append(Offer( "[OPENSHOP]"
-                           , context = ContextTag([context.OPEN_SHOP])
-                           , effect = self.cybershop
-                           , data = { "shop_name" : "Wujung Hospital"
-                                    , "wares": "cyberware"
-                                    }
-                           ))
 
         return mylist
 
