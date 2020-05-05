@@ -767,8 +767,6 @@ class DZD_WujungHospital(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Doctor"]))
         npc.place(intscene, team=team2)
 
-        self.cybershop = services.Shop(npc = npc, shop_faction = gears.factions.TerranDefenseForce, ware_types = services.CYBERWARE_STORE, rank = 50)
-
         npc = self.register_element("NURSE",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
                                                                     job=gears.jobs.ALL_JOBS["Nurse"]))
@@ -777,7 +775,22 @@ class DZD_WujungHospital(Plot):
         room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(),dident="INTERIOR")
         room2.contents.append(ghwaypoints.RecoveryBed())
         room2.contents.append(ghwaypoints.RecoveryBed())
-        room2.contents.append(ghwaypoints.CyberdocTerminal())
+
+        cybershop = services.Shop( npc = None
+                                 , shop_faction = gears.factions.TerranDefenseForce
+                                 , rank = 50
+                                 , ware_types = services.CYBERWARE_STORE
+                                 )
+        room2.contents.append(ghwaypoints.CyberdocTerminal(shop = cybershop))
+
+        team3 = teams.Team(name = "Cyberdoc Terminal Team", allies = (team1, team2))
+        cybertekno = self.register_element("CYBERTEKNO",
+                                           gears.selector.random_character(60, local_tags = self.elements["LOCALE"].attributes,
+                                                                           job = gears.jobs.ALL_JOBS["Tekno"]))
+        team3.contents.append(cybertekno)
+        room2.contents.append(team3)
+        self.asked_about_cyberdoc = False
+        self.asked_about_cyberware = False
 
         room5 = self.register_element('_room5', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
 
@@ -862,15 +875,32 @@ class DZD_WujungHospital(Plot):
         mylist.append(Offer("[HELLO] You seem to be in good health today.",
                             context=ContextTag([context.HELLO]),
                             ))
-        mylist.append(Offer( "[OPENSHOP]"
-                           , context = ContextTag([context.OPEN_SHOP])
-                           , effect = self.cybershop
-                           , data = { "shop_name" : "Wujung Hospital"
-                                    , "wares": "cyberware"
-                                    }
-                           ))
 
         return mylist
+
+    def CYBERTEKNO_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer( "[HELLO] Wujung Hospital is proud of its automated Cyberdoc terminal for all your cyberware needs."
+                           , context = ContextTag([context.HELLO])
+                           ))
+
+        if not self.asked_about_cyberdoc:
+            mylist.append(Offer( "The Cyberdoc terminal has a stock of cyberware it can install into your body, directly improving your capabilities, or it can install cyberware you acquired elsewhere. It can even remove cyberware, by cloning a non-cyberware organ from your cells."
+                               , context = ContextTag([context.INFO]), effect = self._ask_about_cyberdoc
+                               , data = {"subject": "the Cyberdoc terminal"}, no_repeats = True
+                               ))
+        if not self.asked_about_cyberware:
+            mylist.append(Offer( "Cyberware is installed into your body by the Cyberdoc terminal to give you new capabilities. Modern cyberware reduces stamina, an improvement over the 'cyberdisfunctions' of old; a general healthy constitution lets more cyberware be installed safely, as well as the patient's knowledge of cybertech."
+                               , context = ContextTag([context.INFO]), effect = self._ask_about_cyberware
+                               , data = {"subject": "cyberware"}, no_repeats = True
+                               ))
+
+        return mylist
+    def _ask_about_cyberdoc(self, *ignored):
+        self.asked_about_cyberdoc = True
+    def _ask_about_cyberware(self, *ignored):
+        self.asked_about_cyberware = True
 
 #   *********************************
 #   ***  DZD_WuHosMedicLancemate  ***
