@@ -262,7 +262,7 @@ HeartCyberware
     faction_list = (None,)
 
 SpineCyberware
-    name = "Optical Spine"
+    name = "Fiber-Optic Spine"
     desc = "Replaces many of the spinal nerves with fiber-optic data transmission wires."
     statline = { Speed = 3, Reflexes = 1, Knowledge = 2, Body = -2 }
     scale = HumanScale
