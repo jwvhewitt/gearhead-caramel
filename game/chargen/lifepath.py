@@ -442,11 +442,23 @@ HAKN_HACKER = LifePathOption("Hacking","I was a computer hacker. (Computers skil
                                      ]
                                  }
                              })
+HAKN_ORGANSMUGGLER = LifePathOption("Cyberware Smuggling", "I was a cyberware smuggler. (Cybertech skill)",
+                                    stat_mods = {stats.Cybertech: 1},
+                                    biomessage = "[LPC_HAKN]",
+                                    biogram = {
+                                        "[LPC_HAKN]": {
+                                            Default: [
+                                                "You provided [city]'s gangleaders with black market cyberware.",
+                                                "You ran a little back-alley cyberdoc 'clinic' in [city], installing cheap knockoffs; no warranties.",
+                                                "You helped fix the malfunctioning cyberware of the gangbangers of [city], and procure replacements as well."
+                                            ]
+                                        }
+                                    })
 
 C_HARDKNOCKS = LifePathNode(
     "Hard Knocks","As a youth, you got mixed up in some dangerous times. (Athletics + 2, Criminal badge)",
     choices=(
-        LifePathChoice("What sort of criminal activity were you involved in?",(HAKN_HACKER,HAKN_THIEF)),
+        LifePathChoice("What sort of criminal activity were you involved in?",(HAKN_HACKER,HAKN_THIEF,HAKN_ORGANSMUGGLER)),
     ),
     next_prompt="Pick a crisis.",
     next=(D_FAILURE,D_POVERTY,D_DESTINY),
@@ -523,6 +535,15 @@ UNI1_MEDICINE = LifePathOption("Medicine.","(Medicine skill)",
                                        ]
                                    }
                                })
+UNI1_CYBERTECH = LifePathOption("Cybertech.", "(Cybertech skill)",
+                                stat_mods = { stats.Cybertech: 1 },
+                                biogram = {
+                                    "[major]": {
+                                        Default: [
+                                            "cybertech"
+                                        ]
+                                    }
+                                })
 
 UNI2_ENGINEERING = LifePathOption("Engineering.","(Repair skill)",
                                   stat_mods={stats.Repair:1},
@@ -583,7 +604,7 @@ UNI2_PHYSED = LifePathOption("Physical Education.","(Athletics skill bonus)",
 C_UNIVERSITY = LifePathNode(
     "University","You studied at a prestigious university. (Choose two skills, Academics badge)",
     choices=(
-        LifePathChoice("What was your major in university?",(UNI1_SCIENCE,UNI1_MEDICINE)),
+        LifePathChoice("What was your major in university?",(UNI1_SCIENCE,UNI1_MEDICINE,UNI1_CYBERTECH)),
         LifePathChoice("What was your minor in university?", (UNI2_COMPSCI,UNI2_ENGINEERING,UNI2_MUSIC,UNI2_PHYSED,UNI2_POLYSCI)),
     ),
     next_prompt="Pick a crisis.",
