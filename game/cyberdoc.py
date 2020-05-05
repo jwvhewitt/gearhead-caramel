@@ -807,13 +807,11 @@ class StashSource(CyberwareSource):
         self.stash.remove(cyberware)
         return cyberware
 
-class AllCyberwareSource(CyberwareSource):
-    def __init__(self):
-        self._all_cyberware = [ cw for cw in gears.selector.DESIGN_LIST
-                             if isinstance(cw, base.BaseCyberware)
-                              ]
+class _ListedSalesCyberwareSource(CyberwareSource):
+    def __init__(self, cyberware_list):
+        self._cyberware_list = cyberware_list
     def get_cyberware_list(self):
-        return self._all_cyberware.copy()
+        return self._cyberware_list.copy()
     def get_panel_annotation(self, cyberware):
         return '${:,}'.format(cyberware.cost)
     def can_purchase(self, cyberware, camp):
@@ -822,14 +820,31 @@ class AllCyberwareSource(CyberwareSource):
         camp.credits -= cyberware.cost
         return copy.deepcopy(cyberware)
 
-# Adaptor class, for existing interface.
+class AllCyberwareSource(_ListedSalesCyberwareSource):
+    def __init__(self):
+        super().__init__([ cw for cw in gears.selector.DESIGN_LIST
+                        if isinstance(cw, base.BaseCyberware)
+                         ])
+
+class ShopCyberwareSource(_ListedSalesCyberwareSource):
+    def __init__(self, shop, camp):
+        # shop must be instance of game.services.Shop
+        shop.update_shop(camp)
+        super().__init__(shop.wares)
+
+
+# Adaptor class, for external use.
 class UI(CoreUI):
-    def __init__(self, char, camp, stash = None, year = 158, **kwargs):
+    def __init__(self, char, camp, shop = None, stash = None, year = 158, **kwargs):
         if stash is None:
             stash = pbge.container.ContainerList(owner=self)
+        if shop:
+            shop_source = ShopCyberwareSource(shop, camp)
+        else:
+            shop_source = AllCyberwareSource()
         sources = [ InventorySource(char)
                   , StashSource(stash)
-                  , AllCyberwareSource()
+                  , shop_source
                   ]
         super().__init__(char, _AggregateCyberwareSource(sources), camp, year)
 

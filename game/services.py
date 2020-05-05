@@ -356,9 +356,11 @@ class Shop(object):
             else:
                 keep_going = False
 
-    def __call__(self, camp):
+    def update_shop(self, camp):
         if camp.day > self.last_updated:
             self.update_wares(camp)
             self.last_updated = camp.day
 
+    def __call__(self, camp):
+        self.update_shop(camp)
         self.enter_shop(camp)

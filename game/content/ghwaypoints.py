@@ -158,9 +158,14 @@ class CyberdocTerminal( Waypoint ):
     ATTACH_TO_WALL = True
     MENU_TITLE = pbge.frects.Frect(-100,-150,200,16)
 
+    def __init__(self, shop = None, **keywords):
+        super().__init__(**keywords)
+        self.shop = shop
+
     def unlocked_use(self, camp):
-        # TODO: get year from somewhere.
-        ui = cyberdoc.UI(camp.pc, camp, camp.party, 158)
+        if not hasattr(self, 'shop'):
+            self.shop = None
+        ui = cyberdoc.UI(camp.pc, camp, self.shop, camp.party, camp.year)
         ui.activate_and_run()
 
 
