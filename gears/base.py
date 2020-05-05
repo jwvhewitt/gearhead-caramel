@@ -2569,27 +2569,27 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
 
 class EyesCyberware(BaseCyberware):
     location = 'Eyes'
-    base_trauma = 3
+    base_trauma = 1
     cost_factor = 1.1
 class EarsCyberware(BaseCyberware):
     location = 'Ears'
-    base_trauma = 3
+    base_trauma = 1
     cost_factor = 0.9
 class ForebrainCyberware(BaseCyberware):
     location = 'Forebrain'
+    base_trauma = 3
     cost_factor = 1.3
 class BrainstemCyberware(BaseCyberware):
     location = 'Brainstem'
+    base_trauma = 3
     cost_factor = 1.3
 class HeartCyberware(BaseCyberware):
     location = 'Heart'
-    base_trauma = 5
+    base_trauma = 3
 class SpineCyberware(BaseCyberware):
     location = 'Spine'
-    base_trauma = 5
 class TorsoMusclesCyberware(BaseCyberware):
     location = 'Torso Muscles'
-    base_trauma = 5
 class ArmMusclesCyberware(BaseCyberware):
     location = 'Arm Muscles'
 class ArmBonesCyberware(BaseCyberware):
