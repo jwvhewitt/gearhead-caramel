@@ -8,6 +8,8 @@ from . import portraits
 from . import genderobj
 from . import color
 from . import jobs
+from . import cyberinstaller
+import math
 
 DESIGN_LIST = list()
 STC_LIST = list()
@@ -77,7 +79,49 @@ def random_age():
         age += random.randint(1,30)
     return age
 
-def random_pilot(rank=25, current_year=158, **kwargs):
+def random_install_cyberware(pc, rank):
+    # 0 or negative rank gets no cyberware.
+    if rank <= 0:
+        return
+    # Get all cyberware.
+    cybersource = cyberinstaller.AllCyberwareSource()
+
+    cyberwares = cybersource.get_cyberware_list()
+    # Remove cw that cannot be installed anyway.
+    remaining_trauma = pc.max_trauma - pc.current_trauma
+    cyberwares = [cw for cw in cyberwares if cw.trauma <= remaining_trauma]
+    # If no more candidates, just quit.
+    if len(cyberwares) == 0:
+        return
+    # Sort according to cost.
+    cyberwares.sort(key = lambda cw: cw.cost)
+    # If rank < 100, treat as percentage.
+    # Only the cheapest will get in.
+    if rank < 100:
+        truncate_to = math.ceil(len(cyberwares) * rank / 100.0)
+        cyberwares = cyberwares[:truncate_to]
+
+    # Set up the installer.
+    class FakeCamp(object):
+        def __init__(self):
+            self.credits = 99999999999
+    def fake_alert(text):
+        pass
+    def fake_choose(items):
+        # The last choice is always cancel, don't select that.
+        return random.randint(0, len(items) - 2)
+    installer = cyberinstaller.CyberwareInstaller(pc, cybersource, FakeCamp(), fake_alert, fake_choose)
+
+    # And install.
+    installer.install(random.choice(cyberwares))
+
+def _try_cyberize(pc, rank):
+    if random.randint(1,6) != 1:
+        return
+    for i in range(1 + pc.get_stat(stats.Cybertech)):
+        random_install_cyberware(pc, rank)
+
+def random_pilot(rank=25, current_year=158, can_cyberize = None, **kwargs):
     # Build the creation matrix, aka the dict.
     creation_matrix = dict(statline=base.Being.random_stats(points=max(rank+50,80)),portrait_gen=portraits.Portrait(),
                            combatant=True, renown=rank,
@@ -90,10 +134,14 @@ def random_pilot(rank=25, current_year=158, **kwargs):
                         )
     if "name" not in creation_matrix:
         pc.name = random_name(pc)
+    if can_cyberize is None:
+        can_cyberize = "name" not in creation_matrix
+    if can_cyberize:
+        _try_cyberize(pc, rank)
     #creation_matrix["job"].scale_skills(pc,rank)
     return pc
 
-def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, **kwargs):
+def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, can_cyberize = None, **kwargs):
     # Build the creation matrix, aka the dict.
     possible_origins = [o for o in local_tags if o in personality.ORIGINS]
     job = jobs.choose_random_job(needed_tags,local_tags)
@@ -109,6 +157,10 @@ def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, *
                         )
     if "name" not in creation_matrix:
         pc.name = random_name(pc)
+    if can_cyberize is None:
+        can_cyberize = "name" not in creation_matrix
+    if can_cyberize:
+        _try_cyberize(pc, rank)
     return pc
 
 
