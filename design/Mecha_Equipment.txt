@@ -230,61 +230,189 @@ EWSystem
     faction_list = (None,)
 
 HoverJets
+    desc = "Jet engines designed to support your mecha and let it skim over terrain. Can also provide some thrust in flight."
     size = 2
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 HoverJets
+    desc = "Jet engines designed to support your mecha and let it skim over terrain. Can also provide some thrust in flight."
     size = 3
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 HoverJets
+    desc = "Jet engines designed to support your mecha and let it skim over terrain. Can also provide some thrust in flight."
     size = 4
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 HoverJets
+    desc = "Jet engines designed to support your mecha and let it skim over terrain. Can also provide some thrust in flight."
     size = 5
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 HoverJets
+    desc = "Jet engines designed to support your mecha and let it skim over terrain. Can also provide some thrust in flight."
     size = 6
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 HoverJets
+    desc = "Jet engines designed to support your mecha and let it skim over terrain. Can also provide some thrust in flight."
     size = 7
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 Wheels
+    desc = "A set of mecha-scale pneumatic rubber tires for moving your mecha. Much lighter than equivalent tracks or hover jets, but also more vulnerable to damage."
     size = 2
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 Wheels
+    desc = "A set of mecha-scale pneumatic rubber tires for moving your mecha. Much lighter than equivalent tracks or hover jets, but also more vulnerable to damage."
     size = 3
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 Wheels
+    desc = "A set of mecha-scale pneumatic rubber tires for moving your mecha. Much lighter than equivalent tracks or hover jets, but also more vulnerable to damage."
     size = 4
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 Wheels
+    desc = "A set of mecha-scale pneumatic rubber tires for moving your mecha. Much lighter than equivalent tracks or hover jets, but also more vulnerable to damage."
     size = 5
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 Wheels
+    desc = "A set of mecha-scale pneumatic rubber tires for moving your mecha. Much lighter than equivalent tracks or hover jets, but also more vulnerable to damage."
     size = 6
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
 Wheels
+    desc = "A set of mecha-scale pneumatic rubber tires for moving your mecha. Much lighter than equivalent tracks or hover jets, but also more vulnerable to damage."
     size = 7
     shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+HoverJets
+    desc = "High-powered jets made of advanced composites, providing the same thrust for size as ordinary jets, but lighter."
+    size = 5
+    desig = "Advanced"
+    material = Advanced
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+HoverJets
+    desc = "High-powered jets made of advanced composites, providing the same thrust for size as ordinary jets, but lighter."
+    size = 6
+    desig = "Advanced"
+    material = Advanced
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+HoverJets
+    desc = "High-powered jets made of advanced composites, providing the same thrust for size as ordinary jets, but lighter."
+    size = 7
+    desig = "Advanced"
+    material = Advanced
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+HoverJets
+    desc = "High-powered jets made of advanced composites, providing the same thrust for size as ordinary jets, but lighter."
+    size = 8
+    desig = "Advanced"
+    material = Advanced
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+HeavyActuators
+    desc = "Synthetic myomer muscles for moving limbs, improving balance and therefore speed while walking."
+    size = 2
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+HeavyActuators
+    desc = "Synthetic myomer muscles for moving limbs, improving balance and therefore speed while walking."
+    size = 3
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+HeavyActuators
+    desc = "Synthetic myomer muscles for moving limbs, improving balance and therefore speed while walking."
+    size = 5
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+HeavyActuators
+    desc = "Synthetic myomer muscles for moving limbs, improving balance and therefore speed while walking."
+    size = 8
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+Tracks
+    desc = "Armored wheels protected by rotating armor sections."
+    size = 2
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+Tracks
+    desc = "Armored wheels protected by rotating armor sections."
+    size = 3
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+Tracks
+    desc = "Armored wheels protected by rotating armor sections."
+    size = 4
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+Tracks
+    desc = "Armored wheels protected by rotating armor sections."
+    size = 5
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+Tracks
+    desc = "Armored wheels protected by rotating armor sections."
+    size = 6
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+Tracks
+    desc = "Armored wheels protected by rotating armor sections."
+    size = 7
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+Wheels
+    desc = "Pneumatic and rubber tires with ceramic axle system for further reduced weight; less resilient even than standard wheels."
+    size = 2
+    desig = "Lightened"
+    material = Ceramic
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+Wheels
+    desc = "Pneumatic and rubber tires with ceramic axle system for further reduced weight; less resilient even than standard wheels."
+    size = 4
+    desig = "Lightened"
+    material = Ceramic
+    shop_tags = ("MMOBILITY",)
+    faction_list = (None,)
+
+Wheels
+    desc = "Pneumatic and rubber tires with ceramic axle system for further reduced weight; less resilient even than standard wheels."
+    size = 6
+    desig = "Lightened"
+    material = Ceramic
+    shop_tags = ("MMOBILITY",)
     faction_list = (None,)
