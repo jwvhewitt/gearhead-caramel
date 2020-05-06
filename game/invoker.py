@@ -191,11 +191,37 @@ class InvocationsWidget(pbge.widgets.Widget):
                     self.buttons[butt].frame = b_invo.data.active_frame
                 else:
                     self.buttons[butt].frame = b_invo.data.inactive_frame
-                self.buttons[butt].tooltip = b_invo.name
+                self.buttons[butt].tooltip = self._generate_tooltip(b_invo)
             else:
                 self.buttons[butt].sprite = None
                 self.buttons[butt].tooltip = None
         self.update_callback(self.get_invo())
+
+    def _generate_tooltip(self, invo):
+        done_classes = set()
+        descs = list()
+        # Merge descriptions according to class.
+        # Otherwise, Linked Fire will have a long list of prices,
+        # one for each linked weapon.
+        for p in invo.price:
+            cls = p.__class__
+            if cls in done_classes:
+                continue
+            done_classes.add(cls)
+            if not hasattr(cls, 'describe'):
+                continue
+
+            prices = [price for price in invo.price if price.__class__ is cls]
+            desc = cls.describe(prices)
+            if not desc:
+                continue
+
+            descs.append(desc)
+
+        if not descs:
+            return invo.name
+
+        return '{} ({})'.format(invo.name, ','.join(descs))
 
     def render(self):
         self.sprite.render(self.get_rect(), 0)

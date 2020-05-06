@@ -133,7 +133,7 @@ class Repair( Skill ):
         if random.randint(1,6) <= extra:
             n += 1
         ba = pbge.effects.Invocation(
-            name = 'Repair (5MP)', 
+            name = 'Repair',
             fx=geffects.DoHealing(
                 max(n,1),6,repair_type=materials.RT_REPAIR,
                 anim = geffects.RepairAnim,
@@ -158,7 +158,7 @@ class Medicine( Skill ):
         if random.randint(1,6) <= extra:
             n += 1
         ba = pbge.effects.Invocation(
-            name = 'Heal (5MP)', 
+            name = 'Heal',
             fx=geffects.DoHealing(
                 max(n,1),6,repair_type=materials.RT_MEDICINE,
                 anim = geffects.MedicineAnim,
@@ -183,7 +183,7 @@ class Biotechnology( Skill ):
         if random.randint(1,6) <= extra:
             n += 1
         ba = pbge.effects.Invocation(
-            name = 'Repair (5MP)', 
+            name = 'Repair',
             fx=geffects.DoHealing(
                 max(n,1),6,repair_type=materials.RT_BIOTECHNOLOGY,
                 anim = geffects.BiotechnologyAnim,
@@ -286,7 +286,7 @@ class Negotiation( Skill ):
     @classmethod
     def add_invocations(self, pc, invodict):
         encourage = pbge.effects.Invocation(
-            name = "Encourage (5SP)",
+            name = "Encourage",
             fx = geffects.DoEncourage(Charm, self),
             area = pbge.scenes.targetarea.SingleTarget(reach = 11),
             used_in_combat = True, used_in_exploration = True,
