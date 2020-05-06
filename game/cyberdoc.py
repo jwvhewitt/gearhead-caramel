@@ -612,7 +612,7 @@ class StashSource(CyberwareSource):
         return rv
     def get_list_annotation(self, cyberware):
         return "[Stash]"
-    def get_panel_annottion(self, cyberware):
+    def get_panel_annotation(self, cyberware):
         return "Stashed"
     def acquire_cyberware(self, cyberware, camp):
         self.stash.remove(cyberware)
