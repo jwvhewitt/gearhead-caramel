@@ -12,7 +12,7 @@ class Accurate(Singleton):
 
     @classmethod
     def get_attacks( self, weapon ):
-        aa = weapon.get_basic_attack(name='Aim (+20 acc, 4MP)',attack_icon=12)
+        aa = weapon.get_basic_attack(name='Aim +20',attack_icon=12)
         aa.fx.modifiers.append(geffects.GenericBonus('Aim',20))
         aa.price.append(geffects.MentalPrice(4))
         aa.data.thrill_power += 1
@@ -189,7 +189,7 @@ class FastAttack(Singleton):
 
     @classmethod
     def get_attacks( self, weapon ):
-        aa = weapon.get_basic_attack(name='2 attacks, 3 MP', attack_icon=9)
+        aa = weapon.get_basic_attack(name='2 attacks', attack_icon=9)
         aa.price.append(geffects.MentalPrice(3))
         aa.data.thrill_power += 2
         old_fx = aa.fx
@@ -288,7 +288,7 @@ class LinkedFire(Singleton):
                     myattack.price += i.price
             if myattack.targets > 1:
                 myattack.price.append(geffects.MentalPrice(myattack.targets+1))
-                myattack.name = "Link ({} shots, {}MP)".format(myattack.targets,myattack.targets+1)
+                myattack.name = "Link {} shots".format(myattack.targets)
                 myattack.data.active_frame = 18
                 myattack.data.inactive_frame = 19
                 myattack.data.disabled_frame = 20

@@ -21,7 +21,7 @@ class _Info(object):
 class Invocation( effects.Invocation ):
     def __init__(self, att_stat, att_skill, def_stat, def_skill):
         info = _Info(att_stat, att_skill, def_stat, def_skill)
-        super().__init__( name = 'Captivate Audience ({} MP)'.format(MENTAL_COST)
+        super().__init__( name = 'Captivate Audience'
                         , fx = _top_fx(info)
                         , area = pbge.scenes.targetarea.SelfCentered(radius = SONG_REACH)
                         , used_in_combat = True

@@ -1502,6 +1502,11 @@ class PowerPrice(object):
     def __init__( self, power_amount ):
         self.power_amount = power_amount
 
+    @classmethod
+    def describe(cls, prices):
+        total = sum(p.power_amount for p in prices)
+        return '{}Pw'.format(total)
+
     def pay( self, chara ):
         chara.consume_power(self.power_amount)
 
@@ -1514,6 +1519,11 @@ class MentalPrice(object):
     def __init__( self, amount ):
         self.amount = amount
 
+    @classmethod
+    def describe(cls, prices):
+        total = sum(p.amount for p in prices)
+        return '{}MP'.format(total)
+
     def pay( self, chara ):
         chara.spend_mental(self.amount)
 
@@ -1524,6 +1534,11 @@ class MentalPrice(object):
 class StaminaPrice(object):
     def __init__( self, amount ):
         self.amount = amount
+
+    @classmethod
+    def describe(cls, prices):
+        total = sum(p.amount for p in prices)
+        return '{}SP'.format(total)
 
     def pay( self, chara ):
         chara.spend_stamina(self.amount)
@@ -1550,6 +1565,16 @@ class StatValuePrice(object):
     def __init__( self, statid, minvalue ):
         self.statid = statid
         self.minvalue = minvalue
+
+    @classmethod
+    def describe(cls, prices):
+        minvalues = dict()
+        for p in prices:
+            minvalues[p.statid] = max(minvalues.get(p.statid, 0), p.minvalue)
+        descs = list()
+        for statid in minvalues.keys():
+            descs.append('{}+{}'(statid.name, minvalues[statid]))
+        return ', '.join(descs)
 
     def pay( self, chara ):
         chara.dole_experience(self.minvalue,self.statid)
