@@ -2,6 +2,7 @@
 - Can now remove all modules from a mecha without crashing the game.
 - Show more info on items in Field HQ and Shop.
 - Improved Haiho slightly.
+- More movement systems for sale.
 - Cyberware!
 - Argh. Maybe now wall decor will stop blocking doors?
 - Fixed json files not loading in Python 3.7+

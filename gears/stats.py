@@ -243,7 +243,7 @@ class Stealth( Skill ):
 
 class Science( Skill ):
     name = 'Science'
-    desc = "This skill allows you to craft advanced equipment."
+    desc = "This skill allows you to craft advanced equipment, or carefully study your opponents in battle."
     @classmethod
     def add_invocations(cls, pc, invodict):
         ba = pbge.effects.Invocation(
@@ -269,7 +269,7 @@ class Computers( Skill ):
 
 class Performance( Skill ):
     name = 'Performance'
-    desc = "This skill enables you to play music. Do it well enough and you might even get paid."
+    desc = "This skill enables you to play music. Do it well enough and you might even inspire allies and demoralize enemies during combat."
 
     @classmethod
     def add_invocations(self, pc, invodict):
@@ -304,7 +304,7 @@ class Negotiation( Skill ):
 
 class Scouting( Skill ):
     name = 'Scouting'
-    desc = "This skill is used to spot hidden things, and may be used to identify an enemy's weak points."
+    desc = "This skill is used to spot hidden things, and see enemies hiding behind cover."
     @classmethod
     def add_invocations(cls, pc, invodict):
         cover_breaking_percent = min(max(pc.get_skill_score(Perception, cls) * 2 - 50, 25), 100)

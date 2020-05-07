@@ -51,10 +51,12 @@ class ListedSalesCyberwareSource(CyberwareSource):
         return self._cyberware_list.copy()
     def get_panel_annotation(self, cyberware):
         return '${:,}'.format(cyberware.cost)
+    def get_cyberware_cost(self, cyberware):
+        return cyberware.cost
     def can_purchase(self, cyberware, camp):
-        return cyberware.cost <= camp.credits
+        return self.get_cyberware_cost(cyberware) <= camp.credits
     def acquire_cyberware(self, cyberware, camp):
-        camp.credits -= cyberware.cost
+        camp.credits -= self.get_cyberware_cost(cyberware)
         return copy.deepcopy(cyberware)
 
 class AllCyberwareSource(ListedSalesCyberwareSource):

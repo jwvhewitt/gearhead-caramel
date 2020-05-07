@@ -612,7 +612,7 @@ class StashSource(CyberwareSource):
         return rv
     def get_list_annotation(self, cyberware):
         return "[Stash]"
-    def get_panel_annottion(self, cyberware):
+    def get_panel_annotation(self, cyberware):
         return "Stashed"
     def acquire_cyberware(self, cyberware, camp):
         self.stash.remove(cyberware)
@@ -623,7 +623,15 @@ class ShopCyberwareSource(ListedSalesCyberwareSource):
     def __init__(self, shop, camp):
         # shop must be instance of game.services.Shop
         shop.update_shop(camp)
+        self.shop = shop
+        self.camp = camp
         super().__init__(shop.wares)
+    def get_cyberware_cost(self, cyberware):
+        return self.shop.calc_purchase_price(self.camp, cyberware)
+    def acquire_cyberware(self, cyberware, camp):
+        ret = super().acquire_cyberware(cyberware, camp)
+        self.shop.improve_friendliness(camp, ret)
+        return ret
 
 
 # Adaptor class, for external use.
