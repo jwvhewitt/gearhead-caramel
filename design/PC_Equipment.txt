@@ -189,6 +189,14 @@ EarsCyberware
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
 
+EarsCyberware
+    name = "Confidence Ears"
+    desc = "Feeds positive-thinking subliminal messages directly to your aural nerves."
+    statline = { Ego = 4, Perception = -2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
 ForebrainCyberware
     name = "Sensory Amplifier"
     desc = "Tunes the mind to detect tiny inputs that would otherwise go unnoticed, but reduces mental focus."
@@ -240,7 +248,7 @@ BrainstemCyberware
 BrainstemCyberware
     name = "Spinal Pilot Link"
     desc = "Interacts with a piloted mecha and provides neural feedback to the pilot, but the rewiring makes it more difficult to control one's body directly."
-    statline = { MechaPiloting = 2, Dodge = -2 }
+    statline = { MechaFighting = 2, CloseCombat = -1, RangedCombat = -1 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
@@ -309,5 +317,34 @@ ArmMusclesCyberware
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
 
+ArmMusclesCyberware
+    name = "Gunslinger Muscles"
+    desc = "Muscles shaped to absorb recoil from guns and energy weapons, though less useful for hitting nearby enemies."
+    statline = { RangedCombat = 1, CloseCombat = -1}
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
 
+LegMusclesCyberware
+    name = "Lifeblood Legs"
+    desc = "Blood flow normally settles in the legs, requiring additional pressure from the heart to circulate. Specialized biotech pumps embedded in the leg muscles improve blood circulation and general health."
+    statline = { Body = 2, Athletics = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
 
+LegMusclesCyberware
+    name = "Eluder Legs"
+    desc = "Improves your ability to evade attacks."
+    statline = { Speed = 1, Dodge = 1, Body = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+LegMusclesCyberware
+    name = "Mechacontrol Legs"
+    desc = "Embedded nerve extensions in your leg muscles that can be rerouted for fine control over a mecha's movements."
+    statline = { Body = -1, MechaPiloting = 1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
