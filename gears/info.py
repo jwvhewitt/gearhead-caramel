@@ -545,6 +545,7 @@ class ItemStatsBlock(object):
         self.model = model
         self.width = width
         self.font = font or pbge.MEDIUMFONT
+        self.linesize = self.font.get_linesize()
         if hasattr(model,"get_item_stats"):
             self.height = self.font.get_linesize() * len(self.model.get_item_stats())
         else:
@@ -556,6 +557,8 @@ class ItemStatsBlock(object):
             for k,v in self.model.get_item_stats():
                 pbge.draw_text(self.font,"{}:".format(k),mydest_k,pbge.INFO_GREEN,justify=1)
                 pbge.draw_text(self.font,v,mydest_v,pbge.INFO_HILIGHT,justify=-1)
+                mydest_k.y += self.linesize
+                mydest_v.y += self.linesize
 
 class WeaponSkillBlock( object ):
     def __init__(self,model,width=220,font=None,**kwargs):
