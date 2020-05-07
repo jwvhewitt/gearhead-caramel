@@ -1106,6 +1106,11 @@ class Engine(Component, StandardDamageHandler, MakesPower):
     def max_power(self):
         return self.scale.scale_power(self.size // 25)
 
+    def get_item_stats(self):
+        return ( ("Rating", str(self.size))
+               , ("Power", str(self.max_power()))
+               )
+
 
 class Gyroscope(Component, StandardDamageHandler):
     DEFAULT_NAME = "Gyroscope"
@@ -2565,6 +2570,11 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
                 value *= 2
             benefit += value//2
         return int(max(benefit, self.base_trauma))
+
+    def get_item_stats(self):
+        return ( ("Location", self.location)
+               , ("Trauma/Sta", str(self.trauma))
+               )
 
 
 class EyesCyberware(BaseCyberware):
