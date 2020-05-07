@@ -611,6 +611,10 @@ class CyberwareStatlineBlock( ItemsListBlock ):
             items.append('{} {:+}'.format(stat.name, value))
         return items
 
+class SubComsBlock( ItemsListBlock ):
+    def get_items(self):
+        return [item.name for item in list(self.model.sub_com)]
+
 class HostilityStatusBlock(object):
     def __init__(self,model,width=220,font=None,scene=None,**kwargs):
         self.model = model
@@ -662,6 +666,9 @@ class EWSystemIP(InfoPanel):
 class CyberwareIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ItemStatsBlock, CyberwareStatlineBlock, DescBlock)
 
+class ShieldIP(InfoPanel):
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ItemStatsBlock, SubComsBlock, DescBlock)
+
 class ShortItemIP(InfoPanel):
     DEFAULT_BLOCKS = (DescBlock,)
 
@@ -689,6 +696,8 @@ def get_longform_display(model,**kwargs):
         return EWSystemIP(model=model, **kwargs)
     elif isinstance(model, base.BaseCyberware):
         return CyberwareIP(model = model, **kwargs)
+    elif isinstance(model, base.Shield):
+        return ShieldIP(model = model, **kwargs)
     else:
         return ItemIP(model=model,**kwargs)
 

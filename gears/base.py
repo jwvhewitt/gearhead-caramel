@@ -1047,6 +1047,11 @@ class Shield(BaseGear, StandardDamageHandler):
     def get_aim_bonus(self):
         return -5 * (self.bonus + 1)
 
+    def get_item_stats(self):
+        return ( ('Block Bonus', str(self.get_block_bonus()))
+               ,
+               )
+
 
 #   ****************************
 #   ***   SUPPORT  SYSTEMS   ***
@@ -1209,6 +1214,17 @@ class MovementSystem(SizeClassedComponent):
     def base_cost(self):
         return self.size * self.MOVESYS_COST
 
+    def get_item_stats(self):
+        return [ ('Thrust ({})'.format(mode.NAME), str(self.get_thrust(mode)))
+             for mode in [ scenes.movement.Walking
+                         , geffects.Rolling
+                         , geffects.Skimming
+                         , scenes.movement.Flying
+                         , geffects.SpaceFlight
+                         ]
+              if self.get_thrust(mode) > 0
+               ]
+
 
 class HoverJets(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "Hover Jets"
@@ -1325,6 +1341,9 @@ class PowerSource(Component, StandardDamageHandler, MakesPower):
 
     def max_power(self):
         return self.scale.scale_power(self.size * 5)
+
+    def get_item_stats(self):
+        return (('Power', str(self.max_power())),)
 
 
 #   *********************************
