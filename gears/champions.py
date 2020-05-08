@@ -382,22 +382,10 @@ class GunslingerTheme(UpgradeTheme):
 
     def attempt_upgrade(self, holder, item, is_installed):
         if isinstance(item, (base.BallisticWeapon, base.BeamWeapon, base.Launcher)):
-            if is_installed:
-                # Create a sample weapon first and upgrade it.
-                sample = copy.deepcopy(item)
-                if not self._do_upgrade(sample):
-                    return False
-                # Check if sample would fit if it replaced item.
-                if holder.free_volume >= sample.volume - item.volume:
-                    # Apply it to the actual item.
-                    self._do_upgrade(item)
-                    self._upgraded_weapons = True
-                    return True
-                return False
+            if _try_upgrade(holder, item, is_installed, self._do_upgrade):
+                self._upgraded_weapons = True
+                return True
             else:
-                if self._do_upgrade(item):
-                    self._upgraded_weapons = True
-                    return True
                 return False
 
         # Do default upgrades if appropriate.
@@ -405,6 +393,113 @@ class GunslingerTheme(UpgradeTheme):
             return super().attempt_upgrade(holder, item, is_installed)
 
         return False
+
+class SlasherTheme(UpgradeTheme):
+    name = 'Slasher'
+
+    def __init__(self):
+        self._num_melee = 0
+        self._has_charge = False
+        self._upgraded_specific = False
+
+    def pre_upgrade(self, mek, items):
+        self._num_melee = len([0 for i in items if isinstance(i, (base.MeleeWeapon, base.EnergyWeapon))])
+        self._has_charge = any([isinstance(i, (base.MeleeWeapon, base.EnergyWeapon)) and attackattributes.ChargeAttack in i.attributes for i in items])
+
+    def upgrade_sort_index(self, item):
+        # Prioritize weapons and shields.
+        if isinstance(item, (base.MeleeWeapon, base.EnergyWeapon, base.Shield)):
+            return 0
+        else:
+            return 1
+
+    def _upgrade_weapon(self, item):
+        upgraded = False
+        if not self._has_charge:
+            item.attributes.append(attackattributes.ChargeAttack)
+            item.name = 'Halberd'
+            upgraded = True
+        if item.damage < item.MAX_DAMAGE:
+            item.damage += 1
+            upgraded = True
+        return upgraded
+
+    def _upgrade_shield(self, item):
+        # Increase bonus by 2.
+        if item.bonus == item.MAX_BONUS:
+            return False
+        item.bonus = min(item.bonus + 2, item.MAX_BONUS)
+        # Reduce size by 1.
+        if item.size > item.MIN_SIZE:
+            item.size -= 1
+        return True
+
+    def attempt_upgrade(self, holder, item, is_installed):
+        if isinstance(item, (base.MeleeWeapon, base.EnergyWeapon)):
+            if _try_upgrade(holder, item, is_installed, self._upgrade_weapon):
+                self._upgraded_specific = True
+                if not self._has_charge and attackattributes.ChargeAttack in item.attributes:
+                    self._has_charge = True
+                return True
+            return False
+        elif isinstance(item, base.Shield):
+            if _try_upgrade(holder, item, is_installed, self._upgrade_shield):
+                self._upgraded_specific = True
+                return True
+            return False
+
+        if self._upgraded_specific:
+            upgraded = False
+            upgraded = super().attempt_upgrade(holder, item, is_installed)
+            # Lighten armor.
+            if isinstance(item, base.Armor):
+                if _improve_material(item):
+                    upgraded = True
+            return upgraded
+        else:
+            return False
+
+    def _create_weapon(self, name, damage, accuracy, penetration, attrib):
+        return base.EnergyWeapon( name = name, reach = 1
+                                , damage = damage
+                                , accuracy = accuracy
+                                , penetration = penetration
+                                , attributes = [attrib]
+                                , material = materials.Advanced
+                                )
+
+    def attempt_install_item(self, module):
+        if not self._upgraded_specific:
+            return None
+        if self._num_melee >= 2:
+            return None
+
+        item = None
+        if self._has_charge:
+            if module.free_volume >= 5:
+                item = self._create_weapon('Blade', 5, 5, 1, attackattributes.FastAttack)
+            elif module.free_volume == 4:
+                item = self._create_weapon('Blade', 4, 4, 1, attackattributes.FastAttack)
+            elif module.free_volume == 3:
+                item = self._create_weapon('Blade', 3, 3, 1, attackattributes.FastAttack)
+            elif module.free_volume == 2:
+                item = self._create_weapon('Blade', 2, 2, 1, attackattributes.FastAttack)
+        else:
+            if module.free_volume >= 5:
+                item = self._create_weapon('Pike', 4, 1, 4, attackattributes.ChargeAttack)
+            elif module.free_volume == 4:
+                item = self._create_weapon('Pike', 3, 1, 3, attackattributes.ChargeAttack)
+            elif module.free_volume == 3:
+                item = self._create_weapon('Pike', 3, 1, 2, attackattributes.ChargeAttack)
+            elif module.free_volume == 2:
+                item = self._create_weapon('Pike', 2, 1, 1, attackattributes.ChargeAttack)
+
+        if item:
+            if not self._has_charge and attackattributes.ChargeAttack in item.attributes:
+                self._has_charge = True
+            self._num_melee +=1
+
+        return item
 
 THEMES = [ t for t in UpgradeTheme.__subclasses__()
         if not t is RandomTheme
@@ -466,6 +561,24 @@ def _improve_material(gear):
         gear.material = materials.Advanced
         return True
     return False
+
+# Attempt the given upgrade function on the item.
+# The upgrade function must be deterministic.
+# It should return false if it cannot upgrade
+# the item, true if it did.
+# This cancels the upgrade if the resulting item
+# would not fit in the holder.
+def _try_upgrade(holder, item, is_installed, func):
+    if is_installed:
+        sample = copy.deepcopy(item)
+        if not func(sample):
+            return False
+        if holder.free_volume < sample.volume - item.volume:
+            return False
+        func(item)
+        return True
+    else:
+        return func(item)
 
 ###############################################################################
 
