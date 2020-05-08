@@ -157,6 +157,9 @@ class DragonTheme(UpgradeTheme):
         weap = _get_statted_weapon(item)
         if weap.penetration < weap.MAX_PENETRATION:
             weap.penetration += 1
+        # Launchers may need to be upgraded.
+        if isinstance(item, base.Launcher) and item.size < weap.volume:
+            item.size = weap.volume
 
     def _make_flamethrower(self, reach, damage, napalm, integral = False):
         return base.ChemThrower( name = 'Maw'
@@ -277,6 +280,10 @@ class RaiderTheme(UpgradeTheme):
             if weap.accuracy < weap.MAX_ACCURACY:
                 weap.accuracy += 1
                 upgraded = True
+
+            # Launchers may need to be upgraded.
+            if isinstance(item, base.Launcher) and item.size < weap.volume:
+                item.size = weap.volume
 
             return upgraded
 
