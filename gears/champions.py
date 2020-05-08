@@ -1,4 +1,5 @@
 import random
+import math
 import copy
 
 import gears
@@ -299,6 +300,104 @@ class RaiderTheme(UpgradeTheme):
 
         return self._new_movesys(min(module.free_volume, self._largest))
 
+class GunslingerTheme(UpgradeTheme):
+    ''' More Dakka '''
+    name = "Gunslinger"
+
+    def __init__(self):
+        self._upgraded_weapons = False
+
+    def _upgrade_burst(self, item):
+        # If maxed, cannot upgrade.
+        if attackattributes.BurstFire5 in item.attributes:
+            return False
+        if attackattributes.VariableFire5 in item.attributes:
+            return False
+        if attackattributes.SwarmFire3 in item.attributes:
+            return False
+        if attackattributes.Automatic in item.attributes:
+            return False
+
+        if attackattributes.BurstFire2 in item.attributes:
+            self._replace_attrib(item, attackattributes.BurstFire2, attackattributes.BurstFire3)
+        elif attackattributes.BurstFire3 in item.attributes:
+            self._replace_attrib(item, attackattributes.BurstFire3, attackattributes.BurstFire4)
+        elif attackattributes.BurstFire4 in item.attributes:
+            self._replace_attrib(item, attackattributes.BurstFire4, attackattributes.BurstFire5)
+        elif attackattributes.VariableFire2 in item.attributes:
+            self._replace_attrib(item, attackattributes.VariableFire2, attackattributes.VariableFire3)
+        elif attackattributes.VariableFire3 in item.attributes:
+            self._replace_attrib(item, attackattributes.VariableFire3, attackattributes.VariableFire4)
+        elif attackattributes.VariableFire4 in item.attributes:
+            self._replace_attrib(item, attackattributes.VariableFire4, attackattributes.VariableFire5)
+        elif attackattributes.SwarmFire2 in item.attributes:
+            self._replace_attrib(item, attackattributes.SwarmFire2, attackattributes.SwarmFire3)
+        else:
+            item.attributes.append(attackattributes.BurstFire2)
+
+        self._upgrade_ammo(item)
+        return True
+
+    def _replace_attrib(self, item, old, new):
+        item.attributes.remove(old)
+        item.attributes.append(new)
+
+    def _upgrade_ammo(self, item):
+        if not isinstance(item, base.BallisticWeapon):
+            return
+        magazine = item.magazine
+        magazine = math.ceil(magazine * 1.5)
+        item.magazine = magazine
+        ammo = item.get_ammo()
+        if ammo:
+            ammo.quantity = magazine
+
+    def _upgrade_quantity(self, item):
+        ammo = item.get_ammo()
+        if not ammo:
+            return False
+
+        # Upgrade quantity but not too much.
+        orig_quantity = ammo.quantity
+        new_quantity = min(60, orig_quantity * 2)
+        if new_quantity <= orig_quantity:
+            return False
+
+        ammo.quantity = new_quantity
+        item.size = ammo.volume
+        return True
+
+    def _do_upgrade(self, item):
+        if isinstance(item, base.Launcher):
+            return self._upgrade_quantity(item)
+        else:
+            return self._upgrade_burst(item)
+
+    def attempt_upgrade(self, holder, item, is_installed):
+        if isinstance(item, (base.BallisticWeapon, base.BeamWeapon, base.Launcher)):
+            if is_installed:
+                # Create a sample weapon first and upgrade it.
+                sample = copy.deepcopy(item)
+                if not self._do_upgrade(sample):
+                    return False
+                # Check if sample would fit if it replaced item.
+                if holder.free_volume >= sample.volume - item.volume:
+                    # Apply it to the actual item.
+                    self._do_upgrade(item)
+                    self._upgraded_weapons = True
+                    return True
+                return False
+            else:
+                if self._do_upgrade(item):
+                    self._upgraded_weapons = True
+                    return True
+                return False
+
+        # Do default upgrades if appropriate.
+        if self._upgraded_weapons:
+            return super().attempt_upgrade(holder, item, is_installed)
+
+        return False
 
 THEMES = [ t for t in UpgradeTheme.__subclasses__()
         if not t is RandomTheme
