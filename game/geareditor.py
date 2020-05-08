@@ -974,6 +974,7 @@ class LetsEditSomeMeks(object):
         mainmenu = pbge.rpgmenu.Menu(-150,0,300,226,predraw=redraw,font=pbge.my_state.huge_font)
         mainmenu.add_item("Create New Mecha",self._create_new_mecha)
         mainmenu.add_item("Edit Mecha Variant",self._edit_user_mecha)
+        mainmenu.add_item("Edit Mecha Champion", self._edit_champion_mecha)
         mainmenu.add_item("Exit Mecha Editor",None)
 
         pbge.my_state.view = redraw
