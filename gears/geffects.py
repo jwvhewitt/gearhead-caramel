@@ -488,7 +488,10 @@ class AttackRoll( effects.NoEffect ):
     def __init__(self, att_stat, att_skill, children=(), anim=None, accuracy=0, penetration=0, modifiers=(), defenses=() ):
         self.att_stat = att_stat
         self.att_skill = att_skill
-        self.children = list(children)
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
         self.anim = anim
         self.accuracy = accuracy
         self.penetration = penetration
@@ -559,9 +562,10 @@ class MultiAttackRoll( effects.NoEffect ):
         self.att_stat = att_stat
         self.att_skill = att_skill
         self.num_attacks = num_attacks
-        if not children:
-            children = list()
-        self.children = children
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
         self.anim = anim
         self.accuracy = accuracy
         self.penetration = penetration
@@ -643,10 +647,10 @@ class SkillRoll( effects.NoEffect ):
         self.skill = skill
         if not on_success:
             on_success = list()
-        self.on_success = on_success
+        self.on_success = list(on_success)
         if not on_failure:
             on_failure = list()
-        self.on_failure = on_failure
+        self.on_failure = list(on_failure)
         self.anim = anim
         self.roll_mod = roll_mod
         self.min_chance = min_chance
@@ -685,13 +689,13 @@ class OpposedSkillRoll( effects.NoEffect ):
         self.def_skill = def_skill
         if not on_success:
             on_success = list()
-        self.on_success = on_success
+        self.on_success = list(on_success)
         if not on_failure:
             on_failure = list()
-        self.on_failure = on_failure
+        self.on_failure = list(on_failure)
         if not on_no_target:
             on_no_target = list()
-        self.on_no_target = on_no_target
+        self.on_no_target = list(on_no_target)
         self.anim = anim
         self.roll_mod = roll_mod
         self.min_chance = min_chance
@@ -733,9 +737,18 @@ class ResistanceRoll( effects.NoEffect ):
     def __init__(self, att_stat, def_stat, on_success=(), on_failure=(), on_no_target=(), anim=None, roll_mod=0, min_chance=5, max_chance=95 ):
         self.att_stat = att_stat
         self.def_stat = def_stat
-        self.on_success = list(on_success)
-        self.on_failure = list(on_failure)
-        self.on_no_target = list(on_no_target)
+        if on_success:
+            self.on_success = list(on_success)
+        else:
+            self.on_success = list()
+        if on_failure:
+            self.on_failure = list(on_failure)
+        else:
+            self.on_failure = list()
+        if on_no_target:
+            self.on_no_target = list(on_no_target)
+        else:
+            self.on_no_target = list()
         self.anim = anim
         self.roll_mod = roll_mod
         self.min_chance = min_chance
@@ -787,10 +800,10 @@ class CheckConditions( effects.NoEffect ):
         self.conditions = conditions
         if not on_success:
             on_success = list()
-        self.on_success = on_success
+        self.on_success = list(on_success)
         if not on_failure:
             on_failure = list()
-        self.on_failure = on_failure
+        self.on_failure = list(on_failure)
         self.anim = anim
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
@@ -811,10 +824,10 @@ class StealthSkillRoll( effects.NoEffect ):
         self.def_skill = def_skill or stats.Scouting
         if not on_success:
             on_success = list()
-        self.on_success = on_success
+        self.on_success = list(on_success)
         if not on_failure:
             on_failure = list()
-        self.on_failure = on_failure
+        self.on_failure = list(on_failure)
         self.anim = anim
         self.roll_mod = roll_mod
         self.min_chance = min_chance
@@ -847,11 +860,12 @@ class DoDamage( effects.NoEffect ):
     """
     DESTROY_TARGET_XP = 45
     def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False, scatter=False ):
-        if not children:
-            children = list()
         self.damage_n = damage_n
         self.damage_d = damage_d
-        self.children = children
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
         self.anim = anim
         self.scale = scale
         self.hot_knife = hot_knife
@@ -892,11 +906,12 @@ class DoHealing( effects.NoEffect ):
     """ Whatever is in this tile is going to get healed. Maybe.
     """
     def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, repair_type=materials.RT_REPAIR ):
-        if not children:
-            children = list()
         self.damage_n = damage_n
         self.damage_d = damage_d
-        self.children = children
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
         self.anim = anim
         self.scale = scale
         self.repair_type = repair_type
@@ -1055,7 +1070,10 @@ class AddEnchantment( effects.NoEffect ):
         self.enchant_params = enchant_params
         self.dur_n = dur_n
         self.dur_d = dur_d
-        self.children = list(children)
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
         self.anim = anim
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         target = camp.scene.get_main_actor(pos)
