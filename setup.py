@@ -1,8 +1,9 @@
 from setuptools import setup, find_packages
 from Cython.Build import cythonize
+from main import VERSION
 
 setup(  name='ghcaramel',
-        version='0.100',
+        version=VERSION,
         py_modules=['main',],
         packages=find_packages(),
         include_package_data = True,
