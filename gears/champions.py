@@ -71,6 +71,22 @@ class UpgradeTheme( object ):
         else:
             return False
 
+    def install_sort_index(self, module):
+        # Like upgrade_sort_index, except modules that are
+        # candidates for insertion of things.
+        #
+        # By default, prioritize turrets, then tails, then
+        # arms, then everything else, because the most common
+        # thing to install is new weaponry.
+        if isinstance(module, base.Turret):
+            return 0
+        elif isinstance(module, base.Tail):
+            return 1
+        elif isinstance(module, base.Arm):
+            return 2
+        else:
+            return 3
+
     def attempt_install_item(self, module):
         # Called once for each module with non-zero free volume.
         # Do NOT insert the item in the module.sub_com!
@@ -94,6 +110,9 @@ class RandomTheme( UpgradeTheme ):
 
     def attempt_upgrade(self, holder, item, is_installed):
         return self._delegate.attempt_upgrade(holder, item, is_installed)
+
+    def install_sort_index(self, item):
+        return self._delegate.install_sort_index(item)
 
     def attempt_install_item(self, module):
         return self._delegate.attempt_install_item(module)
@@ -666,11 +685,12 @@ def upgrade_to_champion(mek, ThemeClass = RandomTheme):
             did_upgrade = True
 
     # Try to install items in modules.
-    for mod in _in_mek(mek):
-        if not isinstance(mod, base.Module):
-            continue
-        if mod.free_volume == 0:
-            continue
+    mods = [ mod for mod in _in_mek(mek)
+          if isinstance(mod, base.Module)
+         and mod.free_volume > 0
+           ]
+    mods.sort(key = theme.install_sort_index)
+    for mod in mods:
         item = theme.attempt_install_item(mod)
         if item and mod.can_install(item):
             _expand_desig(item, theme.name)
