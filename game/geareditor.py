@@ -1,5 +1,6 @@
 import pbge
 import gears
+from gears import champions
 import pygame
 import copy
 
@@ -989,7 +990,7 @@ class LetsEditSomeMeks(object):
     def _create_new_mecha(self):
         pass
 
-    def _edit_user_mecha(self):
+    def _select_mecha(self):
         mymenu = pbge.rpgmenu.Menu(-150,0,300,226,font=pbge.MEDIUMFONT)
         meklist = [m for m in gears.selector.DESIGN_LIST if isinstance(m,gears.base.Mecha)]
         for m in meklist:
@@ -999,6 +1000,18 @@ class LetsEditSomeMeks(object):
         if result:
             mymek = copy.deepcopy(result)
             mymek.colors = self.EDITOR_COLORS
+            return mymek
+        return None
+
+    def _edit_user_mecha(self):
+        mymek = self._select_mecha()
+        if mymek:
+            self.enter_the_editor(mymek)
+
+    def _edit_champion_mecha(self):
+        mymek = self._select_mecha()
+        if mymek:
+            champions.upgrade_to_champion(mymek)
             self.enter_the_editor(mymek)
 
     def enter_the_editor(self,mymek):
