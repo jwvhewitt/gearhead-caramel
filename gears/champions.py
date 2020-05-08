@@ -520,6 +520,104 @@ class SlasherTheme(UpgradeTheme):
 
         return item
 
+class FulminateTheme(UpgradeTheme):
+    name = 'Fulminate'
+
+    def __init__(self):
+        self._upgraded_weapons = False
+        self._have_ew = False
+
+    def pre_upgrade(self, mek, items):
+        self._have_ew = any([isinstance(i, base.EWSystem) for i in items])
+
+    def _upgrade_ew(self, item):
+        if item.size == len(gears.programs.ALL_PROGRAMS):
+            return False
+        # Get what program we can add.
+        candidates = [p for p in gears.programs.ALL_PROGRAMS if not p in item.programs]
+        item.size += 1
+        item.programs.append(random.choice(candidates))
+        return True
+
+    def _upgrade_eweapon(self, item):
+        # EnergyWeapon and BeamWeapon.
+        if attackattributes.OverloadAttack in item.attributes:
+            return False
+
+        if len(item.attributes) == 0:
+            item.attributes.append(attackattributes.Accurate)
+        item.attributes.append(attackattributes.OverloadAttack)
+
+        return True
+
+    def _upgrade_weapon(self, item):
+        # MeleeWeapon and BallisticWeapon
+        if isinstance(item, base.BallisticWeapon):
+            to_upgrade = item.get_ammo()
+        else:
+            to_upgrade = item
+
+        if attackattributes.HaywireAttack in to_upgrade.attributes:
+            return False
+
+        if len(item.attributes) == 0:
+            item.attributes.append(attackattributes.Accurate)
+
+        if attackattributes.OverloadAttack in to_upgrade.attributes:
+            to_upgrade.attributes.remove(attackattributes.OverloadAttack)
+            to_upgrade.attributes.append(attackattributes.HaywireAttack)
+        else:
+            to_upgrade.attributes.append(attackattributes.OverloadAttack)
+
+        return True
+
+    def _do_upgrade(self, item):
+        if isinstance(item, base.EWSystem):
+            return self._upgrade_ew(item)
+        elif isinstance(item, (base.EnergyWeapon, base.BeamWeapon)):
+            return self._upgrade_eweapon(item)
+        elif isinstance(item, (base.MeleeWeapon, base.BallisticWeapon)):
+            return self._upgrade_weapon(item)
+        return False
+
+    def attempt_upgrade(self, holder, item, is_installed):
+        if isinstance(item, (base.EWSystem, base.Weapon)):
+            if _try_upgrade(holder, item, is_installed, self._do_upgrade):
+                self._upgraded_weapons = True
+                return True
+            return False
+
+        if self._upgraded_weapons:
+            return super().attempt_upgrade(holder, item, is_installed)
+
+        return False
+
+    # Prioritize installing an EW in torso.
+    def install_sort_index(self, module):
+        if isinstance(module, base.Torso):
+            return 0
+        else:
+            return 1
+
+    def attempt_install_item(self, module):
+        if not self._upgraded_weapons:
+            return None
+        # We are only installing an EW.
+        if self._have_ew:
+            return None
+
+        size = min(4, module.free_volume, len(gears.programs.ALL_PROGRAMS))
+        programs = gears.programs.ALL_PROGRAMS.copy()
+        random.shuffle(programs)
+        item = base.EWSystem( name = 'Disruptor'
+                            , size = size
+                            , programs = programs
+                            )
+
+        self._have_ew = True
+
+        return item
+
 THEMES = [ t for t in UpgradeTheme.__subclasses__()
         if not t is RandomTheme
          ]
