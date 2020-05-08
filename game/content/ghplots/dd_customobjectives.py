@@ -144,12 +144,12 @@ class DDBAMO_ChampionsFromTheStars( Plot ):
         myfac = self.elements.get("ENEMY_FACTION")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
 
-        for i in range(1,4):
+        for i in range(4):
             mek = gears.selector.generate_ace(self.rank, myfac, myscene.environment)
             champions.upgrade_to_champion(mek)
             team2.contents.append(mek)
 
-            if i == 1:
+            if i == 0:
                 self.register_element("_commander", mek.get_pilot())
 
         self.obj = adventureseed.MissionObjective("Investigate the meteor", missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
