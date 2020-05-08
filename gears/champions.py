@@ -413,6 +413,11 @@ def _in_mek(mek):
 
 # Append the theme name to the gear designation.
 def _expand_desig(gear, name):
+    if isinstance(gear, base.Launcher):
+        ammo = gear.get_ammo()
+        if ammo:
+            _expand_desig(ammo, name)
+            return
     if not gear.desig or gear.desig == '':
         gear.desig = name
     else:
