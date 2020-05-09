@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 from Cython.Build import cythonize
+import numpy
 
 setup(  name='ghcaramel',
         version='0.100',
@@ -23,4 +24,5 @@ setup(  name='ghcaramel',
             'Pygame','numpy'
         ],
         ext_modules=cythonize("caramel-recolor-cython/pbgerecolor.pyx"),
+        include_dirs=[numpy.get_include()],
       )
