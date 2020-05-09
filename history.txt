@@ -1,3 +1,4 @@
+- Added longform mecha info panel
 - Invocations now consistently show their casting costs.
 - Can now remove all modules from a mecha without crashing the game.
 - Show more info on items in Field HQ and Shop.

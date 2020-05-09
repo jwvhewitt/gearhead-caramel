@@ -133,6 +133,32 @@ class PlaceACommander( Plot ):
 #  LOCALE: The location to be revealed.
 #  INTERESTING_POINT: A sentence describing what's interesting about the location.
 
+class EverybodyKnows( Plot ):
+    # Everybody but you, that is.
+    LABEL = "REVEAL_LOCATION"
+    active = True
+    scope = "METRO"
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        mygram["[News]"] = ["there's something unusual at {LOCALE}".format(**self.elements)]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        goffs.append(Offer(
+            msg="There's always been a bit of a mystery about {LOCALE}. {INTERESTING_POINT}".format(**self.elements),
+            context=ContextTag((context.INFO,)), effect=self._get_rumor,
+            subject=str(self.elements["LOCALE"]), data={"subject": str(self.elements["LOCALE"])}, no_repeats=True
+        ))
+        return goffs
+
+    def _get_rumor(self,camp):
+        camp.check_trigger("WIN", self)
+        missionbuilder.NewLocationNotification(self.elements["LOCALE"],self.elements["MISSION_GATE"])
+        self.end_plot(camp)
+
+
 class TruckerKnowledge( Plot ):
     LABEL = "REVEAL_LOCATION"
     active = True

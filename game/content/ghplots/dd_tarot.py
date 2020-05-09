@@ -92,6 +92,7 @@ class FactionCrimesProof(TarotCard):
 class FactionClue(TarotCard):
     TAGS = ()
     active = True
+    ONE_USE = True
 
     SOCKETS = (
         TarotSocket(
@@ -113,6 +114,7 @@ class FactionClue(TarotCard):
 class Atrocity(TarotCard):
     # Someone made a war crime.
     TAGS = (MT_CRIME,)
+    QOL = gears.QualityOfLife(stability=-3)
     active = True
 
     SIGNALS = (
