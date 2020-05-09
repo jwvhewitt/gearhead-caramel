@@ -351,7 +351,7 @@ class Explorer( object ):
             self.camp.fight.activate_foe( npc )
 
     CASUAL_SEARCH_CHECK = geffects.OpposedSkillRoll(stats.Perception, stats.Scouting, stats.Speed, stats.Stealth,
-                                                    on_success=True, on_failure=False, min_chance=10, max_chance=90)
+                                                    on_success=[True], on_failure=[], min_chance=10, max_chance=90)
 
     def update_npcs( self ):
         my_actors = self.scene.get_operational_actors()

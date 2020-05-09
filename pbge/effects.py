@@ -89,9 +89,10 @@ class Invocation( object ):
 class NoEffect( object ):
     """An effect that does nothing. Good for placing anims, superclass of the rest."""
     def __init__(self, children=(), anim=None ):
-        if not children:
-            children = list()
-        self.children = children
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
         self.anim = anim
 
     def handle_effect( self, camp, fx_record, originator, pos, anims, delay=0 ):

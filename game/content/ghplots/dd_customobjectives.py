@@ -11,6 +11,7 @@ from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
 from . import missionbuilder
+from gears import champions
 
 DDBAMO_DUEL_LANCEMATE = "DDBAMO_DuelLancemate"      # Custom Element: LMNPC
 DDBAMO_INVESTIGATE_METEOR = "DDBAMO_InvestigateMeteor"
@@ -134,6 +135,56 @@ class DDBAMO_HelpFromTheStars( Plot ):
                 npc = self.elements["NPC"]
                 ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.HELLO_STARTER)
 
+
+class DDBAMO_ChampionsFromTheStars( Plot ):
+    LABEL = DDBAMO_INVESTIGATE_METEOR
+    active = True
+    scope = "LOCALE"
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
+        myfac = self.elements.get("ENEMY_FACTION")
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+
+        for i in range(4):
+            mek = gears.selector.generate_ace(self.rank, myfac, myscene.environment)
+            champions.upgrade_to_champion(mek)
+            team2.contents.append(mek)
+
+            if i == 0:
+                self.register_element("_commander", mek.get_pilot())
+
+        self.obj = adventureseed.MissionObjective("Investigate the meteor", missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+        self.combat_entered = False
+        self.combat_finished = False
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if not self.combat_entered:
+            pbge.alert("As you approach the supposed crash site, it becomes clear what the meteor actually was: it's a cargo pod containing a few souped-up mecha. And the recipients of the delivery have already claimed it...")
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+            self.combat_entered = True
+
+    def _commander_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer( "[WHATAREYOUDOINGHERE] These mecha are ours."
+                           , context = ContextTag([context.ATTACK])
+                           ))
+        mylist.append(Offer( "[CHALLENGE]"
+                           , context = ContextTag([context.CHALLENGE])
+                           ))
+        return mylist
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp, 100)
+            if not self.combat_finished:
+                pbge.alert("You stopped the delivery of modified mecha.")
+                self.combat_finished = True
 
 class DDBAMO_CargoFromTheStars( Plot ):
     LABEL = DDBAMO_INVESTIGATE_METEOR
