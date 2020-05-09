@@ -292,5 +292,14 @@ class EnterTownLanceRecovery(object):
                     nart.story.start_recovery(camp)
                     self.did_recovery = True
 
+DZSPOT_PART_ONE = ("Deadly","Bone","Dead Man's","Toxic","Haunted","Forsaken","Whispering","Shivering","Thousand Rad")
+DZSPOT_PART_TWO = ("Ruins","Quarry","Gulch","Valley","Mountain","Radzone","Necropolis","Brook","Lake","Dustbowl","Point")
+def random_deadzone_spot_name():
+    if random.randint(1,4) != 1:
+        A = random.choice(DZSPOT_PART_ONE)
+    else:
+        A = gears.selector.DEADZONE_TOWN_NAMES.gen_word()
+    B = random.choice(DZSPOT_PART_TWO)
+    return "{} {}".format(A,B)
 
 

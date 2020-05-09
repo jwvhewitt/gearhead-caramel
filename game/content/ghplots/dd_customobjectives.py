@@ -14,7 +14,9 @@ from . import missionbuilder
 
 DDBAMO_DUEL_LANCEMATE = "DDBAMO_DuelLancemate"      # Custom Element: LMNPC
 DDBAMO_INVESTIGATE_METEOR = "DDBAMO_InvestigateMeteor"
+DDBAMO_INVESTIGATE_REFUGEE_CAMP = "DDBAMO_INVESTIGATE_REFUGEE_CAMP"
 DDBAMO_MAYBE_AVOID_FIGHT = "DDBAMO_MaybeAvoidFight"
+
 
 class DDBAMO_PracticeDuel( Plot ):
     LABEL = DDBAMO_DUEL_LANCEMATE
@@ -193,6 +195,35 @@ class DDBAMO_CargoFromTheStars( Plot ):
             if not self.combat_finished:
                 pbge.alert("You have captured the cargo.")
                 self.combat_finished = True
+
+
+class BAM_InvestigateRefugeeCamp(Plot):
+    LABEL = DDBAMO_INVESTIGATE_REFUGEE_CAMP
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        enemy_room = self.register_element("ROOM", roomtype(15, 15), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        myunit = gears.selector.RandomMechaUnit(self.rank, 100, myfac, myscene.environment, add_commander=True)
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Investigate refugee camp", adventureseed.MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+        enemy_room.contents.append(ghwaypoints.SmokingWreckage())
+        enemy_room.contents.append(ghwaypoints.SmokingWreckage())
+
+        self.intro_ready = True
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            self.intro_ready = False
+            self.obj.win(camp, 100)
 
 
 class DDBAMO_SkilledAvoidance( Plot ):

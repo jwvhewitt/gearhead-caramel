@@ -90,6 +90,7 @@ class Village(Singleton):
 class City(Singleton):
     name = "City"
 
+SCENE_BUILDING = "BUILDING"
 SCENE_PUBLIC = "PUBLIC"
 SCENE_SHOP = "SHOP"
 SCENE_GARAGE = "GARAGE"

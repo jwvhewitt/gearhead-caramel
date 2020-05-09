@@ -545,6 +545,7 @@ class ItemStatsBlock(object):
         self.model = model
         self.width = width
         self.font = font or pbge.MEDIUMFONT
+        self.linesize = self.font.get_linesize()
         if hasattr(model,"get_item_stats"):
             self.height = self.font.get_linesize() * len(self.model.get_item_stats())
         else:
@@ -556,6 +557,8 @@ class ItemStatsBlock(object):
             for k,v in self.model.get_item_stats():
                 pbge.draw_text(self.font,"{}:".format(k),mydest_k,pbge.INFO_GREEN,justify=1)
                 pbge.draw_text(self.font,v,mydest_v,pbge.INFO_HILIGHT,justify=-1)
+                mydest_k.y += self.linesize
+                mydest_v.y += self.linesize
 
 class WeaponSkillBlock( object ):
     def __init__(self,model,width=220,font=None,**kwargs):
@@ -598,55 +601,6 @@ class ProgramsBlock( ItemsListBlock ):
         programs = self.model.programs
         return [program.name for program in programs]
 
-class GenericStatsBlock( object ):
-    # Tuple of strings.
-    DEFAULT_STATS = ()
-    def __init__(self, model, stats = None, width = 220, font = None, color = None, **kwargs):
-        self.model = model
-        self.width = width
-        self.font = font or pbge.MEDIUMFONT
-        self.color = color or pbge.INFO_GREEN
-        if stats:
-            self.stats = list(stats)
-        else:
-            self.stats = list(self.DEFAULT_STATS)
-
-        self.linesize = max(self.font.get_linesize(), 16)
-        self.height = len(self.stats) * self.linesize
-    # Must be overridden in your derived class.
-    # This shold return a string, given a particular string stat.
-    def stat_lookup(self, stat):
-        raise RuntimeError("GenericStatsBlock.stat_lookup called!")
-    def render(self, x, y):
-        labelwidth = self.width // 2
-        valuex = self.width // 2 + 16
-        valuewidth = self.width // 2 - 16
-        for i,stat in enumerate(self.stats):
-            labeldest = pygame.Rect(x, y + i * self.linesize, labelwidth, self.linesize)
-            pbge.draw_text(self.font, '{}: '.format(stat), labeldest, justify = 1, color = self.color)
-            value = str(self.stat_lookup(stat))
-            valuedest = pygame.Rect(x + valuex, y + i * self.linesize, valuewidth, self.linesize)
-            pbge.draw_text(self.font, value, valuedest, justify = -1, color = self.color)
-
-class SizeBlock( GenericStatsBlock ):
-    label = "Size"
-    def __init__(self, **kwargs):
-        super().__init__(stats = [self.label], **kwargs)
-    def stat_lookup(self, stat):
-        # Only one stat to show, so...
-        return self.model.size
-
-class EngineSizeBlock( SizeBlock ):
-    label = "Rating"
-
-class CyberwareStatsBlock( GenericStatsBlock ):
-    DEFAULT_STATS = ('Location', 'Trauma/Sta')
-    def stat_lookup(self, stat):
-        if stat is 'Location':
-            return self.model.location
-        elif stat == 'Trauma/Sta':
-            return self.model.trauma
-
 class CyberwareStatlineBlock( ItemsListBlock ):
     def get_items(self):
         items = list()
@@ -656,6 +610,10 @@ class CyberwareStatlineBlock( ItemsListBlock ):
                 continue
             items.append('{} {:+}'.format(stat.name, value))
         return items
+
+class SubComsBlock( ItemsListBlock ):
+    def get_items(self):
+        return [item.name for item in list(self.model.sub_com)]
 
 class HostilityStatusBlock(object):
     def __init__(self,model,width=220,font=None,scene=None,**kwargs):
@@ -694,7 +652,7 @@ class ListDisplay( InfoPanel ):
 
 
 class ItemIP(InfoPanel):
-    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, DescBlock)
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ItemStatsBlock, DescBlock)
 
 class WeaponIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, WeaponStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock, DescBlock)
@@ -703,13 +661,13 @@ class LauncherIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeBlock, LauncherStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock, DescBlock)
 
 class EWSystemIP(InfoPanel):
-    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ProgramsBlock, DescBlock)
-
-class EngineIP(InfoPanel):
-    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, EngineSizeBlock, DescBlock)
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ItemStatsBlock, ProgramsBlock, DescBlock)
 
 class CyberwareIP(InfoPanel):
-    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, CyberwareStatsBlock, CyberwareStatlineBlock, DescBlock)
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ItemStatsBlock, CyberwareStatlineBlock, DescBlock)
+
+class ShieldIP(InfoPanel):
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ItemStatsBlock, SubComsBlock, DescBlock)
 
 class ShortItemIP(InfoPanel):
     DEFAULT_BLOCKS = (DescBlock,)
@@ -736,10 +694,10 @@ def get_longform_display(model,**kwargs):
         return LauncherIP(model=model, **kwargs)
     elif isinstance(model, base.EWSystem):
         return EWSystemIP(model=model, **kwargs)
-    elif isinstance(model, base.Engine):
-        return EngineIP(model=model, **kwargs)
     elif isinstance(model, base.BaseCyberware):
         return CyberwareIP(model = model, **kwargs)
+    elif isinstance(model, base.Shield):
+        return ShieldIP(model = model, **kwargs)
     else:
         return ItemIP(model=model,**kwargs)
 

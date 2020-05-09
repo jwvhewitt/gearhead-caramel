@@ -212,8 +212,8 @@ class Shop(object):
         mymenu.add_alpha_keys()
         mymenu.add_item("Exit", False)
 
-        mymenu.quick_keys[pygame.K_LEFT] = -1
-        mymenu.quick_keys[pygame.K_RIGHT] = 1
+        #mymenu.quick_keys[pygame.K_LEFT] = -1
+        #mymenu.quick_keys[pygame.K_RIGHT] = 1
         return mymenu
 
     def improve_friendliness(self, camp, item, modifier=0):
@@ -284,8 +284,8 @@ class Shop(object):
         mymenu.add_alpha_keys()
         mymenu.add_item("Exit", False)
 
-        mymenu.quick_keys[pygame.K_LEFT] = -1
-        mymenu.quick_keys[pygame.K_RIGHT] = 1
+        #mymenu.quick_keys[pygame.K_LEFT] = -1
+        #mymenu.quick_keys[pygame.K_RIGHT] = 1
         return mymenu
 
     def calc_sale_price(self, camp, it):

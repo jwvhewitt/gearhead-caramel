@@ -2,50 +2,152 @@ import pbge
 from pbge import plots
 import random
 import inspect
-from . import GHNarrativeRequest, PLOT_LIST
+from . import GHNarrativeRequest, PLOT_LIST, CARDS_BY_NAME
 
 ME_TAROTPOSITION = "TAROT_POSITION"
 ME_AUTOREVEAL = "ME_AUTOREVEAL" # If this element is True, card is generated during adventure + doesn't need full init
+ME_SOCKET = "ME_SOCKET"
+ME_CARD = "ME_CARD"
+
+CONSEQUENCE_WIN = "Consequence_Win"
+CONSEQUENCE_LOSE = "Consequence_Lose"
 
 # Action Trigger Keys
 # These store functions that get called to generate dialogue, alter puzzle menus, or whatever
 # when an interaction is activated.
 AT_GET_DIALOGUE_OFFERS = "AT_GET_DIALOGUE_OFFERS"
-# Params: alpha_card, beta_card, npc, camp, interaction
+# Params: this_card, other_card, npc, camp, interaction
 # Returns: list of offers for npc
 AT_ALTER_ALPHA_PUZZLE_MENU = "AT_ALTER_ALPHA_PUZZLE_MENU"
 AT_ALTER_BETA_PUZZLE_MENU = "AT_ALTER_BETA_PUZZLE_MENU"
 # The key is (AT_ALTER_[x]_PUZZLEMENU,puzzle_item_element_id)
-# Params: alpha_card,beta_card,camp,thing,thingmenu,interaction
+# Params: this_card,other_card,camp,thing,thingmenu,interaction
 
 # For every signal that a tarot card can catch, it should spawn a listener plot to listen for
 # the signal and to call the consequence/fail state depending on what happens.
 
 
+class ElementPasser(dict):
+    def __init__(self,*args):
+        # Initialize this dict with a list of element names to be passed with the signal.
+        # The keys are the element names given to the socket, the values are the names from
+        # the sending tarot card. If you pass a tuple, index 0 is the name passed to the
+        # socket and index 1 is the element name from the sending plot. Otherwise these are
+        # assumed to be the same.
+        super().__init__()
+        for arg in args:
+            if isinstance(arg,tuple):
+                self[arg[0]] = arg[1]
+            else:
+                self[arg] = arg
+    def get_elements(self,card):
+        passdict = dict()
+        for k,v in self.items():
+            passdict[k] = card.elements.get(v,None)
+        return passdict
+
+
 class TarotSignal(object):
     def __init__(self,signal_type,signal_elements=()):
         self.signal_type = signal_type
-        self.signal_elements = list(signal_elements)
+        self.signal_elements = ElementPasser(*signal_elements)
+    def loosely_matches(self,other_sig):
+        # Returns True if other_sig provides all the element names sought by this signal.
+        return self.signal_type == other_sig.signal_type and all(k in other_sig.signal_elements for k in self.signal_elements.keys())
+    def get_real_elements(self,card):
+        my_ele = dict()
+        for k,v in self.signal_elements.items():
+            my_ele[k] = card.elements.get(v)
+        return my_ele
+    def matches(self,sig_card,socket_sig,socket_elements):
+        my_ele = self.get_real_elements(sig_card)
+        return self.signal_type == socket_sig.signal_type and all(my_ele.get(k) == socket_elements.get(k) for k in socket_elements.keys())
 
-
-class TarotInteraction(object):
-    def __init__(self,signal_sought):
+class TarotSocket(object):
+    # Each interaction held by a tarot card needs a listener plot.
+    def __init__(self,listener_type,signal_sought,consequences=None):
+        self.listener_type = listener_type
         self.signal_sought = signal_sought
+        self.consequences = dict()
+        if consequences:
+            self.consequences.update(consequences)
 
+    def list_possible_outcomes(self):
+        return [con.new_card_name for con in self.consequences.values() if hasattr(con,"new_card_name")]
 
+    def get_potential_signals(self, original_card, target_type):
+        # Return True if one of original_card's signals can activate this socket, and if the target_type
+        # is found as one of this socket's consequences.
+        if target_type in self.list_possible_outcomes():
+            return [sig for sig in original_card.SIGNALS if self.signal_sought.loosely_matches(sig)]
+
+    def get_activating_signals(self,card,camp):
+        # Return a list of (card,signal) tuples that activate this socket.
+        actsig = list()
+        if card.visible:
+            socket_ele = self.signal_sought.get_real_elements(card)
+            for other_card in camp.active_tarot_cards():
+                if other_card.visible:
+                    for sig in other_card.SIGNALS:
+                        if sig.matches(other_card,self.signal_sought,socket_ele):
+                            # A connection is made!
+                            actsig.append((other_card,sig))
+        return actsig
+
+class TarotTransformer(object):
+    # One possible consequence of a tarot interaction.
+    def __init__(self, new_card_name, this_card_params=(), other_card_params=()):
+        # new_card_name is the name of the tarot card to transform this card to
+        # this_card_params is a list of parameters to copy from the this_card (the card this interaction belongs to)
+        # other_card_params is a list of parameters to copy from the other_card (the card triggering this interaction)
+        self.new_card_name = new_card_name
+        self.this_card_params = this_card_params
+        self.other_card_params = other_card_params
+    def __call__(self, camp, this_card, other_card=None):
+        """
+
+        :type this_card: TarotCard
+        """
+        nart = GHNarrativeRequest(camp, plot_list=PLOT_LIST)
+        pstate = pbge.plots.PlotState()
+        pstate.elements[ME_AUTOREVEAL] = True
+        pstate.rank = this_card.rank
+        if self.this_card_params:
+            for pp in self.this_card_params:
+                pstate.elements[pp] = this_card.elements.get(pp)
+        if self.other_card_params and other_card:
+            for pp in self.other_card_params:
+                pstate.elements[pp] = other_card.elements.get(pp)
+        newcard = nart.request_tarot_card_by_name(self.new_card_name, pstate)
+        if not newcard:
+            pbge.alert("New tarot card failed for {}".format(self.new_card_name))
+        else:
+            newcard.tarot_position = this_card.tarot_position
+            nart.story.visible = True
+            nart.build()
+            if other_card:
+                other_card.invoke(camp,this_card)
+            this_card.end_plot(camp)
 
 class TarotCard(plots.Plot):
     LABEL = "TAROT"
     UNIQUE = False
-    SCOPE = "METRO"
+    scope = "METRO"
     TAGS = ()
-    INTERACTIONS = ()
+    SIGNALS = ()
+    SOCKETS = ()
     NEGATIONS = ()
+    ONE_USE = False
 
     def __init__(self, nart, pstate):
         self.tarot_position = pstate.elements.get(ME_TAROTPOSITION,None)
         self.visible = False
         super().__init__(nart, pstate)
+
+        # Add the socket-listeners
+        for sock in self.SOCKETS:
+            if sock.listener_type:
+                self.add_sub_plot(nart,sock.listener_type,spstate=plots.PlotState(elements={ME_SOCKET:sock,ME_CARD:self}).based_on(self))
 
     def get_negations(self, num_neg=2):
         # Return a list of tarot cards that this card can turn into to negate itself.
@@ -54,61 +156,19 @@ class TarotCard(plots.Plot):
         except ValueError:
             return list(self.NEGATIONS)
 
-    def get_dialogue_offers(self, npc, camp):
-        """Get any dialogue offers this plot has for npc."""
-        # Start with the basic offers.
-        ofrz = super(TarotCard, self).get_dialogue_offers(npc, camp)
-        # Check the interactions for any further offers.
-        if self.visible and npc:
-            for interac in self.INTERACTIONS:
-                ofrz += interac.get_interaction_dialogue_offers(npc, camp, self)
-        return ofrz
-
-    def modify_puzzle_menu( self, camp, thing, thingmenu ):
-        """Modify the thingmenu based on this plot."""
-        # Method [ELEMENTID]_menu will be called with the menu as parameter.
-        # This method should modify the menu as needed- typically by altering
-        # the "desc" property (menu caption) and adding menu items.
-        super(TarotCard,self).modify_puzzle_menu(camp,thing,thingmenu)
-        if self.visible:
-            for interac in self.INTERACTIONS:
-                interac.modify_interaction_puzzle_menu(camp, thing, thingmenu, self)
-
     def reveal(self,camp):
         self.visible = True
         camp.check_trigger("UPDATE")
 
-class CardTransformer(object):
-    def __init__(self,new_card_name,alpha_params=(),beta_params=()):
-        # new_card_name is the name of the tarot card to transform this card to
-        # alpha_params is a list of parameters to copy from the alpha_card (the card this interaction belongs to)
-        # beta_params is a list of parameters to copy from the beta_card (the card triggering this interaction)
-        self.new_card_name = new_card_name
-        self.alpha_params = alpha_params
-        self.beta_params = beta_params
-    def __call__(self,camp,alpha_card,beta_card=None,transform_card=None):
-        """
+    def invoke(self,camp,other_card):
+        # This tarot card has been invoked. Deal with it.
+        if self.ONE_USE:
+            self.end_plot(camp)
 
-        :type alpha_card: TarotCard
-        """
-        nart = GHNarrativeRequest(camp, plot_list=PLOT_LIST)
-        pstate = pbge.plots.PlotState()
-        pstate.elements[ME_AUTOREVEAL] = True
-        pstate.rank = alpha_card.rank
-        if self.alpha_params:
-            for pp in self.alpha_params:
-                pstate.elements[pp] = alpha_card.elements.get(pp)
-        if self.beta_params and beta_card:
-            for pp in self.beta_params:
-                pstate.elements[pp] = beta_card.elements.get(pp)
-        if transform_card:
-            pstate.elements[ME_TAROTPOSITION] = transform_card.elements[ME_TAROTPOSITION]
-        newcard = nart.request_tarot_card_by_name(self.new_card_name, pstate)
-        if not newcard:
-            pbge.alert("New tarot card failed for {}".format(self.new_card_name))
-        else:
-            nart.story.visible = True
-            nart.build()
+    def REVEAL_WIN(self,camp):
+        # Always add reveal plots with the ID "REVEAL" so this will work.
+        self.reveal(camp)
+
 
 class CardDeactivator(object):
     # Uses the same signature as the above, but only deactivates the card.
@@ -120,36 +180,6 @@ class CardDeactivator(object):
         if transform_card:
             transform_card.active = False
 
-
-class Consequence(object):
-    # An object that handles the transformation of tarot cards.
-    def __init__(self,alpha_card_tf=None,beta_card_tf=None,new_card_tf=None):
-        self.alpha_card_tf = alpha_card_tf
-        self.beta_card_tf = beta_card_tf
-        self.new_card_tf = new_card_tf
-    def get_transform_for(self,target_card_name):
-        if self.alpha_card_tf and self.alpha_card_tf.new_card_name == target_card_name:
-            return self.alpha_card_tf
-        elif self.beta_card_tf and self.beta_card_tf.new_card_name == target_card_name:
-            return self.beta_card_tf
-        elif self.new_card_tf and self.new_card_tf.new_card_name == target_card_name:
-            return self.new_card_tf
-
-    def __call__(self,camp,alpha_card,beta_card=None):
-        end_these_plots = list()
-
-        if self.alpha_card_tf:
-            self.alpha_card_tf(camp, alpha_card, beta_card, alpha_card)
-            end_these_plots.append(alpha_card)
-        if self.beta_card_tf:
-            self.beta_card_tf(camp, alpha_card, beta_card, beta_card)
-            if beta_card:
-                end_these_plots.append(beta_card)
-        if self.new_card_tf:
-            self.new_card_tf(camp, alpha_card, beta_card, None)
-
-        for p in end_these_plots:
-            p.end_plot(camp)
 
 class CardCaller(object):
     # A utility class for calling consequences along with their cards.
@@ -165,77 +195,6 @@ class CardCaller(object):
     def __call__(self,camp):
         self.camp_card_fun(camp, self.alpha, self.beta, **self.kwargs)
 
-class Interaction(object):
-    def __init__(self, card_checker=None, action_triggers=None, consequences=None):
-        # The card_checker is an object that can determine if a given card or the current game state will trigger this interaction
-        # The action_triggers are functions called in various situations to activate this interaction
-        self.card_checker = card_checker
-        self.action_triggers = dict()
-        if action_triggers:
-            self.action_triggers.update(action_triggers)
-        self.consequences = dict()
-        if consequences:
-            self.consequences.update(consequences)
-
-    def maybe_activated_by(self, card_to_check):
-        if self.card_checker:
-            return self.card_checker.check(card_to_check)
-
-    def can_change_card_to_target(self, card_to_change, target_card):
-        # Return a list of consequences that will turn card_to_change into target_card, ignoring fail states
-        mycon = list()
-        if self.maybe_activated_by(card_to_change):
-            for k,v in list(self.consequences.items()):
-                if not k.startswith("_"):
-                    if v.beta_card_tf and v.beta_card_tf.new_card_name == target_card:
-                        mycon.append(v)
-        return mycon
-
-    def can_change_self_to_target(self, reaction_card, target_card):
-        # Return a list of consequences that will turn self into target_card, ignoring fail states
-        mycon = list()
-        if self.maybe_activated_by(reaction_card):
-            for k,v in list(self.consequences.items()):
-                if not k.startswith("_"):
-                    if v.alpha_card_tf and v.alpha_card_tf.new_card_name == target_card:
-                        mycon.append(v)
-        return mycon
-
-    def can_produce_target(self, target_card):
-        mycon = list()
-        for k,v in list(self.consequences.items()):
-            if isinstance(v,CardTransformer) and not k.startswith("_"):
-                if (v.alpha_card_tf and v.alpha_card_tf.new_card_name == target_card) or (v.beta_card_tf and v.beta_card_tf.new_card_name == target_card) or (v.new_card_tf and v.new_card_tf.new_card_name == target_card):
-                    mycon.append(v)
-        return mycon
-
-
-    def get_interaction_dialogue_offers(self, npc, camp, alpha_card):
-        ofrz = list()
-        if AT_GET_DIALOGUE_OFFERS in self.action_triggers:
-            for beta_card in camp.active_tarot_cards():
-                if beta_card.visible and self.maybe_activated_by(beta_card):
-                    ofrz += self.action_triggers[AT_GET_DIALOGUE_OFFERS](alpha_card, beta_card=beta_card, npc=npc, camp=camp, interaction=self)
-        return ofrz
-
-    def modify_interaction_puzzle_menu( self, camp, thing, thingmenu, alpha_card ):
-        for beta_card in camp.active_tarot_cards():
-            if beta_card.visible and self.maybe_activated_by(beta_card):
-                for el_name in alpha_card.get_element_idents(thing):
-                    if (AT_ALTER_ALPHA_PUZZLE_MENU,el_name) in self.action_triggers:
-                        self.action_triggers[(AT_ALTER_ALPHA_PUZZLE_MENU,el_name)](alpha_card,beta_card=beta_card,camp=camp,thing=thing,thingmenu=thingmenu,interaction=self)
-                for el_name in beta_card.get_element_idents(thing):
-                    if (AT_ALTER_BETA_PUZZLE_MENU,el_name) in self.action_triggers:
-                        self.action_triggers[(AT_ALTER_BETA_PUZZLE_MENU,el_name)](alpha_card,beta_card=beta_card,camp=camp,thing=thing,thingmenu=thingmenu,interaction=self)
-
-    def invoke(self, alpha_card, beta_card, camp, consequence):
-        if consequence in self.consequences:
-            self.consequences[consequence](camp,alpha_card,beta_card)
-        else:
-            print("Error: No consequence {}".format(consequence))
-
-
-
 
 
 class ProtoCard(object):
@@ -247,8 +206,12 @@ class ProtoCard(object):
 
 
 class Constellation(object):
-    def __init__(self, nart, root_plot, root_card, dest_card_class=None, steps=3):
+    # TODO: Tarot signals/sockets can pass elements by different names. The Constellation assumes any given element
+    # will always be known by the same name. At some point in time this will have to be fixed. Right now I am not
+    # 100% sure how. Oh well.
+    def __init__(self, nart, root_plot, root_card, dest_card_name=None, steps=3):
         self.element_lookup = dict()
+        dest_card_class = CARDS_BY_NAME[dest_card_name]
         if dest_card_class:
             possible_cards = self.get_protocards_that_change_this_one(root_card, dest_card_class.__name__, nart)
         else:
@@ -272,9 +235,9 @@ class Constellation(object):
                             if elem:
                                 self.element_lookup[v] = elem
 
-    def inherit_elements(self, source_proto, dest_proto, element_list):
-        if element_list:
-            for ekey in element_list:
+    def inherit_elements(self, source_proto, dest_proto, element_keys):
+        if element_keys:
+            for ekey in element_keys:
                 if ekey in dest_proto.elements:
                     pass
                 elif ekey in source_proto.elements:
@@ -293,26 +256,16 @@ class Constellation(object):
         mylist = list()
         original_proto = ProtoCard(original_card)
         for tc in nart.plot_list[original_card.LABEL]:
-            for inter in tc.INTERACTIONS:
-                mycon = inter.can_change_card_to_target(original_card,target_type)
-                if mycon:
+            for sock in original_card.SOCKETS:
+                signals = sock.get_potential_signals(tc,target_type)
+                if signals:
                     # Create a protocard for the target card created by this interaction.
                     tarproto = ProtoCard(target_type)
                     myproto = ProtoCard(tc)
-                    for conseq in mycon:
-                        self.inherit_elements(original_proto, tarproto, conseq.beta_card_tf.beta_params)
-                        self.inherit_elements(tarproto, myproto, conseq.beta_card_tf.alpha_params)
-                    self.inherit_elements(original_proto, myproto, inter.card_checker.needed_elements)
-                    mylist.append(myproto)
-            for inter in original_card.INTERACTIONS:
-                mycon = inter.can_change_self_to_target(tc, target_type)
-                if mycon:
-                    tarproto = ProtoCard(target_type)
-                    myproto = ProtoCard(tc)
-                    for conseq in mycon:
-                        self.inherit_elements(original_proto, tarproto, conseq.alpha_card_tf.alpha_params)
-                        self.inherit_elements(tarproto, myproto, conseq.alpha_card_tf.beta_params)
-                    self.inherit_elements(original_proto, myproto, inter.card_checker.needed_elements)
+                    for sig in signals:
+                        self.inherit_elements(original_proto, tarproto, sig.signal_elements.keys())
+                        self.inherit_elements(tarproto, myproto, sig.signal_elements.keys())
+                    self.inherit_elements(original_proto, myproto, sock.signal_sought.signal_elements.keys())
                     mylist.append(myproto)
         return mylist
 
@@ -321,26 +274,24 @@ class Constellation(object):
         candidates = list()
         for card_a in nart.plot_list[original_proto.card.LABEL]:
             # Check card_a for interactions that produce this card.
-            for inter in card_a.INTERACTIONS:
-                allcons = inter.can_produce_target(original_proto.card.__name__)
-                if allcons:
+            for sock in card_a.SOCKETS:
+                if original_proto.card.__name__ in sock.list_possible_outcomes():
                     # This is a potential card.
                     pair_cards = [card for card in nart.plot_list[original_proto.card.LABEL] if
-                                  inter.maybe_activated_by(card)]
+                                  sock.get_potential_signals(card,original_proto.card.__name__)]
                     if pair_cards:
                         card_b = random.choice(pair_cards)
-                        mycon = random.choice(allcons)
-                        mytransform = mycon.get_transform_for(original_proto.card.__name__)
+                        mysignal = random.choice(sock.get_potential_signals(card_b,original_proto.card.__name__))
                         proto_a = ProtoCard(card_a)
                         proto_b = ProtoCard(card_b)
                         # We are only worrying about the original_proto product here; any other products of this
                         # interaction don't matter.
                         self.inherit_elements(original_proto, proto_a,
-                                              mytransform.alpha_params)
+                                              mysignal.signal_elements.keys())
                         self.inherit_elements(original_proto, proto_b,
-                                              mytransform.beta_params)
-                        self.inherit_elements(proto_a, proto_b, inter.card_checker.needed_elements)
-                        self.inherit_elements(proto_b, proto_a, inter.card_checker.needed_elements)
+                                              mysignal.signal_elements.keys())
+                        self.inherit_elements(proto_a, proto_b, sock.signal_sought.signal_elements.keys())
+                        self.inherit_elements(proto_b, proto_a, sock.signal_sought.signal_elements.keys())
                         candidates.append((proto_a, proto_b))
         if candidates:
             return random.choice(candidates)

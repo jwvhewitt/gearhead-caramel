@@ -466,9 +466,11 @@ class DashFactory( object ):
         mydust = DustCloud(pos=self.dasher.pos,delay=2)
         return AnimBox([mydash,mydust])
 
+class FlyingHammer( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_s_hammer.png"
+
 class ReturningHammer(ReturnAnim):
-    # TODO: Implement an actual flying hammer animation.
-    BASE_ANIM = HugeBullet
+    BASE_ANIM = FlyingHammer
 
 # A curated list for the gear editor.
 SHOT_ANIMS = (SmallBullet,BigBullet,HugeBullet,SmallBeam,GunBeam,Missile1,Missile2,Missile3,Missile4,Missile5,ReturningHammer)

@@ -74,8 +74,8 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")
 
         # Add the local tarot.
-        #threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), spstate = pbge.plots.PlotState(rank=15).based_on(self))
-        #game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
+        threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), spstate = pbge.plots.PlotState(rank=15).based_on(self))
+        game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
 
         # Local info counters.
         self.local_info = (
@@ -158,7 +158,7 @@ class DZD_BronzeHorseInn(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = self.register_element("FOYER_TEAM", teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(50, 35, "Bronze Horse Inn", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_MEETING),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.ResidentialBuilding())
@@ -392,7 +392,7 @@ class DZD_BlueFortressHQ(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Blue Fortress", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BASE),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_BASE),
                                        scale=gears.scale.HumanScale, faction=factions.TerranDefenseForce)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.DefaultBuilding())
@@ -498,7 +498,7 @@ class DZD_AlliedArmor(Plot):
         team2 = teams.Team(name="Civilian Team", allies=(team1,))
         intscene = gears.GearHeadScene(50, 40, "Allied Armor", player_team=team1, civilian_team=team2,
                                        attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_SHOP, gears.tags.SCENE_GARAGE),
+                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP, gears.tags.SCENE_GARAGE),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
@@ -637,7 +637,7 @@ class DZD_WujungTires(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Wujung Tires", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_SHOP),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
@@ -692,7 +692,7 @@ class DZD_EliteEquipment(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Elite Equipment", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_SHOP),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
@@ -748,7 +748,7 @@ class DZD_WujungHospital(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = self.register_element("CIV_TEAM",teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(35, 35, "Wujung Hospital", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_HOSPITAL),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
@@ -940,7 +940,7 @@ class DZD_LongRoadLogistics(Plot):
         team2 = self.register_element("CIV_TEAM",teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(50, 50, "Long Road Logistics", player_team=team1, civilian_team=team2,
                                        attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE, gears.tags.SCENE_TRANSPORT),
+                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE, gears.tags.SCENE_BUILDING, gears.tags.SCENE_TRANSPORT),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())

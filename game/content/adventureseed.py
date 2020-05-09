@@ -87,7 +87,7 @@ class AdventureSeed(Adventure):
         else:
             return "S"
     def is_completed(self):
-        return all([(o.optional or o.awarded_points > 0 or o.failed) for o in self.objectives])
+        return self.started and all([(o.optional or o.awarded_points > 0 or o.failed) for o in self.objectives])
 
 
     def restore_party(self, camp):

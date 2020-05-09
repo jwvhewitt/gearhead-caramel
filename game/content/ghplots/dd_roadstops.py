@@ -210,7 +210,7 @@ class DemocraticOrder(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
         intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GOVERNMENT),
+                                       attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
@@ -282,7 +282,7 @@ class MilitaryOrder(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
         intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GOVERNMENT),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.FortressBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
@@ -355,7 +355,7 @@ class TechnocraticOrder(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
         intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GOVERNMENT),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding(floor_terrain=ghterrain.WhiteTileFloor))
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
@@ -420,7 +420,7 @@ class VaultOrder(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
         intscene = gears.GearHeadScene(35, 35, "Fallout Shelter", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GOVERNMENT, gears.tags.SCENE_RUINS),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT, gears.tags.SCENE_RUINS),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
@@ -489,7 +489,7 @@ class SomewhatOkayGarage(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, garage_name, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ScrapIronWorkshop())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
@@ -553,7 +553,7 @@ class FranklyBoringGarage(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, garage_name, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ScrapIronWorkshop())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
@@ -621,7 +621,7 @@ class DeadzoneClinic(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, myname, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_HOSPITAL),
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.HospitalBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
