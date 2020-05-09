@@ -41,6 +41,14 @@ class NewMissionNotification(pbge.BasicNotification):
             text = 'New mission "{}" added.'.format(mission_name)
         super().__init__(w=400, text=text, count=160)
 
+class NewLocationNotification(pbge.BasicNotification):
+    def __init__(self, mission_name, mission_gate=None):
+        if mission_gate:
+            text = 'New location "{}" added to {}.'.format(mission_name, mission_gate.name)
+        else:
+            text = 'New location "{}" added.'.format(mission_name)
+        super().__init__(w=400, text=text, count=160)
+
 
 class BuildAMissionSeed(adventureseed.AdventureSeed):
     # adv_return: a tuple containing the (scene,entrance) to go to when the mission is over.
@@ -49,7 +57,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
     def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, rank=None, objectives=(),
                  adv_type="BAM_MISSION", custom_elements=None, auto_exit=False,
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone(),
-                 cash_reward=100, experience_reward=100, salvage_reward=True,
+                 cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  one_chance=True, data=None, win_message="", loss_message="", **kwargs):
         cms_pstate = pbge.plots.PlotState(adv=self, rank=rank or max(camp.pc.renown + 1, 10))
 
@@ -76,6 +84,9 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         if data:
             self.data.update(data)
 
+        self.on_win = on_win
+        self.on_loss = on_loss
+
         super().__init__(camp, name, adv_type=adv_type, adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False,
                          **kwargs)
 
@@ -88,6 +99,10 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.rewards.append(adventureseed.RenownReward())
 
     def end_adventure(self, camp):
+        if self.on_win and self.is_won():
+            self.on_win(camp)
+        elif self.on_loss and not self.is_won():
+            self.on_loss(camp)
         super(BuildAMissionSeed, self).end_adventure(camp)
         camp.day += 1
 

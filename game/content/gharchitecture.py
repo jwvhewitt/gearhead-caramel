@@ -21,6 +21,10 @@ class MysteryDungeonDecor(OmniDec):
     WALL_DECOR = (ghterrain.BlueTorchTerrain,)
     WALL_FILL_FACTOR = 0.33
 
+class BunkerDecor(OmniDec):
+    WALL_DECOR = (ghterrain.LockersTerrain,ghterrain.VentFanTerrain,ghterrain.ShippingShelvesTerrain,)
+    FLOOR_DECOR = (ghterrain.UlsaniteDesk,ghterrain.NorthSouthShelvesTerrain,)
+    FLOOR_FILL_FACTOR = 0.01
 
 class StorageRoomDecor(ColumnsDecor):
     WALL_DECOR = (ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.ShippingShelvesTerrain,ghterrain.VentFanTerrain)

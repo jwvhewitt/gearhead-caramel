@@ -296,6 +296,10 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Don't trust {subject}",
                           ],
     },
+    "[body_part]": {
+        Default: ["eye","nose","face","throat","groin","duodenum","skull",
+                  ],
+    },
 
     "[BrowseWares]": {
         Default: ["Take a look around","Browse my wares"
@@ -2329,6 +2333,61 @@ DEFAULT_GRAMMAR = {
         personality.Shy: [
             "They are our enemy.",
         ],
+    },
+
+    "[THEYWOULDBEFUNNYBUT]": {
+        # Those folks we're talking about? Strange, but not in a good way.
+        # The data block should include "they"
+        Default: ["They would be funny if not for the fact that they're probably going to get someone killed."
+                  ],
+        personality.Cheerful: [
+            "[chat_lead_in] {they} are not nearly as funny as you might think."
+        ],
+        personality.Grim: [
+            "Don't be fooled by their clownish appearance; {they} are dangerous people.",
+        ],
+        personality.Easygoing: [
+            "I hate to say it, but {they} worry me.",
+        ],
+        personality.Passionate: [
+            "There's more to {they} than there seems.",
+        ],
+        personality.Sociable: [
+            "I spoke to a few of them, and my impression is that they're not as harmless as they seem.",
+        ],
+        personality.Shy: [
+            "They are dangerous.",
+        ],
+    },
+
+    "[THIS_IS_A_SECRET]": {
+        # The NPC is about to reveal something they probably shouldn't...
+        Default: ["This is a secret, but...",
+                  ],
+        personality.Cheerful: ["I'm not one to gossip, but... who am I kidding? I love to gossip!",
+                               ],
+        personality.Grim: ["What I'm about to tell you is one of those things most people know better than to speak about.",
+                           ],
+        personality.Easygoing: ["I don't think this is exactly a secret, but it isn't well known either...",
+                                ],
+        personality.Passionate: ["You must swear that you will tell no-one you heard this from me.",
+                                 ],
+        personality.Sociable: ["I've heard a lot of things about this, things I'm in no position to confirm or deny...",
+                               ],
+        personality.Shy: ["I'll just lay this out.",
+                          ],
+        personality.Duty: ["Normally I wouldn't speak of this, but I fear this time I must.",
+                           ],
+        personality.Glory: ["When everything blows up, just remember who you heard this from first.",
+                            ],
+        personality.Justice: ["The truth of this matter has been hidden, but I'm giving it to you right now.",
+                              ],
+        personality.Peace: ["If word of this were spread around, I hate to think of the consequences, but...",
+                            ],
+        personality.Fellowship: ["I'm going to let you in on a secret.",
+                                 ],
+        LIKE: ["I'm only telling you this secret because I like you...",
+               ],
     },
 
     "[THIS_IS_TERRIBLE_NEWS]": {

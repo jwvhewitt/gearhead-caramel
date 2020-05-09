@@ -1,6 +1,6 @@
-from game.content import mechtarot
-from game.content.mechtarot import TarotCard, Interaction, ME_TAROTPOSITION, \
-    ME_AUTOREVEAL,CardTransformer, Consequence, CardCaller, CardDeactivator
+from game.content import mechtarot,plotutility
+from game.content.mechtarot import TarotCard, ME_TAROTPOSITION, CONSEQUENCE_WIN, CONSEQUENCE_LOSE, \
+    ME_AUTOREVEAL,CardCaller, CardDeactivator, TarotSignal, TarotSocket,TarotTransformer
 import pbge
 import gears
 from game.ghdialogue import context
@@ -16,25 +16,125 @@ MT_HEROIC = "HEROIC"
 MT_INCRIMINATING = "INCRIMINATING"
 MT_PERSON = "PERSON"
 MT_THREAT = "THREAT"
-MT_HOUSE = "HOUSE"
 
-ME_FACTION = "CARD_FACTION"
-ME_PERSON = "CARD_PERSON"
-ME_PUZZLEITEM = "CARD_PUZZLEITEM"
-ME_CRIME = "CRIME_TEXT"
-ME_CRIMED = "CRIME_VERBED_TEXT"
+ME_FACTION = "ME_FACTION"
+ME_PERSON = "ME_PERSON"
+ME_PUZZLEITEM = "ME_PUZZLEITEM"
+ME_CRIME = "ME_CRIME"
+ME_CRIMED = "ME_CRIMED"
+
+SIG_INCRIMINATE = "SIG_INCRIMINATE"
+SIG_ACCUSE = "SIG_ACCUSE"
+
+class TheDisbanded(TarotCard):
+    TAGS = (ME_FACTION,)
+    QOL = gears.QualityOfLife(stability=1)
+    active = True
 
 
 class HateClub(TarotCard):
-    TAGS = (MT_HOUSE,MT_THREAT)
+    TAGS = (MT_THREAT,ME_FACTION)
     QOL = gears.QualityOfLife(stability=-2,community=-2)
+    active = True
+    NEGATIONS = ("TheDisbanded",)
 
-    # Init: This house requires a leader and a muscle.
-    # Interactions:
-    # Leader + Muscle.Incrimination ->
-    # Muscle + Leader.Incrimination ->
-    # Reactions:
-    # Leader Destroyed -> Muscle goes renegade
-    # Leader Shamed -> Muscle disbands
-    # Muscle Destroyed -> Leader goes renegade
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_Accuse", TarotSignal(SIG_ACCUSE, [ME_FACTION]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("TheDisbanded",(ME_FACTION,),(ME_CRIME,ME_CRIMED))
+            }
+        ),
+    )
+
+    def custom_init( self, nart ):
+        # Add the subplot which will decide the splinter faction and provide a discovery route.
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart,"MT_REVEAL_HateClub",ident="REVEAL")
+            if not ME_FACTION in self.elements:
+                self.elements[ME_FACTION] = sp.elements[ME_FACTION]
+        else:
+            self.memo = "You learned that {} has been taken over by extremists.".format(self.elements[ME_FACTION])
+
+        return True
+
+
+class FactionCrimesProof(TarotCard):
+    TAGS = (MT_INCRIMINATING,)
+    active = True
+    ONE_USE = True
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_ACCUSE,[ME_FACTION, ]
+        ),
+    )
+
+    def custom_init( self, nart ):
+        # Add the subplot which will decide the splinter faction and provide a discovery route.
+        if not ME_FACTION in self.elements:
+            self.elements[ME_FACTION] = plotutility.RandomBanditCircle()
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart,"MT_REVEAL_WarCrime",ident="REVEAL")
+            self.elements[ME_CRIME] = sp.elements[ME_CRIME]
+            self.elements[ME_CRIMED] = sp.elements[ME_CRIMED]
+        else:
+            if not self.elements.get(ME_CRIME):
+                self.register_element(ME_CRIME,"a crime")
+            if not self.elements.get(ME_CRIMED):
+                self.register_element(ME_CRIMED,"committed crimes")
+            self.memo = "You learned that {ME_FACTION} {ME_CRIMED}.".format(**self.elements)
+
+        return True
+
+
+
+class FactionClue(TarotCard):
+    TAGS = ()
+    active = True
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_SearchClue", TarotSignal(SIG_INCRIMINATE, [ME_FACTION]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("FactionCrimesProof",(ME_FACTION,),(ME_CRIME,ME_CRIMED))
+            }
+        ),
+    )
+
+    def custom_init( self, nart ):
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart,"MT_REVEAL_ClueItem",ident="REVEAL")
+            self.elements[ME_PUZZLEITEM] = sp.elements[ME_PUZZLEITEM]
+        return True
+
+
+
+class Atrocity(TarotCard):
+    # Someone made a war crime.
+    TAGS = (MT_CRIME,)
+    active = True
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_INCRIMINATE,[ME_FACTION, ]
+        ),
+    )
+
+    def custom_init( self, nart ):
+        # Add the subplot which will decide the splinter faction and provide a discovery route.
+        if not ME_FACTION in self.elements:
+            self.elements[ME_FACTION] = plotutility.RandomBanditCircle()
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart,"MT_REVEAL_WarCrime",ident="REVEAL")
+            self.elements[ME_CRIME] = sp.elements[ME_CRIME]
+            self.elements[ME_CRIMED] = sp.elements[ME_CRIMED]
+        else:
+            if not self.elements.get(ME_CRIME):
+                self.register_element(ME_CRIME,"an atrocity")
+            if not self.elements.get(ME_CRIMED):
+                self.register_element(ME_CRIMED,"committed atrocities")
+            self.memo = "You learned that {ME_FACTION} {ME_CRIMED}.".format(**self.elements)
+
+        return True
 

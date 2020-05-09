@@ -66,12 +66,16 @@ HELLO_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.HELLO,)))
 ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 
 class SkillBasedPartyReply(object):
-    def __init__(self,myoffer,camp,mylist,stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_EASY, no_random=True, **kwargs):
+    def __init__(
+            self,myoffer,camp,mylist,stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_EASY, no_random=True,
+            message_format = '{} says {}',**kwargs
+    ):
         # Check the skill of each party member against a target number. If any party member can
         # make the test, they get to say the line of dialogue.
         # If nobody makes the test, don't add myoffer to mylist.
         self.camp = camp
         self.offer = myoffer
+        self.message_format = message_format
         pc = camp.make_skill_roll(stat_id,skill_id,rank,no_random=no_random,difficulty=difficulty,**kwargs)
         if pc:
             if pc.get_pilot() is camp.pc:
@@ -92,7 +96,9 @@ class SkillBasedPartyReply(object):
         return text
 
     def custom_menu_fun(self,reply,mymenu,pcgrammar):
-        mymenu.items.append(ghdview.LancemateConvoItem(self.format_text(reply.msg),self.offer,None,mymenu,self.pc))
+        mymenu.items.append(ghdview.LancemateConvoItem(
+            self.format_text(reply.msg),self.offer,None,mymenu,self.pc,msg_form=self.message_format
+        ))
 
 
 class TagBasedPartyReply(SkillBasedPartyReply):

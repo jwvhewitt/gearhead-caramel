@@ -18,6 +18,7 @@ from . import lancemates
 from . import missionbuilder
 from . import mocha
 from . import recovery
+from . import treasures
 from . import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
 from pbge.plots import Plot
@@ -51,4 +52,5 @@ harvest(lancemates)
 harvest(missionbuilder)
 harvest(mocha)
 harvest(recovery)
+harvest(treasures)
 harvest(utility)
