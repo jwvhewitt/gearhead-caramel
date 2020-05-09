@@ -1047,6 +1047,11 @@ class Shield(BaseGear, StandardDamageHandler):
     def get_aim_bonus(self):
         return -5 * (self.bonus + 1)
 
+    def get_item_stats(self):
+        return ( ('Block Bonus', str(self.get_block_bonus()))
+               ,
+               )
+
 
 #   ****************************
 #   ***   SUPPORT  SYSTEMS   ***
@@ -1105,6 +1110,11 @@ class Engine(Component, StandardDamageHandler, MakesPower):
 
     def max_power(self):
         return self.scale.scale_power(self.size // 25)
+
+    def get_item_stats(self):
+        return ( ("Rating", str(self.size))
+               , ("Power", str(self.max_power()))
+               )
 
 
 class Gyroscope(Component, StandardDamageHandler):
@@ -1203,6 +1213,17 @@ class MovementSystem(SizeClassedComponent):
     @property
     def base_cost(self):
         return self.size * self.MOVESYS_COST
+
+    def get_item_stats(self):
+        return [ ('Thrust ({})'.format(mode.NAME), str(self.get_thrust(mode)))
+             for mode in [ scenes.movement.Walking
+                         , geffects.Rolling
+                         , geffects.Skimming
+                         , scenes.movement.Flying
+                         , geffects.SpaceFlight
+                         ]
+              if self.get_thrust(mode) > 0
+               ]
 
 
 class HoverJets(MovementSystem, StandardDamageHandler):
@@ -1320,6 +1341,9 @@ class PowerSource(Component, StandardDamageHandler, MakesPower):
 
     def max_power(self):
         return self.scale.scale_power(self.size * 5)
+
+    def get_item_stats(self):
+        return (('Power', str(self.max_power())),)
 
 
 #   *********************************
@@ -2565,6 +2589,11 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
                 value *= 2
             benefit += value//2
         return int(max(benefit, self.base_trauma))
+
+    def get_item_stats(self):
+        return ( ("Location", self.location)
+               , ("Trauma/Sta", str(self.trauma))
+               )
 
 
 class EyesCyberware(BaseCyberware):
