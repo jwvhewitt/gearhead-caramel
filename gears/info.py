@@ -44,6 +44,20 @@ class InfoPanel( object ):
         myrect.clamp_ip(pbge.my_state.screen.get_rect())
         self.render(myrect.left,myrect.top)
 
+class DesigBlock( object ):
+    def __init__(self, model, width = 220, **kwargs):
+        self.model = model
+        self.width = width
+        if model.desig and model.desig != '':
+            self.image = pbge.render_text(pbge.SMALLFONT, model.desig, width, justify = 0, color = pbge.INFO_GREEN)
+            self.height = self.image.get_height()
+        else:
+            self.image = None
+            self.height = 0
+    def render(self, x, y):
+        if self.image:
+            pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+
 class NameBlock( object ):
     def __init__(self,model,width=220,**kwargs):
         self.model = model
@@ -637,11 +651,11 @@ class HostilityStatusBlock(object):
 
 class MechaStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (NameBlock, HostilityStatusBlock, ModuleStatusBlock, PilotStatusBlock, EnchantmentBlock)
+    DEFAULT_BLOCKS = (DesigBlock, NameBlock, HostilityStatusBlock, ModuleStatusBlock, PilotStatusBlock, EnchantmentBlock)
 
 class PropStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (NameBlock, HostilityStatusBlock, PropStatusBlock, EnchantmentBlock)
+    DEFAULT_BLOCKS = (DesigBlock, NameBlock, HostilityStatusBlock, PropStatusBlock, EnchantmentBlock)
 
 class NameStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
