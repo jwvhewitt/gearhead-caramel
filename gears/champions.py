@@ -759,7 +759,8 @@ def upgrade_to_champion(mek, ThemeClass = RandomTheme):
     # Also makes the torso slightly more valuable.
     gyro = _find_item(mek, base.Gyroscope)
     if gyro:
-        gyro.integral = True
+        if gyro.free_volume >= 1:
+            gyro.integral = True
 
     # Build the theme.
     theme = ThemeClass()
