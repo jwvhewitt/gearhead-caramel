@@ -2588,6 +2588,35 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[FORMAL_MECHA_DUEL]": {
+        Default: [ "May your armor break, may your cockpit shatter, may who deserves to win, be who destroys the other."
+                 ],
+        personality.Glory: [ "Thus today we two meet upon our arena. May victory shine upon me!"
+                           , "Glory shine upon the victor; one against one, strong against stronger."
+                           , "I formally challenge you to a duel to destruction. Glory upon us both; but I shall be the victor."
+                           ],
+        personality.Peace: [ "I stand here the champion of my people; I fight agsint you now, for peace to prevail tomorrow."
+                           , "I formally challenge you to a duel to destruction. May this be the final fight against you."
+                           ],
+        personality.Justice: [ "Well met on this day. Only the righteous shall stand after our fight."
+                             , "This duel is my trial. May my victory today show the righteousness I stand for."
+                             , "I formally challenge you to a duel to destruction. May my righteous stance shine through my mecha."
+                             ],
+        personality.Duty: [ "I fight you today for my honor. My obligation shall be what defeats you."
+                          , "Thus my duty stands before me: you, and your defeat."
+                          , "I formally challenge you to a duel to destruction. My obligation is to defeat you, and none shall stand in my way."
+                          ],
+        personality.Fellowship: [ "I stand here in the stead of my friends, to fight alone against you, that they may live."
+                                , "I formally challenge you to a duel to destruction. My friends shall live, win or lose: and I shall defeat you."
+                                ]
+    },
+    "[FORMAL_LETSFIGHT]": {
+        Default: [ "[GOOD] Our destiny awaits. [LETSFIGHT]"
+                 , "This duel shall lead to [defeating_you]."
+                 , "Let it be remembered that today I [fight_you]."
+                 ]
+    }
+
 }
 
 
