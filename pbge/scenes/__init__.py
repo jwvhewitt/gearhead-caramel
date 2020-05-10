@@ -157,7 +157,7 @@ class TeamDictionary( weakref.WeakKeyDictionary ):
 class Scene( object ):
     DELTA8 = ( (-1,-1), (0,-1), (1,-1), (-1,0), (1,0), (-1,1), (0,1), (1,1) )
     ANGDIR = ( (-1,-1), (0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (-1,0) )
-    def __init__(self,width=128,height=128,name="",player_team=None):
+    def __init__(self,width=128,height=128,name="",player_team=None,exit_scene_wp=None):
         self.name = name
         self.width = width
         self.height = height
@@ -171,6 +171,7 @@ class Scene( object ):
         self.in_sight = set()
 
         self.last_updated = 0
+        self.exit_scene_wp = exit_scene_wp
 
         # Fill the map with empty tiles
         self.contents = container.ContainerList(owner=self)
@@ -363,6 +364,10 @@ class Scene( object ):
             return self
 
     def end_scene(self,camp):
+        if camp.scene is self:
+            return_to = self.exit_scene_wp or camp.home_base
+            if return_to:
+                camp.scene, camp.entrance = return_to
         for s in list(self.sub_scenes):
             if hasattr(s, "end_scene"):
                 s.end_scene(camp)

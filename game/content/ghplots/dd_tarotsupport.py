@@ -25,12 +25,13 @@ class ClueInBunker( Plot ):
     LABEL = "MT_REVEAL_ClueItem"
     active = True
     scope = "METRO"
-    ITEM_TYPES = (ghwaypoints.RetroComputer,ghwaypoints.Bookshelf,)
+    ITEM_TYPES = (ghwaypoints.RetroComputer,ghwaypoints.Bookshelf,ghwaypoints.UlsaniteFilingCabinet)
     def custom_init( self, nart ):
         team1 = teams.Team(name="Player Team")
+        return_to = (self.elements["METROSCENE"],self.elements["MISSION_GATE"])
         outside_scene = gears.GearHeadScene(
             35,35,plotutility.random_deadzone_spot_name(),player_team=team1,scale=gears.scale.MechaScale,
-            exploration_music="Lines.ogg", combat_music="Late.ogg"
+            exploration_music="Lines.ogg", combat_music="Late.ogg",exit_scene_wp=return_to
         )
         myscenegen = pbge.randmaps.SceneGenerator(outside_scene, game.content.gharchitecture.MechaScaleDeadzone())
         self.register_scene( nart, outside_scene, myscenegen, ident="LOCALE", dident="METROSCENE", temporary=True )
@@ -46,14 +47,14 @@ class ClueInBunker( Plot ):
         team1 = teams.Team(name="Player Team")
         inside_scene = gears.GearHeadScene(
             12,12,"Bunker",player_team=team1,scale= gears.scale.HumanScale,
-            exploration_music="Lines.ogg", combat_music="Late.ogg"
+            exploration_music="Lines.ogg", combat_music="Late.ogg",exit_scene_wp=return_to
         )
         intscenegen = pbge.randmaps.SceneGenerator(inside_scene, game.content.gharchitecture.DefaultBuilding())
-        self.register_scene( nart, inside_scene, intscenegen, ident="GOALSCENE", dident="LOCALE" )
+        self.register_scene( nart, inside_scene, intscenegen, ident="GOALSCENE", dident="LOCALE", temporary=True )
 
         introom = self.register_element('_introom', pbge.randmaps.rooms.OpenRoom(random.randint(6,10), random.randint(6,10), anchor=pbge.randmaps.anchors.middle, decorate=pbge.randmaps.decor.OmniDec(win=game.content.ghterrain.Window)), dident="GOALSCENE")
 
-        self.register_element(ME_PUZZLEITEM, game.content.ghwaypoints.RetroComputer(plot_locked=True), dident="_introom")
+        self.register_element(ME_PUZZLEITEM, random.choice(self.ITEM_TYPES)(plot_locked=True), dident="_introom")
 
         int_con = game.content.plotutility.IntConcreteBuildingConnection(self, outside_scene, inside_scene, room1=mygoal, room2=introom)
 
@@ -615,38 +616,5 @@ class LibraryScience2099(Plot):
         mysocket = self.elements[mechtarot.ME_SOCKET]
         mysocket.consequences[CONSEQUENCE_WIN](camp,mycard,self.card)
         self.end_plot(camp)
-
-
-
-# Old stuff below this line... probably useless now.
-
-
-#  *************************
-#  ***   DZD_WarCrimes   ***
-#  *************************
-#  Discover war crimes committed by someone.
-#
-#  Inherited Elements:
-#    CARD_FACTION: The committer of the atrocities. May be None.
-#
-#  Elements Set:
-#    ME_CRIME, ME_CRIMED: Noun and verb forms of the war crime committed
-#
-#  Signals:
-#    WIN: Send this trigger when the crimes are revealed to the player.
-#
-
-
-
-#  *** OLD PLOTS - MAYBE NOT USEFUL ANYMORE? ***
-
-#  **************************
-#  ***   DZD_LostPerson   ***
-#  **************************
-#
-#  Elements:
-#   PERSON: The NPC or prop who is lost. This element should be placed.
-#   GOALSCENE: The scene where the NPC can be found.
-
 
 

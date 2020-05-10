@@ -116,6 +116,7 @@ class Atrocity(TarotCard):
     TAGS = (MT_CRIME,)
     QOL = gears.QualityOfLife(stability=-3)
     active = True
+    ONE_USE = True
 
     SIGNALS = (
         TarotSignal(

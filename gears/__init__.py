@@ -139,10 +139,10 @@ class MetroData(object):
 class GearHeadScene(pbge.scenes.Scene):
     def __init__(self, width=128, height=128, name="", player_team=None, civilian_team=None, faction=None,
                  scale=scale.MechaScale, environment=tags.GroundEnv, attributes=(), is_metro=False,
-                 exploration_music=None,combat_music=None):
+                 exploration_music=None,combat_music=None,**kwargs):
         # A metro scene is one which will contain plots and tarot cards local to it and its children.
         #   Generally it should be placed at root, as a direct child of the GHCampaign.
-        super(GearHeadScene, self).__init__(width, height, name, player_team)
+        super().__init__(width, height, name, player_team,**kwargs)
         self.civilian_team = civilian_team
         self.faction = faction
         self.scale = scale
