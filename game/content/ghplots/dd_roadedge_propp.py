@@ -1129,6 +1129,39 @@ class DZREPRC_CallOutBattle(DZREPRC_ConclusionTemplate):
             )
         return mygram
 
+
+class DZREPC_CallOutChampionFight(DZREPRC_ConclusionTemplate):
+    LABEL = "DZRE_CONCLUSION"
+    #LABEL = "DZRE_TEST"
+    MISSION_NAME = "Duel Between Champions"
+    MISSION_PROMPT = "Go meet {FACTION}'s champion, alone, for a duel."
+    OBJECTIVES = (dd_customobjectives.DDBAMO_CHAMPION_1V1,)
+    WIN_MESSAGE = "With their champion defeated, {FACTION} scatters, no longer a danger to travelers in the dead zone."
+    DEFAULT_MEMO = "You learned that {FACTION}'s champion is waiting just outside of {LOCALE} to challenge you to a final duel."
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.mission_active and npc not in camp.party:
+            goffs.append(Offer(
+                msg="You've caused a lot of trouble for {FACTION}, so they've chosen a champion in {LOCALE} to challenge you in single mecha combat.".format(**self.elements ),
+                context=ContextTag((context.INFO,)), effect=self.activate_mission,
+                data={"subject": "this challenge"}, subject="{FACTION} have challenged".format(**self.elements),
+                no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        if not self.mission_active and npc not in camp.party:
+            mygram["[News]"].append("{FACTION} have challenged you to one final duel".format(**self.elements))
+            mygram["[HELLO_AGAIN]"].append("What are you doing here, [audience]?! Didn't you hear that {FACTION} have challenged you to a one-on-one duel against their champion?".format(**self.elements))
+            mygram["[HELLO_FIRST]"].append(
+                "You're [audience], aren't you? [chat_lead_in] {FACTION} have challenged you to a one-on-one duel against their champion.".format(**self.elements)
+            )
+        return mygram
+
+
 class DZREPRC_RazeTheFortress(DZREPRC_ConclusionTemplate):
     # Will activate the adventure when property mission_active set to True
     # Required Elements: METRO, LOCALE, MISSION_GATE, FACTION

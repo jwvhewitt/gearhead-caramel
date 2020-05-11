@@ -14,6 +14,7 @@ from . import missionbuilder
 from gears import champions
 
 DDBAMO_DUEL_LANCEMATE = "DDBAMO_DuelLancemate"      # Custom Element: LMNPC
+DDBAMO_CHAMPION_1V1 = "DDBAMO_Champion1v1"
 DDBAMO_INVESTIGATE_METEOR = "DDBAMO_InvestigateMeteor"
 DDBAMO_INVESTIGATE_REFUGEE_CAMP = "DDBAMO_INVESTIGATE_REFUGEE_CAMP"
 DDBAMO_MAYBE_AVOID_FIGHT = "DDBAMO_MaybeAvoidFight"
@@ -64,6 +65,55 @@ class DDBAMO_PracticeDuel( Plot ):
             plotutility.AutoJoiner(self.elements["LMNPC"])(camp)
         #for pc in camp.party:
         #    pc.restore_all()
+
+
+class DDBAMO_ChampionDuel(Plot):
+    LABEL = DDBAMO_CHAMPION_1V1
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        myscene.attributes.add(gears.tags.SCENE_SOLO)
+
+        self.register_element("ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10),dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        fac = self.elements["ENEMY_FACTION"]
+        mek = gears.selector.generate_ace(self.rank + 30, fac, myscene.environment)
+        npc = mek.get_pilot()
+        self.register_element("_champion", npc)
+
+        team2.contents.append(mek)
+        champions.upgrade_to_champion(mek)
+
+        self.obj = adventureseed.MissionObjective("Defeat the {}'s champion {}".format(fac, npc), missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            self.intro_ready = False
+            npc = self.elements["_champion"]
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
+
+    def _champion_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer( "[FORMAL_MECHA_DUEL]"
+                           , context = ContextTag([context.ATTACK])
+                           ))
+        mylist.append(Offer( "[FORMAL_LETSFIGHT]"
+                           , context = ContextTag([context.CHALLENGE])
+                           ))
+        return mylist
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp,100)
 
 
 class DDBAMO_HelpFromTheStars( Plot ):
