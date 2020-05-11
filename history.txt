@@ -1,3 +1,4 @@
+- You might now occassionally come across specially-named mecha on some mission objectives. If you're lucky you might even salvage them and their special modified equipment.
 - Party removed to a safe location when plot controlling temporary scene ends
 - Added longform mecha info panel
 - Invocations now consistently show their casting costs.
