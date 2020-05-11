@@ -364,10 +364,12 @@ class Scene( object ):
             return self
 
     def end_scene(self,camp):
-        if camp.scene is self:
+        if camp.scene is self and not camp.destination:
+            # If the scene being deleted is the current scene, and we don't already have a destination
+            # set, set a new destination.
             return_to = self.exit_scene_wp or camp.home_base
             if return_to:
-                camp.scene, camp.entrance = return_to
+                camp.destination, camp.entrance = return_to
         for s in list(self.sub_scenes):
             if hasattr(s, "end_scene"):
                 s.end_scene(camp)

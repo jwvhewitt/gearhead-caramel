@@ -637,11 +637,11 @@ class HostilityStatusBlock(object):
 
 class MechaStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (NameBlock, HostilityStatusBlock, ModuleStatusBlock, PilotStatusBlock, EnchantmentBlock)
+    DEFAULT_BLOCKS = (FullNameBlock, HostilityStatusBlock, ModuleStatusBlock, PilotStatusBlock, EnchantmentBlock)
 
 class PropStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (NameBlock, HostilityStatusBlock, PropStatusBlock, EnchantmentBlock)
+    DEFAULT_BLOCKS = (FullNameBlock, HostilityStatusBlock, PropStatusBlock, EnchantmentBlock)
 
 class NameStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
