@@ -2595,7 +2595,7 @@ DEFAULT_GRAMMAR = {
                            , "Glory shine upon the victor; one against one, strong against stronger."
                            , "I formally challenge you to a duel to destruction. Glory upon us both; but I shall be the victor."
                            ],
-        personality.Peace: [ "I stand here the champion of my people; I fight agsint you now, for peace to prevail tomorrow."
+        personality.Peace: [ "I stand here the champion of my people; I fight against you now, for peace to prevail tomorrow."
                            , "I formally challenge you to a duel to destruction. May this be the final fight against you."
                            ],
         personality.Justice: [ "Well met on this day. Only the righteous shall stand after our fight."
