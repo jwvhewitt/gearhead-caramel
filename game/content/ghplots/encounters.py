@@ -4,6 +4,7 @@ import gears
 import pbge
 import random
 from game import teams
+from gears import champions
 
 
 #  ***************************
@@ -54,3 +55,20 @@ class SmallMechaEncounter( Plot ):
             self.end_plot(camp)
             camp.dole_xp(50)
 
+class RandoMechaWithChampionEncounter( RandoMechaEncounter ):
+    # Fight some random mecha who happen to have a champion. What do they want? To pad the adventure.
+
+    def custom_init( self, nart ):
+        if super().custom_init(nart):
+            myteam = self.elements["_eteam"]
+            if myteam.contents:
+                champions.upgrade_to_champion(random.choice(myteam.contents))
+            return True
+        else:
+            return False
+    def t_ENDCOMBAT(self,camp):
+        # If the player team (why _eteam tho?) gets wiped out, end the mission.
+        myteam = self.elements["_eteam"]
+        if len(myteam.get_active_members(camp)) < 1:
+            self.end_plot(camp)
+            camp.dole_xp(120)

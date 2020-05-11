@@ -10,6 +10,7 @@ from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
+from gears import champions
 
 BAMO_AID_ALLIED_FORCES = "BAMO_AidAlliedForces"
 BAMO_CAPTURE_THE_MINE = "BAMO_CaptureMine"
@@ -201,6 +202,90 @@ class BuildAMissionPlot(Plot):
                     npc.restore_all()
             for o in self.adv.objectives:
                 o.reset_objective()
+
+
+#   ****************************
+#   ***   OBJECTIVE MIXINS   ***
+#   ****************************
+
+class Championify( object ):
+    '''
+    Modifies an objective so that it has a champion.
+    If there is a _commander element that is a character,
+    its mek gets upgraded, and any _assistant element as well
+    has 50% chance of getting its mek upgraded.
+    If there is no commander but there is an _eteam element
+    that is a team, a random member of the eteam gets it.
+
+    To use, define a normal championless plot, then
+    define a new plot that mixes this in, but as the first
+    base class:
+
+    class BAM_DoAnObjective(Plot):
+        LABEL = BAM_DO_AN_OBJECTIVE
+        active = True
+        scope = "LOCALE"
+
+        def custom_init(self, nart):
+            pass     # whatever
+
+    # Now this has a champion as well:
+    class BAM_ChampionDoAnObjective(Championify, BAM_DoAnObjective):
+        pass
+
+
+    NOTE: This is not compatible with any other mixins.
+    '''
+    championify_commander_element = "_commander"
+    championify_assistant_element = "_assistant"
+    championify_eteam_element = "_eteam"
+
+    def custom_init(self, nart):
+        # Introspect.
+        # Final derived class.
+        dcls = self.__class__
+        # Original class that was mixed in.
+        ocls = None
+
+        # Identify the class being mixed in.
+        for c in dcls.mro():
+            if c is Championify or c is dcls:
+                continue
+            ocls = c
+            break
+        # No class?  Fail.
+        if not ocls:
+            return False
+
+        # Execute the original class custom_init.
+        if not ocls.custom_init(self, nart):
+            # Original custom init failed, so fail this one too.
+            return False
+
+        def upgrade_mek_of(char):
+            mek = char.get_root()
+            if not isinstance(mek, gears.base.Mecha):
+                return
+            # TODO: Add a persistent pref_champion to character?
+            champions.upgrade_to_champion(mek)
+
+        commander = self.elements.get(self.championify_commander_element, None)
+        if commander and isinstance(commander, gears.base.Character):
+            upgrade_mek_of(commander)
+            if random.randint(1, 2) == 1:
+                return True
+            assistant = self.elements.get(self.championify_assistant_element, None)
+            if assistant and isinstance(assistant, gears.base.Character):
+                upgrade_mek_of(assistant)
+            return True
+
+        eteam = self.elements.get(self.championify_eteam_element, None)
+        if eteam and isinstance(eteam, teams.Team):
+            mek = random.choice(eteam.contents)
+            if isinstance(mek, gears.base.Mecha):
+                champions.upgrade_to_champion(mek)
+
+        return True
 
 
 #   **********************
@@ -459,6 +544,10 @@ class BAM_DefeatCommander(Plot):
             self.obj.win(camp, 100)
 
 
+class BAM_ChampionDefeatCommander(Championify, BAM_DefeatCommander):
+    active = True
+
+
 class BAM_DefeatTheBandits(Plot):
     LABEL = BAMO_DEFEAT_THE_BANDITS
     active = True
@@ -704,6 +793,10 @@ class BAM_ExtractAllies(Plot):
                 ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.HELLO_STARTER)
 
 
+class BAM_ChampionExtractAllies(Championify, BAM_ExtractAllies):
+    active = True
+
+
 class BAM_LocateEnemyForces(Plot):
     LABEL = BAMO_LOCATE_ENEMY_FORCES
     active = True
@@ -923,6 +1016,10 @@ class BAM_StormTheCastle(Plot):
             self.obj2.win(camp, 100 * (self.starting_guards - len(myguards)) // self.starting_guards)
         if not myboss.is_operational():
             self.obj1.win(camp, 100)
+
+
+class BAM_ChampionStormTheCastle(Championify, BAM_StormTheCastle):
+    active = True
 
 
 class BAM_SurviveTheAmbush(Plot):
