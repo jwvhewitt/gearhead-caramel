@@ -2574,6 +2574,13 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
 
     @property
     def base_cost(self):
+        # Used cyberware has 0 value because it has the first
+        # user's cells in it and it can no longer be safely
+        # implanted in anyone else without risking rejection
+        # and other symptoms commonly called "cyberdisfunction".
+        # Also, eww.
+        if self.dna_sequence:
+            return 0
         benefit = 0
         for s in self.statline.keys():
             value = self.statline.get(s, 0)
