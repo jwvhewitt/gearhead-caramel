@@ -7,7 +7,7 @@ from gears import factions, personality
 import game.content.gharchitecture
 import pbge
 import game.content.plotutility
-from game.content import ghwaypoints, gharchitecture, plotutility
+from game.content import ghwaypoints, gharchitecture, plotutility, ghrooms
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random

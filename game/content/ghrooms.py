@@ -30,11 +30,16 @@ class LakeRoom(FuzzyRoom):
         super().build(gb,archi)
 
         # Add some random forest blobs.
-        for t in range(random.randint(1,3)):
-            x = random.randint(self.area.left+3,self.area.right-4)
-            y = random.randint(self.area.top+3,self.area.bottom-4)
-            s = random.randint(3,5)
-            gb.fill_blob(pygame.Rect(x-1,y-1,s,s),floor=ghterrain.Water)
+        if self.area.width > 8 and self.area.height > 8:
+            for t in range(random.randint(1,3)):
+                x = random.randint(self.area.left+3,self.area.right-4)
+                y = random.randint(self.area.top+3,self.area.bottom-4)
+                s = random.randint(3,5)
+                gb.fill_blob(pygame.Rect(x-1,y-1,s,s),floor=ghterrain.Water)
+        else:
+            mydest = pygame.Rect(0,0,3,3)
+            mydest.center = self.area.center
+            gb.fill(mydest,floor=ghterrain.Water)
 
 class WreckageRoom(FuzzyRoom):
     DECORATE = MSWreckageDecor(floor_fill_factor=0.2)
