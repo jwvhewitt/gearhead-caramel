@@ -3146,12 +3146,32 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             if isinstance(m, Character):
                 return m
 
-    def load_pilot(self, pilot):
-        """Stick the pilot into the mecha."""
+    def get_cockpit(self):
+        '''Return whichever cockpit the pilot will use to board the mecha.'''
+
+        # For back-compatibility with existing saves.
+        # It's possible we will change which cockpit is returned
+        # by this function when the mecha has multiple cockpits.
+        # If so, existing savefiles might have the pilot already
+        # riding a different cockpit than what the later algorithm
+        # would return.
+        # What cockpit the pilot is currently riding should take
+        # precedence over which one the pilot will enter the *next*
+        # time zey board the mek.
+        pilot = self.get_pilot()
+        if pilot:
+            return pilot.parent
+
+        # Select the last listed cockpit.
         cpit = None
         for m in self.sub_sub_coms():
             if isinstance(m, Cockpit):
                 cpit = m
+        return cpit
+
+    def load_pilot(self, pilot):
+        """Stick the pilot into the mecha."""
+        cpit = self.get_cockpit()
         cpit.sub_com.append(pilot)
 
     def free_pilots(self):
