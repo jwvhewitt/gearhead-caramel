@@ -3213,10 +3213,10 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         if not has_gyro:
             it -= 30
         # Head mounted cockpits provide a bonus.
-        pilot = self.get_pilot()
-        if pilot:
-            pmod = pilot.get_module()
-            if pmod and pmod.form == MF_Head:
+        cpit = self.get_cockpit()
+        if cpit:
+            cmod = cpit.get_module()
+            if cmod and cmod.form == MF_Head:
                 it += 10
         # Add form modifiers
         if hasattr(self.form,"modify_mobility"):
