@@ -82,7 +82,7 @@ class CharaFHQIP(gears.info.InfoPanel):
 
 
 class MechaFHQIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, MechasPilotBlock, gears.info.MechaStatsBlock, gears.info.DescBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, gears.info.DesignViabilityBlock, MechasPilotBlock, gears.info.MechaStatsBlock, gears.info.DescBlock)
 
 
 def create_item_fhq_ip(**keywords):

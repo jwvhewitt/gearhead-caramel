@@ -635,6 +635,27 @@ class HostilityStatusBlock(object):
         if self.image:
             pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
+
+class DesignViabilityBlock(object):
+    def __init__(self,model,width=220,font=None,**kwargs):
+        self.model = model
+        self.width = width
+        self.font = font or pbge.MEDIUMFONT
+        self.update()
+
+    def update(self):
+        if self.model and not self.model.check_design():
+            self.image = pbge.render_text(self.font, 'INVALID DESIGN', self.width,justify=0, color=pbge.ENEMY_RED)
+            self.height = self.image.get_height()
+        else:
+            self.image = None
+            self.height = 0
+
+    def render(self, x, y):
+        if self.image:
+            pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+
+
 class MechaStatusDisplay( InfoPanel ):
     # A floating status display, drawn wherever the mouse is pointing.
     DEFAULT_BLOCKS = (FullNameBlock, HostilityStatusBlock, ModuleStatusBlock, PilotStatusBlock, EnchantmentBlock)
@@ -671,7 +692,7 @@ class ShieldIP(InfoPanel):
 
 class MechaIP(InfoPanel):
     # A floating status display, drawn wherever the mouse is pointing.
-    DEFAULT_BLOCKS = (FullNameBlock, MechaFeaturesAndSpriteBlock, DescBlock)
+    DEFAULT_BLOCKS = (FullNameBlock, DesignViabilityBlock, MechaFeaturesAndSpriteBlock, DescBlock)
 
 
 class ShortItemIP(InfoPanel):

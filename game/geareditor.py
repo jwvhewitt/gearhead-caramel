@@ -757,14 +757,16 @@ class MechaStatsHeader(CommonHeader):
 
         pbge.draw_text(
             pbge.MEDIUMFONT,
-             "Cost: ${}\n Mass: {:.1f} tons\n Armor: {}\n Mobility: {}\n Speed: {}\n Sensor Range: {}\n E-War Progs: {}".format(
+             "Cost: ${}\n Mass: {:.1f} tons\n Armor: {}\n Mobility: {}\n Speed: {}\n Sensor Range: {}\n E-War Progs: {}\n OK: {}".format(
                 self.mecha.cost,
                  self.mecha.mass / 10000.0,
                  self.mecha.calc_average_armor(),
                  self.mecha.calc_mobility(),
                  self.mecha.get_max_speed(),
                  self.mecha.get_sensor_range(self.mecha.scale),
-                 self.mecha.get_ewar_rating()),
+                 self.mecha.get_ewar_rating(),
+                 bool(self.mecha.check_design())
+             ),
              self.get_text_rect(), justify=-1, color=pbge.INFO_GREEN
         )
 
