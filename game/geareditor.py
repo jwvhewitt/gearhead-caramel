@@ -865,9 +865,15 @@ class GearEditor(pbge.widgets.Widget):
         mysaver.save([save_version,])
 
     def _add_subcom(self,widj,ev):
-        self.part_selector = PartAcceptCancelWidget(self.sources,self.active_part.can_install,self._return_add_subcom)
+        self.part_selector = PartAcceptCancelWidget(self.sources,self._check_can_install,self._return_add_subcom)
         pbge.my_state.widgets.append(self.part_selector)
         self.active = False
+
+    def _check_can_install(self, gear):
+        # Do not let player install characters and lancemates.
+        if isinstance(gear, gears.base.Being):
+            return False
+        return self.active_part.can_install(gear)
 
     def _add_invcom(self,widj,ev):
         self.part_selector = PartAcceptCancelWidget(self.sources,self.active_part.can_equip,self._return_add_invcom)

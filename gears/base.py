@@ -16,6 +16,7 @@ from . import enchantments
 from . import portraits
 import pygame
 from . import personality
+import uuid
 
 class Restoreable(object):
     def restore(self):
@@ -2556,12 +2557,30 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
         self.statline = collections.defaultdict(int)
         if statline:
             self.statline.update(statline)
+        self._dna_sequence = None
         super().__init__(**keywords)
+
+    @property
+    def dna_sequence(self):
+        # back compatibility with existing savefiles.
+        if not hasattr(self, '_dna_sequence'):
+            return None
+        return self._dna_sequence
+    @dna_sequence.setter
+    def dna_sequence(self, next_dna_sequence):
+        self._dna_sequence = next_dna_sequence
 
     base_volume = 0
 
     @property
     def base_cost(self):
+        # Used cyberware has 0 value because it has the first
+        # user's cells in it and it can no longer be safely
+        # implanted in anyone else without risking rejection
+        # and other symptoms commonly called "cyberdisfunction".
+        # Also, eww.
+        if self.dna_sequence:
+            return 0
         benefit = 0
         for s in self.statline.keys():
             value = self.statline.get(s, 0)
@@ -2874,9 +2893,15 @@ class Module(BaseGear, StandardDamageHandler):
                 # Cyberware has to have correct scale.
                 if not self.scale is part.scale:
                     return False
+                parent = self.parent
+                if parent and isinstance(parent, Being):
+                    # Cyberware has to have the same genetic markers as
+                    # whoever is being installed into.
+                    if part.dna_sequence and part.dna_sequence != parent.dna_sequence:
+                        return False
                 if check_volume:
                     # Check trauma specs.
-                    parent = self.parent
+
                     # Normally, only Beings can install cyberware.
                     # However, while loading, the subcom is being
                     # built without a parent for this module yet,
@@ -3379,7 +3404,19 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         self.sp_spent = 0
         self.experience = collections.defaultdict(int)
 
+        self._generate_dna_sequence()
+
         super(Being, self).__init__(**keywords)
+
+    def _generate_dna_sequence(self):
+        self._dna_sequence = str(uuid.uuid4())
+
+    @property
+    def dna_sequence(self):
+        # back-compatibility with existing savefiles.
+        if not hasattr(self, '_dna_sequence'):
+            self._generate_dna_sequence()
+        return self._dna_sequence
 
     def is_legal_sub_com(self, part):
         return isinstance(part, Module)

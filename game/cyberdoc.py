@@ -595,14 +595,19 @@ class InventorySource(CyberwareSource):
                 rv.append(cw)
         return rv
     def get_list_annotation(self, cyberware):
+        if cyberware.dna_sequence and cyberware.dna_sequence != self.char.dna_sequence:
+            return "[Incompatible]"
         return '[Inv]'
     def get_panel_annotation(self, cyberware):
+        if cyberware.dna_sequence and cyberware.dna_sequence != self.char.dna_sequence:
+            return "Genetically Incompatible With {}".format(self.char.name)
         return 'With {}'.format(self.char.name)
     def acquire_cyberware(self, cyberware, camp):
         self.char.inv_com.remove(cyberware)
         return cyberware
 class StashSource(CyberwareSource):
-    def __init__(self, stash):
+    def __init__(self, char, stash):
+        self.char = char
         self.stash = stash
     def get_cyberware_list(self):
         rv = list()
@@ -611,8 +616,12 @@ class StashSource(CyberwareSource):
                 rv.append(cw)
         return rv
     def get_list_annotation(self, cyberware):
+        if cyberware.dna_sequence and cyberware.dna_sequence != self.char.dna_sequence:
+            return "[Incompatible]"
         return "[Stash]"
     def get_panel_annotation(self, cyberware):
+        if cyberware.dna_sequence and cyberware.dna_sequence != self.char.dna_sequence:
+            return "Genetically Incompatible With {}".format(self.char.name)
         return "Stashed"
     def acquire_cyberware(self, cyberware, camp):
         self.stash.remove(cyberware)
@@ -644,7 +653,7 @@ class UI(CoreUI):
         else:
             shop_source = AllCyberwareSource()
         sources = [ InventorySource(char)
-                  , StashSource(stash)
+                  , StashSource(char, stash)
                   , shop_source
                   ]
         super().__init__(char, _AggregateCyberwareSource(sources), camp, year)

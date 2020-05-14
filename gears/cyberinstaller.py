@@ -86,6 +86,10 @@ class CyberwareInstaller(object):
             self.alert("You cannot afford it!")
             return
 
+        if cyberware.dna_sequence and cyberware.dna_sequence != self.char.dna_sequence:
+            self.alert("Cannot install {};\ndoes not match your genetics.".format(cyberware.name))
+            return
+
         candidate_modules = self._get_candidate_modules(cyberware)
         if not candidate_modules:
             self.alert('Cannot install {}: cannot be installed in any body part.'.format(cyberware.name))
@@ -156,7 +160,15 @@ class CyberwareInstaller(object):
         installed in the given self.char!
         '''
         cyberware.parent.sub_com.remove(cyberware)
+        # The cyberware is now full of the previous user's cells.
+        cyberware.dna_sequence = self.char.dna_sequence
         self._return_old_cyberware(cyberware)
+
+    def _put_in(self, mod, cyberware):
+        actual = self._acquire_new_cyberware(cyberware)
+        # The host's cells permeate into the cyberware.
+        actual.dna_sequence = self.char.dna_sequence
+        mod.sub_com.append(actual)
 
     def _get_candidate_modules(self, cyberware):
         ''' Return all modules the cyberware can be installed in.
@@ -188,8 +200,7 @@ class CyberwareInstaller(object):
         the cyberware into the specified module.
         '''
         def install():
-            to_install = self._acquire_new_cyberware(cyberware)
-            mod.sub_com.append(to_install)
+            self._put_in(mod, cyberware)
         return install
 
     def _make_replace_fun(self, mod, old, new):
@@ -198,10 +209,8 @@ class CyberwareInstaller(object):
         the specified module.
         '''
         def replace():
-            mod.sub_com.remove(old)
-            self._return_old_cyberware(old)
-            to_install = self._acquire_new_cyberware(new)
-            mod.sub_com.append(to_install)
+            self.remove(old)
+            self._put_in(mod, new)
         return replace
 
     def _acquire_new_cyberware(self, cyberware):
