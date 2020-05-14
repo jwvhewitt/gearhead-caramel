@@ -168,11 +168,27 @@ class CyberdocTerminal( Waypoint ):
         super().__init__(**keywords)
         self.shop = shop
 
+    def _predraw(self):
+        pbge.my_state.view()
+        mydest = self.MENU_TITLE.get_rect()
+        pbge.default_border.render(mydest)
+        pbge.draw_text(pbge.MEDIUMFONT,"Choose character",mydest,color=pbge.INFO_HILIGHT,justify=0)
+
     def unlocked_use(self, camp):
         if not hasattr(self, 'shop'):
             self.shop = None
-        ui = cyberdoc.UI(camp.pc, camp, self.shop, camp.party, camp.year)
-        ui.activate_and_run()
+        char = True
+        while char:
+            mymenu = pbge.rpgmenu.Menu(-175,-100,350,250,predraw=self._predraw,font=pbge.BIGFONT)
+            for char in camp.party:
+                if isinstance(char, gears.base.Character):
+                    mymenu.add_item(char.name, char)
+            mymenu.sort()
+            mymenu.add_item("[EXIT]", None)
+            char = mymenu.query()
+            if char:
+                ui = cyberdoc.UI(char, camp, self.shop, camp.party, camp.year)
+                ui.activate_and_run()
 
 
 class MechaPoster(Waypoint):
