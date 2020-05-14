@@ -44,7 +44,7 @@ class DDLD_SortingDuel(LMPlot):
         self.accepted_duel = False
         self.duel = missionbuilder.BuildAMissionSeed(
             nart.camp, "{}'s Duel".format(npc), (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
-            rank = npc.renown, objectives = [dd_customobjectives.DDBAMO_DUEL_LANCEMATE],
+            rank = npc.renown, objectives = [dd_customobjectives.DDBAMO_DUEL_LANCEMATE],solo_mission=True,
             custom_elements={"LMNPC":npc},experience_reward=200,salvage_reward=False
         )
         return True

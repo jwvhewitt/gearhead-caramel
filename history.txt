@@ -1,3 +1,4 @@
+- Can't enter a mecha combat mission if you have no mecha
 - No reason for Gyroscopes to not be integral by default, so now they are integral by default
 - Fixed lake room map generator crash
 - You can no longer install characters into mecha cockpits, which can lead to broken savefiles.

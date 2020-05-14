@@ -278,6 +278,7 @@ class DZREPRC_ConclusionTemplate(Plot):
     DEFAULT_MEMO = ""
     REQUIRES = {}
     REQUIRED_FACTAGS = set()
+    SOLO_MISSION = False
 
     @classmethod
     def matches(cls, pstate):
@@ -297,7 +298,8 @@ class DZREPRC_ConclusionTemplate(Plot):
             architecture=gharchitecture.MechaScaleDeadzone(),
             win_message=self.WIN_MESSAGE.format(**self.elements),
             loss_message=self.LOSS_MESSAGE.format(**self.elements),
-            cash_reward=200 + self.elements[E_MISSION_WINS] ** 2 * 25
+            cash_reward=200 + self.elements[E_MISSION_WINS] ** 2 * 25,
+            solo_mission=self.SOLO_MISSION
         )
 
     def t_UPDATE(self,camp):
@@ -1138,6 +1140,7 @@ class DZREPC_CallOutChampionFight(DZREPRC_ConclusionTemplate):
     OBJECTIVES = (dd_customobjectives.DDBAMO_CHAMPION_1V1,)
     WIN_MESSAGE = "With their champion defeated, {FACTION} scatters, no longer a danger to travelers in the dead zone."
     DEFAULT_MEMO = "You learned that {FACTION}'s champion is waiting just outside of {LOCALE} to challenge you to a final duel."
+    SOLO_MISSION = True
 
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""

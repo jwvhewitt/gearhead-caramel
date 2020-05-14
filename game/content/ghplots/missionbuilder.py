@@ -56,7 +56,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
     # Optional elements:
     #   ENTRANCE_ANCHOR:    Anchor for the PC's entrance
     def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, rank=None, objectives=(),
-                 adv_type="BAM_MISSION", custom_elements=None, auto_exit=False,
+                 adv_type="BAM_MISSION", custom_elements=None, auto_exit=False, solo_mission=False,
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone(),
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  one_chance=True, data=None, win_message="", loss_message="", **kwargs):
@@ -77,6 +77,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             cms_pstate.elements["WIN_MESSAGE"] = win_message
         if loss_message:
             cms_pstate.elements["LOSS_MESSAGE"] = loss_message
+        self.solo_mission = solo_mission
 
         # Data is a dict of stuff that will get used by whatever plot created this adventure seed, or maybe it
         # can be used by some of the objectives. I dunno! It's just a dict of stuff! Do with it as you will.
@@ -107,6 +108,11 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         super(BuildAMissionSeed, self).end_adventure(camp)
         camp.day += 1
 
+    def __call__(self, camp):
+        if camp.has_mecha_party(self.solo_mission):
+            super().__call__(camp)
+        else:
+            pbge.alert("You cannot proceed on this mission without a mecha.")
 
 class BuildAMissionPlot(Plot):
     # Go fight mecha. Repeatedly.
@@ -121,6 +127,8 @@ class BuildAMissionPlot(Plot):
             50, 50, "Combat Zone", player_team=team1, scale=gears.scale.MechaScale,
             combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg"
         )
+        if self.adv.solo_mission:
+            myscene.attributes.add(gears.tags.SCENE_SOLO)
         myscenegen = self.elements["SCENEGEN"](myscene, self.elements["ARCHITECTURE"])
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE", temporary=True, dident="METROSCENE")
         self.adv.world = myscene

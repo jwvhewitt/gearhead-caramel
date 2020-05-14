@@ -426,7 +426,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             pbge.alert("Game Over",font=pbge.my_state.hugefont)
             self.delete_save_file()
 
-    def get_usable_party(self,map_scale,solo_map=False):
+    def get_usable_party(self,map_scale,solo_map=False,just_checking=False):
         usable_party = list()
         if not solo_map:
             party_candidates = self.party
@@ -436,13 +436,18 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc,(base.Character,base.Mecha)):
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational() and pc.check_design():
-                        pc.load_pilot(pc.pilot)
+                        if not just_checking:
+                            pc.load_pilot(pc.pilot)
                         usable_party.append(pc)
                 elif pc.is_operational():
                     usable_party.append(pc)
-        if not usable_party:
+        if not usable_party and not just_checking:
             usable_party.append(self.pc)
         return usable_party
+
+    def has_mecha_party(self, solo_map=False):
+        party = self.get_usable_party(scale.MechaScale,solo_map=solo_map,just_checking=True)
+        return len(party) > 0
 
     def choose_party(self):
         # Generally, if we're entering a mecha scale scene, send in the mecha.
