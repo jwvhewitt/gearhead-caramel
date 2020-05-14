@@ -340,6 +340,29 @@ class AlliedArmorSignEast(pbge.scenes.terrain.Terrain):
     frame = 1
     image_top = 'terrain_decor_alliedarmor.png'
 
+class FixitShopSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_fixitsign.png'
+
+class FixitShopSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_fixitsign.png'
+
+class FixitShopSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_fixitsign.png'
+
+class RustyFixitShopSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_fixitsign_rusty.png'
+
+class RustyFixitShopSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_fixitsign_rusty.png'
+
+class RustyFixitShopSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_fixitsign_rusty.png'
+
+
 class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = ScrapIronBuildingTerrain
     DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((JunkWindowSouth,), (JunkWindowEast,)),
@@ -388,6 +411,27 @@ class ResidentialBuilding(pbge.randmaps.terrset.BuildingSet):
     GF3_TILE = (22,)
     GF4_TILE = (23,)
     GF5_TILE = (24,)
+
+class IndustrialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_bottom = 'terrain_building_industrial_b.png'
+    image_top = 'terrain_building_industrial.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class IndustrialBuilding(pbge.randmaps.terrset.BuildingSet):
+    TERRAIN_TYPE = IndustrialBuildingTerrain
+    DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.RoofDecor((RoofStuff,)),
+                             )
+    UF1_TILE = (15,)
+    UF2_TILE = (16,)
+    UF3_TILE = (17,)
+    UF4_TILE = (18,)
+    UF5_TILE = (19,)
+    GF1_TILE = (20,)
+    GF2_TILE = (21,)
+    GF3_TILE = (22,)
+    GF4_TILE = (23,)
+    GF5_TILE = (24,)
+
 
 class ScreenDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_screendoor.png'

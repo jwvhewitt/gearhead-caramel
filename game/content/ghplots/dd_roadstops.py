@@ -483,6 +483,7 @@ class SomewhatOkayGarage(Plot):
         npc_name,garage_name = self.generate_npc_and_building_name()
         building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
+            door_sign=(ghterrain.RustyFixitShopSignEast, ghterrain.RustyFixitShopSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
@@ -547,6 +548,7 @@ class FranklyBoringGarage(Plot):
         npc_name,garage_name = self.generate_npc_and_building_name()
         building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
+            door_sign=(ghterrain.RustyFixitShopSignEast, ghterrain.RustyFixitShopSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
@@ -615,6 +617,7 @@ class DeadzoneClinic(Plot):
         myname = "{} Clinic".format(self.elements["LOCALE"])
         building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
             waypoints={"DOOR": ghwaypoints.WoodenDoor(name=myname)},
+            door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.

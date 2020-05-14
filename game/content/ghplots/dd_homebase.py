@@ -629,8 +629,9 @@ class DZD_WujungTires(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.IndustrialBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Wujung Tires")},
+            door_sign=(game.content.ghterrain.FixitShopSignEast, game.content.ghterrain.FixitShopSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
@@ -640,7 +641,7 @@ class DZD_WujungTires(Plot):
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
                                                                                  decorate=game.content.gharchitecture.CheeseShopDecor()),
