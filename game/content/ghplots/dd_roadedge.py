@@ -101,7 +101,7 @@ class DZDREProppStarterPlot(Plot):
 
     def get_road_adventure(self, camp, dest_node):
         # Return an adventure if there's going to be an adventure. Otherwise return nothing.
-        if self.active and random.randint(1,100) <= self.ENCOUNTER_CHANCE and not self.road_cleared:
+        if self.active and random.randint(1,100) <= self.ENCOUNTER_CHANCE and not self.road_cleared and camp.has_mecha_party():
             return self.get_enemy_encounter(camp, dest_node)
 
     def MISSION_WIN(self,camp):
