@@ -1,3 +1,4 @@
+- No reason for Gyroscopes to not be integral by default, so now they are integral by default
 - Fixed lake room map generator crash
 - You can no longer install characters into mecha cockpits, which can lead to broken savefiles.
 - You might now occassionally come across specially-named mecha on some mission objectives. If you're lucky you might even salvage them and their special modified equipment.

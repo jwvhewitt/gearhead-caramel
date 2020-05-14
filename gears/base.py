@@ -872,8 +872,10 @@ class Component(BaseGear):
     INTEGRAL_COST_REDUCTION = 0.0
     INTEGRAL_MASS_REDUCTION = 0.0
 
+    INTEGRAL_BY_DEFAULT = False
+
     def __init__(self, **keywords):
-        self.integral = keywords.pop('integral', False)
+        self.integral = keywords.pop('integral', self.INTEGRAL_BY_DEFAULT)
         super(Component, self).__init__(**keywords)
 
     def can_normally_remove(self):
@@ -1121,11 +1123,12 @@ class Engine(Component, StandardDamageHandler, MakesPower):
 class Gyroscope(Component, StandardDamageHandler):
     DEFAULT_NAME = "Gyroscope"
     base_mass = 10
+    INTEGRAL_BY_DEFAULT = True
 
     def is_legal_sub_com(self, part):
         return isinstance(part, Armor)
 
-    base_volume = 2
+    base_volume = 3
     base_cost = 10
     base_health = 2
 
