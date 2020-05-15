@@ -61,6 +61,8 @@ class DDBAMO_PracticeDuel( Plot ):
         myteam = self.elements["_eteam"]
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp,100)
+        else:
+            self.obj.failed = True
         if self.party_member:
             plotutility.AutoJoiner(self.elements["LMNPC"])(camp)
         #for pc in camp.party:

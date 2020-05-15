@@ -18,6 +18,7 @@ class AdventureSeed(Adventure):
         self.auto_set_rank = auto_set_rank
         self.restore_at_end = restore_at_end
         self.started = False
+        self.finished = False
         self.display_results_at_end = display_results_at_end
         self.root_plot = None
 
@@ -86,9 +87,12 @@ class AdventureSeed(Adventure):
             return "A+"
         else:
             return "S"
-    def is_completed(self):
-        return self.started and all([(o.optional or o.awarded_points > 0 or o.failed) for o in self.objectives])
 
+    def is_completed(self):
+        if self.finished:
+            return True
+        else:
+            return self.started and all([(o.optional or o.awarded_points > 0 or o.failed) for o in self.objectives])
 
     def restore_party(self, camp):
         """
@@ -104,6 +108,7 @@ class AdventureSeed(Adventure):
         self.results.append(("Repair/Reload","-${:,}".format(repair_total)))
 
     def cancel_adventure(self,camp):
+        self.finished = True
         super(AdventureSeed,self).end_adventure(camp)
 
     def end_adventure(self,camp):
@@ -132,6 +137,8 @@ class AdventureSeed(Adventure):
                                                  title_color=pygame.color.Color(250, 50, 0), mission_seed=self,
                                                  width=400)
             pbge.alert_display(mydisplay.show)
+
+        self.finished = True
 
         super(AdventureSeed,self).end_adventure(camp)
 
