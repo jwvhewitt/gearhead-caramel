@@ -30,7 +30,7 @@ class ForestRoom(FuzzyRoom):
         else:
             mydest = pygame.Rect(0,0,3,3)
             mydest.center = self.area.center
-            gb.fill(mydest,floor=ghterrain.Forest)
+            gb.fill(mydest,wall=ghterrain.Forest)
 
 
 class LakeRoom(FuzzyRoom):
@@ -80,5 +80,5 @@ class MSRuinsRoom(FuzzyRoom):
         else:
             mydest = pygame.Rect(0, 0, 3, 3)
             mydest.center = self.area.center
-            gb.fill(mydest, floor=ghterrain.MSRuinedWall)
+            gb.fill(mydest, wall=ghterrain.MSRuinedWall)
 

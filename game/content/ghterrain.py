@@ -261,6 +261,9 @@ class ScrapIronBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
 class ScrapIronDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_scrapirondoor.png'
 
+class GlassDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_glassdoor.png'
+
 class JunkWindowSouth(pbge.scenes.terrain.VariableTerrain):
     frames = (5,6,7)
     image_top = 'terrain_decor_junkwindows.png'
@@ -363,6 +366,18 @@ class RustyFixitShopSignEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_fixitsign_rusty.png'
 
 
+class CrossedSwordsTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_crossedswords.png'
+
+class CrossedSwordsTerrainSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_crossedswords.png'
+
+class CrossedSwordsTerrainEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_crossedswords.png'
+
+
 class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = ScrapIronBuildingTerrain
     DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((JunkWindowSouth,), (JunkWindowEast,)),
@@ -431,6 +446,38 @@ class IndustrialBuilding(pbge.randmaps.terrset.BuildingSet):
     GF3_TILE = (22,)
     GF4_TILE = (23,)
     GF5_TILE = (24,)
+
+class CommercialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_bottom = 'terrain_building_commercial_b.png'
+    image_top = 'terrain_building_commercial.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class CommercialBuilding(pbge.randmaps.terrset.BuildingSet):
+    TERRAIN_TYPE = CommercialBuildingTerrain
+    UF1_TILE = (15,)
+    UF2_TILE = (16,)
+    UF3_TILE = (17,)
+    UF4_TILE = (18,)
+    UF5_TILE = (19,)
+    GF1_TILE = (20,)
+    GF2_TILE = (21,)
+    GF3_TILE = (22,)
+    GF4_TILE = (23,)
+    GF5_TILE = (24,)
+
+
+class ConcreteBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_bottom = 'terrain_building_concrete_b.png'
+    image_top = 'terrain_building_concrete.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+
+class ConcreteBuilding(pbge.randmaps.terrset.BuildingSet):
+    TERRAIN_TYPE = ConcreteBuildingTerrain
+    DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((WindowSouth,), (WindowEast,)),
+                             pbge.randmaps.terrset.WallHanger(SteelPipeSouthTop,SteelPipeSouthMid,SteelPipeSouthMid,SteelPipeEastTop,SteelPipeEastMid,SteelPipeEastMid),
+                             pbge.randmaps.terrset.RoofDecor((RoofStuff,)),
+                             )
 
 
 class ScreenDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):

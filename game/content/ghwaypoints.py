@@ -73,6 +73,12 @@ class ScrapIronDoor(Exit):
     TILE = pbge.scenes.Tile(None,None,ghterrain.ScrapIronDoorTerrain)
     desc = "A door."
 
+class GlassDoor(Exit):
+    name = 'Door'
+    ATTACH_TO_WALL = True
+    TILE = pbge.scenes.Tile(None,None,ghterrain.GlassDoorTerrain)
+    desc = "A door."
+
 class ScreenDoor(Exit):
     name = 'Door'
     ATTACH_TO_WALL = True

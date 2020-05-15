@@ -76,10 +76,8 @@ class DZD_DeadZoneTown(Plot):
         #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
         #tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
-        # Black Isle Pub
-        # Wujung Tires - Conversion supplies
-        # Hwang-Sa Mission
-        # Reconstruction Site
+
+        self.add_sub_plot(nart, "RANDOM_LANCEMATE")
 
         # Add the local tarot.
         #threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
@@ -163,10 +161,8 @@ class DZD_DeadZoneVillage(Plot):
         #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
         #tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
-        # Black Isle Pub
-        # Wujung Tires - Conversion supplies
-        # Hwang-Sa Mission
-        # Reconstruction Site
+
+        self.add_sub_plot(nart, "RANDOM_LANCEMATE")
 
         # Add the local tarot.
         #threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )

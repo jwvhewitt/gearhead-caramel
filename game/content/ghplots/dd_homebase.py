@@ -58,7 +58,6 @@ class DZD_Wujung(Plot):
         nart.camp.home_base = (myscene, westgate)
 
         # Add the services.
-        tplot = self.add_sub_plot(nart, "DZDHB_AlliedArmor")
         tplot = self.add_sub_plot(nart, "DZDHB_WujungTires")
         tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
         tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
@@ -487,11 +486,8 @@ class DZD_AlliedArmor(Plot):
     scope = "INTERIOR"
 
     def custom_init(self, nart):
-        # Create a building within the town.
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Allied Armor")},
-            door_sign=(game.content.ghterrain.AlliedArmorSignEast, game.content.ghterrain.AlliedArmorSignSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+        # Sharing a building with Elite Equipment.
+        building = self.elements["EXTERIOR"]
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -510,7 +506,7 @@ class DZD_AlliedArmor(Plot):
 
         mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 room2=foyer, door1=building.waypoints["OTHER"],
                                                                  move_door1=False)
 
         npc = self.register_element("SHOPKEEPER",
@@ -630,7 +626,7 @@ class DZD_WujungTires(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", game.content.ghterrain.IndustrialBuilding(
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Wujung Tires")},
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name="Wujung Tires")},
             door_sign=(game.content.ghterrain.FixitShopSignEast, game.content.ghterrain.FixitShopSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
@@ -646,6 +642,7 @@ class DZD_WujungTires(Plot):
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
                                                                                  decorate=game.content.gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
+        foyer.contents.append(ghwaypoints.MechEngTerminal())
 
         mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
@@ -685,9 +682,13 @@ class DZD_EliteEquipment(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Elite Equipment")},
+        building = self.register_element("EXTERIOR", game.content.ghterrain.CommercialBuilding(
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name="Elite Equipment"),"OTHER": ghwaypoints.GlassDoor(name="Allied Armor")},
+            door_sign=(game.content.ghterrain.CrossedSwordsTerrainEast, game.content.ghterrain.CrossedSwordsTerrainSouth),
+            other_sign=(game.content.ghterrain.AlliedArmorSignEast,game.content.ghterrain.AlliedArmorSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        tplot = self.add_sub_plot(nart, "DZDHB_AlliedArmor")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -741,7 +742,7 @@ class DZD_WujungHospital(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", game.content.ghterrain.WhiteBrickBuilding(
-            waypoints={"DOOR": ghwaypoints.WoodenDoor(name="Wujung Hospital")},
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name="Wujung Hospital")},
             door_sign=(game.content.ghterrain.HospitalSignEast, game.content.ghterrain.HospitalSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
@@ -932,7 +933,7 @@ class DZD_LongRoadLogistics(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.ConcreteBuilding(
             waypoints={"DOOR": ghwaypoints.WoodenDoor(name="Long Road Logistics")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 

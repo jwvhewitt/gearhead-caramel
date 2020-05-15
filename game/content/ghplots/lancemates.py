@@ -29,6 +29,7 @@ class UtterlyRandomLancemate(Plot):
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
+
 class UtterlyGenericLancemate(Plot):
     LABEL = "RANDOM_LANCEMATE"
     JOBS = ("Mecha Pilot","Arena Pilot","Recon Pilot","Mercenary","Bounty Hunter")
@@ -47,6 +48,7 @@ class UtterlyGenericLancemate(Plot):
 
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
 
 class GiftedNewbieLancemate(Plot):
     # Amazing stats, amazingly crap skills.
@@ -115,6 +117,33 @@ class DeadzonerInGreenZoneLancemate(Plot):
 
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
+class GladiatorLancemate(Plot):
+    LABEL = "RANDOM_LANCEMATE"
+    UNIQUE = True
+
+    @classmethod
+    def matches( self, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes
+
+    def custom_init(self, nart):
+        npc = gears.selector.random_character(statline=gears.base.Being.random_stats(random.randint(80, 110)),
+                                              rank=random.randint(25, 65),can_cyberize=True,
+                                              job=gears.jobs.ALL_JOBS["Gladiator"],
+                                              mecha_colors=gears.color.random_mecha_colors(),
+                                              local_tags=(gears.personality.DeadZone,),
+                                              combatant=True)
+        scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+
+        self.register_element("NPC", npc, dident="LOCALE")
+        self.add_sub_plot(nart, "RLM_Relationship")
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
 
 class MutantLancemate(Plot):
     LABEL = "RANDOM_LANCEMATE"
@@ -357,7 +386,7 @@ class RLM_Mercenary(Plot):
     def NPC_offers(self, camp):
         mylist = list()
         npc = self.elements["NPC"]
-        self.hire_cost = npc.renown * (150 - npc.get_reaction_score(camp.pc, camp))
+        self.hire_cost = npc.renown * (200 - npc.get_reaction_score(camp.pc, camp))
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
                 mylist.append(Offer("I'll join your lance for a mere ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
@@ -502,10 +531,10 @@ class RLM_RatherGeneric(Plot):
     def NPC_offers(self, camp):
         mylist = list()
         npc = self.elements["NPC"]
-        self.hire_cost = npc.renown * (125 - npc.get_reaction_score(camp.pc, camp))
+        self.hire_cost = npc.renown * (175 - npc.get_reaction_score(camp.pc, camp))
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
-                if npc.get_reaction_score(camp.pc, camp) > 20:
+                if npc.get_reaction_score(camp.pc, camp) > 60:
                     mylist.append(Offer("[IWOULDLOVETO] [THANKS_FOR_CHOOSING_ME]",
                                         context=ContextTag((context.PROPOSAL, context.JOIN)),
                                         data={"subject": "joining my lance"},
@@ -558,6 +587,91 @@ class RLM_RatherGeneric(Plot):
             mynpc = self.elements["NPC"]
             goffs.append(Offer(
                 msg="You can find {} at {}.".format(mynpc,mynpc.get_scene()),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self,camp):
+        mynpc = self.elements["NPC"]
+        self._got_rumor = True
+        self.memo = "{} at {} is looking for a new lance.".format(mynpc,mynpc.get_scene())
+
+
+class RLM_DamagedGoodsSale(Plot):
+    LABEL = "RLM_Relationship"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.elements["NPC"]
+        npc.relationship = gears.relationships.Relationship(expectation=gears.relationships.E_IMPROVER)
+        # This NPC gets a stat bonus but a crappy mech to show their history.
+        npc.relationship.data["mecha_level_bonus"] = -15
+        npc.roll_stats(5, clear_first=False)
+        self._got_rumor = False
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        npc = self.elements["NPC"]
+        self.hire_cost = npc.renown * (125 - npc.get_reaction_score(camp.pc, camp))
+        if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
+            if camp.can_add_lancemate():
+                if npc.get_reaction_score(camp.pc, camp) > 20:
+                    mylist.append(Offer("[IWOULDLOVETO] I'll do my best to not let you down.",
+                                        context=ContextTag((context.PROPOSAL, context.JOIN)),
+                                        data={"subject": "joining my lance"},
+                                        effect=self._join_lance
+                                        ))
+                else:
+                    mylist.append(Offer("I'll sign up with you for just ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                                        context=ContextTag((context.PROPOSAL, context.JOIN)),
+                                        data={"subject": "joining my lance"},
+                                        subject=self, subject_start=True,
+                                        ))
+                    mylist.append(Offer("[DENY_JOIN] [GOODBYE]",
+                                        context=ContextTag((context.DENY, context.JOIN)), subject=self
+                                        ))
+                    if camp.credits >= self.hire_cost:
+                        mylist.append(Offer("[THANKS_FOR_CHOOSING_ME] I'll do my best to not let you down.",
+                                            context=ContextTag((context.ACCEPT, context.JOIN)), subject=self,
+                                            effect=self._pay_to_join
+                                            ))
+                mylist.append(Offer(
+                    "[HELLO] The life of a cavalier is full of ups and downs... right now I'm in one of those downs.", context=ContextTag((context.HELLO,))
+                ))
+            else:
+                mylist.append(Offer(
+                    "[HELLO] Be careful out there... all it takes is one little mistake to cost you everything.", context=ContextTag((context.HELLO,))
+                ))
+        return mylist
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"]:
+            mygram["[News]"] = ["{NPC} is a down on {NPC.gender.possessive_determiner} luck cavalier looking for another chance".format(**self.elements), ]
+        return mygram
+
+    def _pay_to_join(self,camp):
+        camp.credits -= self.hire_cost
+        self._join_lance(camp)
+
+    def _join_lance(self, camp):
+        npc = self.elements["NPC"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        effect = game.content.plotutility.AutoJoiner(npc)
+        effect(camp)
+        self.end_plot(camp)
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"] and not self._got_rumor:
+            mynpc = self.elements["NPC"]
+            goffs.append(Offer(
+                msg="You can find {} at {}. Don't say that you weren't warned.".format(mynpc,mynpc.get_scene()),
                 context=ContextTag((context.INFO,)), effect=self._get_rumor,
                 subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
             ))
