@@ -428,7 +428,7 @@ class HateClub_GenericHaters(Plot):
                 ghdialogue.SkillBasedPartyReply(
                     Offer(
                         "Ow, my [body_part]!",
-                        context=ContextTag([context.CUSTOM]),data={"reply": "<{} punches {}>".format(camp.pc,npc)},
+                        context=ContextTag([context.CUSTOM]),data={"reply": "<punch {}>".format(camp.pc,npc)},
                         dead_end=True, effect=self._tell_about_club,
                     ),camp,goffs,gears.stats.Body,gears.stats.CloseCombat,self.rank,message_format="<{} punches "+ str(npc) + ">"
                 )
@@ -669,7 +669,6 @@ class InvestigateUsingWords(Plot):
         self.card = None
         self.mission_given = False
         self.mission_won = False
-        print("Investigating!")
         return True
 
     def ME_PERSON_offers(self, camp):
