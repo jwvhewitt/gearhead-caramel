@@ -23,8 +23,8 @@ ME_PUZZLEITEM = "ME_PUZZLEITEM"
 ME_CRIME = "ME_CRIME"
 ME_CRIMED = "ME_CRIMED"
 
-SIG_INCRIMINATE = "SIG_INCRIMINATE"
-SIG_ACCUSE = "SIG_ACCUSE"
+SIG_INCRIMINATE = "SIG_INCRIMINATE" # Looks like someone did crime
+SIG_ACCUSE = "SIG_ACCUSE"           # Bring the hammer of justice against the evil-doer
 
 class TheDisbanded(TarotCard):
     TAGS = (ME_FACTION,)
@@ -110,9 +110,34 @@ class FactionClue(TarotCard):
         return True
 
 
+class FactionInvestigator(TarotCard):
+    TAGS = (MT_PERSON)
+    active = True
+    ONE_USE = True
+    ON_REVEAL_MEMO = "{ME_PERSON} at {MEP_LOC} is investigating {ME_FACTION}."
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_Investigate", TarotSignal(SIG_INCRIMINATE, [ME_FACTION]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("FactionCrimesProof",[],(ME_FACTION,ME_CRIME,ME_CRIMED))
+            }
+        ),
+    )
+
+    def custom_init( self, nart ):
+        if not ME_FACTION in self.elements:
+            self.elements[ME_FACTION] = plotutility.RandomBanditCircle()
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart,"MT_REVEAL_Investigator",ident="REVEAL",elements={"INVESTIGATION_SUBJECT":str(self.elements[ME_FACTION])})
+            self.elements[ME_PERSON] = sp.elements[ME_PERSON]
+            self.elements["MEP_LOC"] = sp.elements[ME_PERSON].get_scene()
+            self.memo = self.ON_REVEAL_MEMO.format(**self.elements)
+        return True
+
 
 class Atrocity(TarotCard):
-    # Someone made a war crime.
+    # A faction made a war crime.
     TAGS = (MT_CRIME,)
     QOL = gears.QualityOfLife(stability=-3)
     active = True

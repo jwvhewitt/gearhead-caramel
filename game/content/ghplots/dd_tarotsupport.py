@@ -470,6 +470,69 @@ class HateClub_GenericHaters(Plot):
             ]
         return mygram
 
+#   ********************************
+#   ***  MT_REVEAL_Investigator  ***
+#   ********************************
+#
+# INVESTIGATION_SUBJECT: A string that can be used for "I'm investigating _____" or "Do you know anything about _____?"
+
+class InvestigativeReporter(Plot):
+    LABEL = "MT_REVEAL_Investigator"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Place the reporter.
+        npc = gears.selector.random_character(rank=random.randint(self.rank, self.rank+20),
+                                              mecha_colors=gears.color.random_mecha_colors(),
+                                              local_tags=tuple(self.elements["METROSCENE"].attributes),
+                                              job=gears.jobs.ALL_JOBS["Reporter"])
+        scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+        self.register_element(ME_PERSON, npc, dident="LOCALE")
+        self.got_memo = False
+        self.got_rumor = False
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def ME_PERSON_offers(self,camp):
+        mylist = list()
+        mylist.append(
+            Offer(
+                "[HELLO] Do you know anything about {INVESTIGATION_SUBJECT}? I'm working on a story.".format(**self.elements),
+                ContextTag([context.HELLO,]),effect=self._reveal
+            )
+        )
+        return mylist
+    def _reveal(self,camp):
+        camp.check_trigger("WIN",self)
+        self.end_plot(camp)
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements[ME_PERSON]:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[News]"] = ["{ME_PERSON} has been investigating a story about {INVESTIGATION_SUBJECT}".format(**self.elements), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements[ME_PERSON] and not self.got_rumor:
+            mynpc = self.elements[ME_PERSON]
+            goffs.append(Offer(
+                msg="As far as I know {} usually hangs out at {}.".format(mynpc,mynpc.get_scene()),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self,camp):
+        mynpc = self.elements[ME_PERSON]
+        self.got_rumor = True
+        self.memo = "{} at {} has been investigating {}.".format(mynpc,mynpc.get_scene(),self.elements["INVESTIGATION_SUBJECT"])
+
 
 #   **************************
 #   ***  MT_SOCKET_Accuse  ***
@@ -576,6 +639,222 @@ class GuardianJudgment(Plot):
         if CONSEQUENCE_LOSE in mysocket.consequences:
             mysocket.consequences[CONSEQUENCE_LOSE](camp,mycard,self.card)
         self.end_plot(camp)
+
+
+#   *******************************
+#   ***  MT_SOCKET_Investigate  ***
+#   *******************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_PERSON   The investigator
+#   ME_CARD
+#   ME_SOCKET
+
+class InvestigateUsingWords(Plot):
+    # - Send the player to Negotiate/Stealth their way into a faction meeting.
+    LABEL = "MT_SOCKET_Investigate"
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches( cls, pstate ):
+        """This plot requires a faction to investigate."""
+        return ME_FACTION in pstate.elements
+
+    def custom_init(self, nart):
+        # Ensure there will always be at least one faction member here.
+        self.add_sub_plot(nart, "ENSURE_LOCAL_REPRESENTATION", elements={"FACTION": self.elements[ME_FACTION]})
+        self.card = None
+        self.mission_given = False
+        self.mission_won = False
+        print("Investigating!")
+        return True
+
+    def ME_PERSON_offers(self, camp):
+        """Get offers from the mission-giver."""
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        if not self.mission_given:
+            mysig = mysocket.get_activating_signals(mycard, camp)
+            if mysig and not self.mission_given:
+                card = mysig[0][0]
+                villain = self.elements[ME_FACTION]
+                crimed = card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did crime"
+                goffs.append(Offer(
+                    "[MAYBE_YOU_COULD_HELP] I've been trying to infiltrate one of their meetings to find out more, but they all know me. You, on the other hand, could easily sneak in and record what they're planning.".format(villain),
+                    context=ContextTag([context.REVEAL]),effect=self._start_mission,
+                    data={"reveal":"{} {}".format(villain,crimed)}
+                ))
+                self.card = card
+        else:
+            goffs.append(Offer(
+                "Come back after you have infiltrated the meeting.".format(**self.elements),
+                context=ContextTag([context.HELLO]),
+            ))
+            if self.mission_won:
+                goffs.append(Offer(
+                    "[THANK_YOU] This is perfect; these recordings will prove exactly what's been going on. Hopefully now {} can be brought to justice.".format(self.elements[ME_FACTION]),
+                    context=ContextTag([context.CUSTOM]), effect=self._win_investigation, no_repeats=True,
+                    data={"reply":"I infiltrated the meeting and brought back this recording."}
+                ))
+
+        return goffs
+
+    def _start_mission(self,camp):
+        self.mission_given = True
+        self.memo = "{} at {} asked you to investigate {} by sneaking into one of their meetings.".format(self.elements[ME_PERSON],self.elements[ME_PERSON].get_scene(),self.elements[ME_FACTION])
+
+    def t_START(self,camp):
+        # If the investigator dies, end this plot.
+        if self.elements[ME_PERSON].is_destroyed():
+            if not self.mission_given:
+                if self.card:
+                    mycard = self.elements[mechtarot.ME_CARD]
+                    mysocket = self.elements[mechtarot.ME_SOCKET]
+                    if CONSEQUENCE_LOSE in mysocket.consequences:
+                        mysocket.consequences[CONSEQUENCE_LOSE](camp, mycard, self.card)
+                self.end_plot(camp,True)
+            elif self.mission_won:
+                verb = self.card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did terrible things"
+                pbge.alert("Your recordings from the meeting prove that {} {}.".format(self.elements[ME_FACTION],verb))
+                self._win_investigation(camp)
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        if self.mission_given and npc.faction is self.elements[ME_FACTION] and not self.mission_won:
+            villain = self.elements.get(ME_FACTION)
+            goffs.append(Offer(
+                "Our next meeting? Why would you be interested in that?",
+                ContextTag([context.INFO,]),subject=self,subject_start=True,
+                no_repeats=True,data={"subject":"your next meeting"}
+            ))
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "It's always a pleasure to meet someone who sees the world in the right way. Come along, then... I'm heading to the meeting now.",
+                    ContextTag([context.CUSTOM,]),subject=self,no_repeats=True,dead_end=True,
+                    data={"reply":"I have read your newsletter and found the ideas genuinely stimulating."},
+                    effect=self._attend_meeting
+                ), camp, goffs, gears.stats.Charm, gears.stats.Negotiation, self.rank, gears.stats.DIFFICULTY_AVERAGE
+            )
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "Oh, how wonderful! I've heard you've done great things over there. Well, the meeting is going to start soon, so let's get over there.",
+                    ContextTag([context.CUSTOM, ]), subject=self, no_repeats=True, dead_end=True,
+                    data={"reply": "Actually I'm a member of the Ipshil branch but just moved here."},
+                    effect=self._attend_meeting
+                ), camp, goffs, gears.stats.Charm, gears.stats.Stealth, self.rank, gears.stats.DIFFICULTY_AVERAGE
+            )
+            goffs.append(Offer(
+                "[GOODBYE]",
+                ContextTag([context.CUSTOM, ]), subject=self, no_repeats=True, dead_end=True,
+                data={"reply": "Um, no reason..."}
+            ))
+        return goffs
+
+    def _attend_meeting(self,camp):
+        crime = self.card.elements.get(ME_CRIME) or self.elements.get(ME_CRIME) or "crime"
+        pbge.alert("You attend the meeting of {ME_FACTION}. There is a lot of talk about reforging the world and purging the unworthy. It gets pretty repetitive after a while.".format(**self.elements))
+        pbge.alert("Fortunately, there is also some talk of {}, and you get it all on tape.".format(crime))
+        self.mission_won = True
+
+    def _win_investigation(self,camp):
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        if CONSEQUENCE_WIN in mysocket.consequences:
+            mysocket.consequences[CONSEQUENCE_WIN](camp,mycard,self.card)
+        self.end_plot(camp,total_removal=True)
+
+
+class InvestigateUsingGiantRobots(Plot):
+    # - Send the player to capture a building so it can be investigated.
+    LABEL = "MT_SOCKET_Investigate"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        self.mission_seed = None
+        self.card = None
+        return True
+
+    def ME_PERSON_offers(self, camp):
+        """Get offers from the mission-giver."""
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        if not self.mission_seed:
+            mysig = mysocket.get_activating_signals(mycard, camp)
+            if mysig and not self.mission_seed:
+                card = mysig[0][0]
+                    # Alright, we have someone with the power to incriminate. Harvest some information.
+                villain = card.elements.get(ME_FACTION) or self.elements.get(ME_FACTION) or card.elements.get(ME_PERSON) or "Somebody"
+                crimed = card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did crime"
+                goffs.append(Offer(
+                    "[MAYBE_YOU_COULD_HELP] I've been trying to get info about {}, but their facility is heavily guarded. If you could get me in, I could find all the information we need.".format(villain),
+                    context=ContextTag([context.REVEAL]),effect=self._start_mission,
+                    data={"reveal":"{} {}".format(villain,crimed)}
+                ))
+                self.card = card
+        else:
+            villain = self.card.elements.get(ME_FACTION) or self.elements.get(ME_FACTION) or self.card.elements.get(
+               ME_PERSON) or "Somebody"
+            if self.mission_seed.is_won():
+                verb = self.card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did terrible things"
+                goffs.append(Offer(
+                    "We did it! I've found the proof that {} {}! Now we just need to alert someone with the power to do something about it...".format(villain,verb),
+                    context=ContextTag([context.HELLO]), effect=self._win_investigation
+                ))
+            else:
+                goffs.append(Offer(
+                    "[HELLO] Get back to me after you've secured the base belonging to {}.".format(villain),
+                    context=ContextTag([context.HELLO]), effect=self._win_investigation
+                ))
+
+        return goffs
+
+    def _start_mission(self,camp):
+        villain = self.card.elements.get(ME_FACTION) or self.elements.get(ME_FACTION)
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            camp, "Infiltrate {}'s base".format(self.elements[ME_FACTION]),
+            (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+            enemy_faction=villain, rank=self.rank,
+            objectives=(missionbuilder.BAMO_CAPTURE_BUILDINGS,missionbuilder.BAMO_LOCATE_ENEMY_FORCES),
+            cash_reward=500, experience_reward=250, one_chance=False,
+            win_message = "Having captured their base, you can begin searching for information.".format(self.elements[ME_FACTION]),
+        )
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+    def t_START(self,camp):
+        if self.elements[ME_PERSON].is_destroyed():
+            if not self.mission_seed:
+                if self.card:
+                    mycard = self.elements[mechtarot.ME_CARD]
+                    mysocket = self.elements[mechtarot.ME_SOCKET]
+                    if CONSEQUENCE_LOSE in mysocket.consequences:
+                        mysocket.consequences[CONSEQUENCE_LOSE](camp, mycard, self.card)
+                self.end_plot(camp)
+            elif self.mission_seed.is_won():
+                villain = self.card.elements.get(ME_FACTION) or self.elements.get(ME_FACTION) or "Someone"
+                verb = self.card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did terrible things"
+                pbge.alert("While searching the base, you discover proof that {} {}.".format(villain,verb))
+                self._win_investigation(camp)
+
+    def _win_investigation(self,camp):
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        if CONSEQUENCE_WIN in mysocket.consequences:
+            mysocket.consequences[CONSEQUENCE_WIN](camp,mycard,self.card)
+        self.end_plot(camp)
+
 
 
 #   ******************************

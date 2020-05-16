@@ -1687,6 +1687,23 @@ DEFAULT_GRAMMAR = {
         personality.DeadZone: ["the moon","the moon","the moon",],
     },
 
+    "[MAYBE_YOU_COULD_HELP]": {
+        Default: ["Maybe you could help me with this."
+                  ],
+        personality.Cheerful: ["It's lucky that you're here, because you're just the sort who could help me with this.",
+                               ],
+        personality.Grim: ["I had almost given up hope, but maybe you could help me.",
+                           ],
+        personality.Easygoing: ["Say, I don't suppose you'd be willing to help me with something?",
+                                ],
+        personality.Passionate: ["You must help me [audience], you're my only hope!",
+                                 ],
+        personality.Sociable: ["Working together, we might just be able to pull this off.",
+                               ],
+        personality.Shy: ["Please help me.",
+                          ],
+    },
+
     "[MechaMissionVsEnemyFaction]": {
         # The data block should include enemy_faction
         Default: ["You will be fighting {enemy_faction}"

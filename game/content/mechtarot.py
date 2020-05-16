@@ -129,6 +129,7 @@ class TarotTransformer(object):
                 other_card.invoke(camp,this_card)
             this_card.end_plot(camp)
 
+
 class TarotCard(plots.Plot):
     LABEL = "TAROT"
     UNIQUE = False
@@ -138,6 +139,7 @@ class TarotCard(plots.Plot):
     SOCKETS = ()
     NEGATIONS = ()
     ONE_USE = False
+    ON_REVEAL_MEMO = None
 
     def __init__(self, nart, pstate):
         self.tarot_position = pstate.elements.get(ME_TAROTPOSITION,None)
@@ -168,6 +170,8 @@ class TarotCard(plots.Plot):
     def REVEAL_WIN(self,camp):
         # Always add reveal plots with the ID "REVEAL" so this will work.
         self.reveal(camp)
+        if self.ON_REVEAL_MEMO:
+            self.memo = self.ON_REVEAL_MEMO.format(**self.elements)
 
 
 class CardDeactivator(object):
