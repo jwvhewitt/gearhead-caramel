@@ -239,6 +239,9 @@ class Shop(object):
         keep_going = True
         last_selected = None
 
+        last_bought = None
+        last_bought_num = 0
+
         while keep_going:
             mymenu = self.make_wares_menu(camp, shopdesc)
             if last_selected:
@@ -249,8 +252,16 @@ class Shop(object):
                 cost = self.calc_purchase_price( camp, it )
                 if cost > camp.credits:
                     shopdesc.caption = "You can't afford it!"
+                    last_bought = None
+                    last_bought_num = 0
                 else:
                     it2 = copy.deepcopy( it )
+                    # Check by fullname.  Not perfect but...
+                    if last_bought and last_bought.get_full_name() == it.get_full_name():
+                        last_bought_num += 1
+                    else:
+                        last_bought = it
+                        last_bought_num = 1
 
                     if self.customer.can_equip(it2):
                         self.customer.inv_com.append( it2 )
@@ -258,7 +269,11 @@ class Shop(object):
                         camp.party.append(it2)
                     self.improve_friendliness( camp, it2 )
                     camp.credits -= cost
-                    shopdesc.caption = "You have bought {0}.".format(it2)
+
+                    if last_bought_num == 1:
+                        shopdesc.caption = "You have bought {0}.".format(it2.get_full_name())
+                    else:
+                        shopdesc.caption = "You have bought {1}x {0}.".format(it2.get_full_name(), last_bought_num)
             else:
                 keep_going = False
 
@@ -310,7 +325,7 @@ class Shop(object):
                 cost = self.calc_sale_price( camp, it )
                 camp.credits += cost
                 item_source.remove(it)
-                shopdesc.caption = "You have sold {} for ${:,}.".format(it,cost)
+                shopdesc.caption = "You have sold {} for ${:,}.".format(it.get_full_name(), cost)
             else:
                 keep_going = False
 

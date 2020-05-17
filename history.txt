@@ -1,3 +1,5 @@
+- Shops now show how many of an item you buy in sequence, and use the full name of the item.
+
 v0.520 May 16 2020
 - Mechanical Tarot scenario generator improved and expanded
 - Can't enter a mecha combat mission if you have no mecha
