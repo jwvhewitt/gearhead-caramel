@@ -749,6 +749,14 @@ class InvestigateUsingWords(Plot):
                     effect=self._attend_meeting
                 ), camp, goffs, gears.stats.Charm, gears.stats.Stealth, self.rank, gears.stats.DIFFICULTY_AVERAGE
             )
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "Oh, right... Sorry, I guess I'm just bad with faces. Well, the meeting is going to start in a little while, so let's go there together.",
+                    ContextTag([context.CUSTOM, ]), subject=self, no_repeats=True, dead_end=True,
+                    data={"reply": "Don't you remember me? We met at the {} picnic last month.".format(self.elements[ME_FACTION])},
+                    effect=self._attend_meeting
+                ), camp, goffs, gears.stats.Charm, gears.stats.Performance, self.rank, gears.stats.DIFFICULTY_HARD
+            )
             goffs.append(Offer(
                 "[GOODBYE]",
                 ContextTag([context.CUSTOM, ]), subject=self, no_repeats=True, dead_end=True,
