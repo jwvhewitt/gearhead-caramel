@@ -34,6 +34,10 @@ LIST_HEIGHT = SCREEN_HEIGHT - (MARGIN + HEADER_HEIGHT + MARGIN + LABEL_HEIGHT + 
 RIGHT_COLUMN_X = UL_X + SCREEN_WIDTH - (MARGIN + COLUMN_WIDTH)
 FOOTER_Y = LIST_Y + LIST_HEIGHT + MARGIN
 
+MONEY_PANEL_FRECT = pbge.frects.Frect( UL_X + MARGIN, FOOTER_Y
+                                     , COLUMN_WIDTH, FOOTER_HEIGHT
+                                     )
+
 INSTALLED_LABEL_FRECT = pbge.frects.Frect( MID_COLUMN_X, LABEL_Y
                                          , COLUMN_WIDTH, LABEL_HEIGHT
                                          )
@@ -131,6 +135,8 @@ class CoreUI(pbge.widgets.Widget):
 
         # Info panel at top.
         self._medicalpanel = None
+        # Info panel at bottom.
+        self._moneypanel = None
 
         # Build UI components.
         installed_label = pbge.widgets.LabelWidget( INSTALLED_LABEL_FRECT.dx, INSTALLED_LABEL_FRECT.dy
@@ -247,6 +253,10 @@ class CoreUI(pbge.widgets.Widget):
                                                     , year = self.year
                                                     , width = MED_PANEL_FRECT.w
                                                     )
+        self._moneypanel = _CreditsPanel( model = self.char
+                                        , camp = self.camp
+                                        , width = MONEY_PANEL_FRECT.w
+                                        )
 
     def _gather_cyberware(self):
         del self.installed[:]
@@ -278,6 +288,9 @@ class CoreUI(pbge.widgets.Widget):
 
         rect = MED_PANEL_FRECT.get_rect()
         self._medicalpanel.render(rect.x, rect.y)
+
+        rect = MONEY_PANEL_FRECT.get_rect()
+        self._moneypanel.render(rect.x, rect.y)
 
     def _install(self, widj, ev):
         if self._available_listwidget.current_item:
@@ -518,7 +531,10 @@ class _InstalledInBlock(_TextLabelBlock):
         return "Installed: {}".format(self.model.parent.name)
 
 class _CyberCharPanel(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.FullNameBlock, _CreditsBlock, gears.info.ModuleStatusBlock, _TraumaBlock, _StaminaLostBlock, gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.NonComSkillBlock)
+    DEFAULT_BLOCKS = (gears.info.FullNameBlock, gears.info.ModuleStatusBlock, _TraumaBlock, _StaminaLostBlock, gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.NonComSkillBlock)
+
+class _CreditsPanel(gears.info.InfoPanel):
+    DEFAULT_BLOCKS = (_CreditsBlock,)
 
 class _MedicalCommentaryBlock( object ):
     def __init__(self, model, width = 220, year = 158, font = None, color = None, **kwargs):
