@@ -360,9 +360,9 @@ class Shop(object):
 
         while keep_going:
             it = mymenu.query()
-            if it is -1:
+            if it == -1:
                 pass
-            elif it is 1:
+            elif it == 1:
                 pass
             elif it:
                 # A method was selected. Deal with it.

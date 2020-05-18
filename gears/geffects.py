@@ -1593,7 +1593,7 @@ class StatValuePrice(object):
             minvalues[p.statid] = max(minvalues.get(p.statid, 0), p.minvalue)
         descs = list()
         for statid in minvalues.keys():
-            descs.append('{}+{}'(statid.name, minvalues[statid]))
+            descs.append('{}+{}'.format(statid.name, minvalues[statid]))
         return ', '.join(descs)
 
     def pay( self, chara ):

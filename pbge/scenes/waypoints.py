@@ -40,7 +40,7 @@ class Waypoint( object ):
             self.desc = desc
         if anchor:
             self.anchor = anchor
-        if name is not '':
+        if name != '':
             self.name = name
 
     def place( self, scene, pos=None ):

@@ -209,7 +209,7 @@ class ComponentEditWidget(PartEditWidget):
             self.add_interior(self.integral_menu)
 
     def _set_integral(self,result):
-        self.mygear.integral = result is 'True'
+        self.mygear.integral = result == 'True'
         self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
         self.editor.update()
 

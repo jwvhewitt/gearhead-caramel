@@ -329,7 +329,7 @@ class GH1Loader(object):
         del stat_stuff[0]
         mystat = -1
         for s in stat_stuff:
-            if mystat is -1:
+            if mystat == -1:
                 mystat = int(s)
             else:
                 mydict[mystat] = int(s)

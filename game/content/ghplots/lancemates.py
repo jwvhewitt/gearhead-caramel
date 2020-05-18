@@ -57,8 +57,8 @@ class GiftedNewbieLancemate(Plot):
     UNIQUE = True
 
     def custom_init(self, nart):
-        npc = gears.selector.random_character(statline=gears.base.Being.random_stats(random.randint(100, 130)),
-                                              rank=random.randint(5, 20),
+        npc = gears.selector.random_character(statline=gears.base.Being.random_stats(random.randint(100, 110)),
+                                              rank=random.randint(5, 15),
                                               job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
@@ -103,8 +103,7 @@ class DeadzonerInGreenZoneLancemate(Plot):
         return gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes
 
     def custom_init(self, nart):
-        npc = gears.selector.random_character(statline=gears.base.Being.random_stats(random.randint(80, 110)),
-                                              rank=random.randint(20, 55),
+        npc = gears.selector.random_character(rank=random.randint(20, 55),
                                               job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=(gears.personality.DeadZone,),
@@ -129,8 +128,7 @@ class GladiatorLancemate(Plot):
         return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes
 
     def custom_init(self, nart):
-        npc = gears.selector.random_character(statline=gears.base.Being.random_stats(random.randint(80, 110)),
-                                              rank=random.randint(25, 65),can_cyberize=True,
+        npc = gears.selector.random_character(rank=random.randint(25, 65),can_cyberize=True,
                                               job=gears.jobs.ALL_JOBS["Gladiator"],
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=(gears.personality.DeadZone,),
