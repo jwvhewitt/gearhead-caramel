@@ -132,7 +132,7 @@ DEFAULT_GRAMMAR = {
 
     "[ATTACK]": {
         Default: ["I don't know what you're doing here, but you'll feel my wrath. [LETSFIGHT]",
-            "You shouldn't have come here. [LETSFIGHT]"
+            "You shouldn't have come here. [LETSFIGHT]", "[BATTLE_GREETING] [LETSFIGHT]"
             ],
         personality.Cheerful: ["I was hoping that today would be interesting, and now here you are... [LETSFIGHT]",
             ],
@@ -163,20 +163,21 @@ DEFAULT_GRAMMAR = {
     
     "[ATTACK:CHALLENGE]": {
         Default: ["I accept your challenge.","This won't go so well for you.",
-            "I can take you.","Let's finish this.",
+            "I can take you.","Let's finish this.", "I must [objective_pp].", "I will [objective_pp]."
             ],
         personality.Cheerful: ["Sounds like fun.","Don't make me laugh.",
             "This is getting fun!",
             ],
         personality.Grim: ["You will regret challenging me.","This may be your last mistake.",
-            "This will end in tears for you...",
+            "This will end in tears for you...", "I will [objective_pp] or die trying!"
             ],
         personality.Easygoing: [ "I guess we could do that.","Sure, I have nothing better to do.",
+                                 "I'm just gonna [objective_pp]."
             ],
-        personality.Passionate: ["Prepare to be demolished.","You don't know who you're messing with.",
-            "You have no chance of beating me.","WAARGH!!!",
+        personality.Passionate: ["Prepare to be demolished.", "You don't know who you're messing with.",
+            "You have no chance of beating me.", "WAARGH!!!", "I will [objective_pp]!"
             ],
-        personality.Sociable: ["I'm all ready to fight.","You're going to lose.",
+        personality.Sociable: ["I'm all ready to fight.", "You're going to lose.", "I am here to [objective_pp]."
             ],
         personality.Shy: ["Enough talk.","Whatever.",
             ],
@@ -184,6 +185,12 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Fellowship: [ "Let's keep this an honorable duel.",
             ],
+        personality.Duty: [
+            "My mission is to [objective_pp]."
+        ],
+        personality.Glory: [
+            "Just watch me [objective_pp]!"
+        ]
     },
 
     "[ATTACK:COMBAT_INFO]": {
@@ -279,6 +286,81 @@ DEFAULT_GRAMMAR = {
             "bandits","brigands","thieves","ravagers","pirates","criminals","crimepunks","raiders","blackhearts"
         ],
     },
+
+    "[BATTLE_GREETING]": {
+        MET_BEFORE: ["[BATTLE_GREETING_AGAIN]", ],
+        FIRST_TIME: ["[BATTLE_GREETING_FIRST]", ],
+    },
+
+    "[BATTLE_GREETING_AGAIN]": {
+        Default: ["Hello again, [audience].", "Last time [MEM_LoseToPC], but this time I will [defeat_you]!"
+                  ],
+        personality.Cheerful: ["Back to play, [audience]?",
+                               ],
+        personality.Grim: ["You have arrived at your doom, [audience]!",
+                           "Back for more punishment? Remember that [MEM_DefeatPC]."
+                           ],
+        personality.Sociable: ['We meet again, [audience].', "I suspected that we would meet again, [audience]."
+                               ],
+        personality.Shy: ['I did not expect to see you again.',
+                          ],
+        personality.Easygoing: ["Yo, [audience].", "Hi [audience]."
+                                ],
+        personality.Passionate: ['[audience]! I challenge you to battle!',
+                                 ],
+        LOVE: ["We have to stop meeting like this, [audience]!", "I wish I could say I'm glad to see you, [audience]."
+               ],
+        LIKE: ["You picked a bad time to visit, [audience].", "It's a shame that we are on opposite sides, [audience]."
+               ],
+        DISLIKE: ["This time I won't go easy on you, [audience].", "Not you again...",
+                  ],
+        HATE: ["I've been waiting for another chance to [defeat_you], [audience].",
+               ],
+        personality.Duty: [
+            "Prepare for battle, [audience]!",
+        ],
+        personality.Fellowship: [
+            "Our paths cross once again, [audience]!",
+        ],
+        personality.Glory: [
+            "Have you improved your skills since last time, [audience]?",
+        ],
+        personality.Peace: [
+            "Don't you ever tire of this ceaseless conflict, [audience]?",
+        ],
+        personality.Justice: [
+            "This time I'll give you what you deserve, [audience]!"
+        ],
+    },
+
+    "[BATTLE_GREETING_FIRST]": {
+        Default: ["I am [speaker], and I will defeat you!",
+                  ],
+        personality.Cheerful: ["Hi there, I'm [speaker]!",
+                               ],
+        personality.Grim: ["My name's [speaker], and I will be your doom.",
+                           ],
+        personality.Sociable: ["Who are you and what are you doing here?! No matter.",
+                               "Allow me to introduce myself: I am [speaker], and I will [defeat_you]!"
+                               ],
+        personality.Shy: ["You shouldn't be here.",
+                          ],
+        personality.Easygoing: ["I haven't seen you around before... and now I'm gonna have to [defeat_you].",
+                                ],
+        personality.Passionate: ["My name is [speaker], and I challenge you to combat!",
+                                 ],
+        LOVE: ["You look like a nice person, it's a shame I'm going to have to [defeat_you].",
+               ],
+        DISLIKE: ["Who the blazes are you?",
+               ],
+        personality.Glory: [
+            "A new challenger approaches... My name's [speaker], and I will [defeat_you].",
+        ],
+        personality.Duty: [
+            "Is it not customary to give one's own name before starting battle? I am [speaker], and you will be defeated!",
+        ],
+    },
+
     # The data block of this should contain "subject".
     "[BeCarefulOfSubject]": {
         Default: ["Be careful of {subject}",
@@ -474,6 +556,25 @@ DEFAULT_GRAMMAR = {
             "abandoned factory","prezero ruin","low-rad zone","smuggler point","deserted fortress",
             "ancient fallout shelter","shantytown","ruined city","demolition zone","scavenger camp"
         ]
+    },
+
+    "[defeat_you]": {
+        Default: ["defeat you", "beat you"
+                  ],
+        personality.Cheerful: ["win", "kick your arse"
+                               ],
+        personality.Grim: ["destroy you", "crush you", "cause you agony",
+                           "watch you suffer", "kill you",
+                           ],
+        personality.Easygoing: ["fight you",
+                                ],
+        personality.Passionate: ["show you a true challenge", "annihilate you",
+                                 "show you my true power",
+                                 ],
+        personality.Sociable: ["humiliate you",
+                               ],
+        personality.Shy: ["stop you",
+                          ],
     },
 
     "[defeating_you]": {

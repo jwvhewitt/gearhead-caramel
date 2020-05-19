@@ -30,9 +30,29 @@ BAMO_SURVIVE_THE_AMBUSH = "BAMO_SurviveTheAmbush"
 MAIN_OBJECTIVE_VALUE = 100
 
 
-#   **************************
-#   ***  ADVENTURE  SEEDS  ***
-#   **************************
+#   ******************************************
+#   ***  ADVENTURE  SEEDS  AND  UTILITIES  ***
+#   ******************************************
+
+class MissionGrammar(dict):
+    # A reminder class so that the text snippets needed by the mission show up as named parameters.
+    # The "_pp" and "_ep" indicate Player Perspective and Enemy Perspective
+    # objective is a present tense verb phrase describing each team's mission.
+    # win is a clause in simple past describing the outcome if the player wins
+    # lose is a clause in simple past describing the outcome if the player loses
+    def __init__(self, objective_pp: "[defeat_you]", objective_ep: "[defeat_you]", win_pp: "I defeated you", win_ep: "you defeated me",
+                 lose_pp: "you defeated me", lose_ep: "I defeated you", **kwargs):
+        grammar_tag_kwargs = dict()
+        for k,v in kwargs.items():
+            grammar_tag_kwargs['[{}]'.format(k)] = [str(v)]
+        super().__init__(**grammar_tag_kwargs)
+        self["[objective_pp]"] = [objective_pp]
+        self["[objective_ep]"] = [objective_ep]
+        self["[win_pp]"] = [win_pp]
+        self["[win_wp]"] = [win_ep]
+        self["[lose_pp]"] = [lose_pp]
+        self["[lose_ep]"] = [lose_ep]
+
 
 class NewMissionNotification(pbge.BasicNotification):
     def __init__(self, mission_name, mission_gate=None):
@@ -59,7 +79,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  adv_type="BAM_MISSION", custom_elements=None, auto_exit=False, solo_mission=False,
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone(),
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
-                 one_chance=True, data=None, win_message="", loss_message="", **kwargs):
+                 one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None, **kwargs):
         cms_pstate = pbge.plots.PlotState(adv=self, rank=rank or max(camp.pc.renown + 1, 10))
 
         cms_pstate.elements["ENEMY_FACTION"] = enemy_faction
@@ -78,6 +98,9 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         if loss_message:
             cms_pstate.elements["LOSS_MESSAGE"] = loss_message
         self.solo_mission = solo_mission
+        if not mission_grammar:
+            mission_grammar = MissionGrammar()
+        self.mission_grammar = mission_grammar
 
         # Data is a dict of stuff that will get used by whatever plot created this adventure seed, or maybe it
         # can be used by some of the objectives. I dunno! It's just a dict of stuff! Do with it as you will.
@@ -101,6 +124,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.rewards.append(adventureseed.RenownReward())
 
     def end_adventure(self, camp):
+        # Update before ending, and again after.
+        camp.check_trigger("UPDATE")
         if self.on_win and self.is_won():
             self.on_win(camp)
         elif self.on_loss and not self.is_won():
@@ -113,6 +138,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             super().__call__(camp)
         else:
             pbge.alert("You cannot proceed on this mission without a mecha.")
+
 
 class BuildAMissionPlot(Plot):
     # Go fight mecha. Repeatedly.
@@ -210,6 +236,9 @@ class BuildAMissionPlot(Plot):
                     npc.restore_all()
             for o in self.adv.objectives:
                 o.reset_objective()
+
+    def get_dialogue_grammar(self, npc, camp):
+        return self.adv.mission_grammar.copy()
 
 
 #   ****************************

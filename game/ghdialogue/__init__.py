@@ -45,6 +45,10 @@ def build_grammar( mygram, camp, speaker, audience ):
         pgram = p.get_dialogue_grammar( speaker, camp )
         if pgram:
             mygram.absorb( pgram )
+    if speaker.relationship and audience is camp.pc:
+        mygram.absorb(speaker.relationship.get_grammar())
+    if speaker is camp.pc and audience and audience.relationship:
+        mygram.absorb(audience.relationship.get_pc_grammar())
 
     mygram.absorb({"[speaker]":(str(speaker),),"[audience]":(str(audience),)})
 
