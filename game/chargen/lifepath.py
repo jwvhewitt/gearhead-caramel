@@ -114,6 +114,16 @@ CHOOSE_FELLOWSHIP = LifePathOption("Fellowship", "You want to build bridges inst
                                      ]
                                  }
                              })
+CHOOSE_FELLOWSHIP_R = LifePathOption("Fellowship", "You swear to never harm others as you have been harmed.", personality_tags=(personality.Fellowship,),
+                             biomessage = "[LPE_INTRO]",
+                             biogram={
+                                 "[LPE_INTRO]": {
+                                     Default: [
+                                         "Having suffered betrayal, you vow to be a loyal friend yourself.",
+                                         "You promise never to harm others as you have been harmed yourself, and choose to honor the virtue of fellowship."
+                                     ]
+                                 }
+                             })
 CHOOSE_DUTY = LifePathOption("Duty", "You know no life other than being a cavalier, and live in strict adherence to the Cavalier Code.", personality_tags = (personality.Duty,),
                              biomessage = "[LPE_INTRO]",
                              biogram={
@@ -210,7 +220,7 @@ D_BETRAYAL = LifePathNode(
     "Betrayal","You were betrayed by someone close to you.",
     choices=(
         LifePathChoice("What was your reaction to this betrayal?",(BETR_MENTOR,BETR_LABMATE)),
-        LifePathChoice("What will you do moving forward?",(CHOOSE_PEACE,CHOOSE_JUSTICE,CHOOSE_FELLOWSHIP)),
+        LifePathChoice("What will you do moving forward?",(CHOOSE_PEACE,CHOOSE_JUSTICE,CHOOSE_FELLOWSHIP_R)),
     ),
     auto_fx=LifePathOption("Betrayal Auto","...",
         biomessage="[LPD_INTRO]",

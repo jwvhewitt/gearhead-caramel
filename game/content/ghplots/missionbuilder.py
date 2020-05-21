@@ -9,7 +9,7 @@ from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
-from game.content import adventureseed
+from game.content import adventureseed,ghcutscene
 from gears import champions
 
 BAMO_AID_ALLIED_FORCES = "BAMO_AidAlliedForces"
@@ -40,8 +40,8 @@ class MissionGrammar(dict):
     # objective is a present tense verb phrase describing each team's mission.
     # win is a clause in simple past describing the outcome if the player wins
     # lose is a clause in simple past describing the outcome if the player loses
-    def __init__(self, objective_pp: "[defeat_you]", objective_ep: "[defeat_you]", win_pp: "I defeated you", win_ep: "you defeated me",
-                 lose_pp: "you defeated me", lose_ep: "I defeated you", **kwargs):
+    def __init__(self, objective_pp = "[defeat_you]", objective_ep = "[defeat_you]", win_pp = "I defeated you",
+                 win_ep = "you defeated me", lose_pp = "you defeated me", lose_ep = "I defeated you", **kwargs):
         grammar_tag_kwargs = dict()
         for k,v in kwargs.items():
             grammar_tag_kwargs['[{}]'.format(k)] = [str(v)]
@@ -341,9 +341,9 @@ class BAM_AidAlliedForces(Plot):
         for t in range(self.num_battles):
             roomtype = self.elements["ARCHITECTURE"].get_a_room()
             myroom = self.register_element("_room_{}".format(t), roomtype(6, 6), dident="LOCALE")
-            eteam = self.register_element("_eteam_{}", teams.Team(enemies=(myscene.player_team,)),
+            eteam = self.register_element("_eteam_{}".format(t), teams.Team(enemies=(myscene.player_team,)),
                                           dident="_room_{}".format(t))
-            ateam = self.register_element("_ateam_{}", teams.Team(enemies=(eteam,), allies=(myscene.player_team,)),
+            ateam = self.register_element("_ateam_{}.format(t)", teams.Team(enemies=(eteam,), allies=(myscene.player_team,)),
                                           dident="_room_{}".format(t))
             eunit = gears.selector.RandomMechaUnit(self.rank, 400 // self.num_battles,
                                                    self.elements.get("ENEMY_FACTION"), myscene.environment,
@@ -544,9 +544,11 @@ class BAM_DefeatCommander(Plot):
         if mynpc:
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+            self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
         else:
             myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
             self.register_element("_commander", myunit.commander)
+            self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
 
         team2.contents += myunit.mecha_list
 
@@ -567,12 +569,6 @@ class BAM_DefeatCommander(Plot):
             npc = self.elements["_commander"]
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
             self.intro_ready = False
-
-    def _commander_offers(self, camp):
-        mylist = list()
-        mylist.append(Offer("[CHALLENGE]",
-                            context=ContextTag([context.CHALLENGE, ])))
-        return mylist
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
@@ -609,9 +605,12 @@ class BAM_DefeatTheBandits(Plot):
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, unit_size, myfac, myscene.environment,
                                                     add_commander=False)
+            self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
+
         else:
             myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
             self.register_element("_commander", myunit.commander)
+            self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
 
         team2.contents += myunit.mecha_list
 
@@ -631,12 +630,6 @@ class BAM_DefeatTheBandits(Plot):
             npc = self.elements["_commander"]
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
             self.intro_ready = False
-
-    def _commander_offers(self, camp):
-        mylist = list()
-        mylist.append(Offer("[CHALLENGE]",
-                            context=ContextTag([context.CHALLENGE, ])))
-        return mylist
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
@@ -694,9 +687,12 @@ class BAM_DestroyArtillery(Plot):
         if mynpc:
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 70, myfac, myscene.environment, add_commander=False)
+            self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
+
         else:
             myunit = gears.selector.RandomMechaUnit(self.rank, 100, myfac, myscene.environment, add_commander=True)
             self.register_element("_commander", myunit.commander)
+            self.add_sub_plot(nart, "MC_NDBCONVERSATION", elements={"NPC": myunit.commander.get_pilot()})
 
         team2.contents += myunit.mecha_list
 
@@ -726,12 +722,6 @@ class BAM_DestroyArtillery(Plot):
             npc = self.elements["_commander"]
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
             self.intro_ready = False
-
-    def _commander_offers(self, camp):
-        mylist = list()
-        mylist.append(Offer("[CHALLENGE]",
-                            context=ContextTag([context.CHALLENGE, ])))
-        return mylist
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
@@ -792,11 +782,7 @@ class BAM_ExtractAllies(Plot):
 
     def PILOT_offers(self, camp):
         mylist = list()
-        if self.eteam_defeated:
-            mylist.append(Offer("[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.", dead_end=True,
-                                context=ContextTag([ghdialogue.context.HELLO, ]),
-                                effect=self.pilot_leaves_combat))
-        else:
+        if not self.eteam_defeated:
             myoffer = Offer("[HELP_ME_VS_MECHA_COMBAT]", dead_end=True,
                             context=ContextTag([ghdialogue.context.HELLO, ]))
             if not self.eteam_activated:
@@ -827,7 +813,8 @@ class BAM_ExtractAllies(Plot):
                 self.eteam_defeated = True
                 self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
                 npc = self.elements["PILOT"]
-                ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.HELLO_STARTER)
+                ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.",npc)
+                self.pilot_leaves_combat(camp)
 
 
 class BAM_ChampionExtractAllies(Championify, BAM_ExtractAllies):
@@ -1012,7 +999,17 @@ class BAM_StormTheCastle(Plot):
         self.register_element("ROOM", roomtype(10, 10), dident="LOCALE")
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
-        myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+
+        mynpc = self.seek_element(nart, "_commander", self._npc_is_good, must_find=False, lock=True)
+        if mynpc:
+            plotutility.CharacterMover(self, mynpc, myscene, team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+            self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+            self.register_element("_commander", myunit.commander)
+            self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
+
         team2.contents += myunit.mecha_list
         self.register_element("_commander", myunit.commander)
         self.starting_guards = len(team2.contents)
@@ -1032,17 +1029,15 @@ class BAM_StormTheCastle(Plot):
 
         return True
 
+    def _npc_is_good(self, nart, candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction == \
+               self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
+
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
             npc = self.elements["_commander"]
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
             self.intro_ready = False
-
-    def _commander_offers(self, camp):
-        mylist = list()
-        mylist.append(Offer("[CHALLENGE]",
-                            context=ContextTag([context.CHALLENGE, ])))
-        return mylist
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]

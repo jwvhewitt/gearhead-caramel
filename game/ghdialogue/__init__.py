@@ -52,6 +52,7 @@ def build_grammar( mygram, camp, speaker, audience ):
 
     mygram.absorb({"[speaker]":(str(speaker),),"[audience]":(str(audience),)})
 
+
 def harvest( mod, class_to_collect ):
     mylist = []
     for name in dir( mod ):
@@ -59,6 +60,7 @@ def harvest( mod, class_to_collect ):
         if isinstance( o , class_to_collect ):
             mylist.append( o )
     return mylist
+
 
 pbge.dialogue.GRAMMAR_BUILDER = build_grammar
 pbge.dialogue.STANDARD_REPLIES = harvest(ghreplies,pbge.dialogue.Reply)

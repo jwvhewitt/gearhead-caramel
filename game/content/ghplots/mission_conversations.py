@@ -12,7 +12,7 @@ from gears.relationships import Memory
 
 class NoDevBattleConversation(Plot):
     # A conversation for mook NPCs who don't need any development.
-    LABEL = "MC_BBCONVERSATION"
+    LABEL = "MC_NDBCONVERSATION"
     active = True
     scope = "LOCALE"
 

@@ -166,7 +166,7 @@ DEFAULT_GRAMMAR = {
             "I can take you.","Let's finish this.", "I must [objective_pp].", "I will [objective_pp]."
             ],
         personality.Cheerful: ["Sounds like fun.","Don't make me laugh.",
-            "This is getting fun!",
+            "This is getting fun!", "I'm here to [objective_pp] and crack jokes."
             ],
         personality.Grim: ["You will regret challenging me.","This may be your last mistake.",
             "This will end in tears for you...", "I will [objective_pp] or die trying!"

@@ -71,8 +71,8 @@ class DZDREProppStarterPlot(Plot):
         self.register_element("DZ_EDGE_STYLE",myedge.style)
         self.register_element("FACTION",self.get_enemy_faction(nart))
 
-        self.add_sub_plot(nart,"ADD_REMOTE_OFFICE",ident="ENEMYRO",spstate=PlotState(rank=self.rank+5,elements={"METRO":myedge.start_node.destination.metrodat,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
-        self.add_sub_plot(nart,self.RATCHET_SETUP,ident="MISSION",spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+        self.add_sub_plot(nart,"ADD_REMOTE_OFFICE",ident="ENEMYRO",spstate=PlotState(rank=self.rank+5,elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+        self.add_sub_plot(nart,self.RATCHET_SETUP,ident="MISSION",spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
 
         self.road_cleared = False
 

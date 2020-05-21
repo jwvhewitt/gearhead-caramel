@@ -1,3 +1,5 @@
+- Fixed some mission problems
+- Added Memory records to Relationships
 - Random NPCs start with a narrower range of stat points
 - Shops now show how many of an item you buy in sequence, and use the full name of the item.
 
