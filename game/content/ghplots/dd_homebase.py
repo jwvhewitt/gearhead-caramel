@@ -445,8 +445,8 @@ class DZD_BlueFortressHQ(Plot):
         if self.adventure_seed:
             thingmenu.add_item(self.adventure_seed.name, self.adventure_seed)
 
-    ENEMY_FACTIONS = (factions.AegisOverlord, factions.AegisOverlord, factions.AegisOverlord,
-                      factions.BoneDevils, factions.BoneDevils, factions.BladesOfCrihna)
+    ENEMY_FACTIONS = (factions.AegisOverlord, factions.AegisOverlord, factions.ClanIronwind, factions.ClanIronwind,
+                      factions.BoneDevils, factions.BoneDevils, factions.BoneDevils, factions.BladesOfCrihna)
 
     def generate_enemy_faction(self):
         # Randomly determine an enemy faction.

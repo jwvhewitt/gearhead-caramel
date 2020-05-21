@@ -293,7 +293,7 @@ DEFAULT_GRAMMAR = {
     },
 
     "[BATTLE_GREETING_AGAIN]": {
-        Default: ["Hello again, [audience].", "Last time [MEM_LoseToPC], but this time I will [defeat_you]!"
+        Default: ["Hello again, [audience].", "Last time [MEM_LoseToPC], but this time I will [defeat_you]!",
                   ],
         personality.Cheerful: ["Back to play, [audience]?",
                                ],
@@ -2649,6 +2649,56 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Fellowship: [
             "We can fight them or avoid them. I'll go along with what everyone else wants.",
+        ],
+    },
+
+    "[WE_MEET_AGAIN]": {
+        # A somewhat ominous "Hello again".
+        Default: ["We meet again, [audience]."
+                  ],
+        FIRST_TIME: [
+            "We meet again, [audience]... or have we?",
+        ],
+        personality.Cheerful: ["Imagine that, me finding you here, [audience].",
+                               "How nice, it's you again.", "Ready to have some fun, [audience]?"
+                               ],
+        personality.Grim: ["Fate has reunited us, [audience].",
+                           "Someone told me that you had died. I see now they were exaggerating."
+                           ],
+        personality.Sociable: ["Hello, [audience]. Did you miss me?",
+                               "Is this a social call? Or are you here on serious business?"
+                               ],
+        personality.Shy: ['We meet again.',"I've been expecting you.",
+                          ],
+        personality.Easygoing: ["I have the wildest case of deja vu right now, [audience].",
+                                "This is starting to be a regular thing.",
+                                "Hey, there you are. I didn't really expect to see you today."
+                                ],
+        personality.Passionate: ["[audience]! It seems like I just can't get away from you.",
+                                 "[audience]! Have you increased your power level?"
+                                 ],
+        LOVE: ["We have to stop meeting like this, [audience]!",
+               ],
+        LIKE: ["It's good to see you again, [audience]! Or at least it would be..."
+               ],
+        DISLIKE: ["Unfortunately, we meet again, [audience].",
+                  ],
+        HATE: ["Oh, you've come back. What have I done to deserve this?",
+               ],
+        personality.Duty: [
+            "We face each other once more, [audience].",
+        ],
+        personality.Fellowship: [
+            "This may not be the best time, but it's nice at least to see a familiar face.",
+        ],
+        personality.Glory: [
+            "Welcome, [audience]! Once again you stand before my glory.",
+        ],
+        personality.Peace: [
+            "For good or bad, we meet again.",
+        ],
+        personality.Justice: [
+            "Have you made peace with your past acts, [audience]?",
         ],
     },
 

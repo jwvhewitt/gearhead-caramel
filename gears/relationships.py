@@ -118,3 +118,10 @@ class Relationship(object):
             for mt in mem.memtags:
                 mygram["[{}]".format(mt)].append(mem.pc_perspective)
         return mygram
+
+    def get_recent_memory(self, tagset=()):
+        # Return the most recent memory that matches the provided tags.
+        for mem in reversed(self.history):
+            if mem.memtags >= tagset:
+                return mem
+

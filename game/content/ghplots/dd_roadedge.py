@@ -99,10 +99,32 @@ class DZDREProppStarterPlot(Plot):
         )
         return myadv
 
+    RANDOM_ENEMIES = (gears.factions.AegisOverlord,gears.factions.ClanIronwind,gears.factions.BoneDevils,
+                      gears.factions.BladesOfCrihna,None)
+    def get_random_encounter(self, camp, dest_node):
+        start_node = self.elements["DZ_EDGE"].get_link(dest_node)
+        if start_node.pos[0] < dest_node.pos[0]:
+            myanchor = pbge.randmaps.anchors.west
+        else:
+            myanchor = pbge.randmaps.anchors.east
+        myadv = missionbuilder.BuildAMissionSeed(
+            camp, "Highway Encounter", (start_node.destination,start_node.entrance),
+            enemy_faction = random.choice(self.RANDOM_ENEMIES), rank=self.rank,
+            objectives = (missionbuilder.BAMO_DEFEAT_COMMANDER,dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
+            adv_type = "DZD_ROAD_MISSION",
+            custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
+            scenegen=DeadZoneHighwaySceneGen, architecture=self.ENCOUNTER_ARCHITECTURE(),
+            cash_reward=0,
+        )
+        return myadv
+
     def get_road_adventure(self, camp, dest_node):
         # Return an adventure if there's going to be an adventure. Otherwise return nothing.
-        if self.active and random.randint(1,100) <= self.ENCOUNTER_CHANCE and not self.road_cleared and camp.has_mecha_party():
-            return self.get_enemy_encounter(camp, dest_node)
+        if self.active and camp.has_mecha_party():
+            if random.randint(1,100) <= self.ENCOUNTER_CHANCE and not self.road_cleared:
+                return self.get_enemy_encounter(camp, dest_node)
+            elif random.randint(1,100) <= 15:
+                return self.get_random_encounter(camp, dest_node)
 
     def MISSION_WIN(self,camp):
         self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE

@@ -69,3 +69,44 @@ class BasicBattleConversation(Plot):
                 ))
 
 
+class IRememberYouBC(BasicBattleConversation):
+    @classmethod
+    def matches( cls, pstate ):
+        return (
+            pstate.elements["NPC"].relationship and
+            pstate.elements["NPC"].relationship.get_recent_memory([relationships.MEM_Clash]) and
+            pstate.elements["NPC"].relationship.role is None
+        )
+    def NPC_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("I remember you... [MEM_Clash]! This time I'm going to [objective_ep].",
+                            context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
+        mylist.append(Offer("[CHALLENGE]",
+                            context=ContextTag([context.CHALLENGE, ])))
+        return mylist
+    def _start_conversation(self,camp):
+        super()._start_conversation(camp)
+        self.elements["NPC"].relationship.role = relationships.R_ACQUAINTANCE
+
+
+class RegularOpponentBC(BasicBattleConversation):
+    @classmethod
+    def matches( cls, pstate ):
+        return (
+            pstate.elements["NPC"].relationship and
+            pstate.elements["NPC"].relationship.get_recent_memory([relationships.MEM_Clash]) and
+            pstate.elements["NPC"].relationship.role in (None,relationships.R_ACQUAINTANCE)
+        )
+    def NPC_offers(self,camp):
+        mylist = list()
+        myclash = pstate.elements["NPC"].relationship.get_recent_memory([relationships.MEM_Clash])
+        mylist.append(Offer("[WE_MEET_AGAIN] The last time we met in battle, {}.".format(myclash.npc_perspective),
+                            context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
+        mylist.append(Offer("[CHALLENGE]",
+                            context=ContextTag([context.CHALLENGE, ])))
+        return mylist
+    def _start_conversation(self,camp):
+        super()._start_conversation(camp)
+        self.elements["NPC"].relationship.role = relationships.R_OPPONENT
+
+

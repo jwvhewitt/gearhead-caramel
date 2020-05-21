@@ -160,7 +160,7 @@ class BioCorp(Faction):
 class DeadzoneFederation(Faction):
     name = "the Deadzone Federation"
     factags = (tags.Politician,)
-    mecha_colors = (color.DesertYellow, color.DarkBrown, color.GunRed, color.Charcoal, color.Gold)
+    mecha_colors = (color.DarkBrown, color.AeroBlue, color.GunRed, color.DeepSeaBlue, color.DesertYellow)
     CAREERS = {
         tags.Trooper: ("Mecha Pilot","Mercenary"),
         tags.Commander: ("Commander","Aristo","Warlord"),

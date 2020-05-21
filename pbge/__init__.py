@@ -164,7 +164,7 @@ class GameState( object ):
     def locate_music( self, mfname ):
         if mfname in self.music_library:
             return self.music_library[mfname]
-        elif mfname:
+        elif mfname and self.audio_enabled:
             sound = pygame.mixer.Sound(util.music_dir(mfname))
             self.music_library[mfname] = sound
             return sound

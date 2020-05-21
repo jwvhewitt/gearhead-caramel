@@ -1,3 +1,4 @@
+- Fixed crash when pygame.mixer fails to load
 - Fixed some mission problems
 - Added Memory records to Relationships
 - Random NPCs start with a narrower range of stat points

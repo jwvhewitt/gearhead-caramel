@@ -49,7 +49,7 @@ class MissionGrammar(dict):
         self["[objective_pp]"] = [objective_pp]
         self["[objective_ep]"] = [objective_ep]
         self["[win_pp]"] = [win_pp]
-        self["[win_wp]"] = [win_ep]
+        self["[win_ep]"] = [win_ep]
         self["[lose_pp]"] = [lose_pp]
         self["[lose_ep]"] = [lose_ep]
 
@@ -80,10 +80,13 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone(),
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None, **kwargs):
-        cms_pstate = pbge.plots.PlotState(adv=self, rank=rank or max(camp.pc.renown + 1, 10))
+        self.rank = rank or max(camp.pc.renown + 1, 10)
+        cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
 
         cms_pstate.elements["ENEMY_FACTION"] = enemy_faction
+        self.enemy_faction = enemy_faction
         cms_pstate.elements["ALLIED_FACTION"] = allied_faction
+        self.allied_faction = allied_faction
         cms_pstate.elements["OBJECTIVES"] = objectives
         cms_pstate.elements["SCENEGEN"] = scenegen
         cms_pstate.elements["ARCHITECTURE"] = architecture
@@ -138,6 +141,16 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             super().__call__(camp)
         else:
             pbge.alert("You cannot proceed on this mission without a mecha.")
+
+    def is_good_enemy_npc(self, nart, candidate):
+        # Utility function for doing an enemy search. If the enemy_faction is a base faction, this function
+        # will accept any child circles of that faction as well.
+        return (
+            isinstance(candidate, gears.base.Character) and candidate.combatant and
+            (candidate.faction == self.enemy_faction or
+             (candidate.faction and candidate.faction.get_faction_tag() == self.enemy_faction)) and
+            candidate not in nart.camp.party and candidate.renown <= (self.rank + 25)
+        )
 
 
 class BuildAMissionPlot(Plot):
@@ -474,7 +487,7 @@ class BAM_DefeatArmy(Plot):
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
-        npc1 = self.seek_element(nart, "_commander", self._npc_is_good, must_find=False, lock=True)
+        npc1 = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
         if npc1:
             plotutility.CharacterMover(self, npc1, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
@@ -484,7 +497,7 @@ class BAM_DefeatArmy(Plot):
 
         team2.contents += myunit.mecha_list
 
-        npc2 = self.seek_element(nart, "_assistant", self._npc_is_good, must_find=False, lock=True)
+        npc2 = self.seek_element(nart, "_assistant", self.adv.is_good_enemy_npc, must_find=False, lock=True)
         if npc2:
             plotutility.CharacterMover(self, npc2, myscene, team2)
         else:
@@ -499,10 +512,6 @@ class BAM_DefeatArmy(Plot):
         self.intro_ready = True
 
         return True
-
-    def _npc_is_good(self, nart, candidate):
-        return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction == \
-               self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
 
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
@@ -540,7 +549,7 @@ class BAM_DefeatCommander(Plot):
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
-        mynpc = self.seek_element(nart, "_commander", self._npc_is_good, must_find=False, lock=True)
+        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
         if mynpc:
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
@@ -559,10 +568,6 @@ class BAM_DefeatCommander(Plot):
         self.intro_ready = True
 
         return True
-
-    def _npc_is_good(self, nart, candidate):
-        return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction == \
-               self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
 
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
@@ -595,7 +600,7 @@ class BAM_DefeatTheBandits(Plot):
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
         if myfac:
-            mynpc = self.seek_element(nart, "_commander", self._npc_is_good, must_find=False, lock=True)
+            mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
         else:
             mynpc = None
         if mynpc:
@@ -620,10 +625,6 @@ class BAM_DefeatTheBandits(Plot):
         self.intro_ready = True
 
         return True
-
-    def _npc_is_good(self, nart, candidate):
-        return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction == \
-               self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
 
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
@@ -683,7 +684,7 @@ class BAM_DestroyArtillery(Plot):
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
-        mynpc = self.seek_element(nart, "_commander", self._npc_is_good, must_find=False, lock=True)
+        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
         if mynpc:
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 70, myfac, myscene.environment, add_commander=False)
@@ -712,10 +713,6 @@ class BAM_DestroyArtillery(Plot):
         self.intro_ready = True
 
         return True
-
-    def _npc_is_good(self, nart, candidate):
-        return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction == \
-               self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
 
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
@@ -813,7 +810,7 @@ class BAM_ExtractAllies(Plot):
                 self.eteam_defeated = True
                 self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
                 npc = self.elements["PILOT"]
-                ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.",npc)
+                ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.",npc)(camp)
                 self.pilot_leaves_combat(camp)
 
 
@@ -1000,7 +997,7 @@ class BAM_StormTheCastle(Plot):
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
-        mynpc = self.seek_element(nart, "_commander", self._npc_is_good, must_find=False, lock=True)
+        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
         if mynpc:
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
@@ -1028,10 +1025,6 @@ class BAM_StormTheCastle(Plot):
         self.intro_ready = True
 
         return True
-
-    def _npc_is_good(self, nart, candidate):
-        return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction == \
-               self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party
 
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
