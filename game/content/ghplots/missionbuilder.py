@@ -1008,7 +1008,6 @@ class BAM_StormTheCastle(Plot):
             self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
 
         team2.contents += myunit.mecha_list
-        self.register_element("_commander", myunit.commander)
         self.starting_guards = len(team2.contents)
 
         myfort = self.register_element("_FORT",
@@ -1018,8 +1017,7 @@ class BAM_StormTheCastle(Plot):
         self.obj1 = adventureseed.MissionObjective("Destroy {} command center".format(myfac), MAIN_OBJECTIVE_VALUE * 3)
         self.adv.objectives.append(self.obj1)
 
-        self.obj2 = adventureseed.MissionObjective("Defeat command center guards".format(myunit.commander),
-                                                   MAIN_OBJECTIVE_VALUE)
+        self.obj2 = adventureseed.MissionObjective("Defeat command center guards",MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj2)
 
         self.intro_ready = True

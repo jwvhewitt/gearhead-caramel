@@ -121,6 +121,7 @@ class Relationship(object):
 
     def get_recent_memory(self, tagset=()):
         # Return the most recent memory that matches the provided tags.
+        tagset = set(tagset)
         for mem in reversed(self.history):
             if mem.memtags >= tagset:
                 return mem
