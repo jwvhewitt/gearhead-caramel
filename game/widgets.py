@@ -48,7 +48,7 @@ class SingleListItemWidget(pbge.widgets.Widget):
 # modal for RPG menu.
 class ItemListWidget(pbge.widgets.ColumnWidget):
     def __init__( self, item_list, frect, text_fn = None, can_select = True
-                , on_enter = None, on_leave = None
+                , on_enter = None, on_leave = None, on_select = None
                 , **keywords
                 ):
         super().__init__( frect.dx, frect.dy, frect.w, frect.h
@@ -64,6 +64,7 @@ class ItemListWidget(pbge.widgets.ColumnWidget):
 
         self.on_enter = on_enter
         self.on_leave = on_leave
+        self.on_select = on_select
 
         # TODO: These up/down button widgets really oughta
         # be factored out.
@@ -141,4 +142,6 @@ class ItemListWidget(pbge.widgets.ColumnWidget):
         self._current_selected_widj = widj
         widj.color = pbge.rpgmenu.MENU_SELECT_COLOR
         self.current_item = widj.data
+        if self.on_select:
+            self.on_select(self.current_item)
 
