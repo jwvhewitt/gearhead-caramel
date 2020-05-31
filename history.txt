@@ -1,3 +1,4 @@
+- Revamped shop interface
 - Style rules may be turned on or off in the portrait editor
 - Added style, nostyle properties to PortraitBits
 - Adjusted mecha cost, random mecha unit generation
@@ -9,7 +10,6 @@
 - Fixed some mission problems
 - Added Memory records to Relationships
 - Random NPCs start with a narrower range of stat points
-- Shops now show how many of an item you buy in sequence, and use the full name of the item.
 
 v0.520 May 16 2020
 - Mechanical Tarot scenario generator improved and expanded
