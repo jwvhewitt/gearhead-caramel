@@ -109,6 +109,15 @@ class ItemListWidget(pbge.widgets.ColumnWidget):
         self._current_highlight_widj = None
         self.current_item = None
 
+    def deselect(self):
+        self.current_item = None
+        if self._current_selected_widj:
+            if self._current_selected_widj is self._current_highlight_widj:
+                self._current_selected_widj.color = pbge.INFO_HILIGHT
+            else:
+                self._current_selected_widj.color = pbge.INFO_GREEN
+            self._current_selected_widj = None
+
     def _handle_item_enter(self, widj):
         if self._current_highlight_widj and not self._current_highlight_widj is self._current_selected_widj:
            self._current_highlight_widj.color = pbge.INFO_GREEN
