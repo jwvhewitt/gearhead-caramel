@@ -118,6 +118,9 @@ class ItemListWidget(pbge.widgets.ColumnWidget):
                 self._current_selected_widj.color = pbge.INFO_GREEN
             self._current_selected_widj = None
 
+    def scroll_to_index(self, index):
+        self.scroll_column.scroll_to_index(index)
+
     def _handle_item_enter(self, widj):
         if self._current_highlight_widj and not self._current_highlight_widj is self._current_selected_widj:
            self._current_highlight_widj.color = pbge.INFO_GREEN

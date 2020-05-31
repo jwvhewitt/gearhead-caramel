@@ -288,6 +288,12 @@ class ScrollColumnWidget(Widget):
             self.top_widget += 1
             self._position_contents()
 
+    def scroll_to_index(self, index):
+        '''Programmatic access to ensure a particular list item is shown'''
+        if not self._interior_widgets[index].active:
+            self.top_widget = index
+            self._position_contents()
+
     def sort(self,key=None):
         self._interior_widgets.sort(key=key)
         self._position_contents()
