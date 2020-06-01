@@ -1,3 +1,4 @@
+- Extremely high Mobility scores toned down
 - Fixed crash when pygame.mixer fails to load
 - Fixed some mission problems
 - Added Memory records to Relationships

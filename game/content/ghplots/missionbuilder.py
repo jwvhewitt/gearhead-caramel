@@ -748,11 +748,14 @@ class BAM_ExtractAllies(Plot):
             plotutility.CharacterMover(self, mynpc, myscene, team3)
             mek = mynpc.get_root()
             self.register_element("SURVIVOR", mek)
+            self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT",ident="NPC_TALK",elements={"NPC":mynpc,})
         else:
             mysurvivor = self.register_element("SURVIVOR", gears.selector.generate_ace(self.rank, self.elements.get(
                 "ALLIED_FACTION"), myscene.environment))
-            self.register_element("PILOT", mysurvivor.get_pilot())
+            mynpc = mysurvivor.get_pilot()
+            self.register_element("PILOT", mynpc)
             team3.contents.append(mysurvivor)
+            self.add_sub_plot(nart,"MT_NDDEV",ident="NPC_TALK",elements={"NPC":mynpc,})
 
         self.obj = adventureseed.MissionObjective("Extract allied pilot {}".format(self.elements["PILOT"]),
                                                   MAIN_OBJECTIVE_VALUE, can_reset=False)
@@ -768,26 +771,27 @@ class BAM_ExtractAllies(Plot):
         return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction == \
                self.elements["ALLIED_FACTION"] and candidate not in nart.camp.party
 
+    def PILOT_offers(self,camp):
+        mylist = list()
+        mylist.append( Offer(self.subplots["NPC_TALK"].START_COMBAT_MESSAGE,
+                context=ContextTag([context.HELLO, ]),))
+        if not camp.fight:
+            mylist.append(
+                Offer("[THANK_YOU] I need to get back to base.",
+                      context=ContextTag([context.CUSTOM,]),data={"reply":"Get out of here, I can handle this."},
+                      effect=self.pilot_leaves_before_combat, dead_end=True)
+            )
+
+        return mylist
+
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
             self.eteam_activated = True
             if not self.pilot_fled:
                 npc = self.elements["PILOT"]
-                ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.HELLO_STARTER)
+                camp.check_trigger("START",npc)
                 camp.fight.active.append(self.elements["SURVIVOR"])
             self.intro_ready = False
-
-    def PILOT_offers(self, camp):
-        mylist = list()
-        if not self.eteam_defeated:
-            myoffer = Offer("[HELP_ME_VS_MECHA_COMBAT]", dead_end=True,
-                            context=ContextTag([ghdialogue.context.HELLO, ]))
-            if not self.eteam_activated:
-                myoffer.replies.append(Reply("Get out of here, I can handle this.",
-                                             destination=Offer("[THANK_YOU] I need to get back to base.",
-                                                               effect=self.pilot_leaves_before_combat, dead_end=True)))
-            mylist.append(myoffer)
-        return mylist
 
     def pilot_leaves_before_combat(self, camp):
         self.obj.win(camp, 105)
@@ -804,13 +808,14 @@ class BAM_ExtractAllies(Plot):
         if self.eteam_activated and not self.pilot_fled:
             myteam = self.elements["_ateam"]
             eteam = self.elements["_eteam"]
+            npc = self.elements["PILOT"]
             if len(myteam.get_active_members(camp)) < 1:
                 self.obj.failed = True
+                camp.check_trigger("LOSE",npc)
             elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
                 self.eteam_defeated = True
                 self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
-                npc = self.elements["PILOT"]
-                ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.",npc)(camp)
+                camp.check_trigger("WIN",npc)
                 self.pilot_leaves_combat(camp)
 
 
@@ -983,6 +988,89 @@ class BAM_RespondToDistressCall(Plot):
                 pbge.alert("The missing cargo has been secured.")
                 self.combat_finished = True
 
+class BAM_ExtractTrucker(Plot):
+    LABEL = BAMO_RESPOND_TO_DISTRESS_CALL
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        myroom = self.register_element("ROOM", roomtype(10, 10), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        team3 = self.register_element("_ateam", teams.Team(enemies=(team2,), allies=(myscene.player_team,)),
+                                      dident="ROOM")
+        myunit = gears.selector.RandomMechaUnit(self.rank, 200, self.elements.get("ENEMY_FACTION"), myscene.environment,
+                                                add_commander=False)
+        team2.contents += myunit.mecha_list
+
+        mynpc = self.seek_element(nart, "PILOT", self._npc_is_good, must_find=True, lock=True)
+        plotutility.CharacterMover(self, mynpc, myscene, team3)
+        mek = mynpc.get_root()
+        self.register_element("SURVIVOR", mek)
+        self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT", ident="NPC_TALK", elements={"NPC":mynpc,})
+
+        self.obj = adventureseed.MissionObjective("Respond to {}'s distress call".format(self.elements["PILOT"]),
+                                                  MAIN_OBJECTIVE_VALUE, can_reset=False)
+        self.adv.objectives.append(self.obj)
+        self.intro_ready = True
+        self.eteam_activated = False
+        self.eteam_defeated = False
+        self.pilot_fled = False
+
+        return True
+
+    def PILOT_offers(self,camp):
+        mylist = list()
+        mylist.append( Offer(self.subplots["NPC_TALK"].START_COMBAT_MESSAGE,
+                context=ContextTag([context.HELLO, ]),))
+        if not camp.fight:
+            mylist.append(
+                Offer("[THANK_YOU] I need to get back to base.",
+                      context=ContextTag([context.CUSTOM,]),data={"reply":"Get out of here, I can handle this."},
+                      effect=self.pilot_leaves_before_combat, dead_end=True)
+            )
+
+        return mylist
+
+    def _npc_is_good(self, nart, candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction != \
+               self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party and candidate.job.name == "Trucker"
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            self.eteam_activated = True
+            if not self.pilot_fled:
+                npc = self.elements["PILOT"]
+                camp.check_trigger("START",npc)
+                camp.fight.active.append(self.elements["SURVIVOR"])
+            self.intro_ready = False
+
+    def pilot_leaves_before_combat(self, camp):
+        self.obj.win(camp, 105)
+        self.pilot_leaves_combat(camp)
+
+    def pilot_leaves_combat(self, camp):
+        if not self.pilot_fled:
+            npc = self.elements["PILOT"]
+            npc.relationship.reaction_mod += 10
+        camp.scene.contents.remove(self.elements["SURVIVOR"])
+        self.pilot_fled = True
+
+    def t_ENDCOMBAT(self, camp):
+        if self.eteam_activated and not self.pilot_fled:
+            myteam = self.elements["_ateam"]
+            eteam = self.elements["_eteam"]
+            npc = self.elements["PILOT"]
+            if len(myteam.get_active_members(camp)) < 1:
+                self.obj.failed = True
+                camp.check_trigger("LOSE",npc)
+            elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+                self.eteam_defeated = True
+                self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
+                camp.check_trigger("WIN",npc)
+                self.pilot_leaves_combat(camp)
+
 
 class BAM_StormTheCastle(Plot):
     LABEL = BAMO_STORM_THE_CASTLE
@@ -1000,6 +1088,7 @@ class BAM_StormTheCastle(Plot):
         mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
         if mynpc:
             plotutility.CharacterMover(self, mynpc, myscene, team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
             self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
         else:

@@ -82,8 +82,10 @@ class SimpleMonologueDisplay( object ):
     def __init__(self,text,npc):
         self.text=text
         self.npc=npc
-    def __call__(self,camp):
+    def __call__(self,camp,do_rollout=True):
         myviz = ghdialogue.ghdview.ConvoVisualizer(self.npc,camp)
+        if do_rollout:
+            myviz.rollout()
         mygrammar = pbge.dialogue.grammar.Grammar()
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc)
         myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)

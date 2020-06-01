@@ -17,6 +17,7 @@ from . import portraits
 import pygame
 from . import personality
 import uuid
+import math
 
 class Restoreable(object):
     def restore(self):
@@ -3251,6 +3252,10 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             it = self.form.modify_mobility(it)
         # Add emchantment modifiers.
         it += self.ench_list.get_funval(self, 'get_mobility_bonus')
+
+        if it > 50:
+            it = min(it,50 + int(math.log(it-50,1.2)))
+
         return it
 
     def calc_walking(self):

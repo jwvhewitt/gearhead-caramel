@@ -263,7 +263,8 @@ class ExploMenu( object ):
         # Check for waypoints.
         wayp_list = self.explo.camp.scene.get_bumpables(pbge.my_state.view.mouse_tile)
         for wayp in wayp_list:
-            mymenu.add_item('Use {}'.format(str(wayp)),BumpToCall(self.explo,wayp))
+            if wayp.name:
+                mymenu.add_item('Use {}'.format(str(wayp)),BumpToCall(self.explo,wayp))
         # Add the standard options.
         mymenu.add_item('Field HQ', FieldHQCall(self.explo.camp))
         mymenu.add_item('View Memos',memobrowser.MemoBrowser(self.explo.camp))

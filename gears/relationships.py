@@ -57,8 +57,9 @@ MEM_DefeatPC = "MEM_DefeatPC"   # The NPC defeated the PC in this memory.
 MEM_LoseToPC = "MEM_LoseToPC"   # The NPC was defeated by the PC in this memory
 MEM_CallItADraw = "MEM_CallItADraw" # Neither the NPC nor the PC came out clearly on top
 MEM_Clash = "MEM_Clash"         # This memory is about the NPC and PC fighting
+MEM_AidedByPC = "MEM_AidedByPC" # NPC got help from the PC
 
-MEMORY_TYPES = (MEM_DefeatPC,MEM_LoseToPC,MEM_CallItADraw,MEM_Clash)
+MEMORY_TYPES = (MEM_DefeatPC,MEM_LoseToPC,MEM_CallItADraw,MEM_Clash,MEM_AidedByPC)
 
 class Memory(object):
     def __init__(self, npc_perspective, pc_perspective, reaction_mod=0, memtags=(), ):

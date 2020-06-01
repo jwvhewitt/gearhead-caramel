@@ -2305,7 +2305,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["I'm thankful you were here today.",
                           ],
-        LIKE: ["It was a pleasure to fight at your side",
+        LIKE: ["It was a pleasure to fight at your side.",
                ],
         DISLIKE: ["Maybe you're a better pilot than I thought."
                   ],

@@ -91,5 +91,5 @@ class Waypoint( object ):
             self.unlocked_use( camp )
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 

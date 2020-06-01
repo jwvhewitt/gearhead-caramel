@@ -17,6 +17,7 @@ from . import encounters
 from . import lancemates
 from . import missionbuilder
 from . import mission_conversations
+from . import mission_teamups
 from . import mocha
 from . import recovery
 from . import treasures
@@ -35,6 +36,7 @@ def harvest( mod ):
             if issubclass(o,mechtarot.TarotCard):
                 CARDS_BY_NAME[o.__name__] = o
 
+
 harvest(actionscenes)
 harvest(dd_combatmission)
 harvest(dd_customobjectives)
@@ -52,6 +54,7 @@ harvest(encounters)
 harvest(lancemates)
 harvest(missionbuilder)
 harvest(mission_conversations)
+harvest(mission_teamups)
 harvest(mocha)
 harvest(recovery)
 harvest(treasures)
