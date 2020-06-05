@@ -53,7 +53,7 @@ Mecha
                     name = "Right Mount"
                     INV
                         Launcher
-                            size = 6
+                            size = 10
                             SUB
                                 Missile
                                     name = "Rocket Pod"

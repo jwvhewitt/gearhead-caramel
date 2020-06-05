@@ -1,0 +1,94 @@
+Mecha
+    name = "Wolfram"
+    desig = "HMC-06"
+    imagename = "mav_wolfram.png"
+    portrait = "mecha_wolfram.png"
+    desc = "A mining robot developed from the Claymore design. The Wolfram is not designed for combat, but is often used by arena fighters who can't afford anything better yet."
+
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (TerranFederation,DeadzoneFederation,ClanIronwind,RegExCorporation)
+    role_list = (Trooper,)
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                Sensor
+                    size = 2
+            END
+
+        Torso
+            size = 6
+            SUB
+                Armor
+                    size = 7
+                Engine
+                    size = 450
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Right Hardpoint"
+                Mount
+                    name = "Left Hardpoint"
+                    INV
+                        BeamWeapon
+                            name = "Mining Laser"
+                            reach = 4
+                            damage = 2
+                            accuracy = 1
+                            penetration = 3
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Right Hand"
+                    INV
+                        MeleeWeapon
+                            name="Pickaxe"
+                            reach=1
+                            damage=4
+                            accuracy=2
+                            penetration=2
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Left Hand"
+            END
+
+        Leg
+            name = "Right Leg"
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                HeavyActuators
+                    size = 5
+            END
+        Leg
+            name = "Left Leg"
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                HeavyActuators
+                    size = 5
+            END
+    END
+

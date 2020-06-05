@@ -167,6 +167,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     C1_WIDTH = 260
     C2_WIDTH = 220
     C3_WIDTH = 120
+    MECHA_PRICE_LIMIT = 300000
     def __init__(self,year=158,**kwargs):
         super(CharacterGeneratorW, self).__init__(-400, -300, 800, 600, **kwargs)
         self.pc = gears.base.Character(name="New Character",portrait_gen=gears.portraits.Portrait(),job=gears.jobs.Job("Cavalier"))
@@ -207,14 +208,8 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         age_gender_row.add_center(gender_menu)
         self.column_one.add_interior(age_gender_row)
 
-        mecha_shopping_list = gears.selector.MechaShoppingList(320000)
         self.mecha_menu = pbge.widgets.DropdownWidget(0,0,self.C1_WIDTH,25,font=pbge.MEDIUMFONT)
-        for mek in mecha_shopping_list.best_choices:
-            self.mecha_menu.add_item(mek.get_full_name(),mek)
-        for mek in mecha_shopping_list.backup_choices:
-            self.mecha_menu.add_item(mek.get_full_name(),mek)
-        self.mecha_menu.menu.sort()
-        self.mecha_menu.menu.set_item_by_value(random.choice(mecha_shopping_list.best_choices))
+        self.reset_mecha_menu()
         self.column_one.add_interior(self.mecha_menu)
 
         self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,16,"===========",justify=0))
@@ -308,9 +303,30 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.pc.bio = ""
         self.pc.portrait_gen.color_channels = list(gears.color.CHARACTER_COLOR_CHANNELS)
 
+    def reset_mecha_menu(self):
+        mymek = self.mecha_menu.menu.get_current_value()
+        del self.mecha_menu.menu.items[:]
+        if gears.personality.GreenZone in self.bio_personality:
+            fac = gears.factions.TerranFederation
+        elif gears.personality.DeadZone in self.bio_personality:
+            fac = gears.factions.DeadzoneFederation
+        else:
+            fac = None
+        mecha_shopping_list = gears.selector.MechaShoppingList(self.MECHA_PRICE_LIMIT,fac)
+        for mek in mecha_shopping_list.best_choices:
+            self.mecha_menu.add_item(mek.get_full_name(),mek)
+        for mek in mecha_shopping_list.backup_choices:
+            self.mecha_menu.add_item(mek.get_full_name(),mek)
+        self.mecha_menu.menu.sort()
+        if mymek and self.mecha_menu.menu.has_value(mymek):
+            self.mecha_menu.menu.set_item_by_value(mymek)
+        else:
+            self.mecha_menu.menu.set_item_by_value(random.choice(mecha_shopping_list.best_choices))
+
     def biography_randomize(self,wid,ev):
         self._reset_biography()
         lifepath.generate_random_lifepath(self)
+        self.reset_mecha_menu()
 
     def biography_choose(self,wid,ev):
         self._reset_biography()
@@ -324,6 +340,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.column_one.active = True
         self.column_two.active = True
         self.column_three.active = True
+        self.reset_mecha_menu()
 
     def get_portrait_tags(self):
         mytags = gears.portraits.Portrait.get_form_tags(self.pc)

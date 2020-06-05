@@ -64,7 +64,7 @@ Mecha
                     name = "Right Arm Mount"
                     INV
                         Launcher
-                            size = 6
+                            size = 5
                             SUB
                                 Missile
                                     name = "Gajira Missiles"
@@ -90,7 +90,7 @@ Mecha
                     name = "Left Arm Mount"
                     INV
                         Launcher
-                            size = 6
+                            size = 5
                             SUB
                                 Missile
                                     name = "Sparrow Missiles"
@@ -204,7 +204,7 @@ Mecha
                     name = "Right Arm Mount"
                     INV
                         Launcher
-                            size = 6
+                            size = 5
                             SUB
                                 Missile
                                     name = "Gajira Missiles"
@@ -230,7 +230,7 @@ Mecha
                     name = "Left Arm Mount"
                     INV
                         Launcher
-                            size = 6
+                            size = 5
                             SUB
                                 Missile
                                     name = "Sparrow Missiles"
@@ -338,7 +338,7 @@ Mecha
                     name = "Right Arm Mount"
                     INV
                         Launcher
-                            size = 6
+                            size = 5
                             SUB
                                 Missile
                                     name = "Gajira Missiles"
@@ -373,7 +373,7 @@ Mecha
                     name = "Left Arm Mount"
                     INV
                         Launcher
-                            size = 6
+                            size = 5
                             SUB
                                 Missile
                                     name = "Sparrow Missiles"

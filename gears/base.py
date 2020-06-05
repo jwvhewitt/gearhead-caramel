@@ -2130,8 +2130,8 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.VOLUME_MODIFIER
-        return int(
-            (((self.reach + self.accuracy + self.damage + self.penetration + 1) * self.quantity + 49) // 50) * mult)
+        return max(1,int(
+            (((self.reach * self.damage * (self.accuracy + self.penetration) + 1) * self.quantity) / 100) * mult))
 
     @property
     def base_cost(self):

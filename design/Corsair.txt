@@ -30,7 +30,7 @@ Mecha
                     name = "Collar Mount"
                     INV
                         Launcher
-                            size = 4
+                            size = 6
                             SUB
                                 Missile
 									name = "Heavy Rockets"

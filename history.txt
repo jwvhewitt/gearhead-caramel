@@ -1,3 +1,7 @@
+- Adjusted mecha cost, random mecha unit generation
+- Modified the volume of missiles
+- Added Razer, Petrach, Wolfram mecha
+- Character creator allows selection of local mecha for green zone, dead zone
 - Extremely high Mobility scores toned down
 - Fixed crash when pygame.mixer fails to load
 - Fixed some mission problems

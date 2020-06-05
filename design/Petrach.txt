@@ -1,0 +1,179 @@
+Mecha
+    name = "Petrach"
+    desig = "XB-7"
+    imagename = "mav_petrach.png"
+    portrait = "mecha_petrach.png"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (TerranFederation,TerranDefenseForce,)
+    role_list = (Trooper,Support)
+    desc = ""
+
+    SUB
+        Torso
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Sensor
+                    size = 3
+                Engine
+                    size = 600
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 1
+                    END
+                Mount
+                    name = "Torso Mount"
+                    INV
+                        STC Intercept Cannon
+                    END
+            END
+        Storage
+            name = "Right Pod"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Launcher
+                    size = 8
+                    SUB
+                        Missile
+                            name = "Swarm Missiles"
+                            reach = 6
+                            damage = 1
+                            accuracy = 2
+                            penetration = 1
+                            quantity = 40
+                    END
+            END
+        Storage
+            name = "Left Pod"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Launcher
+                    size = 8
+                    SUB
+                        Missile
+                            name = "Swarm Missiles"
+                            reach = 6
+                            damage = 1
+                            accuracy = 2
+                            penetration = 1
+                            quantity = 40
+                    END
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HeavyActuators
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HeavyActuators
+                    size = 4
+            END
+    END
+
+Mecha
+    name = "Petrach"
+    desig = "XB-7a"
+    imagename = "mav_petrach_a.png"
+    portrait = "mecha_petrach.png"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (TerranFederation,TerranDefenseForce,)
+    role_list = (Trooper,Support)
+    desc = ""
+
+    SUB
+        Torso
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Sensor
+                    size = 3
+                Engine
+                    size = 600
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 1
+                    END
+                Mount
+                    name = "Torso Mount"
+                    INV
+                        STC Intercept Cannon
+                    END
+            END
+        Storage
+            name = "Right Pod"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Launcher
+                    size = 8
+                    SUB
+                        Missile
+                            name = "Leveler Missiles"
+                            reach = 6
+                            damage = 4
+                            accuracy = 1
+                            penetration = 2
+                            quantity = 4
+                            attributes = (Blast2)
+
+                    END
+            END
+        Storage
+            name = "Left Pod"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Launcher
+                    size = 8
+                    SUB
+                        Missile
+                            name = "Leveler Missiles"
+                            reach = 6
+                            damage = 4
+                            accuracy = 1
+                            penetration = 2
+                            quantity = 4
+                            attributes = (Blast2)
+                   END
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HeavyActuators
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HeavyActuators
+                    size = 4
+            END
+    END
+

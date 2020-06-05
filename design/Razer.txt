@@ -101,3 +101,196 @@ Mecha
                     size = 1
             END
     END
+
+
+Mecha
+    name = "Razer"
+    desig = "TR-92-C Hitman"
+    form = MT_Arachnoid
+    imagename = "mav_razer_hitman.png"
+    portrait = "mecha_razer.png"
+    desc = ""
+
+    environment_list = (GroundEnv,UrbanEnv)
+    faction_list = (DeadzoneFederation,ClanIronwind)
+    role_list = (Support,Trooper)
+
+    SUB
+        Head
+            size = 3
+            SUB
+                Armor
+                    size = 1
+                Sensor
+                    size = 3
+                Cockpit
+                    SUB
+                        Armor
+                            size = 1
+                    END
+            END
+        Torso
+            size = 2
+            SUB
+                Armor
+                    size = 2
+                Engine
+                    size = 575
+                Gyroscope
+            END
+        Turret
+            size = 2
+            SUB
+                Armor
+                    size = 1
+                BeamWeapon
+                    name = "Light Laser Cannon"
+                    reach = 3
+                    damage = 2
+                    accuracy = 1
+                    penetration = 2
+                    shot_anim = GunBeam
+            END
+        Leg
+            name = "Right Leg 1"
+            size = 2
+            SUB
+                Armor
+                    size = 1
+                Mount
+                    name = "Right Leg Mount"
+                    INV
+                        Launcher
+                            size = 5
+                            SUB
+                                Missile
+                                    name = "Hitman Missiles"
+                                    reach = 4
+                                    damage = 5
+                                    accuracy = 3
+                                    penetration = 4
+                                    quantity = 3
+                            END
+                    END
+                HeavyActuators
+                    size = 1
+            END
+        Leg
+            name = "Left Leg 1"
+            size = 2
+            SUB
+                Armor
+                    size = 1
+                Mount
+                    name = "Left Leg Mount"
+                    INV
+                        Launcher
+                            size = 5
+                            SUB
+                                Missile
+                                    name = "Hitman Missiles"
+                                    reach = 4
+                                    damage = 5
+                                    accuracy = 3
+                                    penetration = 4
+                                    quantity = 3
+                            END
+                    END
+                HeavyActuators
+                    size = 1
+            END
+    END
+
+
+Mecha
+    name = "Razer"
+    desig = "TR-93 XS"
+    form = MT_Arachnoid
+    imagename = "mav_razer_xs.png"
+    portrait = "mecha_razer.png"
+    desc = ""
+
+    environment_list = (GroundEnv,UrbanEnv)
+    faction_list = (TerranFederation,)
+    role_list = (Support,Trooper)
+
+    SUB
+        Head
+            size = 3
+            SUB
+                Armor
+                    size = 1
+                Sensor
+                    size = 3
+                Cockpit
+                    SUB
+                        Armor
+                            size = 1
+                    END
+            END
+        Torso
+            size = 2
+            SUB
+                Armor
+                    size = 2
+                Engine
+                    size = 700
+                Gyroscope
+            END
+        Turret
+            size = 2
+            SUB
+                Armor
+                    size = 1
+                BeamWeapon
+                    name = "Light Laser Cannon"
+                    reach = 3
+                    damage = 2
+                    accuracy = 1
+                    penetration = 2
+                    shot_anim = GunBeam
+            END
+        Leg
+            name = "Right Leg 1"
+            size = 2
+            SUB
+                Armor
+                    size = 1
+                Mount
+                    name = "Right Leg Mount"
+                    INV
+                        BeamWeapon
+                            name = "Pulse Laser"
+                            reach = 3
+                            damage = 1
+                            accuracy = 3
+                            penetration = 0
+                            attributes = (BurstFire4,LinkedFire)
+                            shot_anim = SmallBeam
+
+                    END
+                HeavyActuators
+                    size = 1
+            END
+        Leg
+            name = "Left Leg 1"
+            size = 2
+            SUB
+                Armor
+                    size = 1
+                Mount
+                    name = "Left Leg Mount"
+                    INV
+                        BeamWeapon
+                            name = "Pulse Laser"
+                            reach = 3
+                            damage = 1
+                            accuracy = 3
+                            penetration = 0
+                            attributes = (BurstFire4,LinkedFire)
+                            shot_anim = SmallBeam
+                    END
+                HeavyActuators
+                    size = 1
+            END
+    END

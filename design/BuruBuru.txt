@@ -50,7 +50,7 @@ Mecha
                                     name = "Swarm Missiles"
                                     reach = 6
                                     damage = 1
-                                    accuracy = 1
+                                    accuracy = 2
                                     penetration = 1
                                     quantity = 20
                             END
@@ -157,7 +157,7 @@ Mecha
                                     name = "Swarm Missiles"
                                     reach = 6
                                     damage = 1
-                                    accuracy = 1
+                                    accuracy = 2
                                     penetration = 1
                                     quantity = 20
                             END
@@ -299,7 +299,7 @@ Mecha
                                     name = "Swarm Missiles"
                                     reach = 6
                                     damage = 1
-                                    accuracy = 1
+                                    accuracy = 2
                                     penetration = 1
                                     quantity = 20
                             END
@@ -420,7 +420,7 @@ Mecha
                                     name = "Swarm Missiles"
                                     reach = 6
                                     damage = 1
-                                    accuracy = 1
+                                    accuracy = 2
                                     penetration = 1
                                     quantity = 20
                             END
@@ -525,7 +525,7 @@ Mecha
                                     name = "Swarm Missiles"
                                     reach = 6
                                     damage = 1
-                                    accuracy = 1
+                                    accuracy = 2
                                     penetration = 1
                                     quantity = 20
                             END
@@ -772,7 +772,7 @@ Mecha
                                     name = "Swarm Missiles"
                                     reach = 6
                                     damage = 1
-                                    accuracy = 1
+                                    accuracy = 2
                                     penetration = 1
                                     quantity = 20
                             END

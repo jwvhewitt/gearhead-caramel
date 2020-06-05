@@ -27,10 +27,10 @@ Mecha
                     size = 600
                 Gyroscope
                 Launcher
-                    size = 4
+                    size = 7
                     SUB
                         Missile
-                            name = "Light Missiles"
+                            name = "Guided Missiles"
                             reach = 7
                             damage = 2
                             accuracy = 3

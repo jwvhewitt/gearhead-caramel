@@ -9,7 +9,7 @@ from . import stats
 class MechaScale( object ):
     SIZE_FACTOR = 10
     RANGE_FACTOR = 2
-    COST_FACTOR = 2
+    COST_FACTOR = 1.60
     RANGED_SKILL = stats.MechaGunnery
     MELEE_SKILL = stats.MechaFighting
     @classmethod
@@ -24,7 +24,7 @@ class MechaScale( object ):
     @classmethod
     def scale_cost( self, cost , material ):
         # Scale mass based on scale and material.
-        return ( cost * self.SIZE_FACTOR*self.COST_FACTOR * material.cost_scale ) // 10
+        return int( cost * self.SIZE_FACTOR*self.COST_FACTOR * material.cost_scale ) // 10
     @classmethod
     def scale_health( self, hp , material ):
         # Scale mass based on scale and material.
@@ -39,7 +39,7 @@ class MechaScale( object ):
 class HumanScale( MechaScale ):
     SIZE_FACTOR = 1
     RANGE_FACTOR = 1
-    COST_FACTOR = 5
+    COST_FACTOR = 5.0
     RANGED_SKILL = stats.RangedCombat
     MELEE_SKILL = stats.CloseCombat
     @staticmethod

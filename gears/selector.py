@@ -23,7 +23,7 @@ GENERIC_NAMES = None
 DEADZONE_TOWN_NAMES = None
 
 
-def calc_threat_points(level, percent=30):
+def calc_threat_points(level, percent=50):
     # Copied from GH2.
     level = min(max(level, 0), 300)
     if level < 31:
@@ -187,7 +187,7 @@ class MechaShoppingList(object):
         for mek in DESIGN_LIST:
             if isinstance(mek, base.Mecha) and mek.check_design() and self.matches_criteria(mek):
                 if mek.cost < self.hi_price:
-                    if mek.cost > self.hi_price // 2:
+                    if mek.cost > self.hi_price // 3:
                         self.best_choices.append(mek)
                     else:
                         self.backup_choices.append(mek)
@@ -213,7 +213,7 @@ class MechaShoppingList(object):
 
 
 class RandomMechaUnit(object):
-    MIN_HI_PRICE = 250000
+    MIN_HI_PRICE = 300000
 
     def __init__(self, level, strength, fac, env, add_commander=False):
         # level refers to the renown rating of this encounter. It
@@ -231,7 +231,8 @@ class RandomMechaUnit(object):
         self.shopping_list = MechaShoppingList(
             max(calc_threat_points(level), self.MIN_HI_PRICE),
             fac, env)
-        self.points = max(calc_threat_points(level, strength),10)
+        self.ideal_cost = calc_threat_points(self.level, 20)
+        self.points = strength
         self.mecha_list = list()
         if self.shopping_list.best_choices or self.shopping_list.backup_choices:
             self.buy_mecha()
@@ -242,7 +243,7 @@ class RandomMechaUnit(object):
                 self.mecha_list.append(mek)
 
         else:
-            print("No mecha to buy for {} {} {}".format(level, fac, env))
+            print("No mecha to buy for {} {} {}".format(level, self.shopping_list.fac, env))
 
     def generate_pilot(self,pilot_level,tag=tags.Trooper):
         if self.fac:
@@ -262,29 +263,32 @@ class RandomMechaUnit(object):
         mek.colors = self.team_colors
         return mek
 
+    def mecha_strength_cost(self,mek):
+        mycost = mek.cost
+        return int(mycost * 15/self.ideal_cost) + 10
+
     def choose_mecha(self):
         if self.shopping_list.best_choices:
             mek = self.prep_mecha(random.choice(self.shopping_list.best_choices))
-            if mek.cost > self.points and self.shopping_list.backup_choices:
+            if self.mecha_strength_cost(mek) > self.points and self.shopping_list.backup_choices:
                 mek = self.prep_mecha(random.choice(self.shopping_list.backup_choices))
         else:
             mek = self.prep_mecha(random.choice(self.shopping_list.backup_choices))
         return mek
 
     def buy_mecha(self):
-        ideal_cost = calc_threat_points(self.level, 20)
-        quit_at = min(m.cost for m in (self.shopping_list.best_choices + self.shopping_list.backup_choices))
+        quit_at = 9
         if quit_at >= self.points:
             quit_at = 0
         while self.points > quit_at:
             mek = self.choose_mecha()
             pilot_level = self.level - 20
-            if mek.cost > self.points:
+            mycost = self.mecha_strength_cost(mek)
+            if mycost > self.points:
                 pilot_level -= 10
-            elif mek.cost < ideal_cost // 2:
-                pilot_level += 10
-                self.points -= mek.cost // 2
-            self.points -= mek.cost
+            elif mycost < 20:
+                pilot_level += 25 - mycost
+            self.points -= mycost
             pilot = self.generate_pilot(pilot_level)
             mek.load_pilot(pilot)
             self.mecha_list.append(mek)

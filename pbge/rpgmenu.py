@@ -292,6 +292,11 @@ class Menu( Frect ):
             self.top_item = max(list(self._item_rects.keys()) + [self._the_highest_top])
         self.arrange()
 
+    def has_value( self , v ):
+        for i in self.items:
+            if i.value == v:
+                return True
+
     def set_item_by_value( self , v ):
         for n,i in enumerate( self.items ):
             if i.value == v:
