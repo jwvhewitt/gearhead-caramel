@@ -293,9 +293,14 @@ class EnterTownLanceRecovery(object):
                     self.did_recovery = True
 
 
-DZSPOT_PART_ONE = ("Deadly","Bone","Dead Man's","Toxic","Haunted","Forsaken","Whispering","Shivering","Thousand Rad")
+DZSPOT_PART_ONE = (
+    "Deadly","Bone","Dead Man's","Toxic","Haunted","Forsaken","Whispering","Shivering","Thousand Rad","Janky"
+)
 
-DZSPOT_PART_TWO = ("Ruins","Quarry","Gulch","Valley","Mountain","Radzone","Necropolis","Brook","Lake","Dustbowl","Point")
+DZSPOT_PART_TWO = (
+    "Ruins","Quarry","Gulch","Valley","Mountain","Radzone","Necropolis","Brook","Lake","Dustbowl","Point","Miles",
+    "Hill","Crater"
+)
 
 
 def random_deadzone_spot_name():

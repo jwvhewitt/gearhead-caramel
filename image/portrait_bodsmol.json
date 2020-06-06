@@ -4,8 +4,8 @@
     "btype": "Base",
     "layers": [
       {"name":"Body","fname":"por_bodsmol_body.png","anchor":"midbottom","depth":2000},
-      {"name":"Right Arm","fname":"por_bodsmol_rarm.png","anchor":"right arm","depth":4000},
-      {"name":"Left Arm","fname":"por_bodsmol_larm.png","anchor":"left arm","depth":1000}
+      {"name":"Right Arm","fname":"por_bodsmol_rarm.png","anchor":"center","x_offset":-86,"y_offset":124,"depth":4000},
+      {"name":"Left Arm","fname":"por_bodsmol_larm.png","anchor":"center","x_offset":93,"y_offset":118,"depth":1000}
     ],
     "avatar_layers": [
       {"name":"Body","fname":"avatar_body_smol.png","anchor":"midbottom","depth":2000}
@@ -14,11 +14,11 @@
       "Clothing","Head"
     ],
     "anchors": {
-      "head": [8,-122],"right arm":[-86,124],"left arm":[93,118],
+      "head": [8,-122],
       "avatar_head": [-1,-2], "avatar_body": [-1,8], "avatar_right_shoulder": [-7,2], "avatar_left_shoulder": [5,2]
     },
     "form_tags": ["BodSmol"],
-    "rejects": ["+Body"],
+    "nostyle": ["+Body"],
     "prefers": ["-Body","Young"]
   },
     {

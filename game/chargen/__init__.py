@@ -86,11 +86,31 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.portrait_zone = pbge.frects.Frect(-400,-300,400,600)
         self.minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
 
-        self.option_column = pbge.widgets.ColumnWidget(-50,-200,300,400,draw_border=False)
-        self.children.append(self.option_column)
+        self.outer_column = pbge.widgets.ColumnWidget(-50,-250,300,500,draw_border=False,center_interior=True)
+        self.children.append(self.outer_column)
+
+        self.style_on = True
+        self.style_button = pbge.widgets.LabelWidget(0,0,200,16,text="Style Rules: On",justify=0,on_click=self.toggle_style,draw_border=True)
+        self.outer_column.add_interior(self.style_button)
+
+        self.up_button = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.down_button = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
+
+        self.option_column = pbge.widgets.ScrollColumnWidget(-50,-200,300,400,up_button=self.up_button, down_button=self.down_button, draw_border=False)
+        self.outer_column.add_interior(self.up_button)
+        self.outer_column.add_interior(self.option_column)
+        self.outer_column.add_interior(self.down_button)
         self.rebuild_menu()
 
         self.finished = False
+
+    def toggle_style(self,*args):
+        self.style_on = not self.style_on
+        if self.style_on:
+            self.style_button.text = "Style Rules: On"
+        else:
+            self.style_button.text = "Style Rules: Off"
+        self.rebuild_menu()
 
     def rebuild_menu(self):
         if self.option_column.children:
@@ -99,7 +119,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         for bname in self.por.bits:
             myrow = pbge.widgets.RowWidget(0,0,300,32)
             myrow.add_center(pbge.widgets.LabelWidget(0,0,250,pbge.MEDIUMFONT.get_linesize()+4,bname,font=pbge.MEDIUMFONT,draw_border=True))
-            mylist = sorted(gears.portraits.Portrait.get_list_of_type(gears.portraits.PORTRAIT_BITS[bname].btype,form_tags,False),key=lambda b: b.name)
+            mylist = sorted(gears.portraits.Portrait.get_list_of_type(gears.portraits.PORTRAIT_BITS[bname].btype,form_tags,False,use_style=self.style_on),key=lambda b: b.name)
             if len(mylist) > 1:
                 myrow.add_left(pbge.widgets.ButtonWidget(0,0,16,16,self.minus_plus_image,frame=0,data=(bname,mylist),on_click=self.prev_bit))
                 myrow.add_right(pbge.widgets.ButtonWidget(0,0,16,16,self.minus_plus_image,frame=1,data=(bname,mylist),on_click=self.next_bit))
@@ -110,7 +130,10 @@ class PortraitEditorW(pbge.widgets.Widget):
         # Change this bit.
         # bname is the name of the current bit, mylist is the list of potential replacements.
         bname,mylist = wid.data
-        old_i = mylist.index(gears.portraits.PORTRAIT_BITS[bname])
+        if gears.portraits.PORTRAIT_BITS[bname] in mylist:
+            old_i = mylist.index(gears.portraits.PORTRAIT_BITS[bname])
+        else:
+            old_i = 0
         new_i = old_i - 1
         bit_pos = self.por.bits.index(bname)
         self.por.bits[bit_pos] = mylist[new_i].name
@@ -122,7 +145,10 @@ class PortraitEditorW(pbge.widgets.Widget):
         # Change this bit.
         # bname is the name of the current bit, mylist is the list of potential replacements.
         bname,mylist = wid.data
-        new_i = mylist.index(gears.portraits.PORTRAIT_BITS[bname]) + 1
+        if gears.portraits.PORTRAIT_BITS[bname] in mylist:
+            new_i = mylist.index(gears.portraits.PORTRAIT_BITS[bname]) + 1
+        else:
+            new_i = 0
         if new_i >= len(mylist):
             new_i = 0
         bit_pos = self.por.bits.index(bname)

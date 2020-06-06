@@ -105,7 +105,7 @@ class RegularOpponentBC(BasicBattleConversation):
         )
     def NPC_offers(self,camp):
         mylist = list()
-        myclash = pstate.elements["NPC"].relationship.get_recent_memory([relationships.MEM_Clash])
+        myclash = self.elements["NPC"].relationship.get_recent_memory([relationships.MEM_Clash])
         mylist.append(Offer("[WE_MEET_AGAIN] The last time we met in battle, {}.".format(myclash.npc_perspective),
                             context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
         mylist.append(Offer("[CHALLENGE]",

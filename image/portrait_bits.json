@@ -30,7 +30,7 @@
     "anchors": {
       "right_eye": [-1,-1], "left_eye": [32,-1], "mouth": [19,37], "ear": [-38,14], "nose": [23,12]
     },
-    "requires": ["Masculine"]
+    "style": ["Masculine"]
   },
 
   {
@@ -48,7 +48,7 @@
     "anchors": {
       "right_eye": [0,1], "left_eye": [32,1], "mouth": [18,38], "ear": [-38,16], "nose": [21,14]
     },
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "Chubby Head",
@@ -90,7 +90,7 @@
       "Eyebrows"
     ],
     "prefers": ["Shy"],
-    "rejects": ["Young"]
+    "nostyle": ["Young"]
   },
   {
     "name": "Serene Eyes",
@@ -127,7 +127,7 @@
     "children": [
       "Eyebrows"
     ],
-    "requires": ["Feminine"],
+    "style": ["Feminine"],
     "prefers": ["Cheerful"]
   },
   {
@@ -140,7 +140,7 @@
     "children": [
       "Eyebrows"
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "Emo Eyes",
@@ -153,7 +153,7 @@
       "Eyebrows"
     ],
     "prefers": ["Grim"],
-    "requires": ["Masculine"]
+    "style": ["Masculine"]
   },
   {
     "name": "Natpo Eyes",
@@ -165,7 +165,7 @@
     "children": [
       "Eyebrows"
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
 
   {
@@ -268,7 +268,7 @@
     "layers": [
       {"name":"Mouth","fname":"por_mouth_pouty_c.png","anchor":"mouth","depth":5200,"x_offset":2}
     ],
-    "requires": ["Feminine"],
+    "style": ["Feminine"],
     "prefers": ["Grim","Shy"]
   },
   {
@@ -285,7 +285,7 @@
     "layers": [
       {"name":"Mouth","fname":"por_mouth_hwb3_c.png","anchor":"mouth","depth":5200,"y_offset":0}
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "HWB3 Mouth R",
@@ -293,7 +293,7 @@
     "layers": [
       {"name":"Mouth","fname":"por_mouth_hwb3_r.png","anchor":"mouth","depth":5200,"y_offset":0}
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "Big Smile Mouth",
@@ -325,7 +325,7 @@
     "layers": [
       {"name":"Mouth","fname":"por_mouth_small_c.png","anchor":"mouth","depth":5200,"y_offset":0}
     ],
-    "requires": ["Feminine"],
+    "style": ["Feminine"],
     "prefers": ["Shy"]
   },
   {
@@ -334,7 +334,7 @@
     "layers": [
       {"name":"Mouth","fname":"por_mouth_natpo.png","anchor":"mouth","depth":5200,"y_offset":2}
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "Natpo Mouth R",
@@ -342,7 +342,7 @@
     "layers": [
       {"name":"Mouth","fname":"por_mouth_natpo_r.png","anchor":"mouth","depth":5200,"y_offset":2}
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "Anime Hair",
@@ -374,7 +374,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_pixie.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "HWB3 Hair",
@@ -385,7 +385,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_hwb3.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "Emo Hair",
@@ -396,7 +396,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_emo.png","anchor":"avatar_head","depth":5000,"x_offset":1,"y_offset":-1}
     ],
-    "requires": ["Masculine"],
+    "style": ["Masculine"],
     "prefers": ["Grim"]
   },
   {
@@ -408,9 +408,9 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_balding.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
     ],
-    "requires": ["Masculine"],
+    "style": ["Masculine"],
     "prefers": ["Old"],
-    "rejects": ["Young"]
+    "nostyle": ["Young"]
   },
   {
     "name": "Windswept Hair",
@@ -432,7 +432,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_brightperm.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
     ],
-    "requires": ["Masculine"]
+    "style": ["Masculine"]
   },
   {
     "name": "Modern Quiff",
@@ -443,7 +443,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_modernquiff.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-5}
     ],
-    "requires": ["Masculine"]
+    "style": ["Masculine"]
   },
   {
     "name": "Soft Spike",
@@ -454,7 +454,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_softspike.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "requires": ["Passionate"]
+    "style": ["Passionate"]
   },
   {
     "name": "Slick Back",
@@ -465,7 +465,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_slickback.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "requires": ["Masculine"]
+    "style": ["Masculine"]
   },
   {
     "name": "B70 Hair",
@@ -476,7 +476,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_b70.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "requires": ["Masculine"]
+    "style": ["Masculine"]
   },
   {
     "name": "Natpo Hair",
@@ -495,7 +495,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_natpo.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-1}
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "Halftail Hair",
@@ -514,7 +514,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_halftail.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":1}
     ],
-    "requires": ["Feminine"]
+    "style": ["Feminine"]
   },
   {
     "name": "Ear A",
@@ -595,7 +595,8 @@
     "layers": [
       {"name":"Decal","fname":"por_decal_ma_introvert.png","anchor":"center","depth":7000,"x_offset":22,"y_offset":15}
     ],
-    "requires": ["Shy","BodMA"]
+    "requires": ["BodMA"],
+    "style": ["Shy"]
   },
   {
     "name": "Decal: Skull (BodMA)",
@@ -603,7 +604,8 @@
     "layers": [
       {"name":"Decal","fname":"por_decal_ma_skull.png","anchor":"center","depth":7000,"x_offset":20,"y_offset":59}
     ],
-    "requires": ["Grim","BodMA"]
+    "requires": ["BodMA"],
+    "style": ["Grim"]
   }
 
 

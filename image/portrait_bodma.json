@@ -4,8 +4,8 @@
     "btype": "Base",
     "layers": [
       {"name":"Body","fname":"por_mba_body.png","anchor":"midbottom","depth":2000},
-      {"name":"Right Arm","fname":"por_mba_rightarm.png","anchor":"right arm","depth":4000},
-      {"name":"Left Arm","fname":"por_mba_leftarm.png","anchor":"left arm","depth":1000}
+      {"name":"Right Arm","fname":"por_mba_rightarm.png","anchor":"center","x_offset":-99,"y_offset":78,"depth":4000},
+      {"name":"Left Arm","fname":"por_mba_leftarm.png","anchor":"center","x_offset":99,"y_offset":102,"depth":1000}
     ],
     "avatar_layers": [
       {"name":"Body","fname":"avatar_body_ma.png","anchor":"midbottom","depth":2000}
@@ -14,33 +14,13 @@
       "Clothing","Head"
     ],
     "anchors": {
-      "head": [8,-140],"right arm":[-99,78],"left arm":[99,102],
+      "head": [8,-140],
       "avatar_head": [-1,-4], "avatar_body": [-1,6], "avatar_right_shoulder": [-8,0], "avatar_left_shoulder": [6,0]
     },
     "requires": ["Masculine"],
     "form_tags": ["BodMA"]
   },
   {
-    "name": "MBA NoBody",
-    "btype": "ZBase",
-    "layers": [
-      {"name":"Right Arm","fname":"por_mba_rightarm.png","anchor":"right arm","depth":12000},
-      {"name":"Left Arm","fname":"por_mba_leftarm.png","anchor":"left arm","depth":1000}
-    ],
-    "avatar_layers": [
-      {"name":"Body","fname":"avatar_body_ma.png","anchor":"midbottom","depth":2000}
-    ],
-    "children": [
-      "Clothing","Head"
-    ],
-    "anchors": {
-      "head": [8,-140],"right arm":[-99,78],"left arm":[99,102],
-      "avatar_head": [-1,-4], "avatar_body": [-1,6], "avatar_right_shoulder": [-8,0], "avatar_left_shoulder": [6,0]
-    },
-    "requires": ["Masculine"],
-    "form_tags": ["BodMA"]
-  },
-    {
     "name": "BodMA Shirt 1",
     "btype": "Clothing",
     "layers": [
@@ -186,6 +166,7 @@
       {"name":"Right Sleeve","fname":"avatar_sleeves_spikygoufy.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":7,"frame_height":12,"y_offset":4},
       {"name":"Left Sleeve","fname":"avatar_sleeves_spikygoufy.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":7,"frame_height":12,"y_offset":4}
     ],
-    "requires": ["BodMA","Combatant"]
+    "requires": ["BodMA"],
+    "style": ["Combatant"]
   }
 ]

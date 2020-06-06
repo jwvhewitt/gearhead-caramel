@@ -4,8 +4,8 @@
     "btype": "Base",
     "layers": [
       {"name":"Body","fname":"por_bodmb_body.png","anchor":"midbottom","depth":2000,"x_offset": -5},
-      {"name":"Right Arm","fname":"por_bodmb_arms.png","anchor":"right arm","depth":4000,"frame_width": 140,"frame_height": 330},
-      {"name":"Left Arm","fname":"por_bodmb_arms.png","anchor":"left arm","depth":1000,"frame_width": 140,"frame_height": 330, "frame": 1}
+      {"name":"Right Arm","fname":"por_bodmb_arms.png","anchor":"center","x_offset":-104,"y_offset":110,"depth":4000,"frame_width": 140,"frame_height": 330},
+      {"name":"Left Arm","fname":"por_bodmb_arms.png","anchor":"center","x_offset":109,"y_offset":109,"depth":1000,"frame_width": 140,"frame_height": 330, "frame": 1}
     ],
     "avatar_layers": [
       {"name":"Body","fname":"avatar_body_mb.png","anchor":"midbottom","depth":2000}
@@ -14,11 +14,11 @@
       "Clothing","Head"
     ],
     "anchors": {
-      "head": [8,-132],"right arm":[-104,110],"left arm":[109,109],
+      "head": [8,-132],
       "avatar_head": [-1,-2], "avatar_body": [-1,8], "avatar_right_shoulder": [-8,2], "avatar_left_shoulder": [6,2]
     },
     "requires": ["Masculine"],
-    "rejects": ["-Body"],
+    "nostyle": ["-Body"],
     "form_tags": ["BodMB"]
   },
     {
@@ -83,6 +83,7 @@
       {"name":"Right Sleeve","fname":"avatar_sleeves_mb2.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":7,"frame_height":9,"y_offset":4},
       {"name":"Left Sleeve","fname":"avatar_sleeves_mb2.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":7,"frame_height":9,"y_offset":4}
     ],
-    "requires": ["BodMB","Combatant"]
+    "requires": ["BodMB"],
+    "style": ["Combatant"]
   }
 ]

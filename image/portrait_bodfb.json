@@ -19,7 +19,7 @@
     },
     "requires": ["Feminine"],
     "form_tags": ["BodFB"],
-    "rejects": ["-Body"]
+    "nostyle": ["-Body"]
   },
     {
     "name": "BodFB Pants 1R",

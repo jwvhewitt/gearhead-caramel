@@ -24,10 +24,10 @@ class Portrait(object):
         self.color_channels = list(color.CHARACTER_COLOR_CHANNELS)
 
     @staticmethod
-    def get_list_of_type(ptype, form_tags,use_weight=True):
+    def get_list_of_type(ptype, form_tags,use_weight=True, use_style=True):
         candidates = list()
         for pb in PORTRAIT_BITS_BY_TYPE[ptype]:
-            if pb.is_legal_bit(form_tags):
+            if pb.is_legal_bit(form_tags,use_style):
                 # Generate a list. The length of the list depends on the appropriateness of this bit.
                 pblist = [pb,]
                 if use_weight:
@@ -39,8 +39,8 @@ class Portrait(object):
                 candidates += pblist
         return candidates
 
-    def get_bit_of_type(self, ptype, form_tags):
-        candidates = self.get_list_of_type(ptype, form_tags)
+    def get_bit_of_type(self, ptype, form_tags, use_style=True):
+        candidates = self.get_list_of_type(ptype, form_tags, use_style)
         if candidates:
             return random.choice(candidates)
 
@@ -94,7 +94,7 @@ class Portrait(object):
             bit = PORTRAIT_BITS[bitname]
             if bit.btype in frontier:
                 frontier.remove(bit.btype)
-                if bit.is_legal_bit(form_tags):
+                if bit.is_legal_bit(form_tags,style_on=False):
                     self.bits.append(bitname)
                     frontier += bit.children
                     form_tags += bit.form_tags
@@ -233,7 +233,7 @@ class PortraitLayer(object):
 
 class PortraitBit(object):
     def __init__(self, name="No_Name", btype="No_Type", layers=(), avatar_layers=(), children=(), anchors=(), form_tags=(),
-                 requires=(), prefers=(), rejects=(), **kwargs):
+                 requires=(), prefers=(), rejects=(), style=(), nostyle=(), **kwargs):
         self.name = name
         self.btype = btype
         self.layers = list()
@@ -249,14 +249,21 @@ class PortraitBit(object):
         self.requires = set(requires)
         self.prefers = set(prefers)
         self.rejects = set(rejects)
+        self.style = set(style)
+        self.nostyle = set(nostyle)
         for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
-    def is_legal_bit(self, existing_form_tags):
-        if self.requires:
-            return self.requires.issubset(existing_form_tags) and not self.rejects.intersection(existing_form_tags)
+    def is_legal_bit(self, existing_form_tags, style_on=True):
+        need_these = self.requires.copy()
+        not_these = self.rejects.copy()
+        if style_on:
+            need_these.update(self.style)
+            not_these.update(self.nostyle)
+        if need_these:
+            return need_these.issubset(existing_form_tags) and not not_these.intersection(existing_form_tags)
         else:
-            return not self.rejects.intersection(existing_form_tags)
+            return not not_these.intersection(existing_form_tags)
 
 
 def init_portraits():

@@ -39,11 +39,15 @@ class BoringRemoteOffice( Plot ):
                                     dident="INTERIOR")
         foyer.contents.append(team2)
         # Add the NPCs.
-        team2.contents.append(gears.selector.random_character(self.rank+10,job=self.elements["FACTION"].choose_job(gears.tags.Commander),combatant=True,faction=self.elements["FACTION"]))
-        team2.contents.append(gears.selector.random_character(self.rank+5,job=self.elements["FACTION"].choose_job(gears.tags.Support),combatant=True,faction=self.elements["FACTION"]))
-        team2.contents.append(gears.selector.random_character(self.rank,faction=self.elements["FACTION"],
-                                                                  job=self.elements["FACTION"].choose_job(
-                                                                      gears.tags.Trooper), combatant=True))
+        if self.rank > 25 and random.randint(1,3) != 1:
+            job = self.elements["FACTION"].choose_job(gears.tags.Commander)
+        elif random.randint(1,3) == 1:
+            job = self.elements["FACTION"].choose_job(gears.tags.Support)
+        elif random.randint(1,20) != 17:
+            job = self.elements["FACTION"].choose_job(gears.tags.Trooper)
+        else:
+            job = random.choice(list(gears.jobs.ALL_JOBS.values()))
+        team2.contents.append(gears.selector.random_character(self.rank+10,job=job,combatant=True,faction=self.elements["FACTION"]))
 
         return True
 

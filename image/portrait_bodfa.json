@@ -4,8 +4,8 @@
     "btype": "Base",
     "layers": [
       {"name":"Body","fname":"por_bodfa_body.png","anchor":"midbottom","depth":2000},
-      {"name":"Right Arm","fname":"por_bodfa_arms.png","frame_width":136,"frame_height":310,"anchor":"right arm","depth":4000},
-      {"name":"Left Arm","fname":"por_bodfa_arms.png","frame_width":136,"frame_height":310,"frame":1,"anchor":"left arm","depth":1000}
+      {"name":"Right Arm","fname":"por_bodfa_arms.png","frame_width":136,"frame_height":310,"anchor":"center","x_offset":-99,"y_offset":78,"depth":4000},
+      {"name":"Left Arm","fname":"por_bodfa_arms.png","frame_width":136,"frame_height":310,"frame":1,"anchor":"center","x_offset":99,"y_offset":102,"depth":1000}
     ],
     "avatar_layers": [
       {"name":"Body","fname":"avatar_body_fa.png","anchor":"midbottom","depth":2000}
@@ -14,33 +14,13 @@
       "Clothing","Head"
     ],
     "anchors": {
-      "head": [11,-140],"right arm":[-99,78],"left arm":[99,102],
+      "head": [11,-140],
       "avatar_head": [-1,-4], "avatar_body": [-1,6], "avatar_right_shoulder": [-8,0], "avatar_left_shoulder": [6,0]
     },
     "requires": ["Feminine"],
     "form_tags": ["BodFA"]
   },
   {
-    "name": "FBA NoBody",
-    "btype": "ZBase",
-    "layers": [
-      {"name":"Right Arm","fname":"por_bodfa_arms.png","frame_width":136,"frame_height":310,"anchor":"right arm","depth":12000},
-      {"name":"Left Arm","fname":"por_bodfa_arms.png","frame_width":136,"frame_height":310,"frame":1,"anchor":"left arm","depth":1000}
-    ],
-    "avatar_layers": [
-      {"name":"Body","fname":"avatar_body_fa.png","anchor":"midbottom","depth":2000}
-    ],
-    "children": [
-      "Clothing","Head"
-    ],
-    "anchors": {
-      "head": [11,-140],"right arm":[-99,78],"left arm":[99,102],
-      "avatar_head": [-1,-4], "avatar_body": [-1,6], "avatar_right_shoulder": [-8,0], "avatar_left_shoulder": [6,0]
-    },
-    "requires": ["Feminine"],
-    "form_tags": ["BodFA"]
-  },
-    {
     "name": "BodFA Pants 1",
     "btype": "Pants",
     "layers": [
@@ -158,7 +138,8 @@
       {"name":"Right Sleeve","fname":"avatar_sleeves_spikyround.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":7,"frame_height":12,"y_offset":4},
       {"name":"Left Sleeve","fname":"avatar_sleeves_spikyround.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":7,"frame_height":12,"y_offset":4}
     ],
-    "requires": ["BodFA","Combatant"]
+    "requires": ["BodFA"],
+    "style": ["Combatant"]
   },
   {
     "name": "BodFA Sleeves 4 Armor",
@@ -171,6 +152,7 @@
       {"name":"Right Sleeve","fname":"avatar_sleeves_bandarmor.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":6,"frame_height":9,"y_offset":3},
       {"name":"Left Sleeve","fname":"avatar_sleeves_bandarmor.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":6,"frame_height":9,"y_offset":3}
     ],
-    "requires": ["BodFA","Combatant"]
+    "requires": ["BodFA"],
+    "style": ["Combatant"]
   }
 ]

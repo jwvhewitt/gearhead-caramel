@@ -1,3 +1,5 @@
+- Style rules may be turned on or off in the portrait editor
+- Added style, nostyle properties to PortraitBits
 - Adjusted mecha cost, random mecha unit generation
 - Modified the volume of missiles
 - Added Razer, Petrach, Wolfram mecha

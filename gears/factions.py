@@ -22,9 +22,11 @@ class Faction(Singleton):
     ADJECTIVES = ("Whatever",)
     NOUNS = ("Circle",)
     uniform_colors = (None,None,None,None,None)
+
     @classmethod
     def get_faction_tag(cls):
         return cls
+
     @classmethod
     def choose_job(cls,role):
         candidates = cls.CAREERS.get(role)
@@ -33,11 +35,13 @@ class Faction(Singleton):
         else:
             job = jobs.ALL_JOBS["Mecha Pilot"]
         return job
+
     @classmethod
     def choose_location(cls):
         if cls.LOCATIONS:
             return random.choice(cls.LOCATIONS)
     ORDINALS = ("1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th","13th")
+
     @classmethod
     def get_circle_name(cls,city=None):
         sub_dic = {
