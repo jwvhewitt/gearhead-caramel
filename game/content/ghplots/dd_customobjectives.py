@@ -135,6 +135,8 @@ class DDBAMO_HelpFromTheStars( Plot ):
         mek = plotutility.AutoJoiner.get_mecha_for_character(mynpc,True)
         mek.load_pilot(mynpc)
         self.register_element("SURVIVOR",mek,dident="_ateam")
+        if random.randint(1, 4) == 1:
+            champions.upgrade_to_champion(mek)
 
         self.obj = adventureseed.MissionObjective("Investigate the meteor", missionbuilder.MAIN_OBJECTIVE_VALUE * 2, can_reset=False)
         self.adv.objectives.append(self.obj)

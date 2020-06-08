@@ -261,11 +261,19 @@ class BuildAMissionPlot(Plot):
 class Championify( object ):
     '''
     Modifies an objective so that it has a champion.
+    If there is an _eteam element that is a team, there is a
+    25% chance all of them will be upgraded to champions of
+    the same theme.
     If there is a _commander element that is a character,
     its mek gets upgraded, and any _assistant element as well
-    has 50% chance of getting its mek upgraded.
+    has 50% chance of getting its mek upgraded (possibly of
+    different theme).
     If there is no commander but there is an _eteam element
     that is a team, a random member of the eteam gets it.
+
+    Finally, if there is an _ateam element that is a team,
+    there is a 25% chance a random member is also upgraded
+    to champion.
 
     To use, define a normal championless plot, then
     define a new plot that mixes this in, but as the first
@@ -289,6 +297,7 @@ class Championify( object ):
     championify_commander_element = "_commander"
     championify_assistant_element = "_assistant"
     championify_eteam_element = "_eteam"
+    championify_ateam_element = "_ateam"
 
     def custom_init(self, nart):
         # Introspect.
@@ -312,6 +321,18 @@ class Championify( object ):
             # Original custom init failed, so fail this one too.
             return False
 
+        # Do a 25% chance to upgrade one of the ateam mecha.
+        def try_upgrade_ateam():
+            ateam = self.elements.get(self.championify_ateam_element, None)
+            if not ateam or not isinstance(ateam, teams.Team) or random.randint(1, 4) != 1:
+                return True
+
+            mek = random.choice(ateam.contents)
+            champions.upgrade_to_champion(mek)
+
+            return True
+
+        # Upgrade the mek of a character.
         def upgrade_mek_of(char):
             mek = char.get_root()
             if not isinstance(mek, gears.base.Mecha):
@@ -319,23 +340,36 @@ class Championify( object ):
             # TODO: Add a persistent pref_champion to character?
             champions.upgrade_to_champion(mek)
 
+        # Upgrade enemies.
+
+        eteam = self.elements.get(self.championify_eteam_element, None)
+        if eteam and isinstance(eteam, teams.Team) and random.randint(1, 4) == 1:
+            # TODO: If characters have a preferred champion theme,
+            # then if there is a commander, get the commander's theme.
+            # NOTE: we do not have preferred champion themes *yet*.
+            theme = random.choice(champions.THEMES)
+            for mek in eteam.contents:
+                if not isinstance(mek, gears.base.Mecha):
+                    continue
+                champions.upgrade_to_champion(mek, theme)
+            return try_upgrade_ateam()
+
         commander = self.elements.get(self.championify_commander_element, None)
         if commander and isinstance(commander, gears.base.Character):
             upgrade_mek_of(commander)
             if random.randint(1, 2) == 1:
-                return True
+                return try_upgrade_ateam()
             assistant = self.elements.get(self.championify_assistant_element, None)
             if assistant and isinstance(assistant, gears.base.Character):
                 upgrade_mek_of(assistant)
-            return True
+            return try_upgrade_ateam()
 
-        eteam = self.elements.get(self.championify_eteam_element, None)
         if eteam and isinstance(eteam, teams.Team):
             mek = random.choice(eteam.contents)
             if isinstance(mek, gears.base.Mecha):
                 champions.upgrade_to_champion(mek)
 
-        return True
+        return try_upgrade_ateam()
 
 
 #   **********************
@@ -384,6 +418,13 @@ class BAM_AidAlliedForces(Plot):
 
         if num_destroyed_teams >= self.num_battles:
             self.obj.win(camp, 100)
+
+
+class BAM_ChampionAidAlliedForces(Championify, BAM_AidAlliedForces):
+    active = True
+
+    championify_eteam_element = "_eteam_0"
+    championify_ateam_element = "_ateam_0"
 
 
 class BAM_CaptureMine(Plot):
@@ -536,6 +577,10 @@ class BAM_DefeatArmy(Plot):
             self.obj.win(camp, 100)
 
 
+class BAM_ChampionDefeatArmy(Championify, BAM_DefeatArmy):
+    active = True
+
+
 class BAM_DefeatCommander(Plot):
     LABEL = BAMO_DEFEAT_COMMANDER
     active = True
@@ -638,6 +683,9 @@ class BAM_DefeatTheBandits(Plot):
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp, 100)
 
+
+class BAM_ChampionDefeatTheBandits(Championify, BAM_DefeatTheBandits):
+    active = True
 
 
 class BAM_DefeatTheBandits_NoCommander(Plot):
@@ -1168,3 +1216,7 @@ class BAM_SurviveTheAmbush(Plot):
 
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp, 100)
+
+
+class BAM_ChampionSurviveTheAmbush(Championify, BAM_SurviveTheAmbush):
+    active = True

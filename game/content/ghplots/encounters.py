@@ -72,3 +72,22 @@ class RandoMechaWithChampionEncounter( RandoMechaEncounter ):
         if len(myteam.get_active_members(camp)) < 1:
             self.end_plot(camp)
             camp.dole_xp(120)
+
+
+class RandoThemedChampionsEncounter( SmallMechaEncounter ):
+    # Fight some random champions. What do they want? To pad the adventure.
+    def custom_init( self, nart ):
+        theme = random.choice(champions.THEMES)
+        if super().custom_init(nart):
+            myteam = self.elements["_eteam"]
+            for mek in myteam.contents:
+                champions.upgrade_to_champion(mek, theme)
+            return True
+        else:
+            return False
+    def t_ENDCOMBAT(self,camp):
+        # If the player team (why _eteam tho?) gets wiped out, end the mission.
+        myteam = self.elements["_eteam"]
+        if len(myteam.get_active_members(camp)) < 1:
+            self.end_plot(camp)
+            camp.dole_xp(75)
