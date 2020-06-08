@@ -146,6 +146,9 @@ class Rolling( movement.MoveMode ):
 
 class SpaceFlight( movement.MoveMode ):
     NAME = 'space flight'
+    @classmethod
+    def get_short_name(cls):
+        return 'space'
 
 MOVEMODE_LIST = (movement.Walking,movement.Flying,Skimming,Rolling,SpaceFlight)
 
