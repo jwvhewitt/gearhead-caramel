@@ -10,7 +10,7 @@ import glob
 import pickle
 import copy
 
-VERSION = "v0.520"
+VERSION = "v0.530"
 
 
 class Snowflake(object):

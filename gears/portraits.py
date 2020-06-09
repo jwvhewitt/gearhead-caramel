@@ -251,8 +251,8 @@ class PortraitBit(object):
         self.rejects = set(rejects)
         self.style = set(style)
         self.nostyle = set(nostyle)
-        for k, v in list(kwargs.items()):
-            setattr(self, k, v)
+        #for k, v in list(kwargs.items()):
+        #    setattr(self, k, v)
 
     def is_legal_bit(self, existing_form_tags, style_on=True):
         need_these = self.requires.copy()
