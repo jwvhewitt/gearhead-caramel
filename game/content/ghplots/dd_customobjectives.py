@@ -82,7 +82,7 @@ class DDBAMO_ChampionDuel(Plot):
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
         fac = self.elements["ENEMY_FACTION"]
-        mek = gears.selector.generate_ace(self.rank + 30, fac, myscene.environment)
+        mek = gears.selector.generate_ace(self.rank + 10, fac, myscene.environment)
         npc = mek.get_pilot()
         self.register_element("_champion", npc)
 
