@@ -63,6 +63,7 @@ class TarotSignal(object):
         my_ele = self.get_real_elements(sig_card)
         return self.signal_type == socket_sig.signal_type and all(my_ele.get(k) == socket_elements.get(k) for k in socket_elements.keys())
 
+
 class TarotSocket(object):
     # Each interaction held by a tarot card needs a listener plot.
     def __init__(self,listener_type,signal_sought,consequences=None):
@@ -93,6 +94,7 @@ class TarotSocket(object):
                             # A connection is made!
                             actsig.append((other_card,sig))
         return actsig
+
 
 class TarotTransformer(object):
     # One possible consequence of a tarot interaction.

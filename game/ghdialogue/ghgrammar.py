@@ -550,6 +550,40 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[CRYPTIC_GREETING]": {
+        Default: [
+            "We live in dangerous times, but there is still a light in the darkness.",
+            "We live in [adjective] times, but there is still a [noun] in the darkness.",
+            "When you think with your [body_part] you will find the [noun].",
+            "The only thing I know for certain is that I know [noun]."
+        ],
+        personality.Cheerful: [
+            "Remember that the [noun] you give always returns in another form.",
+            "Embrace the [adjective] [noun], free your [noun]."
+        ],
+        personality.Grim: [
+            "Nothing in life is permanent, not even the [noun].",
+            "When you doubt your power, you give power to your doubts.",
+            "Don't hate the [noun], hate the [noun]."
+            ],
+        personality.Easygoing: [
+            "Don't worry about the [adjective] [noun] so you can focus on the important things.",
+            "Those who grasp the [noun] will lose their [noun]."
+        ],
+        personality.Passionate: [
+            "Remember that if a job is worth doing, it's worth dying for.",
+            "Always be [adjective], for the alternative is [adjective]."
+        ],
+        personality.Sociable: [
+            "When you care for what is outside, what is inside cares for you.",
+            "If everyone were [adjective], the [noun] would be [adjective]."
+        ],
+        personality.Shy: [
+            "They say even Bernie Taupin had to build a city, once.",
+            "Silence is a gift to the [noun]."
+        ],
+    },
+
     "[deadzone_residence]": {
         # Some place where people might be living in the dead zone.
         Default: [
@@ -909,6 +943,9 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Ha!",
             ],
         },
+    "[HELLO_PLUS]": {
+        Default: ["[HELLO]","[HELLO] [CURRENT_EVENTS]"]
+    },
     "[HELLO]": {
         MET_BEFORE: ["[HELLO_AGAIN]",],
         FIRST_TIME: ["[HELLO_FIRST]",],

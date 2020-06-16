@@ -2,7 +2,7 @@ from pbge.dialogue import Offer,Reply,Cue,ContextTag
 from . import context
 
 
-HELLO = Offer('[HELLO]',context=ContextTag([context.HELLO,]))
+HELLO = Offer('[HELLO_PLUS]',context=ContextTag([context.HELLO,]))
 
 ATTACK = Offer('[ATTACK]',context=ContextTag([context.ATTACK,]))
 

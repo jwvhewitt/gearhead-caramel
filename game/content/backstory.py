@@ -55,6 +55,12 @@ class Backstory(object):
                 else:
                     mycmd = None
 
+    def get(self, key="text"):
+        return " ".join(self.results[key])
+
+    def get_one(self, key="text"):
+        return random.choice(self.results[key])
+
 
 class BackstoryBit(object):
     def __init__(self,name, command,requires=(),any_of=(),none_of=(),requires_elements=(),not_these_elements=(),

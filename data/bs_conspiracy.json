@@ -1,0 +1,113 @@
+[
+  {
+    "name": "Enemy Outside",
+    "command": "CONSPIRACY",
+    "results": {
+      "text": "{LOCALE} is being destabilized by outside agitators.",
+      "rumor": "{LOCALE} is full of enemy agents"
+    },
+    "next_command": "CONSPIRACY_GOAL"
+  },
+  {
+    "name": "Enemy Within",
+    "command": "CONSPIRACY",
+    "results": {
+      "text": "{LOCALE} is being eaten away by traitors within!",
+      "rumor": "there are traitors among us"
+    },
+    "next_command": "CONSPIRACY_GOAL"
+  },
+  {
+    "name": "Enemy Above",
+    "command": "CONSPIRACY",
+    "results": {
+      "text": "The government of {LOCALE} is subverting the will of the people.",
+      "rumor": "the government is not to be trusted"
+    },
+    "add_keywords": [
+      "CONSPIRACY_ABOVE"
+    ],
+    "next_command": "CONSPIRACY_GOAL"
+  },
+    {
+    "name": "Enemy Below",
+    "command": "CONSPIRACY",
+    "results": {
+      "text": "The common people are easily swayed; talk of justice and restitution has led to growing division and resentment.",
+      "rumor": "{LOCALE} could fall to mob rule"
+    },
+    "add_keywords": [
+      "CONSPIRACY_BELOW"
+    ],
+    "next_command": "CONSPIRACY_GOAL"
+  },
+  {
+    "name": "Enemy Idealists",
+    "command": "CONSPIRACY",
+    "results": {
+      "text": "Everybody knows that the ruling class is full of Idealists; they see us regular humans as sheep to be controlled.",
+      "rumor": "Idealists secretly rule the government"
+    },
+    "add_keywords": [
+      "CONSPIRACY_ABOVE", "ANTI_IDEALIST"
+    ],
+    "next_command": "CONSPIRACY_GOAL"
+  },
+    {
+    "name": "Enemy Mutants",
+    "command": "CONSPIRACY",
+    "results": {
+      "text": "They say mutants are just like us, but how much do we really know about them?",
+      "rumor": "mutants are planning to take over the world"
+    },
+    "add_keywords": [
+      "CONSPIRACY_BELOW", "ANTI_MUTANT"
+    ],
+    "next_command": "CONSPIRACY_GOAL"
+  },
+  {
+    "name": "Gnomes of Zurich",
+    "command": "CONSPIRACY_GOAL",
+    "results": {
+      "text": "Their goal is to control the economy, since if you have the money you can do anything.",
+      "rumor": "the banks are controlled by mysterious figures"
+    },
+    "next_command": "CONSPIRACY_RESPONSE"
+  },
+  {
+    "name": "Sons of Cthulu",
+    "command": "CONSPIRACY_GOAL",
+    "results": {
+      "text": "They exist to sow chaos and reap the rewards. Our suffering and strife is just a game to them.",
+      "rumor": "the chaos in the world is no accident"
+    },
+    "next_command": "CONSPIRACY_RESPONSE"
+  },
+    {
+    "name": "Bavarian Illuminati",
+    "command": "CONSPIRACY_GOAL",
+    "results": {
+      "text": "They want power for its own sake.",
+      "rumor": "the banks are controlled by mysterious figures"
+    },
+    "next_command": "CONSPIRACY_RESPONSE"
+  },
+    {
+    "name": "Put Them In Their Place",
+    "command": "CONSPIRACY_RESPONSE",
+    "results": {
+      "text": "It's vital that we identify the threat and stop them now, while we're still able to act.",
+      "rumor": "we must fight to save {LOCALE}"
+    }
+  },
+    {
+    "name": "V For Vegeta",
+    "command": "CONSPIRACY_RESPONSE",
+    "results": {
+      "text": "It's time to make sure that the rulers are more scared of the people than the people are of their rulers.",
+      "rumor": "we should fight the power"
+    },
+    "requires": ["CONSPIRACY_ABOVE"]
+  }
+
+]

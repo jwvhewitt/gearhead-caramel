@@ -20,6 +20,7 @@ from . import mission_conversations
 from . import mission_teamups
 from . import mocha
 from . import recovery
+from . import tarot_sockets
 from . import treasures
 from . import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
@@ -57,5 +58,6 @@ harvest(mission_conversations)
 harvest(mission_teamups)
 harvest(mocha)
 harvest(recovery)
+harvest(tarot_sockets)
 harvest(treasures)
 harvest(utility)

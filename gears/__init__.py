@@ -128,6 +128,7 @@ class MetroData(object):
     def __init__(self):
         self.scripts = pbge.container.ContainerList(owner=self)
         self.local_reputation = 0
+
     def get_quality_of_life(self):
         qol = QualityOfLife()
         for plot in self.scripts:
@@ -277,6 +278,16 @@ class GearHeadScene(pbge.scenes.Scene):
                         npc.pos = random.choice(list(good_spots))
                     else:
                         print("Warning: {} could not be placed in {}".format(npc,self))
+
+    def get_keywords(self):
+        mylist = list()
+        for t in self.attributes:
+            if hasattr(t,"name"):
+                mylist.append(t.name)
+            else:
+                mylist.append(str(t))
+        return mylist
+
 
 class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None
