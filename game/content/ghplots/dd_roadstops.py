@@ -468,18 +468,35 @@ class VaultOrder(Plot):
 #   ***   DZRS_GARAGE   ***
 #   ***********************
 
+# Prototypical road stop Garage.
 class SomewhatOkayGarage(Plot):
     LABEL = "DZRS_GARAGE"
 
     active = True
     scope = "INTERIOR"
 
+    # Settings
+    GarageBuilding = ghterrain.ScrapIronBuilding
+    GarageDoor = ghwaypoints.ScrapIronDoor
+    door_sign = (ghterrain.RustyFixitShopSignEast, ghterrain.RustyFixitShopSignSouth)
+    GarageArchitecture = gharchitecture.ScrapIronWorkshop
+    additional_waypoints = (ghwaypoints.MechEngTerminal, ghwaypoints.MechaPoster)
+    SHOPKEEPER_JOBS = ("Mechanic",)
+    SHOPKEEPER_GREETING = "[HELLO] Welcome to {}, where [shop_slogan]!"
+    shop_faction = gears.factions.TerranDefenseForce
+    shop_ware_types = services.GENERAL_STORE_PLUS_MECHA
+    shop_wares = "good stuff"
+    @property
+    def shop_rank(self):
+        return self.rank // 2
+    NAME_PATTERNS = ("{npc}'s Service","{town} Garage", "{npc}'s Sales & Service", "{npc}'s Mechastop")
+
     def custom_init(self, nart):
         # Create a building within the town.
         npc_name,garage_name = self.generate_npc_and_building_name()
-        building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
-            door_sign=(ghterrain.RustyFixitShopSignEast, ghterrain.RustyFixitShopSignSouth),
+        building = self.register_element("_EXTERIOR", self.GarageBuilding(
+            waypoints={"DOOR": self.GarageDoor(name=garage_name)},
+            door_sign=self.door_sign,
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
@@ -488,114 +505,102 @@ class SomewhatOkayGarage(Plot):
         intscene = gears.GearHeadScene(35, 35, garage_name, player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ScrapIronWorkshop())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, self.GarageArchitecture())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                     dident="INTERIOR")
-        foyer.contents.append(ghwaypoints.MechEngTerminal())
-        foyer.contents.append(ghwaypoints.MechaPoster())
+        for item in self.additional_waypoints:
+            foyer.contents.append(item())
 
         mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
 
+        job = random.choice(self.SHOPKEEPER_JOBS)
         npc = self.register_element("SHOPKEEPER",
                                     gears.selector.random_character(
                                         self.rank, name=npc_name, local_tags=self.elements["LOCALE"].attributes,
-                                        job=gears.jobs.ALL_JOBS["Mechanic"]
+                                        job=gears.jobs.ALL_JOBS[job]
                                     ))
         npc.place(intscene, team=team2)
 
-        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce,
-                                  ware_types=services.GENERAL_STORE_PLUS_MECHA, rank=self.rank // 2)
+        self.shop = services.Shop(npc=npc, shop_faction=self.shop_faction,
+                                  ware_types=self.shop_ware_types, rank=self.shop_rank)
 
         return True
 
     def SHOPKEEPER_offers(self, camp):
         mylist = list()
 
-        mylist.append(Offer("[HELLO] Welcome to {}, where [shop_slogan]!".format(str(self.elements["INTERIOR"])),
+        mylist.append(Offer(self.SHOPKEEPER_GREETING.format(str(self.elements["INTERIOR"])),
                             context=ContextTag([context.HELLO]),
                             ))
 
         mylist.append(Offer("[OPENSHOP]",
                             context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
-                            data={"shop_name": str(self.elements["INTERIOR"]), "wares": "good stuff"}
+                            data={"shop_name": str(self.elements["INTERIOR"]), "wares": self.shop_wares}
                             ))
 
         return mylist
 
-    NAME_PATTERNS = ("{npc}'s Service","{town} Garage", "{npc}'s Sales & Service", "{npc}'s Mechastop")
     def generate_npc_and_building_name(self):
         npc_name = gears.selector.EARTH_NAMES.gen_word()
         building_name = random.choice(self.NAME_PATTERNS).format(npc=npc_name,town=str(self.elements["LOCALE"]))
         return npc_name,building_name
 
 
-class FranklyBoringGarage(Plot):
-    LABEL = "DZRS_GARAGE"
-
+class FranklyBoringGarage(SomewhatOkayGarage):
     active = True
-    scope = "INTERIOR"
-
-    def custom_init(self, nart):
-        # Create a building within the town.
-        npc_name,garage_name = self.generate_npc_and_building_name()
-        building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
-            door_sign=(ghterrain.RustyFixitShopSignEast, ghterrain.RustyFixitShopSignSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
-
-        # Add the interior scene.
-        team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team")
-        intscene = gears.GearHeadScene(35, 35, garage_name, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE),
-                                       scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ScrapIronWorkshop())
-        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
-                                    dident="INTERIOR")
-        foyer.contents.append(ghwaypoints.MechEngTerminal())
-        foyer.contents.append(ghwaypoints.MechaPoster())
-
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
-
-        npc = self.register_element("SHOPKEEPER",
-                                    gears.selector.random_character(
-                                        self.rank, name=npc_name, local_tags=self.elements["LOCALE"].attributes,
-                                        job=gears.jobs.ALL_JOBS["Mechanic"]
-                                    ))
-        npc.place(intscene, team=team2)
-
-        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce,
-                                  ware_types=services.BARE_ESSENTIALS_STORE, rank=self.rank // 4)
-
-        return True
-
-    def SHOPKEEPER_offers(self, camp):
-        mylist = list()
-
-        mylist.append(Offer("[HELLO]".format(str(self.elements["INTERIOR"])),
-                            context=ContextTag([context.HELLO]),
-                            ))
-
-        mylist.append(Offer("[OPENSHOP]",
-                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
-                            data={"shop_name": str(self.elements["INTERIOR"]), "wares": "essentials"}
-                            ))
-
-        return mylist
 
     NAME_PATTERNS = ("{npc}'s Garage","{town} Garage","{town} Repairs", "{town} Service Center", "{town} Fixit Shop")
-    def generate_npc_and_building_name(self):
-        npc_name = gears.selector.EARTH_NAMES.gen_word()
-        building_name = random.choice(self.NAME_PATTERNS).format(npc=npc_name,town=str(self.elements["LOCALE"]))
-        return npc_name,building_name
+    SHOPKEEPER_GREETING = "[HELLO]"
+    shop_ware_types = services.BARE_ESSENTIALS_STORE
+    shop_wares = "essentials"
+
+    @property
+    def shop_rank(self):
+        return self.rank // 4
+
+
+class ScavengerGarage(SomewhatOkayGarage):
+    active = True
+
+    NAME_PATTERNS = ("{npc}'s Salvage Shop", "{town} Recycling Center", "{npc}'s Spare Parts", "{town} Mecha Accessories")
+    SHOPKEEPER_GREETING = "[HELLO]"
+    shop_ware_types = services.MECHA_PARTS_STORE + services.TIRE_STORE + services.ARMOR_STORE + services.WEAPON_STORE
+    shop_wares = "parts"
+
+
+class DeadzoneMechaShop(SomewhatOkayGarage):
+    active = True
+
+    NAME_PATTERNS = ("{npc}'s Chop Shop", "{town} Mecha Trading Post", "{npc}'s Redesigned Mecha", "{npc}'s Design Center")
+    door_sign = (ghterrain.FixitShopSignEast, ghterrain.FixitShopSignSouth)
+    SHOPKEEPER_GREETING = "[HELLO] Please be reminded, this is a mecha designer's workshop, not a salvage operation."
+    additional_waypoints = (ghwaypoints.MechEngTerminal, ghwaypoints.MechaPoster, ghwaypoints.MechaModel, ghwaypoints.GoldPlaque)
+    shop_faction = gears.factions.DeadzoneFederation
+    shop_ware_types = services.MECHA_STORE
+    show_ares = "mecha"
+
+    @property
+    def shop_rank(self):
+        return (self.rank * 3) // 4
+
+
+class GeneralStore(SomewhatOkayGarage):
+    active = True
+
+    NAME_PATTERNS = ("Trader {npc}'s", "{town} Buy&Sell", "{town} Trading Post", "{town} Shopping Boulevard", "{town} Mall")
+    SHOPKEEPER_GREETING = "[HELLO] Welcome to {}! Enjoy our newly refurbished Mecha Engineering Terminal! Hasn't exploded in the past year!"
+    shop_ware_types = services.GENERAL_STORE
+    shop_wares = "equipment"
+    SHOPKEEPER_JOBS = ("Shopkeeper", "Trader")
+    additional_waypoints = (ghwaypoints.MechEngTerminal, ghwaypoints.VendingMachine)
+
+    @property
+    def shop_rank(self):
+        return self.rank // 4
 
 
 #   *************************
