@@ -321,7 +321,7 @@ class Scene( object ):
         else:
             return 0
     def model_altitude( self, m,x,y ):
-        if not hasattr(m,"mmode") or m.mmode.altitude is None:
+        if not hasattr(m,"mmode") or not m.mmode or m.mmode.altitude is None:
             return self.tile_altitude(x,y)
         else:
             return max(self._map[x][y].altitude(),m.mmode.altitude)
