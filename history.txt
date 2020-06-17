@@ -1,3 +1,5 @@
+- In combat, default to the fastest movemode of your mecha.
+
 v0.530 June 8 2020
 - Revamped shop interface
 - Style rules may be turned on or off in the portrait editor
