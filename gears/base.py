@@ -342,10 +342,10 @@ class Mover(KeyObject):
         scenes.movement.Walking, geffects.Rolling, geffects.Skimming, scenes.movement.Flying, geffects.SpaceFlight)
 
     def gear_up(self):
+        self.mmode = None
         for mm in self.MOVEMODE_LIST:
-            if self.get_speed(mm) > 0:
+            if self.get_speed(mm) > self.get_current_speed():
                 self.mmode = mm
-                break
 
 
 class Combatant(KeyObject):
