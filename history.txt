@@ -1,3 +1,4 @@
+- Champion mecha are special, so they should be easier to salvage.
 - More variety in road stop garages.
 - In combat, default to the fastest movemode of your mecha.
 
