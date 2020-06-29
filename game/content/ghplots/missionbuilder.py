@@ -501,9 +501,10 @@ class BAM_DefeatArmy(Plot):
         if npc2:
             plotutility.CharacterMover(self, npc2, myscene, team2)
         else:
+            mek = gears.selector.generate_ace(self.rank, myfac, myscene.environment)
+            team2.contents.append(mek)
             npc2 = self.register_element("_assistant",
-                                         gears.selector.generate_ace(self.rank, myfac, myscene.environment),
-                                         dident="_eteam")
+                                         mek.get_pilot())
 
         self.obj = adventureseed.MissionObjective("Defeat {_commander} and {_assistant}".format(**self.elements),
                                                   MAIN_OBJECTIVE_VALUE * 3)
