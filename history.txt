@@ -1,3 +1,4 @@
+- More variety in road stop garages.
 - In combat, default to the fastest movemode of your mecha.
 
 v0.530 June 8 2020
