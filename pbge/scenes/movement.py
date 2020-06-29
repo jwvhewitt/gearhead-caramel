@@ -4,6 +4,10 @@ class MoveMode( Singleton ):
     climb_penalty = 2.0
     altitude = None
 
+    @classmethod
+    def get_short_name(cls):
+        return cls.NAME
+
 class Walking( MoveMode ):
     NAME = 'walk'
 

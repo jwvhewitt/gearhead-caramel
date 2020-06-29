@@ -1220,7 +1220,7 @@ class MovementSystem(SizeClassedComponent):
         return self.size * self.MOVESYS_COST
 
     def get_item_stats(self):
-        return [ ('Thrust ({})'.format(mode.NAME), str(self.get_thrust(mode)))
+        return [ ('Thrust ({})'.format(mode.get_short_name()), str(self.get_thrust(mode)))
              for mode in [ scenes.movement.Walking
                          , geffects.Rolling
                          , geffects.Skimming
