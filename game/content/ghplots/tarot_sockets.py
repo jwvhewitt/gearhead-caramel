@@ -8,8 +8,9 @@ import random
 from pbge.dialogue import ContextTag,Offer
 from . import dd_main,dd_customobjectives
 from . import dd_tarot
-from .dd_tarot import ME_FACTION,ME_PERSON,ME_CRIME,ME_CRIMED,CONSEQUENCE_WIN,CONSEQUENCE_LOSE,ME_PUZZLEITEM
+from .dd_tarot import ME_FACTION,ME_PERSON,ME_CRIME,ME_CRIMED,ME_PUZZLEITEM,ME_ACTOR,ME_LIABILITY
 from game.content import mechtarot
+from game.content.mechtarot import CONSEQUENCE_WIN,CONSEQUENCE_LOSE
 import game.content.plotutility
 import game.content.gharchitecture
 from . import dd_combatmission
@@ -124,6 +125,46 @@ class GuardianJudgment(Plot):
         self.end_plot(camp)
 
 
+#   ***************************
+#   ***  MT_SOCKET_Amplify  ***
+#   ***************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_PERSON   The person doing the amplification
+#   ME_CARD
+#   ME_SOCKET
+
+
+class AmplifyThisSecret(Plot):
+    LABEL = "MT_SOCKET_Amplify"
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches( cls, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return ME_PERSON in pstate.elements
+
+    def ME_PERSON_offers(self, camp):
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysigs = mysocket.get_activating_signals(mycard, camp)
+        for sig in mysigs:
+            sigsec = sig[0].elements.get(ME_LIABILITY)
+            goffs.append(Offer(
+                "[THATS_INTERESTING] So {}... I will broadcast this to all of my listeners at once.".format(sigsec),
+                context=ContextTag([context.CUSTOM]),
+                effect=mechtarot.CardCaller(mycard,sig[0],mysocket.consequences[CONSEQUENCE_WIN]),
+                data={"reply":"I have some news for you: {}!".format(sigsec)}, dead_end=True
+            ))
+
+        return goffs
+
+
+
 #   **************************
 #   ***  MT_SOCKET_Cancel  ***
 #   **************************
@@ -152,7 +193,7 @@ class YouAreCancelled(Plot):
         mysocket = self.elements[mechtarot.ME_SOCKET]
         mysigs = mysocket.get_activating_signals(mycard, camp)
         for sig in mysigs:
-            sigsub = sig[0].elements.get(ME_PERSON) or sig[0].elements.get(ME_FACTION) or "society"
+            sigsub = sig[0].elements.get(ME_ACTOR) or "society"
             goffs.append(Offer(
                 "No, not {}! Don't think this means you've seen the last of me... well, I guess you probably have seen the last of me.".format(sigsub),
                 context=ContextTag([context.CUSTOM]),
@@ -161,6 +202,82 @@ class YouAreCancelled(Plot):
             ))
 
         return goffs
+
+
+
+#   **************************
+#   ***  MT_SOCKET_Extort  ***
+#   **************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_PERSON   The person to be extorted
+#   ME_CARD
+#   ME_SOCKET
+#
+#   CONSEQUENCE_WIN: The extortee will pay the PC to keep things quiet
+#   CONSEQUENCE_GOAWAY: The extortee will leave this city
+
+
+class BasicExtortionPlot(Plot):
+    LABEL = "MT_SOCKET_Extort"
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches( cls, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return ME_PERSON in pstate.elements
+
+    def ME_PERSON_offers(self, camp):
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysigs = mysocket.get_activating_signals(mycard, camp)
+        self.cash_offer = gears.selector.calc_threat_points(self.rank,500)//5
+        for sig in mysigs:
+            sigsec = sig[0].elements.get(ME_LIABILITY)
+            goffs.append(Offer(
+                "[THATS_INTERESTING] This news could cause a lot of damage if it were to spread... I can offer you ${} to forget about it right now.".format(self.cash_offer),
+                context=ContextTag([context.CUSTOM]),
+                data={"reply":"People are saying that {}.".format(sigsec)},
+                subject=sigsec, subject_start=True
+            ))
+            goffs.append(Offer(
+                "[PLEASURE_DOING_BUSINESS]".format(sigsec),
+                context=ContextTag([context.CUSTOMREPLY]),
+                effect=mechtarot.CardCaller(mycard, sig[0], self._accept_offer),
+                data={"reply": "[PROPOSAL:ACCEPT]"},
+                subject=sigsec, dead_end=True
+            ))
+            goffs.append(Offer(
+                "[UNDERSTOOD] Just don't do anything foolish with this information before you've had a chance to accept my offer.",
+                context=ContextTag([context.CUSTOMREPLY]),
+                data={"reply": "[PROPOSAL:DENY]"},
+                subject=sigsec, dead_end=True, no_repeats=True
+            ))
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "You leave me little choice...",
+                    context=ContextTag([context.CUSTOMREPLY]),
+                    effect=mechtarot.CardCaller(mycard, sig[0], self._alt_offer),
+                    data={"reply": "Here's my counteroffer. You leave town and never come back."},
+                    subject=sigsec, dead_end=True
+                ),camp,goffs,gears.stats.Ego,gears.stats.Negotiation,self.rank,gears.stats.DIFFICULTY_AVERAGE,
+            )
+
+
+        return goffs
+
+    def _accept_offer(self, camp, alpha, beta, **kwargs):
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysocket.consequences[CONSEQUENCE_WIN](camp,alpha,beta,**kwargs)
+        camp.credits += self.cash_offer
+
+    def _alt_offer(self, camp, alpha, beta, **kwargs):
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysocket.consequences["CONSEQUENCE_GOAWAY"](camp,alpha,beta,**kwargs)
 
 
 

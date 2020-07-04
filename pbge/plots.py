@@ -247,6 +247,11 @@ class Plot( object ):
             else:
                 nart.camp.scripts.append( self )
 
+    def get_all_plots(self):
+        yield self
+        for sp in self.subplots.values():
+            yield sp.get_all_plots()
+
     def display( self, lead="" ):
         print(lead + str( self.__class__ ))
         for sp in self.subplots.values():
@@ -256,6 +261,7 @@ class Plot( object ):
         """A trigger has been tripped; make this plot react if appropriate."""
         # The trigger handler will be a method of this plot. If a thing is
         # involved, and that thing is an element, the handler's id will be
+
         # "[element ident]_[trigger type]". If no thing is involved, the
         # trigger handler will be "t_[trigger type]".
         # Trigger handler methods take the Exploration as a parameter.

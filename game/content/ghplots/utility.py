@@ -13,6 +13,25 @@ import game.content.plotutility
 import game.content.gharchitecture
 from . import missionbuilder
 
+
+#  **************************
+#  ***   ADD_BORING_NPC   ***
+#  **************************
+
+class BoringRandomNPC(Plot):
+    LABEL = "ADD_BORING_NPC"
+
+    def custom_init(self, nart):
+        npc = gears.selector.random_character(local_tags=tuple(self.elements["METROSCENE"].attributes))
+        scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+
+        self.register_element("NPC", npc, dident="LOCALE")
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
 #  *****************************Town Hall
 #  ***   ADD_REMOTE_OFFICE   ***
 #  *****************************
@@ -100,6 +119,55 @@ class EnsureAMember( Plot ):
                 candidate.faction and nart.camp.are_ally_factions(candidate.faction,self.elements["FACTION"]))
 
     def _is_good_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
+#  ***************************************
+#  ***   ENSURE_TRAIT_REPRESENTATION   ***
+#  ***************************************
+#
+#   Make sure there's always at least one NPC with the given personality trait in town. Always.
+#
+#  TRAIT: The trait to ensure
+#  METROSCENE: The city to add the character to
+#  METRO: The METRO data block for the city
+#
+
+class EnsureOneTraitHaver( Plot ):
+    LABEL = "ENSURE_TRAIT_REPRESENTATION"
+    scope = "METRO"
+    active = True
+    def custom_init( self, nart ):
+        myscene = self.elements["METROSCENE"]
+        mytrait = self.elements["TRAIT"]
+        destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene )
+        if not destscene:
+            destscene = self.seek_element(nart, "_DEST", self._is_good_scene, scope=myscene)
+        mynpc = self.register_element("NPC",gears.selector.random_character(
+            rank=self.rank, local_tags=myscene.attributes,
+        ),dident="_DEST")
+        mynpc.personality.add(mytrait)
+        destscene.local_teams[mynpc] = destscene.civilian_team
+        return True
+
+    def METROSCENE_ENTER(self, camp):
+        # Perform the check upon entering the city.
+        if not self.member_is_present(camp):
+            # Create and deploy a new NPC.
+            myscene = self.elements["METROSCENE"]
+            mydest = self.elements["_DEST"]
+            mynpc = gears.selector.random_character(rank=random.randint(1, 50),
+                 local_tags=myscene.attributes)
+            mynpc.personality.add(self.elements["TRAIT"])
+            mynpc.place(mydest,team=mydest.civilian_team)
+
+    def member_is_present(self,camp):
+        scope = self.elements["METROSCENE"]
+        for e in camp.all_contents( scope, True ):
+            if isinstance(e,gears.base.Character) and self.elements["TRAIT"] in e.personality:
+                return True
+
+    def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 

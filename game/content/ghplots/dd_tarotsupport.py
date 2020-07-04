@@ -9,13 +9,89 @@ import random
 from pbge.dialogue import ContextTag,Offer
 from . import dd_main,dd_customobjectives
 from . import dd_tarot
-from .dd_tarot import ME_FACTION,ME_PERSON,ME_CRIME,ME_CRIMED,CONSEQUENCE_WIN,CONSEQUENCE_LOSE,ME_PUZZLEITEM
+from .dd_tarot import ME_FACTION,ME_PERSON,ME_CRIME,ME_CRIMED,ME_PUZZLEITEM,ME_ACTOR,ME_LIABILITY
 from game.content import mechtarot
 import game.content.plotutility
 import game.content.gharchitecture
 from . import dd_combatmission
 import collections
 from . import missionbuilder
+
+
+#   ****************************
+#   ***  MT_REVEAL_BadPress  ***
+#   ****************************
+#
+# ME_PERSON: The NPC about whom the bad press will be revealed
+# ME_LIABILITY: A string containing bad info about INVESTIGATION_SUBJECT
+
+class BasicBigScoop(Plot):
+    LABEL = "MT_REVEAL_BadPress"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Place the reporter.
+        if ME_ACTOR not in self.elements:
+            npc = gears.selector.random_character(rank=random.randint(self.rank, self.rank+20),
+                                                  local_tags=tuple(self.elements["METROSCENE"].attributes),
+                                                  job=gears.jobs.ALL_JOBS["Reporter"])
+            scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+            self.register_element(ME_ACTOR, npc, dident="LOCALE")
+        if ME_PERSON not in self.elements:
+            npc = gears.selector.random_character(rank=random.randint(self.rank, self.rank+20),
+                                                  local_tags=tuple(self.elements["METROSCENE"].attributes),)
+            scene = self.seek_element(nart, "LOCALE2", self._is_best_scene, scope=self.elements["METROSCENE"])
+            self.register_element(ME_PERSON, npc, dident="LOCALE2")
+
+        if ME_LIABILITY not in self.elements:
+            self.register_element(ME_LIABILITY, "{ME_PERSON} is guilty of tax evasion".format(**self.elements))
+
+        self.got_memo = False
+        self.got_rumor = False
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def ME_ACTOR_offers(self,camp):
+        mylist = list()
+        mylist.append(
+            Offer(
+                "[HELLO] I am working on a story about about {ME_PERSON}; {ME_LIABILITY}.".format(**self.elements),
+                ContextTag([context.HELLO,]),effect=self._reveal
+            )
+        )
+        return mylist
+
+    def _reveal(self,camp):
+        camp.check_trigger("WIN",self)
+        self.end_plot(camp)
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements[ME_PERSON]:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[News]"] = ["{ME_ACTOR} has been investigating a story about {ME_PERSON}".format(**self.elements), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc is not self.elements[ME_PERSON] and npc is not self.elements[ME_ACTOR] and not self.got_rumor:
+            mynpc = self.elements[ME_ACTOR]
+            goffs.append(Offer(
+                msg="As far as I know {} usually hangs out at {}.".format(mynpc,mynpc.get_scene()),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self,camp):
+        mynpc = self.elements[ME_ACTOR]
+        self.got_rumor = True
+        self.memo = "{} at {} has been investigating {}.".format(mynpc,mynpc.get_scene(),self.elements[ME_PERSON])
+
 
 #   ****************************
 #   ***  MT_REVEAL_ClueItem  ***
@@ -224,6 +300,49 @@ class MediaDemagogue(Plot):
     def reveal_card(self,camp):
         camp.check_trigger("WIN",self)
         self.end_plot(camp)
+
+
+#   ******************************
+#   ***  MT_REVEAL_FeetOfClay  ***
+#   ******************************
+
+class WidespreadDisapproval(Plot):
+    LABEL = "MT_REVEAL_FeetOfClay"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        mynpc = self.elements[ME_PERSON]
+        if ME_LIABILITY not in self.elements:
+            # If we don't have a secret yet, figure out the effect this NPC is having on the world.
+            self.elements[ME_LIABILITY] = dd_tarot.PersonalLiability(mynpc, nart.camp)
+
+        return True
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        mynpc = self.elements[ME_PERSON]
+
+        if npc is not self.elements[ME_PERSON] and npc not in camp.party:
+            goffs.append(Offer(
+                msg="[chat_lead_in] {ME_LIABILITY}. If more people knew about this, maybe something could be done.".format(**self.elements),
+                context=ContextTag((context.INFO,)), effect=self.reveal_card,
+                subject=str(mynpc), data={"subject": "the things {} did".format(str(mynpc))}, no_repeats=True
+            ))
+
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is not self.elements[ME_PERSON] and npc not in camp.party:
+            mygram["[CURRENT_EVENTS]"] = ["{ME_PERSON} needs to be stopped.".format(**self.elements),]
+            mygram["[News]"] = ["{ME_PERSON} has been doing horrible things.".format(**self.elements), ]
+        return mygram
+
+    def reveal_card(self,camp):
+        camp.check_trigger("WIN",self)
+        self.end_plot(camp, True)
 
 
 #   ****************************
@@ -465,6 +584,7 @@ class InvestigativeReporter(Plot):
             )
         )
         return mylist
+
     def _reveal(self,camp):
         camp.check_trigger("WIN",self)
         self.end_plot(camp)
@@ -492,6 +612,131 @@ class InvestigativeReporter(Plot):
         mynpc = self.elements[ME_PERSON]
         self.got_rumor = True
         self.memo = "{} at {} has been investigating {}.".format(mynpc,mynpc.get_scene(),self.elements["INVESTIGATION_SUBJECT"])
+
+
+class PrivateInvestigator(Plot):
+    LABEL = "MT_REVEAL_Investigator"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Place the detective.
+        npc = gears.selector.random_character(rank=random.randint(self.rank, self.rank+20),
+                                              mecha_colors=gears.color.random_mecha_colors(),
+                                              local_tags=tuple(self.elements["METROSCENE"].attributes),
+                                              job=gears.jobs.ALL_JOBS["Detective"])
+        scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+        self.register_element(ME_PERSON, npc, dident="LOCALE")
+        self.got_memo = False
+        self.got_rumor = False
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def ME_PERSON_offers(self,camp):
+        mylist = list()
+        mylist.append(
+            Offer(
+                "[HELLO] Do you know anything about {INVESTIGATION_SUBJECT}? I'm working on a story.".format(**self.elements),
+                ContextTag([context.HELLO,]),effect=self._reveal
+            )
+        )
+        return mylist
+
+    def _reveal(self,camp):
+        camp.check_trigger("WIN",self)
+        self.end_plot(camp)
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements[ME_PERSON]:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[News]"] = ["{ME_PERSON} has been hired to investigate {INVESTIGATION_SUBJECT}".format(**self.elements), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc is not self.elements[ME_PERSON] and not self.got_rumor:
+            mynpc = self.elements[ME_PERSON]
+            goffs.append(Offer(
+                msg="As far as I know {} usually hangs out at {}.".format(mynpc,mynpc.get_scene()),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self,camp):
+        mynpc = self.elements[ME_PERSON]
+        self.got_rumor = True
+        self.memo = "{} at {} has been investigating {}.".format(mynpc,mynpc.get_scene(),self.elements["INVESTIGATION_SUBJECT"])
+
+
+#   ****************************
+#   ***  MT_REVEAL_TheMedia  ***
+#   ****************************
+#
+# ME_PERSON: The media NPC
+# ME_LIABILITY: A string containing bad info about INVESTIGATION_SUBJECT
+
+class ReporterLookingForStory(Plot):
+    LABEL = "MT_REVEAL_TheMedia"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Place the reporter.
+        if ME_PERSON not in self.elements:
+            npc = gears.selector.random_character(rank=random.randint(self.rank, self.rank+20),
+                                                  local_tags=tuple(self.elements["METROSCENE"].attributes),
+                                                  job=gears.jobs.ALL_JOBS["Reporter"])
+            scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+            self.register_element(ME_PERSON, npc, dident="LOCALE")
+
+        self.got_memo = False
+        self.got_rumor = False
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def ME_PERSON_offers(self,camp):
+        mylist = list()
+        mylist.append(
+            Offer(
+                "[HELLO] I am still looking for my next big story.",
+                ContextTag([context.HELLO,]),effect=self._reveal
+            )
+        )
+        return mylist
+
+    def _reveal(self,camp):
+        camp.check_trigger("WIN",self)
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is not self.elements[ME_PERSON] and not self.got_rumor:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[News]"] = ["{ME_PERSON} is a reporter trying to find {ME_PERSON.gender.possessive_determiner} next big story".format(**self.elements), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc is not self.elements[ME_PERSON] and not self.got_rumor:
+            mynpc = self.elements[ME_PERSON]
+            goffs.append(Offer(
+                msg="As far as I know {} usually hangs out at {}.".format(mynpc,mynpc.get_scene()),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self,camp):
+        mynpc = self.elements[ME_PERSON]
+        self.got_rumor = True
+        self.memo = "{} at {} has been looking for a big story.".format(mynpc,mynpc.get_scene())
 
 
 #   ****************************

@@ -115,6 +115,7 @@ class QualityOfLife(object):
         self.community = community
         self.defense = defense
         self.tags = list(tags)
+
     def add(self,other):
         self.prosperity += other.prosperity
         self.stability += other.stability
@@ -122,6 +123,30 @@ class QualityOfLife(object):
         self.community += other.community
         self.defense += other.defense
         self.tags += other.tags
+
+    def get_keywords(self):
+        mylist = list()
+        if self.prosperity > 0:
+            mylist.append("+prosperity")
+        elif self.prosperity < 0:
+            mylist.append("-prosperity")
+        if self.stability > 0:
+            mylist.append("+stability")
+        elif self.stability < 0:
+            mylist.append("-stability")
+        if self.health > 0:
+            mylist.append("+health")
+        elif self.health < 0:
+            mylist.append("-health")
+        if self.community > 0:
+            mylist.append("+community")
+        elif self.community < 0:
+            mylist.append("-community")
+        if self.defense > 0:
+            mylist.append("+defense")
+        elif self.defense < 0:
+            mylist.append("-defense")
+        return mylist
 
 
 class MetroData(object):

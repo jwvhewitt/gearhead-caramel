@@ -2111,6 +2111,23 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[PLEASURE_DOING_BUSINESS]": {
+        Default: ["It's been a pleasure doing business with you.",
+                  ],
+        personality.Cheerful: ["Fantastic! I'm so happy we came to this agreement.",
+                               ],
+        personality.Grim: ["You will not regret this, I promise."
+                           ],
+        personality.Easygoing: ["Alright. So I guess we're finished here, now? Great."
+                                ],
+        personality.Passionate: ["The deal is signed, may fate strike down any who oppose it!",
+                                 ],
+        personality.Sociable: ["May I just say what a pleasure it is to come to an agreement with a true professional like you.",
+                               ],
+        personality.Shy: ["So it's agreed.",
+                          ],
+    },
+
     "[PROPOSAL:ACCEPT]": {
         Default: ["I accept your offer.", "Alright, I'll do it."
                   ],
@@ -2346,6 +2363,29 @@ DEFAULT_GRAMMAR = {
                ],
         DISLIKE: ["Maybe you're a better pilot than I thought."
                   ],
+    },
+
+    "[THATS_INTERESTING]": {
+        # Character reacts to interesting news.
+        Default: ["Very interesting.",
+                  "This is interesting."
+                  ],
+        personality.Cheerful: [
+            "Oh, cool!",
+        ],
+        personality.Grim: ["Fascinating.",
+                           ],
+        personality.Easygoing: [
+            "Neat.",
+        ],
+        personality.Passionate: [
+            "Amazing!",
+        ],
+        personality.Sociable: [
+            "That's some very interesting news.",
+        ],
+        personality.Shy: ["Interesting.",
+                          ],
     },
 
     "[THATSUCKS]": {
