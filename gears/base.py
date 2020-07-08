@@ -1479,14 +1479,18 @@ class Weapon(Component, StandardDamageHandler):
     @property
     def base_cost(self):
         # Multiply the stats together, squaring damage and range because they're so important.
+        reach = self.reach
+
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER
+            if hasattr(aa, 'COST_EFFECTIVE_REACH_MIN') and reach < aa.COST_EFFECTIVE_REACH_MIN:
+                reach = aa.COST_EFFECTIVE_REACH_MIN
         return int(
             (self.COST_FACTOR * (self.damage ** 2) *
             (self.accuracy ** 2 // 10 + self.accuracy + 1) *
             (self.penetration ** 2 // 5 + self.penetration + 1) *
-            ((self.reach ** 2 - self.reach) // 2 + 1)) * mult
+            ((reach ** 2 - reach) // 2 + 1)) * mult
         )
 
     def is_legal_sub_com(self, part):
