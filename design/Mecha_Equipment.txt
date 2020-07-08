@@ -229,6 +229,40 @@ EWSystem
     shop_tags = ("MEXTRA",)
     faction_list = (None,)
 
+BeamShield
+    desig = 'SBS'
+    desc = "A high-quality mecha-scale beam shield."
+    scale = MechaScale
+    material = Advanced
+    size = 5
+    bonus = 2
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Beam Naginata"
+    desc = "A beam generator fashioned into a spear and specially reinforced to support charging into battle."
+    scale = MechaScale
+    reach = 2
+    damage = 3
+    accuracy = 2
+    penetration = 2
+    attributes = (ChargeAttack,)
+    shop_tags = ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Shock Rapier"
+    desc = "A long, thin sword-like energy projection with good penetration."
+    scale = MechaScale
+    reach = 1
+    damage = 2
+    accuracy = 1
+    penetration = 3
+    attributes = (Accurate, OverloadAttack)
+    shop_tags = ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
 HoverJets
     desc = "Jet engines designed to support your mecha and let it skim over terrain. Can also provide some thrust in flight."
     size = 2
@@ -262,6 +296,12 @@ HoverJets
 HoverJets
     desc = "Jet engines designed to support your mecha and let it skim over terrain. Can also provide some thrust in flight."
     size = 7
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+HoverJets
+    desc = "Jet engines designed to support your mecha and let it skim over terrain. Can also provide some thrust in flight."
+    size = 8
     shop_tags= ("MMOBILITY",)
     faction_list = (None,)
 
