@@ -136,8 +136,11 @@ class ChargeAttack(Singleton):
     name = "Charge Attack"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.5
-    COST_MODIFIER = 2.5
+    COST_MODIFIER = 2.2
     POWER_MODIFIER = 1.0
+
+    # Treat weapons with this modifier as having at least reach 5.
+    COST_EFFECTIVE_REACH_MIN = 5
 
     @classmethod
     def get_attacks( self, weapon ):

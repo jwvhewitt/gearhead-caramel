@@ -95,6 +95,12 @@ class TarotSocket(object):
                             actsig.append((other_card,sig))
         return actsig
 
+    def get_transforming_consequence(self,target_card_name):
+        candy = [con for con in self.consequences.values() if hasattr(con,"new_card_name"
+                                                                      ) and con.new_card_name == target_card_name]
+        if candy:
+            return random.choice(candy)
+
 
 class TarotTransformer(object):
     # One possible consequence of a tarot interaction.
@@ -103,23 +109,23 @@ class TarotTransformer(object):
         # this_card_params is a list of parameters to copy from the this_card (the card this interaction belongs to)
         # other_card_params is a list of parameters to copy from the other_card (the card triggering this interaction)
         self.new_card_name = new_card_name
-        self.this_card_params = this_card_params
-        self.other_card_params = other_card_params
+        self.this_card_params = ElementPasser(*this_card_params)
+        self.other_card_params = ElementPasser(*other_card_params)
     def __call__(self, camp, this_card, other_card=None):
         """
 
         :type this_card: TarotCard
         """
+        # Activating a transformation gives XP.
+        camp.dole_xp(100)
+
         nart = GHNarrativeRequest(camp, plot_list=PLOT_LIST)
         pstate = pbge.plots.PlotState()
         pstate.elements[ME_AUTOREVEAL] = True
         pstate.rank = this_card.rank
-        if self.this_card_params:
-            for pp in self.this_card_params:
-                pstate.elements[pp] = this_card.elements.get(pp)
-        if self.other_card_params and other_card:
-            for pp in self.other_card_params:
-                pstate.elements[pp] = other_card.elements.get(pp)
+        pstate.elements.update(self.this_card_params.get_elements(this_card))
+        pstate.elements.update(self.other_card_params.get_elements(other_card))
+
         newcard = nart.request_tarot_card_by_name(self.new_card_name, pstate)
         if not newcard:
             pbge.alert("New tarot card failed for {}".format(self.new_card_name))
@@ -129,7 +135,7 @@ class TarotTransformer(object):
             nart.build()
             if other_card:
                 other_card.invoke(camp,this_card)
-            this_card.end_plot(camp)
+            this_card.end_plot(camp,True)
 
 
 class TarotCard(plots.Plot):
@@ -141,7 +147,7 @@ class TarotCard(plots.Plot):
     SOCKETS = ()
     NEGATIONS = ()
     ONE_USE = False
-    ON_REVEAL_MEMO = None
+    AUTO_MEMO = None
 
     def __init__(self, nart, pstate):
         self.tarot_position = pstate.elements.get(ME_TAROTPOSITION,None)
@@ -153,6 +159,10 @@ class TarotCard(plots.Plot):
             if sock.listener_type:
                 self.add_sub_plot(nart,sock.listener_type,spstate=plots.PlotState(elements={ME_SOCKET:sock,ME_CARD:self}).based_on(self))
 
+        # IF auto-revealed, activate the memo.
+        if self.elements.get(ME_AUTOREVEAL) and self.AUTO_MEMO:
+            self.memo = self.AUTO_MEMO.format(**self.elements)
+
     def get_negations(self, num_neg=2):
         # Return a list of tarot cards that this card can turn into to negate itself.
         try:
@@ -162,18 +172,19 @@ class TarotCard(plots.Plot):
 
     def reveal(self,camp):
         self.visible = True
+        camp.dole_xp(50)
         camp.check_trigger("UPDATE")
 
     def invoke(self,camp,other_card):
         # This tarot card has been invoked. Deal with it.
         if self.ONE_USE:
-            self.end_plot(camp)
+            self.end_plot(camp,True)
 
     def REVEAL_WIN(self,camp):
         # Always add reveal plots with the ID "REVEAL" so this will work.
         self.reveal(camp)
-        if self.ON_REVEAL_MEMO:
-            self.memo = self.ON_REVEAL_MEMO.format(**self.elements)
+        if self.AUTO_MEMO:
+            self.memo = self.AUTO_MEMO.format(**self.elements)
 
 
 class CardDeactivator(object):
@@ -212,10 +223,7 @@ class ProtoCard(object):
 
 
 class Constellation(object):
-    # TODO: Tarot signals/sockets can pass elements by different names. The Constellation assumes any given element
-    # will always be known by the same name. At some point in time this will have to be fixed. Right now I am not
-    # 100% sure how. Oh well.
-    def __init__(self, nart, root_plot, root_card, dest_card_name=None, steps=3):
+    def __init__(self, nart, root_plot, root_card, dest_card_name=None, steps=2):
         self.element_lookup = dict()
         dest_card_class = CARDS_BY_NAME[dest_card_name]
         if dest_card_class:
@@ -241,21 +249,25 @@ class Constellation(object):
                             if elem:
                                 self.element_lookup[v] = elem
 
-    def inherit_elements(self, source_proto, dest_proto, element_keys):
-        if element_keys:
-            for ekey in element_keys:
+    def copy_elements(self, source_proto, dest_proto, epass, reverse=False):
+        if epass:
+            for ekey,eval in epass.items():
+                # ekey is the element's ID in dest, eval is the element's ID in source
+                # Most of the time these will be the same, but not necessarily.
+                if reverse:
+                    ekey,eval = eval,ekey
                 if ekey in dest_proto.elements:
                     pass
-                elif ekey in source_proto.elements:
+                elif eval in source_proto.elements:
                     # This is an already-defined key. Copy the code over.
-                    dest_proto.elements[ekey] = source_proto.elements[ekey]
+                    dest_proto.elements[ekey] = source_proto.elements[eval]
                 else:
                     # This is a new key. Give the element a name, and store it in element_lookup if possible.
-                    dest_proto.elements[ekey] = (source_proto, ekey)
-                    source_proto.elements[ekey] = (source_proto, ekey)
+                    dest_proto.elements[ekey] = (source_proto, eval)
+                    source_proto.elements[eval] = (source_proto, eval)
 
-                    if hasattr(source_proto.card, "elements") and ekey in source_proto.card.elements:
-                        self.element_lookup[(source_proto, ekey)] = source_proto.card.elements[ekey]
+                    if hasattr(source_proto.card, "elements") and eval in source_proto.card.elements:
+                        self.element_lookup[(source_proto, eval)] = source_proto.card.elements[eval]
 
     def get_protocards_that_change_this_one(self, original_card, target_type, nart):
         # Return a list of cards that will change this one into another type.
@@ -269,9 +281,9 @@ class Constellation(object):
                     tarproto = ProtoCard(target_type)
                     myproto = ProtoCard(tc)
                     for sig in signals:
-                        self.inherit_elements(original_proto, tarproto, sig.signal_elements.keys())
-                        self.inherit_elements(tarproto, myproto, sig.signal_elements.keys())
-                    self.inherit_elements(original_proto, myproto, sock.signal_sought.signal_elements.keys())
+                        self.copy_elements(original_proto, tarproto, sig.signal_elements)
+                        self.copy_elements(tarproto, myproto, sig.signal_elements, True)
+                    self.copy_elements(original_proto, myproto, sock.signal_sought.signal_elements)
                     mylist.append(myproto)
         return mylist
 
@@ -288,16 +300,17 @@ class Constellation(object):
                     if pair_cards:
                         card_b = random.choice(pair_cards)
                         mysignal = random.choice(sock.get_potential_signals(card_b,original_proto.card.__name__))
+                        mytransform = sock.get_transforming_consequence(original_proto.card.__name__)
                         proto_a = ProtoCard(card_a)
                         proto_b = ProtoCard(card_b)
                         # We are only worrying about the original_proto product here; any other products of this
                         # interaction don't matter.
-                        self.inherit_elements(original_proto, proto_a,
-                                              mysignal.signal_elements.keys())
-                        self.inherit_elements(original_proto, proto_b,
-                                              mysignal.signal_elements.keys())
-                        self.inherit_elements(proto_a, proto_b, sock.signal_sought.signal_elements.keys())
-                        self.inherit_elements(proto_b, proto_a, sock.signal_sought.signal_elements.keys())
+                        self.copy_elements(original_proto, proto_a,
+                                           mytransform.this_card_params,True)
+                        self.copy_elements(original_proto, proto_b,
+                                           mytransform.other_card_params,True)
+                        self.copy_elements(proto_a, proto_b, sock.signal_sought.signal_elements,True)
+                        self.copy_elements(proto_b, proto_a, sock.signal_sought.signal_elements)
                         candidates.append((proto_a, proto_b))
         if candidates:
             return random.choice(candidates)
@@ -306,6 +319,7 @@ class Constellation(object):
         # Given a set of cards we want, return a set of ProtoCards that can generate those cards
         # within the requested number of steps.
         my_cards = list(final_proto_list)
+        print([card.card.__name__ for card in my_cards], steps)
         dead_ends = list()
         while steps > 0 and my_cards:
             random.shuffle(my_cards)
@@ -316,4 +330,7 @@ class Constellation(object):
                 steps -= 1
             else:
                 dead_ends.append(card_to_replace)
+            print([card.card.__name__ for card in my_cards+dead_ends],steps)
         return my_cards + dead_ends
+
+

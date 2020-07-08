@@ -74,7 +74,7 @@ ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 class SkillBasedPartyReply(object):
     def __init__(
             self,myoffer,camp,mylist,stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_EASY, no_random=True,
-            message_format = '{} says {}',**kwargs
+            message_format = '{} says "{}"',**kwargs
     ):
         # Check the skill of each party member against a target number. If any party member can
         # make the test, they get to say the line of dialogue.

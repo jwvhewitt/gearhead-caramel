@@ -37,6 +37,10 @@ CHAT_INFO = Reply( "[CHAT:INFO]" ,
             context = ContextTag([context.CHAT]),
             destination = Cue( ContextTag([context.INFO]) ) )
 
+CUSTOM_CUSTOMREPLY = Reply( "{reply}" ,
+            destination = Cue( ContextTag([context.CUSTOMREPLY]) ) ,
+            context = ContextTag([context.CUSTOM]) )
+
 
 HELLO_ASKFORITEM = Reply( "[HELLO:ASK_FOR_ITEM]" ,
             destination = Cue( ContextTag([context.ASK_FOR_ITEM]) ) ,

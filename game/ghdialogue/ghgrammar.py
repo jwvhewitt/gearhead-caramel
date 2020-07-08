@@ -1977,6 +1977,27 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[NO_TO_COP]": {
+        # The speaker is declining to speak to a police officer or other authority figure.
+        Default: ["I don't talk to cops.",
+                  ],
+        personality.Cheerful: ["No way; snitches get stitches.",
+                               ],
+        personality.Grim: ["Do you know what happened to the last guy who talked to the cops?",
+                           ],
+        personality.Easygoing: ["I'd really rather not incriminate myself that way.",
+                                ],
+        personality.Passionate: ["Do I look like a narc to you?!",
+                                 ],
+        personality.Sociable: ["I'm not speaking.",
+                               ],
+        personality.Shy: ["I'd rather not.",
+                          ],
+        personality.Justice: [
+            "I'm gonna need my lawyer present before I say anything.",
+        ],
+    },
+
     "[Noun]": {
         Default: [
             "Hominid","Underwear","Paluke","Artifice","Lie","Knowledge","Battle","Weather","Food","News",
@@ -2109,6 +2130,23 @@ DEFAULT_GRAMMAR = {
             "Don't try any funny business in my shop",
             "I'll sell you crap but don't expect me to be nice about it"
         ],
+    },
+
+    "[PLEASURE_DOING_BUSINESS]": {
+        Default: ["It's been a pleasure doing business with you.",
+                  ],
+        personality.Cheerful: ["Fantastic! I'm so happy we came to this agreement.",
+                               ],
+        personality.Grim: ["You will not regret this, I promise."
+                           ],
+        personality.Easygoing: ["Alright. So I guess we're finished here, now? Great."
+                                ],
+        personality.Passionate: ["The deal is signed, may fate strike down any who oppose it!",
+                                 ],
+        personality.Sociable: ["May I just say what a pleasure it is to come to an agreement with a true professional like you.",
+                               ],
+        personality.Shy: ["So it's agreed.",
+                          ],
     },
 
     "[PROPOSAL:ACCEPT]": {
@@ -2348,6 +2386,29 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[THATS_INTERESTING]": {
+        # Character reacts to interesting news.
+        Default: ["Very interesting.",
+                  "This is interesting."
+                  ],
+        personality.Cheerful: [
+            "Oh, cool!",
+        ],
+        personality.Grim: ["Fascinating.",
+                           ],
+        personality.Easygoing: [
+            "Neat.",
+        ],
+        personality.Passionate: [
+            "Amazing!",
+        ],
+        personality.Sociable: [
+            "That's some very interesting news.",
+        ],
+        personality.Shy: ["Interesting.",
+                          ],
+    },
+
     "[THATSUCKS]": {
         Default: ["Too bad."
                   ],
@@ -2517,7 +2578,7 @@ DEFAULT_GRAMMAR = {
 
     "[THIS_IS_A_SECRET]": {
         # The NPC is about to reveal something they probably shouldn't...
-        Default: ["This is a secret, but...",
+        Default: ["This is a secret, but...", "Remember, you didn't hear this from me..."
                   ],
         personality.Cheerful: ["I'm not one to gossip, but... who am I kidding? I love to gossip!",
                                ],
@@ -2775,6 +2836,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[WOULD_YOU_MIND_ANSWERING_QUESTION]": {
+        Default: ["Would you mind answering a few questions?", "Would you mind if I asked you some questions?"
+                  ],
+        personality.Cheerful: ["I have some questions for you... think of it as a quiz!"
+                               ],
+        personality.Grim: ["I'm looking for information.",
+                           ],
+        personality.Easygoing: ["I was wondering if you could maybe answer some questions?",
+                                ],
+        personality.Passionate: ["I have some questions, and I believe you may be the one who can answer them!",
+                                 ],
+        personality.Sociable: ["I want to talk with you about a couple of questions I have.",
+                               ],
+        personality.Shy: ["I have some questions for you.",
+                          ],
+    },
+
     "[YESPLEASE]": {
         # May be coupled with [NOTHANKYOU]
         Default: ["Yes, please."
@@ -2791,6 +2869,30 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Yes.",
                           ],
+    },
+
+    "[YOU_SEEM_CONNECTED]": {
+        # The speaker thinks the audience has knowledge and/or connections
+        Default: ["You seem like the type of person who has a lot of connections.",
+                  ],
+        personality.Cheerful: ["I'll bet you hear all the juciest gossip!",
+                               ],
+        personality.Grim: ["A person like you hears a lot; maybe you learn some things you wish you hadn't.",
+                           ],
+        personality.Easygoing: ["You seem pretty connected; you know what's going on.",
+                                ],
+        personality.Passionate: ["A person like you must hear all kinds of fascinating things.",
+                                 ],
+        personality.Sociable: ["You are a person who gets around a lot; you must have a lot of connections.",
+                               ],
+        personality.Shy: ["You hear a lot of interesting things.",
+                          ],
+        LIKE: [
+            "You seem to be pretty popular around these parts.",
+        ],
+        DISLIKE: [
+            "A wangtta like you is sure to hear things that wouldn't be spoken in polite company.",
+        ],
     },
 
     "[FORMAL_MECHA_DUEL]": {

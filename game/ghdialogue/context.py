@@ -13,6 +13,7 @@ PROPOSAL = "PROPOSAL"           # The NPC will try to make a deal with the PC.
                                 # The data property should contain "subject"
 CUSTOM = "CUSTOM"               # The PC will say something to the NPC that doesn't fit elsewhere...
                                 # The data property should contain "reply", which is the PC's line
+CUSTOMREPLY = "CUSTOMREPLY"     # Works like CUSTOM, above, but only links from CUSTOM.
 QUERY = "QUERY"                 # The NPC will ask the PC a question.
 ANSWER = "ANSWER"               # The PC will answer the question. Follows a query.
                                 # The data property should contain "reply", which is the PC's response

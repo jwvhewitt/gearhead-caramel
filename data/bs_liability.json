@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Al Capone His Arse",
+    "command": "ME_LIABILITY_FOR_PERSON",
+    "results": {
+      "text": "{ME_PERSON} is guilty of"
+    },
+    "next_command": "ME_L_4_P_CRIME"
+  },
+  {
+    "name": "Tax Fraud",
+    "command": "ME_L_4_P_CRIME",
+    "results": {
+      "text": "tax evasion"
+    }
+  },
+    {
+    "name": "Hate Monger",
+    "command": "ME_L_4_P_CRIME",
+    "requires": ["-community"],
+    "results": {
+      "text": "spreading fear and distrust"
+    }
+  },
+    {
+    "name": "Harassment Monger",
+    "command": "ME_L_4_P_CRIME",
+    "requires": ["-community"],
+    "results": {
+      "text": "sending hate mobs against {ME_PERSON.gender.possessive_determiner} critics"
+    }
+  }
+
+]

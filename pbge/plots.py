@@ -87,6 +87,9 @@ class Plot( object ):
         # The move_records are stored in case this plot gets removed.
         self.move_records = list()
 
+        # Independent plots will not get deleted if this one ends.
+        self.indie_plots = list()
+
         # The temp_scenes list contains scenes that get removed if this plot ends.
         self._temp_scenes = list()
 
@@ -111,7 +114,7 @@ class Plot( object ):
         """Return list of element idents assigned to this object."""
         return [key for key,value in list(self.elements.items()) + list(self.subplots.items()) if value is ele]
 
-    def add_sub_plot( self, nart, splabel, spstate=None, ident=None, necessary=True, elements=None):
+    def add_sub_plot( self, nart, splabel, spstate=None, ident=None, necessary=True, elements=None, indie=False):
         if not spstate:
             spstate = PlotState().based_on(self)
         if not ident:
@@ -123,8 +126,10 @@ class Plot( object ):
             #print "Fail: {}".format(splabel)
             self.fail( nart )
         elif sp:
-            #print "Success: {}".format(splabel)
-            self.subplots[ident] = sp
+            if indie:
+                self.indie_plots.append(sp)
+            else:
+                self.subplots[ident] = sp
         return sp
 
     def add_first_locale_sub_plot( self, nart, locale_type="CITY_SCENE", ident=None ):
@@ -219,6 +224,8 @@ class Plot( object ):
         # First, remove all subplots.
         for sp in self.subplots.values():
             sp.remove( nart )
+        for sp in self.indie_plots:
+            sp.remove( nart )
         # Next, remove any elements created by this plot.
         if hasattr( self, "move_records" ):
             for e,d in self.move_records:
@@ -239,13 +246,21 @@ class Plot( object ):
         """Plot generation complete. Mesh plot with campaign."""
         for sp in self.subplots.values():
             sp.install( nart )
+        for sp in self.indie_plots:
+            sp.install( nart )
         del self.move_records
+        del self.indie_plots
         if self.scope:
             dest = self.elements.get( self.scope )
             if dest and hasattr( dest, "scripts" ):
                 dest.scripts.append( self )
             else:
                 nart.camp.scripts.append( self )
+
+    def get_all_plots(self):
+        yield self
+        for sp in self.subplots.values():
+            yield sp.get_all_plots()
 
     def display( self, lead="" ):
         print(lead + str( self.__class__ ))
@@ -256,6 +271,7 @@ class Plot( object ):
         """A trigger has been tripped; make this plot react if appropriate."""
         # The trigger handler will be a method of this plot. If a thing is
         # involved, and that thing is an element, the handler's id will be
+
         # "[element ident]_[trigger type]". If no thing is involved, the
         # trigger handler will be "t_[trigger type]".
         # Trigger handler methods take the Exploration as a parameter.

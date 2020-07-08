@@ -8,7 +8,7 @@ from game import teams,ghdialogue
 from game.ghdialogue import context
 import pygame
 import random
-import game.content.ghplots.dd_tarot
+import game.content.ghplots.tarot_cards
 import game.content.mechtarot
 import game.content.plotutility
 import game.content.gharchitecture

@@ -121,3 +121,4 @@ ST_CYBERWARE = "CYBERWARE"
 # Multiple items can be equipped in the same place as long as none of them have the same slot.
 SLOT_ITEM = "ITEM"
 SLOT_SHIELD = "SHIELD"
+

@@ -7,9 +7,10 @@ from game.ghdialogue import context
 import random
 from pbge.dialogue import ContextTag,Offer
 from . import dd_main,dd_customobjectives
-from . import dd_tarot
-from .dd_tarot import ME_FACTION,ME_PERSON,ME_CRIME,ME_CRIMED,CONSEQUENCE_WIN,CONSEQUENCE_LOSE,ME_PUZZLEITEM
+from . import tarot_cards
+from .tarot_cards import ME_FACTION,ME_PERSON,ME_CRIME,ME_PUZZLEITEM,ME_ACTOR,ME_LIABILITY,CrimeObject
 from game.content import mechtarot
+from game.content.mechtarot import CONSEQUENCE_WIN,CONSEQUENCE_LOSE
 import game.content.plotutility
 import game.content.gharchitecture
 from . import dd_combatmission
@@ -65,7 +66,11 @@ class GuardianJudgment(Plot):
                 card = mysig[0][0]
                     # Alright, we have someone with the power to incriminate. Harvest some information.
                 villain = card.elements.get(ME_FACTION) or card.elements.get(ME_PERSON) or "Somebody"
-                crimed = card.elements.get(ME_CRIMED) or "did something wrong"
+                crime = card.elements.get(ME_CRIME)
+                if not crime:
+                    crimed = "did something illegal"
+                else:
+                    crimed = crime.ed
                 goffs.append(Offer(
                     "[THIS_IS_TERRIBLE_NEWS] [FACTION_MUST_BE_PUNISHED] You are authorized to launch a mecha strike against their command center.",
                     context=ContextTag([context.REVEAL]),effect=self._start_mission,
@@ -124,6 +129,46 @@ class GuardianJudgment(Plot):
         self.end_plot(camp)
 
 
+#   ***************************
+#   ***  MT_SOCKET_Amplify  ***
+#   ***************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_PERSON   The person doing the amplification
+#   ME_CARD
+#   ME_SOCKET
+
+
+class AmplifyThisSecret(Plot):
+    LABEL = "MT_SOCKET_Amplify"
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches( cls, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return ME_PERSON in pstate.elements
+
+    def ME_PERSON_offers(self, camp):
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysigs = mysocket.get_activating_signals(mycard, camp)
+        for sig in mysigs:
+            sigsec = sig[0].elements.get(ME_LIABILITY)
+            goffs.append(Offer(
+                "[THATS_INTERESTING] So {}... I will broadcast this to all of my listeners at once.".format(sigsec),
+                context=ContextTag([context.CUSTOM]),
+                effect=mechtarot.CardCaller(mycard,sig[0],mysocket.consequences[CONSEQUENCE_WIN]),
+                data={"reply":"I have some news for you: {}!".format(sigsec)}, dead_end=True
+            ))
+
+        return goffs
+
+
+
 #   **************************
 #   ***  MT_SOCKET_Cancel  ***
 #   **************************
@@ -152,7 +197,7 @@ class YouAreCancelled(Plot):
         mysocket = self.elements[mechtarot.ME_SOCKET]
         mysigs = mysocket.get_activating_signals(mycard, camp)
         for sig in mysigs:
-            sigsub = sig[0].elements.get(ME_PERSON) or sig[0].elements.get(ME_FACTION) or "society"
+            sigsub = sig[0].elements.get(ME_ACTOR) or "society"
             goffs.append(Offer(
                 "No, not {}! Don't think this means you've seen the last of me... well, I guess you probably have seen the last of me.".format(sigsub),
                 context=ContextTag([context.CUSTOM]),
@@ -162,6 +207,156 @@ class YouAreCancelled(Plot):
 
         return goffs
 
+
+#   ***************************
+#   ***  MT_SOCKET_Decrypt  ***
+#   ***************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_PUZZLEITEM
+#   ME_CARD
+#   ME_SOCKET
+
+class EnterPassword(Plot):
+    # - We have a puzzle item? Just search it.
+    LABEL = "MT_SOCKET_Decrypt"
+    active = True
+    scope = "METRO"
+
+    def ME_PUZZLEITEM_menu(self, camp, thingmenu):
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysig = mysocket.get_activating_signals(mycard, camp)
+        thingmenu.desc = "{} It is locked.".format(thingmenu.desc)
+        if mysig:
+            sig = random.choice(mysig)
+            mypass = sig[0].elements.get("PASSWORD","password")
+            thingmenu.add_item("Enter {}".format(mypass), self._win_mission)
+
+    def _win_mission(self,camp):
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysigs = mysocket.get_activating_signals(mycard, camp)
+        if mysigs:
+            beta = random.choice(mysigs)[0]
+        else:
+            beta = None
+        pbge.alert("You successfully unlock the {}.".format(self.elements[ME_PUZZLEITEM]))
+        mysocket.consequences[CONSEQUENCE_WIN](camp, mycard, beta)
+        self.end_plot(camp)
+
+
+
+#   **************************
+#   ***  MT_SOCKET_Extort  ***
+#   **************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_PERSON   The person to be extorted
+#   ME_CARD
+#   ME_SOCKET
+#
+#   CONSEQUENCE_WIN: The extortee will pay the PC to keep things quiet
+#   CONSEQUENCE_GOAWAY: The extortee will leave this city
+
+
+class BasicExtortionPlot(Plot):
+    LABEL = "MT_SOCKET_Extort"
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches( cls, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return ME_PERSON in pstate.elements
+
+    def ME_PERSON_offers(self, camp):
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysigs = mysocket.get_activating_signals(mycard, camp)
+        self.cash_offer = gears.selector.calc_threat_points(self.rank,500)//5
+        for sig in mysigs:
+            sigsec = sig[0].elements.get(ME_LIABILITY)
+            goffs.append(Offer(
+                "[THATS_INTERESTING] This news could cause a lot of damage if it were to spread... I can offer you ${} to forget about it right now.".format(self.cash_offer),
+                context=ContextTag([context.CUSTOM]),
+                data={"reply":"People are saying that {}.".format(sigsec)},
+                subject=sigsec, subject_start=True
+            ))
+            goffs.append(Offer(
+                "[PLEASURE_DOING_BUSINESS]".format(sigsec),
+                context=ContextTag([context.CUSTOMREPLY]),
+                effect=mechtarot.CardCaller(mycard, sig[0], self._accept_offer),
+                data={"reply": "[PROPOSAL:ACCEPT]"},
+                subject=sigsec, dead_end=True
+            ))
+            goffs.append(Offer(
+                "[UNDERSTOOD] Just don't do anything foolish with this information before you've had a chance to accept my offer.",
+                context=ContextTag([context.CUSTOMREPLY]),
+                data={"reply": "[PROPOSAL:DENY]"},
+                subject=sigsec, dead_end=True, no_repeats=True
+            ))
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "You leave me little choice...",
+                    context=ContextTag([context.CUSTOMREPLY]),
+                    effect=mechtarot.CardCaller(mycard, sig[0], self._alt_offer),
+                    data={"reply": "Here's my counteroffer. You leave town and never come back."},
+                    subject=sigsec, dead_end=True
+                ),camp,goffs,gears.stats.Ego,gears.stats.Negotiation,self.rank,gears.stats.DIFFICULTY_AVERAGE,
+            )
+
+
+        return goffs
+
+    def _accept_offer(self, camp, alpha, beta, **kwargs):
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysocket.consequences[CONSEQUENCE_WIN](camp,alpha,beta,**kwargs)
+        camp.credits += self.cash_offer
+
+    def _alt_offer(self, camp, alpha, beta, **kwargs):
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysocket.consequences["CONSEQUENCE_GOAWAY"](camp,alpha,beta,**kwargs)
+
+
+#   ******************************
+#   ***  MT_SOCKET_InformantF  ***
+#   ******************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_PERSON   The person doing the amplification
+#   ME_CRIME    The crime object being informed about
+#   ME_FACTION  The faction responsible for the crime
+#   ME_CARD
+#   ME_SOCKET
+
+
+class Whistleblower(Plot):
+    LABEL = "MT_SOCKET_InformantF"
+    active = True
+    scope = "METRO"
+
+    def ME_PERSON_offers(self, camp):
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysigs = mysocket.get_activating_signals(mycard, camp)
+        for sig in mysigs:
+            goffs.append(Offer(
+                "[THIS_IS_A_SECRET] {ME_FACTION} {ME_CRIME.ed}.".format(**self.elements),
+                context=ContextTag([context.INFO]),
+                effect=mechtarot.CardCaller(mycard, sig[0], mysocket.consequences[CONSEQUENCE_WIN]),
+                data={"subject":str(self.elements[ME_CRIME])}, dead_end=True
+            ))
+
+        return goffs
 
 
 #   *******************************
@@ -204,11 +399,11 @@ class InvestigateUsingWords(Plot):
             if mysig and not self.mission_given:
                 card = mysig[0][0]
                 villain = self.elements[ME_FACTION]
-                crimed = card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did crime"
+                crime = card.elements.get(ME_CRIME) or self.elements.setdefault(ME_CRIME,CrimeObject("illegal acts","did something illegal"))
                 goffs.append(Offer(
                     "[MAYBE_YOU_COULD_HELP] I've been trying to infiltrate one of their meetings to find out more, but they all know me. You, on the other hand, could easily sneak in and record what they're planning.".format(villain),
                     context=ContextTag([context.REVEAL]),effect=self._start_mission,
-                    data={"reveal":"{} {}".format(villain,crimed)}
+                    data={"reveal":"{} {}".format(villain,crime.ed)}
                 ))
                 self.card = card
         else:
@@ -240,7 +435,7 @@ class InvestigateUsingWords(Plot):
                         mysocket.consequences[CONSEQUENCE_LOSE](camp, mycard, self.card)
                 self.end_plot(camp,True)
             elif self.mission_won:
-                verb = self.card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did terrible things"
+                verb = self.card.elements.get(ME_CRIME) or self.elements.setdefault(ME_CRIME,CrimeObject("terrible things","did terrible things"))
                 pbge.alert("Your recordings from the meeting prove that {} {}.".format(self.elements[ME_FACTION],verb))
                 self._win_investigation(camp)
 
@@ -323,20 +518,20 @@ class InvestigateUsingGiantRobots(Plot):
                 card = mysig[0][0]
                     # Alright, we have someone with the power to incriminate. Harvest some information.
                 villain = card.elements.get(ME_FACTION) or self.elements.get(ME_FACTION) or card.elements.get(ME_PERSON) or "Somebody"
-                crimed = card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did crime"
+                crime = card.elements.get(ME_CRIME) or self.elements.setdefault(ME_CRIME,CrimeObject("crime","did crimes"))
                 goffs.append(Offer(
                     "[MAYBE_YOU_COULD_HELP] I've been trying to get info about {}, but their facility is heavily guarded. If you could get me in, I could find all the information we need.".format(villain),
                     context=ContextTag([context.REVEAL]),effect=self._start_mission,
-                    data={"reveal":"{} {}".format(villain,crimed)}
+                    data={"reveal":"{} {}".format(villain,crime.ed)}
                 ))
                 self.card = card
         else:
             villain = self.card.elements.get(ME_FACTION) or self.elements.get(ME_FACTION) or self.card.elements.get(
                ME_PERSON) or "Somebody"
             if self.mission_seed.is_won():
-                verb = self.card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did terrible things"
+                crime = self.card.elements.get(ME_CRIME) or self.elements.setdefault(ME_CRIME,CrimeObject("crime","did crimes"))
                 goffs.append(Offer(
-                    "We did it! I've found the proof that {} {}! Now we just need to alert someone with the power to do something about it...".format(villain,verb),
+                    "We did it! I've found the proof that {} {}! Now we just need to alert someone with the power to do something about it...".format(villain,crime.ed),
                     context=ContextTag([context.HELLO]), effect=self._win_investigation
                 ))
             else:
@@ -374,8 +569,8 @@ class InvestigateUsingGiantRobots(Plot):
                 self.end_plot(camp)
             elif self.mission_seed.is_won():
                 villain = self.card.elements.get(ME_FACTION) or self.elements.get(ME_FACTION) or "Someone"
-                verb = self.card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did terrible things"
-                pbge.alert("While searching the base, you discover proof that {} {}.".format(villain,verb))
+                crime = self.card.elements.get(ME_CRIME) or self.elements.setdefault(ME_CRIME,CrimeObject("crime","did crimes"))
+                pbge.alert("While searching the base, you discover proof that {} {}.".format(villain,crime.ed))
                 self._win_investigation(camp)
 
     def _win_investigation(self,camp):
@@ -419,8 +614,8 @@ class LibraryScience2099(Plot):
             thingmenu.add_item("Search for {}".format(subject),self._win_mission)
 
     def _win_mission(self,camp):
-        verb = self.card.elements.get(ME_CRIMED) or self.elements.get(ME_CRIMED) or "did terrible things"
-        pbge.alert("You discover evidence that {} {}.".format(self.elements[ME_FACTION],verb))
+        crime = self.card.elements.get(ME_CRIME) or self.elements.setdefault(ME_CRIME, CrimeObject("crime", "did crimes"))
+        pbge.alert("You discover evidence that {} {}.".format(self.elements[ME_FACTION],crime.ed))
         mycard = self.elements[mechtarot.ME_CARD]
         mysocket = self.elements[mechtarot.ME_SOCKET]
         mysocket.consequences[CONSEQUENCE_WIN](camp,mycard,self.card)
