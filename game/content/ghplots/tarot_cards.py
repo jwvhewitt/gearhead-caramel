@@ -1,6 +1,8 @@
 import gears
 from game.content import plotutility, backstory
 from game.content.mechtarot import TarotCard, CONSEQUENCE_WIN, ME_AUTOREVEAL, TarotSignal, TarotSocket, TarotTransformer
+import random
+from game import ghdialogue
 
 MT_CRIME = "CRIME"
 MT_FACTION = "FACTION"
@@ -14,7 +16,6 @@ ME_PERSON = "ME_PERSON"
 ME_ACTOR = "ME_ACTOR"  # The performer of an action; a character or faction
 ME_PUZZLEITEM = "ME_PUZZLEITEM"
 ME_CRIME = "ME_CRIME"
-ME_CRIMED = "ME_CRIMED"
 ME_LIABILITY = "ME_LIABILITY"
 
 SIG_INCRIMINATE = "SIG_INCRIMINATE"  # Looks like someone did crime
@@ -22,6 +23,8 @@ SIG_ACCUSE = "SIG_ACCUSE"  # Bring the hammer of justice against the evil-doer; 
 SIG_CANCEL = "SIG_CANCEL"  # The power and/or influence of this card is taken away; uses ME_LIABILITY
 SIG_AMPLIFY = "SIG_AMPLIFY"  # A secret has been revealed but needs amplification; uses ME_LIABILITY
 SIG_EXTORT = "SIG_EXTORT"   # A ME_LIABILITY is known, and may be served to the target for nefarious purposes
+SIG_CRIME = "SIG_CRIME"     # Signal broadcast by a raw crime.
+SIG_DECRYPT = "SIG_DECRYPT"
 
 
 #   *************************************
@@ -45,9 +48,23 @@ class PersonalLiability(object):
     def __str__(self):
         if not self.text:
             myeffect = get_element_effect(self.npc, ME_PERSON, list(self.camp.active_plots()))
-            print(myeffect.get_keywords())
             mystory = backstory.Backstory(("ME_LIABILITY_FOR_PERSON",), {ME_PERSON: self.npc}, myeffect.get_keywords())
             self.text = mystory.get()
+        return self.text
+
+
+class CrimeObject(object):
+    def __init__(self, text, ed):
+        # text is the noun form of the crime; "Barney's murder"
+        # ed is the verb phrase form of the crime; "murdered Barney"
+        self.text = text
+        self.ed = ed
+
+    def update(self, other):
+        self.text = other.text
+        self.ed = other.ed
+
+    def __str__(self):
         return self.text
 
 
@@ -204,7 +221,6 @@ class Demagogue(TarotCard):
                 self.elements[ME_PERSON] = sp.elements[ME_PERSON]
         else:
             self.memo = "You learned that {} is a demagogue.".format(self.elements[ME_PERSON])
-        print("Demagogue'd")
         return True
 
 
@@ -226,7 +242,7 @@ class HateClub(TarotCard):
         TarotSocket(
             "MT_SOCKET_Accuse", TarotSignal(SIG_ACCUSE, [ME_FACTION]),
             consequences={
-                CONSEQUENCE_WIN: TarotTransformer("TheDisbanded", (ME_FACTION,), (ME_CRIME, ME_CRIMED))
+                CONSEQUENCE_WIN: TarotTransformer("TheDisbanded", (ME_FACTION,), (ME_CRIME, ))
             }
         ),
     )
@@ -261,13 +277,10 @@ class FactionCrimesProof(TarotCard):
         if not self.elements.get(ME_AUTOREVEAL):
             sp = self.add_sub_plot(nart, "MT_REVEAL_WarCrime", ident="REVEAL")
             self.elements[ME_CRIME] = sp.elements[ME_CRIME]
-            self.elements[ME_CRIMED] = sp.elements[ME_CRIMED]
         else:
             if not self.elements.get(ME_CRIME):
-                self.register_element(ME_CRIME, "a crime")
-            if not self.elements.get(ME_CRIMED):
-                self.register_element(ME_CRIMED, "committed crimes")
-            self.memo = "You learned that {ME_FACTION} {ME_CRIMED}.".format(**self.elements)
+                self.register_element(ME_CRIME, CrimeObject("a crime","committed crimes"))
+            self.memo = "You learned that {ME_FACTION} {ME_CRIME.ed}.".format(**self.elements)
 
         return True
 
@@ -282,7 +295,7 @@ class FactionClue(TarotCard):
         TarotSocket(
             "MT_SOCKET_SearchClue", TarotSignal(SIG_INCRIMINATE, [ME_FACTION]),
             consequences={
-                CONSEQUENCE_WIN: TarotTransformer("FactionCrimesProof", (ME_FACTION,), (ME_CRIME, ME_CRIMED))
+                CONSEQUENCE_WIN: TarotTransformer("FactionCrimesProof", (ME_FACTION,), (ME_CRIME, ))
             }
         ),
     )
@@ -292,6 +305,65 @@ class FactionClue(TarotCard):
             sp = self.add_sub_plot(nart, "MT_REVEAL_ClueItem", ident="REVEAL")
             self.elements[ME_PUZZLEITEM] = sp.elements[ME_PUZZLEITEM]
         return True
+
+
+class FactionComputer(TarotCard):
+    TAGS = ()
+    active = True
+    ONE_USE = True
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_Decrypt", TarotSignal(SIG_DECRYPT, [ME_FACTION]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("FactionClue", (ME_FACTION, ME_PUZZLEITEM), [])
+            }
+        ),
+    )
+
+    def custom_init(self, nart):
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_FactionComputer", ident="REVEAL")
+            self.elements[ME_PUZZLEITEM] = sp.elements[ME_PUZZLEITEM]
+        return True
+
+
+class FactionPassword(TarotCard):
+    # Uncover a password belonging to a faction member.
+    TAGS = (MT_FACTION,)
+    active = True
+    ONE_USE = True
+    AUTO_MEMO = "You learned that \"{PASSWORD}\" is a password for {ME_FACTION}."
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_DECRYPT, [ME_FACTION, ]
+        ),
+    )
+
+    def custom_init(self, nart):
+        if ME_FACTION not in self.elements:
+            self.elements[ME_FACTION] = plotutility.RandomBanditCircle(nart.camp)
+        self.elements["PASSWORD"] = self.get_random_password()
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Password", ident="REVEAL")
+
+        return True
+
+    def get_noun(self):
+        return random.choice(ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Noun]"][ghdialogue.ghgrammar.Default])
+
+    def get_number(self):
+        return "".join([str(random.randint(0,9)) for r in range(random.randint(2,5))])
+
+    def get_random_password(self):
+        mylist = list()
+        for t in range(3):
+            if random.randint(1,3) != 1:
+                mylist.append(self.get_noun())
+            else:
+                mylist.append(self.get_number())
+        return "".join(mylist)
 
 
 class FactionInvestigator(TarotCard):
@@ -304,7 +376,7 @@ class FactionInvestigator(TarotCard):
         TarotSocket(
             "MT_SOCKET_Investigate", TarotSignal(SIG_INCRIMINATE, [ME_FACTION]),
             consequences={
-                CONSEQUENCE_WIN: TarotTransformer("FactionCrimesProof", [], (ME_FACTION, ME_CRIME, ME_CRIMED))
+                CONSEQUENCE_WIN: TarotTransformer("FactionCrimesProof", [ME_FACTION], [])
             }
         ),
     )
@@ -316,7 +388,7 @@ class FactionInvestigator(TarotCard):
             sp = self.add_sub_plot(nart, "MT_REVEAL_Investigator", ident="REVEAL",
                                    elements={"INVESTIGATION_SUBJECT": str(self.elements[ME_FACTION])})
             self.elements[ME_PERSON] = sp.elements[ME_PERSON]
-        self.elements["MEP_LOC"] = sp.elements[ME_PERSON].get_scene()
+        self.elements["MEP_LOC"] = self.elements[ME_PERSON].get_scene()
         return True
 
 
@@ -340,14 +412,63 @@ class Atrocity(TarotCard):
         if not self.elements.get(ME_AUTOREVEAL):
             sp = self.add_sub_plot(nart, "MT_REVEAL_WarCrime", ident="REVEAL")
             self.elements[ME_CRIME] = sp.elements[ME_CRIME]
-            self.elements[ME_CRIMED] = sp.elements[ME_CRIMED]
         else:
             if not self.elements.get(ME_CRIME):
-                self.register_element(ME_CRIME, "an atrocity")
-            if not self.elements.get(ME_CRIMED):
-                self.register_element(ME_CRIMED, "committed atrocities")
-            self.memo = "You learned that {ME_FACTION} {ME_CRIMED}.".format(**self.elements)
+                self.register_element(ME_CRIME, CrimeObject("an atrocity","committed atrocities"))
+            self.memo = "You learned that {ME_FACTION} {ME_CRIME.ed}.".format(**self.elements)
 
+        return True
+
+
+class Murder(TarotCard):
+    # A murder has been committed.
+    TAGS = (MT_CRIME,)
+    QOL = gears.QualityOfLife(stability=-1, health=-2)
+    active = True
+    ONE_USE = True
+    AUTO_MEMO = "You learned that {ME_CRIME} has taken place."
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_CRIME, [ME_CRIME, ]
+        ),
+    )
+
+    def custom_init(self, nart):
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Murder", ident="REVEAL")
+            if not self.elements.get(ME_CRIME):
+                self.elements[ME_CRIME] = sp.elements[ME_CRIME]
+            else:
+                self.elements[ME_CRIME].update(sp.elements[ME_CRIME])
+        else:
+            if not self.elements.get(ME_CRIME):
+                self.register_element(ME_CRIME, CrimeObject("a murder", "murdered someone"))
+
+        return True
+
+class TheQuitter(TarotCard):
+    TAGS = (MT_PERSON,MT_FACTION,)
+    active = True
+    ONE_USE = True
+    AUTO_MEMO = "{ME_PERSON} used to work for {ME_FACTION}."
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_InformantF", TarotSignal(SIG_CRIME, [ME_CRIME]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("Atrocity", [ME_FACTION, ME_CRIME], [])
+            }
+        ),
+    )
+
+    def custom_init(self, nart):
+        if ME_FACTION not in self.elements:
+            self.elements[ME_FACTION] = plotutility.RandomBanditCircle(nart.camp)
+        if ME_CRIME not in self.elements:
+            self.elements[ME_CRIME] = CrimeObject("the atrocity","committed an atrocity")
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Quitter", ident="REVEAL")
         return True
 
 
@@ -363,9 +484,14 @@ class SocketTester(TarotCard):
         sp = self.add_sub_plot(nart,"ADD_BORING_NPC",elements={"LOCALE":None})
         npc = sp.elements["NPC"]
         self.elements[ME_PERSON] = npc
-        print("{} is at {}".format(npc,npc.get_scene()))
+        self.elements[ME_FACTION] = plotutility.RandomBanditCircle(nart.camp)
+        self.elements[ME_CRIME] = CrimeObject("the llama burning", "burned the llama")
         self.visible = True
         return True
+
+    def METROSCENE_ENTER(self,camp):
+        npc = self.elements[ME_PERSON]
+        print("{} is at {}".format(npc,npc.get_scene()))
 
     def _test_win(self,camp,alpha,beta=None):
         print("Win signal received")
@@ -390,6 +516,9 @@ class RevealTester(TarotCard):
     active = True
 
     def custom_init(self, nart):
+        self.elements[ME_FACTION] = plotutility.RandomBanditCircle(nart.camp)
+        self.elements["INVESTIGATION_SUBJECT"] = "the tarot test"
+        self.elements["PASSWORD"] = "HackerC64"
         sp = self.add_sub_plot(nart, "MT_REVEAL_TEST", ident="REVEAL")
         return True
 
