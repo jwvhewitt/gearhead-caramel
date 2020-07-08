@@ -560,6 +560,7 @@ class UnlimitedPartsSource(object):
         self.part_list.append(gears.base.HoverJets(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.HeavyActuators(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Wheels(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Overchargers(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.PowerSource(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.EWSystem(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.MeleeWeapon(name="Melee Weapon",scale=gears.scale.MechaScale))

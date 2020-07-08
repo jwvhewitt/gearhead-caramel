@@ -416,3 +416,33 @@ Wheels
     material = Ceramic
     shop_tags = ("MMOBILITY",)
     faction_list = (None,)
+
+Overchargers
+    desc = "Specialized equipment to increase movement speed of your mecha."
+    size = 1
+    shop_tags = ("MMOBILITY", "MEXTRA")
+    faction_list = (None,)
+
+Overchargers
+    desc = "Specialized equipment to increase movement speed of your mecha."
+    size = 2
+    shop_tags = ("MMOBILITY", "MEXTRA")
+    faction_list = (None,)
+
+Overchargers
+    desc = "Specialized equipment to increase movement speed of your mecha."
+    size = 3
+    shop_tags = ("MMOBILITY", "MEXTRA")
+    faction_list = (None,)
+
+Overchargers
+    desc = "Specialized equipment to increase movement speed of your mecha."
+    size = 4
+    shop_tags = ("MMOBILITY", "MEXTRA")
+    faction_list = (None,)
+
+Overchargers
+    desc = "Specialized equipment to increase movement speed of your mecha."
+    size = 5
+    shop_tags = ("MMOBILITY", "MEXTRA")
+    faction_list = (None,)
