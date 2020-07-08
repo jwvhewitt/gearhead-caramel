@@ -92,3 +92,99 @@ Mecha
             END
     END
 
+Mecha
+    name = "Wolfram"
+    desig = "HMC-06G Ji"
+    imagename = "mav_wolfram_g.png"
+    portrait = "mecha_wolfram.png"
+    desc = "A Wolfram with a modified pickaxe, lengthened and reweighted for charging into combat."
+
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (TerranFederation,DeadzoneFederation,ClanIronwind,RegExCorporation)
+    role_list = (Trooper,)
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                Sensor
+                    size = 2
+            END
+
+        Torso
+            size = 6
+            SUB
+                Armor
+                    size = 7
+                Engine
+                    size = 450
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Right Hardpoint"
+                Mount
+                    name = "Left Hardpoint"
+                    INV
+                        BeamWeapon
+                            name = "Mining Laser"
+                            reach = 4
+                            damage = 2
+                            accuracy = 1
+                            penetration = 3
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Right Hand"
+                    INV
+                        MeleeWeapon
+                            name="Ji"
+                            desc = "A lengthened Wolfram pickaxe, with additional spike and length which reduce its effectiveness in both mining and melee combat but allows it to charge into battle."
+                            reach=3
+                            damage=3
+                            accuracy=1
+                            penetration=2
+                            attributes=(ChargeAttack,)
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Left Hand"
+            END
+
+        Leg
+            name = "Right Leg"
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                HeavyActuators
+                    size = 5
+            END
+        Leg
+            name = "Left Leg"
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                HeavyActuators
+                    size = 5
+            END
+    END
+
