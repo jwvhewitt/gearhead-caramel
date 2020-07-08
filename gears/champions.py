@@ -801,8 +801,11 @@ def upgrade_to_champion(mek, ThemeClass = RandomTheme):
         # Do a generic upgrade of items.
         _generic_upgrade(to_upgrade)
         _expand_core_desigs(mek, 'Champion')
+        mek.is_champion = True
         return
 
     # Finally: change the desingation.
     _expand_core_desigs(mek, theme.name)
+
+    mek.is_champion = True
 

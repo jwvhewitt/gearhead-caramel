@@ -346,6 +346,8 @@ class SalvageReward(object):
                         candidates.append(mek)
                     elif random.randint(1,100) <= skill:
                         candidates.append(mek)
+                    elif hasattr(mek, 'is_champion') and mek.is_champion and random.randint(1, 4) == 1:
+                        candidates.append(mek)
             if candidates:
                 mek = random.choice(candidates)
                 camp.party.append(mek)
