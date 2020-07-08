@@ -1,3 +1,4 @@
+- Increase Charge cost even more: treat it like a ranged weapon.
 - Added Daum mecha
 - Melee weapons blocked by energy weapons or beam shields take damage
 - Added beam shields
