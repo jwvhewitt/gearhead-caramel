@@ -11,8 +11,6 @@ from . import dd_main
 from . import dd_roadedge
 from . import dd_roadedge_propp
 from . import dd_roadstops
-from . import dd_tarot
-from . import dd_tarotsupport
 from . import encounters
 from . import lancemates
 from . import missionbuilder
@@ -20,7 +18,10 @@ from . import mission_conversations
 from . import mission_teamups
 from . import mocha
 from . import recovery
+from . import tarot_cards
+from . import tarot_reveal
 from . import tarot_sockets
+from . import thingplacers
 from . import treasures
 from . import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
@@ -49,8 +50,6 @@ harvest(dd_main)
 harvest(dd_roadedge)
 harvest(dd_roadedge_propp)
 harvest(dd_roadstops)
-harvest(dd_tarot)
-harvest(dd_tarotsupport)
 harvest(encounters)
 harvest(lancemates)
 harvest(missionbuilder)
@@ -58,6 +57,9 @@ harvest(mission_conversations)
 harvest(mission_teamups)
 harvest(mocha)
 harvest(recovery)
+harvest(tarot_cards)
+harvest(tarot_reveal)
 harvest(tarot_sockets)
+harvest(thingplacers)
 harvest(treasures)
 harvest(utility)

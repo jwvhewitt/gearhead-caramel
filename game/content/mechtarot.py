@@ -116,6 +116,9 @@ class TarotTransformer(object):
 
         :type this_card: TarotCard
         """
+        # Activating a transformation gives XP.
+        camp.dole_xp(100)
+
         nart = GHNarrativeRequest(camp, plot_list=PLOT_LIST)
         pstate = pbge.plots.PlotState()
         pstate.elements[ME_AUTOREVEAL] = True
@@ -169,6 +172,7 @@ class TarotCard(plots.Plot):
 
     def reveal(self,camp):
         self.visible = True
+        camp.dole_xp(50)
         camp.check_trigger("UPDATE")
 
     def invoke(self,camp,other_card):
@@ -219,10 +223,7 @@ class ProtoCard(object):
 
 
 class Constellation(object):
-    # TODO: Tarot signals/sockets can pass elements by different names. The Constellation assumes any given element
-    # will always be known by the same name. At some point in time this will have to be fixed. Right now I am not
-    # 100% sure how. Oh well.
-    def __init__(self, nart, root_plot, root_card, dest_card_name=None, steps=3):
+    def __init__(self, nart, root_plot, root_card, dest_card_name=None, steps=2):
         self.element_lookup = dict()
         dest_card_class = CARDS_BY_NAME[dest_card_name]
         if dest_card_class:
@@ -318,6 +319,7 @@ class Constellation(object):
         # Given a set of cards we want, return a set of ProtoCards that can generate those cards
         # within the requested number of steps.
         my_cards = list(final_proto_list)
+        print([card.card.__name__ for card in my_cards], steps)
         dead_ends = list()
         while steps > 0 and my_cards:
             random.shuffle(my_cards)
@@ -328,6 +330,7 @@ class Constellation(object):
                 steps -= 1
             else:
                 dead_ends.append(card_to_replace)
+            print([card.card.__name__ for card in my_cards+dead_ends],steps)
         return my_cards + dead_ends
 
 

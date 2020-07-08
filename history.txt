@@ -1,3 +1,8 @@
+- Added Daum mecha
+- Melee weapons blocked by energy weapons or beam shields take damage
+- Added beam shields
+- Added indie plots
+- Renamed the tarot card modules
 - More variety in road stop garages.
 - In combat, default to the fastest movemode of your mecha.
 

@@ -73,7 +73,7 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
 from . import mechtarot
 from . import ghplots
 
-from game.content.ghplots import dd_combatmission, dd_homebase, dd_main, dd_tarot, dd_tarotsupport, mocha, harvest
+from game.content.ghplots import dd_combatmission, dd_homebase, dd_main, tarot_cards, tarot_reveal, mocha, harvest
 from . import plotutility
 
 from . import adventureseed

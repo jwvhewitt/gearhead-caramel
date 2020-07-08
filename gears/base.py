@@ -1057,6 +1057,29 @@ class Shield(BaseGear, StandardDamageHandler):
                )
 
 
+class BeamShield(Shield):
+    # Just like a shield, but beamier.
+    DEFAULT_NAME = "Beam Shield"
+
+    @property
+    def base_mass(self):
+        return 4 * self.size
+
+    @property
+    def base_cost(self):
+        return (250 * self.size * (1 + self.bonus)) // 2
+
+    def is_legal_sub_com(self, part):
+        return False
+
+    def pay_for_block(self, defender, weapon_being_blocked):
+        defender.spend_stamina(1)
+        if weapon_being_blocked:
+            self.hp_damage += random.randint(1, weapon_being_blocked.scale.scale_health(1, materials.Metal))
+            if isinstance(weapon_being_blocked,(MeleeWeapon,EnergyWeapon,Module)):
+                weapon_being_blocked.hp_damage += random.randint(1, self.scale.scale_health(2, materials.Metal))
+
+
 #   ****************************
 #   ***   SUPPORT  SYSTEMS   ***
 #   ****************************
@@ -1744,6 +1767,8 @@ class EnergyWeapon(Weapon):
         defender.spend_stamina(1)
         if weapon_being_blocked:
             self.hp_damage += random.randint(1, weapon_being_blocked.scale.scale_health(1, materials.Metal))
+            if isinstance(weapon_being_blocked,(MeleeWeapon,EnergyWeapon,Module)):
+                weapon_being_blocked.hp_damage += random.randint(1, self.scale.scale_health(2, materials.Metal))
 
     def can_intercept(self):
         it = False

@@ -23,8 +23,7 @@ class BoringRandomNPC(Plot):
 
     def custom_init(self, nart):
         npc = gears.selector.random_character(local_tags=tuple(self.elements["METROSCENE"].attributes))
-        scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
-
+        self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
         self.register_element("NPC", npc, dident="LOCALE")
         return True
 
