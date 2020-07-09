@@ -271,6 +271,10 @@ class Mover(KeyObject):
         self.mmode = None
         super(Mover, self).__init__(**keywords)
 
+    def apply_speed_bonus(self, base_speed):
+        speed_percent = self.count_speed_bonus_percent()
+        return max(base_speed, int(base_speed * float(100 + speed_percent) / 100.0))
+
     def calc_walking(self):
         # Count the number of leg points, divide by mass.
         return 0
@@ -280,7 +284,7 @@ class Mover(KeyObject):
         thrust = self.count_thrust_points(geffects.Skimming)
 
         if thrust > (norm_mass * 20):
-            return thrust // norm_mass
+            return self.apply_speed_bonus(thrust // norm_mass)
         else:
             return 0
 
@@ -289,7 +293,7 @@ class Mover(KeyObject):
         thrust = self.count_thrust_points(geffects.Rolling)
 
         if thrust > (norm_mass * 20):
-            return thrust // norm_mass
+            return self.apply_speed_bonus(thrust // norm_mass)
         else:
             return 0
 
@@ -336,6 +340,13 @@ class Mover(KeyObject):
         for g in self.sub_com.get_undestroyed():
             if (g.scale is self.scale) and hasattr(g, 'get_thrust'):
                 total += g.get_thrust(move_mode)
+        return total
+
+    def count_speed_bonus_percent(self):
+        total = 0
+        for g in self.sub_com.get_undestroyed():
+            if (g.scale is self.scale) and hasattr(g, 'get_speed_bonus_percent'):
+                total += g.get_speed_bonus_percent()
         return total
 
     MOVEMODE_LIST = (
@@ -1243,7 +1254,7 @@ class MovementSystem(SizeClassedComponent):
         return self.size * self.MOVESYS_COST
 
     def get_item_stats(self):
-        return [ ('Thrust ({})'.format(mode.get_short_name()), str(self.get_thrust(mode)))
+        stat = [ ('Thrust ({})'.format(mode.get_short_name()), str(self.get_thrust(mode)))
              for mode in [ scenes.movement.Walking
                          , geffects.Rolling
                          , geffects.Skimming
@@ -1252,6 +1263,9 @@ class MovementSystem(SizeClassedComponent):
                          ]
               if self.get_thrust(mode) > 0
                ]
+        if hasattr(self, 'get_speed_bonus_percent'):
+            stat += [('Speed Bonus', '+{}%'.format(self.get_speed_bonus_percent()))]
+        return stat
 
 
 class HoverJets(MovementSystem, StandardDamageHandler):
@@ -1328,6 +1342,24 @@ class HeavyActuators(MovementSystem, StandardDamageHandler):
         else:
             return 0
 
+class Overchargers(MovementSystem, StandardDamageHandler):
+    DEFAULT_NAME = "Overchargers"
+    MOVESYS_COST = 250
+
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return max(1, self.size // 2)
+
+    @property
+    def base_mass(self):
+        return 5 * self.size
+
+    def get_thrust(self, move_mode):
+        return 0
+
+    def get_speed_bonus_percent(self):
+        return 7 * self.size
 
 #   *************************
 #   ***   POWER  SOURCE   ***
@@ -3319,7 +3351,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             # Don't drop below minimum speed.
             speed = max(speed, 20)
 
-            return speed
+            return Mover.apply_speed_bonus(self, speed)
         else:
             return 0
 
