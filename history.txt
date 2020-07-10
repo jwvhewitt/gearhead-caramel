@@ -1,3 +1,4 @@
+- Raider champions upgrade their sensors (to take advantage of their weapon increased range) and may also gain Overchargers.
 - Add Overchargers.
 - Champion mecha are special, so they should be easier to salvage.
 - Increase Charge cost even more: treat it like a ranged weapon.
