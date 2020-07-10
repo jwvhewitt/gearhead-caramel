@@ -618,6 +618,90 @@ class FulminateTheme(UpgradeTheme):
 
         return item
 
+
+class ExplodiumTheme(UpgradeTheme):
+    '''Head go asplode'''
+    name = "Explodium"
+
+    def __init__(self):
+        self._upgraded_specific = False
+        self._added_grenade = False
+
+    def _upgrade_weapon(self, item):
+        to_upgrade = item.get_ammo()
+        if attackattributes.Blast2 in to_upgrade.attributes:
+            if attackattributes.BurnAttack in to_upgrade.attributes:
+                # Cannot upgrade further.
+                return False
+            to_upgrade.attributes.append(attackattributes.BurnAttack)
+        elif attackattributes.Blast1 in to_upgrade.attributes:
+            to_upgrade.attributes.remove(attackattributes.Blast1)
+            to_upgrade.attributes.append(attackattributes.Blast2)
+        else:
+            to_upgrade.attributes.append(attackattributes.Blast1)
+
+        # Add at least one more quantity, or 10%.
+        to_upgrade.quantity += max(1, to_upgrade.quantity // 10)
+
+        # Adjust actual item size/magazine if not fit.
+        if isinstance(item, base.Launcher) and item.size < to_upgrade.volume:
+            item.size = to_upgrade.volume
+        elif isinstance(item, base.BallisticWeapon) and item.magazine < to_upgrade.quantity:
+            item.magazine = to_upgrade.quantity
+
+        return True
+
+    def attempt_upgrade(self, holder, item, is_installed):
+        if isinstance(item, (base.Launcher, base.BallisticWeapon)):
+            if _try_upgrade(holder, item, is_installed, self._upgrade_weapon):
+                self._upgraded_specific = True
+                return True
+            return False
+
+        # Increase armor size to protect against our own explodium.
+        # Only increase armor if we actually upgraded weapons.
+        if self._upgraded_specific and isinstance(item, base.Armor) and is_installed and holder.free_volume > 0:
+            item.size += 1
+            return True
+
+        return False
+
+    # The grenade makes most sense in the Arms.
+    def install_sort_index(self, module):
+        if isinstance(module, base.Arm):
+            return 0
+        elif isinstance(module, base.Tail):
+            return 1
+        elif isinstance(module, base.Turret):
+            return 2
+        else:
+            return 3
+
+    def attempt_install_item(self, module):
+        if self._added_grenade:
+            return None
+        if not self._upgraded_specific:
+            return None
+        self._added_grenade = True
+
+        # "God slayer" grenade
+        grenade = base.Missile( name = 'Kamigoroshi'
+                              , reach = 6
+                              , damage = 5
+                              , accuracy = 1
+                              , penetration = 1
+                              , attributes = ( attackattributes.Blast2
+                                             , attackattributes.BurnAttack
+                                             )
+                              , quantity = 1
+                              , material = materials.Metal
+                              )
+        return base.Launcher( size = 1
+                            , sub_com = [grenade]
+                            , name = "Grenade Launcher"
+                            )
+
+
 THEMES = [ t for t in UpgradeTheme.__subclasses__()
         if not t is RandomTheme
          ]

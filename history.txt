@@ -1,3 +1,4 @@
+- Add Explodium champion. Boom!
 - Add Overchargers.
 - Champion mecha are special, so they should be easier to salvage.
 - Increase Charge cost even more: treat it like a ranged weapon.
