@@ -489,6 +489,22 @@ class SlasherTheme(UpgradeTheme):
         # Reduce size by 1.
         if item.size > item.MIN_SIZE:
             item.size -= 1
+        # Shield is upgraded to beam shield but only if it does
+        # not contain an item.
+        # Beam shields are not allowed to contains items!
+        if not isinstance(item, base.BeamShield) and not list(item.sub_com):
+            # This is borderline dangerous.
+            # It works because base.BeamShield derives from
+            # base.Shield, and base.BeamShield has no additional
+            # properties on top of base.Shield, just different
+            # behavior ("Just like a shield, but beamier"), thus
+            # safe for this case.
+            # In general you should avoid this.
+            # If we add more properties to BeamShield that are
+            # not on Shield, we should add those properties here
+            # as well.
+            item.__class__ = base.BeamShield
+            item.name = "Beam " + item.name
         return True
 
     def attempt_upgrade(self, holder, item, is_installed):
