@@ -1734,7 +1734,7 @@ class EnergyWeapon(Weapon):
     MAX_ACCURACY = 5
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
-    COST_FACTOR = 20
+    COST_FACTOR = 12
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.Intercept, attackattributes.OverloadAttack)
