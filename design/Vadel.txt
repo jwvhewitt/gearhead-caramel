@@ -1,10 +1,136 @@
-
 Mecha
-name = Vadel
-desig = AD26c
-material = Metal
-form = MT_Battroid
-SUB
-    Head
-    size = 3
+    name = "Vadel"
+    desig = "AD26"
+    imagename = "mav_vadel.png"
+    portrait = "mecha_vadel.png"
+    desc = "Fast and well-armed, the Vadel is the high end battroid against which all others are measured."
 
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Commander,)
+    material = Advanced
+
+    SUB
+        Head
+            size = 3
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+            END
+        Torso
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                Engine
+                    size = 1650
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                BallisticWeapon
+                    name = "Twin Vulcans"
+                    reach = 3
+                    damage = 2
+                    accuracy = 0
+                    penetration = 2
+                    ammo_type = Caseless_45mm
+                    attributes = (Intercept,BurstFire2)
+                    shot_anim = SmallBullet
+                    magazine = 50
+                    SUB
+                        Ammo
+                            ammo_type=Caseless_45mm
+                            quantity=50
+                    END
+                Overchargers
+                    size = 6
+            END
+
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BeamWeapon
+                            name = "Plasma Rifle"
+                            reach = 5
+                            damage = 3
+                            accuracy = 1
+                            penetration = 2
+                            attributes = (Scatter)
+                            shot_anim = PlasmaBall
+                    END
+                Launcher
+                    size = 4
+                    SUB
+                        Missile
+                            name = "Heavy Rockets"
+                            reach = 4
+                            damage = 4
+                            accuracy = 0
+                            penetration = 4
+                            quantity = 6
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Left Hand"
+                        INV
+                            STC Mecha Sword
+                        END
+
+                Launcher
+                    size = 4
+                    SUB
+                        Missile
+                            name = "Heavy Rockets"
+                            reach = 4
+                            damage = 4
+                            accuracy = 0
+                            penetration = 4
+                            quantity = 6
+                    END
+
+            END
+            INV
+                Shield
+                    size = 4
+
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    name = "Right Leg Mount"
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    name = "Left Leg Mount"
+            END
+    END

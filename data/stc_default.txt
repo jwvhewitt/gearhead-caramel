@@ -1,3 +1,14 @@
+MeleeWeapon
+    name="Mecha Sword"
+    desc = "A mecha scale sword for close quarters combat."
+    reach=1
+    damage=3
+    accuracy=3
+    penetration=2
+    scale = MechaScale
+    attributes = (Defender,)
+
+
 BallisticWeapon
     name = "Light Autocannon"
     reach = 4

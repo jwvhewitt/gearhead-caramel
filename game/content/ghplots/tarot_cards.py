@@ -376,7 +376,7 @@ class FactionInvestigator(TarotCard):
         TarotSocket(
             "MT_SOCKET_Investigate", TarotSignal(SIG_INCRIMINATE, [ME_FACTION]),
             consequences={
-                CONSEQUENCE_WIN: TarotTransformer("FactionCrimesProof", [ME_FACTION], [])
+                CONSEQUENCE_WIN: TarotTransformer("FactionCrimesProof", [ME_FACTION], [ME_CRIME])
             }
         ),
     )
@@ -446,6 +446,7 @@ class Murder(TarotCard):
                 self.register_element(ME_CRIME, CrimeObject("a murder", "murdered someone"))
 
         return True
+
 
 class TheQuitter(TarotCard):
     TAGS = (MT_PERSON,MT_FACTION,)
