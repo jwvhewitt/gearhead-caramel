@@ -235,8 +235,9 @@ class CharacterMover(object):
         # Record the character's original location, move them to the new location.
         if character not in plot.get_locked_elements():
             print("Warning: Character {} should be locked by {} before moving!".format(character,plot))
-        if not character.container:
+        if not (hasattr(character,"container") and character.container):
             print("Warning: Character {} moved by {} has no original container!".format(character,plot))
+            character.container = None
         if not plot.active:
             print("Warning: Plot {} not active")
         if not plot.scope:
@@ -264,7 +265,9 @@ class CharacterMover(object):
             if hasattr(self.character, "container") and self.character.container:
                 self.character.container.remove(self.character)
             self.character.restore_all()
-            self.original_container.append(self.character)
+            if self.original_container:
+                self.original_container.append(self.character)
+
 
 class EnterTownLanceRecovery(object):
     # When you enter a town, call this to restore the party and deal with dead/incapacitated members
@@ -312,4 +315,31 @@ def random_deadzone_spot_name():
     return "{} {}".format(A,B)
 
 
+DISEASE_PART_ONE = (
+    "Crimson", "Radiated", "Bloody", "Violet", "Deadly", "Lumpy", "Infectious", "Oozing", "Shivering", "Creeping",
+    "Necrotic", "Torturous", "Quaking", "Venomous", "Screaming", "Martian", "Flaying", "Bacterial", "Fungal",
+    "Gangrenous", "Cancerous", "Pathologic", "Hazardous", "Fatal", "Wasting", "Ocular", "Parasitic", "Mutagenic"
+)
+DISEASE_PART_TWO = (
+    "Fever", "Flopsy", "Palsy", "Plague", "Disease", "Gurgle", "Syndrome", "Bonerot", "Brainbleed", "Heartworm",
+    "Skinrash", "Cough", "Tumors", "Boils", "Doom", "Bloodsludge", "Gutwrench", "Flux", "Virus", "Thrush",
+    "Spinewrack", "Blight", "Decay", "Skintaker", "Earache", "Fleshmelt", "Infestation", "Ague", "Pox", "Ennui"
+)
 
+def random_disease_name():
+    return "{} {}".format(random.choice(DISEASE_PART_ONE), random.choice(DISEASE_PART_TWO))
+
+DRUG_START = (
+    "Ata", "Peace", "Neo", "Well", "Cura", "Hexa", "Sol", "Med", "Asp", "Bey", "Con", "De", "Ele", "Eu",
+    "Flum", "Go", "Jo", "Mod", "Nu", "Opt", "Pax", "Ques", "Rad", "Stim", "Val", "Wex", "Xan", "Ys", "Zoa"
+)
+DRUG_END = (
+    "zine", "ite", "ide", "ium", "let", "phen", "fine", "phene", "ax", "tune", "sid", "trose", "tine", "cid",
+    "pto", "int", "ium", "ga"
+)
+DRUG_LETTER = (
+    "Alpha", "Beta", "Gamma", "Delta", "Omega", "Zeta", "Kappa"
+)
+
+def random_medicine_name():
+    return "{}{} {}".format(random.choice(DRUG_START), random.choice(DRUG_END), random.choice(DRUG_LETTER))

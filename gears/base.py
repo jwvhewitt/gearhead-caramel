@@ -754,6 +754,10 @@ class BaseGear(scenes.PlaceableThing):
         if rgear and hasattr(rgear, "container") and rgear.container:
             return rgear.container.owner
 
+    @property
+    def scene(self):
+        return self.get_scene()
+
     def get_module(self):
         for g in self.ancestors():
             if isinstance(g, Module):

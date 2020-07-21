@@ -1125,6 +1125,24 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[HELLO:PROBLEM]": {
+        Default: ["Is there something wrong?",
+                  "You look like you have a problem."
+                  ],
+        personality.Cheerful: ["You don't look like a happy camper today.",
+                               ],
+        personality.Grim: ["Something is troubling you.",
+                           ],
+        personality.Easygoing: ["I get the feeling that there's something you want to talk about.",
+                                ],
+        personality.Passionate: ["If you have a problem, it's important to face it and blast it into submission!",
+                                 ],
+        personality.Sociable: ["Is there something you need to talk about?",
+                               ],
+        personality.Shy: ["What's the matter?",
+                          ],
+    },
+
     "[HELLO:QUERY]": {
         Default: ["Is there something you want to ask me?",
                   "You look like you have a question."
@@ -1606,6 +1624,23 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I'll ask around and see if there's anything I can do about that.",
                                ],
         personality.Shy: ["I'll see what I can do.",
+                          ],
+    },
+
+    "[I_WOULD_APPRECIATE_IT]": {
+        Default: ["I'd really appreciate it.", "Thanks for your help."
+                  ],
+        personality.Cheerful: ["If you do this, I will be so happy!",
+                               ],
+        personality.Grim: ["I would owe you a debt.",
+                           ],
+        personality.Easygoing: ["It'd be great if you could do this."
+                                ],
+        personality.Passionate: ["I will be forever in your debt!"
+                                 ],
+        personality.Sociable: ["I would personally appreciate your help in this matter.",
+                               ],
+        personality.Shy: ["Thanks.",
                           ],
     },
 
@@ -2384,6 +2419,29 @@ DEFAULT_GRAMMAR = {
                ],
         DISLIKE: ["Maybe you're a better pilot than I thought."
                   ],
+    },
+
+    "[THATS_GOOD]": {
+        # Character reacts to good news.
+        Default: ["Very good.",
+                  "That's good."
+                  ],
+        personality.Cheerful: [
+            "Nice!",
+        ],
+        personality.Grim: ["That is fortunate.",
+                           ],
+        personality.Easygoing: [
+            "Neat.",
+        ],
+        personality.Passionate: [
+            "That's the best news!",
+        ],
+        personality.Sociable: [
+            "I'm glad to hear that.",
+        ],
+        personality.Shy: ["Good.",
+                          ],
     },
 
     "[THATS_INTERESTING]": {

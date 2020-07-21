@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Murder",
+    "command": "ME_CRIME",
+    "results": {
+      "text": "the murder of",
+      "ed": "murdered"
+    },
+    "next_command": "ME_CRIME_VICTIM"
+  },
+  {
+    "name": "Tax Fraud",
+    "command": "ME_CRIME_VICTIM",
+    "results": {
+      "text": "{NPC.gender.possessive_determiner}"
+    }
+  }
+
+]

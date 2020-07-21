@@ -104,13 +104,17 @@ class TarotSocket(object):
 
 class TarotTransformer(object):
     # One possible consequence of a tarot interaction.
-    def __init__(self, new_card_name, this_card_params=(), other_card_params=()):
+    auto_params = ("METROSCENE", "METRO", "MISSION_GATE")
+    def __init__(self, new_card_name, this_card_params=(), other_card_params=(),
+                 auto_params=("METROSCENE","METRO","MISSION_GATE")):
         # new_card_name is the name of the tarot card to transform this card to
         # this_card_params is a list of parameters to copy from the this_card (the card this interaction belongs to)
         # other_card_params is a list of parameters to copy from the other_card (the card triggering this interaction)
         self.new_card_name = new_card_name
         self.this_card_params = ElementPasser(*this_card_params)
         self.other_card_params = ElementPasser(*other_card_params)
+        self.auto_params = auto_params
+
     def __call__(self, camp, this_card, other_card=None):
         """
 
@@ -123,6 +127,8 @@ class TarotTransformer(object):
         pstate = pbge.plots.PlotState()
         pstate.elements[ME_AUTOREVEAL] = True
         pstate.rank = this_card.rank
+        for p in self.auto_params:
+            pstate.elements[p] = this_card.elements.get(p)
         pstate.elements.update(self.this_card_params.get_elements(this_card))
         pstate.elements.update(self.other_card_params.get_elements(other_card))
 
@@ -146,7 +152,7 @@ class TarotCard(plots.Plot):
     SIGNALS = ()
     SOCKETS = ()
     NEGATIONS = ()
-    ONE_USE = False
+    ONE_USE = True
     AUTO_MEMO = None
 
     def __init__(self, nart, pstate):
