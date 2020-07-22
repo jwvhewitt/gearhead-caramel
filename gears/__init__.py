@@ -260,9 +260,11 @@ class GearHeadScene(pbge.scenes.Scene):
         actor.gear_up()
 
     def purge_faction(self,camp,fac):
+        # Move all the NPCs belonging to this faction to the storage scene.
         for npc in list(self.contents):
             if hasattr(npc,"faction") and npc.faction is fac and npc not in camp.party:
                 self.contents.remove(npc)
+                camp.storage.contents.append(npc)
         for subscene in self.sub_scenes:
             subscene.purge_faction(camp,fac)
 
@@ -331,6 +333,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         # at an appropriate time.
         self.incapacitated_party = list()
         self.dead_party = list()
+
+        self.storage = GearHeadScene(name="Storage")
+        self.contents.append(self.storage)
 
         if egg:
             self.egg = egg
@@ -639,6 +644,12 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.faction_relations[a].allies.append(b)
         if b in self.faction_relations[a].enemies:
             self.faction_relations[a].enemies.remove(b)
+
+    def freeze(self,thing):
+        # Move something, probably an NPC, into storage.
+        if hasattr(thing,"container") and thing.container:
+            thing.container.remove(thing)
+        self.storage.contents.append(thing)
 
 
 

@@ -1267,6 +1267,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[I_ALREADY_KNOW]": {
+        Default: ["I already know.", "Yes, I already know that."
+                  ],
+        personality.Cheerful: ["Thanks for telling me, but I already knew that."
+                               ],
+        personality.Grim: ["Stop, I already know what you're going to say.",
+                           ],
+        personality.Easygoing: ["So you know about that too?"
+                                ],
+        personality.Passionate: ["Yes, I know, but what are we going to do about it?",
+                                 ],
+        personality.Sociable: ["Sorry to interrupt, but I already know all about this.",
+                               ],
+        personality.Shy: ["Yes.",
+                          ],
+    },
+
     "[ICANDOTHAT]": {
         # Speaker is responding in the affirmative to a request.
         Default: ["I can do that.",
@@ -2770,6 +2787,13 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Just waiting for my next mission.",
                           ],
+    },
+
+    "[weapon]": {
+        Default: ["pistol", "sword", "candlestick", "chainsaw", "power tool", "industrial laser", "knife",
+                  "plasma cutter", "poisoned apple", "poisoned drink", "assassin droid", "bomb", "salvage crusher",
+                  "gas bomb", "hydrospanner",
+                  ],
     },
 
     "[WE_CAN_AVOID_COMBAT]": {

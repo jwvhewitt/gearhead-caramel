@@ -28,6 +28,108 @@ from . import missionbuilder
 #   ME_CARD
 #   ME_SOCKET
 
+class PriceyHeadMk3(Plot):
+    # - Make sure there's a Bounty Hunter in town at all times.
+    # - Speak to the Bounty Hunter, or an ally, to activate your incrimination.
+    # - As a bonus, entering the same room as the NPC also triggers the mission.
+    LABEL = "MT_SOCKET_Accuse"
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches( cls, pstate ):
+        """Returns True if this plot matches the current plot state."""
+        return ME_PERSON in pstate.elements and pstate.elements[ME_PERSON]
+
+    def custom_init(self, nart):
+        # Ensure there will always be at least one Guardian here.
+        self.add_sub_plot(nart,"ENSURE_JOB_REPRESENTATION", elements={"JOB": gears.jobs.ALL_JOBS["Bounty Hunter"]})
+        if not self.elements[ME_PERSON].combatant:
+            self.elements[ME_PERSON].combatant = True
+            self.elements[ME_PERSON].job.scale_skills(self.elements[ME_PERSON],self.elements[ME_PERSON].renown)
+        self.mission_seed = None
+        self.card = None
+        self.see_exit = False
+        return True
+
+    def is_appropriate_judge(self,npc,camp):
+        return camp.are_faction_allies(npc, self.elements["METROSCENE"]) or gears.tags.Police in npc.job.tags
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        if npc is not self.elements[ME_PERSON] and self.is_appropriate_judge(npc,camp) and not self.mission_seed:
+            mysig = mysocket.get_activating_signals(mycard, camp)
+            if mysig:
+                card = mysig[0][0]
+                # Alright, we have someone with the power to incriminate. Harvest some information.
+                crime = card.elements.get(ME_CRIME)
+                if not crime:
+                    crimed = "did something terrible"
+                else:
+                    crimed = crime.ed
+                goffs.append(Offer(
+                    "[I_ALREADY_KNOW] A bounty just went out for {ME_PERSON}'s arrest... if you're fast, you might be the one to claim it.".format(**self.elements),
+                    context=ContextTag([context.REVEAL]),effect=self._start_mission,
+                    data={"reveal":"{} {}".format(self.elements[ME_PERSON],crimed),}
+                ))
+                self.card = card
+
+        return goffs
+
+    def t_START(self,camp):
+        if self.elements[ME_PERSON] in camp.scene.contents and not self.see_exit:
+            mycard = self.elements[mechtarot.ME_CARD]
+            mysocket = self.elements[mechtarot.ME_SOCKET]
+            mysig = mysocket.get_activating_signals(mycard, camp)
+            if mysig:
+                self.card = mysig[0][0]
+                pbge.alert("As you enter {}, you see {ME_PERSON} and {ME_PERSON.gender.possessive_determiner} aides making a hasty exit by the back door.".format(camp.scene,**self.elements))
+                self.see_exit = True
+                self._start_mission(camp)
+
+    def _start_mission(self,camp):
+        if not self.mission_seed:
+            self.mission_seed = missionbuilder.BuildAMissionSeed(
+                camp, "Capture {}".format(self.elements[ME_PERSON]),
+                (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+                enemy_faction=self.elements.get(ME_FACTION), rank=self.rank,
+                objectives=(missionbuilder.BAMO_DEFEAT_NPC,),
+                cash_reward=500, experience_reward=250,
+                on_win=self._win_mission,on_loss=self._lose_mission,
+                custom_elements={missionbuilder.BAME_NPC:self.elements[ME_PERSON]},
+                win_message = "With {ME_PERSON} in custody, peace can return to {METROSCENE}.".format(**self.elements),
+                loss_message = "Although you failed to catch {ME_PERSON}, {ME_PERSON.gender.subject_pronoun} probably won't be returning to {METROSCENE} any time soon.".format(**self.elements),
+            )
+            self.memo = "You have been authorized to capture {ME_PERSON} for {METROSCENE}.".format(**self.elements)
+            missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+            camp.freeze(self.elements[ME_PERSON])
+            if ME_FACTION in self.elements:
+                self.elements["METROSCENE"].purge_faction(camp,self.elements[ME_FACTION])
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+    def _win_mission(self,camp):
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        if CONSEQUENCE_WIN in mysocket.consequences:
+            mysocket.consequences[CONSEQUENCE_WIN](camp,mycard,self.card)
+        self.end_plot(camp)
+
+    def _lose_mission(self, camp):
+        self.mission_seed = None
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        if CONSEQUENCE_LOSE in mysocket.consequences:
+            mysocket.consequences[CONSEQUENCE_LOSE](camp,mycard,self.card)
+        self.elements[ME_PERSON].relationship.role = gears.relationships.R_ADVERSARY
+        self.end_plot(camp)
+
+
 class GuardianJudgment(Plot):
     # - Make sure there's a Guardian in town at all times.
     # - Speak to the Guardian, or an ally, to activate your incrimination.
@@ -39,9 +141,10 @@ class GuardianJudgment(Plot):
     def matches( cls, pstate ):
         """Returns True if this plot matches the current plot state."""
         return (
-            "METROSCENE" in pstate.elements and
-            pstate.elements["METROSCENE"] and
-            pstate.elements["METROSCENE"].faction.get_faction_tag() in (gears.factions.TerranFederation,gears.factions.DeadzoneFederation)
+            "METROSCENE" in pstate.elements and pstate.elements["METROSCENE"] and
+            pstate.elements["METROSCENE"].faction.get_faction_tag() in
+            (gears.factions.TerranFederation,gears.factions.DeadzoneFederation) and
+            ME_FACTION in pstate.elements and pstate.elements[ME_FACTION]
         )
 
     def custom_init(self, nart):
@@ -72,7 +175,7 @@ class GuardianJudgment(Plot):
                 else:
                     crimed = crime.ed
                 goffs.append(Offer(
-                    "[THIS_IS_TERRIBLE_NEWS] [FACTION_MUST_BE_PUNISHED] You are authorized to launch a mecha strike against their command center.",
+                    "[THIS_IS_TERRIBLE_NEWS] [FACTION_MUST_BE_PUNISHED] You are authorized to launch a mecha strike against {}'s command center.".format(self._get_villain()),
                     context=ContextTag([context.REVEAL]),effect=self._start_mission,
                     data={"reveal":"{} {}".format(villain,crimed),"faction":str(villain)}
                 ))
@@ -97,17 +200,17 @@ class GuardianJudgment(Plot):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "Strike {}'s command center".format(self._get_villain()),
             (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
-            enemy_faction=self.elements[ME_FACTION], rank=self.rank,
+            enemy_faction=self.elements.get(ME_FACTION), rank=self.rank,
             objectives=(missionbuilder.BAMO_STORM_THE_CASTLE,),
             cash_reward=500, experience_reward=250,
             on_win=self._win_mission,on_loss=self._lose_mission,
-            win_message = "With their command center destroyed, the remnants of {} are quickly brought to justice.".format(self.elements[ME_FACTION]),
-            loss_message = "Following the attack on their command center, the remnants of {} scatter to the wind. They will continue to be a thorn in the side of {} for years to come.".format(self.elements[ME_FACTION],self.elements["LOCALE"]),
+            win_message = "With their command center destroyed, the forces of {} are quickly brought to justice.".format(self._get_villain()),
+            loss_message = "Following the attack on their command center, the forces of {} scatter to the wind. They will continue to be a thorn in the side of {} for years to come.".format(self._get_villain(),self.elements["LOCALE"]),
         )
         self.memo = "You have been authorized to take action against {}'s command center.".format(self._get_villain())
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
-        if ME_FACTION in self.card.elements:
-            self.elements["METROSCENE"].purge_faction(camp,self.card.elements[ME_FACTION])
+        if ME_FACTION in self.elements:
+            self.elements["METROSCENE"].purge_faction(camp,self.elements[ME_FACTION])
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed:

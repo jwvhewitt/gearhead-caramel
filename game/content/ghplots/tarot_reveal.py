@@ -1230,7 +1230,11 @@ class WitnessToTheCrime(Plot):
         )
 
         if ME_CRIME not in self.elements:
-            self.elements[ME_CRIME] = CrimeObject("a crime", "did a crime")
+            mystory = backstory.Backstory(("ME_CRIME",), {ME_PERSON: self.elements[ME_PERSON]})
+            self.elements[ME_CRIME] = CrimeObject(mystory.get("text"), mystory.get("ed"))
+            self.elements["_STORY"] = mystory.get("story")
+        else:
+            self.elements["_STORY"] = "{ME_PERSON} {ME_CRIME.ed}.".format(**self.elements)
 
         self.got_rumor = False
         self.asked_question = False
@@ -1242,7 +1246,7 @@ class WitnessToTheCrime(Plot):
     def NPC_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[THIS_IS_A_SECRET] ".format(**self.elements),
+            "[THIS_IS_A_SECRET] {_STORY} I've been afraid to tell anyone what I saw...".format(**self.elements),
             ContextTag([context.PROBLEM, ]), effect=self._reveal,
             no_repeats=True,
         ))
@@ -1261,7 +1265,7 @@ class WitnessToTheCrime(Plot):
         if npc is not self.elements[ME_PERSON] and npc is not self.elements["NPC"] and not self.got_rumor:
             mygram["[News]"] = ["{NPC} has been acting nervous lately".format(**self.elements), ]
         if npc is self.elements["NPC"]:
-            mygram["[CURRENT_EVENTS]"] = ["".format(**self.elements), ]
+            mygram["[CURRENT_EVENTS]"] = ["I wish I had someone to confide in...".format(**self.elements), ]
             mygram["[News]"] = ["you should not trust {ME_PERSON}".format(**self.elements), ]
         return mygram
 
@@ -1446,6 +1450,14 @@ class BasicRobberBaron(Plot):
                     "[GOODBYE]".format(
                         **self.elements),
                     context=ContextTag([context.DENY, ]), subject=self,
+                )
+            )
+        if not self.got_rumor:
+            mylist.append(
+                Offer(
+                    "[HELLO] You're speaking to the {ME_PERSON.gender.noun} that keeps {METROSCENE} working.".format(
+                        **self.elements),
+                    context=ContextTag([context.HELLO, ]), effect=self._get_rumor,
                 )
             )
         return mylist

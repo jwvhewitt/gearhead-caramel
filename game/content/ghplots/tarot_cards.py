@@ -738,7 +738,7 @@ class SecretIngredients(TarotCard):
 
 class RobberBaron(TarotCard):
     # Exploitation leading to widespread poverty.
-    TAGS = (MT_THREAT, MT_PERSON)
+    TAGS = (MT_THREAT, MT_PERSON, MT_FACTION)
     QOL = gears.QualityOfLife(prosperity=-4, community=-1)
     active = True
     NEGATIONS = ("TheExiled",)
@@ -746,6 +746,12 @@ class RobberBaron(TarotCard):
     SOCKETS = (
         TarotSocket(
             "MT_SOCKET_Accuse", TarotSignal(SIG_ACCUSE, [ME_PERSON,]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("TheExiled", (ME_PERSON,))
+            }
+        ),
+        TarotSocket(
+            "MT_SOCKET_Accuse", TarotSignal(SIG_ACCUSE, [ME_FACTION, ]),
             consequences={
                 CONSEQUENCE_WIN: TarotTransformer("TheExiled", (ME_PERSON,))
             }
@@ -759,7 +765,12 @@ class RobberBaron(TarotCard):
             sp = self.add_sub_plot(nart, "MT_REVEAL_RobberBaron", ident="REVEAL")
             if ME_PERSON not in self.elements:
                 self.elements[ME_PERSON] = sp.elements[ME_PERSON]
-
+            if ME_FACTION in sp.elements:
+                self.elements[ME_FACTION] = sp.elements[ME_FACTION]
+        if ME_FACTION not in self.elements:
+            mynpc = self.elements[ME_PERSON]
+            self.elements[ME_FACTION] = gears.factions.Circle(nart.camp,name="{} Industries".format(mynpc))
+            mynpc.faction = self.elements[ME_FACTION]
         return True
 
 
