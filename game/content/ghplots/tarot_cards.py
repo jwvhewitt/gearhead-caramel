@@ -603,6 +603,8 @@ class TheQuitter(TarotCard):
             self.elements[ME_CRIME] = CrimeObject("the atrocity","committed an atrocity")
         if not self.elements.get(ME_AUTOREVEAL):
             sp = self.add_sub_plot(nart, "MT_REVEAL_Quitter", ident="REVEAL")
+            if ME_PERSON not in self.elements:
+                self.elements[ME_PERSON] = sp.elements[ME_PERSON]
         return True
 
 

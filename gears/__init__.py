@@ -306,6 +306,21 @@ class GearHeadScene(pbge.scenes.Scene):
                     else:
                         print("Warning: {} could not be placed in {}".format(npc,self))
 
+    def deploy_team(self, members, team):
+        if team.home:
+            good_spots = list(self.list_empty_spots(team.home))
+            if not good_spots:
+                good_spots = list(self.list_empty_spots())
+        else:
+            good_spots = list(self.list_empty_spots())
+        random.shuffle(good_spots)
+        for m in members:
+            if good_spots:
+                p = good_spots.pop()
+                m.place(self, pos=p, team=team)
+            else:
+                print("Warning: {} could not be deployed in {}".format(m, self))
+
     def get_keywords(self):
         mylist = list()
         for t in self.attributes:
@@ -978,6 +993,8 @@ def init_gears():
             if d.get_full_name() in selector.DESIGN_BY_NAME:
                 print("Warning: Multiple designs named {}".format(d.get_full_name()))
             selector.DESIGN_BY_NAME[d.get_full_name()] = d
+        if isinstance(d, base.Monster):
+            selector.MONSTER_LIST.append(d)
 
     portraits.init_portraits()
     jobs.init_jobs()

@@ -1,0 +1,40 @@
+Monster
+    name = "Giant Rat"
+    statline = {Reflexes = 12, Body=5, Speed=12, Perception=8, Craft=8, Knowledge=2, Ego=6, Charm = 2,
+			CloseCombat = 5, Dodge = 3
+	}
+	scale = HumanScale
+	imagename = 'mon_animals.png'
+	frame = 0
+	colors = (DarkBrown,DarkBrown,Pink,LemonYellow,Black)
+    threat = 0
+    type_tags = ("ANIMAL", "CAVE", "EARTH", "SWAMP", "CITY", "VERMIN")
+    families = ("RATS","VERMIN")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 1
+            SUB
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=1
+					accuracy=3
+					penetration=1
+					integral = True
+                    attributes = (FastAttack)
+            END
+        Torso
+            size = 1
+        Leg
+            size = 1
+        Leg
+            size = 1
+        Leg
+            size = 1
+        Leg
+            size = 1
+        Tail
+            size = 1
+    END

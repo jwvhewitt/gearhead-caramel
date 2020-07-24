@@ -72,3 +72,38 @@ class RandoMechaWithChampionEncounter( RandoMechaEncounter ):
         if len(myteam.get_active_members(camp)) < 1:
             self.end_plot(camp)
             camp.dole_xp(120)
+
+
+#  *****************************
+#  ***   MONSTER_ENCOUNTER   ***
+#  *****************************
+#
+#  Elements:
+#   LOCALE: The scene where the encounter will take place
+#   ROOM: The room where the encounter will take place; if None, an open room will be added.
+#   TYPE_TAGS: The type of monster to generate
+#
+
+class RandoMonsterEncounter( Plot ):
+    # Fight some random mecha. What do they want? To pad the adventure.
+    LABEL = "MONSTER_ENCOUNTER"
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        if not self.elements.get("ROOM"):
+            self.register_element("ROOM",pbge.randmaps.rooms.OpenRoom(5,5),dident="LOCALE")
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
+        team2.contents += gears.selector.RandomMonsterUnit(self.rank,100,myscene.environment,self.elements["TYPE_TAGS"], myscene.scale).contents
+        self.last_update = 0
+        return True
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        myteam: game.teams.Team = self.elements["_eteam"]
+        if camp.day > self.last_update and len(myteam.get_active_members(camp)) < 1:
+            camp.scene.deploy_team(
+                gears.selector.RandomMonsterUnit(self.rank, 100, camp.scene.environment,
+                self.elements["TYPE_TAGS"], camp.scene.scale).contents, myteam
+            )
+            self.last_update = camp.day
+

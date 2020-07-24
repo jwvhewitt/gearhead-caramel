@@ -287,6 +287,8 @@ class EnterTownLanceRecovery(object):
                     nart.build()
                     nart.story.start_recovery(camp)
                     self.did_recovery = True
+                else:
+                    print(nart.errors)
             else:
                 init = pbge.plots.PlotState(elements={"METRO":metro,"METROSCENE":metroscene})
                 nart = GHNarrativeRequest(camp,init,adv_type="RECOVER_LANCE",plot_list=PLOT_LIST)
@@ -294,6 +296,13 @@ class EnterTownLanceRecovery(object):
                     nart.build()
                     nart.story.start_recovery(camp)
                     self.did_recovery = True
+
+
+def dungeon_cleaner(scene):
+    # Vacuum up all the dead monsters.
+    for bit in list(scene.contents):
+        if hasattr(bit,"is_operational") and not bit.is_operational():
+            scene.contents.remove(bit)
 
 
 DZSPOT_PART_ONE = (
