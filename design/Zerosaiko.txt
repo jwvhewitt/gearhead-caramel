@@ -4,6 +4,9 @@ Mecha
     imagename = "mav_zerosaiko.png"
     portrait = "mecha_zerosaiko.png"
 
+    desc = ""
+    material = Advanced
+
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
     role_list = (Commander,)
@@ -11,42 +14,31 @@ Mecha
     SUB
         Head
             size = 4
-            material = Advanced
             SUB
                 Armor
                     size = 5
-                    material = Advanced
                 Sensor
                     size = 3
-                    material = Advanced
             END
         Torso
             size = 5
-            material = Advanced
             SUB
                 Armor
                     size = 7
-                    material = Advanced
                 Engine
-                    size = 1600
-                    material = Advanced
+                    size = 1650
                 Gyroscope
-                    material = Advanced
                     SUB
                         Armor
                             size = 1
-                            material = Advanced
                     END
                 Cockpit
-                    material = Advanced
                     SUB
                         Armor
                             size = 2
-                            material = Advanced
                     END
                 Mount
                     name = "Right Collar Mount"
-                    material = Advanced
                     INV
                         Launcher
                             size = 4
@@ -62,19 +54,15 @@ Mecha
                     END
                 Mount
                     name = "Left Collar Mount"
-                    material = Advanced
             END
         Arm
             name = "Right Arm"
             size = 5
-            material = Advanced
             SUB
                 Armor
                     size = 5
-                    material = Advanced
                 Hand
                     name = "Right Hand"
-                    material = Advanced
                     INV
                         BallisticWeapon
                             name = "Mass Driver"
@@ -84,7 +72,6 @@ Mecha
                             penetration = 2
                             attributes = (Automatic)
                             ammo_type = Shells_150mm
-                            material = Advanced
                             SUB
                                 Ammo
                                     ammo_type=Shells_150mm
@@ -95,7 +82,6 @@ Mecha
             INV
                 Shield
                     size = 4
-                    material = Advanced
                     SUB
                         BeamWeapon
                             name = "Intercept Laser"
@@ -106,35 +92,28 @@ Mecha
                             integral = True
                             shot_anim = SmallBeam
                             attributes = (Intercept)
-                            material = Advanced
                     END
             END
         Arm
             name = "Left Arm"
             size = 5
-            material = Advanced
             SUB
                 Armor
                     size = 5
-                    material = Advanced
                 Hand
                     name = "Left Hand"
-                    material = Advanced
                     INV
                         EnergyWeapon
-                            material = Advanced
                             name="Beam Sword"
                             reach=1
                             damage=4
                             accuracy=3
                             penetration=1
-                            material = Advanced
                     END
             END
             INV
                 Shield
                     size = 4
-                    material = Advanced
                     SUB
                         BeamWeapon
                             name = "Intercept Laser"
@@ -145,31 +124,26 @@ Mecha
                             integral = True
                             shot_anim = SmallBeam
                             attributes = (Intercept)
-                            material = Advanced
                     END
             END
         Leg
             name = "Right Leg"
             size = 5
-            material = Advanced
             SUB
                 Armor
-                    size = 5
-                    material = Advanced
+                    size = 6
                 HoverJets
                     size = 5
-                    material = Advanced
+                    integral = True
             END
         Leg
             name = "Left Leg"
             size = 5
-            material = Advanced
             SUB
                 Armor
-                    size = 5
-                    material = Advanced
+                    size = 6
                 HoverJets
                     size = 5
-                    material = Advanced
+                    integral = True
             END
     END

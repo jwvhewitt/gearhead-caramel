@@ -11,6 +11,7 @@ from . import dd_main
 from . import dd_roadedge
 from . import dd_roadedge_propp
 from . import dd_roadstops
+from . import dungeons
 from . import encounters
 from . import lancemates
 from . import missionbuilder
@@ -50,6 +51,7 @@ harvest(dd_main)
 harvest(dd_roadedge)
 harvest(dd_roadedge_propp)
 harvest(dd_roadstops)
+harvest(dungeons)
 harvest(encounters)
 harvest(lancemates)
 harvest(missionbuilder)

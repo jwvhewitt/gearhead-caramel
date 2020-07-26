@@ -606,6 +606,13 @@
     ],
     "requires": ["BodMA"],
     "style": ["Grim"]
+  },
+    {
+    "name": "Just Pants",
+    "btype": "Overclothes",
+    "children": [
+      "Pants"
+    ]
   }
 
 

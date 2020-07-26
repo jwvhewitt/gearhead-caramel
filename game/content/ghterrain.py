@@ -190,6 +190,12 @@ class VictimTerrain(pbge.scenes.terrain.Terrain):
     frame = 0
     blocks = (Walking,Skimming,Rolling,Flying)
 
+class OldCrateTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_default.png'
+    frame = 1
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+
 class Window(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_window.png'
 

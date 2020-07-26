@@ -1,3 +1,5 @@
+import pygame
+
 from . import ghterrain
 from pbge.randmaps.architect import Architecture
 from pbge.randmaps.decor import OmniDec,ColumnsDecor,OfficeDecor
@@ -128,3 +130,17 @@ class StoneBuilding(Architecture):
     DEFAULT_FLOOR_TERRAIN = ghterrain.Flagstone
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+
+class DeadZoneHighwaySceneGen( pbge.randmaps.SceneGenerator ):
+    DO_DIRECT_CONNECTIONS = True
+    def build( self, gb, archi ):
+        self.fill(gb,pygame.Rect(0,gb.height//2-2,gb.width,5),wall=None)
+
+    def DECORATE( self, gb, scenegen ):
+        """
+        :type gb: gears.GearHeadScene
+        """
+        # Draw a gret big highway going from west to east.
+        self.fill(gb,pygame.Rect(0,gb.height//2-2,gb.width,5),floor=self.archi.DEFAULT_FLOOR_TERRAIN)
+        self.fill(gb,pygame.Rect(0,gb.height//2-1,gb.width,3),floor=ghterrain.Pavement)
