@@ -66,7 +66,8 @@ def maybe_expand_token( token_block, gramdb ):
                 all_words[-1] += suffix
             return " ".join( all_words )
 
-def convert_tokens( in_text, gramdb, allow_maybe=True, auto_format = True ):
+
+def convert_tokens( in_text, gramdb, allow_maybe=True, auto_format = True, start_on_capital=True ):
     all_words = list()
     for word in in_text.split():
         if word[0] == "[":
@@ -81,7 +82,7 @@ def convert_tokens( in_text, gramdb, allow_maybe=True, auto_format = True ):
         for w in all_words:
             original_words += w.split()
         all_words = list()
-        capitalize = True
+        capitalize = start_on_capital
         while original_words:
             word = original_words.pop(0)
             if word == "a" or word =="A":

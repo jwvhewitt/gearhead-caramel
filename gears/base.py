@@ -19,6 +19,7 @@ from . import personality
 import uuid
 import math
 
+
 class Restoreable(object):
     def restore(self):
         # Remove all damage and other stuff. Return the restoration cost in credits.
@@ -31,7 +32,7 @@ class Restoreable(object):
 #  Each "practical" gear should subclass one of the damage handlers.
 #
 
-class StandardDamageHandler(KeyObject,Restoreable):
+class StandardDamageHandler(KeyObject, Restoreable):
     # This gear type has health and takes damage. It is destroyed when the
     # amount of damage taken exceeds its maximum capacity.
     def __init__(self, **keywords):
@@ -58,9 +59,9 @@ class StandardDamageHandler(KeyObject,Restoreable):
         dstats = list()
         for part in self.get_all_parts():
             dstats.append(part.get_damage_status())
-        return sum(dstats)//len(dstats)
+        return sum(dstats) // len(dstats)
 
-    def get_total_damage_and_health(self,destroyed_branch=False):
+    def get_total_damage_and_health(self, destroyed_branch=False):
         health = self.max_health
         if destroyed_branch or self.is_destroyed():
             dmg = health
@@ -68,14 +69,14 @@ class StandardDamageHandler(KeyObject,Restoreable):
         else:
             dmg = self.hp_damage
         for part in self.sub_com:
-            pd,ph = part.get_total_damage_and_health(destroyed_branch)
+            pd, ph = part.get_total_damage_and_health(destroyed_branch)
             dmg += pd
             health += ph
-        return dmg,health
+        return dmg, health
 
     def get_percent_damage_over_health(self):
-        dmg,health = self.get_total_damage_and_health()
-        return (dmg * 100)//max(health,1)
+        dmg, health = self.get_total_damage_and_health()
+        return (dmg * 100) // max(health, 1)
 
     def is_not_destroyed(self):
         """ Returns True if this gear is not destroyed.
@@ -103,7 +104,7 @@ class StandardDamageHandler(KeyObject,Restoreable):
         """
         return True
 
-    def get_repair_cost(self,repairdict=None,check_descendants=True):
+    def get_repair_cost(self, repairdict=None, check_descendants=True):
         if not repairdict:
             repairdict = collections.defaultdict(int)
         repairdict[self.material.repair_type] += self.hp_damage * self.material.repair_cost
@@ -116,7 +117,7 @@ class StandardDamageHandler(KeyObject,Restoreable):
 
     def wipe_damage(self):
         self.hp_damage = 0
-        if hasattr(self,"ench_list"):
+        if hasattr(self, "ench_list"):
             del self.ench_list[:]
         for p in self.sub_com:
             p.wipe_damage()
@@ -127,7 +128,7 @@ class StandardDamageHandler(KeyObject,Restoreable):
         # Remove all damage and other stuff. Return the restoration cost in credits.
         rdic = self.get_repair_cost(check_descendants=False)
         self.hp_damage = 0
-        if hasattr(self,"ench_list"):
+        if hasattr(self, "ench_list"):
             del self.ench_list[:]
         return sum(rdic.values()) + super(StandardDamageHandler, self).restore()
 
@@ -314,7 +315,8 @@ class Mover(KeyObject):
         return self.get_speed(self.mmode)
 
     def get_max_speed(self):
-        return max(self.get_speed(scenes.movement.Walking),self.get_speed(geffects.Skimming),self.get_speed(geffects.Rolling))
+        return max(self.get_speed(scenes.movement.Walking), self.get_speed(geffects.Skimming),
+                   self.get_speed(geffects.Rolling))
 
     def count_module_points(self, module_form):
         # Count the number of active module points, reducing rating for damage taken.
@@ -387,11 +389,11 @@ class Combatant(KeyObject):
                 my_invos.append(p_list)
         return my_invos
 
-    def get_program_library(self,in_combat=True):
+    def get_program_library(self, in_combat=True):
         my_invo_dict = dict()
         for p in self.descendants(include_pilot=False):
             if p.is_operational() and hasattr(p, 'add_program_invocations'):
-                p.add_program_invocations(self,my_invo_dict)
+                p.add_program_invocations(self, my_invo_dict)
         my_invos = list()
         for k, v in list(my_invo_dict.items()):
             p_list = geffects.InvoLibraryShelf(k, v)
@@ -399,7 +401,7 @@ class Combatant(KeyObject):
                 my_invos.append(p_list)
         return my_invos
 
-    def has_program(self,wanted_prog):
+    def has_program(self, wanted_prog):
         has_it = False
         for p in self.descendants(include_pilot=False):
             if p.is_operational() and hasattr(p, 'programs'):
@@ -435,14 +437,16 @@ class HasPower(KeyObject):
             if hasattr(p, 'regen_power') and p.is_operational():
                 p.regen_power()
 
+
 class HasInfinitePower(HasPower):
     def get_current_and_max_power(self):
-        return 1000000,1000000
+        return 1000000, 1000000
 
     def consume_power(self, amount):
         pass
 
-class MakesPower(KeyObject,Restoreable):
+
+class MakesPower(KeyObject, Restoreable):
     # In addition to this inheritance, the subclass needs to define a max_power
     # method.
     def __init__(self, **keywords):
@@ -477,7 +481,7 @@ class MakesPower(KeyObject,Restoreable):
 class SubComContainerList(container.ContainerList):
     def _set_container(self, item):
         # If no owner, that means we're probably loading a file from disk and so assume this part is legal.
-        if not hasattr(self,"owner") or self.owner.can_install(item):
+        if not hasattr(self, "owner") or self.owner.can_install(item):
             super()._set_container(item)
         else:
             raise container.ContainerError("Error: {} cannot subcom {}".format(self.owner, item))
@@ -496,7 +500,7 @@ class SubComContainerList(container.ContainerList):
 class InvComContainerList(container.ContainerList):
     def _set_container(self, item):
         # If no owner, that means we're probably loading a file from disk and so assume this part is legal.
-        if not hasattr(self,"owner") or self.owner.can_equip(item):
+        if not hasattr(self, "owner") or self.owner.can_equip(item):
             super(InvComContainerList, self)._set_container(item)
         else:
             raise container.ContainerError("Error: {} cannot invcom {}".format(self.owner, item))
@@ -524,7 +528,9 @@ class BaseGear(scenes.PlaceableThing):
     DEFAULT_MATERIAL = materials.Metal
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_SLOT = tags.SLOT_ITEM
-    SAVE_PARAMETERS = ('name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot', 'faction_list')
+    SAVE_PARAMETERS = (
+        'name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot',
+        'faction_list')
 
     def __init__(self, uniqueid=None, shop_tags=(), desc="", slot=None, faction_list=(None,), **keywords):
         self.__base_gear_pos = None
@@ -574,7 +580,7 @@ class BaseGear(scenes.PlaceableThing):
 
     def get_full_name(self):
         if self.desig:
-            return "{} {}".format(self.desig,self.name)
+            return "{} {}".format(self.desig, self.name)
         else:
             return self.name
 
@@ -598,7 +604,7 @@ class BaseGear(scenes.PlaceableThing):
             m = m + part.mass
         return m
 
-    def get_inv_mass(self,is_inv=False):
+    def get_inv_mass(self, is_inv=False):
         if is_inv:
             m = self.mass
             for part in self.sub_com:
@@ -660,7 +666,8 @@ class BaseGear(scenes.PlaceableThing):
         """Returns True if part can be legally installed here under current conditions"""
         if check_volume:
             return self.is_legal_sub_com(
-                part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and part.volume <= self.free_volume and self.check_multiplicity(part)
+                part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and part.volume <= self.free_volume and self.check_multiplicity(
+                part)
         else:
             return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
@@ -670,7 +677,8 @@ class BaseGear(scenes.PlaceableThing):
     def can_equip(self, part, check_slots=True):
         """Returns True if part can be legally installed here under current conditions"""
         if check_slots:
-            return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR == self.scale.SIZE_FACTOR and not bool([i for i in self.inv_com if i.slot == part.slot])
+            return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR == self.scale.SIZE_FACTOR and not bool(
+                [i for i in self.inv_com if i.slot == part.slot])
         else:
             return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR == self.scale.SIZE_FACTOR
 
@@ -704,29 +712,29 @@ class BaseGear(scenes.PlaceableThing):
             for p in part.descendants():
                 yield p
 
-    def descendants(self,include_pilot=True):
+    def descendants(self, include_pilot=True):
         for part in self.sub_com:
             yield part
-            if include_pilot or not isinstance(part,Cockpit):
+            if include_pilot or not isinstance(part, Cockpit):
                 for p in part.descendants(include_pilot):
                     yield p
         for part in self.inv_com:
             yield part
-            if include_pilot or not isinstance(part,Cockpit):
+            if include_pilot or not isinstance(part, Cockpit):
                 for p in part.descendants(include_pilot):
                     yield p
 
-    def ok_descendants(self,include_pilot=True):
+    def ok_descendants(self, include_pilot=True):
         for part in self.sub_com:
             if part.is_not_destroyed():
                 yield part
-                if include_pilot or not isinstance(part,Cockpit):
+                if include_pilot or not isinstance(part, Cockpit):
                     for p in part.ok_descendants(include_pilot):
                         yield p
         for part in self.inv_com:
             if part.is_not_destroyed():
                 yield part
-                if include_pilot or not isinstance(part,Cockpit):
+                if include_pilot or not isinstance(part, Cockpit):
                     for p in part.ok_descendants(include_pilot):
                         yield p
 
@@ -754,6 +762,10 @@ class BaseGear(scenes.PlaceableThing):
         if rgear and hasattr(rgear, "container") and rgear.container:
             return rgear.container.owner
 
+    @property
+    def scene(self):
+        return self.get_scene()
+
     def get_module(self):
         for g in self.ancestors():
             if isinstance(g, Module):
@@ -772,10 +784,11 @@ class BaseGear(scenes.PlaceableThing):
         else:
             return 0
 
-    def get_armor(self,destroyed_ok=False):
+    def get_armor(self, destroyed_ok=False):
         """Returns the armor protecting this gear."""
-        candidates = [part for part in self.sub_com if isinstance(part, Armor) and (destroyed_ok or part.is_not_destroyed())]
-        candidates.sort(key= lambda a: a.get_armor_rating())
+        candidates = [part for part in self.sub_com if
+                      isinstance(part, Armor) and (destroyed_ok or part.is_not_destroyed())]
+        candidates.sort(key=lambda a: a.get_armor_rating())
         if candidates:
             return candidates[0]
 
@@ -809,18 +822,18 @@ class BaseGear(scenes.PlaceableThing):
                 my_params.update(ancestor.SAVE_PARAMETERS)
 
         # Copy the sub_com and inv_com
-        dcsubcom = [copy.deepcopy(sc,memo) for sc in self.sub_com]
-        dcinvcom = [copy.deepcopy(sc,memo) for sc in self.inv_com]
+        dcsubcom = [copy.deepcopy(sc, memo) for sc in self.sub_com]
+        dcinvcom = [copy.deepcopy(sc, memo) for sc in self.inv_com]
 
         # Go through this gear's dict, copying stuff 
         initdict = dict()
         afterdict = dict()
         for k, v in list(self.__dict__.items()):
             if k in my_params:
-                initdict[k] = copy.deepcopy(v,memo)
+                initdict[k] = copy.deepcopy(v, memo)
             elif k not in ('sub_com', 'inv_com', 'container'):
-                afterdict[k] = copy.deepcopy(v,memo)
-        if hasattr(self,"DEEP_COPY_PARAMS"):
+                afterdict[k] = copy.deepcopy(v, memo)
+        if hasattr(self, "DEEP_COPY_PARAMS"):
             initdict.update(self.DEEP_COPY_PARAMS)
 
         initdict["sub_com"] = dcsubcom
@@ -838,35 +851,36 @@ class BaseGear(scenes.PlaceableThing):
     def get_common_modifiers(self, module):
         ''' Modifiers that we expect affect all things.
         '''
-        return [ geffects.SensorModifier()
-               , geffects.OverwhelmModifier()
-               , geffects.ModuleBonus(module)
-               , geffects.SneakAttackBonus()
-               , geffects.HiddenModifier()
-               , geffects.ImmobileModifier()
-               , geffects.CoverModifier()
-               , geffects.CoverEnhanceModifier()
-               , geffects.CoverPierceModifier()
-               ]
+        return [geffects.SensorModifier()
+            , geffects.OverwhelmModifier()
+            , geffects.ModuleBonus(module)
+            , geffects.SneakAttackBonus()
+            , geffects.HiddenModifier()
+            , geffects.ImmobileModifier()
+            , geffects.CoverModifier()
+            , geffects.CoverEnhanceModifier()
+            , geffects.CoverPierceModifier()
+                ]
+
     def get_ranged_modifiers(self, reach):
         ''' Modifiers that only affect ranged weapons.
         '''
-        return [ geffects.RangeModifier(reach)
-               , geffects.SpeedModifier()
-               ]
+        return [geffects.RangeModifier(reach)
+            , geffects.SpeedModifier()
+                ]
+
     def get_melee_modifiers(self):
         ''' Modifiers that only affect melee weapons.
         '''
         return [
-               ]
-
-
+        ]
 
     def restore_all(self):
         total = 0
         for part in self.get_all_parts():
             total += part.restore()
         return total
+
 
 # Component gears can be installed into modules,
 # or possibly other components.
@@ -895,21 +909,21 @@ class Component(BaseGear):
 
     @property
     def self_cost(self):
-        normal_cost = super(Component,self).self_cost
+        normal_cost = super(Component, self).self_cost
         if not self.integral:
             return normal_cost
         return int((normal_cost * (100.0 - self.INTEGRAL_COST_REDUCTION)) / 100.0)
 
     @property
     def self_mass(self):
-        normal_mass = super(Component,self).self_mass
+        normal_mass = super(Component, self).self_mass
         if not self.integral:
             return normal_mass
         return int((normal_mass * (100.0 - self.INTEGRAL_MASS_REDUCTION)) / 100.0)
 
     @property
     def volume(self):
-        normal_volume = super(Component,self).volume
+        normal_volume = super(Component, self).volume
         if not self.integral or normal_volume <= 1:
             return normal_volume
         return normal_volume - 1
@@ -931,6 +945,7 @@ class SizeClassedComponent(Component):
         if self.integral:
             code = code + 'i'
         return '{} {}'.format(basename, code)
+
 
 #
 #  Practical Gears
@@ -985,7 +1000,7 @@ class Armor(SizeClassedComponent, StandardDamageHandler):
         """Returns the penetration rating of this armor."""
         arat = (self.size * 10) * (self.max_health - self.hp_damage) // self.max_health
         myroot = self.get_root()
-        if myroot and hasattr(myroot,"form") and hasattr(myroot.form,"modify_armor"):
+        if myroot and hasattr(myroot, "form") and hasattr(myroot.form, "modify_armor"):
             arat = myroot.form.modify_armor(arat)
         return arat
 
@@ -1063,9 +1078,9 @@ class Shield(BaseGear, StandardDamageHandler):
         return -5 * (self.bonus + 1)
 
     def get_item_stats(self):
-        return ( ('Block Bonus', str(self.get_block_bonus()))
-               ,
-               )
+        return (('Block Bonus', str(self.get_block_bonus()))
+                ,
+                )
 
 
 class BeamShield(Shield):
@@ -1087,7 +1102,7 @@ class BeamShield(Shield):
         defender.spend_stamina(1)
         if weapon_being_blocked:
             self.hp_damage += random.randint(1, weapon_being_blocked.scale.scale_health(1, materials.Metal))
-            if isinstance(weapon_being_blocked,(MeleeWeapon,EnergyWeapon,Module)):
+            if isinstance(weapon_being_blocked, (MeleeWeapon, EnergyWeapon, Module)):
                 weapon_being_blocked.hp_damage += random.randint(1, self.scale.scale_health(2, materials.Metal))
 
 
@@ -1150,9 +1165,9 @@ class Engine(Component, StandardDamageHandler, MakesPower):
         return self.scale.scale_power(self.size // 25)
 
     def get_item_stats(self):
-        return ( ("Rating", str(self.size))
-               , ("Power", str(self.max_power()))
-               )
+        return (("Rating", str(self.size))
+                , ("Power", str(self.max_power()))
+                )
 
 
 class Gyroscope(Component, StandardDamageHandler):
@@ -1181,9 +1196,12 @@ class Cockpit(Component, StandardDamageHandler):
             return len([item for item in self.sub_com if isinstance(item, Character)]) < 1
         else:
             if check_volume:
-                return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part) and self.free_volume >= part.volume
+                return self.is_legal_sub_com(
+                    part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(
+                    part) and self.free_volume >= part.volume
             else:
                 return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
+
     base_volume = 2
     base_cost = 5
     base_health = 2
@@ -1254,15 +1272,15 @@ class MovementSystem(SizeClassedComponent):
         return self.size * self.MOVESYS_COST
 
     def get_item_stats(self):
-        stat = [ ('Thrust ({})'.format(mode.get_short_name()), str(self.get_thrust(mode)))
-             for mode in [ scenes.movement.Walking
-                         , geffects.Rolling
-                         , geffects.Skimming
-                         , scenes.movement.Flying
-                         , geffects.SpaceFlight
-                         ]
-              if self.get_thrust(mode) > 0
-               ]
+        stat = [('Thrust ({})'.format(mode.get_short_name()), str(self.get_thrust(mode)))
+                for mode in [scenes.movement.Walking
+                    , geffects.Rolling
+                    , geffects.Skimming
+                    , scenes.movement.Flying
+                    , geffects.SpaceFlight
+                             ]
+                if self.get_thrust(mode) > 0
+                ]
         if hasattr(self, 'get_speed_bonus_percent'):
             stat += [('Speed Bonus', '+{}%'.format(self.get_speed_bonus_percent()))]
         return stat
@@ -1306,6 +1324,7 @@ class Wheels(MovementSystem, StandardDamageHandler):
     @property
     def base_mass(self):
         return 5 * self.size
+
 
 class Tracks(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "Tracks"
@@ -1361,6 +1380,7 @@ class Overchargers(MovementSystem, StandardDamageHandler):
 
     def get_speed_bonus_percent(self):
         return 7 * self.size
+
 
 #   *************************
 #   ***   POWER  SOURCE   ***
@@ -1530,7 +1550,7 @@ class Weapon(Component, StandardDamageHandler):
         # Our own handling of integral weapon volume.
         if self.integral:
             v -= 1
-        return max( (int(v * mult)+1)//2, 1)
+        return max((int(v * mult) + 1) // 2, 1)
 
     @property
     def base_cost(self):
@@ -1544,9 +1564,9 @@ class Weapon(Component, StandardDamageHandler):
                 reach = aa.COST_EFFECTIVE_REACH_MIN
         return int(
             (self.COST_FACTOR * (self.damage ** 2) *
-            (self.accuracy ** 2 // 10 + self.accuracy + 1) *
-            (self.penetration ** 2 // 5 + self.penetration + 1) *
-            ((reach ** 2 - reach) // 2 + 1)) * mult
+             (self.accuracy ** 2 // 10 + self.accuracy + 1) *
+             (self.penetration ** 2 // 5 + self.penetration + 1) *
+             ((reach ** 2 - reach) // 2 + 1)) * mult
         )
 
     def is_legal_sub_com(self, part):
@@ -1558,7 +1578,7 @@ class Weapon(Component, StandardDamageHandler):
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
-        return max(self.base_mass//5,2)
+        return max(self.base_mass // 5, 2)
 
     def is_operational(self):
         """ To be operational, a weapon must be in an operational module.
@@ -1573,9 +1593,9 @@ class Weapon(Component, StandardDamageHandler):
         return {geffects.DODGE: geffects.DodgeRoll(), geffects.BLOCK: geffects.BlockRoll(self)}
 
     def get_modifiers(self):
-        return( self.get_common_modifiers(self.get_module())
-              + self.get_ranged_modifiers(self.reach)
-              )
+        return (self.get_common_modifiers(self.get_module())
+                + self.get_ranged_modifiers(self.reach)
+                )
 
     def get_basic_attack(self):
         ba = pbge.effects.Invocation(
@@ -1658,9 +1678,9 @@ class MeleeWeapon(Weapon):
         return self.scale.MELEE_SKILL
 
     def get_modifiers(self):
-        return( self.get_common_modifiers(self.get_module())
-              + self.get_melee_modifiers()
-              )
+        return (self.get_common_modifiers(self.get_module())
+                + self.get_melee_modifiers()
+                )
 
     def get_basic_attack(self, name='Basic Attack', attack_icon=0, targets=1):
         ba = pbge.effects.Invocation(
@@ -1744,9 +1764,9 @@ class EnergyWeapon(Weapon):
         return self.scale.MELEE_SKILL
 
     def get_modifiers(self):
-        return( self.get_common_modifiers(self.get_module())
-              + self.get_melee_modifiers()
-              )
+        return (self.get_common_modifiers(self.get_module())
+                + self.get_melee_modifiers()
+                )
 
     def get_basic_power_cost(self):
         mult = 0.25
@@ -1804,7 +1824,7 @@ class EnergyWeapon(Weapon):
         defender.spend_stamina(1)
         if weapon_being_blocked:
             self.hp_damage += random.randint(1, weapon_being_blocked.scale.scale_health(1, materials.Metal))
-            if isinstance(weapon_being_blocked,(MeleeWeapon,EnergyWeapon,Module)):
+            if isinstance(weapon_being_blocked, (MeleeWeapon, EnergyWeapon, Module)):
                 weapon_being_blocked.hp_damage += random.randint(1, self.scale.scale_health(2, materials.Metal))
 
     def can_intercept(self):
@@ -1839,7 +1859,6 @@ class EnergyWeapon(Weapon):
         return rstr
 
 
-
 class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Ammo"
     STACK_CRITERIA = ("ammo_type", 'attributes')
@@ -1869,7 +1888,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         for aa in self.attributes:
             # Gonna cube the mass multiplier since ammo doesn't usually weigh that much,
             # and we need this modifier to make a difference.
-            mult *= max(aa.MASS_MODIFIER**3,1.0)
+            mult *= max(aa.MASS_MODIFIER ** 3, 1.0)
         return int(mult * self.ammo_type.bang * (self.quantity - self.spent) // 25)
 
     @staticmethod
@@ -1879,28 +1898,29 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     @property
     def base_volume(self):
         # Ammo volume is not adjusted for attack attributes- instead, that goes tacked onto the cost.
-        return self.ammo_volume(self.ammo_type,self.quantity)
+        return self.ammo_volume(self.ammo_type, self.quantity)
 
     @property
     def base_cost(self):
         mult = 1.0
         for aa in self.attributes:
-            mult *= aa.COST_MODIFIER * max(aa.VOLUME_MODIFIER,1.0)
+            mult *= aa.COST_MODIFIER * max(aa.VOLUME_MODIFIER, 1.0)
         return int(mult * self.ammo_type.bang * self.quantity // 10)
 
     base_health = 1
 
     def get_item_stats(self):
         # Provide info on the ammo.
-        return(('Ammo','{}/{}'.format(self.quantity - self.spent, self.quantity)),)
+        return (('Ammo', '{}/{}'.format(self.quantity - self.spent, self.quantity)),)
 
     def get_reload_cost(self):
-        return ( self.cost * self.spent ) // self.quantity
+        return (self.cost * self.spent) // self.quantity
 
     def restore(self):
         ac = self.get_reload_cost()
         self.spent = 0
-        return ac + super(Ammo,self).restore()
+        return ac + super(Ammo, self).restore()
+
 
 class BallisticWeapon(Weapon):
     MIN_REACH = 2
@@ -1912,13 +1932,13 @@ class BallisticWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 5
-    SAVE_PARAMETERS = ('ammo_type','magazine')
+    SAVE_PARAMETERS = ('ammo_type', 'magazine')
     DEFAULT_CALIBRE = calibre.Shells_150mm
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
                         attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5,
-                        attackattributes.Intercept,attackattributes.LinkedFire
+                        attackattributes.Intercept, attackattributes.LinkedFire
                         )
 
     def __init__(self, ammo_type=None, magazine=None, **keywords):
@@ -1999,8 +2019,9 @@ class BallisticWeapon(Weapon):
 
     def get_weapon_desc(self):
         ammo = self.get_ammo()
-        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}\n {2}'.format(self,
-                    self.get_reach_str(),self.get_ammo_string())
+        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}\n {2}'.format(
+            self,
+            self.get_reach_str(), self.get_ammo_string())
 
         return it
 
@@ -2008,9 +2029,9 @@ class BallisticWeapon(Weapon):
         # Provide info on the ammo.
         ammo = self.get_ammo()
         if ammo:
-            return(('Ammo','{}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)),)
+            return (('Ammo', '{}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)),)
         else:
-            return(('Ammo','0'),)
+            return (('Ammo', '0'),)
 
     def can_intercept(self):
         it = False
@@ -2044,7 +2065,7 @@ class BallisticWeapon(Weapon):
     @property
     def volume(self):
         base = super().volume
-        return max(base,Ammo.ammo_volume(self.ammo_type,self.magazine))
+        return max(base, Ammo.ammo_volume(self.ammo_type, self.magazine))
 
 
 class BeamWeapon(Weapon):
@@ -2060,14 +2081,15 @@ class BeamWeapon(Weapon):
     DEFAULT_SHOT_ANIM = geffects.GunBeam
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
-                        attackattributes.OverloadAttack,attackattributes.LinkedFire,
-                        attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5,
-                        attackattributes.Intercept,attackattributes.SwarmFire2,attackattributes.SwarmFire3
+                        attackattributes.OverloadAttack, attackattributes.LinkedFire,
+                        attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4,
+                        attackattributes.VariableFire5,
+                        attackattributes.Intercept, attackattributes.SwarmFire2, attackattributes.SwarmFire3
                         )
 
     def get_weapon_desc(self):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}'.format(self,
-                                                                                                self.get_reach_str())
+                                                                                                                self.get_reach_str())
 
     def get_basic_power_cost(self):
         mult = 0.5
@@ -2122,7 +2144,7 @@ class BeamWeapon(Weapon):
         defender.consume_power(self.get_basic_power_cost())
 
 
-class Missile(BaseGear, StandardDamageHandler,Restoreable):
+class Missile(BaseGear, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Missile"
     SAVE_PARAMETERS = ('reach', 'damage', 'accuracy', 'penetration', 'quantity', 'area_anim', 'attributes')
     MIN_REACH = 2
@@ -2192,7 +2214,7 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.VOLUME_MODIFIER
-        return max(1,int(
+        return max(1, int(
             (((self.reach * self.damage * (self.accuracy + self.penetration) + 1) * self.quantity) / 100) * mult))
 
     @property
@@ -2211,7 +2233,7 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
 
     def get_item_stats(self):
         # Provide info on the ammo.
-        return(('Missiles','{}/{}'.format(self.quantity - self.spent, self.quantity)),)
+        return (('Missiles', '{}/{}'.format(self.quantity - self.spent, self.quantity)),)
 
     def get_reach_str(self):
         rstr = None
@@ -2220,21 +2242,21 @@ class Missile(BaseGear, StandardDamageHandler,Restoreable):
                 rstr = aa.get_reach_str(self)
                 break
         if not rstr:
-            rstr = '{}-{}-{}'.format(self.reach,self.reach*2,self.reach*3)
+            rstr = '{}-{}-{}'.format(self.reach, self.reach * 2, self.reach * 3)
         return rstr
 
     def get_reload_cost(self):
-        return ( self.cost * self.spent ) // self.quantity
+        return (self.cost * self.spent) // self.quantity
 
     def restore(self):
         ac = self.get_reload_cost()
         self.spent = 0
-        return ac + super(Missile,self).restore()
+        return ac + super(Missile, self).restore()
 
 
 class Launcher(BaseGear, ContainerDamageHandler):
     DEFAULT_NAME = "Launcher"
-    SAVE_PARAMETERS = ('size','attack_stat')
+    SAVE_PARAMETERS = ('size', 'attack_stat')
     MIN_SIZE = 1
     MAX_SIZE = 20
 
@@ -2282,9 +2304,9 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 geffects.INTERCEPT: geffects.InterceptRoll(self)}
 
     def get_modifiers(self, ammo):
-        return( self.get_common_modifiers(self.get_module())
-              + self.get_ranged_modifiers(ammo.reach)
-              )
+        return (self.get_common_modifiers(self.get_module())
+                + self.get_ranged_modifiers(ammo.reach)
+                )
 
     def get_attributes(self):
         ammo = self.get_ammo()
@@ -2386,9 +2408,9 @@ class Launcher(BaseGear, ContainerDamageHandler):
         # Provide info on the ammo.
         ammo = self.get_ammo()
         if ammo:
-            return(('Ammo','{}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)),)
+            return (('Ammo', '{}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)),)
         else:
-            return(('Ammo','0'),)
+            return (('Ammo', '0'),)
 
     def get_area_anim(self):
         ammo = self.get_ammo()
@@ -2441,17 +2463,17 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
 
     def get_item_stats(self):
         # Provide info on the ammo.
-        return(('Chem','{}/{}'.format(self.quantity - self.spent, self.quantity)),)
+        return (('Chem', '{}/{}'.format(self.quantity - self.spent, self.quantity)),)
 
     base_health = 1
 
     def get_reload_cost(self):
-        return ( self.cost * self.spent ) // self.quantity
+        return (self.cost * self.spent) // self.quantity
 
     def restore(self):
         ac = self.get_reload_cost()
         self.spent = 0
-        return ac + super(Chem,self).restore()
+        return ac + super(Chem, self).restore()
 
 
 class ChemThrower(Weapon):
@@ -2467,7 +2489,7 @@ class ChemThrower(Weapon):
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     DEFAULT_AREA_ANIM = geffects.Fireball
     LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.LineAttack,
-                        attackattributes.ConeAttack,attackattributes.LinkedFire
+                        attackattributes.ConeAttack, attackattributes.LinkedFire
                         )
 
     def is_legal_sub_com(self, part):
@@ -2492,9 +2514,9 @@ class ChemThrower(Weapon):
         return {geffects.DODGE: geffects.ReflexSaveRoll(), geffects.BLOCK: geffects.BlockRoll(self)}
 
     def get_modifiers(self):
-        return( self.get_common_modifiers(self.get_module())
-              + self.get_ranged_modifiers(self.reach)
-              )
+        return (self.get_common_modifiers(self.get_module())
+                + self.get_ranged_modifiers(self.reach)
+                )
 
     def get_chem_cost(self):
         mult = 1.0
@@ -2538,17 +2560,18 @@ class ChemThrower(Weapon):
 
     def get_weapon_desc(self):
         ammo = self.get_ammo()
-        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}\n {2}'.format(self,
-                                                                                                self.get_reach_str(),self.get_ammo_string())
+        it = 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}\n {2}'.format(
+            self,
+            self.get_reach_str(), self.get_ammo_string())
         return it
 
     def get_item_stats(self):
         # Provide info on the ammo.
         ammo = self.get_ammo()
         if ammo:
-            return(('Chem','{}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)),)
+            return (('Chem', '{}/{}'.format(ammo.quantity - ammo.spent, ammo.quantity)),)
         else:
-            return(('Chem','0'),)
+            return (('Chem', '0'),)
 
     def get_shot_anim(self):
         ammo = self.get_ammo()
@@ -2599,7 +2622,7 @@ class Mount(BaseGear, StandardDamageHandler):
 #   ***   USABLES   ***
 #   *******************
 
-class Usable(BaseGear,StandardDamageHandler):
+class Usable(BaseGear, StandardDamageHandler):
     # No usable gears yet, but I wanted to include this class definition
     # because it's needed by the construction rules below.
     DEFAULT_NAME = "Do Nothing Usable"
@@ -2619,7 +2642,7 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
     base_trauma = 2
     cost_factor = 1.0
 
-    def __init__(self, statline = None, **keywords):
+    def __init__(self, statline=None, **keywords):
         self.statline = collections.defaultdict(int)
         if statline:
             self.statline.update(statline)
@@ -2632,6 +2655,7 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
         if not hasattr(self, '_dna_sequence'):
             return None
         return self._dna_sequence
+
     @dna_sequence.setter
     def dna_sequence(self, next_dna_sequence):
         self._dna_sequence = next_dna_sequence
@@ -2672,44 +2696,64 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
                 value *= 1
             else:
                 value *= 2
-            benefit += value//2
+            benefit += value // 2
         return int(max(benefit, self.base_trauma))
 
     def get_item_stats(self):
-        return ( ("Location", self.location)
-               , ("Trauma/Sta", str(self.trauma))
-               )
+        return (("Location", self.location)
+                , ("Trauma/Sta", str(self.trauma))
+                )
 
 
 class EyesCyberware(BaseCyberware):
     location = 'Eyes'
     base_trauma = 1
     cost_factor = 1.1
+
+
 class EarsCyberware(BaseCyberware):
     location = 'Ears'
     base_trauma = 1
     cost_factor = 0.9
+
+
 class ForebrainCyberware(BaseCyberware):
     location = 'Forebrain'
     base_trauma = 3
     cost_factor = 1.3
+
+
 class BrainstemCyberware(BaseCyberware):
     location = 'Brainstem'
     base_trauma = 3
     cost_factor = 1.3
+
+
 class HeartCyberware(BaseCyberware):
     location = 'Heart'
     base_trauma = 3
+
+
 class SpineCyberware(BaseCyberware):
     location = 'Spine'
+
+
 class TorsoMusclesCyberware(BaseCyberware):
     location = 'Torso Muscles'
+
+
 class ArmMusclesCyberware(BaseCyberware):
     location = 'Arm Muscles'
+
+
 class ArmBonesCyberware(BaseCyberware):
     location = 'Arm Bones'
+
+
 class LegMusclesCyberware(BaseCyberware):
     location = 'Leg Muscles'
+
+
 class LegBonesCyberware(BaseCyberware):
     location = 'Leg Bones'
 
@@ -2761,7 +2805,8 @@ class MF_Head(ModuleForm):
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part, (
-            Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, EWSystem, EyesCyberware, EarsCyberware, ForebrainCyberware, BrainstemCyberware))
+            Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, EWSystem,
+            EyesCyberware, EarsCyberware, ForebrainCyberware, BrainstemCyberware))
 
 
 class MF_Torso(ModuleForm):
@@ -2795,7 +2840,8 @@ class MF_Arm(ModuleForm):
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part,
-                          (Weapon, Launcher, Armor, Hand, Mount, MovementSystem, PowerSource, Sensor, Usable, EWSystem, ArmMusclesCyberware, ArmBonesCyberware))
+                          (Weapon, Launcher, Armor, Hand, Mount, MovementSystem, PowerSource, Sensor, Usable, EWSystem,
+                           ArmMusclesCyberware, ArmBonesCyberware))
 
     @classmethod
     def is_legal_inv_com(self, part):
@@ -2814,7 +2860,9 @@ class MF_Leg(ModuleForm):
 
     @classmethod
     def is_legal_sub_com(self, part):
-        return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem, LegMusclesCyberware, LegBonesCyberware))
+        return isinstance(part, (
+            Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem, LegMusclesCyberware,
+            LegBonesCyberware))
 
 
 class MF_Wing(ModuleForm):
@@ -2893,7 +2941,7 @@ class Module(BaseGear, StandardDamageHandler):
         return self.form.is_legal_sub_com(part)
 
     def is_legal_inv_com(self, part):
-        if isinstance(part,Clothing):
+        if isinstance(part, Clothing):
             return part.form is self.form
         else:
             return self.form.is_legal_inv_com(part)
@@ -2903,16 +2951,17 @@ class Module(BaseGear, StandardDamageHandler):
         """Returns the unscaled maximum health of this gear."""
         return 1 + self.form.MASS_X * self.size
 
-    def get_armor(self,destroyed_ok=False):
+    def get_armor(self, destroyed_ok=False):
         """Returns the armor protecting this gear."""
         # Modules might have externally mounted armor in clothing or whatnot.
-        candidates = [part for part in self.sub_com if isinstance(part, Armor) and (destroyed_ok or part.is_not_destroyed())]
+        candidates = [part for part in self.sub_com if
+                      isinstance(part, Armor) and (destroyed_ok or part.is_not_destroyed())]
         for part in self.inv_com:
             if part.is_not_destroyed():
                 armor = part.get_armor()
                 if armor and armor.is_not_destroyed():
                     candidates.append(armor)
-        candidates.sort(key= lambda a: a.get_armor_rating())
+        candidates.sort(key=lambda a: a.get_armor_rating())
         if candidates:
             return candidates[0]
 
@@ -2921,9 +2970,9 @@ class Module(BaseGear, StandardDamageHandler):
                 geffects.PARRY: geffects.ParryRoll(self)}
 
     def get_modifiers(self):
-        return( self.get_common_modifiers(module = self)
-              + self.get_melee_modifiers()
-              )
+        return (self.get_common_modifiers(module=self)
+                + self.get_melee_modifiers()
+                )
 
     def get_attacks(self):
         # Return a list of invocations associated with this module.
@@ -2953,7 +3002,7 @@ class Module(BaseGear, StandardDamageHandler):
         # Human-scale modules cannot be removed at Cyberdoc Terminal.
         return not (self.scale is scale.HumanScale)
 
-    def can_install(self, part, check_volume = True):
+    def can_install(self, part, check_volume=True):
         if super().can_install(part, check_volume):
             if isinstance(part, BaseCyberware):
                 # Cyberware has to have correct scale.
@@ -3037,7 +3086,7 @@ class Storage(Module):
 #   ***   CLOTHING   ***
 #   ********************
 
-class Clothing(BaseGear,ContainerDamageHandler):
+class Clothing(BaseGear, ContainerDamageHandler):
     SAVE_PARAMETERS = ('form',)
 
     def __init__(self, form=MF_Torso, **keywords):
@@ -3058,7 +3107,8 @@ class Clothing(BaseGear,ContainerDamageHandler):
         return 5 * self.form.VOLUME_X
 
     def is_legal_sub_com(self, part):
-        return isinstance(part,(Armor,MovementSystem,PowerSource,Weapon))
+        return isinstance(part, (Armor, MovementSystem, PowerSource, Weapon))
+
 
 class HeadClothing(Clothing):
     def __init__(self, **keywords):
@@ -3083,6 +3133,7 @@ class LegClothing(Clothing):
         keywords["form"] = MF_Leg
         super(LegClothing, self).__init__(**keywords)
 
+
 #   *****************
 #   ***   MECHA   ***
 #   *****************
@@ -3102,13 +3153,14 @@ class MT_Battroid(Singleton):
         # Return the modified speed.
         return base_speed
 
+
 class MT_Arachnoid(MT_Battroid):
     name = "Arachnoid"
 
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return not isinstance(part.form, (MF_Arm,MF_Wing,MF_Tail))
+            return not isinstance(part.form, (MF_Arm, MF_Wing, MF_Tail))
         else:
             return False
 
@@ -3120,34 +3172,36 @@ class MT_Arachnoid(MT_Battroid):
         else:
             return 0
 
+
 class MT_Groundhugger(MT_Battroid):
     name = "Groundhugger"
 
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return not isinstance(part.form, (MF_Arm,MF_Wing,MF_Tail,MF_Leg))
+            return not isinstance(part.form, (MF_Arm, MF_Wing, MF_Tail, MF_Leg))
         else:
             return False
 
     @classmethod
     def modify_speed(self, base_speed, move_mode):
         # Return the modified speed.
-        if move_mode in {geffects.Rolling,geffects.Skimming}:
+        if move_mode in {geffects.Rolling, geffects.Skimming}:
             return base_speed
         else:
             return 0
 
     @classmethod
-    def modify_mobility(cls,base_mobility):
-        return max(base_mobility-20,0)
+    def modify_mobility(cls, base_mobility):
+        return max(base_mobility - 20, 0)
 
     @classmethod
-    def modify_armor(cls,base_armor):
+    def modify_armor(cls, base_armor):
         return int(base_armor * 1.25)
 
 
-MECHA_FORMS = (MT_Battroid,MT_Arachnoid,MT_Groundhugger)
+MECHA_FORMS = (MT_Battroid, MT_Arachnoid, MT_Groundhugger)
+
 
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
     SAVE_PARAMETERS = ('name', 'form', 'environment_list', 'role_list', 'family')
@@ -3172,7 +3226,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         return self.form.is_legal_sub_com(part)
 
     def is_legal_inv_com(self, part):
-        return not isinstance(part,(Mover,Combatant))
+        return not isinstance(part, (Mover, Combatant))
 
     # Overwriting a property with a value... isn't this the opposite of how
     # things are usually done?
@@ -3191,11 +3245,12 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
 
     def can_install(self, part, check_volume=True):
         if check_volume:
-            return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part)
+            return self.is_legal_sub_com(
+                part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR and self.check_multiplicity(part)
         else:
             return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
-    def can_equip(self, part, check_volume = True):
+    def can_equip(self, part, check_volume=True):
         """Returns True if part can be legally equipped under current conditions"""
         return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
@@ -3310,13 +3365,13 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             if cmod and cmod.form == MF_Head:
                 it += 10
         # Add form modifiers
-        if hasattr(self.form,"modify_mobility"):
+        if hasattr(self.form, "modify_mobility"):
             it = self.form.modify_mobility(it)
         # Add emchantment modifiers.
         it += self.ench_list.get_funval(self, 'get_mobility_bonus')
 
         if it > 50:
-            it = min(it,50 + int(math.log(it-50,1.2)))
+            it = min(it, 50 + int(math.log(it - 50, 1.2)))
 
         return it
 
@@ -3374,15 +3429,15 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def get_skill_score(self, stat_id, skill_id):
         pilot = self.get_pilot()
         if pilot:
-            return pilot.get_skill_score(stat_id, skill_id) + self.ench_list.get_stat(stat_id) + self.ench_list.get_stat(skill_id)
+            return pilot.get_skill_score(stat_id, skill_id) + self.ench_list.get_stat(
+                stat_id) + self.ench_list.get_stat(skill_id)
         else:
             return 0
 
-    def has_skill(self,skill_id):
+    def has_skill(self, skill_id):
         pilot = self.get_pilot()
         if pilot:
             return skill_id in pilot.statline
-
 
     def get_dodge_score(self):
         return self.get_skill_score(stats.Speed, self.DODGE_SKILL)
@@ -3397,7 +3452,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def get_ewar_rating(self):
         total = 0
         for ewar in self.sub_sub_coms():
-            if ewar is not self and hasattr(ewar,"get_ewar_rating") and ewar.is_operational():
+            if ewar is not self and hasattr(ewar, "get_ewar_rating") and ewar.is_operational():
                 total += ewar.get_ewar_rating()
         return total
 
@@ -3450,10 +3505,11 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         else:
             return 1
 
-    def dole_experience(self,xp,xp_type=None):
+    def dole_experience(self, xp, xp_type=None):
         pilot = self.get_pilot()
         if pilot:
-            pilot.dole_experience(xp,xp_type)
+            pilot.dole_experience(xp, xp_type)
+
 
 class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Combatant, Restoreable):
     SAVE_PARAMETERS = ('statline', 'combatant')
@@ -3492,7 +3548,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return isinstance(part, Module)
 
     def is_legal_inv_com(self, part):
-        return not isinstance(part,(Mover,Combatant))
+        return not isinstance(part, (Mover, Combatant))
 
     def can_install(self, part, check_volume=True):
         if check_volume:
@@ -3534,7 +3590,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     @property
     def max_trauma(self):
         # Use the base body.
-        return self.statline.get(stats.Body, 0)//3 + self.statline.get(stats.Cybertech,0)
+        return self.statline.get(stats.Body, 0) // 3 + self.statline.get(stats.Cybertech, 0)
 
     @property
     def current_trauma(self):
@@ -3547,9 +3603,9 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         # Cyberware can remove skill by giving them -999,
         # but make sure not to actually affect gameplay
         # beyond removing skills.
-        return( max(0, self.statline.get(stat_id, 0) + self.get_cyberware_bonus(stat_id))
-              + self.ench_list.get_stat(stat_id)
-              )
+        return (max(0, self.statline.get(stat_id, 0) + self.get_cyberware_bonus(stat_id))
+                + self.ench_list.get_stat(stat_id)
+                )
 
     def get_all_skills(self):
         effective_statline = self.statline.copy()
@@ -3571,7 +3627,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             it += self.get_stat(stat_id) * 2
         return it
 
-    def has_skill(self,skill_id):
+    def has_skill(self, skill_id):
         return skill_id in self.get_all_skills()
 
     @property
@@ -3594,12 +3650,15 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     def calc_mobility(self):
         """Calculate the mobility ranking of this character.
         """
-        base_m = self.get_stat(stats.Speed) * 4
+        base_m = self.get_stat(stats.Speed) * 3 + 10 - self.get_mobility_penalty()
 
         # Add emchantment modifiers.
         base_m += self.ench_list.get_funval(self, 'get_mobility_bonus')
 
-        return max(base_m - self.get_mobility_penalty(),0)
+        if base_m > 50:
+            it = min(base_m, 50 + int(math.log(base_m - 50, 1.2)))
+
+        return max(base_m, 0)
 
     def get_dodge_score(self):
         return self.get_skill_score(stats.Speed, self.DODGE_SKILL)
@@ -3633,16 +3692,16 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         ''' Computes the max stamina if the
         character did not had any cyberware.
         '''
-        return self._compute_max_stamina( self.statline.get(stats.Body, 0)
-                                        , self.statline.get(stats.Ego, 0)
-                                        , self.statline.get(stats.Athletics, 0)
-                                        )
+        return self._compute_max_stamina(self.statline.get(stats.Body, 0)
+                                         , self.statline.get(stats.Ego, 0)
+                                         , self.statline.get(stats.Athletics, 0)
+                                         )
 
     def get_max_stamina(self):
-        base = self._compute_max_stamina( self.get_stat(stats.Body)
-                                        , self.get_stat(stats.Ego)
-                                        , self.get_stat(stats.Athletics)
-                                        )
+        base = self._compute_max_stamina(self.get_stat(stats.Body)
+                                         , self.get_stat(stats.Ego)
+                                         , self.get_stat(stats.Athletics)
+                                         )
         # Give the character a minimum stamina of 1.
         return max(1, base - self.current_trauma)
 
@@ -3654,14 +3713,14 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
     def spend_mental(self, amount):
         self.mp_spent += amount
-        self.dole_experience(amount,stats.Concentration)
+        self.dole_experience(amount, stats.Concentration)
 
     def partially_restore_mental(self, amount):
         self.mp_spent = max(self.mp_spent - amount, 0)
 
     def spend_stamina(self, amount):
         self.sp_spent += amount
-        self.dole_experience(amount,stats.Athletics)
+        self.dole_experience(amount, stats.Athletics)
 
     def get_action_points(self):
         if self.get_current_speed() > 0:
@@ -3670,24 +3729,25 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             return 1
 
     @staticmethod
-    def random_stats(points=80,base_stats={}):
+    def random_stats(points=80, base_stats={}):
         statline = dict()
-        minstat = max((points - 10) // 24,0)
+        minstat = max((points - 10) // 24, 0)
         leftovers = points - minstat * 8
         for s in stats.PRIMARY_STATS:
             statline[s] = minstat
         for t in range(leftovers):
             stat_to_improve = random.choice(stats.PRIMARY_STATS)
-            if (statline[stat_to_improve] + base_stats.get(stat_to_improve,0)) >= 15 and random.randint(1,5) != 5:
+            if (statline[stat_to_improve] + base_stats.get(stat_to_improve, 0)) >= 15 and random.randint(1, 5) != 5:
                 stat_to_improve = random.choice(stats.PRIMARY_STATS)
             statline[stat_to_improve] += 1
         return statline
-    def roll_stats(self,points=80,clear_first=True):
+
+    def roll_stats(self, points=80, clear_first=True):
         if clear_first:
             nu_stats = self.random_stats(points)
             self.statline.update(nu_stats)
         else:
-            nu_stats = self.random_stats(points,self.statline)
+            nu_stats = self.random_stats(points, self.statline)
             for s in stats.PRIMARY_STATS:
                 self.statline[s] += nu_stats[s]
 
@@ -3698,32 +3758,58 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         if self.get_current_stamina() > 0:
             return self.calc_average_armor()
         else:
-            return self.calc_average_armor()//2
+            return self.calc_average_armor() // 2
 
     def reduce_damage(self, dmg, dmg_request):
         """Normally armor reduces damage, but gets damaged in the process."""
         max_absorb = min(self.scale.scale_health(2, self.material), dmg)
         absorb_amount = random.randint(max_absorb // 5, max_absorb)
         if absorb_amount > 0:
-            self.spend_stamina(max(absorb_amount//2,1))
+            self.spend_stamina(max(absorb_amount // 2, 1))
             dmg -= absorb_amount
         return dmg
 
     def restore(self):
         self.mp_spent = 0
         self.sp_spent = 0
-        return super(Being,self).restore()
+        return super(Being, self).restore()
 
-    def dole_experience(self,xp,xp_type=TOTAL_XP):
+    def dole_experience(self, xp, xp_type=TOTAL_XP):
         self.experience[xp_type or self.TOTAL_XP] += xp
-        if xp_type in stats.ALL_SKILLS and xp_type in self.statline and xp_type.improvement_cost(self,self.statline[xp_type]) <= self.experience[xp_type]:
-            self.experience[xp_type] -= xp_type.improvement_cost(self,self.statline[xp_type])
+        if xp_type in stats.ALL_SKILLS and xp_type in self.statline and xp_type.improvement_cost(self, self.statline[
+            xp_type]) <= self.experience[xp_type]:
+            self.experience[xp_type] -= xp_type.improvement_cost(self, self.statline[xp_type])
             self.statline[xp_type] += 1
 
 
+class Monster(Being, MakesPower):
+    SAVE_PARAMETERS = ('threat', 'type_tags', 'families', 'environment_list', 'frame')
+
+    def __init__(self, threat=0, type_tags=(), families=(), frame=0,
+                 environment_list=(tags.GroundEnv, tags.UrbanEnv), **keywords):
+        super().__init__(**keywords)
+        self.threat = threat
+        self.type_tags = set(type_tags)
+        self.families = set(families)
+        self.environment_list = set(environment_list)
+        self.frame = frame
+
+    def matches(self, level, env, type_tags, scale):
+        return abs(
+            self.threat - level) <= 20 and env in self.environment_list and scale is self.scale and self.type_tags.intersection(
+            type_tags)
+
+    def max_power(self):
+        return self.scale.scale_power(self.get_stat(stats.Body) * 5)
+
+
 class Character(Being):
-    SAVE_PARAMETERS = ('personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship', "mecha_colors", "mecha_pref", 'mnpcid')
+    SAVE_PARAMETERS = (
+        'personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship',
+        "mecha_colors",
+        "mecha_pref", 'mnpcid')
     DEEP_COPY_PARAMS = {"add_body": False}
+
     def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="",
                  relationship=None, add_body=True, mecha_colors=None, mecha_pref=None, mnpcid=None, **keywords):
         self.personality = set(personality)
@@ -3744,13 +3830,13 @@ class Character(Being):
         self.mecha_pref = mecha_pref
         # Major NPC ID: unique identifier so NPC relationships get carried between scenarios.
         self.mnpcid = mnpcid
-        super(Character, self).__init__(**keywords)
+        super().__init__(**keywords)
         if add_body:
             self.build_body()
             if job and renown:
                 job.scale_skills(self, renown)
 
-    def get_tacit_faction(self,camp):
+    def get_tacit_faction(self, camp):
         # Get this character's effective faction. Normally this will be the faction this character belongs to, but
         # if the character is factionless then it will be the faction of the team this character is a member of.
         faction = self.faction
@@ -3770,7 +3856,7 @@ class Character(Being):
             mytags.append(self.faction.get_faction_tag())
         return mytags
 
-    def get_reaction_score(self,pc,camp):
+    def get_reaction_score(self, pc, camp):
         if self.relationship and pc is camp.pc:
             rs = self.relationship.reaction_mod
             # Check for local reputation, if no relationship tags.
@@ -3780,7 +3866,7 @@ class Character(Being):
                     rs += myscene.metrodat.local_reputation
         else:
             rs = 0
-        for a,b in personality.OPPOSED_PAIRS:
+        for a, b in personality.OPPOSED_PAIRS:
             if a in self.personality:
                 if a in pc.personality:
                     rs += 10
@@ -3796,25 +3882,25 @@ class Character(Being):
                 rs += 10
         fac = self.get_tacit_faction(camp)
         if fac:
-            rs += pc.faction_scores.get(fac.get_faction_tag(),0)
+            rs += pc.faction_scores.get(fac.get_faction_tag(), 0)
             pc_fac = pc.get_tacit_faction(camp)
-            if pc_fac and camp.are_enemy_factions(fac,pc_fac):
+            if pc_fac and camp.are_enemy_factions(fac, pc_fac):
                 rs -= 20
 
         # Add bonuses from PC's merit badges
         for badge in pc.badges:
-            rs += badge.get_reaction_modifier(pc,self,camp)
+            rs += badge.get_reaction_modifier(pc, self, camp)
 
         # Add Charm bonus.
         pc_charm = pc.get_stat(stats.Charm)
         npc_ego = self.get_stat(stats.Ego)
         if pc_charm >= npc_ego:
             rs += (pc_charm - npc_ego + 3) * 5
-        return min(max(rs,-100),100)
+        return min(max(rs, -100), 100)
 
-    def get_text_desc(self,camp):
+    def get_text_desc(self, camp):
         myitems = list()
-        myitems.append("{} year old".format(camp.year-self.birth_year))
+        myitems.append("{} year old".format(camp.year - self.birth_year))
         if self.gender:
             myitems.append(self.gender.adjective)
         if self.job:
@@ -3823,23 +3909,23 @@ class Character(Being):
 
     def build_body(self):
         # I've heard of bodybuilding, but this is ridiculous.
-        self.sub_com.append(Head(size=5,material=self.material,scale=self.scale))
-        self.sub_com.append(Torso(size=5,material=self.material,scale=self.scale))
-        rarm = Arm(size=5,name="Right Arm",material=self.material,scale=self.scale)
-        rarm.sub_com.append(Hand(name="Right Hand",material=self.material,scale=self.scale))
+        self.sub_com.append(Head(size=5, material=self.material, scale=self.scale))
+        self.sub_com.append(Torso(size=5, material=self.material, scale=self.scale))
+        rarm = Arm(size=5, name="Right Arm", material=self.material, scale=self.scale)
+        rarm.sub_com.append(Hand(name="Right Hand", material=self.material, scale=self.scale))
         self.sub_com.append(rarm)
-        larm = Arm(size=5,name="Left Arm",material=self.material,scale=self.scale)
-        larm.sub_com.append(Hand(name="Left Hand",material=self.material,scale=self.scale))
+        larm = Arm(size=5, name="Left Arm", material=self.material, scale=self.scale)
+        larm.sub_com.append(Hand(name="Left Hand", material=self.material, scale=self.scale))
         self.sub_com.append(larm)
-        self.sub_com.append(Leg(size=5,name="Right Leg",material=self.material,scale=self.scale))
-        self.sub_com.append(Leg(size=5,name="Left Leg",material=self.material,scale=self.scale))
+        self.sub_com.append(Leg(size=5, name="Right Leg", material=self.material, scale=self.scale))
+        self.sub_com.append(Leg(size=5, name="Left Leg", material=self.material, scale=self.scale))
 
-    def has_badge(self,badge_name):
+    def has_badge(self, badge_name):
         return any(b for b in self.badges if b.name == badge_name)
 
 
 class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
-    SAVE_PARAMETERS = ('size', 'statline', 'frame', 'destroyed_frame', 'action_points' )
+    SAVE_PARAMETERS = ('size', 'statline', 'frame', 'destroyed_frame', 'action_points')
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_MATERIAL = materials.Metal
     DODGE_SKILL = stats.MechaPiloting
@@ -3852,7 +3938,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
         self.frame = frame
         self.destroyed_frame = destroyed_frame
         self.destroyed_pose = False
-        self.action_points = max(action_points,1)
+        self.action_points = max(action_points, 1)
 
         super(Prop, self).__init__(**keywords)
 
@@ -3875,7 +3961,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
             it += self.get_stat(stat_id) * 2
         return it
 
-    def has_skill(self,skill_id):
+    def has_skill(self, skill_id):
         return skill_id in self.statline
 
     @property
@@ -3896,7 +3982,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
         return 0
 
     def get_sensor_range(self, map_scale):
-        return max(15,self.get_stat(stats.Perception)+5)
+        return max(15, self.get_stat(stats.Perception) + 5)
 
     def get_max_mental(self):
         return (self.get_stat(stats.Knowledge) + self.get_stat(stats.Ego) + 5) // 2 + self.get_stat(
@@ -3964,7 +4050,7 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     DESTROYED_FRAME = 0
 
     def is_legal_sub_com(self, part):
-        return isinstance(part, (Being,Mecha))
+        return isinstance(part, (Being, Mecha))
 
     def is_legal_inv_com(self, part):
         return False
@@ -3977,7 +4063,8 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         return sum(i.volume for i in self.sub_com)
 
     def get_stat(self, stat_id):
-        return max( [0,]+[mem.get_stat(stat_id) for mem in self.sub_com if hasattr(mem,"get_stat") and mem.is_operational()])
+        return max([0, ] + [mem.get_stat(stat_id) for mem in self.sub_com if
+                            hasattr(mem, "get_stat") and mem.is_operational()])
 
     def get_skill_score(self, stat_id, skill_id):
         it = self.get_stat(skill_id) * 5
@@ -3988,16 +4075,19 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def calc_mobility(self):
         """Calculate the mobility ranking of this character.
         """
-        return max( [0,]+[mem.calc_mobility() for mem in self.sub_com if hasattr(mem,"calc_mobility") and mem.is_operational()])
+        return max([0, ] + [mem.calc_mobility() for mem in self.sub_com if
+                            hasattr(mem, "calc_mobility") and mem.is_operational()])
 
     def get_dodge_score(self):
         return self.get_skill_score(stats.Speed, stats.Dodge)
 
     def calc_walking(self):
-        return min( [20,]+[mem.calc_walking() for mem in self.sub_com if hasattr(mem,"calc_walking") and mem.is_operational()])
+        return min([20, ] + [mem.calc_walking() for mem in self.sub_com if
+                             hasattr(mem, "calc_walking") and mem.is_operational()])
 
     def get_sensor_range(self, map_scale):
-        return max( [0,]+[mem.get_sensor_range(map_scale) for mem in self.sub_com if hasattr(mem,"get_sensor_range") and mem.is_operational()])
+        return max([0, ] + [mem.get_sensor_range(map_scale) for mem in self.sub_com if
+                            hasattr(mem, "get_sensor_range") and mem.is_operational()])
 
     def get_max_mental(self):
         return 100
@@ -4023,14 +4113,15 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def get_action_points(self):
         return len([mem for mem in self.sub_com if mem.is_operational()])
 
-    MINI_SPRITE_OFFSETS = ((22,40),(0,40),(44,40),(11,44),(33,44))
+    MINI_SPRITE_OFFSETS = ((22, 40), (0, 40), (44, 40), (11, 44), (33, 44))
+
     def get_sprite(self):
         """Generate the sprite for this thing."""
-        base_image = pbge.image.Image(frame_width=self.imagewidth,frame_height=self.imageheight)
-        for n,mem in enumerate(self.sub_com):
+        base_image = pbge.image.Image(frame_width=self.imagewidth, frame_height=self.imageheight)
+        for n, mem in enumerate(self.sub_com):
             spr = mem.get_sprite()
-            smol_spr = pygame.transform.scale(spr.bitmap,(20,20))
-            base_image.bitmap.blit(smol_spr,self.MINI_SPRITE_OFFSETS[n])
+            smol_spr = pygame.transform.scale(spr.bitmap, (20, 20))
+            base_image.bitmap.blit(smol_spr, self.MINI_SPRITE_OFFSETS[n])
             if n >= 4:
                 break
         return base_image
@@ -4044,6 +4135,6 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         for pc in list(self.sub_com):
             self.sub_com.remove(pc)
             pilots.append(pc)
-            if hasattr(pc,"free_pilots"):
+            if hasattr(pc, "free_pilots"):
                 pilots += pc.free_pilots()
         return pilots

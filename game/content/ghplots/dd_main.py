@@ -353,6 +353,7 @@ class DZDRoadMapExit(Exit):
         rpm.add_item("[Cancel]",None)
         fx = rpm.query()
         if fx:
+            camp.day += 1
             fx(camp)
 
     def bump( self, camp, pc ):

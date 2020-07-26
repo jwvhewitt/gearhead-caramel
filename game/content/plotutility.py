@@ -231,12 +231,13 @@ class AutoLeaver(object):
             #        camp.incapacitated_party.remove(mek)
 
 class CharacterMover(object):
-    def __init__(self,plot,character,dest_scene,dest_team,allow_death=False):
+    def __init__(self,plot,character,dest_scene,dest_team,allow_death=False, upgrade_mek=True):
         # Record the character's original location, move them to the new location.
         if character not in plot.get_locked_elements():
             print("Warning: Character {} should be locked by {} before moving!".format(character,plot))
-        if not character.container:
+        if not (hasattr(character,"container") and character.container):
             print("Warning: Character {} moved by {} has no original container!".format(character,plot))
+            character.container = None
         if not plot.active:
             print("Warning: Plot {} not active")
         if not plot.scope:
@@ -250,6 +251,8 @@ class CharacterMover(object):
         if character.combatant and dest_scene.scale is gears.scale.MechaScale:
             mek = AutoJoiner.get_mecha_for_character(character)
             if mek:
+                if upgrade_mek:
+                    gears.champions.upgrade_to_champion(mek)
                 mek.load_pilot(character)
                 character = mek
 
@@ -264,7 +267,9 @@ class CharacterMover(object):
             if hasattr(self.character, "container") and self.character.container:
                 self.character.container.remove(self.character)
             self.character.restore_all()
-            self.original_container.append(self.character)
+            if self.original_container:
+                self.original_container.append(self.character)
+
 
 class EnterTownLanceRecovery(object):
     # When you enter a town, call this to restore the party and deal with dead/incapacitated members
@@ -274,6 +279,7 @@ class EnterTownLanceRecovery(object):
         if creds > 0:
             pbge.alert("Repair/Reload: ${}".format(creds))
             camp.credits -= creds
+            camp.day += 1
         if camp.incapacitated_party or camp.dead_party or any([pc for pc in camp.get_lancemates() if not camp.get_pc_mecha(pc)]):
             # Go through the injured/dead lists and see who needs help.
             if camp.pc not in camp.party:
@@ -284,6 +290,8 @@ class EnterTownLanceRecovery(object):
                     nart.build()
                     nart.story.start_recovery(camp)
                     self.did_recovery = True
+                else:
+                    print(nart.errors)
             else:
                 init = pbge.plots.PlotState(elements={"METRO":metro,"METROSCENE":metroscene})
                 nart = GHNarrativeRequest(camp,init,adv_type="RECOVER_LANCE",plot_list=PLOT_LIST)
@@ -291,6 +299,13 @@ class EnterTownLanceRecovery(object):
                     nart.build()
                     nart.story.start_recovery(camp)
                     self.did_recovery = True
+
+
+def dungeon_cleaner(scene):
+    # Vacuum up all the dead monsters.
+    for bit in list(scene.contents):
+        if hasattr(bit,"is_operational") and not bit.is_operational():
+            scene.contents.remove(bit)
 
 
 DZSPOT_PART_ONE = (
@@ -312,4 +327,31 @@ def random_deadzone_spot_name():
     return "{} {}".format(A,B)
 
 
+DISEASE_PART_ONE = (
+    "Crimson", "Radiated", "Bloody", "Violet", "Deadly", "Lumpy", "Infectious", "Oozing", "Shivering", "Creeping",
+    "Necrotic", "Torturous", "Quaking", "Venomous", "Screaming", "Martian", "Flaying", "Bacterial", "Fungal",
+    "Gangrenous", "Cancerous", "Pathologic", "Hazardous", "Fatal", "Wasting", "Ocular", "Parasitic", "Mutagenic"
+)
+DISEASE_PART_TWO = (
+    "Fever", "Flopsy", "Palsy", "Plague", "Disease", "Gurgle", "Syndrome", "Bonerot", "Brainbleed", "Heartworm",
+    "Skinrash", "Cough", "Tumors", "Boils", "Doom", "Bloodsludge", "Gutwrench", "Flux", "Virus", "Thrush",
+    "Spinewrack", "Blight", "Decay", "Skintaker", "Earache", "Fleshmelt", "Infestation", "Ague", "Pox", "Ennui"
+)
 
+def random_disease_name():
+    return "{} {}".format(random.choice(DISEASE_PART_ONE), random.choice(DISEASE_PART_TWO))
+
+DRUG_START = (
+    "Ata", "Peace", "Neo", "Well", "Cura", "Hexa", "Sol", "Med", "Asp", "Bey", "Con", "De", "Ele", "Eu",
+    "Flum", "Go", "Jo", "Mod", "Nu", "Opt", "Pax", "Ques", "Rad", "Stim", "Val", "Wex", "Xan", "Ys", "Zoa"
+)
+DRUG_END = (
+    "zine", "ite", "ide", "ium", "let", "phen", "fine", "phene", "ax", "tune", "sid", "trose", "tine", "cid",
+    "pto", "int", "ium", "ga"
+)
+DRUG_LETTER = (
+    "Alpha", "Beta", "Gamma", "Delta", "Omega", "Zeta", "Kappa"
+)
+
+def random_medicine_name():
+    return "{}{} {}".format(random.choice(DRUG_START), random.choice(DRUG_END), random.choice(DRUG_LETTER))

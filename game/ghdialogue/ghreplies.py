@@ -90,6 +90,10 @@ HELLO_OPENSHOP = Reply( "[HELLO:OPEN_SHOP]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.OPEN_SHOP]) ) )
 
+HELLO_PROBLEM = Reply( "[HELLO:PROBLEM]",
+            context = ContextTag([context.HELLO]),
+            destination = Cue( ContextTag([context.PROBLEM]) ) )
+
 HELLO_QUERY = Reply( "[HELLO:QUERY]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.QUERY]) ) )
