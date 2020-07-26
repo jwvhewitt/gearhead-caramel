@@ -231,7 +231,7 @@ class AutoLeaver(object):
             #        camp.incapacitated_party.remove(mek)
 
 class CharacterMover(object):
-    def __init__(self,plot,character,dest_scene,dest_team,allow_death=False):
+    def __init__(self,plot,character,dest_scene,dest_team,allow_death=False, upgrade_mek=True):
         # Record the character's original location, move them to the new location.
         if character not in plot.get_locked_elements():
             print("Warning: Character {} should be locked by {} before moving!".format(character,plot))
@@ -251,6 +251,8 @@ class CharacterMover(object):
         if character.combatant and dest_scene.scale is gears.scale.MechaScale:
             mek = AutoJoiner.get_mecha_for_character(character)
             if mek:
+                if upgrade_mek:
+                    gears.champions.upgrade_to_champion(mek)
                 mek.load_pilot(character)
                 character = mek
 
@@ -277,6 +279,7 @@ class EnterTownLanceRecovery(object):
         if creds > 0:
             pbge.alert("Repair/Reload: ${}".format(creds))
             camp.credits -= creds
+            camp.day += 1
         if camp.incapacitated_party or camp.dead_party or any([pc for pc in camp.get_lancemates() if not camp.get_pc_mecha(pc)]):
             # Go through the injured/dead lists and see who needs help.
             if camp.pc not in camp.party:

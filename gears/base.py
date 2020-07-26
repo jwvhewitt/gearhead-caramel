@@ -529,8 +529,8 @@ class BaseGear(scenes.PlaceableThing):
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_SLOT = tags.SLOT_ITEM
     SAVE_PARAMETERS = (
-    'name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot',
-    'faction_list')
+        'name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot',
+        'faction_list')
 
     def __init__(self, uniqueid=None, shop_tags=(), desc="", slot=None, faction_list=(None,), **keywords):
         self.__base_gear_pos = None
@@ -2861,8 +2861,8 @@ class MF_Leg(ModuleForm):
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part, (
-        Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem, LegMusclesCyberware,
-        LegBonesCyberware))
+            Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem, LegMusclesCyberware,
+            LegBonesCyberware))
 
 
 class MF_Wing(ModuleForm):
@@ -3782,7 +3782,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             self.statline[xp_type] += 1
 
 
-class Monster(Being):
+class Monster(Being, MakesPower):
     SAVE_PARAMETERS = ('threat', 'type_tags', 'families', 'environment_list', 'frame')
 
     def __init__(self, threat=0, type_tags=(), families=(), frame=0,
@@ -3799,11 +3799,15 @@ class Monster(Being):
             self.threat - level) <= 20 and env in self.environment_list and scale is self.scale and self.type_tags.intersection(
             type_tags)
 
+    def max_power(self):
+        return self.scale.scale_power(self.get_stat(stats.Body) * 5)
+
 
 class Character(Being):
     SAVE_PARAMETERS = (
-    'personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship', "mecha_colors",
-    "mecha_pref", 'mnpcid')
+        'personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship',
+        "mecha_colors",
+        "mecha_pref", 'mnpcid')
     DEEP_COPY_PARAMS = {"add_body": False}
 
     def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="",

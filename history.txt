@@ -1,3 +1,4 @@
+- Major NPCs now always get customized mecha
 - Dungeons will clean out their dead daily
 - Combatant NPCs get starting equipment
 - Added Monster gear type

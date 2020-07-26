@@ -17,48 +17,56 @@ from gears import champions
 #   ROOM: The room where the encounter will take place; if None, an open room will be added.
 #
 
-class RandoMechaEncounter( Plot ):
+class RandoMechaEncounter(Plot):
     # Fight some random mecha. What do they want? To pad the adventure.
     LABEL = "MECHA_ENCOUNTER"
     active = True
     scope = "LOCALE"
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         if not self.elements.get("ROOM"):
-            self.register_element("ROOM",pbge.randmaps.rooms.OpenRoom(5,5),dident="LOCALE")
-        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
-        team2.contents += gears.selector.RandomMechaUnit(self.rank,100,self.elements.get("FACTION",None),myscene.environment).mecha_list
+            self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        team2.contents += gears.selector.RandomMechaUnit(self.rank, 100, self.elements.get("FACTION", None),
+                                                         myscene.environment).mecha_list
         return True
-    def t_ENDCOMBAT(self,camp):
+
+    def t_ENDCOMBAT(self, camp):
         # If the player team gets wiped out, end the mission.
         myteam = self.elements["_eteam"]
         if len(myteam.get_active_members(camp)) < 1:
             self.end_plot(camp)
             camp.dole_xp(100)
 
-class SmallMechaEncounter( Plot ):
+
+class SmallMechaEncounter(Plot):
     # Fight some random mecha. What do they want? To pad the adventure.
     LABEL = "MECHA_ENCOUNTER"
     active = True
     scope = "LOCALE"
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         if not self.elements.get("ROOM"):
-            self.register_element("ROOM",pbge.randmaps.rooms.OpenRoom(5,5),dident="LOCALE")
-        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
-        team2.contents += gears.selector.RandomMechaUnit(self.rank,50,self.elements.get("FACTION",None),myscene.environment).mecha_list
+            self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        team2.contents += gears.selector.RandomMechaUnit(self.rank, 50, self.elements.get("FACTION", None),
+                                                         myscene.environment).mecha_list
         return True
-    def t_ENDCOMBAT(self,camp):
+
+    def t_ENDCOMBAT(self, camp):
         # If the player team gets wiped out, end the mission.
         myteam = self.elements["_eteam"]
         if len(myteam.get_active_members(camp)) < 1:
             self.end_plot(camp)
             camp.dole_xp(50)
 
-class RandoMechaWithChampionEncounter( RandoMechaEncounter ):
+
+class RandoMechaWithChampionEncounter(RandoMechaEncounter):
     # Fight some random mecha who happen to have a champion. What do they want? To pad the adventure.
 
-    def custom_init( self, nart ):
+    def custom_init(self, nart):
         if super().custom_init(nart):
             myteam = self.elements["_eteam"]
             if myteam.contents:
@@ -66,7 +74,8 @@ class RandoMechaWithChampionEncounter( RandoMechaEncounter ):
             return True
         else:
             return False
-    def t_ENDCOMBAT(self,camp):
+
+    def t_ENDCOMBAT(self, camp):
         # If the player team (why _eteam tho?) gets wiped out, end the mission.
         myteam = self.elements["_eteam"]
         if len(myteam.get_active_members(camp)) < 1:
@@ -84,17 +93,19 @@ class RandoMechaWithChampionEncounter( RandoMechaEncounter ):
 #   TYPE_TAGS: The type of monster to generate
 #
 
-class RandoMonsterEncounter( Plot ):
-    # Fight some random mecha. What do they want? To pad the adventure.
+class RandoMonsterEncounter(Plot):
+    # Fight some random monsters. What do they want? To pad the adventure.
     LABEL = "MONSTER_ENCOUNTER"
     active = True
     scope = "LOCALE"
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         if not self.elements.get("ROOM"):
-            self.register_element("ROOM",pbge.randmaps.rooms.OpenRoom(5,5),dident="LOCALE")
-        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ROOM")
-        team2.contents += gears.selector.RandomMonsterUnit(self.rank,100,myscene.environment,self.elements["TYPE_TAGS"], myscene.scale).contents
+            self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        team2.contents += gears.selector.RandomMonsterUnit(self.rank, 100, myscene.environment,
+                                                           self.elements["TYPE_TAGS"], myscene.scale).contents
         self.last_update = 0
         return True
 
@@ -102,8 +113,7 @@ class RandoMonsterEncounter( Plot ):
         myteam: game.teams.Team = self.elements["_eteam"]
         if camp.day > self.last_update and len(myteam.get_active_members(camp)) < 1:
             camp.scene.deploy_team(
-                gears.selector.RandomMonsterUnit(self.rank, 100, camp.scene.environment,
-                self.elements["TYPE_TAGS"], camp.scene.scale).contents, myteam
+                gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
+                                                 self.elements["TYPE_TAGS"], camp.scene.scale).contents, myteam
             )
             self.last_update = camp.day
-

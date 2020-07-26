@@ -38,3 +38,69 @@ Monster
         Tail
             size = 1
     END
+
+Monster
+    name = "Giant Frog"
+    statline = {Reflexes = 9, Body=13, Speed=10, Perception=9, Craft=2, Knowledge=2, Ego=2, Charm = 2,
+			CloseCombat = 4, Dodge = 3, Vitality = 5
+	}
+	scale = HumanScale
+	imagename = 'mon_animals.png'
+	frame = 3
+	colors = (Avocado,DesertYellow,HunterOrange,Avocado,Avocado)
+    threat = 25
+    type_tags = ("ANIMAL", "WATER", "GREEN", "SWAMP", "FOREST",)
+    families = ("FROGS",)
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 3
+            SUB
+				MeleeWeapon
+					name="Bite"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=2
+					integral = True
+            END
+        Torso
+            size = 3
+        Leg
+            size = 3
+        Leg
+            size = 3
+        Leg
+            size = 3
+        Leg
+            size = 3
+    END
+
+Monster
+    name = "Giant Leech"
+    statline = {Reflexes = 7, Body=8, Speed=3, Perception=4, Craft=1, Knowledge=1, Ego=1, Charm = 1,
+			CloseCombat = 5, Dodge = 1
+	}
+	scale = HumanScale
+	imagename = 'mon_animals.png'
+	frame = 2
+	colors = (Beige,Cream,FlourescentGreen,Terracotta,Black)
+    threat = 10
+    type_tags = ("ANIMAL", "DARK", "SWAMP", "WATER", "VERMIN")
+    families = ("VERMIN",)
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Torso
+            size = 2
+            SUB
+				MeleeWeapon
+					name="Bite"
+					reach=1
+					damage=2
+					accuracy=3
+					penetration=1
+					integral = True
+            END
+    END
