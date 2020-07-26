@@ -222,6 +222,7 @@ class RaiderTheme(UpgradeTheme):
     def __init__(self):
         self._movesys = ()
         self._largest = 0
+        self._weapon_upgraded = False
 
     def pre_upgrade(self, mek, items):
         # Determine what the mek's main movement is.
@@ -238,8 +239,12 @@ class RaiderTheme(UpgradeTheme):
     def upgrade_sort_index(self, item):
         # Sort armor before everything else: we might actually *downgrade*
         # armor to increase or insert movement systems.
+        # Also, sort sensors after everything else: only upgrade sensors
+        # if at least one weapon got upgraded.
         if isinstance(item, base.Armor):
             return 0
+        elif isinstance(item, base.Sensor):
+            return 999
         else:
             return 1
 
@@ -248,6 +253,26 @@ class RaiderTheme(UpgradeTheme):
         movement system.
         '''
         return isinstance(item, self._movesys)
+
+    def _upgrade_weapon(self, item):
+        weap = _get_statted_weapon(item);
+
+        upgraded = False
+        # Increase reach if not a melee weapon.
+        if not isinstance(weap, (base.MeleeWeapon, base.EnergyWeapon)):
+            if weap.reach < weap.MAX_REACH:
+                weap.reach += 1
+                upgraded = True
+        # Increase accuracy.
+        if weap.accuracy < weap.MAX_ACCURACY:
+            weap.accuracy += 1
+            upgraded = True
+
+        # Launchers may need to be upgraded.
+        if isinstance(item, base.Launcher) and item.size < weap.volume:
+            item.size = weap.volume
+
+        return upgraded
 
     def attempt_upgrade(self, holder, item, is_installed):
         if isinstance(item, base.Armor):
@@ -287,24 +312,24 @@ class RaiderTheme(UpgradeTheme):
 
             return upgraded
 
+        # Upgrade weapons.
         weap = _get_statted_weapon(item)
-        if weap and not is_installed:
-            upgraded = False
-            # Increase reach if not a melee weapon.
-            if not isinstance(weap, (base.MeleeWeapon, base.EnergyWeapon)):
-                if weap.reach < weap.MAX_REACH:
-                    weap.reach += 1
-                    upgraded = True
-            # Increase accuracy.
-            if weap.accuracy < weap.MAX_ACCURACY:
-                weap.accuracy += 1
-                upgraded = True
-
-            # Launchers may need to be upgraded.
-            if isinstance(item, base.Launcher) and item.size < weap.volume:
-                item.size = weap.volume
-
+        if weap:
+            upgraded = _try_upgrade(holder, item, is_installed, self._upgrade_weapon)
+            if upgraded:
+                self._weapon_upgraded = True
             return upgraded
+
+        # Upgrade sensors, if at least one weapon was upgraded.
+        if self._weapon_upgraded and isinstance(item, base.Sensor):
+            # Sensors are always installed.
+            if holder.free_volume == 0:
+                if item.integral:
+                    # cannot upgrade.
+                    return False
+                item.integral = True
+            item.size += 1
+            return True
 
         return False
 
@@ -314,7 +339,7 @@ class RaiderTheme(UpgradeTheme):
         ctor = self._movesys[0]
         return ctor(size = size, material = materials.Advanced)
 
-    def attempt_install_item(self, module):
+    def _attempt_install_movesys(self, module):
         # Install only if module has no movesys
         if any([isinstance(i, base.MovementSystem) for i in module.sub_com]):
             return None
@@ -325,6 +350,19 @@ class RaiderTheme(UpgradeTheme):
             self._largest = 2
 
         return self._new_movesys(min(module.free_volume, self._largest))
+
+    def attempt_install_item(self, module):
+        # Install a movesys if no movesys.
+        item = self._attempt_install_movesys(module)
+        if item:
+            return item
+
+        # Install overchargers if not exist yet.
+        if any([isinstance(i, base.Overchargers) for i in module.sub_com]):
+            return None
+        return base.Overchargers( material = materials.Advanced
+                                , size = min(3, module.free_volume)
+                                )
 
 class GunslingerTheme(UpgradeTheme):
     ''' More Dakka '''
@@ -451,6 +489,22 @@ class SlasherTheme(UpgradeTheme):
         # Reduce size by 1.
         if item.size > item.MIN_SIZE:
             item.size -= 1
+        # Shield is upgraded to beam shield but only if it does
+        # not contain an item.
+        # Beam shields are not allowed to contains items!
+        if not isinstance(item, base.BeamShield) and not list(item.sub_com):
+            # This is borderline dangerous.
+            # It works because base.BeamShield derives from
+            # base.Shield, and base.BeamShield has no additional
+            # properties on top of base.Shield, just different
+            # behavior ("Just like a shield, but beamier"), thus
+            # safe for this case.
+            # In general you should avoid this.
+            # If we add more properties to BeamShield that are
+            # not on Shield, we should add those properties here
+            # as well.
+            item.__class__ = base.BeamShield
+            item.name = "Beam " + item.name
         return True
 
     def attempt_upgrade(self, holder, item, is_installed):

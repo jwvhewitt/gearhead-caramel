@@ -1,3 +1,5 @@
+- Slasher champions upgrade their plain shields to beam shields.
+- Raider champions upgrade their sensors (to take advantage of their weapon increased range) and may also gain Overchargers.
 - Tone down EnergyWeapon prices.
 - Add Explodium champion. Boom!
 - Major NPCs now always get customized mecha
