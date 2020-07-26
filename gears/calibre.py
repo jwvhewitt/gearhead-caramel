@@ -46,6 +46,10 @@ class Shells_150mm( BaseCalibre ):
     bang = 9
     scale = scale.MechaScale
 
+class Caseless_45mm( BaseCalibre ):
+    bang = 4
+    scale = scale.MechaScale
+
 class Ferrous_25mm( BaseCalibre ):
     bang = 5
     scale = scale.MechaScale

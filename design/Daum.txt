@@ -98,13 +98,7 @@ Mecha
                 Hand
                     name = "Left Hand"
                     INV
-                        MeleeWeapon
-                            name="Mecha Sword"
-                            reach=1
-                            damage=3
-                            accuracy=3
-                            penetration=2
-                            attributes = (Defender,)
+                        STC Mecha Sword
                     END
             END
             INV

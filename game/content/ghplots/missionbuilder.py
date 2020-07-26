@@ -17,6 +17,8 @@ BAMO_CAPTURE_THE_MINE = "BAMO_CaptureMine"
 BAMO_CAPTURE_BUILDINGS = "BAMO_CaptureBuildings"
 BAMO_DEFEAT_ARMY = "BAMO_DefeatArmy"  # 3 points
 BAMO_DEFEAT_COMMANDER = "BAMO_DefeatCommander"  # 2 points
+BAMO_DEFEAT_NPC = "BAMO_DefeatNPC"  # 2 points
+BAME_NPC = "BAME_NPC"
 BAMO_DEFEAT_THE_BANDITS = "BAMO_DefeatTheBandits"
 BAMO_DESTROY_ARTILLERY = "BAMO_Destroy_Artillery"  # 2 points
 BAMO_EXTRACT_ALLIED_FORCES = "BAMO_ExtractAlliedForces"
@@ -585,6 +587,53 @@ class BAM_DefeatCommander(Plot):
 
 class BAM_ChampionDefeatCommander(Championify, BAM_DefeatCommander):
     active = True
+
+
+class BAM_DefeatNPC(Plot):
+    LABEL = BAMO_DEFEAT_NPC
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        mynpc = self.elements.get(BAME_NPC)
+        if mynpc:
+            self.locked_elements.add(BAME_NPC)
+            plotutility.CharacterMover(self, mynpc, myscene, team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+            self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+            self.register_element(BAME_NPC, myunit.commander.get_pilot())
+            self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
+
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Defeat enemy pilot {}".format(self.elements[BAME_NPC]),
+                                                  MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            npc = self.elements[BAME_NPC]
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp, 100)
 
 
 class BAM_DefeatTheBandits(Plot):

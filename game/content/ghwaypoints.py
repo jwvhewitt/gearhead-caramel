@@ -55,6 +55,12 @@ class Victim(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.VictimTerrain)
     desc = "This person has seen better days."
 
+class OldCrate(Waypoint):
+    name = 'Crate'
+    TILE = pbge.scenes.Tile(None,None,ghterrain.OldCrateTerrain)
+    desc = "You see a large plastic crate."
+
+
 class RetroComputer(Waypoint):
     name = 'Computer Terminal'
     ATTACH_TO_WALL = True

@@ -161,6 +161,15 @@ class BioCorp(Faction):
     NOUNS = ("Team","Division")
     uniform_colors = (color.Cream,None,None,None,color.RoyalPink)
 
+class KettelIndustries(Faction):
+    name = "Kettel Industries"
+    factags = (tags.CorporateWorker,)
+    mecha_colors = (color.KettelPurple,color.StarViolet,color.FlourescentGreen,color.Charcoal,color.SteelBlue)
+    LOCATIONS = (personality.GreenZone,)
+    ADJECTIVES = ("BioCorp","Research")
+    NOUNS = ("Team","Division")
+    uniform_colors = (color.KettelPurple,None,None,None,color.StarViolet)
+
 class DeadzoneFederation(Faction):
     name = "the Deadzone Federation"
     factags = (tags.Politician,)

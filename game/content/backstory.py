@@ -104,7 +104,8 @@ class BackstoryBit(object):
         mygram = dict()
         ghdialogue.trait_absorb(mygram, ghdialogue.ghgrammar.DEFAULT_GRAMMAR, ())
         for k,v in list(self.results.items()):
-            mystory.results[k].append(pbge.dialogue.grammar.convert_tokens(v.format(**mytextdict),mygram))
+            mystory.results[k].append(
+                pbge.dialogue.grammar.convert_tokens(v.format(**mytextdict),mygram,start_on_capital=False))
 
     def matches_context(self,command,bsstate):
         return (

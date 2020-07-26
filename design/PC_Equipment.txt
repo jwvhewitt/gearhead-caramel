@@ -15,9 +15,9 @@ MeleeWeapon
     name="Longsword"
     desc = "A ceramic blade. Not just an elegant weapon of a bygone age, this sword will come in handy should you need to defend yourself in close combat."
     reach=1
-    damage=2
+    damage=3
     accuracy=3
-    penetration=1
+    penetration=2
     scale = HumanScale
     material = Ceramic
     attributes = (Defender,)
@@ -134,6 +134,31 @@ BallisticWeapon
     END
 
 TorsoClothing
+    name = "Flak Jacket"
+    desc = "This jacket is designed to protect against shrapnel."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 2
+    END
+
+TorsoClothing
+    name = "Mesh Suit"
+    desc = "This armor mesh suit does not contain exposed weak points in its design."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 5
+    END
+
+
+TorsoClothing
     name = "Breastplate"
     desc = "A strong armor plate made from metal."
     scale = HumanScale
@@ -156,6 +181,95 @@ TorsoClothing
         Armor
             size = 6
     END
+
+HeadClothing
+    name = "Light Helmet"
+    desc = "A light combat helmet, made from a combination of plastics and shock absorbers."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 2
+    END
+
+ArmClothing
+    name = "Elbow Pad"
+    desc = "Protects knees from grazes and other accidents."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 1
+    END
+
+ArmClothing
+    name = "Heavy Elbow Pad"
+    desc = "Elbow pad that protects some of the forearm as well."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 2
+    END
+
+ArmClothing
+    name = "Armored Sleeve"
+    desc = "Arm armor made from a combination of tough cloths and armor plates."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 3
+    END
+
+
+LegClothing
+    name = "Knee Pad"
+    desc = "Protects knees from grazes and other accidents."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 1
+    END
+
+LegClothing
+    name = "Heavy Knee Pad"
+    desc = "Knee pad that protects part of the shins as well."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 2
+    END
+
+LegClothing
+    name = "Armored Legging"
+    desc = "Leg armor made from a combination of tough cloths and armor plates."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 3
+    END
+
+
+
+
 
 EyesCyberware
     name = "Cyber Eye"

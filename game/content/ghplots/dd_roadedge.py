@@ -2,29 +2,13 @@ from pbge.plots import Plot,PlotState
 import gears
 import pbge
 import random
-from game.content import gharchitecture,ghterrain, plotutility
-from .dd_main import RoadEdge
+from game.content import gharchitecture, plotutility
 from . import missionbuilder,dd_customobjectives
-import pygame
-
 
 #   ***************************************************
 #   ***   DZD_ROAD_MISSION  and  SUPPORT  CLASSES   ***
 #   ***************************************************
-
-class DeadZoneHighwaySceneGen( pbge.randmaps.SceneGenerator ):
-    DO_DIRECT_CONNECTIONS = True
-    def build( self, gb, archi ):
-        self.fill(gb,pygame.Rect(0,gb.height//2-2,gb.width,5),wall=None)
-
-    def DECORATE( self, gb, scenegen ):
-        """
-        :type gb: gears.GearHeadScene
-        """
-        # Draw a gret big highway going from west to east.
-        self.fill(gb,pygame.Rect(0,gb.height//2-2,gb.width,5),floor=self.archi.DEFAULT_FLOOR_TERRAIN)
-        self.fill(gb,pygame.Rect(0,gb.height//2-1,gb.width,3),floor=ghterrain.Pavement)
-
+from ..gharchitecture import DeadZoneHighwaySceneGen
 
 
 class RoadMissionPlot( missionbuilder.BuildAMissionPlot ):
