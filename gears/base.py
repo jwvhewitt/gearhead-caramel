@@ -1263,7 +1263,8 @@ class MovementSystem(SizeClassedComponent):
 
     @property
     def base_mass(self):
-        return 10 * self.size
+        size = min(21, self.size)
+        return 10 * size - ((size * (size - 1) + 3) // 4)
 
     @property
     def base_volume(self):
@@ -1271,7 +1272,9 @@ class MovementSystem(SizeClassedComponent):
 
     @property
     def base_cost(self):
-        return self.size * self.MOVESYS_COST
+        return ( self.size * self.MOVESYS_COST
+               + self.size * (self.size - 1) * self.MOVESYS_COST // 10
+               )
 
     def get_item_stats(self):
         stat = [('Thrust ({})'.format(mode.get_short_name()), str(self.get_thrust(mode)))
@@ -1325,7 +1328,8 @@ class Wheels(MovementSystem, StandardDamageHandler):
 
     @property
     def base_mass(self):
-        return 5 * self.size
+        normal_mass = super().base_mass
+        return normal_mass // 2
 
 
 class Tracks(MovementSystem, StandardDamageHandler):
@@ -1342,10 +1346,6 @@ class Tracks(MovementSystem, StandardDamageHandler):
             return (self.size * 4000 * self.current_health + self.max_health - 1) // self.max_health
         else:
             return 0
-
-    @property
-    def base_mass(self):
-        return 10 * self.size
 
 
 class HeavyActuators(MovementSystem, StandardDamageHandler):
@@ -1375,7 +1375,8 @@ class Overchargers(MovementSystem, StandardDamageHandler):
 
     @property
     def base_mass(self):
-        return 5 * self.size
+        normal_mass = super().base_mass
+        return normal_mass // 2
 
     def get_thrust(self, move_mode):
         return 0
