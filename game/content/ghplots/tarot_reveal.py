@@ -9,7 +9,7 @@ import random
 from pbge.dialogue import ContextTag, Offer
 from . import dd_customobjectives
 from . import tarot_cards
-from .tarot_cards import ME_FACTION, ME_PERSON, ME_CRIME, ME_PUZZLEITEM, ME_ACTOR, ME_LIABILITY, CrimeObject, ME_PROBLEM
+from .tarot_cards import ME_FACTION, ME_PERSON, ME_CRIME, ME_PUZZLEITEM, ME_ACTOR, ME_LIABILITY, CrimeObject, ME_PROBLEM, ME_LOCATION
 import game.content.plotutility
 from game.content import gharchitecture
 from . import dd_combatmission
@@ -402,6 +402,128 @@ class MediaDemagogue(Plot):
     def reveal_card(self, camp):
         camp.check_trigger("WIN", self)
         self.end_plot(camp)
+
+
+#   *****************************
+#   ***  MT_REVEAL_Dinosaurs  ***
+#   *****************************
+
+class DinosaurMission(Plot):
+    LABEL = "MT_REVEAL_Dinosaurs"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Generate a mission-giver
+        scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+        npc = self.register_element(
+            "NPC", gears.selector.random_character(
+                job=gears.jobs.ALL_JOBS["Soldier"], faction=self.elements["METROSCENE"].faction,
+                rank=random.randint(self.rank, self.rank + 20),
+                local_tags=tuple(self.elements["METROSCENE"].attributes)
+            ), dident="LOCALE"
+        )
+
+        self.mission_seed = None
+        self.got_rumor = False
+        self.got_commentary = False
+        return True
+
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc is not self.elements["NPC"] and npc not in camp.party and not self.got_rumor:
+            goffs.append(Offer(
+                msg="Nodody's sure where they're coming from, but the barrens around {METROSCENE} are filled with mutant dinosaurs and their number only seems to be increasing. {NPC} at {LOCALE} is in charge of keeping them out of town.".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)), effect=self.reveal_card,
+                subject=str("dinosaurs"), data={"subject": "the dinosaurs"},
+                no_repeats=True
+            ))
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is self.elements["NPC"]:
+            mygram["[CURRENT_EVENTS]"] = ["Please remember that the dinosaurs are not friendly.",
+                                          "Keep in mind that many herbivores are more aggressive than carnivorous dinosaurs.",
+                                          "When piloting a mecha, try to keep at least 500m away from all megafauna."]
+        elif npc not in camp.party:
+            mygram["[CURRENT_EVENTS]"] = ["Watch out for dinosaurs.".format(**self.elements), ]
+            if not self.got_rumor:
+                mygram["[News]"] = ["{METROSCENE} would be an alright place except for all the dinosaurs".format(**self.elements), ]
+        return mygram
+
+    def reveal_card(self, camp):
+        if not self.got_rumor:
+            camp.check_trigger("WIN", self)
+            self.memo = "{NPC} at {LOCALE} is leading the {METROSCENE} dinosaur control efforts.".format(**self.elements)
+            self.got_rumor = True
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+    def t_UPDATE(self, camp):
+        # If the adventure has ended, get rid of it.
+        if self.mission_seed and self.mission_seed.ended:
+            self.mission_seed = None
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        if not self.mission_seed:
+            mylist.append(
+                Offer(
+                    "The {METROSCENE} town guard has been stretched pretty thin by this dinosaur threat. A pack has been sighted moving close to town; I need you to make sure they don't get close enough to hurt anyone.".format(
+                        **self.elements),
+                    context=ContextTag([context.MISSION, ]), effect=self.reveal_card,
+                    subject=self, subject_start=True
+                )
+            )
+            mylist.append(
+                Offer(
+                    "[IWillSendMissionDetails]; all dinosaurs are to be removed. [GOODLUCK]".format(
+                        **self.elements),
+                    context=ContextTag([context.ACCEPT, ]), effect=self.register_adventure, subject=self,
+                )
+            )
+            mylist.append(
+                Offer(
+                    "[GOODBYE]".format(
+                        **self.elements),
+                    context=ContextTag([context.DENY, ]), subject=self,
+                )
+            )
+        if not self.got_commentary:
+            mylist.append(Offer(
+                msg="At some point during the Age of Superpowers, some rich [blockhead] decided it'd be a great idea to clone dinosaurs from reconstructed DNA. Turns out they might not like asteroids much but the damn things thrive in a nuclear winter. These days they're all over the place.".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)),
+                data={"subject": "the dinosaurs"},
+                no_repeats=True, effect=self.get_commentary
+            ))
+
+        return mylist
+
+    def get_commentary(self,camp):
+        self.got_commentary = True
+        self.reveal_card(camp)
+
+    MOBJs = (
+        missionbuilder.BAMO_EXTRACT_ALLIED_FORCES_VS_DINOSAURS, missionbuilder.BAMO_PROTECT_BUILDINGS_FROM_DINOSAURS
+    )
+
+    def register_adventure(self, camp):
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            camp, "{}'s Dinosaur Hunt".format(self.elements["NPC"]),
+            (self.elements["METROSCENE"], self.elements["MISSION_GATE"]),
+            rank=self.rank, allied_faction=self.elements["METROSCENE"].faction,
+            objectives=[missionbuilder.BAMO_FIGHT_DINOSAURS, random.choice(self.MOBJs)],
+        )
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
 
 #   ****************************
@@ -935,6 +1057,146 @@ class FightThatHenchman(Plot):
         self.memo = "{NPC} at {LOCALE} may have a mission for you.".format(**self.elements)
 
 
+#   *****************************
+#   ***  MT_REVEAL_Invention  ***
+#   *****************************
+
+class IkeaForTechnobabble(Plot):
+    LABEL = "MT_REVEAL_Invention"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Place the inventor.
+        if ME_PERSON not in self.elements:
+            npc = gears.selector.random_character(rank=random.randint(self.rank, self.rank + 20),
+                                                  local_tags=tuple(self.elements["METROSCENE"].attributes),
+                                                  job=gears.jobs.ALL_JOBS["Scientist"])
+            scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+            self.register_element(ME_PERSON, npc, dident="LOCALE")
+        self.got_memo = False
+
+        return True
+
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def ME_PERSON_offers(self, camp):
+        mylist = list()
+        mylist.append(
+            Offer(
+                "I have invented a {ME_PROBLEM.solution} which could solve the {ME_PROBLEM} issue once and for all. The only thing I need is for someone in charge to approve the full scale construction.".format(**self.elements),
+                ContextTag([context.INFO, ]), effect=self._reveal,
+                data={"subject": "a solution for {ME_PROBLEM}".format(**self.elements)}
+            )
+        )
+        return mylist
+
+    def _reveal(self, camp):
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp, True)
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is not self.elements[ME_PERSON] and npc not in camp.party:
+            mygram["[News]"] = ["{ME_PERSON} is working on a solution for {ME_PROBLEM}".format(**self.elements), ]
+        elif npc is self.elements[ME_PERSON]:
+            mygram["[CURRENT_EVENTS]"] = ["I believe I have a solution for our {ME_PROBLEM} issue.".format(**self.elements), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc is not self.elements[ME_PERSON] and not self.got_memo:
+            mynpc = self.elements[ME_PERSON]
+            goffs.append(Offer(
+                msg="You can speak to {ME_PERSON} at {ME_PERSON.scene}; I hope {ME_PERSON.gender.possessive_determiner} experiments are successful..".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)), effect=self._get_memo,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_memo(self,camp):
+        self.memo = "{ME_PERSON} at {ME_PERSON.scene} is working on a solution for {ME_PROBLEM}."
+        self.got_memo = True
+
+
+#   ****************************
+#   ***  MT_REVEAL_Inventor  ***
+#   ****************************
+#
+
+class FindAnInventor(Plot):
+    LABEL = "MT_REVEAL_Inventor"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Place the chemist.
+        if ME_PERSON not in self.elements:
+            npc = gears.selector.random_character(rank=random.randint(self.rank, self.rank + 20),
+                                                  local_tags=tuple(self.elements["METROSCENE"].attributes),
+                                                  job=gears.jobs.ALL_JOBS["Scientist"])
+            scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"],
+                                      backup_seek_func=self._is_good_scene)
+            self.register_element(ME_PERSON, npc, dident="LOCALE")
+        self.got_rumor = False
+        return True
+
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate,
+                          gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_GARAGE in candidate.attributes
+
+    def _is_good_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def ME_PERSON_offers(self, camp):
+        mylist = list()
+        mylist.append(
+            Offer(
+                "[HELLO] I've been working on a solution for {ME_PROBLEM}.".format(**self.elements),
+                ContextTag([context.HELLO, ]),
+            )
+        )
+        mylist.append(
+            Offer(
+                "I can build a {ME_PROBLEM.solution} with the right materials, but unfortunately I don't have the right materials.".format(
+                    **self.elements),
+                ContextTag([context.INFO, ]), effect=self._reveal,
+                data={"subject": "your solution for {}".format(self.elements["ME_PROBLEM"])}
+            )
+        )
+        return mylist
+
+    def _reveal(self, camp):
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp, True)
+
+    def _get_rumor(self, camp):
+        self.memo = "{ME_PERSON} at {ME_PERSON.scene} is working on a cure for {ME_PROBLEM}"
+        self.got_rumor = True
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is not self.elements[ME_PERSON] and not self.got_rumor:
+            mygram["[News]"] = ["{ME_PERSON} is working on a fix for {ME_PROBLEM}".format(**self.elements), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc is not self.elements[ME_PERSON] and not self.got_rumor:
+            mynpc = self.elements[ME_PERSON]
+            goffs.append(Offer(
+                msg="You can speak to {ME_PERSON} at {ME_PERSON.scene}; hopefully {ME_PERSON.gender.subject_pronoun} can really do it.".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)), effect=self._reveal,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+
 #   ********************************
 #   ***  MT_REVEAL_Investigator  ***
 #   ********************************
@@ -1076,6 +1338,43 @@ class PrivateInvestigator(Plot):
         self.got_rumor = True
         self.memo = "{} at {} has been investigating {}.".format(mynpc, mynpc.get_scene(),
                                                                  self.elements["INVESTIGATION_SUBJECT"])
+
+
+#   ******************************
+#   ***  MT_REVEAL_Laboratory  ***
+#   ******************************
+
+class FindALab(Plot):
+    LABEL = "MT_REVEAL_Laboratory"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        team1 = teams.Team(name="Player Team")
+        intscene = gears.GearHeadScene(35, 35, "{} Laboratory".format(gears.selector.LUNA_NAMES.gen_word()),
+                                       player_team=team1,
+                                       attributes=(gears.tags.SCENE_BUILDING,),
+                                       scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.FortressBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident=ME_LOCATION, dident="METROSCENE")
+
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=10, height=10,
+                                                                                 anchor=pbge.randmaps.anchors.south),
+                                      dident="INTERIOR")
+
+        self.add_sub_plot(nart, "PLACE_SCENE", elements={"GOAL_SCENE": intscene}, indie=True)
+        return True
+
+    def t_START(self, camp):
+        if camp.scene is self.elements[ME_LOCATION]:
+            pbge.alert("You discover an abandoned scientific complex of some kind. It is old, but appears to be in relatively good condition. Maybe someone could make use of it.")
+            self._win_mission(camp)
+
+    def _win_mission(self, camp):
+        self.clue_uncovered = True
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp, True)
 
 
 #   **************************

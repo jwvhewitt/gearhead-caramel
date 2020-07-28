@@ -378,6 +378,15 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Don't trust {subject}",
                           ],
     },
+    "[blockhead]": {
+        # I looked up synonyms for "Jerk" and chose blockhead as the pattern name in honor of the Dougram mecha and
+        # Devo song.
+        Default: ["blockhead", "jerk", "arse", "smeghead", "bambo", "chump", "punk", "pongo", "ratfink", "simp",
+                  "spug", "dolt", "ninny", "twit", "grexnix", "nonscrot", "nitwit", "jackass", "dipstick", "geekoid",
+                  "numpty", "prat", "git", "twerp", "schmuck", "bozo", "boob", "galoot", "lummox", "putz", "dingbat",
+                  "spud", "drongo", "asshat", "shazbucket", "grox",
+                  ],
+    },
     "[body_part]": {
         Default: ["eye","nose","face","throat","groin","duodenum","skull",
                   ],

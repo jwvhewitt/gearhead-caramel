@@ -228,6 +228,7 @@ class BasicAI( object ):
             return True
 
     def act(self,camp):
+        self.npc.gear_up()
         # Attempt to use a skill first.
         if camp.fight.cstat[self.npc].action_points > 0 and random.randint(1,2) == 1:
             self.try_to_use_a_skill(camp)

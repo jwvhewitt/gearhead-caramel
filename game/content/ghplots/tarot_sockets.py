@@ -303,7 +303,7 @@ class WaitingOnACure(Plot):
                 goffs.append(Offer(
                     "[THATS_GOOD] With this {ME_PROBLEM.solution}, we can put an end to the epidemic. [THANKS_FOR_HELP]".format(**self.elements),
                     context=ContextTag([context.CUSTOM]),
-                    effect=mechtarot.CardCaller(mycard,sig[0],mysocket.consequences[CONSEQUENCE_WIN]),
+                    effect=mechtarot.CardCaller(mycard,sig[0],self._win_mission),
                     data={"reply":"I've obtained some {ME_PROBLEM.solution} to cure the {ME_PROBLEM}.".format(**self.elements)}, dead_end=True
                 ))
             if not self.got_memo:
@@ -315,6 +315,11 @@ class WaitingOnACure(Plot):
                 ))
 
         return goffs
+
+    def _win_mission(self, camp, alpha, beta, **kwargs):
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysocket.consequences[CONSEQUENCE_WIN](camp,alpha,beta,**kwargs)
+        self.elements["METRO"].local_reputation += 20
 
     def get_memo(self, camp):
         self.got_memo = True
@@ -357,6 +362,70 @@ class YouAreCancelled(Plot):
             ))
 
         return goffs
+
+
+#   ************************************
+#   ***  MT_SOCKET_DinosaurSolution  ***
+#   ************************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_PROBLEM  The dinosaurs, and more importantly their solution
+#   ME_CARD
+#   ME_SOCKET
+
+
+class HoldBackTheDinosaurs(Plot):
+    LABEL = "MT_SOCKET_DinosaurSolution"
+    active = True
+    scope = "METRO"
+
+    def custom_init( self, nart ):
+        self.add_sub_plot(nart,"ENSURE_LOCAL_REPRESENTATION",elements={"FACTION":self.elements["METROSCENE"].faction})
+        self.mission_seed = None
+        return True
+
+    def _get_generic_offers( self, npc, camp ):
+        goffs = list()
+        if camp.are_faction_allies(npc, self.elements["METROSCENE"]) and npc not in camp.party:
+            if not self.mission_seed:
+                mycard = self.elements[mechtarot.ME_CARD]
+                mysocket = self.elements[mechtarot.ME_SOCKET]
+                mysigs = mysocket.get_activating_signals(mycard, camp)
+                for sig in mysigs:
+                    goffs.append(Offer(
+                        "[THATS_GOOD] In order to deploy this {ME_PROBLEM.solution} we need to keep the dinosaurs out of the area. Head to your mecha and we can find out if this is going to work.".format(**self.elements),
+                        context=ContextTag([context.CUSTOM]),
+                        effect=mechtarot.CardCaller(mycard,sig[0],self._start_mission),
+                        data={"reply":"I've obtained a {ME_PROBLEM.solution} for the {ME_PROBLEM}.".format(**self.elements)}, dead_end=True
+                    ))
+
+        return goffs
+
+    def _start_mission(self, camp, alpha, beta, **kwargs):
+        if not self.mission_seed:
+            self.mission_seed = missionbuilder.BuildAMissionSeed(
+                camp, "Defeat All Dinosaurs",
+                (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+                allied_faction=self.elements["METROSCENE"].faction, rank=self.rank,
+                objectives=(missionbuilder.BAMO_FIGHT_DINOSAURS,),
+                cash_reward=500, experience_reward=250,
+                on_win=mechtarot.CardCaller(alpha, beta, self._win_mission),on_loss=self._lose_mission,
+                win_message = "With the {ME_PROBLEM.solution} in place, {METROSCENE} will be protected from the dinosaurs.".format(**self.elements),
+            )
+            missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+    def _win_mission(self, camp, alpha, beta, **kwargs):
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysocket.consequences[CONSEQUENCE_WIN](camp, alpha, beta, **kwargs)
+
+    def _lose_mission(self, camp):
+        self.mission_seed = None
 
 
 #   *************************************

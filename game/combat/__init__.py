@@ -191,6 +191,7 @@ class Combat( object ):
 
         if hasattr(camp.scene,"combat_music"):
             pbge.my_state.start_music(camp.scene.combat_music)
+
     def roll_initiative( self ):
         # Sort based on initiative roll.
         self.active.sort( key = self._get_npc_initiative, reverse=True )

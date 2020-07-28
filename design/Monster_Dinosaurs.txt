@@ -1,0 +1,170 @@
+Monster
+    name = "Tyrannosaur"
+    statline = {Reflexes = 12, Body=9, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
+			CloseCombat = 8, Dodge = 1, Athletics = 2
+	}
+	scale = MechaScale
+	imagename = 'mon_dinosaurs.png'
+	frame = 0
+	colors = (Olive,Alabaster,GreenYellow,Mustard,Eggplant)
+    threat = 15
+    type_tags = ("ANIMAL", "DINOSAUR")
+    families = ("DINOSAUR","CARNIVORE")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 3
+            SUB
+				MeleeWeapon
+					name="Jaws"
+					reach=1
+					damage=2
+					accuracy=1
+					penetration=3
+					integral = True
+
+                Armor
+                    size = 2
+            END
+        Torso
+            size = 3
+            SUB
+                Armor
+                    size = 2
+            END
+        Arm
+            size = 1
+            SUB
+                Armor
+                    size = 2
+            END
+        Arm
+            size = 1
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 2
+
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=2
+					accuracy=3
+					penetration=1
+					integral = True
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 2
+
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=2
+					accuracy=3
+					penetration=1
+					integral = True
+            END
+        Tail
+            size = 3
+    END
+
+Monster
+    name = "Megosaur"
+    statline = {Reflexes = 12, Body=13, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
+			CloseCombat = 8, Dodge = 4, Vitality=4, Athletics = 5
+	}
+	scale = MechaScale
+	imagename = 'mon_dinosaurs.png'
+	frame = 1
+	colors = (Olive,Alabaster,HunterOrange,Mustard,Eggplant)
+    threat = 30
+    type_tags = ("ANIMAL", "DINOSAUR")
+    families = ("DINOSAUR","CARNIVORE")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 5
+            SUB
+				MeleeWeapon
+					name="Jaws"
+					reach=1
+					damage=3
+					accuracy=1
+					penetration=3
+					integral = True
+
+                Armor
+                    size = 6
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 6
+            END
+        Arm
+            size = 5
+            SUB
+                Armor
+                    size = 6
+            END
+        Arm
+            size = 5
+            SUB
+                Armor
+                    size = 6
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 6
+
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=3
+					accuracy=3
+					penetration=1
+					integral = True
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 6
+
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=3
+					accuracy=3
+					penetration=1
+					integral = True
+            END
+        Tail
+            size = 5
+            SUB
+                Armor
+                    size = 6
+
+				MeleeWeapon
+					name="Thagomizer"
+					reach=1
+					damage=4
+					accuracy=2
+					penetration=2
+					integral = True
+            END
+
+    END
