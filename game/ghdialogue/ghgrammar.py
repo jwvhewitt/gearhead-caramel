@@ -378,6 +378,15 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Don't trust {subject}",
                           ],
     },
+    "[blockhead]": {
+        # I looked up synonyms for "Jerk" and chose blockhead as the pattern name in honor of the Dougram mecha and
+        # Devo song.
+        Default: ["blockhead", "jerk", "arse", "smeghead", "bambo", "chump", "punk", "pongo", "ratfink", "simp",
+                  "spug", "dolt", "ninny", "twit", "grexnix", "nonscrot", "nitwit", "jackass", "dipstick", "geekoid",
+                  "numpty", "prat", "git", "twerp", "schmuck", "bozo", "boob", "galoot", "lummox", "putz", "dingbat",
+                  "spud", "drongo", "asshat", "shazbucket", "grox",
+                  ],
+    },
     "[body_part]": {
         Default: ["eye","nose","face","throat","groin","duodenum","skull",
                   ],
@@ -1125,6 +1134,24 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[HELLO:PROBLEM]": {
+        Default: ["Is there something wrong?",
+                  "You look like you have a problem."
+                  ],
+        personality.Cheerful: ["You don't look like a happy camper today.",
+                               ],
+        personality.Grim: ["Something is troubling you.",
+                           ],
+        personality.Easygoing: ["I get the feeling that there's something you want to talk about.",
+                                ],
+        personality.Passionate: ["If you have a problem, it's important to face it and blast it into submission!",
+                                 ],
+        personality.Sociable: ["Is there something you need to talk about?",
+                               ],
+        personality.Shy: ["What's the matter?",
+                          ],
+    },
+
     "[HELLO:QUERY]": {
         Default: ["Is there something you want to ask me?",
                   "You look like you have a question."
@@ -1246,6 +1273,23 @@ DEFAULT_GRAMMAR = {
             "Everybody, hold on a second...",
             ],
         personality.Shy: ["Wait...",
+                          ],
+    },
+
+    "[I_ALREADY_KNOW]": {
+        Default: ["I already know.", "Yes, I already know that."
+                  ],
+        personality.Cheerful: ["Thanks for telling me, but I already knew that."
+                               ],
+        personality.Grim: ["Stop, I already know what you're going to say.",
+                           ],
+        personality.Easygoing: ["So you know about that too?"
+                                ],
+        personality.Passionate: ["Yes, I know, but what are we going to do about it?",
+                                 ],
+        personality.Sociable: ["Sorry to interrupt, but I already know all about this.",
+                               ],
+        personality.Shy: ["Yes.",
                           ],
     },
 
@@ -1606,6 +1650,23 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I'll ask around and see if there's anything I can do about that.",
                                ],
         personality.Shy: ["I'll see what I can do.",
+                          ],
+    },
+
+    "[I_WOULD_APPRECIATE_IT]": {
+        Default: ["I'd really appreciate it.", "Thanks for your help."
+                  ],
+        personality.Cheerful: ["If you do this, I will be so happy!",
+                               ],
+        personality.Grim: ["I would owe you a debt.",
+                           ],
+        personality.Easygoing: ["It'd be great if you could do this."
+                                ],
+        personality.Passionate: ["I will be forever in your debt!"
+                                 ],
+        personality.Sociable: ["I would personally appreciate your help in this matter.",
+                               ],
+        personality.Shy: ["Thanks.",
                           ],
     },
 
@@ -2386,6 +2447,29 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[THATS_GOOD]": {
+        # Character reacts to good news.
+        Default: ["Very good.",
+                  "That's good."
+                  ],
+        personality.Cheerful: [
+            "Nice!",
+        ],
+        personality.Grim: ["That is fortunate.",
+                           ],
+        personality.Easygoing: [
+            "Neat.",
+        ],
+        personality.Passionate: [
+            "That's the best news!",
+        ],
+        personality.Sociable: [
+            "I'm glad to hear that.",
+        ],
+        personality.Shy: ["Good.",
+                          ],
+    },
+
     "[THATS_INTERESTING]": {
         # Character reacts to interesting news.
         Default: ["Very interesting.",
@@ -2712,6 +2796,13 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Just waiting for my next mission.",
                           ],
+    },
+
+    "[weapon]": {
+        Default: ["pistol", "sword", "candlestick", "chainsaw", "power tool", "industrial laser", "knife",
+                  "plasma cutter", "poisoned apple", "poisoned drink", "assassin droid", "bomb", "salvage crusher",
+                  "gas bomb", "hydrospanner",
+                  ],
     },
 
     "[WE_CAN_AVOID_COMBAT]": {

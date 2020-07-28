@@ -1,4 +1,15 @@
 - Larger movement systems are now lighter (two size-3 Wheels is heavier than a size-6 Wheels) but more expensive.
+- Slasher champions upgrade their plain shields to beam shields.
+- Raider champions upgrade their sensors (to take advantage of their weapon increased range) and may also gain Overchargers.
+- Tone down EnergyWeapon prices.
+- Add Explodium champion. Boom!
+- Major NPCs now always get customized mecha
+- Dungeons will clean out their dead daily
+- Combatant NPCs get starting equipment
+- Added Monster gear type
+- Improved visibility of Green Boarding Chute
+- Added storage scene to GearHeadCampaign
+- Tarot card transformation now passes on default elements from alpha card.
 - Add Overchargers.
 - Champion mecha are special, so they should be easier to salvage.
 - Increase Charge cost even more: treat it like a ranged weapon.

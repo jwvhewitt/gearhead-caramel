@@ -17,11 +17,16 @@ BAMO_CAPTURE_THE_MINE = "BAMO_CaptureMine"
 BAMO_CAPTURE_BUILDINGS = "BAMO_CaptureBuildings"
 BAMO_DEFEAT_ARMY = "BAMO_DefeatArmy"  # 3 points
 BAMO_DEFEAT_COMMANDER = "BAMO_DefeatCommander"  # 2 points
+BAMO_DEFEAT_NPC = "BAMO_DefeatNPC"  # 2 points
+BAME_NPC = "BAME_NPC"
 BAMO_DEFEAT_THE_BANDITS = "BAMO_DefeatTheBandits"
 BAMO_DESTROY_ARTILLERY = "BAMO_Destroy_Artillery"  # 2 points
 BAMO_EXTRACT_ALLIED_FORCES = "BAMO_ExtractAlliedForces"
+BAMO_EXTRACT_ALLIED_FORCES_VS_DINOSAURS = "BAMO_ExtractAlliedForcesVsDinosaurs"
+BAMO_FIGHT_DINOSAURS = "BAMO_FightDinosaurs"
 BAMO_LOCATE_ENEMY_FORCES = "BAMO_LocateEnemyForces"
 BAMO_NEUTRALIZE_ALL_DRONES = "BAMO_NeutralizeAllDrones"
+BAMO_PROTECT_BUILDINGS_FROM_DINOSAURS = "BAMO_ProtectBuildingsFromDinosaurs"
 BAMO_RECOVER_CARGO = "BAMO_RecoverCargo"
 BAMO_RESPOND_TO_DISTRESS_CALL = "BAMO_RespondToDistressCall"
 BAMO_STORM_THE_CASTLE = "BAMO_StormTheCastle"  # 4 points
@@ -587,6 +592,53 @@ class BAM_ChampionDefeatCommander(Championify, BAM_DefeatCommander):
     active = True
 
 
+class BAM_DefeatNPC(Plot):
+    LABEL = BAMO_DEFEAT_NPC
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        mynpc = self.elements.get(BAME_NPC)
+        if mynpc:
+            self.locked_elements.add(BAME_NPC)
+            plotutility.CharacterMover(self, mynpc, myscene, team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+            self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+            self.register_element(BAME_NPC, myunit.commander.get_pilot())
+            self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
+
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Defeat enemy pilot {}".format(self.elements[BAME_NPC]),
+                                                  MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            npc = self.elements[BAME_NPC]
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp, 100)
+
+
 class BAM_DefeatTheBandits(Plot):
     LABEL = BAMO_DEFEAT_THE_BANDITS
     active = True
@@ -769,8 +821,9 @@ class BAM_ExtractAllies(Plot):
         return True
 
     def _npc_is_good(self, nart, candidate):
-        return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction == \
-               self.elements["ALLIED_FACTION"] and candidate not in nart.camp.party
+        return isinstance(candidate, gears.base.Character) and candidate.combatant and \
+               nart.camp.are_faction_allies(candidate.faction, self.elements["ALLIED_FACTION"]) and \
+               candidate not in nart.camp.party
 
     def PILOT_offers(self,camp):
         mylist = list()
@@ -822,6 +875,126 @@ class BAM_ExtractAllies(Plot):
 
 class BAM_ChampionExtractAllies(Championify, BAM_ExtractAllies):
     active = True
+
+
+class BAM_ExtractAlliesVsDinosaurs(Plot):
+    LABEL = BAMO_EXTRACT_ALLIED_FORCES_VS_DINOSAURS
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        myroom = self.register_element("ROOM", roomtype(10, 10), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        team3 = self.register_element("_ateam", teams.Team(enemies=(team2,), allies=(myscene.player_team,)),
+                                      dident="ROOM")
+
+        myunit = gears.selector.RandomMonsterUnit(self.rank, random.randint(100,120), myscene.environment, ("DINOSAUR",), myscene.scale)
+        team2.contents += myunit.contents
+
+        mynpc = self.seek_element(nart, "PILOT", self._npc_is_good, must_find=False, lock=True)
+        if mynpc:
+            plotutility.CharacterMover(self, mynpc, myscene, team3)
+            mek = mynpc.get_root()
+            self.register_element("SURVIVOR", mek)
+            self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT",ident="NPC_TALK",elements={"NPC":mynpc,})
+        else:
+            mysurvivor = self.register_element("SURVIVOR", gears.selector.generate_ace(self.rank, self.elements.get(
+                "ALLIED_FACTION"), myscene.environment))
+            mynpc = mysurvivor.get_pilot()
+            self.register_element("PILOT", mynpc)
+            team3.contents.append(mysurvivor)
+            self.add_sub_plot(nart,"MT_NDDEV",ident="NPC_TALK",elements={"NPC":mynpc,})
+
+        self.obj = adventureseed.MissionObjective("Rescue allied pilot {}".format(self.elements["PILOT"]),
+                                                  MAIN_OBJECTIVE_VALUE, can_reset=False)
+        self.adv.objectives.append(self.obj)
+        self.intro_ready = True
+        self.eteam_activated = False
+        self.eteam_defeated = False
+        self.pilot_fled = False
+
+        return True
+
+    def _npc_is_good(self, nart, candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.combatant and \
+               nart.camp.are_faction_allies(candidate.faction, self.elements["ALLIED_FACTION"]) and \
+               candidate not in nart.camp.party
+
+    def PILOT_offers(self,camp):
+        mylist = list()
+        mylist.append( Offer(self.subplots["NPC_TALK"].START_COMBAT_MESSAGE,
+                context=ContextTag([context.HELLO, ]),))
+        if not camp.fight:
+            mylist.append(
+                Offer("[THANK_YOU] I need to get back to base.",
+                      context=ContextTag([context.CUSTOM,]),data={"reply":"Get out of here, I can handle this."},
+                      effect=self.pilot_leaves_before_combat, dead_end=True)
+            )
+
+        return mylist
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            self.eteam_activated = True
+            if not self.pilot_fled:
+                npc = self.elements["PILOT"]
+                camp.check_trigger("START",npc)
+                camp.fight.active.append(self.elements["SURVIVOR"])
+            self.intro_ready = False
+
+    def pilot_leaves_before_combat(self, camp):
+        self.obj.win(camp, 105)
+        self.pilot_leaves_combat(camp)
+
+    def pilot_leaves_combat(self, camp):
+        if not self.pilot_fled:
+            npc = self.elements["PILOT"]
+            npc.relationship.reaction_mod += 10
+        camp.scene.contents.remove(self.elements["SURVIVOR"])
+        self.pilot_fled = True
+
+    def t_ENDCOMBAT(self, camp):
+        if self.eteam_activated and not self.pilot_fled:
+            myteam = self.elements["_ateam"]
+            eteam = self.elements["_eteam"]
+            npc = self.elements["PILOT"]
+            if len(myteam.get_active_members(camp)) < 1:
+                self.obj.failed = True
+                camp.check_trigger("LOSE",npc)
+            elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+                self.eteam_defeated = True
+                self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
+                camp.check_trigger("WIN",npc)
+                self.pilot_leaves_combat(camp)
+
+
+class BAM_FightDinosaurs(Plot):
+    LABEL = BAMO_FIGHT_DINOSAURS
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        myunit = gears.selector.RandomMonsterUnit(self.rank, random.randint(100,120), myscene.environment, ("DINOSAUR",), myscene.scale)
+        team2.contents += myunit.contents
+
+        self.obj = adventureseed.MissionObjective("Defeat the dinosaurs", MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        return True
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp, 100)
 
 
 class BAM_LocateEnemyForces(Plot):
@@ -902,6 +1075,50 @@ class BAM_NeutralizeAllDrones(Plot):
 
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp, 100)
+
+
+class BAM_ProtectBuildingsFromDinos(Plot):
+    LABEL = BAMO_PROTECT_BUILDINGS_FROM_DINOSAURS
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        myroom = self.register_element("ROOM", roomtype(10, 10), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        myunit = gears.selector.RandomMonsterUnit(self.rank, random.randint(100,120), myscene.environment, ("DINOSAUR",), myscene.scale)
+        team2.contents += myunit.contents
+
+        team3 = self.register_element("_propteam", teams.Team(enemies=(team2,),), dident="ROOM")
+        for t in range(random.randint(1, 2 + self.rank // 25)):
+            team3.contents.append(gears.selector.get_design_by_full_name("Concrete Building"))
+        # Oh yeah, when using PyCharm, why not use ludicrously long variable names?
+        self.starting_number_of_props = len(team3.contents)
+
+        self.obj = adventureseed.MissionObjective("Protect the buildings", MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+        self.combat_entered = False
+        self.combat_finished = False
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if not self.combat_entered:
+            self.combat_entered = True
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+        propteam = self.elements["_propteam"]
+        if len(propteam.get_active_members(camp)) < 1:
+            self.obj.failed = True
+        elif len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
+                                     propteam.get_active_members(camp)])) // self.starting_number_of_props)
+            if not self.combat_finished:
+                pbge.alert("The buildings have been secured.")
+                self.combat_finished = True
 
 
 class BAM_RecoverCargo(Plot):

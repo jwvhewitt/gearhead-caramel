@@ -1,0 +1,333 @@
+[
+  {
+    "name": "Murder",
+    "command": "ME_CRIME",
+    "results": {
+      "text": "the murder of {NPC}",
+      "ed": "murdered {NPC}",
+      "story": "{ME_PERSON} murdered {NPC}"
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "next_command": "ME_CRIME_MURDER_VICTIM"
+  },
+
+    {
+    "name": "Homicide",
+    "command": "ME_CRIME",
+    "results": {
+      "text": "the murder of {NPC}",
+      "ed": "killed {NPC}",
+      "story": "{ME_PERSON} killed {NPC} with a [weapon]"
+    },
+    "add_elements": {
+      "NPC": ["CHARACTER",{}]
+    },
+    "next_command": "ME_CRIME_MURDER_MOTIVE"
+  },
+
+  {
+    "name": "Synth Trader",
+    "command": "ME_CRIME",
+    "results": {
+      "text": "the bioweapon trade",
+      "ed": "sold bioweapons",
+      "story": "{ME_PERSON} is involved in the bioweapon trade,"
+    },
+    "next_command": "ME_CRIME_SMUGGLING_CLIENTS"
+  },
+  {
+    "name": "Gene Trader",
+    "command": "ME_CRIME",
+    "results": {
+      "text": "forbidden biotechnology",
+      "ed": "sold illegal biotechnology",
+      "story": "{ME_PERSON} has obtained and traded forbidden biotechnology,"
+    },
+    "next_command": "ME_CRIME_SMUGGLING_CLIENTS"
+  },
+  {
+    "name": "Weapon Trader",
+    "command": "ME_CRIME",
+    "results": {
+      "text": "arms smuggling",
+      "ed": "smuggled black market weapons",
+      "story": "{ME_PERSON} has been trading weapons under the table,"
+    },
+    "next_command": "ME_CRIME_SMUGGLING_CLIENTS"
+  },
+  {
+    "name": "Forbidden Technology",
+    "command": "ME_CRIME",
+    "results": {
+      "text": "forbidden research",
+      "ed": "researched unlawful technologies",
+      "story": "{ME_PERSON} has funded research into"
+    },
+    "next_command": "ME_CRIME_TECHNOLOGY"
+  },
+
+  {
+    "name": "Bioweapons",
+    "command": "ME_CRIME_TECHNOLOGY",
+    "results": {
+      "story": "autonomous biomonsters"
+    },
+    "next_command": "ME_CRIME_RESEARCH_GOAL"
+  },
+  {
+    "name": "Chemical Weapons",
+    "command": "ME_CRIME_TECHNOLOGY",
+    "results": {
+      "story": "banned chemical weapons"
+    },
+    "next_command": "ME_CRIME_RESEARCH_GOAL"
+  },
+  {
+    "name": "Mutagenics",
+    "command": "ME_CRIME_TECHNOLOGY",
+    "results": {
+      "story": "human mutagenics"
+    },
+    "next_command": "ME_CRIME_RESEARCH_GOAL"
+  },
+  {
+    "name": "Mind Control",
+    "command": "ME_CRIME_TECHNOLOGY",
+    "results": {
+      "story": "neurohacking technology"
+    },
+    "next_command": "ME_CRIME_RESEARCH_GOAL"
+  },
+  {
+    "name": "PreZero Tech",
+    "command": "ME_CRIME_TECHNOLOGY",
+    "results": {
+      "story": "forbidden PreZero technology"
+    },
+    "next_command": "ME_CRIME_RESEARCH_GOAL"
+  },
+  {
+    "name": "Cyberpets",
+    "command": "ME_CRIME_TECHNOLOGY",
+    "results": {
+      "story": "animal augmentation"
+    },
+    "next_command": "ME_CRIME_RESEARCH_GOAL"
+  },
+  {
+    "name": "Targeted Virus",
+    "command": "ME_CRIME_TECHNOLOGY",
+    "results": {
+      "story": "weaponized pathogens"
+    },
+    "next_command": "ME_CRIME_RESEARCH_GOAL"
+  },
+  {
+    "name": "Drugs",
+    "command": "ME_CRIME_TECHNOLOGY",
+    "results": {
+      "story": "dependence-causing pharmaceuticals"
+    },
+    "next_command": "ME_CRIME_RESEARCH_GOAL"
+  },
+  {
+    "name": "TV Shows",
+    "command": "ME_CRIME_TECHNOLOGY",
+    "results": {
+      "story": "psychoengineering"
+    },
+    "next_command": "ME_CRIME_RESEARCH_GOAL"
+  },
+
+  {
+    "name": "For Various Clients",
+    "command": "ME_CRIME_RESEARCH_GOAL",
+    "results": {
+      "story": "for various clients."
+    }
+  },
+  {
+    "name": "For Criminals",
+    "command": "ME_CRIME_RESEARCH_GOAL",
+    "results": {
+      "story": "for the criminal underworld."
+    }
+  },
+  {
+    "name": "For Highest Bidder",
+    "command": "ME_CRIME_RESEARCH_GOAL",
+    "results": {
+      "story": "to sell to the highest bidder."
+    }
+  },
+
+  {
+    "name": "Warlords",
+    "command": "ME_CRIME_SMUGGLING_CLIENTS",
+    "results": {
+      "story": "supplying aspiring warlords with"
+    },
+    "next_command": "ME_CRIME_FACTION_GOAL"
+  },
+  {
+    "name": "Political Enemies",
+    "command": "ME_CRIME_SMUGGLING_CLIENTS",
+    "results": {
+      "story": "providing enemy governments with"
+    },
+    "next_command": "ME_CRIME_FACTION_GOAL"
+  },
+  {
+    "name": "Criminals",
+    "command": "ME_CRIME_SMUGGLING_CLIENTS",
+    "results": {
+      "story": "giving criminals"
+    },
+    "next_command": "ME_CRIME_FACTION_GOAL"
+  },
+
+  {
+    "name": "Conan Would Approve",
+    "command": "ME_CRIME_FACTION_GOAL",
+    "results": {
+      "story": "the means to destroy their enemies."
+    }
+  },
+  {
+    "name": "Civilization?",
+    "command": "ME_CRIME_FACTION_GOAL",
+    "results": {
+      "story": "the ability to conquer their neighbors."
+    }
+  },
+  {
+    "name": "Real Ultimate Power",
+    "command": "ME_CRIME_FACTION_GOAL",
+    "results": {
+      "story": "more power than any human should possess."
+    }
+  },
+  {
+    "name": "Destabilization",
+    "command": "ME_CRIME_FACTION_GOAL",
+    "results": {
+      "story": "the ability to start new wars in formerly peaceful regions."
+    }
+  },
+  {
+    "name": "REVENGE!!!",
+    "command": "ME_CRIME_FACTION_GOAL",
+    "results": {
+      "story": "the ability to enact revenge on their foes."
+    }
+  },
+  {
+    "name": "Chaos!",
+    "command": "ME_CRIME_FACTION_GOAL",
+    "results": {
+      "story": "the power to unleash chaos on a grand scale."
+    }
+  },
+
+  {
+    "name": "Business Partner",
+    "command": "ME_CRIME_MURDER_VICTIM",
+    "results": {
+      "story": ", {ME_PERSON.gender.possessive_determiner} business partner,"
+    },
+    "next_command": "ME_CRIME_MURDER_MOTIVE"
+  },
+  {
+    "name": "Ex-Lover",
+    "command": "ME_CRIME_MURDER_VICTIM",
+    "results": {
+      "story": ", {ME_PERSON.gender.possessive_determiner} ex-lover,"
+    },
+    "next_command": "ME_CRIME_MURDER_MOTIVE"
+  },
+    {
+    "name": "Associate",
+    "command": "ME_CRIME_MURDER_VICTIM",
+    "results": {
+      "story": ", {ME_PERSON.gender.possessive_determiner} associate,"
+    },
+    "next_command": "ME_CRIME_MURDER_MOTIVE"
+  },
+  {
+    "name": "Lover",
+    "command": "ME_CRIME_MURDER_VICTIM",
+    "results": {
+      "story": ", {ME_PERSON.gender.possessive_determiner} lover,"
+    },
+    "next_command": "ME_CRIME_MURDER_MOTIVE"
+  },
+  {
+    "name": "Gory Details",
+    "command": "ME_CRIME_MURDER_VICTIM",
+    "results": {
+      "story": "with a [weapon]"
+    },
+    "next_command": "ME_CRIME_MURDER_MOTIVE"
+  },
+  {
+    "name": "Rando Victim",
+    "command": "ME_CRIME_MURDER_VICTIM",
+    "results": {
+    },
+    "next_command": "ME_CRIME_MURDER_MOTIVE"
+  },
+
+
+  {
+    "name": "To Gain Control",
+    "command": "ME_CRIME_MURDER_MOTIVE",
+    "results": {
+      "story": "to gain full control over their criminal activities."
+    }
+  },
+  {
+    "name": "Cover Up",
+    "command": "ME_CRIME_MURDER_MOTIVE",
+    "results": {
+      "story": "to keep {ME_PERSON.gender.possessive_determiner} crimes secret."
+    }
+  },
+  {
+    "name": "For The Parts",
+    "command": "ME_CRIME_MURDER_MOTIVE",
+    "results": {
+      "story": "to harvest {NPC.gender.possessive_determiner} organs for transplant."
+    }
+  },
+  {
+    "name": "For the Blackmail",
+    "command": "ME_CRIME_MURDER_MOTIVE",
+    "results": {
+      "story": "because {NPC} was blackmailing {ME_PERSON.gender.object_pronoun}."
+    }
+  },
+  {
+    "name": "For Revenge",
+    "command": "ME_CRIME_MURDER_MOTIVE",
+    "results": {
+      "story": "for revenge after {NPC}'s betrayal."
+    }
+  },
+  {
+    "name": "Rando Motive",
+    "command": "ME_CRIME_MURDER_MOTIVE",
+    "results": {
+      "story": "for no apparent reason."
+    }
+  },
+  {
+    "name": "For Suspected Disloyalty",
+    "command": "ME_CRIME_MURDER_MOTIVE",
+    "results": {
+      "story": "because {ME_PERSON.gender.subject_pronoun} suspected {NPC} had betrayed {ME_PERSON.gender.object_pronoun}."
+    }
+  }
+
+]

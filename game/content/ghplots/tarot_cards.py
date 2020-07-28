@@ -17,6 +17,9 @@ ME_ACTOR = "ME_ACTOR"  # The performer of an action; a character or faction
 ME_PUZZLEITEM = "ME_PUZZLEITEM"
 ME_CRIME = "ME_CRIME"
 ME_LIABILITY = "ME_LIABILITY"
+ME_POSITION = "ME_POSITION"   # Used in the SIG_HIRE signal
+ME_PROBLEM = "ME_PROBLEM"     # A problem/solution that can be solved with technobabble
+ME_LOCATION = "ME_LOCATION"
 
 SIG_INCRIMINATE = "SIG_INCRIMINATE"  # Looks like someone did crime
 SIG_ACCUSE = "SIG_ACCUSE"  # Bring the hammer of justice against the evil-doer; uses ME_CRIME
@@ -25,6 +28,11 @@ SIG_AMPLIFY = "SIG_AMPLIFY"  # A secret has been revealed but needs amplificatio
 SIG_EXTORT = "SIG_EXTORT"   # A ME_LIABILITY is known, and may be served to the target for nefarious purposes
 SIG_CRIME = "SIG_CRIME"     # Signal broadcast by a raw crime.
 SIG_DECRYPT = "SIG_DECRYPT"
+SIG_HIRE = "SIG_HIRE"
+SIG_CURE = "SIG_CURE"       # Cure a disease using a techno solution
+SIG_INGREDIENTS = "SIG_INGREDIENTS"
+SIG_APPLY = "SIG_APPLY"     # Solve a problem using a techno solution; analagous to SIG_CURE
+SIG_SCIENCEBOOST = "SIG_SCIENCEBOOST"   # You have a resource that can boost scientific effort, no questions asked
 
 
 #   *************************************
@@ -37,6 +45,22 @@ def get_element_effect(elem, elem_id, script_list):
         if card.elements.get(elem_id) is elem and hasattr(card, "QOL"):
             myeffect.add(card.QOL)
     return myeffect
+
+
+class TechnoProblem(object):
+    def __init__(self,problem,solution="",tags=()):
+        self.problem = problem
+        self.solution = solution
+        self.tags = set(tags)
+
+    def update(self, other):
+        self.problem = other.problem
+        self.solution = other.solution
+        self.tags = set(other.tags)
+
+    def __str__(self):
+        return self.problem
+
 
 
 class PersonalLiability(object):
@@ -66,6 +90,17 @@ class CrimeObject(object):
 
     def __str__(self):
         return self.text
+
+
+class PositionObject(object):
+    def __init__(self, job_title):
+        self.job_title = job_title
+
+    def update(self, other):
+        self.job_title = other.job_title
+
+    def __str__(self):
+        return self.job_title
 
 
 def find_npc_antivirtues(npc, metro):
@@ -129,7 +164,7 @@ class TheMedia(TarotCard):
         ),
     )
 
-    AUTO_MEMO = "{ME_PERSON} is a media figure with a large audience in {METROSCENE}."
+    AUTO_MEMO = "{ME_PERSON} is a {ME_PERSON.job} with a large audience in {METROSCENE}."
 
     def custom_init(self, nart):
         # Add the subplot which will decide the splinter faction and provide a discovery route.
@@ -141,10 +176,65 @@ class TheMedia(TarotCard):
         return True
 
 
+class WannabeReporter(TarotCard):
+    # A journalist seeking a platform
+    TAGS = (MT_PERSON,)
+    active = True
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_HireMe", TarotSignal(SIG_HIRE, (ME_POSITION,)),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("TheMedia", (ME_PERSON,), ())
+            }
+        ),
+    )
+
+    AUTO_MEMO = "{ME_PERSON} at {ME_PERSON.scene} is a reporter looking for a job."
+
+    def custom_init(self, nart):
+        if ME_POSITION not in self.elements:
+            self.elements[ME_POSITION] = PositionObject("Reporter")
+        else:
+            self.elements[ME_POSITION].job_title = "Reporter"
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_WannabeReporter", ident="REVEAL")
+            if ME_PERSON not in self.elements:
+                self.elements[ME_PERSON] = sp.elements[ME_PERSON]
+
+        return True
+
+
+class HelpWanted(TarotCard):
+    # Looking for a job? This person is hiring.
+    TAGS = (MT_PERSON,)
+    active = True
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_HIRE, [ME_POSITION, ]
+        ),
+    )
+
+    AUTO_MEMO = "{ME_PERSON} at {ME_PERSON.scene} is planning to hire a {ME_POSITION}."
+
+    def custom_init(self, nart):
+        if ME_POSITION not in self.elements:
+            self.elements[ME_POSITION] = PositionObject("Assistant")
+
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_HelpWanted", ident="REVEAL")
+            if ME_PERSON not in self.elements:
+                self.elements[ME_PERSON] = sp.elements[ME_PERSON]
+
+        return True
+
+
 class BadPress(TarotCard):
     # A person's liability has become widely known. Too late to shut this can of worms.
     TAGS = ()
     active = True
+    AUTO_MEMO = "Everyone in {METROSCENE} now knows that {ME_LIABILITY}."
 
     SIGNALS = (
         TarotSignal(
@@ -165,7 +255,6 @@ class BadPress(TarotCard):
         else:
             if not self.elements.get(ME_LIABILITY):
                 self.register_element(ME_LIABILITY, "{ME_PERSON} is utterly terrible".format(**self.elements))
-            self.memo = "You learned that {ME_LIABILITY}.".format(**self.elements)
 
         return True
 
@@ -281,6 +370,31 @@ class FactionCrimesProof(TarotCard):
             if not self.elements.get(ME_CRIME):
                 self.register_element(ME_CRIME, CrimeObject("a crime","committed crimes"))
             self.memo = "You learned that {ME_FACTION} {ME_CRIME.ed}.".format(**self.elements)
+
+        return True
+
+class CharacterCrimesProof(TarotCard):
+    # Proof that a character has committed a crime.
+    TAGS = (MT_INCRIMINATING,)
+    active = True
+    ONE_USE = True
+    AUTO_MEMO = "You learned that {ME_PERSON} {ME_CRIME.ed}."
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_ACCUSE, [ME_PERSON, ]
+        ),
+    )
+
+    def custom_init(self, nart):
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_PersonalCrime", ident="REVEAL")
+            if ME_PERSON not in self.elements:
+                self.elements[ME_PERSON] = sp.elements[ME_PERSON]
+            self.elements[ME_CRIME] = sp.elements[ME_CRIME]
+        else:
+            if not self.elements.get(ME_CRIME):
+                self.register_element(ME_CRIME, CrimeObject("a crime","committed crimes"))
 
         return True
 
@@ -448,6 +562,30 @@ class Murder(TarotCard):
         return True
 
 
+class Henchman(TarotCard):
+    TAGS = (MT_PERSON,)
+    active = True
+    ONE_USE = True
+    AUTO_MEMO = "{ME_PERSON} has been doing dirty work for {ME_ACTOR}."
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_HenchmanLiability", TarotSignal(SIG_CRIME, [ME_CRIME]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("FeetOfClay", [(ME_PERSON, ME_ACTOR), ME_LIABILITY], [ME_CRIME, ])
+            }
+        ),
+    )
+
+    def custom_init(self, nart):
+        if ME_CRIME not in self.elements:
+            self.elements[ME_CRIME] = CrimeObject("the atrocity", "committed an atrocity")
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Henchman", ident="REVEAL")
+            self.elements[ME_PERSON] = sp.elements[ME_PERSON]
+        return True
+
+
 class TheQuitter(TarotCard):
     TAGS = (MT_PERSON,MT_FACTION,)
     active = True
@@ -470,7 +608,277 @@ class TheQuitter(TarotCard):
             self.elements[ME_CRIME] = CrimeObject("the atrocity","committed an atrocity")
         if not self.elements.get(ME_AUTOREVEAL):
             sp = self.add_sub_plot(nart, "MT_REVEAL_Quitter", ident="REVEAL")
+            if ME_PERSON not in self.elements:
+                self.elements[ME_PERSON] = sp.elements[ME_PERSON]
         return True
+
+
+class Recovery(TarotCard):
+    # From an illness or physical problem
+    QOL = gears.QualityOfLife(health=1)
+    active = True
+
+
+class EcologicalBalance(TarotCard):
+    # Recovery from pollution or other ecological damage
+    QOL = gears.QualityOfLife(prosperity=1)
+    active = True
+
+
+class Epidemic(TarotCard):
+    # An illness strikes the area.
+    TAGS = (MT_THREAT, )
+    QOL = gears.QualityOfLife(health=-4, prosperity=-1)
+    active = True
+    NEGATIONS = ("Recovery",)
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_Cure", TarotSignal(SIG_CURE, [ME_PROBLEM]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("Recovery", (ME_PROBLEM,))
+            }
+        ),
+    )
+
+    AUTO_MEMO = "{METROSCENE} has been afflicted with {ME_PROBLEM}."
+
+    def custom_init(self, nart):
+        if ME_PROBLEM not in self.elements:
+            self.elements[ME_PROBLEM] = TechnoProblem(plotutility.random_disease_name(), plotutility.random_medicine_name(),("DISEASE",))
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Epidemic", ident="REVEAL")
+
+        return True
+
+
+class TheCure(TarotCard):
+    # A cure for an epidemic.
+    active = True
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_CURE, [ME_PROBLEM, ]
+        ),
+    )
+
+    AUTO_MEMO = "You've obtained a source of {ME_PROBLEM.solution}, which can cure {ME_PROBLEM}."
+
+    def custom_init(self, nart):
+        if ME_PROBLEM not in self.elements:
+            self.elements[ME_PROBLEM] = TechnoProblem(plotutility.random_disease_name(), plotutility.random_medicine_name())
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_TheCure", ident="REVEAL")
+
+        return True
+
+
+class Chemist(TarotCard):
+    # Someone who might be able to make medicine.
+    TAGS = (MT_PERSON, )
+    active = True
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_Ingredients", TarotSignal(SIG_INGREDIENTS, [ME_PROBLEM]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("TheCure", (ME_PROBLEM,))
+            }
+        ),
+    )
+
+    AUTO_MEMO = "{ME_PERSON} in {ME_PERSON.scene} may be able to fabricate a cure for {ME_PROBLEM}, given the right ingredients."
+
+    def custom_init(self, nart):
+        if ME_PROBLEM not in self.elements:
+            self.elements[ME_PROBLEM] = TechnoProblem(plotutility.random_disease_name(), plotutility.random_medicine_name())
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Chemist", ident="REVEAL")
+            self.elements[ME_PERSON] = sp.elements[ME_PERSON]
+
+        return True
+
+
+class WannabeChemist(TarotCard):
+    # An aspiring techno-alchemist
+    TAGS = (MT_PERSON,)
+    active = True
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_HireMe", TarotSignal(SIG_HIRE, (ME_POSITION,)),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("Chemist", (ME_PERSON,ME_PROBLEM), ())
+            }
+        ),
+    )
+
+    AUTO_MEMO = "{ME_PERSON} at {ME_PERSON.scene} wants to set up a chemistry lab in order to combat {ME_PROBLEM}."
+
+    def custom_init(self, nart):
+        if ME_POSITION not in self.elements:
+            self.elements[ME_POSITION] = PositionObject("Chemist")
+        else:
+            self.elements[ME_POSITION].job_title = "Chemist"
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_WannabeChemist", ident="REVEAL")
+            if ME_PERSON not in self.elements:
+                self.elements[ME_PERSON] = sp.elements[ME_PERSON]
+
+        return True
+
+
+class SecretIngredients(TarotCard):
+    # Ingredients are needed to build a solution.
+    active = True
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_INGREDIENTS, [ME_PROBLEM, ]
+        ),
+    )
+
+    AUTO_MEMO = "You have obtained the ingredients needed for the {ME_PROBLEM.solution}."
+
+    def custom_init(self, nart):
+        if ME_PROBLEM not in self.elements:
+            self.elements[ME_PROBLEM] = TechnoProblem(plotutility.random_disease_name(), plotutility.random_medicine_name())
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_SecretIngredients", ident="REVEAL")
+
+        return True
+
+
+class RobberBaron(TarotCard):
+    # Exploitation leading to widespread poverty.
+    TAGS = (MT_THREAT, MT_PERSON, MT_FACTION)
+    QOL = gears.QualityOfLife(prosperity=-4, community=-1)
+    active = True
+    NEGATIONS = ("TheExiled",)
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_Accuse", TarotSignal(SIG_ACCUSE, [ME_PERSON,]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("TheExiled", (ME_PERSON,))
+            }
+        ),
+        TarotSocket(
+            "MT_SOCKET_Accuse", TarotSignal(SIG_ACCUSE, [ME_FACTION, ]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("TheExiled", (ME_PERSON,))
+            }
+        ),
+    )
+
+    AUTO_MEMO = "{ME_PERSON} practically owns {METROSCENE}."
+
+    def custom_init(self, nart):
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_RobberBaron", ident="REVEAL")
+            if ME_PERSON not in self.elements:
+                self.elements[ME_PERSON] = sp.elements[ME_PERSON]
+            if ME_FACTION in sp.elements:
+                self.elements[ME_FACTION] = sp.elements[ME_FACTION]
+        if ME_FACTION not in self.elements:
+            mynpc = self.elements[ME_PERSON]
+            self.elements[ME_FACTION] = gears.factions.Circle(nart.camp,name="{} Industries".format(mynpc))
+            mynpc.faction = self.elements[ME_FACTION]
+        return True
+
+
+class DinosaurAttack(TarotCard):
+    # Genetically engineered dinosaurs causing problems.
+    TAGS = (MT_THREAT, )
+    QOL = gears.QualityOfLife(defense=-4, health=-1)
+    active = True
+    NEGATIONS = ("EcologicalBalance",)
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_DinosaurSolution", TarotSignal(SIG_APPLY, [ME_PROBLEM]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("EcologicalBalance", (ME_PROBLEM,))
+            }
+        ),
+    )
+
+    AUTO_MEMO = "{METROSCENE} is under constant threat from mutant dinosaurs."
+
+    def custom_init(self, nart):
+        if ME_PROBLEM not in self.elements:
+            self.elements[ME_PROBLEM] = TechnoProblem('mutant dinosaurs', "sonic fence", ("MONSTERS",))
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Dinosaurs", ident="REVEAL")
+
+        return True
+
+class Invention(TarotCard):
+    # A solution for a techproblem.
+    active = True
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_APPLY, [ME_PROBLEM, ]
+        ),
+    )
+
+    AUTO_MEMO = "You've obtained a {ME_PROBLEM.solution} to fix {METROSCENE}'s {ME_PROBLEM} problem."
+
+    def custom_init(self, nart):
+        if ME_PROBLEM not in self.elements:
+            self.elements[ME_PROBLEM] = TechnoProblem(plotutility.random_disease_name(), plotutility.random_medicine_name())
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Invention", ident="REVEAL")
+
+        return True
+
+
+class Inventor(TarotCard):
+    # Someone who might be able to make an invention.
+    TAGS = (MT_PERSON, )
+    active = True
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_Ingredients", TarotSignal(SIG_INGREDIENTS, [ME_PROBLEM]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("TheCure", (ME_PROBLEM,))
+            }
+        ),
+    )
+
+    AUTO_MEMO = "{ME_PERSON} in {ME_PERSON.scene} may be able to build a {ME_PROBLEM.solution} for {ME_PROBLEM}, given the right supplies."
+
+    def custom_init(self, nart):
+        if ME_PROBLEM not in self.elements:
+            self.elements[ME_PROBLEM] = TechnoProblem(plotutility.random_disease_name(), plotutility.random_medicine_name())
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Inventor", ident="REVEAL")
+            self.elements[ME_PERSON] = sp.elements[ME_PERSON]
+
+        return True
+
+
+class AbandonedLaboratory(TarotCard):
+    # There's a laboratory sitting right there, potentially full of PreZero tech.
+    active = True
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_SCIENCEBOOST, []
+        ),
+    )
+
+    AUTO_MEMO = "You've found {ME_LOCATION}."
+
+    def custom_init(self, nart):
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Laboratory", ident="REVEAL")
+            self.elements[ME_LOCATION] = sp.elements[ME_LOCATION]
+
+        return True
+
 
 
 #   **************************

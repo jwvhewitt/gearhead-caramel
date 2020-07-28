@@ -19,20 +19,26 @@ class PC_HospitalRecovery( Plot ):
     scope = True
     def custom_init( self, nart ):
         """Find a hospital, move the PC to there."""
-        myscene = self.seek_element(nart,"HOSPITAL",self._is_good_scene,scope=self.elements["METROSCENE"])
-        myent = self.seek_element(nart,"BED",self._is_good_bed,scope=myscene,check_subscenes=False)
+        myscene = self.seek_element(nart,"HOSPITAL",self._is_good_scene,scope=self.elements["METROSCENE"], backup_seek_func=self._is_public_scene)
+        myent = self.seek_element(nart,"BED",self._is_good_bed,scope=myscene,check_subscenes=False, backup_seek_func=self._is_any_waypoint)
         self.mission_entrance = (myscene,myent)
         self.started_mission = False
         self.plots_to_run = list()
         if nart.camp.dead_party:
-            self.plots_to_run.append(self.add_sub_plot(nart,"RECOVERY_DEAD_PARTY"))
+            self.plots_to_run.append(self.add_sub_plot(nart,"RECOVER_DEAD_PARTY"))
         return True
 
     def _is_good_scene(self,nart,candidate):
         return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_HOSPITAL in candidate.attributes
 
+    def _is_public_scene(self,nart,candidate):
+        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
     def _is_good_bed(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.waypoints.Waypoint) and hasattr(candidate,"recovery_entrance") and candidate.recovery_entrance
+
+    def _is_any_waypoint(self, nart, candidate):
+        return isinstance(candidate,pbge.scenes.waypoints.Waypoint)
 
     def start_recovery(self,camp):
         """

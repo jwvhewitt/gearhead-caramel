@@ -69,8 +69,8 @@ Prop
 Prop
 	name = "Concrete Building"
 	imagename = "terrain_dzd_mechaprops.png"
-    frame = 0
-    destroyed_frame = 4
+    frame = 1
+    destroyed_frame = 5
     size = 3
 	scale = MechaScale
 	statline = {
