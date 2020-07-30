@@ -1,3 +1,7 @@
+- All towns now have a tarot scenario
+- Added Quality of Life indicator to all towns
+- Highway encounters won't clutter the road with trees or other obstacles. It's supposed to be a road.
+- Fixed the disappearing enemy commander bug
 - One on One Champion Fight now uses faction leader if possible
 - Town prosperity now affects shop items
 - Larger movement systems are now lighter (two size-3 Wheels is heavier than a size-6 Wheels) but more expensive.

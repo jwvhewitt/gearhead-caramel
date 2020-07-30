@@ -34,8 +34,8 @@ class RoadMissionPlot( missionbuilder.BuildAMissionPlot ):
             camp.destination, camp.entrance = self.elements["ADVENTURE_GOAL"]
         else:
             camp.destination, camp.entrance = self.elements["ADVENTURE_RETURN"]
-        if self.elements["ONE_CHANCE"] or self.adv.is_completed():
-            self.adv.end_adventure(camp)
+        self.adv.end_adventure(camp)
+
 
 class DZDREProppStarterPlot(Plot):
     LABEL = "UTILITY_PARENT"
@@ -78,7 +78,8 @@ class DZDREProppStarterPlot(Plot):
             objectives = self.ENCOUNTER_OBJECTIVES + (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
             adv_type = "DZD_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
-            scenegen=DeadZoneHighwaySceneGen, architecture=self.ENCOUNTER_ARCHITECTURE(),
+            scenegen=DeadZoneHighwaySceneGen,
+            architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
             cash_reward=0,
         )
         return myadv
@@ -97,7 +98,8 @@ class DZDREProppStarterPlot(Plot):
             objectives = (missionbuilder.BAMO_DEFEAT_COMMANDER,dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
             adv_type = "DZD_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
-            scenegen=DeadZoneHighwaySceneGen, architecture=self.ENCOUNTER_ARCHITECTURE(),
+            scenegen=DeadZoneHighwaySceneGen,
+            architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
             cash_reward=0,
         )
         return myadv

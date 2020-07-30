@@ -944,7 +944,7 @@ class TheFarm(TarotCard):
         if not self.elements.get(ME_AUTOREVEAL):
             sp = self.add_sub_plot(nart, "MT_REVEAL_Farm", ident="REVEAL")
             self.elements[ME_BOOSTSOURCE] = sp.elements[ME_BOOSTSOURCE]
-        else:
+        elif ME_BOOSTSOURCE not in self.elements:
             self.elements[ME_BOOSTSOURCE] = "the farm"
 
         return True
@@ -957,7 +957,7 @@ class CursedEarth(TarotCard):
         TarotSocket(
             "MT_SOCKET_CursedEarthSolution", TarotSignal(SIG_APPLY, [ME_PROBLEM]),
             consequences={
-                CONSEQUENCE_WIN: TarotTransformer("TheFarm", (ME_PROBLEM,))
+                CONSEQUENCE_WIN: TarotTransformer("TheFarm", (ME_PROBLEM,ME_BOOSTSOURCE))
             }
         ),
     )
@@ -969,6 +969,47 @@ class CursedEarth(TarotCard):
             self.elements[ME_PROBLEM] = TechnoProblem('polluted land', random.choice(self.SOLUTIONS))
         if not self.elements.get(ME_AUTOREVEAL):
             sp = self.add_sub_plot(nart, "MT_REVEAL_CursedEarth", ident="REVEAL")
+
+        return True
+
+
+class Kleptocrat(TarotCard):
+    # A politician with their hand in the treasury
+    TAGS = (MT_THREAT, ME_PERSON)
+    UNIQUE = True
+    QOL = gears.QualityOfLife(prosperity=-2, stability=-2)
+    active = True
+    NEGATIONS = ("HasBeen", "TheExiled")
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_Accuse", TarotSignal(SIG_ACCUSE, [ME_PERSON,]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("TheExiled", (ME_PERSON,))
+            }
+        ),
+        TarotSocket(
+            "MT_SOCKET_Cancel", TarotSignal(SIG_CANCEL, [ME_PERSON]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("HasBeen", (ME_PERSON,))
+            }
+        ),
+        TarotSocket(
+            "MT_SOCKET_Extort", TarotSignal(SIG_EXTORT, [ME_PERSON]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("CultHierophant", (ME_PERSON,)),
+                "CONSEQUENCE_GOAWAY": TarotTransformer("TheExiled", (ME_PERSON,)),
+            }
+        ),
+    )
+
+    AUTO_MEMO = "{ME_PERSON} at {ME_PERSON.scene} is a corrupt {ME_PERSON.job}."
+
+    def custom_init(self, nart):
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Kleptocrat", ident="REVEAL")
+            if ME_PERSON not in self.elements:
+                self.elements[ME_PERSON] = sp.elements[ME_PERSON]
 
         return True
 

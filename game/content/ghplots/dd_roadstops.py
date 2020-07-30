@@ -6,8 +6,8 @@ import gears
 import pbge
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
-from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST
-
+from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot
+from . import tarot_cards
 
 
 
@@ -76,12 +76,13 @@ class DZD_DeadZoneTown(Plot):
         #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
         #tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
+        tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
         self.add_sub_plot(nart, "RANDOM_LANCEMATE")
 
         # Add the local tarot.
-        #threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
-        #game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
+        threat_card = nart.add_tarot_card(self, (tarot_cards.MT_THREAT,))
+        mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0])
 
         return True
 
@@ -161,12 +162,13 @@ class DZD_DeadZoneVillage(Plot):
         #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
         #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
         #tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
+        tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
         self.add_sub_plot(nart, "RANDOM_LANCEMATE")
 
         # Add the local tarot.
-        #threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
-        #game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
+        threat_card = nart.add_tarot_card(self, (tarot_cards.MT_THREAT,))
+        mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0])
 
         return True
 

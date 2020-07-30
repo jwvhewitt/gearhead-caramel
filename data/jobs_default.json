@@ -284,6 +284,11 @@
     "local_requirements": ["L5Spinners"]
   },
   {
+    "name": "Bureaucrat",
+    "skills": ["Negotiation","Computers"],
+    "tags": ["Politician"]
+  },
+  {
     "name": "Shopkeeper",
     "skills": ["Repair"],
     "tags": ["Merchant"]

@@ -12,6 +12,7 @@ from game.content.ghplots import dd_main
 import game.content.plotutility
 import game.content.gharchitecture
 from . import missionbuilder
+import collections
 
 
 #  **************************
@@ -241,6 +242,50 @@ class PlaceACommander( Plot ):
                 candidate.faction and nart.camp.are_ally_factions(candidate.faction,self.elements["FACTION"]))
     def _is_good_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
+#  ************************
+#  ***   QOL_REPORTER   ***
+#  ************************
+
+class QualityOfLifeReporter(Plot):
+    # Provide CURRENT_EVENT
+    LABEL = "QOL_REPORTER"
+    active = True
+    scope = "METRO"
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = collections.defaultdict(list)
+        qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
+        mygram["[metroscene]"].append(str(self.elements["METROSCENE"]))
+        if qol.prosperity > 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_PROSPERITY_UP]")
+        elif qol.prosperity < 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_PROSPERITY_DOWN]")
+
+        if qol.community > 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_COMMUNITY_UP]")
+        elif qol.community < 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_COMMUNITY_DOWN]")
+
+        if qol.stability > 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_STABILITY_UP]")
+        elif qol.stability < 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_STABILITY_DOWN]")
+
+        if qol.health > 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_HEALTH_UP]")
+        elif qol.health < 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_HEALTH_DOWN]")
+
+        if qol.defense > 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_DEFENSE_UP]")
+        elif qol.defense < 0:
+            mygram["[CURRENT_EVENTS]"].append("[QOL_DEFENSE_DOWN]")
+
+        return mygram
+
+
 
 #  ***************************
 #  ***   REVEAL_LOCATION   ***

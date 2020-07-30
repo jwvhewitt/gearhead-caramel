@@ -261,14 +261,25 @@ class CharacterMover(object):
         self.allow_death = allow_death
         plot.call_on_end.append(self)
         plot.move_records.append((character,dest_scene.contents))
+        self.done = False
 
-    def __call__(self,camp):
-        if self.character.is_not_destroyed() or not self.allow_death:
-            if hasattr(self.character, "container") and self.character.container:
-                self.character.container.remove(self.character)
-            self.character.restore_all()
-            if self.original_container:
-                self.original_container.append(self.character)
+        #print('Moving {} {}'.format(self.character,self.original_container))
+
+    def __call__(self, camp:gears.GearHeadCampaign):
+        #print('Homing {} {}'.format(self.character,self.original_container))
+        if not self.done:
+            if self.character.is_not_destroyed() or not self.allow_death:
+                #print("Checking...")
+                if hasattr(self.character, "container") and self.character.container:
+                    self.character.container.remove(self.character)
+                    #print("Removing")
+                self.character.restore_all()
+                if self.original_container is not None:
+                    self.original_container.append(self.character)
+                    #print("Appending")
+                else:
+                    camp.freeze(self.character)
+                self.done = True
 
 
 class EnterTownLanceRecovery(object):

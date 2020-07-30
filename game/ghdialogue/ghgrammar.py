@@ -2210,6 +2210,15 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[person]": {
+        Default: [
+            "person", "man", "woman",
+        ],
+        personality.Grim: [
+            "[blockhead]"
+        ]
+    },
+
     "[PLEASURE_DOING_BUSINESS]": {
         Default: ["It's been a pleasure doing business with you.",
                   ],
@@ -2298,6 +2307,184 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Not now, but let's keep in touch.",
                                ],
         personality.Shy: ["On second thought I'm happier alone.",
+                          ],
+    },
+
+    "[QOL_COMMUNITY_UP]": {
+        Default: ["People in [metroscene] can always depend on their community.",
+                  ],
+        personality.Cheerful: ["We're all friends in [metroscene].",
+                               ],
+        personality.Grim: ["The community in [metroscene] always pulls together when there's a problem.",
+                           ],
+        personality.Easygoing: ["This may not be the fanciest place, but we've got a decent art scene."
+                                ],
+        personality.Passionate: ["I'd punch a morlock for any one of my neighbors.",
+                                 ],
+        personality.Sociable: ["The community is the best part of [metroscene].",
+                               ],
+        personality.Shy: ["The people of [metroscene] are an interesting bunch.",
+                          ],
+    },
+
+    "[QOL_COMMUNITY_DOWN]": {
+        Default: ["It's every [person] for themself in [metroscene].",
+                  ],
+        personality.Cheerful: ["Remember: not everyone in [metroscene] is your friend.",
+                               ],
+        personality.Grim: [
+            "This town has all the personality and sparkle of week-old roadkill.",
+            ],
+        personality.Easygoing: ["This is a boring and unfriendly town, but at least the rats are small."
+                                ],
+        personality.Passionate: ["Around here, the only person you can depend on is yourself.",
+                                 ],
+        personality.Sociable: [
+            "This isn't the kind of place where you make friends. This isn't even the kind of place you go by choice.",
+                               ],
+        personality.Shy: ["Nobody talks to their neighbors anymore. I like that.",
+                          ],
+    },
+
+    "[QOL_DEFENSE_UP]": {
+        Default: ["The [metroscene] Guard can take on all threats.",
+                  ],
+        personality.Cheerful: ["Our defense force has prettier mecha colors than any other.",
+                               ],
+        personality.Grim: ["In the event of war, everyone here knows their duty.",
+                           ],
+        personality.Easygoing: ["I never worry about war coming to [metroscene]."
+                                ],
+        personality.Passionate: ["If anyone ever tries invading here, we'll show them the gates of hell!",
+                                 ],
+        personality.Sociable: ["I've heard that our defense force is the best in the region.",
+                               ],
+        personality.Shy: ["[metroscene]'s defenses are quite good.",
+                          ],
+    },
+
+    "[QOL_DEFENSE_DOWN]": {
+        Default: ["The [metroscene] Guard is unable to protect us.",
+                  ],
+        personality.Cheerful: ["I heard they were going to upgrade the town militia by giving everyone a cricket bat.",
+                               ],
+        personality.Grim: [
+            "If [metroscene] ever gets invaded, we are basically doomed.",
+        ],
+        personality.Easygoing: ["The local militia isn't bad, it's just overstreched and underfunded."
+                                ],
+        personality.Passionate: ["It's shameful how weak our defense force is!",
+                                 ],
+        personality.Sociable: ["We really need a larger defense force, but have to make do with what we've got.",
+                               ],
+        personality.Shy: ["Our defense force sucks.",
+                          ],
+    },
+
+    "[QOL_HEALTH_UP]": {
+        Default: ["Health care in [metroscene] is pretty good.",
+                  ],
+        personality.Cheerful: ["Every day I'm thankful for my good health.",
+                               ],
+        personality.Grim: ["At least we have our health in [metroscene].",
+                           ],
+        personality.Easygoing: ["Do you work out? What kind of program do you use?"
+                                ],
+        personality.Passionate: ["Are you ready to seize the day? I'm gonna live while I'm alive!",
+                                 ],
+        personality.Sociable: ["Remember that mental stimulation is as important as physical fitness for longevity.",
+                               ],
+        personality.Shy: ["Good health to you.",
+                          ],
+    },
+
+    "[QOL_HEALTH_DOWN]": {
+        Default: ["People in [metroscene] don't expect to see old age.",
+                  ],
+        personality.Cheerful: ["It's hard to keep a smile on when everyone around looks like they're dying.",
+                               ],
+        personality.Grim: [
+            "If you don't have your health, you really have nothing.",
+            ],
+        personality.Easygoing: ["I don't worry about old age... don't expect to see it, honestly."
+                                ],
+        personality.Passionate: ["I always wanted to live fast and die young, but not this young.",
+                                 ],
+        personality.Sociable: ["I know too many people who were taken from us too soon...",
+                               ],
+        personality.Shy: ["Death comes quickly around here.",
+                          ],
+    },
+
+    "[QOL_PROSPERITY_UP]": {
+        Default: ["The economy has been doing well lately.",
+                  ],
+        personality.Cheerful: ["This is a good time to go shopping.",
+                               ],
+        personality.Grim: ["For a change of pace, I'm not even broke this month.",
+                           ],
+        personality.Easygoing: ["Everyone seems pretty well off these days."
+                                ],
+        personality.Passionate: ["I'm saving my money to buy something I don't even need!",
+                                 ],
+        personality.Sociable: ["Everybody is wearing the latest fashions... maybe I should update my look?",
+                               ],
+        personality.Shy: ["I can't complain about money.",
+                          ],
+    },
+
+    "[QOL_PROSPERITY_DOWN]": {
+        Default: ["The economy has been bad lately.",
+                  ],
+        personality.Cheerful: ["I'd like to go shopping, but who can afford it?",
+                               ],
+        personality.Grim: ["They say we need to tighten our belts, but how can you do that when you're already starving?",
+                           ],
+        personality.Easygoing: ["Seems like everyone is either broke or unemployed these days."
+                                ],
+        personality.Passionate: ["No money, no hope. Maybe I should move somewhere else.",
+                                 ],
+        personality.Sociable: ["So many of my friends are out of work...",
+                               ],
+        personality.Shy: ["My only money troubles are that I don't have any.",
+                          ],
+        personality.Glory: [
+            "[metroscene] is way too shabby for my taste."
+        ]
+    },
+
+    "[QOL_STABILITY_UP]": {
+        Default: ["[metroscene] is a relatively safe place to live.",
+                  ],
+        personality.Cheerful: ["Our town is clean and safe, just the way I like it.",
+                               ],
+        personality.Grim: ["Not a lot of murders or robberies happen here, or anything exciting like that.",
+                           ],
+        personality.Easygoing: ["Exciting things always seem to happen somewhere else."
+                                ],
+        personality.Passionate: ["Life in [metroscene] is a bit boring, but in a good way.",
+                                 ],
+        personality.Sociable: ["You can feel safe and secure while you're in [metroscene].",
+                               ],
+        personality.Shy: ["[metroscene] has a low crime rate.",
+                          ],
+    },
+
+    "[QOL_STABILITY_DOWN]": {
+        Default: ["[metroscene] has a lot of crime.",
+                  ],
+        personality.Cheerful: ["I've been in [metroscene] for a while and nobody has murdered me yet, so...",
+                               ],
+        personality.Grim: [
+            "The muggers aren't that bad; it's the organleggers you really need to watch out for.",
+            ],
+        personality.Easygoing: ["Some folks out here would steal your arse if it wasn't firmly attached."
+                                ],
+        personality.Passionate: ["This place is a hive of scum and villainy.",
+                                 ],
+        personality.Sociable: ["I don't like all the petty crime that happens in [metroscene]. Or the felonies.",
+                               ],
+        personality.Shy: ["This is a dangerous neighborhood.",
                           ],
     },
 

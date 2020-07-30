@@ -505,14 +505,20 @@ class Explorer( object ):
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
                                 self.scene.set_visible(x,y,True)
+                    elif gdi.unicode == "C" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        for sc in self.camp.contents:
+                            print(sc)
+                            if sc.name.endswith(" Base"):
+                                for pc in sc.contents:
+                                    print('--> {}'.format(pc))
                     elif gdi.unicode == "!" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         self.camp.egg.credits += 1000000
-#                        for mpc in self.camp.get_active_party():
-#                            pc = mpc.get_pilot()
-#                            if pc:
-#                                for skill in pc.statline:
-#                                    if skill in gears.stats.COMBATANT_SKILLS:
-#                                        pc.statline[skill] += 10
+                        for mpc in self.camp.get_active_party():
+                            pc = mpc.get_pilot()
+                            if pc:
+                                for skill in pc.statline:
+                                    if skill in gears.stats.COMBATANT_SKILLS:
+                                        pc.statline[skill] += 10
                     elif gdi.unicode == "@" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         for thing in self.scene.contents:
                             if hasattr(thing,"pos"):

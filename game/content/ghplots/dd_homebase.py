@@ -70,6 +70,8 @@ class DZD_Wujung(Plot):
         # Black Isle Pub
         # Hwang-Sa Mission
         # Reconstruction Site
+        tplot = self.add_sub_plot(nart, "QOL_REPORTER")
+
 
         # Add some local lancemates.
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")

@@ -1439,6 +1439,56 @@ class PrivateInvestigator(Plot):
 
 
 #   ******************************
+#   ***  MT_REVEAL_Kleptocrat  ***
+#   ******************************
+
+class CorruptOfficial(Plot):
+    LABEL = "MT_REVEAL_Kleptocrat"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Place the official.
+        if ME_PERSON not in self.elements:
+            npc = gears.selector.random_character(rank=random.randint(self.rank, self.rank + 20),
+                                                  local_tags=tuple(self.elements["METROSCENE"].attributes),
+                                                  job=gears.jobs.ALL_JOBS["Bureaucrat"])
+            scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"], backup_seek_func=self._is_good_scene)
+            self.register_element(ME_PERSON, npc, dident="LOCALE")
+        self.got_memo = False
+        return True
+
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_GOVERNMENT in candidate.attributes
+
+    def _is_good_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def _reveal(self, camp):
+        camp.check_trigger("WIN", self)
+        self.got_memo = True
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is not self.elements[ME_PERSON] and npc not in camp.party and not self.got_memo:
+            mygram["[News]"] = ["{ME_PERSON} always has one hand in the cookie jar".format(**self.elements), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc is not self.elements[ME_PERSON] and not self.got_memo:
+            mynpc = self.elements[ME_PERSON]
+            goffs.append(Offer(
+                msg="[THIS_IS_A_SECRET] {ME_PERSON} has enriched {ME_PERSON.gender.reflexive_pronoun} from the public treasury. I don't know why {ME_PERSON.gender.subject_pronoun} hasn't been kicked out of {ME_PERSON.scene} yet.".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)), effect=self._reveal,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+
+#   ******************************
 #   ***  MT_REVEAL_Laboratory  ***
 #   ******************************
 
@@ -1974,6 +2024,7 @@ class GuardTheShipment(Plot):
             objectives=[missionbuilder.BAMO_DEFEAT_THE_BANDITS, ],
             custom_elements={"ENTRANCE_ANCHOR": pbge.randmaps.anchors.east},
             scenegen=gharchitecture.DeadZoneHighwaySceneGen,
+            architecture=gharchitecture.MechaScaleSemiDeadzone(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
             on_win=self._win_mission
         )
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
