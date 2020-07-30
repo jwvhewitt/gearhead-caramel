@@ -20,6 +20,7 @@ ME_LIABILITY = "ME_LIABILITY"
 ME_POSITION = "ME_POSITION"   # Used in the SIG_HIRE signal
 ME_PROBLEM = "ME_PROBLEM"     # A problem/solution that can be solved with technobabble
 ME_LOCATION = "ME_LOCATION"
+ME_BOOSTSOURCE = "ME_BOOSTSOURCE"   # The source of a SCIENCEBOOST signal. Not the band that wrote "Masterstroke".
 
 SIG_INCRIMINATE = "SIG_INCRIMINATE"  # Looks like someone did crime
 SIG_ACCUSE = "SIG_ACCUSE"  # Bring the hammer of justice against the evil-doer; uses ME_CRIME
@@ -33,6 +34,7 @@ SIG_CURE = "SIG_CURE"       # Cure a disease using a techno solution
 SIG_INGREDIENTS = "SIG_INGREDIENTS"
 SIG_APPLY = "SIG_APPLY"     # Solve a problem using a techno solution; analagous to SIG_CURE
 SIG_SCIENCEBOOST = "SIG_SCIENCEBOOST"   # You have a resource that can boost scientific effort, no questions asked
+SIG_FOODBOOST = "SIG_FOODBOOST"       # Have some food, maybe that will solve your problem.
 
 
 #   *************************************
@@ -283,6 +285,7 @@ class CultHierophant(TarotCard):
 class Demagogue(TarotCard):
     # A character exploiting local divisions for personal gain
     TAGS = (MT_THREAT, ME_PERSON)
+    UNIQUE = True
     QOL = gears.QualityOfLife(community=-3)
     active = True
     NEGATIONS = ("HasBeen",)
@@ -326,6 +329,7 @@ class HateClub(TarotCard):
     QOL = gears.QualityOfLife(stability=-2, community=-2)
     active = True
     NEGATIONS = ("TheDisbanded",)
+    UNIQUE = True
 
     SOCKETS = (
         TarotSocket(
@@ -631,6 +635,7 @@ class Epidemic(TarotCard):
     QOL = gears.QualityOfLife(health=-4, prosperity=-1)
     active = True
     NEGATIONS = ("Recovery",)
+    UNIQUE = True
 
     SOCKETS = (
         TarotSocket(
@@ -683,6 +688,12 @@ class Chemist(TarotCard):
             "MT_SOCKET_Ingredients", TarotSignal(SIG_INGREDIENTS, [ME_PROBLEM]),
             consequences={
                 CONSEQUENCE_WIN: TarotTransformer("TheCure", (ME_PROBLEM,))
+            }
+        ),
+        TarotSocket(
+            "MT_SOCKET_ScienceBoost", TarotSignal(SIG_SCIENCEBOOST, []),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("Invention", (ME_PROBLEM,))
             }
         ),
     )
@@ -755,6 +766,7 @@ class RobberBaron(TarotCard):
     QOL = gears.QualityOfLife(prosperity=-4, community=-1)
     active = True
     NEGATIONS = ("TheExiled",)
+    UNIQUE = True
 
     SOCKETS = (
         TarotSocket(
@@ -793,6 +805,7 @@ class DinosaurAttack(TarotCard):
     QOL = gears.QualityOfLife(defense=-4, health=-1)
     active = True
     NEGATIONS = ("EcologicalBalance",)
+    UNIQUE = True
 
     SOCKETS = (
         TarotSocket(
@@ -812,6 +825,7 @@ class DinosaurAttack(TarotCard):
             sp = self.add_sub_plot(nart, "MT_REVEAL_Dinosaurs", ident="REVEAL")
 
         return True
+
 
 class Invention(TarotCard):
     # A solution for a techproblem.
@@ -843,7 +857,13 @@ class Inventor(TarotCard):
         TarotSocket(
             "MT_SOCKET_Ingredients", TarotSignal(SIG_INGREDIENTS, [ME_PROBLEM]),
             consequences={
-                CONSEQUENCE_WIN: TarotTransformer("TheCure", (ME_PROBLEM,))
+                CONSEQUENCE_WIN: TarotTransformer("Invention", (ME_PROBLEM,))
+            }
+        ),
+        TarotSocket(
+            "MT_SOCKET_ScienceBoost", TarotSignal(SIG_SCIENCEBOOST, []),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("Invention", (ME_PROBLEM,))
             }
         ),
     )
@@ -863,6 +883,7 @@ class Inventor(TarotCard):
 class AbandonedLaboratory(TarotCard):
     # There's a laboratory sitting right there, potentially full of PreZero tech.
     active = True
+    scope = True
 
     SIGNALS = (
         TarotSignal(
@@ -876,6 +897,78 @@ class AbandonedLaboratory(TarotCard):
         if not self.elements.get(ME_AUTOREVEAL):
             sp = self.add_sub_plot(nart, "MT_REVEAL_Laboratory", ident="REVEAL")
             self.elements[ME_LOCATION] = sp.elements[ME_LOCATION]
+            self.elements[ME_BOOSTSOURCE] = str(sp.elements[ME_LOCATION])
+        else:
+            self.elements[ME_BOOSTSOURCE] = "the abandoned laboratory"
+
+        return True
+
+
+class Shortages(TarotCard):
+    TAGS = (MT_THREAT, )
+    QOL = gears.QualityOfLife(prosperity=-3, health=-2)
+    active = True
+    NEGATIONS = ("Recovery",)
+    UNIQUE = True
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_FamineRelief", TarotSignal(SIG_FOODBOOST, []),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("Recovery", [])
+            }
+        ),
+    )
+
+    AUTO_MEMO = "{METROSCENE} is suffering from a shortage of basic necessities."
+
+    def custom_init(self, nart):
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Shortages", ident="REVEAL")
+
+        return True
+
+
+class TheFarm(TarotCard):
+    active = True
+
+    SIGNALS = (
+        TarotSignal(
+            SIG_FOODBOOST, []
+        ),
+    )
+
+    AUTO_MEMO = "{ME_BOOSTSOURCE} can provide food for {METROSCENE}."
+
+    def custom_init(self, nart):
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_Farm", ident="REVEAL")
+            self.elements[ME_BOOSTSOURCE] = sp.elements[ME_BOOSTSOURCE]
+        else:
+            self.elements[ME_BOOSTSOURCE] = "the farm"
+
+        return True
+
+
+class CursedEarth(TarotCard):
+    active = True
+
+    SOCKETS = (
+        TarotSocket(
+            "MT_SOCKET_CursedEarthSolution", TarotSignal(SIG_APPLY, [ME_PROBLEM]),
+            consequences={
+                CONSEQUENCE_WIN: TarotTransformer("TheFarm", (ME_PROBLEM,))
+            }
+        ),
+    )
+
+    AUTO_MEMO = "The land around {METROSCENE} is too damaged to grow anything."
+    SOLUTIONS = ("terraforming kit", "soil purifier", "isotope filter")
+    def custom_init(self, nart):
+        if ME_PROBLEM not in self.elements:
+            self.elements[ME_PROBLEM] = TechnoProblem('polluted land', random.choice(self.SOLUTIONS))
+        if not self.elements.get(ME_AUTOREVEAL):
+            sp = self.add_sub_plot(nart, "MT_REVEAL_CursedEarth", ident="REVEAL")
 
         return True
 

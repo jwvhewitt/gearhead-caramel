@@ -130,7 +130,6 @@ class LanceRecoveryStub( Plot ):
 #   NPC: The lancemate in question
 
 class BeBackAfterShopping( Plot ):
-    # This plot just loads the plots that do the actual work.
     LABEL = "LANCEMATE_NEEDS_MECHA"
     def custom_init( self, nart ):
         myscene = self.seek_element(nart,"GARAGE",self._is_good_scene,scope=self.elements["METROSCENE"])
@@ -145,6 +144,32 @@ class BeBackAfterShopping( Plot ):
         SimpleMonologueDisplay("My mecha was destroyed... I'm going to go to {} and get a new one.".format(garage),npc)(camp)
         plotutility.AutoLeaver(npc)(camp)
         npc.place(garage)
+
+
+class INeedAnUpgrade( Plot ):
+    LABEL = "LANCEMATE_NEEDS_MECHA"
+    @classmethod
+    def matches( cla, pstate: PlotState ):
+        lm = pstate.elements["NPC"]
+        return lm.relationship and lm.relationship.can_do_development() and lm.relationship.data.get("mecha_level_bonus",0) < 50
+
+    def custom_init( self, nart ):
+        myscene = self.seek_element(nart,"GARAGE",self._is_good_scene,scope=self.elements["METROSCENE"])
+        return True
+
+    def _is_good_scene(self,nart,candidate):
+        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_GARAGE in candidate.attributes and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def start_recovery(self,camp):
+        npc = self.elements["NPC"]
+        garage = self.elements["GARAGE"]
+        SimpleMonologueDisplay("I think it's about time for me to upgrade my mecha. I'm going to {} to see what they have.".format(garage),npc)(camp)
+        npc.relationship.development_plots += 1
+        npc.relationship.data["mecha_level_bonus"] = npc.relationship.data.get("mecha_level_bonus",0)+10
+        npc.mecha_pref = None
+        plotutility.AutoLeaver(npc)(camp)
+        npc.place(garage)
+
 
 #  ************************************
 #  ***   LANCEMATE_NEEDS_HOSPITAL   ***

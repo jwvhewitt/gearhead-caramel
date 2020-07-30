@@ -8,7 +8,7 @@ import random
 from pbge.dialogue import ContextTag,Offer
 from . import dd_main,dd_customobjectives
 from . import tarot_cards
-from .tarot_cards import ME_FACTION,ME_PERSON,ME_CRIME,ME_PUZZLEITEM,ME_ACTOR,ME_LIABILITY,CrimeObject,ME_POSITION, ME_PROBLEM
+from .tarot_cards import ME_FACTION,ME_PERSON,ME_CRIME,ME_PUZZLEITEM,ME_ACTOR,ME_LIABILITY,CrimeObject,ME_POSITION, ME_PROBLEM, ME_BOOSTSOURCE
 from game.content import mechtarot
 from game.content.mechtarot import CONSEQUENCE_WIN,CONSEQUENCE_LOSE
 import game.content.plotutility
@@ -325,6 +325,87 @@ class WaitingOnACure(Plot):
         self.got_memo = True
         self.memo = "The only known cure for {ME_PROBLEM} is {ME_PROBLEM.solution}.".format(**self.elements)
 
+
+#   ***************************************
+#   ***  MT_SOCKET_CursedEarthSolution  ***
+#   ***************************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_CARD
+#   ME_SOCKET
+
+class Hellsteader(Plot):
+    LABEL = "MT_SOCKET_CursedEarthSolution"
+    active = True
+    scope = "METRO"
+
+    def custom_init( self, nart ):
+        # Generate a farmer.
+        scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+        npc = self.register_element(
+            "NPC", gears.selector.random_character(
+                job=gears.jobs.ALL_JOBS["Farmer"],
+                rank=random.randint(self.rank, self.rank + 20),
+                local_tags=tuple(self.elements["METROSCENE"].attributes)
+            ), dident="LOCALE"
+        )
+        self.elements[ME_BOOSTSOURCE] = "{}'s Farm".format(npc)
+        self.got_memo = False
+        return True
+
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def NPC_offers(self, camp):
+        myoffs = list()
+
+        mycard = self.elements[mechtarot.ME_CARD]
+        mycard.elements[ME_BOOSTSOURCE] = self.elements[ME_BOOSTSOURCE]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysigs = mysocket.get_activating_signals(mycard, camp)
+        for sig in mysigs:
+            myoffs.append(Offer(
+                "If this works, I can get some crops planted right away. [THANKS_FOR_HELP]".format(
+                    **self.elements),
+                context=ContextTag([context.CUSTOM]),
+                effect=mechtarot.CardCaller(mycard, sig[0], self._win_mission),
+                data={"reply": "I've located a {ME_PROBLEM.solution} that can heal your land.".format(**self.elements)},
+                dead_end=True
+            ))
+
+        return myoffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is not self.elements["NPC"] and npc not in camp.party and not self.got_memo:
+            # This is an NPC in Wujung. Give them some news.
+            mygram["[News]"] = ["{NPC} has been trying to start a farm".format(**self.elements), ]
+        return mygram
+
+    def _get_generic_offers( self, npc, camp ):
+        goffs = list()
+        if npc is not self.elements["NPC"] and npc not in camp.party and not self.got_memo:
+            mynpc = self.elements["NPC"]
+            goffs.append(Offer(
+                msg="These days {NPC} can usually be found at {NPC.scene}; I guess there's not much work to do with the soil being the way it is.".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)), effect=self._reveal,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _win_mission(self, camp, alpha, beta, **kwargs):
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysocket.consequences[CONSEQUENCE_WIN](camp,alpha,beta,**kwargs)
+        self.elements["METRO"].local_reputation += 20
+
+    def _reveal(self, camp):
+        self.got_memo = True
+        self.memo = "{NPC} at {NPC.scene} is trying to start a farm.".format(**self.elements)
+
+
 #   **************************
 #   ***  MT_SOCKET_Cancel  ***
 #   **************************
@@ -587,6 +668,47 @@ class BasicExtortionPlot(Plot):
     def _alt_offer(self, camp, alpha, beta, **kwargs):
         mysocket = self.elements[mechtarot.ME_SOCKET]
         mysocket.consequences["CONSEQUENCE_GOAWAY"](camp,alpha,beta,**kwargs)
+
+#   ********************************
+#   ***  MT_SOCKET_FamineRelief  ***
+#   ********************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_CARD
+#   ME_SOCKET
+
+class FamineRelief(Plot):
+    LABEL = "MT_SOCKET_FamineRelief"
+    active = True
+    scope = "METRO"
+
+    def custom_init( self, nart ):
+        self.add_sub_plot(nart,"ENSURE_LOCAL_REPRESENTATION",elements={"FACTION":self.elements["METROSCENE"].faction})
+        self.mission_seed = None
+        return True
+
+    def _get_generic_offers( self, npc, camp ):
+        goffs = list()
+        if camp.are_faction_allies(npc, self.elements["METROSCENE"]) and npc not in camp.party:
+            mycard = self.elements[mechtarot.ME_CARD]
+            mysocket = self.elements[mechtarot.ME_SOCKET]
+            mysigs = mysocket.get_activating_signals(mycard, camp)
+            for sig in mysigs:
+                goffs.append(Offer(
+                    "[GOOD_IDEA] This will go a long way towards restoring prosperity in {METROSCENE}. [THANKS_FOR_HELP]".format(**self.elements),
+                    context=ContextTag([context.CUSTOM]),
+                    effect=mechtarot.CardCaller(mycard, sig[0], self._win_mission),
+                    data={"reply": "{} can supply the food {} needs.".format(sig[0].elements[ME_BOOSTSOURCE],self.elements["METROSCENE"])}, dead_end=True
+                ))
+
+        return goffs
+
+    def _win_mission(self, camp, alpha, beta, **kwargs):
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysocket.consequences[CONSEQUENCE_WIN](camp,alpha,beta,**kwargs)
+        self.elements["METRO"].local_reputation += 20
 
 
 #   **************************
@@ -957,6 +1079,40 @@ class InvestigateUsingGiantRobots(Plot):
         if CONSEQUENCE_WIN in mysocket.consequences:
             mysocket.consequences[CONSEQUENCE_WIN](camp,mycard,self.card)
         self.end_plot(camp)
+
+
+#   ********************************
+#   ***  MT_SOCKET_ScienceBoost  ***
+#   ********************************
+#
+#   METROSCENE
+#   METRO
+#   MISSION_GATE
+#   ME_PERSON   The person waiting on ingredients
+#   ME_PROBLEM  The problem and solution we need the ingredients for
+#   ME_CARD
+#   ME_SOCKET
+
+
+class GimmeABoost(Plot):
+    LABEL = "MT_SOCKET_ScienceBoost"
+    active = True
+    scope = "METRO"
+
+    def ME_PERSON_offers(self, camp):
+        goffs = list()
+        mycard = self.elements[mechtarot.ME_CARD]
+        mysocket = self.elements[mechtarot.ME_SOCKET]
+        mysigs = mysocket.get_activating_signals(mycard, camp)
+        for sig in mysigs:
+            goffs.append(Offer(
+                "[GOOD_IDEA] I'll check into that right away... this {ME_PROBLEM.solution} will be finished in no time!".format(**self.elements),
+                context=ContextTag([context.CUSTOM]),
+                effect=mechtarot.CardCaller(mycard, sig[0], mysocket.consequences[CONSEQUENCE_WIN]),
+                data={"reply": "{} might be able to help you with the {ME_PROBLEM.solution}.".format(sig[0].elements[ME_BOOSTSOURCE], **self.elements)}, dead_end=True
+            ))
+
+        return goffs
 
 
 

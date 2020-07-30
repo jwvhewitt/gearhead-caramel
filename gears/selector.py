@@ -184,7 +184,7 @@ def equip_combatant(npc: base.Character):
 def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, can_cyberize=None, **kwargs):
     # Build the creation matrix, aka the dict.
     possible_origins = [o for o in local_tags if o in personality.ORIGINS]
-    job = jobs.choose_random_job(needed_tags, local_tags)
+    job = kwargs.get("job",None) or jobs.choose_random_job(needed_tags, local_tags)
     meanstatpts = max(rank // 3 + 80, 85)
     combatant = random.choice([True, False, False, False, False, False]) or job.always_combatant
     creation_matrix = dict(statline=base.Being.random_stats(points=random.randint(meanstatpts - 5, meanstatpts + 5)),

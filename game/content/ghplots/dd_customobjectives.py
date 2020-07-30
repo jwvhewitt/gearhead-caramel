@@ -82,12 +82,17 @@ class DDBAMO_ChampionDuel(Plot):
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
         fac = self.elements["ENEMY_FACTION"]
-        mek = gears.selector.generate_ace(self.rank + 10, fac, myscene.environment)
-        npc = mek.get_pilot()
-        self.register_element("_champion", npc)
 
-        team2.contents.append(mek)
-        champions.upgrade_to_champion(mek)
+        npc = self.seek_element(nart, "_champion", self.adv.is_good_enemy_npc, must_find=False, lock=True)
+        if npc:
+            plotutility.CharacterMover(self, npc, myscene, team2)
+            self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":npc})
+        else:
+            mek = gears.selector.generate_ace(self.rank, fac, myscene.environment)
+            npc = mek.get_pilot()
+            self.register_element("_champion", npc)
+            team2.contents.append(mek)
+            champions.upgrade_to_champion(mek)
 
         self.obj = adventureseed.MissionObjective("Defeat the {}'s champion {}".format(fac, npc), missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
         self.adv.objectives.append(self.obj)

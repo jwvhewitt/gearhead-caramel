@@ -16,6 +16,7 @@ from . import encounters
 from . import lancemates
 from . import missionbuilder
 from . import mission_conversations
+from . import mission_stubs
 from . import mission_teamups
 from . import mocha
 from . import recovery
@@ -56,6 +57,7 @@ harvest(encounters)
 harvest(lancemates)
 harvest(missionbuilder)
 harvest(mission_conversations)
+harvest(mission_stubs)
 harvest(mission_teamups)
 harvest(mocha)
 harvest(recovery)

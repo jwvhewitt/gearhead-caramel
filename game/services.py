@@ -76,12 +76,22 @@ class Shop(object):
         else:
             friendliness = 0
 
+        # Find prosperity of the town, if possible.
+        metro = camp.scene.get_metro_scene()
+        if metro:
+            prosperity = metro.metrodat.get_quality_of_life().prosperity
+        else:
+            prosperity = 0
+
         # The number of items is highly dependent on friendliness, or more
         # specifically a lack thereof.
         if friendliness < 0:
             num_items = max(5, (self.num_items * (100 + 2 * friendliness)) // 100)
         else:
             num_items = self.num_items + friendliness // 10
+
+        if prosperity < 0:
+            num_items = max(num_items+prosperity, 1)
 
         # Get rid of some of the old stock, to make room for new stock.
         while len(self.wares) > num_items:
@@ -95,24 +105,8 @@ class Shop(object):
             else:
                 break
 
-        # The store rank tracks the party rank, but doesn't quite keep up.
-        rank = self.rank
-        """if friendliness > 50:
-            rank = max( rank, camp.party_rank() )
-        elif friendliness > -20:
-            rank = max( rank, ( rank + camp.party_rank() ) // 2 )"""
+        rank = self.rank + prosperity * 10
 
-        # Generate one of each type of item this shop stocks first.
-        """needed_wares = list( self.ware_types )
-        for i in self.wares:
-            if i.itemtype in needed_wares:
-                needed_wares.remove( i.itemtype )
-        for w in needed_wares:
-            it = self.generate_item( w, rank )
-            if it:
-                self.wares.append( it )"""
-
-        # Fill the rest of the store later.
         tries = 0
         while len(self.wares) < num_items:
             tries += 1

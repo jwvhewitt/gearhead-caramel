@@ -9,7 +9,7 @@ import random
 from pbge.dialogue import ContextTag, Offer
 from . import dd_customobjectives
 from . import tarot_cards
-from .tarot_cards import ME_FACTION, ME_PERSON, ME_CRIME, ME_PUZZLEITEM, ME_ACTOR, ME_LIABILITY, CrimeObject, ME_PROBLEM, ME_LOCATION
+from .tarot_cards import ME_FACTION, ME_PERSON, ME_CRIME, ME_PUZZLEITEM, ME_ACTOR, ME_LIABILITY, CrimeObject, ME_PROBLEM, ME_LOCATION, ME_BOOSTSOURCE
 import game.content.plotutility
 from game.content import gharchitecture
 from . import dd_combatmission
@@ -312,6 +312,42 @@ class RetroComputerInPlainSight(Plot):
             "You search for a while, but there is too much noise and not enough signal. If only you knew what you were looking for.")
 
 
+#   *******************************
+#   ***  MT_REVEAL_CursedEarth  ***
+#   *******************************
+
+class ThatEarthIsCursed(Plot):
+    LABEL = "MT_REVEAL_CursedEarth"
+    active = True
+    scope = "METRO"
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+
+        if npc not in camp.party:
+            goffs.append(Offer(
+                msg="Nothing grows around {METROSCENE}; the ground does not support life. Probably it's still full of fallout from the Night of Fire.".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)), effect=self.reveal_card,
+                subject="soil", data={"subject": "the soil around {METROSCENE}".format(**self.elements)},
+                no_repeats=True
+            ))
+
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc not in camp.party:
+            mygram["[CURRENT_EVENTS]"] = ["The soil around here is dead.".format(**self.elements), ]
+            mygram["[News]"] = ["the soil in {METROSCENE} is cursed".format(**self.elements), ]
+        return mygram
+
+    def reveal_card(self, camp):
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp, True)
+
+
 #   *****************************
 #   ***  MT_REVEAL_Demagogue  ***
 #   *****************************
@@ -598,6 +634,68 @@ class OutsourcedComputerPlacement(Plot):
         self.clue_uncovered = True
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
+
+
+#   ************************
+#   ***  MT_REVEAL_Farm  ***
+#   ************************
+
+# noinspection PyAttributeOutsideInit
+class RecoverTheFarm(Plot):
+    LABEL = "MT_REVEAL_Farm"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Generate a mission-giver.
+        scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+        npc = self.register_element(
+            "NPC", gears.selector.random_character(
+                job=gears.jobs.ALL_JOBS["Farmer"],
+                rank=random.randint(self.rank, self.rank + 20),
+                local_tags=tuple(self.elements["METROSCENE"].attributes)
+            ), dident="LOCALE"
+        )
+        self.elements[ME_BOOSTSOURCE] = "{}'s Farm".format(npc)
+        self.add_sub_plot(nart, "MSTUB_RECOVER_BUILDING", ident="MISSION",
+                          elements={"BUILDING_NAME": "farm", "ENEMY_FACTION": plotutility.RandomBanditCircle(nart.camp)})
+        self.got_rumor = False
+        return True
+
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def MISSION_WIN(self,camp):
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp, True)
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is not self.elements["NPC"] and not self.got_rumor:
+            mygram["[News]"] = [
+                "{NPC} used to have a farm".format(**self.elements), ]
+        elif npc is self.elements["NPC"]:
+            mygram["[CURRENT_EVENTS]"] = [
+                "I should go back to work, but I can't even go there anymore."
+            ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc is not self.elements["NPC"] and not self.got_rumor:
+            mynpc = self.elements["NPC"]
+            goffs.append(Offer(
+                msg="{NPC.gender.subject_pronoun} could use your help getting {NPC.gender.possessive_determiner} farm back; if you go to {NPC.scene} you might be able to get a mission.".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self, camp):
+        self.got_rumor = True
+        self.memo = "{NPC} at {LOCALE} needs your help to recover {NPC.gender.possessive_determiner} farm.".format(**self.elements)
 
 
 #   ******************************
@@ -1907,6 +2005,66 @@ class GuardTheShipment(Plot):
     def _get_rumor(self, camp):
         self.got_rumor = True
         self.memo = "{NPC} at {LOCALE} is a trucker who may have a mission for you.".format(**self.elements)
+
+
+class RandomBoxOfParts(Plot):
+    LABEL = "MT_REVEAL_SecretIngredients"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        mything = self.register_element(
+            "THING", ghwaypoints.OldCrate(plot_locked=True,
+                                          desc="You find a crate. It contains parts that may be useful for {}.".format(
+                                              self.elements[ME_PROBLEM].solution))
+        )
+        self.add_sub_plot(nart, "PLACE_THING", indie=True)
+        return True
+
+    def THING_BUMP(self, camp):
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp, True)
+
+
+#   *****************************
+#   ***  MT_REVEAL_Shortages  ***
+#   *****************************
+
+class PeopleAreHungry(Plot):
+    LABEL = "MT_REVEAL_Shortages"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        self.got_rumor = False
+        return True
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc not in camp.party:
+            if not self.got_rumor:
+                goffs.append(Offer(
+                    msg="These days, {METROSCENE} has had shortages of food, medicine, basically everything.".format(
+                        **self.elements),
+                    context=ContextTag((context.INFO,)), effect=self.reveal_card,
+                    subject=str("shortages"), data={"subject": "the shortages"},
+                    no_repeats=True
+                ))
+
+        return goffs
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc not in camp.party:
+            mygram["[CURRENT_EVENTS]"] = ["When are the shortages going to end?".format(**self.elements), ]
+            if not self.got_rumor:
+                mygram["[News]"] = ["these shortages are going to be the end of {METROSCENE}".format(**self.elements), ]
+        return mygram
+
+    def reveal_card(self, camp):
+        camp.check_trigger("WIN", self)
+        self.got_rumor = True
 
 
 #   ***************************

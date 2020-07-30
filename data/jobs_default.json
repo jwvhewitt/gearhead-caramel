@@ -304,6 +304,11 @@
     "tags": ["Laborer"]
   },
   {
+    "name": "Farmer",
+    "skills": ["Wildcraft"],
+    "tags": ["Laborer"]
+  },
+  {
     "name": "Singer",
     "skills": ["Performance"],
     "tags": ["Media"]

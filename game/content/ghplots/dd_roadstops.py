@@ -574,6 +574,7 @@ class ScavengerGarage(SomewhatOkayGarage):
 
 class DeadzoneMechaShop(SomewhatOkayGarage):
     active = True
+    UNIQUE = True
 
     NAME_PATTERNS = ("{npc}'s Chop Shop", "{town} Mecha Trading Post", "{npc}'s Redesigned Mecha", "{npc}'s Design Center")
     door_sign = (ghterrain.FixitShopSignEast, ghterrain.FixitShopSignSouth)
@@ -585,7 +586,7 @@ class DeadzoneMechaShop(SomewhatOkayGarage):
 
     @property
     def shop_rank(self):
-        return (self.rank * 3) // 4
+        return self.rank
 
 
 class GeneralStore(SomewhatOkayGarage):

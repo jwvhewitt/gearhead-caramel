@@ -66,6 +66,7 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
         tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         tplot = self.add_sub_plot(nart, "TEST_DUNGEON")
+        #tplot = self.add_sub_plot(nart, "TEST_CHAR_MOVER")
         # Black Isle Pub
         # Hwang-Sa Mission
         # Reconstruction Site
@@ -171,6 +172,88 @@ class DZD_Wujung(Plot):
 
 
         return mygram
+
+
+class TestCharMover(Plot):
+    LABEL = "TEST_CHAR_MOVER"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.ScrapIronBuilding(
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name="Test Char Mover")},
+            door_sign=(game.content.ghterrain.FixitShopSignEast, game.content.ghterrain.FixitShopSignSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, "Char Mover Test", player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+                                       scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+                                                                                 decorate=game.content.gharchitecture.CheeseShopDecor()),
+                                      dident="INTERIOR")
+
+        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        npc = self.register_element("NPC",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+        npc.place(intscene, team=team2)
+
+        mycircle = self.register_element("ENEMY_FACTION", plotutility.RandomBanditCircle(nart.camp))
+        npc2 = self.register_element("NPC2",
+                                    gears.selector.random_character(10, local_tags=self.elements["LOCALE"].attributes,
+                                                                    faction=mycircle,
+                                                                    job=gears.jobs.ALL_JOBS["Mecha Pilot"]))
+        npc2.place(intscene, team=team2)
+
+        self.mission_seed = None
+        return True
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+    def t_UPDATE(self, camp):
+        # If the adventure has ended, get rid of it.
+        if self.mission_seed and self.mission_seed.ended:
+            self.mission_seed = None
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        if not self.mission_seed:
+            mylist.append(Offer(
+                "Go test this!".format(**self.elements),
+                context=ContextTag([context.MISSION, ]), subject=self, subject_start=True, effect=self.register_adventure
+            ))
+        return mylist
+
+    def NPC2_offers(self, camp):
+        mylist = list()
+        if not self.mission_seed:
+            mylist.append(Offer(
+                "[HELLO] {NPC2.faction} vs {ENEMY_FACTION} {NPC2.combatant}".format(**self.elements),
+                context=ContextTag([context.HELLO, ]),
+            ))
+        return mylist
+
+    def register_adventure(self, camp):
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            camp, "{}'s Mission".format(self.elements["NPC"]),
+            (self.elements["METROSCENE"], self.elements["MISSION_GATE"]),
+            self.elements.get("ENEMY_FACTION"), rank=self.rank,
+            objectives=(missionbuilder.BAMO_DEFEAT_COMMANDER,),
+        )
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
 
 
 class DZD_BronzeHorseInn(Plot):

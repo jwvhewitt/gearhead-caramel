@@ -884,6 +884,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[GOOD_IDEA]": {
+        Default: ["Good idea.","That's a good idea."
+            ],
+        personality.Cheerful: ["Great idea, [audience]!",
+            ],
+        personality.Grim: ["That's not a bad idea.",
+            ],
+        personality.Easygoing: [ "Yeah, that sounds alright.",
+            ],
+        personality.Passionate: ["That's a brilliant idea!",
+            ],
+        personality.Sociable: ["Good thinking, [audience].",
+            ],
+        personality.Shy: ["Interesting.",
+            ],
+        },
+
     "[GOODLUCK]": {
         Default: ["Good luck.","Good luck with that."
             ],

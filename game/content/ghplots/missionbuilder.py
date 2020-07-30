@@ -560,10 +560,12 @@ class BAM_DefeatCommander(Plot):
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
             self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
+            print("NPC: {}".format(mynpc))
         else:
             myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
             self.register_element("_commander", myunit.commander)
             self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
+            print("Random NPC")
 
         team2.contents += myunit.mecha_list
 
@@ -586,10 +588,6 @@ class BAM_DefeatCommander(Plot):
 
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp, 100)
-
-
-class BAM_ChampionDefeatCommander(Championify, BAM_DefeatCommander):
-    active = True
 
 
 class BAM_DefeatNPC(Plot):
@@ -851,9 +849,11 @@ class BAM_ExtractAllies(Plot):
         self.obj.win(camp, 105)
         self.pilot_leaves_combat(camp)
 
-    def pilot_leaves_combat(self, camp):
+    def pilot_leaves_combat(self, camp: gears.GearHeadCampaign):
         if not self.pilot_fled:
             npc = self.elements["PILOT"]
+            if not npc.relationship:
+                npc.relationship = camp.get_relationship(npc)
             npc.relationship.reaction_mod += 10
         camp.scene.contents.remove(self.elements["SURVIVOR"])
         self.pilot_fled = True

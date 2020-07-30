@@ -1,3 +1,5 @@
+- One on One Champion Fight now uses faction leader if possible
+- Town prosperity now affects shop items
 - Larger movement systems are now lighter (two size-3 Wheels is heavier than a size-6 Wheels) but more expensive.
 - Slasher champions upgrade their plain shields to beam shields.
 - Raider champions upgrade their sensors (to take advantage of their weapon increased range) and may also gain Overchargers.

@@ -524,6 +524,12 @@ class Explorer( object ):
                         for pc in self.camp.get_active_party():
                             if hasattr(pc,"relationship") and pc.relationship:
                                 print("{} {} {} OK:{}".format(pc,pc.renown,pc.relationship.hilights(),pc.relationship.can_do_development()))
+                    elif gdi.unicode == "V" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        for pc in list(self.camp.party):
+                            if pc in self.scene.contents and isinstance(pc,gears.base.Mecha) and not pc.is_operational():
+                                pc.free_pilots()
+                                print(pc)
+                                self.camp.party.remove(pc)
                     elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for card in self.camp.active_tarot_cards():
                             print(card.__class__.__name__)
