@@ -8,7 +8,7 @@
       {"name":"Left Arm","fname":"por_bodfc_larm.png","anchor":"center","x_offset":101,"y_offset":95,"depth":1000}
     ],
     "avatar_layers": [
-      {"name":"Body","fname":"avatar_body_fa.png","anchor":"midbottom","depth":2000}
+      {"name":"Body","fname":"avatar_body_fc.png","anchor":"midbottom","depth":2000}
     ],
     "children": [
       "Clothing","Head"
@@ -29,7 +29,7 @@
       {"name":"Shirt","fname":"por_clothing_bodfc_tishirt.png","anchor":"center","depth":3000,"x_offset":7,"y_offset":-16}
     ],
     "avatar_layers": [
-      {"name":"Shirt","fname":"avatar_shirt_fa1.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
+      {"name":"Shirt","fname":"avatar_shirt_fc1.png","anchor":"center","depth":3000,"x_offset":-1,"y_offset":4}
     ],
     "requires": ["BodFC"],
     "children": [
@@ -43,7 +43,7 @@
       {"name":"Pants","fname":"por_skirt_bodfc_tiskirt.png","anchor":"midbottom","depth":2000,"x_offset":-9,"y_offset":-6}
     ],
     "avatar_layers": [
-      {"name":"Pants","fname":"avatar_pants_a_magenta.png","anchor":"midbottom","depth":2000,"x_offset":-1}
+      {"name":"Pants","fname":"avatar_skirt_bodfc_1m.png","anchor":"center","depth":2000,"x_offset":-1,"y_offset": 15}
     ],
     "requires": ["BodFC"],
     "children": ["Shoes"]
@@ -55,7 +55,7 @@
       {"name":"Overclothes","fname":"por_bodfc_oc_overalls.png","anchor":"midbottom","depth":3500,"x_offset":-11,"y_offset":0}
     ],
     "avatar_layers": [
-      {"name":"Overclothes","fname":"avatar_pants_a_magenta.png","anchor":"midbottom","depth":2000,"x_offset":-1}
+      {"name":"Overclothes","fname":"avatar_bodfc_overalls.png","anchor":"center","depth":3500,"x_offset":-1,"y_offset": 15}
     ],
     "requires": ["BodFC"],
     "prefers": ["Labor"],
@@ -71,8 +71,8 @@
       {"name":"Left Sleeve","fname":"por_bodfc_sleeves_1.png","anchor":"center","depth":1500,"frame":1,"frame_width":138,"frame_height":279,"x_offset":97,"y_offset":52}
     ],
     "avatar_layers": [
-      {"name":"Right Sleeve","fname":"avatar_sleeves_fa1.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":5,"frame_height":9,"y_offset":4},
-      {"name":"Left Sleeve","fname":"avatar_sleeves_fa1.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":5,"frame_height":9,"y_offset":4}
+      {"name":"Right Sleeve","fname":"avatar_sleeves_fc1.png","anchor":"center","depth":2500,"frame_width":9,"frame_height":15,"x_offset": -10,"y_offset":6},
+      {"name":"Left Sleeve","fname":"avatar_sleeves_fc1.png","anchor":"center","depth":2500,"frame":1,"frame_width":9,"frame_height":15,"x_offset": 8,"y_offset":6}
     ],
     "requires": ["BodFC"]
   }

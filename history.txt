@@ -1,3 +1,4 @@
+v0.540 July 31 2020
 - All towns now have a tarot scenario
 - Added Quality of Life indicator to all towns
 - Highway encounters won't clutter the road with trees or other obstacles. It's supposed to be a road.
