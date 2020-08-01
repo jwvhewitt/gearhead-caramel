@@ -105,6 +105,8 @@ class Plot( object ):
         # If failure, delete currently added subplots + raise error.
         if not allok:
             self.fail(nart)
+        elif self.UNIQUE:
+            nart.camp.uniques.add(self.__class__)
 
     def fail( self, nart ):
         self.remove( nart )
@@ -406,8 +408,6 @@ class NarrativeRequest( object ):
                 candidates.remove( cpc )
                 try:
                     cp = cpc(self,pstate)
-                    if cpc.UNIQUE:
-                        self.camp.uniques.add( cpc )
                 except PlotError:
                     cp = None
             if not cp:

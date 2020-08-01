@@ -230,7 +230,7 @@ class RoadMap(object):
         ok = True
         for n in self.nodes:
             if n.sub_plot_label:
-                ok = plot.add_sub_plot(nart,n.sub_plot_label,ident=n.sub_plot_ident,spstate=PlotState(elements={"DZ_NODE":n}).based_on( plot ))
+                ok = plot.add_sub_plot(nart,n.sub_plot_label,ident=n.sub_plot_ident,spstate=PlotState(rank=60-n.pos[0]*3,elements={"DZ_NODE":n}).based_on( plot ))
                 if ok:
                     n.destination = ok.elements["LOCALE"]
                     n.entrance = ok.elements["ENTRANCE"]

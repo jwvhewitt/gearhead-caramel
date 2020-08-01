@@ -28,13 +28,14 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
                 ident = "_autoident_{0}".format(len(myplot.subplots))
             myplot.subplots[ident] = cp
         return cp
+
     def generate_tarot_card( self, pstate, tags, tarot_ident="TAROT" ):
         """Locate a plot which matches the request, init it, and return it."""
         # Create a list of potential plots.
         candidates = list()
         tagset = set(tags)
         for sp in self.plot_list[tarot_ident]:
-            if tagset.issubset(sp.TAGS) and sp.matches( pstate ):
+            if tagset.issubset(sp.TAGS) and sp.matches( pstate ) and sp not in self.camp.uniques:
                 candidates.append( sp )
         if candidates:
             cp = None
@@ -64,6 +65,7 @@ class GHNarrativeRequest(pbge.plots.NarrativeRequest):
             #print "Success: {}".format(splabel)
             myplot.subplots[ident] = sp
         return sp
+
     def request_tarot_card_by_name(self,tarot_name,pstate):
         cpc = CARDS_BY_NAME.get(tarot_name)
         if cpc:

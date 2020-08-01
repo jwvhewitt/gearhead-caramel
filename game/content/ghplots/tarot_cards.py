@@ -432,7 +432,7 @@ class FactionComputer(TarotCard):
 
     SOCKETS = (
         TarotSocket(
-            "MT_SOCKET_Decrypt", TarotSignal(SIG_DECRYPT, [ME_FACTION]),
+            "MT_SOCKET_Decrypt", TarotSignal(SIG_DECRYPT, [ME_FACTION,]),
             consequences={
                 CONSEQUENCE_WIN: TarotTransformer("FactionClue", (ME_FACTION, ME_PUZZLEITEM), [])
             }

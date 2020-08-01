@@ -1,3 +1,9 @@
+- Random NPCs should now have consistent mecha colors
+- Tarot cards marked as UNIQUE should now be unique (unless generated during play)
+- Enemy factions in missions may bring in allies iff all faction members are busy
+- DZD town threat rank increases as you move deeper into the dead zone
+- Fixed FactionComputer password bug
+
 v0.540 July 31 2020
 - All towns now have a tarot scenario
 - Added Quality of Life indicator to all towns

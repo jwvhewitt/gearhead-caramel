@@ -203,6 +203,11 @@ def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, c
         _try_cyberize(pc, rank)
     if pc.combatant:
         equip_combatant(pc)
+        if not pc.mecha_colors:
+            if pc.faction:
+                pc.mecha_colors = color.mutate_colors(pc.faction.mecha_colors)
+            else:
+                pc.mecha_colors = color.random_mecha_colors()
     return pc
 
 

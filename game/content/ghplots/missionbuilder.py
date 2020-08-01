@@ -157,6 +157,14 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             candidate not in nart.camp.party and candidate.renown <= (self.rank + 25)
         )
 
+    def is_good_backup_enemy(self, nart, candidate):
+        # Backup seek function; will accept any faction ally.
+        return (
+            isinstance(candidate, gears.base.Character) and candidate.combatant and
+            nart.camp.are_faction_allies(candidate, self.enemy_faction) and
+            candidate not in nart.camp.party and candidate.renown <= (self.rank + 25)
+        )
+
 
 class BuildAMissionPlot(Plot):
     # Go fight mecha. Repeatedly.
@@ -492,7 +500,7 @@ class BAM_DefeatArmy(Plot):
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
-        npc1 = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
+        npc1 = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if npc1:
             plotutility.CharacterMover(self, npc1, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
@@ -502,7 +510,7 @@ class BAM_DefeatArmy(Plot):
 
         team2.contents += myunit.mecha_list
 
-        npc2 = self.seek_element(nart, "_assistant", self.adv.is_good_enemy_npc, must_find=False, lock=True)
+        npc2 = self.seek_element(nart, "_assistant", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if npc2:
             plotutility.CharacterMover(self, npc2, myscene, team2)
         else:
@@ -555,17 +563,15 @@ class BAM_DefeatCommander(Plot):
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
-        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
+        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if mynpc:
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
             self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
-            print("NPC: {}".format(mynpc))
         else:
             myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
             self.register_element("_commander", myunit.commander)
             self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
-            print("Random NPC")
 
         team2.contents += myunit.mecha_list
 
@@ -651,7 +657,7 @@ class BAM_DefeatTheBandits(Plot):
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
         if myfac:
-            mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
+            mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         else:
             mynpc = None
         if mynpc:
@@ -735,7 +741,7 @@ class BAM_DestroyArtillery(Plot):
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
-        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
+        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if mynpc:
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 70, myfac, myscene.environment, add_commander=False)
@@ -1303,7 +1309,7 @@ class BAM_StormTheCastle(Plot):
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
-        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True)
+        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if mynpc:
             plotutility.CharacterMover(self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)

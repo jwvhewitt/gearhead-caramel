@@ -627,7 +627,7 @@ class OutsourcedComputerPlacement(Plot):
                           elements={"THING": mything, "ENEMY_FACTION": self.elements[ME_FACTION]})
         return True
 
-    def THING_BUMP(self, camp):
+    def ME_PUZZLEITEM_BUMP(self, camp):
         self._win_mission(camp)
 
     def _win_mission(self, camp):

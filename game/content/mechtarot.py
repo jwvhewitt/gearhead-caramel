@@ -230,6 +230,7 @@ class ProtoCard(object):
 
 class Constellation(object):
     def __init__(self, nart, root_plot, root_card, dest_card_name=None, steps=2):
+        print(root_card)
         self.element_lookup = dict()
         dest_card_class = CARDS_BY_NAME[dest_card_name]
         if dest_card_class:
@@ -325,7 +326,6 @@ class Constellation(object):
         # Given a set of cards we want, return a set of ProtoCards that can generate those cards
         # within the requested number of steps.
         my_cards = list(final_proto_list)
-        print([card.card.__name__ for card in my_cards], steps)
         dead_ends = list()
         while steps > 0 and my_cards:
             random.shuffle(my_cards)
@@ -336,7 +336,6 @@ class Constellation(object):
                 steps -= 1
             else:
                 dead_ends.append(card_to_replace)
-            print([card.card.__name__ for card in my_cards+dead_ends],steps)
         return my_cards + dead_ends
 
 

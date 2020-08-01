@@ -145,6 +145,7 @@ BeamWeapon
     accuracy = 3
     penetration = 2
     shot_anim = SmallBeam
+    attack_stat = Perception
     attributes = (OverloadAttack)
 
 BeamWeapon

@@ -179,7 +179,7 @@ class PlayerTurn( object ):
 
 
 class Combat( object ):
-    def __init__( self, camp ):
+    def __init__( self, camp: gears.GearHeadCampaign ):
         self.active = []
         self.scene = camp.scene
         self.camp = camp

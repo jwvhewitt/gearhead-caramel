@@ -171,6 +171,14 @@ def choose_color_by_tags(all_these_tags):
     if candidates:
         return random.choice(candidates)
 
+def mutate_colors(original_color_tuple):
+    mylist = list()
+    for c in original_color_tuple:
+        if random.randint(1,3) != 2:
+            mylist.append(c)
+        else:
+            mylist.append(choose_color_by_tags([c.family]))
+    return tuple(mylist)
 
 
 
