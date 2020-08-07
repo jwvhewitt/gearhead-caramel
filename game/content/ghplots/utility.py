@@ -244,6 +244,26 @@ class PlaceACommander( Plot ):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
+class PlaceAMember( Plot ):
+    LABEL = "PLACE_LOCAL_REPRESENTATIVES"
+    def custom_init( self, nart ):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements["FACTION"]
+        destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene,
+                                      backup_seek_func=self._is_good_scene)
+        mynpc = self.register_element("NPC",gears.selector.random_character(
+            rank=random.randint(20,70),local_tags=myscene.attributes,combatant=True,faction=myfac),dident="_DEST"
+                                      )
+        destscene.local_teams[mynpc] = destscene.civilian_team
+        return True
+    def _is_best_scene(self,nart,candidate):
+        return (isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
+                gears.tags.SCENE_BASE in candidate.attributes and
+                candidate.faction and nart.camp.are_ally_factions(candidate.faction,self.elements["FACTION"]))
+    def _is_good_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
 #  ************************
 #  ***   QOL_REPORTER   ***
 #  ************************

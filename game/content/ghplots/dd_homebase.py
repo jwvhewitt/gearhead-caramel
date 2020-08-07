@@ -65,6 +65,7 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
         tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
         tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
+        tplot = self.add_sub_plot(nart, "DZDHB_WujungGarrison")
         #tplot = self.add_sub_plot(nart, "TEST_DUNGEON")
         #tplot = self.add_sub_plot(nart, "TEST_CHAR_MOVER")
         # Black Isle Pub
@@ -172,6 +173,220 @@ class DZD_Wujung(Plot):
         elif qol.defense < 0:
             mygram["[CURRENT_EVENTS]"].append("The Defense Force hasn't recovered from Typhon's rampage... what will happen if we're attacked again?")
 
+
+        return mygram
+
+
+class WujungGarrison(Plot):
+    # Add representatives of the Terran Federation, TDF, Guardians, and Solar Navy
+    LABEL = "DZDHB_WujungGarrison"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        self.npcs = list()
+        sp1 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.TerranFederation})
+        self.elements["FEDERATION"] = sp1.elements["NPC"]
+        self.npcs.append(sp1.elements["NPC"])
+
+        sp2 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.TerranDefenseForce})
+        self.elements["DEFENSE"] = sp2.elements["NPC"]
+        self.npcs.append(sp2.elements["NPC"])
+
+        sp3 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.TheSolarNavy})
+        self.elements["NAVY"] = sp3.elements["NPC"]
+        self.npcs.append(sp3.elements["NPC"])
+
+        sp4 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.Guardians})
+        self.elements["GUARDIAN"] = sp4.elements["NPC"]
+        self.npcs.append(sp4.elements["NPC"])
+
+        sp5 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.KettelIndustries})
+        self.elements["KETTEL"] = sp5.elements["NPC"]
+        self.npcs.append(sp5.elements["NPC"])
+
+        return True
+
+    def FEDERATION_offers(self, camp):
+        # Can give a status report on Community
+        mylist = list()
+
+        qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
+        if qol.community > 0:
+            mylist.append(Offer(
+                "Things are going well, community-wise. The people of Wujung have pulled together to help one another in these difficult times. Whatever other challenges we face, we will face them together.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"life in Wujung"}
+            ))
+        elif qol.community < 0:
+            mylist.append(Offer(
+                "Things have not been great. Ever since Typhon attacked, tensions have been high. There's been a sharp rise in xenophobia and paranoia. Critics of the government say this proves that democracies always decay into authoritarianism. I don't believe that, and I intend to prove them wrong.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"life in Wujung"}
+            ))
+        else:
+            mylist.append(Offer(
+                "Things are about the same as they've always been. Wujung is an old fortress-city; we've been through a lot of bad times before and we always pull through.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"life in Wujung"}
+            ))
+
+        mylist.append(Offer(
+            "The Terran Federation is an alliance of various city-fortresses and states from all over the Earth. Ever since the Typhon incident last year we've been trying to get more states to join, since cooperation is the only way we will be able to resist Aegis Overlord.",
+            context=ContextTag([context.INFO,]), subject=gears.factions.TerranFederation.name,
+            no_repeats=True, data={"subject":"the Terran Federation"}
+        ))
+
+        return mylist
+
+    def DEFENSE_offers(self, camp):
+        # Can give a status report on Health
+        mylist = list()
+        qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
+        if qol.health > 0:
+            mylist.append(Offer(
+                "For all our problems, Wujung remains one of the safest cities on Earth. As a member of the Defense Force I'm proud to help keep it that way.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject": "threats to Wujung"}
+            ))
+        elif qol.health < 0:
+            mylist.append(Offer(
+                "I'm a {DEFENSE.job}; it's my duty to protect Wujung from military threats. Unfortunately, there are some dangers you can't fight with a giant robot. We've lost way too many good people lately.".format(**self.elements),
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"threats to Wujung"}
+            ))
+        else:
+            mylist.append(Offer(
+                "We've been lucky enough to not have any plagues or famines these days. As for military threats, the Defense Force makes sure that they stay on the other side of the wall.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"threats to Wujung"}
+            ))
+
+        mylist.append(Offer(
+            "We protect the Federation from terrestrial threats, such as Clan Ironwind and the Bone Devil Gang.",
+            context=ContextTag([context.INFO,]), subject=gears.factions.TerranDefenseForce.name,
+            no_repeats=True, data={"subject":"the Defense Force"}
+        ))
+
+        mylist.append(Offer(
+            "Ironwind Fortress is an imperialistic deadzone city south of here. They have conquered a small empire in southeast Eurasia and hope to expand their territory. It's widely believed that they're being funded by Aegis.",
+            context=ContextTag([context.INFO,]), subject="Ironwind",
+            no_repeats=True, data={"subject":"Clan Ironwind"}
+        ))
+
+        mylist.append(Offer(
+            "The Bone Devil Gang are a massive criminal conglomerate; they have their fingers in every dirty business you can name, from stimrunning to organlegging. They also do a whole lot of highway robbery.",
+            context=ContextTag([context.INFO,]), subject="Bone Devil Gang",
+            no_repeats=True, data={"subject":"the Bone Devils"}
+        ))
+
+        return mylist
+
+    def NAVY_offers(self, camp):
+        # Can give a status report on Defense
+        mylist = list()
+        qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
+        if qol.defense > 0:
+            mylist.append(Offer(
+                "With the Defense Force backed up by additional Solar Navy patrols, this city is more secure than it's ever been. I only hope that when the next threat arises it will be enough.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject": "Wujung's defenses"}
+            ))
+        elif qol.defense < 0:
+            mylist.append(Offer(
+                "Typhon's attack severely damaged our western defenses. The Blue Fortress garrison doesn't have the strength left to protect Wujung from all our enemies in the dead zone; that's why several Solar Navy lances have been called in from Namok.".format(**self.elements),
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"Wujung's defenses"}
+            ))
+        else:
+            mylist.append(Offer(
+                "Wujung is secure, for now. The Solar Navy detachment that was called in after Typhons's attack can continue our original mission of patroling the dead zone for Aegis and Crihna incursions.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"Wujung's defenses"}
+            ))
+
+        mylist.append(Offer(
+            "The Solar Navy has two jobs. First, we protect Earth against threats from space, such as Aegis Overlord and the Blades of Crihna. Second, we patrol the trade routes between Earth and the rest of the solar system.",
+            context=ContextTag([context.INFO,]), subject=gears.factions.TheSolarNavy.name,
+            no_repeats=True, data={"subject":"the Solar Navy"}
+        ))
+
+        mylist.append(Offer(
+            "The Blades of Crihna are a space pirate fleet originating from the L5 region. Until recently they didn't really have any operations on Earth, but now they're attempting to establish a presence in the dead zone. Their main business is smuggling.",
+            context=ContextTag([context.INFO,]), subject="Crihna",
+            no_repeats=True, data={"subject":"the Blades"}
+        ))
+
+        return mylist
+
+    def GUARDIAN_offers(self, camp):
+        # Can give a status report on Stability
+        mylist = list()
+        qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
+        if qol.stability > 0:
+            mylist.append(Offer(
+                "Crime is at an all-time low, which is good because it means I get to hang around here all day instead of going out there and getting shot at.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject": "crime in Wujung"}
+            ))
+        elif qol.stability < 0:
+            mylist.append(Offer(
+                "In all my time on the force, I've never seen this degree of lawlessness. Violent crime is on the rise all over the city. Because of the reconstruction work, we don't have the budget or manpower to launch proper interventions.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"crime in Wujung"}
+            ))
+        else:
+            mylist.append(Offer(
+                "Things are about the same as they've ever been. Wujung was one of the early adopters of community intervention programs, so our baseline for criminal activity has been pretty low anyway.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"crime in Wujung"}
+            ))
+
+        mylist.append(Offer(
+            "The Guardians are the lawkeeping arm of the Terran Federation. Our mandate is to prevent, investigate, and prosecute crime wherever it occurs.",
+            context=ContextTag([context.INFO,]), subject=gears.factions.Guardians.name,
+            no_repeats=True, data={"subject":"the Guardians"}
+        ))
+
+        return mylist
+
+    def KETTEL_offers(self, camp):
+        # Can give a status report on Prosperity
+        mylist = list()
+        qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
+        if qol.prosperity > 0:
+            mylist.append(Offer(
+                "This is a great time to be doing business in Wujung. Kettel Industries has just acquired a large parcel of land for our neotech division. Things can onlu possibly get better from here on out.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject": "business in Wujung"}
+            ))
+        elif qol.prosperity < 0:
+            mylist.append(Offer(
+                "I won't say that this is the worst the economy has ever been... the days after the Night of Fire must have been pretty bad too.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"business in Wujung"}
+            ))
+        else:
+            mylist.append(Offer(
+                "The Typhon attack has been a boon to constrcution firms and weapon manufacturers. It's been a bad thing for tourism and consumer electronics. Plan your investments accordingly.",
+                context=ContextTag([context.INFO,]),
+                no_repeats=True, data={"subject":"business in Wujung"}
+            ))
+
+        mylist.append(Offer(
+            "Kettel Industries is the megacorporation that empowers Earth to face the challenges of the second century NT. Our research department delves into both the lost technologies of the Age of Superpowers and new technologies never before imagined. Through the guidance of CEO Elisha Kettel, we aim to usher in a second golden age for mankind.",
+            context=ContextTag([context.INFO,]), subject=gears.factions.KettelIndustries.name,
+            no_repeats=True, data={"subject":"Kettel Industries"}
+        ))
+
+        return mylist
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc in self.npcs:
+            mygram["[CURRENT_EVENTS]"] = [
+                "I work for {}.".format(npc.faction.name),
+            ]
 
         return mygram
 
@@ -496,7 +711,10 @@ class DZD_BlueFortressHQ(Plot):
     LABEL = "DZDHB_BlueFortress"
 
     active = True
-    scope = True
+    scope = "METRO"
+
+    # Compatibility var- for v0.540
+    got_tutorial = False
 
     def custom_init(self, nart):
         # Create a building within the town.
@@ -553,8 +771,9 @@ class DZD_BlueFortressHQ(Plot):
          gender=gears.genderobj.Gender.get_default_female(),portrait='card_f_vikki_dzd.png',
          colors=(gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive),
          mecha_colors=(gears.color.ShiningWhite,gears.color.Olive,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))
-        self.register_element( "VIKKI", vikki )
+        self.register_element("VIKKI", vikki)
         vikki.place(intscene, team=team3)
+        self.got_tutorial = False
 
         return True
 
@@ -594,6 +813,65 @@ class DZD_BlueFortressHQ(Plot):
             )
 
         return mylist
+
+    def VIKKI_offers(self, camp):
+        mylist = list()
+
+        if not self.got_tutorial:
+            mylist.append(Offer(
+                "Someone sent you to get the spiel, did they? Alrightie then, your mecha has two values which describe its combat performance: Armor and Mobility. Each of your weapons also has two performance values: Penetration and Accuracy. The thing you need to know is that penetration counteracts armor, whilc accuracy counteracts mobility.",
+                context=ContextTag([context.INFO,]), effect=self.get_tutorial,
+                data={"subject": "mecha combat"}, subject=self, subject_start=True, no_repeats=True,
+            ))
+        else:
+            mylist.append(Offer(
+                "Alright, let's review what I told you the first time. Accuracy counteracts mobility, penetration counteracts armor. You need mental power to activate skills and special attacks. You need stamina to defend against enemy attacks. The Thorshammer is the best mecha unless you can afford an Ovaknight. Any questions?",
+                context=ContextTag([context.CUSTOM,]),
+                data={"reply": "Could you tell me about mecha combat again?"}, no_repeats=True,
+            ))
+
+        mylist.append(Offer(
+            "I guess that's not a bad summary... sounds like something they'd teach you at kiddie mecha camp. But this here is big mecha pants class. The main thing to remember is that you use high accuracy weapons against high mobility targets, and high penetration weapons against heavily armored ones. Do the opposite and you're just wasting ammo.",
+            context=ContextTag([context.CUSTOM,]),
+            data={"reply": "So accuracy makes a weapon more likely to hit, and penetration makes it more likely to cause damage. Got it."}, subject=self,
+        ))
+
+        mylist.append(Offer(
+            "A mecha is only as good as its pilot. I've seen lots of beginners think that as soon as they get a fancy ride they'll be aces right away, but it doesn't work like that. In addition to your piloting skills it's also important to keep your mind and body in top shape.",
+            context=ContextTag([context.CUSTOMREPLY,]),
+            data={"reply": "Anything else that I should know?"}, subject=self,
+        ))
+
+        mylist.append(Offer(
+            "You need both mental power and stamina to pilot a mecha. Mental power is used to activate abilities and special attacks. Stamina is used when you defend yourself against enemy attacks. Run out of either and you'll have a bad time. Training your concentration and athletics skills can help.",
+            context=ContextTag([context.INFO,]),
+            data={"subject": "mind and body"}, subject="keep your mind and body", no_repeats=True,
+        ))
+
+        mylist.append(Offer(
+            "No worries. I love any chance I can get to play the teacher. With any luck most of the stuff I told you will even turn out to be right.",
+            context=ContextTag([context.CUSTOM,]),
+            data={"reply": "Thanks for the tips."}, subject="keep your mind and body",
+        ))
+
+        return mylist
+
+    def get_tutorial(self, camp: gears.GearHeadCampaign):
+        if not self.got_tutorial:
+            self.got_tutorial = True
+            for sk in (gears.stats.MechaGunnery, gears.stats.MechaFighting, gears.stats.MechaPiloting):
+                camp.dole_xp(150, sk)
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        mynpc = self.elements["VIKKI"]
+        if npc is not mynpc and not self.got_tutorial:
+            mygram["[News]"] = [
+                "{VIKKI} at {VIKKI.scene} can give you some mecha piloting tips".format(**self.elements),
+            ]
+
+        return mygram
+
 
 
 class DZD_AlliedArmor(Plot):

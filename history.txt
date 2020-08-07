@@ -1,3 +1,6 @@
+- Added the Solar Navy faction
+- Vikki now gives a brief tutorial about mecha and pilot stats
+- Combat AI for enemies updated; target choice is no longer random or permanent
 - Random NPCs should now have consistent mecha colors
 - Tarot cards marked as UNIQUE should now be unique (unless generated during play)
 - Enemy factions in missions may bring in allies iff all faction members are busy

@@ -998,3 +998,8 @@ def init_gears():
 
     portraits.init_portraits()
     jobs.init_jobs()
+
+    #for d in selector.DESIGN_LIST:
+    #    if isinstance(d, base.Mecha):
+    #        print("{} {}".format(d, d.get_primary_attack().source))
+

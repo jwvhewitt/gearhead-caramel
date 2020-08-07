@@ -378,6 +378,10 @@ class Combatant(KeyObject):
         my_invos.sort(key=lambda shelf: -shelf.get_average_thrill_power(self))
         return my_invos
 
+    def get_primary_attack(self):
+        mylibrary = self.get_attack_library()
+        return max(mylibrary, key=lambda a: a.get_average_thrill_power(self, True))
+
     def get_skill_library(self, in_combat=False):
         my_invo_dict = collections.defaultdict(list)
         pilot = self.get_pilot()

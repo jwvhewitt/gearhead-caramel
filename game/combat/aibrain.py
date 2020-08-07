@@ -40,12 +40,40 @@ class BasicAI( object ):
         self.npc = npc
         self.target = None
 
+    def closest_target_selector(self, camp, target):
+        return -camp.scene.distance(self.npc.pos,target.pos)
+
+    def most_damaged_target_selector(self, camp, target):
+        return target.get_percent_damage_over_health()
+
+    def easiest_target_selector(self, camp, target):
+        myat = self.npc.get_primary_attack()
+        if myat:
+            myinvo = myat.get_first_working_invo(self.npc)
+            if myinvo and hasattr(myinvo.fx,"get_odds"):
+                return myinvo.fx.get_odds(camp,self.npc,target)
+        return -1
+
+    def strongest_target_selector(self, camp, target):
+        return target.cost
+
     def select_target( self, camp ):
         # Choose a possible target.
         # For now, we're just choosing a random target.
-        candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar) and not tar.hidden]
-        if candidates:
-            return random.choice( candidates )
+        candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc, tar) and not tar.hidden]
+        best_candidates = [tar for tar in candidates if camp.scene.distance(self.npc.pos,tar.pos) <= self.midr]
+        if best_candidates:
+            return max(best_candidates, key=lambda a: [
+                self.easiest_target_selector(camp, a),
+                self.most_damaged_target_selector(camp, a),
+                self.closest_target_selector(camp, a)
+            ])
+        elif candidates:
+            return max(candidates, key= lambda a: [
+                self.strongest_target_selector(camp, a),
+                self.closest_target_selector(camp, a)
+            ])
+            #return random.choice( candidates )
 
     def move_to( self, camp, mynav, dest ):
         if self.npc.get_current_speed() > 10:
@@ -53,18 +81,15 @@ class BasicAI( object ):
         else:
             # Can't move if you're immobilized. Just wait here.
             camp.fight.cstat[self.npc].spend_ap(1)
-    def get_min_mid_max_range( self, my_library ):
-        dist = list()
-        for shelf in my_library:
-            for i in shelf.invo_list:
-                if i.can_be_invoked(self.npc,True):
-                    dist += [i.area.get_reach(),]*i.data.thrill_power
-        if dist:
-            average = sum(dist)//len(dist)
-            if average >= 15:
-                return (average//3,(average*2)//3,max(dist))
+
+    def get_min_mid_max_range(self):
+        myat = self.npc.get_primary_attack()
+        if myat:
+            dist = myat.get_first_working_invo(self.npc).area.get_reach()
+            if dist >= 15:
+                return (dist//3,(dist*2)//3,dist)
             else:
-                return (0,average//2,max(dist))
+                return (0,dist//2,dist)
         else:
             return (0,0,0)
 
@@ -98,6 +123,7 @@ class BasicAI( object ):
                 elif dist < minrange:
                     points -= (minrange-dist)*10
         return max(points,1)
+
     def _desirability( self, pos ):
         # Fill out all the self.* vars before calling this function.
         return self.calc_tile_desirability(self.camp,pos,
@@ -112,6 +138,7 @@ class BasicAI( object ):
             else:
                 candidates += [invo,]
         return random.choice(candidates)
+
     def aim_attack(self,camp,myattacks):
         # Attempt to attack self.target. Return an invocation and a list
         # of target tiles.
@@ -163,15 +190,29 @@ class BasicAI( object ):
         if hasattr(self.npc,"get_current_speed") and self.npc.get_current_speed() > 10 and camp.fight.cstat[self.npc].action_points > 1:
             # Check for a better tile.
             mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,self.npc.get_current_speed()+camp.fight.cstat[self.npc].mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
-            sample = random.sample(list(mynav.cost_to_tile.keys()),max(len(mynav.cost_to_tile)//4,min(5,len(mynav.cost_to_tile))))
+            sample = random.sample(list(mynav.cost_to_tile.keys()),max(len(mynav.cost_to_tile)//2,min(5,len(mynav.cost_to_tile))))
             #sample = sample[:len(sample)//4]
             self.camp = camp
-            self.minr,self.midr,self.maxr = self.get_min_mid_max_range(self.npc.get_attack_library())
+            self.minr,self.midr,self.maxr = self.get_min_mid_max_range()
             if self.target and sample:
                 self.enemies = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar)]
                 best = max(sample,key=self._desirability)
                 if best is not self.npc.pos and self._desirability(best) > self._desirability(self.npc.pos):
                     self.move_to(camp,mynav,best)
+                elif self.npc.get_current_speed() > random.randint(40,70):
+                    # Attempt evasive maneuvers
+                    cutoff = self._desirability(self.npc.pos)
+                    candidates = list()
+                    while sample:
+                        p = sample.pop(0)
+                        if self._desirability(p) >= cutoff:
+                            candidates.append(p)
+                        else:
+                            break
+                    if candidates:
+                        dest = max(candidates, key=lambda p: camp.scene.distance(self.npc.pos,p))
+                        if camp.scene.distance(dest,self.npc.pos) > 4:
+                            self.move_to(camp, mynav, dest)
 
         # We are now either in a good position, or so far out of the loop it isn't funny.
         if camp.fight.cstat[self.npc].action_points > 0:
@@ -230,6 +271,8 @@ class BasicAI( object ):
     def act(self,camp):
         if hasattr(self.npc, "gear_up"):
             self.npc.gear_up()
+        self.minr,self.midr,self.maxr = self.get_min_mid_max_range()
+
         # Attempt to use a skill first.
         if camp.fight.cstat[self.npc].action_points > 0 and random.randint(1,2) == 1:
             self.try_to_use_a_skill(camp)
@@ -237,6 +280,8 @@ class BasicAI( object ):
             # If targets exist, call attack.
             # Otherwise attempt skill use again.
             if not (self.target and self.target in camp.scene.contents and self.target.is_operational()):
+                self.target = self.select_target(camp)
+            elif random.randint(1,3) == 1:
                 self.target = self.select_target(camp)
             if self.target:
                 self.attempt_attack(camp)

@@ -105,9 +105,9 @@ class TerranFederation(Faction):
     factags = (tags.Politician,)
     mecha_colors = (color.ArmyDrab, color.Olive, color.ElectricYellow, color.GullGrey, color.Terracotta)
     CAREERS = {
-        tags.Trooper: ("Mecha Pilot",),
-        tags.Commander: ("Commander",),
-        tags.Support: ("Recon Pilot",),
+        tags.Trooper: ("Mecha Pilot", "Citizen"),
+        tags.Commander: ("Bureaucrat", "Commander",),
+        tags.Support: ("Explorer", "Firefighter", "Paramedic", "Researcher"),
     }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("Terran",)
@@ -213,6 +213,21 @@ class TheSilverKnights(Faction):
     uniform_colors = (color.AeroBlue,None,None,None,color.SkyBlue)
 
 
+class TheSolarNavy(Faction):
+    name = "the Solar Navy"
+    factags = (tags.Military,)
+    mecha_colors = (color.DeepSeaBlue, color.Jade, color.OrangeRed, color.GullGrey, color.GhostGrey)
+    CAREERS = {
+        tags.Trooper: ("Mecha Pilot","Soldier"),
+        tags.Commander: ("Commander",),
+        tags.Support: ("Recon Pilot","Field Medic"),
+    }
+    LOCATIONS = (personality.GreenZone,)
+    ADJECTIVES = ("Terran","Solar")
+    NOUNS = ("Defense Fleet","Wing")
+    uniform_colors = (color.SkyBlue,None,None,None,color.DeepSeaBlue)
+
+
 class Circle(object):
     def __init__(self, camp, parent_faction=None, mecha_colors=None, name="", careers=None, factags=(), locations=(), uniform_colors=None, active=True, allies=(), enemies=()):
         if parent_faction and not name:
@@ -292,7 +307,7 @@ DEFAULT_FACTION_DICT_NT158 = {
         enemies= (AegisOverlord,)
     ),
     TerranDefenseForce: FactionRelations(
-        allies= (TerranFederation,),
+        allies= (TerranFederation,TheSolarNavy),
         enemies= (AegisOverlord,BoneDevils,ClanIronwind)
     ),
     Guardians: FactionRelations(
@@ -308,7 +323,11 @@ DEFAULT_FACTION_DICT_NT158 = {
         enemies=(TerranFederation,TerranDefenseForce,DeadzoneFederation)
     ),
     TheSilverKnights: FactionRelations(
-        allies=(),
+        allies=(TheSolarNavy,),
+        enemies=(AegisOverlord,BladesOfCrihna)
+    ),
+    TheSolarNavy: FactionRelations(
+        allies=(TerranFederation,TerranDefenseForce,TheSilverKnights),
         enemies=(AegisOverlord,BladesOfCrihna)
     )
 

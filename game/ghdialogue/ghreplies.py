@@ -41,6 +41,9 @@ CUSTOM_CUSTOMREPLY = Reply( "{reply}" ,
             destination = Cue( ContextTag([context.CUSTOMREPLY]) ) ,
             context = ContextTag([context.CUSTOM]) )
 
+CUSTOMREPLY_INFO = Reply( "[CHAT:INFO]" ,
+            context = ContextTag([context.CUSTOMREPLY]),
+            destination = Cue( ContextTag([context.INFO]) ) )
 
 HELLO_ASKFORITEM = Reply( "[HELLO:ASK_FOR_ITEM]" ,
             destination = Cue( ContextTag([context.ASK_FOR_ITEM]) ) ,
