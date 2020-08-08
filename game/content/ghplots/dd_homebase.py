@@ -313,7 +313,7 @@ class WujungGarrison(Plot):
 
         mylist.append(Offer(
             "The Blades of Crihna are a space pirate fleet originating from the L5 region. Until recently they didn't really have any operations on Earth, but now they're attempting to establish a presence in the dead zone. Their main business is smuggling.",
-            context=ContextTag([context.INFO,]), subject="Crihna",
+            context=ContextTag([context.INFO,]), subject="of Crihna",
             no_repeats=True, data={"subject":"the Blades"}
         ))
 

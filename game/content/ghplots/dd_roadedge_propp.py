@@ -1222,7 +1222,7 @@ class DZREPR_HelpFromAbove(DZREPR_NPCMission):
     WIN_MESSAGE = "As the smoke clears from the battlefield, one thing becomes clear: there are some powerful forces that want {FACTION} to find whatever it is they're looking for."
     DEFAULT_NEWS = "{NPC} said {NPC.gender.subject_pronoun} saw something weird last night"
     DEFAULT_INFO = "You can go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about it."
-    DEFAULT_MEMO = "{NPC.gender.subject_pronoun} is at {NPC_SCENE}, if you want to ask {NPC.gender.object_pronoun} about it."
+    DEFAULT_MEMO = "{NPC} is at {NPC_SCENE}, if you want to ask {NPC.gender.object_pronoun} about the mysterious thing {NPC.gender.subject_pronoun} saw."
     CUSTOM_REPLY = "Have you seen anything odd recently?"
     CUSTOM_OFFER = "As a matter of fact, I did. While I was out last night my mecha's sensors picked up a large flying object just outside of town. It was only on screen for a second, then it disappeared. I thought I saw something falling in the distance but I was too slow to take a video with my phone."
     def _npc_matches(self,nart,candidate):
