@@ -1679,7 +1679,7 @@ class MeleeWeapon(Weapon):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.HaywireAttack,
-                        attackattributes.OverloadAttack, attackattributes.Smash)
+                        attackattributes.OverloadAttack, attackattributes.Smash, attackattributes.DrainsPower)
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
@@ -1765,7 +1765,7 @@ class EnergyWeapon(Weapon):
     COST_FACTOR = 12
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
-                        attackattributes.Intercept, attackattributes.OverloadAttack)
+                        attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.DrainsPower)
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL

@@ -1118,6 +1118,36 @@ class DispelEnchantments( effects.NoEffect ):
         return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
 
 
+class DoDrainPower( effects.NoEffect ):
+    """ Drain the power of the target.
+    """
+    def __init__(self, **keywords):
+        super().__init__(**keywords)
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay = 0):
+        for target in camp.scene.get_operational_actors(pos):
+            if not hasattr(target, 'get_current_and_max_power'):
+                continue
+            if not hasattr(target, 'consume_power'):
+                continue
+            c, m = target.get_current_and_max_power()
+            if c <= 0:
+                continue
+            # Determine the limit.
+            if random.randint(1,2) == 1:
+                limit = c
+            else:
+                limit = max(1, c // 2)
+            drain = random.randint(1, limit)
+            target.consume_power(drain)
+            myanim = animobs.Caption( "-{}Pw".format(drain)
+                                    , pos = target.pos
+                                    , delay = delay
+                                    , y_off = -camp.scene.model_altitude(target, *target.pos)
+                                    )
+            anims.append(myanim)
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
+
+
 #  ***************************
 #  ***   Roll  Modifiers   ***
 #  ***************************

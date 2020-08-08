@@ -245,6 +245,24 @@ class HaywireAttack(Singleton):
             )
         )
 
+class DrainsPower(Singleton):
+    name = "Drains Power"
+    MASS_MODIFIER = 1.2
+    VOLUME_MODIFIER = 1.2
+    COST_MODIFIER = 1.5
+    POWER_MODIFIER = 0.8
+
+    @classmethod
+    def modify_basic_attack(self, weapon, attack):
+        # Add a drain power effect to the children.
+        # Construct an invocation that is invoked after damage is dealt,
+        # otherwise the -100Pw caption will overlap with the damage caption.
+        fx = pbge.effects.NoEffect(children = [geffects.DoDrainPower()])
+        inv = pbge.effects.Invocation( area = pbge.scenes.targetarea.SingleTarget(delay_from = -1)
+                                     , fx = fx
+                                     )
+        attack.fx.children[0].children.append(pbge.effects.InvokeEffect(invocation = inv))
+
 class Intercept(Singleton):
     name = "Intercept"
     MASS_MODIFIER = 1.0
