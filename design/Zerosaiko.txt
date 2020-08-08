@@ -109,6 +109,7 @@ Mecha
                             damage=4
                             accuracy=3
                             penetration=1
+                            attributes = (DrainsPower,)
                     END
             END
             INV

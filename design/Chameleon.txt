@@ -367,7 +367,7 @@ Mecha
                             damage=1
                             accuracy=3
                             penetration=3
-                            attributes = (Defender,)
+                            attributes = (Defender,DrainsPower)
                     END
                 Mount
                     name = "Left Arm Mount"

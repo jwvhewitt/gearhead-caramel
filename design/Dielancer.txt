@@ -63,7 +63,7 @@ Mecha
                             reach=2
                             damage=3
                             penetration=1
-                            attributes=(HaywireAttack,OverloadAttack,ChargeAttack)
+                            attributes=(HaywireAttack,DrainsPower,ChargeAttack)
                     END
             END
         Arm

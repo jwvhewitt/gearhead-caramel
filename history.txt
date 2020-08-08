@@ -1,3 +1,4 @@
+- Melee weapons can have the Drains Power attribute, which greatly reduces the power supplies of enemy mecha, preventing them from using energy and beam weapons.
 - Added the Solar Navy faction
 - Vikki now gives a brief tutorial about mecha and pilot stats
 - Combat AI for enemies updated; target choice is no longer random or permanent

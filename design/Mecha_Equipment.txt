@@ -130,6 +130,18 @@ MeleeWeapon
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
+MeleeWeapon
+    name = "Grounding Whip"
+    desc = "A long whip of flexible, highly-conductive metal, which drains power from enemy beam and energy weapons."
+    reach = 2
+    damage = 3
+    accuracy = 2
+    penetration = 1
+    scale = MechaScale
+    attributes = (Flail, DrainsPower)
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
 EnergyWeapon
     name = "Beam Scourge"
     desc = "A highly prehensile whip of energy."
@@ -245,13 +257,13 @@ EnergyWeapon
 
 EnergyWeapon
     name = "Shock Rapier"
-    desc = "A long, thin sword-like energy projection with good penetration."
+    desc = "A long, thin sword-like energy projection with good penetration, and drains power from targets, preventing them from using beam or energy weapons."
     scale = MechaScale
     reach = 1
-    damage = 2
-    accuracy = 1
-    penetration = 3
-    attributes = (Accurate, OverloadAttack)
+    damage = 1
+    accuracy = 2
+    penetration = 5
+    attributes = (Accurate, DrainsPower)
     shop_tags = ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
