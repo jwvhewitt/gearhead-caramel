@@ -380,6 +380,8 @@ class Combatant(KeyObject):
 
     def get_primary_attack(self):
         mylibrary = self.get_attack_library()
+        if not mylibrary:
+            return None
         return max(mylibrary, key=lambda a: a.get_average_thrill_power(self, True))
 
     def get_skill_library(self, in_combat=False):
