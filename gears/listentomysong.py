@@ -57,9 +57,9 @@ def _sing_fx(info):
 
 def _fail_fx(info):
     # On failing, do another skill roll.
-    # If they fail again, trigger a negaive effect.
+    # If they fail again, trigger a negative effect.
     return geffects.SkillRoll( info.att_stat, info.att_skill
-                             , on_success = [effects.NoEffect(anim = geffects.FailAnim)]
+                             , on_success = [_null_fx(info)]
                              , on_failure = [_negative_fx(info)]
                              )
 
@@ -91,6 +91,18 @@ class _PositiveSongInvocation(_SongInvocation):
         super().__init__(wrapfx)
 class _NegativeSongInvocation(_SongInvocation):
     def __init__(self, fx):
+        wrapfx = effects.NoEffect( anim = geffects.BadMusicAnim
+                                 , children = [fx]
+                                 )
+        super().__init__(wrapfx)
+
+# Actual class for a "normal failure" i.e. does nothing except
+# waste mental points.
+class _NeutralSongInvocation(_SongInvocation):
+    def __init__(self):
+        fx = geffects.CheckConditions( [aitargeters.TargetIsOperational()]
+                                     , on_success = [effects.NoEffect(anim = geffects.HeckleAnim)]
+                                     )
         wrapfx = effects.NoEffect( anim = geffects.BadMusicAnim
                                  , children = [fx]
                                  )
@@ -226,5 +238,7 @@ def _random_fx(BaseSongInvocation, info):
 
 def _positive_fx(info):
     return _random_fx(_PositiveSongInvocation, info)
+def _null_fx(info):
+    return effects.InvokeEffect(invocation = _NeutralSongInvocation())
 def _negative_fx(info):
     return _random_fx(_NegativeSongInvocation, info)
