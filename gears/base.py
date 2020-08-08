@@ -3540,7 +3540,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def get_melee_damage_bonus(self, weapon):
         mymod = weapon.get_module()
         if mymod:
-            scmods = [sc.get_melee_damage_bonus() for sc in self.sub_com if sc.is_not_destroyed() and hasattr(sc,"get_melee_damage_bonus")] + [0,]
+            scmods = [sc.get_melee_damage_bonus() for sc in mymod.sub_com if sc.is_not_destroyed() and hasattr(sc,"get_melee_damage_bonus")] + [0,]
             return mymod.size - 1 + sum(scmods)
         else:
             return 0
