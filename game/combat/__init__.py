@@ -8,6 +8,7 @@
 # - Access inventory
 
 import pbge
+from pbge import scenes
 import collections
 import pygame
 from . import movementui
@@ -200,15 +201,41 @@ class Combat( object ):
         return chara.get_stat(gears.stats.Speed) + random.randint(1,20)
 
     def activate_foe( self, foe ):
-        m0team = self.scene.local_teams.get(foe)
-        self.camp.check_trigger('ACTIVATETEAM',m0team)
-        for m in self.scene.contents:
-            if m not in self.active:
-                if m in self.camp.party:
-                    self.active.append( m )
-                elif self.scene.local_teams.get(m) is m0team:
-                    self.active.append( m )
-                    self.camp.check_trigger('ACTIVATE',m)
+        # If the foe is already active, our work here is done.
+        if foe in self.active:
+            return
+
+        foeteam = self.scene.local_teams.get(foe)
+        #self.camp.check_trigger('ACTIVATETEAM',foeteam)
+        #for m in self.scene.contents:
+        #    if m not in self.active:
+        #        if m in self.camp.party:
+        #            self.active.append( m )
+        #        elif self.scene.local_teams.get(m) is foeteam:
+        #            self.active.append( m )
+        #            self.camp.check_trigger('ACTIVATE',m)
+        #
+
+        team_frontier = [foeteam, self.scene.player_team]
+        while team_frontier:
+            myteam = team_frontier.pop()
+            self.camp.check_trigger('ACTIVATETEAM', myteam)
+            activation_area = set()
+            # Add team members
+            for m in self.scene.contents:
+                if m not in self.active and self.scene.local_teams.get(m) is myteam and isinstance(m,gears.base.Combatant):
+                    self.active.append(m)
+                    self.camp.check_trigger('ACTIVATE', m)
+                    myview = scenes.pfov.PointOfView(self.scene, m.pos[0], m.pos[1], 5)
+                    activation_area.update(myview.tiles)
+
+            # Check for further activations
+            for m in self.scene.contents:
+                if m not in self.active and m.pos in activation_area:
+                    ateam = self.scene.local_teams.get(m)
+                    if ateam and ateam not in team_frontier:
+                        team_frontier.append(ateam)
+
         self.roll_initiative()
 
     def num_enemies( self ):

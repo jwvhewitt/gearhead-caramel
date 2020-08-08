@@ -1367,6 +1367,9 @@ class HeavyActuators(MovementSystem, StandardDamageHandler):
         else:
             return 0
 
+    def get_melee_damage_bonus(self):
+        return max(self.size//2, 1)
+
 
 class Overchargers(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "Overchargers"
@@ -1689,12 +1692,17 @@ class MeleeWeapon(Weapon):
                 + self.get_melee_modifiers()
                 )
 
+    def get_damage_bonus(self):
+        myroot = self.get_root()
+        if hasattr(myroot, "get_melee_damage_bonus"):
+            return myroot.get_melee_damage_bonus(self)
+
     def get_basic_attack(self, name='Basic Attack', attack_icon=0, targets=1):
         ba = pbge.effects.Invocation(
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(self.damage, 6, scale=self.scale),),
+                children=(geffects.DoDamage(self.damage, 6, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -1781,12 +1789,17 @@ class EnergyWeapon(Weapon):
             mult *= aa.POWER_MODIFIER
         return max(int(self.scale.scale_power(self.damage) * mult), 1)
 
+    def get_damage_bonus(self):
+        myroot = self.get_root()
+        if hasattr(myroot, "get_melee_damage_bonus"):
+            return myroot.get_melee_damage_bonus(self)
+
     def get_basic_attack(self, name='Basic Attack', attack_icon=0):
         ba = pbge.effects.Invocation(
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(self.damage, 6, scale=self.scale, hot_knife=True),),
+                children=(geffects.DoDamage(self.damage, 6, scale=self.scale, hot_knife=True, damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -2981,6 +2994,11 @@ class Module(BaseGear, StandardDamageHandler):
                 + self.get_melee_modifiers()
                 )
 
+    def get_damage_bonus(self):
+        myroot = self.get_root()
+        if hasattr(myroot, "get_melee_damage_bonus"):
+            return myroot.get_melee_damage_bonus(self)
+
     def get_attacks(self):
         # Return a list of invocations associated with this module.
         my_invos = list()
@@ -2989,7 +3007,7 @@ class Module(BaseGear, StandardDamageHandler):
                 name='Basic Attack',
                 fx=geffects.AttackRoll(
                     stats.Body, self.scale.MELEE_SKILL,
-                    children=(geffects.DoDamage(2, self.size + 1, scale=self.scale),),
+                    children=(geffects.DoDamage(2, self.size + 1, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
                     accuracy=self.form.ACCURACY * 10, penetration=self.form.PENETRATION * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers()
@@ -3517,6 +3535,14 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         if pilot:
             pilot.dole_experience(xp, xp_type)
 
+    def get_melee_damage_bonus(self, weapon):
+        mymod = weapon.get_module()
+        if mymod:
+            scmods = [sc.get_melee_damage_bonus() for sc in self.sub_com if sc.is_not_destroyed() and hasattr(sc,"get_melee_damage_bonus")] + [0,]
+            return mymod.size - 1 + sum(scmods)
+        else:
+            return 0
+
 
 class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Combatant, Restoreable):
     SAVE_PARAMETERS = ('statline', 'combatant')
@@ -3787,6 +3813,9 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             xp_type]) <= self.experience[xp_type]:
             self.experience[xp_type] -= xp_type.improvement_cost(self, self.statline[xp_type])
             self.statline[xp_type] += 1
+
+    def get_melee_damage_bonus(self, weapon):
+        return (self.get_stat(stats.Body) - 10) // 2
 
 
 class Monster(Being, MakesPower):

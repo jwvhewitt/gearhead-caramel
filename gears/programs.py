@@ -31,30 +31,10 @@ class EMBlaster(Program):
         def is_vulnerable(camp, pc, npc):
             return geffects.HaywireStatus.can_affect(npc)
 
-        myprog = pbge.effects.Invocation(
-            name = 'Localized EMP',
-            fx = geffects.CheckConditions([is_vulnerable],
-                     anim = geffects.DustCloud,
-                     on_success = [
-                         geffects.OpposedSkillRoll(stats.Knowledge, stats.Computers, stats.Ego, stats.Computers,
-                             roll_mod = 50, min_chance=20,
-                             on_success = [geffects.AddEnchantment(geffects.HaywireStatus, anim = geffects.InflictHaywireAnim)],
-                             on_failure = [pbge.effects.NoEffect(anim=geffects.FailAnim)])]),
-            area = pbge.scenes.targetarea.SelfCentered(2,exclude_middle=True, delay_from = -1),
-            used_in_combat = True, used_in_exploration = False,
-            ai_tar = aitargeters.GenericTargeter(targetable_types = (pbge.scenes.PlaceableThing,),
-                                                 conditions = [aitargeters.CasterIsSurrounded(2),
-                                                               aitargeters.CasterIsAlone(2),
-                                                               aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
-            data = geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=12),
-            price = [geffects.MentalPrice(5),geffects.StatValuePrice(stats.Computers,5)],
-            targets = 1)
-        progs.append(myprog)
-
         myprog2 = pbge.effects.Invocation(
             name = 'Remote Scramble',
             fx= geffects.OpposedSkillRoll(stats.Knowledge,stats.Computers,stats.Ego,stats.Computers,
-                    roll_mod=25, min_chance=10,
+                    roll_mod=25, min_chance=50,
                     on_success=[geffects.AddEnchantment(geffects.HaywireStatus,anim=geffects.InflictHaywireAnim,)],
                     on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim),],
                 ),
@@ -65,6 +45,26 @@ class EMBlaster(Program):
             price=[geffects.MentalPrice(3),],
             targets=1)
         progs.append(myprog2)
+
+        myprog = pbge.effects.Invocation(
+            name = 'Localized EMP',
+            fx = geffects.CheckConditions([is_vulnerable],
+                     anim = geffects.DustCloud,
+                     on_success = [
+                         geffects.OpposedSkillRoll(stats.Knowledge, stats.Computers, stats.Ego, stats.Computers,
+                             roll_mod = 50, min_chance=25,
+                             on_success = [geffects.AddEnchantment(geffects.HaywireStatus, anim = geffects.InflictHaywireAnim)],
+                             on_failure = [pbge.effects.NoEffect(anim=geffects.FailAnim)])]),
+            area = pbge.scenes.targetarea.SelfCentered(3,exclude_middle=True, delay_from = -1),
+            used_in_combat = True, used_in_exploration = False,
+            ai_tar = aitargeters.GenericTargeter(targetable_types = (pbge.scenes.PlaceableThing,),
+                                                 conditions = [aitargeters.CasterIsSurrounded(2),
+                                                               aitargeters.CasterIsAlone(2),
+                                                               aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
+            data = geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=12),
+            price = [geffects.MentalPrice(5), geffects.StatValuePrice(stats.Computers,5)],
+            targets = 1)
+        progs.append(myprog)
 
         return progs
 
@@ -101,18 +101,64 @@ class TargetAnalysis(Program):
 
         myprog2 = pbge.effects.Invocation(
             name = 'Sensor Lock',
-            fx= geffects.OpposedSkillRoll(stats.Knowledge,stats.Computers,stats.Ego,stats.Computers,
-                    roll_mod=25, min_chance=50,
-                    on_success=[geffects.AddEnchantment(geffects.SensorLock,anim=geffects.SearchAnim,)],
-                    on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim),],
-                ),
+            fx= geffects.AddEnchantment(geffects.SensorLock,anim=geffects.SearchAnim,),
             area=pbge.scenes.targetarea.SingleTarget(reach=15),
             used_in_combat = True, used_in_exploration=False,
             ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.SensorLock)]),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12),
-            price=[geffects.MentalPrice(3),],
+            price=[geffects.MentalPrice(2), geffects.StatValuePrice(stats.Computers, 3)],
             targets=1)
         progs.append(myprog2)
+
+        progs.append(pbge.effects.Invocation(
+            name='Deep Probe',
+            fx=geffects.OpposedSkillRoll(stats.Knowledge, stats.Computers, stats.Ego, stats.Computers,
+                                         roll_mod=25, min_chance=50,
+                                         on_success=[
+                                             geffects.AddEnchantment(geffects.SensorLock, anim=geffects.SearchAnim, ),
+                                             geffects.AddEnchantment(geffects.WeakPoint, anim=geffects.DeepProbeAnim, )
+                                         ],
+                                         on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim), ],
+                                         ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=15),
+            used_in_combat=True, used_in_exploration=False,
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),
+                                               conditions=[aitargeters.TargetIsOperational(),
+                                                           aitargeters.TargetIsEnemy(), aitargeters.TargetIsNotHidden(),
+                                                           aitargeters.TargetDoesNotHaveEnchantment(
+                                                               geffects.SensorLock)]),
+            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 12),
+            price=[geffects.MentalPrice(2), geffects.StatValuePrice(stats.Computers, 5)],
+            targets=1
+        ))
+
+        progs.append(pbge.effects.Invocation(
+            name='Sensor Beam',
+            fx=geffects.CheckConditions(
+                conditions=[aitargeters.TargetIsOperational(),
+                            aitargeters.TargetIsEnemy(),
+                            aitargeters.TargetDoesNotHaveEnchantment(geffects.SensorLock)],
+                on_success=[
+                    geffects.OpposedSkillRoll(stats.Knowledge, stats.Computers, stats.Ego, stats.Computers,
+                                         roll_mod=25, min_chance=50,
+                                         on_success=[
+                                             geffects.AddEnchantment(geffects.SensorLock, anim=geffects.SensorLockAnim, ),
+                                         ],
+                                         on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim), ]
+                                         )
+                    ], anim=geffects.SearchAnim,
+            ),
+            area=pbge.scenes.targetarea.Cone(reach=12),
+            used_in_combat=True, used_in_exploration=False,
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),
+                                               conditions=[aitargeters.TargetIsOperational(),
+                                                           aitargeters.TargetIsEnemy(), aitargeters.TargetIsNotHidden(),
+                                                           aitargeters.TargetDoesNotHaveEnchantment(
+                                                               geffects.SensorLock)]),
+            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 12),
+            price=[geffects.MentalPrice(4), geffects.StatValuePrice(stats.Computers, 7)],
+            targets=1
+        ))
 
         return progs
 
@@ -137,9 +183,30 @@ class Deflect(Program):
                                                            aitargeters.TargetIsAlly(),
                                                            aitargeters.TargetDoesNotHaveEnchantment(geffects.Prescience)]),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 12),
-            price=[geffects.MentalPrice(2),],
+            price=[geffects.MentalPrice(1),],
             targets=1)
         progs.append(myprog)
+
+        progs.append(pbge.effects.Invocation(
+            name='Defense Net',
+            fx=geffects.CheckConditions(
+                conditions=[
+                    aitargeters.TargetIsOperational(), aitargeters.TargetIsAlly(),
+                    aitargeters.TargetDoesNotHaveEnchantment(geffects.Prescience),
+                ], on_success=[
+                    geffects.AddEnchantment(geffects.Prescience,anim=geffects.SearchAnim,),
+                ],
+            ),
+            area=pbge.scenes.targetarea.SelfCentered(radius=10),
+            used_in_combat=True, used_in_exploration=False,
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),
+                                               conditions=[aitargeters.TargetIsOperational(),
+                                                           aitargeters.TargetIsAlly(),
+                                                           aitargeters.TargetDoesNotHaveEnchantment(geffects.Prescience)]),
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 12),
+            price=[geffects.MentalPrice(3),geffects.StatValuePrice(stats.Computers, 5)],
+            targets=1
+        ))
 
         return progs
 

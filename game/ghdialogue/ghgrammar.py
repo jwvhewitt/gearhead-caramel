@@ -190,6 +190,12 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Glory: [
             "Just watch me [objective_pp]!"
+        ],
+        LIKE: [
+            "I regret that we're on opposite sides, but I will [objective_pp].",
+        ],
+        LOVE: [
+            "I'll try not to kill you.",
         ]
     },
 
