@@ -106,27 +106,39 @@ MeleeWeapon
 
 MeleeWeapon
     name="Heat Axe"
-    desc = "A mecha scale axe with a heated blade. This weapon is capable of easily slicing through all but the thickest armor."
+    desc = "A mecha scale axe with a heated blade. This weapon is capable of easily slicing through all but the thickest armor, and tends to ignite enemy ammo."
     reach=1
     damage=3
     accuracy=2
     penetration=3
     scale = MechaScale
     material = Ceramic
-    attributes = (BurnAttack,)
+    attributes = (IgnitesAmmo,)
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
 MeleeWeapon
     name = "Flame Knout"
-    desc = "A series of ceramic heated rods connected into a long whip. It is difficult to aim but also hard to defend against."
+    desc = "A series of ceramic heated rods connected into a long whip, designed for burning enemy ammo. It is difficult to aim but also hard to defend against."
     reach = 1
     damage = 3
     accuracy = 1
     penetration = 3
     material = Ceramic
     scale = MechaScale
-    attributes = (Flail,BurnAttack)
+    attributes = (Flail,IgnitesAmmo)
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Grounding Whip"
+    desc = "A long whip of flexible, highly-conductive metal, which drains power from enemy beam and energy weapons."
+    reach = 2
+    damage = 3
+    accuracy = 2
+    penetration = 1
+    scale = MechaScale
+    attributes = (Flail, DrainsPower)
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
@@ -245,13 +257,13 @@ EnergyWeapon
 
 EnergyWeapon
     name = "Shock Rapier"
-    desc = "A long, thin sword-like energy projection with good penetration."
+    desc = "A long, thin sword-like energy projection with good penetration, and drains power from targets, preventing them from using beam or energy weapons."
     scale = MechaScale
     reach = 1
-    damage = 2
-    accuracy = 1
-    penetration = 3
-    attributes = (Accurate, OverloadAttack)
+    damage = 1
+    accuracy = 2
+    penetration = 5
+    attributes = (Accurate, DrainsPower)
     shop_tags = ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 

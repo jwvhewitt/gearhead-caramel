@@ -1,3 +1,5 @@
+- Melee weapons can have the Ignites Ammo attributes, which replaces Burn for melee weapons, and reduces armor of enemy mecha, preventing them from using ballistic and missile weapons.
+- Melee weapons can have the Drains Power attribute, which greatly reduces the power supplies of enemy mecha, preventing them from using energy and beam weapons.
 - Heavy actuators provide melee damage bonus to the module they're installed in
 - Melee attacks now get a damage bonus
 - Attacking a model will activate it
