@@ -1,3 +1,8 @@
+- Heavy actuators provide melee damage bonus to the module they're installed in
+- Melee attacks now get a damage bonus
+- Attacking a model will activate it
+- When combat starts, all nearby teams are activated
+- Added advanced EW programs
 - Added the Solar Navy faction
 - Vikki now gives a brief tutorial about mecha and pilot stats
 - Combat AI for enemies updated; target choice is no longer random or permanent

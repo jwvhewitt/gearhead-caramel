@@ -220,6 +220,11 @@ class SearchAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = 'anim_scouting_search.png'
     DEFAULT_END_FRAME = 7
 
+class DeepProbeAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Deep Probe!'
+
+class SensorLockAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Sensor Lock!'
 
 class MissAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Miss!'
@@ -864,9 +869,11 @@ class DoDamage( effects.NoEffect ):
     """ Whatever is in this tile is going to take damage.
     """
     DESTROY_TARGET_XP = 45
-    def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False, scatter=False ):
+    def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False, scatter=False,
+                 damage_bonus=0):
         self.damage_n = damage_n
         self.damage_d = damage_d
+        self.damage_bonus = damage_bonus
         if children:
             self.children = list(children)
         else:
@@ -875,6 +882,7 @@ class DoDamage( effects.NoEffect ):
         self.scale = scale
         self.hot_knife = hot_knife
         self.scatter = scatter
+
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         targets = camp.scene.get_operational_actors(pos)
         penetration = fx_record.get("penetration",random.randint(1,100))
@@ -884,12 +892,12 @@ class DoDamage( effects.NoEffect ):
             scale = self.scale or target.scale
 
             if self.scatter:
-                num_packets = sum( sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) for t in range(number_of_hits))
+                num_packets = sum( sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) + self.damage_bonus for t in range(number_of_hits))
                 num_packets = max(int(num_packets * damage_percent //100), 1)
                 hits = [scale.scale_health(1, materials.Metal )] * num_packets
             else:
                 hits = [max(int(scale.scale_health(
-                  sum(random.randint(1,self.damage_d) for n in range(self.damage_n)),
+                  max(sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) + self.damage_bonus, 1),
                   materials.Metal) * damage_percent // 100),1) for t in range(number_of_hits)]
             mydamage = damage.Damage( camp, hits,
                   penetration, target, anims, hot_knife=self.hot_knife )
@@ -905,6 +913,8 @@ class DoDamage( effects.NoEffect ):
                     originator.dole_experience(2)
                 else:
                     originator.dole_experience(1)
+            if camp.fight:
+                camp.fight.activate_foe(target)
         return self.children
 
 class DoHealing( effects.NoEffect ):
