@@ -122,7 +122,7 @@ class RandomTheme( UpgradeTheme ):
 class DragonTheme(UpgradeTheme):
     name = "Dragon"
     def __init__(self):
-        if attackattributes.BurnAttack.VOLUME_MODIFIER != 1.0:
+        if attackattributes.BurnAttack.VOLUME_MODIFIER != 1.0 or attackattributes.IgnitesAmmo.VOLUME_MODIFIER != 1.0:
             raise RuntimeError('Need to update DragonTheme to check volume after upgrading.')
 
         self._upgraded_weapons = False
@@ -139,9 +139,9 @@ class DragonTheme(UpgradeTheme):
 
     def attempt_upgrade(self, holder, item, is_installed):
         if isinstance(item, (base.MeleeWeapon, base.EnergyWeapon)):
-            if attackattributes.BurnAttack in item.attributes:
+            if attackattributes.IgnitesAmmo in item.attributes:
                 return False
-            item.attributes.append(attackattributes.BurnAttack)
+            item.attributes.append(attackattributes.IgnitesAmmo)
             self._minor_upgrade_weapon(holder, item, is_installed)
 
             self._upgraded_weapons = True

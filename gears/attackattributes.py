@@ -263,6 +263,26 @@ class DrainsPower(Singleton):
                                      )
         attack.fx.children[0].children.append(pbge.effects.InvokeEffect(invocation = inv))
 
+class IgnitesAmmo(Singleton):
+    name = "Ignites Ammo"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.5
+    POWER_MODIFIER = 1.5
+
+    @classmethod
+    def modify_basic_attack(self, weapon, attack):
+        # Add a drain power effect to the children.
+        # Construct an invocation that is invoked after damage is dealt,
+        # otherwise the -100Ammo caption will overlap with the damage caption.
+        fx = pbge.effects.NoEffect(children = [geffects.DoIgniteAmmo()])
+        inv = pbge.effects.Invocation( area = pbge.scenes.targetarea.SingleTarget(delay_from = -1)
+                                     , fx = fx
+                                     )
+        attack.fx.children[0].children.append(pbge.effects.InvokeEffect(invocation = inv))
+        # Add a burn status to the children.
+        attack.fx.children.append(geffects.AddEnchantment(geffects.Burning,))
+
 class Intercept(Singleton):
     name = "Intercept"
     MASS_MODIFIER = 1.0

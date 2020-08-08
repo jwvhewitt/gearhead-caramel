@@ -106,27 +106,27 @@ MeleeWeapon
 
 MeleeWeapon
     name="Heat Axe"
-    desc = "A mecha scale axe with a heated blade. This weapon is capable of easily slicing through all but the thickest armor."
+    desc = "A mecha scale axe with a heated blade. This weapon is capable of easily slicing through all but the thickest armor, and tends to ignite enemy ammo."
     reach=1
     damage=3
     accuracy=2
     penetration=3
     scale = MechaScale
     material = Ceramic
-    attributes = (BurnAttack,)
+    attributes = (IgnitesAmmo,)
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
 MeleeWeapon
     name = "Flame Knout"
-    desc = "A series of ceramic heated rods connected into a long whip. It is difficult to aim but also hard to defend against."
+    desc = "A series of ceramic heated rods connected into a long whip, designed for burning enemy ammo. It is difficult to aim but also hard to defend against."
     reach = 1
     damage = 3
     accuracy = 1
     penetration = 3
     material = Ceramic
     scale = MechaScale
-    attributes = (Flail,BurnAttack)
+    attributes = (Flail,IgnitesAmmo)
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 

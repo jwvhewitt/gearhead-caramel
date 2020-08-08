@@ -1676,7 +1676,7 @@ class MeleeWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 3
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.ChargeAttack,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.IgnitesAmmo, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.HaywireAttack,
                         attackattributes.OverloadAttack, attackattributes.Smash, attackattributes.DrainsPower)
@@ -1763,7 +1763,7 @@ class EnergyWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 12
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.BurnAttack, attackattributes.ChargeAttack,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.IgnitesAmmo, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.DrainsPower)
 
