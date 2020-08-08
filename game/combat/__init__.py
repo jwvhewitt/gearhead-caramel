@@ -206,16 +206,6 @@ class Combat( object ):
             return
 
         foeteam = self.scene.local_teams.get(foe)
-        #self.camp.check_trigger('ACTIVATETEAM',foeteam)
-        #for m in self.scene.contents:
-        #    if m not in self.active:
-        #        if m in self.camp.party:
-        #            self.active.append( m )
-        #        elif self.scene.local_teams.get(m) is foeteam:
-        #            self.active.append( m )
-        #            self.camp.check_trigger('ACTIVATE',m)
-        #
-
         team_frontier = [foeteam, self.scene.player_team]
         while team_frontier:
             myteam = team_frontier.pop()

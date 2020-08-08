@@ -312,13 +312,6 @@ class EnterTownLanceRecovery(object):
                     self.did_recovery = True
 
 
-def dungeon_cleaner(scene):
-    # Vacuum up all the dead monsters.
-    for bit in list(scene.contents):
-        if hasattr(bit,"is_operational") and not bit.is_operational():
-            scene.contents.remove(bit)
-
-
 DZSPOT_PART_ONE = (
     "Deadly","Bone","Dead Man's","Toxic","Haunted","Forsaken","Whispering","Shivering","Thousand Rad","Janky"
 )

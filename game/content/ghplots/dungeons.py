@@ -1,3 +1,4 @@
+import game.content.dungeonmaker
 from pbge.plots import Plot
 from pbge.dialogue import Offer, ContextTag
 from game import teams, services
@@ -49,6 +50,6 @@ class TestDungeon(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         if camp.day > self.last_update:
-            plotutility.dungeon_cleaner(camp.scene)
+            game.content.dungeonmaker.dungeon_cleaner(camp.scene)
             self.last_update = camp.day
 
