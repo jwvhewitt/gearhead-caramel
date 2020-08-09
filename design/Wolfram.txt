@@ -60,6 +60,7 @@ Mecha
                             damage=4
                             accuracy=2
                             penetration=2
+                            attributes = (Brutal)
                     END
             END
         Arm

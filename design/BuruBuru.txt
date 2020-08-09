@@ -179,11 +179,11 @@ Mecha
                             accuracy = 0
                             penetration = 3
                             ammo_type = Shells_80mm
-                            attributes = (BurstFire2)
+                            attributes = (BurstFire3)
                             SUB
                                 Ammo
                                     ammo_type=Shells_80mm
-                                    quantity=40
+                                    quantity=60
                             END
                     END
             END

@@ -560,6 +560,54 @@ class AttackRoll( effects.NoEffect ):
                 odds *= defense.get_odds(self,originator,target,att_bonus)
         return odds,modifiers
 
+class MeleeAttackRoll(AttackRoll):
+    def __init__(self, att_stat, att_skill, **kwargs):
+        super().__init__(att_stat, att_skill, **kwargs)
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
+        if originator:
+            att_bonus = originator.get_skill_score(self.att_stat,self.att_skill)
+            max_attacks = 1 + (originator.get_stat(stats.Speed) + originator.get_stat(self.att_skill) * 2)//10
+        else:
+            att_bonus = random.randint(1,100)
+            max_attacks = 3
+        att_roll = random.randint(1,100)
+
+        for m in self.modifiers:
+            att_bonus += m.calc_modifier(camp,originator,pos)
+
+        targets = camp.scene.get_operational_actors(pos)
+        next_fx = []
+        for target in targets:
+            hi_def_roll = 50
+            failed = False
+            for defense in list(self.defenses.values()):
+                if defense and defense.can_attempt(originator,target):
+                    next_fx,def_roll = defense.make_roll(self,originator,target,att_bonus,att_roll,fx_record)
+                    hi_def_roll = max(def_roll,hi_def_roll)
+                    if next_fx:
+                        failed = True
+                        break
+            penetration = att_roll + att_bonus + self.penetration - hi_def_roll
+            if hasattr(target,'ench_list'):
+                penetration += target.ench_list.get_funval(target,'get_penetration_bonus')
+            fx_record['penetration'] = penetration
+
+            if not failed:
+                if originator and hasattr(originator, "dole_experience"):
+                    originator.dole_experience(3, self.att_skill)
+
+                num_hits = min(max((att_roll + att_bonus - hi_def_roll - 5) // 10, 0) + 1,max_attacks)
+
+                fx_record['number_of_hits'] = num_hits
+                if num_hits > 1:
+                    anims.append( animobs.Caption('x{}'.format(num_hits),pos=pos,delay=delay,y_off=camp.scene.model_altitude(target,pos[0],pos[1])-15) )
+
+            if camp.fight:
+                camp.fight.cstat[target].attacks_this_round += 1
+
+        return next_fx or self.children
+
 
 class MultiAttackRoll( effects.NoEffect ):
     """ One actor is gonna attack another actor.
@@ -870,7 +918,7 @@ class DoDamage( effects.NoEffect ):
     """
     DESTROY_TARGET_XP = 45
     def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False, scatter=False,
-                 damage_bonus=0):
+                 damage_bonus=0, is_brutal=False):
         self.damage_n = damage_n
         self.damage_d = damage_d
         self.damage_bonus = damage_bonus
@@ -881,6 +929,7 @@ class DoDamage( effects.NoEffect ):
         self.anim = anim
         self.scale = scale
         self.hot_knife = hot_knife
+        self.is_brutal = is_brutal
         self.scatter = scatter
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
@@ -900,7 +949,7 @@ class DoDamage( effects.NoEffect ):
                   max(sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) + self.damage_bonus, 1),
                   materials.Metal) * damage_percent // 100),1) for t in range(number_of_hits)]
             mydamage = damage.Damage( camp, hits,
-                  penetration, target, anims, hot_knife=self.hot_knife )
+                  penetration, target, anims, hot_knife=self.hot_knife, is_brutal=self.is_brutal )
             # Hidden targets struck by an attack get revealed.
             myanim = animobs.RevealModel( target,delay=delay)
             anims.append(myanim)

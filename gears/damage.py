@@ -9,7 +9,7 @@ from . import base,stats
 
 class Damage( object ):
     BOOM_SPRITES = list(range(7))
-    def __init__( self, camp, hit_list, penetration, target, animlist, hot_knife=False ):
+    def __init__( self, camp, hit_list, penetration, target, animlist, hot_knife=False, is_brutal=False ):
         self.camp = camp
         self.hit_list = hit_list
         self.penetration = penetration
@@ -17,6 +17,7 @@ class Damage( object ):
         self.damage_done = 0
         self.animlist = animlist
         self.hot_knife = hot_knife
+        self.is_brutal = is_brutal
         self.destroyed_parts = list()
         self.target_root = target.get_root()
         self.operational_at_start = self.target_root.is_operational()

@@ -72,6 +72,18 @@ class BurnAttack(Singleton):
         # Add a burn status to the children.
         attack.fx.children.append(geffects.AddEnchantment(geffects.Burning,))
 
+class Brutal(Singleton):
+    name = "Brutal"
+    MASS_MODIFIER = 1.2
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.0
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def modify_basic_attack( self, weapon, attack ):
+        # Add brutality to the damage.
+        attack.fx.children[0].is_brutal = True
+
 
 class BurstFire2(Singleton):
     # Default fire action fires multiple bullets.
@@ -192,21 +204,10 @@ class FastAttack(Singleton):
 
     @classmethod
     def get_attacks( self, weapon ):
-        aa = weapon.get_basic_attack(name='2 attacks', attack_icon=9)
+        aa: pbge.effects.Invocation = weapon.get_basic_attack(name='2 attacks', attack_icon=9)
         aa.price.append(geffects.MentalPrice(3))
         aa.data.thrill_power += 2
-        old_fx = aa.fx
-        aa.fx = geffects.MultiAttackRoll(
-            att_stat = old_fx.att_stat,
-            att_skill = old_fx.att_skill,
-            num_attacks = self.BURST_VALUE,
-            children = old_fx.children,
-            anim = old_fx.anim,
-            accuracy = old_fx.accuracy,
-            penetration = old_fx.penetration,
-            modifiers = old_fx.modifiers,
-            defenses = old_fx.defenses,
-        )
+        aa.targets = max(aa.targets + 1, 2)
         return [aa]
 
 

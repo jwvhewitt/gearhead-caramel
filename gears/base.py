@@ -1014,8 +1014,12 @@ class Armor(SizeClassedComponent, StandardDamageHandler):
 
     def reduce_damage(self, dmg, dmg_request):
         """Armor reduces damage taken, but gets damaged in the process."""
-        max_absorb = min(self.scale.scale_health(2, self.material), dmg)
-        absorb_amount = random.randint(max_absorb // 5, max_absorb)
+        if dmg_request.is_brutal:
+            max_absorb = min(self.scale.scale_health(3, self.material), dmg)
+            absorb_amount = random.randint(max_absorb // 2, max_absorb)
+        else:
+            max_absorb = min(self.scale.scale_health(2, self.material), dmg)
+            absorb_amount = random.randint(max_absorb // 5, max_absorb)
         if absorb_amount > 0:
             self.hp_damage = min(self.hp_damage + absorb_amount, self.max_health)
             dmg -= 2 * absorb_amount
@@ -1159,7 +1163,7 @@ class Engine(Component, StandardDamageHandler, MakesPower):
     def on_destruction(self, camp, anim_list):
         my_root = self.get_root()
         my_invo = pbge.effects.Invocation(
-            fx=geffects.DoDamage(2, self.size // 200 + 2, anim=geffects.SuperBoom, scale=self.scale),
+            fx=geffects.DoDamage(2, self.size // 200 + 2, anim=geffects.SuperBoom, scale=self.scale, is_brutal=True),
             area=pbge.scenes.targetarea.SelfCentered(radius=self.size // 600 + 1, delay_from=-1))
         my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
@@ -1681,7 +1685,8 @@ class MeleeWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 3
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.IgnitesAmmo, attackattributes.ChargeAttack,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Brutal, attackattributes.IgnitesAmmo,
+                        attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.HaywireAttack,
                         attackattributes.OverloadAttack, attackattributes.Smash, attackattributes.DrainsPower)
@@ -1702,7 +1707,7 @@ class MeleeWeapon(Weapon):
     def get_basic_attack(self, name='Basic Attack', attack_icon=0, targets=1):
         ba = pbge.effects.Invocation(
             name=name,
-            fx=geffects.AttackRoll(
+            fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
                 children=(geffects.DoDamage(self.damage, 6, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
@@ -1799,7 +1804,7 @@ class EnergyWeapon(Weapon):
     def get_basic_attack(self, name='Basic Attack', attack_icon=0):
         ba = pbge.effects.Invocation(
             name=name,
-            fx=geffects.AttackRoll(
+            fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
                 children=(geffects.DoDamage(self.damage, 6, scale=self.scale, hot_knife=True, damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
@@ -1885,7 +1890,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Ammo"
     STACK_CRITERIA = ("ammo_type", 'attributes')
     SAVE_PARAMETERS = ('ammo_type', 'quantity', 'area_anim', 'attributes')
-    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2,
+    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.HaywireAttack,
                         attackattributes.OverloadAttack, attackattributes.Scatter,
                         )
@@ -2101,7 +2106,8 @@ class BeamWeapon(Weapon):
     MAX_PENETRATION = 5
     COST_FACTOR = 15
     DEFAULT_SHOT_ANIM = geffects.GunBeam
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.Brutal,
+                        attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
                         attackattributes.OverloadAttack, attackattributes.LinkedFire,
                         attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4,
@@ -2178,7 +2184,7 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     STACK_CRITERIA = ("reach", "damage", "accuracy", "penetration")
-    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2,
+    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.HaywireAttack, attackattributes.OverloadAttack,
                         attackattributes.Scatter,
                         )
@@ -2446,7 +2452,7 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Chem"
     STACK_CRITERIA = ('attributes',)
     SAVE_PARAMETERS = ('quantity', 'attributes', 'shot_anim', 'area_anim')
-    LEGAL_ATTRIBUTES = (attackattributes.BurnAttack,)
+    LEGAL_ATTRIBUTES = (attackattributes.Brutal, attackattributes.BurnAttack,)
 
     def __init__(self, quantity=20, shot_anim=None, area_anim=None, attributes=(), **keywords):
         # Check the range of all parameters before applying.
@@ -3007,9 +3013,9 @@ class Module(BaseGear, StandardDamageHandler):
         if self.form.CAN_ATTACK:
             ba = pbge.effects.Invocation(
                 name='Basic Attack',
-                fx=geffects.AttackRoll(
+                fx=geffects.MeleeAttackRoll(
                     stats.Body, self.scale.MELEE_SKILL,
-                    children=(geffects.DoDamage(2, self.size + 1, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
+                    children=(geffects.DoDamage(2, self.size + 1, scale=self.scale, damage_bonus=self.get_damage_bonus(), is_brutal=True),),
                     accuracy=self.form.ACCURACY * 10, penetration=self.form.PENETRATION * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers()
@@ -3798,7 +3804,10 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     def reduce_damage(self, dmg, dmg_request):
         """Normally armor reduces damage, but gets damaged in the process."""
         max_absorb = min(self.scale.scale_health(2, self.material), dmg)
-        absorb_amount = random.randint(max_absorb // 5, max_absorb)
+        if dmg_request.is_brutal:
+            absorb_amount = random.randint(max_absorb // 2, max_absorb)
+        else:
+            absorb_amount = random.randint(max_absorb // 5, max_absorb)
         if absorb_amount > 0:
             self.spend_stamina(max(absorb_amount // 2, 1))
             dmg -= absorb_amount
