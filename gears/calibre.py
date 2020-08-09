@@ -70,6 +70,10 @@ class Ferrous_120mm( BaseCalibre ):
     bang = 15
     scale = scale.MechaScale
 
+class SelfPropelled_130mm( BaseCalibre ):
+    bang = 12
+    scale = scale.MechaScale
+
 class Ferrous_Frag( BaseCalibre ):
     bang = 8
     scale = scale.MechaScale

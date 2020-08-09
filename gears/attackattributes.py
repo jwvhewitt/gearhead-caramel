@@ -204,10 +204,11 @@ class FastAttack(Singleton):
 
     @classmethod
     def get_attacks( self, weapon ):
-        aa: pbge.effects.Invocation = weapon.get_basic_attack(name='2 attacks', attack_icon=9)
+        aa: pbge.effects.Invocation = weapon.get_basic_attack(name='{} attacks', attack_icon=9)
+        aa.targets = max(aa.targets + 1, 2)
+        aa.name.format(aa.targets)
         aa.price.append(geffects.MentalPrice(3))
         aa.data.thrill_power += 2
-        aa.targets = max(aa.targets + 1, 2)
         return [aa]
 
 

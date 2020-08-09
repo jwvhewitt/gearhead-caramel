@@ -1,0 +1,146 @@
+Mecha
+    name = "Phoenix"
+    desig = "PL-912"
+    imagename = "mav_phoenix.png"
+    portrait = "mecha_phoenix.png"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Support,Commander)
+    desc = "A general purpose battroid from Ceres Robotics. It rose to prominence during the Martian civil war."
+    material = Advanced
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 3
+                    integral = True
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 1200
+                Gyroscope
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 7
+                            SUB
+                                Missile
+                                    name = "Guided Missiles"
+                                    reach = 7
+                                    damage = 2
+                                    accuracy = 3
+                                    penetration = 1
+                                    quantity = 12
+                            END
+                    END
+            END
+        Storage
+            name = "Backpack"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Mount
+                    name = "Backpack Mount"
+                    INV
+                        BallisticWeapon
+                            name = "L-Cannon"
+                            reach = 8
+                            damage = 3
+                            accuracy = 2
+                            penetration = 4
+                            ammo_type = SelfPropelled_130mm
+                            attributes = (Accurate)
+                            magazine = 20
+                            SUB
+                                Ammo
+                                    name = "L-Cannon Clip (EMP)"
+                                    ammo_type=SelfPropelled_130mm
+                                    quantity=20
+                                    attributes = (Haywire)
+                            END
+                    END
+                HoverJets
+                    size = 10
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BallisticWeapon
+                            name = "Phoenix Rifle"
+                            reach = 5
+                            damage = 2
+                            accuracy = 3
+                            penetration = 2
+                            ammo_type = Shells_45mm
+                            attributes = (Automatic,BurstFire3)
+                            magazine = 60
+                            SUB
+                                Ammo
+                                    ammo_type=Shells_45mm
+                                    quantity=60
+                            END
+                    END
+                Mount
+                    name = "Right Arm Mount"
+                HeavyActuators
+                    size = 2
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                    INV
+
+                    END
+                Mount
+                    name = "Left Arm Mount"
+                    INV
+                        STC LAS-5 Intercept Laser
+                    END
+                HeavyActuators
+                    size = 2
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 6
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 6
+            END
+    END

@@ -1,3 +1,4 @@
+- Added Phoenix mecha
 - Modified some mecha designs
 - Added Brutal attack attribute that causes extra damage to armor
 - Melee attacks have a chance to cause multiple hits
