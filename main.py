@@ -10,7 +10,7 @@ import glob
 import pickle
 import copy
 
-VERSION = "v0.540"
+VERSION = "v0.541"
 
 
 class Snowflake(object):
@@ -227,11 +227,11 @@ def play_the_game():
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 
-    #mypic = pbge.image.Image('Phoenix.png',color=list(gears.factions.RegExCorporation.mecha_colors))
+    #mypic = pbge.image.Image('Secutor.png',color=list(gears.factions.KettelIndustries.mecha_colors))
     #mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
     #mydest.fill((0, 0, 255))
     #mypic.render((0,0),dest_surface=mydest)
-    #pygame.image.save(mydest, pbge.util.user_dir("out_3.png"))
+    #pygame.image.save(mydest, pbge.util.user_dir("out_Secutor2.png"))
 
     # mypor = gears.portraits.Portrait()
     # mypor.bits = ["FBA NoBody","Haywire B3 Head"]

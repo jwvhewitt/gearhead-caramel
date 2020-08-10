@@ -1,4 +1,5 @@
-- Added Phoenix mecha
+v0.541 August 10 2020
+- Added Phoenix and Secutor mecha
 - Modified some mecha designs
 - Added Brutal attack attribute that causes extra damage to armor
 - Melee attacks have a chance to cause multiple hits

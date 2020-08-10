@@ -1720,7 +1720,7 @@ class MeleeWeapon(Weapon):
             shot_anim=self.shot_anim,
             price=[geffects.RevealPositionPrice(self.damage - 1)],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=self.damage * 2 + self.penetration),
+                                     thrill_power=(self.damage * 2 + self.penetration) * targets),
             targets=targets)
         for aa in self.get_attributes():
             if hasattr(aa, 'modify_basic_attack'):
@@ -1817,7 +1817,7 @@ class EnergyWeapon(Weapon):
             shot_anim=self.shot_anim,
             price=[geffects.PowerPrice(self.get_basic_power_cost()), geffects.RevealPositionPrice(self.damage)],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=self.damage * 2 + self.penetration),
+                                     thrill_power=self.damage * 2 + self.penetration + 3),
             targets=1)
         for aa in self.get_attributes():
             if hasattr(aa, 'modify_basic_attack'):
@@ -2028,7 +2028,7 @@ class BallisticWeapon(Weapon):
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=self.damage * 2 + self.penetration),
+                                     thrill_power=((self.damage * 2 + self.penetration)* (targets+1))//2),
             price=[geffects.AmmoPrice(my_ammo, ammo_cost), geffects.RevealPositionPrice(self.damage)],
             targets=targets)
 
@@ -2141,7 +2141,7 @@ class BeamWeapon(Weapon):
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=self.damage * 2 + self.penetration),
+                                     thrill_power=((self.damage * 2 + self.penetration)* (targets+1))//2),
             price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost),
                    geffects.RevealPositionPrice(self.damage)],
             targets=targets)
@@ -2569,7 +2569,7 @@ class ChemThrower(Weapon):
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.get_shot_anim(),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0,
-                                     thrill_power=self.damage * 2 + self.penetration),
+                                     thrill_power=((self.damage * 2 + self.penetration)* (targets+1))//2),
             price=[geffects.AmmoPrice(my_ammo, ammo_cost * self.get_chem_cost()),
                    geffects.RevealPositionPrice(self.damage)],
             targets=targets)

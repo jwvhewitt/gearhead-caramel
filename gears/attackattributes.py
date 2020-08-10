@@ -110,6 +110,7 @@ class BurstFire2(Singleton):
             modifiers = old_fx.modifiers,
             defenses = old_fx.defenses,
         )
+        base.data.thrill_power = (base.data.thrill_power * (1 + self.BURST_VALUE))//2
         return [base,]
 
 
@@ -206,7 +207,7 @@ class FastAttack(Singleton):
     def get_attacks( self, weapon ):
         aa: pbge.effects.Invocation = weapon.get_basic_attack(name='{} attacks', attack_icon=9)
         aa.targets = max(aa.targets + 1, 2)
-        aa.name.format(aa.targets)
+        aa.name = aa.name.format(aa.targets)
         aa.price.append(geffects.MentalPrice(3))
         aa.data.thrill_power += 2
         return [aa]

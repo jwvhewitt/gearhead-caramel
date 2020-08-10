@@ -33,8 +33,8 @@ Mecha
                     name = "Laser Cannon"
                     reach = 4
                     damage = 2
-                    accuracy = 1
-                    penetration = 0
+                    accuracy = 2
+                    penetration = 3
                     attributes = (VariableFire3)
                     material = Metal
                 Mount
@@ -75,11 +75,11 @@ Mecha
                         ChemThrower
                             name = "Flame Cannon"
                             reach = 5
-                            damage = 4
-                            accuracy = 0
-                            penetration = 1
+                            damage = 5
+                            accuracy = 2
+                            penetration = 2
                             attributes = (ConeAttack)
-                            material = Metal
+                            material = Advanced
                             SUB
                                 Chem
                                     name = "Napalm"

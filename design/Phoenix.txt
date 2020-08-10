@@ -93,7 +93,7 @@ Mecha
                             accuracy = 3
                             penetration = 2
                             ammo_type = Shells_45mm
-                            attributes = (Automatic,BurstFire3)
+                            attributes = (Automatic,BurstFire2)
                             magazine = 60
                             SUB
                                 Ammo
@@ -103,8 +103,6 @@ Mecha
                     END
                 Mount
                     name = "Right Arm Mount"
-                HeavyActuators
-                    size = 2
             END
         Arm
             name = "Left Arm"
@@ -122,8 +120,6 @@ Mecha
                     INV
                         STC LAS-5 Intercept Laser
                     END
-                HeavyActuators
-                    size = 2
             END
         Leg
             name = "Right Leg"

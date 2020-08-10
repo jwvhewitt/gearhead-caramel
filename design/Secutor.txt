@@ -1,0 +1,149 @@
+Mecha
+    name = "Secutor"
+    desig = "RM-3"
+    imagename = "mav_secutor.png"
+    portrait = "mecha_secutor.png"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Trooper,Commander)
+    desc = "Always a crowd favorite, the Secutor packs an impressive array of loud and destructive weapons."
+    material = Advanced
+
+    SUB
+        Head
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                Sensor
+                    size = 2
+                STC LAS-5 Intercept Laser
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                Engine
+                    size = 1100
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Gyroscope
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 8
+                            SUB
+                                Missile
+                                    name = "Leveler Missiles"
+                                    reach = 6
+                                    damage = 4
+                                    accuracy = 1
+                                    penetration = 2
+                                    quantity = 4
+                                    attributes = (Blast2)
+
+                            END
+                    END
+                HoverJets
+                    size = 9
+            END
+        Arm
+            name = "Right Arm"
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Right Hand"
+                    INV
+                        MeleeWeapon
+                            name="Mecha Wrecker"
+                            reach=1
+                            damage=4
+                            accuracy=2
+                            penetration=3
+                            attributes = (Flail,Brutal)
+                    END
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        BallisticWeapon
+                            name = "Arena Cannon"
+                            reach = 6
+                            damage = 3
+                            accuracy = 2
+                            penetration = 2
+                            ammo_type = Shells_80mm
+                            attributes = (BurstFire3,Accurate)
+                            SUB
+                                Ammo
+                                    ammo_type=Shells_80mm
+                                    quantity=60
+                            END
+                    END
+                HeavyActuators
+                    size = 6
+                    integral = True
+            END
+        Arm
+            name = "Left Arm"
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+                HeavyActuators
+                    size = 6
+                    integral = True
+            END
+            INV
+                Shield
+                    size = 4
+                    bonus = 1
+                    SUB
+                        MeleeWeapon
+                            name="Shield Spike"
+                            reach=1
+                            damage=2
+                            accuracy=2
+                            penetration=2
+                            attributes = (ChargeAttack,Defender)
+                            integral = True
+                    END
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                HoverJets
+                    size = 5
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                HoverJets
+                    size = 5
+            END
+    END

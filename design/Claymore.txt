@@ -48,7 +48,7 @@ Mecha
                             SUB
                                 Ammo
                                     ammo_type=Shells_60mm
-                                    quantity=40
+                                    quantity=80
                             END
                     END
             END
