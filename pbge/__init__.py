@@ -154,9 +154,10 @@ class GameState( object ):
             y += 16
             if x + 200 > self.screen.get_width():
                 x -= 200
-            myrect = pygame.rect.Rect(x,y,200,20)
+            myimage = render_text(self.small_font, self.widget_tooltip, 200)
+            myrect = myimage.get_rect(topleft=(x,y))
             default_border.render(myrect)
-            draw_text(self.small_font,self.widget_tooltip,myrect)
+            self.screen.blit(myimage,myrect)
         self.anim_phase = (self.anim_phase + 1) % 6000
         self.standing_by = False
         pygame.display.flip()

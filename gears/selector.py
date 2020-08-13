@@ -184,8 +184,11 @@ def equip_combatant(npc: base.Character):
 def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, can_cyberize=None, **kwargs):
     # Build the creation matrix, aka the dict.
     possible_origins = [o for o in local_tags if o in personality.ORIGINS]
-    job = kwargs.get("job",None) or jobs.choose_random_job(needed_tags, local_tags)
-    meanstatpts = max(rank // 3 + 80, 85)
+    if "faction" in kwargs and "job" not in kwargs:
+        job = kwargs["faction"].choose_job(random.choice((tags.Commander,tags.Support,tags.Support,tags.Trooper,tags.Trooper,tags.Trooper)))
+    else:
+        job = kwargs.get("job",None) or jobs.choose_random_job(needed_tags, local_tags)
+    meanstatpts = max(rank // 5 + 90, 90)
     combatant = random.choice([True, False, False, False, False, False]) or job.always_combatant
     creation_matrix = dict(statline=base.Being.random_stats(points=random.randint(meanstatpts - 5, meanstatpts + 5)),
                            portrait_gen=portraits.Portrait(), job=job, combatant=combatant,

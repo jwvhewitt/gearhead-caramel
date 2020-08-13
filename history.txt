@@ -1,3 +1,7 @@
+- Random NPCs should get a faction-appropriate job
+- Standardized the lancemate hiring cost
+- Tooltips may be several lines of text, if needed
+
 v0.541 August 10 2020
 - Added Phoenix and Secutor mecha
 - Modified some mecha designs

@@ -44,7 +44,7 @@ Mecha
                             accuracy = 0
                             penetration = 2
                             ammo_type = Shells_60mm
-                            attributes = (Automatic)
+                            attributes = (BurstFire2, Automatic)
                             SUB
                                 Ammo
                                     ammo_type=Shells_60mm

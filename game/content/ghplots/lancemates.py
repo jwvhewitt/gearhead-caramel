@@ -8,6 +8,10 @@ import game.content.plotutility
 import game.content.ghterrain
 import random
 
+
+def get_hire_cost(camp, npc):
+    return (npc.renown * npc.renown * (200 - npc.get_reaction_score(camp.pc, camp)))//10
+
 #   **************************
 #   ***  RANDOM_LANCEMATE  ***
 #   **************************
@@ -384,7 +388,7 @@ class RLM_Mercenary(Plot):
     def NPC_offers(self, camp):
         mylist = list()
         npc = self.elements["NPC"]
-        self.hire_cost = npc.renown * (200 - npc.get_reaction_score(camp.pc, camp))
+        self.hire_cost = get_hire_cost(camp,npc)
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
                 mylist.append(Offer("I'll join your lance for a mere ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
@@ -461,7 +465,7 @@ class RLM_Professional(Plot):
     def NPC_offers(self, camp):
         mylist = list()
         npc = self.elements["NPC"]
-        self.hire_cost = npc.renown * (250 - npc.get_reaction_score(camp.pc, camp))
+        self.hire_cost = get_hire_cost(camp,npc)
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
                 mylist.append(Offer(
@@ -529,7 +533,7 @@ class RLM_RatherGeneric(Plot):
     def NPC_offers(self, camp):
         mylist = list()
         npc = self.elements["NPC"]
-        self.hire_cost = npc.renown * (175 - npc.get_reaction_score(camp.pc, camp))
+        self.hire_cost = get_hire_cost(camp,npc)
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
                 if npc.get_reaction_score(camp.pc, camp) > 60:
@@ -614,7 +618,7 @@ class RLM_DamagedGoodsSale(Plot):
     def NPC_offers(self, camp):
         mylist = list()
         npc = self.elements["NPC"]
-        self.hire_cost = npc.renown * (125 - npc.get_reaction_score(camp.pc, camp))
+        self.hire_cost = get_hire_cost(camp,npc)//2
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
                 if npc.get_reaction_score(camp.pc, camp) > 20:

@@ -59,7 +59,6 @@ class BasicAI( object ):
 
     def select_target( self, camp ):
         # Choose a possible target.
-        # For now, we're just choosing a random target.
         candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc, tar) and not tar.hidden]
         best_candidates = [tar for tar in candidates if camp.scene.distance(self.npc.pos,tar.pos) <= self.midr]
         if best_candidates:
@@ -199,20 +198,20 @@ class BasicAI( object ):
                 best = max(sample,key=self._desirability)
                 if best is not self.npc.pos and self._desirability(best) > self._desirability(self.npc.pos):
                     self.move_to(camp,mynav,best)
-                elif self.npc.get_current_speed() > random.randint(40,70):
-                    # Attempt evasive maneuvers
-                    cutoff = self._desirability(self.npc.pos)
-                    candidates = list()
-                    while sample:
-                        p = sample.pop(0)
-                        if self._desirability(p) >= cutoff:
-                            candidates.append(p)
-                        else:
-                            break
-                    if candidates:
-                        dest = max(candidates, key=lambda p: camp.scene.distance(self.npc.pos,p))
-                        if camp.scene.distance(dest,self.npc.pos) > 4:
-                            self.move_to(camp, mynav, dest)
+                #elif self.npc.get_current_speed() > random.randint(40,70):
+                #    # Attempt evasive maneuvers
+                #    cutoff = self._desirability(self.npc.pos)
+                #    candidates = list()
+                #    while sample:
+                #        p = sample.pop(0)
+                #        if self._desirability(p) >= cutoff:
+                #            candidates.append(p)
+                #        else:
+                #            break
+                #    if candidates:
+                #        dest = max(candidates, key=lambda p: camp.scene.distance(self.npc.pos,p))
+                #        if camp.scene.distance(dest,self.npc.pos) > 4:
+                #            self.move_to(camp, mynav, dest)
 
         # We are now either in a good position, or so far out of the loop it isn't funny.
         if camp.fight.cstat[self.npc].action_points > 0:

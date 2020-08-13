@@ -147,24 +147,41 @@ class RegExCorporation(Faction):
     name = "RegEx Corporation"
     factags = (tags.CorporateWorker,)
     mecha_colors = (color.Turquoise,color.AeroBlue,color.OrangeRed,color.FieldGrey,color.ElectricYellow)
+    CAREERS = {
+        tags.Trooper: ("Test Pilot","Trucker","Factory Worker"),
+        tags.Commander: ("Corporate Executive","Dispatcher"),
+        tags.Support: ("Construction Worker","Researcher"),
+    }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("RegEx","Corporate")
     NOUNS = ("Team","Division")
     uniform_colors = (color.Turquoise,None,None,None,color.ElectricYellow)
 
+
 class BioCorp(Faction):
     name = "BioCorp"
     factags = (tags.CorporateWorker,)
     mecha_colors = (color.RoyalPink,color.Cream,color.BrightRed,color.GothSkin,color.DeepSeaBlue)
+    CAREERS = {
+        tags.Trooper: ("Arena Pilot","Test Pilot"),
+        tags.Commander: ("Corporate Executive","Scientist"),
+        tags.Support: ("Field Medic","Researcher"),
+    }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("BioCorp","Research")
     NOUNS = ("Team","Division")
     uniform_colors = (color.Cream,None,None,None,color.RoyalPink)
 
+
 class KettelIndustries(Faction):
     name = "Kettel Industries"
     factags = (tags.CorporateWorker,)
     mecha_colors = (color.KettelPurple,color.StarViolet,color.FlourescentGreen,color.Charcoal,color.SteelBlue)
+    CAREERS = {
+        tags.Trooper: ("Arena Pilot","Test Pilot","Trucker"),
+        tags.Commander: ("Corporate Executive",),
+        tags.Support: ("Recon Pilot","Construction Worker","Researcher"),
+    }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("BioCorp","Research")
     NOUNS = ("Team","Division")
