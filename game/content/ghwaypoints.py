@@ -283,6 +283,15 @@ class Bookshelf(Waypoint):
 class StoneStairsUp(Exit):
     TILE = pbge.scenes.Tile(None, None, ghterrain.StoneStairsUpTerrain)
 
+class StairsUp(Exit):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.StairsUpTerrain)
+
+class StairsDown(Exit):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.StairsDownTerrain)
+
+class Trapdoor(Exit):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.TrapdoorTerrain)
+
 class RecoveryBed(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.BedTerrain)
     recovery_entrance = True

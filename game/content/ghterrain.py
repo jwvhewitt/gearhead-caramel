@@ -577,6 +577,23 @@ class RegExLogoTerrain(pbge.scenes.terrain.OnTheWallTerrain):
 class HamsterCageTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_hamstercage.png'
 
+class StairsUpTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_stairs.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+    movement_cost={pbge.scenes.movement.Vision:5}
+
+class StairsDownTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_stairs.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+    movement_cost={pbge.scenes.movement.Vision:5}
+    frame = 1
+
+class TrapdoorTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_stairs.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+    movement_cost={pbge.scenes.movement.Vision:5}
+    frame = 2
+
 class StoneStairsUpTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_stonestairs.png'
     blocks = (Walking,Skimming,Rolling,Flying)

@@ -126,6 +126,20 @@ class WMDZTownConnection(SceneConnection):
     def get_door2(self):
         return self.DEFAULT_DOOR_2(anchor=self.r2anchor)
 
+class StairsDownToStairsUpConnector(SceneConnection):
+    DEFAULT_DOOR_1 = ghwaypoints.StairsDown
+    DEFAULT_DOOR_2 = ghwaypoints.StairsUp
+
+    def get_room1_anchor(self):
+        return pbge.randmaps.anchors.middle
+
+    def get_room2_anchor(self):
+        return pbge.randmaps.anchors.middle
+
+class StairsUpToStairsDownConnector(StairsDownToStairsUpConnector):
+    DEFAULT_DOOR_1 = ghwaypoints.StairsUp
+    DEFAULT_DOOR_2 = ghwaypoints.StairsDown
+
 
 class RandomBanditCircle(gears.factions.Circle):
     CHART_A = ("Brutal", "Cruel", "Desert", "Deadly", "Frenzied", "Angry", "Despicable", "Evil", "Freaky", "Greedy",
