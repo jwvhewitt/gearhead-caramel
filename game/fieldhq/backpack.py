@@ -191,9 +191,21 @@ class BackpackWidget(widgets.Widget):
 
     def _drop_item(self,wid):
         wid.item.parent.inv_com.remove(wid.item)
-        self.camp.contents.append(wid.item)
+        self.camp.scene.contents.append(wid.item)
         wid.item.pos = self.pc.get_root().pos
         self.update_selectors()
+
+    def _trade_item(self,wid):
+        mymenu = wid.get_menu()
+        mypc = self.pc.get_root()
+        for pc in self.camp.get_active_party():
+            if pc is not mypc:
+                mymenu.add_item(str(pc),pc)
+        nupc = mymenu.query()
+        if nupc:
+            wid.item.parent.inv_com.remove(wid.item)
+            nupc.inv_com.append(wid.item)
+            self.update_selectors()
 
     def _stash_item(self,wid):
         wid.item.parent.inv_com.remove(wid.item)
@@ -218,6 +230,8 @@ class BackpackWidget(widgets.Widget):
 
         if self.pc.get_root() in self.camp.scene.contents:
             mymenu.add_item("Drop {}".format(wid.item),self._drop_item)
+            if isinstance(self.pc.get_root(),gears.base.Character):
+                mymenu.add_item("Trade {}".format(wid.item),self._trade_item)
         else:
             mymenu.add_item("Stash {}".format(wid.item), self._stash_item)
 

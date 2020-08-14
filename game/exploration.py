@@ -396,6 +396,14 @@ class Explorer( object ):
             if hasattr(thing,'ench_list'):
                 thing.ench_list.update(self.camp,thing)
 
+    def get_item(self):
+        pc = self.camp.pc.get_root()
+        candidates = [i for i in self.scene.contents if isinstance(i,gears.base.BaseGear) and i.pos == pc.pos and pc.can_equip(i)]
+        if candidates:
+            i = candidates.pop()
+            pc.inv_com.append(i)
+            pbge.alert("{} picks up {}.".format(pc,i))
+
     def go( self ):
         self.no_quit = True
         self.order = None
@@ -564,6 +572,9 @@ class Explorer( object ):
                             else:
                                 self.order = MoveTo( self, self.view.mouse_tile )
                                 self.view.overlays.clear()
+                        elif self.scene.on_the_map( *self.view.mouse_tile ):
+                            # Clicking the same tile where the PC is standing; get an item.
+                            self.get_item()
                     else:
                         pc = self.scene.get_main_actor(self.view.mouse_tile)
                         ExploMenu(self,pc)

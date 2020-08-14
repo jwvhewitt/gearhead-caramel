@@ -11,7 +11,7 @@ class GenericDungeonLevel(Plot):
     LABEL = "DUNGEON_GENERIC"
 
     active = True
-    scope = "INTERIOR"
+    scope = "LOCALE"
 
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")

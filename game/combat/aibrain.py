@@ -31,14 +31,23 @@ class RandomTargeter( object ):
             return random.choice( candidates )
 
 
-#  **********************
-#  ***   AI  OBJECT   ***
-#  **********************
-
-class BasicAI( object ):
-    def __init__( self, npc ):
+class DefaultTargeter(object):
+    def __init__(self,npc):
         self.npc = npc
-        self.target = None
+
+    def closest_target_selector(self, camp, target):
+        return -camp.scene.distance(self.npc.pos,target.pos)
+
+    def most_damaged_target_selector(self, camp, target):
+        return target.get_percent_damage_over_health()
+
+    def easiest_target_selector(self, camp, target):
+        myat = self.npc.get_primary_attack()
+        if myat:
+            myinvo = myat.get_first_working_invo(self.npc)
+            if myinvo and hasattr(myinvo.fx,"get_odds"):
+                return myinvo.fx.get_odds(camp,self.npc,target)
+        return -1
 
     def closest_target_selector(self, camp, target):
         return -camp.scene.distance(self.npc.pos,target.pos)
@@ -57,10 +66,9 @@ class BasicAI( object ):
     def strongest_target_selector(self, camp, target):
         return target.cost
 
-    def select_target( self, camp ):
-        # Choose a possible target.
+    def get_target(self, camp, optrange):
         candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc, tar) and not tar.hidden]
-        best_candidates = [tar for tar in candidates if camp.scene.distance(self.npc.pos,tar.pos) <= self.midr]
+        best_candidates = [tar for tar in candidates if camp.scene.distance(self.npc.pos,tar.pos) <= optrange]
         if best_candidates:
             return max(best_candidates, key=lambda a: [
                 self.easiest_target_selector(camp, a),
@@ -73,6 +81,37 @@ class BasicAI( object ):
                 self.closest_target_selector(camp, a)
             ])
             #return random.choice( candidates )
+
+
+class MonsterTargeter(DefaultTargeter):
+    def get_target(self, camp, optrange):
+        candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc, tar) and not tar.hidden]
+        best_candidates = [tar for tar in candidates if camp.scene.distance(self.npc.pos,tar.pos) <= optrange]
+        if best_candidates:
+            return max(best_candidates, key=lambda a: [
+                self.closest_target_selector(camp, a) + random.randint(1,4),
+                self.easiest_target_selector(camp, a),
+            ])
+        elif candidates:
+            return max(candidates, key= lambda a: [
+                self.closest_target_selector(camp, a) + random.randint(1,6),
+                self.strongest_target_selector(camp, a),
+            ])
+            #return random.choice( candidates )
+
+
+#  **********************
+#  ***   AI  OBJECT   ***
+#  **********************
+
+class BasicAI( object ):
+    def __init__( self, npc ):
+        self.npc = npc
+        self.target = None
+        if isinstance(npc, gears.base.Monster):
+            self.targeter = MonsterTargeter(npc)
+        else:
+            self.targeter = DefaultTargeter(npc)
 
     def move_to( self, camp, mynav, dest ):
         if self.npc.get_current_speed() > 10:
@@ -279,9 +318,9 @@ class BasicAI( object ):
             # If targets exist, call attack.
             # Otherwise attempt skill use again.
             if not (self.target and self.target in camp.scene.contents and self.target.is_operational()):
-                self.target = self.select_target(camp)
+                self.target = self.targeter.get_target(camp,self.midr)
             elif random.randint(1,3) == 1:
-                self.target = self.select_target(camp)
+                self.target = self.targeter.get_target(camp,self.midr)
             if self.target:
                 self.attempt_attack(camp)
             else:

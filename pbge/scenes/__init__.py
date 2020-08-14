@@ -344,7 +344,7 @@ class Scene( object ):
 
     def get_waypoints(self,pos):
         # Return all of the waypoints found at this position.
-        return [a for a in self.contents if a.pos == pos and isinstance(a,waypoints.Waypoint)]
+        return [a for a in self.contents if isinstance(a,waypoints.Waypoint) and a.pos == pos]
 
     def get_bumpable(self,pos):
         # Return the first bumpable found at this position. If more than one

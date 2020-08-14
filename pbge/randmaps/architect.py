@@ -53,8 +53,10 @@ class Architecture( object ):
 
     def place_a_door(self, gb, x, y):
         if self.door_class and random.randint(1,10) != 4:
-            door = self.door_class()
-            door.place(gb,(x,y))
+            mydoors = gb.get_waypoints((x,y))
+            if not any(isinstance(wp,self.door_class) for wp in mydoors):
+                door = self.door_class()
+                door.place(gb,(x,y))
         else:
             gb.set_wall(x,y,self.open_door_terrain)
 

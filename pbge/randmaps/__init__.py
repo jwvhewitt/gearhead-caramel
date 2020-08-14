@@ -169,19 +169,19 @@ class CityGridGenerator(SceneGenerator):
 class PackedBuildingGenerator(SceneGenerator):
     def put_room_north(self,closed_room,open_room):
         open_room.midbottom = closed_room.midtop
-        open_room.y -= 1
+        open_room.y += 1
         open_room.clamp_ip(self.area)
     def put_room_south(self,closed_room,open_room):
         open_room.midtop = closed_room.midbottom
-        open_room.y += 1
+        open_room.y -= 1
         open_room.clamp_ip(self.area)
     def put_room_west(self,closed_room,open_room):
         open_room.midright = closed_room.midleft
-        open_room.x -= 1
+        open_room.x += 1
         open_room.clamp_ip(self.area)
     def put_room_east(self,closed_room,open_room):
         open_room.midleft = closed_room.midright
-        open_room.x += 1
+        open_room.x -= 1
         open_room.clamp_ip(self.area)
 
     def arrange_contents( self, gb ):
@@ -210,7 +210,7 @@ class PackedBuildingGenerator(SceneGenerator):
             for croom in closed_area:
                 for dirf in positions:
                     dirf(croom,myrect)
-                    if myrect.collidelist( closed_area ) == -1:
+                    if myrect.inflate(-2,-2).collidelist( closed_area ) == -1:
                         candidates.append((dirf,croom))
             if candidates:
                 dirf,croom = random.choice(candidates)
