@@ -472,7 +472,9 @@ class SlasherTheme(UpgradeTheme):
 
     def _upgrade_weapon(self, item):
         upgraded = False
-        if not self._has_charge:
+        # Do not upgrade multiwielded to chargeattack, as we will only
+        # upgrade one weapon to have charge.
+        if not self._has_charge and attackattributes.MultiWielded not in item.attributes:
             item.attributes.append(attackattributes.ChargeAttack)
             item.name = 'Halberd'
             upgraded = True
@@ -482,6 +484,9 @@ class SlasherTheme(UpgradeTheme):
         return upgraded
 
     def _upgrade_shield(self, item):
+        # Do not upgrade if not enough space.
+        if len(item.sub_com) != 0 and item.free_volume < 3:
+            return False
         # Increase bonus by 2.
         if item.bonus == item.MAX_BONUS:
             return False
