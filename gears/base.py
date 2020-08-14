@@ -3843,6 +3843,15 @@ class Monster(Being, MakesPower):
         self.environment_list = set(environment_list)
         self.frame = frame
 
+    @property
+    def self_cost(self):
+        # Cribbed from the Selector calc_threat_points, but will probably need to be adjusted for balance.
+        if self.threat < 31:
+            it = max(self.threat,1) * 300
+        else:
+            it = 20 * self.threat * self.threat - 900 * self.threat + 19040
+        return it
+
     def matches(self, level, env, type_tags, scale):
         return abs(
             self.threat - level) <= 20 and env in self.environment_list and scale is self.scale and self.type_tags.intersection(
