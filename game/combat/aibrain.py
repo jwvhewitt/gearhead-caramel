@@ -25,7 +25,7 @@ class RandomTargeter( object ):
     # This targeter just picks a random target every time.
     def __init__(self,npc):
         self.npc = npc
-    def get_target( self, camp ):
+    def get_target( self, camp, optrange ):
         candidates = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc,tar)]
         if candidates:
             return random.choice( candidates )

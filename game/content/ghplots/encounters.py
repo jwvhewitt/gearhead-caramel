@@ -109,6 +109,9 @@ class RandoMonsterEncounter(Plot):
         self.last_update = 0
         return True
 
+    def _eteam_ACTIVATETEAM(self, camp):
+        self.last_update = camp.day
+
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: game.teams.Team = self.elements["_eteam"]
         if camp.day > self.last_update and len(myteam.get_active_members(camp)) < 1:
