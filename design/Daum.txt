@@ -129,3 +129,142 @@ Mecha
                     name = "Left Leg Mount"
             END
     END
+
+Mecha
+    name = "Daum"
+    desig = "SAN-D8 Mughal"
+    imagename = "mav_daum.png"
+    portrait = "mecha_daum.png"
+    family = "Daum"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Commander,)
+    desc = "A variant of the Daum that specializes in devastating melee attacks with unconventional weapons."
+    material = Advanced
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Gatling Laser"
+                    reach = 2
+                    damage = 2
+                    accuracy = 2
+                    penetration = 1
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept,VariableFire4)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 1000
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Right Shoulder Mount"
+                Mount
+                    name = "Left Shoulder Mount"
+                HoverJets
+                    size = 1
+
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                         MeleeWeapon
+                             name = "Flame Urumi"
+                             desc = "A flexible whip-sword, carefully balanced to make it useful against multiple targets. This version burns the ammunition of targets."
+                             material = Metal
+                             reach = 3
+                             damage = 3
+                             accuracy = 3
+                             penetration = 1
+                             attributes = (Flail, FastAttack, IgnitesAmmo)
+                    END
+            END
+            INV
+                Shield
+                    name = "Shock Katar"
+                    desc = "A fast punching dagger with a grip that covers the wrist of your mecha, frequently used in pairs. This version delivers a shock to the target."
+                    size = 6
+                    material = Metal
+                    SUB
+                        MeleeWeapon
+                            integral = True
+                            name = "Shock Katar Blade"
+                            material = Metal
+                            reach = 1
+                            damage = 4
+                            accuracy = 2
+                            penetration = 5
+                            attributes = (Defender, MultiWielded, DrainsPower, HaywireAttack)
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+            END
+            INV
+                Shield
+                    name = "Shock Katar"
+                    desc = "A fast punching dagger with a grip that covers the wrist of your mecha, frequently used in pairs. This version delivers a shock to the target."
+                    size = 6
+                    material = Metal
+                    SUB
+                        MeleeWeapon
+                            integral = True
+                            name = "Shock Katar Blade"
+                            reach = 1
+                            damage = 4
+                            accuracy = 2
+                            penetration = 5
+                            attributes = (Defender, MultiWielded, DrainsPower, HaywireAttack)
+                    END
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    name = "Right Leg Mount"
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    name = "Left Leg Mount"
+            END
+    END
