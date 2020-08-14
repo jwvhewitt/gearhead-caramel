@@ -12,7 +12,6 @@ from . import ghcutscene
 import uuid
 from . import backstory
 from . import ghrooms
-from . import dungeonmaker
 
 
 # The list of plots will be stored as a dictionary based on label.
@@ -78,6 +77,7 @@ from . import ghplots
 
 from game.content.ghplots import dd_combatmission, dd_homebase, dd_main, tarot_cards, tarot_reveal, mocha, harvest
 from . import plotutility
+from . import dungeonmaker
 
 from . import adventureseed
 

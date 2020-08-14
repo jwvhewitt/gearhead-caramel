@@ -66,7 +66,7 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
         tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         tplot = self.add_sub_plot(nart, "DZDHB_WujungGarrison")
-        #tplot = self.add_sub_plot(nart, "TEST_DUNGEON")
+        tplot = self.add_sub_plot(nart, "TEST_DUNGEON")
         #tplot = self.add_sub_plot(nart, "TEST_CHAR_MOVER")
         # Black Isle Pub
         # Hwang-Sa Mission
