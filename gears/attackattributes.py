@@ -354,6 +354,20 @@ class LinkedFire(Singleton):
             set(wep1.attributes) == set(wep2.attributes)
         )
 
+
+# Like linked-fire, but more appropriately-named for melee.
+class MultiWielded(LinkedFire):
+    name = "Multi Wielded"
+    @classmethod
+    def get_attacks(cls, weapon):
+        mylist = LinkedFire.get_attacks(weapon)
+        if mylist:
+            # Rename from "Link {} shots" to "Wield {} weapons"
+            myattack = mylist[0]
+            myattack.name = "Wield {} weapons".format(myattack.targets)
+        return mylist
+
+
 class OverloadAttack(Singleton):
     name = "Overload"
     MASS_MODIFIER = 1.0

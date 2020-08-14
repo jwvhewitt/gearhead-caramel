@@ -1,3 +1,4 @@
+- Melee weapons can have the Multi Wielded attribute, which lets you attack with multiple instances of that weapon.
 - Random NPCs should get a faction-appropriate job
 - Standardized the lancemate hiring cost
 - Tooltips may be several lines of text, if needed
