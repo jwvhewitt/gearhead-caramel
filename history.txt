@@ -1,3 +1,4 @@
+- Added crates and other loot containers
 - Dropped items may be picked up by clicking on tile where PC is standing
 - Lancemates may now trade personal inventory items
 - Monsters use a different target selection routine

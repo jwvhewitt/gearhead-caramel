@@ -7,7 +7,7 @@ import pbge
 from . import ghterrain
 from game.content.ghterrain import DZDTownTerrain, DZDWCommTowerTerrain, DZDCommTowerTerrain
 from pbge.scenes.waypoints import Waypoint
-from game import geareditor
+from game import geareditor, fieldhq
 from game import cyberdoc
 import gears
 
@@ -15,6 +15,7 @@ import gears
 class VendingMachine( Waypoint ):
     TILE = pbge.scenes.Tile( None, None, ghterrain.VendingMachineTerrain )
     desc = "You stand before a vending machine."
+
 
 class Exit( Waypoint ):
     name = "Exit"
@@ -31,6 +32,19 @@ class Exit( Waypoint ):
             camp.entrance = self.dest_entrance
         else:
             pbge.alert("This door doesn't seem to go anywhere.")
+
+
+class Crate( Waypoint ):
+    name = "Crate"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.OldCrateTerrain)
+    desc = "You see a large plastic crate."
+    def __init__( self, **kwargs ):
+        self.contents = pbge.container.ContainerList()
+        super().__init__(**kwargs)
+
+    def unlocked_use( self, camp: gears.GearHeadCampaign ):
+        # Perform this waypoint's special action.
+        fieldhq.backpack.ItemExchangeWidget.create_and_invoke(camp, camp.first_active_pc(), self.contents)
 
 
 class DZDTown( Exit ):
@@ -55,7 +69,7 @@ class Victim(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.VictimTerrain)
     desc = "This person has seen better days."
 
-class OldCrate(Waypoint):
+class OldCrate(Crate):
     name = 'Crate'
     TILE = pbge.scenes.Tile(None,None,ghterrain.OldCrateTerrain)
     desc = "You see a large plastic crate."

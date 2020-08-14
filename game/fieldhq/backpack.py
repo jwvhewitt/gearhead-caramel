@@ -245,3 +245,106 @@ class BackpackWidget(widgets.Widget):
                 self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,width=INFO_COLUMN.w)
             mydest = INFO_COLUMN.get_rect()
             self.info_cache[self.active_item.item].render(mydest.x,mydest.y)
+
+
+class ItemExchangeWidget(widgets.Widget):
+    active_item = None  # type: InvItemWidget
+
+    def __init__(self, camp, pc: gears.base.Character, conlist: pbge.container.ContainerList, **kwargs):
+        """
+
+        :type camp: gears.GearHeadCampaign
+        """
+        super().__init__(0,0,0,0,**kwargs)
+
+        self.camp = camp
+        self.pc = pc
+        self.conlist = conlist
+        self.info_cache = dict()
+
+        self.cc_up_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.cc_down_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
+        self.crate_selector = widgets.ScrollColumnWidget(0, 0, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h - 42, up_button = self.cc_up_button, down_button=self.cc_down_button, padding=2)
+
+        self.crate_column = widgets.ColumnWidget(EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h, draw_border=True)
+
+        self.crate_column.add_interior(self.cc_up_button)
+        self.crate_column.add_interior(self.crate_selector)
+        self.crate_column.add_interior(self.cc_down_button)
+
+        self.children.append(self.crate_column)
+
+        self.ic_up_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.ic_down_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
+        self.inventory_selector = widgets.ScrollColumnWidget(0, 0, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h - 42, up_button = self.ic_up_button, down_button=self.ic_down_button, padding=2)
+
+        self.inventory_column = widgets.ColumnWidget(INVENTORY_COLUMN.dx,INVENTORY_COLUMN.dy,INVENTORY_COLUMN.w,INVENTORY_COLUMN.h,draw_border=True)
+
+        self.inventory_column.add_interior(self.ic_up_button)
+        self.inventory_column.add_interior(self.inventory_selector)
+        self.inventory_column.add_interior(self.ic_down_button)
+
+        self.children.append(self.inventory_column)
+        self.children.append(PlayerCharacterSwitch(camp,pc,self.set_pc,draw_border=True))
+
+        self.update_selectors()
+
+        self.finished = False
+
+    def set_pc(self,pc):
+        self.pc = pc
+        self.update_selectors()
+
+    def build_inventory_menu(self,mylist,menu_widget, click_fun):
+        for item in mylist:
+            menu_widget.add_interior(InvItemWidget(item, self, show_parent=False,on_click=click_fun))
+        menu_widget.sort(key=lambda w: w.text)
+
+    def update_selectors(self):
+        self.inventory_selector.clear()
+        self.build_inventory_menu(self.pc.inv_com,self.inventory_selector, self.trade_to_crate)
+        self.crate_selector.clear()
+        self.build_inventory_menu(self.conlist,self.crate_selector, self.trade_to_pc)
+        self.active_item = None
+
+
+    def trade_to_crate(self, wid, ev):
+        wid.item.parent.inv_com.remove(wid.item)
+        self.conlist.append(wid.item)
+        self.update_selectors()
+
+    def trade_to_pc(self, wid, ev):
+        if self.pc.can_equip(wid.item):
+            self.conlist.remove(wid.item)
+            self.pc.inv_com.append(wid.item)
+            self.update_selectors()
+
+    def done_button(self, wid, ev):
+        self.finished = True
+
+    def render(self):
+        if self.active_item:
+            if self.active_item.item not in self.info_cache:
+                self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,width=INFO_COLUMN.w)
+            mydest = INFO_COLUMN.get_rect()
+            self.info_cache[self.active_item.item].render(mydest.x,mydest.y)
+
+    @classmethod
+    def create_and_invoke(cls, camp, pc, conlist):
+        # Run the UI. Return a DoInvocation action if an invocation
+        # was chosen, or None if the invocation was cancelled.
+        myui = cls(camp, pc, conlist)
+        pbge.my_state.widgets.append(myui)
+        myui.children.append(pbge.widgets.LabelWidget(230,230,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
+
+        keepgoing = True
+        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+
+        pbge.my_state.widgets.remove(myui)
