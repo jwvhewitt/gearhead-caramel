@@ -1,4 +1,4 @@
-- Added crates
+- Added crates and other item-storage waypoints
 - Mecha melee damage bonus also toned down
 - Melee attack multiple hits toned down
 - Added Treasure gear type

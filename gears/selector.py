@@ -185,11 +185,13 @@ def get_random_loot(rank, amount, allowed_tags):
     allowed_tags = set(allowed_tags)
     mybudget = calc_threat_points(rank,amount)//2
     while mybudget > 0:
-        candidates = [i for i in DESIGN_LIST if allowed_tags.intersection(i.shop_tags) and i.cost <= mybudget]
+        hicost = int(mybudget * 1.2)
+        candidates = [i for i in DESIGN_LIST if allowed_tags.intersection(i.shop_tags) and i.cost <= hicost]
         if candidates:
             candidates.sort(key=lambda i: i.cost)
             ind = max(random.randint(0,len(candidates)-1),random.randint(0,len(candidates)-1),random.randint(0,len(candidates)-1))
             myloot.append(copy.deepcopy(candidates[ind]))
+            mybudget -= candidates[ind].cost
         else:
             break
     return myloot

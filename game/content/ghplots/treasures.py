@@ -43,14 +43,14 @@ class StandardTreasureChest(Plot):
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="LOCALE")
-        mychest = self.register_element("GOAL", ghwaypoints.(name="Vending Machine", plot_locked=True, desc="You stand before the shrine of refreshment.", anchor=pbge.randmaps.anchors.middle), dident="ROOM")
-
+        mychest = self.register_element("GOAL", ghwaypoints.Crate(name="Crate", anchor=pbge.randmaps.anchors.middle), dident="ROOM")
+        mychest.contents += gears.selector.get_random_loot(self.rank,200,(gears.tags.ST_TREASURE,))
         return True
 
 
 class NonsenseGoal(Plot):
     # Fight some random monsters. What do they want? To pad the adventure.
-    LABEL = "DUNGEON_GOAL"
+    LABEL = "zDUNGEON_GOAL"
     UNIQUE = True
 
     def custom_init(self, nart):
