@@ -980,6 +980,8 @@ def init_gears():
     for d in selector.DESIGN_LIST:
         if d.get_full_name() in selector.DESIGN_BY_NAME:
             print("Warning: Multiple designs named {}".format(d.get_full_name()))
+        if d.uniqueid:
+            print("Warning: STC design {} has unique id {}".format(d.get_full_name(), d.uniqueid))
         selector.DESIGN_BY_NAME[d.get_full_name()] = d
         d.stc = True
 
@@ -997,6 +999,8 @@ def init_gears():
             if d.get_full_name() in selector.DESIGN_BY_NAME:
                 print("Warning: Multiple designs named {}".format(d.get_full_name()))
             selector.DESIGN_BY_NAME[d.get_full_name()] = d
+            if d.uniqueid:
+                selector.DESIGN_BY_NAME[d.uniqueid] = d
         if isinstance(d, base.Monster):
             selector.MONSTER_LIST.append(d)
 

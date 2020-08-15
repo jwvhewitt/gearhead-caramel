@@ -17,6 +17,7 @@ STC_LIST = list()
 MONSTER_LIST = list()
 
 DESIGN_BY_NAME = dict()
+DESIGN_BY_UNIQUEID = dict()
 EARTH_NAMES = None
 LUNA_NAMES = None
 ORBITAL_NAMES = None
@@ -418,6 +419,12 @@ def get_design_by_full_name(name):
         return copy.deepcopy(DESIGN_BY_NAME[name])
     else:
         print("Error: design {} not found".format(name))
+
+def get_design_by_uniqueid(uniqueid):
+    if uniqueid in DESIGN_BY_UNIQUEID:
+        return copy.deepcopy(DESIGN_BY_UNIQUEID[uniqueid])
+    else:
+        print("Error: design with uniqueid {} not found".format(uniqueid))
 
 # print calc_threat_points(10)
 # print calc_threat_points(20)
