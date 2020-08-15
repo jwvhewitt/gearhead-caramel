@@ -180,6 +180,19 @@ def equip_combatant(npc: base.Character):
         elif isinstance(part, base.Hand) and weapon_types:
             get_equipment_that_fits(part, weapon_types.pop(random.randint(0, len(weapon_types) - 1)), spending_limit)
 
+def get_random_loot(rank, amount, allowed_tags):
+    myloot = list()
+    allowed_tags = set(allowed_tags)
+    mybudget = calc_threat_points(rank,amount)//2
+    while mybudget > 0:
+        candidates = [i for i in DESIGN_LIST if allowed_tags.intersection(i.shop_tags) and i.cost <= mybudget]
+        if candidates:
+            candidates.sort(key=lambda i: i.cost)
+            ind = max(random.randint(0,len(candidates)-1),random.randint(0,len(candidates)-1),random.randint(0,len(candidates)-1))
+            myloot.append(copy.deepcopy(candidates[ind]))
+        else:
+            break
+    return myloot
 
 def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, can_cyberize=None, **kwargs):
     # Build the creation matrix, aka the dict.

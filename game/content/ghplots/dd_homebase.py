@@ -1038,9 +1038,6 @@ class DZD_WujungTires(Plot):
                                                                                  decorate=game.content.gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
         foyer.contents.append(ghwaypoints.MechEngTerminal())
-        mycrate = ghwaypoints.Crate()
-        mycrate.contents.append(gears.selector.get_design_by_full_name("Solar Spear"))
-        foyer.contents.append(mycrate)
 
         mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
