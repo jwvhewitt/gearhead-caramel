@@ -250,6 +250,8 @@ class MechaShoppingList(object):
         # I dunno. Might be useful later. Might be useful never.
         # But writing this comment about it? Pure procrastination.
         for mek in DESIGN_LIST:
+            if mek.uniqueid:
+                continue
             if isinstance(mek, base.Mecha) and mek.check_design() and self.matches_criteria(mek):
                 if mek.cost < self.hi_price:
                     if mek.cost > self.hi_price // 3:
@@ -370,6 +372,8 @@ class RandomMonsterUnit(object):
         self.shopping_lists = collections.defaultdict(list)
 
         for mon in MONSTER_LIST:
+            if mon.uniqueid:
+                continue
             if mon.matches(level, env, type_tags, scale):
                 self.shopping_lists["UNSORTED"].append(mon)
                 for fam in mon.families:

@@ -46,7 +46,8 @@ class Shop(object):
 
     def generate_item(self, itype, rank):
         candidates = [item for item in gears.selector.DESIGN_LIST if
-                      itype in item.shop_tags and self.item_matches_shop(item)]
+                      itype in item.shop_tags and self.item_matches_shop(item)
+                      and not item.uniqueid]
         if candidates:
             # Step one: Sort the candidates by cost.
             random.shuffle(candidates)
