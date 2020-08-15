@@ -597,7 +597,7 @@ class MeleeAttackRoll(AttackRoll):
                 if originator and hasattr(originator, "dole_experience"):
                     originator.dole_experience(3, self.att_skill)
 
-                num_hits = min(max((att_roll + att_bonus - hi_def_roll - 5) // 10, 0) + 1,max_attacks)
+                num_hits = min(max((att_roll + att_bonus - hi_def_roll - 5) // 20, 0) + 1,max_attacks)
 
                 fx_record['number_of_hits'] = num_hits
                 if num_hits > 1:
@@ -957,7 +957,7 @@ class DoDamage( effects.NoEffect ):
             # If the target is destroyed, give experience to the originator.
             if originator and hasattr(originator,"dole_experience") and camp.scene.are_hostile(originator,target):
                 if mydamage.operational_at_start and not target.is_operational():
-                    xp = max(self.DESTROY_TARGET_XP * target.cost * target.scale.XP_MULTIPLIER // originator.cost,1)
+                    xp = max(self.DESTROY_TARGET_XP * target.battle_cost() * target.scale.XP_MULTIPLIER // originator.battle_cost(),1)
                     originator.dole_experience(xp)
                 elif mydamage.damage_done > 0:
                     originator.dole_experience(2)

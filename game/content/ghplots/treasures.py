@@ -36,9 +36,22 @@ class MultipurposeRoom(Plot):
 #   ***  DUNGEON_GOAL  ***
 #   **********************
 
+class StandardTreasureChest(Plot):
+    # Fight some random monsters. What do they want? To pad the adventure.
+    LABEL = "DUNGEON_GOAL"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="LOCALE")
+        mychest = self.register_element("GOAL", ghwaypoints.(name="Vending Machine", plot_locked=True, desc="You stand before the shrine of refreshment.", anchor=pbge.randmaps.anchors.middle), dident="ROOM")
+
+        return True
+
+
 class NonsenseGoal(Plot):
     # Fight some random monsters. What do they want? To pad the adventure.
     LABEL = "DUNGEON_GOAL"
+    UNIQUE = True
 
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]

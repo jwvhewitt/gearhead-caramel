@@ -652,6 +652,17 @@ class BaseGear(scenes.PlaceableThing):
             m = m + part.cost
         return m
 
+    def battle_cost(self):
+        # Return the cost, ignoring treasure.
+        m = self.self_cost
+        for part in self.sub_com:
+            if not isinstance(part,Treasure):
+                m = m + part.cost
+        for part in self.inv_com:
+            if not isinstance(part,Treasure):
+                m = m + part.cost
+        return m
+
     def is_legal_sub_com(self, part):
         return False
 
@@ -3549,7 +3560,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         mymod = weapon.get_module()
         if mymod:
             scmods = [sc.get_melee_damage_bonus() for sc in mymod.sub_com if sc.is_not_destroyed() and hasattr(sc,"get_melee_damage_bonus")] + [0,]
-            return mymod.size - 1 + sum(scmods)
+            return mymod.size//2 + sum(scmods)
         else:
             return 0
 
@@ -4196,3 +4207,32 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             if hasattr(pc, "free_pilots"):
                 pilots += pc.free_pilots()
         return pilots
+
+
+#   ********************
+#   ***   TREASURE   ***
+#   ********************
+
+class Treasure(BaseGear, StandardDamageHandler):
+    DEFAULT_NAME = "Treasure"
+    SAVE_PARAMETERS = (
+        'value','weight')
+    DEFAULT_SCALE = scale.HumanScale
+
+    def __init__(self, value=1000, weight=10, **keywords):
+        self.value = value
+        self.weight = weight
+
+        # Finally, call the gear initializer.
+        super().__init__(**keywords)
+
+    @property
+    def base_mass(self):
+        """Returns the unscaled mass of this gear, ignoring children."""
+        return self.weight
+
+    base_volume = 1
+
+    @property
+    def base_cost(self):
+        return self.value

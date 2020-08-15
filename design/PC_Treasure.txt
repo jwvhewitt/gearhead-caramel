@@ -1,0 +1,339 @@
+Treasure
+    name = "Quartz Crystal"
+    desc = "A pretty, though presumably worthless, quartz crystal."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 250
+    weight = 3
+
+Treasure
+    name = "Bloodstone"
+    desc = "A shiny black gemstone with red speckles."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 1500
+    weight = 1
+
+Treasure
+    name = "Onyx"
+    desc = "A black gemstone with bands of color."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 2500
+    weight = 1
+
+Treasure
+    name = "Rosy Quartz"
+    desc = "A pretty pink quartz crystal."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 5000
+    weight = 2
+
+Treasure
+    name = "Tiger's Eye"
+    desc = "A lustrous gemstone with bands of gold and brown."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 15000
+    weight = 1
+
+Treasure
+    name = "Carnelian"
+    desc = "A semi-precious red gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 30000
+    weight = 1
+
+Treasure
+    name = "Moonstone"
+    desc = "A pearly white gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 45000
+    weight = 1
+
+Treasure
+    name = "Garnet"
+    desc = "A striking cinnamon-colored gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 90000
+    weight = 1
+
+Treasure
+    name = "Turquoise"
+    desc = "A shiny blue-green gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 125000
+    weight = 2
+
+Treasure
+    name = "Amethyst"
+    desc = "A sparkling purple gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 150000
+    weight = 1
+
+Treasure
+    name = "Aquamarine"
+    desc = "A pale blue gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 200000
+    weight = 1
+
+Treasure
+    name = "Topaz"
+    desc = "A clear golden gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 250000
+    weight = 2
+
+Treasure
+    name = "Opal"
+    desc = "An iridescent and sparkling gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 325000
+    weight = 1
+
+Treasure
+    name = "Sapphire"
+    desc = "A brilliant blue gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 400000
+    weight = 1
+
+Treasure
+    name = "Diamond"
+    desc = "A clear, sparkling gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 550000
+    weight = 1
+
+Treasure
+    name = "Ruby"
+    desc = "A brilliant red gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 750000
+    weight = 1
+
+Treasure
+    name = "Emerald"
+    desc = "A brilliant green gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 1000000
+    weight = 1
+
+Treasure
+    name = "Trinitite"
+    desc = "A green glassy crystal formed during a nuclear explosion."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 1500000
+    weight = 2
+
+Treasure
+    name = "Large Sapphire"
+    desc = "A brilliant blue gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 1200000
+    weight = 2
+
+Treasure
+    name = "Large Ruby"
+    desc = "A brilliant red gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 2250000
+    weight = 2
+
+Treasure
+    name = "Large Emerald"
+    desc = "A brilliant green gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 3000000
+    weight = 2
+
+Treasure
+    name = "Phobos Emerald"
+    desc = "A large, flawless green gemstone formed on a moon of Mars."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 25000000
+    weight = 5
+
+Treasure
+    name = "Copper Ingot"
+    desc = "A bar of pure copper."
+    shop_tags= ("TREASURE", "MINERAL",)
+    value = 6000
+    weight = 50
+
+Treasure
+    name = "Silver Ingot"
+    desc = "A bar of pure silver."
+    shop_tags= ("TREASURE", "MINERAL",)
+    value = 100000
+    weight = 20
+
+Treasure
+    name = "Impervium Ingot"
+    desc = "A bar of pure impervium."
+    shop_tags= ("TREASURE", "MINERAL",)
+    value = 300000
+    weight = 25
+
+Treasure
+    name = "Gold Ingot"
+    desc = "A bar of pure gold."
+    shop_tags= ("TREASURE", "MINERAL",)
+    value = 600000
+    weight = 10
+
+Treasure
+    name = "Platinum Ingot"
+    desc = "A bar of pure platinum."
+    shop_tags= ("TREASURE", "MINERAL",)
+    value = 1750000
+    weight = 10
+
+Treasure
+    name = "Gold Nugget"
+    desc = "A small chunk of gold."
+    shop_tags= ("TREASURE", "MINERAL",)
+    value = 200000
+    weight = 5
+
+Treasure
+    name = "Lapis Lazuli"
+    desc = "A blue semiprecious stone."
+    shop_tags= ("TREASURE", "MINERAL",)
+    value = 55000
+    weight = 2
+
+Treasure
+    name = "Small Geode"
+    desc = "A small hollow rock filled with precious crystals."
+    shop_tags= ("TREASURE", "MINERAL", "ODDITY")
+    value = 105000
+    weight = 12
+
+Treasure
+    name = "Large Geode"
+    desc = "A large hollow rock filled with precious crystals."
+    shop_tags= ("TREASURE", "MINERAL", "ODDITY")
+    value = 1150000
+    weight = 23
+
+Treasure
+    name = "Mood Ring"
+    desc = "An advanced polymer ring which changes color according to biometrics."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 500
+    weight = 1
+
+Treasure
+    name = "Brass Ring"
+    desc = "A plain brass ring."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 1000
+    weight = 1
+
+Treasure
+    name = "Crystal Ring"
+    desc = "An attractive ring featuring a synthetic crystal stone."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 2000
+    weight = 1
+
+Treasure
+    name = "Steel Ring"
+    desc = "An ornate ring crafted from stainless steel."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 4500
+    weight = 1
+
+Treasure
+    name = "Ceramic Ring"
+    desc = "An antique ceramic ring."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 9000
+    weight = 1
+
+Treasure
+    name = "Silver Ring"
+    desc = "A plain silver ring."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 17500
+    weight = 1
+
+Treasure
+    name = "Gold Ring"
+    desc = "A smooth gold ring."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 35000
+    weight = 1
+
+Treasure
+    name = "Platinum Ring"
+    desc = "A finely crafted platinum ring."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 70000
+    weight = 1
+
+Treasure
+    name = "Warrior Ring"
+    desc = "An ancient ring made of impervium. The meaning of the runes carved on it have been lost to time."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 145000
+    weight = 1
+
+Treasure
+    name = "Sapphire Ring"
+    desc = "A beautiful golden ring with a sapphire stone."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 280000
+    weight = 1
+
+Treasure
+    name = "Ruby Ring"
+    desc = "A beautiful golden ring with a ruby stone."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 420000
+    weight = 1
+
+Treasure
+    name = "Emerald Ring"
+    desc = "A beautiful golden ring with an emerald stone."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 630000
+    weight = 1
+
+Treasure
+    name = "Cheap Necklace"
+    desc = "A cheap necklace made of shiny plastic."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 300
+    weight = 2
+
+Treasure
+    name = "Silver Chain"
+    desc = "A simple necklace made of silver."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 3000
+    weight = 2
+
+Treasure
+    name = "Gold Chain"
+    desc = "A simple necklace made of gold."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 30000
+    weight = 3
+
+Treasure
+    name = "Platinum Chain"
+    desc = "A simple necklace made of platinum."
+    shop_tags= ("TREASURE", "JEWELRY")
+    value = 300000
+    weight = 2
+
+PowerSource
+    name = "Jade Disc"
+    desc = "A mysterious PreZero power source. The disc seems to pulse in your hand."
+    size = 6
+    material = Biotech
+    scale = HumanScale
+    shop_tags= ("TREASURE", "LOSTECH", "ODDITY")
+
+
+
