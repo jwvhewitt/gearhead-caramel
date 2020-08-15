@@ -1,0 +1,157 @@
+MeleeWeapon
+    uniqueid = 'remus'
+    name = "Remus' Claw"
+    scale = MechaScale
+    material = Advanced
+    desc = "A devastating mecha-scale sword of high-quality construction, legend says this sword has a twin with which it should be reunited some day."
+    reach = 1
+    damage = 5
+    accuracy = 5
+    penetration = 3
+    attributes = (HaywireAttack, MultiWielded)
+
+MeleeWeapon
+    uniqueid = 'romulus'
+    name = "Romulus' Fang"
+    scale = MechaScale
+    material = Advanced
+    desc = "A high-quality mecha-scale sword of devastating power, legend says this sword has a twin with which it should be reunited some day."
+    reach = 1
+    damage = 5
+    accuracy = 5
+    penetration = 3
+    attributes = (HaywireAttack, MultiWielded)
+
+Mecha
+    uniqueid = 'anu'
+    desig = "EX-156"
+    name = "Anu"
+    material = Biotech
+    desc = "A fairly new experimental biotech mecha created in 156NT, from secret research of those created in the Age of Superpowers."
+    family = "Anu"
+    environment_list = (GroundEnv, UrbanEnv, SpaceEnv, AquaticEnv)
+    faction_list = (None,)
+    role_list = (Commander,)
+
+    SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 6
+                    integral = True
+                Sensor
+                    name = "Oculus"
+                    size = 3
+                Cockpit
+                    material = Metal
+                    SUB
+                        Armor
+                            material = Metal
+                            size = 3
+                            integral = True
+                    END
+            END
+        Torso
+            size = 6
+            SUB
+                Armor
+                    size = 8
+                Engine
+                    size = 1995
+                    SUB
+                        Armor
+                           material = Metal
+                           size = 1
+                    END
+                Gyroscope
+                    material = Metal
+                    SUB
+                        Armor
+                           material = Metal
+                           size = 1
+                    END
+                Overchargers
+                    material = Metal
+                    size = 3
+                HeavyActuators
+                    name = "Biotech Muscles"
+                    size = 2
+            END
+        Arm
+            size = 6
+            name = "Right Arm"
+            SUB
+                Armor
+                    size = 2
+                    integral = True
+                EnergyWeapon
+                    name = "Combat Tentacle"
+                    reach = 1
+                    damage = 5
+                    accuracy = 2
+                    penetration = 2
+                    attributes = (MultiWielded, Intercept, Flail)
+                Hand
+                    INV
+                        EnergyWeapon
+                            name = "Combat Tentacle"
+                            reach = 1
+                            damage = 5
+                            accuracy = 2
+                            penetration = 2
+                            attributes = (MultiWielded, Intercept, Flail)
+                    END
+                HeavyActuators
+                    name = "Biotech Muscles"
+                    size = 7
+            END
+        Arm
+            size = 6
+            name = "Left Arm"
+            SUB
+                Armor
+                    size = 2
+                    integral = True
+                EnergyWeapon
+                    name = "Combat Tentacle"
+                    reach = 1
+                    damage = 5
+                    accuracy = 2
+                    penetration = 2
+                    attributes = (MultiWielded, Intercept, Flail)
+                Hand
+                    INV
+                        EnergyWeapon
+                            name = "Combat Tentacle"
+                            reach = 1
+                            damage = 5
+                            accuracy = 2
+                            penetration = 2
+                            attributes = (MultiWielded, Intercept, Flail)
+                    END
+                HeavyActuators
+                    name = "Biotech Muscles"
+                    size = 7
+            END
+        Leg
+            size = 6
+            name = "Right Leg"
+            SUB
+                Armor
+                    size = 5
+                HeavyActuators
+                    name = "Biotech Muscles"
+                    size = 7
+            END
+        Leg
+            size = 6
+            name = "Left Leg"
+            SUB
+                Armor
+                    size = 5
+                HeavyActuators
+                    name = "Biotech Muscles"
+                    size = 7
+            END
+    END
