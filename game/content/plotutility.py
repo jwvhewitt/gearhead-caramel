@@ -136,6 +136,17 @@ class StairsDownToStairsUpConnector(SceneConnection):
     def get_room2_anchor(self):
         return pbge.randmaps.anchors.middle
 
+class TrapdoorToStairsUpConnector(SceneConnection):
+    DEFAULT_DOOR_1 = ghwaypoints.Trapdoor
+    DEFAULT_DOOR_2 = ghwaypoints.StairsUp
+
+    def get_room1_anchor(self):
+        return pbge.randmaps.anchors.middle
+
+    def get_room2_anchor(self):
+        return pbge.randmaps.anchors.middle
+
+
 class StairsUpToStairsDownConnector(StairsDownToStairsUpConnector):
     DEFAULT_DOOR_1 = ghwaypoints.StairsUp
     DEFAULT_DOOR_2 = ghwaypoints.StairsDown

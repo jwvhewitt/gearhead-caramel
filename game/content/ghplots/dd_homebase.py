@@ -7,7 +7,7 @@ from gears import factions, personality
 import game.content.gharchitecture
 import pbge
 import game.content.plotutility
-from game.content import ghwaypoints, gharchitecture, plotutility, ghrooms
+from game.content import ghwaypoints, gharchitecture, plotutility, ghrooms, dungeonmaker
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
@@ -66,7 +66,7 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
         tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         tplot = self.add_sub_plot(nart, "DZDHB_WujungGarrison")
-        tplot = self.add_sub_plot(nart, "TEST_DUNGEON")
+        #tplot = self.add_sub_plot(nart, "TEST_DUNGEON")
         #tplot = self.add_sub_plot(nart, "TEST_CHAR_MOVER")
         # Black Isle Pub
         # Hwang-Sa Mission
@@ -878,7 +878,7 @@ class DZD_AlliedArmor(Plot):
     LABEL = "DZDHB_AlliedArmor"
 
     active = True
-    scope = "INTERIOR"
+    scope = "METRO"
 
     def custom_init(self, nart):
         # Sharing a building with Elite Equipment.
@@ -893,7 +893,7 @@ class DZD_AlliedArmor(Plot):
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
-        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="METROSCENE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
         foyer.contents.append(ghwaypoints.AlliedArmorSignWP())
@@ -937,6 +937,17 @@ class DZD_AlliedArmor(Plot):
         mystairs = self.register_element("STAIRSUP",ghwaypoints.StoneStairsUp(dest_scene=intscene,dest_entrance=secretstairs))
         hiddenroom.contents.append(mystairs)
 
+        cwnpc = self.register_element("CWORKER", gears.selector.random_character(combatant=False, job=gears.jobs.ALL_JOBS["Construction Worker"]))
+        hiddenroom.contents.append(cwnpc)
+
+        mydungeon = dungeonmaker.DungeonMaker(
+            nart, self, self.elements["OTHERSCENE"], "Wujung Undercity", gharchitecture.StoneBuilding(), 10,
+            monster_tags = ("ANIMAL", "CITY", "VERMIN"),
+            scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_RUINS, gears.tags.SCENE_SEMIPUBLIC)
+        )
+        self.elements["DUNGEON"] = mydungeon.entry_level
+        mycon2 = plotutility.TrapdoorToStairsUpConnector(self, self.elements["OTHERSCENE"], mydungeon.entry_level)
+
         return True
 
     def STAIRSDOWN_menu(self,camp,thingmenu):
@@ -974,6 +985,16 @@ class DZD_AlliedArmor(Plot):
 
     def _ask_about_terminal(self, camp):
         self.asked_about_terminal = True
+
+    def CWORKER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] While doing repair work we found this tunnel leading into the Wujung undercity. Nobody is supposed to go down there, but you look like you'd do alright.",
+            context=ContextTag([context.HELLO]),
+            ))
+
+        return mylist
 
     def MECHANIC_offers(self, camp):
         mylist = list()

@@ -48,6 +48,13 @@ Treasure
     weight = 1
 
 Treasure
+    name = "Peridot"
+    desc = "A brilliant light green gemstone."
+    shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")
+    value = 70000
+    weight = 1
+
+Treasure
     name = "Garnet"
     desc = "A striking cinnamon-colored gemstone."
     shop_tags= ("TREASURE", "MINERAL", "GEMSTONE")

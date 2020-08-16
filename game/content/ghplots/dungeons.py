@@ -46,7 +46,6 @@ class TestDungeon(Plot):
     LABEL = "TEST_DUNGEON"
 
     def custom_init(self, nart):
-        team1 = teams.Team(name="Player Team")
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["METROSCENE"], "Test Dungeon", gharchitecture.StoneBuilding(), 10,
             monster_tags = ("ANIMAL", "CITY", "VERMIN")
