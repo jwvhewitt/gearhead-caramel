@@ -142,6 +142,87 @@ class BanditsPalooza(DZDREProppStarterPlot):
 #
 # Orange road edges have a difficulty rank of around 25.
 
+class HauntedHighway(Plot):
+    LABEL = "DZD_ROADEDGE_ORANGE"
+
+    active = True
+    scope = True
+    BASE_RANK = 30
+    RATCHET_SETUP = "DZRE_BanditProblem"
+    ENCOUNTER_CHANCE = BASE_RANK + 30
+    ENCOUNTER_NAME = "Bandit Ambush!"
+    ENCOUNTER_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,)
+    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleSemiDeadzone
+
+    def custom_init(self, nart):
+        myedge = self.elements["DZ_EDGE"]
+        self.rank = self.BASE_RANK + random.randint(1,6) - random.randint(1,6)
+        self.register_element("DZ_EDGE_STYLE",myedge.style)
+        self.register_element("FACTION",self.get_enemy_faction(nart))
+
+        self.add_sub_plot(nart,"ADD_REMOTE_OFFICE",ident="ENEMYRO",spstate=PlotState(rank=self.rank+5,elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+        self.add_sub_plot(nart,self.RATCHET_SETUP,ident="MISSION",spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+
+        self.road_cleared = False
+
+        return True
+
+    def get_enemy_faction(self,nart):
+        myedge = self.elements["DZ_EDGE"]
+        return plotutility.RandomBanditCircle(nart.camp, enemies=(myedge.start_node.destination.faction,))
+
+    def get_enemy_encounter(self, camp, dest_node):
+        start_node = self.elements["DZ_EDGE"].get_link(dest_node)
+        if start_node.pos[0] < dest_node.pos[0]:
+            myanchor = pbge.randmaps.anchors.west
+        else:
+            myanchor = pbge.randmaps.anchors.east
+        myadv = missionbuilder.BuildAMissionSeed(
+            camp, self.ENCOUNTER_NAME, (start_node.destination,start_node.entrance),
+            enemy_faction = self.elements["FACTION"], rank=self.rank,
+            objectives = self.ENCOUNTER_OBJECTIVES + (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
+            adv_type = "DZD_ROAD_MISSION",
+            custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
+            scenegen=DeadZoneHighwaySceneGen,
+            architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
+            cash_reward=0,
+        )
+        return myadv
+
+    RANDOM_ENEMIES = (gears.factions.AegisOverlord,gears.factions.ClanIronwind,gears.factions.BoneDevils,
+                      gears.factions.BladesOfCrihna,None)
+    def get_random_encounter(self, camp, dest_node):
+        start_node = self.elements["DZ_EDGE"].get_link(dest_node)
+        if start_node.pos[0] < dest_node.pos[0]:
+            myanchor = pbge.randmaps.anchors.west
+        else:
+            myanchor = pbge.randmaps.anchors.east
+        myadv = missionbuilder.BuildAMissionSeed(
+            camp, "Highway Encounter", (start_node.destination,start_node.entrance),
+            enemy_faction = random.choice(self.RANDOM_ENEMIES), rank=self.rank,
+            objectives = (missionbuilder.BAMO_DEFEAT_COMMANDER,dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
+            adv_type = "DZD_ROAD_MISSION",
+            custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
+            scenegen=DeadZoneHighwaySceneGen,
+            architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
+            cash_reward=0,
+        )
+        return myadv
+
+    def get_road_adventure(self, camp, dest_node):
+        # Return an adventure if there's going to be an adventure. Otherwise return nothing.
+        if self.active and camp.has_mecha_party():
+            if random.randint(1,100) <= self.ENCOUNTER_CHANCE and not self.road_cleared:
+                return self.get_enemy_encounter(camp, dest_node)
+            elif random.randint(1,100) <= 15:
+                return self.get_random_encounter(camp, dest_node)
+
+    def MISSION_WIN(self,camp):
+        self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE
+        self.road_cleared = True
+
+
+
 class InvadersPalooza(DZDREProppStarterPlot):
     LABEL = "DZD_ROADEDGE_ORANGE"
     BASE_RANK = 25

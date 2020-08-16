@@ -221,7 +221,7 @@ class InvocationsWidget(pbge.widgets.Widget):
         if not descs:
             return invo.name
 
-        return '{} ({})'.format(invo.name, ','.join(descs))
+        return '{} ({})'.format(invo.name, ', '.join(descs))
 
     def render(self):
         self.sprite.render(self.get_rect(), 0)
