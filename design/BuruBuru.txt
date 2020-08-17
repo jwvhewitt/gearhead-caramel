@@ -450,8 +450,17 @@ Mecha
             INV
 				Shield
 				    name = "Phalanx Shield"
-					size = 8
+					size = 6
 					bonus = 4
+                                    SUB
+                                        MeleeWeapon
+                                            integral = True
+                                            name = "Phalanx Shield"
+                                            damage = 2
+                                            accuracy = 2
+                                            penetration = 1
+                                            attributes = (ChargeAttack, Smash)
+                                    END
             END
         Leg
             name = "Right Leg"
