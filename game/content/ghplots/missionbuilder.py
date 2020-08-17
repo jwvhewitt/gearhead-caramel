@@ -24,6 +24,8 @@ BAMO_DESTROY_ARTILLERY = "BAMO_Destroy_Artillery"  # 2 points
 BAMO_EXTRACT_ALLIED_FORCES = "BAMO_ExtractAlliedForces"
 BAMO_EXTRACT_ALLIED_FORCES_VS_DINOSAURS = "BAMO_ExtractAlliedForcesVsDinosaurs"
 BAMO_FIGHT_DINOSAURS = "BAMO_FightDinosaurs"
+BAMO_FIGHT_MONSTERS = "BAMO_FightMonsters"
+BAME_MONSTER_TAGS = "BAME_MONSTER_TAGS"
 BAMO_LOCATE_ENEMY_FORCES = "BAMO_LocateEnemyForces"
 BAMO_NEUTRALIZE_ALL_DRONES = "BAMO_NeutralizeAllDrones"
 BAMO_PROTECT_BUILDINGS_FROM_DINOSAURS = "BAMO_ProtectBuildingsFromDinosaurs"
@@ -992,6 +994,32 @@ class BAM_FightDinosaurs(Plot):
         team2.contents += myunit.contents
 
         self.obj = adventureseed.MissionObjective("Defeat the dinosaurs", MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        return True
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_active_members(camp)) < 1:
+            self.obj.win(camp, 100)
+
+class BAM_FightMonsters(Plot):
+    LABEL = BAMO_FIGHT_MONSTERS
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        myunit = gears.selector.RandomMonsterUnit(self.rank, random.randint(100,120), myscene.environment, self.elements.get(BAME_MONSTER_TAGS), myscene.scale)
+        team2.contents += myunit.contents
+
+        self.obj = adventureseed.MissionObjective("Defeat the monsters", MAIN_OBJECTIVE_VALUE)
         self.adv.objectives.append(self.obj)
 
         return True

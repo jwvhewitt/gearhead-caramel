@@ -36,8 +36,7 @@ class RoadMissionPlot( missionbuilder.BuildAMissionPlot ):
             camp.destination, camp.entrance = self.elements["ADVENTURE_RETURN"]
         self.adv.end_adventure(camp)
 
-
-class DZDREProppStarterPlot(Plot):
+class DZDREBasicPlotWithEncounterStuff(Plot):
     LABEL = "UTILITY_PARENT"
 
     active = True
@@ -53,18 +52,8 @@ class DZDREProppStarterPlot(Plot):
         myedge = self.elements["DZ_EDGE"]
         self.rank = self.BASE_RANK + random.randint(1,6) - random.randint(1,6)
         self.register_element("DZ_EDGE_STYLE",myedge.style)
-        self.register_element("FACTION",self.get_enemy_faction(nart))
-
-        self.add_sub_plot(nart,"ADD_REMOTE_OFFICE",ident="ENEMYRO",spstate=PlotState(rank=self.rank+5,elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
-        self.add_sub_plot(nart,self.RATCHET_SETUP,ident="MISSION",spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
-
         self.road_cleared = False
-
         return True
-
-    def get_enemy_faction(self,nart):
-        myedge = self.elements["DZ_EDGE"]
-        return plotutility.RandomBanditCircle(nart.camp, enemies=(myedge.start_node.destination.faction,))
 
     def get_enemy_encounter(self, camp, dest_node):
         start_node = self.elements["DZ_EDGE"].get_link(dest_node)
@@ -74,7 +63,7 @@ class DZDREProppStarterPlot(Plot):
             myanchor = pbge.randmaps.anchors.east
         myadv = missionbuilder.BuildAMissionSeed(
             camp, self.ENCOUNTER_NAME, (start_node.destination,start_node.entrance),
-            enemy_faction = self.elements["FACTION"], rank=self.rank,
+            enemy_faction = self.elements.get("FACTION"), rank=self.rank,
             objectives = self.ENCOUNTER_OBJECTIVES + (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
             adv_type = "DZD_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
@@ -116,6 +105,31 @@ class DZDREProppStarterPlot(Plot):
         self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE
         self.road_cleared = True
 
+
+class DZDREProppStarterPlot(DZDREBasicPlotWithEncounterStuff):
+    LABEL = "UTILITY_PARENT"
+
+    active = True
+    scope = True
+    BASE_RANK = 15
+    RATCHET_SETUP = "DZRE_BanditProblem"
+    ENCOUNTER_CHANCE = BASE_RANK + 30
+    ENCOUNTER_NAME = "Bandit Ambush!"
+    ENCOUNTER_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,)
+    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleSemiDeadzone
+
+    def custom_init(self, nart):
+        super().custom_init(nart)
+        myedge = self.elements["DZ_EDGE"]
+        self.register_element("FACTION",self.get_enemy_faction(nart))
+        self.add_sub_plot(nart,"ADD_REMOTE_OFFICE",ident="ENEMYRO",spstate=PlotState(rank=self.rank+5,elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+        self.add_sub_plot(nart,self.RATCHET_SETUP,ident="MISSION",spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+
+        return True
+
+    def get_enemy_faction(self,nart):
+        myedge = self.elements["DZ_EDGE"]
+        return plotutility.RandomBanditCircle(nart.camp, enemies=(myedge.start_node.destination.faction,))
 
 
 #   *******************************
@@ -142,34 +156,22 @@ class BanditsPalooza(DZDREProppStarterPlot):
 #
 # Orange road edges have a difficulty rank of around 25.
 
-class HauntedHighway(Plot):
+class TheMechaGraveyard(DZDREBasicPlotWithEncounterStuff):
     LABEL = "DZD_ROADEDGE_ORANGE"
 
     active = True
     scope = True
-    BASE_RANK = 30
-    RATCHET_SETUP = "DZRE_BanditProblem"
+    UNIQUE = True
+    BASE_RANK = 25
     ENCOUNTER_CHANCE = BASE_RANK + 30
-    ENCOUNTER_NAME = "Bandit Ambush!"
-    ENCOUNTER_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,)
-    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleSemiDeadzone
+    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleDeadzone
 
     def custom_init(self, nart):
+        super().custom_init(nart)
         myedge = self.elements["DZ_EDGE"]
-        self.rank = self.BASE_RANK + random.randint(1,6) - random.randint(1,6)
-        self.register_element("DZ_EDGE_STYLE",myedge.style)
-        self.register_element("FACTION",self.get_enemy_faction(nart))
-
-        self.add_sub_plot(nart,"ADD_REMOTE_OFFICE",ident="ENEMYRO",spstate=PlotState(rank=self.rank+5,elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"LOCALE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
-        self.add_sub_plot(nart,self.RATCHET_SETUP,ident="MISSION",spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
-
-        self.road_cleared = False
-
+        self.add_sub_plot(nart, "DZRE_MECHA_GRAVEYARD", ident="MISSION", spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+        print(myedge.start_node.destination)
         return True
-
-    def get_enemy_faction(self,nart):
-        myedge = self.elements["DZ_EDGE"]
-        return plotutility.RandomBanditCircle(nart.camp, enemies=(myedge.start_node.destination.faction,))
 
     def get_enemy_encounter(self, camp, dest_node):
         start_node = self.elements["DZ_EDGE"].get_link(dest_node)
@@ -178,31 +180,12 @@ class HauntedHighway(Plot):
         else:
             myanchor = pbge.randmaps.anchors.east
         myadv = missionbuilder.BuildAMissionSeed(
-            camp, self.ENCOUNTER_NAME, (start_node.destination,start_node.entrance),
-            enemy_faction = self.elements["FACTION"], rank=self.rank,
-            objectives = self.ENCOUNTER_OBJECTIVES + (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
+            camp, "Zombot Attack", (start_node.destination,start_node.entrance),
+            enemy_faction = None, rank=self.rank,
+            objectives = (missionbuilder.BAMO_FIGHT_MONSTERS, dd_customobjectives.DDBAMO_ENCOUNTER_ZOMBOTS,),
             adv_type = "DZD_ROAD_MISSION",
-            custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
-            scenegen=DeadZoneHighwaySceneGen,
-            architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
-            cash_reward=0,
-        )
-        return myadv
-
-    RANDOM_ENEMIES = (gears.factions.AegisOverlord,gears.factions.ClanIronwind,gears.factions.BoneDevils,
-                      gears.factions.BladesOfCrihna,None)
-    def get_random_encounter(self, camp, dest_node):
-        start_node = self.elements["DZ_EDGE"].get_link(dest_node)
-        if start_node.pos[0] < dest_node.pos[0]:
-            myanchor = pbge.randmaps.anchors.west
-        else:
-            myanchor = pbge.randmaps.anchors.east
-        myadv = missionbuilder.BuildAMissionSeed(
-            camp, "Highway Encounter", (start_node.destination,start_node.entrance),
-            enemy_faction = random.choice(self.RANDOM_ENEMIES), rank=self.rank,
-            objectives = (missionbuilder.BAMO_DEFEAT_COMMANDER,dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
-            adv_type = "DZD_ROAD_MISSION",
-            custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
+            custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor,
+                             missionbuilder.BAME_MONSTER_TAGS: ("ZOMBOT",)},
             scenegen=DeadZoneHighwaySceneGen,
             architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
             cash_reward=0,
@@ -220,6 +203,14 @@ class HauntedHighway(Plot):
     def MISSION_WIN(self,camp):
         self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE
         self.road_cleared = True
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        myscene = camp.scene.get_root_scene()
+        if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:
+            # This city is on this road.
+            mygram["[News]"] = ["the road to {} is known as the mecha graveyard".format(self.elements["DZ_EDGE"].get_city_link(myscene)), ]
+        return mygram
 
 
 

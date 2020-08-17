@@ -1,0 +1,213 @@
+Monster
+    name = "Mini Zombot"
+    statline = {Reflexes = 13, Body=13, Speed=9, Perception=5, Craft=12, Knowledge=3, Ego=12, Charm = 3,
+			MechaGunnery = 2, MechaFighting = 5, Dodge = 1
+	}
+	scale = MechaScale
+	material = Metal
+	imagename = 'mav_petrach.png'
+	frame = 0
+	colors = (BattleshipGrey,GhostGrey,Black,DimGrey,WarmGrey)
+    threat = 10
+    type_tags = ("ZOMBOT", )
+    families = ("ZOMBOT",)
+    environment_list = (GroundEnv,UrbanEnv)
+
+    SUB
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                MeleeWeapon
+                    name="Bite"
+                    reach=1
+                    damage=1
+                    accuracy=2
+                    penetration=3
+
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+    END
+
+
+Monster
+    name = "BB Zombot"
+    statline = {Reflexes = 12, Body=15, Speed=6, Perception=5, Craft=12, Knowledge=3, Ego=12, Charm = 3,
+			MechaGunnery = 4, MechaFighting = 7, Dodge = 1
+	}
+	scale = MechaScale
+	material = Metal
+	imagename = 'mav_buruburu_x9.png'
+	frame = 0
+	colors = (BattleshipGrey,GhostGrey,Black,DimGrey,WarmGrey)
+    threat = 20
+    type_tags = ("ZOMBOT", )
+    families = ("ZOMBOT",)
+    environment_list = (GroundEnv,UrbanEnv)
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                BeamWeapon
+                    name = "Intercept Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Mount
+                    name = "Collar Mount"
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        STC Shaka Cannon
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                    INV
+                        MeleeWeapon
+                            name="Axe"
+                            reach=1
+                            damage=3
+                            accuracy=1
+                            penetration=2
+                    END
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+    END
+
+Monster
+    name = "Zomtank"
+    statline = {Reflexes = 12, Body=17, Speed=8, Perception=5, Craft=12, Knowledge=3, Ego=12, Charm = 3,
+			MechaGunnery = 7, MechaFighting = 7, Dodge = 1, Vitality = 5
+	}
+	scale = MechaScale
+	material = Metal
+	imagename = 'mav_ultari.png'
+	frame = 0
+	colors = (BattleshipGrey,GhostGrey,Black,DimGrey,WarmGrey)
+    threat = 30
+    type_tags = ("ZOMBOT", )
+    families = ("ZOMBOT",)
+    environment_list = (GroundEnv,UrbanEnv)
+
+    SUB
+        Turret
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                BallisticWeapon
+                    name = "Primary Cannon"
+                    reach = 6
+                    damage = 4
+                    accuracy = 2
+                    penetration = 2
+                    ammo_type = Shells_120mm
+                    attributes = (Accurate)
+                    magazine = 30
+                    integral = True
+                    shot_anim = HugeBullet
+                    SUB
+                        Ammo
+                            ammo_type=Shells_120mm
+                            quantity=30
+                    END
+
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 8
+                MeleeWeapon
+                    name="Spiked Bumper"
+                    reach=1
+                    damage=3
+                    accuracy=2
+                    penetration=3
+                    attributes=(ChargeAttack,)
+
+            END
+        Storage
+            name = "Right Track"
+            size = 3
+            info_tier = 2
+            SUB
+                Armor
+                    size = 5
+                Tracks
+                    size = 6
+
+            END
+        Storage
+            name = "Left Track"
+            size = 3
+            info_tier = 2
+            SUB
+                Armor
+                    size = 5
+                Tracks
+                    size = 6
+
+            END
+    END

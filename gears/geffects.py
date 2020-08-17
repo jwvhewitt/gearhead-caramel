@@ -567,7 +567,7 @@ class MeleeAttackRoll(AttackRoll):
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         if originator:
             att_bonus = originator.get_skill_score(self.att_stat,self.att_skill)
-            max_attacks = 1 + (originator.get_stat(stats.Speed) + originator.get_stat(self.att_skill) * 2)//10
+            max_attacks = 1 + max((originator.get_stat(stats.Speed) + originator.get_stat(self.att_skill) * 3)//10 - 2, 0)
         else:
             att_bonus = random.randint(1,100)
             max_attacks = 3
@@ -597,7 +597,7 @@ class MeleeAttackRoll(AttackRoll):
                 if originator and hasattr(originator, "dole_experience"):
                     originator.dole_experience(3, self.att_skill)
 
-                num_hits = min(max((att_roll + att_bonus - hi_def_roll - 5) // 20, 0) + 1,max_attacks)
+                num_hits = min(max((att_roll + att_bonus - hi_def_roll - 5) // 20, 0) + 1, max_attacks)
 
                 fx_record['number_of_hits'] = num_hits
                 if num_hits > 1:

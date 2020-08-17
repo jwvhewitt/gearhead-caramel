@@ -1,7 +1,7 @@
 Monster
     name = "Tyrannosaur"
     statline = {Reflexes = 12, Body=9, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
-			CloseCombat = 8, Dodge = 1, Athletics = 2
+			MechaFighting = 8, Dodge = 1, Athletics = 2
 	}
 	scale = MechaScale
 	imagename = 'mon_dinosaurs.png'
@@ -80,7 +80,7 @@ Monster
 Monster
     name = "Megosaur"
     statline = {Reflexes = 15, Body=16, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
-			CloseCombat = 10, Dodge = 4, Vitality=4, Athletics = 5
+			MechaFighting = 10, Dodge = 4, Vitality=4, Athletics = 5
 	}
 	scale = MechaScale
 	imagename = 'mon_dinosaurs.png'

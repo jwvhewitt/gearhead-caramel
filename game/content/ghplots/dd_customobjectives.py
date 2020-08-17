@@ -15,6 +15,7 @@ from gears import champions
 
 DDBAMO_DUEL_LANCEMATE = "DDBAMO_DuelLancemate"      # Custom Element: LMNPC
 DDBAMO_CHAMPION_1V1 = "DDBAMO_Champion1v1"
+DDBAMO_ENCOUNTER_ZOMBOTS = "DDBAMO_EncounterZombots"
 DDBAMO_INVESTIGATE_METEOR = "DDBAMO_InvestigateMeteor"
 DDBAMO_INVESTIGATE_REFUGEE_CAMP = "DDBAMO_INVESTIGATE_REFUGEE_CAMP"
 DDBAMO_MAYBE_AVOID_FIGHT = "DDBAMO_MaybeAvoidFight"
@@ -121,6 +122,21 @@ class DDBAMO_ChampionDuel(Plot):
         myteam = self.elements["_eteam"]
         if len(myteam.get_active_members(camp)) < 1:
             self.obj.win(camp,100)
+
+
+class DDBAMO_EncounterZombots( Plot ):
+    LABEL = DDBAMO_ENCOUNTER_ZOMBOTS
+    active = True
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        self.intro_ready = True
+        return True
+
+    def LOCALE_ENTER(self,camp: gears.GearHeadCampaign):
+        if self.intro_ready and not camp.campdata.get(DDBAMO_ENCOUNTER_ZOMBOTS, False):
+            self.intro_ready = False
+            camp.campdata[DDBAMO_ENCOUNTER_ZOMBOTS] = True
+            pbge.alert("The road ahead is blocked by hostile mecha. Ominously, your sensors cannot detect any energy readings from them, though they are clearly moving.")
 
 
 class DDBAMO_HelpFromTheStars( Plot ):
