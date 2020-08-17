@@ -107,9 +107,12 @@ class Room( object ):
                             myrect.x = random.choice(( self.area.x, self.area.x + self.area.width - r.width ))
                         else:
                             myrect.y = random.choice(( self.area.y, self.area.y + self.area.height - r.height ))
-                    if myrect.collidelist( closed_area ) == -1:
+                    if myrect.inflate(6,6).collidelist( closed_area ) == -1:
                         r.area = myrect
                         closed_area.append( myrect )
+                    elif count > 200 and myrect.collidelist( closed_area ) == -1:
+                        r.area = myrect
+                        closed_area.append(myrect)
                     count += 1
                 if not r.area:
                     raise RoomError( "ROOM ERROR: {}:{} cannot place {}".format(str(self),str( self.__class__ ),str(r)) )
@@ -133,6 +136,20 @@ class Room( object ):
 
                 # r becomes the new prev
                 prev = r
+
+    def dont_touch_edge(self, gb):
+        if self.area.x == 0:
+            self.area.x += 1
+            self.area.width -= 1
+        elif self.area.x+self.area.width >= gb.width:
+            self.area.x -= 1
+            self.area.width -= 1
+        if self.area.y == 0:
+            self.area.y += 1
+            self.area.height -= 1
+        elif self.area.y+self.area.height >= gb.height:
+            self.area.y -= 1
+            self.area.height -= 1
 
     def build( self, gb, archi ):
         # Step Five: Actually draw the room, taking into account terrain already on map.
@@ -277,6 +294,8 @@ class FuzzyRoom( Room ):
 class OpenRoom( Room ):
     """A room with floor and no walls."""
     def build( self, gb, archi ):
+        # Verify the area.
+        self.dont_touch_edge(gb)
         archi = self.archi or archi
         gb.fill(self.area,floor=archi.floor_terrain,wall=None)
     def get_west_north_wall_points(self,gb):
@@ -319,7 +338,7 @@ class MostlyOpenRoom( OpenRoom ):
         return mylist
 
 
-class ClosedRoom( Room ):
+class OldClosedRoom( Room ):
     """A room with hard walls."""
     def deal_with_empties( self, gb, empties, archi ):
         """Fill this line with a wall, leaving at least one door or opening."""
@@ -386,4 +405,100 @@ class ClosedRoom( Room ):
                 if not gb._map[x][y].blocks_walking():
                     good_spots.append( (x,y) )
         return good_spots
+
+class ClosedRoom( Room ):
+    """A room with hard walls."""
+    def deal_with_empties( self, gb, empties, archi ):
+        """Fill this line with a wall, leaving at least one door or opening."""
+        p2 = random.choice( empties )
+        empties.remove( p2 )
+        archi.place_a_door(gb,p2[0],p2[1])
+        if len( empties ) > random.randint(1,6):
+            p2 = random.choice( empties )
+            if self.no_door_nearby(gb,p2):
+
+                empties.remove( p2 )
+                archi.place_a_door(gb, p2[0], p2[1])
+        for pp in empties:
+            gb.set_wall(pp[0], pp[1], archi.wall_terrain)
+        del empties[:]
+    def no_door_nearby(self,gb,p):
+        door_found = False
+        x,y = p
+        for vec in gb.DELTA8:
+            dx,dy = vec
+            wall = gb.get_wall(x+dx,y+dy)
+            if wall and wall is not True and issubclass(wall,terrain.DoorTerrain):
+                door_found = True
+                break
+        return not door_found
+    def probably_an_entrance( self, gb, p, vec ):
+        return not self.probably_blocks_movement(gb,*p) and not self.probably_blocks_movement(gb,p[0]+vec[0],p[1]+vec[1])
+    def draw_wall( self, gb, points, vec, archi ):
+        empties = list()
+        for p in points:
+            if not gb.on_the_map(p[0]+vec[0],p[1]+vec[1]):
+                gb.set_wall(p[0], p[1], archi.wall_terrain)
+            elif self.probably_an_entrance(gb,p,vec):
+                empties.append( p )
+            else:
+                gb.set_wall(p[0], p[1], archi.wall_terrain)
+                if empties:
+                    self.deal_with_empties(gb, empties, archi )
+        if empties:
+            self.deal_with_empties(gb, empties, archi )
+
+    def build( self, gb, archi ):
+        if not self.area:
+            raise RoomError( "ROOM ERROR: No area found for {} in {}".format(self,gb) )
+        archi = self.archi or archi
+        self.dont_touch_edge(gb)
+
+        # Fill the floor with BASIC_FLOOR, and clear room interior
+        self.fill( gb, self.area, floor=archi.floor_terrain )
+        self.fill( gb, self.area, wall=None )
+        # Set the four corners to basic walls
+        gb.set_wall(self.area.x-1,self.area.y-1, archi.wall_terrain)
+        gb.set_wall(self.area.x+self.area.width,self.area.y-1, archi.wall_terrain)
+        gb.set_wall(self.area.x-1,self.area.y+self.area.height, archi.wall_terrain)
+        gb.set_wall(self.area.x+self.area.width, self.area.y+self.area.height, archi.wall_terrain)
+
+        # Draw each wall. Harder than it sounds.
+        if gb.on_the_map(self.area.x-1,self.area.y):
+            self.draw_wall( gb, animobs.get_line( self.area.x-1,self.area.y,self.area.x-1,self.area.y+self.area.height-1 ), (-1,0), archi )
+        else:
+            self.draw_wall( gb, animobs.get_line( self.area.x,self.area.y,self.area.x,self.area.y+self.area.height-1 ), (-1,0), archi )
+        if gb.on_the_map(self.area.x+self.area.width, self.area.y):
+            self.draw_wall( gb, animobs.get_line( self.area.x+self.area.width,self.area.y,self.area.x+self.area.width,self.area.y+self.area.height-1 ), (1,0), archi )
+        else:
+            self.draw_wall(gb,
+                           animobs.get_line(self.area.x + self.area.width-1, self.area.y, self.area.x + self.area.width-1,
+                                            self.area.y + self.area.height - 1), (1, 0), archi)
+        if gb.on_the_map(self.area.x,self.area.y-1):
+            self.draw_wall( gb, animobs.get_line( self.area.x,self.area.y-1,self.area.x+self.area.width-1,self.area.y-1 ), (0,-1), archi )
+        else:
+            self.draw_wall( gb, animobs.get_line( self.area.x,self.area.y,self.area.x+self.area.width-1,self.area.y ), (0,-1), archi )
+        if gb.on_the_map(self.area.x,self.area.y+self.area.height):
+            self.draw_wall( gb, animobs.get_line( self.area.x,self.area.y+self.area.height,self.area.x+self.area.width-1,self.area.y+self.area.height ), (0,1), archi )
+        else:
+            self.draw_wall( gb, animobs.get_line( self.area.x,self.area.y+self.area.height-1,self.area.x+self.area.width-1,self.area.y+self.area.height-1 ), (0,1), archi )
+
+
+    def list_good_deploy_spots( self, gb ):
+        good_spots = list()
+        for x in range( self.area.x+2, self.area.x + self.area.width-2, 2 ):
+            for y in range( self.area.y+2, self.area.y + self.area.height-2, 2 ):
+                if not gb._map[x][y].blocks_walking():
+                    good_spots.append( (x,y) )
+        return good_spots
+
+    def get_west_north_wall_points(self,gb):
+        # The western and northern walls are the two that should be visible to the player, and so this is where
+        # wall mounted decor and waypoints will go.
+        mylist = [(x,self.area.y-1) for x in range( self.area.x, self.area.x + self.area.width - 1 )]
+        mylist += [(self.area.x-1,y) for y in range( self.area.y, self.area.y + self.area.height - 1 )]
+        for m in [m for m in gb.contents if hasattr(m,"pos")]:
+            if m.pos in mylist:
+                mylist.remove(m.pos)
+        return mylist
 
