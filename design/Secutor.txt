@@ -73,7 +73,7 @@ Mecha
                         MeleeWeapon
                             name="Mecha Wrecker"
                             reach=1
-                            damage=4
+                            damage=3
                             accuracy=2
                             penetration=3
                             attributes = (Flail,Brutal)

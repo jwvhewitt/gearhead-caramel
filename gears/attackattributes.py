@@ -215,9 +215,9 @@ class FastAttack(Singleton):
 
 class Flail(Singleton):
     name = "Flail"
-    MASS_MODIFIER = 1.0
-    VOLUME_MODIFIER = 1.0
-    COST_MODIFIER = 2.5
+    MASS_MODIFIER = 2.0
+    VOLUME_MODIFIER = 2.0
+    COST_MODIFIER = 5.0
     POWER_MODIFIER = 1.0
     NO_PARRY = True
 

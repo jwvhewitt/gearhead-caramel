@@ -5,7 +5,7 @@
 - Dropped items may be picked up by clicking on tile where PC is standing
 - Lancemates may now trade personal inventory items
 - Monsters use a different target selection routine
-- Got rid of annoying short hallways from PackedBu   ilding map generator
+- Got rid of annoying short hallways from PackedBuilding map generator
 - Melee weapons can have the Multi Wielded attribute, which lets you attack with multiple instances of that weapon.
 - Personal scale combat gives more direct XP than mecha scale combat
 - Added dungeon generator

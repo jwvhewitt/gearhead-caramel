@@ -1,0 +1,104 @@
+Monster
+    name = "Workbot"
+    statline = {Reflexes = 9, Body=13, Speed=7, Perception=8, Craft=11, Knowledge=1, Ego=1, Charm = 1,
+			CloseCombat = 1,
+	}
+	scale = HumanScale
+	material = Metal
+	imagename = 'mon_robots.png'
+	frame = 1
+	colors = (SteelBlue,Aquamarine,Orange,GullGrey,AeroBlue)
+    threat = 15
+    type_tags = ("ROBOT", "FACTORY", "CITY",)
+    families = ("ROBOT","FACTORY")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Torso
+            size = 3
+            SUB
+                Armor
+                    size = 2
+				MeleeWeapon
+					name="Buzzsaw"
+					reach=1
+					damage=3
+					accuracy=1
+					penetration=1
+					integral = True
+                    attributes = (Brutal)
+            END
+        Leg
+            size = 1
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 1
+            SUB
+                Armor
+                    size = 2
+            END
+    END
+
+Monster
+    name = "Guardbot"
+    statline = {Reflexes = 10, Body=15, Speed=10, Perception=15, Craft=5, Knowledge=1, Ego=1, Charm = 1,
+			CloseCombat = 2, RangedCombat = 2, Dodge = 7, Vitality = 5
+	}
+	scale = HumanScale
+	material = Metal
+	imagename = 'mon_robots.png'
+	frame = 0
+	colors = (WarmGrey,AeroBlue,Orange,DimGrey,White)
+    threat = 50
+    type_tags = ("ROBOT", "FACTORY", "GUARD",)
+    families = ("ROBOT","GUARD")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 3
+				MeleeWeapon
+					name="Shock Baton"
+					reach=2
+					damage=2
+					accuracy=2
+					penetration=2
+					integral = True
+                Mount
+                    INV
+                         BallisticWeapon
+                            name = "Assault Rifle"
+                            desc = "A fully automatic chemically powered rifle."
+                            reach = 6
+                            damage = 3
+                            accuracy = 1
+                            penetration = 2
+                            ammo_type = Rifle_5mm
+                            attributes = (Automatic,BurstFire3)
+                            magazine = 60
+                            SUB
+                                Ammo
+                                    ammo_type=Rifle_5mm
+                                    quantity=60
+                            END
+                    END
+            END
+        Leg
+            size = 4
+            SUB
+                Armor
+                    size = 3
+            END
+        Leg
+            size = 4
+            SUB
+                Armor
+                    size = 3
+            END
+    END

@@ -3816,14 +3816,11 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
     def reduce_damage(self, dmg, dmg_request):
         """Normally armor reduces damage, but gets damaged in the process."""
-        max_absorb = min(self.scale.scale_health(2, self.material), dmg)
-        if dmg_request.is_brutal:
-            absorb_amount = random.randint(max_absorb // 2, max_absorb)
-        else:
-            absorb_amount = random.randint(max_absorb // 5, max_absorb)
+        max_absorb = min(self.scale.scale_health(1, self.material), dmg)
+        absorb_amount = random.randint(max_absorb // 2, max_absorb)
         if absorb_amount > 0:
-            self.spend_stamina(max(absorb_amount // 2, 1))
             dmg -= absorb_amount
+            self.spend_stamina(1)
         return dmg
 
     def restore(self):

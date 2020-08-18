@@ -942,7 +942,7 @@ class DZD_AlliedArmor(Plot):
 
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["OTHERSCENE"], "Wujung Undercity", gharchitecture.StoneBuilding(), 10,
-            monster_tags = ("ANIMAL", "CITY", "VERMIN"),
+            monster_tags = ("ANIMAL", "CITY", "VERMIN",),
             scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_RUINS, gears.tags.SCENE_SEMIPUBLIC)
         )
         self.elements["DUNGEON"] = mydungeon.entry_level
