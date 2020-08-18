@@ -1,3 +1,113 @@
+# Human Scale Zombots
+
+Monster
+    name = "Cyber Arm"
+    statline = {Reflexes = 13, Body=6, Speed=13, Perception=5, Craft=6, Knowledge=3, Ego=12, Charm = 5,
+			CloseCombat = 8, RangedCombat = 3, Dodge = 4
+	}
+	scale = HumanScale
+	material = Metal
+	imagename = 'mon_zombots.png'
+	frame = 0
+	colors = (Alabaster,GhostGrey,FreedomBlue,DimGrey,GunRed)
+    threat = 20
+    type_tags = ("ZOMBOT", "CREEPY", "RUINS" )
+    families = ("ZOMBOT", "CREEPY")
+    environment_list = (GroundEnv,UrbanEnv)
+
+    SUB
+        Arm
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                MeleeWeapon
+                    name="Grab"
+                    reach=1
+                    damage=1
+                    accuracy=4
+                    penetration=3
+
+            END
+    END
+
+Monster
+    name = "Skeletron"
+    statline = {Reflexes = 11, Body=16, Speed=11, Perception=13, Craft=6, Knowledge=5, Ego=15, Charm = 9,
+			CloseCombat = 5, RangedCombat = 3, Dodge = 1, Vitality = 5
+	}
+	scale = HumanScale
+	material = Metal
+	imagename = 'mon_zombots.png'
+	frame = 1
+	colors = (Cream,GhostGrey,BrightRed,Malachite,Cyan)
+    threat = 35
+    type_tags = ("ZOMBOT", "CREEPY" )
+    families = ("ZOMBOT", "CREEPY")
+    environment_list = (GroundEnv,UrbanEnv)
+	SUB
+        Head
+            size = 3
+            SUB
+				MeleeWeapon
+					name="Bite"
+					reach=1
+					damage=2
+					accuracy=1
+					penetration=3
+					integral = True
+				Armor
+				    size=2
+            END
+        Torso
+            size = 3
+            SUB
+                Armor
+				    size=4
+            END
+        Arm
+            size = 3
+            SUB
+                Armor
+				    size=3
+				MeleeWeapon
+					name="Claw"
+					reach=1
+					damage=2
+					accuracy=4
+					penetration=2
+					integral = True
+            END
+        Arm
+            size = 3
+            SUB
+                Armor
+				    size=3
+				MeleeWeapon
+					name="Claw"
+					reach=1
+					damage=2
+					accuracy=4
+					penetration=2
+					integral = True
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+				    size=4
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+				    size=4
+            END
+    END
+
+
+# Mecha Scale Zombots
+
 Monster
     name = "Mini Zombot"
     statline = {Reflexes = 13, Body=13, Speed=9, Perception=5, Craft=12, Knowledge=3, Ego=12, Charm = 3,

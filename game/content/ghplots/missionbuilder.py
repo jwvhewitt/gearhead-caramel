@@ -86,6 +86,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  adv_type="BAM_MISSION", custom_elements=None, auto_exit=False, solo_mission=False,
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone(),
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
+                 combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg",
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None, **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
         cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
@@ -107,6 +108,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             cms_pstate.elements["WIN_MESSAGE"] = win_message
         if loss_message:
             cms_pstate.elements["LOSS_MESSAGE"] = loss_message
+        cms_pstate.elements["COMBAT_MUSIC"] = combat_music
+        cms_pstate.elements["EXPLO_MUSIC"] = exploration_music
         self.solo_mission = solo_mission
         if not mission_grammar:
             mission_grammar = MissionGrammar()
@@ -179,7 +182,7 @@ class BuildAMissionPlot(Plot):
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(
             50, 50, "Combat Zone", player_team=team1, scale=gears.scale.MechaScale,
-            combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg"
+            combat_music=self.elements["COMBAT_MUSIC"], exploration_music=self.elements["EXPLO_MUSIC"]
         )
         if self.adv.solo_mission:
             myscene.attributes.add(gears.tags.SCENE_SOLO)

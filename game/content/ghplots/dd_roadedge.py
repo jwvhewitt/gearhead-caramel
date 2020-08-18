@@ -170,7 +170,6 @@ class TheMechaGraveyard(DZDREBasicPlotWithEncounterStuff):
         super().custom_init(nart)
         myedge = self.elements["DZ_EDGE"]
         self.add_sub_plot(nart, "DZRE_MECHA_GRAVEYARD", ident="MISSION", spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
-        print(myedge.start_node.destination)
         return True
 
     def get_enemy_encounter(self, camp, dest_node):
@@ -189,6 +188,7 @@ class TheMechaGraveyard(DZDREBasicPlotWithEncounterStuff):
             scenegen=DeadZoneHighwaySceneGen,
             architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
             cash_reward=0,
+            combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Komiku_-_01_-_Ancient_Heavy_Tech_Donjon.ogg"
         )
         return myadv
 

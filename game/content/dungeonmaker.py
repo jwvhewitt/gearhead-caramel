@@ -10,6 +10,8 @@ DG_SCENE_TAGS = "DG_SCENE_TAGS"
 DG_MONSTER_TAGS = "DG_MONSTER_TAGS"
 DG_TEMPORARY = "DG_TEMPORARY"
 DG_PARENT_SCENE = "DG_PARENT_SCENE"
+DG_EXPLO_MUSIC = "DG_EXPLO_MUSIC"
+DG_COMBAT_MUSIC = "DG_COMBAT_MUSIC"
 
 
 def dungeon_cleaner(scene):
@@ -44,6 +46,7 @@ class DungeonMaker(object):
                  scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_SEMIPUBLIC), monster_tags=(),
                  temporary=False,
                  connector=plotutility.StairsDownToStairsUpConnector,
+                 explo_music="Good Night.ogg", combat_music="Apex.ogg",
                  goal_room=None, goal_item=None):
         self.name = name
         self.architecture = architecture
@@ -65,7 +68,8 @@ class DungeonMaker(object):
                 parent = parent_scene
             sp = parent_plot.add_sub_plot(nart, proto.gen, spstate=PlotState(rank=rank + proto.depth * 3, elements={
                 DG_NAME: proto.get_name(name), DG_ARCHITECTURE: architecture, DG_TEMPORARY: temporary,
-                DG_SCENE_TAGS: scene_tags, DG_MONSTER_TAGS: monster_tags, DG_PARENT_SCENE: parent
+                DG_SCENE_TAGS: scene_tags, DG_MONSTER_TAGS: monster_tags, DG_PARENT_SCENE: parent,
+                DG_EXPLO_MUSIC: explo_music, DG_COMBAT_MUSIC: combat_music
             }))
             proto.real_scene = sp.elements["LOCALE"]
             if proto.terminal:
@@ -76,11 +80,13 @@ class DungeonMaker(object):
                 self.entry_level = proto.real_scene
 
         self.goal_level = self.goal_proto_level.real_scene
+        if goal_room:
+            self.goal_level.contents.append(goal_room)
 
     def add_a_level(self, parent, depth, branch):
         mylevel = ProtoDLevel(parent, depth, branch)
         self.proto_levels.append(mylevel)
-        if random.randint(2, 6) > min(depth, 5):
+        if random.randint(3, 8) > min(depth, 7):
             # Add another level.
             if random.randint(1, 5) == 1 and self.hi_branch < 5:
                 # Branch this dungeon.

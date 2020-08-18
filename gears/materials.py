@@ -14,8 +14,8 @@ class Material( Singleton ):
     # worse ways to handle game rule constants.
     desig = "?"
     name = "Base Material"
-    mass_scale = 0
-    damage_scale = 0
+    mass_scale = 1.0
+    damage_scale = 1.0
     cost_scale = 0
     repair_type = RT_REPAIR
     repair_cost = 1
@@ -23,32 +23,32 @@ class Material( Singleton ):
 class Metal( Material ):
     desig = "M"
     name = "Metal"
-    mass_scale = 10
-    damage_scale = 5
+    mass_scale = 1.0
+    damage_scale = 1.0
     cost_scale = 10
     repair_type = RT_REPAIR
 
 class Advanced( Material ):
     desig = "A"
     name = "Advanced"
-    mass_scale = 8
-    damage_scale = 5
+    mass_scale = 0.8
+    damage_scale = 1.0
     cost_scale = 20
     repair_type = RT_REPAIR
 
 class Ceramic( Material ):
     desig = "C"
     name = "Ceramic"
-    mass_scale = 9
-    damage_scale = 4
+    mass_scale = 0.8
+    damage_scale = 0.8
     cost_scale = 15
     repair_type = RT_REPAIR
 
 class Meat( Material ):
     desig = "meat"
     name = "Meat"
-    mass_scale = 16
-    damage_scale = 4
+    mass_scale = 1.6
+    damage_scale = 0.7
     cost_scale = 7
     repair_type = RT_MEDICINE
     repair_cost = 2
@@ -56,11 +56,16 @@ class Meat( Material ):
 class Biotech( Material ):
     desig = "B"
     name = "Biotech"
-    mass_scale = 9
-    damage_scale = 6
+    mass_scale = 0.9
+    damage_scale = 1.5
     cost_scale = 120
     repair_type = RT_BIOTECHNOLOGY
     repair_cost = 2
 
+class DamageMat(Material):
+    # Only used for rolling damage. Do not use this for a gear. I'll only warn you once.
+    #  I never give a warning twice
+    # Anything could happen like the rollin' of the dice - now!
+    damage_scale = 0.5
 
 MECHA_MATERIALS = (Metal,Advanced,Ceramic,Biotech)

@@ -6,10 +6,10 @@ from game.content import GHNarrativeRequest,PLOT_LIST
 
 
 class SceneConnection(object):
-    DEFAULT_ROOM_1 = pbge.randmaps.rooms.FuzzyRoom
+    DEFAULT_ROOM_1 = pbge.randmaps.rooms.OpenRoom
     DEFAULT_ROOM_1_W = 3
     DEFAULT_ROOM_1_H = 3
-    DEFAULT_ROOM_2 = pbge.randmaps.rooms.FuzzyRoom
+    DEFAULT_ROOM_2 = pbge.randmaps.rooms.OpenRoom
     DEFAULT_ROOM_2_W = 5
     DEFAULT_ROOM_2_H = 5
     DEFAULT_DOOR_1 = ghwaypoints.Exit

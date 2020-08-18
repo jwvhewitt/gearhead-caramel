@@ -249,6 +249,11 @@ class DZDConcreteBuilding(pbge.scenes.terrain.Terrain):
     frame = 1
     blocks = (Walking,Skimming,Rolling,Flying)
 
+class DZDDefiledFactoryTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_dzd_mechaprops.png'
+    frame = 2
+    blocks = (Walking,Skimming,Rolling,Flying)
+
 class MetalDoorClosed(pbge.scenes.terrain.DoorTerrain):
     image_top = 'terrain_door_metal.png'
     frame = 0
@@ -656,3 +661,8 @@ class UndergroundEntranceTerrain(pbge.scenes.terrain.Terrain):
     frame = 0
     blocks = (Walking, Skimming, Rolling)
     movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class OldMainframeTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_oldmainframe.png'
+    frame = 0
+    blocks = (Walking,Skimming,Rolling,Flying)

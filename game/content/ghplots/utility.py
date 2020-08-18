@@ -32,7 +32,7 @@ class BoringRandomNPC(Plot):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
-#  *****************************Town Hall
+#  *****************************
 #  ***   ADD_REMOTE_OFFICE   ***
 #  *****************************
 #

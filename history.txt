@@ -1,3 +1,6 @@
+v0.542 August 18 2020
+- Added Mecha Graveyard adventure
+- Adjusted mass, health, and damage scaling
 - Added crates and other item-storage waypoints
 - Mecha melee damage bonus also toned down
 - Melee attack multiple hits toned down

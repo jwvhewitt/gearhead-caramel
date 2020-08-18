@@ -306,9 +306,15 @@ class StairsDown(Exit):
 class Trapdoor(Exit):
     TILE = pbge.scenes.Tile(None, None, ghterrain.TrapdoorTerrain)
 
+class DZDDefiledFactory(Exit):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.DZDDefiledFactoryTerrain)
+
 class RecoveryBed(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.BedTerrain)
     recovery_entrance = True
 
 class UndergroundEntrance(Exit):
     TILE = pbge.scenes.Tile(None, None, ghterrain.UndergroundEntranceTerrain)
+
+class OldMainframe(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.OldMainframeTerrain)

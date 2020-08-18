@@ -943,11 +943,11 @@ class DoDamage( effects.NoEffect ):
             if self.scatter:
                 num_packets = sum( sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) + self.damage_bonus for t in range(number_of_hits))
                 num_packets = max(int(num_packets * damage_percent //100), 1)
-                hits = [scale.scale_health(1, materials.Metal )] * num_packets
+                hits = [scale.scale_health(1, materials.DamageMat )] * num_packets
             else:
                 hits = [max(int(scale.scale_health(
                   max(sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) + self.damage_bonus, 1),
-                  materials.Metal) * damage_percent // 100),1) for t in range(number_of_hits)]
+                  materials.DamageMat) * damage_percent // 100),1) for t in range(number_of_hits)]
             mydamage = damage.Damage( camp, hits,
                   penetration, target, anims, hot_knife=self.hot_knife, is_brutal=self.is_brutal )
             # Hidden targets struck by an attack get revealed.
@@ -987,7 +987,7 @@ class DoHealing( effects.NoEffect ):
             damaged_parts = [part for part in target.get_all_parts() if hasattr(part,"hp_damage") and part.hp_damage > 0 and part.material.repair_type == self.repair_type]
             hp_to_restore = max(scale.scale_health(
                   sum(random.randint(1,self.damage_d) for n in range(self.damage_n)),
-                  materials.Metal)//2,1)
+                  materials.DamageMat)//2,1)
             hp_restored = 0
             while damaged_parts and hp_restored < hp_to_restore:
                 part = random.choice(damaged_parts)

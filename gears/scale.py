@@ -17,7 +17,7 @@ class MechaScale( object ):
     def scale_mass( self, mass, material ):
         # Scale mass based on scale and material.
         # The universal mass unit is 100 grams.
-        return int( ( mass * pow( self.SIZE_FACTOR, 3 ) * material.mass_scale ) // 10 )
+        return int(mass * pow( self.SIZE_FACTOR, 3 ) * material.mass_scale )
     @classmethod
     def unscale_mass( self, mass ):
         # Convert a real mass to a value in scale units.
@@ -29,7 +29,7 @@ class MechaScale( object ):
     @classmethod
     def scale_health( self, hp , material ):
         # Scale mass based on scale and material.
-        return ( hp * ( self.SIZE_FACTOR ** 2 ) * material.damage_scale ) // 2
+        return int( hp * self.SIZE_FACTOR ** 2 * 2.5 * material.damage_scale + 0.5 )
     @classmethod
     def scale_power( self, power ):
         return power * self.SIZE_FACTOR ** 2
