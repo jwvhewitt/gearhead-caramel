@@ -24,7 +24,7 @@ Mecha
                 Armor
                     size = 4
                 Engine
-                    size = 600
+                    size = 630
                 Gyroscope
                 Launcher
                     size = 7
@@ -37,6 +37,11 @@ Mecha
                             penetration = 1
                             quantity = 12
                     END
+                PowerSource
+                    desig = 'TD-4BB'
+                    name = "Musketeer Batteries"
+                    size = 2
+                    integral = True
             END
         Arm
             name = "Right Arm"
