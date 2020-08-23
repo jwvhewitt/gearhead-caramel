@@ -1,3 +1,7 @@
+- Missions change your faction score for both enemy and allied factions
+- Only one LMDEV plot can be active at once
+- Added GET trigger when an item is picked up
+
 v0.542 August 18 2020
 - Added Mecha Graveyard adventure
 - Adjusted mass, health, and damage scaling

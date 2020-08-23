@@ -1,6 +1,5 @@
 from . import plotutility
 import random
-import pbge
 from pbge.plots import Plot, PlotState
 import gears
 
@@ -47,12 +46,13 @@ class DungeonMaker(object):
                  temporary=False,
                  connector=plotutility.StairsDownToStairsUpConnector,
                  explo_music="Good Night.ogg", combat_music="Apex.ogg",
-                 goal_room=None, goal_item=None):
+                 goal_room=None):
         self.name = name
         self.architecture = architecture
         self.rank = rank
         self.connector = connector
         self.proto_levels = list()
+        self.levels = list()
         self.hi_branch = 0
 
         self.add_a_level(None, 1, 0)
@@ -72,6 +72,7 @@ class DungeonMaker(object):
                 DG_EXPLO_MUSIC: explo_music, DG_COMBAT_MUSIC: combat_music
             }))
             proto.real_scene = sp.elements["LOCALE"]
+            self.levels.append(proto.real_scene)
             if proto.terminal:
                 sp.add_sub_plot(nart, "DUNGEON_GOAL")
             if parent and parent is not parent_scene:

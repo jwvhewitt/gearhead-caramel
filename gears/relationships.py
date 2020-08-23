@@ -29,6 +29,7 @@ E_MERCENARY = "Mercenary"       # NPC is in it for the money
 E_IMPROVER = "Improver"         # NPC trying to lead a better life
 E_PROFESSIONAL = "Professional" # NPC aims to be the best
 E_RIVAL = "Rival"               # NPC just wants to beat the PC
+E_POPULARITY = "Popularity"     # NPC wants to be popular
 E_GREATERGOOD = "Greater Good"  # NPC sees self as working for a greater good
 E_DESPAIR = "Despair"           # NPC has been consumed by despair
 E_SEEKER = "Seeker"             # NPC looking for a new way
@@ -58,8 +59,11 @@ MEM_LoseToPC = "MEM_LoseToPC"   # The NPC was defeated by the PC in this memory
 MEM_CallItADraw = "MEM_CallItADraw" # Neither the NPC nor the PC came out clearly on top
 MEM_Clash = "MEM_Clash"         # This memory is about the NPC and PC fighting
 MEM_AidedByPC = "MEM_AidedByPC" # NPC got help from the PC
+MEM_Romantic = "MEM_Romantic"
+MEM_Ideological = "MEM_Ideological"     # An ideological event
 
-MEMORY_TYPES = (MEM_DefeatPC,MEM_LoseToPC,MEM_CallItADraw,MEM_Clash,MEM_AidedByPC)
+
+MEMORY_TYPES = (MEM_DefeatPC,MEM_LoseToPC,MEM_CallItADraw,MEM_Clash,MEM_AidedByPC, MEM_Romantic, MEM_Ideological)
 
 class Memory(object):
     def __init__(self, npc_perspective, pc_perspective, reaction_mod=0, memtags=(), ):

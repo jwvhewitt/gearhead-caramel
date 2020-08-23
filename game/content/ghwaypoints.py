@@ -38,8 +38,12 @@ class Crate( Waypoint ):
     name = "Crate"
     TILE = pbge.scenes.Tile(None,None,ghterrain.OldCrateTerrain)
     desc = "You see a large plastic crate."
-    def __init__( self, **kwargs ):
+    DEFAULT_TREASURE_TYPE = (gears.tags.ST_TREASURE,)
+    def __init__( self, treasure_rank=0, treasure_amount=100, treasure_type=DEFAULT_TREASURE_TYPE, **kwargs ):
         self.contents = pbge.container.ContainerList()
+        if treasure_rank > 0:
+            mytreasure = gears.selector.get_random_loot(treasure_rank, treasure_amount, treasure_type)
+            self.contents += mytreasure
         super().__init__(**kwargs)
 
     def unlocked_use( self, camp: gears.GearHeadCampaign ):

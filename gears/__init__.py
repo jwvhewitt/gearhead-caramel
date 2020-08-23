@@ -1,5 +1,6 @@
 import pbge
 import random
+import copy
 
 from . import base
 from . import calibre
@@ -339,7 +340,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         super(GearHeadCampaign, self).__init__(name, explo_class)
         self.year = year
         self.num_lancemates = num_lancemates
-        self.faction_relations = faction_relations.copy()
+        self.faction_relations = copy.deepcopy(faction_relations)
         self.history = list()
         self.convoborder = convoborder
 

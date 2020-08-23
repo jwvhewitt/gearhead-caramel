@@ -35,15 +35,20 @@ class MechaGraveyardAdventure(Plot):
         myscenegen = pbge.randmaps.SceneGenerator(outside_scene, game.content.gharchitecture.MechaScaleDeadzone())
         self.register_scene(nart, outside_scene, myscenegen, ident="LOCALE", dident="METROSCENE")
 
-        mygoal = self.register_element("_goalroom",
-                                       pbge.randmaps.rooms.FuzzyRoom(random.randint(8, 15), random.randint(8, 15),
-                                                                     parent=outside_scene,
-                                                                     anchor=pbge.randmaps.anchors.middle))
-        self.add_sub_plot(nart, "MONSTER_ENCOUNTER", elements={"ROOM": mygoal, "TYPE_TAGS": ("ROBOT", "ZOMBOT")}, ident="OUTENCOUNTER")
+        mygoal = self.register_element(
+            "_goalroom",
+            pbge.randmaps.rooms.FuzzyRoom(random.randint(8, 15), random.randint(8, 15),
+                                          parent=outside_scene,
+                                          anchor=pbge.randmaps.anchors.middle)
+        )
+        self.add_sub_plot(nart, "MONSTER_ENCOUNTER", elements={"ROOM": mygoal, "TYPE_TAGS": ("ROBOT", "ZOMBOT")},
+                          ident="OUTENCOUNTER")
 
-        room1 = self.register_element("ENTRANCE_ROOM",
-                              pbge.randmaps.rooms.FuzzyRoom(5, 5, anchor=random.choice(pbge.randmaps.anchors.EDGES)),
-                              dident="LOCALE")
+        room1 = self.register_element(
+            "ENTRANCE_ROOM",
+            pbge.randmaps.rooms.FuzzyRoom(
+                5, 5, anchor=random.choice(pbge.randmaps.anchors.EDGES)), dident="LOCALE"
+        )
         myent = self.register_element(
             "ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle,
                                                       dest_scene=self.elements["METROSCENE"],
@@ -78,14 +83,17 @@ class MechaGraveyardAdventure(Plot):
 
         # Add the goal room
         final_room = self.register_element(
-            "FINAL_ROOM", pbge.randmaps.rooms.ClosedRoom(9, 9,),
+            "FINAL_ROOM", pbge.randmaps.rooms.ClosedRoom(9, 9, ),
         )
         mydungeon.goal_level.contents.append(final_room)
         self.add_sub_plot(
-            nart, "MONSTER_ENCOUNTER", spstate=PlotState(rank=self.rank+12).based_on(self),
+            nart, "MONSTER_ENCOUNTER", spstate=PlotState(rank=self.rank + 12).based_on(self),
             elements={"ROOM": final_room, "LOCALE": mydungeon.goal_level, "TYPE_TAGS": ("CREEPY", "ZOMBOT")}
         )
-        mycompy = self.register_element("COMPY", ghwaypoints.OldMainframe(plot_locked=True,name="Factory Control",anchor=pbge.randmaps.anchors.middle, desc="You stand before the factory control mainframe."), dident="FINAL_ROOM")
+        mycompy = self.register_element("COMPY", ghwaypoints.OldMainframe(plot_locked=True, name="Factory Control",
+                                                                          anchor=pbge.randmaps.anchors.middle,
+                                                                          desc="You stand before the factory control mainframe."),
+                                        dident="FINAL_ROOM")
         return True
 
     def LOCATE_WIN(self, camp):
@@ -101,7 +109,8 @@ class MechaGraveyardAdventure(Plot):
             thingmenu.add_item("Smash the system", self._smash)
 
     def _smash(self, camp: gears.GearHeadCampaign):
-        pbge.alert("You smash the computer until the lights stop blinking. If that doesn't take care of the zombie mecha problem, you're not sure what will.")
+        pbge.alert(
+            "You smash the computer until the lights stop blinking. If that doesn't take care of the zombie mecha problem, you're not sure what will.")
         self.zombots_active = False
         self.subplots["OUTENCOUNTER"].end_plot(camp)
         camp.check_trigger("WIN", self)

@@ -839,6 +839,32 @@ DEFAULT_GRAMMAR = {
             ],
     },
 
+    "[foaf]": {
+        # Need a nameless NPC to send a message via a lancemate or other intermediary? Here you go!
+        Default: ["an old friend", "my cousin", "a reliable source", "a person I know", "my contact"
+                  ],
+        tags.Military: ["an old pal from my unit", "my former seargent"
+                               ],
+        tags.Adventurer: ["my former lancemate", "a cavalier I know", "a lady I used to get missions from"
+                           ],
+        tags.Criminal: ["a fixer I used to work with", "an action merchant I know", "one who should not be named"
+                                ],
+        tags.Police: ["a cop I know", "one of my sources", "the police scanner"
+                                 ],
+        tags.Media: ["one of my contacts", "an important influencer"
+                               ],
+        tags.Politician: ["an official I know",
+                          ],
+        tags.Faithworker: ["the word of the heavens", "a monk"
+                            ],
+        personality.Sociable: [
+            "my ex", "some guy I met last week"
+        ],
+        tags.Academic: [
+            "a grad student I used to teach", "my research associate"
+        ]
+    },
+
     "[GOOD]": {
         Default: ["Good.","Great!"
                   ],
@@ -3170,6 +3196,27 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Yes.",
                           ],
+    },
+
+    "[YOU_ARE_THE_BOSS]": {
+        # Underclassman disagrees with Senpai's decision, but will go along with it.
+        Default: ["You're the boss."
+                  ],
+        personality.Cheerful: ["You're the boss, and what the boss wants the boss gets.",
+                               ],
+        personality.Grim: ["I submit, begrudgingly, to your leadership.",
+                           ],
+        personality.Easygoing: ["That's alright, you're the one in charge here.",
+                                ],
+        personality.Passionate: ["I will defer to your leadership.",
+                                 ],
+        personality.Sociable: ["I don't like your decision, but you're the boss.",
+                               ],
+        personality.Shy: ["Fine.",
+                          ],
+        personality.Duty: [
+            "I disagree with your decision, but will not fail in my duty."
+        ]
     },
 
     "[YOU_SEEM_CONNECTED]": {

@@ -276,7 +276,7 @@ class Explorer( object ):
     # The object which is exploration of a scene. OO just got existential.
     # Note that this does not get saved to disk, but instead gets created
     # anew when the game is loaded.
-    def __init__( self, camp ):
+    def __init__( self, camp: gears.GearHeadCampaign ):
         pbge.please_stand_by()
         self.camp = camp
         self.scene = camp.scene
@@ -403,6 +403,7 @@ class Explorer( object ):
             i = candidates.pop()
             pc.inv_com.append(i)
             pbge.alert("{} picks up {}.".format(pc,i))
+            self.camp.check_trigger("GET",i)
 
     def go( self ):
         self.no_quit = True

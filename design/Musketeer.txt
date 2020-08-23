@@ -27,7 +27,7 @@ Mecha
                     size = 630
                 Gyroscope
                 Launcher
-                    size = 7
+                    size = 6
                     SUB
                         Missile
                             name = "Guided Missiles"
@@ -40,7 +40,8 @@ Mecha
                 PowerSource
                     desig = 'TD-4BB'
                     name = "Musketeer Batteries"
-                    size = 2
+                    size = 3
+                    material = Ceramic
                     integral = True
             END
         Arm

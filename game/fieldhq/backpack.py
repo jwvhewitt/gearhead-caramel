@@ -318,6 +318,7 @@ class ItemExchangeWidget(widgets.Widget):
             self.conlist.remove(wid.item)
             self.pc.inv_com.append(wid.item)
             self.update_selectors()
+            self.camp.check_trigger("GET", wid.item)
 
     def done_button(self, wid, ev):
         self.finished = True

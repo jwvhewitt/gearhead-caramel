@@ -124,9 +124,10 @@ class DZD_Wujung(Plot):
             self.intro_ready = False
         elif not etlr.did_recovery:
             # We can maybe load a lancemate scene here. Yay!
-            nart = game.content.GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=game.content.PLOT_LIST)
-            if nart.story:
-                nart.build()
+            if not any(p for p in camp.all_plots() if hasattr(p, "LABEL") and p.LABEL == "DZD_LANCEDEV"):
+                nart = game.content.GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=game.content.PLOT_LIST)
+                if nart.story:
+                    nart.build()
 
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""
