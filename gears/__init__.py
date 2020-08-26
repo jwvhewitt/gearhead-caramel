@@ -91,6 +91,7 @@ SINGLETON_TYPES.update(jobs.ALL_JOBS)
 jobs.SINGLETON_TYPES = SINGLETON_TYPES
 
 from . import colorstyle
+from . import champions
 
 def harvest_styles(mod):
     for name in dir(mod):

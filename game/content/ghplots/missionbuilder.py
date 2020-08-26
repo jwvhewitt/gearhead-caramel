@@ -30,6 +30,8 @@ BAMO_LOCATE_ENEMY_FORCES = "BAMO_LocateEnemyForces"
 BAMO_NEUTRALIZE_ALL_DRONES = "BAMO_NeutralizeAllDrones"
 BAMO_PROTECT_BUILDINGS_FROM_DINOSAURS = "BAMO_ProtectBuildingsFromDinosaurs"
 BAMO_RECOVER_CARGO = "BAMO_RecoverCargo"
+BAMO_RESCUE_NPC = "BAMO_RescueNPC"
+BAME_RESCUENPC = "BAME_RESCUENPC"
 BAMO_RESPOND_TO_DISTRESS_CALL = "BAMO_RespondToDistressCall"
 BAMO_STORM_THE_CASTLE = "BAMO_StormTheCastle"  # 4 points
 BAMO_SURVIVE_THE_AMBUSH = "BAMO_SurviveTheAmbush"
@@ -1207,6 +1209,97 @@ class BAM_RecoverCargo(Plot):
             if not self.combat_finished:
                 pbge.alert("The missing cargo has been secured.")
                 self.combat_finished = True
+
+
+class BAM_RescueSomeone(Plot):
+    LABEL = BAMO_RESCUE_NPC
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        myroom = self.register_element("ROOM", roomtype(10, 10), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        team3 = self.register_element("_ateam", teams.Team(enemies=(team2,), allies=(myscene.player_team,)),
+                                      dident="ROOM")
+        myunit = gears.selector.RandomMechaUnit(self.rank, 200, self.elements.get("ENEMY_FACTION"), myscene.environment,
+                                                add_commander=False)
+        team2.contents += myunit.mecha_list
+
+        mynpc = self.elements.get(BAME_RESCUENPC)
+        if mynpc:
+            self.register_element("PILOT", mynpc, lock=True)
+            plotutility.CharacterMover(self, mynpc, myscene, team3)
+            mek = mynpc.get_root()
+            self.register_element("SURVIVOR", mek)
+            self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT",ident="NPC_TALK",elements={"NPC":mynpc,})
+        else:
+            mysurvivor = self.register_element("SURVIVOR", gears.selector.generate_ace(self.rank, self.elements.get(
+                "ALLIED_FACTION"), myscene.environment))
+            mynpc = mysurvivor.get_pilot()
+            self.register_element("PILOT", mynpc)
+            team3.contents.append(mysurvivor)
+            self.add_sub_plot(nart,"MT_NDDEV",ident="NPC_TALK",elements={"NPC":mynpc,})
+
+        self.obj = adventureseed.MissionObjective("Rescue {}".format(self.elements["PILOT"]),
+                                                  MAIN_OBJECTIVE_VALUE, can_reset=False)
+        self.adv.objectives.append(self.obj)
+        self.intro_ready = True
+        self.eteam_activated = False
+        self.eteam_defeated = False
+        self.pilot_fled = False
+
+        return True
+
+    def PILOT_offers(self,camp):
+        mylist = list()
+        mylist.append( Offer(self.subplots["NPC_TALK"].START_COMBAT_MESSAGE,
+                context=ContextTag([context.HELLO, ]),))
+        if not camp.fight:
+            mylist.append(
+                Offer("[THANK_YOU] I need to get back to base.",
+                      context=ContextTag([context.CUSTOM,]),data={"reply":"Get out of here, I can handle this."},
+                      effect=self.pilot_leaves_before_combat, dead_end=True)
+            )
+
+        return mylist
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            self.eteam_activated = True
+            if not self.pilot_fled:
+                npc = self.elements["PILOT"]
+                camp.check_trigger("START",npc)
+                camp.fight.active.append(self.elements["SURVIVOR"])
+            self.intro_ready = False
+
+    def pilot_leaves_before_combat(self, camp):
+        self.obj.win(camp, 105)
+        self.pilot_leaves_combat(camp)
+
+    def pilot_leaves_combat(self, camp: gears.GearHeadCampaign):
+        if not self.pilot_fled:
+            npc = self.elements["PILOT"]
+            if not npc.relationship:
+                npc.relationship = camp.get_relationship(npc)
+            npc.relationship.reaction_mod += 10
+        camp.scene.contents.remove(self.elements["SURVIVOR"])
+        self.pilot_fled = True
+
+    def t_ENDCOMBAT(self, camp):
+        if self.eteam_activated and not self.pilot_fled:
+            myteam = self.elements["_ateam"]
+            eteam = self.elements["_eteam"]
+            npc = self.elements["PILOT"]
+            if len(myteam.get_active_members(camp)) < 1:
+                self.obj.failed = True
+                camp.check_trigger("LOSE",npc)
+            elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+                self.eteam_defeated = True
+                self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
+                camp.check_trigger("WIN",npc)
+                self.pilot_leaves_combat(camp)
 
 
 class BAM_RespondToDistressCall(Plot):

@@ -526,7 +526,7 @@ class RLM_RatherGeneric(Plot):
 
     def custom_init(self, nart):
         npc = self.elements["NPC"]
-        npc.relationship = gears.relationships.Relationship(role=gears.relationships.R_ACQUAINTANCE )
+        npc.relationship = gears.relationships.Relationship()
         self._got_rumor = False
         return True
 

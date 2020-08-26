@@ -75,5 +75,20 @@
       {"name":"Left Sleeve","fname":"avatar_sleeves_fc1.png","anchor":"center","depth":2500,"frame":1,"frame_width":9,"frame_height":15,"x_offset": 8,"y_offset":6}
     ],
     "requires": ["BodFC"]
+  },
+  {
+    "name": "BodFC Wasteland Armor Sleeves",
+    "btype": "Sleeves",
+    "layers": [
+      {"name":"Right Sleeve","fname":"por_sleeves_warmor.png","anchor":"center","depth":5000,"frame_width":132,"frame_height":136,"x_offset":-100,"y_offset":-49},
+      {"name":"Left Sleeve","fname":"por_sleeves_warmor.png","anchor":"center","depth":1500,"frame":1,"frame_width":132,"frame_height":136,"x_offset":93,"y_offset":-48}
+    ],
+    "avatar_layers": [
+      {"name":"Right Sleeve","fname":"avatar_sleeves_warmor.png","anchor":"center","depth":2500,"frame_width":9,"frame_height":16,"x_offset": -10,"y_offset":6},
+      {"name":"Left Sleeve","fname":"avatar_sleeves_warmor.png","anchor":"center","depth":2500,"frame":1,"frame_width":9,"frame_height":16,"x_offset": 8,"y_offset":6}
+    ],
+    "requires": ["BodFC"],
+    "style": ["Combatant"]
   }
+
 ]

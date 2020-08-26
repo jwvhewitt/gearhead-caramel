@@ -6,11 +6,12 @@ RT_FAMILY = "Family"
 RT_SCHOOLMATE = "Schoolmate"
 RT_LANCEMATE = "Lancemate"
 
-# Attitude- the way the NPC looks at the PC.
+# Attitude- the NPC's mood and/or their attitude towards the PC
 # Note that this is a Proppian Ratchet- you can change attitude from one previous in the following order to one
 #  later in the following order, but do not move backwards.
 A_JUNIOR = "Junior"     # NPC is PC's junior/subordinate/student
 A_SENIOR = "Senior"     # NPC is PC's senior/superior/mentor
+A_DESPAIR = "Despair"   # NPC has a sad
 A_RESENT = "Resent"     # NPC resents the PC for one reason or another. Maybe just because PCs are annoying.
 A_FRIENDLY = "Friendly" # NPC is casually friendly with the PC
 A_THANKFUL = "Thankful" # NPC is thankful to the PC for something
@@ -29,9 +30,9 @@ E_MERCENARY = "Mercenary"       # NPC is in it for the money
 E_IMPROVER = "Improver"         # NPC trying to lead a better life
 E_PROFESSIONAL = "Professional" # NPC aims to be the best
 E_RIVAL = "Rival"               # NPC just wants to beat the PC
+E_MECHANIAC = "Mechaniac"       # NPC wants bigger and better mecha
 E_POPULARITY = "Popularity"     # NPC wants to be popular
 E_GREATERGOOD = "Greater Good"  # NPC sees self as working for a greater good
-E_DESPAIR = "Despair"           # NPC has been consumed by despair
 E_SEEKER = "Seeker"             # NPC looking for a new way
 E_AVENGER = "Avenger"           # NPC seeking retribution for some past wrong
 E_REVENGE = "Revenge"           # NPC seeks revenge against the PC
@@ -43,7 +44,6 @@ E_AMORFATI = "Amor Fati"        # NPC has accepted their own fate
 E_ILLUMINATED = "Illuminated"   # NPC has attained transcendence
 
 # Role- The NPC's relationship with the PC, explained briefly.
-R_ACQUAINTANCE = "Acquaintance" # NPC knows the PC somewhat.
 R_OPPONENT = "Opponent"         # NPC knows the PC somewhat, but from the enemy side.
 R_COLLEAGUE = "Colleague"       # NPC knows the PC, but just in a bizness sense
 R_ADVERSARY = "Adversary"       # Relationship defined by conflict
@@ -52,6 +52,7 @@ R_FRIEND = "Friend"             # NPC is on good social terms with the PC
 R_ROMANCE = "Romance"           # NPC has possibly returned romantic feelings for PC
 R_PARTNER = "Partner"           # NPC and PC have taken their romance to the next level, wotever that is
 R_NEMESIS = "Nemesis"           # Like "Adversary" but now it's personal
+R_COMPANION = "Companion"       # Bonded at the highest level
 
 # Memory Types
 MEM_DefeatPC = "MEM_DefeatPC"   # The NPC defeated the PC in this memory.
@@ -131,3 +132,8 @@ class Relationship(object):
             if mem.memtags >= tagset:
                 return mem
 
+    def get_positive_memory(self):
+        # Return the most recent positive memory that matches the provided tags.
+        for mem in reversed(self.history):
+            if mem.reaction_mod > 0:
+                return mem

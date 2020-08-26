@@ -31,6 +31,22 @@ class BoringRandomNPC(Plot):
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
+#  *****************************
+#  ***   ADD_COMBATANT_NPC   ***
+#  *****************************
+
+class FightingRandomNPC(Plot):
+    LABEL = "ADD_COMBATANT_NPC"
+
+    def custom_init(self, nart):
+        npc = gears.selector.random_character(combatant=True, local_tags=tuple(self.elements["METROSCENE"].attributes))
+        self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+        self.register_element("NPC", npc, dident="LOCALE")
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
 
 #  *****************************
 #  ***   ADD_REMOTE_OFFICE   ***
@@ -217,6 +233,37 @@ class EnsureOneTraitHaver( Plot ):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
+#  ************************
+#  ***   NPC_VACATION   ***
+#  ************************
+# Freeze the provided NPC for a number of days, then bring them back.
+# Call the "freeze_now" method to start the vacation.
+#  NPC: The NPC to be frozen
+#  DAYS: The number of days to be frozen. Defaults to 5.
+
+class NPCVacationToTheFreezer( Plot ):
+    LABEL = "NPC_VACATION"
+    active = False
+    scope = "LOCALE"
+    def custom_init( self, nart ):
+        npc = self.elements["NPC"]
+        self.elements["LOCALE"] = npc.scene
+        self.vacation_end = 0
+        self.frozen = False
+        return True
+
+    def freeze_now(self, camp: gears.GearHeadCampaign):
+        camp.freeze(self.elements["NPC"])
+        self.frozen = True
+        self.vacation_end = camp.day + self.elements.get("DAYS", 5)
+        self.activate(camp)
+
+    def t_START(self, camp: gears.GearHeadCampaign):
+        if self.frozen and camp.day >= self.vacation_end:
+            npc = self.elements["NPC"]
+            locale = self.elements["LOCALE"]
+            npc.place(locale)
+            self.end_plot(camp)
 
 #  ***************************************
 #  ***   PLACE_LOCAL_REPRESENTATIVES   ***

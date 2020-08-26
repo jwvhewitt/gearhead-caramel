@@ -1,0 +1,94 @@
+[
+  {
+    "name": "Masculine Body C",
+    "btype": "Base",
+    "layers": [
+      {"name":"Body","fname":"por_bodmc_body.png","anchor":"midbottom","depth":2000},
+      {"name":"Right Arm","fname":"por_bodmc_rarm.png","anchor":"center","x_offset":-115,"y_offset":97,"depth":4000},
+      {"name":"Left Arm","fname":"por_bodmc_larm.png","anchor":"center","x_offset":110,"y_offset":92,"depth":1000}
+    ],
+    "avatar_layers": [
+      {"name":"Body","fname":"avatar_body_mc.png","anchor":"midbottom","depth":2000}
+    ],
+    "children": [
+      "Clothing","Head"
+    ],
+    "anchors": {
+      "head": [8,-156],
+      "avatar_head": [-1,-5]
+    },
+    "requires": ["Masculine"],
+    "form_tags": ["BodMC"]
+  },
+  {
+    "name": "BodMC Undershirt",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_bodmc_clothing_undershirt.png","anchor":"center","depth":3000,"x_offset":1,"y_offset":20}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_bodmc_runningshirt.png","anchor":"center","depth":3000,"x_offset":-1,"y_offset":5}
+    ],
+    "requires": ["BodMC"],
+    "children": [
+      "Overclothes"
+    ]
+  },
+      {
+    "name": "BodMC Jeans",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_bodmc_pants_jeans.png","anchor":"midbottom","depth":2000,"x_offset":4,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_bodmc_jeans.png","anchor":"midbottom","depth":2000,"x_offset":-1,
+        "y_offset": -2
+      }
+    ],
+    "requires": ["BodMC"],
+    "children": ["Shoes"]
+  },
+      {
+    "name": "BodMC Jacket",
+    "btype": "Overclothes",
+    "layers": [
+      {"name":"Overclothes","fname":"por_bodmc_oc_jacket.png","anchor":"center","depth":3500,"x_offset":-4,"y_offset":45}
+    ],
+    "avatar_layers": [
+      {"name":"Overclothes","fname":"avatar_bodmc_jacket.png","anchor":"center","depth":3500,"x_offset":-1,"y_offset": 5}
+    ],
+    "requires": ["BodMC"],
+    "children": [
+      "Sleeves","Pants"
+    ],
+    "form_tags": ["SleevesOptional"]
+  },
+        {
+    "name": "BodMC Long Sleeves",
+    "btype": "Sleeves",
+    "layers": [
+      {"name":"Right Sleeve","fname":"por_bodmc_sleeves_1.png","anchor":"center","depth":5000,"frame_width":133,"frame_height":284,"x_offset":-117,"y_offset":62},
+      {"name":"Left Sleeve","fname":"por_bodmc_sleeves_1.png","anchor":"center","depth":1500,"frame":1,"frame_width":133,"frame_height":284,"x_offset":112,"y_offset":66}
+    ],
+    "avatar_layers": [
+      {"name":"Right Sleeve","fname":"avatar_bodmc_sleeves1.png","anchor":"center","depth":2500,"frame_width":9,"frame_height":16,"x_offset": -11,"y_offset":6},
+      {"name":"Left Sleeve","fname":"avatar_bodmc_sleeves1.png","anchor":"center","depth":2500,"frame":1,"frame_width":9,"frame_height":16,"x_offset": 9,"y_offset":6}
+    ],
+    "requires": ["BodMC"]
+  },
+  {
+    "name": "BodMC Wasteland Armor Sleeves",
+    "btype": "Sleeves",
+    "layers": [
+      {"name":"Right Sleeve","fname":"por_sleeves_warmor.png","anchor":"center","depth":5000,"frame_width":132,"frame_height":136,"x_offset":-104,"y_offset":-39},
+      {"name":"Left Sleeve","fname":"por_sleeves_warmor.png","anchor":"center","depth":1500,"frame":1,"frame_width":132,"frame_height":136,"x_offset":107,"y_offset":-28}
+    ],
+    "avatar_layers": [
+      {"name":"Right Sleeve","fname":"avatar_sleeves_warmor.png","anchor":"center","depth":2500,"frame_width":9,"frame_height":16,"x_offset": -11,"y_offset":5},
+      {"name":"Left Sleeve","fname":"avatar_sleeves_warmor.png","anchor":"center","depth":2500,"frame":1,"frame_width":9,"frame_height":16,"x_offset": 9,"y_offset":5}
+    ],
+    "requires": ["BodMC"],
+    "style": ["Combatant"]
+  }
+
+]

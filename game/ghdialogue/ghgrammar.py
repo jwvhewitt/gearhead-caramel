@@ -113,6 +113,24 @@ DEFAULT_GRAMMAR = {
             "hated","loved","feared"
         ]
     },
+
+    "[AGREE]": {
+        Default: ["I agree with you."
+                  ],
+        personality.Cheerful: ["Yes, I was thinking that too!"
+                               ],
+        personality.Grim: ["I see no fault in that.",
+                           ],
+        personality.Easygoing: ["Sounds alright to me."
+                                ],
+        personality.Passionate: ["I think that's a fantastic idea!",
+                                 ],
+        personality.Sociable: ["I think you have the right idea.",
+                               ],
+        personality.Shy: ["I agree.",
+                          ],
+    },
+
     "[as_far_as_I_know]": {
         Default: ["As far as I know"
                   ],
@@ -682,6 +700,23 @@ DEFAULT_GRAMMAR = {
     "[direction]": {
         Default: ["north", "south", "west", "east"
                   ],
+    },
+
+    "[DISAGREE]": {
+        Default: ["I don't agree with you."
+                  ],
+        personality.Cheerful: ["That's a funny thing to say."
+                               ],
+        personality.Grim: ["You are talking rubbish.",
+                           ],
+        personality.Easygoing: ["I don't think so."
+                                ],
+        personality.Passionate: ["Absolutely not!",
+                                 ],
+        personality.Sociable: ["I think you are mistaken.",
+                               ],
+        personality.Shy: ["I disagree.",
+                          ],
     },
 
     "[DOTHEYHAVEITEM]": {
@@ -1875,7 +1910,7 @@ DEFAULT_GRAMMAR = {
         personality.Easygoing: ["Yeah, let's go.",
                                 "Alright, we might as well start the mission."
                                 ],
-        personality.Passionate: ["Once more unto the breach!",
+        personality.Passionate: ["Once more unto the breach!", "Let's get ready to kick some arse!"
                                  ],
         personality.Sociable: ["Let's get this mission started.",
                                ],
@@ -1950,6 +1985,11 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Please help me.",
                           ],
+    },
+
+    "[mecha]": {
+        Default: ["mecha", "mek", "giant robot", "ride"
+                  ],
     },
 
     "[MechaMissionVsEnemyFaction]": {
@@ -2565,6 +2605,12 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[subject_pronoun]": {
+        Default: [
+            "he", "she", "ze"
+        ]
+    },
+
     "[THANK_YOU]": {
         # A simple thank you is appropriate.
         Default: ["Thank you.", "Thanks."
@@ -2987,6 +3033,27 @@ DEFAULT_GRAMMAR = {
     "[THREATEN]": {
         Default: ["I'm going to [threat]!","I will [threat]!",
         ],    
+    },
+
+    "[TIME_TO_UPGRADE_MECHA]": {
+        # The NPC is going to upgrade their mecha.
+        Default: ["I think it's about time for me to upgrade my [mecha]."
+                  ],
+        personality.Cheerful: [
+            "Guess what? It's new [mecha] day!"
+        ],
+        personality.Grim: ["My current [mecha] is horribly outdated.",
+                           ],
+        personality.Easygoing: ["I might as well replace my [mecha].",
+                                ],
+        personality.Passionate: [
+            "It's time for me to buy a new [mecha] worthy of my skills!",
+        ],
+        personality.Sociable: [
+            "Time for me to get a new [mecha] that I won't be ashamed to be seen with in public.",
+        ],
+        personality.Shy: ["I need to upgrade my [mecha].",
+                          ],
     },
 
     "[UNDERSTOOD]": {

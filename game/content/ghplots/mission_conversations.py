@@ -92,7 +92,7 @@ class IRememberYouBC(BasicBattleConversation):
         return mylist
     def _start_conversation(self,camp):
         super()._start_conversation(camp)
-        self.elements["NPC"].relationship.role = relationships.R_ACQUAINTANCE
+        self.elements["NPC"].relationship.role = relationships.R_OPPONENT
 
 
 class RegularOpponentBC(BasicBattleConversation):
@@ -101,7 +101,7 @@ class RegularOpponentBC(BasicBattleConversation):
         return (
             pstate.elements["NPC"].relationship and
             pstate.elements["NPC"].relationship.get_recent_memory([relationships.MEM_Clash]) and
-            pstate.elements["NPC"].relationship.role in (None,relationships.R_ACQUAINTANCE)
+            pstate.elements["NPC"].relationship.role is None
         )
     def NPC_offers(self,camp):
         mylist = list()

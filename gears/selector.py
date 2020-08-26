@@ -265,7 +265,7 @@ class MechaShoppingList(object):
         return copy.deepcopy(protomek)
 
     @classmethod
-    def generate_single_mecha(cls, level, fac, env):
+    def generate_single_mecha(cls, level, fac, env=tags.GroundEnv):
         shopping_list = cls(
             max(calc_threat_points(level + 20), 350000),
             fac, env)

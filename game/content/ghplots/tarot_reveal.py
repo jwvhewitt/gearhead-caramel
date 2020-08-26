@@ -2486,7 +2486,6 @@ class LunarRefugeeLost(Plot):
     def _deliver_the_news(self, camp):
         if self.elements["NPC"].combatant:
             self.elements["NPC"].relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        self.elements["NPC"].relationship.role = gears.relationships.R_ACQUAINTANCE
         self.elements["NPC"].relationship.expectation = gears.relationships.E_AVENGER
         self.end_plot(camp)
 

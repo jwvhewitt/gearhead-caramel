@@ -3924,7 +3924,7 @@ class Character(Being):
 
     def add_faction_score(self, fac, delta):
         if fac:
-            self.faction_scores(fac.get_faction_tag(), delta)
+            self.faction_scores[fac.get_faction_tag()] += delta
 
     def get_reaction_score(self, pc, camp):
         if self.relationship and pc is camp.pc:

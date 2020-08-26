@@ -3,6 +3,7 @@ from pbge.plots import Plot, Adventure, NarrativeRequest, PlotState
 import pbge
 from game.content import plotutility
 from game.content.ghcutscene import SimpleMonologueDisplay
+import random
 
 #  **********************
 #  ***   RECOVER_PC   ***
@@ -142,6 +143,9 @@ class BeBackAfterShopping( Plot ):
         npc = self.elements["NPC"]
         garage = self.elements["GARAGE"]
         SimpleMonologueDisplay("My mecha was destroyed... I'm going to go to {} and get a new one.".format(garage),npc)(camp)
+        if random.randint(1,10) == 1:
+            # Random chance that instead of getting the same mecha, they'll look for a new kind.
+            npc.mecha_pref = None
         plotutility.AutoLeaver(npc)(camp)
         npc.place(garage)
 
@@ -163,7 +167,7 @@ class INeedAnUpgrade( Plot ):
     def start_recovery(self,camp):
         npc = self.elements["NPC"]
         garage = self.elements["GARAGE"]
-        SimpleMonologueDisplay("I think it's about time for me to upgrade my mecha. I'm going to {} to see what they have.".format(garage),npc)(camp)
+        SimpleMonologueDisplay("[TIME_TO_UPGRADE_MECHA] I'm going to {} to see what they have.".format(garage),npc)(camp)
         npc.relationship.development_plots += 1
         npc.relationship.data["mecha_level_bonus"] = npc.relationship.data.get("mecha_level_bonus",0)+10
         npc.mecha_pref = None
