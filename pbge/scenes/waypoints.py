@@ -46,7 +46,6 @@ class Waypoint( object ):
     def place( self, scene, pos=None ):
         if hasattr( self, "container" ) and self.container:
             self.container.remove( self )
-        self.scene = scene
         scene.contents.append( self )
         if pos and scene.on_the_map( *pos ):
             self.pos = pos
@@ -89,6 +88,14 @@ class Waypoint( object ):
                 fx( camp )
         else:
             self.unlocked_use( camp )
+
+    def get_scene(self):
+        if hasattr( self, "container" ) and self.container and self.container.owner:
+            return self.container.owner
+
+    @property
+    def scene(self):
+        return self.get_scene()
 
     def __str__(self):
         return str(self.name)

@@ -21,4 +21,10 @@ With-Element Triggers:
 "END"		When a subplot is ended*
 
 
+Method name:
+
+t_[Non-Element Trigger], i.e. t_STARTCOMBAT(self,camp)
+
+[Element ID]_[With-Element Trigger], i.e. DOOR_BUMP(self,camp)
+
 *Manual trigger- may be set by the plot using it, but doesn't get set automatically.

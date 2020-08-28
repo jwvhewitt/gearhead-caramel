@@ -349,6 +349,11 @@
     "skills": ["Repair"],
     "tags": ["Craftsperson"]
   },
+    {
+    "name": "Mecha Designer",
+    "skills": ["Repair","Science"],
+    "tags": ["Craftsperson","CorporateWorker"]
+  },
   {
     "name": "Tekno",
     "skills": ["Computers","Science","Biotechnology"],

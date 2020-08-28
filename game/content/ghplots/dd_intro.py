@@ -347,7 +347,7 @@ class DZDIntroMission( Plot ):
         if camp.scene is self.elements["LOCALE"]:
             # If the player team gets wiped out, end the mission.
             myteam = self.elements["_eteam"]
-            if len(myteam.get_active_members(camp)) < 1:
+            if len(myteam.get_members_in_play(camp)) < 1:
                 mycutscene = SimpleMonologueDisplay(
                     "We won! Let's head back to base and discuss our next move...",
                     self.elements["SHERIFF"])

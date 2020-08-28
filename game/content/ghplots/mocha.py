@@ -871,7 +871,7 @@ class Encounter_WeBroughtThisFightHere( Encounter_BasicBandits ):
     def _ETEAM_ACTIVATETEAM(self,camp):
         if self.intro_ready:
             oteam = self.elements["_AEGISTEAM"]
-            for npc in oteam.get_active_members(camp):
+            for npc in oteam.get_members_in_play(camp):
                 if npc not in camp.fight.active:
                     camp.fight.active.append(npc)
             camp.fight.roll_initiative()
@@ -879,7 +879,7 @@ class Encounter_WeBroughtThisFightHere( Encounter_BasicBandits ):
     def _AEGISTEAM_ACTIVATETEAM(self,camp):
         if self.intro_ready:
             oteam = self.elements["_ETEAM"]
-            for npc in oteam.get_active_members(camp):
+            for npc in oteam.get_members_in_play(camp):
                 if npc not in camp.fight.active:
                     camp.fight.active.append(npc)
             camp.fight.roll_initiative()
@@ -1763,7 +1763,7 @@ class FinalBattleAgainstSynths( Plot ):
         camp.entrance = self.elements["ENTRANCE"]
     def t_ENDCOMBAT(self,camp):
         myteam = self.elements["_eteam"]
-        if not myteam.get_active_members(camp):
+        if not myteam.get_members_in_play(camp):
             camp.check_trigger('MOCHAVICTORY')
 
 

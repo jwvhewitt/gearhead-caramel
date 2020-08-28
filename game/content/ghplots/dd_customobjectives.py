@@ -60,7 +60,7 @@ class DDBAMO_PracticeDuel( Plot ):
 
     def t_ENDCOMBAT(self,camp):
         myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp,100)
         else:
             self.obj.failed = True
@@ -120,7 +120,7 @@ class DDBAMO_ChampionDuel(Plot):
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp,100)
 
 
@@ -200,9 +200,9 @@ class DDBAMO_HelpFromTheStars( Plot ):
         if self.eteam_activated and not self.pilot_left:
             myteam = self.elements["_ateam"]
             eteam = self.elements["_eteam"]
-            if len(myteam.get_active_members(camp)) < 1:
+            if len(myteam.get_members_in_play(camp)) < 1:
                 self.obj.failed = True
-            elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+            elif len(myteam.get_members_in_play(camp)) > 0 and len(eteam.get_members_in_play(camp)) < 1:
                 self.eteam_defeated = True
                 self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
                 npc = self.elements["NPC"]
@@ -253,7 +253,7 @@ class DDBAMO_ChampionsFromTheStars( Plot ):
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
             if not self.combat_finished:
                 pbge.alert("You stopped the delivery of modified mecha.")
@@ -312,10 +312,10 @@ class DDBAMO_CargoFromTheStars( Plot ):
     def t_ENDCOMBAT(self,camp):
         myteam = self.elements["_eteam"]
         cargoteam = self.elements["_cargoteam"]
-        if len(cargoteam.get_active_members(camp)) < 1:
+        if len(cargoteam.get_members_in_play(camp)) < 1:
             self.obj.failed = True
-        elif len(myteam.get_active_members(camp)) < 1:
-            self.obj.win(camp,(sum([(100-c.get_percent_damage_over_health()) for c in cargoteam.get_active_members(camp)]))//self.starting_number_of_containers )
+        elif len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, (sum([(100-c.get_percent_damage_over_health()) for c in cargoteam.get_members_in_play(camp)])) // self.starting_number_of_containers)
             if not self.combat_finished:
                 pbge.alert("You have captured the cargo.")
                 self.combat_finished = True

@@ -81,18 +81,70 @@
   },
   {
     "name": "BodMA Bandoliers",
-    "btype": "Clothing",
+    "btype": "Overclothes",
     "layers": [
       {"name":"Shirt","fname":"por_clothing_bodmabandoliers.png","anchor":"center","depth":3000,"x_offset":2,"y_offset":43}
     ],
     "avatar_layers": [
       {"name":"Shirt","fname":"avatar_bodma_bandoliers.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":1}
     ],
-    "requires": ["Combatant","BodMA","DeadZone"],
+    "requires": ["BodMA"],
     "children": [
       "Pants"
     ],
+    "style": ["Combatant","DeadZone"],
     "form_tags": ["SC1974"]
+  },
+  {
+    "name": "BodMA Jacket 1",
+    "btype": "Overclothes",
+    "layers": [
+      {"name":"Jacket","fname":"por_bodma_jacket_1.png","anchor":"center","depth":3000,"x_offset":1,"y_offset":52}
+    ],
+    "avatar_layers": [
+      {"name":"Jacket","fname":"avatar_bodma_jacket_1.png","anchor":"center","depth":3000,"x_offset":-1,"y_offset":6}
+    ],
+    "requires": ["BodMA"],
+    "children": [
+      "Sleeves","Pants"
+    ]
+  },
+  {
+    "name": "BodMA Undershirt",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_bodma_shirt_under.png","anchor":"center","depth":3000,"x_offset":0,"y_offset":32}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_bodma_shirt_under.png","anchor":"center","depth":3000,"x_offset":-1,"y_offset":6}
+    ],
+    "requires": ["BodMA"],
+    "children": [
+      "Overclothes"
+    ]
+  },
+  {
+    "name": "BodMA Undershirt M",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_bodma_shirt_under_m.png","anchor":"center","depth":3000,"x_offset":0,"y_offset":32}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_bodma_shirt_under_m.png","anchor":"center","depth":3000,"x_offset":-1,"y_offset":6}
+    ],
+    "requires": ["BodMA"],
+    "children": [
+      "Overclothes"
+    ]
+  },
+  {
+    "name": "BodMA Shirtless",
+    "btype": "Clothing",
+    "requires": ["BodMA"],
+    "children": [
+      "Overclothes"
+    ],
+    "form_tags": ["Shirtless"]
   },
     {
     "name": "BodMA Pants 1",
@@ -119,6 +171,30 @@
     "children": ["Shoes"]
   },
   {
+    "name": "BodMA Cargo Shorts",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_bodma_pants_cargoshorts.png","anchor":"midbottom","depth":2000,"x_offset":-2,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_bodma_pants_cargoshorts.png","anchor":"center","depth":2000,"x_offset":-1,"y_offset": 16}
+    ],
+    "requires": ["BodMA"],
+    "children": ["Shoes"]
+  },
+  {
+    "name": "BodMA Cargo Shorts M",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_bodma_pants_cargoshorts_m.png","anchor":"midbottom","depth":2000,"x_offset":-2,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_bodma_pants_cargoshorts_m.png","anchor":"center","depth":2000,"x_offset":-1,"y_offset": 16}
+    ],
+    "requires": ["BodMA"],
+    "children": ["Shoes"]
+  },
+  {
     "name": "Raider Shorts",
     "btype": "Pants",
     "layers": [
@@ -127,7 +203,7 @@
     "avatar_layers": [
       {"name":"Pants","fname":"avatar_pants_a_raidershorts.png","anchor":"midbottom","depth":2000,"x_offset":-1}
     ],
-    "requires": ["SC1974"]
+    "style": ["SC1974","Shirtless"]
   },
     {
     "name": "BodMA Sleeves 1",

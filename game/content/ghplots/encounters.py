@@ -35,7 +35,7 @@ class RandoMechaEncounter(Plot):
     def t_ENDCOMBAT(self, camp):
         # If the player team gets wiped out, end the mission.
         myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.end_plot(camp)
             camp.dole_xp(100)
 
@@ -58,7 +58,7 @@ class SmallMechaEncounter(Plot):
     def t_ENDCOMBAT(self, camp):
         # If the player team gets wiped out, end the mission.
         myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.end_plot(camp)
             camp.dole_xp(50)
 
@@ -78,7 +78,7 @@ class RandoMechaWithChampionEncounter(RandoMechaEncounter):
     def t_ENDCOMBAT(self, camp):
         # If the player team (why _eteam tho?) gets wiped out, end the mission.
         myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.end_plot(camp)
             camp.dole_xp(120)
 
@@ -114,7 +114,7 @@ class RandoMonsterEncounter(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: game.teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_active_members(camp)) < 1:
+        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
                                                  self.elements["TYPE_TAGS"], camp.scene.scale).contents, myteam

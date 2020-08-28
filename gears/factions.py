@@ -179,7 +179,7 @@ class KettelIndustries(Faction):
     mecha_colors = (color.KettelPurple,color.StarViolet,color.FlourescentGreen,color.Charcoal,color.SteelBlue)
     CAREERS = {
         tags.Trooper: ("Arena Pilot","Test Pilot","Trucker"),
-        tags.Commander: ("Corporate Executive",),
+        tags.Commander: ("Corporate Executive","Mecha Designer"),
         tags.Support: ("Recon Pilot","Construction Worker","Researcher"),
     }
     LOCATIONS = (personality.GreenZone,)

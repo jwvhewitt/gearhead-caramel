@@ -119,7 +119,7 @@ class AdventureSeed(Adventure):
             if hasattr(pc,"relationship") and pc.relationship:
                 pc.relationship.missions_together += 1
                 if self.is_won():
-                    pc.relationship.reaction_mod += random.randint(1,5)
+                    pc.relationship.reaction_mod += random.randint(1,3)
                 else:
                     pc.relationship.reaction_mod -= random.randint(1,5)
 

@@ -88,7 +88,7 @@ class EliminateWitnesses( Plot ):
         camp.dole_xp(100)
     def t_ENDCOMBAT(self,camp):
         myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp,100)
 
 

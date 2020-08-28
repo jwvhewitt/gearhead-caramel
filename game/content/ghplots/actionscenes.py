@@ -4,177 +4,85 @@ import gears
 import pbge
 import random
 from game import teams,ghdialogue
-from game.content import gharchitecture,ghterrain,ghwaypoints
+from game.content import gharchitecture,ghterrain,ghwaypoints, plotutility, dungeonmaker
 
 
 
-#   **************************
-#   ***  STORM_THE_CASTLE  ***
-#   **************************
+#   **********************
+#   ***  FENIX_CASTLE  ***
+#   **********************
 #
-# Fairly simple combat scene against a bunch of mecha and a fortification.
-#
-#  Methods:
-#   start_mission(camp):    Starts the mission. Pretty self-explanatory.
+# A recurring battle outside of a scene entrance. After however many victories, the player may get a reward.
 #
 #  Inherited Elements:
-#    FACTION: The committer of the atrocities. If None, a random faction may be created.
-#    MISSION_RETURN:  A tuple containing the Destination, Entrance for returning the player character
-#    METROSCENE: The city/town where this takes place. May be None.
+#    CASTLE_NAME: Give a name to the destination
+#    ENEMY_FACTION: The attacker of the castle. If None, a random faction may be created.
+#    MISSION_GATE:  For entering this scene after it's been activated.
+#    METROSCENE: The city/town where this takes place.
+#    METRO: The scope.
 #
 #  Signals:
-#    LOSE:  Send this trigger when the party faints out of the scene. Ignore if you want to allow multiple attempts.
+#    LOSE:  Send this trigger when the party faints out of the scene.
 #    WIN: Send this trigger when the fortification is destroyed.
 #
 
-class STC_DeadZoneFortress( Plot ):
-    LABEL = "STORM_THE_CASTLE"
-    active = True
-    scope = "LOCALE"
+class STC_FenixCastle( Plot ):
+    LABEL = "FENIX_CASTLE"
+    active = False
+    scope = "METRO"
     def custom_init( self, nart ):
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(50,50,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(50,50,plotutility.random_deadzone_spot_name(),player_team=team1,scale=gears.scale.MechaScale)
         myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
-        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True, dident=self.elements["MISSION_RETURN"][0])
+        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", dident="METROSCENE")
 
-        player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
+        if not self.elements.get("ENEMY_FACTION"):
+            self.register_element("ENEMY_FACTION", plotutility.RandomBanditCircle(nart.camp))
 
-        if not self.elements.get("FACTION"):
-            self.register_element("FACTION",gears.factions.Circle(nart.camp))
-
-        self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=player_a),dident="LOCALE")
-        destination,entrance = self.elements["MISSION_RETURN"]
+        self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(6,6,anchor=random.choice(pbge.randmaps.anchors.EDGES)),dident="LOCALE")
+        destination,entrance = self.elements["MISSION_GATE"].scene, self.elements["MISSION_GATE"]
         myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Exit(dest_scene=destination,dest_entrance=entrance,anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
 
-        enemy_room = self.register_element("ENEMY_ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10,anchor=enemy_a),dident="LOCALE")
-        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ENEMY_ROOM")
-        myunit = gears.selector.RandomMechaUnit(level=self.rank,strength=150,fac=self.elements["FACTION"],env=myscene.environment)
-        team2.contents += myunit.mecha_list
-        enemy_room.contents.append(ghwaypoints.SmokingWreckage())
-        enemy_room.contents.append(ghwaypoints.SmokingWreckage())
-
-        for t in range(random.randint(1,3)):
-            self.add_sub_plot(nart,"MECHA_ENCOUNTER",necessary=False)
+        castle_room = self.register_element("CASTLE_ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
+        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="CASTLE_ROOM")
+        #myunit = gears.selector.RandomMechaUnit(level=self.rank,strength=150,fac=self.elements["ENEMY_FACTION"],env=myscene.environment)
+        #team2.contents += myunit.mecha_list
 
         self.mission_entrance = (myscene,myent)
-        self.witness_ready = True
+        self.next_update = 0
+        self.encounters_on = True
 
         return True
 
-    def start_mission(self,camp):
-        camp.destination,camp.entrance=self.elements["LOCALE"],self.elements["ENTRANCE"]
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        thingmenu.add_item("Go to {}".format(self.elements["CASTLE_NAME"]), self.go_to_castle)
 
-    def _eteam_ACTIVATETEAM(self,camp):
-        # Activating the end fight scene will activate the win condition.
-        if self.witness_ready:
-            camp.check_trigger("WIN",self)
-            self.witness_ready = False
+    def go_to_castle(self, camp):
+        camp.destination, camp.entrance = self.mission_entrance
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        myteam: game.teams.Team = self.elements["_eteam"]
+        if self.encounters_on and camp.day > self.next_update and len(myteam.get_members_in_play(camp)) < 1:
+            camp.scene.deploy_team(
+                gears.selector.RandomMechaUnit(level=self.rank,strength=150,fac=self.elements["ENEMY_FACTION"],
+                                               env=self.elements["LOCALE"].environment).mecha_list, myteam
+            )
+            self.next_update = camp.day + 5
+            self.rank += random.randint(1,6)
+        else:
+            dungeonmaker.dungeon_cleaner(self.elements["LOCALE"])
 
     def t_ENDCOMBAT(self,camp):
         # If the player team gets wiped out, end the mission.
         myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             camp.check_trigger("WIN",self)
-            self.witness_ready = False
-            self.end_the_mission(camp)
-            camp.dole_xp(200)
+            camp.dole_xp(100)
         elif not camp.first_active_pc():
-            camp.destination, camp.entrance = self.elements["MISSION_RETURN"]
+            camp.destination, camp.entrance = self.elements["MISSION_GATE"].scene, self.elements["MISSION_GATE"]
             camp.check_trigger("LOSE",self)
 
 
-    def end_the_mission(self,camp):
-        # Restore the party at the end of the mission, then send them back to the hangar.
-        camp.totally_restore_party()
-        camp.destination, camp.entrance = self.elements["MISSION_RETURN"]
-        camp.check_trigger("END", self)
 
 
-
-
-#   ***************************
-#   ***  WAR_CRIME_WITNESS  ***
-#   ***************************
-#
-# The player will go somewhere and witness war crimes in progress. This scene may be used when the player character
-# is going to discover a tragedy has unfolded, or for a defense mission where the player character will be too late
-# to save the day.
-#
-#  Methods:
-#   start_mission(camp):    Starts the mission. Pretty self-explanatory.
-#
-#  Inherited Elements:
-#    FACTION: The committer of the atrocities. If None, a random faction may be created.
-#    MISSION_RETURN:  A tuple containing the Destination, Entrance for returning the player character
-#    METROSCENE: The city or location where this action scene takes place
-#
-#  Signals:
-#    END:   The action scene has been cleared out; there's nothing left to do there.
-#    LOSE:  Send this trigger when the party faints out of the scene. Probably safe to ignore most of the time.
-#    WIN: Send this trigger when the crimes are revealed to the player.
-#         Note: the parent plot should react in some way to let the player know what's going on,
-#         since this plot just sends the trigger silently.
-#
-
-
-class DeadZoneRazedVillage( Plot ):
-    LABEL = "WAR_CRIME_WITNESS"
-    active = True
-    scope = "LOCALE"
-    def custom_init( self, nart ):
-        team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(50,50,"Combat Zone",player_team=team1,scale=gears.scale.MechaScale)
-        myscenegen = pbge.randmaps.SceneGenerator(myscene, game.content.gharchitecture.MechaScaleDeadzone())
-        self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True, dident="METROSCENE")
-
-        player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
-
-        if not self.elements.get("FACTION"):
-            self.register_element("FACTION",gears.factions.Circle(nart.camp))
-
-        self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=player_a),dident="LOCALE")
-        destination,entrance = self.elements["MISSION_RETURN"]
-        myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Exit(dest_scene=destination,dest_entrance=entrance,anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
-
-        enemy_room = self.register_element("ENEMY_ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10,anchor=enemy_a),dident="LOCALE")
-        team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ENEMY_ROOM")
-        myunit = gears.selector.RandomMechaUnit(level=self.rank,strength=150,fac=self.elements["FACTION"],env=myscene.environment)
-        team2.contents += myunit.mecha_list
-        enemy_room.contents.append(ghwaypoints.SmokingWreckage())
-        enemy_room.contents.append(ghwaypoints.SmokingWreckage())
-
-        for t in range(random.randint(1,3)):
-            self.add_sub_plot(nart,"MECHA_ENCOUNTER",necessary=False)
-
-        self.mission_entrance = (myscene,myent)
-        self.witness_ready = True
-
-        return True
-
-    def start_mission(self,camp):
-        camp.destination,camp.entrance=self.elements["LOCALE"],self.elements["ENTRANCE"]
-
-    def _eteam_ACTIVATETEAM(self,camp):
-        # Activating the end fight scene will activate the win condition.
-        if self.witness_ready:
-            camp.check_trigger("WIN",self)
-            self.witness_ready = False
-
-    def t_ENDCOMBAT(self,camp):
-        # If the player team gets wiped out, end the mission.
-        myteam = self.elements["_eteam"]
-        if len(myteam.get_active_members(camp)) < 1:
-            camp.check_trigger("WIN",self)
-            self.witness_ready = False
-            self.end_the_mission(camp)
-            camp.dole_xp(200)
-        elif not camp.first_active_pc():
-            camp.destination, camp.entrance = self.elements["MISSION_RETURN"]
-            camp.check_trigger("LOSE",self)
-
-
-    def end_the_mission(self,camp):
-        # Restore the party at the end of the mission, then send them back to the hangar.
-        camp.destination, camp.entrance = self.elements["MISSION_RETURN"]
-        camp.check_trigger("END", self)
 

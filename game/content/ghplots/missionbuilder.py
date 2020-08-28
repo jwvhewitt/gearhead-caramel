@@ -404,7 +404,7 @@ class BAM_AidAlliedForces(Plot):
     def t_ENDCOMBAT(self, camp):
         num_destroyed_teams = 0
         for eteam, etact in self.enemy_team_ok.items():
-            if len(eteam.get_active_members(camp)) < 1:
+            if len(eteam.get_members_in_play(camp)) < 1:
                 if self.enemy_team_ok[eteam]:
                     self.enemy_team_ok[eteam] = False
                     pbge.alert("Area secured.")
@@ -448,11 +448,11 @@ class BAM_CaptureMine(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
         propteam = self.elements["_propteam"]
-        if len(propteam.get_active_members(camp)) < 1:
+        if len(propteam.get_members_in_play(camp)) < 1:
             self.obj.failed = True
-        elif len(myteam.get_active_members(camp)) < 1:
+        elif len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
-                                     propteam.get_active_members(camp)])) // self.starting_number_of_props)
+                                     propteam.get_members_in_play(camp)])) // self.starting_number_of_props)
             if not self.combat_finished:
                 pbge.alert("The mine has been secured.")
                 self.combat_finished = True
@@ -492,11 +492,11 @@ class BAM_CaptureBuildings(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
         propteam = self.elements["_propteam"]
-        if len(propteam.get_active_members(camp)) < 1:
+        if len(propteam.get_members_in_play(camp)) < 1:
             self.obj.failed = True
-        elif len(myteam.get_active_members(camp)) < 1:
+        elif len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
-                                     propteam.get_active_members(camp)])) // self.starting_number_of_props)
+                                     propteam.get_members_in_play(camp)])) // self.starting_number_of_props)
             if not self.combat_finished:
                 pbge.alert("The complex has been secured.")
                 self.combat_finished = True
@@ -561,7 +561,7 @@ class BAM_DefeatArmy(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 
@@ -607,7 +607,7 @@ class BAM_DefeatCommander(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 
@@ -654,7 +654,7 @@ class BAM_DefeatNPC(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 
@@ -707,7 +707,7 @@ class BAM_DefeatTheBandits(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 
@@ -739,7 +739,7 @@ class BAM_DefeatTheBandits_NoCommander(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 
@@ -795,7 +795,7 @@ class BAM_DestroyArtillery(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 
@@ -884,10 +884,10 @@ class BAM_ExtractAllies(Plot):
             myteam = self.elements["_ateam"]
             eteam = self.elements["_eteam"]
             npc = self.elements["PILOT"]
-            if len(myteam.get_active_members(camp)) < 1:
+            if len(myteam.get_members_in_play(camp)) < 1:
                 self.obj.failed = True
                 camp.check_trigger("LOSE",npc)
-            elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+            elif len(myteam.get_members_in_play(camp)) > 0 and len(eteam.get_members_in_play(camp)) < 1:
                 self.eteam_defeated = True
                 self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
                 camp.check_trigger("WIN",npc)
@@ -981,10 +981,10 @@ class BAM_ExtractAlliesVsDinosaurs(Plot):
             myteam = self.elements["_ateam"]
             eteam = self.elements["_eteam"]
             npc = self.elements["PILOT"]
-            if len(myteam.get_active_members(camp)) < 1:
+            if len(myteam.get_members_in_play(camp)) < 1:
                 self.obj.failed = True
                 camp.check_trigger("LOSE",npc)
-            elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+            elif len(myteam.get_members_in_play(camp)) > 0 and len(eteam.get_members_in_play(camp)) < 1:
                 self.eteam_defeated = True
                 self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
                 camp.check_trigger("WIN",npc)
@@ -1014,7 +1014,7 @@ class BAM_FightDinosaurs(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 class BAM_FightMonsters(Plot):
@@ -1040,7 +1040,7 @@ class BAM_FightMonsters(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 
@@ -1086,7 +1086,7 @@ class BAM_LocateEnemyForces(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 
@@ -1120,7 +1120,7 @@ class BAM_NeutralizeAllDrones(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 
@@ -1158,11 +1158,11 @@ class BAM_ProtectBuildingsFromDinos(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
         propteam = self.elements["_propteam"]
-        if len(propteam.get_active_members(camp)) < 1:
+        if len(propteam.get_members_in_play(camp)) < 1:
             self.obj.failed = True
-        elif len(myteam.get_active_members(camp)) < 1:
+        elif len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
-                                     propteam.get_active_members(camp)])) // self.starting_number_of_props)
+                                     propteam.get_members_in_play(camp)])) // self.starting_number_of_props)
             if not self.combat_finished:
                 pbge.alert("The buildings have been secured.")
                 self.combat_finished = True
@@ -1201,11 +1201,11 @@ class BAM_RecoverCargo(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
         cargoteam = self.elements["_cargoteam"]
-        if len(cargoteam.get_active_members(camp)) < 1:
+        if len(cargoteam.get_members_in_play(camp)) < 1:
             self.obj.failed = True
-        elif len(myteam.get_active_members(camp)) < 1:
+        elif len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
-                                     cargoteam.get_active_members(camp)])) // self.starting_number_of_containers)
+                                     cargoteam.get_members_in_play(camp)])) // self.starting_number_of_containers)
             if not self.combat_finished:
                 pbge.alert("The missing cargo has been secured.")
                 self.combat_finished = True
@@ -1292,10 +1292,10 @@ class BAM_RescueSomeone(Plot):
             myteam = self.elements["_ateam"]
             eteam = self.elements["_eteam"]
             npc = self.elements["PILOT"]
-            if len(myteam.get_active_members(camp)) < 1:
+            if len(myteam.get_members_in_play(camp)) < 1:
                 self.obj.failed = True
                 camp.check_trigger("LOSE",npc)
-            elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+            elif len(myteam.get_members_in_play(camp)) > 0 and len(eteam.get_members_in_play(camp)) < 1:
                 self.eteam_defeated = True
                 self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
                 camp.check_trigger("WIN",npc)
@@ -1335,11 +1335,11 @@ class BAM_RespondToDistressCall(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
         cargoteam = self.elements["_cargoteam"]
-        if len(cargoteam.get_active_members(camp)) < 1:
+        if len(cargoteam.get_members_in_play(camp)) < 1:
             self.obj.failed = True
-        elif len(myteam.get_active_members(camp)) < 1:
+        elif len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
-                                     cargoteam.get_active_members(camp)])) // self.starting_number_of_containers)
+                                     cargoteam.get_members_in_play(camp)])) // self.starting_number_of_containers)
             if not self.combat_finished:
                 pbge.alert("The missing cargo has been secured.")
                 self.combat_finished = True
@@ -1418,10 +1418,10 @@ class BAM_ExtractTrucker(Plot):
             myteam = self.elements["_ateam"]
             eteam = self.elements["_eteam"]
             npc = self.elements["PILOT"]
-            if len(myteam.get_active_members(camp)) < 1:
+            if len(myteam.get_members_in_play(camp)) < 1:
                 self.obj.failed = True
                 camp.check_trigger("LOSE",npc)
-            elif len(myteam.get_active_members(camp)) > 0 and len(eteam.get_active_members(camp)) < 1:
+            elif len(myteam.get_members_in_play(camp)) > 0 and len(eteam.get_members_in_play(camp)) < 1:
                 self.eteam_defeated = True
                 self.obj.win(camp, 100 - self.elements["SURVIVOR"].get_percent_damage_over_health())
                 camp.check_trigger("WIN",npc)
@@ -1478,7 +1478,7 @@ class BAM_StormTheCastle(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
         myboss = self.elements["_FORT"]
-        myguards = [npc for npc in myteam.get_active_members(camp) if npc is not myboss]
+        myguards = [npc for npc in myteam.get_members_in_play(camp) if npc is not myboss]
 
         if len(myguards) < self.starting_guards:
             self.obj2.win(camp, 100 * (self.starting_guards - len(myguards)) // self.starting_guards)
@@ -1522,5 +1522,5 @@ class BAM_SurviveTheAmbush(Plot):
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
 
-        if len(myteam.get_active_members(camp)) < 1:
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)

@@ -74,6 +74,129 @@ class LMMissionPlot(LMPlot):
 #   **********************
 #  Required elements: METRO, M
 
+class DDLD_HermitMechaniac(LMPlot):
+    LABEL = "DZD_LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+
+        mwsp = self.add_sub_plot(nart, "MECHA_WORKSHOP", ident="FACTORY")
+        fcsp = self.add_sub_plot(nart, "FENIX_CASTLE", ident="FENIXCASTLE", elements={"CASTLE_NAME": str(mwsp.elements["LOCALE"]),})
+        print(self.subplots)
+
+        # ToDO: Connect the workshop to the castle grounds
+        plotutility.IntConcreteBuildingConnection(
+            self,fcsp.elements["LOCALE"],mwsp.elements["LOCALE"],room1=fcsp.elements["CASTLE_ROOM"],
+            room2=mwsp.elements["FOYER"],
+        )
+
+        self.started_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    candidate.relationship.attitude == gears.relationships.A_FRIENDLY
+                    and candidate.relationship.expectation == gears.relationships.E_MECHANIAC
+            )
+
+    def METROSCENE_ENTER(self,camp: gears.GearHeadCampaign):
+        if not self.started_convo:
+            npc = self.elements["NPC"]
+            pbge.alert("As you enter {METROSCENE}, {NPC} runs up to you excitedly.".format(**self.elements))
+
+            ghcutscene.SimpleMonologueDisplay(
+                "There's a mecha workshop just outside of town. We should go and see if we can get some custom gear!".format(**self.elements),
+                npc.get_root())(camp)
+            self.started_convo = True
+            self.subplots["FENIXCASTLE"].activate(camp)
+            self.proper_non_end(camp)
+
+
+class DDLD_ProfessionalColleague(LMMissionPlot):
+    LABEL = "DZD_LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.elements["ENEMY_FACTION"] = gears.factions.AegisOverlord
+        self.elements["ENEMY_NPC"] = gears.selector.random_character(self.rank+5, faction=gears.factions.AegisOverlord, combatant=True)
+        self.prep_mission(nart.camp)
+        self.started_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    candidate.relationship.role is None
+                    and candidate.relationship.expectation == gears.relationships.E_PROFESSIONAL
+            )
+
+    def METROSCENE_ENTER(self, camp):
+        if not self.started_convo:
+            npc = self.elements["NPC"]
+            pbge.alert(
+                "As you enter {METROSCENE}, {NPC} walks up to show you something on {NPC.gender.possessive_determiner} phone.".format(
+                    **self.elements))
+            ghdialogue.start_conversation(camp, camp.pc, npc,
+                                          cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
+            npc.relationship.role = gears.relationships.R_COLLEAGUE
+            self.started_convo = True
+
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
+        mylist = list()
+        if not self.mission_active:
+            npc: gears.base.Character = self.elements["NPC"]
+            mylist.append(Offer(
+                "Look at this... Aegis pilot {ENEMY_NPC} has been sighted in this area. There's a significant reward if we can capture {ENEMY_NPC.gender.object_pronoun}, plus it would be a huge boost to our reputation.".format(
+                    **self.elements),
+                (context.HELLO, context.PROPOSAL),
+                subject=self, subject_start=True
+            ))
+            mylist.append(Offer(
+                "[GOOD] It shouldn't be that hard to locate {ENEMY_NPC}... {ENEMY_NPC.gender.possessive_determiner} lance has been cutting a path of destruction through the dead zone.".format(**self.elements),
+                (context.CUSTOM,), subject=self, data={"reply": "[MISSION:ACCEPT]"},
+                effect=self._accept_offer
+            ))
+            mylist.append(Offer(
+                "You know what? I really think that you lack ambition.",
+                (context.CUSTOM,), subject=self, data={"reply": "[MISSION:DENY]"},
+                effect=self._reject_offer
+            ))
+        return mylist
+
+    def _accept_offer(self, camp):
+        self.mission_active = True
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def _reject_offer(self, camp):
+        self.proper_end_plot(camp, False)
+
+    def win_mission(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        if npc in camp.party and not npc.is_destroyed():
+            ghcutscene.SimpleMonologueDisplay(
+                "It would be useful if we could track down bounties like this more often. I'm going to start working on it.",
+                npc.get_root())(camp)
+            npc.statline[gears.stats.Scouting] += 2
+        self.proper_end_plot(camp)
+
+    def prep_mission(self, camp: gears.GearHeadCampaign):
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            camp, self.MISSION_NAME.format(**self.elements),
+            (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            enemy_faction=self.elements.get("ENEMY_FACTION"),
+            allied_faction=self.elements["METROSCENE"].faction,
+            rank=camp.renown, objectives=(missionbuilder.BAMO_DEFEAT_NPC, missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL),
+            cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
+            on_win=self.win_mission, on_loss=self.lose_mission,
+            custom_elements={missionbuilder.BAME_NPC: self.elements["ENEMY_NPC"]}
+        )
+
+
 class DDLD_SurpriseMechaPresent(LMPlot):
     LABEL = "DZD_LANCEDEV"
     active = True
