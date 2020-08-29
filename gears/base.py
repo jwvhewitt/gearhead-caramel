@@ -3190,7 +3190,7 @@ class MT_Battroid(Singleton):
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return not isinstance(part.form, MF_Turret)
+            return part.form not in (MF_Turret,)
         else:
             return False
 
@@ -3206,7 +3206,7 @@ class MT_Arachnoid(MT_Battroid):
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return not isinstance(part.form, (MF_Arm, MF_Wing, MF_Tail))
+            return part.form not in (MF_Arm, MF_Wing, MF_Tail)
         else:
             return False
 
@@ -3225,7 +3225,7 @@ class MT_Groundhugger(MT_Battroid):
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return not isinstance(part.form, (MF_Arm, MF_Wing, MF_Tail, MF_Leg))
+            return part.form not in (MF_Arm, MF_Wing, MF_Tail, MF_Leg)
         else:
             return False
 
