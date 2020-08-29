@@ -575,6 +575,7 @@ class UnlimitedPartsSource(object):
 
         self.part_list.append(gears.base.Arm(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Head(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Torso(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Leg(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Wing(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Storage(scale=gears.scale.MechaScale))
@@ -997,7 +998,20 @@ class LetsEditSomeMeks(object):
                 result()
 
     def _create_new_mecha(self):
-        pass
+        mymenu = pbge.rpgmenu.Menu(-150, 0, 300, 140, font=pbge.BIGFONT)
+        mymenu.add_descbox(-150, 180, 300, 80)
+        for f in gears.base.MECHA_FORMS:
+            mymenu.add_item(f.name, f, f.desc)
+        mymenu.sort()
+        form = mymenu.query()
+        if form:
+            mymek = gears.base.Mecha( form=form
+                                    , desig="New"
+                                    , imagename=form.PROTOTYPE_IMAGENAME
+                                    , portrait=form.PROTOTYPE_PORTRAIT
+                                    , colors = self.EDITOR_COLORS
+                                    )
+            self.enter_the_editor(mymek);
 
     def _select_mecha(self):
         mymenu = pbge.rpgmenu.Menu(-150,0,300,226,font=pbge.MEDIUMFONT)

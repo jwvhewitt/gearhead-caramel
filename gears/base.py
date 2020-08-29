@@ -3186,11 +3186,15 @@ class LegClothing(Clothing):
 
 class MT_Battroid(Singleton):
     name = "Battroid"
+    desc = "Standard mecha form, no turrets."
+
+    PROTOTYPE_IMAGENAME = "mav_buruburu.png"
+    PROTOTYPE_PORTRAIT = "mecha_buruburu.png"
 
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return not isinstance(part.form, MF_Turret)
+            return part.form not in (MF_Turret,)
         else:
             return False
 
@@ -3202,11 +3206,15 @@ class MT_Battroid(Singleton):
 
 class MT_Arachnoid(MT_Battroid):
     name = "Arachnoid"
+    desc = "+20% walk speed, can have turrets, no arms, wings or tails."
+
+    PROTOTYPE_IMAGENAME = "mav_kojedo.png"
+    PROTOTYPE_PORTRAIT = "mecha_kojedo.png"
 
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return not isinstance(part.form, (MF_Arm, MF_Wing, MF_Tail))
+            return part.form not in (MF_Arm, MF_Wing, MF_Tail)
         else:
             return False
 
@@ -3221,11 +3229,15 @@ class MT_Arachnoid(MT_Battroid):
 
 class MT_Groundhugger(MT_Battroid):
     name = "Groundhugger"
+    desc = "+25% armor, can have turrets, -20 mobility, no arms, wings, tails, or legs."
+
+    PROTOTYPE_IMAGENAME = "mav_ultari.png"
+    PROTOTYPE_PORTRAIT = "mecha_ultari.png"
 
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return not isinstance(part.form, (MF_Arm, MF_Wing, MF_Tail, MF_Leg))
+            return part.form not in (MF_Arm, MF_Wing, MF_Tail, MF_Leg)
         else:
             return False
 
