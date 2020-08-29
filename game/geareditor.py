@@ -575,6 +575,7 @@ class UnlimitedPartsSource(object):
 
         self.part_list.append(gears.base.Arm(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Head(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Torso(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Leg(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Wing(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Storage(scale=gears.scale.MechaScale))
