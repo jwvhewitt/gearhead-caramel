@@ -82,15 +82,29 @@ class DDLD_HermitMechaniac(LMPlot):
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
 
-        mwsp = self.add_sub_plot(nart, "MECHA_WORKSHOP", ident="FACTORY")
-        fcsp = self.add_sub_plot(nart, "FENIX_CASTLE", ident="FENIXCASTLE", elements={"CASTLE_NAME": str(mwsp.elements["LOCALE"]),})
-        print(self.subplots)
+        shopkeeper: gears.base.Character = self.register_element("SHOPKEEPER",
+                                    gears.selector.random_character(
+                                        self.rank, local_tags=self.elements["METROSCENE"].attributes,
+                                        job=gears.jobs.ALL_JOBS["Mecha Designer"]
+                                    ))
 
-        # ToDO: Connect the workshop to the castle grounds
+        mwsp = self.add_sub_plot(nart, "MECHA_WORKSHOP", ident="FACTORY", elements={"OWNER_NAME": str(shopkeeper)})
+        fcsp = self.add_sub_plot(nart, "FENIX_CASTLE", ident="FENIXCASTLE", elements={"CASTLE_NAME": str(mwsp.elements["LOCALE"]),})
+
+        self.elements["WORKSHOP"] = mwsp.elements["LOCALE"]
+        shopkeeper.place(mwsp.elements["LOCALE"],team=mwsp.elements["LOCALE"].civilian_team)
+
         plotutility.IntConcreteBuildingConnection(
             self,fcsp.elements["LOCALE"],mwsp.elements["LOCALE"],room1=fcsp.elements["CASTLE_ROOM"],
             room2=mwsp.elements["FOYER"],
         )
+
+        self.shop = services.Shop(npc=shopkeeper, shop_faction=self.elements["METROSCENE"].faction,
+                                  ware_types=services.MECHA_STORE, rank=self.rank+5)
+
+        self.wins = 0
+        self.rewards = 0
+        self.told_about_raiders = False
 
         self.started_convo = False
         return True
@@ -108,11 +122,52 @@ class DDLD_HermitMechaniac(LMPlot):
             pbge.alert("As you enter {METROSCENE}, {NPC} runs up to you excitedly.".format(**self.elements))
 
             ghcutscene.SimpleMonologueDisplay(
-                "There's a mecha workshop just outside of town. We should go and see if we can get some custom gear!".format(**self.elements),
+                "There's a workshop just outside of town belonging to the famous mecha designer {SHOPKEEPER}. We should go and see if we can get some custom gear!".format(**self.elements),
                 npc.get_root())(camp)
             self.started_convo = True
+            npc.relationship.attitude = gears.relationships.A_HEARTFUL
             self.subplots["FENIXCASTLE"].activate(camp)
+            missionbuilder.NewLocationNotification(self.elements["WORKSHOP"],self.elements["MISSION_GATE"])
             self.proper_non_end(camp)
+
+    def FENIXCASTLE_WIN(self, camp):
+        self.wins += 1
+        self.shop.rank += self.wins * 5
+        self.rewards += gears.selector.calc_threat_points(self.rank + self.wins * 5, 15)
+        if self.wins >= 3:
+            self.subplots["FENIXCASTLE"].encounters_on = False
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        if self.rewards > 0:
+            mylist.append(Offer("[HELLO] Thanks for protecting my factory from those raiders; here is a reward for ${:,}.".format(self.rewards),
+                                context=ContextTag([context.HELLO]), effect=self._give_rewards
+                                ))
+        else:
+            mylist.append(Offer("[HELLO] Can I interest you in a new [mecha] today?",
+                                context=ContextTag([context.HELLO]),
+                                ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": str(self.elements["LOCALE"]), "wares": "mecha"}
+                            ))
+
+        if not self.told_about_raiders:
+            mylist.append(Offer("They're a small time gang of highway bandits who got pissed off that I wouldn't supply them with mecha, but behaviour like this is exactly why I didn't supply them with mecha!",
+                                context=ContextTag([context.INFO]), effect=self._tell_about_raiders,
+                                data={"subject": "the raiders"}, no_repeats=True
+                                ))
+
+        return mylist
+
+    def _give_rewards(self, camp: gears.GearHeadCampaign):
+        camp.credits += self.rewards
+        self.rewards = 0
+
+    def _tell_about_raiders(self, camp):
+        self.told_about_raiders = True
 
 
 class DDLD_ProfessionalColleague(LMMissionPlot):
