@@ -1,6 +1,7 @@
 import pygame
 import gears
 from gears import tags
+from gears import champions
 import random
 import pbge
 import copy
@@ -167,3 +168,26 @@ class Shop(object):
     def __call__(self, camp):
         self.update_shop(camp)
         self.enter_shop(camp)
+
+
+class ChampionShop(Shop):
+    """
+    Like a shop, but sells champion mecha.
+    """
+    def _pick_item(self, itype, rank):
+        it = super(ChampionShop, self).generate_item(itype, rank)
+        if isinstance(it, gears.base.Mecha):
+            champions.upgrade_to_champion(it)
+        elif it.scale == gears.scale.MechaScale and isinstance(it, (gears.base.Component, gears.base.Shield, gears.base.Launcher)):
+            champions.upgrade_item_to_champion(it)
+        return it
+
+    def generate_item(self, itype, rank):
+        tries = 0
+        while tries < 10:
+            it = self._pick_item(itype, rank)
+            # Avoid duplicates.
+            if it.get_full_name() not in [a.get_full_name() for a in self.wares]:
+                return it
+            tries = tries + 1
+        return it
