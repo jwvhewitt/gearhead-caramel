@@ -952,3 +952,38 @@ def upgrade_to_champion(mek, ThemeClass = RandomTheme):
 
     mek.is_champion = True
 
+
+def upgrade_item_to_champion_core_(item):
+    curr_desig = str(item.desig)
+
+    mek = base.Mecha()
+    if isinstance(item, base.Shield):
+        # Item needs to be inv-commed onto an arm.
+        arm = base.Arm()
+        # Umm.  Shouldn't happen?
+        if not arm.can_equip(item):
+            # Tell outer loop to exit.
+            return True
+        arm.inv_com.append(item)
+        mek.sub_com.append(arm)
+    else:
+        # Should be big enough for anything!
+        torso = base.Torso(size=20)
+        # Umm.  Shouldn't happen?
+        if not torso.can_install(item):
+            # Tell outer loop to exit.
+            return True
+        torso.sub_com.append(item)
+        mek.sub_com.append(torso)
+    upgrade_to_champion(mek, RandomTheme)
+    return item.desig != curr_desig
+
+def upgrade_item_to_champion(item):
+    # Some themes just do not operate on particular items, so
+    # just retry them until we get a random theme that does.
+    tries = 0
+    while tries < 10:
+        if upgrade_item_to_champion_core_(item):
+            return item
+        tries = tries + 1
+    return item
