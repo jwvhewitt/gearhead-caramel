@@ -540,7 +540,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         # Also update NPC positions when placing the party.
         self.scene.tidy_at_start(self)
 
-    def bring_out_your_dead(self, announce=False):
+    def bring_out_your_dead(self, announce_character_state=False, announce_mecha_state=True):
         for pc in list(self.party):
             if pc.is_destroyed():
                 self.party.remove(pc)
@@ -554,16 +554,16 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 elif isinstance(pc,base.Being):
                     if pbge.util.config.getboolean("DIFFICULTY","lancemates_can_die") and random.randint(1,100) > skill:
                         self.dead_party.append(pc)
-                        if announce:
+                        if announce_character_state:
                             pbge.alert("{} has died.".format(pc))
                     else:
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
-                        if announce:
+                        if announce_character_state:
                             pbge.alert("{} has been severely injured and is removed to a safe place.".format(pc))
                 elif random.randint(1,100) <= skill or not pbge.util.config.getboolean("DIFFICULTY","mecha_can_die") or pc not in self.scene.contents:
                     self.party.append(pc)
-                elif announce:
+                elif announce_mecha_state:
                     pbge.alert("{} was wrecked beyond recovery.".format(pc.get_full_name()))
 
     def remove_party_from_scene(self):

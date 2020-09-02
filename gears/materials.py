@@ -66,6 +66,6 @@ class DamageMat(Material):
     # Only used for rolling damage. Do not use this for a gear. I'll only warn you once.
     #  I never give a warning twice
     # Anything could happen like the rollin' of the dice - now!
-    damage_scale = 0.5
+    damage_scale = 0.4
 
 MECHA_MATERIALS = (Metal,Advanced,Ceramic,Biotech)

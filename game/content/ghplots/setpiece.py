@@ -75,16 +75,27 @@ class SmallMechaFactory(Plot):
 #   ***************************
 #   ***   MEKWORK_PROBLEM   ***
 #   ***************************
-
+#
+#  LOCALE: The mecha workshop
+#  METROSCENE: The city the workshop is in
+#  METRO: The scope of the city
 
 #   ***************************
 #   ***   MEKWORK_FEATURE   ***
 #   ***************************
+#
+#  LOCALE: The mecha workshop
+#  METROSCENE: The city the workshop is in
+#  METRO: The scope of the city
 
 
 #   ************************
 #   ***   MEKWORK_MISC   ***
 #   ************************
+#
+#  LOCALE: The mecha workshop
+#  METROSCENE: The city the workshop is in
+#  METRO: The scope of the city
 
 
 

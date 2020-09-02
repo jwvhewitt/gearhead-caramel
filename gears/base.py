@@ -1174,7 +1174,7 @@ class Engine(Component, StandardDamageHandler, MakesPower):
     def on_destruction(self, camp, anim_list):
         my_root = self.get_root()
         my_invo = pbge.effects.Invocation(
-            fx=geffects.DoDamage(2, self.size // 200 + 2, anim=geffects.SuperBoom, scale=self.scale, is_brutal=True),
+            fx=geffects.DoDamage(3, self.size // 200 + 2, anim=geffects.SuperBoom, scale=self.scale, is_brutal=True),
             area=pbge.scenes.targetarea.SelfCentered(radius=self.size // 600 + 1, delay_from=-1))
         my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
@@ -1629,7 +1629,7 @@ class Weapon(Component, StandardDamageHandler):
             name='Basic Attack',
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(self.damage, 6, scale=self.scale),),
+                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -1721,7 +1721,7 @@ class MeleeWeapon(Weapon):
             name=name,
             fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(self.damage, 6, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
+                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -1819,7 +1819,7 @@ class EnergyWeapon(Weapon):
             name=name,
             fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(self.damage, 6, scale=self.scale, hot_knife=True, damage_bonus=self.get_damage_bonus()),),
+                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale, hot_knife=True, damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -2031,7 +2031,7 @@ class BallisticWeapon(Weapon):
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(self.damage, 6, scale=self.scale),),
+                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=penetration,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -2144,7 +2144,7 @@ class BeamWeapon(Weapon):
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(self.damage, 6, scale=self.scale),),
+                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -2363,7 +2363,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 name='Single Shot',
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL,
-                    children=(geffects.DoDamage(ammo.damage, 6, scale=ammo.scale),),
+                    children=(geffects.DoDamage(2*ammo.damage, 4, scale=ammo.scale),),
                     accuracy=ammo.accuracy * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo)
@@ -2388,7 +2388,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 name='Fire x{}'.format(num_missiles),
                 fx=geffects.MultiAttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL, num_attacks=num_missiles,
-                    children=(geffects.DoDamage(ammo.damage, 6, scale=ammo.scale),),
+                    children=(geffects.DoDamage(2*ammo.damage, 4, scale=ammo.scale),),
                     accuracy=ammo.accuracy * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo)
@@ -2572,7 +2572,7 @@ class ChemThrower(Weapon):
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(self.damage, 6, scale=self.scale, scatter=True),),
+                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale, scatter=True),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()

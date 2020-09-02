@@ -586,7 +586,7 @@ class DeadzoneMechaShop(SomewhatOkayGarage):
     additional_waypoints = (ghwaypoints.MechEngTerminal, ghwaypoints.MechaPoster, ghwaypoints.MechaModel, ghwaypoints.GoldPlaque)
     shop_faction = gears.factions.DeadzoneFederation
     shop_ware_types = services.MECHA_STORE
-    show_ares = "mecha"
+    show_wares = "mecha"
 
     @property
     def shop_rank(self):

@@ -237,6 +237,16 @@ class MechaPosterTerrain(pbge.scenes.terrain.OnTheWallVariableTerrain):
     south_frames = (1,3,5,7)
     east_frames = (0,2,4,6)
 
+class Cybertendrils(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    image_top = 'terrain_decor_cybertendrils.png'
+    south_frames = (8,9,10,11,12,13,14,15)
+    east_frames = (0,1,2,3,4,5,6,7)
+
+class TekruinsWallDecor(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    image_top = 'terrain_decor_tekruins.png'
+    south_frames = (8,9,10,11,12,13,14,15)
+    east_frames = (0,1,2,3,4,5,6,7)
+
 
 class DZDWConcreteBuilding(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'

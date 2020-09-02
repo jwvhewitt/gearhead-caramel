@@ -1,10 +1,11 @@
-from . import plotutility
+from . import plotutility, gharchitecture
 import random
 from pbge.plots import Plot, PlotState
 import gears
 
 DG_NAME = "DG_NAME"
 DG_ARCHITECTURE = "DG_ARCHITECTURE"
+DG_DECOR = "DG_DECOR"
 DG_SCENE_TAGS = "DG_SCENE_TAGS"
 DG_MONSTER_TAGS = "DG_MONSTER_TAGS"
 DG_TEMPORARY = "DG_TEMPORARY"
@@ -46,7 +47,7 @@ class DungeonMaker(object):
                  temporary=False,
                  connector=plotutility.StairsDownToStairsUpConnector,
                  explo_music="Good Night.ogg", combat_music="Apex.ogg",
-                 goal_room=None):
+                 goal_room=None, decor=gharchitecture.DungeonDecor()):
         self.name = name
         self.architecture = architecture
         self.rank = rank
@@ -69,7 +70,7 @@ class DungeonMaker(object):
             sp = parent_plot.add_sub_plot(nart, proto.gen, spstate=PlotState(rank=rank + proto.depth * 3, elements={
                 DG_NAME: proto.get_name(name), DG_ARCHITECTURE: architecture, DG_TEMPORARY: temporary,
                 DG_SCENE_TAGS: scene_tags, DG_MONSTER_TAGS: monster_tags, DG_PARENT_SCENE: parent,
-                DG_EXPLO_MUSIC: explo_music, DG_COMBAT_MUSIC: combat_music
+                DG_EXPLO_MUSIC: explo_music, DG_COMBAT_MUSIC: combat_music, DG_DECOR: decor
             }))
             proto.real_scene = sp.elements["LOCALE"]
             self.levels.append(proto.real_scene)

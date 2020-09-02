@@ -283,7 +283,7 @@ DEFAULT_GRAMMAR = {
                           ],
     },
     "[BAD_NEWS]": {
-        # NPC is about to announce something bad.
+        # NPC is about to announce_character_state something bad.
         Default: ["Bad news...","Oh no..."
                   ],
         personality.Cheerful: ["Well that's not good...",
@@ -986,12 +986,12 @@ DEFAULT_GRAMMAR = {
         },
 
     "[GOOD_NEWS]": {
-        # NPC is about to announce something good.
+        # NPC is about to announce_character_state something good.
         Default: ["Good news!",
                   ],
         personality.Cheerful: ["Great news!",
                                ],
-        personality.Grim: ["I have something good to announce!",
+        personality.Grim: ["I have something good to announce_character_state!",
                            ],
         personality.Easygoing: ["Guess what?",
                                 ],
@@ -1921,7 +1921,7 @@ DEFAULT_GRAMMAR = {
     },
 
     "[LISTEN_UP]": {
-        # The character is about to announce something important.
+        # The character is about to announce_character_state something important.
         Default: ["Listen up;",
                   ],
         personality.Cheerful: ["Listen up!",

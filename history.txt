@@ -1,3 +1,5 @@
+- Destroyed mecha will be announced at end of combat
+- Slightly increased and curved damage
 - Missions change your faction score for both enemy and allied factions
 - Only one LMDEV plot can be active at once
 - Added GET trigger when an item is picked up

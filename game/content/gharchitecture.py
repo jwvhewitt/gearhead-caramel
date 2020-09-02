@@ -23,6 +23,10 @@ class MysteryDungeonDecor(OmniDec):
     WALL_DECOR = (ghterrain.BlueTorchTerrain,)
     WALL_FILL_FACTOR = 0.33
 
+class DefiledFactoryDecor(OmniDec):
+    WALL_DECOR = (ghterrain.TekruinsWallDecor,ghterrain.Cybertendrils)
+    WALL_FILL_FACTOR = 0.33
+
 class BunkerDecor(OmniDec):
     WALL_DECOR = (ghterrain.LockersTerrain,ghterrain.VentFanTerrain,ghterrain.ShippingShelvesTerrain,)
     FLOOR_DECOR = (ghterrain.UlsaniteDesk,ghterrain.NorthSouthShelvesTerrain,)
@@ -37,6 +41,7 @@ class UlsaniteOfficeDecor(OfficeDecor):
     DESK_TERRAIN = (ghterrain.UlsaniteDesk,)
     CHAIR_TERRAIN = (ghterrain.UlsaniteChair,)
     WALL_DECOR = (ghterrain.UlsaniteBookshelfTerrain,ghterrain.UlsaniteFilingCabinetTerrain)
+    #WALL_DECOR = (ghterrain.TekruinsWallDecor,)
 
 class WorldScaleDeadzone(Architecture):
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
