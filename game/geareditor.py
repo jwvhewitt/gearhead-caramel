@@ -555,7 +555,10 @@ class UnlimitedPartsSource(object):
     def _add_prototypes(self):
         self.part_list.append(gears.base.Armor(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Shield(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.BeamShield(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Engine(size=1000,scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Gyroscope(scale=gears.scale.MechaScale))
+        self.part_list.append(gears.base.Cockpit(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.Sensor(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.HoverJets(scale=gears.scale.MechaScale))
         self.part_list.append(gears.base.HeavyActuators(scale=gears.scale.MechaScale))
