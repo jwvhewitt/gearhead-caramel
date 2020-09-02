@@ -563,6 +563,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                             pbge.alert("{} has been severely injured and is removed to a safe place.".format(pc))
                 elif random.randint(1,100) <= skill or not pbge.util.config.getboolean("DIFFICULTY","mecha_can_die") or pc not in self.scene.contents:
                     self.party.append(pc)
+                elif announce:
+                    pbge.alert("{} was wrecked beyond recovery.".format(pc.get_full_name()))
 
     def remove_party_from_scene(self):
         # Check for dead and/or incapacitated characters first.
