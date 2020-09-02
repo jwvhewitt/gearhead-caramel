@@ -99,8 +99,8 @@ class DDLD_HermitMechaniac(LMPlot):
             room2=mwsp.elements["FOYER"],
         )
 
-        self.shop = services.Shop(npc=shopkeeper, shop_faction=self.elements["METROSCENE"].faction,
-                                  ware_types=services.MECHA_STORE, rank=self.rank+5)
+        self.shop = services.ChampionShop(npc=shopkeeper, shop_faction=self.elements["METROSCENE"].faction,
+                                          ware_types=services.MECHA_STORE, rank=self.rank+5)
 
         self.wins = 0
         self.rewards = 0
