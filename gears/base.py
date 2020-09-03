@@ -2341,7 +2341,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
         return self.is_not_destroyed() and mod and mod.is_operational()
 
     def get_defenses(self):
-        return {geffects.DODGE: geffects.DodgeRoll(), geffects.BLOCK: geffects.BlockRoll(self),
+        return {geffects.DODGE: geffects.DodgeRoll(),
                 geffects.INTERCEPT: geffects.InterceptRoll(self)}
 
     def get_modifiers(self, ammo):
