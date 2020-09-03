@@ -51,7 +51,7 @@ Mecha
                                     damage = 1
                                     accuracy = 2
                                     penetration = 1
-                                    quantity = 60
+                                    quantity = 65
                                     material = Metal
                             END
                     END

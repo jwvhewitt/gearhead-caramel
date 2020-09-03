@@ -87,7 +87,7 @@ Mecha
                     material = Metal
                     INV
                             Launcher
-                            size = 2
+                            size = 3
                             SUB
                                 Missile
                                     name = "Haywire Missiles"
@@ -96,7 +96,7 @@ Mecha
                                     accuracy = 2
                                     penetration = 2
                                     attributes=(HaywireAttack)
-                                    quantity = 2
+                                    quantity = 4
                             END
 
                     END
