@@ -2265,7 +2265,7 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER
         return int((((self.damage ** 2) * (self.accuracy + 1) * (self.penetration + 1) * (
-                self.reach ** 2 - self.reach + 2)) * self.quantity // 8) * mult)
+                self.reach ** 2 - self.reach + 2)) * self.quantity // 50) * mult)
 
     @property
     def base_health(self):
