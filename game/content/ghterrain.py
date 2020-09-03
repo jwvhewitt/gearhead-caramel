@@ -88,6 +88,9 @@ class SmallSnow( pbge.scenes.terrain.VariableTerrain ):
     image_bottom = 'terrain_floor_snow_small.png'
     border = pbge.scenes.terrain.FloorBorder( Water, 'terrain_border_beach.png' )
 
+class Bones( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_decor_bones.png'
+
 
 class Mountain( pbge.scenes.terrain.HillTerrain ):
     altitude = 20
@@ -162,9 +165,20 @@ class MSRuinedWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_msruins.png'
     blocks = (Walking,Skimming,Rolling,Vision)
 
+
 class StoneWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_stone.png'
     blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
+
+class WallStones(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    image_top = 'terrain_decor_wallstones.png'
+    south_frames = (8,9,10,11,12,13,14,15)
+    east_frames = (0,1,2,3,4,5,6,7)
+
+
+class FloorStones(pbge.scenes.terrain.VariableTerrain):
+    image_bottom = 'terrain_decor_floorstones.png'
 
 
 class DZDTownTerrain(pbge.scenes.terrain.Terrain):
@@ -246,6 +260,9 @@ class TekruinsWallDecor(pbge.scenes.terrain.OnTheWallVariableTerrain):
     image_top = 'terrain_decor_tekruins.png'
     south_frames = (8,9,10,11,12,13,14,15)
     east_frames = (0,1,2,3,4,5,6,7)
+
+class Tekdebris( pbge.scenes.terrain.VariableTerrain ):
+    image_bottom = 'terrain_decor_tekdebris.png'
 
 
 class DZDWConcreteBuilding(pbge.scenes.terrain.Terrain):

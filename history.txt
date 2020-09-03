@@ -1,3 +1,4 @@
+- Added some dungeon decor
 - Destroyed mecha will be announced at end of combat
 - Slightly increased and curved damage
 - Missions change your faction score for both enemy and allied factions

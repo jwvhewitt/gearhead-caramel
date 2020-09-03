@@ -944,7 +944,8 @@ class DZD_AlliedArmor(Plot):
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["OTHERSCENE"], "Wujung Undercity", gharchitecture.StoneBuilding(), 10,
             monster_tags = ("ANIMAL", "CITY", "VERMIN",),
-            scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_RUINS, gears.tags.SCENE_SEMIPUBLIC)
+            scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_RUINS, gears.tags.SCENE_SEMIPUBLIC),
+            decor=gharchitecture.StoneUndercityDecor()
         )
         self.elements["DUNGEON"] = mydungeon.entry_level
         mycon2 = plotutility.TrapdoorToStairsUpConnector(self, self.elements["OTHERSCENE"], mydungeon.entry_level)
