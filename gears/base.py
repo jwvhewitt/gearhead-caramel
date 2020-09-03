@@ -2364,7 +2364,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL,
                     children=(geffects.DoDamage(2*ammo.damage, 4, scale=ammo.scale),),
-                    accuracy=ammo.accuracy * 10, penetration=ammo.penetration * 10,
+                    accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo)
                 ),
@@ -2389,7 +2389,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 fx=geffects.MultiAttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL, num_attacks=num_missiles,
                     children=(geffects.DoDamage(2*ammo.damage, 4, scale=ammo.scale),),
-                    accuracy=ammo.accuracy * 10, penetration=ammo.penetration * 10,
+                    accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo)
                 ),
