@@ -297,6 +297,8 @@ class InvocationUI(object):
         pbge.my_state.view.overlays.clear()
         pbge.my_state.view.overlays[self.pc.pos] = (self.cursor_sprite, self.SC_ORIGIN)
         mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
+        if mmecha:
+            mmecha = [m for m in mmecha if m.is_operational()]
         if self.invo and pbge.my_state.view.mouse_tile in self.legal_tiles:
             aoe = self.invo.area.get_area(self.camp, self.pc.pos, pbge.my_state.view.mouse_tile)
             for p in aoe:
