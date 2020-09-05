@@ -6,8 +6,8 @@ from . import aitargeters
 from . import enchantments
 
 SONG_REACH = 12
-MENTAL_COST = 9
-
+MENTAL_COST = 8
+ROLL_MOD = 15
 
 class _Info(object):
     def __init__(self, att_stat, att_skill, def_stat, def_skill):
@@ -51,6 +51,7 @@ def _top_fx(info):
                                    )
 def _sing_fx(info):
     return geffects.SkillRoll( info.att_stat, info.att_skill
+                             , roll_mod = ROLL_MOD
                              , on_success = [_positive_fx(info)]
                              , on_failure = [_fail_fx(info)]
                              )
@@ -59,6 +60,7 @@ def _fail_fx(info):
     # On failing, do another skill roll.
     # If they fail again, trigger a negative effect.
     return geffects.SkillRoll( info.att_stat, info.att_skill
+                             , roll_mod = ROLL_MOD
                              , on_success = [_null_fx(info)]
                              , on_failure = [_negative_fx(info)]
                              )
