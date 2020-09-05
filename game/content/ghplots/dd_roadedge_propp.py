@@ -617,7 +617,7 @@ class DZREPR_ThoseAreNotBandits(DZREPR_BaseMission):
 class DZREPR_WhyDoYouNeedAGiantCannon(DZREPR_NPCMission):
     LABEL = "DZRE_MOTIVE_ACE"
     REQUIRES = {E_MOTIVE: DZRE_MOTIVE_UNKNOWN, E_ACE: DZRE_ACE_ZEUSCANNON}
-    CHANGES = {E_ACE: DZRE_MOTIVE_CONQUEST}
+    CHANGES = {E_MOTIVE: DZRE_MOTIVE_CONQUEST}
     MISSION_NAME = "Recon by Force"
     MISSION_PROMPT = "Search for the patrol sent out by {NPC}"
     OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER,missionbuilder.BAMO_EXTRACT_ALLIED_FORCES)
@@ -1660,3 +1660,51 @@ class DZREPR_PrettyStandardInvaders(DZREPR_BasePlot):
         camp.check_trigger("UPDATE")
         self.memo = "You learned that {} are trying to establish a stronghold near {}.".format(self.elements["FACTION"],self.elements["METROSCENE"])
 
+
+def _typecheck():
+    """ Make sure there is no mixup i.e. E_ACE: E_MOTIVE_CONQUEST
+    """
+    def get_all_subclasses(cls):
+        yield cls
+        for sc in cls.__subclasses__():
+            for sc in get_all_subclasses(sc):
+                yield sc
+    def keys_correct(cname, pname, d):
+        for k in d.keys():
+            v = d[k]
+            if not v:
+                continue
+            desc = "{}.{}: '{}' has invalid '{}'".format(cname, pname, k, v)
+            if k == E_MOTIVE:
+                assert "DZRE_EGOAL_" in v or "DZRE_MOTIVE_" in v, desc
+            elif k == E_ACE:
+                assert "DZRE_ACE_" in v, desc
+            elif k == E_TOWN:
+                assert "DZRE_TOWN_" in v, desc
+            else:
+                # invalid key!
+                assert False, "{}.{}: invalid '{}'".format(cname, pname, k)
+    def label_correct(cname, label, requires):
+        desc = "{}.LABEL = {}: invalid {}".format(cname, label, requires)
+        if label == "DZRE_TEST":
+            # for testing
+            return
+        elif label == "DZRE_MOTIVE_ACE_TOWN":
+            assert E_MOTIVE in requires and E_ACE in requires and E_TOWN in requires, desc
+        elif label == "DZRE_MOTIVE_ACE":
+            assert E_MOTIVE in requires and E_ACE in requires and E_TOWN not in requires, desc
+        elif label == "DZRE_ACE_TOWN":
+            assert E_MOTIVE not in requires and E_ACE in requires and E_TOWN in requires, desc
+        elif label == "DZRE_MOTIVE_TOWN":
+            assert E_MOTIVE in requires and E_ACE not in requires and E_TOWN in requires, desc
+        else:
+            assert False, "{}.LABEL = invalid {}".format(cname, label)
+    for c in get_all_subclasses(DZREPR_BaseMission):
+        # Ensure correctness.
+        keys_correct(c.__name__, 'REQUIRES', c.REQUIRES)
+        keys_correct(c.__name__, 'CHANGES', c.CHANGES)
+        label_correct(c.__name__, c.LABEL, c.REQUIRES)
+        for k in c.CHANGES.keys():
+            assert k in c.REQUIRES, "{}.CHANGES: key {} not in .REQUIRES".format(c.__name__, k)
+
+_typecheck()
