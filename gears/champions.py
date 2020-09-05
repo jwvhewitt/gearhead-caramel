@@ -586,14 +586,18 @@ class FulminateTheme(UpgradeTheme):
         self._upgraded_weapons = False
         self._have_ew = False
 
+        self._candidate_programs = [ p for p in gears.programs.ALL_PROGRAMS
+                                  if not p.UNIQUE
+                                   ]
+
     def pre_upgrade(self, mek, items):
         self._have_ew = any([isinstance(i, base.EWSystem) for i in items])
 
     def _upgrade_ew(self, item):
-        if item.size == len(gears.programs.ALL_PROGRAMS):
+        if item.size == len(self._candidate_programs):
             return False
         # Get what program we can add.
-        candidates = [p for p in gears.programs.ALL_PROGRAMS if not p in item.programs]
+        candidates = [p for p in self._candidate_programs if not p in item.programs]
         item.size += 1
         item.programs.append(random.choice(candidates))
         return True
@@ -665,8 +669,8 @@ class FulminateTheme(UpgradeTheme):
         if self._have_ew:
             return None
 
-        size = min(4, module.free_volume, len(gears.programs.ALL_PROGRAMS))
-        programs = gears.programs.ALL_PROGRAMS.copy()
+        size = min(4, module.free_volume, len(self._candidate_programs))
+        programs = self._candidate_programs.copy()
         random.shuffle(programs)
         item = base.EWSystem( name = 'Disruptor'
                             , size = size

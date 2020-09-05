@@ -14,6 +14,9 @@ class Program(Singleton):
     USE_AT = ()
     COST = 500
 
+    # Set this to True to prevent champions from getting it.
+    UNIQUE = False
+
     @classmethod
     def get_invocations(cls, pc):
         raise NotImplementedError('Program must override get_invocations')
@@ -246,6 +249,8 @@ class Necromatix(Program):
     desc = 'An experimental PreZero self-repair system.'
     USE_AT = (scale.MechaScale,)
     COST = 500
+
+    UNIQUE = True
 
     @classmethod
     def get_invocations(cls, pc):
