@@ -102,6 +102,19 @@ class MechaGraveyardAdventure(Plot):
                                           desc="You stand before the primary research terminal."),
                                         dident="LORE_ROOM_1")
 
+        lr2 = self.register_element(
+            "LORE_ROOM_2", pbge.randmaps.rooms.ClosedRoom(7, 7, ),
+        )
+        levels[1].contents.append(lr1)
+        self.add_sub_plot(
+            nart, "MONSTER_ENCOUNTER", spstate=PlotState(rank=self.rank + 6).based_on(self),
+            elements={"ROOM": lr2, "LOCALE": levels[1], "TYPE_TAGS": ("CREEPY", "ZOMBOT")}
+        )
+        lorecompy2 = self.register_element("LORE2", ghwaypoints.RetroComputer(plot_locked=True, name="Computer",
+                                          desc="You stand before the research overview terminal."),
+                                        dident="LORE_ROOM_2")
+
+
         # Add the goal room
         final_room = self.register_element(
             "FINAL_ROOM", pbge.randmaps.rooms.ClosedRoom(9, 9, ),
@@ -146,6 +159,19 @@ class MechaGraveyardAdventure(Plot):
         self.subplots["OUTENCOUNTER"].end_plot(camp)
         camp.check_trigger("WIN", self)
 
+    def LORE2_menu(self, camp, thingmenu):
+        thingmenu.add_item("Read the overview for the NC-1 Self Repair Module", self._read_overview)
+        thingmenu.add_item("Search for hidden files", self._search_l2)
+
+    def _read_overview(self, camp):
+        pbge.alert(
+            "The NC-1 Self Repair Module is a revolutionary new technology for conventional battlemovers. It uses bionite agents to effect instantaneous repair of mechanical systems.")
+        pbge.alert(
+            "")
+        pbge.alert(
+            "")
+
+
     def LORE1_menu(self, camp, thingmenu):
         thingmenu.add_item("Read the notes of Dr. Herbert Coombs", self._read_hc)
         thingmenu.add_item("Read the notes of Dr. Millicent Savini", self._read_ms)
@@ -160,7 +186,12 @@ class MechaGraveyardAdventure(Plot):
             "\"I have introduced a small amount of NC-1 into my leg prosthetic to see if they can repair my constantly slipping ankle joint.\"")
 
     def _read_ms(self, camp):
-        pass
+        pbge.alert(
+            "\"Initial tests for the NC-1 bionite have revealed problems not indicated by the prototypes. Among these issues, the infectious nature of the system must be resolved before testing resumes.\"")
+        pbge.alert(
+            "\"The gestalt intelligence does not differentiate between its host machinery and external units. This leads to the bionites attempting to colonize any machine they are brought into contact with. A self-repair system that will also repair your enemy's machine is, to put it bluntly, less than optimal.\"")
+        pbge.alert(
+            "\"So far, the spread of the bionites has been limited by their fragility when moved beyond range of the broadcast power system. Testing cannot resume until it's clear we're not risking another Onyx Jelly fiasco.\"")
 
     def _search_l1(self, camp: gears.GearHeadCampaign):
         pc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Computers, self.rank, no_random=True)
@@ -171,7 +202,7 @@ class MechaGraveyardAdventure(Plot):
                 pbge.alert("{} hacks into the ancient computer system.".format(pc))
             pbge.alert("You discover an additional log file from Dr. Millicent Savini which someone attempted to delete from the database.")
             pbge.alert("\"Attempts to restrain the NC-1 bionite seem to be interpreted by the gestalt intelligence as a form of damage. Thus far, it has outmaneuvered every security protocol we have attempted.\"")
-            pbge.alert("\"Herbert's condition is deteriorating as more of his biomass is being replaced by machinery. It is not clear what effect the infection has had on his brain. In any case, I have placed him in a specimin containment chamber and will be conducting further tests.\"")
+            pbge.alert("\"Herbert's condition is deteriorating as more of his biomass is being replaced by machinery. It is not clear what effect the infection has had on his brain. In any case, I have restrained him in a specimen containment chamber and will be conducting further tests.\"")
             pbge.alert("\"I have installed an emergency shutdown switch into the factory control mainframe. In the event that we lose control of NC-1, the command FINAL_DEATH will cut power to the system.\"")
             self.got_shutdown = True
         else:
