@@ -191,6 +191,10 @@ class Fireball( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_fireball.png"
     DEFAULT_END_FRAME = 7
 
+class DisintegrationAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_disintegration.png"
+    DEFAULT_END_FRAME = 15
+
 class HaywireAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_haywire.png"
     DEFAULT_END_FRAME = 19
@@ -1793,7 +1797,7 @@ class Disintegration(NegativeEnchantment):
         burn = effects.Invocation(
             name = 'Disintegrate',
             fx= DoDamage(3,6,scale=owner.scale,scatter=True,
-                         anim=BurnAnim,),
+                         anim=DisintegrationAnim,),
             area=pbge.scenes.targetarea.SingleTarget(),)
         burn.invoke(camp, None, [owner.pos,], pbge.my_state.view.anim_list)
         pbge.my_state.view.handle_anim_sequence()
