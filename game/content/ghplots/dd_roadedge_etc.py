@@ -105,7 +105,7 @@ class MechaGraveyardAdventure(Plot):
         lr2 = self.register_element(
             "LORE_ROOM_2", pbge.randmaps.rooms.ClosedRoom(7, 7, ),
         )
-        levels[1].contents.append(lr1)
+        levels[1].contents.append(lr2)
         self.add_sub_plot(
             nart, "MONSTER_ENCOUNTER", spstate=PlotState(rank=self.rank + 6).based_on(self),
             elements={"ROOM": lr2, "LOCALE": levels[1], "TYPE_TAGS": ("CREEPY", "ZOMBOT")}
@@ -114,6 +114,24 @@ class MechaGraveyardAdventure(Plot):
                                           desc="You stand before the research overview terminal."),
                                         dident="LORE_ROOM_2")
 
+        lr3 = self.register_element(
+            "LORE_ROOM_3", pbge.randmaps.rooms.ClosedRoom(7, 7, ),
+        )
+        levels[2].contents.append(lr3)
+        self.add_sub_plot(
+            nart, "MONSTER_ENCOUNTER", spstate=PlotState(rank=self.rank + 6).based_on(self),
+            elements={"ROOM": lr3, "LOCALE": levels[2], "TYPE_TAGS": ("ROBOT",)}
+        )
+        lorecompy3 = self.register_element("LORE3", ghwaypoints.RetroComputer(plot_locked=True, name="Computer",
+                                          desc="You stand before the incubation chamber control terminal."),
+                                        dident="LORE_ROOM_3")
+        biotank_alpha = self.register_element("BIO_A", ghwaypoints.Biotank(plot_locked=True, name="Biotank",),
+                                        dident="LORE_ROOM_3")
+        biotank_beta = self.register_element("BIO_B", ghwaypoints.EmptyBiotank(plot_locked=True, name="Biotank",),
+                                        dident="LORE_ROOM_3")
+
+        self.alpha_full = True
+        self.beta_full = False
 
         # Add the goal room
         final_room = self.register_element(
@@ -167,10 +185,25 @@ class MechaGraveyardAdventure(Plot):
         pbge.alert(
             "The NC-1 Self Repair Module is a revolutionary new technology for conventional battlemovers. It uses bionite agents to effect instantaneous repair of mechanical systems.")
         pbge.alert(
-            "")
+            "Direction is provided by the gestalt intelligence of the bionite network. This allows the system to operate without a central control unit and to make efficient use of available resources.")
         pbge.alert(
-            "")
+            "Join the battleforce of the future, today. Support development of the NC-1 Self Repair Module now and get early backer exclusive rewards.")
 
+    def _search_l2(self, camp: gears.GearHeadCampaign):
+        pc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Computers, self.rank, difficulty=gears.stats.DIFFICULTY_EASY, no_random=True)
+        if pc:
+            if pc is camp.pc:
+                pbge.alert("You easily hack into the ancient computer system.")
+            else:
+                pbge.alert("{} hacks into the ancient computer system.".format(pc))
+            pbge.alert("You discover an additional data file for a secondary project.")
+            pbge.alert("Test subject HC-Alpha shows the potential for the NC-1 system to be used not just for battlemovers, but individual soldiers as well. Biotechnology allows perfect fusion of organic and inorganic components.")
+            pbge.alert("If the neural degradation problem can be solved, imagine the potential: Immortal soldiers who instantly recover from any damage. The keys to their immortality safely held by illumos who control the power source.")
+            pbge.alert("Even if the degradation problem is intractable, there are ways to weaponize this phenomenon. Imagine high-C munitions loaded with NC bionites. Initial casulties could be reanimated to eliminate surviving defenders.")
+            pbge.alert("Anyway, it's something to think about when we submit the third round of grant applications.")
+            self.got_shutdown = True
+        else:
+            pbge.alert("This computer uses a PreZero operating system that is far beyond your understanding.")
 
     def LORE1_menu(self, camp, thingmenu):
         thingmenu.add_item("Read the notes of Dr. Herbert Coombs", self._read_hc)

@@ -10,6 +10,7 @@ from pbge.scenes.waypoints import Waypoint
 from game import geareditor, fieldhq
 from game import cyberdoc
 import gears
+import random
 
 
 class VendingMachine( Waypoint ):
@@ -322,3 +323,39 @@ class UndergroundEntrance(Exit):
 
 class OldMainframe(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.OldMainframeTerrain)
+
+
+class Biotank(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.BiotankTerrain)
+    SPRITE_OFF = ((0,0),(-14,0),(-6,12),(6,9),(14,0),(6,-12),(-6,-12))
+
+    def fill_tank(self):
+        scene = self.scene
+        if scene and scene.on_the_map(*self.pos):
+            scene.set_decor(self.pos[0], self.pos[1], ghterrain.BiotankTerrain)
+
+    def empty_tank(self):
+        scene = self.scene
+        if scene and scene.on_the_map(*self.pos):
+            scene.set_decor(self.pos[0], self.pos[1], ghterrain.EmptyBiotankTerrain)
+
+    def break_tank(self, process_anim=True):
+        # If you're breaking a bunch of tanks at once, set process_anim to False and call handle_anim_sequence yerself.
+        scene = self.scene
+        if scene and scene.on_the_map(*self.pos):
+            mypoints = random.sample(self.SPRITE_OFF,5)
+            for t in range(5):
+                pbge.my_state.view.anim_list.append(
+                    gears.geffects.BigBoom(pos=self.pos, x_off=mypoints[t][0], y_off=mypoints[t][1],
+                                           delay=t * 5))
+            if process_anim:
+                pbge.my_state.view.handle_anim_sequence()
+            scene.set_decor(self.pos[0], self.pos[1], ghterrain.BrokenBiotankTerrain)
+
+
+class EmptyBiotank(Biotank):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.EmptyBiotankTerrain)
+
+
+class BrokenBiotank(Biotank):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.BrokenBiotankTerrain)

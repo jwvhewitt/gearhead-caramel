@@ -693,3 +693,19 @@ class OldMainframeTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_oldmainframe.png'
     frame = 0
     blocks = (Walking,Skimming,Rolling,Flying)
+
+class BiotankTerrain(pbge.scenes.terrain.AnimTerrain):
+    frames = (0,1,2,3,1,2,4,2,5,2,1,2,3,2,1,0,1,2,3,2,1,2,3,2,1)
+    image_top = 'terrain_decor_biotank.png'
+    anim_delay = 6
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class EmptyBiotankTerrain(pbge.scenes.terrain.Terrain):
+    frame = 6
+    image_top = 'terrain_decor_biotank.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class BrokenBiotankTerrain(pbge.scenes.terrain.Terrain):
+    frame = 7
+    image_top = 'terrain_decor_biotank.png'
+    blocks = (Walking,Skimming,Rolling,Flying)

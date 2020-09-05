@@ -505,7 +505,7 @@ class Explorer( object ):
                     elif gdi.unicode == "R" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         print(self.camp.renown)
                     elif gdi.unicode == "A" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
-                        self.record_count = 20
+                        self.record_count = 30
 
 #                    elif gdi.unicode == "K" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
 #                        self.camp.pc.hp_damage += 100
