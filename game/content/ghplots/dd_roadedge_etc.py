@@ -146,6 +146,9 @@ class MechaGraveyardAdventure(Plot):
                                                                           anchor=pbge.randmaps.anchors.middle,
                                                                           desc="You stand before the factory control mainframe."),
                                         dident="FINAL_ROOM")
+
+        #print(self.elements["METROSCENE"])
+
         return True
 
     def LOCATE_WIN(self, camp):
@@ -174,8 +177,67 @@ class MechaGraveyardAdventure(Plot):
             "You activate the emergency shutdown. For the first time in nearly two hundred years, the computer powers off and comes to a rest.")
         self.zombots_active = False
         self.safe_shutdown = True
+        if self.beta_full:
+            self.set_collector = True
         self.subplots["OUTENCOUNTER"].end_plot(camp)
         camp.check_trigger("WIN", self)
+
+    def LORE3_menu(self, camp, thingmenu):
+        if self.alpha_full:
+            thingmenu.add_item("Drain Alpha Chamber", self._toggle_alpha)
+        else:
+            thingmenu.add_item("Fill Alpha Chamber", self._toggle_alpha)
+        if self.beta_full:
+            thingmenu.add_item("Drain Beta Chamber", self._toggle_beta)
+        else:
+            thingmenu.add_item("Fill Beta Chamber", self._toggle_beta)
+
+    def _toggle_alpha(self, camp):
+        if self.alpha_full:
+            self.alpha_full = False
+            self.elements["BIO_A"].break_tank()
+            mymonster: gears.base.Monster = gears.selector.get_design_by_full_name("Skeletron")
+            mymonster.roll_stats(20,False)
+            mymonster.colors = (gears.color.CardinalRed, gears.color.Ebony, gears.color.ElectricYellow, gears.color.Cyan, gears.color.Malachite)
+            mymonster.name = "Subject Alpha"
+            mymonster.statline[gears.stats.CloseCombat] += 4
+            mymonster.statline[gears.stats.Vitality] += 7
+            myteam = teams.Team(enemies=(camp.scene.player_team,))
+            camp.scene.place_gears_near_spot(self.elements["BIO_A"].pos[0],self.elements["BIO_A"].pos[1],myteam, mymonster)
+        else:
+            pbge.alert("ERROR: Alpha Chamber not responding. Please consult manual.")
+
+    def _toggle_beta(self, camp):
+        if self.beta_full:
+            self.elements["BIO_B"].empty_tank()
+        else:
+            self.elements["BIO_B"].fill_tank()
+        self.beta_full = not self.beta_full
+
+    def BIO_A_menu(self, camp, thingmenu):
+        if self.alpha_full:
+            thingmenu.desc = "This biotank is filled with a cloudy green liquid. There is something moving gently inside of it."
+        else:
+            thingmenu.desc = "This biotank has been destroyed."
+
+    def BIO_B_menu(self, camp, thingmenu):
+        if self.set_collector:
+            if self.beta_full:
+                thingmenu.desc = "This biotank is filled with a cloudy green liquid. There is a large, dark shape in the middle of the tank."
+            else:
+                thingmenu.desc = "This biotank contains a featureless black box. You are pretty sure it wasn't there earlier."
+                thingmenu.add_item("Get the box", self._get_box)
+        else:
+            if self.beta_full:
+                thingmenu.desc = "This biotank is filled with a cloudy green liquid."
+            else:
+                thingmenu.desc = "This biotank is empty."
+
+    def _get_box(self, camp):
+        pbge.alert("You retrieve the box from the biotank. It appears to be some kind of mecha component.")
+        self.set_collector = False
+        myitem = gears.selector.get_design_by_full_name("NC-1 Self Repair System")
+        camp.party.append(myitem)
 
     def LORE2_menu(self, camp, thingmenu):
         thingmenu.add_item("Read the overview for the NC-1 Self Repair Module", self._read_overview)
@@ -235,8 +297,8 @@ class MechaGraveyardAdventure(Plot):
                 pbge.alert("{} hacks into the ancient computer system.".format(pc))
             pbge.alert("You discover an additional log file from Dr. Millicent Savini which someone attempted to delete from the database.")
             pbge.alert("\"Attempts to restrain the NC-1 bionite seem to be interpreted by the gestalt intelligence as a form of damage. Thus far, it has outmaneuvered every security protocol we have attempted.\"")
-            pbge.alert("\"Herbert's condition is deteriorating as more of his biomass is being replaced by machinery. It is not clear what effect the infection has had on his brain. In any case, I have restrained him in a specimen containment chamber and will be conducting further tests.\"")
-            pbge.alert("\"I have installed an emergency shutdown switch into the factory control mainframe. In the event that we lose control of NC-1, the command FINAL_DEATH will cut power to the system.\"")
+            pbge.alert("\"Herbert's condition is deteriorating as more of his biomass is being replaced by machinery. It is not clear what effect the infection has had on his brain. In any case, I have restrained him in a specimen vat and will be conducting further tests.\"")
+            pbge.alert("\"I have installed an emergency shutdown switch into the factory control mainframe. In the event that we lose control of NC-1, the command FINAL_DEATH will cut power to the system. Active bionites will be moved to the containment system.\"")
             self.got_shutdown = True
         else:
             pbge.alert("This computer uses a PreZero operating system that is far beyond your understanding.")

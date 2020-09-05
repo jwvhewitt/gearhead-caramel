@@ -233,6 +233,15 @@ EWSystem
     shop_tags = ("MEXTRA",)
     faction_list = (None,)
 
+EWSystem
+    # Unique item- not found in stores
+    desig = 'NC-1'
+    name = "Self Repair System"
+    size = 2
+    programs = (Necromatix, AIAssistant,)
+    scale = MechaScale
+    material = Biotech
+
 BeamShield
     desig = 'SBS'
     desc = "A high-quality mecha-scale beam shield."

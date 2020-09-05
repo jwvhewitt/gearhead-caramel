@@ -27,7 +27,7 @@ class DefiledFactoryDecor(OmniDec):
     WALL_DECOR = (ghterrain.TekruinsWallDecor,ghterrain.Cybertendrils)
     WALL_FILL_FACTOR = 0.33
     FLOOR_DECOR = (ghterrain.Bones,ghterrain.Tekdebris)
-    FLOOR_FILL_FACTOR = 0.10
+    FLOOR_FILL_FACTOR = 0.07
 
 
 class StoneUndercityDecor(OmniDec):

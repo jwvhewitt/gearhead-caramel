@@ -332,6 +332,22 @@ class GearHeadScene(pbge.scenes.Scene):
                 mylist.append(str(t))
         return mylist
 
+    def place_gears_near_spot(self, x0, y0, team, *models):
+        entry_points = pbge.scenes.pfov.WalkReach(self, x0, y0, 1, True).tiles
+        entry_points = entry_points.difference(self.get_blocked_tiles())
+        if not entry_points:
+            entry_points = pbge.scenes.pfov.WalkReach(self, x0, y0, 3, True).tiles
+            entry_points = entry_points.difference(self.get_blocked_tiles())
+        entry_points = list(entry_points)
+        for pc in models:
+            if entry_points:
+                pos = random.choice(entry_points)
+                entry_points.remove(pos)
+            else:
+                break
+            pc.place(self, pos, team)
+            pc.gear_up()
+
 
 class GearHeadCampaign(pbge.campaign.Campaign):
     fight = None
