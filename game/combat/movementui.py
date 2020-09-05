@@ -1,6 +1,7 @@
 import pbge
 import gears
 from gears import info
+from game import traildrawer
 import pygame
 
 class MoveWidget( pbge.widgets.Widget ):
@@ -70,8 +71,14 @@ class MovementUI( object ):
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (
               self.cursor_sprite,self.SC_ZEROCURSOR+min(4,self.camp.fight.ap_needed(self.mover,self.nav,pbge.my_state.view.mouse_tile)))
             mypath = self.nav.get_path(pbge.my_state.view.mouse_tile)
-            for p in mypath[1:-1]:
-                pbge.my_state.view.overlays[ p ] = (self.cursor_sprite,self.SC_TRAILMARKER)
+
+            # Draw the trail, highlighting where one action point ends and the next begins.
+            traildrawer.draw_trail( self.cursor_sprite
+                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
+                                  , self.camp.scene, self.mover
+                                  , self.camp.fight.cstat[self.mover].mp_remaining
+                                  , mypath
+                                  )
         else:
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_VOIDCURSOR)
 
