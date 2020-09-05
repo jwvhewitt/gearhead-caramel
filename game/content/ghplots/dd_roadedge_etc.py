@@ -157,7 +157,7 @@ class MechaGraveyardAdventure(Plot):
         pbge.alert(
             "\"There are still limitations. The bionite mass has no internal power source, and so depends upon an external broadcast engine. Individual bionites which move beyond control range perish quickly.\"")
         pbge.alert(
-            "\"I have introduced a small amount of NC-1 into my leg prosthetic to see if they can repair the constantly breaking ankle joint.\"")
+            "\"I have introduced a small amount of NC-1 into my leg prosthetic to see if they can repair my constantly slipping ankle joint.\"")
 
     def _read_ms(self, camp):
         pass
@@ -171,7 +171,7 @@ class MechaGraveyardAdventure(Plot):
                 pbge.alert("{} hacks into the ancient computer system.".format(pc))
             pbge.alert("You discover an additional log file from Dr. Millicent Savini which someone attempted to delete from the database.")
             pbge.alert("\"Attempts to restrain the NC-1 bionite seem to be interpreted by the gestalt intelligence as a form of damage. Thus far, it has outmaneuvered every security protocol we have attempted.\"")
-            pbge.alert("\"Herbert's condition is deteriorating as more of his biomass is being replaced by machinery. It is not clear what effect the infection has had on his brain. In any case, I do not believe that his objectivity can be trusted.\"")
+            pbge.alert("\"Herbert's condition is deteriorating as more of his biomass is being replaced by machinery. It is not clear what effect the infection has had on his brain. In any case, I have placed him in a specimin containment chamber and will be conducting further tests.\"")
             pbge.alert("\"I have installed an emergency shutdown switch into the factory control mainframe. In the event that we lose control of NC-1, the command FINAL_DEATH will cut power to the system.\"")
             self.got_shutdown = True
         else:

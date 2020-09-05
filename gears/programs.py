@@ -4,6 +4,8 @@ from . import geffects
 from . import scale
 from . import stats
 from . import aitargeters
+from . import materials
+import random
 
 
 class Program(Singleton):
@@ -15,7 +17,6 @@ class Program(Singleton):
     @classmethod
     def get_invocations(cls, pc):
         raise NotImplementedError('Program must override get_invocations')
-        return list()
 
 
 class EMBlaster(Program):
@@ -238,6 +239,76 @@ class AIAssistant(Program):
         progs.append(myprog)
 
         return progs
+
+class Necromatix(Program):
+    # This program can only be found in one place- the Mecha Graveyard.
+    name = 'Necromatix'
+    desc = 'An experimental PreZero self-repair system.'
+    USE_AT = (scale.MechaScale,)
+    COST = 500
+
+    @classmethod
+    def get_invocations(cls, pc):
+        progs = list()
+
+        pc_skill = pc.get_skill_score(stats.Craft, stats.Biotechnology)
+        n, extra = divmod(pc_skill, 6)
+        if random.randint(1, 6) <= extra:
+            n += 1
+        myprog = pbge.effects.Invocation(
+            name = 'Self Repair',
+            fx=geffects.DoHealing(
+                max(n,2)+1,6, repair_type=materials.RT_REPAIR,
+                anim = geffects.RepairAnim,
+                ),
+            area=pbge.scenes.targetarea.SelfOnly(),
+            used_in_combat = True, used_in_exploration=True,
+            ai_tar = aitargeters.GenericTargeter(impulse_score=10,conditions=[aitargeters.TargetIsAlly(),aitargeters.TargetIsOperational(),aitargeters.TargetIsDamaged(materials.RT_REPAIR)],targetable_types=pbge.scenes.PlaceableThing),
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
+            price=[geffects.MentalPrice(3)],
+            targets=1)
+        progs.append(myprog)
+
+        myprog = pbge.effects.Invocation(
+            name = 'Repair Net',
+            fx=geffects.CheckConditions(
+                conditions=[
+                    aitargeters.TargetIsOperational(), aitargeters.TargetIsAlly(),
+                ], on_success=[
+                    geffects.DoHealing(
+                        max(n, 2), 6, repair_type=materials.RT_REPAIR,
+                        anim=geffects.RepairAnim,
+                    )
+                ],
+            ),
+            area=pbge.scenes.targetarea.SelfCentered(radius=3),
+            used_in_combat = True, used_in_exploration=True,
+            ai_tar = aitargeters.GenericTargeter(impulse_score=10,conditions=[aitargeters.TargetIsAlly(),aitargeters.TargetIsOperational(),aitargeters.TargetIsDamaged(materials.RT_REPAIR)],targetable_types=pbge.scenes.PlaceableThing),
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
+            price=[geffects.MentalPrice(5),geffects.StatValuePrice(stats.Biotechnology, 5)],
+            targets=1)
+        progs.append(myprog)
+
+        myprog2 = pbge.effects.Invocation(
+            name = 'Contagion',
+            fx= geffects.OpposedSkillRoll(stats.Knowledge,stats.Biotechnology,stats.Ego,stats.Computers,
+                    roll_mod=25, min_chance=50,
+                    on_success=[geffects.AddEnchantment(geffects.Disintegration,anim=geffects.InflictDisintegrationAnim,)],
+                    on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim),],
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=5),
+            used_in_combat = True, used_in_exploration=False,
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.Disintegration)]),
+            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=25),
+            price=[geffects.MentalPrice(5),geffects.StatValuePrice(stats.Biotechnology,9)],
+            targets=1)
+        progs.append(myprog2)
+
+
+        return progs
+
 
 
 ALL_PROGRAMS = Program.__subclasses__()

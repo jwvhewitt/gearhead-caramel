@@ -254,6 +254,10 @@ class SearchTextAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Search!'
 
 
+class InflictDisintegrationAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Disintegrating!'
+
+
 class InflictHaywireAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Haywire!'
 
@@ -1768,6 +1772,21 @@ class Burning(NegativeEnchantment):
             area=pbge.scenes.targetarea.SingleTarget(),)
         burn.invoke(camp, None, [owner.pos,], pbge.my_state.view.anim_list)
         pbge.my_state.view.handle_anim_sequence()
+
+
+class Disintegration(NegativeEnchantment):
+    name = 'Disintegrating'
+    DEFAULT_DURATION = 3
+    def update(self,camp,owner):
+        burn = effects.Invocation(
+            name = 'Disintegrate',
+            fx= DoDamage(3,6,scale=owner.scale,scatter=True,
+                         anim=BurnAnim,),
+            area=pbge.scenes.targetarea.SingleTarget(),)
+        burn.invoke(camp, None, [owner.pos,], pbge.my_state.view.anim_list)
+        pbge.my_state.view.handle_anim_sequence()
+    def get_penetration_bonus(self,owner):
+        return 25
 
 
 class HaywireStatus(NegativeEnchantment):
