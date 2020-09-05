@@ -36,7 +36,7 @@ Mecha
                     name = "Collar Mount"
                     INV
                         Launcher
-                            size = 7
+                            size = 8
                             SUB
                                 Missile
                                     name = "Guided Missiles"
@@ -44,7 +44,7 @@ Mecha
                                     damage = 2
                                     accuracy = 3
                                     penetration = 1
-                                    quantity = 12
+                                    quantity = 15
                             END
                     END
             END

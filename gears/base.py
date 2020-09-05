@@ -2265,7 +2265,7 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER
         return int((((self.damage ** 2) * (self.accuracy + 1) * (self.penetration + 1) * (
-                self.reach ** 2 - self.reach + 2)) * self.quantity // 8) * mult)
+                self.reach ** 2 - self.reach + 2)) * self.quantity // 50) * mult)
 
     @property
     def base_health(self):
@@ -2341,7 +2341,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
         return self.is_not_destroyed() and mod and mod.is_operational()
 
     def get_defenses(self):
-        return {geffects.DODGE: geffects.DodgeRoll(), geffects.BLOCK: geffects.BlockRoll(self),
+        return {geffects.DODGE: geffects.DodgeRoll(),
                 geffects.INTERCEPT: geffects.InterceptRoll(self)}
 
     def get_modifiers(self, ammo):
@@ -2364,7 +2364,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL,
                     children=(geffects.DoDamage(2*ammo.damage, 4, scale=ammo.scale),),
-                    accuracy=ammo.accuracy * 10, penetration=ammo.penetration * 10,
+                    accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo)
                 ),
@@ -2389,7 +2389,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 fx=geffects.MultiAttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL, num_attacks=num_missiles,
                     children=(geffects.DoDamage(2*ammo.damage, 4, scale=ammo.scale),),
-                    accuracy=ammo.accuracy * 10, penetration=ammo.penetration * 10,
+                    accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo)
                 ),

@@ -37,7 +37,7 @@ Mecha
                 Armor
                     size = 2
                 Launcher
-                    size = 8
+                    size = 10
                     SUB
                         Missile
                             name = "Swarm Missiles"
@@ -45,7 +45,7 @@ Mecha
                             damage = 1
                             accuracy = 2
                             penetration = 1
-                            quantity = 40
+                            quantity = 50
                     END
             END
         Storage
@@ -55,7 +55,7 @@ Mecha
                 Armor
                     size = 2
                 Launcher
-                    size = 8
+                    size = 10
                     SUB
                         Missile
                             name = "Swarm Missiles"
@@ -63,7 +63,7 @@ Mecha
                             damage = 1
                             accuracy = 2
                             penetration = 1
-                            quantity = 40
+                            quantity = 50
                     END
             END
         Leg
@@ -125,7 +125,7 @@ Mecha
                 Armor
                     size = 2
                 Launcher
-                    size = 8
+                    size = 10
                     SUB
                         Missile
                             name = "Leveler Missiles"
@@ -133,7 +133,7 @@ Mecha
                             damage = 4
                             accuracy = 1
                             penetration = 2
-                            quantity = 4
+                            quantity = 5
                             attributes = (Blast2)
 
                     END
@@ -145,7 +145,7 @@ Mecha
                 Armor
                     size = 2
                 Launcher
-                    size = 8
+                    size = 10
                     SUB
                         Missile
                             name = "Leveler Missiles"
@@ -153,7 +153,7 @@ Mecha
                             damage = 4
                             accuracy = 1
                             penetration = 2
-                            quantity = 4
+                            quantity = 5
                             attributes = (Blast2)
                    END
             END

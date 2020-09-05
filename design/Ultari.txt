@@ -53,7 +53,7 @@ Mecha
                     name = "Right Mount"
                     INV
                         Launcher
-                            size = 10
+                            size = 11
                             SUB
                                 Missile
                                     name = "Rocket Pod"
@@ -61,7 +61,7 @@ Mecha
                                     damage = 2
                                     accuracy = 1
                                     penetration = 3
-                                    quantity = 24
+                                    quantity = 28
                             END
                     END
                 Mount
