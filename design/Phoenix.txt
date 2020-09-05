@@ -71,7 +71,7 @@ Mecha
                                     name = "L-Cannon Clip (EMP)"
                                     ammo_type=SelfPropelled_130mm
                                     quantity=20
-                                    attributes = (Haywire)
+                                    attributes = (HaywireAttack,)
                             END
                     END
                 HoverJets
