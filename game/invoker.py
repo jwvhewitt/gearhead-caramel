@@ -1,5 +1,6 @@
 # The invocation selection and targeting UI.
 import pbge
+from game import traildrawer
 from gears import info
 import pygame
 from . import exploration
@@ -312,8 +313,17 @@ class InvocationUI(object):
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_CURSOR)
         elif mmecha and self.can_move_and_attack(mmecha[0].pos):
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_CURSOR)
-            for p in self.mypath[1:]:
-                pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_TRAILMARKER)
+
+            if self.camp.fight:
+                mp_remaining = self.camp.fight.cstat[self.pc].mp_remaining
+            else:
+                mp_remaining = float('inf')
+            traildrawer.draw_trail( self.cursor_sprite
+                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
+                                  , self.camp.scene, self.pc
+                                  , mp_remaining
+                                  , self.mypath + [pbge.my_state.view.mouse_tile]
+                                  )
         else:
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
 
