@@ -82,7 +82,7 @@ Mecha
                             damage = 2
                             accuracy = 1
                             penetration = 1
-                            quantity = 4
+                            quantity = 5
                             attributes = (Blast2)
                     END
 
@@ -102,7 +102,7 @@ Mecha
                             damage = 2
                             accuracy = 1
                             penetration = 1
-                            quantity = 4
+                            quantity = 5
                             attributes = (Blast2)
                     END
 

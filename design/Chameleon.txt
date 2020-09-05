@@ -64,7 +64,7 @@ Mecha
                     name = "Right Arm Mount"
                     INV
                         Launcher
-                            size = 5
+                            size = 6
                             SUB
                                 Missile
                                     name = "Gajira Missiles"
@@ -72,7 +72,7 @@ Mecha
                                     damage = 5
                                     accuracy = 0
                                     penetration = 4
-                                    quantity = 2
+                                    quantity = 3
                             END
                     END
             END
@@ -90,7 +90,7 @@ Mecha
                     name = "Left Arm Mount"
                     INV
                         Launcher
-                            size = 5
+                            size = 6
                             SUB
                                 Missile
                                     name = "Sparrow Missiles"
@@ -98,7 +98,7 @@ Mecha
                                     damage = 1
                                     accuracy = 2
                                     penetration = 0
-                                    quantity = 30
+                                    quantity = 40
                             END
                     END
 
@@ -204,7 +204,7 @@ Mecha
                     name = "Right Arm Mount"
                     INV
                         Launcher
-                            size = 5
+                            size = 6
                             SUB
                                 Missile
                                     name = "Gajira Missiles"
@@ -212,7 +212,7 @@ Mecha
                                     damage = 5
                                     accuracy = 0
                                     penetration = 4
-                                    quantity = 2
+                                    quantity = 3
                             END
                     END
             END
@@ -230,7 +230,7 @@ Mecha
                     name = "Left Arm Mount"
                     INV
                         Launcher
-                            size = 5
+                            size = 6
                             SUB
                                 Missile
                                     name = "Sparrow Missiles"
@@ -238,7 +238,7 @@ Mecha
                                     damage = 1
                                     accuracy = 2
                                     penetration = 0
-                                    quantity = 30
+                                    quantity = 40
                             END
                     END
 
@@ -338,7 +338,7 @@ Mecha
                     name = "Right Arm Mount"
                     INV
                         Launcher
-                            size = 5
+                            size = 6
                             SUB
                                 Missile
                                     name = "Gajira Missiles"
@@ -346,7 +346,7 @@ Mecha
                                     damage = 5
                                     accuracy = 0
                                     penetration = 4
-                                    quantity = 2
+                                    quantity = 3
                             END
                     END
             END
@@ -373,7 +373,7 @@ Mecha
                     name = "Left Arm Mount"
                     INV
                         Launcher
-                            size = 5
+                            size = 6
                             SUB
                                 Missile
                                     name = "Sparrow Missiles"
@@ -381,7 +381,7 @@ Mecha
                                     damage = 1
                                     accuracy = 2
                                     penetration = 0
-                                    quantity = 30
+                                    quantity = 40
                             END
                     END
 

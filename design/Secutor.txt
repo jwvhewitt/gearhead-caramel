@@ -45,7 +45,7 @@ Mecha
                     name = "Collar Mount"
                     INV
                         Launcher
-                            size = 8
+                            size = 10
                             SUB
                                 Missile
                                     name = "Leveler Missiles"
@@ -53,7 +53,7 @@ Mecha
                                     damage = 4
                                     accuracy = 1
                                     penetration = 2
-                                    quantity = 4
+                                    quantity = 5
                                     attributes = (Blast2)
 
                             END

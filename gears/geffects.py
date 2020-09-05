@@ -1586,47 +1586,59 @@ class InterceptRoll( object ):
     def __init__(self,weapon_to_intercept):
         self.weapon_to_intercept = weapon_to_intercept
     def make_roll( self, atroller, attacker, defender, att_bonus, att_roll, fx_record ):
-        # First, locate the defender's interceptor.
-        interceptor = self.get_interceptor(defender)
-        if interceptor:
-            def_roll = random.randint(1,100)
-            def_bonus = interceptor.get_intercept_bonus() + defender.get_skill_score(stats.Speed,interceptor.scale.RANGED_SKILL)
+        # First, locate the defender's interceptors.
+        interceptors = self.get_interceptors(defender)
+        highest_def_roll = 0
+        for interceptor in interceptors:
+            # Interception is worse than other defenses, but you can stack
+            # multiple Interceptors.
+            if random.randint(1,2) == 1:
+                # Sometimes it just.... fails.  No reason.
+                # I mean you are trying to hit a flying target
+                # that's much tinier than an 18-meter mecha,
+                # you think *you* can do that?
+                continue
 
-            if def_roll > 95:
-                # A roll greater than 95 always defends.
-                interceptor.pay_for_intercept(defender,self.weapon_to_intercept)
-                if defender and hasattr(defender, "dole_experience"):
-                    defender.dole_experience(3, interceptor.scale.RANGED_SKILL)
-                return (self.CHILDREN,def_roll + def_bonus)
-            elif def_roll <= 5:
-                # A roll of 5 or less always fails.
-                return (None, def_roll + def_bonus)
-            elif (att_roll + att_bonus + atroller.accuracy) > (def_roll + def_bonus):
-                return (None,def_roll + def_bonus)
+            def_roll = random.randint(1,100)
+            # Same reason, you think *you* can hit a tiny flying
+            # target that's much tinier than an 18-meter mecha
+            # using *just* your skills?
+            def_bonus = (interceptor.get_intercept_bonus() + defender.get_skill_score(stats.Speed,interceptor.scale.RANGED_SKILL)) // 2
+
+            if highest_def_roll < def_roll + def_bonus:
+                highest_def_roll = def_roll + def_bonus
+
+            # I removed the 5%/95% thing temporarily, because I
+            # couldn't figure out how to handle that with the
+            # above coin toss in the `get_odds` function.
+            if (att_roll + att_bonus + atroller.accuracy) > (def_roll + def_bonus):
+                # Attacker is too good.
+                continue
             else:
                 interceptor.pay_for_intercept(defender,self.weapon_to_intercept)
                 if defender and hasattr(defender, "dole_experience"):
-                    defender.dole_experience(2, interceptor.scale.RANGED_SKILL)
-                return (self.CHILDREN, def_roll + def_bonus)
-        else:
-            return (None,0)
-    def get_interceptor( self, defender ):
-        interceptors = [part for part in defender.descendants() if hasattr(part,'can_intercept') and part.can_intercept() and part.is_operational()]
-        if interceptors:
-            return max( interceptors, key = lambda s: s.get_intercept_bonus() )
+                    # Given the reduced chances of actually intercepting, we
+                    # get more experience with it.
+                    defender.dole_experience(5, interceptor.scale.RANGED_SKILL)
+                return (self.CHILDREN, highest_def_roll)
+        return (None, highest_def_roll)
+    def get_interceptors( self, defender ):
+        return [part for part in defender.descendants() if hasattr(part,'can_intercept') and part.can_intercept() and part.is_operational()]
     def can_attempt( self, attacker, defender ):
-        return self.get_interceptor(defender) and (defender.get_current_stamina() > 0)
+        return len(self.get_interceptors(defender)) > 0 and (defender.get_current_stamina() > 0)
 
     def get_odds( self, atroller, attacker, defender, att_bonus ):
         # Return the odds as a float.
-        interceptor = self.get_interceptor(defender)
-        if interceptor:
-            def_target = interceptor.get_intercept_bonus() + defender.get_skill_score(stats.Speed,interceptor.scale.RANGED_SKILL)
-            # The chance to hit is clamped between 5% and 95%.
-            percent = min(max(50 + (att_bonus + atroller.accuracy) - def_target,5),95)
-            return float(percent)/100
-        else:
-            return 1.0
+        interceptors = self.get_interceptors(defender)
+        base = 1.0
+        for interceptor in interceptors:
+            def_target = (interceptor.get_intercept_bonus() + defender.get_skill_score(stats.Speed,interceptor.scale.RANGED_SKILL)) // 2
+            defense_percent = max(0, 50 + def_target - (att_bonus + atroller.accuracy))
+            # There's a 50-50 chance the interception just does not work.
+            defense_percent = float(defense_percent) / 2.0
+            # Now get the hit percent.
+            base = base * float(100 - defense_percent)/100
+        return base
     CHILDREN = (effects.NoEffect(anim=InterceptAnim),)
 
 
