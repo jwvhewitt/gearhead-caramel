@@ -3,6 +3,9 @@ from game.content import plotutility, backstory
 from game.content.mechtarot import TarotCard, CONSEQUENCE_WIN, ME_AUTOREVEAL, TarotSignal, TarotSocket, TarotTransformer
 import random
 from game import ghdialogue
+from game import memobrowser
+
+Memo = memobrowser.Memo
 
 MT_CRIME = "CRIME"
 MT_FACTION = "FACTION"
@@ -312,7 +315,9 @@ class Demagogue(TarotCard):
             if ME_PERSON not in self.elements:
                 self.elements[ME_PERSON] = sp.elements[ME_PERSON]
         else:
-            self.memo = "You learned that {} is a demagogue.".format(self.elements[ME_PERSON])
+            self.memo = Memo( "You learned that {} is a demagogue.".format(self.elements[ME_PERSON])
+                            , self.elements[ME_PERSON].get_scene()
+                            )
         return True
 
 
@@ -347,7 +352,13 @@ class HateClub(TarotCard):
             if ME_FACTION not in self.elements:
                 self.elements[ME_FACTION] = sp.elements[ME_FACTION]
         else:
-            self.memo = "You learned that {} has been taken over by extremists.".format(self.elements[ME_FACTION])
+            if "METROSCENE" in self.elements:
+                location = self.elements["METROSCENE"]
+            else:
+                location = None
+            self.memo = Memo( "You learned that {} has been taken over by extremists.".format(self.elements[ME_FACTION])
+                            , location
+                            )
 
         return True
 
@@ -373,7 +384,13 @@ class FactionCrimesProof(TarotCard):
         else:
             if not self.elements.get(ME_CRIME):
                 self.register_element(ME_CRIME, CrimeObject("a crime","committed crimes"))
-            self.memo = "You learned that {ME_FACTION} {ME_CRIME.ed}.".format(**self.elements)
+            if "METROSCENE" in self.elements:
+                location = self.elements["METROSCENE"]
+            else:
+                location = None
+            self.memo = Memo( "You learned that {ME_FACTION} {ME_CRIME.ed}.".format(**self.elements)
+                            , location
+                            )
 
         return True
 
@@ -533,7 +550,13 @@ class Atrocity(TarotCard):
         else:
             if not self.elements.get(ME_CRIME):
                 self.register_element(ME_CRIME, CrimeObject("an atrocity","committed atrocities"))
-            self.memo = "You learned that {ME_FACTION} {ME_CRIME.ed}.".format(**self.elements)
+            if "METROSCENE" in self.elements:
+                location = self.elements["METROSCENE"]
+            else:
+                location = None
+            self.memo = Memo( "You learned that {ME_FACTION} {ME_CRIME.ed}.".format(**self.elements)
+                            , location
+                            )
 
         return True
 

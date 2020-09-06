@@ -3,6 +3,9 @@ from pbge import plots
 import random
 import inspect
 from . import GHNarrativeRequest, PLOT_LIST, CARDS_BY_NAME
+from game import memobrowser
+
+Memo = memobrowser.Memo
 
 ME_TAROTPOSITION = "TAROT_POSITION"
 ME_AUTOREVEAL = "ME_AUTOREVEAL" # If this element is True, card is generated during adventure + doesn't need full init
@@ -166,8 +169,8 @@ class TarotCard(plots.Plot):
                 self.add_sub_plot(nart,sock.listener_type,spstate=plots.PlotState(elements={ME_SOCKET:sock,ME_CARD:self}).based_on(self))
 
         # IF auto-revealed, activate the memo.
-        if self.elements.get(ME_AUTOREVEAL) and self.AUTO_MEMO:
-            self.memo = self.AUTO_MEMO.format(**self.elements)
+        if self.elements.get(ME_AUTOREVEAL):
+            self._make_auto_memo()
 
     def get_negations(self, num_neg=2):
         # Return a list of tarot cards that this card can turn into to negate itself.
@@ -189,9 +192,21 @@ class TarotCard(plots.Plot):
     def REVEAL_WIN(self,camp):
         # Always add reveal plots with the ID "REVEAL" so this will work.
         self.reveal(camp)
-        if self.AUTO_MEMO:
-            self.memo = self.AUTO_MEMO.format(**self.elements)
+        self._make_auto_memo()
 
+    def _make_auto_memo(self):
+        if not self.AUTO_MEMO:
+            return
+        text = self.AUTO_MEMO.format(**self.elements)
+        if "ME_PERSON" in self.elements:
+            location = self.elements["ME_PERSON"].get_scene()
+        elif "LOCALE" in self.elements:
+            location = self.elements["LOCALE"]
+        elif "METROSCENE" in self.elements:
+            location = self.elements["METROSCENE"]
+        else:
+            location = None
+        self.memo = Memo(text, location)
 
 class CardDeactivator(object):
     # Uses the same signature as the above, but only deactivates the card.

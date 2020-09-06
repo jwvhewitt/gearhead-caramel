@@ -10,6 +10,9 @@ from .dd_main import DZDRoadMapExit,RoadNode
 import random
 from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,ghcutscene, dungeonmaker
 from . import missionbuilder,dd_customobjectives
+from game import memobrowser
+
+Memo = memobrowser.Memo
 
 class LMPlot(Plot):
     # Contains convenience methods for lancemates.
@@ -517,7 +520,9 @@ class DDLD_ThePurposeOfMoneyIsMecha(LMPlot):
             ghcutscene.SimpleMonologueDisplay(
                 "What good is money, if not to spend it on the best mecha available? [TIME_TO_UPGRADE_MECHA] Let's go to {GARAGE} and see what they have.".format(**self.elements),
                 npc)(camp)
-            self.memo = "{NPC} wants to go to {GARAGE} in {METROSCENE} to buy a new mecha.".format(**self.elements)
+            self.memo = Memo( "{NPC} wants to buy a new mecha.".format(**self.elements)
+                            , self.elements["GARAGE"]
+                            )
             self.started_convo = True
 
     def GARAGE_ENTER(self,camp):
@@ -813,7 +818,9 @@ class DDLD_ContactInTown(LMMissionPlot):
             ghcutscene.SimpleMonologueDisplay(
                 "I just got a message from [foaf]. {MISSIONGIVER} at {MISSIONGIVER.scene} is looking for a cavalier to run a lucrative mission.".format(**self.elements),
                 npc.get_root())(camp)
-            self.memo = "{MISSIONGIVER} at {MISSIONGIVER.scene} may have a lucrative mission for you.".format(**self.elements)
+            self.memo = Memo( "{MISSIONGIVER} may have a lucrative mission for you.".format(**self.elements)
+                            , self.elements["MISSIONGIVER"].get_scene()
+                            )
             self.started_convo = True
 
     def MISSIONGIVER_offers(self,camp: gears.GearHeadCampaign):
@@ -1195,10 +1202,15 @@ class DDLD_SharingMyInfo(LMPlot):
             ))
         return mylist
 
+    def _make_memo(self):
+        self.memo = Memo( "{NPC} told you about a ruin where you can find valuable PreZero artifacts.".format(**self.elements)
+                        , "{} at {}".format(self.dungeon_name, self.elements["METROSCENE"])
+                        )
+
     def _accept_offer(self, camp):
         self.got_info = True
         self.elements["NPC"].relationship.role = gears.relationships.R_FRIEND
-        self.memo = "{NPC} told you about a ruin outside {METROSCENE} where you can find valuable PreZero artifacts.".format(**self.elements)
+        self._make_memo()
         self.proper_non_end(camp)
 
     def _flirty_offer(self, camp):
@@ -1207,7 +1219,7 @@ class DDLD_SharingMyInfo(LMPlot):
         self.elements["NPC"].relationship.history.append(gears.relationships.Memory(
             "you asked me out", "I kind of asked you out", 10, (gears.relationships.MEM_Romantic,)
         ))
-        self.memo = "{NPC} told you about a ruin outside {METROSCENE} where you can find valuable PreZero artifacts.".format(**self.elements)
+        self._make_memo()
         self.proper_non_end(camp)
 
     def _reject_offer(self, camp):

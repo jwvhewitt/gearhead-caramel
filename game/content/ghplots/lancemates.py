@@ -7,7 +7,9 @@ import game.content.gharchitecture
 import game.content.plotutility
 import game.content.ghterrain
 import random
+from game import memobrowser
 
+Memo = memobrowser.Memo
 
 def get_hire_cost(camp, npc):
     return (npc.renown * npc.renown * (200 - npc.get_reaction_score(camp.pc, camp)))//10
@@ -246,7 +248,9 @@ class RLM_Beginner(Plot):
     def _get_rumor(self,camp):
         mynpc = self.elements["NPC"]
         self._got_rumor = True
-        self.memo = "{} at {} dreams of becoming a cavalier.".format(mynpc,mynpc.get_scene())
+        self.memo = Memo( "{} dreams of becoming a cavalier.".format(mynpc)
+                        , mynpc.get_scene()
+                        )
 
 
 class RLM_Friendly(Plot):
@@ -304,7 +308,9 @@ class RLM_Friendly(Plot):
     def _get_rumor(self,camp):
         mynpc = self.elements["NPC"]
         self._got_rumor = True
-        self.memo = "{} at {} is looking for a lance to join.".format(mynpc,mynpc.get_scene())
+        self.memo = Memo( "{} is looking for a lance to join.".format(mynpc)
+                        , mynpc.get_scene()
+                        )
 
 
 class RLM_Medic(Plot):
@@ -439,7 +445,9 @@ class RLM_Mercenary(Plot):
     def _get_rumor(self,camp):
         mynpc = self.elements["NPC"]
         self._got_rumor = True
-        self.memo = "{} at {} is a mercenary pilot looking for a job.".format(mynpc,mynpc.get_scene())
+        self.memo = Memo("{} is a mercenary pilot looking for a job.".format(mynpc)
+                        , mynpc.get_scene()
+                        )
 
 
 
@@ -516,7 +524,9 @@ class RLM_Professional(Plot):
     def _get_rumor(self,camp):
         mynpc = self.elements["NPC"]
         self._got_rumor = True
-        self.memo = "{} at {} is an experienced pilot looking for work.".format(mynpc,mynpc.get_scene())
+        self.memo = Memo( "{} is an experienced pilot looking for work.".format(mynpc)
+                        , mynpc.get_scene()
+                        )
 
 
 class RLM_RatherGeneric(Plot):
@@ -597,7 +607,9 @@ class RLM_RatherGeneric(Plot):
     def _get_rumor(self,camp):
         mynpc = self.elements["NPC"]
         self._got_rumor = True
-        self.memo = "{} at {} is looking for a new lance.".format(mynpc,mynpc.get_scene())
+        self.memo = Memo("{} is looking for a new lance.".format(mynpc)
+                        , mynpc.get_scene()
+                        )
 
 
 class RLM_DamagedGoodsSale(Plot):
@@ -682,4 +694,6 @@ class RLM_DamagedGoodsSale(Plot):
     def _get_rumor(self,camp):
         mynpc = self.elements["NPC"]
         self._got_rumor = True
-        self.memo = "{} at {} is looking for a new lance.".format(mynpc,mynpc.get_scene())
+        self.memo = Memo( "{} is looking for a new lance.".format(mynpc)
+                        , mynpc.get_scene()
+                        )

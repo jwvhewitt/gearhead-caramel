@@ -11,6 +11,9 @@ from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot
 from . import dd_customobjectives
 
+from game import memobrowser
+Memo = memobrowser.Memo
+
 
 #   *****************************************
 #   ***   ROAD  EDGE  PLOT  DESCRIPTORS   ***
@@ -223,7 +226,7 @@ class DZREPR_NPCMission(DZREPR_BaseMission):
     # As above, but includes a specific NPC who gives the PC the mission.
     DEFAULT_NEWS = "{NPC} knows something about {FACTION}"
     DEFAULT_INFO = "You can ask {NPC.gender.object_pronoun} about {FACTION} yourself; speak to {NPC.gender.object_pronoun} at {NPC_SCENE}."
-    DEFAULT_MEMO = "You can ask {NPC} about {FACTION} at {NPC_SCENE}."
+    DEFAULT_MEMO = "You can ask {NPC} about {FACTION}."
     CUSTOM_REPLY = "What do you know about {FACTION}?"
     CUSTOM_OFFER = "I can tell you that you can go do a mission in {METROSCENE} so go do it."
     def custom_init(self, nart):
@@ -270,7 +273,9 @@ class DZREPR_NPCMission(DZREPR_BaseMission):
 
     def _get_rumor(self,camp):
         self.got_rumor = True
-        self.memo = self.DEFAULT_MEMO.format(**self.elements)
+        self.memo = Memo( self.DEFAULT_MEMO.format(**self.elements)
+                        , self.elements["NPC_SCENE"]
+                        )
 
 
 class DZREPRC_ConclusionTemplate(Plot):
@@ -331,7 +336,9 @@ class DZREPRC_ConclusionTemplate(Plot):
 
     def activate_mission(self,camp):
         self.mission_active = True
-        self.memo = self.DEFAULT_MEMO.format(**self.elements)
+        self.memo = Memo( self.DEFAULT_MEMO.format(**self.elements)
+                        , self.elements["METROSCENE"]
+                        )
         missionbuilder.NewMissionNotification(self.MISSION_NAME,self.elements["MISSION_GATE"])
         camp.check_trigger("UPDATE")
 
@@ -1579,7 +1586,9 @@ class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
     def _get_rumor(self,camp):
         self.got_rumor = True
         mynpc = self.elements["NPC"]
-        self.memo = "{} is a trucker who lost {} convoy; {} can be found at {}.".format(mynpc,mynpc.gender.possessive_determiner,mynpc.gender.subject_pronoun,self.elements["_DEST"])
+        self.memo = Memo( "{} is a trucker who lost {} convoy.".format(mynpc,mynpc.gender.possessive_determiner)
+                        , self.elements["_DEST"]
+                        )
 
     def NPC_offers(self, camp):
         mylist = list()
