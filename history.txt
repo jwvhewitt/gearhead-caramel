@@ -1,3 +1,4 @@
+- Memos now include location information as appropriate.
 - Made missiles more accurate, cheaper, and not shield-blockable (now only interception and dodge work against missiles), and increase missile quantities on almost every mecha.
 - Intercept weapons are now much less effective, but you can now stack several to improve your interception chances.
 - Added some dungeon decor

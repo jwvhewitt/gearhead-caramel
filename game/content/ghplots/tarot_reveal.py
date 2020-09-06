@@ -16,6 +16,9 @@ from . import dd_combatmission
 import collections
 from . import missionbuilder
 
+from game import memobrowser
+Memo = memobrowser.Memo
+
 
 #   ****************************
 #   ***  MT_REVEAL_BadPress  ***
@@ -89,7 +92,9 @@ class BasicBigScoop(Plot):
     def _get_rumor(self, camp):
         mynpc = self.elements[ME_ACTOR]
         self.got_rumor = True
-        self.memo = "{} at {} has been investigating {}.".format(mynpc, mynpc.get_scene(), self.elements[ME_PERSON])
+        self.memo = Memo( "{} has been investigating {}.".format(mynpc, self.elements[ME_PERSON])
+                        , mynpc.get_scene()
+                        )
 
 
 #   ***************************
@@ -144,7 +149,9 @@ class FindAChemist(Plot):
         self.end_plot(camp, True)
 
     def _get_rumor(self, camp):
-        self.memo = "{ME_PERSON} at {ME_PERSON.scene} is working on a cure for {ME_PROBLEM}"
+        self.memo = Memo( "{ME_PERSON} is working on a cure for {ME_PROBLEM}"
+                        , self.elements[ME_PERSON].get_scene()
+                        )
         self.got_rumor = True
 
     def get_dialogue_grammar(self, npc, camp):
@@ -408,7 +415,9 @@ class MediaDemagogue(Plot):
 
     def _get_rumor(self, camp):
         self.got_rumor = True
-        self.memo = "{ME_PERSON} at {LOCALE} has been expounding a conspiracy theory.".format(**self.elements)
+        self.memo = Memo( "{ME_PERSON} has been expounding a conspiracy theory.".format(**self.elements)
+                        , self.elements["LOCALE"]
+                        )
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -496,7 +505,9 @@ class DinosaurMission(Plot):
     def reveal_card(self, camp):
         if not self.got_rumor:
             camp.check_trigger("WIN", self)
-            self.memo = "{NPC} at {LOCALE} is leading the {METROSCENE} dinosaur control efforts.".format(**self.elements)
+            self.memo = Memo( "{NPC} is leading the {METROSCENE} dinosaur control efforts.".format(**self.elements)
+                            , self.elements["LOCALE"]
+                            )
             self.got_rumor = True
 
     def MISSION_GATE_menu(self, camp, thingmenu):
@@ -695,7 +706,9 @@ class RecoverTheFarm(Plot):
 
     def _get_rumor(self, camp):
         self.got_rumor = True
-        self.memo = "{NPC} at {LOCALE} needs your help to recover {NPC.gender.possessive_determiner} farm.".format(**self.elements)
+        self.memo = Memo( "{NPC} needs your help to recover {NPC.gender.possessive_determiner} farm.".format(**self.elements)
+                        , self.elements["LOCALE"]
+                        )
 
 
 #   ******************************
@@ -786,8 +799,10 @@ class SpFa_MilitarySplinter(Plot):
                                                                  enemy_faction=None,
                                                                  allied_faction=self.elements[ME_FACTION],
                                                                  include_war_crimes=True)
-        self.memo = "{} sent you to do a mysterious mecha mission for {}.".format(self.mission_giver,
-                                                                                  self.elements[ME_FACTION])
+        self.memo = Memo( "{} sent you to do a mysterious mecha mission for {}.".format(self.mission_giver,
+                                                                                        self.elements[ME_FACTION])
+                        , self.elements["LOCALE"]
+                        )
         missionbuilder.NewMissionNotification(self.adventure_seed.name, self.elements["MISSION_GATE"])
 
     def t_UPDATE(self, camp):
@@ -1152,7 +1167,9 @@ class FightThatHenchman(Plot):
 
     def _get_rumor(self, camp):
         self.got_rumor = True
-        self.memo = "{NPC} at {LOCALE} may have a mission for you.".format(**self.elements)
+        self.memo = Memo( "{NPC} may have a mission for you.".format(**self.elements)
+                        , self.elements["LOCALE"]
+                        )
 
 
 #   *****************************
@@ -1216,7 +1233,9 @@ class IkeaForTechnobabble(Plot):
         return goffs
 
     def _get_memo(self,camp):
-        self.memo = "{ME_PERSON} at {ME_PERSON.scene} is working on a solution for {ME_PROBLEM}."
+        self.memo = Memo( "{ME_PERSON} is working on a solution for {ME_PROBLEM}."
+                        , self.elements[ME_PERSON].get_scene()
+                        )
         self.got_memo = True
 
 
@@ -1272,7 +1291,9 @@ class FindAnInventor(Plot):
         self.end_plot(camp, True)
 
     def _get_rumor(self, camp):
-        self.memo = "{ME_PERSON} at {ME_PERSON.scene} is working on a cure for {ME_PROBLEM}"
+        self.memo = Memo( "{ME_PERSON} is working on a cure for {ME_PROBLEM}"
+                        , self.elements[ME_PERSON].get_scene()
+                        )
         self.got_rumor = True
 
     def get_dialogue_grammar(self, npc, camp):
@@ -1360,8 +1381,10 @@ class InvestigativeReporter(Plot):
     def _get_rumor(self, camp):
         mynpc = self.elements[ME_PERSON]
         self.got_rumor = True
-        self.memo = "{} at {} has been investigating {}.".format(mynpc, mynpc.get_scene(),
+        self.memo = Memo( "{} has been investigating {}.".format(mynpc,
                                                                  self.elements["INVESTIGATION_SUBJECT"])
+                        , mynpc.get_scene()
+                        )
 
 
 class PrivateInvestigator(Plot):
@@ -1434,8 +1457,10 @@ class PrivateInvestigator(Plot):
     def _get_rumor(self, camp):
         mynpc = self.elements[ME_PERSON]
         self.got_rumor = True
-        self.memo = "{} at {} has been investigating {}.".format(mynpc, mynpc.get_scene(),
+        self.memo = Memo( "{} has been investigating {}.".format(mynpc,
                                                                  self.elements["INVESTIGATION_SUBJECT"])
+                        , mynpc.get_scene()
+                        )
 
 
 #   ******************************
@@ -1644,7 +1669,9 @@ class PasswordThroughCombat(Plot):
 
     def _get_rumor(self, camp):
         self.got_rumor = True
-        self.memo = "{NPC} at {LOCALE} may have a mission for you.".format(**self.elements)
+        self.memo = Memo( "{NPC} may have a mission for you.".format(**self.elements)
+                        , self.elements["LOCALE"]
+                        )
 
 
 #   *********************************
@@ -1705,7 +1732,9 @@ class WitnessToTheCrime(Plot):
 
     def _get_rumor(self, camp):
         self.got_rumor = True
-        self.memo = "{NPC} at {NPC.scene} has been nervous recently"
+        self.memo = Memo( "{NPC} has been nervous recently"
+                        , self.elements["NPC"].get_scene()
+                        )
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -2055,7 +2084,9 @@ class GuardTheShipment(Plot):
 
     def _get_rumor(self, camp):
         self.got_rumor = True
-        self.memo = "{NPC} at {LOCALE} is a trucker who may have a mission for you.".format(**self.elements)
+        self.memo = Memo( "{NPC} is a trucker who may have a mission for you.".format(**self.elements)
+                        , self.elements["LOCALE"]
+                        )
 
 
 class RandomBoxOfParts(Plot):
@@ -2205,10 +2236,11 @@ class ReporterLookingForStory(Plot):
 
     def _get_rumor(self, camp):
         mynpc = self.elements[ME_PERSON]
-        self.memo = "{} at {} is looking for a media job.".format(mynpc, mynpc.get_scene())
 
         self.got_rumor = True
-        self.memo = "{} at {} has been looking for a big story.".format(mynpc, mynpc.get_scene())
+        self.memo = Memo( "{} has been looking for a big story.".format(mynpc)
+                        , mynpc.get_scene()
+                        )
 
 
 #   **********************************
@@ -2334,7 +2366,9 @@ class UnemployedReporter(Plot):
         camp.check_trigger("WIN", self)
         self.won_subplot = True
         self.got_rumor = True
-        self.memo = "{ME_PERSON} at {LOCALE} is looking for a media job.".format(**self.elements)
+        self.memo = Memo( "{ME_PERSON} is looking for a media job.".format(**self.elements)
+                        , self.elements["LOCALE"]
+                        )
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -2359,7 +2393,9 @@ class UnemployedReporter(Plot):
         mynpc = self.elements[ME_PERSON]
         self.got_rumor = True
         camp.check_trigger("WIN", self)
-        self.memo = "{} at {} is looking for a media job.".format(mynpc, mynpc.get_scene())
+        self.memo = Memo( "{} is looking for a media job.".format(mynpc)
+                        , mynpc.get_scene()
+                        )
 
 
 #   ****************************
@@ -2434,8 +2470,9 @@ class LunarRefugeeLost(Plot):
 
     def _get_rumor(self, camp):
         self.got_rumor = True
-        self.memo = "{} is a refugee from Luna who can usually be found at {}.".format(self.elements["NPC"],
-                                                                                       self.elements["_DEST"])
+        self.memo = Memo( "{} is a refugee from Luna.".format(self.elements["NPC"])
+                        , self.elements["_DEST"]
+                        )
 
     def NPC_offers(self, camp):
         mylist = list()
@@ -2492,10 +2529,11 @@ class LunarRefugeeLost(Plot):
     def _accept_mission(self, camp):
         self.mission_accepted = True
         self.elements["NPC"].relationship.reaction_mod += random.randint(1, 50)
-        self.memo = "{} at {} asked you to investigate what happened to {} refugee camp.".format(self.elements["NPC"],
-                                                                                                 self.elements["_DEST"],
+        self.memo = Memo( "{} asked you to investigate what happened to {} refugee camp.".format(self.elements["NPC"],
                                                                                                  self.elements[
                                                                                                      "NPC"].gender.possessive_determiner)
+                        , self.elements["_DEST"]
+                        )
         missionbuilder.NewMissionNotification("Investigate {}'s village".format(self.elements["NPC"]),
                                               self.elements["MISSION_GATE"])
 

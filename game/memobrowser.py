@@ -1,6 +1,25 @@
 import pbge
 import pygame
 
+class Memo(object):
+    def __init__(self, text, location=None):
+        self._text = text
+        self._location = location
+
+    def __str__(self):
+        if not self._location:
+            return self._text
+        if hasattr(self._location, 'get_root_scene'):
+            root = self._location.get_root_scene()
+            if root is not self._location:
+                loc = "{} at {}".format(self._location, root)
+            else:
+                loc = str(self._location)
+        else:
+            loc = str(self._location)
+        return "{}\n\nLocation: {}".format(self._text, loc)
+
+
 class MemoBrowser(object):
     def __init__(self,camp):
         self.camp = camp
@@ -20,7 +39,7 @@ class MemoBrowser(object):
         pbge.my_state.view()
         myrect = self.text_area.get_rect()
         pbge.default_border.render(myrect)
-        pbge.draw_text(pbge.my_state.medium_font,self.memos[self.memo_n],myrect)
+        pbge.draw_text(pbge.my_state.medium_font,str(self.memos[self.memo_n]),myrect)
 
     def close_browser(self,button=None,ev=None):
         self.keep_browsing = False

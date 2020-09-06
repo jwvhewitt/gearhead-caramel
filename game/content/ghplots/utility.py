@@ -14,6 +14,8 @@ import game.content.gharchitecture
 from . import missionbuilder
 import collections
 
+from game import memobrowser
+Memo = memobrowser.Memo
 
 #  **************************
 #  ***   ADD_BORING_NPC   ***
@@ -428,7 +430,9 @@ class TruckerKnowledge( Plot ):
 
     def _get_rumor(self,camp):
         self.got_rumor = True
-        self.memo = "{} at {} saw something unusual outside of town.".format(self.elements["NPC"],self.elements["_DEST"])
+        self.memo = Memo( "{} saw something unusual outside of town.".format(self.elements["NPC"])
+                        , self.elements["_DEST"]
+                        )
 
     def NPC_offers(self,camp):
         mylist = list()

@@ -17,6 +17,9 @@ from . import dd_combatmission
 import collections
 from . import missionbuilder
 
+from game import memobrowser
+
+Memo = memobrowser.Memo
 
 #   **************************
 #   ***  MT_SOCKET_Accuse  ***
@@ -103,7 +106,9 @@ class PriceyHeadMk3(Plot):
                 win_message = "With {ME_PERSON} in custody, peace can return to {METROSCENE}.".format(**self.elements),
                 loss_message = "Although you failed to catch {ME_PERSON}, {ME_PERSON.gender.subject_pronoun} probably won't be returning to {METROSCENE} any time soon.".format(**self.elements),
             )
-            self.memo = "You have been authorized to capture {ME_PERSON} for {METROSCENE}.".format(**self.elements)
+            self.memo = Memo( "You have been authorized to capture {ME_PERSON} for {METROSCENE}.".format(**self.elements)
+                            , self.elements["METROSCENE"]
+                            )
             missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
             camp.freeze(self.elements[ME_PERSON])
             if ME_FACTION in self.elements:
@@ -207,7 +212,9 @@ class GuardianJudgment(Plot):
             win_message = "With their command center destroyed, the forces of {} are quickly brought to justice.".format(self._get_villain()),
             loss_message = "Following the attack on their command center, the forces of {} scatter to the wind. They will continue to be a thorn in the side of {} for years to come.".format(self._get_villain(),self.elements["LOCALE"]),
         )
-        self.memo = "You have been authorized to take action against {}'s command center.".format(self._get_villain())
+        self.memo = Memo( "You have been authorized to take action against {}'s command center.".format(self._get_villain())
+                        , self.elements['METROSCENE']
+                        )
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
         if ME_FACTION in self.elements:
             self.elements["METROSCENE"].purge_faction(camp,self.elements[ME_FACTION])
@@ -290,8 +297,22 @@ class WaitingOnACure(Plot):
 
     def custom_init( self, nart ):
         self.add_sub_plot(nart,"ENSURE_JOB_REPRESENTATION",elements={"JOB":gears.jobs.ALL_JOBS["Doctor"]})
+        if "METROSCENE" in self.elements:
+            self._hospital = self.seek_element( nart, "CURE_HOSPITAL"
+                                              , self._is_good_scene
+                                              , scope=self.elements["METROSCENE"]
+                                              , must_find=False
+                                              )
+        else:
+            self._hospital = None
         self.got_memo = False
         return True
+
+    def _is_good_scene(self, nart, candidate):
+        return ( isinstance(candidate, gears.GearHeadScene)
+             and gears.tags.SCENE_HOSPITAL in candidate.attributes
+             and gears.tags.SCENE_PUBLIC in candidate.attributes
+               )
 
     def _get_generic_offers( self, npc, camp ):
         goffs = list()
@@ -323,7 +344,15 @@ class WaitingOnACure(Plot):
 
     def get_memo(self, camp):
         self.got_memo = True
-        self.memo = "The only known cure for {ME_PROBLEM} is {ME_PROBLEM.solution}.".format(**self.elements)
+        if self._hospital:
+            location = self._hospital
+        elif "METROSCENE" in self.elements:
+            location = self.elements["METROSCENE"]
+        else:
+            location = None
+        self.memo = Memo( "The only known cure for {ME_PROBLEM} is {ME_PROBLEM.solution}.".format(**self.elements)
+                        , location
+                        )
 
 
 #   ***************************************
@@ -403,7 +432,9 @@ class Hellsteader(Plot):
 
     def _reveal(self, camp):
         self.got_memo = True
-        self.memo = "{NPC} at {NPC.scene} is trying to start a farm.".format(**self.elements)
+        self.memo = Memo( "{NPC} is trying to start a farm.".format(**self.elements)
+                        , self.elements["NPC"].get_scene()
+                        )
 
 
 #   **************************
@@ -764,12 +795,16 @@ class HiringFetch(Plot):
         signpc = beta.elements.get(ME_PERSON)
         mynpc = self.elements[ME_PERSON]
         self.job_state[signpc] = self.JAC_QUERIED
-        self.memo = "{} asked you to bring {} {} resume.".format(mynpc, signpc, mynpc.gender.possessive_determiner)
+        self.memo = Memo( "{} asked you to bring {} {} resume.".format(mynpc, signpc, mynpc.gender.possessive_determiner)
+                        , signpc.get_scene()
+                        )
 
     def _accept_job_query(self, camp, signpc, beta):
         mynpc = self.elements[ME_PERSON]
         self.job_state[signpc] = self.JAC_ACCEPTED
-        self.memo = "{} agreed to hire {}.".format(signpc, mynpc)
+        self.memo = Memo( "{} agreed to hire {}.".format(signpc, mynpc)
+                        , mynpc.get_scene()
+                        )
 
     def _get_generic_offers( self, npc, camp ):
         goffs = list()
@@ -922,7 +957,9 @@ class InvestigateUsingWords(Plot):
 
     def _start_mission(self,camp):
         self.mission_given = True
-        self.memo = "{} at {} asked you to investigate {} by sneaking into one of their meetings.".format(self.elements[ME_PERSON],self.elements[ME_PERSON].get_scene(),self.elements[ME_FACTION])
+        self.memo = Memo( "{} asked you to investigate {} by sneaking into one of their meetings.".format(self.elements[ME_PERSON],self.elements[ME_FACTION])
+                        , self.elements[ME_PERSON].get_scene()
+                        )
 
     def t_START(self,camp):
         # If the investigator dies, end this plot.
