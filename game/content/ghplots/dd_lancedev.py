@@ -1119,7 +1119,7 @@ class DDLD_SharingMyInfo(LMPlot):
 
         return True
 
-    def GET_MACGUFFIN(self, camp):
+    def MACGUFFIN_GET(self, camp):
         if not self.got_macguffin:
             self.got_macguffin = True
             npc: gears.base.Character = self.elements["NPC"]
