@@ -1,3 +1,15 @@
+- Improve success rate and casting cost of LISTEN TO MY SONG.
+- Fill out Mecha Graveyard adventure.
+- Highlight the tile where we completely consume one action point when showing the trail of a move or move-attack.
+- Fix the missing Haywire attack on Phoenix L-Cannon
+- Added unique EWar system, Necromatix. Start doing those sidequests for a chance to get it!
+- Fix bug that would prevent deadzone town plot from advancing if you do "Recon by Force" mission.
+- Fix bug where we mistakenly give odds for hitting a dead mecha when its ally is standing on top of it.
+- Some particular unique shops might now sell parts of, or even complete, champion mecha.
+- Fix bug where mechas you own suddenly disappear after you take out their engines or torso in the mecha engineering terminal.
+- More body options.
+- Implement 'Create New Mecha' in out-of-game mecha editor.
+- Add batteries to Musketeer.
 - Memos now include location information as appropriate.
 - Made missiles more accurate, cheaper, and not shield-blockable (now only interception and dodge work against missiles), and increase missile quantities on almost every mecha.
 - Intercept weapons are now much less effective, but you can now stack several to improve your interception chances.
