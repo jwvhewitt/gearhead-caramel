@@ -180,12 +180,11 @@ class DynaConversation(object):
         self.pc_grammar.absorb({"[pc]":[str(self.pc),], "[npc]":[str(self.npc)]})
         self.npc_grammar.absorb({"[pc]":[str(self.pc)], "[npc]":[str(self.npc)]})
 
-        for p in self.camp.active_plots():
-            self.npc_offers += p.get_dialogue_offers( self.npc, self.camp )
-            pgram = p.get_dialogue_grammar( self.npc, self.camp )
-            if pgram:
-                self.npc_grammar.absorb( pgram )
-                self.pc_grammar.absorb( pgram )
+        self.npc_offers, pgram = self.camp.get_dialogue_offers_and_grammar(self.npc)
+        if pgram:
+            self.npc_grammar.absorb( pgram )
+            self.pc_grammar.absorb( pgram )
+
         for goff in GENERIC_OFFERS:
             # Add a copy of this to the npc_offers if there isn't
             # currently an offer with a compatible tag.

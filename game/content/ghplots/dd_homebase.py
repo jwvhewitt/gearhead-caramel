@@ -74,6 +74,9 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
 
+        tplot = self.add_sub_plot(nart, "MECHA_WORKSHOP")
+        plotutility.TownBuildingConnection(self, myscene, tplot.elements["LOCALE"], room2=tplot.elements["FOYER"])
+
         # Add some local lancemates.
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")
@@ -548,7 +551,7 @@ class DZD_BronzeHorseInn(Plot):
             architecture = gharchitecture.MechaScaleSemiDeadzone(),
             enemy_faction=plotutility.RandomBanditCircle(nart.camp),
             win_message = "You have liberated the mining camp from the bandits who stole it.",
-            one_chance = False
+            one_chance = False, on_win=self._win_mine_mission
         )
 
         self.osmund_info = (
@@ -635,6 +638,9 @@ class DZD_BronzeHorseInn(Plot):
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.gave_mission:
             thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+    def _win_mine_mission(self, camp: gears.GearHeadCampaign):
+        camp.campdata["MINE_MISSION_WON"] = True
 
     def t_UPDATE(self, camp):
         # If the adventure has ended, get rid of it.

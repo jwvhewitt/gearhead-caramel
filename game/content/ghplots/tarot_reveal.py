@@ -295,7 +295,7 @@ class RetroComputerInPlainSight(Plot):
     def _is_best_scene(self, nart, candidate):
         return (isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
                 gears.tags.SCENE_BUILDING in candidate.attributes and
-                candidate.faction and nart.camp.are_ally_factions(candidate.faction, self.elements[ME_FACTION]))
+                candidate.faction and nart.camp.are_faction_allies(candidate.faction, self.elements[ME_FACTION]))
 
     def _is_good_room(self, nart, candidate):
         return isinstance(candidate, pbge.randmaps.rooms.Room)

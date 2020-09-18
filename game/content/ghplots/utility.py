@@ -180,7 +180,7 @@ class EnsureAMember( Plot ):
     def _is_best_scene(self,nart,candidate):
         return (isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
                 gears.tags.SCENE_BASE in candidate.attributes and
-                candidate.faction and nart.camp.are_ally_factions(candidate.faction,self.elements["FACTION"]))
+                candidate.faction and nart.camp.are_faction_allies(candidate.faction,self.elements["FACTION"]))
 
     def _is_good_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
@@ -287,7 +287,7 @@ class PlaceACommander( Plot ):
     def _is_best_scene(self,nart,candidate):
         return (isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
                 gears.tags.SCENE_BASE in candidate.attributes and
-                candidate.faction and nart.camp.are_ally_factions(candidate.faction,self.elements["FACTION"]))
+                candidate.faction and nart.camp.are_faction_allies(candidate.faction,self.elements["FACTION"]))
     def _is_good_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
@@ -307,7 +307,7 @@ class PlaceAMember( Plot ):
     def _is_best_scene(self,nart,candidate):
         return (isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
                 gears.tags.SCENE_BASE in candidate.attributes and
-                candidate.faction and nart.camp.are_ally_factions(candidate.faction,self.elements["FACTION"]))
+                candidate.faction and nart.camp.are_faction_allies(candidate.faction,self.elements["FACTION"]))
     def _is_good_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 

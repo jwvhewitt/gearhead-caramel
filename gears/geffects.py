@@ -624,7 +624,8 @@ class MultiAttackRoll( effects.NoEffect ):
         Otherwise, the penetration score is recorded in the fx_record and
         the children of this effect get returned.
     """
-    def __init__(self, att_stat, att_skill, num_attacks=2, children=(), anim=None, accuracy=0, penetration=0, modifiers=(), defenses=() ):
+    def __init__(self, att_stat, att_skill, num_attacks=2, children=(), anim=None, accuracy=0, penetration=0,
+                 modifiers=(), defenses=(), overwhelm=0 ):
         self.att_stat = att_stat
         self.att_skill = att_skill
         self.num_attacks = num_attacks
@@ -637,6 +638,7 @@ class MultiAttackRoll( effects.NoEffect ):
         self.penetration = penetration
         self.modifiers = modifiers
         self.defenses = defenses
+        self.overwhelm = overwhelm
 
     def get_multi_bonus( self ):
         # Launching multiple attacks results in a bonus to hit. Of course,
@@ -670,7 +672,10 @@ class MultiAttackRoll( effects.NoEffect ):
                 penetration += target.ench_list.get_funval(target,'get_penetration_bonus')
             fx_record['penetration'] = penetration
 
-            if not failed:
+            if failed:
+                if self.overwhelm > 0:
+                    target.spend_stamina(random.randint(0,self.overwhelm))
+            else:
                 if originator and hasattr(originator, "dole_experience"):
                     originator.dole_experience(3, self.att_skill)
                 if self.num_attacks <= 10:
@@ -679,9 +684,11 @@ class MultiAttackRoll( effects.NoEffect ):
                     num_hits = max(int(max((min( att_roll + att_bonus - hi_def_roll, 50 ) * self.num_attacks)//50,1)),1)
                 fx_record['number_of_hits'] = num_hits
                 anims.append( animobs.Caption('x{}'.format(num_hits),pos=pos,delay=delay,y_off=camp.scene.model_altitude(target,pos[0],pos[1])-15) )
+                if self.overwhelm > 2:
+                    target.spend_stamina(random.randint(0,self.overwhelm//3))
 
             if camp.fight:
-                camp.fight.cstat[target].attacks_this_round += 1
+                camp.fight.cstat[target].attacks_this_round += 1 + random.randint(0,self.overwhelm)//5
 
         return next_fx or self.children
 

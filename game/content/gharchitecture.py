@@ -23,11 +23,22 @@ class MysteryDungeonDecor(OmniDec):
     WALL_DECOR = (ghterrain.BlueTorchTerrain,)
     WALL_FILL_FACTOR = 0.33
 
+class RundownFactoryDecor(OmniDec):
+    WALL_DECOR = (ghterrain.TekruinsWallDecor, ghterrain.SteelPipe, ghterrain.ShippingShelvesTerrain)
+    WALL_FILL_FACTOR = 0.33
+    FLOOR_DECOR = (ghterrain.Tekdebris, ghterrain.NorthSouthShelvesTerrain)
+    FLOOR_FILL_FACTOR = 0.03
+
 class DefiledFactoryDecor(OmniDec):
     WALL_DECOR = (ghterrain.TekruinsWallDecor,ghterrain.Cybertendrils)
     WALL_FILL_FACTOR = 0.33
     FLOOR_DECOR = (ghterrain.Bones,ghterrain.Tekdebris)
     FLOOR_FILL_FACTOR = 0.07
+
+
+class FactoryDecor(OmniDec):
+    WALL_DECOR = (ghterrain.SteelPipe, ghterrain.ShippingShelvesTerrain, ghterrain.VentFanTerrain)
+    WALL_FILL_FACTOR = 0.25
 
 
 class StoneUndercityDecor(OmniDec):

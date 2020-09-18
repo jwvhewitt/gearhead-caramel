@@ -18,7 +18,9 @@
       "avatar_head": [-1,-5]
     },
     "requires": ["Masculine"],
-    "form_tags": ["BodMC"]
+    "form_tags": ["BodMC"],
+    "nostyle": ["-Body"],
+    "style": ["+Body"]
   },
   {
     "name": "BodMC Undershirt",

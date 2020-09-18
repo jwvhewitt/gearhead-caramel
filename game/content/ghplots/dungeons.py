@@ -23,7 +23,7 @@ class GenericDungeonLevel(Plot):
         intscenegen = pbge.randmaps.SceneGenerator(intscene, self.elements[DG_ARCHITECTURE],
                                                    decorate=self.elements[DG_DECOR])
         self.register_scene(nart, intscene, intscenegen, ident="LOCALE", dident=DG_PARENT_SCENE,
-                            temporary=self.elements[DG_TEMPORARY])
+                            temporary=self.elements.get(DG_TEMPORARY,False))
 
         self.last_update = 0
 

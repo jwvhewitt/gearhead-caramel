@@ -2381,6 +2381,12 @@ class Launcher(BaseGear, ContainerDamageHandler):
                     aa.modify_basic_attack(self, ba)
             return ba
 
+    def get_overwhelm_score(self, num_missiles):
+        it = num_missiles//5
+        if random.randint(1,5) <= num_missiles%5:
+            it += 1
+        return it
+
     def get_multi_attack(self, num_missiles, frame):
         ammo = self.get_ammo()
         if ammo:
@@ -2391,7 +2397,8 @@ class Launcher(BaseGear, ContainerDamageHandler):
                     children=(geffects.DoDamage(2*ammo.damage, 4, scale=ammo.scale),),
                     accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
-                    modifiers=self.get_modifiers(ammo)
+                    modifiers=self.get_modifiers(ammo),
+                    overwhelm=self.get_overwhelm_score(num_missiles)
                 ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach * 3),
                 used_in_combat=True, used_in_exploration=False,
@@ -3966,7 +3973,7 @@ class Character(Being):
         if fac:
             rs += pc.faction_scores.get(fac.get_faction_tag(), 0)
             pc_fac = pc.get_tacit_faction(camp)
-            if pc_fac and camp.are_enemy_factions(fac, pc_fac):
+            if pc_fac and camp.are_faction_enemies(fac, pc_fac):
                 rs -= 20
 
         # Add bonuses from PC's merit badges

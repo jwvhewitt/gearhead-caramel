@@ -325,6 +325,10 @@ class OldMainframe(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.OldMainframeTerrain)
 
 
+class OldTerminal(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.OldTerminalTerrain)
+
+
 class Biotank(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.BiotankTerrain)
     SPRITE_OFF = ((0,0),(-14,0),(-6,12),(6,9),(14,0),(6,-12),(-6,-12))

@@ -22,7 +22,7 @@
 
 from . import my_state
 from . import container
-from . import util
+from . import util, dialogue
 import pickle
 import os
 from . import scenes
@@ -68,6 +68,16 @@ class Campaign( object ):
         for p in self.scripts:
             if p.active:
                 yield p
+
+    def get_dialogue_offers_and_grammar(self, npc):
+        npc_offers = list()
+        pgram = dialogue.grammar.Grammar()
+        for p in self.active_plots():
+            npc_offers += p.get_dialogue_offers(npc, self)
+            nugram = p.get_dialogue_grammar(npc, self)
+            if nugram:
+                pgram.absorb(nugram)
+        return npc_offers, pgram
 
     def all_plots(self):
         for ob in self.all_contents(self):

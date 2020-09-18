@@ -326,6 +326,15 @@ class SteelPipeSouthMid(pbge.scenes.terrain.Terrain):
     frame = 3
     image_top = 'terrain_decor_pipes.png'
 
+class SteelPipeSouthMid(pbge.scenes.terrain.Terrain):
+    frame = 3
+    image_top = 'terrain_decor_pipes.png'
+
+class SteelPipe(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    east_frames = (0,2,2)
+    south_frames = (1,3,3)
+    image_top = 'terrain_decor_pipes.png'
+
 class RoofStuff(pbge.scenes.terrain.VariableTerrain):
     frames = (0,1,2,3,4,5,6,7)
     image_top = 'terrain_decor_roofstuff.png'
@@ -692,6 +701,11 @@ class UndergroundEntranceTerrain(pbge.scenes.terrain.Terrain):
 class OldMainframeTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_oldmainframe.png'
     frame = 0
+    blocks = (Walking,Skimming,Rolling,Flying)
+
+class OldTerminalTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_default.png'
+    frame = 2
     blocks = (Walking,Skimming,Rolling,Flying)
 
 class BiotankTerrain(pbge.scenes.terrain.AnimTerrain):

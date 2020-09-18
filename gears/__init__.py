@@ -378,19 +378,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 egg.mecha.pilot = egg.pc
             self.pc = egg.pc
 
-    def are_enemy_factions(self,fac1,fac2):
-        fac1 = fac1.get_faction_tag()
-        fac2 = fac2.get_faction_tag()
-        fac1_rel = self.faction_relations.get(fac1)
-        fac2_rel = self.faction_relations.get(fac2)
-        return (fac1_rel and fac2 in fac1_rel.enemies) or (fac2_rel and fac1 in fac2_rel.enemies)
+    def get_dialogue_offers_and_grammar(self, npc: base.Character):
+        doffs, grams = super().get_dialogue_offers_and_grammar(npc)
 
-    def are_ally_factions(self,fac1,fac2):
-        fac1 = fac1.get_faction_tag()
-        fac2 = fac2.get_faction_tag()
-        fac1_rel = self.faction_relations.get(fac1)
-        fac2_rel = self.faction_relations.get(fac2)
-        return (fac1 is fac2) or (fac1_rel and fac2 in fac1_rel.allies) or (fac2_rel and fac1 in fac2_rel.allies)
+        return doffs, grams
 
     def active_plots(self):
         for p in super(GearHeadCampaign, self).active_plots():
