@@ -174,11 +174,16 @@ class DragonTheme(UpgradeTheme):
             return
         # Increase the weapon penetration if possible.
         weap = _get_statted_weapon(item)
+        orig_penetration = weap.penetration
         if weap.penetration < weap.MAX_PENETRATION:
             weap.penetration += 1
         # Launchers may need to be upgraded.
         if isinstance(item, base.Launcher) and item.size < weap.volume:
-            item.size = weap.volume
+            if weap.volume > item.MAX_SIZE:
+                # Revert it, it will not fit the largest Launcher.
+                weap.penetration = orig_penetration
+            else:
+                item.size = weap.volume
 
     def _make_flamethrower(self, reach, damage, napalm, integral = False):
         return base.ChemThrower( name = 'Maw'
@@ -258,6 +263,8 @@ class RaiderTheme(UpgradeTheme):
         weap = _get_statted_weapon(item);
 
         upgraded = False
+        orig_reach = weap.reach
+        orig_accuracy = weap.accuracy
         # Increase reach if not a melee weapon.
         if not isinstance(weap, (base.MeleeWeapon, base.EnergyWeapon)):
             if weap.reach < weap.MAX_REACH:
@@ -270,7 +277,13 @@ class RaiderTheme(UpgradeTheme):
 
         # Launchers may need to be upgraded.
         if isinstance(item, base.Launcher) and item.size < weap.volume:
-            item.size = weap.volume
+            # If it does not fit largest Launcher, revert the upgrade.
+            if weap.volume > item.MAX_SIZE:
+                weap.reach = orig_reach
+                weap.accuracy = orig_accuracy
+                upgraded = False
+            else:
+                item.size = weap.volume
 
         return upgraded
 
@@ -428,6 +441,10 @@ class GunslingerTheme(UpgradeTheme):
             return False
 
         ammo.quantity = new_quantity
+        # If it will not fit largest Launcher, revert it.
+        if ammo.volume > item.MAX_SIZE:
+            ammo.quantity = orig_quantity
+            return False;
         item.size = ammo.volume
         return True
 
@@ -692,6 +709,7 @@ class ExplodiumTheme(UpgradeTheme):
 
     def _upgrade_weapon(self, item):
         to_upgrade = item.get_ammo()
+        orig_attributes = list(to_upgrade.attributes)
         if attackattributes.Blast2 in to_upgrade.attributes:
             if attackattributes.BurnAttack in to_upgrade.attributes:
                 # Cannot upgrade further.
@@ -704,11 +722,18 @@ class ExplodiumTheme(UpgradeTheme):
             to_upgrade.attributes.append(attackattributes.Blast1)
 
         # Add at least one more quantity, or 10%.
+        orig_quantity = to_upgrade.quantity
         to_upgrade.quantity += max(1, to_upgrade.quantity // 10)
 
         # Adjust actual item size/magazine if not fit.
         if isinstance(item, base.Launcher) and item.size < to_upgrade.volume:
-            item.size = to_upgrade.volume
+            # If it will not fit in the largest Launcher, revert it.
+            if to_upgrade.volume > item.MAX_SIZE:
+                to_upgrade.attributes = orig_attributes
+                to_upgrade.quantity = orig_quantity
+                return False
+            else:
+                item.size = to_upgrade.volume
         elif isinstance(item, base.BallisticWeapon) and item.magazine < to_upgrade.quantity:
             item.magazine = to_upgrade.quantity
 
