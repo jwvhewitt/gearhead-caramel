@@ -93,3 +93,109 @@ Mecha
 
             END
     END
+
+Mecha
+    name = "Ultari"
+    desig = "ULT-16sh Shockhauler"
+    imagename = "mav_ultari.png"
+    portrait = "mecha_ultari.png"
+    family = "Ultari"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (BoneDevils,TerranFederation,TerranDefenseForce,RegExCorporation,DeadzoneFederation,ClanIronwind)
+    role_list = (Commander,)
+    desc = "An update on the aging Ultari medium tank, with weapons designed to take down mecha by disrupting their electronics."
+    form = MT_Groundhugger
+
+    SUB
+        Turret
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                BallisticWeapon
+                    name = "Shock Cannon"
+                    reach = 6
+                    damage = 4
+                    accuracy = 2
+                    penetration = 2
+                    ammo_type = Shells_120mm
+                    attributes = (Accurate)
+                    magazine = 30
+                    integral = True
+                    shot_anim = HugeBullet
+                    SUB
+                        Ammo
+                            name = "L-Ammo"
+                            ammo_type=Shells_120mm
+                            quantity=30
+                            attributes = (HaywireAttack,)
+                    END
+
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 8
+                Sensor
+                    size = 2
+                Engine
+                    size = 650
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Right Mount"
+                    INV
+                        Launcher
+                            size = 11
+                            SUB
+                                Missile
+                                    name = "Electric Rockets"
+                                    desc = "Not particularly damaging, but designed to lock down enemy mecha while the main cannon destroys them."
+                                    reach = 5
+                                    damage = 1
+                                    accuracy = 5
+                                    penetration = 1
+                                    quantity = 18
+                                    attributes = (HaywireAttack,)
+                            END
+                    END
+                Mount
+                    name = "Left Mount"
+                    INV
+                        STC Intercept Cannon
+                    END
+                EWSystem
+                    desig = "ULT-16shock"
+                    size = 1
+                    programs = (EMBlaster,)
+            END
+        Storage
+            name = "Right Track"
+            size = 3
+            info_tier = 2
+            SUB
+                Armor
+                    size = 5
+                Tracks
+                    material = Advanced
+                    size = 7
+
+            END
+        Storage
+            name = "Left Track"
+            size = 3
+            info_tier = 2
+            SUB
+                Armor
+                    size = 5
+                Tracks
+                    material = Advanced
+                    size = 7
+
+            END
+    END
