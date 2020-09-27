@@ -466,7 +466,7 @@ class PartsNodeWidget(pbge.widgets.Widget):
 
     def render( self ):
         myrect = self.get_rect()
-        if myrect.collidepoint(*pygame.mouse.get_pos()):
+        if myrect.collidepoint(*pbge.my_state.mouse_pos):
             pbge.my_state.screen.blit( self.mouseover_image , myrect )
             if self.editor:
                 self.editor.mouseover_part = self.data

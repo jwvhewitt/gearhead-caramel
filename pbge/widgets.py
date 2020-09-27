@@ -34,7 +34,7 @@ class Widget( frects.Frect ):
         if self.active:
             for c in self.children:
                 c.respond_event(ev)
-            if self.get_rect().collidepoint(pygame.mouse.get_pos()):
+            if self.get_rect().collidepoint(my_state.mouse_pos):
                 if self.is_kb_selectable() and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1) and not my_state.widget_clicked:
                     if not my_state.widget_clicked:
                         my_state.active_widget = self
@@ -56,7 +56,7 @@ class Widget( frects.Frect ):
             self.render()
             if self is my_state.active_widget:
                 self.flash_when_active()
-            if self.tooltip and self.get_rect().collidepoint(pygame.mouse.get_pos()):
+            if self.tooltip and self.get_rect().collidepoint(my_state.mouse_pos):
                 my_state.widget_tooltip = self.tooltip
             for c in self.children:
                 c.super_render()
@@ -299,7 +299,7 @@ class ScrollColumnWidget(Widget):
         self._position_contents()
 
     def _builtin_responder(self,ev):
-        if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(pygame.mouse.get_pos()):
+        if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(my_state.mouse_pos):
             if (ev.button == 4):
                 self.scroll_up()
             elif (ev.button == 5):

@@ -30,7 +30,7 @@ class SingleListItemWidget(pbge.widgets.Widget):
         myrect = self.get_rect()
         pbge.my_state.screen.blit(self._image, myrect)
         if self.on_enter or self.on_leave:
-            if myrect.collidepoint(*pygame.mouse.get_pos()):
+            if myrect.collidepoint(*pbge.my_state.mouse_pos):
                if not self._mouse_is_over:
                    self._mouse_is_over = True
                    if self.on_enter:

@@ -232,7 +232,7 @@ class Menu( Frect ):
 
             elif pc_input.type == pygame.MOUSEBUTTONDOWN:
                 if (pc_input.button == 1):
-                    moi = self.get_mouseover_item(pc_input.pos)
+                    moi = self.get_mouseover_item(my_state.mouse_pos)
                     if moi is not None:
                         self.set_item_by_position(moi)
                 elif (pc_input.button == 4):
@@ -242,7 +242,7 @@ class Menu( Frect ):
 
             elif pc_input.type == pygame.MOUSEBUTTONUP:
                 if pc_input.button == 1:
-                    moi = self.get_mouseover_item(pc_input.pos)
+                    moi = self.get_mouseover_item(my_state.mouse_pos)
                     if moi is self.selected_item:
                         choice = self.items[self.selected_item].value
                         no_choice_made = False
@@ -250,7 +250,7 @@ class Menu( Frect ):
                     no_choice_made = False
 
             elif pc_input.type == pygame.MOUSEMOTION:
-                moi = self.get_mouseover_item(pc_input.pos)
+                moi = self.get_mouseover_item(my_state.mouse_pos)
                 if moi is not None:
                     self.set_item_by_position(moi)
 
@@ -327,7 +327,7 @@ class PopUpMenu( Menu ):
     WIDTH = 200
     HEIGHT = 250
     def __init__( self, predraw=None, border=default_border ):
-        x,y = pygame.mouse.get_pos()
+        x,y = my_state.mouse_pos
         x += 8
         y += 8
         sw,sh = my_state.screen.get_size()

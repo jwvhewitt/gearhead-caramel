@@ -74,8 +74,8 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
 
-        tplot = self.add_sub_plot(nart, "MECHA_WORKSHOP")
-        plotutility.TownBuildingConnection(self, myscene, tplot.elements["LOCALE"], room2=tplot.elements["FOYER"])
+        #tplot = self.add_sub_plot(nart, "MECHA_WORKSHOP")
+        #plotutility.TownBuildingConnection(self, myscene, tplot.elements["LOCALE"], room2=tplot.elements["FOYER"])
 
         # Add some local lancemates.
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")

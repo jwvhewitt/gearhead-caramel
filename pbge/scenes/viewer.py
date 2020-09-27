@@ -266,7 +266,7 @@ class SceneView( object ):
         if record_anim:
             self.anims.clear()
             self()
-            pygame.display.flip()
+            my_state.do_flip()
             pygame.image.save( my_state.screen, util.user_dir( "anim_{:0>3}.png".format(tick) ) )
             tick += 1
 
@@ -282,7 +282,7 @@ class SceneView( object ):
                     a.update(self)
             if should_delay:
                 self()
-                pygame.display.flip()
+                my_state.do_flip()
             if record_anim:
                 pygame.image.save( my_state.screen, util.user_dir( "anim_{:0>3}.png".format(tick) ) )
 
@@ -322,7 +322,7 @@ class SceneView( object ):
     def __call__( self ):
         """Draws this mapview to the provided screen."""
         screen_area = my_state.screen.get_rect()
-        mouse_x,mouse_y = pygame.mouse.get_pos()
+        mouse_x,mouse_y = my_state.mouse_pos
         my_state.screen.fill( (0,0,0) )
 
         # Check for map scrolling, depending on mouse position.

@@ -37,7 +37,7 @@ class InfoPanel( object ):
 
     def popup( self ):
         w,h = self.get_dimensions()
-        x,y = pygame.mouse.get_pos()
+        x,y = pbge.my_state.mouse_pos
         x -= w//2
         y -= h + 64
         myrect = pygame.Rect(x,y,w,h)

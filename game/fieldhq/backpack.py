@@ -33,7 +33,7 @@ class InvItemWidget(widgets.Widget):
         pbge.draw_text(pbge.ITALICFONT, self.item.scale.get_mass_string(self.item.mass), mydest, justify=1, color=color)
 
     def _builtin_responder(self,ev):
-        if (ev.type == pygame.MOUSEMOTION) and self.get_rect().collidepoint(pygame.mouse.get_pos()):
+        if (ev.type == pygame.MOUSEMOTION) and self.get_rect().collidepoint(pbge.my_state.mouse_pos):
             self.bp.active_item = self
 
     def get_menu(self):

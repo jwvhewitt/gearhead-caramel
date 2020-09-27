@@ -114,6 +114,7 @@ ENEMY_RED = (250,50,0)
 class GameState( object ):
     def __init__( self , screen=None ):
         self.screen = screen
+        self.physical_screen = None
         self.view = None
         self.got_quit = False
         self.widgets = list()
@@ -129,6 +130,8 @@ class GameState( object ):
         self.standing_by = False
         self.notifications = list()
 
+        self.mouse_pos = (0,0)
+
     def render_widgets( self ):
         if self.widgets:
             for w in self.widgets:
@@ -142,14 +145,14 @@ class GameState( object ):
             if n.is_done():
                 self.notifications.remove(n)
 
-    def do_flip( self, show_widgets=True ):
+    def do_flip( self, show_widgets=True, reset_standing_by=True ):
         self.widget_tooltip = None
         if show_widgets:
             self.render_widgets()
         if self.notifications:
             self.render_notifications()
         if self.widget_tooltip:
-            x,y = pygame.mouse.get_pos()
+            x,y = self.mouse_pos
             x += 16
             y += 16
             if x + 200 > self.screen.get_width():
@@ -159,7 +162,12 @@ class GameState( object ):
             default_border.render(myrect)
             self.screen.blit(myimage,myrect)
         self.anim_phase = (self.anim_phase + 1) % 6000
-        self.standing_by = False
+        if reset_standing_by:
+            self.standing_by = False
+        if util.config.getboolean( "GENERAL", "stretchy_screen" ):
+            w,h = self.physical_screen.get_size()
+            pygame.transform.smoothscale(self.screen,(w,h),self.physical_screen)
+            #pygame.transform.scale(self.screen, (w, h), self.physical_screen)
         pygame.display.flip()
 
     def locate_music( self, mfname ):
@@ -235,6 +243,26 @@ class GameState( object ):
             self.active_widget = wlist[n]
         elif wlist:
             self.active_widget = wlist[0]
+
+    def resize(self):
+        w,h = self.physical_screen.get_size()
+        self.screen = pygame.Surface((max(800,600 * w // h),600))
+
+    def set_size(self, w, h):
+        if util.config.getboolean( "GENERAL", "stretchy_screen" ):
+            my_state.physical_screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
+            self.resize()
+        else:
+            my_state.screen = pygame.display.set_mode( (max(w,800),max(h,600)), pygame.RESIZABLE )
+
+    def update_mouse_pos(self):
+        if util.config.getboolean( "GENERAL", "stretchy_screen" ):
+            x,y = pygame.mouse.get_pos()
+            w1,h1 = self.physical_screen.get_size()
+            w2,h2 = self.screen.get_size()
+            self.mouse_pos = (x*w2//w1,y*h2//h1)
+        else:
+            self.mouse_pos = pygame.mouse.get_pos()
 
 INPUT_CURSOR = None
 SMALLFONT = None
@@ -352,6 +380,8 @@ def wait_event():
         my_state.got_quit = True
     elif ev.type == TIMEREVENT:
         pygame.event.clear( TIMEREVENT )
+    elif ev.type == pygame.MOUSEMOTION:
+        my_state.update_mouse_pos()
     elif ev.type == pygame.KEYDOWN:
         if ev.key == pygame.K_PRINT:
             pygame.image.save( my_state.screen, util.user_dir( "out.png" ) )
@@ -359,7 +389,9 @@ def wait_event():
             my_state.active_widget_hilight = True
             my_state.activate_next_widget()
     elif ev.type == pygame.VIDEORESIZE:
-        my_state.screen = pygame.display.set_mode( (max(ev.w,800),max(ev.h,600)), pygame.RESIZABLE )
+        # PG2 Change
+        #pygame.display._resize_event(ev)
+        my_state.set_size(max(ev.w,800),max(ev.h,600))
 
     # Inform any interested widgets of the event.
     my_state.widget_clicked = False
@@ -434,7 +466,7 @@ def input_string( font = None, redrawer = None, prompt = "Enter text below", pro
             INPUT_CURSOR.render( ( my_state.screen.get_width() / 2 + myimage.get_width() / 2 + 2 , my_state.screen.get_height() / 2 ) , cursor_frame / 3 )
             my_state.screen.set_clip( None )
             cursor_frame = ( cursor_frame + 1 ) % ( INPUT_CURSOR.num_frames() * 3 )
-            pygame.display.flip()
+            my_state.do_flip(False)
 
 
         elif ev.type == pygame.KEYDOWN:
@@ -458,10 +490,10 @@ def please_stand_by( caption=None ):
         if caption:
             mytext = BIGFONT.render(caption, True, TEXT_COLOR )
             dest2 = mytext.get_rect( topleft = (dest.x+32,dest.y+32) )
-            gold_border.render( my_state.screen, dest2 )
+            default_border.render( my_state.screen, dest2 )
             my_state.screen.blit( mytext, dest2 )
         my_state.standing_by = True
-        pygame.display.flip()
+        my_state.do_flip(False,reset_standing_by=False)
 
 
 from . import frects
@@ -519,6 +551,15 @@ class BasicNotification(frects.Frect):
     def is_done(self):
         return self._inflation_phase == self.IP_DONE
 
+# PG2 Change
+#FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.SCALED
+#WINDOWED_FLAGS = pygame.RESIZABLE | pygame.SCALED
+#FULLSCREEN_RES = (800,600)
+FULLSCREEN_FLAGS = pygame.FULLSCREEN
+WINDOWED_FLAGS = pygame.RESIZABLE
+FULLSCREEN_RES = (0,0)
+
+
 
 def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.png"):
     global INIT_DONE
@@ -526,6 +567,7 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
         util.init(appname,gamedir)
         # Init image.py
         image.init_image(util.image_dir(""))
+
 
         pygame.init()
         my_state.audio_enabled = not util.config.getboolean( "TROUBLESHOOTING", "disable_audio_entirely" )
@@ -538,10 +580,17 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
         pygame.display.set_caption(winname,appname)
         pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
         # Set the screen size.
-        if util.config.getboolean( "GENERAL", "fullscreen" ):
-            my_state.screen = pygame.display.set_mode( (0,0), pygame.FULLSCREEN )
+        if util.config.getboolean( "GENERAL", "stretchy_screen" ):
+            if util.config.getboolean( "GENERAL", "fullscreen" ):
+                my_state.physical_screen = pygame.display.set_mode( FULLSCREEN_RES, FULLSCREEN_FLAGS )
+            else:
+                my_state.physical_screen = pygame.display.set_mode( (800,600), WINDOWED_FLAGS )
+            my_state.resize()
         else:
-            my_state.screen = pygame.display.set_mode( (800,600), pygame.RESIZABLE )
+            if util.config.getboolean( "GENERAL", "fullscreen" ):
+                my_state.screen = pygame.display.set_mode( FULLSCREEN_RES, FULLSCREEN_FLAGS )
+            else:
+                my_state.screen = pygame.display.set_mode( (800,600), WINDOWED_FLAGS )
 
         global INPUT_CURSOR
         INPUT_CURSOR = image.Image( "sys_textcursor.png" , 8 , 16 )

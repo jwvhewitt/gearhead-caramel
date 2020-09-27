@@ -24,7 +24,7 @@ class MysteryDungeonDecor(OmniDec):
     WALL_FILL_FACTOR = 0.33
 
 class RundownFactoryDecor(OmniDec):
-    WALL_DECOR = (ghterrain.TekruinsWallDecor, ghterrain.SteelPipe, ghterrain.ShippingShelvesTerrain)
+    WALL_DECOR = (ghterrain.SteelPipe, ghterrain.TekruinsWallDecor, ghterrain.SteelPipe, ghterrain.ShippingShelvesTerrain)
     WALL_FILL_FACTOR = 0.33
     FLOOR_DECOR = (ghterrain.Tekdebris, ghterrain.NorthSouthShelvesTerrain)
     FLOOR_FILL_FACTOR = 0.03

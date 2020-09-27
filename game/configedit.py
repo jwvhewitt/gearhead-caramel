@@ -19,9 +19,9 @@ class ConfigEditor( object ):
         util.config.set( "GENERAL", "fullscreen", str(mystate) )
         # Actually toggle the fullscreen.
         if mystate:
-            pbge.my_state.screen = pygame.display.set_mode( (0,0), pygame.FULLSCREEN )
+            pbge.my_state.screen = pygame.display.set_mode( pbge.FULLSCREEN_RES, pbge.FULLSCREEN_FLAGS )
         else:
-            pbge.my_state.screen = pygame.display.set_mode( (800,600), pygame.RESIZABLE )
+            pbge.my_state.screen = pygame.display.set_mode( (800,600), pbge.WINDOWED_FLAGS )
     def toggle_music( self ):
         mystate = not util.config.getboolean( "GENERAL", "music_on" )
         util.config.set( "GENERAL", "music_on", str(mystate) )

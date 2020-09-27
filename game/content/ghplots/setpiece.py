@@ -154,7 +154,7 @@ class MWP_ComputerProblem(Plot):
 
 
         if self.fixed_computer:
-            mylist.append(Offer("You did WHAT?! ",
+            mylist.append(Offer("You did WHAT?! I suppose I ought to thank you... I don't want to, but I ought to.",
                             context=ContextTag([context.CUSTOM]), effect=self._win_mission,
                             data={"reply": "I fixed your computer."},
                             ))
