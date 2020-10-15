@@ -1,3 +1,7 @@
+v0.550 October 15 2020
+- Added Ran Magnus Mecha Works
+- Added stretchy_screen config file option
+- Added Pro Duelist Association faction
 - Missile salvos drain target's stamina faster than other attacks
 - Removed redundant (and outdated) are_ally_factions, are_enemy_factions methods from GearHeadCampaign
 - Improve success rate and casting cost of LISTEN TO MY SONG.

@@ -8,10 +8,12 @@ import copy
 from . import shopui
 
 MECHA_STORE = (tags.ST_MECHA,)
+MEXTRA_STORE = (tags.ST_MECHA,tags.ST_MECHA_WEAPON)
 ARMOR_STORE = (tags.ST_CLOTHING,)
 WEAPON_STORE = (tags.ST_WEAPON,)
 GENERAL_STORE = (tags.ST_WEAPON,tags.ST_CLOTHING,tags.ST_ESSENTIAL)
 MECHA_PARTS_STORE = (tags.ST_MECHA_EQUIPMENT,)
+MECHA_WEAPON_STORE = (tags.ST_MECHA_WEAPON,)
 TIRE_STORE = (tags.ST_MECHA_MOBILITY,)
 CYBERWARE_STORE = (tags.ST_CYBERWARE,)
 GENERAL_STORE_PLUS_MECHA = (tags.ST_WEAPON,tags.ST_CLOTHING,tags.ST_ESSENTIAL,tags.ST_MECHA,tags.ST_MECHA_EQUIPMENT)
@@ -21,7 +23,7 @@ class Shop(object):
     MENU_AREA = pbge.frects.Frect(50, -200, 300, 300)
 
     def __init__(self, ware_types=MECHA_STORE, allow_misc=True, caption="Shop", rank=25, shop_faction=None,
-                 num_items=10, turnover=1, npc=None, mecha_colors=None):
+                 num_items=10, turnover=1, npc=None, mecha_colors=None, sell_champion_equipment=False):
         self.wares = list()
         self.ware_types = ware_types
         self.allow_misc = allow_misc
@@ -35,6 +37,7 @@ class Shop(object):
         self.shop_faction = shop_faction
         self.mecha_colors = mecha_colors or gears.color.random_mecha_colors()
         self.customer = None
+        self.sell_champion_equipment = sell_champion_equipment
 
     def item_matches_shop(self, item):
         if item.get_full_name() in [a.get_full_name() for a in self.wares]:
@@ -45,7 +48,7 @@ class Shop(object):
         else:
             return True
 
-    def generate_item(self, itype, rank):
+    def _pick_an_item(self, itype, rank):
         candidates = [item for item in gears.selector.DESIGN_LIST if
                       itype in item.shop_tags and self.item_matches_shop(item)]
         if candidates:
@@ -63,7 +66,25 @@ class Shop(object):
             it = copy.deepcopy(sorted_candidates[i])
             if isinstance(it, gears.base.Mecha):
                 it.colors = self.mecha_colors
+            if self.sell_champion_equipment and random.randint(1,3) == 1:
+                if isinstance(it, gears.base.Mecha):
+                    champions.upgrade_to_champion(it)
+                elif it.scale == gears.scale.MechaScale and isinstance(it, (gears.base.Component, gears.base.Shield, gears.base.Launcher)):
+                    champions.upgrade_item_to_champion(it)
+
             return it
+
+
+    def generate_item(self, itype, rank):
+        tries = 0
+        while tries < 10:
+            it = self._pick_an_item(itype, rank)
+            # Avoid duplicates.
+            if it.get_full_name() not in [a.get_full_name() for a in self.wares]:
+                return it
+            tries = tries + 1
+        return it
+
 
     def update_wares(self, camp):
         # Once a day the wares get updated. Delete some items, make sure that
@@ -170,24 +191,3 @@ class Shop(object):
         self.enter_shop(camp)
 
 
-class ChampionShop(Shop):
-    """
-    Like a shop, but sells champion mecha.
-    """
-    def _pick_item(self, itype, rank):
-        it = super(ChampionShop, self).generate_item(itype, rank)
-        if isinstance(it, gears.base.Mecha):
-            champions.upgrade_to_champion(it)
-        elif it.scale == gears.scale.MechaScale and isinstance(it, (gears.base.Component, gears.base.Shield, gears.base.Launcher)):
-            champions.upgrade_item_to_champion(it)
-        return it
-
-    def generate_item(self, itype, rank):
-        tries = 0
-        while tries < 10:
-            it = self._pick_item(itype, rank)
-            # Avoid duplicates.
-            if it.get_full_name() not in [a.get_full_name() for a in self.wares]:
-                return it
-            tries = tries + 1
-        return it

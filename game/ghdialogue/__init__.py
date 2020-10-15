@@ -140,14 +140,15 @@ def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
 
 
 class OneShotInfoBlast(object):
-    def __init__(self, subject, message):
+    def __init__(self, subject, message, subject_text=""):
         self.subject = subject
+        self.subject_text = subject_text or subject
         self.message = message
         self.active = True
 
     def build_offer(self):
         return Offer(msg=self.message, context=ContextTag((context.INFO,)), effect=self.blast_that_info,
-                     subject=self.subject, data={"subject": self.subject}, no_repeats=True)
+                     subject=self.subject, data={"subject": self.subject_text}, no_repeats=True)
 
     def blast_that_info(self, *args):
         self.active = False

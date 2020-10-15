@@ -15,6 +15,7 @@ from . import tarot_cards
 #   **************************
 #
 # OWNER_NAME: The name of the NPC or faction that owns this factory
+# BUILDING_NAME: The name of this factory
 
 class SmallMechaFactory(Plot):
     LABEL = "MECHA_WORKSHOP"
@@ -27,7 +28,7 @@ class SmallMechaFactory(Plot):
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team")
+        team2 = self.register_element("CIVILIAN_TEAM", teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(50, 50, garage_name, player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale, exploration_music="AlexBeroza_-_Kalte_Ohren.ogg")
@@ -52,7 +53,12 @@ class SmallMechaFactory(Plot):
                                   ware_types=services.MECHA_PARTS_STORE, rank=self.rank)
 
         # Add some details and complications.
-        self.add_sub_plot(nart, "MEKWORK_PROBLEM", necessary=False)
+        if random.randint(1,8) != 4:
+            self.add_sub_plot(nart, "MEKWORK_PROBLEM", necessary=False)
+        if random.randint(1,6) != 4:
+            self.add_sub_plot(nart, "MEKWORK_FEATURE", necessary=False)
+        if random.randint(1,4) != 4:
+            self.add_sub_plot(nart, "MEKWORK_MISC", necessary=False)
 
         return True
 
@@ -70,6 +76,8 @@ class SmallMechaFactory(Plot):
 
     def generate_npc_and_building_name(self):
         npc_name = gears.selector.GENERIC_NAMES.gen_word()
+        if "BUILDING_NAME" in self.elements:
+            return npc_name, self.elements["BUILDING_NAME"]
         if "OWNER_NAME" in self.elements:
             owner_name = self.elements.get("OWNER_NAME") or gears.selector.EARTH_NAMES.gen_word()
         else:
@@ -290,6 +298,78 @@ class MWP_OfflineGenerator(Plot):
 #  METROSCENE: The city the workshop is in
 #  METRO: The scope of the city
 
+class MWF_Showroom(Plot):
+    LABEL = "MEKWORK_FEATURE"
+
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        # Create an office.
+        myroom = self.register_element('_room', pbge.randmaps.rooms.ClosedRoom(),dident="LOCALE")
+        myroom.contents.append(ghwaypoints.MechaModel())
+        myroom.contents.append(ghwaypoints.MechaModel())
+        myroom.contents.append(ghwaypoints.MechaModel())
+        npc = self.register_element('NPC',
+                                    gears.selector.random_character(50, local_tags=self.elements["METROSCENE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]),
+                                    dident="_room"
+                                    )
+
+        self.shop = services.Shop(npc=npc, num_items=5,
+                                  ware_types=services.MECHA_STORE, rank=self.rank)
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Would you like to see the mecha we build at {LOCALE}?".format(**self.elements),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": str(self.elements["LOCALE"]), "wares": "mecha"}
+                            ))
+
+        return mylist
+
+
+class MWF_WeaponsLab(Plot):
+    LABEL = "MEKWORK_FEATURE"
+
+    active = True
+    scope = "METRO"
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        # Create an office.
+        myroom = self.register_element('_room', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="LOCALE")
+        npc = self.register_element('NPC',
+                                    gears.selector.random_character(50, local_tags=self.elements["METROSCENE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Researcher"]),
+                                    dident="_room"
+                                    )
+
+        self.shop = services.Shop(npc=npc, sell_champion_equipment=True, num_items=5,
+                                  ware_types=services.MECHA_WEAPON_STORE, rank=self.rank)
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] I am in charge of weapons research and development here at {LOCALE}.".format(**self.elements),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": str(self.elements["LOCALE"]), "wares": "weapons"}
+                            ))
+
+        return mylist
+
+
 
 #   ************************
 #   ***   MEKWORK_MISC   ***
@@ -299,5 +379,23 @@ class MWP_OfflineGenerator(Plot):
 #  METROSCENE: The city the workshop is in
 #  METRO: The scope of the city
 
+class MWM_BusinessOffice(Plot):
+    LABEL = "MEKWORK_MISC"
 
+    active = False
+
+    def custom_init(self, nart):
+        # Create an office.
+        self.register_element('_room', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="LOCALE")
+        return True
+
+class MWM_StorageRoom(Plot):
+    LABEL = "MEKWORK_MISC"
+
+    active = False
+
+    def custom_init(self, nart):
+        # Create a storage room.
+        self.register_element('_room', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="LOCALE")
+        return True
 

@@ -19,7 +19,7 @@ class TerrSet( Room ):
     def __init__(self,tags=(), anchor=None, parent=None, archi=None, waypoints=dict(),border=1,dont_calc_dimensions=False):
         self.border = border
         if dont_calc_dimensions:
-            self.width,self.height = 0,0
+            self.width,self.height = random.randint(7,15), random.randint(7,15)
         else:
             self.width = max([len(a) for a in self.TERRAIN_MAP]) + 2*border
             self.height = len(self.TERRAIN_MAP) + 2*border

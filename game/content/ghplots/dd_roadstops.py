@@ -133,8 +133,7 @@ class DZD_DeadZoneVillage(Plot):
         ))
         defender.place(myscene, team=team2)
 
-        myscenegen = pbge.randmaps.CityGridGenerator(myscene, gharchitecture.HumanScaleDeadzone(),
-                                                     road_terrain=ghterrain.Flagstone)
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.HumanScaleDeadzone(),)
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
         self.register_element("METRO", myscene.metrodat)

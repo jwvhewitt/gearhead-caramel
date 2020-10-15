@@ -228,6 +228,7 @@ class RoadMap(object):
         :type plot: Plot
         """
         ok = True
+        towns = list()
         for n in self.nodes:
             if n.sub_plot_label:
                 ok = plot.add_sub_plot(nart,n.sub_plot_label,ident=n.sub_plot_ident,spstate=PlotState(rank=60-n.pos[0]*3,elements={"DZ_NODE":n}).based_on( plot ))
@@ -236,6 +237,7 @@ class RoadMap(object):
                     n.entrance = ok.elements["ENTRANCE"]
                     if "DZ_NODE_FRAME" in ok.elements:
                         n.frame = ok.elements["DZ_NODE_FRAME"]
+                    towns.append(n)
                 else:
                     break
         for e in self.edges:
@@ -247,6 +249,11 @@ class RoadMap(object):
                         e.style = ok.elements["DZ_EDGE_STYLE"]
                 else:
                     break
+        if towns:
+            towns.sort(key=lambda x: x.pos[0])
+            mytown = towns[min(random.randint(1,len(towns)-2),random.randint(1,len(towns)-2))]
+            plot.add_sub_plot(nart, "DZD_MAGNUSMECHA",
+                              elements={"METROSCENE": mytown.destination, "METRO": mytown.destination.metrodat})
         return ok
 
     def expand_roadmap_menu(self, camp, mymenu):

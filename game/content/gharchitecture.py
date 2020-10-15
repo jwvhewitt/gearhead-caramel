@@ -23,11 +23,13 @@ class MysteryDungeonDecor(OmniDec):
     WALL_DECOR = (ghterrain.BlueTorchTerrain,)
     WALL_FILL_FACTOR = 0.33
 
+
 class RundownFactoryDecor(OmniDec):
     WALL_DECOR = (ghterrain.SteelPipe, ghterrain.TekruinsWallDecor, ghterrain.SteelPipe, ghterrain.ShippingShelvesTerrain)
     WALL_FILL_FACTOR = 0.33
     FLOOR_DECOR = (ghterrain.Tekdebris, ghterrain.NorthSouthShelvesTerrain)
     FLOOR_FILL_FACTOR = 0.03
+
 
 class DefiledFactoryDecor(OmniDec):
     WALL_DECOR = (ghterrain.TekruinsWallDecor,ghterrain.Cybertendrils)
@@ -90,17 +92,28 @@ class MechaScaleSemiDeadzone(Architecture):
     DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.SemiDeadZoneGround, ghterrain.SemiDeadZoneGround, ghterrain.GreenZoneGrass, higround=0.65)
     DEFAULT_ROOM_CLASSES = (ghrooms.ForestRoom,ghrooms.LakeRoom,ghrooms.WreckageRoom,ghrooms.DragonToothRoom,ghrooms.MSRuinsRoom)
 
+
 class HumanScaleDeadzone(Architecture):
 #    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
 #    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.CrackedEarth
 
+
+class HumanScaleSemiDeadzone(Architecture):
+    DEFAULT_CONVERTER = pbge.randmaps.converter.PlasmaConverter(ghterrain.DragonTeethWall,ghterrain.DragonTeethWall,ghterrain.Forest)
+    DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
+    DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
+    DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.SemiDeadZoneGround, ghterrain.SemiDeadZoneGround, ghterrain.GreenZoneGrass, higround=0.65)
+    DEFAULT_ROOM_CLASSES = (ghrooms.ForestRoom,ghrooms.LakeRoom,ghrooms.WreckageRoom,ghrooms.DragonToothRoom,ghrooms.MSRuinsRoom)
+
+
 class HumanScaleGreenzone(Architecture):
 #    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
 #    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.GreenZoneGrass
+
 
 class DefaultBuilding(Architecture):
     DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall

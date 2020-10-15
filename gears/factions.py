@@ -245,6 +245,20 @@ class TheSolarNavy(Faction):
     uniform_colors = (color.SkyBlue,None,None,None,color.DeepSeaBlue)
 
 
+class ProDuelistAssociation(Faction):
+    name = "he Pro Duelist Association"
+    factags = (tags.Adventurer,tags.Media)
+    mecha_colors = (color.PlasmaBlue, color.GunRed, color.Malachite, color.SteelBlue, color.FreedomBlue)
+    CAREERS = {
+        tags.Trooper: ("Arena Pilot",),
+        tags.Commander: ("Arena Pilot",),
+        tags.Support: ("Gladiator","Singer"),
+    }
+    LOCATIONS = (personality.GreenZone,personality.DeadZone,personality.L5Spinners,personality.L5DustyRing,personality.Mars)
+    ADJECTIVES = ("Duelist", "Arena", "Cavalier")
+    NOUNS = ("Club","League")
+
+
 class Circle(object):
     def __init__(self, camp, parent_faction=None, mecha_colors=None, name="", careers=None, factags=(), locations=(), uniform_colors=None, active=True, allies=(), enemies=()):
         if parent_faction and not name:
@@ -346,7 +360,8 @@ DEFAULT_FACTION_DICT_NT158 = {
     TheSolarNavy: FactionRelations(
         allies=(TerranFederation,TerranDefenseForce,TheSilverKnights),
         enemies=(AegisOverlord,BladesOfCrihna)
-    )
+    ),
+    ProDuelistAssociation: FactionRelations(),
 
 }
 

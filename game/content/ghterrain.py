@@ -474,10 +474,12 @@ class ResidentialBuilding(pbge.randmaps.terrset.BuildingSet):
     GF4_TILE = (23,)
     GF5_TILE = (24,)
 
+
 class IndustrialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_bottom = 'terrain_building_industrial_b.png'
     image_top = 'terrain_building_industrial.png'
     blocks = (Walking,Skimming,Rolling,Flying)
+
 
 class IndustrialBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = IndustrialBuildingTerrain
@@ -494,10 +496,12 @@ class IndustrialBuilding(pbge.randmaps.terrset.BuildingSet):
     GF4_TILE = (23,)
     GF5_TILE = (24,)
 
+
 class CommercialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_bottom = 'terrain_building_commercial_b.png'
     image_top = 'terrain_building_commercial.png'
     blocks = (Walking,Skimming,Rolling,Flying)
+
 
 class CommercialBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = CommercialBuildingTerrain

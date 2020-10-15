@@ -8,6 +8,7 @@ from . import dd_homebase
 from . import dd_intro
 from . import dd_lancedev
 from . import dd_main
+from . import dd_misc
 from . import dd_roadedge
 from . import dd_roadedge_etc
 from . import dd_roadedge_propp
@@ -51,6 +52,7 @@ harvest(dd_homebase)
 harvest(dd_intro)
 harvest(dd_lancedev)
 harvest(dd_main)
+harvest(dd_misc)
 harvest(dd_roadedge)
 harvest(dd_roadedge_etc)
 harvest(dd_roadedge_propp)
