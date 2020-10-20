@@ -149,7 +149,7 @@ class FindAChemist(Plot):
         self.end_plot(camp, True)
 
     def _get_rumor(self, camp):
-        self.memo = Memo( "{ME_PERSON} is working on a cure for {ME_PROBLEM}"
+        self.memo = Memo( "{ME_PERSON} is working on a cure for {ME_PROBLEM}".format(**self.elements)
                         , self.elements[ME_PERSON].get_scene()
                         )
         self.got_rumor = True
@@ -1233,7 +1233,7 @@ class IkeaForTechnobabble(Plot):
         return goffs
 
     def _get_memo(self,camp):
-        self.memo = Memo( "{ME_PERSON} is working on a solution for {ME_PROBLEM}."
+        self.memo = Memo( "{ME_PERSON} is working on a solution for {ME_PROBLEM}.".format(**self.elements)
                         , self.elements[ME_PERSON].get_scene()
                         )
         self.got_memo = True
@@ -1291,7 +1291,7 @@ class FindAnInventor(Plot):
         self.end_plot(camp, True)
 
     def _get_rumor(self, camp):
-        self.memo = Memo( "{ME_PERSON} is working on a cure for {ME_PROBLEM}"
+        self.memo = Memo( "{ME_PERSON} is working on a cure for {ME_PROBLEM}".format(**self.elements)
                         , self.elements[ME_PERSON].get_scene()
                         )
         self.got_rumor = True
@@ -1732,7 +1732,7 @@ class WitnessToTheCrime(Plot):
 
     def _get_rumor(self, camp):
         self.got_rumor = True
-        self.memo = Memo( "{NPC} has been nervous recently"
+        self.memo = Memo( "{NPC} has been nervous recently".format(**self.elements)
                         , self.elements["NPC"].get_scene()
                         )
 
