@@ -1,3 +1,7 @@
+v0.551 October 20 2020
+- Added auto_save default to data/config_defaults.cfg
+- Reduced Corsair's heavy rocket pod to 4 rockets, but bigger ones
+
 v0.550 October 15 2020
 - Added Ran Magnus Mecha Works
 - Added stretchy_screen config file option

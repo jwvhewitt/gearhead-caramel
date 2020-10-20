@@ -35,10 +35,10 @@ Mecha
                                 Missile
 									name = "Heavy Rockets"
 									reach = 7
-									damage = 3
+									damage = 4
 									accuracy = 0
 									penetration = 2
-									quantity = 5
+									quantity = 4
 									attributes = (Blast1)
                             END
                     END
