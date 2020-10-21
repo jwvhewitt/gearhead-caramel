@@ -159,7 +159,7 @@ class ChargeAttack(Singleton):
     def get_attacks( self, weapon ):
         aa = weapon.get_basic_attack(name='Charge',attack_icon=15)
         aa.fx.modifiers.append(geffects.GenericBonus('Charge',10))
-        aa.fx.children[0].damage_d = 10
+        aa.fx.children[0].damage_d = round(aa.fx.children[0].damage_d * 5 / 3)
         aa.area = geffects.DashTarget(weapon.get_root())
         aa.data.thrill_power = int(aa.data.thrill_power * 1.5)
         aa.shot_anim = geffects.DashFactory(weapon.get_root())
