@@ -350,8 +350,6 @@ class GearHeadScene(pbge.scenes.Scene):
 
 
 class GearHeadCampaign(pbge.campaign.Campaign):
-    fight = None
-    pc = None
 
     def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3, faction_relations=factions.DEFAULT_FACTION_DICT_NT158, convoborder="dzd_convoborder.png"):
         super(GearHeadCampaign, self).__init__(name, explo_class)
@@ -360,6 +358,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.faction_relations = copy.deepcopy(faction_relations)
         self.history = list()
         self.convoborder = convoborder
+        self.fight = None
+        self.pc = None
 
         # Some containers for characters who have been either incapacitated or killed.
         # It's the current scenario's responsibility to do something with these lists

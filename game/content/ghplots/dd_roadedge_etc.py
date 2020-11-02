@@ -10,6 +10,7 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, PlotState
 from . import dd_customobjectives
+from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
 
 
 #   ******************************
@@ -167,10 +168,13 @@ class MechaGraveyardAdventure(Plot):
 
     def _smash(self, camp: gears.GearHeadCampaign):
         pbge.alert(
-            "You smash the computer until the lights stop blinking. If that doesn't take care of the zombie mecha problem, you're not sure what will.")
+            "You smash the computer until the lights stop blinking. Then you smash it a bit more just to be safe. If that doesn't take care of the zombie mecha problem, you're not sure what will.")
         self.zombots_active = False
         self.subplots["OUTENCOUNTER"].end_plot(camp)
         camp.check_trigger("WIN", self)
+        BiotechDiscovery(camp, "I found an old zombot-infested biotech laboratory.",
+                         "[THATS_INTERESTING] I'll get one of our hazmat recovery teams to check it out. Here is the {cash} you've earned.",
+                         self.rank//2)
 
     def _shutdown(self, camp: gears.GearHeadCampaign):
         pbge.alert(
@@ -181,6 +185,8 @@ class MechaGraveyardAdventure(Plot):
             self.set_collector = True
         self.subplots["OUTENCOUNTER"].end_plot(camp)
         camp.check_trigger("WIN", self)
+        BiotechDiscovery(camp, "I found a PreZero lab where they were developing self-repair technology",
+                         "[THATS_INTERESTING] This could be a very important discovery; I'd say it's easily worth {cash}.", self.rank+15)
 
     def LORE3_menu(self, camp, thingmenu):
         if self.alpha_full:

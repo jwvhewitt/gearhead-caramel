@@ -1156,6 +1156,33 @@ class DZD_EliteEquipment(Plot):
 
         return mylist
 
+CD_BIOTECH_DISCOVERIES = "BIOTECH_DISCOVERIES"
+CD_BIOTECH_REPORTED = "BIOTECH_REPORTED"
+
+class BiotechDiscovery(object):
+    def __init__(self, camp, reply, offer, cash_rank, on_sale_fun=None, activate=True):
+        if activate:
+            self.activate(camp)
+        self.reply = reply
+        self.cash = gears.selector.calc_threat_points(cash_rank,50)
+        # Stick "{cash}" in the offer to say how much the PC earns.
+        self.offer = offer.format(cash="${:,}".format(self.cash))
+        self.on_sale_fun = on_sale_fun
+
+    def activate(self, camp):
+        camp.campdata[CD_BIOTECH_DISCOVERIES].append(self)
+
+    def get_offer(self):
+        return Offer(self.offer, (context.CUSTOM,), effect=self, no_repeats=True,
+                     data={"reply":self.reply})
+
+    def __call__(self, camp: gears.GearHeadCampaign):
+        camp.credits += self.cash
+        camp.campdata[CD_BIOTECH_DISCOVERIES].remove(self)
+        camp.campdata[CD_BIOTECH_REPORTED] += 1
+        if self.on_sale_fun:
+            self.on_sale_fun(camp)
+
 
 class DZD_WujungHospital(Plot):
     LABEL = "DZDHB_WujungHospital"
@@ -1229,6 +1256,8 @@ class DZD_WujungHospital(Plot):
         self._asked_about_bc_mission = False
         self._asked_about_biomonsters = False
         self._hamster_state = 0
+        nart.camp.campdata[CD_BIOTECH_DISCOVERIES] = list()
+        nart.camp.campdata[CD_BIOTECH_REPORTED] = 0
 
         cage = self.register_element("_HAMSTER", ghwaypoints.HamsterCage(name="Hamster Cage",desc="You stand before a cage of cute, fluffy hamsters. Oddly, all of the hamsters appear to be walking on their back legs. Other than that they seem perfectly normal and content.",plot_locked=True))
         room5.contents.append(cage)
@@ -1250,6 +1279,10 @@ class DZD_WujungHospital(Plot):
                 "No mission exactly, but if you're heading into the dead zone there may be something you can do for me. BioCorp is offering cash rewards for lostech artifacts or any data regarding PreZero synthoid technology. If you find anything interesting during your travels I can pay you for the information.",
                 context=ContextTag([context.MISSION]), subject_start=True, subject=self, effect=self._tell_about_bc_mission
             ))
+        else:
+            for btd in camp.campdata[CD_BIOTECH_DISCOVERIES]:
+                mylist.append(btd.get_offer())
+
         mylist.append(Offer(
             "[GOOD] I look forward to hearing about what you find out there.",
             context=ContextTag([context.ACCEPT]), subject=self
@@ -1272,6 +1305,7 @@ class DZD_WujungHospital(Plot):
                 context=ContextTag([context.INFO]), effect=self._tell_about_hamsters,
                 data={"subject": "those hamsters"}, no_repeats=True,
             ))
+
 
         return mylist
 

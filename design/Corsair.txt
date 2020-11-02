@@ -4,6 +4,7 @@ Mecha
     imagename = "mav_corsair.png"
     portrait = "mecha_corsair.png"
     family = "Corsair"
+    desc = "The SDH-22 Corsair is the standard trooper mecha of the Terran Defense Force."
     environment_list = (GroundEnv,UrbanEnv,)
     faction_list = (TerranDefenseForce,)
     role_list = (Trooper,)

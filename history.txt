@@ -1,3 +1,5 @@
+- Activated the BioCorp biotech hunting mission
+- Added missing formatting for many tarot memos
 - Nerf Charge Attack, which was incorrectly not rescaled during the previous health and damage scale adjustment in 0.542.
 
 v0.551 October 20 2020
