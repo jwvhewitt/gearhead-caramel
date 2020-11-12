@@ -12,6 +12,7 @@ from . import dd_misc
 from . import dd_roadedge
 from . import dd_roadedge_etc
 from . import dd_roadedge_propp
+from . import dd_roadedge_unique
 from . import dd_roadstops
 from . import dungeons
 from . import encounters
@@ -56,6 +57,7 @@ harvest(dd_misc)
 harvest(dd_roadedge)
 harvest(dd_roadedge_etc)
 harvest(dd_roadedge_propp)
+harvest(dd_roadedge_unique)
 harvest(dd_roadstops)
 harvest(dungeons)
 harvest(encounters)

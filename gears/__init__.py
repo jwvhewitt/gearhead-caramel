@@ -880,6 +880,8 @@ class Loader(object):
                     current_gear.inv_com = self.load_list(g_file)
                 elif line == "END":
                     keep_going = False
+                else:
+                    print("Unidentified command: {}".format(line))
             elif not rawline:
                 keep_going = False
 

@@ -342,6 +342,7 @@ class Combat( object ):
                 self.n = 0
                 explo.update_npcs()
                 self.end_round()
+                self.camp.check_trigger("COMBATROUND")
             if self.active[self.n] in self.camp.scene.contents and self.active[self.n].is_operational():
                 chara = self.active[self.n]
                 self.do_combat_turn( chara )

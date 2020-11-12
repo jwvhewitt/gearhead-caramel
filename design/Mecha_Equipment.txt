@@ -1,4 +1,4 @@
-% Weapons
+# Weapons
 
 STC Shaka Cannon
     shop_tags= ("MEXTRA","MECHA_WEAPON")

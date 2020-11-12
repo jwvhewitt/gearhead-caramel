@@ -1,0 +1,31 @@
+
+Monster
+    name = "Kerberos"
+    desig = "DZD"
+    statline = {Reflexes = 13, Body=21, Speed=14, Perception=12, Craft=11, Knowledge=14, Ego=13, Charm = 9,
+			CloseCombat = 8, RangedCombat = 3, Dodge = 4
+	}
+	scale = MechaScale
+    material = Biotech
+	imagename = 'mon_ms_kerberos.png'
+	frame = 0
+	colors = (Olive, GothSkin, AeroBlue, Black, Black)
+    threat = 50
+
+    SUB
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 7
+                MeleeWeapon
+                    name="Maw"
+                    reach=1
+                    damage=3
+                    accuracy=3
+                    penetration=2
+                    attributes = (Brutal,ChargeAttack)
+                Overchargers
+                    size = 8
+            END
+    END

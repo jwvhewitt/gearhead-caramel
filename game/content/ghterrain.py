@@ -180,6 +180,13 @@ class WallStones(pbge.scenes.terrain.OnTheWallVariableTerrain):
 class FloorStones(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_decor_floorstones.png'
 
+class OrganicWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_organic.png'
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
+class OrganicFloor(pbge.scenes.terrain.VariableTerrain):
+    image_bottom = 'terrain_floor_organic.png'
+
 
 class DZDTownTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'

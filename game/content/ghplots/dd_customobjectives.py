@@ -18,6 +18,7 @@ DDBAMO_CHAMPION_1V1 = "DDBAMO_Champion1v1"
 DDBAMO_ENCOUNTER_ZOMBOTS = "DDBAMO_EncounterZombots"
 DDBAMO_INVESTIGATE_METEOR = "DDBAMO_InvestigateMeteor"
 DDBAMO_INVESTIGATE_REFUGEE_CAMP = "DDBAMO_INVESTIGATE_REFUGEE_CAMP"
+DDBAMO_KERBEROS = "DDBAMO_KERBEROS"
 DDBAMO_MAYBE_AVOID_FIGHT = "DDBAMO_MaybeAvoidFight"
 
 
@@ -347,6 +348,74 @@ class BAM_InvestigateRefugeeCamp(Plot):
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
             self.intro_ready = False
+            self.obj.win(camp, 100)
+
+
+class DDBAMO_FightKerberos(Plot):
+    LABEL = DDBAMO_KERBEROS
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        myunit = [gears.selector.get_design_by_full_name("DZD Kerberos") for t in range(4)]
+        team2.contents += myunit
+
+        self.obj = adventureseed.MissionObjective("Battle Kerberos", adventureseed.MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        return True
+
+    def t_COMBATROUND(self, camp: gears.GearHeadCampaign):
+        myteam = self.elements["_eteam"]
+        heads = myteam.get_members_in_play(camp)
+        num_heads = len(heads)
+
+        # See if a new head is going to pop up.
+        if num_heads > 0 and num_heads < 4 and random.randint(1,2) == 1:
+            mymon = gears.selector.get_design_by_full_name("DZD Kerberos")
+            camp.scene.deploy_team([mymon,], myteam)
+            pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=mymon.pos))
+            camp.fight.activate_foe(mymon)
+            heads.append(mymon)
+
+        # See if a head will kidnap anyone.
+        if not camp.campdata["KERBEROS_DUNGEON_OPEN"]:
+            candidates = list()
+            for pc in camp.get_active_party():
+                draggers = [h for h in heads if camp.scene.distance(pc.pos,h.pos) <= 1]
+                if len(draggers) > 1:
+                    candidates.append([pc,draggers])
+            if candidates:
+                pc,draggers = random.choice(candidates)
+                pilot = pc.get_pilot()
+                is_pc = pilot == camp.pc
+                if is_pc:
+                    pbge.alert("Suddenly, the monster's heads wrap around your {} and begin to drag you underground...".format(pc))
+                else:
+                    pbge.alert("Suddenly, the monster's heads wrap around {} and begin to drag {} {} underground.".format(pilot,pilot.gender.possessive_determiner,pc))
+                pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=pc.pos), *[gears.geffects.SmokePoof(pos=h.pos) for h in draggers])
+                for h in draggers:
+                    camp.scene.contents.remove(h)
+
+                camp.campdata["KERBEROS_GRAB_FUN"](camp, pc)
+                leftovers = [h for h in heads if h not in draggers]
+                if leftovers:
+                    pbge.my_state.view.play_anims(*[gears.geffects.SmokePoof(pos=h.pos) for h in leftovers])
+                    for h in leftovers:
+                        camp.scene.contents.remove(h)
+                self.adv.cancel_adventure(camp)
+
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
 

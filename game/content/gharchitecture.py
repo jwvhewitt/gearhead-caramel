@@ -38,6 +38,13 @@ class DefiledFactoryDecor(OmniDec):
     FLOOR_FILL_FACTOR = 0.07
 
 
+class OrganicStructureDecor(OmniDec):
+    WALL_DECOR = (ghterrain.Cybertendrils,)
+    WALL_FILL_FACTOR = 0.20
+    FLOOR_DECOR = (ghterrain.Bones,)
+    FLOOR_FILL_FACTOR = 0.05
+
+
 class FactoryDecor(OmniDec):
     WALL_DECOR = (ghterrain.SteelPipe, ghterrain.ShippingShelvesTerrain, ghterrain.VentFanTerrain)
     WALL_FILL_FACTOR = 0.25
@@ -145,6 +152,14 @@ class CommercialBuilding(Architecture):
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+class OrganicBuilding(Architecture):
+    DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
+    DEFAULT_WALL_TERRAIN = ghterrain.OrganicWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.OrganicFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+    DEFAULT_ROOM_CLASSES = (pbge.randmaps.rooms.FuzzyRoom,)
 
 class HospitalBuilding(Architecture):
     DEFAULT_WALL_TERRAIN = ghterrain.HospitalWall

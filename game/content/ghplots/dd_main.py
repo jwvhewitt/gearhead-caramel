@@ -170,6 +170,8 @@ class RoadMap(object):
             prev = north_road[-1]
         self.connect_nodes(prev,self.end_node,RoadEdge())
 
+        my_edge = self.edges[-1]
+
         south_road = list()
         prev = self.start_node
         ys = list(range(5,9))
@@ -199,6 +201,8 @@ class RoadMap(object):
             else:
                 edg.style = RoadEdge.STYLE_YELLOW
                 edg.sub_plot_label = "DZD_ROADEDGE_YELLOW"
+        #my_edge.sub_plot_label = "DZD_ROADEDGE_KERBEROS"
+
 
     def add_node(self,node_to_add,x,y):
         self.nodes.append(node_to_add)
