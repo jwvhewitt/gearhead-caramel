@@ -230,6 +230,7 @@ class MoveModel( object ):
         else:
             self.needs_deletion = True
 
+
 class Dash( MoveModel ):
     def __init__( self, model, start_pos=None, end_pos=(0,0), speed=0.5, delay=0 ):
         self.model = model

@@ -12,6 +12,12 @@ from . import base
 #  ***   Utility  Junk   ***
 #  *************************
 
+class AttackInvocation(effects.Invocation):
+    def invoke(self, camp, originator, target_points, anim_list, fx_record = None):
+        if originator:
+            pass
+        super().invoke(self, camp, originator, target_points, anim_list, fx_record)
+
 class InvoLibraryShelf( object ):
     def __init__(self,source,invo_list):
         self.source = source
@@ -487,6 +493,16 @@ class FlyingHammer( animobs.ShotAnim ):
 
 class ReturningHammer(ReturnAnim):
     BASE_ANIM = FlyingHammer
+
+class JawShot( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_jaws.png"
+    DEFAULT_SPEED = 0.3
+    def __init__(self, start_pos, end_pos, delay=1):
+        super().__init__(start_pos=start_pos, end_pos=end_pos, set_frame_offset=False, delay=delay)
+        self.children.append(
+            animobs.ShotAnim(sprite_name=self.DEFAULT_SPRITE_NAME, frame=1, delay=0, speed=self.DEFAULT_SPEED,
+                             start_pos=end_pos, end_pos=start_pos, set_frame_offset=False)
+        )
 
 # A curated list for the gear editor.
 SHOT_ANIMS = (SmallBullet,BigBullet,HugeBullet,SmallBeam,GunBeam,Missile1,Missile2,Missile3,Missile4,Missile5,ReturningHammer)

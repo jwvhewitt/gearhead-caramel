@@ -1,0 +1,176 @@
+Monster
+    name = "Biosentry"
+    statline = {Reflexes = 10, Body=10, Speed=10, Perception=10, Craft=10, Knowledge=10, Ego=10, Charm = 10,
+			RangedCombat = 3, Dodge = 3, Vitality = 3
+	}
+	scale = HumanScale
+	imagename = 'mon_synth.png'
+	frame = 0
+    material = Biotech
+    colors = (RoyalPink,CardinalRed,Turquoise,Black,Black)
+    threat = 5
+    type_tags = ("SYNTH","FACTORY","GUARD")
+    families = ("SYNTH","GUARD")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 3
+            SUB
+                Armor
+                    size = 2
+
+                BeamWeapon
+                    name = "Bio-Laser"
+                    reach = 4
+                    damage = 2
+                    accuracy = 3
+                    penetration = 0
+                    shot_anim = SmallBeam
+                    integral = True
+            END
+        Torso
+            size = 1
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 1
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 1
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 1
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 1
+            SUB
+                Armor
+                    size = 2
+            END
+    END
+
+
+Monster
+    name = "Gremlin"
+    statline = {Reflexes = 11, Body=5, Speed=13, Perception=9, Craft=16, Knowledge=8, Ego=7, Charm = 6,
+			CloseCombat = 4, Dodge = 5, Repair = 5
+	}
+	scale = HumanScale
+	imagename = 'mon_synth.png'
+	frame = 1
+    material = Biotech
+    colors = (Jade,Straw,Orange,SkyBlue,Avocado)
+    threat = 10
+    type_tags = ("SYNTH","FACTORY","RUINS","DARK","VERMIN")
+    families = ("SYNTH","DARK")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 2
+        Torso
+            size = 2
+        Arm
+            size = 2
+            SUB
+				MeleeWeapon
+					name="Claws"
+					reach=3
+					shot_anim = JawShot
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+            END
+        Arm
+            size = 2
+            SUB
+				MeleeWeapon
+					name="Claws"
+					reach=3
+					shot_anim = JawShot
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+            END
+        Leg
+            size = 2
+        Leg
+            size = 2
+    END
+
+
+Monster
+    name = "Hunter-Drone"
+    statline = {Reflexes = 16, Body=15, Speed=16, Perception=10, Craft=6, Knowledge=5, Ego=7, Charm = 4,
+			CloseCombat = 7, RangedCombat=4, Dodge = 8, Biotechnology = 4
+	}
+	scale = HumanScale
+	imagename = 'mon_synth.png'
+	frame = 2
+    material = Biotech
+    colors = (CometRed,Fuschia,BrightRed,CeramicColor,BlackRose)
+    threat = 15
+    type_tags = ("SYNTH","HUNTER-X","DARK")
+    families = ("SYNTH","HUNTER-X")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 3
+            SUB
+                Armor
+                    size = 2
+
+				MeleeWeapon
+					name="Jaws"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=4
+					integral = True
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 2
+            END
+    END
