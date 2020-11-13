@@ -1,3 +1,5 @@
+- Attackers will move a bit so you can tell who's attacking
+- Added AttackInvocation
 - Added COMBATROUND script trigger
 - Added error message to gear loader if unknown command encountered
 - Activated the BioCorp biotech hunting mission

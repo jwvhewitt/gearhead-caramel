@@ -97,7 +97,8 @@ Monster
             SUB
 				MeleeWeapon
 					name="Bite"
-					reach=1
+					reach=2
+					shot_anim = JawShot
 					damage=2
 					accuracy=3
 					penetration=1

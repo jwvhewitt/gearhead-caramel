@@ -97,6 +97,7 @@ class PlaceableThing( KeyObject ):
     def __init__(self, hidden=False, **keywords ):
         self.hidden = hidden
         self.pos = None
+        self.offset_pos = None
         super(PlaceableThing, self).__init__(**keywords)
     def place( self, scene, pos=None, team=None ):
         if hasattr( self, "container" ) and self.container:
@@ -123,6 +124,9 @@ class PlaceableThing( KeyObject ):
         spr = view.get_sprite(self)
         mydest = spr.get_rect(self.frame)
         mydest.midbottom = foot_pos
+        if self.offset_pos:
+            mydest.x += self.offset_pos[0]
+            mydest.y += self.offset_pos[1]
         spr.render( mydest, self.frame )
     def render_hidden( self, foot_pos, view ):
         pass

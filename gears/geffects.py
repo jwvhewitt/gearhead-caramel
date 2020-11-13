@@ -15,8 +15,8 @@ from . import base
 class AttackInvocation(effects.Invocation):
     def invoke(self, camp, originator, target_points, anim_list, fx_record = None):
         if originator:
-            pass
-        super().invoke(self, camp, originator, target_points, anim_list, fx_record)
+            anim_list.append(animobs.WatchMeWiggle(originator))
+        super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record)
 
 class InvoLibraryShelf( object ):
     def __init__(self,source,invo_list):

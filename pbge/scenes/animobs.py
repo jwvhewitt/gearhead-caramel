@@ -230,6 +230,30 @@ class MoveModel( object ):
         else:
             self.needs_deletion = True
 
+class WatchMeWiggle( object ):
+    # Bear with me. When a model attacks, sometimes it's not clear which model is attacking. So,
+    # what I'm gonna do is wiggle the model doing the action, so you can see who it is.
+    # Tried to think of a clever name but "WatchMeWiggle" was the best I came up with. You see, the model
+    # wiggles, because that's the model you're supposed to be watching right now.
+    def __init__( self, model, delay=0, duration = 5 ):
+        self.model = model
+        self.duration = duration
+        self.delay = delay
+        self.step = 0
+        self.needs_deletion = False
+        self.children = list()
+    WIGGLE_POS = ((0,1),(0,2),(0,1),(0,0),(0,-1),(0,-2),(0,-1),(0,0))
+    def update( self, view ):
+        # This one doesn't appear directly, but moves a model.
+        if self.delay > 0:
+            self.delay += -1
+        elif self.duration > self.step:
+            self.step += 1
+            self.model.offset_pos = self.WIGGLE_POS[self.step % len(self.WIGGLE_POS)]
+        else:
+            self.model.offset_pos = None
+            self.needs_deletion = True
+
 
 class Dash( MoveModel ):
     def __init__( self, model, start_pos=None, end_pos=(0,0), speed=0.5, delay=0 ):

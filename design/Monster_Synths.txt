@@ -71,7 +71,7 @@ Monster
 	imagename = 'mon_synth.png'
 	frame = 1
     material = Biotech
-    colors = (Jade,Straw,Orange,SkyBlue,Avocado)
+    colors = (Avocado,Straw,Orange,SkyBlue,GriffinGreen)
     threat = 10
     type_tags = ("SYNTH","FACTORY","RUINS","DARK","VERMIN")
     families = ("SYNTH","DARK")
@@ -87,8 +87,7 @@ Monster
             SUB
 				MeleeWeapon
 					name="Claws"
-					reach=3
-					shot_anim = JawShot
+					reach=1
 					damage=2
 					accuracy=2
 					penetration=3
@@ -99,8 +98,7 @@ Monster
             SUB
 				MeleeWeapon
 					name="Claws"
-					reach=3
-					shot_anim = JawShot
+					reach=1
 					damage=2
 					accuracy=2
 					penetration=3
@@ -138,6 +136,7 @@ Monster
 				MeleeWeapon
 					name="Jaws"
 					reach=1
+					shot_anim = JawShot
 					damage=2
 					accuracy=2
 					penetration=4
@@ -172,5 +171,222 @@ Monster
             SUB
                 Armor
                     size = 2
+            END
+    END
+
+
+Monster
+    name = "Hunter-Scout"
+    statline = {Reflexes = 16, Body=14, Speed=18, Perception=17, Craft=7, Knowledge=5, Ego=8, Charm = 4,
+			CloseCombat = 6, RangedCombat=7, Dodge = 7, Scouting = 6, Stealth = 8
+	}
+	scale = HumanScale
+	imagename = 'mon_synth.png'
+	frame = 3
+    material = Biotech
+    colors = (CometRed,Fuschia,BrightRed,CeramicColor,BlackRose)
+    threat = 25
+    type_tags = ("SYNTH","HUNTER-X","DARK")
+    families = ("SYNTH","HUNTER-X")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 3
+            SUB
+                Armor
+                    size = 2
+
+				MeleeWeapon
+					name="Jaws"
+					reach=2
+					damage=2
+					shot_anim = JawShot
+					accuracy=2
+					penetration=2
+					integral = True
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 3
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 3
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 3
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 3
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+                    size = 3
+            END
+    END
+
+Monster
+    name = "Hunter-Killer"
+    statline = {Reflexes = 18, Body=15, Speed=15, Perception=14, Craft=7, Knowledge=5, Ego=13, Charm = 4,
+			CloseCombat = 7, RangedCombat=6, Dodge = 7, Vitality = 5
+	}
+	scale = HumanScale
+	imagename = 'mon_synth.png'
+	frame = 4
+    material = Biotech
+    colors = (CometRed,Fuschia,BrightRed,CeramicColor,BlackRose)
+    threat = 40
+    type_tags = ("SYNTH","HUNTER-X","DARK")
+    families = ("SYNTH","HUNTER-X")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 4
+
+				MeleeWeapon
+					name="Jaws"
+					reach=2
+					damage=2
+					shot_anim = JawShot
+					accuracy=2
+					penetration=5
+					integral = True
+
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                BeamWeapon
+                    name = "Bio-Laser"
+                    reach = 5
+                    damage = 2
+                    accuracy = 3
+                    penetration = 1
+                    shot_anim = SmallBeam
+                    integral = True
+                    attributes = (Automatic,BurstFire3)
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+    END
+
+
+Monster
+    name = "Hunter-Assassin"
+    statline = {Reflexes = 18, Body=15, Speed=16, Perception=17, Craft=7, Knowledge=5, Ego=13, Charm = 4,
+			CloseCombat = 6, RangedCombat=7, Dodge = 7, Stealth = 10
+	}
+	scale = HumanScale
+	imagename = 'mon_synth.png'
+	frame = 5
+    material = Biotech
+    colors = (CometRed,Fuschia,BrightRed,CeramicColor,BlackRose)
+    threat = 60
+    type_tags = ("SYNTH","HUNTER-X","DARK")
+    families = ("SYNTH","HUNTER-X")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 4
+				MeleeWeapon
+					name="Jaws"
+					reach=2
+					damage=3
+					shot_anim = JawShot
+					accuracy=2
+					penetration=5
+					integral = True
+
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Tail
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                BeamWeapon
+                    name = "Bio-Laser"
+                    reach = 7
+                    damage = 4
+                    accuracy = 3
+                    penetration = 2
+                    shot_anim = GunBeam
+                    integral = True
+                    attributes = (Accurate,)
+
             END
     END
