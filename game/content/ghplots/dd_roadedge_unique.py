@@ -122,6 +122,8 @@ class KerberosAttacks(Plot):
         nart.camp.campdata["KERBEROS_GRAB_FUN"] = self._get_grabbed_by_kerberos
         nart.camp.campdata["KERBEROS_DUNGEON_OPEN"] = False
 
+        self.intro_ready = True
+
         return True
 
     def _get_grabbed_by_kerberos(self, camp: gears.GearHeadCampaign, pc):
@@ -142,3 +144,7 @@ class KerberosAttacks(Plot):
     def go_to_locale(self, camp):
         camp.destination, camp.entrance = self.elements["DUNGEON_ENTRANCE"], self.elements["ENTRANCE"]
 
+    def t_START(self, camp):
+        if self.intro_ready and camp.scene is self.elements["DUNGEON_ENTRANCE"]:
+            pbge.alert("You are dropped into a deep underground chamber. You're not sure whether this is inside Kerberos or some adjoining complex.")
+            self.intro_ready = False
