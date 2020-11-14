@@ -152,7 +152,7 @@ class PlayerTurn( object ):
         self.active_ui = self.movement_ui
 
         keep_going = True
-        while self.camp.fight.still_fighting() and (self.camp.fight.cstat[self.pc].action_points > 0 or self.camp.fight.cstat[self.pc].mp_remaining > 0):
+        while self.camp.fight.still_fighting() and (self.pc in self.camp.scene.contents) and (self.camp.fight.cstat[self.pc].action_points > 0 or self.camp.fight.cstat[self.pc].mp_remaining > 0):
             # Get input and process it.
             gdi = pbge.wait_event()
 
@@ -170,6 +170,7 @@ class PlayerTurn( object ):
 
 
         pbge.my_state.widgets.remove(self.my_radio_buttons)
+        pbge.my_state.view.overlays.clear()
         self.movement_ui.dispose()
         self.attack_ui.dispose()
         self.skill_ui.dispose()
@@ -335,6 +336,7 @@ class Combat( object ):
 
     def go( self, explo ):
         """Perform this combat."""
+        pbge.my_state.view.overlays.clear()
 
         while self.still_fighting():
             if self.n >= len( self.active ):

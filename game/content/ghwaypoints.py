@@ -34,6 +34,29 @@ class Exit( Waypoint ):
         else:
             pbge.alert("This door doesn't seem to go anywhere.")
 
+    def combat_use(self, camp, pc):
+        rpm = self.MENU_CLASS(camp, self)
+        rpm.desc = "Do you want to retreat?"
+        rpm.add_item("Leave combat.", True)
+        rpm.add_item("Keep fighting.", False)
+        fx = rpm.query()
+        if fx:
+            camp.scene.contents.remove(pc)
+
+    def combat_bump(self, camp, pc):
+        # Send a BUMP trigger.
+        camp.check_trigger("BUMP",self)
+        # If plot_locked, check plots for possible actions.
+        # Otherwise, use the normal unlocked_use.
+        if self.plot_locked:
+            rpm = self.MENU_CLASS( camp, self )
+            camp.expand_puzzle_menu( self, rpm )
+            fx = rpm.query()
+            if fx:
+                fx( camp )
+        else:
+            self.combat_use( camp, pc )
+
 
 class Crate( Waypoint ):
     name = "Crate"

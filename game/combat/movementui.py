@@ -61,6 +61,8 @@ class MovementUI( object ):
 
         self.cursor_sprite = pbge.image.Image('sys_mapcursor.png',64,64)
         self.my_widget = MoveWidget(camp,mover,on_click=self.open_movemode_menu)
+
+        self.reachable_waypoints = dict()
         pbge.my_state.widgets.append(self.my_widget)
 
     def render( self ):
@@ -79,6 +81,22 @@ class MovementUI( object ):
                                   , self.camp.fight.cstat[self.mover].mp_remaining
                                   , mypath
                                   )
+        elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
+            wp,pos = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
+            pbge.my_state.view.overlays[ pos ] = (
+              self.cursor_sprite,self.SC_ZEROCURSOR+min(4,self.camp.fight.ap_needed(self.mover,self.nav,pos)))
+            pbge.my_state.view.overlays[ wp.pos ] = (
+              self.cursor_sprite,self.SC_CURSOR)
+            mypath = self.nav.get_path(pos)
+
+            # Draw the trail, highlighting where one action point ends and the next begins.
+            traildrawer.draw_trail( self.cursor_sprite
+                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
+                                  , self.camp.scene, self.mover
+                                  , self.camp.fight.cstat[self.mover].mp_remaining
+                                  , mypath
+                                  )
+
         else:
             pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_VOIDCURSOR)
 
@@ -113,6 +131,15 @@ class MovementUI( object ):
         self.origin = self.mover.pos
         self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,self.origin,self.camp.fight.cstat[self.mover].action_points*self.mover.get_current_speed()+self.camp.fight.cstat[self.mover].mp_remaining,self.mover.mmode,self.camp.scene.get_blocked_tiles())
 
+        # Calculate the paths for the waypoints.
+        self.reachable_waypoints.clear()
+        for wp in self.camp.scene.contents:
+            if hasattr(wp,"combat_bump") and hasattr(wp,"pos") and self.camp.scene.on_the_map(*wp.pos):
+                path = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.mover.pos, wp.pos, self.mover.mmode)
+                if path.results[-2] in self.nav.cost_to_tile:
+                    self.reachable_waypoints[wp.pos] = (wp,path.results[-2])
+
+
     def update( self, ev, player_turn ):
         # We just got an event. Deal with it.
         if self.needs_tile_update:
@@ -133,6 +160,13 @@ class MovementUI( object ):
                 # Move!
                 dest = self.camp.fight.move_model_to(self.mover,self.nav,pbge.my_state.view.mouse_tile)
                 self.needs_tile_update = True
+            elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
+                # Bump!
+                wp,target_tile = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
+                dest = self.camp.fight.move_model_to(self.mover, self.nav, target_tile)
+                self.needs_tile_update = True
+                if dest == target_tile:
+                    wp.combat_bump(self.camp, self.mover)
             else:
                 mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
                 if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):

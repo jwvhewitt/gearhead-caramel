@@ -1,3 +1,4 @@
+- Can now flee from combat by using an exit
 - Attackers will move a bit so you can tell who's attacking
 - Added AttackInvocation
 - Added COMBATROUND script trigger
