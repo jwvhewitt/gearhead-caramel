@@ -59,15 +59,10 @@ class SceneView( object ):
 
     def get_named_sprite( self, fname, transparent=False ):
         """Return the requested sprite. If no sprite exists, try to load one."""
-        spr = self.namedsprite.get( fname )
+        spr = self.namedsprite.get( (fname,transparent) )
         if not spr:
-            spr = image.Image(fname,self.TILE_WIDTH,self.TILE_WIDTH)
-            if transparent:
-                alpha = int(transparent)
-                if alpha <= 1:
-                    alpha = 155
-                spr.bitmap.set_alpha(alpha)
-            self.namedsprite[fname] = spr
+            spr = image.Image(fname,self.TILE_WIDTH,self.TILE_WIDTH, transparent=transparent)
+            self.namedsprite[(fname,transparent)] = spr
         return spr
 
     def get_terrain_sprite(self,fname,pos,transparent=False):

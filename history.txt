@@ -1,3 +1,5 @@
+- Can now load same image in transparent and non-transparent versions
+- Monsters can power their own weapons
 - Can now flee from combat by using an exit
 - Attackers will move a bit so you can tell who's attacking
 - Added AttackInvocation

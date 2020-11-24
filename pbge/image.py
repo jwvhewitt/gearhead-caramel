@@ -30,12 +30,11 @@ def glob_images(pattern):
 
 class Image(object):
     def __init__(self, fname=None, frame_width=0, frame_height=0, color=None, custom_frames=None,
-                 flags=pygame.RLEACCEL):
+                 flags=pygame.RLEACCEL, transparent=False):
         """Load image file, or create blank image, at frame size"""
         if fname:
-            if (fname, repr(color)) in pre_loaded_images:
-                self.bitmap = pre_loaded_images[(fname, repr(color))]
-            else:
+            self.bitmap = self.get_pre_loaded(fname, color, transparent)
+            if not self.bitmap:
                 if not os.path.exists(fname):
                     for p in search_path:
                         if os.path.exists(os.path.join(p, fname)):
@@ -45,13 +44,19 @@ class Image(object):
                 self.bitmap.set_colorkey((0, 0, 255), flags)
                 if color:
                     self.recolor(color)
-                self.record_pre_loaded(fname, color, self.bitmap)
+                    self.record_pre_loaded(fname, color, self.bitmap, transparent)
         else:
             self.bitmap = pygame.Surface((frame_width, frame_height))
             self.bitmap.fill((0, 0, 255))
             self.bitmap.set_colorkey((0, 0, 255), flags)
 
         self.fname = fname
+        self.transparent = transparent
+        if transparent:
+            alpha = int(transparent)
+            if alpha <= 1:
+                alpha = 155
+            self.bitmap.set_alpha(alpha)
 
         if frame_width == 0:
             frame_width = self.bitmap.get_width()
@@ -67,8 +72,12 @@ class Image(object):
         self.custom_frames = custom_frames
 
     @staticmethod
-    def record_pre_loaded(ident, colorset, bitmap):
-        pre_loaded_images[(ident, repr(colorset))] = bitmap
+    def get_pre_loaded(ident, colorset, transparent):
+        return pre_loaded_images.get((ident,repr(colorset),transparent))
+
+    @staticmethod
+    def record_pre_loaded(ident, colorset, bitmap, transparent=False):
+        pre_loaded_images[(ident, repr(colorset), transparent)] = bitmap
 
     def render(self, dest=(0, 0), frame=0, dest_surface=None ):
         # Render this Image onto the provided surface.

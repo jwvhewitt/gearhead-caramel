@@ -425,7 +425,7 @@ class Combatant(KeyObject):
 class HasPower(KeyObject):
     # This is a gear that has, and can use, power sources.
     def get_current_and_max_power(self):
-        sources = [p for p in self.descendants() if (hasattr(p, "max_power") and p.is_operational())]
+        sources = [p for p in self.get_all_parts() if (hasattr(p, "max_power") and p.is_operational())]
         current_power = 0
         max_power = 0
         for p in sources:
@@ -434,7 +434,7 @@ class HasPower(KeyObject):
         return current_power, max_power
 
     def consume_power(self, amount):
-        sources = [p for p in self.descendants() if (hasattr(p, "spend_power") and p.is_operational())]
+        sources = [p for p in self.get_all_parts() if (hasattr(p, "spend_power") and p.is_operational())]
         random.shuffle(sources)
         while (amount > 0) and sources:
             ps = sources.pop()

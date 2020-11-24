@@ -196,19 +196,23 @@ def get_random_loot(rank, amount, allowed_tags):
             break
     return myloot
 
-def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, can_cyberize=None, **kwargs):
+def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, can_cyberize=None, camp=None, age=None, **kwargs):
     # Build the creation matrix, aka the dict.
     possible_origins = [o for o in local_tags if o in personality.ORIGINS]
     if "faction" in kwargs and "job" not in kwargs:
         job = kwargs["faction"].choose_job(random.choice((tags.Commander,tags.Support,tags.Support,tags.Trooper,tags.Trooper,tags.Trooper)))
     else:
         job = kwargs.get("job",None) or jobs.choose_random_job(needed_tags, local_tags)
+    if camp:
+        current_year = camp.year
+    if not age:
+        age = random_age()
     meanstatpts = max(rank // 5 + 90, 90)
     combatant = random.choice([True, False, False, False, False, False]) or job.always_combatant
     creation_matrix = dict(statline=base.Being.random_stats(points=random.randint(meanstatpts - 5, meanstatpts + 5)),
                            portrait_gen=portraits.Portrait(), job=job, combatant=combatant,
                            personality=random_personality(possible_origins), gender=genderobj.Gender.random_gender(),
-                           birth_year=current_year - random_age(), renown=rank)
+                           birth_year=current_year - age, renown=rank)
     if kwargs:
         creation_matrix.update(kwargs)
     pc = base.Character(**creation_matrix

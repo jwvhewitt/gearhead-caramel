@@ -187,6 +187,11 @@ class OrganicWall(pbge.scenes.terrain.WallTerrain):
 class OrganicFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_organic.png'
 
+class OrganicTubeTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'prop_biotech.png'
+    frame = 1
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
 
 class DZDTownTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'
@@ -734,3 +739,20 @@ class BrokenBiotankTerrain(pbge.scenes.terrain.Terrain):
     frame = 7
     image_top = 'terrain_decor_biotank.png'
     blocks = (Walking,Skimming,Rolling,Flying)
+
+class PZHoloTerrain(pbge.scenes.terrain.AnimTerrain):
+    transparent = True
+    frames = (1,2,3,4,5,6,7,6,5,4,3,2,3,4,5,6,7,6,5,4,3,2,1,2,3,4,5,6,7,6,5,4,3,2,3,5,1,4,7,2,6,7,6,5,4,3,2,
+              1,2,3,4,5,6,7,6,5,4,3,2,1,2,3,4,5,6,7,6,5,4,3,2,1,2,3,4,5,4,3,4,5,6,5,4,3,2)
+    image_top = "terrain_decor_pzholo.png"
+    blocks = (Walking,Skimming,Rolling,Flying)
+    anim_delay = 3
+    @classmethod
+    def render_top( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=False)
+        spr.render(dest, 0)
+        spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=True)
+        spr.render( dest, self.frames[(view.phase // self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
+
+

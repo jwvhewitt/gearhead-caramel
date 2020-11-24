@@ -201,7 +201,7 @@ class RoadMap(object):
             else:
                 edg.style = RoadEdge.STYLE_YELLOW
                 edg.sub_plot_label = "DZD_ROADEDGE_YELLOW"
-        #my_edge.sub_plot_label = "DZD_ROADEDGE_KERBEROS"
+        my_edge.sub_plot_label = "DZD_ROADEDGE_KERBEROS"
 
 
     def add_node(self,node_to_add,x,y):

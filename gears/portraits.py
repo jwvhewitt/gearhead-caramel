@@ -178,7 +178,7 @@ class Portrait(object):
                 self.generate_random_colors(pc)
 
             porimage.recolor(pc.colors)
-            pbge.image.Image.record_pre_loaded(self,pc.colors,porimage.bitmap)
+            pbge.image.Image.record_pre_loaded(self,pc.colors,porimage.bitmap, transparent=False)
 
             # Create the mini-portrait.
             myrect = pygame.Rect(100,200,200,200)

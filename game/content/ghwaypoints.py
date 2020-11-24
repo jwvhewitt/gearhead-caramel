@@ -386,3 +386,10 @@ class EmptyBiotank(Biotank):
 
 class BrokenBiotank(Biotank):
     TILE = pbge.scenes.Tile(None, None, ghterrain.BrokenBiotankTerrain)
+
+class OrganicTube(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.OrganicTubeTerrain)
+
+class PZHolo(Waypoint):
+    # A PreZero hologram interface
+    TILE = pbge.scenes.Tile(None, None, ghterrain.PZHoloTerrain)

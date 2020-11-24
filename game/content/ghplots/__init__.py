@@ -22,6 +22,7 @@ from . import mission_conversations
 from . import mission_stubs
 from . import mission_teamups
 from . import mocha
+from . import peopleplots
 from . import recovery
 from . import setpiece
 from . import tarot_cards
@@ -67,6 +68,7 @@ harvest(mission_conversations)
 harvest(mission_stubs)
 harvest(mission_teamups)
 harvest(mocha)
+harvest(peopleplots)
 harvest(recovery)
 harvest(setpiece)
 harvest(tarot_cards)
