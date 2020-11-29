@@ -160,26 +160,30 @@ class RoadMap(object):
         self.add_node(self.end_node,self.MAP_WIDTH-1,self.MAP_HEIGHT//2-1)
 
         north_road = list()
+        north_edges = list()
         prev = self.start_node
         ys = list(range(0,4))
         random.shuffle(ys)
         for t in range(3):
             north_road.append(RoadNode("DZD_ROADSTOP",visible=False))
             self.add_node(north_road[-1],t*4+random.randint(5,7),ys[t])
-            self.connect_nodes(prev,north_road[-1],RoadEdge())
+            new_edge = RoadEdge()
+            self.connect_nodes(prev,north_road[-1],new_edge)
+            north_edges.append(new_edge)
             prev = north_road[-1]
         self.connect_nodes(prev,self.end_node,RoadEdge())
 
-        my_edge = self.edges[-1]
-
         south_road = list()
+        south_edges = list()
         prev = self.start_node
         ys = list(range(5,9))
         random.shuffle(ys)
         for t in range(3):
             south_road.append(RoadNode("DZD_ROADSTOP",visible=False))
             self.add_node(south_road[-1],t*4+random.randint(5,7),ys[t])
-            self.connect_nodes(prev,south_road[-1],RoadEdge())
+            new_edge = RoadEdge()
+            self.connect_nodes(prev,south_road[-1],new_edge)
+            south_edges.append(new_edge)
             prev = south_road[-1]
         self.connect_nodes(prev,self.end_node,RoadEdge())
 
@@ -201,7 +205,10 @@ class RoadMap(object):
             else:
                 edg.style = RoadEdge.STYLE_YELLOW
                 edg.sub_plot_label = "DZD_ROADEDGE_YELLOW"
-        my_edge.sub_plot_label = "DZD_ROADEDGE_KERBEROS"
+
+        # The Kerberos plot always happens on one of the two roads leading into the goal town.
+        k_edge = random.choice((north_edges[0],south_edges[0]))
+        k_edge.sub_plot_label = "DZD_ROADEDGE_KERBEROS"
 
 
     def add_node(self,node_to_add,x,y):

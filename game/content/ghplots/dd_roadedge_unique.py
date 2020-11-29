@@ -6,6 +6,7 @@ import pbge
 from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints
 from game import teams
 from game.content.ghplots import missionbuilder
+from game.content.ghcutscene import SimpleMonologueDisplay
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, PlotState
@@ -27,7 +28,7 @@ class KerberosEncounterPlot(DZDREBasicPlotWithEncounterStuff):
     active = True
     scope = True
     UNIQUE = True
-    BASE_RANK = 10
+    BASE_RANK = 50
     ENCOUNTER_CHANCE = BASE_RANK + 30
     ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleDeadzone
 
@@ -95,7 +96,7 @@ class KerberosEncounterPlot(DZDREBasicPlotWithEncounterStuff):
         if npc is not self.elements["NPC"]:
             if myedge.start_node.destination is myscene and not self.road_cleared and not self._got_rumor:
                 goffs.append(Offer(
-                    msg="The Kerberos has lived here forever. No-one knows if it is one monster with many heads or many monsters acting together, but we do know it cannot be killed. You ought to ask {NPC} for more info. {NPC.gender.subject_pronoun} knows more about it than anyone else alive.".format(**self.elements),
+                    msg="The Kerberos has lived here forever. No-one knows if it is one monster with many heads or many monsters acting together, but we do know it cannot be killed. You ought to ask {NPC} at {EXPERT_LOC} for more info. {NPC.gender.subject_pronoun} knows more about it than anyone else alive.".format(**self.elements),
                     context=ContextTag((context.INFO,)), effect=self._get_rumor,
                     subject="kerberos", data={"subject": "the kerberos deathworm"}, no_repeats=True
                 ))
@@ -114,8 +115,49 @@ class KerberosEncounterPlot(DZDREBasicPlotWithEncounterStuff):
 
     def NPC_offers(self, camp):
         mylist = list()
+        if self.road_cleared:
+            if camp.campdata.get(KERBEROS_DEFEATED):
+                mylist.append(Offer(
+                    msg="Kerberos has left this region, and it may be many years before he returns. Let's hope that he doesn't hold a grudge.",
+                    context=ContextTag((context.INFO,)),
+                    data={"subject": "Kerberos."}, no_repeats=True
+                ))
 
+            else:
+                mylist.append(Offer(
+                    msg="Kerberos has left this region, seeking greener pastures elsewhere.",
+                    context=ContextTag((context.INFO,)),
+                    data={"subject": "Kerberos."}, no_repeats=True
+                ))
 
+        else:
+            mylist.append(Offer(
+                msg="Kerberos is one of the old gods of the deadzone. In these parts he is regarded as a force of nature, one with the ashes and the sky.",
+                context=ContextTag((context.CUSTOM,)),
+                subject="kerberos", subject_start=True,
+                data={"reply": "I heard that you know a lot about Kerberos."}, no_repeats=True
+            ))
+
+            mylist.append(Offer(
+                msg="He has been here for longer than the wastes themselves. Many see Kerberos as a deity of both creation and destruction- he destroys, but life springs anew wherever he goes.",
+                context=ContextTag((context.CUSTOMREPLY,)),
+                subject="kerberos",
+                data={"reply": 'What do you mean "old god of the deadzone"?'}, no_repeats=True
+            ))
+
+            mylist.append(Offer(
+                msg="You don't. Kerberos knows all that passes above the sand. Instead, you must allow Kerberos to find you.",
+                context=ContextTag((context.CUSTOMREPLY,)),
+                subject="kerberos",
+                data={"reply": "How can I find Kerberos?"}, no_repeats=True
+            ))
+
+            mylist.append(Offer(
+                msg="That is impossible. Kerberos is a force of nature; do you think your guns could halt a typhoon? In the past there were people who could speak to Kerberos, but that knowledge has been lost.",
+                context=ContextTag((context.CUSTOMREPLY,)),
+                subject="kerberos",
+                data={"reply": "How do I kill Kerberos?"}, no_repeats=True
+            ))
 
         return mylist
 
@@ -159,7 +201,7 @@ class KerberosAttacks(Plot):
         self.register_element("KIDNAP_TEAM", game.teams.Team(), dident="KIDNAP_ROOM")
         self.kidnapped_pilots = list()
 
-        d_kidnap_room.contents.append(ghwaypoints.PZHolo())
+        #d_kidnap_room.contents.append(ghwaypoints.PZHolo())
 
         nart.camp.campdata["KERBEROS_GRAB_FUN"] = self._get_grabbed_by_kerberos
         nart.camp.campdata["KERBEROS_DUNGEON_OPEN"] = False
@@ -217,6 +259,9 @@ class KerberosAttacks(Plot):
             self.intro_ready = False
 
 
+KERBEROS_DEFEATED = "KERBEROS_DEFEATED"
+
+
 class KerberosBossFight(Plot):
     LABEL = "DZRE_KERBEROS_BOSSFIGHT"
     active = True
@@ -232,7 +277,63 @@ class KerberosBossFight(Plot):
         serv1.colors = (gears.color.Twilight,gears.color.Black,gears.color.Black,gears.color.Black,gears.color.Black)
         serv2.colors = (gears.color.Saffron,gears.color.Black,gears.color.Black,gears.color.Black,gears.color.Black)
 
+        self.holo_unlocked = False
+        holoroom = self.register_element("_holoroom", pbge.randmaps.rooms.OpenRoom(5, 5), dident="BOSS_LEVEL")
+        myholo = self.register_element("HOLO", ghwaypoints.PZHolo(name="Holodisplay", plot_locked=True, anchor=pbge.randmaps.anchors.middle, desc="You stand before a PreZero holographic display. You have no idea what information, if any, it was meant to communicate."),
+                                       dident="_holoroom")
+
         return True
+
+    def HOLO_BUMP(self, camp: gears.GearHeadCampaign):
+        if not self.holo_unlocked:
+            mypc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Biotechnology, self.rank, no_random=True)
+            if mypc:
+                if mypc == camp.pc:
+                    pbge.alert("Your knowledge of PreZero technology allows you to recognize this machine as a PreZero computer interface. It shows this area as it existed before the Night of Fire, and traces Kerberos's route along what is now the highway.")
+                else:
+                    SimpleMonologueDisplay("I know what this is... it's an oldtype computer display. This hologram shows the megacity that used to exist around {METROSCENE}... Here you can see the path that Kerberos was supposed to take through the service tunnels.".format(**self.elements), mypc)(camp)
+                    SimpleMonologueDisplay("Except, there are no service tunnels anymore. This area is the highway, now. Maybe we could use this computer to send Kerberos on a different path, one far away from human beings.", mypc)(camp, False)
+                self.unlock_holo()
+            else:
+                mypc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Wildcraft, self.rank, no_random=True)
+                if mypc:
+                    if mypc == camp.pc:
+                        pbge.alert("You quickly recognize the shifting geometric forms of this holographic display as the geological features of this area. The top layer must be the city as it existed before the Night of Fire, and the red path can only be Kerberos's route along what is now the highway.")
+                    else:
+                        SimpleMonologueDisplay("I don't know exactly what kind of machine this is, but I can tell you what it's showing- that's {METROSCENE}, or at least it's what {METROSCENE} was back when this was built.".format(**self.elements), mypc)(camp)
+                        SimpleMonologueDisplay("I'd guess this line going through it is Kerberos's path. You see this valley? That's part of the highway now, and that's where we got attacked. Maybe we can use this to tell Kerberos where to go...", mypc)(camp, False)
+                    self.unlock_holo()
+                else:
+                    mypc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Scouting, self.rank, difficulty=gears.stats.DIFFICULTY_HARD, no_random=True)
+                    if mypc:
+                        if mypc == camp.pc:
+                            pbge.alert("It takes a minute before you realize that the holographic display is a map of the surrounding area. Of course, it's not the area as you know it today- this is how things were before the Night of Fire. Maybe you can use this to send Kerberos away.")
+                        else:
+                            SimpleMonologueDisplay("I can't believe it- this is a PreZero map of the area around {METROSCENE}! I've heard about holographic map projectors like this but this is my first time seeing one in the reals.".format(**self.elements), mypc)(camp)
+                            SimpleMonologueDisplay("If I'm reading this right, this red line should be where Kerberos is going, and you can see how it intersects with where the highway passes through now. I wonder if we can use this to send Kerberos somewhere else?", mypc)(camp, False)
+                        self.unlock_holo()
+
+    def HOLO_menu(self, camp: gears.GearHeadCampaign, thingmenu):
+        if self.holo_unlocked:
+            thingmenu.add_item("Do nothing.", None)
+            thingmenu.add_item("Redirect Kerberos.", self.redirect_monster)
+
+    def redirect_monster(self, camp):
+        camp.check_trigger("WIN", self)
+        BiotechDiscovery(
+            camp, "There is a huge subterranean biotech complex near {}.".format(self.elements["METROSCENE"]),
+            "[THATS_INTERESTING] I'll get one of our hazmat recovery teams to check it out. Here is the {cash} you've earned.",
+            self.rank
+        )
+        self.elements["_eteam"].make_allies(self.elements["BOSS_LEVEL"].player_team)
+        pbge.alert(
+            "At first, nothing happens. Slowly the red line begins to move away from the highway and you hear a low rumbling in the distance. It seems to have worked.")
+        self.end_plot(camp)
+
+    def unlock_holo(self):
+        self.holo_unlocked = True
+        self.elements["HOLO"].desc = "You stand before a PreZero holographic display. You can use it to send Kerberos away from the highway."
+        self.elements["_eteam"].make_allies(self.elements["BOSS_LEVEL"].player_team)
 
     def t_COMBATROUND(self, camp: gears.GearHeadCampaign):
         mycompy: gears.base.Prop = self.elements["_core"]
@@ -252,6 +353,12 @@ class KerberosBossFight(Plot):
         if mycompy.is_destroyed() and serv1.is_destroyed() and serv2.is_destroyed():
             pbge.alert("As the biocomputer dies, the chamber is shaken by a powerful rumble. The tremors last for a short time before fading into silence. Whatever just happened, you assume that Kerberos will no longer trouble travelers on the highway.")
             camp.check_trigger("WIN", self)
+            BiotechDiscovery(
+                camp, "There is a huge subterranean biotech complex near {}.".format(self.elements["METROSCENE"]),
+                "[THATS_INTERESTING] I'll get one of our hazmat recovery teams to check it out. Here is the {cash} you've earned.",
+                self.rank
+            )
+            camp.campdata[KERBEROS_DEFEATED] = True
             self.end_plot(camp)
 
 

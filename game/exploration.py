@@ -526,7 +526,7 @@ class Explorer( object ):
                             pc = mpc.get_pilot()
                             if pc:
                                 for skill in pc.statline:
-                                    if skill in gears.stats.COMBATANT_SKILLS:
+                                    if skill in gears.stats.ALL_SKILLS:
                                         pc.statline[skill] += 10
                     elif gdi.unicode == "@" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         for thing in self.scene.contents:
@@ -567,7 +567,7 @@ class Explorer( object ):
                                 npteam = self.scene.local_teams.get(npc[0])
                                 if npteam and self.scene.player_team.is_enemy(npteam):
                                     self.activate_foe(npc[0])
-                                elif not isinstance(npc[0],gears.base.Prop):
+                                elif not isinstance(npc[0],(gears.base.Prop,gears.base.Monster)):
                                     self.order = TalkTo( self, npc[0] )
                                     self.view.overlays.clear()
                             else:
