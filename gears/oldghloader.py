@@ -17,8 +17,11 @@ from . import tags
 from . import relationships
 
 TYPHON_SLAYER = meritbadges.UniversalReactionBadge("Typhon Slayer", "You led the team that defeated Typhon.", 10)
+CETUS_SLAYER = meritbadges.UniversalReactionBadge("Cetus Slayer", "You defeated the biomonster Cetus.", 3)
+LADON_SLAYER = meritbadges.UniversalReactionBadge("Ladon Slayer", "You defeated the biomonster Ladon.", 3)
 ELEMENTAL_ADEPT = meritbadges.TagReactionBadge("Elemental Adept", "You meditated at the elemental shrines, attaining illumination.",{tags.Faithworker: 20})
 ROBOT_WARRIOR = meritbadges.TagReactionBadge("Robot Warrior", "You ranked in the Robot Warriors mecha tournament.",{tags.Adventurer: 10,tags.Military: 5})
+
 
 class RetroGear(object):
     # A container for gear info.
@@ -595,8 +598,11 @@ class GH1Loader(object):
                 if k.startswith("HISTORY"):
                     history_list.append(v)
 
-            if any(h.startswith("You killed the biomonster Cetus in") for h in history_list):
-                print("Killed Cetus!")
+            if any(h.startswith("You killed the biomonster Cetus in") for h in history_list) or any(h.startswith('You destroyed the biomonster "Cetus"') for h in history_list):
+                ghcpc.badges.append(CETUS_SLAYER)
+
+            if adv.natt.get((self.NAG_SCRIPTVAR,9),0) != 0:
+                ghcpc.badges.append(LADON_SLAYER)
 
             if adv.s != 0:
                 ghcpc.badges.append(TYPHON_SLAYER)

@@ -1,5 +1,6 @@
 import gears
 from pbge.plots import Plot, Adventure, NarrativeRequest, PlotState
+from game.content.plotutility import LMSkillsSelfIntro
 import game.content.ghwaypoints
 import game.content.ghterrain
 import pbge
@@ -61,7 +62,7 @@ class DeadzoneDrifterStub( Plot ):
             elif npc in camp.party and gears.tags.SCENE_PUBLIC in camp.scene.attributes:
                 mylist.append(Offer("[LEAVEPARTY]",
                                     context=ContextTag([context.LEAVEPARTY]), effect=game.content.plotutility.AutoLeaver(npc)))
-
+            mylist.append(LMSkillsSelfIntro(npc))
         return mylist
 
     def t_INTRO_END(self, camp):

@@ -1,18 +1,23 @@
 import pbge
-from pbge.plots import Plot, PlotState
+from game.content.plotutility import LMSkillsSelfIntro
+from pbge.plots import Plot
 from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
 import gears
 import game.content.gharchitecture
-import game.content.plotutility
 import game.content.ghterrain
 import random
 from game import memobrowser
 
 Memo = memobrowser.Memo
 
+#   *******************
+#   ***  UTILITIES  ***
+#   *******************
+
 def get_hire_cost(camp, npc):
     return (npc.renown * npc.renown * (200 - npc.get_reaction_score(camp.pc, camp)))//10
+
 
 #   **************************
 #   ***  RANDOM_LANCEMATE  ***
@@ -22,7 +27,7 @@ class UtterlyRandomLancemate(Plot):
     LABEL = "RANDOM_LANCEMATE"
 
     def custom_init(self, nart):
-        npc = gears.selector.random_character(rank=random.randint(10, 50),
+        npc = gears.selector.random_character(rank=min(random.randint(10, 50),random.randint(10, 50)),
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True)
@@ -41,7 +46,7 @@ class UtterlyGenericLancemate(Plot):
     JOBS = ("Mecha Pilot","Arena Pilot","Recon Pilot","Mercenary","Bounty Hunter")
 
     def custom_init(self, nart):
-        npc = gears.selector.random_character(rank=random.randint(10, 50),
+        npc = gears.selector.random_character(rank=min(random.randint(10, 50),random.randint(10, 50)),
                                               job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
@@ -109,7 +114,7 @@ class DeadzonerInGreenZoneLancemate(Plot):
         return gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes
 
     def custom_init(self, nart):
-        npc = gears.selector.random_character(rank=random.randint(20, 55),
+        npc = gears.selector.random_character(rank=min(random.randint(20, 55),random.randint(20, 55)),
                                               job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=(gears.personality.DeadZone,),
@@ -134,7 +139,8 @@ class GladiatorLancemate(Plot):
         return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes
 
     def custom_init(self, nart):
-        npc = gears.selector.random_character(rank=random.randint(25, 65),can_cyberize=True,
+        npc = gears.selector.random_character(rank=min(random.randint(25, 65),random.randint(25, 65)),
+                                              can_cyberize=True,
                                               job=gears.jobs.ALL_JOBS["Gladiator"],
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=(gears.personality.DeadZone,),
@@ -217,6 +223,7 @@ class RLM_Beginner(Plot):
             mylist.append(Offer(
                 "[HELLO] Some day I want to become a cavalier like you.", context=ContextTag((context.HELLO,))
             ))
+        mylist.append(LMSkillsSelfIntro(npc))
         return mylist
 
     def get_dialogue_grammar(self, npc, camp):
@@ -277,6 +284,8 @@ class RLM_Friendly(Plot):
             mylist.append(Offer(
                 "[HELLO] [WAITINGFORMISSION]", context=ContextTag((context.HELLO,))
             ))
+        mylist.append(LMSkillsSelfIntro(npc))
+
         return mylist
 
     def _join_lance(self, camp):
@@ -350,6 +359,8 @@ class RLM_Medic(Plot):
         mylist.append(Offer(
             "[HELLO] Lately I've been spending too much time here, when I'd rather be out in the danger zone saving lives.", context=ContextTag((context.HELLO,))
         ))
+        mylist.append(LMSkillsSelfIntro(npc))
+
         return mylist
 
     def get_dialogue_grammar(self, npc, camp):
@@ -413,6 +424,8 @@ class RLM_Mercenary(Plot):
             mylist.append(Offer(
                 "[HELLO] I am a mercenary pilot, looking for my next contract.", context=ContextTag((context.HELLO,))
             ))
+            mylist.append(LMSkillsSelfIntro(npc))
+
         return mylist
 
     def get_dialogue_grammar(self, npc, camp):
@@ -492,6 +505,8 @@ class RLM_Professional(Plot):
             mylist.append(Offer(
                 "[HELLO] I see you are also a cavalier.", context=ContextTag((context.HELLO,))
             ))
+            mylist.append(LMSkillsSelfIntro(npc))
+
         return mylist
 
     def get_dialogue_grammar(self, npc, camp):
@@ -573,6 +588,8 @@ class RLM_RatherGeneric(Plot):
                 mylist.append(Offer(
                     "[HELLO] Must be nice going off, having adventures with your lancemates. I'd like to do that again someday.", context=ContextTag((context.HELLO,))
                 ))
+            mylist.append(LMSkillsSelfIntro(npc))
+
         return mylist
 
     def get_dialogue_grammar(self, npc, camp):
@@ -660,6 +677,8 @@ class RLM_DamagedGoodsSale(Plot):
                 mylist.append(Offer(
                     "[HELLO] Be careful out there... all it takes is one little mistake to cost you everything.", context=ContextTag((context.HELLO,))
                 ))
+            mylist.append(LMSkillsSelfIntro(npc))
+
         return mylist
 
     def get_dialogue_grammar(self, npc, camp):

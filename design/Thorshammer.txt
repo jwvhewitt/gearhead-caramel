@@ -5,7 +5,7 @@ Mecha
     portrait = "mecha_thorshammer.png"
 
     environment_list = (GroundEnv,UrbanEnv,)
-    faction_list = (TerranDefenseForce,)
+    faction_list = (TerranDefenseForce, TerranFederation, ProDuelistAssociation, RegExCorporation)
     role_list = (Support,Commander)
 
     SUB

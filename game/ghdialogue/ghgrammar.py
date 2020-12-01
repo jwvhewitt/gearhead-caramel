@@ -1279,6 +1279,33 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[HELLO:SELFINTRO]": {
+        MET_BEFORE: ["[HELLO:SELFINTRO_AGAIN]", ],
+        FIRST_TIME: ["[HELLO:SELFINTRO_FIRST]", ],
+    },
+
+    "[HELLO:SELFINTRO_AGAIN]": {
+        Default: ["Could you remind me about your skills?", "Would you remind me about your skills?"
+                  ],
+    },
+
+    "[HELLO:SELFINTRO_FIRST]": {
+        Default: ["Could you tell me a bit about yourself?", "Why don't you tell me about yourself?"
+                  ],
+        personality.Cheerful: ["I'd be glad to learn more about you.",
+                               ],
+        personality.Grim: ["So what are you good for?",
+                           ],
+        personality.Easygoing: ["Wanna tell me a bit about yourself?",
+                                ],
+        personality.Passionate: ["I want to know more about you.",
+                                 ],
+        personality.Sociable: ["I'd really like to get to know you better.",
+                               ],
+        personality.Shy: ["Tell me about yourself.",
+                          ],
+    },
+
     "[HELLO:SOLUTION]": {
         Default: ["Do you have any bright ideas?",
                   "What do you suggest we do about it?"
@@ -2557,6 +2584,188 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I don't like all the petty crime that happens in [metroscene]. Or the felonies.",
                                ],
         personality.Shy: ["This is a dangerous neighborhood.",
+                          ],
+    },
+
+    "[SELFINTRO:GOODBYE]": {
+        Default: ["[GOODBYE]",
+                  ],
+        personality.Cheerful: ["Thanks for telling me about yourself.",
+                               ],
+        personality.Grim: ["I don't think I need your services right now.",
+                           ],
+        personality.Easygoing: ["Awesome. [GOODBYE]",
+                                ],
+        personality.Passionate: ["Keep striving to be the best!",
+                                 ],
+        personality.Sociable: ["I'll let you know if I ever need a lancemate.",
+                               ],
+        personality.Shy: ["Okay. [GOODBYE]",
+                          ],
+    },
+
+    "[SELFINTRO:JOIN]": {
+        Default: ["Sounds like you'd be a good addition to my lance.",
+                  "How about joining my lance?"
+                  ],
+        personality.Cheerful: ["Sounds like you'd be lots of fun to go on an adventure with.",
+                               ],
+        personality.Grim: ["It will be dangerous, but I could use your skills.",
+                           ],
+        personality.Easygoing: ["How would you like to join my lance?",
+                                ],
+        personality.Passionate: ["You are exactly the type of lancemate I've been seeking.",
+                                 ],
+        personality.Sociable: ["Based on what you just said, I'd like to offer you a position in my lance.",
+                               ],
+        personality.Shy: ["Your skills would be valuable in my lance.",
+                          ],
+
+    },
+
+    "[SELFINTRO_MECHA]": {
+        # data should include "mecha"
+        Default: ["My mecha is a {mecha}.", "I pilot a {mecha}."
+                  ],
+        personality.Cheerful: ["My fav mecha is the {mecha}.",
+                               ],
+        personality.Grim: ["I ride a {mecha} into battle.",
+                           ],
+        personality.Easygoing: ["I've got a {mecha}.",
+                                ],
+        personality.Passionate: ["The {mecha} is my warhorse!",
+                                 ],
+        personality.Sociable: [
+            "I usually pilot a {mecha}.",
+        ],
+        personality.Shy: ["I've got a {mecha}.",
+                          ],
+    },
+
+    "[SELFINTRO_RANK_GREEN]": {
+        Default: ["I don't have a lot of experience, yet...",
+                  "I'm a green pilot."
+                  ],
+        personality.Cheerful: ["I don't have much adventuring experience, but I'm looking forward to learning!",
+                               ],
+        personality.Grim: ["I'll level with you- I barely know how to pilot a mecha.",
+                           ],
+        personality.Easygoing: ["Honestly, I'm a complete noobie.",
+                                ],
+        personality.Passionate: ["I may lack experience, but I have the warrior spirit!",
+                                 ],
+        personality.Sociable: ["You probably haven't heard about me before, because I don't have a lot of experience...",
+                               ],
+        personality.Shy: ["I am a new pilot.",
+                          ],
+
+    },
+
+    "[SELFINTRO_RANK_REGULAR]": {
+        Default: ["I have a bit of experience as a cavalier.",
+                  ],
+        personality.Cheerful: ["Happy to say that I have some experience as a cavalier.",
+                               ],
+        personality.Grim: ["I've been a cavalier for a while now; haven't died yet.",
+                           ],
+        personality.Easygoing: ["This isn't my first turn at the giant robot rodeo.",
+                                "I'd describe my skills as moderately average."
+                                ],
+        personality.Passionate: ["Being a cavalier is my dream come true!",
+                                 ],
+        personality.Sociable: [
+            "So far I've been able to hold my own as a cavalier.",
+            ],
+        personality.Shy: ["I've been doing this for some time.",
+                          ],
+
+    },
+
+    "[SELFINTRO_RANK_VETERAN]": {
+        Default: ["I am a veteran pilot.",
+                  ],
+        personality.Cheerful: ["I'm lucky enough to have been doing this a long time.",
+                               ],
+        personality.Grim: ["Most of the other cavaliers I started with are retired or dead by now.",
+                           ],
+        personality.Easygoing: ["I guess you could say I'm a pretty good pilot... not elite or anything, but good.",
+                                ],
+        personality.Passionate: ["I've spent years developing my combat skills!",
+                                 ],
+        personality.Sociable: [
+            "They say I'm a veteran rank pilot.",
+        ],
+        personality.Shy: ["I'm a veteran.",
+                          ],
+    },
+
+    "[SELFINTRO_RANK_ELITE]": {
+        Default: ["I am an elite pilot.",
+                  ],
+        personality.Cheerful: ["Not to brag, but I'm ranked at elite level.",
+                               ],
+        personality.Grim: ["My skills are at elite level, which is how I've managed to live so long.",
+                           ],
+        personality.Easygoing: ["I'm quite a good pilot. Not quite ace level, but close.",
+                                ],
+        personality.Passionate: ["My combat skills are at the elite level, and someday I plan to be an ace!",
+                                 ],
+        personality.Sociable: [
+            "You may have heard that I'm an elite pilot.",
+        ],
+        personality.Shy: ['My rank is "elite".',
+                          ],
+    },
+
+    "[SELFINTRO_RANK_ACE]": {
+        Default: ["I am an ace pilot.",
+                  ],
+        personality.Cheerful: ["You're in luck, because I happen to be an ace pilot.",
+                               ],
+        personality.Grim: ["I am death incarnate.",
+                           ],
+        personality.Easygoing: ["You could say that I'm pretty good at piloting.",
+                                ],
+        personality.Passionate: ["Through practice and conflict I have perfected my skills!",
+                                 ],
+        personality.Sociable: [
+            "You're talking to an ace pilot.",
+        ],
+        personality.Shy: ["I'm an ace.",
+                          ],
+    },
+
+    "[SELFINTRO_SKILL]": {
+        # data should include "skill"
+        Default: ["I've studied {skill}.", "My specialty is {skill}.", "I know {skill}."
+                  ],
+        personality.Cheerful: ["My favorite subject is {skill}.",
+                               ],
+        personality.Easygoing: ["I'm sort of good at {skill}.",
+                                ],
+        personality.Passionate: ["I'm great at {skill}.",
+                                 ],
+        personality.Sociable: [
+            "I'm certified in {skill}.",
+        ],
+    },
+
+    "[SELFINTRO_SKILLS]": {
+        # data should include "skills"
+        Default: ["I've studied {skills}.", "My skills include {skills}.", "My skills are {skills}."
+                  ],
+        personality.Cheerful: ["I love {skills}.",
+                               ],
+        personality.Grim: ["In addition to combat, I know {skills}.",
+                           ],
+        personality.Easygoing: ["Plus, I know {skills}.",
+                                ],
+        personality.Passionate: ["I'm an expert at {skills}.",
+                                 ],
+        personality.Sociable: [
+            "My qualifications include {skills}.",
+        ],
+        personality.Shy: ["I know {skills}.",
                           ],
     },
 

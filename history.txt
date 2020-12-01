@@ -1,9 +1,13 @@
+- Potential lancemates can tell you a little bit about their skills
+- Most random lancemates will start with lower renown
+- Added merit badges for GH1 PCs who defeated Cetus, Ladon
+- Shops without a defined faction will use the faction of the town they're in
+
 v0.560 November 29 2020
 - Added Kerberos storyline to DeadZone Drifter
 - Can now load same image in transparent and non-transparent versions
 - Monsters can power their own weapons
-- Can now flee from combat by using an exit
-- Attackers will move a bit so you can tell who's attacking
+- Can now flee from combat by usingqcan tell who's attacking
 - Added AttackInvocation
 - Added COMBATROUND script trigger
 - Added error message to gear loader if unknown command encountered

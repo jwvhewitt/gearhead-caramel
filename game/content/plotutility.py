@@ -1,8 +1,10 @@
+from pbge.dialogue import Offer, ContextTag
 from . import ghwaypoints
 import random
 import pbge
 import gears
 from game.content import GHNarrativeRequest,PLOT_LIST
+from ..ghdialogue import context
 
 
 class SceneConnection(object):
@@ -384,3 +386,38 @@ DRUG_LETTER = (
 
 def random_medicine_name():
     return "{}{} {}".format(random.choice(DRUG_START), random.choice(DRUG_END), random.choice(DRUG_LETTER))
+
+
+class LMSkillsSelfIntro(Offer):
+    RANK_GRAM = ("[SELFINTRO_RANK_GREEN]", "[SELFINTRO_RANK_REGULAR]", "[SELFINTRO_RANK_VETERAN]",
+                 "[SELFINTRO_RANK_ELITE]", "[SELFINTRO_RANK_ACE]")
+
+    def __init__(self, npc: gears.base.Character):
+        items = list()
+        data = dict()
+        rank = min(max((npc.renown-1)//20,0),4)
+        items.append(self.RANK_GRAM[rank])
+
+        if not npc.mecha_pref:
+            plotutility.AutoJoiner.get_mecha_for_character(npc)
+
+        if npc.mecha_pref:
+            items.append("[SELFINTRO_MECHA]")
+            data["mecha"] = npc.mecha_pref
+
+        specialties = [sk for sk in gears.stats.NONCOMBAT_SKILLS if sk in npc.statline]
+        if len(specialties) > 1:
+            items.append("[SELFINTRO_SKILLS]")
+            if len(specialties) > 2:
+                prefix = ", ".join([s.name for s in specialties[:2]])
+            else:
+                prefix = specialties[0].name
+            data["skills"] = ' and '.join([prefix, specialties[-1].name])
+        elif len(specialties) == 1:
+            items.append("[SELFINTRO_SKILL]")
+            data["skill"] = specialties[0].name
+
+        super().__init__(
+            " ".join(items),
+            context=ContextTag((context.SELFINTRO,)), data=data
+        )

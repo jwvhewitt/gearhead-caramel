@@ -109,6 +109,10 @@ HELLO_REVEAL = Reply( "[HELLO:REVEAL]" ,
             destination = Cue( ContextTag([context.REVEAL]) ) ,
             context = ContextTag([context.HELLO]) )
 
+HELLO_SELFINTRO = Reply( "[HELLO:SELFINTRO]" ,
+            destination = Cue( ContextTag([context.SELFINTRO]) ) ,
+            context = ContextTag([context.HELLO]) )
+
 HELLO_SOLUTION = Reply( "[HELLO:SOLUTION]" ,
             destination = Cue( ContextTag([context.SOLUTION]) ) ,
             context = ContextTag([context.HELLO]) )
@@ -165,6 +169,22 @@ PROPOSALJOIN_DENY = Reply( "[PROPOSAL_JOIN:DENY]" ,
 QUERY_ANSWER = Reply( "{reply}" ,
             destination = Cue( ContextTag([context.ANSWER]) ) ,
             context = ContextTag([context.QUERY]) )
+
+SELFINTRO_GOODBYE = Reply("[SELFINTRO:GOODBYE]",
+            context = ContextTag([context.SELFINTRO]),
+            destination = Cue( ContextTag([context.GOODBYE])))
+
+SELFINTRO_JOIN = Reply( "[SELFINTRO:JOIN]",
+            context = ContextTag([context.SELFINTRO]),
+            destination = Cue( ContextTag([context.JOIN]) ) )
+
+SELFINTRO_LEAVEPARTY = Reply("[HELLO:LEAVEPARTY]",
+            context = ContextTag([context.SELFINTRO]),
+            destination = Cue( ContextTag([context.LEAVEPARTY])))
+
+SELFINTRO_PROPOSALJOIN = Reply( "[DOYOUWANTTOBELANCEMATE]" ,
+            context = ContextTag([context.SELFINTRO]),
+            destination = Cue( ContextTag([context.PROPOSAL,context.JOIN]) ) )
 
 SOLUTION_ACCEPT = Reply( "[ICANDOTHAT]" ,
             context = ContextTag([context.SOLUTION]),

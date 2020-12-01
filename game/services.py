@@ -39,18 +39,20 @@ class Shop(object):
         self.customer = None
         self.sell_champion_equipment = sell_champion_equipment
 
-    def item_matches_shop(self, item):
+
+    def item_matches_shop(self, item, camp):
+        myfaction = self.shop_faction or camp.scene.get_metro_scene().faction
         if item.get_full_name() in [a.get_full_name() for a in self.wares]:
             return False
-        elif self.shop_faction and hasattr(item, "faction_list"):
-            if (self.shop_faction in item.faction_list) or (None in item.faction_list):
+        elif myfaction and hasattr(item, "faction_list"):
+            if (myfaction.get_faction_tag() in item.faction_list) or (None in item.faction_list):
                 return True
         else:
             return True
 
-    def _pick_an_item(self, itype, rank):
+    def _pick_an_item(self, itype, rank, camp):
         candidates = [item for item in gears.selector.DESIGN_LIST if
-                      itype in item.shop_tags and self.item_matches_shop(item)]
+                      itype in item.shop_tags and self.item_matches_shop(item, camp)]
         if candidates:
             # Step one: Sort the candidates by cost.
             random.shuffle(candidates)
@@ -75,10 +77,10 @@ class Shop(object):
             return it
 
 
-    def generate_item(self, itype, rank):
+    def generate_item(self, itype, rank, camp):
         tries = 0
         while tries < 10:
-            it = self._pick_an_item(itype, rank)
+            it = self._pick_an_item(itype, rank, camp)
             # Avoid duplicates.
             if it.get_full_name() not in [a.get_full_name() for a in self.wares]:
                 return it
@@ -133,7 +135,7 @@ class Shop(object):
         while len(self.wares) < num_items:
             tries += 1
             itype = random.choice(self.ware_types)
-            it = self.generate_item(itype, rank)
+            it = self.generate_item(itype, rank, camp)
             if it:
                 self.wares.append(it)
             elif tries > 100:

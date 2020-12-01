@@ -486,7 +486,7 @@ class SomewhatOkayGarage(Plot):
     additional_waypoints = (ghwaypoints.MechEngTerminal, ghwaypoints.MechaPoster)
     SHOPKEEPER_JOBS = ("Mechanic",)
     SHOPKEEPER_GREETING = "[HELLO] Welcome to {}, where [shop_slogan]!"
-    shop_faction = gears.factions.TerranDefenseForce
+    shop_faction = None
     shop_ware_types = services.GENERAL_STORE_PLUS_MECHA
     shop_wares = "good stuff"
     @property

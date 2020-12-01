@@ -916,7 +916,7 @@ class DZD_AlliedArmor(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         team2.contents.append(npc)
 
-        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce, rank=50)
+        self.shop = services.Shop(npc=npc, rank=50)
 
         custom_shop = pbge.randmaps.rooms.ClosedRoom(parent=intscene)
         npc2 = self.register_element("MECHANIC",
@@ -926,8 +926,7 @@ class DZD_AlliedArmor(Plot):
         team3.contents.append(npc2)
         custom_shop.contents.append(team3)
         custom_shop.contents.append(ghwaypoints.MechEngTerminal())
-        self.custom_shop = services.Shop(npc=npc2, shop_faction=gears.factions.TerranDefenseForce,
-                                         ware_types=services.MECHA_PARTS_STORE,rank=75)
+        self.custom_shop = services.Shop(npc=npc2, ware_types=services.MECHA_PARTS_STORE,rank=75)
 
         self.asked_about_terminal = False
 
@@ -1078,8 +1077,7 @@ class DZD_WujungTires(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         npc.place(intscene, team=team2)
 
-        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce, rank=50,
-                                  ware_types=services.TIRE_STORE)
+        self.shop = services.Shop(npc=npc, ware_types=services.TIRE_STORE)
 
         return True
 
@@ -1137,7 +1135,7 @@ class DZD_EliteEquipment(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         npc.place(intscene, team=team2)
 
-        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce, rank=50,
+        self.shop = services.Shop(npc=npc, rank=50,
                                   ware_types=services.GENERAL_STORE)
 
         return True
@@ -1230,7 +1228,6 @@ class DZD_WujungHospital(Plot):
         room2.contents.append(ghwaypoints.RecoveryBed())
 
         cybershop = services.Shop( npc = None
-                                 , shop_faction = gears.factions.TerranDefenseForce
                                  , rank = 50
                                  , ware_types = services.CYBERWARE_STORE
                                  )
