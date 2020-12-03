@@ -33,6 +33,10 @@ class UtterlyRandomLancemate(Plot):
                                               combatant=True)
         scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
 
+        specialties = [sk for sk in gears.stats.NONCOMBAT_SKILLS if sk in npc.statline]
+        if random.randint(-12,3) > len(specialties):
+            npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1,4)
+
         self.register_element("NPC", npc, dident="LOCALE")
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
@@ -51,6 +55,10 @@ class UtterlyGenericLancemate(Plot):
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True)
+
+        if random.randint(1,20) == 1:
+            npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1,4)
+
         scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
 
         self.register_element("NPC", npc, dident="LOCALE")
@@ -74,6 +82,8 @@ class GiftedNewbieLancemate(Plot):
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True, birth_year=nart.camp.year - random.randint(18,23))
+        if random.randint(1,10) == 1:
+            npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1,4)
         scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
 
         self.register_element("NPC", npc, dident="LOCALE")
@@ -89,10 +99,11 @@ class OlderMentorLancemate(Plot):
     UNIQUE = True
 
     def custom_init(self, nart):
-        npc = gears.selector.random_character(rank=random.randint(45, 75),
+        npc = gears.selector.random_character(rank=random.randint(41, 85),
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True, birth_year=nart.camp.year - random.randint(32,50))
+        npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1, 4)
         scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
 
         self.register_element("NPC", npc, dident="LOCALE")
@@ -151,7 +162,7 @@ class GladiatorLancemate(Plot):
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
 
-    def _is_best_scene(self,nart,candidate):
+    def _is_best_scene(self,nart,candidate: gears.GearHeadScene):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
@@ -174,12 +185,16 @@ class MutantLancemate(Plot):
         mutation.apply(npc)
         npc.personality.add(mutation)
 
+        specialties = [sk for sk in gears.stats.NONCOMBAT_SKILLS if sk in npc.statline]
+        if random.randint(-12,3) > len(specialties):
+            npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1,4)
+
         self.register_element("NPC", npc, dident="LOCALE")
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
 
     def _is_best_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
 #   **************************

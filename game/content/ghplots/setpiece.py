@@ -399,3 +399,49 @@ class MWM_StorageRoom(Plot):
         self.register_element('_room', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="LOCALE")
         return True
 
+
+#   ******************
+#   ***   TAVERN   ***
+#   ******************
+#
+#  LOCALE: The tavern
+#  METROSCENE: The city the building is in
+#  METRO: The scope of the city
+
+
+class BasicTavern(Plot):
+    LABEL = "TAVERN"
+
+    active = True
+    scope = True
+
+    def custom_init(self, nart):
+        name = "Basic Tavern"
+
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.ResidentialBuilding(
+            waypoints={"DOOR": ghwaypoints.ScreenDoor(name=name)},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="METROSCENE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = self.register_element("FOYER_TEAM", teams.Team(name="Civilian Team"))
+        intscene = gears.GearHeadScene(50, 35, name, player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING),
+                                       scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.ResidentialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="LOCALE", dident="METROSCENE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=20, height=10,
+                                                                                 anchor=pbge.randmaps.anchors.south,
+                                                                                 decorate=gharchitecture.ResidentialDecor()),
+                                      dident="LOCALE")
+        foyer.contents.append(team2)
+
+        mycon = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        return True
+
