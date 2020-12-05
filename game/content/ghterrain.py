@@ -755,4 +755,10 @@ class PZHoloTerrain(pbge.scenes.terrain.AnimTerrain):
         spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=True)
         spr.render( dest, self.frames[(view.phase // self.anim_delay + ( x + y ) * 4 ) % len(self.frames)] )
 
+class BarTerrain(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_swall_bar.png'
+    bordername = None
+    altitude = 0
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost={pbge.scenes.movement.Vision:5}
 

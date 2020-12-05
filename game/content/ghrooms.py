@@ -2,7 +2,7 @@ import pbge
 import pygame
 
 from pbge.randmaps.decor import OmniDec
-from pbge.randmaps.rooms import FuzzyRoom
+from pbge.randmaps.rooms import FuzzyRoom, OpenRoom
 from . import ghterrain
 import random
 
@@ -82,3 +82,17 @@ class MSRuinsRoom(FuzzyRoom):
             mydest.center = self.area.center
             gb.fill(mydest, wall=ghterrain.MSRuinedWall)
 
+class BarArea(OpenRoom):
+    def build(self, gb, archi):
+        super().build(gb, archi)
+
+        # Add a bar along the south and maybe along one side.
+        mydest = pygame.Rect(self.area.left, self.area.bottom-1, self.area.width, 1)
+        gb.fill(mydest, wall=ghterrain.BarTerrain)
+
+        if random.randint(1,3) == 1:
+            mydest = pygame.Rect(self.area.left, self.area.top, 1, self.area.height)
+            gb.fill(mydest, wall=ghterrain.BarTerrain)
+        elif random.randint(1,2) == 1:
+            mydest = pygame.Rect(self.area.right, self.area.top, 1, self.area.height)
+            gb.fill(mydest, wall=ghterrain.BarTerrain)

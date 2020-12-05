@@ -73,6 +73,8 @@ class DZD_Wujung(Plot):
         # Reconstruction Site
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
+        #tplot = self.add_sub_plot(nart, "TAVERN")
+
 
         #tplot = self.add_sub_plot(nart, "MECHA_WORKSHOP")
         #plotutility.TownBuildingConnection(self, myscene, tplot.elements["LOCALE"], room2=tplot.elements["FOYER"])

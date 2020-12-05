@@ -6,7 +6,7 @@ import gears
 import pbge
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
-from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker
+from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker, ghrooms
 from . import tarot_cards
 
 
@@ -419,7 +419,7 @@ class BasicTavern(Plot):
         name = "Basic Tavern"
 
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", game.content.ghterrain.ResidentialBuilding(
+        building = self.register_element("_EXTERIOR", ghterrain.ResidentialBuilding(
             waypoints={"DOOR": ghwaypoints.ScreenDoor(name=name)},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="METROSCENE")
 
@@ -432,11 +432,25 @@ class BasicTavern(Plot):
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="LOCALE", dident="METROSCENE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=20, height=10,
-                                                                                 anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.ResidentialDecor()),
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=random.randint(20,25),
+                                                                                 height=random.randint(11,15),
+                                                                                 anchor=pbge.randmaps.anchors.south,),
                                       dident="LOCALE")
         foyer.contents.append(team2)
+
+        mybar = ghrooms.BarArea(random.randint(5,10), random.randint(2,3), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mybar)
+
+        barteam = self.register_element("BAR_TEAM", teams.Team(name="Bar Team", allies=[team2]))
+        mybar.contents.append(barteam)
+
+        npc = self.register_element("BARTENDER",
+                                    gears.selector.random_character(
+                                        self.rank, local_tags=self.elements["METROSCENE"].attributes,
+                                        job=gears.jobs.ALL_JOBS["Bartender"]
+                                    ))
+        npc.place(intscene, team=barteam)
+
 
         mycon = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,

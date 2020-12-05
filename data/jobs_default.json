@@ -304,6 +304,11 @@
     "tags": ["Merchant"]
   },
   {
+    "name": "Bartender",
+    "skills": ["Negotiation"],
+    "tags": ["Merchant"]
+  },
+  {
     "name": "Citizen",
     "skills": ["Negotiation"],
     "tags": ["Laborer"]
@@ -316,7 +321,18 @@
   {
     "name": "Singer",
     "skills": ["Performance"],
-    "tags": ["Media"]
+    "tags": ["Media"],
+    "skill_modifiers": {
+      "Performance": 2
+    }
+  },
+  {
+    "name": "Dancer",
+    "skills": ["Performance"],
+    "tags": ["Media"],
+    "skill_modifiers": {
+      "Athletics": 2
+    }
   },
   {
     "name": "Reporter",
