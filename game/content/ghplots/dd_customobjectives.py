@@ -38,7 +38,7 @@ class DDBAMO_PracticeDuel( Plot ):
         self.party_member = mynpc in nart.camp.party
         if self.party_member:
             plotutility.AutoLeaver(mynpc)(nart.camp)
-        plotutility.CharacterMover(self,mynpc,myscene,team2,allow_death=False)
+        plotutility.CharacterMover(nart.camp, self,mynpc,myscene,team2,allow_death=False)
 
         self.obj = adventureseed.MissionObjective("Defeat {}".format(mynpc), missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
         self.adv.objectives.append(self.obj)
@@ -87,7 +87,7 @@ class DDBAMO_ChampionDuel(Plot):
 
         npc = self.seek_element(nart, "_champion", self.adv.is_good_enemy_npc, must_find=False, lock=True)
         if npc:
-            plotutility.CharacterMover(self, npc, myscene, team2)
+            plotutility.CharacterMover(nart.camp, self, npc, myscene, team2)
             self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":npc})
         else:
             mek = gears.selector.generate_ace(self.rank, fac, myscene.environment)
@@ -272,7 +272,7 @@ class DDBAMO_CargoFromTheStars( Plot ):
 
         mynpc = self.seek_element(nart,"_commander",self._npc_is_good,must_find=False,lock=True)
         if mynpc:
-            plotutility.CharacterMover(self,mynpc,myscene,team2)
+            plotutility.CharacterMover(nart.camp, self,mynpc,myscene,team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
         else:
             myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)

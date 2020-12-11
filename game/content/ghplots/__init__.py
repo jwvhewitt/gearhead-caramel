@@ -2,6 +2,7 @@ import inspect
 
 from . import actionscenes
 from . import dd_combatmission
+from . import dd_conclusion
 from . import dd_customobjectives
 from . import dd_distanttown
 from . import dd_homebase
@@ -24,6 +25,7 @@ from . import mission_teamups
 from . import mocha
 from . import peopleplots
 from . import recovery
+from . import romance
 from . import setpiece
 from . import tarot_cards
 from . import tarot_reveal
@@ -48,6 +50,7 @@ def harvest( mod ):
 
 harvest(actionscenes)
 harvest(dd_combatmission)
+harvest(dd_conclusion)
 harvest(dd_customobjectives)
 harvest(dd_distanttown)
 harvest(dd_homebase)
@@ -70,6 +73,7 @@ harvest(mission_teamups)
 harvest(mocha)
 harvest(peopleplots)
 harvest(recovery)
+harvest(romance)
 harvest(setpiece)
 harvest(tarot_cards)
 harvest(tarot_reveal)

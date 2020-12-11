@@ -97,6 +97,13 @@ def narrative_convenience_function( pc_egg, adv_type="SCENARIO_DEADZONEDRIFTER" 
         for e in nart.errors:
             print(e)
 
+def load_dynamic_plot(camp: gears.GearHeadCampaign, adv_type, pstate):
+    if not pstate:
+        pstate = pbge.plots.PlotState(rank=1)
+    nart = GHNarrativeRequest(camp,pstate,adv_type,PLOT_LIST)
+    if nart.story:
+        nart.build()
+
 
 def test_mocha_encounters():
     frontier = list()

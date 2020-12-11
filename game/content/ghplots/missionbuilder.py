@@ -517,7 +517,7 @@ class BAM_DefeatArmy(Plot):
 
         npc1 = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if npc1:
-            plotutility.CharacterMover(self, npc1, myscene, team2)
+            plotutility.CharacterMover(nart.camp, self, npc1, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
         else:
             myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
@@ -527,7 +527,7 @@ class BAM_DefeatArmy(Plot):
 
         npc2 = self.seek_element(nart, "_assistant", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if npc2:
-            plotutility.CharacterMover(self, npc2, myscene, team2)
+            plotutility.CharacterMover(nart.camp, self, npc2, myscene, team2)
         else:
             mek = gears.selector.generate_ace(self.rank, myfac, myscene.environment)
             team2.contents.append(mek)
@@ -580,7 +580,7 @@ class BAM_DefeatCommander(Plot):
 
         mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if mynpc:
-            plotutility.CharacterMover(self, mynpc, myscene, team2)
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
             self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
         else:
@@ -627,7 +627,7 @@ class BAM_DefeatNPC(Plot):
         mynpc = self.elements.get(BAME_NPC)
         if mynpc:
             self.locked_elements.add(BAME_NPC)
-            plotutility.CharacterMover(self, mynpc, myscene, team2)
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
             self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
         else:
@@ -679,7 +679,7 @@ class BAM_DefeatTheBandits(Plot):
             unit_size = 120
             if mynpc.renown > self.rank:
                 unit_size = max(unit_size + self.rank - mynpc.renown, 50)
-            plotutility.CharacterMover(self, mynpc, myscene, team2)
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, unit_size, myfac, myscene.environment,
                                                     add_commander=False)
             self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
@@ -758,7 +758,7 @@ class BAM_DestroyArtillery(Plot):
 
         mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if mynpc:
-            plotutility.CharacterMover(self, mynpc, myscene, team2)
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 70, myfac, myscene.environment, add_commander=False)
             self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
 
@@ -817,7 +817,7 @@ class BAM_ExtractAllies(Plot):
 
         mynpc = self.seek_element(nart, "PILOT", self._npc_is_good, must_find=False, lock=True)
         if mynpc:
-            plotutility.CharacterMover(self, mynpc, myscene, team3)
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team3)
             mek = mynpc.get_root()
             self.register_element("SURVIVOR", mek)
             self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT",ident="NPC_TALK",elements={"NPC":mynpc,})
@@ -916,7 +916,7 @@ class BAM_ExtractAlliesVsDinosaurs(Plot):
 
         mynpc = self.seek_element(nart, "PILOT", self._npc_is_good, must_find=False, lock=True)
         if mynpc:
-            plotutility.CharacterMover(self, mynpc, myscene, team3)
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team3)
             mek = mynpc.get_root()
             self.register_element("SURVIVOR", mek)
             self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT",ident="NPC_TALK",elements={"NPC":mynpc,})
@@ -1230,7 +1230,7 @@ class BAM_RescueSomeone(Plot):
         mynpc = self.elements.get(BAME_RESCUENPC)
         if mynpc:
             self.register_element("PILOT", mynpc, lock=True)
-            plotutility.CharacterMover(self, mynpc, myscene, team3)
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team3)
             mek = mynpc.get_root()
             self.register_element("SURVIVOR", mek)
             self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT",ident="NPC_TALK",elements={"NPC":mynpc,})
@@ -1361,7 +1361,7 @@ class BAM_ExtractTrucker(Plot):
         team2.contents += myunit.mecha_list
 
         mynpc = self.seek_element(nart, "PILOT", self._npc_is_good, must_find=True, lock=True)
-        plotutility.CharacterMover(self, mynpc, myscene, team3)
+        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team3)
         mek = mynpc.get_root()
         self.register_element("SURVIVOR", mek)
         self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT", ident="NPC_TALK", elements={"NPC":mynpc,})
@@ -1443,7 +1443,7 @@ class BAM_StormTheCastle(Plot):
 
         mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
         if mynpc:
-            plotutility.CharacterMover(self, mynpc, myscene, team2)
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
             self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})

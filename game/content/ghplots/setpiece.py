@@ -452,7 +452,7 @@ class BasicTavern(Plot):
         npc.place(intscene, team=barteam)
 
 
-        mycon = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon = plotutility.TownBuildingConnection(self, self.elements["METROSCENE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)

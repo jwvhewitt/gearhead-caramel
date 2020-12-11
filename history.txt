@@ -1,3 +1,4 @@
+- Lancemates moved by CharacterMover will be removed from party and re-added if possible at end of plot
 - Potential lancemates can tell you a little bit about their skills
 - Most random lancemates will start with lower renown, but may have extra skills
 - Added merit badges for GH1 PCs who defeated Cetus, Ladon

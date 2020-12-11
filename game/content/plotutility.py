@@ -258,7 +258,7 @@ class AutoLeaver(object):
             #        camp.incapacitated_party.remove(mek)
 
 class CharacterMover(object):
-    def __init__(self,plot,character,dest_scene,dest_team,allow_death=False, upgrade_mek=True):
+    def __init__(self, camp, plot,character,dest_scene,dest_team,allow_death=False, upgrade_mek=True):
         # Record the character's original location, move them to the new location.
         if character not in plot.get_locked_elements():
             print("Warning: Character {} should be locked by {} before moving!".format(character,plot))
@@ -273,6 +273,10 @@ class CharacterMover(object):
         character.restore_all()
         self.character = character
         self.original_container = character.container
+
+        self.is_lancemate = character in camp.party
+        if self.is_lancemate:
+            AutoLeaver(character)(camp)
 
         # Check to see if the character can use a mecha in the destination scene.
         if character.combatant and dest_scene.scale is gears.scale.MechaScale:
@@ -306,6 +310,8 @@ class CharacterMover(object):
                     #print("Appending")
                 else:
                     camp.freeze(self.character)
+                if self.is_lancemate and camp.can_add_lancemate():
+                    AutoJoiner(self.character)(camp)
                 self.done = True
 
 
@@ -399,7 +405,7 @@ class LMSkillsSelfIntro(Offer):
         items.append(self.RANK_GRAM[rank])
 
         if not npc.mecha_pref:
-            plotutility.AutoJoiner.get_mecha_for_character(npc)
+            AutoJoiner.get_mecha_for_character(npc)
 
         if npc.mecha_pref:
             items.append("[SELFINTRO_MECHA]")

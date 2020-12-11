@@ -1,15 +1,13 @@
-from pbge.plots import Plot
+from pbge.plots import Plot, PlotState, Adventure
 from pbge.dialogue import Offer, ContextTag
 from game import teams, services, ghdialogue
 from game.ghdialogue import context
 import gears
 import pbge
-from game.content import ghwaypoints
-import game.content.ghterrain
 from .dd_main import DZDRoadMapExit
-from game.content import backstory,plotutility
+from game.content import backstory, plotutility, ghterrain, gharchitecture
 import random
-
+from game import content
 
 
 
@@ -36,8 +34,8 @@ class DZD_TheTownYouStartedIn(Plot):
             npc = gears.selector.random_character(50, local_tags=myscene.attributes)
             npc.place(myscene, team=team2)
 
-        myscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleGreenzone(),
-                                                     road_terrain=game.content.ghterrain.Flagstone)
+        myscenegen = pbge.randmaps.CityGridGenerator(myscene, gharchitecture.HumanScaleGreenzone(),
+                                                     road_terrain=ghterrain.Flagstone)
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
         self.register_element("METRO", myscene.metrodat)
@@ -90,6 +88,8 @@ class DZD_TheTownYouStartedIn(Plot):
                 nart.build()
 
     def _finish_first_quest(self,camp):
+        pstate = PlotState(adv=Adventure("Conclusion")).based_on(self)
+        content.load_dynamic_plot(camp, "DZD_CONCLUSION", pstate)
         self.first_quest_done = True
 
     def DZ_CONTACT_offers(self,camp):

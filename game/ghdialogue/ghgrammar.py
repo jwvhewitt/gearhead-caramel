@@ -1280,16 +1280,6 @@ DEFAULT_GRAMMAR = {
     },
 
     "[HELLO:SELFINTRO]": {
-        MET_BEFORE: ["[HELLO:SELFINTRO_AGAIN]", ],
-        FIRST_TIME: ["[HELLO:SELFINTRO_FIRST]", ],
-    },
-
-    "[HELLO:SELFINTRO_AGAIN]": {
-        Default: ["Could you remind me about your skills?", "Would you remind me about your skills?"
-                  ],
-    },
-
-    "[HELLO:SELFINTRO_FIRST]": {
         Default: ["Could you tell me a bit about yourself?", "Why don't you tell me about yourself?"
                   ],
         personality.Cheerful: ["I'd be glad to learn more about you.",
