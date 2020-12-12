@@ -312,9 +312,17 @@ LegClothing
 
 
 EyesCyberware
-    name = "Cyber Eye"
+    name = "Cyber Eyes"
     desc = "These eyes include resolution enhancers."
     statline = { Perception = 2, Charm = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+EyesCyberware
+    name = "Advanced Cyber Eyes"
+    desc = "These eyes include resolution enhancers and targeting systems."
+    statline = { Reflexes = 1, Perception = 2, Charm = -1 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
@@ -328,9 +336,25 @@ EyesCyberware
     faction_list = (None,)
 
 EyesCyberware
-    name = "Sniper Eye"
+    name = "Targeter Eyes"
+    desc = "These eyes provide highlighting of personal-scale targets."
+    statline = { RangedCombat = 1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+EyesCyberware
+    name = "Sniper Eyes"
     desc = "These eyes highlight potential ranged weapons targets, though it can sometimes be distracting."
-    statline = { Concentration = -1, RangedCombat = 1 }
+    statline = { Concentration = -1, RangedCombat = 1, Perception = 1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+EarsCyberware
+    name = "Cyber Ears"
+    desc = "Improves the perception of sound."
+    statline = { Perception = 1 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
@@ -338,7 +362,7 @@ EyesCyberware
 EarsCyberware
     name = "Perfect Pitch Ears"
     desc = "Ears used by some performance judges to dissect and analyse music."
-    statline = { Performance = 1, Perception = -1 }
+    statline = { Performance = 2 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
@@ -354,7 +378,7 @@ EarsCyberware
 ForebrainCyberware
     name = "Sensory Amplifier"
     desc = "Tunes the mind to detect tiny inputs that would otherwise go unnoticed, but reduces mental focus."
-    statline = { Perception = 5, Concentration = -1 }
+    statline = { Perception = 3, Concentration = -1 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
@@ -362,14 +386,22 @@ ForebrainCyberware
 ForebrainCyberware
     name = "Data Link"
     desc = "Provides direct links between some parts of the brain."
-    statline = { Body = -1, Knowledge = 2 }
+    statline = { Knowledge = 1 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
 
 ForebrainCyberware
-    name = "Internet Link"
-    desc = "Gives direct access to the Internet, providing a few technology skills."
+    name = "Neural Coprocessor"
+    desc = "Removes some of the processing burden from the human brain."
+    statline = { Knowledge = 2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+ForebrainCyberware
+    name = "Thrunet Link"
+    desc = "Gives direct access to the Thrunet, providing a few technology skills."
     statline = { Science = 1, Computers = 1, Ego = -2 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
@@ -386,7 +418,7 @@ BrainstemCyberware
 BrainstemCyberware
     name = "Negotiator Instinct"
     desc = "Research on predator reflexes revealed that the negotiation behaviors of humans use the same brain matter as hunting behavior, and a subtle reconfiguration can increase negotiation with relatively minimal drawbacks."
-    statline = { Negotiation = 1, Charm = -1, Knowledge = -1 }
+    statline = { Negotiation = 1 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
@@ -394,15 +426,15 @@ BrainstemCyberware
 BrainstemCyberware
     name = "Prey Instinct"
     desc = "Takes advantage of certain prey reflexes found in prey animals, at the loss of some capability for high-level cognition."
-    statline = { Stealth = 1, Wildcraft = 1, Knowledge = -3, Craft = -3 }
+    statline = { Stealth = 1, Wildcraft = 1, Knowledge = -1 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
 
 BrainstemCyberware
     name = "Spinal Pilot Link"
-    desc = "Interacts with a piloted mecha and provides neural feedback to the pilot, but the rewiring makes it more difficult to control one's body directly."
-    statline = { MechaFighting = 2, CloseCombat = -1, RangedCombat = -1 }
+    desc = "Interacts with a piloted mecha and provides neural feedback to the pilot."
+    statline = { MechaPiloting = 2 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
@@ -410,7 +442,7 @@ BrainstemCyberware
 HeartCyberware
     name = "Cyber Heart"
     desc = "A heavy-duty replacement for a conventional organic heart."
-    statline = { Body = -1, Vitality = 3 }
+    statline = { Body = 2 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
@@ -434,7 +466,15 @@ SpineCyberware
 SpineCyberware
     name = "Armored Spine"
     desc = "Does away with the fragile nature of a human's organic spine, at the cost of reducing general flexibility."
-    statline = { Vitality = 3, Dodge = -1, Speed = -1 }
+    statline = { Body = 3, Ego = 3, Speed = -2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+SpineCyberware
+    name = "Cyber Spine"
+    desc = "A replacement for an injured spine."
+    statline = { Body = 2, Speed = -1 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
@@ -450,10 +490,27 @@ TorsoMusclesCyberware
 TorsoMusclesCyberware
     name = "Enhanced Diaphragm"
     desc = "Enhances the human capability to sing and convince others to listen to one's song."
-    statline = { Performance = 1, Body = -2 }
+    statline = { Performance = 1 }
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
+
+TorsoMusclesCyberware
+    name = "Heavy Myomer Muscles"
+    desc = "Replaces conventional muscles with a technologically-improved biomaterial."
+    statline = { Body = 3, Vitality = 3, Speed = -2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+TorsoMusclesCyberware
+    name = "Muscle Bonding"
+    desc = "Synthetic reinforcements for the augmentation or repair of muscles."
+    statline = { Body = 1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
 
 ArmMusclesCyberware
     name = "Hand Dexterity Muscles"

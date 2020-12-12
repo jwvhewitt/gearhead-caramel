@@ -18,12 +18,26 @@ class DZD_Conclusion(Plot):
     scope = True
 
     def custom_init( self, nart ):
+        # First off, we're gonna need a name for the town Cetus wrecks, aka THAT_TOWN
+        self.elements["THAT_TOWN_NAME"] = gears.selector.DEADZONE_TOWN_NAMES.gen_word()
+
+        # Add the victory party subplot
+        self.add_sub_plot(nart, "DZDC_VICTORY_PARTY", ident="PARTY")
+
+
         return True
 
+    def PARTY_WIN(self, camp: gears.GearHeadCampaign):
+        # We get the PARTY_WIN trigger when the PC is informed about the happenings in THAT_TOWN.
+        pass
 
 class VictoryParty(Plot):
     # Following the player's success in opening the road, there will be a victory party.
     # This party will be interrupted by the attack on DoomedTown.
+    LABEL = "DZDC_VICTORY_PARTY"
+    active = True
+    scope = True
+
     def custom_init( self, nart ):
         return True
 

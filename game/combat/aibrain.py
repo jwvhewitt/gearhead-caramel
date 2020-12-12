@@ -237,6 +237,8 @@ class BasicAI( object ):
                 best = max(sample,key=self._desirability)
                 if best is not self.npc.pos and self._desirability(best) > self._desirability(self.npc.pos):
                     self.move_to(camp,mynav,best)
+                elif self.npc.pos not in camp.scene.in_sight:
+                    camp.fight.active.remove(self.npc)
                 #elif self.npc.get_current_speed() > random.randint(40,70):
                 #    # Attempt evasive maneuvers
                 #    cutoff = self._desirability(self.npc.pos)
