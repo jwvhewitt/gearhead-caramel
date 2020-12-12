@@ -561,10 +561,12 @@ LegMusclesCyberware
     faction_list = (None,)
 
 
-# Consumables
+
 
 Consumable
     name = "Quick Fix Pill"
     effect = QuickFixPill
     quantity = 10
     desc = "This medicine promotes rapid cellular regeneration, and can instantly heal many injuries."
+    shop_tags = ("MEDICINE","ESSENTIAL")
+

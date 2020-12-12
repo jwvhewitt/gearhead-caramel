@@ -1215,10 +1215,10 @@ class DZD_WujungHospital(Plot):
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
 
-        npc = self.register_element("DOCTOR",
+        doctor = self.register_element("DOCTOR",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
                                                                     job=gears.jobs.ALL_JOBS["Doctor"]))
-        npc.place(intscene, team=team2)
+        doctor.place(intscene, team=team2)
 
         npc = self.register_element("NURSE",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
@@ -1262,6 +1262,8 @@ class DZD_WujungHospital(Plot):
         room5.contents.append(cage)
 
         self.add_sub_plot(nart,"DZD_WuHosMedicLancemate")
+
+        self.shop = services.Shop(services.PHARMACY, allow_misc=False, caption="Pharmacy", rank=50, npc=doctor)
 
         return True
 
@@ -1333,6 +1335,11 @@ class DZD_WujungHospital(Plot):
 
         mylist.append(Offer("[HELLO] You seem to be in good health today.",
                             context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": "Wujung Pharmacy", "wares": "medicine"}
                             ))
 
         return mylist

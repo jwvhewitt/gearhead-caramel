@@ -11,7 +11,7 @@ import pbge
 from pbge import scenes
 import collections
 import pygame
-from . import movementui
+from . import movementui, usableui
 from . import targetingui
 from . import programsui
 from . import aibrain
@@ -81,7 +81,7 @@ class PlayerTurn( object ):
             self.active_ui.deactivate()
             self.skill_ui.activate()
             self.active_ui = self.skill_ui
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[2])
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_skill))
         else:
             # If the attack UI can't be activated, switch back to movement UI.
             self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
@@ -91,7 +91,17 @@ class PlayerTurn( object ):
             self.active_ui.deactivate()
             self.program_ui.activate()
             self.active_ui = self.program_ui
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[3])
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_programs))
+        else:
+            # If the attack UI can't be activated, switch back to movement UI.
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
+
+    def switch_usables( self, button=None, ev=None ):
+        if self.active_ui != self.usable_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_usable_library():
+            self.active_ui.deactivate()
+            self.usable_ui.activate()
+            self.active_ui = self.usable_ui
+            self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_usables))
         else:
             # If the attack UI can't be activated, switch back to movement UI.
             self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
@@ -144,6 +154,13 @@ class PlayerTurn( object ):
             self.all_uis.append(self.program_ui)
             self.all_funs[self.program_ui] = self.switch_programs
 
+        has_usables = self.pc.get_usable_library()
+        self.usable_ui = usableui.UsablesUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
+        if has_usables:
+            buttons_to_add.append((12, 13, self.switch_usables, 'Usables'))
+            self.all_uis.append(self.usable_ui)
+            self.all_funs[self.usable_ui] = self.switch_usables
+
         buttons_to_add.append((4,5,self.end_turn,'End Turn'))
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
@@ -182,10 +199,9 @@ class PlayerTurn( object ):
 
         pbge.my_state.widgets.remove(self.my_radio_buttons)
         pbge.my_state.view.overlays.clear()
-        self.movement_ui.dispose()
-        self.attack_ui.dispose()
-        self.skill_ui.dispose()
-        self.program_ui.dispose()
+
+        for ui in self.all_uis:
+            ui.dispose()
 
     def _get_skill_library(self):
         return self.pc.get_skill_library(True)

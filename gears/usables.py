@@ -3,8 +3,9 @@ from . import geffects, stats, materials, aitargeters
 import pbge
 
 class QuickFixPill(Singleton):
-    VALUE = 3500
-    def get_invocations(self, pc):
+    VALUE = 1000
+    @classmethod
+    def get_invocations(cls, pc):
         mylist = list()
         ba = pbge.effects.Invocation(
             name = 'Quick Fix',
@@ -19,5 +20,6 @@ class QuickFixPill(Singleton):
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
             price=[],
             targets=1)
+        mylist.append(ba)
 
         return mylist

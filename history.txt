@@ -1,3 +1,4 @@
+- Added consumable items
 - Added more cyberware from GH1, GH2
 - Combatants who are out of visual range and don't know where to go next will deactivate
 - Lancemates moved by CharacterMover will be removed from party and re-added if possible at end of plot

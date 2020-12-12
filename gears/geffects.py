@@ -24,7 +24,7 @@ class InvoLibraryShelf( object ):
         if hasattr(source,"get_shelf_name"):
             self.name = source.get_shelf_name()
         else:
-            self.name = source.name
+            self.name = str(source)
         if hasattr(source, 'get_shelf_desc'):
             self.desc = source.get_shelf_desc()
         elif hasattr(source, 'desc'):

@@ -4280,9 +4280,9 @@ class Consumable(BaseGear, InvulnerableDamageHandler):
         'effect','weight', 'quantity')
     DEFAULT_SCALE = scale.HumanScale
 
-    def __init__(self, effect=None, weight=1, quantity=10, **keywords):
+    def __init__(self, effect=None, weight=0, quantity=10, **keywords):
         self.effect = effect
-        self.weight = max(weight, 1)
+        self.weight = max(weight, 0)
         self.quantity = max(quantity, 1)
         self.spent = 0
 
@@ -4292,7 +4292,7 @@ class Consumable(BaseGear, InvulnerableDamageHandler):
     @property
     def base_mass(self):
         """Returns the unscaled mass of this gear, ignoring children."""
-        return self.weight * (self.quantity - self.spent)
+        return max(self.weight * (self.quantity - self.spent), 1)
 
     base_volume = 1
 
@@ -4301,7 +4301,7 @@ class Consumable(BaseGear, InvulnerableDamageHandler):
             mylist = self.effect.get_invocations(pc)
             for invo in mylist:
                 invo.price.append(geffects.ItemPrice(self))
-            invo_dict["Consumables"] += mylist
+            invo_dict["Use Item"] += mylist
 
     @property
     def base_cost(self):
@@ -4310,3 +4310,8 @@ class Consumable(BaseGear, InvulnerableDamageHandler):
         else:
             return 1
 
+    def is_operational(self):
+        return True
+
+    def get_item_stats(self):
+        return (("Quantity",str(self.quantity-self.spent)),)

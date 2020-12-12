@@ -18,6 +18,7 @@ TIRE_STORE = (tags.ST_MECHA_MOBILITY,)
 CYBERWARE_STORE = (tags.ST_CYBERWARE,)
 GENERAL_STORE_PLUS_MECHA = (tags.ST_WEAPON,tags.ST_CLOTHING,tags.ST_ESSENTIAL,tags.ST_MECHA,tags.ST_MECHA_EQUIPMENT)
 BARE_ESSENTIALS_STORE = (tags.ST_ESSENTIAL,)
+PHARMACY = (tags.ST_MEDICINE,)
 
 class Shop(object):
     MENU_AREA = pbge.frects.Frect(50, -200, 300, 300)
@@ -82,7 +83,7 @@ class Shop(object):
         while tries < 10:
             it = self._pick_an_item(itype, rank, camp)
             # Avoid duplicates.
-            if it.get_full_name() not in [a.get_full_name() for a in self.wares]:
+            if it and it.get_full_name() not in [a.get_full_name() for a in self.wares]:
                 return it
             tries = tries + 1
         return it

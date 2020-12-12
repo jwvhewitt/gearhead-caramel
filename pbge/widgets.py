@@ -169,10 +169,16 @@ class RadioButtonWidget( Widget ):
         self.active_button = button
         button.frame = button.on_frame
 
+    def get_button(self, data_sought):
+        for b in self.buttons:
+            if b.data == data_sought:
+                return b
+
     def click_radio( self, button, ev ):
         self.activate_button( button )
         if button.data:
             button.data(button,ev)
+
 
 class ColumnWidget(Widget):
     def __init__( self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, center_interior=False, **kwargs ):

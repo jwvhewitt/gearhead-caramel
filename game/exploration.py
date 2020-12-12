@@ -226,6 +226,16 @@ class InvoMenuCall( object ):
     def __call__(self):
         self.explo.order = invoker.InvocationUI.explo_invoke(self.explo,self.pc,self.pc.get_skill_library,self.source)
 
+class UsableMenuCall( object ):
+    def __init__(self,explo,pc,source=None):
+        # Creates a callable that opens the invocation UI and handles
+        # its effects.
+        self.explo = explo
+        self.pc = pc
+        self.source = source
+    def __call__(self):
+        self.explo.order = invoker.InvocationUI.explo_invoke(self.explo,self.pc,self.pc.get_usable_library,self.source)
+
 class FieldHQCall( object ):
     def __init__(self,camp):
         # Creates a callable that opens the invocation UI and handles
@@ -255,6 +265,10 @@ class ExploMenu( object ):
             for i in my_invos:
                 if i.has_at_least_one_working_invo(self.pc,False):
                     mymenu.add_item(str(i),InvoMenuCall(self.explo,self.pc,i.source))
+            my_invos = self.pc.get_usable_library()
+            for i in my_invos:
+                if i.has_at_least_one_working_invo(self.pc, False):
+                    mymenu.add_item(str(i), UsableMenuCall(self.explo, self.pc, i.source))
         else:
             for pc in self.explo.camp.get_active_party():
                 if pc.get_skill_library():
