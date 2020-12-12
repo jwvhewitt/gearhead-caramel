@@ -30,7 +30,7 @@ def glob_images(pattern):
 
 class Image(object):
     def __init__(self, fname=None, frame_width=0, frame_height=0, color=None, custom_frames=None,
-                 flags=pygame.RLEACCEL, transparent=False):
+                 flags=0, transparent=False):
         """Load image file, or create blank image, at frame size"""
         if fname:
             self.bitmap = self.get_pre_loaded(fname, color, transparent)

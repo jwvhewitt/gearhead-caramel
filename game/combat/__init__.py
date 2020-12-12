@@ -113,14 +113,37 @@ class PlayerTurn( object ):
         #  between: movement, attack, use skill, etc. Each mode is gonna get
         #  a handler. The radio buttons widget determines what mode is current.
         #  Then, this routine routes the input to the correct UI handler.
+        # Create all the UIs first. Then create the top_shelf and bottom_shelf switch lists based
+        # on which UIs this character needs.
+        self.all_funs = dict()
+        self.all_uis = list()
 
         buttons_to_add = [(6,7,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),]
+
+        self.movement_ui = movementui.MovementUI( self.camp, self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf )
+        self.all_uis.append(self.movement_ui)
+        self.all_funs[self.movement_ui] = self.switch_movement
+
+        self.attack_ui = targetingui.TargetingUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
+        self.all_uis.append(self.attack_ui)
+        self.all_funs[self.attack_ui] = self.switch_attack
+
         has_skills = self.pc.get_skill_library(True)
+        self.skill_ui = invoker.InvocationUI(self.camp, self.pc, self._get_skill_library,
+                                             top_shelf_fun=self.switch_top_shelf,
+                                             bottom_shelf_fun=self.switch_bottom_shelf)
         if has_skills:
             buttons_to_add.append((8,9,self.switch_skill,'Skills'))
+            self.all_uis.append(self.skill_ui)
+            self.all_funs[self.skill_ui] = self.switch_skill
+
         has_programs = self.pc.get_program_library()
+        self.program_ui = programsui.ProgramsUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
         if has_programs:
             buttons_to_add.append((10, 11, self.switch_programs, 'Programs'))
+            self.all_uis.append(self.program_ui)
+            self.all_funs[self.program_ui] = self.switch_programs
+
         buttons_to_add.append((4,5,self.end_turn,'End Turn'))
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
@@ -128,26 +151,14 @@ class PlayerTurn( object ):
          anchor=pbge.frects.ANCHOR_UPPERLEFT )
         pbge.my_state.widgets.append(self.my_radio_buttons)
 
+        # Add the top_shelf and bottom_shelf functions
         self.top_shelf_funs = dict()
         self.bottom_shelf_funs = dict()
-        self.movement_ui = movementui.MovementUI( self.camp, self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf )
-        self.bottom_shelf_funs[self.movement_ui] = self.switch_attack
-        self.attack_ui = targetingui.TargetingUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
-        self.top_shelf_funs[self.attack_ui] = self.switch_movement
-        if has_skills:
-            self.bottom_shelf_funs[self.attack_ui] = self.switch_skill
-        elif has_programs:
-            self.bottom_shelf_funs[self.attack_ui] = self.switch_programs
-        #self.attack_ui.deactivate()
-        self.skill_ui = invoker.InvocationUI(self.camp,self.pc,self._get_skill_library,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
-        self.top_shelf_funs[self.skill_ui] = self.switch_attack
-        if has_programs:
-            self.bottom_shelf_funs[self.skill_ui] = self.switch_programs
-        self.program_ui = programsui.ProgramsUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
-        if has_skills:
-            self.top_shelf_funs[self.program_ui] = self.switch_skill
-        else:
-            self.top_shelf_funs[self.program_ui] = self.switch_attack
+        for t in range(len(self.all_uis)):
+            if t > 0:
+                self.top_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t-1]]
+            if t < (len(self.all_uis)-1):
+                self.bottom_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t+1]]
 
         self.active_ui = self.movement_ui
 

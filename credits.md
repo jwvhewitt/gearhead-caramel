@@ -38,6 +38,7 @@ ICONS - MOSTLY FROM "THE NOUN PROJECT"
 Pouting Face, Slightly Frowning Face, Neutral Face by Mariella Steeb
 Slightly Smiling Face, Beaming Face with Smiling Eyes by Emily Jäger
 * link by Hassan ali from the Noun Project
+* bag by zidney from the Noun Project
 
 MUSIC
 =====

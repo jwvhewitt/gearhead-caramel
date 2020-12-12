@@ -559,3 +559,12 @@ LegMusclesCyberware
     scale = HumanScale
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
+
+
+# Consumables
+
+Consumable
+    name = "Quick Fix Pill"
+    effect = QuickFixPill
+    quantity = 10
+    desc = "This medicine promotes rapid cellular regeneration, and can instantly heal many injuries."

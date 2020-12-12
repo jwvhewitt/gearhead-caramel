@@ -1687,6 +1687,22 @@ class AmmoPrice(object):
         return self.ammo_source.quantity >= (self.ammo_source.spent + self.ammo_amount)
 
 
+class ItemPrice(object):
+    def __init__( self, item_source ):
+        self.item_source = item_source
+
+    def pay( self, chara ):
+        self.item_source.spent += 1
+        if self.item_source.quantity <= self.item_source.spent and self.item_source.parent:
+            if self.item_source in self.item_source.parent.inv_com:
+                self.item_source.parent.inv_com.remove(self.item_source)
+            elif self.item_source in self.item_source.parent.sub_com:
+                self.item_source.parent.sub_com.remove(self.item_source)
+
+    def can_pay( self, chara ):
+        return self.item_source.quantity > self.item_source.spent
+
+
 class PowerPrice(object):
     def __init__( self, power_amount ):
         self.power_amount = power_amount

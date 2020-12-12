@@ -20,6 +20,7 @@ from . import enchantments
 from . import programs
 from . import portraits
 from . import genderobj
+from . import usables
 
 import inspect
 import os
@@ -61,6 +62,7 @@ harvest(factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,factions.Fact
 harvest(tags, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(programs, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(personality, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
+harvest(usables, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 
 
 def harvest_color(dict_to_add_to):
