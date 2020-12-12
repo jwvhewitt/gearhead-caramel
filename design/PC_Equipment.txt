@@ -565,8 +565,33 @@ LegMusclesCyberware
 
 Consumable
     name = "Quick Fix Pill"
+    desig = "10 Pack"
     effect = QuickFixPill
     quantity = 10
     desc = "This medicine promotes rapid cellular regeneration, and can instantly heal many injuries."
+    shop_tags = ("MEDICINE",)
+
+Consumable
+    name = "Quick Fix Pill"
+    desig = "5 Pack"
+    effect = QuickFixPill
+    quantity = 5
+    desc = "This medicine promotes rapid cellular regeneration, and can instantly heal many injuries."
     shop_tags = ("MEDICINE","ESSENTIAL")
 
+Consumable
+    name = "Duct Tape"
+    effect = DuctTape
+    quantity = 10
+    desc = "Silvery adhesive tape that can repair just about anything, requiring a minimum of time and skill."
+    shop_tags = ("ESSENTIAL",)
+    weight = 1
+
+Consumable
+    name = "Duct Tape"
+    desig = "Heavy Duty"
+    effect = DuctTape
+    quantity = 30
+    desc = "Silvery adhesive tape that can repair just about anything, requiring a minimum of time and skill."
+    shop_tags = ("ESSENTIAL",)
+    weight = 1

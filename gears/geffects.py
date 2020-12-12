@@ -23,6 +23,8 @@ class InvoLibraryShelf( object ):
         self.source = source
         if hasattr(source,"get_shelf_name"):
             self.name = source.get_shelf_name()
+        elif hasattr(source, "name"):
+            self.name = source.name
         else:
             self.name = str(source)
         if hasattr(source, 'get_shelf_desc'):
@@ -1809,6 +1811,7 @@ class PositiveEnchantment(Enchantment):
         dispel = kwargs.pop('dispel', self.DEFAULT_DISPEL)
         dispel += (ON_DISPEL_POSITIVE,)
         super().__init__(dispel = dispel, **kwargs)
+
 class NegativeEnchantment(Enchantment):
     def __init__(self, **kwargs):
         dispel = kwargs.pop('dispel', self.DEFAULT_DISPEL)
@@ -1852,7 +1855,8 @@ class HaywireStatus(NegativeEnchantment):
     ALT_AI = 'HaywireAI'
     @classmethod
     def can_affect(cls,target):
-        return isinstance(target,base.Mecha)
+        return target.material in (materials.Metal, materials.Ceramic, materials.Advanced)
+
 
 class OverloadStatus(NegativeEnchantment):
     name = 'Overloaded'
@@ -1868,7 +1872,7 @@ class OverloadStatus(NegativeEnchantment):
 class SensorLock(NegativeEnchantment):
     name = 'Sensor Lock'
     DEFAULT_DISPEL = (END_COMBAT,)
-    DEFAULT_DURATION = 2
+    DEFAULT_DURATION = 5
     def get_mobility_bonus(self,owner):
         return -25
 
@@ -1877,7 +1881,7 @@ class Prescience(PositiveEnchantment):
     # +2 bonus to dodge skills while active.
     name = 'Prescience'
     DEFAULT_DISPEL = (END_COMBAT,)
-    DEFAULT_DURATION = 3
+    DEFAULT_DURATION = 5
     def get_stat(self,stat):
         if stat in (stats.MechaPiloting,stats.Dodge):
             return 2
@@ -1887,6 +1891,7 @@ class Prescience(PositiveEnchantment):
 class WeakPoint(NegativeEnchantment):
     name = 'Weak Point'
     DEFAULT_DISPEL = (END_COMBAT,)
+    DEFAULT_DURATION = 5
     def get_penetration_bonus(self,owner):
         return 20
 
