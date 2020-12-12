@@ -409,6 +409,18 @@ class Combatant(KeyObject):
                 my_invos.append(p_list)
         return my_invos
 
+    def get_usable_library(self, in_combat=True):
+        my_invo_dict = collections.defaultdict(list)
+        for p in self.descendants(include_pilot=False):
+            if p.is_operational() and hasattr(p, 'add_usable_invocations'):
+                p.add_usable_invocations(self, my_invo_dict)
+        my_invos = list()
+        for k, v in list(my_invo_dict.items()):
+            p_list = geffects.InvoLibraryShelf(k, v)
+            if p_list.has_at_least_one_working_invo(self, in_combat):
+                my_invos.append(p_list)
+        return my_invos
+
     def has_program(self, wanted_prog):
         has_it = False
         for p in self.descendants(include_pilot=False):
@@ -4256,3 +4268,45 @@ class Treasure(BaseGear, StandardDamageHandler):
     @property
     def base_cost(self):
         return self.value
+
+
+#   **********************
+#   ***   CONSUMABLE   ***
+#   **********************
+
+class Consumable(BaseGear, InvulnerableDamageHandler):
+    DEFAULT_NAME = "Consumable"
+    SAVE_PARAMETERS = (
+        'effect','weight', 'quantity')
+    DEFAULT_SCALE = scale.HumanScale
+
+    def __init__(self, effect=None, weight=1, quantity=10, **keywords):
+        self.effect = effect
+        self.weight = max(weight, 1)
+        self.quantity = max(quantity, 1)
+        self.spent = 0
+
+        # Finally, call the gear initializer.
+        super().__init__(**keywords)
+
+    @property
+    def base_mass(self):
+        """Returns the unscaled mass of this gear, ignoring children."""
+        return self.weight * (self.quantity - self.spent)
+
+    base_volume = 1
+
+    def add_usable_invocations(self, pc, invo_dict):
+        if self.effect and hasattr(self.effect, "get_invocations"):
+            mylist = self.effect.get_invocations(pc)
+            for invo in mylist:
+                invo.price.append(geffects.ItemPrice(self))
+            invo_dict["Consumables"] += mylist
+
+    @property
+    def base_cost(self):
+        if self.effect:
+            return self.effect.VALUE * (self.quantity - self.spent)
+        else:
+            return 1
+
