@@ -1,4 +1,4 @@
-Character
+Monster
 	name = "MS Hunter-Killer"
 	statline = {Reflexes = 18, Body=2, Speed=10, Perception=14, Craft=7, Knowledge=5, Ego=14, Charm = 4,
 			MechaGunnery = 6, MechaFighting = 6, MechaPiloting = 4,
@@ -7,10 +7,15 @@ Character
 	scale = MechaScale
 	imagename = 'monster_ms_hkiller.png'
 	colors = (CardinalRed,SteelBlue,Malachite,Black,Black)
+    material = Biotech
+    threat = 15
+    type_tags = ("SYNTH","HUNTER-X","DARK")
+    families = ("SYNTH","HUNTER-X")
+    environment_list = (GroundEnv,UrbanEnv)
+
 	SUB
         Head
             size = 1
-            material = Biotech
             SUB
 				MeleeWeapon
 					name="Jaws"
@@ -22,10 +27,8 @@ Character
             END
         Torso
             size = 1
-            material = Biotech
         Leg
             size = 1
-            material = Biotech
             SUB
 				MeleeWeapon
 					name="Claw"
@@ -37,7 +40,6 @@ Character
             END
         Leg
             size = 1
-            material = Biotech
             SUB
 				MeleeWeapon
 					name="Claw"
@@ -49,14 +51,12 @@ Character
             END
         Leg
             size = 1
-            material = Biotech
         Leg
             size = 1
-            material = Biotech
 
     END
 
-Character
+Monster
 	name = "MS Hunter-Slayer"
 	statline = {Reflexes = 22, Body=5, Speed=10, Perception=15, Craft=5, Knowledge=8, Ego=8, Charm = 4,
 			MechaGunnery = 7, MechaFighting = 7, MechaPiloting = 4,
@@ -65,10 +65,15 @@ Character
 	scale = MechaScale
 	imagename = 'monster_ms_hslayer.png'
 	colors = (CardinalRed,SteelBlue,Malachite,Black,Black)
+    material = Biotech
+    threat = 35
+    type_tags = ("SYNTH","HUNTER-X","DARK")
+    families = ("SYNTH","HUNTER-X")
+    environment_list = (GroundEnv,UrbanEnv)
+
 	SUB
         Torso
             size = 3
-            material = Biotech
             SUB
 				MeleeWeapon
 					name="Jaws"
@@ -87,7 +92,6 @@ Character
                     shot_anim = SmallBeam
                 Armor
 					size = 1
-					material = Biotech
             END
         Leg
             size = 2
@@ -105,7 +109,6 @@ Character
             END
         Leg
             size = 2
-            material = Biotech
             SUB
 				MeleeWeapon
 					name="Claw"

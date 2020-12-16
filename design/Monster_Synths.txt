@@ -120,7 +120,7 @@ Monster
 	imagename = 'mon_synth.png'
 	frame = 2
     material = Biotech
-    colors = (CometRed,Fuschia,BrightRed,CeramicColor,BlackRose)
+    colors = (CometRed,Fuschia,Malachite,CeramicColor,BlackRose)
     threat = 15
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
@@ -184,7 +184,7 @@ Monster
 	imagename = 'mon_synth.png'
 	frame = 3
     material = Biotech
-    colors = (CometRed,Fuschia,BrightRed,CeramicColor,BlackRose)
+    colors = (CardinalRed,SteelBlue,Malachite,CeramicColor,BlackRose)
     threat = 25
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
@@ -247,7 +247,7 @@ Monster
 	imagename = 'mon_synth.png'
 	frame = 4
     material = Biotech
-    colors = (CometRed,Fuschia,BrightRed,CeramicColor,BlackRose)
+    colors = (CardinalRed,SteelBlue,Malachite,CeramicColor,BlackRose)
     threat = 40
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
@@ -321,7 +321,7 @@ Monster
 	imagename = 'mon_synth.png'
 	frame = 5
     material = Biotech
-    colors = (CometRed,Fuschia,BrightRed,CeramicColor,BlackRose)
+    colors = (CardinalRed,SteelBlue,Malachite,CeramicColor,BlackRose)
     threat = 60
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")

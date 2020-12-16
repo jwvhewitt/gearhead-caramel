@@ -87,7 +87,7 @@ class DZD_DeadZoneTown(Plot):
         return True
 
     TOWN_NAME_PATTERNS = ("Fort {}","{} Fortress","{} Oasis","Mount {}", "{}",
-                          "Castle {}", "{} Ruins", "{} Spire")
+                          "Castle {}", "{} Ruins", "{} Spire", "{} Village", "{} Town")
     def _generate_town_name(self):
         return random.choice(self.TOWN_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
 
@@ -619,22 +619,24 @@ class DeadzoneClinic(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        myname = "{} Clinic".format(self.elements["LOCALE"])
+        self.myname = "{} Clinic".format(self.elements["LOCALE"])
         building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
-            waypoints={"DOOR": ghwaypoints.WoodenDoor(name=myname)},
+            waypoints={"DOOR": ghwaypoints.WoodenDoor(name=self.myname)},
             door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
-        intscene = gears.GearHeadScene(35, 35, myname, player_team=team1, civilian_team=team2,
+        intscene = gears.GearHeadScene(35, 35, self.myname, player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.HospitalBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
                                       dident="INTERIOR")
+
+        foyer.contents.append(ghwaypoints.RecoveryBed())
 
         mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
@@ -646,6 +648,8 @@ class DeadzoneClinic(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Doctor"]))
         npc.place(intscene, team=team2)
 
+        self.shop = services.Shop(services.PHARMACY, allow_misc=False, caption="Pharmacy", rank=self.rank, npc=npc)
+
         return True
 
     def DOCTOR_offers(self, camp):
@@ -653,6 +657,11 @@ class DeadzoneClinic(Plot):
 
         mylist.append(Offer("[HELLO] How are you feeling today?",
                             context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.myname, "wares": "medicine"}
                             ))
 
         return mylist

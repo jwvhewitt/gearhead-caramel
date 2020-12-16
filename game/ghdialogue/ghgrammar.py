@@ -900,22 +900,6 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
-    "[GOOD]": {
-        Default: ["Good.","Great!"
-                  ],
-        personality.Cheerful: ["Glad to hear it!",
-                               ],
-        personality.Grim: ["Fine.",
-                           ],
-        personality.Easygoing: ["Alright!",
-                                ],
-        personality.Passionate: ["Fantastic!",
-                                 ],
-        personality.Sociable: ["That's good to hear.",
-                               ],
-        personality.Shy: ["Okay.",
-                          ],
-    },
 
     "[GOODBYE]": {
         Default: ["Goodbye."
@@ -935,19 +919,19 @@ DEFAULT_GRAMMAR = {
         },
 
     "[GOOD]": {
-        Default: ["That's good.",
+        Default: ["That's good.", "Good.", "Great!"
                   ],
-        personality.Cheerful: ["Glad to hear it.",
+        personality.Cheerful: ["Glad to hear it.", "That makes me happy."
                                ],
-        personality.Grim: ["Alright, then...",
+        personality.Grim: ["Alright, then...", "Fine."
                            ],
-        personality.Easygoing: ["Nice.",
+        personality.Easygoing: ["Nice.", "Alright!"
                                 ],
         personality.Passionate: ["Fantastic!","Amazing!","Wonderful!"
                                  ],
         personality.Sociable: ["That's good to hear.",
                                ],
-        personality.Shy: ["Alright.","Okay."
+        personality.Shy: ["Alright.", "Okay."
                           ],
     },
 
@@ -1355,6 +1339,25 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Finally, some reinforcements have arrived... I'm under attack by [enemy_meks]. [HELP_ME]",
                                ],
         personality.Shy: ["I am under attack. [HELP_ME]",
+                          ],
+    },
+
+    "[Hey]": {
+        # An interjection to get someone's attention.
+        Default: ["Hey...", "[audience]..."
+                  ],
+        personality.Cheerful: ["Hey!",
+                               ],
+        personality.Grim: ["We need to talk;",
+                           ],
+        personality.Easygoing: ["Hey there..."
+                                ],
+        personality.Passionate: ["Heya!",
+                                 ],
+        personality.Sociable: [
+            "Hey [audience],",
+        ],
+        personality.Shy: ["Psst, [audience]...",
                           ],
     },
 
@@ -1893,6 +1896,27 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Justice: [ "You're about to get what you deserve.",
             ],
+    },
+
+    "[LETS_CONTINUE]": {
+        Default: ["Let's get going.",
+                  ],
+        personality.Cheerful: ["I can't wait for our next adventure!",
+                               ],
+        personality.Grim: ["Let's go wreck some stuff.", "Onward to our next disaster!"
+                           ],
+        personality.Easygoing: ["Should we get back to work, now? Maybe in a few minutes...",
+                                ],
+        personality.Passionate: ["Let's get back into the breach!",
+                                 ],
+        personality.Sociable: ["Let's journey onward.",
+                               ],
+        personality.Shy: ["Let's get back to work.",
+                          ],
+        DISLIKE: ["Nothing to do now but keep on going...",
+                  ],
+        LIKE: ["Wherever we go next, I'm glad to be going with you.",
+               ]
     },
 
     "[LETSGO]": {

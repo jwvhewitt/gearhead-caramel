@@ -99,6 +99,13 @@ class MechaScaleSemiDeadzone(Architecture):
     DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.SemiDeadZoneGround, ghterrain.SemiDeadZoneGround, ghterrain.GreenZoneGrass, higround=0.65)
     DEFAULT_ROOM_CLASSES = (ghrooms.ForestRoom,ghrooms.LakeRoom,ghrooms.WreckageRoom,ghrooms.DragonToothRoom,ghrooms.MSRuinsRoom)
 
+class MechaScaleSemiDeadzoneRuins(Architecture):
+    DEFAULT_CONVERTER = pbge.randmaps.converter.PlasmaConverter(ghterrain.DragonTeethWall,ghterrain.DragonTeethWall,ghterrain.Forest)
+    DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
+    DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
+    DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.SemiDeadZoneGround, ghterrain.SemiDeadZoneGround, ghterrain.GreenZoneGrass, higround=0.65)
+    DEFAULT_ROOM_CLASSES = (ghrooms.WreckageRoom,ghrooms.MSRuinsRoom)
+
 
 class HumanScaleDeadzone(Architecture):
 #    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall

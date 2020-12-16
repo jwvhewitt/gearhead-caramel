@@ -4,13 +4,15 @@ import gears
 
 
 class HaywireTurn(object):
-    def __init__(self,pc,camp):
+    def __init__(self,pc: gears.base.Being,camp):
         self.pc = pc
         self.camp = camp
         self.act()
 
     def bust_a_move(self):
         # Move to a randomly selected accessible tile.
+        if not self.pc.mmode:
+            self.pc.gear_up()
         mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.pc.pos, self.pc.get_current_speed(),
                                                         self.pc.mmode, self.camp.scene.get_blocked_tiles())
         mydest = random.choice(list(mynav.cost_to_tile.keys()))

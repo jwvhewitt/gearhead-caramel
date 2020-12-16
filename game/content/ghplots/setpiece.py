@@ -416,17 +416,17 @@ class BasicTavern(Plot):
     scope = True
 
     def custom_init(self, nart):
-        name = "Basic Tavern"
+        npc_name,building_name = self.generate_npc_and_building_name()
 
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", ghterrain.ResidentialBuilding(
-            waypoints={"DOOR": ghwaypoints.ScreenDoor(name=name)},
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name=building_name)},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="METROSCENE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = self.register_element("FOYER_TEAM", teams.Team(name="Civilian Team"))
-        intscene = gears.GearHeadScene(50, 35, name, player_team=team1, civilian_team=team2,
+        intscene = gears.GearHeadScene(50, 35, building_name, player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING),
                                        scale=gears.scale.HumanScale)
 
@@ -446,7 +446,8 @@ class BasicTavern(Plot):
 
         npc = self.register_element("BARTENDER",
                                     gears.selector.random_character(
-                                        self.rank, local_tags=self.elements["METROSCENE"].attributes,
+                                        self.rank, name=npc_name,
+                                        local_tags=self.elements["METROSCENE"].attributes,
                                         job=gears.jobs.ALL_JOBS["Bartender"]
                                     ))
         npc.place(intscene, team=barteam)
@@ -459,3 +460,16 @@ class BasicTavern(Plot):
 
         return True
 
+    NAME_PATTERNS = ("{npc} Tavern", "{town} Tavern", "{npc}'s Pub", "The {monster1} and {monster2}")
+
+    def generate_npc_and_building_name(self):
+        npc_name = gears.selector.GENERIC_NAMES.gen_word()
+        if "BUILDING_NAME" in self.elements:
+            return npc_name, self.elements["BUILDING_NAME"]
+        if "OWNER_NAME" in self.elements:
+            owner_name = self.elements.get("OWNER_NAME") or gears.selector.GENERIC_NAMES.gen_word()
+        else:
+            owner_name = npc_name
+        monster1, monster2 = random.sample(gears.selector.MONSTER_LIST, 2)
+        building_name = random.choice(self.NAME_PATTERNS).format(npc=owner_name,town=str(self.elements["METROSCENE"]), monster1=monster1, monster2=monster2)
+        return npc_name, building_name

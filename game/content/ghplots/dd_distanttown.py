@@ -118,15 +118,18 @@ class DZD_TheTownYouStartedIn(Plot):
             else:
                 mylist.append(
                     Offer(
-                        "That's great to hear! [THANKS_FOR_HELP] I guess that means you've finished everything there is to do around here.",
+                        "That's great to hear! [THANKS_FOR_HELP] There's going to be a party at {TAVERN} later on to celebrate; why don't you come along?".format(**self.elements),
                         context=(context.CUSTOM,), data={"reply":"The repair crew is on the way."}, effect=self._finish_first_quest
                     )
                 )
-        else:
-            mylist.append(
-                Offer(
-                    "Yep, it sure is boring around here since you finished that quest.", context=(context.HELLO,),
+
+            if pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):
+                mylist.append(
+                    Offer(
+                        "Good enough. Come to the victory party and we'll see about starting the next bit.",
+                        context=(context.CUSTOM,), data={"reply": "For debugging purposes, let's just pretend it's done."},
+                        effect=self._finish_first_quest
+                    )
                 )
-            )
 
         return mylist

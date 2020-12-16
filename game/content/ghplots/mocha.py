@@ -829,7 +829,7 @@ class Encounter_InstantKarma( Encounter_BasicBandits ):
         myroom = self.register_element("_room",pbge.randmaps.rooms.FuzzyRoom(10,16,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         myroom.contents.append(WinterMochaClaymore())
         team2 = self.register_element("ETEAM",teams.Team(enemies=(myscene.player_team,)),dident="_room")
-        meks = gears.Loader.load_design_file('HunterX.txt')
+        meks = gears.Loader.load_design_file('Monster_Synths_M.txt')
         for t in range(random.randint(4,6)):
             mymecha = copy.deepcopy(meks[0])
             team2.contents.append(mymecha)
@@ -1749,7 +1749,7 @@ class FinalBattleAgainstSynths( Plot ):
         myroom.contents.append( myent )
         mygoal = self.register_element("_goalroom",pbge.randmaps.rooms.FuzzyRoom(10,10,parent=myscene,anchor=pbge.randmaps.anchors.middle))
         team2 = self.register_element("_eteam",teams.Team(enemies=(team1,)),dident="_goalroom")
-        meks = gears.Loader.load_design_file('HunterX.txt')
+        meks = gears.Loader.load_design_file('Monster_Synths_M.txt')
         for t in range(random.randint(4,5)):
             mymecha = copy.deepcopy(meks[0])
             team2.contents.append(mymecha)
