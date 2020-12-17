@@ -1,3 +1,5 @@
+- Added skill trainers
+- CharacterMover will not move NPC back to original scene if NPC gets moved away from dest scene to another scene first
 - Haywire now correctly works on human-scale robots
 - Added consumable items
 - Added more cyberware from GH1, GH2

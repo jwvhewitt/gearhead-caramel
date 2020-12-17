@@ -1196,6 +1196,24 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[HELLO:OPEN_SCHOOL]": {
+        Default: ["I'd like to train with you.",
+                  "Can you help me improve my skills?"
+                  ],
+        personality.Cheerful: ["Let's study together!",
+                               ],
+        personality.Grim: ["Teach me what you know.",
+                           ],
+        personality.Easygoing: ["How'd you like to teach me something?",
+                                ],
+        personality.Passionate: ["I have come here to train under you.",
+                                 ],
+        personality.Sociable: ["I've heard that you can teach me something.",
+                               ],
+        personality.Shy: ["I am here to train.",
+                          ],
+    },
+
     "[HELLO:PROPOSAL]": {
         Default: ["I want to talk about {subject}.",
                   "Let's talk about {subject}."

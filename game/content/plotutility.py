@@ -287,6 +287,7 @@ class CharacterMover(object):
                 mek.load_pilot(character)
                 character = mek
 
+        self.dest = dest_scene
         character.place(dest_scene,team=dest_team)
 
         self.allow_death = allow_death
@@ -301,15 +302,16 @@ class CharacterMover(object):
         if not self.done:
             if self.character.is_not_destroyed() or not self.allow_death:
                 #print("Checking...")
-                if hasattr(self.character, "container") and self.character.container:
-                    self.character.container.remove(self.character)
-                    #print("Removing")
                 self.character.restore_all()
-                if self.original_container is not None:
-                    self.original_container.append(self.character)
-                    #print("Appending")
-                else:
-                    camp.freeze(self.character)
+                if self.character.scene is self.dest or not self.character.scene:
+                    if hasattr(self.character, "container") and self.character.container:
+                        self.character.container.remove(self.character)
+                        #print("Removing")
+                    if self.original_container is not None:
+                        self.original_container.append(self.character)
+                        #print("Appending")
+                    else:
+                        camp.freeze(self.character)
                 if self.is_lancemate and camp.can_add_lancemate():
                     AutoJoiner(self.character)(camp)
                 self.done = True

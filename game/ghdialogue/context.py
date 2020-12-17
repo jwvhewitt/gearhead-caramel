@@ -36,5 +36,6 @@ RETREAT = "RETREAT"             # This hostile NPC is retreating from the battle
 WITHDRAW = "WITHDRAW"           # The NPC responds to the PC withdrawing from battle
 CHAT = "CHAT"                   # The NPC will relay some bit of local news
 OPEN_SHOP = "OPEN_SHOP"         # The NPC will show the PC what they have for sale.
+OPEN_SCHOOL = "OPEN_SCHOOL"     # The NPC will provide skill training for the PC.
 
 

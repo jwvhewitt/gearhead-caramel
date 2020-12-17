@@ -5,7 +5,7 @@ from gears import champions
 import random
 import pbge
 import copy
-from . import shopui
+from . import shopui, fieldhq
 
 MECHA_STORE = (tags.ST_MECHA,)
 MEXTRA_STORE = (tags.ST_MECHA,tags.ST_MECHA_WEAPON)
@@ -193,4 +193,103 @@ class Shop(object):
         self.update_shop(camp)
         self.enter_shop(camp)
 
+class SkillButtonWidget(pbge.widgets.LabelWidget):
+    def __init__(self, skill, clickfun, scolumn):
+        super().__init__(0, 0, 170, 24, skill.name, on_click=clickfun, data=skill, font=pbge.BIGFONT)
+        self.scolumn = scolumn
 
+    def render( self ):
+        if self is self.scolumn.active_button:
+            pbge.draw_text(self.font,self.text,self.get_rect(),pbge.rpgmenu.MENU_SELECT_COLOR,self.justify)
+        else:
+            pbge.draw_text(self.font,self.text,self.get_rect(),pbge.rpgmenu.MENU_ITEM_COLOR,self.justify)
+
+
+class SkillColumn(pbge.widgets.ColumnWidget):
+    def __init__(self, skill_list, set_skill_fun):
+        self.skill_list = skill_list
+        self.set_skill_fun = set_skill_fun
+        self.up_button = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.down_button = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
+        super().__init__(0, 0, 170, 200, padding=2, center_interior=True)
+        self.skill_list_w = pbge.widgets.ScrollColumnWidget(0,0,170,160, up_button = self.up_button, down_button=self.down_button,)
+        self.add_interior(self.up_button)
+        self.add_interior(self.skill_list_w)
+        self.add_interior(self.down_button)
+
+        for sk in self.skill_list:
+            self.skill_list_w.add_interior(SkillButtonWidget(sk, self.set_skill_wrapper, self))
+        self.active_button = self.skill_list_w.children[0]
+
+    def set_skill_wrapper(self, wid, ev):
+        self.active_button = wid
+        self.set_skill_fun(wid.data)
+
+
+class SkillBuyWidget(pbge.widgets.LabelWidget):
+    def __init__(self, cost, clickfun, trainer):
+        super().__init__(0, 0, 150, 24, "${:,}".format(cost), on_click=clickfun, data=cost, font=pbge.MEDIUMFONT,
+                         border=True, justify=0)
+        self.trainer = trainer
+
+    def render( self ):
+        if self.data <= self.trainer.camp.credits:
+            pbge.widgets.widget_border_on.render(self.get_rect())
+            pbge.draw_text(self.font,self.text,self.get_rect(),pbge.WHITE,self.justify)
+        else:
+            pbge.widgets.widget_border_off.render(self.get_rect())
+            pbge.draw_text(self.font,self.text,self.get_rect(),pbge.GREY,self.justify)
+
+
+class SkillTrainer(object):
+    CREDITS_PER_XP = 1000
+    COURSE_COSTS = (10000, 50000, 100000, 250000, 500000, 1000000, 2000000)
+    def __init__(self, skill_list=(gears.stats.Vitality, gears.stats.Athletics, gears.stats.Concentration)):
+        self.skill_list = skill_list
+        self.pc = None
+
+    def do_training(self, camp):
+        # Setup the widgets.
+        mywidget = pbge.widgets.ColumnWidget(-175,-200,350,400, draw_border=True, center_interior=True)
+        myswitch = fieldhq.backpack.PlayerCharacterSwitch(camp, camp.pc, self._set_pc, upleft=(-110,-200))
+        self.pc: gears.base.Character = camp.pc
+        mywidget.add_interior(myswitch)
+
+        myrow = pbge.widgets.RowWidget(0,0,350,200)
+        myskillcol = SkillColumn(self.skill_list, self._set_skill)
+        self.skill = self.skill_list[0]
+        myrow.add_left(myskillcol)
+
+        self.camp = camp
+        mybuycol = pbge.widgets.ColumnWidget(0,0,155,200, padding=12)
+        for t in self.COURSE_COSTS:
+            mybuycol.add_interior(SkillBuyWidget(t, self._buy_training, self))
+
+        myrow.add_right(mybuycol)
+        mywidget.add_interior(myrow)
+
+        pbge.my_state.widgets.append(mywidget)
+        self.running = True
+        while self.running and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    self.running = False
+        pbge.my_state.widgets.remove(mywidget)
+
+    def _set_pc(self, pc):
+        self.pc = pc
+
+    def _set_skill(self, sk):
+        self.skill = sk
+
+    def _buy_training(self, wid, ev):
+        if self.pc and wid.data <= self.camp.credits and self.skill in self.pc.statline:
+            self.camp.credits -= wid.data
+            self.pc.dole_experience(wid.data//self.CREDITS_PER_XP, self.skill)
+
+    def __call__(self, camp):
+        self.do_training(camp)

@@ -1,5 +1,6 @@
 Monster
-	name = "MS Hunter-Killer"
+	name = "Hunter-Killer"
+	desig = "MS"
 	statline = {Reflexes = 18, Body=2, Speed=10, Perception=14, Craft=7, Knowledge=5, Ego=14, Charm = 4,
 			MechaGunnery = 6, MechaFighting = 6, MechaPiloting = 4,
 			CloseCombat = 6, RangedCombat = 6, Dodge = 4
@@ -57,7 +58,8 @@ Monster
     END
 
 Monster
-	name = "MS Hunter-Slayer"
+	name = "Hunter-Slayer"
+	desig = "MS"
 	statline = {Reflexes = 22, Body=5, Speed=10, Perception=15, Craft=5, Knowledge=8, Ego=8, Charm = 4,
 			MechaGunnery = 7, MechaFighting = 7, MechaPiloting = 4,
 			CloseCombat = 7, RangedCombat = 7, Dodge = 4

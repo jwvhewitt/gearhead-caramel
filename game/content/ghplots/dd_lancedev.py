@@ -77,6 +77,96 @@ class LMMissionPlot(LMPlot):
 #   **********************
 #  Required elements: METRO, M
 
+class DDLD_DutyColleagueMission(LMMissionPlot):
+    LABEL = "DZD_LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+    MISSION_OBJECTIVES = (missionbuilder.BAMO_RESCUE_NPC, missionbuilder.BAMO_DEFEAT_COMMANDER)
+    CASH_REWARD = 100
+    EXPERIENCE_REWARD = 200
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.register_element("MENTOR", gears.selector.random_character(npc.renown+20, combatant=True, camp=nart.camp, age=random.randint(40,65)))
+        self.elements["ENEMY_FACTION"] = plotutility.RandomBanditCircle(nart.camp)
+        self.add_sub_plot(nart, "NPC_VACATION", ident="FREEZER")
+        self.prep_mission(nart.camp)
+        self.started_convo = False
+        self.training = services.SkillTrainer((gears.stats.MechaPiloting, gears.stats.MechaGunnery, gears.stats.MechaFighting))
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                candidate.relationship.role == gears.relationships.R_COLLEAGUE and
+                gears.personality.Duty in candidate.personality
+            )
+
+    def METROSCENE_ENTER(self,camp):
+        if not self.started_convo:
+            npc = self.elements["NPC"]
+            pbge.alert("As you enter {METROSCENE}, {NPC} rushes over to talk.".format(**self.elements))
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.PROPOSAL)))
+            self.started_convo = True
+
+    def NPC_offers(self,camp: gears.GearHeadCampaign):
+        mylist = list()
+        if not self.mission_active:
+            npc: gears.base.Character = self.elements["NPC"]
+            mylist.append(Offer(
+                "I just got a message from my mentor, {MENTOR}; {MENTOR.gender.subject_pronoun} is in trouble and I need to go help immediately. Sorry for the short notice.".format(**self.elements),
+                (context.HELLO,context.PROPOSAL),
+                subject=self, subject_start=True
+            ))
+            mylist.append(Offer(
+                "[THANK_YOU] [LETS_START_MECHA_MISSION]".format(**self.elements),
+                (context.CUSTOM,),subject=self,data={"reply": "If your mentor is in trouble, we'll all go to help."},
+                effect=self._accept_offer
+            ))
+            mylist.append(Offer(
+                "Thanks. I'll see you later.",
+                (context.CUSTOM,),subject=self, data={"reply": "Good luck on your mission."},
+                effect=self._reject_offer
+            ))
+        return mylist
+
+    def prep_mission(self, camp: gears.GearHeadCampaign):
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            camp, self.MISSION_NAME.format(**self.elements),
+            (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            enemy_faction=self.elements.get("ENEMY_FACTION"),
+            rank=camp.renown, objectives=self.MISSION_OBJECTIVES,
+            cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
+            on_win=self.win_mission, on_loss=self.lose_mission,
+            custom_elements={missionbuilder.BAME_RESCUENPC: self.elements["MENTOR"]}
+        )
+
+    def _accept_offer(self,camp):
+        self.elements["NPC"].relationship.role = relationships.R_FRIEND
+        self.mission_active = True
+
+    def _reject_offer(self,camp):
+        plotutility.AutoLeaver(self.elements["NPC"])(camp)
+        self.subplots["FREEZER"].freeze_now(camp)
+        self.proper_end_plot(camp,False)
+
+    def win_mission(self, camp: gears.GearHeadCampaign):
+        self.mission_seed = None
+        npc: gears.base.Character = self.elements["MENTOR"]
+        scene: gears.GearHeadScene = self.elements["METROSCENE"]
+        npc.place(scene, team=scene.civilian_team)
+        self.proper_non_end(camp)
+
+    def MENTOR_offers(self,camp: gears.GearHeadCampaign):
+        mylist = list()
+        if not self.mission_seed:
+            mylist.append(Offer(
+                "See if you learn anything.",
+                context=ContextTag((context.OPEN_SCHOOL,)), effect=self.training,
+            ))
+
+        return mylist
 
 class DDLD_MercenaryColleague(LMMissionPlot):
     LABEL = "DZD_LANCEDEV"

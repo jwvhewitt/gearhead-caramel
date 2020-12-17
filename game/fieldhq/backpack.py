@@ -51,8 +51,10 @@ class InvItemWidget(widgets.Widget):
         return( self.text < str(other) )
 
 class PlayerCharacterSwitch(widgets.RowWidget):
-    def __init__(self, camp, pc, set_pc_fun, **kwargs):
-        super(PlayerCharacterSwitch, self).__init__(PC_SWITCH_AREA.dx,PC_SWITCH_AREA.dy,PC_SWITCH_AREA.w,PC_SWITCH_AREA.h,**kwargs)
+    def __init__(self, camp, pc, set_pc_fun, upleft=None, **kwargs):
+        super().__init__(PC_SWITCH_AREA.dx,PC_SWITCH_AREA.dy,PC_SWITCH_AREA.w,PC_SWITCH_AREA.h,**kwargs)
+        if upleft:
+            self.dx, self.dy = upleft
         self.camp = camp
         self.pc = pc
         self.portraits = dict()
