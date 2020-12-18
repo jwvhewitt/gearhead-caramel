@@ -990,7 +990,7 @@ class DoDamage( effects.NoEffect ):
             # If the target is destroyed, give experience to the originator.
             if originator and hasattr(originator,"dole_experience") and camp.scene.are_hostile(originator,target):
                 if mydamage.operational_at_start and not target.is_operational():
-                    xp = max(self.DESTROY_TARGET_XP * target.battle_cost() * target.scale.XP_MULTIPLIER // originator.battle_cost(),1)
+                    xp = min(max(self.DESTROY_TARGET_XP * target.battle_cost() * target.scale.XP_MULTIPLIER // originator.battle_cost(),10),500)
                     originator.dole_experience(xp)
                 elif mydamage.damage_done > 0:
                     originator.dole_experience(2)

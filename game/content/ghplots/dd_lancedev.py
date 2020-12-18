@@ -15,6 +15,7 @@ from game import memobrowser
 Memo = memobrowser.Memo
 
 class LMPlot(Plot):
+    LANCEDEV_PLOT = True
     # Contains convenience methods for lancemates.
     def npc_is_ready_for_lancedev(self, camp, npc):
         return (isinstance(npc, gears.base.Character) and npc in camp.party and npc.relationship
@@ -22,7 +23,7 @@ class LMPlot(Plot):
 
     def t_START(self,camp):
         npc = self.elements["NPC"]
-        if npc.is_destroyed() or npc not in camp.party:
+        if self.LANCEDEV_PLOT and (npc.is_destroyed() or npc not in camp.party):
             self.end_plot(camp)
 
     def proper_end_plot(self,camp,improve_react=True):
@@ -36,7 +37,7 @@ class LMPlot(Plot):
         # with other DZD_LANCEDEV plots. For instance: if a plot adds a permanent new location to the world, you
         # might not want to end the plot but you will want to unlock the NPC and whatever else.
         self.elements["NPC"].relationship.development_plots += 1
-        self.LABEL = None
+        self.LANCEDEV_PLOT = False
         if improve_react:
             self.elements["NPC"].relationship.reaction_mod += random.randint(1,10)
         if "NPC" in self.locked_elements:
@@ -75,7 +76,7 @@ class LMMissionPlot(LMPlot):
 #   **********************
 #   ***  DZD_LANCEDEV  ***
 #   **********************
-#  Required elements: METRO, M
+#  Required elements: METRO, M+
 
 class DDLD_DutyColleagueMission(LMMissionPlot):
     LABEL = "DZD_LANCEDEV"

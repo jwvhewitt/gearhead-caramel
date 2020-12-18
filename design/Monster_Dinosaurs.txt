@@ -1,13 +1,13 @@
 Monster
     name = "Tyrannosaur"
-    statline = {Reflexes = 12, Body=9, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
-			MechaFighting = 8, Dodge = 1, Athletics = 2
+    statline = {Reflexes = 12, Body=6, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
+			MechaFighting = 8, Dodge = 1
 	}
 	scale = MechaScale
 	imagename = 'mon_dinosaurs.png'
 	frame = 0
 	colors = (Olive,Alabaster,GreenYellow,Mustard,Eggplant)
-    threat = 5
+    threat = 10
     type_tags = ("ANIMAL", "DINOSAUR")
     families = ("DINOSAUR","CARNIVORE")
     environment_list = (GroundEnv,UrbanEnv)
@@ -79,14 +79,14 @@ Monster
 
 Monster
     name = "Megosaur"
-    statline = {Reflexes = 15, Body=16, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
-			MechaFighting = 8, Dodge = 4, Vitality=4, Athletics = 5
+    statline = {Reflexes = 15, Body=10, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
+			MechaFighting = 8, Dodge = 1, Vitality=4
 	}
 	scale = MechaScale
 	imagename = 'mon_dinosaurs.png'
 	frame = 1
 	colors = (Olive,Alabaster,HunterOrange,Mustard,Eggplant)
-    threat = 25
+    threat = 30
     type_tags = ("ANIMAL", "DINOSAUR")
     families = ("DINOSAUR","CARNIVORE")
     environment_list = (GroundEnv,UrbanEnv)

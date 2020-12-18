@@ -340,6 +340,14 @@
     "tags": ["Media"]
   },
   {
+    "name": "Athlete",
+    "tags": ["Media"],
+    "skill_modifiers": {
+      "Athletics": 2,
+      "Vitality": 2
+    }
+  },
+  {
     "name": "Buttonpusher",
     "skills": ["Computers"],
     "tags": ["Laborer"],

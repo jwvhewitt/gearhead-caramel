@@ -83,9 +83,10 @@ class DZD_TheTownYouStartedIn(Plot):
         etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
         if not etlr.did_recovery:
             # We can maybe load a lancemate scene here. Yay!
-            nart = content.GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=content.PLOT_LIST)
-            if nart.story:
-                nart.build()
+            if not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT):
+                nart = content.GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=content.PLOT_LIST)
+                if nart.story:
+                    nart.build()
 
     def _finish_first_quest(self,camp):
         pstate = PlotState(adv=Adventure("Conclusion")).based_on(self)

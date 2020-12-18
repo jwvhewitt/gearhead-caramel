@@ -80,7 +80,7 @@ class RanMagnusMechaFactory(Plot):
 
         if camp.campdata.get("MINE_MISSION_WON") and not self.got_reward:
             mylist.append(Offer("[HELLO] Osmund told me that you liberated my mine from those bandits; that means you get to buy the good stuff.",
-                            context=ContextTag([context.HELLO]),
+                            context=ContextTag([context.HELLO]), effect=self._open_custom_shop
                             ))
         else:
             mylist.append(Offer("[HELLO] [_MAGNUS_SPIEL]",
@@ -106,6 +106,7 @@ class RanMagnusMechaFactory(Plot):
             "you liberated my mine from some bandits", "I recovered your mine from bandits", 10,
             (gears.relationships.MEM_AidedByPC,)
         ))
+        camp.campdata["CD_SPOKE_TO_RAN"] = True
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()

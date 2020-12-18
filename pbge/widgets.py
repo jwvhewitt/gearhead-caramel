@@ -23,7 +23,7 @@ popup_menu_border = Border( border_width=8, tex_width=16, border_name="sys_widbo
 class Widget( frects.Frect ):
     def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True, show_when_inactive=False, **kwargs ):
         # on_click takes widget, event as parameters.
-        super(Widget, self).__init__(dx,dy,w,h,**kwargs)
+        super().__init__(dx,dy,w,h,**kwargs)
         self.data = data
         self.active = active
         self.tooltip = tooltip
@@ -317,7 +317,7 @@ class ScrollColumnWidget(Widget):
 
 class RowWidget(Widget):
     def __init__( self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, **kwargs ):
-        super(RowWidget, self).__init__(dx,dy,w,h,**kwargs)
+        super().__init__(dx,dy,w,h,**kwargs)
         self.draw_border = draw_border
         self.border = border
         self._left_widgets = list()

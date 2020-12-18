@@ -185,7 +185,7 @@ Monster
 	frame = 3
     material = Biotech
     colors = (CardinalRed,SteelBlue,Malachite,CeramicColor,BlackRose)
-    threat = 25
+    threat = 30
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
     environment_list = (GroundEnv,UrbanEnv)
@@ -248,7 +248,7 @@ Monster
 	frame = 4
     material = Biotech
     colors = (CardinalRed,SteelBlue,Malachite,CeramicColor,BlackRose)
-    threat = 40
+    threat = 50
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
     environment_list = (GroundEnv,UrbanEnv)
@@ -322,7 +322,7 @@ Monster
 	frame = 5
     material = Biotech
     colors = (CardinalRed,SteelBlue,Malachite,CeramicColor,BlackRose)
-    threat = 60
+    threat = 75
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
     environment_list = (GroundEnv,UrbanEnv)

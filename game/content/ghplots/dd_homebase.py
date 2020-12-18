@@ -129,7 +129,7 @@ class DZD_Wujung(Plot):
             self.intro_ready = False
         elif not etlr.did_recovery:
             # We can maybe load a lancemate scene here. Yay!
-            if not any(p for p in camp.all_plots() if hasattr(p, "LABEL") and p.LABEL == "DZD_LANCEDEV"):
+            if not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT):
                 nart = game.content.GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=game.content.PLOT_LIST)
                 if nart.story:
                     nart.build()
@@ -520,8 +520,8 @@ class DZD_BronzeHorseInn(Plot):
         museum.contents.append(ghwaypoints.VadelModel(desc="For sixty years the Vadel has been Earth's foremost high end sports battroid. Designed and built right here in Wujung, this mecha combines unsurpassed speed with a versatile array of powerful weapons."))
         museum.contents.append(ghwaypoints.HarpyModel(desc="The Harpy transatmospheric fighter is a hybrid aerobatroid used by the Solar Navy. This is one nasty piece of work. Its heavy missiles can take down an entire lance at once, then it swoops in and picks off the survivors with twin laser cannons. Avoid avoid avoid. Unless you're the one piloting it, in which case enjoy."))
         museum.contents.append(ghwaypoints.ClaymoreModel(desc="The Claymore holds the distinction of being the oldest mecha design still in production. It may be heavy and slow, but it is also well armored and usually loaded with enough firepower to raze a small city."))
-        team3 = self.register_element("MUSEUM_TEAM", teams.Team(name="Museum Team"))
-        museum.contents.append(team3)
+        self.team3 = self.register_element("MUSEUM_TEAM", teams.Team(name="Museum Team"))
+        museum.contents.append(self.team3)
 
         # Add the elevator to the guest rooms- this can be used by subplots to also visit lancemate rooms and other stuff.
 
@@ -547,6 +547,10 @@ class DZD_BronzeHorseInn(Plot):
         self.did_intro = False
         self.told_about_services = False
         self.gave_mission = False
+        self.opened_gym = False
+        self.training = services.SkillTrainer((gears.stats.Vitality, gears.stats.Concentration, gears.stats.Athletics,
+                                               gears.stats.Dodge, gears.stats.CloseCombat, gears.stats.RangedCombat))
+
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             nart.camp,"Help Osmund's Friend",(self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
             objectives=(missionbuilder.BAMO_CAPTURE_THE_MINE,missionbuilder.BAMO_NEUTRALIZE_ALL_DRONES),cash_reward=500,
@@ -569,6 +573,9 @@ class DZD_BronzeHorseInn(Plot):
                              "You didn't pay much attention in school, did you? The nuclear war that ended the Age of Superpowers and created the world as we knows it now. They say that two thirds of everybody alive was dead in a week."),
         )
 
+        # Create the athlete.
+        self.register_element("TRAINER", gears.selector.random_character(35, camp=nart.camp, job=gears.jobs.ALL_JOBS["Athlete"]))
+
         self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
         self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
         #self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
@@ -581,7 +588,7 @@ class DZD_BronzeHorseInn(Plot):
     def _tell_about_services(self, camp):
         self.told_about_services = True
 
-    def INNKEEPER_offers(self, camp):
+    def INNKEEPER_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
 
         if self.did_intro:
@@ -620,6 +627,15 @@ class DZD_BronzeHorseInn(Plot):
             if inf.active:
                 mylist.append(inf.build_offer())
 
+        if camp.campdata.get("CD_SPOKE_TO_RAN", None) and not self.opened_gym:
+        #if not self.opened_gym:
+            mylist.append(
+                Offer(
+                    "Oh yeah, Ran and I go way back. We were lancemates back in the twenties. She's a good person to know if you're a cavalier.\n I'll tell you another good person to know- the hotel's personal trainer {TRAINER}. You can probably find {TRAINER.gender.object_pronoun} in the museum.".format(**self.elements),
+                    context=ContextTag([context.CUSTOM]), data={"reply": "You didn't tell us that the mission you gave was for Ran Magnus!"}, effect=self._open_gym
+                ))
+
+
         #ghdialogue.TagBasedPartyReply(
         #    Offer(
         #        "Ran and I used to be in the same lance. Of course that was years before she set up her mecha factory, and I eventually set up this hotel...",
@@ -628,6 +644,11 @@ class DZD_BronzeHorseInn(Plot):
         #)
 
         return mylist
+
+    def _open_gym(self, camp):
+        self.opened_gym = True
+        my_scene: gears.GearHeadScene = self.elements["INTERIOR"]
+        my_scene.deploy_team([self.elements["TRAINER"]], self.team3)
 
     def _accept_mission(self,camp):
         missionbuilder.NewMissionNotification(self.mission_seed.name,self.elements["MISSION_GATE"])
@@ -660,6 +681,14 @@ class DZD_BronzeHorseInn(Plot):
             ]
 
         return mygram
+
+    def TRAINER_offers(self, camp: gears.GearHeadCampaign):
+        mylist = list()
+        mylist.append(Offer(
+            "Let's get started. No pain, no gain.",
+            context=ContextTag((context.OPEN_SCHOOL,)), effect=self.training,
+        ))
+        return mylist
 
 
 #   ********************************
@@ -784,6 +813,8 @@ class DZD_BlueFortressHQ(Plot):
         vikki.place(intscene, team=team3)
         self.got_tutorial = False
 
+        self.test_trainer = services.SkillTrainer()
+
         return True
 
     def MISSION_GATE_menu(self, camp, thingmenu):
@@ -862,6 +893,11 @@ class DZD_BlueFortressHQ(Plot):
             context=ContextTag([context.CUSTOM,]),
             data={"reply": "Thanks for the tips."}, subject="keep your mind and body",
         ))
+
+        #mylist.append(Offer(
+        #    "This is a test of the skill training system.",
+        #    context=ContextTag([context.OPEN_SCHOOL,]), effect=self.test_trainer
+        #))
 
         return mylist
 

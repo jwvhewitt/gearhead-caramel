@@ -97,7 +97,7 @@ class DZD_DeadZoneTown(Plot):
         etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
         if not etlr.did_recovery:
             # We can maybe load a lancemate scene here. Yay!
-            if not any(p for p in camp.all_plots() if hasattr(p, "LABEL") and p.LABEL == "DZD_LANCEDEV"):
+            if not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT):
                 nart = GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=PLOT_LIST)
                 if nart.story:
                     nart.build()
@@ -182,7 +182,7 @@ class DZD_DeadZoneVillage(Plot):
         etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
         if not etlr.did_recovery:
             # We can maybe load a lancemate scene here. Yay!
-            if not any(p for p in camp.all_plots() if hasattr(p, "LABEL") and p.LABEL == "DZD_LANCEDEV"):
+            if not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT):
                 nart = GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=PLOT_LIST)
                 if nart.story:
                     nart.build()

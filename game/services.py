@@ -233,7 +233,7 @@ class SkillBuyWidget(pbge.widgets.LabelWidget):
         self.trainer = trainer
 
     def render( self ):
-        if self.data <= self.trainer.camp.credits:
+        if self.data <= self.trainer.camp.credits and self.trainer.skill in self.trainer.pc.statline:
             pbge.widgets.widget_border_on.render(self.get_rect())
             pbge.draw_text(self.font,self.text,self.get_rect(),pbge.WHITE,self.justify)
         else:
@@ -241,8 +241,22 @@ class SkillBuyWidget(pbge.widgets.LabelWidget):
             pbge.draw_text(self.font,self.text,self.get_rect(),pbge.GREY,self.justify)
 
 
+class PlayerCharacterSwitchPlusSkillTrainingInfo(pbge.widgets.RowWidget):
+    def __init__(self, camp, pc, set_pc_fun, trainer, **kwargs):
+        super().__init__(0,0,350,100,**kwargs)
+        self.trainer = trainer
+
+        self.my_switch = fieldhq.backpack.PlayerCharacterSwitch(camp, pc, set_pc_fun)
+        self.add_left(self.my_switch)
+        self.add_right(pbge.widgets.LabelWidget(0,0,200,100,text_fun=self.get_label_text, justify=0, color=pbge.INFO_GREEN, font=pbge.BIGFONT))
+
+    def get_label_text(self,wid):
+        return "{}\n \n ${:,}\n {}: {}".format(str(self.my_switch.pc), self.my_switch.camp.credits,
+                                               self.trainer.skill.name, self.trainer.pc.get_stat(self.trainer.skill))
+
+
 class SkillTrainer(object):
-    CREDITS_PER_XP = 1000
+    CREDITS_PER_XP = 500
     COURSE_COSTS = (10000, 50000, 100000, 250000, 500000, 1000000, 2000000)
     def __init__(self, skill_list=(gears.stats.Vitality, gears.stats.Athletics, gears.stats.Concentration)):
         self.skill_list = skill_list
@@ -251,7 +265,7 @@ class SkillTrainer(object):
     def do_training(self, camp):
         # Setup the widgets.
         mywidget = pbge.widgets.ColumnWidget(-175,-200,350,400, draw_border=True, center_interior=True)
-        myswitch = fieldhq.backpack.PlayerCharacterSwitch(camp, camp.pc, self._set_pc, upleft=(-110,-200))
+        myswitch = PlayerCharacterSwitchPlusSkillTrainingInfo(camp, camp.pc, self._set_pc, self)
         self.pc: gears.base.Character = camp.pc
         mywidget.add_interior(myswitch)
 
@@ -267,6 +281,9 @@ class SkillTrainer(object):
 
         myrow.add_right(mybuycol)
         mywidget.add_interior(myrow)
+
+        mywidget.children.append(pbge.widgets.LabelWidget(95,210,80,16,text="Done",justify=0,on_click=self._done_button,draw_border=True))
+
 
         pbge.my_state.widgets.append(mywidget)
         self.running = True
@@ -286,10 +303,16 @@ class SkillTrainer(object):
     def _set_skill(self, sk):
         self.skill = sk
 
+    def _done_button(self, wid, ev):
+        self.running = False
+
     def _buy_training(self, wid, ev):
         if self.pc and wid.data <= self.camp.credits and self.skill in self.pc.statline:
+            xpcred = wid.data
+            if self.pc.get_stat(gears.stats.Knowledge) > 10:
+                xpcred = (xpcred * (self.pc.get_stat(gears.stats.Knowledge) + 40))//50
             self.camp.credits -= wid.data
-            self.pc.dole_experience(wid.data//self.CREDITS_PER_XP, self.skill)
+            self.pc.dole_experience(xpcred//self.CREDITS_PER_XP, self.skill)
 
     def __call__(self, camp):
         self.do_training(camp)

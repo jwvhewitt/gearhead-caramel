@@ -51,22 +51,20 @@ class InvItemWidget(widgets.Widget):
         return( self.text < str(other) )
 
 class PlayerCharacterSwitch(widgets.RowWidget):
-    def __init__(self, camp, pc, set_pc_fun, upleft=None, **kwargs):
-        super().__init__(PC_SWITCH_AREA.dx,PC_SWITCH_AREA.dy,PC_SWITCH_AREA.w,PC_SWITCH_AREA.h,**kwargs)
-        if upleft:
-            self.dx, self.dy = upleft
+    WIDTH = 140
+    HEIGHT = 100
+    def __init__(self, camp, pc, set_pc_fun, upleft=(0,0), **kwargs):
+        super().__init__(upleft[0],upleft[1],self.WIDTH,self.HEIGHT,**kwargs)
         self.camp = camp
         self.pc = pc
         self.portraits = dict()
         self.set_pc_fun = set_pc_fun
 
         arrow_sprite = pbge.image.Image("sys_leftrightarrows.png",16,100)
-        self.add_left(widgets.ButtonWidget(0,0,16,100,sprite=arrow_sprite,on_click=self.click_left))
+        self.add_center(widgets.ButtonWidget(0,0,16,100,sprite=arrow_sprite,on_click=self.click_left))
         self.portrait_button = widgets.ButtonWidget(0,0,100,100,sprite=None,frame=1)
-        self.add_left(self.portrait_button)
-        self.add_left(widgets.ButtonWidget(0,0,16,100,sprite=arrow_sprite,on_click=self.click_right,frame=1))
-
-        self.add_right(widgets.LabelWidget(0,0,70,100,text_fun=self.get_label_text, justify=0, color=pbge.INFO_GREEN))
+        self.add_center(self.portrait_button)
+        self.add_center(widgets.ButtonWidget(0,0,16,100,sprite=arrow_sprite,on_click=self.click_right,frame=1))
 
         self.update()
 
@@ -86,14 +84,26 @@ class PlayerCharacterSwitch(widgets.RowWidget):
             self.pc = party[new_i]
             self.update()
 
-    def get_label_text(self,wid):
-        return "{}\n \n ${}\n {}".format(str(self.pc),self.camp.credits,self.pc.scale.get_mass_string(self.pc.get_inv_mass()))
-
     def update(self):
         if self.pc not in self.portraits:
             self.portraits[self.pc] = self.pc.get_portrait()
         self.portrait_button.sprite = self.portraits[self.pc]
         self.set_pc_fun(self.pc)
+
+
+class PlayerCharacterSwitchPlusBPInfo(widgets.RowWidget):
+    def __init__(self, camp, pc, set_pc_fun, upleft=None, **kwargs):
+        super().__init__(PC_SWITCH_AREA.dx,PC_SWITCH_AREA.dy,PC_SWITCH_AREA.w,PC_SWITCH_AREA.h,**kwargs)
+        if upleft:
+            self.dx, self.dy = upleft
+
+        self.my_switch = PlayerCharacterSwitch(camp, pc, set_pc_fun)
+        self.add_left(self.my_switch)
+        self.add_right(widgets.LabelWidget(0,0,70,100,text_fun=self.get_label_text, justify=0, color=pbge.INFO_GREEN))
+
+    def get_label_text(self,wid):
+        return "{}\n \n ${}\n {}".format(str(self.my_switch.pc),self.my_switch.camp.credits,self.my_switch.pc.scale.get_mass_string(self.my_switch.pc.get_inv_mass()))
+
 
 class BackpackWidget(widgets.Widget):
     active_item = None  # type: InvItemWidget
@@ -133,7 +143,7 @@ class BackpackWidget(widgets.Widget):
         self.inventory_column.add_interior(self.ic_down_button)
 
         self.children.append(self.inventory_column)
-        self.children.append(PlayerCharacterSwitch(camp,pc,self.set_pc,draw_border=True))
+        self.children.append(PlayerCharacterSwitchPlusBPInfo(camp,pc,self.set_pc,draw_border=True))
 
         self.update_selectors()
 
@@ -287,7 +297,7 @@ class ItemExchangeWidget(widgets.Widget):
         self.inventory_column.add_interior(self.ic_down_button)
 
         self.children.append(self.inventory_column)
-        self.children.append(PlayerCharacterSwitch(camp,pc,self.set_pc,draw_border=True))
+        self.children.append(PlayerCharacterSwitchPlusBPInfo(camp,pc,self.set_pc,draw_border=True))
 
         self.update_selectors()
 
