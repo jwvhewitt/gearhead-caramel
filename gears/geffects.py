@@ -643,7 +643,7 @@ class MultiAttackRoll( effects.NoEffect ):
         the children of this effect get returned.
     """
     def __init__(self, att_stat, att_skill, num_attacks=2, children=(), anim=None, accuracy=0, penetration=0,
-                 modifiers=(), defenses=(), overwhelm=0 ):
+                 modifiers=(), defenses=(), overwhelm=0, apply_hit_modifier=True ):
         self.att_stat = att_stat
         self.att_skill = att_skill
         self.num_attacks = num_attacks
@@ -657,6 +657,7 @@ class MultiAttackRoll( effects.NoEffect ):
         self.modifiers = modifiers
         self.defenses = defenses
         self.overwhelm = overwhelm
+        self.apply_hit_modifier = apply_hit_modifier
 
     def get_multi_bonus( self ):
         # Launching multiple attacks results in a bonus to hit. Of course,
@@ -665,7 +666,9 @@ class MultiAttackRoll( effects.NoEffect ):
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         if originator:
-            att_bonus = originator.get_skill_score(self.att_stat,self.att_skill) + self.get_multi_bonus()
+            att_bonus = originator.get_skill_score(self.att_stat,self.att_skill)
+            if self.apply_hit_modifier:
+                att_bonus += self.get_multi_bonus()
         else:
             att_bonus = random.randint(1,100)
         att_roll = random.randint(1,100)
@@ -685,7 +688,9 @@ class MultiAttackRoll( effects.NoEffect ):
                     if next_fx:
                         failed = True
                         break
-            penetration = att_roll + att_bonus + self.penetration - hi_def_roll - self.get_multi_bonus()
+            penetration = att_roll + att_bonus + self.penetration - hi_def_roll
+            if self.apply_hit_modifier:
+                penetration -= self.get_multi_bonus()
             if hasattr(target,'ench_list'):
                 penetration += target.ench_list.get_funval(target,'get_penetration_bonus')
             fx_record['penetration'] = penetration
@@ -713,7 +718,8 @@ class MultiAttackRoll( effects.NoEffect ):
     def get_odds( self, camp, originator, target ):
         # Return the percent chance that this attack will hit and the modifiers.
         modifiers = list()
-        modifiers.append((self.get_multi_bonus(),'Multi-attack'))
+        if self.apply_hit_modifier:
+            modifiers.append((self.get_multi_bonus(),'Multi-attack'))
         if originator:
             att_bonus = originator.get_skill_score(self.att_stat,self.att_skill)+ self.get_multi_bonus()
         else:

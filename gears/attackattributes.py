@@ -105,10 +105,11 @@ class BurstFire2(Singleton):
             num_attacks = self.BURST_VALUE,
             children = old_fx.children,
             anim = old_fx.anim,
-            accuracy = old_fx.accuracy,
-            penetration = old_fx.penetration,
+            accuracy = old_fx.accuracy + self.BURST_VALUE * 3,
+            penetration = old_fx.penetration - 10,
             modifiers = old_fx.modifiers,
             defenses = old_fx.defenses,
+            apply_hit_modifier=False,
         )
         base.data.thrill_power = (base.data.thrill_power * (1 + self.BURST_VALUE))//2
         return [base,]

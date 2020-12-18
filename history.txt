@@ -1,3 +1,4 @@
+- Burst fire bonus applied to accuracy, not to hit roll
 - XP for destroying enemy is capped at 500
 - Added skill trainers
 - CharacterMover will not move NPC back to original scene if NPC gets moved away from dest scene to another scene first
