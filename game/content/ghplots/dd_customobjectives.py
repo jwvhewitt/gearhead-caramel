@@ -20,6 +20,7 @@ DDBAMO_INVESTIGATE_METEOR = "DDBAMO_InvestigateMeteor"
 DDBAMO_INVESTIGATE_REFUGEE_CAMP = "DDBAMO_INVESTIGATE_REFUGEE_CAMP"
 DDBAMO_KERBEROS = "DDBAMO_KERBEROS"
 DDBAMO_MAYBE_AVOID_FIGHT = "DDBAMO_MaybeAvoidFight"
+DDBAMO_MEET_CETUS = "DDBAMO_CETUS1"
 
 
 class DDBAMO_PracticeDuel( Plot ):
@@ -480,3 +481,56 @@ class DDBAMO_SkilledAvoidance( Plot ):
         camp.destination, camp.entrance = self.elements["ADVENTURE_GOAL"]
         self.adv.cancel_adventure(camp)
 
+
+class DDBAM_FightCetusFirstTime(Plot):
+    LABEL = DDBAMO_MEET_CETUS
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        self.cetus: gears.base.Monster = gears.selector.get_design_by_full_name("DZD Cetus")
+        team2.contents.append(self.cetus)
+
+        self.obj = adventureseed.MissionObjective("Battle Cetus", adventureseed.MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        if self.intro_ready:
+            if camp.pc.has_badge("Cetus Slayer"):
+                pass
+            else:
+                pass
+            self.intro_ready = False
+
+    def t_COMBATLOOP(self, camp: gears.GearHeadCampaign):
+        myteam = self.elements["_eteam"]
+        if self.cetus.current_health < (self.cetus.max_health//2) or not self.cetus.is_operational():
+            self.cetus.restore_all()
+            pbge.alert("The eye of Cetus glows brightly for a moment, and then unleashes a wave of energy.")
+            pbge.my_state.view.play_anims(gears.geffects.BiotechnologyAnim(pos=self.cetus.pos))
+            my_invo = pbge.effects.Invocation(
+                fx=gears.geffects.DoDamage(3, 6, anim=gears.geffects.DeathWaveAnim,
+                                           scale=gears.scale.MechaScale,
+                                            is_brutal=True),
+                area=pbge.scenes.targetarea.SelfCentered(radius=5, delay_from=-1, exclude_middle=True))
+            pbge.my_state.view.anim_list.append(gears.geffects.InvokeDeathWaveAnim(pos=self.cetus.pos))
+            my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
+            pbge.my_state.view.handle_anim_sequence()
+            pbge.alert("Cetus rockets into the air and quickly disappears from sight.")
+            pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos))
+            camp.scene.contents.remove(self.cetus)
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+        if len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, 100)

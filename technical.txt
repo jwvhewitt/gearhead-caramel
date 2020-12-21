@@ -4,7 +4,8 @@ Non-Element Triggers:
 "START"         When the PC enters a new scene
 "STARTCOMBAT"   When combat begins
 "ENDCOMBAT"     When combat ends
-"COMBATROUND"   At the end of each combat round
+"COMBATLOOP"    Called during each iteration of the combat loop; guaranteed to be called before combat ends
+"COMBATROUND"   At the start of each combat round
 "UPDATE"        When the status of any plot changes
 "END"           When the PC is about to leave a scene
 "PCMOVE"        When the party position is updated

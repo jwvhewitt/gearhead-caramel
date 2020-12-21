@@ -195,6 +195,28 @@ class Defender(Singleton):
     PARRY_BONUS = 20
 
 
+class DisintegrateAttack(Singleton):
+    name = "Disintegrate"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 2.0
+    COST_MODIFIER = 2.0
+    POWER_MODIFIER = 2.0
+
+    @classmethod
+    def modify_basic_attack(self, weapon, attack):
+        # Add a disintegration status to the children.
+        attack.fx.children[0].children.append(
+            geffects.IfEnchantmentOK(
+                geffects.Disintegration,
+                on_success=(
+                    geffects.ResistanceRoll(stats.Ego,stats.Ego,roll_mod=25,min_chance=5,
+                        on_success=(geffects.AddEnchantment(geffects.Disintegration,dur_n=1,dur_d=6,anim=geffects.InflictDisintegrationAnim),)
+                    ),
+                ),
+            )
+        )
+
+
 class FastAttack(Singleton):
     # Extra fire action can hit twice.
     name = "Fast Attack"

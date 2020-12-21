@@ -58,9 +58,12 @@ class OmniDec( object ):
 
         if self.FLOOR_DECOR:
             for t in range(max(int(len(good_floor_spots) * self.FLOOR_FILL_FACTOR),random.randint(1,10))):
-                x,y = random.choice( good_floor_spots )
-                if gb.wall_wont_block(x,y):
-                    self.draw_floor_decor(gb,x,y)
+                if good_floor_spots:
+                    x,y = random.choice( good_floor_spots )
+                    if gb.wall_wont_block(x,y):
+                        self.draw_floor_decor(gb,x,y)
+                else:
+                    break
         if self.WALL_DECOR:
             for t in range(max(int( len(good_wall_spots) * self.WALL_FILL_FACTOR),random.randint(1,6))):
                 x,y = random.choice( good_wall_spots )

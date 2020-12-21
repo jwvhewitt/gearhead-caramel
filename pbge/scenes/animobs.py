@@ -53,12 +53,12 @@ def get_fline( p1, p2, speed):
 
 class AnimOb( object ):
     """An animation for the map."""
-    def __init__( self, sprite_name=None, width=64, height=64, pos=(0,0), start_frame=0, end_frame=0, ticks_per_frame=1, loop=0, x_off=0, y_off=0, delay=1 ):
+    def __init__( self, sprite_name=None, width=64, height=64, pos=(0,0), start_frame=0, end_frame=0, ticks_per_frame=0, loop=0, x_off=0, y_off=0, delay=1 ):
         self.sprite = image.Image( sprite_name or self.DEFAULT_SPRITE_NAME, width, height )
         self.start_frame = start_frame
         self.frame = start_frame or self.DEFAULT_START_FRAME
         self.end_frame = end_frame or self.DEFAULT_END_FRAME
-        self.ticks_per_frame = ticks_per_frame
+        self.ticks_per_frame = ticks_per_frame or self.DEFAULT_TICKS_PER_FRAME
         self.counter = 0
         self.loop = loop or self.DEFAULT_LOOP
         self.x_off = x_off
@@ -71,6 +71,7 @@ class AnimOb( object ):
     DEFAULT_START_FRAME = 0
     DEFAULT_END_FRAME= 0
     DEFAULT_LOOP = 0
+    DEFAULT_TICKS_PER_FRAME = 1
 
     def update( self, view ):
         if self.delay > 0:

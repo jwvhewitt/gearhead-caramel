@@ -1,16 +1,18 @@
-from pbge.plots import Plot
+from pbge.plots import Plot, PlotState, Adventure
 from pbge.dialogue import Offer, ContextTag
 from game import teams, services, ghdialogue
 from game.ghdialogue import context
 import gears
 import pbge
-from game.content import backstory, plotutility, ghterrain, ghwaypoints, gharchitecture, ghrooms
+from game.content import backstory, plotutility, ghterrain, ghwaypoints, gharchitecture, ghrooms, ghcutscene
 import random
 from gears import relationships
 from game import content
-from . import dd_main
+from . import dd_main, missionbuilder, dd_customobjectives
 from .dd_main import DZDRoadMapExit
+from game.memobrowser import Memo
 
+DZDCVAR_NUM_ALLIANCES = "DZDCVAR_NUM_ALLIANCES"
 
 class DZD_Conclusion(Plot):
     # This plot is the conclusion controller; it loads and activates the individual bits of the conclusion
@@ -24,17 +26,30 @@ class DZD_Conclusion(Plot):
         self.elements["THAT_TOWN_NAME"] = gears.selector.DEADZONE_TOWN_NAMES.gen_word()
 
         # Add the doomed village subplot, just because we want to know the village name
-        self.add_sub_plot(nart, "DZDC_DOOMED_VILLAGE", ident="VILLAGE")
+        sp = self.add_sub_plot(nart, "DZDC_DOOMED_VILLAGE", ident="VILLAGE")
+        self.elements["DOOMED_VILLAGE"] = sp.elements["LOCALE"]
 
         # Add the victory party subplot
         self.add_sub_plot(nart, "DZDC_VICTORY_PARTY", ident="PARTY")
 
+        # Determine Cetus's path to Wujung. Gonna do that now just because.
+        mymap = self.elements["DZ_ROADMAP"]
+        candidates = [n for n in mymap.nodes if n.sub_plot_label == "DZD_ROADSTOP"]
+        candidates.sort(key=lambda n: n.pos[0])
+        self.cetus_path = [candidates[random.randint(0,1)], candidates[random.randint(2,3)], candidates[random.randint(4,5)]]
 
         return True
 
     def PARTY_WIN(self, camp: gears.GearHeadCampaign):
         # We get the PARTY_WIN trigger when the PC is informed about the happenings in THAT_TOWN.
         self.subplots["VILLAGE"].activate(camp)
+
+    def VILLAGE_WIN(self, camp: gears.GearHeadCampaign):
+        # Cetus has been met, and possibly even defeated once. Start the final part of the conclusion.
+        pstate = PlotState(adv=Adventure("Conclusion")).based_on(self)
+        content.load_dynamic_plot(camp, "DZDC_NEW_DEADZONE_ORDER", pstate)
+
+
 
 class VictoryParty(Plot):
     # Following the player's success in opening the road, there will be a victory party.
@@ -43,9 +58,21 @@ class VictoryParty(Plot):
     active = True
     scope = True
 
+    COMMENTS = (
+        "Thanks for helping us get the power back on!",
+        "Let me buy you a drink... I'm sure everyone else here tonight will want to do the same!",
+        "Now that the roads are clear, maybe I'll go visit the green zone.",
+        "It's going to be another little while of unstable power, but after that I can start doing my podcast again.",
+        "You're so brave! I wanted to be a cavalier too, until I took an arrow to the knee.",
+        "Praise Atan! You're the one we're having this party for tonight.",
+        "Would you like to dance? Well, if you decide to dance, remember that I asked you first.",
+        "I wanted to thank you for all that you've done for our town."
+    )
+
     def custom_init( self, nart ):
         dest = self.elements["TAVERN"]
         self.party_npcs = list()
+        self.talked_to_npcs = list()
         for t in range(8):
             npc = self.seek_element(nart, "NPC_{}".format(t), self._is_good_npc, scope=self.elements["METROSCENE"],
                                     must_find=False, lock=True)
@@ -55,18 +82,133 @@ class VictoryParty(Plot):
             else:
                 break
 
-        self.prep_tavern = False
+        self.started_party = False
+        self.countdown = 2
+        self.party_lines = random.sample(self.COMMENTS, 3)
+        self.memo = Memo("There's a party to celebrate the clearing of the highway at {TAVERN} in {METROSCENE}.".format(**self.elements),
+                         location=self.elements["TAVERN"])
 
         return True
 
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc in self.party_npcs:
+            if self.countdown > 0:
+                goffs.append(Offer(
+                    "[HELLO] {}".format(self.party_lines.pop()),
+                    ContextTag((context.HELLO,)), effect=self._say_party_line
+                ))
+            else:
+                goffs.append(Offer(
+                    "[HELLO] You know, you're the one who really did the hard work to help get our power back. I say you should give a speech!",
+                    ContextTag((context.HELLO,)), effect=self._give_speech, dead_end=True
+                ))
+        return goffs
+
+    def _say_party_line(self, camp):
+        self.countdown -= 1
+
+    def _give_speech(self, camp):
+        pbge.alert("At this suggestion, everyone in the bar turns to you and applauds. It seems you won't be getting out of here tonight without saying a few words.")
+
+        mymenu= ghcutscene.PromptMenu("How do you want to begin your speech?")
+        mymenu.add_item("Start on a joke.", "[DZDC_VICTORY_PARTY:TRY_FUNNY]")
+        mymenu.add_item("Introduce yourself.", "[DZDC_VICTORY_PARTY:TRY_INTRODUCTION]")
+
+        answer = mymenu.query()
+        if answer:
+            ghcutscene.SimpleMonologueDisplay(answer, camp.pc)(camp,False)
+        else:
+            ghcutscene.SimpleMonologueDisplay("...", camp.pc)(camp,False)
+            pbge.alert("The rest of the party watches you with anticipation.")
+
+        mymenu= ghcutscene.PromptMenu("What will you say next?")
+        mymenu.add_item("Tell then about securing the highway.", "[DZDC_VICTORY_PARTY:TELL_HIGHWAY]")
+        mymenu.add_item("Tell them about the adventures you've had.", "[DZDC_VICTORY_PARTY:TELL_ADVENTURES]")
+
+        answer = mymenu.query()
+        if answer:
+            ghcutscene.SimpleMonologueDisplay(answer, camp.pc)(camp,False)
+        else:
+            ghcutscene.SimpleMonologueDisplay("um...", camp.pc)(camp,False)
+            pbge.alert("Everybody stares at you expectantly.")
+
+        mymenu= ghcutscene.PromptMenu("How will you conclude?")
+        mymenu.add_item("Make a toast to {}.".format(self.elements["METROSCENE"]), "[DZDC_VICTORY_PARTY:TOAST_TOWN]")
+        mymenu.add_item("Thank {} for {} help.".format(self.elements["DZ_CONTACT"],self.elements["DZ_CONTACT"].gender.possessive_determiner), "[DZDC_VICTORY_PARTY:TOAST_SHERIFF]")
+
+        answer = mymenu.query()
+        if answer:
+            ghcutscene.SimpleMonologueDisplay(answer, camp.pc)(camp,False)
+            pbge.alert("The people in the bar give you a round of thunderous applause.")
+        else:
+            ghcutscene.SimpleMonologueDisplay("...and that's all I have to say about that.", camp.pc)(camp,False)
+            pbge.alert("The people in the bar nod in polite silence and then get back to whatever they were doing before.")
+
+        pbge.alert("As you finish your speech, {} rushes over and pulls you aside.".format(self.elements["DZ_CONTACT"]))
+        self._end_the_party(camp)
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is camp.pc:
+            mygram = {
+                "[DZDC_VICTORY_PARTY_SHERIFF]": [str(self.elements["DZ_CONTACT"])],
+                "[DZDC_VICTORY_PARTY_TOWN]": [str(self.elements["METROSCENE"])],
+                "[DZDC_VICTORY_PARTY:TRY_FUNNY]": [
+                    "Did you heard about the kaiju that threw up? It's all over town! Moving right along...",
+                    "Why did the robot cross the road? Because it was programmed by a chicken! I've got a million jokes like that... Some of them are even funny!",
+                    "My cousin's bread factory was burnt to the ground by raiders... Now his business is toast. That was just a joke, by the way; you don't have to look sad.",
+                    "Two morlocks are eating a clown. One says to the other 'Does this taste funny to you?'... Actually that didn't happen. Morlocks can't talk.",
+                    "Why was the mecha itchy? Because it had roboticks! Get it? Seriously, though, I'm glad to be here... How are you folks doing?",
+                    "What do you call a fish with no eye? Fssshh. Now that I think about it, this joke is only funny if you see it written down. Let's just skip to the next part.",
+                    "How can you tell when there's an ace pilot in the room? Don't worry, [subject_pronoun]'ll tell you.",
+                    "Sometimes I tuck my knees into my chest and lean forward. That's just how I roll.",
+                    "There are three types of people in the world. Those of us who are good at math, and those of us who aren't. Ha ha, thanks for coming here tonight.",
+                    "I was going to start tonight with a joke, but then I remembered that I don't know any jokes.",
+                ],
+                "[DZDC_VICTORY_PARTY:TRY_INTRODUCTION]": [
+                    "Hello, I'm [speaker]. You may remember me from the constant bandit attacks your town has had lately. I mean, I'be been fighting on your side, I'm not one of the bandits...",
+                    "Hi, I'm [speaker]; I'm a cavalier. I've been working hard to get a repair crew for your powerplant."
+                ],
+                "[DZDC_VICTORY_PARTY:TELL_HIGHWAY]": [
+                    "Finding someone to repair your powerplant was harder than it sounds, because nobody I spoke to was willing to come out this far unless the highway was secure. So, I cleared the highway all the way from here to Wujung.",
+                    "The company in Wujung didn't want to come this far into the deadzone, so I had to secure the highway all this distance. It was a big job but I did it. RegEx Construction will be arriving to begin work soon!"
+                ],
+                "[DZDC_VICTORY_PARTY:TELL_ADVENTURES]": [
+                    "It's been an exciting week, let me tell you. To get the repair crew I've had to fight bandits, Aegis, a variety of monsters... Happy to say that I triumphed, and RegEx Construction will be arriving to fix your powerplant soon!",
+                    "There I was, crossing the deadzone from here to Wujung, taking on all comers... Bandits tried to stop me. Ironwind Fortress sent a division to catch me. I was attacked by space pirates and weird nameless things. But I never once stopped, knowing that all of you were waiting for my help."
+                ],
+                "[DZDC_VICTORY_PARTY:TOAST_TOWN]": [
+                    "Let's raise a glass to [DZDC_VICTORY_PARTY_TOWN]; long may your town prosper!",
+                    "I propose a toast to [DZDC_VICTORY_PARTY_TOWN]. May your new powerplant be the beginning of many wonderful things!"
+                ],
+                "[DZDC_VICTORY_PARTY:TOAST_SHERIFF]": [
+                    "Before I stop talking, I absolutely must thank [DZDC_VICTORY_PARTY_SHERIFF], whose hard work has kept [DZDC_VICTORY_PARTY_TOWN] safe while I was away. To [DZDC_VICTORY_PARTY_SHERIFF]!",
+                    "Finally, I need to thank [DZDC_VICTORY_PARTY_SHERIFF] for protecting [DZDC_VICTORY_PARTY_TOWN] all this time, and without whose efforts we wouldn't be having a party tonight because there'd be no town left to have the party in!"
+                ],
+            }
+
+        return mygram
+
     def TAVERN_ENTER(self, camp: gears.GearHeadCampaign):
-        self.prep_tavern = True
+        if not self.started_party:
+            pbge.alert("As you enter {TAVERN}, the party is already going full swing. Might as well mingle and chat for a bit.".format(**self.elements))
+            self.started_party = True
 
     def METROSCENE_ENTER(self, camp):
-        if self.prep_tavern:
-            pbge.alert("Alright, party's over.")
-            camp.check_trigger("WIN", self)
-            self.end_plot(camp)
+        if self.started_party:
+            pbge.alert(
+                "As you leave {}, {} rushes over and pulls you aside.".format(self.elements["TAVERN"], self.elements["DZ_CONTACT"]))
+            self._end_the_party(camp)
+
+    def _end_the_party(self, camp):
+        ghcutscene.SimpleMonologueDisplay(
+            "[THIS_IS_AN_EMERGENCY] I just got a distress call from {DOOMED_VILLAGE}- right before the comm signal cut out entirely. Could you go there and make sure everything is alright?".format(**self.elements),
+            self.elements["DZ_CONTACT"]
+        )(camp, True)
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp)
 
     def _is_good_npc(self, nart, candidate):
         return (isinstance(candidate, gears.base.Character) and candidate.scene is not self.elements["TAVERN"] and
@@ -100,6 +242,13 @@ class DoomedTown(Plot):
         myscene.contents.append(ghrooms.MSRuinsRoom(5,5))
         myscene.contents.append(ghrooms.WreckageRoom(5,5))
 
+        my_egg = self.register_element("ANGELEGG",
+            ghwaypoints.AngelEgg(name="?Angel Egg?", plot_locked=True, desc="You stand before a strange crystal egg. Cloudy shapes move on the inside.")
+        )
+        myroom = pbge.randmaps.rooms.FuzzyRoom(5,5)
+        myscene.contents.append(myroom)
+        myroom.contents.append(my_egg)
+
         myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.MechaScaleSemiDeadzoneRuins())
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
@@ -129,7 +278,13 @@ class DoomedTown(Plot):
         self.register_element("MISSION_GATE", towngate)
 
         # Add an encounter to the map.
-        self.add_sub_plot(nart, "DZDC_DoomVil_ENCOUNTER")
+        #self.add_sub_plot(nart, "DZDC_DoomVil_ENCOUNTER")
+
+        self.memo = Memo("{LOCALE} sent a distress call moments before the communication signal was lost. You should go there and find out what happened.".format(**self.elements),
+                         location=self.elements["METROSCENE"])
+
+        self.did_intro = False
+        self.found_egg = False
 
         return True
 
@@ -139,15 +294,150 @@ class DoomedTown(Plot):
     def _generate_town_name(self):
         return random.choice(self.TOWN_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
 
+    def LOCALE_ENTER(self, camp):
+        if not self.did_intro:
+            pbge.alert("All is quiet as you enter {LOCALE}. Smoke rises from the recently created ruins. There are few signs of combat, and no sign of survivors.".format(**self.elements))
+            self.did_intro = True
+
     def activate( self, camp ):
         super().activate(camp)
         self.final_edge.visible = True
         self.final_node.visible = True
 
+    def ANGELEGG_BUMP(self, camp: gears.GearHeadCampaign):
+        if not self.found_egg:
+            pbge.alert("You find a large crystal dome that seems to have been uncovered by a construction project. Movement is visible on the inside. A thick violet fluid leaks from a crack near the bottom.")
+            if len(camp.get_active_lancemates()) >= 2:
+                mypcs = random.sample(camp.get_active_lancemates(), 2)
+                ghcutscene.SimpleMonologueDisplay(
+                    "[WE_ARE_IN_DANGER] Do any of you know what this thing is? It looks like an egg... a giant one.".format(
+                        **self.elements),
+                    mypcs[0]
+                )(camp, False)
+                ghcutscene.SimpleMonologueDisplay(
+                    "[I_DONT_KNOW] Whatever it is, I'm guessing it's not a coincidence that the entire town just got destroyed.".format(
+                        **self.elements),
+                    mypcs[1]
+                )(camp, False)
+            self.found_egg = True
+
     def get_road_adventure(self, camp, dest_node):
         # Return an adventure if there's going to be an adventure. Otherwise return nothing.
-        pass
+        if self.found_egg:
+            start_node = self.final_edge.get_link(dest_node)
+            if start_node.pos[0] < dest_node.pos[0]:
+                myanchor = pbge.randmaps.anchors.west
+            else:
+                myanchor = pbge.randmaps.anchors.east
+            myadv = missionbuilder.BuildAMissionSeed(
+                camp, "Cetus Attacks", (start_node.destination,start_node.entrance),
+                rank=self.rank,
+                objectives = (dd_customobjectives.DDBAMO_MEET_CETUS,),
+                adv_type = "DZD_ROAD_MISSION",
+                custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
+                scenegen= gharchitecture.DeadZoneHighwaySceneGen,
+                architecture=gharchitecture.MechaScaleDeadzone(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
+                cash_reward=100, on_loss=self._end_this_bit, on_win=self._end_this_bit
+            )
+            return myadv
 
+    def _end_this_bit(self, camp):
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp)
+
+class DZD_ChangeTheWorld(Plot):
+    # After the big Cetus reveal, we're gonna change some things in the world.
+    # Distant Town:
+    # - Survivors from DoomedVillage show up and can give some info
+    # - Sheriff can give info about TDF, will offer to join party (giving +1 Lancemate slot)
+    # - TDF pilot has arrived in town, can explain the plan to PC
+    # Worldwide:
+    # - BioCorp employees can explain what happened to Cetus in GH1
+    # - Apply an alliance plot to every deadzone town
+    LABEL = "DZDC_NEW_DEADZONE_ORDER"
+    active = True
+    scope = True
+
+    def custom_init( self, nart ):
+        self.register_element("REFUGEE1", gears.selector.random_character(local_tags=(gears.personality.DeadZone,)), dident="METROSCENE")
+        self.register_element("REFUGEE2", gears.selector.random_character(local_tags=(gears.personality.DeadZone,)), dident="METROSCENE")
+        self.register_element("REFUGEE3", gears.selector.random_character(
+            rank=random.randint(25,50),
+            local_tags=(gears.personality.DeadZone,), job=gears.jobs.ALL_JOBS["Construction Worker"], combatant=True
+        ), dident="METROSCENE")
+
+        # Add the TDF scout to the town hall.
+        self.seek_element(nart, "TOWN_HALL", self._is_best_scene, scope=self.elements["METROSCENE"], backup_seek_func=self._is_good_scene)
+        npc = gears.selector.random_character(
+            rank=42, job = gears.jobs.ALL_JOBS["Recon Pilot"],
+            faction=gears.factions.TerranDefenseForce
+        )
+        self.register_element("SCOUT", npc, dident="TOWN_HALL")
+
+        # Record the number of alliances.
+        nart.camp.campdata[DZDCVAR_NUM_ALLIANCES] = 0
+
+        # Apply the alliance plots.
+        mymap = self.elements["DZ_ROADMAP"]
+        for n in mymap.nodes:
+            if n.sub_plot_label == "DZD_ROADSTOP":
+                self.add_sub_plot(nart, "DZDC_ALLIANCE", elements={"METROSCENE": n.destination, "METRO": n.destination.metrodat, "MISSION_GATE": n.entrance})
+
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_GOVERNMENT in candidate.attributes
+
+    def _is_good_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def REFUGEE1_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def REFUGEE2_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def REFUGEE3_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def DZ_CONTACT_offers(self,camp):
+        mylist = list()
+
+        return mylist
+
+    def SCOUT_offers(self,camp):
+        mylist = list()
+
+        return mylist
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc.faction and npc.faction.get_faction_tag() is gears.factions.BioCorp:
+            pass
+        return goffs
+
+
+#   *************************
+#   ***   DZDC_ALLIANCE   ***
+#   *************************
+#
+# Each of these plots provide the PC with an opportunity to form an alliance with a deadzone town.
+
+
+
+
+#   ****************************
+#   ***   DZDC_CETUS_FIGHT   ***
+#   ****************************
+#
+# Cetus is at a certain DeadZone town. The TDF battlecarrier "" is also there.
 
 class CetusFight(Plot):
     # Each time Cetus moves to a new village, you have one chance to fight it.

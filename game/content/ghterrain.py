@@ -762,3 +762,8 @@ class BarTerrain(pbge.scenes.terrain.WallTerrain):
     blocks = (Walking, Skimming, Rolling)
     movement_cost={pbge.scenes.movement.Vision:5}
 
+
+class AngelEggTerrain(pbge.scenes.terrain.Terrain):
+    frame = 3
+    image_top = 'terrain_dzd_mechaprops.png'
+    blocks = (Walking,Skimming,Rolling)

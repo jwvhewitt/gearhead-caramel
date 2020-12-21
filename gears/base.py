@@ -2134,7 +2134,7 @@ class BeamWeapon(Weapon):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.Brutal,
                         attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
-                        attackattributes.OverloadAttack, attackattributes.LinkedFire,
+                        attackattributes.OverloadAttack, attackattributes.LinkedFire, attackattributes.LineAttack,
                         attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4,
                         attackattributes.VariableFire5,
                         attackattributes.Intercept, attackattributes.SwarmFire2, attackattributes.SwarmFire3
@@ -2210,7 +2210,8 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
     MAX_PENETRATION = 5
     STACK_CRITERIA = ("reach", "damage", "accuracy", "penetration")
     LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.Brutal,
-                        attackattributes.BurnAttack, attackattributes.HaywireAttack, attackattributes.OverloadAttack,
+                        attackattributes.BurnAttack, attackattributes.DisintegrateAttack,
+                        attackattributes.HaywireAttack, attackattributes.OverloadAttack,
                         attackattributes.Scatter,
                         )
 
@@ -3725,7 +3726,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return self
 
     def get_mobility_penalty(self):
-        inv_mass = self.get_inv_mass()
+        inv_mass = self.scale.unscale_mass(self.get_inv_mass())
         ccap = self.get_stat(stats.Body) * 30
         if inv_mass > ccap:
             return (inv_mass - ccap) // 5

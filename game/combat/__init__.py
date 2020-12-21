@@ -383,6 +383,7 @@ class Combat( object ):
                 # Only advance to the next character if we are not quitting. If we are quitting,
                 # the game will be saved and the player will probably want any APs they have left.
                 self.n += 1
+            self.camp.check_trigger("COMBATLOOP")
 
         if self.no_quit and not pbge.my_state.got_quit:
             # Combat is over. Deal with things.

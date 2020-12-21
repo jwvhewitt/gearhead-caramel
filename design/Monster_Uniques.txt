@@ -30,6 +30,198 @@ Monster
             END
     END
 
+Monster
+    name = "Cetus"
+    desig = "DZD"
+    statline = {Reflexes = 16, Body=32, Speed=10, Perception=16, Craft=14, Knowledge=17, Ego=17, Charm = 12,
+			MechaFighting = 9, MechaGunnery = 6, MechaPiloting = 5, Vitality = 30,
+			CloseCombat = 9, RangedCombat = 6, Dodge = 5, Scouting = 8
+	}
+	scale = MechaScale
+    material = Biotech
+	imagename = 'mon_ms_cetus.png'
+	frame = 0
+	colors = (CardinalRed, Twilight, Saffron, Black, Black)
+    threat = 50
+
+    SUB
+        Turret
+            name = "Eye"
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                BeamWeapon
+                    name = "Death Wave"
+                    reach = 5
+                    damage = 4
+                    accuracy = 1
+                    penetration = 3
+                    attributes = (Scatter,Brutal,Overload,SwarmFire2,LineAttack)
+                    area_anim = DeathWaveAnim
+                    shot_anim = PlasmaBall
+            END
+        Wing
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Acid Spores"
+                                    reach = 4
+                                    damage = 2
+                                    accuracy = 4
+                                    penetration = 1
+                                    quantity = 4
+                                    attributes = (DisintegrateAttack,)
+                            END
+                    END
+            END
+        Wing
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Acid Spores"
+                                    reach = 4
+                                    damage = 2
+                                    accuracy = 4
+                                    penetration = 1
+                                    quantity = 4
+                                    attributes = (DisintegrateAttack,)
+                            END
+                    END
+            END
+        Wing
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Acid Spores"
+                                    reach = 4
+                                    damage = 2
+                                    accuracy = 4
+                                    penetration = 1
+                                    quantity = 4
+                                    attributes = (DisintegrateAttack,)
+                            END
+                    END
+            END
+        Wing
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Acid Spores"
+                                    reach = 4
+                                    damage = 2
+                                    accuracy = 4
+                                    penetration = 1
+                                    quantity = 4
+                                    attributes = (DisintegrateAttack,)
+                            END
+                    END
+            END
+        Wing
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Acid Spores"
+                                    reach = 4
+                                    damage = 2
+                                    accuracy = 4
+                                    penetration = 1
+                                    quantity = 4
+                                    attributes = (DisintegrateAttack,)
+                            END
+                    END
+            END
+        Tail
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                MeleeWeapon
+                    name="Tendril Talon"
+                    reach=2
+                    damage=3
+                    accuracy=3
+                    penetration=2
+                    attributes = (Defender,HaywireAttack)
+                    integral = True
+            END
+        Tail
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                MeleeWeapon
+                    name="Tendril Talon"
+                    reach=2
+                    damage=3
+                    accuracy=3
+                    penetration=2
+                    attributes = (Defender,HaywireAttack)
+                    integral = True
+            END
+        Tail
+            size = 6
+            SUB
+                Armor
+                    size = 5
+                MeleeWeapon
+                    name="Tendril Talon"
+                    reach=2
+                    damage=3
+                    accuracy=3
+                    penetration=2
+                    attributes = (Defender,HaywireAttack)
+                    integral = True
+            END
+
+    END
+
+
 Prop
 	name = "Bio-Computer"
 	desig = "K1"

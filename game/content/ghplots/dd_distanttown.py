@@ -28,7 +28,7 @@ class DZD_TheTownYouStartedIn(Plot):
                                       faction=town_fac,
                                       attributes=(
                                       gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC))
-        myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
+        myscene.exploration_music = 'Good Night.ogg'
 
         for t in range(random.randint(1,3)):
             npc = gears.selector.random_character(50, local_tags=myscene.attributes)

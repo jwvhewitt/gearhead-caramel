@@ -3183,6 +3183,27 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[THIS_IS_AN_EMERGENCY]": {
+        # The NPC is going to tell the PC about an emergency.
+        Default: ["This is an emergency."
+                  ],
+        personality.Cheerful: [
+            "Bad news- this is an emergency."
+        ],
+        personality.Grim: ["Something terrible is happening...",
+                           ],
+        personality.Easygoing: ["I don't want to worry you, but we have a bit of an emergency...",
+                                ],
+        personality.Passionate: [
+            "Red alert- we have an emergency to deal with!",
+        ],
+        personality.Sociable: [
+            "We've got an emergency on our hands!",
+        ],
+        personality.Shy: ["This could be trouble.",
+                          ],
+    },
+
     "[THIS_IS_A_SECRET]": {
         # The NPC is about to reveal something they probably shouldn't...
         Default: ["This is a secret, but...", "Remember, you didn't hear this from me..."
@@ -3347,6 +3368,28 @@ DEFAULT_GRAMMAR = {
                   "plasma cutter", "poisoned apple", "poisoned drink", "assassin droid", "bomb", "salvage crusher",
                   "gas bomb", "hydrospanner",
                   ],
+    },
+
+    "[WE_ARE_IN_DANGER]": {
+        # The NPC expresses the danger of the current situation. Useful for lancemates.
+        Default: ["This is bad news.", "I think we're in danger..."
+                  ],
+        personality.Cheerful: [
+            "I think we might be in trouble..."
+        ],
+        personality.Grim: ["This could be the end of us...",
+                           "We might not be making it out of this one...",
+                           ],
+        personality.Easygoing: ["I don't want to worry you, but we may be in danger now...",
+                                ],
+        personality.Passionate: [
+            "This is peril! Danger! A truly worthy challenge!",
+        ],
+        personality.Sociable: [
+            "We are almost certainly in grave danger right now...",
+        ],
+        personality.Shy: ["This is bad.",
+                          ],
     },
 
     "[WE_CAN_AVOID_COMBAT]": {

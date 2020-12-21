@@ -342,5 +342,25 @@ PowerSource
     scale = HumanScale
     shop_tags= ("TREASURE", "LOSTECH", "ODDITY")
 
+Treasure
+    name = "Mecha Figurine"
+    desc = "A small statue of a PreZero mecha, rendered in PVC."
+    shop_tags= ("TREASURE", "ODDITY")
+    value = 18000
+    weight = 2
+
+Treasure
+    name = "Daemon Figurine"
+    desc = "A small statue of a PreZero cryptid, rendered in PVC."
+    shop_tags= ("TREASURE", "ODDITY")
+    value = 58000
+    weight = 2
+
+Treasure
+    name = "Goddess Figurine"
+    desc = "A small statue of the PreZero mecha goddess Atan, rendered in PVC."
+    shop_tags= ("TREASURE", "ODDITY")
+    value = 241000
+    weight = 2
 
 

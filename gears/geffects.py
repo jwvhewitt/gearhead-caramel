@@ -203,6 +203,14 @@ class DisintegrationAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_disintegration.png"
     DEFAULT_END_FRAME = 15
 
+class DeathWaveAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_deathwave.png"
+    DEFAULT_END_FRAME = 15
+
+class InvokeDeathWaveAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Death Wave!'
+
+
 class HaywireAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_haywire.png"
     DEFAULT_END_FRAME = 19

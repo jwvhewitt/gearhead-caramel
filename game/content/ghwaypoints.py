@@ -393,3 +393,6 @@ class OrganicTube(Waypoint):
 class PZHolo(Waypoint):
     # A PreZero hologram interface
     TILE = pbge.scenes.Tile(None, None, ghterrain.PZHoloTerrain)
+
+class AngelEgg(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.AngelEggTerrain)
