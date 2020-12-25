@@ -42,7 +42,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
         myroom.contents.append(ghwaypoints.VentFan())
 
         npc = self.register_element("SHERIFF",
-                            gears.selector.random_character(55, local_tags=self.elements["LOCALE"].attributes,
+                            gears.selector.random_character(45, local_tags=self.elements["LOCALE"].attributes,
                                                             job=gears.jobs.ALL_JOBS["Sheriff"]))
         npc.place(myscene, team=team2)
 

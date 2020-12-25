@@ -103,6 +103,7 @@ def load_dynamic_plot(camp: gears.GearHeadCampaign, adv_type, pstate):
     nart = GHNarrativeRequest(camp,pstate,adv_type,PLOT_LIST)
     if nart.story:
         nart.build()
+        return nart.story
 
 
 def test_mocha_encounters():

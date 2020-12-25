@@ -1,3 +1,5 @@
+- Monsters may get a different number of actions per round
+- Fixed serious CharacterMover bug
 - Mecha scale beings have their Mobility calculated correctly
 - Burst fire bonus applied to accuracy, not to hit roll
 - XP for destroying enemy is capped at 500

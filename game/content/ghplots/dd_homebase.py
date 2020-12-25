@@ -111,6 +111,7 @@ class DZD_Wujung(Plot):
     def METROSCENE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
+        camp.home_base = (self.elements["METROSCENE"], self.elements["MISSION_GATE"])
         etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
         if self.intro_ready:
             # Give a different entry message depending on the nature of the PC.

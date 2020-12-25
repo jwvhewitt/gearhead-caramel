@@ -21,6 +21,7 @@ DDBAMO_INVESTIGATE_REFUGEE_CAMP = "DDBAMO_INVESTIGATE_REFUGEE_CAMP"
 DDBAMO_KERBEROS = "DDBAMO_KERBEROS"
 DDBAMO_MAYBE_AVOID_FIGHT = "DDBAMO_MaybeAvoidFight"
 DDBAMO_MEET_CETUS = "DDBAMO_CETUS1"
+DDBAMO_FIGHT_CETUS = "DDBAMO_CETUS2"
 
 
 class DDBAMO_PracticeDuel( Plot ):
@@ -495,6 +496,7 @@ class DDBAM_FightCetusFirstTime(Plot):
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
         self.cetus: gears.base.Monster = gears.selector.get_design_by_full_name("DZD Cetus")
+        self.cetus.never_show_die = True
         team2.contents.append(self.cetus)
 
         self.obj = adventureseed.MissionObjective("Battle Cetus", adventureseed.MAIN_OBJECTIVE_VALUE)
@@ -527,10 +529,106 @@ class DDBAM_FightCetusFirstTime(Plot):
             my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
             pbge.my_state.view.handle_anim_sequence()
             pbge.alert("Cetus rockets into the air and quickly disappears from sight.")
-            pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos))
+            pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
             camp.scene.contents.remove(self.cetus)
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
         if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
+
+
+class DDBAM_FightCetusNextTime(Plot):
+    LABEL = DDBAMO_FIGHT_CETUS
+    active = True
+    scope = "LOCALE"
+    ALLIANCES_NEEDED = 3
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        self.cetus: gears.base.Monster = gears.selector.get_design_by_full_name("DZD Cetus")
+        self.cetus.never_show_die = True
+        team2.contents.append(self.cetus)
+
+        self.obj = adventureseed.MissionObjective("Battle Cetus", adventureseed.MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+        self.regen_count = 0
+
+        team3 = self.register_element("_ateam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        self.allied_mecha = gears.selector.RandomMechaUnit(self.rank, 500, gears.factions.DeadzoneFederation, myscene.environment).mecha_list
+
+        self.intro_ready = True
+
+        return True
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        if self.intro_ready:
+            if camp.pc.has_badge("Cetus Slayer"):
+                pass
+            else:
+                pass
+            self.intro_ready = False
+
+    def t_COMBATLOOP(self, camp: gears.GearHeadCampaign):
+        myteam = self.elements["_eteam"]
+        if self.cetus.current_health < (self.cetus.max_health//2) or not self.cetus.is_operational():
+            self.regen_count += 1
+            self.cetus.restore_all()
+            pbge.my_state.view.play_anims(gears.geffects.BiotechnologyAnim(pos=self.cetus.pos))
+            my_invo = pbge.effects.Invocation(
+                fx=gears.geffects.DoDamage(3, 6, anim=gears.geffects.DeathWaveAnim,
+                                           scale=gears.scale.MechaScale,
+                                            is_brutal=True),
+                area=pbge.scenes.targetarea.SelfCentered(radius=4-self.regen_count, delay_from=-1, exclude_middle=True))
+            pbge.my_state.view.anim_list.append(gears.geffects.InvokeDeathWaveAnim(pos=self.cetus.pos))
+            my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
+            pbge.my_state.view.handle_anim_sequence()
+
+            if self.regen_count > 1 and not self._has_an_advantage(camp):
+                pbge.alert("Once again, Cetus rockets into the air and quickly disappears from sight.")
+                pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
+                camp.scene.contents.remove(self.cetus)
+            elif self.regen_count > 2:
+                if camp.campdata["DZDCVAR_NUM_ALLIANCES"] >= self.ALLIANCES_NEEDED:
+                    pbge.alert("As Cetus regenerates again, your allies from across the dead zone arrive at the battlefield.")
+                    pc = camp.pc.get_root()
+                    camp.scene.deploy_team(self.allied_mecha, self.elements["_ateam"])
+                    pbge.my_state.view.play_anims(*[gears.geffects.SmokePoof(pos=h.pos) for h in self.allied_mecha])
+                    SimpleMonologueDisplay("You can't win, Cetus. There are many of us, and only one of you. This is our home. Go back to the deep wasteland and find your own home.", pc)(camp)
+                    pbge.alert("The biomonster appears to consider your words. Its titanic eye scans all of the mecha in attendance.")
+                    pbge.alert("Cetus rockets into the sky and flies to the northwest, away from {METROSCENE}.".format(**self.elements))
+                    pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),
+                                                  pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
+                    camp.scene.contents.remove(self.cetus)
+                    camp.scene.player_team.retreat(camp)
+                else:
+                    pbge.alert("This last regeneration seems to have left Cetus dazed. You contact The Voice of Iijima with your current coordinates.")
+                    pbge.alert("Your lance makes a hasty withdrawl as hypervelocity missiles streak overhead.")
+                    camp.scene.player_team.retreat(camp)
+                    my_invo = pbge.effects.Invocation(
+                        fx=gears.geffects.DoDamage(20, 8, anim=gears.geffects.SuperBoom,
+                                                   scale=gears.scale.MechaScale,
+                                                    is_brutal=True),
+                        area=pbge.scenes.targetarea.SelfCentered(radius=9, delay_from=-1))
+                    my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
+                    pbge.my_state.view.handle_anim_sequence()
+                    camp.scene.contents.remove(self.cetus)
+
+    def _has_an_advantage(self, camp):
+        # Return True if the PC has obtained one of the advantages that will enable Cetus to be defeated.
+        return camp.campdata.get("DZDCVAR_YES_TO_TDF") or camp.campdata["DZDCVAR_NUM_ALLIANCES"] >= self.ALLIANCES_NEEDED
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+        if len(myteam.get_members_in_play(camp)) < 1:
+            if self._has_an_advantage(camp):
+                self.obj.win(camp, 100)
+            else:
+                self.obj.failed = True
+
+

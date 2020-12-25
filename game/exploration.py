@@ -352,7 +352,7 @@ class Explorer( object ):
                 npc.gear_up()
 
     def keep_exploring( self ):
-        return self.camp.first_active_pc() and self.no_quit and not pbge.my_state.got_quit and not self.camp.destination
+        return self.camp.first_active_pc() and self.no_quit and not pbge.my_state.got_quit and not self.camp.destination and self.camp.egg
 
     def npc_inactive( self, mon ):
         return mon not in self.camp.party and (( not self.camp.fight ) or mon not in self.camp.fight.active)

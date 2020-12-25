@@ -2,7 +2,7 @@ from . import materials
 from . import scale
 from . import calibre
 import pbge
-from . import genderobj
+from . import genderobj, meritbadges
 from pbge import container, scenes, KeyObject, Singleton
 import random
 import collections
@@ -204,10 +204,11 @@ class VisibleGear(pbge.scenes.PlaceableThing):
     # - If destroyed, use the destroyed image
     # - If hidden, hide it
     # - May have a portrait
-    def __init__(self, portrait=None, portrait_gen=None, **keywords):
+    def __init__(self, portrait=None, portrait_gen=None, never_show_die=False, **keywords):
         self.portrait = portrait
         self.portrait_gen = portrait_gen
         self.destroyed_pose = False
+        self.never_show_die = never_show_die
         super().__init__(**keywords)
 
     SAVE_PARAMETERS = ('portrait',)
@@ -240,7 +241,7 @@ class VisibleGear(pbge.scenes.PlaceableThing):
             return self.portrait_gen.build_portrait(self, add_color=add_color, force_rebuild=force_rebuild)
 
     def render(self, foot_pos, view):
-        if self.destroyed_pose:
+        if self.destroyed_pose and not self.never_show_die:
             self.render_destroyed(foot_pos, view)
         else:
             self.render_shadow(foot_pos, view)
@@ -3872,9 +3873,9 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
 
 class Monster(Being, MakesPower):
-    SAVE_PARAMETERS = ('threat', 'type_tags', 'families', 'environment_list', 'frame')
+    SAVE_PARAMETERS = ('threat', 'type_tags', 'families', 'environment_list', 'frame', 'actions')
 
-    def __init__(self, threat=0, type_tags=(), families=(), frame=0,
+    def __init__(self, threat=0, type_tags=(), families=(), frame=0, actions=2,
                  environment_list=(tags.GroundEnv, tags.UrbanEnv), **keywords):
         super().__init__(**keywords)
         self.threat = threat
@@ -3882,6 +3883,7 @@ class Monster(Being, MakesPower):
         self.families = set(families)
         self.environment_list = set(environment_list)
         self.frame = frame
+        self.actions = actions
 
     @property
     def self_cost(self):
@@ -3899,6 +3901,9 @@ class Monster(Being, MakesPower):
 
     def max_power(self):
         return self.scale.scale_power(self.get_stat(stats.Body) * 5)
+
+    def get_action_points(self):
+        return max(self.actions, 1)
 
 
 class Character(Being):
@@ -4024,6 +4029,9 @@ class Character(Being):
 
     def has_badge(self, badge_name):
         return any(b for b in self.badges if b.name == badge_name)
+
+    def add_badge(self, new_badge):
+        meritbadges.add_badge(self.badges, new_badge)
 
 
 class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):

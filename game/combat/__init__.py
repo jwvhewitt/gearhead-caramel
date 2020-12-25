@@ -266,7 +266,7 @@ class Combat( object ):
 
     def still_fighting( self ):
         """Keep playing as long as there are enemies, players, and no quit."""
-        return self.num_enemies() and self.camp.first_active_pc() and self.no_quit and self.camp.scene is self.scene and not pbge.my_state.got_quit and not self.camp.destination
+        return self.num_enemies() and self.camp.first_active_pc() and self.no_quit and self.camp.scene is self.scene and not pbge.my_state.got_quit and not self.camp.destination and self.camp.egg
 
     def step( self, chara, dest ):
         """Move chara according to hmap, return True if movement ended."""

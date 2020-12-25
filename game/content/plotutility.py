@@ -258,13 +258,16 @@ class AutoLeaver(object):
             #        camp.incapacitated_party.remove(mek)
 
 class CharacterMover(object):
-    def __init__(self, camp, plot,character,dest_scene,dest_team,allow_death=False, upgrade_mek=True):
+    def __init__(self, camp, plot,character: gears.base.Character,dest_scene,dest_team,allow_death=False, upgrade_mek=True):
         # Record the character's original location, move them to the new location.
+        self.original_scene = character.scene
         if character not in plot.get_locked_elements():
             print("Warning: Character {} should be locked by {} before moving!".format(character,plot))
         if not (hasattr(character,"container") and character.container):
             print("Warning: Character {} moved by {} has no original container!".format(character,plot))
             character.container = None
+        elif not self.original_scene:
+            print("Warning: Character {} moved by {} has no original scene!".format(character, plot))
         if not plot.active:
             print("Warning: Plot {} not active")
         if not plot.scope:
@@ -307,12 +310,14 @@ class CharacterMover(object):
                     if hasattr(self.character, "container") and self.character.container:
                         self.character.container.remove(self.character)
                         #print("Removing")
-                    if self.original_container is not None:
+                    if self.original_scene is not None:
+                        self.original_scene.deploy_actor(self.character)
+                    elif self.original_container is not None:
                         self.original_container.append(self.character)
                         #print("Appending")
                     else:
                         camp.freeze(self.character)
-                if self.is_lancemate and camp.can_add_lancemate():
+                if self.is_lancemate and camp.can_add_lancemate() and self.character.scene is camp.scene:
                     AutoJoiner(self.character)(camp)
                 self.done = True
 

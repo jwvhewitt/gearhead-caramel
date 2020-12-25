@@ -21,6 +21,7 @@ from . import programs
 from . import portraits
 from . import genderobj
 from . import usables
+from . import meritbadges
 
 import inspect
 import os
@@ -325,6 +326,18 @@ class GearHeadScene(pbge.scenes.Scene):
             else:
                 print("Warning: {} could not be deployed in {}".format(m, self))
 
+    def deploy_actor(self, actor):
+        myteam = self.local_teams.get(actor) or self.civilian_team
+        if myteam:
+            self.deploy_team([actor,], myteam)
+        else:
+            good_spots = list(self.list_empty_spots())
+            if good_spots:
+                p = random.choice(good_spots)
+                actor.place(self, pos=p)
+            else:
+                print("Warning: {} could not be deployed in {}".format(actor, self))
+
     def get_keywords(self):
         mylist = list()
         for t in self.attributes:
@@ -485,13 +498,34 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             mek.pilot = pc
 
     def keep_playing_campaign(self):
-        return self.pc.is_not_destroyed()
+        return self.pc.is_not_destroyed() and self.egg
 
     def play(self):
         super(GearHeadCampaign, self).play()
         if self.pc in self.dead_party:
             pbge.alert("Game Over",font=pbge.my_state.hugefont)
             self.delete_save_file()
+
+    def eject(self):
+        # This campaign is over. Eject the egg.
+        mek = self.get_pc_mecha(self.pc)
+        if mek:
+            self.party.remove(mek)
+            if hasattr(mek, "container"):
+                mek.container = None
+            self.egg.mek = mek
+        for pc in self.party:
+            if pc is not self.pc:
+                if hasattr(pc, "container") and pc.container:
+                    pc.container.remove(pc)
+                if isinstance(pc, base.Character):
+                    if pc not in self.egg.dramatis_personae and not pc.mnpcid:
+                        self.egg.dramatis_personae.append(pc)
+                elif pc not in self.egg.stuff:
+                    self.egg.stuff.append(pc)
+        self.egg.save()
+        self.egg = None
+        self.delete_save_file()
 
     def get_usable_party(self,map_scale,solo_map=False,just_checking=False):
         usable_party = list()

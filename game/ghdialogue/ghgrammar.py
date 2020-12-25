@@ -2852,10 +2852,32 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[SWEAR]": {
+        Default: ["Well [expletive] on that...", "Oh [expletive]!"
+                  ],
+    },
+
     "[THANK_YOU]": {
         # A simple thank you is appropriate.
         Default: ["Thank you.", "Thanks."
                   ],
+    },
+
+    "[THANK_GOODNESS_YOU_ARE_ALIVE]": {
+        Default: ["Thank goodness you're alive.", "Thank goodness you're okay."
+                  ],
+        personality.Cheerful: ["I knew you wouldn't die that easily!"
+                               ],
+        personality.Grim: ["I thought you were dead...",
+                           ],
+        personality.Easygoing: ["Hey, you made it!",
+                                ],
+        personality.Passionate: ["Than Atan that you're still alive!",
+                                 ],
+        personality.Sociable: ["[audience]! They said that you were dead.",
+                               ],
+        personality.Shy: ["You're alive!",
+                          ],
     },
 
     "[THANKS_FOR_BAD_NEWS]": {
@@ -3568,6 +3590,38 @@ DEFAULT_GRAMMAR = {
         personality.Duty: [
             "I disagree with your decision, but will not fail in my duty."
         ]
+    },
+
+    "[YOUR_PLAN_IS_HOPELESS]": {
+        # The NPC expresses a lack of hope about the suggested plan.
+        Default: ["This is hopeless.", "Your plan is hopeless."
+                  ],
+        personality.Cheerful: ["You're talking nonsense, but not the ha-ha kind.",
+                               "Are you serious? I was waiting for the punchline."
+                               ],
+        personality.Grim: ["I'd admire your bravery if I weren't more concerned about my own survival.",
+                           "I love a doomed quest as much as anyone but you're taking it too far."
+                           ],
+        personality.Easygoing: ["Wait, no. That's not going to work.",
+                                ],
+        personality.Passionate: ["You're talking cringe.",
+                                 "There's a fine line between a glorious death and simply throwing your life away."
+                                 ],
+        personality.Sociable: ["I hate to say this, but your plan is hopeless.",
+                               "Have you discussed this with anyone else? Because I really think it's a bad idea."
+                               ],
+        personality.Shy: ["It won't work.",
+                          ],
+        personality.Duty: ["I think we should consider alternatives before throwing our lives away.",
+                           ],
+        personality.Glory: ["Remember that no-one will sing about your heroic deeds if we all die.",
+                            ],
+        personality.Justice: ["And what's to be gained, a symbolic victory at the cost of our lives?",
+                              ],
+        personality.Peace: ["Hasn't there been enough death already?",
+                            ],
+        personality.Fellowship: ["You may view your own life as cheap, but I don't.",
+                                 ],
     },
 
     "[YOU_SEEM_CONNECTED]": {

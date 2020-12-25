@@ -13,6 +13,8 @@ from .dd_main import DZDRoadMapExit
 from game.memobrowser import Memo
 
 DZDCVAR_NUM_ALLIANCES = "DZDCVAR_NUM_ALLIANCES"
+DZDCVAR_CETUS_TOWN = "DZDCVAR_CETUS_TOWN"
+DZDCVAR_YES_TO_TDF = "DZDCVAR_YES_TO_TDF"
 
 class DZD_Conclusion(Plot):
     # This plot is the conclusion controller; it loads and activates the individual bits of the conclusion
@@ -22,9 +24,6 @@ class DZD_Conclusion(Plot):
     scope = True
 
     def custom_init( self, nart ):
-        # First off, we're gonna need a name for the town Cetus wrecks, aka THAT_TOWN
-        self.elements["THAT_TOWN_NAME"] = gears.selector.DEADZONE_TOWN_NAMES.gen_word()
-
         # Add the doomed village subplot, just because we want to know the village name
         sp = self.add_sub_plot(nart, "DZDC_DOOMED_VILLAGE", ident="VILLAGE")
         self.elements["DOOMED_VILLAGE"] = sp.elements["LOCALE"]
@@ -38,6 +37,14 @@ class DZD_Conclusion(Plot):
         candidates.sort(key=lambda n: n.pos[0])
         self.cetus_path = [candidates[random.randint(0,1)], candidates[random.randint(2,3)], candidates[random.randint(4,5)]]
 
+        # Also: Create the Voice of Iijima contact NPC.
+        npc = gears.selector.random_character(
+            rank=55, job = gears.jobs.ALL_JOBS["Commander"],
+            faction=gears.factions.TerranDefenseForce
+        )
+        self.register_element("TDF_CONTACT", npc)
+
+
         return True
 
     def PARTY_WIN(self, camp: gears.GearHeadCampaign):
@@ -48,7 +55,36 @@ class DZD_Conclusion(Plot):
         # Cetus has been met, and possibly even defeated once. Start the final part of the conclusion.
         pstate = PlotState(adv=Adventure("Conclusion")).based_on(self)
         content.load_dynamic_plot(camp, "DZDC_NEW_DEADZONE_ORDER", pstate)
+        self._load_next_fight(camp)
 
+    def _load_next_fight(self, camp):
+        # Load the next fight against Cetus. In case you run out of villages, load the BAD END.
+        if self.cetus_path:
+            mytown = self.cetus_path.pop(0)
+            camp.campdata[DZDCVAR_CETUS_TOWN] = mytown.destination
+            pstate = PlotState(
+                adv=Adventure("CetusFight"),
+                elements={"METROSCENE": mytown.destination, "METRO": mytown.destination.metrodat,
+                          "MISSION_GATE": mytown.entrance},
+            ).based_on(self)
+            sp = content.load_dynamic_plot(camp, "DZDC_FIGHT_CETUS", pstate)
+            self.subplots["FIGHTCETUS"] = sp
+
+        else:
+            pstate = PlotState(adv=Adventure("Resolution")).based_on(self)
+            content.load_dynamic_plot(camp, "DZDCEND_BAD", pstate)
+            self.end_plot(camp, True)
+
+    def FIGHTCETUS_WIN(self, camp):
+        pstate = PlotState(adv=Adventure("Resolution")).based_on(self)
+        if camp.campdata[DZDCVAR_NUM_ALLIANCES] >= 3:
+            content.load_dynamic_plot(camp, "DZDCEND_DZALLIANCE", pstate)
+        else:
+            content.load_dynamic_plot(camp, "DZDCEND_TDFMISSILES", pstate)
+        self.end_plot(True)
+
+    def FIGHTCETUS_LOSE(self, camp):
+        self._load_next_fight(camp)
 
 
 class VictoryParty(Plot):
@@ -285,6 +321,7 @@ class DoomedTown(Plot):
 
         self.did_intro = False
         self.found_egg = False
+        self.did_fight = False
 
         return True
 
@@ -323,7 +360,7 @@ class DoomedTown(Plot):
 
     def get_road_adventure(self, camp, dest_node):
         # Return an adventure if there's going to be an adventure. Otherwise return nothing.
-        if self.found_egg:
+        if self.found_egg and not self.did_fight:
             start_node = self.final_edge.get_link(dest_node)
             if start_node.pos[0] < dest_node.pos[0]:
                 myanchor = pbge.randmaps.anchors.west
@@ -343,7 +380,8 @@ class DoomedTown(Plot):
 
     def _end_this_bit(self, camp):
         camp.check_trigger("WIN", self)
-        self.end_plot(camp)
+        self.did_fight = True
+
 
 class DZD_ChangeTheWorld(Plot):
     # After the big Cetus reveal, we're gonna change some things in the world.
@@ -383,7 +421,14 @@ class DZD_ChangeTheWorld(Plot):
             if n.sub_plot_label == "DZD_ROADSTOP":
                 self.add_sub_plot(nart, "DZDC_ALLIANCE", elements={"METROSCENE": n.destination, "METRO": n.destination.metrodat, "MISSION_GATE": n.entrance})
 
+        self.did_intro = False
+
         return True
+
+    def METROSCENE_ENTER(self, camp):
+        if not self.did_intro:
+            pbge.alert("On the way into {METROSCENE} you see a caravan of survivors who escaped from {DOOMED_VILLAGE}.".format(**self.elements))
+            self.did_intro = True
 
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_GOVERNMENT in candidate.attributes
@@ -393,26 +438,90 @@ class DZD_ChangeTheWorld(Plot):
 
     def REFUGEE1_offers(self, camp):
         mylist = list()
-
+        mylist.append(
+            Offer(
+                "We lost everything. One minute we were just sitting at home, the next there was a war happening right outside our window.",
+                context=(context.HELLO,),
+            )
+        )
         return mylist
 
     def REFUGEE2_offers(self, camp):
         mylist = list()
-
+        mylist.append(
+            Offer(
+                "I got separated from my family during the evacuation... I hope they made it out of {DOOMED_VILLAGE}.".format(**self.elements),
+                context=(context.HELLO,),
+            )
+        )
         return mylist
 
     def REFUGEE3_offers(self, camp):
         mylist = list()
-
+        mylist.append(
+            Offer(
+                "I was there when they discovered the egg... We thought it was part of a PreZero ruin, but then someone cracked the surface and it started screaming...".format(**self.elements),
+                context=(context.HELLO,),
+            )
+        )
         return mylist
 
     def DZ_CONTACT_offers(self,camp):
         mylist = list()
+        if gears.relationships.RT_LANCEMATE not in self.elements["DZ_CONTACT"].relationship.tags:
+            mylist.append(
+                Offer(
+                    "[THANK_GOODNESS_YOU_ARE_ALIVE] I couldn't contact your radio, something's blocking the signal. We heard that {DOOMED_VILLAGE} has been destroyed.".format(**self.elements),
+                    context=(context.HELLO,),
+                )
+            )
+            if camp.pc.has_badge("Cetus Slayer"):
+                mylist.append(
+                    Offer(
+                        "[SWEAR] There's a scout from the Terran Defense Force at {TOWN_HALL}, and I heard they mobilized one of their battlemovers. Come with me and see what we can find out.".format(**self.elements),
+                        context=(context.CUSTOM,), data={"reply":"It's a biomonster named Cetus. I already killed it once, but apparently that didn't stick."},
+                    )
+                )
+            else:
+                mylist.append(
+                    Offer(
+                        "There's a scout from the Terran Defense Force at {TOWN_HALL}, and I heard they mobilized one of their battlemovers. Come with me and see what we can find out.".format(**self.elements),
+                        context=(context.CUSTOM,), data={"reply":"It's a biomonster. Makes Kerberos look like a puppy."},
+                    )
+                )
+
+            mylist.append(
+                Offer(
+                    "Great, let's go.".format(**self.elements),
+                    context=(context.CUSTOMREPLY,), data={"reply":"[LETSGO]"}, effect=self._join_lance
+                )
+            )
+
 
         return mylist
 
+    def _join_lance(self, camp: gears.GearHeadCampaign):
+        npc = self.elements["DZ_CONTACT"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        effect = plotutility.AutoJoiner(npc)
+        effect(camp)
+        camp.num_lancemates += 1
+
     def SCOUT_offers(self,camp):
         mylist = list()
+        mylist.append(
+            Offer(
+                "[HELLO] The battlecarrier Voice of Iijima has followed Cetus to {}.".format(camp.campdata[DZDCVAR_CETUS_TOWN]),
+                context=(context.HELLO,),
+            )
+        )
+
+        mylist.append(
+            Offer(
+                "Go to {} and make contact with {}; {} will know what to do.".format(camp.campdata[DZDCVAR_CETUS_TOWN], self.elements["TDF_CONTACT"], self.elements["TDF_CONTACT"].gender.subject_pronoun),
+                context=(context.CUSTOM,), data={"reply": "What can we do to help?"}
+            )
+        )
 
         return mylist
 
@@ -425,26 +534,181 @@ class DZD_ChangeTheWorld(Plot):
 
 
 #   *************************
-#   ***   DZDC_ALLIANCE   ***
+#   ***   DZDC_ALLIANCE   ***self.elements["TDF_CONTACT"]
 #   *************************
 #
 # Each of these plots provide the PC with an opportunity to form an alliance with a deadzone town.
 
+class DZDCNegotiationAlliance(Plot):
+    # Talk to the local authorities to get the militia on your side.
+    LABEL = "DZDC_ALLIANCE"
+    active = True
+    scope = "METRO"
 
+    def custom_init(self, nart):
+        myscene: gears.GearHeadScene = self.elements["METROSCENE"]
+        # Make sure there's a faction representative for the duration of this plot.
+        self.elements["FACTION"] = myscene.faction
+        self.add_sub_plot(nart, "ENSURE_LOCAL_REPRESENTATION")
+
+        return True
+
+    PLEAS = (
+        "I need {METROSCENE}'s help to defeat Cetus.",
+        "I need your help to defeat Cetus.",
+        "There's a biomonster on the loose, and I can't defeat it without your help.",
+        "With the {METROSCENE} milita's help, I may be able to defeat Cetus."
+    )
+
+    RETORTS = (
+        "The Terran Defense Force has unleashed their big guns; what do you think our militia can do against a threat of that size?",
+        "Our town militia would get wiped out in an instant. Let the greenzoners handle this.",
+        "The Defense Force has a flying battleship tracking that monster. If they can't stop it, we have no chance.",
+        "When whales fight, it's the shrimp that suffer. My priority right now is to keep this town safe.",
+        "Our best bet right now is to keep our heads down and hope that neither the monster nor the Defense Force decide to blow this town up.",
+        "We barely have enough meks to defend ourselves; we don't have nearly enough firepower to go hunting giant monsters."
+    )
+
+    NEGCHARM = (
+        "If we're doomed anyhow, it's better to go down fighting!",
+        "Alone we might be weak, but together our power is multiplied!",
+        "You're not alone; we already have the beginning of a coalition!",
+        "All of the cool towns have already joined my club."
+    )
+
+    def _get_generic_offers(self, npc: gears.base.Character, camp: gears.GearHeadCampaign):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if npc.faction is self.elements["FACTION"]:
+            rank = self.rank + 10 - npc.get_reaction_score(camp.pc, camp)//10
+            qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
+            if qol.defense > 0:
+                # This town has good defenses. Convincing them to help will be easier.
+                diff = gears.stats.DIFFICULTY_EASY
+            elif qol.defense < 0:
+                diff = gears.stats.DIFFICULTY_LEGENDARY
+            else:
+                diff = gears.stats.DIFFICULTY_AVERAGE
+
+            goffs.append(Offer(
+                "[YOUR_PLAN_IS_HOPELESS] {}".format(random.choice(self.RETORTS)),
+                context=ContextTag((context.CUSTOM,)), subject=self, subject_start=True,
+                data={"reply":random.choice(self.PLEAS).format(**self.elements)}
+            ))
+
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "Alright, when you fight Cetus, you will have the support of {}.".format(self.elements["METROSCENE"]),
+                    context=ContextTag((context.CUSTOMREPLY,)), subject=self,
+                    data={"reply":self.NEGCHARM[min(camp.campdata.get(DZDCVAR_NUM_ALLIANCES,0),3)]},
+                    effect=self._win_plot
+                ), camp, goffs, gears.stats.Charm, gears.stats.Negotiation, rank, diff
+            )
+
+        return goffs
+
+    def _win_plot(self, camp: gears.GearHeadCampaign):
+        camp.campdata[DZDCVAR_NUM_ALLIANCES] += 1
+        self.end_plot(camp, True)
 
 
 #   ****************************
 #   ***   DZDC_CETUS_FIGHT   ***
 #   ****************************
 #
-# Cetus is at a certain DeadZone town. The TDF battlecarrier "" is also there.
+# Cetus is at a certain DeadZone town. The TDF battlecarrier "Voice of Iijima" is also there.
 
 class CetusFight(Plot):
     # Each time Cetus moves to a new village, you have one chance to fight it.
     # In order to win the fight you must have at least one "advantage". Otherwise,
     # once it has taken enough damage, Cetus will simply release a death wave and fly away.
     # Also, if you lose the third fight, the TDF has had enough and will use their nukes.
-    pass
+    LABEL = "DZDC_FIGHT_CETUS"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        myscene: gears.GearHeadScene = self.elements["METROSCENE"]
+
+        # Move the TDF_CONTACT to the current town.
+        townhall = self.seek_element(nart, "TOWN_HALL", self._is_best_scene, scope=self.elements["METROSCENE"], backup_seek_func=self._is_good_scene)
+        npc = self.elements["TDF_CONTACT"]
+        self.place_element(npc, townhall)
+
+        # Create the Cetus encounter.
+        self.mission = missionbuilder.BuildAMissionSeed(
+            nart.camp, "Cetus Attacks", (myscene, self.elements["MISSION_GATE"]),
+            rank=self.rank,
+            objectives=(dd_customobjectives.DDBAMO_FIGHT_CETUS,),
+            architecture=gharchitecture.MechaScaleSemiDeadzoneRuins(),
+            cash_reward=100, on_loss=self._lose_mission, on_win=self._win_mission
+        )
+
+        return True
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission:
+            thingmenu.add_item("Go intercept Cetus.", self.mission)
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_GOVERNMENT in candidate.attributes
+
+    def _is_good_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def _lose_mission(self, camp: gears.GearHeadCampaign):
+        camp.check_trigger("LOSE", self)
+        self.end_plot(camp)
+
+    def _win_mission(self, camp: gears.GearHeadCampaign):
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp)
+
+    def TDF_CONTACT_offers(self,camp):
+        mylist = list()
+        mylist.append(
+            Offer(
+                "[HELLO] We are unable to track its exact position, but Cetus appears to be moving towards {METROSCENE}. Our battlecarrier The Voice of Iijima stands ready to fire on the biomonster as soon as we have a clear shot.".format(**self.elements),
+                context=(context.HELLO,),
+            )
+        )
+        if not camp.campdata.get(DZDCVAR_YES_TO_TDF):
+            mylist.append(
+                Offer(
+                    "{METROSCENE} is being evacuated as we speak. Mecha scale weapons are clearly not powerful enough to counteract Cetus's regeneration factor. We must stop it now, before it reaches the cities of the green zone. In a worst case scenario we're talking about the difference between hundreds of dead and millions. Are you going to help us or not?".format(**self.elements),
+                    context=(context.CUSTOM,), subject=self, subject_start=True,
+                    data={"reply":"You can't seriously be going to use your nuclears this close to a town?!"}
+                )
+            )
+
+            mylist.append(
+                Offer(
+                    "Cetus appears to have active sensor blocking capability, similar to the experimental Anubis mecha. It's been moving in a series of short, high velocity flights. Every time it jumps we lose it and have to start looking again, but the hope is that after each jump it needs to recharge before jumping again. Will you help us defeat this monster?".format(**self.elements),
+                    context=(context.CUSTOM,), subject=self, subject_start=True,
+                    data={"reply":"Why can't you track its position?"}
+                )
+            )
+
+            mylist.append(
+                Offer(
+                    "As I said, Cetus is approaching {METROSCENE}. If you can get it to expend some of its energy, just enough to prevent it from making a quick rocket jump, then we can hit it with everything we have.".format(**self.elements),
+                    context=(context.CUSTOMREPLY,), subject=self,
+                    data={"reply":"Alright, I'll help you."}, effect=self._say_yes
+                )
+            )
+
+            mylist.append(
+                Offer(
+                    "In that case I suggest you get out of here. This area is going to be dangerous.".format(**self.elements),
+                    context=(context.CUSTOMREPLY,), subject=self,
+                    data={"reply":"No, there must be another way."}
+                )
+            )
+
+        return mylist
+
+    def _say_yes(self, camp):
+        camp.campdata[DZDCVAR_YES_TO_TDF] = True
 
 
 #   *************************
@@ -472,3 +736,51 @@ class DZDCDoomVilMechaEncounter(Plot):
         if len(myteam.get_members_in_play(camp)) < 1:
             self.end_plot(camp)
             camp.dole_xp(100)
+
+#   ***********************
+#   ***   RESOLUTIONS   ***
+#   ***********************
+
+class BadEnding(Plot):
+    LABEL = "DZDCEND_BAD"
+    active = True
+    scope = True
+
+    def t_START(self, camp: gears.GearHeadCampaign):
+        pbge.alert("With time running out, the Terran Defense Force launches an all-out attack using the Voice of Iijima. Saturation bombing is used in an attempt to kill Cetus before it can jet away.")
+        pbge.alert("{} is utterly destroyed in the crossfire. Following the battle the Defense Force claims that Cetus has been eliminated, though no remains are ever recovered.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
+        pbge.alert("Relations between the greenzone cities and the towns of the deadzone become more strained than they were before. For better or worse, your role in these events is mostly forgotten.")
+        camp.eject()
+
+class DZAllianceEnding(Plot):
+    LABEL = "DZDCEND_DZALLIANCE"
+    active = True
+    scope = True
+
+    def t_START(self, camp: gears.GearHeadCampaign):
+        pbge.alert("The communities of the dead zone celebrate your victory over Cetus. Many of the local leaders enter talks to expand trade and mutual defense pacts between their isolated settlements.")
+        pbge.alert("Within the green zone the Terran Defense Force claims this outcome was a result of their deterrence strategy, though some of the commanders resent you for letting Cetus get away.")
+        pbge.alert("Cetus does not return to trouble this part of the world again.")
+        camp.pc.add_badge(gears.meritbadges.TagReactionBadge(
+            "DeadZone Hero", "You united the deadzone to fight Cetus.",
+            {gears.personality.DeadZone: 10, gears.factions.TerranDefenseForce: -10}
+        ))
+        camp.eject()
+
+
+class TDFMissilesEnding(Plot):
+    LABEL = "DZDCEND_TDFMISSILES"
+    active = True
+    scope = True
+
+    def t_START(self, camp: gears.GearHeadCampaign):
+        pbge.alert("The bombardment from the Voice of Iijima leaves a crater a kilometer across. No remains of Cetus are ever found, and the biomonster is presumed eliminated.")
+        pbge.alert("The meagre farmland around {} is polluted by the fallout. Though the Terran Federation provides food aid to the community, the trust between them has been lost.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
+        pbge.alert("You are welcomed as a hero in the greenzone, though a part of you continues to wonder if this is truly over...")
+        camp.pc.add_badge(gears.meritbadges.TagReactionBadge(
+            "GreenZone Hero", "You helped the Terran Defense Force to defeat Cetus before it could reach the green zone.",
+            {gears.personality.DeadZone: -10, gears.personality.GreenZone: 10}
+        ))
+        camp.eject()
+
+

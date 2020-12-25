@@ -255,6 +255,31 @@ class WatchMeWiggle( object ):
             self.model.offset_pos = None
             self.needs_deletion = True
 
+class BlastOffAnim( object ):
+    # The model will fly up, up, up for around 1000 pixels. It does not come down again so if you want that you better
+    # do it manually.
+    def __init__( self, model, delay=0, duration = 50, speed=-1, acceleration=-1 ):
+        self.model = model
+        self.duration = duration
+        self.height = 0
+        self.speed = speed
+        self.acceleration = acceleration
+        self.delay = delay
+        self.step = 0
+        self.needs_deletion = False
+        self.children = list()
+    def update( self, view ):
+        # This one doesn't appear directly, but moves a model.
+        if self.delay > 0:
+            self.delay += -1
+        elif self.duration > self.step:
+            self.step += 1
+            self.height += self.speed
+            self.speed += self.acceleration
+            self.model.offset_pos = (0,self.height)
+        else:
+            self.needs_deletion = True
+
 
 class Dash( MoveModel ):
     def __init__( self, model, start_pos=None, end_pos=(0,0), speed=0.5, delay=0 ):

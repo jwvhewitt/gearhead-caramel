@@ -33,30 +33,31 @@ Monster
 Monster
     name = "Cetus"
     desig = "DZD"
-    statline = {Reflexes = 16, Body=32, Speed=10, Perception=16, Craft=14, Knowledge=17, Ego=17, Charm = 12,
-			MechaFighting = 9, MechaGunnery = 6, MechaPiloting = 5, Vitality = 30,
-			CloseCombat = 9, RangedCombat = 6, Dodge = 5, Scouting = 8
+    statline = {Reflexes = 16, Body=32, Speed=16, Perception=16, Craft=14, Knowledge=17, Ego=17, Charm = 12,
+			MechaFighting = 9, MechaGunnery = 7, MechaPiloting = 5, Vitality = 30,
+			CloseCombat = 9, RangedCombat = 7, Dodge = 5, Scouting = 8
 	}
 	scale = MechaScale
     material = Biotech
 	imagename = 'mon_ms_cetus.png'
+	actions = 4
 	frame = 0
 	colors = (CardinalRed, Twilight, Saffron, Black, Black)
-    threat = 50
+    threat = 75
 
     SUB
         Turret
             name = "Eye"
-            size = 5
+            size = 8
             SUB
                 Armor
-                    size = 5
+                    size = 7
                 BeamWeapon
                     name = "Death Wave"
                     reach = 5
                     damage = 4
-                    accuracy = 1
-                    penetration = 3
+                    accuracy = 2
+                    penetration = 4
                     attributes = (Scatter,Brutal,Overload,SwarmFire2,LineAttack)
                     area_anim = DeathWaveAnim
                     shot_anim = PlasmaBall
