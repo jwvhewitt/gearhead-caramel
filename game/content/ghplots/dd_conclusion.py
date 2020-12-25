@@ -81,7 +81,7 @@ class DZD_Conclusion(Plot):
             content.load_dynamic_plot(camp, "DZDCEND_DZALLIANCE", pstate)
         else:
             content.load_dynamic_plot(camp, "DZDCEND_TDFMISSILES", pstate)
-        self.end_plot(True)
+        self.end_plot(camp, True)
 
     def FIGHTCETUS_LOSE(self, camp):
         self._load_next_fight(camp)
@@ -120,7 +120,7 @@ class VictoryParty(Plot):
 
         self.started_party = False
         self.countdown = 2
-        self.party_lines = random.sample(self.COMMENTS, 3)
+        self.party_lines = random.sample(self.COMMENTS, 7)
         self.memo = Memo("There's a party to celebrate the clearing of the highway at {TAVERN} in {METROSCENE}.".format(**self.elements),
                          location=self.elements["TAVERN"])
 
@@ -130,7 +130,7 @@ class VictoryParty(Plot):
         """Get any offers that could apply to non-element NPCs."""
         goffs = list()
         if npc in self.party_npcs:
-            if self.countdown > 0:
+            if self.countdown > 0 and self.party_lines:
                 goffs.append(Offer(
                     "[HELLO] {}".format(self.party_lines.pop()),
                     ContextTag((context.HELLO,)), effect=self._say_party_line

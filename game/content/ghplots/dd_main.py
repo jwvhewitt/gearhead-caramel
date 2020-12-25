@@ -230,8 +230,11 @@ class RoadMap(object):
         while frontier:
             nu_start = frontier.pop()
             visited_nodes.add(nu_start)
-            frontier += [edge.end_node for edge in self.edges if edge.end_node not in visited_nodes and
-                        edge.start_node is nu_start and edge.style is edge.STYLE_SAFE]
+            for e in self.edges:
+                if e.style is e.STYLE_SAFE and e.connects_to(nu_start):
+                    nu_end = e.get_link(nu_start)
+                    if nu_end not in visited_nodes:
+                        frontier.append(nu_end)
         return self.end_node in visited_nodes
 
     def initialize_plots(self,plot,nart):

@@ -34,8 +34,8 @@ Monster
     name = "Cetus"
     desig = "DZD"
     statline = {Reflexes = 16, Body=32, Speed=16, Perception=16, Craft=14, Knowledge=17, Ego=17, Charm = 12,
-			MechaFighting = 9, MechaGunnery = 7, MechaPiloting = 5, Vitality = 30,
-			CloseCombat = 9, RangedCombat = 7, Dodge = 5, Scouting = 8
+			MechaFighting = 12, MechaGunnery = 9, MechaPiloting = 5, Vitality = 30,
+			CloseCombat = 12, RangedCombat = 9, Dodge = 5, Scouting = 8
 	}
 	scale = MechaScale
     material = Biotech
