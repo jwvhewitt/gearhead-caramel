@@ -21,30 +21,27 @@ class Egg(object):
         # past_adventures lists names of adventure modules this character has done, to prevent double dipping.
         self.past_adventures = list()
 
-        # _con_rec records containers for dramatis personae while saving the egg.
-        self._con_rec = dict()
-
-    def _remove_container_for(self,thing):
+    def _remove_container_for(self,thing,con_rec):
         if hasattr(thing,"container") and thing.container:
-            self._con_rec[thing] = thing.container
+            con_rec[thing] = thing.container
             thing.container.remove(thing)
-    def _reset_container_for(self,thing):
-        if thing in self._con_rec:
-            self._con_rec[thing].append(thing)
+    def _reset_container_for(self,thing, con_rec):
+        if thing in con_rec:
+            con_rec[thing].append(thing)
 
     def save( self, sfpat = 'egg_{}.sav' ):
         # Save a record of all the containers.
-        self._con_rec.clear()
-        self._remove_container_for(self.pc)
-        self._remove_container_for(self.mecha)
+        con_rec = dict()
+        self._remove_container_for(self.pc, con_rec)
+        self._remove_container_for(self.mecha, con_rec)
         for npc in self.dramatis_personae:
-            self._remove_container_for(npc)
+            self._remove_container_for(npc, con_rec)
         with open( util.user_dir( sfpat.format( self.pc.name ) ) , "wb" ) as f:
             pickle.dump( self , f, -1 )
-        self._reset_container_for(self.pc)
-        self._reset_container_for(self.mecha)
+        self._reset_container_for(self.pc, con_rec)
+        self._reset_container_for(self.mecha, con_rec)
         for npc in self.dramatis_personae:
-            self._reset_container_for(npc)
+            self._reset_container_for(npc, con_rec)
 
     def backup( self ):
         # Save a record of all the containers.

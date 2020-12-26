@@ -1,3 +1,5 @@
+v0.600 November 29 2020
+- DeadZone Drifter scenario now has a conclusion
 - Monsters may get a different number of actions per round
 - Fixed serious CharacterMover bug
 - Mecha scale beings have their Mobility calculated correctly

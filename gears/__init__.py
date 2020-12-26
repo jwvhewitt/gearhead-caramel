@@ -521,7 +521,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 if isinstance(pc, base.Character):
                     if pc not in self.egg.dramatis_personae and not pc.mnpcid:
                         self.egg.dramatis_personae.append(pc)
-                elif pc not in self.egg.stuff:
+                elif pc not in self.egg.stuff and not hasattr(pc, "owner"):
                     self.egg.stuff.append(pc)
         self.egg.save()
         self.egg = None
