@@ -222,7 +222,13 @@ def play_the_game():
     pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
     pbge.please_stand_by()
     gears.init_gears()
-    game.content.backstory.init_backstory()
+    game.init_game()
+
+    #myfoo = game.content.ghplots.test.Foo()
+    #with open(pbge.util.user_dir('bar.p'), "wb") as f:
+    #    pickle.dump(myfoo, f, -1)
+    #with open(pbge.util.user_dir('bar.p'), "rb") as f:
+    #    foo2 = pickle.load(f)
 
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
@@ -252,6 +258,8 @@ def play_the_game():
     mymenu.add_item("Config Options", open_config_menu)
     mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
     mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
+    if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+        pass
     mymenu.add_item("Quit", None)
 
     action = True

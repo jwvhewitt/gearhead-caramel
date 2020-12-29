@@ -156,13 +156,13 @@ class WinterMochaFortressRoom(pbge.randmaps.rooms.Room):
     def build( self, gb, archi ):
         gb.fill(self.area.inflate(2,2),floor=archi.floor_terrain,wall=None)
         width = self.area.w-2
-        for x in range(width/2-1):
+        for x in range(width//2-1):
             gb.set_wall(x + 1 + self.area.left, self.area.top + 1, ghterrain.FortressWall)
             gb.set_wall(self.area.right - x - 1, self.area.top + 1, ghterrain.FortressWall)
             gb.set_wall(x + 1 + self.area.left, self.area.bottom - 1, ghterrain.FortressWall)
             gb.set_wall(self.area.right - x - 1, self.area.bottom - 1, ghterrain.FortressWall)
         height = self.area.h-2
-        for y in range(height/2-1):
+        for y in range(height//2-1):
             gb.set_wall(self.area.left + 1, y + 1 + self.area.top, ghterrain.FortressWall)
             gb.set_wall(self.area.left + 1, self.area.bottom - y - 1, ghterrain.FortressWall)
             gb.set_wall(self.area.right - 1, y + 1 + self.area.top, ghterrain.FortressWall)
@@ -216,18 +216,28 @@ class FrozenHotSpringCity( Plot ):
         myent = self.register_element( "ENTRANCE", WinterMochaBurningBarrel(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append( myent )
 
-        vikki = gears.base.Character(name="Vikki",statline={gears.stats.Reflexes:15,
-         gears.stats.Body:10,gears.stats.Speed:13,gears.stats.Perception:13,
-         gears.stats.Knowledge:10,gears.stats.Craft:10,gears.stats.Ego:10,
-         gears.stats.Charm:12,gears.stats.MechaPiloting:7,gears.stats.MechaGunnery:7,
-         gears.stats.MechaFighting:7},
-         personality=[personality.Cheerful,personality.Shy,personality.Fellowship],
-                                     gender=gears.genderobj.Gender.get_default_female())
-        vikki.portrait = 'card_f_wintervikki.png'
+        vikki = gears.base.Character(
+            name="Vikki", statline={gears.stats.Reflexes: 15,
+                                    gears.stats.Body: 10, gears.stats.Speed: 13, gears.stats.Perception: 13,
+                                    gears.stats.Knowledge: 10, gears.stats.Craft: 10, gears.stats.Ego: 10,
+                                    gears.stats.Charm: 12, gears.stats.MechaPiloting: 7, gears.stats.MechaGunnery: 7,
+                                    gears.stats.MechaFighting: 7},
+            personality=[personality.Cheerful, personality.Shy, personality.Fellowship],
+            gender=gears.genderobj.Gender.get_default_female(),
+            portrait='card_f_wintervikki.png',
+            colors=(gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,
+                    gears.color.Olive),
+            job=gears.jobs.ALL_JOBS["Mecha Pilot"], renown=50, birth_year=138, combatant=True,
+            faction=gears.factions.TerranDefenseForce,
+            mnpcid=gears.oldghloader.GH1Loader.NPC_VIKKI,
+            mecha_colors=(gears.color.ShiningWhite, gears.color.Olive, gears.color.ElectricYellow, gears.color.GullGrey,
+                          gears.color.Terracotta),
+        )
+        #vikki.portrait = 'card_f_wintervikki.png'
         #vikki.portrait_gen = gears.portraits.Portrait()
-        vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
+        #vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
         #vikki.colors = (gears.color.Black,gears.color.Burlywood,gears.color.BugBlue,gears.color.NobleGold,gears.color.CeramicColor)
-        vikki.mmode = pbge.scenes.movement.Walking
+        #vikki.mmode = pbge.scenes.movement.Walking
         myroom.contents.append(vikki)
         self.register_element( "VIKKI", vikki )
 
@@ -389,6 +399,7 @@ class FrozenHotSpringCity( Plot ):
 
             self.did_opening_sequence = True
 
+
 class WinterMochaHyolee( Plot ):
     LABEL = "MOCHA_HYOLEE"
     active = True
@@ -434,6 +445,7 @@ class WinterMochaHyolee( Plot ):
             mylist.append(Offer("[HAGOODONE] I tried piloting a mecha once, and that's quite enough for me.",
                 context=ContextTag([context.JOIN]), effect=self._ask_to_join ))
         return mylist
+
 
 class WinterMochaCarter( Plot ):
     LABEL = "MOCHA_CARTER"

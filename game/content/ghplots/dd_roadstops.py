@@ -29,7 +29,7 @@ class DZD_DeadZoneTown(Plot):
                                       faction=town_fac,
                                       attributes=(
                                       gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC))
-        myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
+        myscene.exploration_music = 'Komiku_-_06_-_Friendss_theme.ogg'
 
         npc = gears.selector.random_character(50, local_tags=myscene.attributes)
         npc.place(myscene, team=team2)
@@ -121,7 +121,7 @@ class DZD_DeadZoneVillage(Plot):
                                       faction=town_fac,
                                       attributes=(
                                       gears.personality.DeadZone, gears.tags.Village, gears.tags.SCENE_PUBLIC))
-        myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
+        myscene.exploration_music = 'Komiku_-_06_-_Friendss_theme.ogg'
 
         npc = gears.selector.random_character(50, local_tags=myscene.attributes)
         npc.place(myscene, team=team2)

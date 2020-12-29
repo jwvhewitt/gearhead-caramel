@@ -1014,6 +1014,8 @@ def init_gears():
         os.mkdir(pbge.util.user_dir('design'))
     if not os.path.exists(pbge.util.user_dir('image')):
         os.mkdir(pbge.util.user_dir('image'))
+    if not os.path.exists(pbge.util.user_dir('content')):
+        os.mkdir(pbge.util.user_dir('content'))
     pbge.image.search_path.append(pbge.util.user_dir('image'))
     pbge.POSTERS += glob.glob(os.path.join(pbge.util.user_dir('image'), "eyecatch_*.png"))
 

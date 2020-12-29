@@ -81,3 +81,29 @@ harvest(tarot_sockets)
 harvest(thingplacers)
 harvest(treasures)
 harvest(utility)
+
+# Load the DLC.
+import importlib.util
+import sys
+import glob
+import pbge
+import os.path
+
+
+def init_plots():
+    dlcs = glob.glob(pbge.util.user_dir('content','*.py'))
+    modict = globals()
+
+    for dlcpath in dlcs:
+        dlcname = os.path.basename(dlcpath).rpartition('.')[0]
+        if dlcname not in modict:
+            spec = importlib.util.spec_from_file_location(dlcname, dlcpath)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[dlcname] = module
+            spec.loader.exec_module(module)
+            modict[dlcname] = module
+            harvest(module)
+        else:
+            print("Warning: User content {} not loaded because of duplicate name".format(dlcname))
+
+

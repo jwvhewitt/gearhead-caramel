@@ -1,3 +1,5 @@
+- Python scripts in user content folder will be loaded at startup
+
 v0.600 November 29 2020
 - DeadZone Drifter scenario now has a conclusion
 - Monsters may get a different number of actions per round
