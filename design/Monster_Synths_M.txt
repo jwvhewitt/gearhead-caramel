@@ -9,7 +9,7 @@ Monster
 	imagename = 'monster_ms_hkiller.png'
 	colors = (CardinalRed,SteelBlue,Malachite,Black,Black)
     material = Biotech
-    threat = 15
+    threat = 10
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
     environment_list = (GroundEnv,UrbanEnv)
@@ -68,7 +68,7 @@ Monster
 	imagename = 'monster_ms_hslayer.png'
 	colors = (CardinalRed,SteelBlue,Malachite,Black,Black)
     material = Biotech
-    threat = 35
+    threat = 25
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
     environment_list = (GroundEnv,UrbanEnv)

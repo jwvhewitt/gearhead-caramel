@@ -345,7 +345,6 @@ class Explorer( object ):
         if pbge.util.config.getboolean( "GENERAL", "auto_save" ):
             camp.save()
 
-
     def update_scene( self ):
         for npc in self.scene.contents:
             if hasattr(npc,"gear_up"):

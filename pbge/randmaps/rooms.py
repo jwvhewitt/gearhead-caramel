@@ -291,6 +291,16 @@ class FuzzyRoom( Room ):
                 archi.draw_fuzzy_ground( gb, x, y )
 
 
+class NoWallRoom( Room ):
+    """A room that doesn't change the floor but gets rid of the walls."""
+    def build( self, gb, archi ):
+        # Step Five: Actually draw the room, taking into account terrain already on map.
+        archi = self.archi or archi
+        for x in range( self.area.x+1, self.area.x + self.area.width-1 ):
+            for y in range( self.area.y+1, self.area.y + self.area.height-1 ):
+                gb.set_wall(x,y,None)
+
+
 class OpenRoom( Room ):
     """A room with floor and no walls."""
     def build( self, gb, archi ):

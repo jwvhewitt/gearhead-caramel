@@ -391,6 +391,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if egg.mecha:
                 self.party.append(egg.mecha)
                 egg.mecha.pilot = egg.pc
+            while egg.stuff:
+                mek = egg.stuff.pop()
+                self.party.append(mek)
             self.pc = egg.pc
 
     def get_dialogue_offers_and_grammar(self, npc: base.Character):
@@ -498,7 +501,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             mek.pilot = pc
 
     def keep_playing_campaign(self):
-        return self.pc.is_not_destroyed() and self.egg
+        return self.pc.is_operational() and self.egg
 
     def play(self):
         super(GearHeadCampaign, self).play()
@@ -513,7 +516,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             self.party.remove(mek)
             if hasattr(mek, "container"):
                 mek.container = None
-            self.egg.mek = mek
+            mek.pilot = None
+        self.egg.mek = mek
         for pc in self.party:
             if pc is not self.pc:
                 if hasattr(pc, "container") and pc.container:
@@ -523,6 +527,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                         self.egg.dramatis_personae.append(pc)
                 elif pc not in self.egg.stuff and not hasattr(pc, "owner"):
                     self.egg.stuff.append(pc)
+                    if hasattr(pc, "pilot"):
+                        pc.pilot = None
         self.egg.save()
         self.egg = None
         self.delete_save_file()

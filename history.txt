@@ -1,3 +1,6 @@
+- Fixed bug with LancematePrep cutscene element
+- PC can bring mecha, stash with them between adventures
+- Updated the Winter Mocha scenario
 - Python scripts in user content folder will be loaded at startup
 
 v0.600 November 29 2020

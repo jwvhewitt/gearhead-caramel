@@ -9,6 +9,16 @@ import pickle
 
 class Egg(object):
     def __init__(self,pc,mecha=None,stuff=(),dramatis_personae=(),major_npc_records = None,credits=0):
+        # The dramatis personae are in a regular list because I need to remember who they are, not necessarily
+        #    where they are.
+        # The stuff is in a containerlist because these are the possessions of the PC and we need to make sure
+        #    there's only one copy of each.
+        # The mecha is separated from stuff because... alright, that one I don't know.
+        # Probably the eject and campaign insertion code from GearHeadCampaign should be methods here, but
+        #    for now I'm willing to ignore that.
+        # Before ejecting an egg from a campaign, everything in the egg needs to be scrubbed of references to
+        #    the game world. Also references that may lead to the game world. This means that anything in a
+        #    ContainerList needs to be removed from its container, etc.
         self.pc = pc
         self.mecha = mecha
         self.stuff = container.ContainerList(stuff)
@@ -34,8 +44,10 @@ class Egg(object):
         con_rec = dict()
         self._remove_container_for(self.pc, con_rec)
         self._remove_container_for(self.mecha, con_rec)
-        for npc in self.dramatis_personae:
+        for npc in list(self.dramatis_personae):
             self._remove_container_for(npc, con_rec)
+            if npc.is_destroyed():
+                self.dramatis_personae.remove(npc)
         with open( util.user_dir( sfpat.format( self.pc.name ) ) , "wb" ) as f:
             pickle.dump( self , f, -1 )
         self._reset_container_for(self.pc, con_rec)
