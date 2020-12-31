@@ -118,7 +118,8 @@ Mecha
                 Armor
                     size = 4
                 HoverJets
-                    size = 5
+                    size = 6
+                    integral = True
                 Mount
                     name = "Right Leg Mount"
             END
@@ -129,7 +130,8 @@ Mecha
                 Armor
                     size = 4
                 HoverJets
-                    size = 5
+                    size = 6
+                    integral = True
                 Mount
                     name = "Left Leg Mount"
             END

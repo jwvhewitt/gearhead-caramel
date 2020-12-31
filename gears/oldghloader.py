@@ -263,11 +263,26 @@ class GH1Loader(object):
     }
 
     NPC_VIKKI = "Vikki Shingo"
+    NPC_HYOLEE = "Hyolee GH1"
+    NPC_CARTER = "Carter GH1"
+    NPC_ELISHAKETTEL = "Elisha Kettel"
+    NPC_SKIPPY = "Skip Tracer"
+    NPC_ASPIS = "Aspis GH1"
+    NPC_KAEMA = "Kaema GH1"
+    NPC_TURING = "Turing GH1"
+    NPC_EVAN = "Evan GH1"
+    NPC_ONAWA = "Onawa GH1"
+    NPC_FORAGER = "Forager GH1"
+    # NPCs with dynamic CIDs:
+    NPC_BEARBASTARD = "Bear Bastard"
+    NPC_ERISA = "Erisa Maven I"
+    NPC_OMEGA = "Omega 1004"
 
     # This dictionary lists Character IDs for major NPCs.
     # The G,S for the Character ID is 5,0
     MAJOR_NPCS = {
-        NPC_VIKKI: 6
+        NPC_VIKKI: 6, NPC_HYOLEE: 1, NPC_CARTER: 1103, NPC_TURING: 1609, NPC_EVAN: 1703, NPC_ONAWA: 3913,
+        NPC_ELISHAKETTEL: 32, NPC_SKIPPY: 1306, NPC_ASPIS: 1502, NPC_KAEMA: 1506, NPC_FORAGER: 5801,
     }
 
     def _extract_value(self, myline):
@@ -436,6 +451,23 @@ class GH1Loader(object):
         for candidate in self.all_gears(self.gb_contents):
             if candidate.g == self.GG_CHARACTER and candidate.natt.get((self.NAG_PERSONAL,self.NAS_CHARACTERID)) == characterid:
                 npc = candidate
+                break
+        return npc
+
+    def find_npc_by_name(self,name):
+        npc = None
+        for candidate in self.all_gears(self.gb_contents):
+            if candidate.g == self.GG_CHARACTER and candidate.satt.get("NAME") == name:
+                npc = candidate
+                break
+        return npc
+
+    def find_npc_by_job(self, job):
+        npc = None
+        for candidate in self.all_gears(self.gb_contents):
+            if candidate.g == self.GG_CHARACTER and candidate.satt.get("JOB") == job:
+                npc = candidate
+                break
         return npc
 
     def get_major_npcs(self):
@@ -494,8 +526,8 @@ class GH1Loader(object):
         statline[stats.Repair] = max(pc.natt.get((self.NAG_SKILL, self.NAS_MECHAREPAIR), 0),
                                      pc.natt.get((self.NAG_SKILL, self.NAS_GENERALREPAIR), 0))
         statline[stats.Medicine] = max(pc.natt.get((self.NAG_SKILL, self.NAS_MEDICINE), 0),
-                                       pc.natt.get((self.NAG_SKILL, self.NAS_FIRSTAID), 0),
-                                       pc.natt.get((self.NAG_SKILL, self.NAS_CYBERTECH), 0))
+                                       pc.natt.get((self.NAG_SKILL, self.NAS_FIRSTAID), 0))
+        statline[stats.Cybertech] = pc.natt.get((self.NAG_SKILL, self.NAS_CYBERTECH), 0)
         statline[stats.Biotechnology] = pc.natt.get((self.NAG_SKILL, self.NAS_BIOTECHNOLOGY), 0)
         statline[stats.Stealth] = max(pc.natt.get((self.NAG_SKILL, self.NAS_STEALTH), 0),
                                       pc.natt.get((self.NAG_SKILL, self.NAS_PICKPOCKETS), 0))
@@ -511,9 +543,9 @@ class GH1Loader(object):
                                           pc.natt.get((self.NAG_SKILL, self.NAS_INTIMIDATION), 0),
                                           pc.natt.get((self.NAG_SKILL, self.NAS_LEADERSHIP), 0))
         statline[stats.Scouting] = max(pc.natt.get((self.NAG_SKILL, self.NAS_AWARENESS), 0),
-                                       pc.natt.get((self.NAG_SKILL, self.NAS_SURVIVAL), 0),
                                        pc.natt.get((self.NAG_SKILL, self.NAS_INVESTIGATION), 0))
-        statline[stats.Wildcraft] = pc.natt.get((self.NAG_SKILL, self.NAS_DOMINATEANIMAL), 0)
+        statline[stats.Wildcraft] = max(pc.natt.get((self.NAG_SKILL, self.NAS_DOMINATEANIMAL), 0),
+                                        pc.natt.get((self.NAG_SKILL, self.NAS_SURVIVAL), 0),)
         statline[stats.Vitality] = max(pc.natt.get((self.NAG_SKILL, self.NAS_VITALITY), 0),
                                        pc.natt.get((self.NAG_SKILL, self.NAS_RESISTANCE), 0))
         statline[stats.Athletics] = max(pc.natt.get((self.NAG_SKILL, self.NAS_ATHLETICS), 0),
@@ -621,26 +653,46 @@ class GH1Loader(object):
         with open(self.fname, 'rt') as f:
             self._load_list(f)
 
-    def get_relationships(self,rpc,egg):
-        # Grab the NPC info
-        major_npcs = set()
+    def get_mnpcid_npcs(self):
+        major_npcs = dict()
         for k, v in self.MAJOR_NPCS.items():
             # k is the NPC's major ident, v is the character ID from GH1.
             mynpc = self.find_npc(v)
             if mynpc:
-                nu_relationship = relationships.Relationship(
-                    reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,v),0),
-                )
-                rtype = mynpc.natt.get((self.NAG_RELATIONSHIP,0),0)
-                if rtype == self.NAS_ARCHALLY:
-                    nu_relationship.tags.add(relationships.RT_LANCEMATE)
-                elif rtype == self.NAS_FAMILY:
-                    nu_relationship.tags.add(relationships.RT_FAMILY)
-                elif rtype == self.NAS_LOVER:
-                    nu_relationship.role = relationships.R_ROMANCE
-                nu_relationship.met_before = True
-                egg.major_npc_records[k] = nu_relationship
-                major_npcs.add(mynpc)
+                major_npcs[k] = mynpc
+
+        mynpc = self.find_npc_by_name("Bear Bastard")
+        if mynpc:
+            major_npcs[self.NPC_BEARBASTARD] = mynpc
+
+        mynpc = self.find_npc_by_name("Omega-1004")
+        if mynpc:
+            major_npcs[self.NPC_OMEGA] = mynpc
+
+        mynpc = self.find_npc_by_job("Princess")
+        if mynpc:
+            major_npcs[self.NPC_ERISA] = mynpc
+
+        return major_npcs
+
+    def get_relationships(self,rpc,egg):
+        # Grab the NPC info
+        major_npcs = self.get_mnpcid_npcs()
+        for k,mynpc in major_npcs.items():
+            # k is the NPC's major ident, v is the character ID from GH1.
+            nu_relationship = relationships.Relationship(
+                reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,v),0),
+            )
+            rtype = mynpc.natt.get((self.NAG_RELATIONSHIP,0),0)
+            if rtype == self.NAS_ARCHALLY:
+                nu_relationship.tags.add(relationships.RT_LANCEMATE)
+            elif rtype == self.NAS_FAMILY:
+                nu_relationship.tags.add(relationships.RT_FAMILY)
+            elif rtype == self.NAS_LOVER:
+                nu_relationship.role = relationships.R_ROMANCE
+            nu_relationship.met_before = True
+            egg.major_npc_records[k] = nu_relationship
+
         for mynpc in self.get_major_npcs():
             if mynpc not in major_npcs:
                 nu_npc = self.convert_character(mynpc)
@@ -658,7 +710,7 @@ class GH1Loader(object):
                 elif rtype == self.NAS_ARCHENEMY:
                     nu_relationship.role = relationships.R_ADVERSARY
                 nu_npc.relationship = nu_relationship
-                egg.dramatis_personae.append(mynpc)
+                egg.dramatis_personae.append(nu_npc)
 
     def get_egg(self):
         rpc = self.find_pc()

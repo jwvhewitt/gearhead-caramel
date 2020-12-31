@@ -190,6 +190,49 @@ class WinterMochaFortressRoom(pbge.randmaps.rooms.Room):
             gb.set_wall(self.area.right - 1, self.area.bottom - y - 1, ghterrain.FortressWall)
 
 
+# **************************
+# ***   UTILITY  STUFF   ***
+# **************************
+
+class Snowflake(object):
+    def __init__(self, dest, y=0):
+        self.dest = dest
+        self.x = dest.left + random.randint(1, dest.w)
+        self.y = dest.top - 12 + y
+        self.dx = random.randint(1, 6) - random.randint(1, 3)
+        self.dy = random.randint(2, 4)
+        self.frame = random.randint(0, 24)
+
+    def update(self):
+        # Return True if this flake should be deleted.
+        self.x += self.dx
+        self.y += self.dy
+        if self.y > self.dest.bottom:
+            return True
+
+
+class SnowField(object):
+    def __init__(self):
+        self.snow = pbge.image.Image("sys_wm_snow.png", 24, 24)
+        self.flakes = list()
+        dest = pbge.my_state.screen.get_rect()
+        for t in range(random.randint(200,500)):
+            self.flakes.append(Snowflake(dest, y=random.randint(1,dest.h)))
+
+    def add_snow(self, dest):
+        for t in range(min(random.randint(1, 3), random.randint(1, 3))):
+            self.flakes.append(Snowflake(dest))
+
+    def __call__(self):
+        dest = pbge.my_state.screen.get_rect()
+        self.add_snow(dest)
+        for sf in list(self.flakes):
+            if sf.update():
+                self.flakes.remove(sf)
+            else:
+                self.snow.render((sf.x, sf.y), sf.frame)
+
+
 # *****************
 # ***   PLOTS   ***
 # *****************
@@ -216,6 +259,7 @@ class MochaStub(Plot):
 
 MOVAR_CHEAPMEKS = "MOVAR_CHEAPMEKS"
 MOVAR_FOUGHTBLITZEN = "MOVAR_FOUGHTBLITZEN"
+MOVAR_LANCEMATE = "MOVAR_LANCEMATE"
 
 class FrozenHotSpringCity(Plot):
     # Mauna in winter. There was a heavy snowfall last night, and the mecha
@@ -444,6 +488,7 @@ class FrozenHotSpringCity(Plot):
 
     def _vikki_join(self, camp):
         camp.party.append(self.elements["VIKKI"])
+        camp.campdata[MOVAR_LANCEMATE] = "VIKKI"
         self.elements["VIKKI"].relationship.tags.add(gears.relationships.RT_LANCEMATE)
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
@@ -470,6 +515,10 @@ class FrozenHotSpringCity(Plot):
                         mek.pilot = None
 
             self.did_opening_sequence = True
+
+    def t_START(self, camp: gears.GearHeadCampaign):
+        if gears.tags.SCENE_BUILDING not in camp.scene.attributes:
+            pbge.my_state.view.postfx = SnowField()
 
     def t_ENDCOMBAT(self, camp: gears.GearHeadCampaign):
         # Winter Mocha is a simple scenario, so instead of using the EnterTownLanceRecovery from plotutility
@@ -521,12 +570,19 @@ class WinterMochaChaletForEnding(Plot):
         self.register_element("EXIT", ghwaypoints.Exit(name="Exit", anchor=pbge.randmaps.anchors.south, plot_locked=True), dident="_introom")
 
         self.did_intro = False
+        self.won_mission = True
+        self.can_get_blitzen = False
 
         return True
 
-    def CHALET_ENTER(self, camp):
+    def CHALET_ENTER(self, camp: gears.GearHeadCampaign):
         if not self.did_intro:
-
+            if self.won_mission:
+                pbge.alert("You return to the Mauna Chalet Resort in victory.")
+            else:
+                pbge.alert("")
+            camp.dole_xp(300)
+            self.can_get_blitzen = self.won_mission and camp.campdata.get(MOVAR_CHEAPMEKS) and camp.campdata.get(MOVAR_FOUGHTBLITZEN)
             self.did_intro = True
 
     def EXIT_menu(self, camp, thingmenu):
@@ -546,6 +602,7 @@ class WinterMochaChaletForEnding(Plot):
 
     def start_defeat(self, camp):
         self._prepare_for_conclusion(camp)
+        self.won_mission = False
         # Remove all the mecha from the party; the PC doesn't get to keep it.
         for npc in list(camp.party):
             if npc is not camp.pc:
@@ -598,16 +655,18 @@ class WinterMochaHyolee(Plot):
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
 
-        hyolee = gears.base.Character(name="Hyolee", statline={gears.stats.Reflexes: 9,
-                                                               gears.stats.Body: 8, gears.stats.Speed: 10,
-                                                               gears.stats.Perception: 13,
-                                                               gears.stats.Knowledge: 18, gears.stats.Craft: 11,
-                                                               gears.stats.Ego: 15,
-                                                               gears.stats.Charm: 16, gears.stats.Science: 10,
-                                                               gears.stats.Biotechnology: 10,
-                                                               gears.stats.Medicine: 7},
-                                      personality=[personality.Cheerful, personality.Peace, personality.Fellowship],
-                                      gender=gears.genderobj.Gender.get_default_female())
+        hyolee = gears.base.Character(
+            name="Hyolee", statline={gears.stats.Reflexes: 9,
+                                     gears.stats.Body: 8, gears.stats.Speed: 10,
+                                     gears.stats.Perception: 13,
+                                     gears.stats.Knowledge: 18, gears.stats.Craft: 11,
+                                     gears.stats.Ego: 15,
+                                     gears.stats.Charm: 16, gears.stats.Science: 10,
+                                     gears.stats.Biotechnology: 10,
+                                     gears.stats.Medicine: 7},
+            personality=[personality.Cheerful, personality.Peace, personality.Fellowship],
+            gender=gears.genderobj.Gender.get_default_female(), mnpcid=gears.oldghloader.GH1Loader.NPC_HYOLEE,
+        )
         hyolee.imagename = 'cha_wm_hyolee.png'
         hyolee.portrait = 'card_f_winterhyolee.png'
         hyolee.colors = (
@@ -667,7 +726,8 @@ class WinterMochaCarter(Plot):
             colors=(gears.color.BugBlue, gears.color.Burlywood, gears.color.AceScarlet, gears.color.SkyBlue,
                     gears.color.SlateGrey),
             mecha_colors=(gears.color.FreedomBlue, gears.color.Gold, gears.color.Aquamarine, gears.color.BattleshipGrey,
-                          gears.color.SlateGrey)
+                          gears.color.SlateGrey),
+            mnpcid=gears.oldghloader.GH1Loader.NPC_CARTER,
         )
         self.register_element("CARTER", carter, dident="FENCE_GATE_ROOM")
         return True
@@ -691,6 +751,7 @@ class WinterMochaCarter(Plot):
         camp.assign_pilot_to_mecha(self.elements["CARTER"], mek1)
         mek1.colors = self.elements["CARTER"].mecha_colors
         self.elements["CARTER"].relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        camp.campdata[MOVAR_LANCEMATE] = "CARTER"
 
     def CARTER_offers(self, camp):
         # Return list of dialogue offers.
@@ -978,37 +1039,38 @@ class Intro_MysteriousMecha(Plot):
 
     def t_START(self, camp):
         if not self.did_intro:
-            mycutscene = pbge.cutscene.Cutscene(library={'pc': camp.pc},
-                                                beats=(
-                                                    pbge.cutscene.Beat(pbge.cutscene.AlertDisplay(
-                                                        "You find the tracks in the snow where the bandits met the convoy. However, there is a second set of tracks just off the road, following the others at a distance."),
-                                                                       children=[
-                                                                           pbge.cutscene.Beat(
-                                                                               game.content.ghcutscene.MonologueDisplay(
-                                                                                   "I recognize these tread marks from the battle of Snake Lake... Those are Aegis mecha. This mission just got a whole lot more serious.",
-                                                                                   'npc'),
-                                                                               prep=game.content.ghcutscene.LancematePrep(
-                                                                                   'npc', personality_traits=(
-                                                                                   personality.Grim,), )),
-                                                                           pbge.cutscene.Beat(
-                                                                               game.content.ghcutscene.MonologueDisplay(
-                                                                                   "These tracks belong to a Chameleon; that's an Aegis mecha. We better be careful from here on out.",
-                                                                                   'npc'),
-                                                                               prep=game.content.ghcutscene.LancematePrep(
-                                                                                   'npc', stats=(stats.Scouting,), )),
-                                                                           pbge.cutscene.Beat(
-                                                                               pbge.cutscene.AlertDisplay(
-                                                                                   "You recognize the third set of tracks as belonging to an Aegis patrol. Looks like you'll have more than bandits to worry about.")),
-                                                                           pbge.cutscene.Beat(
-                                                                               game.content.ghcutscene.MonologueDisplay(
-                                                                                   "These tire marks don't belong to any bandit; they're Aegis mecha! I'd stake my reputation on that.",
-                                                                                   'npc'),
-                                                                               prep=game.content.ghcutscene.LancematePrep(
-                                                                                   'npc', stats=(stats.Repair,), )),
+            mycutscene = pbge.cutscene.Cutscene(
+                library={'pc': camp.pc},
+                beats=(
+                    pbge.cutscene.Beat(pbge.cutscene.AlertDisplay(
+                        "You find the tracks in the snow where the bandits met the convoy. However, there is a second set of tracks just off the road, following the others at a distance."),
+                        children=[
+                            pbge.cutscene.Beat(
+                                game.content.ghcutscene.MonologueDisplay(
+                                    "I recognize these tread marks from the battle of Snake Lake... Those are Aegis mecha. This mission just got a whole lot more serious.",
+                                    'npc'),
+                                prep=game.content.ghcutscene.LancematePrep(
+                                    'npc', personality_traits=(
+                                        personality.Grim,), )),
+                            pbge.cutscene.Beat(
+                                game.content.ghcutscene.MonologueDisplay(
+                                    "These tracks belong to a Chameleon; that's an Aegis mecha. We better be careful from here on out.",
+                                    'npc'),
+                                prep=game.content.ghcutscene.LancematePrep(
+                                    'npc', stats=(stats.Scouting,), )),
+                            pbge.cutscene.Beat(
+                                pbge.cutscene.AlertDisplay(
+                                    "You recognize the third set of tracks as belonging to an Aegis patrol. Looks like you'll have more than bandits to worry about.")),
+                            pbge.cutscene.Beat(
+                                game.content.ghcutscene.MonologueDisplay(
+                                    "These tire marks don't belong to any bandit; they're Aegis mecha! I'd stake my reputation on that.",
+                                    'npc'),
+                                prep=game.content.ghcutscene.LancematePrep(
+                                    'npc', stats=(stats.Repair,), )),
 
-                                                                       ], ),
-                                                )
-                                                )
+                        ], ),
+                )
+            )
             mycutscene(camp)
             self.did_intro = True
 

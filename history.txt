@@ -1,3 +1,10 @@
+- Lancemates and major NPCs should be imported correctly from GH1
+- Cybertech skill imported correctly from GH1
+- Vadel's hover jets are now bigger and integral
+- Zerosaiko mass driver improved
+- Changed the formula for armor damage absorption
+- Reduced chemthrower chem usage
+- Scene viewer may now get postfx function called after normal map rendering
 - Fixed bug with LancematePrep cutscene element
 - PC can bring mecha, stash with them between adventures
 - Updated the Winter Mocha scenario

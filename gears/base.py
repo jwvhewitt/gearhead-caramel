@@ -1039,13 +1039,13 @@ class Armor(SizeClassedComponent, StandardDamageHandler):
     def reduce_damage(self, dmg, dmg_request):
         """Armor reduces damage taken, but gets damaged in the process."""
         if dmg_request.is_brutal:
-            max_absorb = min(self.scale.scale_health(3, self.material), dmg)
+            max_absorb = self.scale.scale_health(3, self.material)
             absorb_amount = random.randint(max_absorb // 2, max_absorb)
         else:
-            max_absorb = min(self.scale.scale_health(2, self.material), dmg)
-            absorb_amount = random.randint(max_absorb // 5, max_absorb)
+            max_absorb = self.scale.scale_health(2, self.material)
+            absorb_amount = random.randint(max_absorb // 4, max_absorb)
         if absorb_amount > 0:
-            self.hp_damage = min(self.hp_damage + absorb_amount, self.max_health)
+            self.hp_damage = min(self.hp_damage + min(absorb_amount, dmg), self.max_health)
             dmg -= 2 * absorb_amount
         return dmg
 
@@ -2584,7 +2584,7 @@ class ChemThrower(Weapon):
         mult = 1.0
         for aa in self.get_attributes():
             mult *= aa.POWER_MODIFIER
-        return int(mult * self.damage * max(self.penetration, 1))
+        return int(mult * self.damage)
 
     def get_basic_attack(self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
         my_ammo = self.get_ammo()

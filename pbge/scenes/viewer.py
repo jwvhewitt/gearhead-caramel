@@ -18,7 +18,7 @@ OVERLAY_HIDDEN = 6
 SCROLL_STEP = 12
 
 class SceneView( object ):
-    def __init__( self, scene ):
+    def __init__(self, scene, postfx=None):
         self.overlays = dict()
         self.anim_list = list()
         self.anims = collections.defaultdict(list)
@@ -45,6 +45,8 @@ class SceneView( object ):
         self.phase = 0
 
         self.mouse_tile = (-1,-1)
+
+        self.postfx = postfx
 
         my_state.view = self
 
@@ -480,112 +482,6 @@ class SceneView( object ):
         self.phase = ( self.phase + 1 ) % 600
         self.mouse_tile = (self.map_x(mouse_x,mouse_y),self.map_y(mouse_x,mouse_y))
 
-        # After drawing the map, draw the widgets.
-        #for w in my_state.widgets:
-        #    w.render()
-
-
-"""        # Fill the modelmap, fieldmap, and itemmap.
-        self.modelmap.clear()
-        self.fieldmap.clear()
-        itemmap = dict()
-        for m in self.scene.contents:
-            if isinstance( m , characters.Character ):
-                self.modelmap[ tuple( m.pos ) ] = m
-            elif isinstance( m , enchantments.Field ):
-                self.fieldmap[ tuple( m.pos ) ] = m
-            elif isinstance( m, items.Item ):
-                itemmap[ tuple( m.pos ) ] = True
-
-        x_min = self.map_x( *screen_area.topleft ) - 1
-        x_max = self.map_x( *screen_area.bottomright )
-        y_min = self.map_y( *screen_area.topright ) - 1
-        y_max = self.map_y( *screen_area.bottomleft )
-
-        tile_x,tile_y = self.mouse_tile
-
-        dest = pygame.Rect( 0, 0, 54, 54 )
-
-        for x in range( x_min, x_max + 1 ):
-            for y in range( y_min, y_max + 1 ):
-                sx = self.relative_x( x, y ) + self.x_off
-                sy = self.relative_y( x, y ) + self.y_off
-                dest.topleft = (sx,sy)
-
-                # Check the mouse position.
-                if ( mouse_x >= sx ) and ( mouse_x < ( sx + 54 ) ) and ( mouse_y >= ( sy + 41 ) ) and ( mouse_y < ( sy + 54 ) ):
-                    # If it's in the lower left triangle, it's one tile south.
-                    # If it's in the lower right triangle, it's one tile east.
-                    # Otherwise it's right here.
-                    if mouse_y > ( sy + 41 + ( mouse_x - sx ) // 2 ):
-                        tile_x = x
-                        tile_y = y+1
-                    elif mouse_y > ( sy + 67 - ( mouse_x - sx ) // 2 ):
-                        tile_x = x + 1
-                        tile_y = y
-                    else:
-                        tile_x = x
-                        tile_y = y
-
-                if self.scene.on_the_map( x , y ) and self.scene._map[x][y].visible and screen_area.colliderect( dest ):
-                    if self.scene._map[x][y].floor:
-                        self.scene._map[x][y].floor.render( screen, dest, self, self.map[x][y].floor )
-
-                    if self.scene._map[x][y].wall:
-                        self.scene._map[x][y].wall.prerender( screen, dest, self, self.map[x][y].wall )
-
-                    # Print overlay in between the wall border and the wall proper.
-                    if self.overlays.get( (x,y) , None ):
-                        self.extrasprite.render( screen, dest, self.overlays[(x,y)] )
-
-                    if self.scene._map[x][y].wall:
-                        self.scene._map[x][y].wall.render( screen, dest, self, self.map[x][y].wall )
-
-                    if self.scene._map[x][y].decor:
-                        self.scene._map[x][y].decor.render( screen, dest, self, self.map[x][y].decor )
-
-                    if itemmap.get( (x,y), False ):
-                        self.extrasprite.render( screen, dest, OVERLAY_ITEM )
-
-
-                    modl = self.modelmap.get( (x,y) , None )
-                    if modl:
-                        if modl.hidden:
-                            # This is easy! All hidden models get the same sprite.
-                            self.extrasprite.render( screen, dest, OVERLAY_HIDDEN )
-                        else:
-                            msprite = self.modelsprite.get( modl , None )
-                            if not msprite:
-                                msprite = modl.generate_avatar()
-                                self.modelsprite[ modl ] = msprite
-                            msprite.render( screen, dest, modl.FRAME )
-
-                    fild = self.fieldmap.get( (x,y) , None )
-                    if fild:
-                        msprite = self.modelsprite.get( fild , None )
-                        if not msprite:
-                            msprite = fild.generate_avatar()
-                            self.modelsprite[ fild ] = msprite
-                        msprite.render( screen, dest, fild.frame( self.phase ) )
-
-
-                    if ( x==tile_x ) and ( y==tile_y) and modl and show_quick_stats and not modl.hidden:
-                        if first_pc_pos == (x,y):
-                            add_item_note = itemmap.get( (x,y), False )
-                        else:
-                            add_item_note = False
-                        self.quick_model_status( screen, dest, modl, add_item_note )
-
-                    mlist = self.anims.get( (x,y) , None )
-                    if mlist:
-                        for m in mlist:
-                            m.render( self, screen, dest )
-
-
-
-
-
-        self.phase = ( self.phase + 1 ) % 600
-        self.mouse_tile = ( tile_x, tile_y )
-"""
+        if self.postfx:
+            self.postfx()
 

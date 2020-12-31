@@ -13,58 +13,6 @@ import copy
 VERSION = "v0.600"
 
 
-class Snowflake(object):
-    def __init__(self, dest):
-        self.dest = dest
-        self.x = dest.left + random.randint(1, dest.w)
-        self.y = dest.top - 12
-        self.dx = random.randint(1, 6) - random.randint(1, 3)
-        self.dy = random.randint(2, 4)
-        self.frame = random.randint(0, 24)
-
-    def update(self):
-        # Return True if this flake should be deleted.
-        self.x += self.dx
-        self.y += self.dy
-        if self.y > self.dest.bottom:
-            return True
-
-
-class MochaTitleScreenRedraw(object):
-    TITLE_DEST = pbge.frects.Frect(-325, -150, 650, 100)
-    MENU_DEST = pbge.frects.Frect(-150, 0, 300, 196)
-
-    def __init__(self):
-        self.title = pbge.image.Image("sys_wmtitle.png")
-        self.bg = pbge.image.Image("poster_snowday.png")
-        self.snow = pbge.image.Image("sys_wm_snow.png", 24, 24)
-        self.flakes = list()
-
-    def add_snow(self, dest):
-        for t in range(min(random.randint(1, 3), random.randint(1, 3))):
-            self.flakes.append(Snowflake(dest))
-
-    def __call__(self):
-        pbge.my_state.screen.fill((0, 0, 0))
-        dest = self.bg.bitmap.get_rect(
-            center=(pbge.my_state.screen.get_width() // 2, pbge.my_state.screen.get_height() // 2))
-        self.bg.render(dest)
-
-        self.title.render(self.TITLE_DEST.get_rect())
-
-        pbge.my_state.screen.set_clip(dest)
-        self.add_snow(dest)
-        for sf in list(self.flakes):
-            if sf.update():
-                self.flakes.remove(sf)
-            else:
-                self.snow.render((sf.x, sf.y), sf.frame)
-        pbge.my_state.screen.set_clip(None)
-        versid = pbge.render_text(pbge.my_state.medium_font, VERSION, 120, justify=1)
-        pbge.my_state.screen.blit(versid, versid.get_rect(
-            bottomright=(pbge.my_state.screen.get_width() - 8, pbge.my_state.screen.get_height() - 8)))
-
-
 class TitleScreenRedraw(object):
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
     MENU_DEST = pbge.frects.Frect(-150, 0, 300, 226)

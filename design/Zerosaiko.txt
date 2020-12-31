@@ -67,15 +67,16 @@ Mecha
                         BallisticWeapon
                             name = "Mass Driver"
                             reach = 5
-                            damage = 2
+                            damage = 3
                             accuracy = 2
                             penetration = 2
-                            attributes = (Automatic)
-                            ammo_type = Shells_150mm
+                            attributes = (Automatic, BurstFire2)
+                            ammo_type = Shells_80mm
+                            magazine = 60
                             SUB
                                 Ammo
-                                    ammo_type=Shells_150mm
-                                    quantity=20
+                                    ammo_type=Shells_80mm
+                                    quantity=60
                             END
                     END
             END
