@@ -691,8 +691,10 @@ class ShieldIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ItemStatsBlock, SubComsBlock, DescBlock)
 
 class MechaIP(InfoPanel):
-    # A floating status display, drawn wherever the mouse is pointing.
     DEFAULT_BLOCKS = (FullNameBlock, DesignViabilityBlock, MechaFeaturesAndSpriteBlock, DescBlock)
+
+class CharacterIP(InfoPanel):
+    DEFAULT_BLOCKS = (FullNameBlock, ModuleStatusBlock, ExperienceBlock, CharacterStatusBlock, PrimaryStatsBlock, InstalledCyberwaresBlock, NonComSkillBlock, MeritBadgesBlock, CharacterTagsBlock)
 
 
 class ShortItemIP(InfoPanel):
@@ -714,6 +716,7 @@ def get_status_display(model,**kwargs):
     else:
         return NameStatusDisplay(model=model,**kwargs)
 
+
 def get_longform_display(model,**kwargs):
     if isinstance(model,base.Weapon):
         return WeaponIP(model=model,**kwargs)
@@ -727,8 +730,11 @@ def get_longform_display(model,**kwargs):
         return ShieldIP(model = model, **kwargs)
     elif isinstance(model, base.Mecha):
         return MechaIP(model=model,**kwargs)
+    elif isinstance(model, base.Character):
+        return CharacterIP(model=model, **kwargs)
     else:
         return ItemIP(model=model,**kwargs)
+
 
 def get_shortform_display(model,**kwargs):
     if isinstance(model,base.Weapon):

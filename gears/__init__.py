@@ -517,7 +517,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if hasattr(mek, "container"):
                 mek.container = None
             mek.pilot = None
-        self.egg.mek = mek
+        self.egg.mecha = mek
         for pc in self.party:
             if pc is not self.pc:
                 if hasattr(pc, "container") and pc.container:

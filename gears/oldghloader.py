@@ -1,7 +1,7 @@
 import glob
 import pbge
 import os
-from . import stats
+from . import stats, jobs, selector
 from . import personality
 import random
 
@@ -34,6 +34,7 @@ class RetroGear(object):
         self.satt = dict()
         self.sub_com = list()
         self.inv_com = list()
+        self.stats = dict()
 
 
 class GH1Loader(object):
@@ -75,6 +76,7 @@ class GH1Loader(object):
     NAG_LOCATION = -1
     NAS_TEAM = 4
     NAV_DEFPLAYERTEAM = 1
+    NAV_LANCEMATETEAM = -3
 
     GG_ADVENTURE = -7
 
@@ -470,13 +472,6 @@ class GH1Loader(object):
                 break
         return npc
 
-    def get_major_npcs(self):
-        npcs = list()
-        for candidate in self.all_gears(self.gb_contents):
-            if candidate.g == self.GG_CHARACTER and candidate.natt.get((self.NAG_RELATIONSHIP,0)) != 0:
-                npcs.append(candidate)
-        return npcs
-
     def find_adventure(self):
         adv = None
         for g in self.all_gears(self.gb_contents):
@@ -504,7 +499,7 @@ class GH1Loader(object):
         else:
             return random.choice(color_type), color_string
 
-    def convert_character(self, pc):
+    def convert_character(self, pc: RetroGear):
         # Convert a character from GH1 rules to GearHead Caramel rules.
         statline = dict()
         t = 1
@@ -514,15 +509,21 @@ class GH1Loader(object):
 
         # Convert the skills. MechaGunnery is max of MechaGunnery, MechaArtillery... and so on.
         statline[stats.MechaGunnery] = max(pc.natt.get((self.NAG_SKILL, self.NAS_MECHAGUNNERY), 0),
-                                           pc.natt.get((self.NAG_SKILL, self.NAS_MECHAARTILLERY), 0))
+                                           pc.natt.get((self.NAG_SKILL, self.NAS_MECHAARTILLERY), 0),
+                                           1)
         statline[stats.MechaFighting] = max(pc.natt.get((self.NAG_SKILL, self.NAS_MECHAWEAPONS), 0),
-                                            pc.natt.get((self.NAG_SKILL, self.NAS_MECHAFIGHTING), 0))
-        statline[stats.MechaPiloting] = pc.natt.get((self.NAG_SKILL, self.NAS_MECHAPILOTING), 0)
+                                            pc.natt.get((self.NAG_SKILL, self.NAS_MECHAFIGHTING), 0),
+                                            1)
+        statline[stats.MechaPiloting] = max(pc.natt.get((self.NAG_SKILL, self.NAS_MECHAPILOTING), 0),
+                                            1)
         statline[stats.RangedCombat] = max(pc.natt.get((self.NAG_SKILL, self.NAS_SMALLARMS), 0),
-                                           pc.natt.get((self.NAG_SKILL, self.NAS_HEAVYWEAPONS), 0))
+                                           pc.natt.get((self.NAG_SKILL, self.NAS_HEAVYWEAPONS), 0),
+                                           1)
         statline[stats.CloseCombat] = max(pc.natt.get((self.NAG_SKILL, self.NAS_ARMEDCOMBAT), 0),
-                                          pc.natt.get((self.NAG_SKILL, self.NAS_MARTIALARTS), 0))
-        statline[stats.Dodge] = pc.natt.get((self.NAG_SKILL, self.NAS_DODGE), 0)
+                                          pc.natt.get((self.NAG_SKILL, self.NAS_MARTIALARTS), 0),
+                                          1)
+        statline[stats.Dodge] = max(pc.natt.get((self.NAG_SKILL, self.NAS_DODGE), 0),
+                                    1)
         statline[stats.Repair] = max(pc.natt.get((self.NAG_SKILL, self.NAS_MECHAREPAIR), 0),
                                      pc.natt.get((self.NAG_SKILL, self.NAS_GENERALREPAIR), 0))
         statline[stats.Medicine] = max(pc.natt.get((self.NAG_SKILL, self.NAS_MEDICINE), 0),
@@ -547,9 +548,11 @@ class GH1Loader(object):
         statline[stats.Wildcraft] = max(pc.natt.get((self.NAG_SKILL, self.NAS_DOMINATEANIMAL), 0),
                                         pc.natt.get((self.NAG_SKILL, self.NAS_SURVIVAL), 0),)
         statline[stats.Vitality] = max(pc.natt.get((self.NAG_SKILL, self.NAS_VITALITY), 0),
-                                       pc.natt.get((self.NAG_SKILL, self.NAS_RESISTANCE), 0))
+                                       pc.natt.get((self.NAG_SKILL, self.NAS_RESISTANCE), 0),
+                                       1)
         statline[stats.Athletics] = max(pc.natt.get((self.NAG_SKILL, self.NAS_ATHLETICS), 0),
-                                        pc.natt.get((self.NAG_SKILL, self.NAS_WEIGHTLIFTING), 0))
+                                        pc.natt.get((self.NAG_SKILL, self.NAS_WEIGHTLIFTING), 0),
+                                        1)
         # Concentration builds Mental Points, which in Caramel will be used to
         # power special attacks and skills. So, it's Concentrtation that absorbs
         # Initiative and SpotWeakness. Also Mysticism, because all that meditation
@@ -557,10 +560,11 @@ class GH1Loader(object):
         statline[stats.Concentration] = max(pc.natt.get((self.NAG_SKILL, self.NAS_CONCENTRATION), 0),
                                             pc.natt.get((self.NAG_SKILL, self.NAS_INITIATIVE), 0),
                                             pc.natt.get((self.NAG_SKILL, self.NAS_SPOTWEAKNESS), 0),
-                                            pc.natt.get((self.NAG_SKILL, self.NAS_MYSTICISM), 0))
+                                            pc.natt.get((self.NAG_SKILL, self.NAS_MYSTICISM), 0),
+                                            1)
 
         # Delete any "skills" that don't actually exist.
-        for k in stats.COMBATANT_SKILLS + stats.NONCOMBAT_SKILLS:
+        for k in stats.NONCOMBAT_SKILLS:
             if k in statline and statline[k] < 1:
                 del statline[k]
 
@@ -604,6 +608,13 @@ class GH1Loader(object):
         ghcpc.experience[ghcpc.TOTAL_XP] = pc.natt.get((self.NAG_EXPERIENCE,self.NAS_TOTAL_XP),0)
         ghcpc.experience[ghcpc.SPENT_XP] = pc.natt.get((self.NAG_EXPERIENCE, self.NAS_SPENT_XP), 0)
         ghcpc.renown = pc.natt.get((self.NAG_CHARDESCRIPTION,self.NAS_RENOWNED),1)
+
+        # Set a job, if possible.
+        jobname = pc.satt.get("JOB", None)
+        if jobname and jobname in jobs.ALL_JOBS:
+            ghcpc.job = jobs.ALL_JOBS[jobname]
+        else:
+            ghcpc.job = jobs.Job("Cavalier")
 
         return ghcpc
 
@@ -653,6 +664,21 @@ class GH1Loader(object):
         with open(self.fname, 'rt') as f:
             self._load_list(f)
 
+    def get_major_npcs(self):
+        # For now, we're just taking the current lancemates minus pets.
+        npcs = list()
+        for candidate in self.all_gears(self.gb_contents):
+            if (
+                    candidate.g == self.GG_CHARACTER and candidate.natt.get((self.NAG_RELATIONSHIP, 0),0) != 0 and
+                    candidate.natt.get((3, 4),0) == 0 and
+                    candidate.natt.get((self.NAG_PERSONAL, self.NAS_CHARACTERID), 0) != 0 and
+                    candidate.natt.get((self.NAG_LOCATION, self.NAS_TEAM)) == self.NAV_LANCEMATETEAM
+            ):
+                npcs.append(candidate)
+                #print(candidate.natt.get((self.NAG_RELATIONSHIP,0),0))
+
+        return npcs
+
     def get_mnpcid_npcs(self):
         major_npcs = dict()
         for k, v in self.MAJOR_NPCS.items():
@@ -681,7 +707,7 @@ class GH1Loader(object):
         for k,mynpc in major_npcs.items():
             # k is the NPC's major ident, v is the character ID from GH1.
             nu_relationship = relationships.Relationship(
-                reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,v),0),
+                reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,mynpc.natt.get((5,0))),0),
             )
             rtype = mynpc.natt.get((self.NAG_RELATIONSHIP,0),0)
             if rtype == self.NAS_ARCHALLY:
@@ -690,11 +716,12 @@ class GH1Loader(object):
                 nu_relationship.tags.add(relationships.RT_FAMILY)
             elif rtype == self.NAS_LOVER:
                 nu_relationship.role = relationships.R_ROMANCE
-            nu_relationship.met_before = True
-            egg.major_npc_records[k] = nu_relationship
+            if rtype != 0 or nu_relationship.reaction_mod != 0:
+                nu_relationship.met_before = True
+                egg.major_npc_records[k] = nu_relationship
 
         for mynpc in self.get_major_npcs():
-            if mynpc not in major_npcs:
+            if mynpc not in major_npcs.values():
                 nu_npc = self.convert_character(mynpc)
                 nu_relationship = relationships.Relationship(
                     reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,mynpc.natt.get(self.NAG_PERSONAL,self.NAS_CHARACTERID)),0),
@@ -717,6 +744,7 @@ class GH1Loader(object):
         pc = self.convert_character(rpc)
         pc.renown = pc.renown // 2
         my_egg = eggs.Egg(pc)
+        my_egg.mecha = selector.MechaShoppingList.generate_single_mecha(pc.renown*2, None, tags.GroundEnv)
         my_egg.past_adventures.append("The Typhon Incident")
         my_egg.credits = max(rpc.natt.get((self.NAG_EXPERIENCE, self.NAS_CREDITS), 500000),500000)
         self.record_pc_stuff(rpc,pc)

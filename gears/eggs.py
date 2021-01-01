@@ -35,6 +35,7 @@ class Egg(object):
         if hasattr(thing,"container") and thing.container:
             con_rec[thing] = thing.container
             thing.container.remove(thing)
+
     def _reset_container_for(self,thing, con_rec):
         if thing in con_rec:
             con_rec[thing].append(thing)

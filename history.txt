@@ -1,3 +1,7 @@
+- Added Eggzaminer to dev mode
+- Fixed Egg ejection bug
+- Fixed a lot of GH1 import bugs
+- Fixed a problem with asynchronous IO and menus
 - Lancemates and major NPCs should be imported correctly from GH1
 - Cybertech skill imported correctly from GH1
 - Vadel's hover jets are now bigger and integral

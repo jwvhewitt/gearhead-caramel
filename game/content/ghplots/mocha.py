@@ -513,7 +513,6 @@ class FrozenHotSpringCity(Plot):
                     camp.campdata["PC_STUFF"].append(mek)
                     if hasattr(mek, "pilot"):
                         mek.pilot = None
-
             self.did_opening_sequence = True
 
     def t_START(self, camp: gears.GearHeadCampaign):
@@ -544,7 +543,7 @@ class FrozenHotSpringCity(Plot):
 
 class WinterMochaChaletForEnding(Plot):
     LABEL = "MOCHA_CHALET"
-    active = True
+    active = False
     scope = True
 
     def custom_init(self, nart):
@@ -569,20 +568,22 @@ class WinterMochaChaletForEnding(Plot):
 
         self.register_element("EXIT", ghwaypoints.Exit(name="Exit", anchor=pbge.randmaps.anchors.south, plot_locked=True), dident="_introom")
 
+        self.did_prep = False
         self.did_intro = False
         self.won_mission = True
         self.can_get_blitzen = False
 
         return True
 
-    def CHALET_ENTER(self, camp: gears.GearHeadCampaign):
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         if not self.did_intro:
             if self.won_mission:
-                pbge.alert("You return to the Mauna Chalet Resort in victory.")
+                pbge.alert("You return to the Mauna Chalet Resort in victory. The sun is just beginning to rise as you reach the lounge.")
             else:
-                pbge.alert("")
+                pbge.alert("You return to the Mauna Chalet Resort cold, wet, and utterly defeated. The sun is just beginning to rise as you reach the lounge.")
             camp.dole_xp(300)
-            self.can_get_blitzen = self.won_mission and camp.campdata.get(MOVAR_CHEAPMEKS) and camp.campdata.get(MOVAR_FOUGHTBLITZEN)
+            self.can_get_blitzen = self.won_mission and (camp.campdata.get(MOVAR_CHEAPMEKS)
+                                                         or not camp.campdata.get(MOVAR_LANCEMATE)) and camp.campdata.get(MOVAR_FOUGHTBLITZEN)
             self.did_intro = True
 
     def EXIT_menu(self, camp, thingmenu):
@@ -612,37 +613,110 @@ class WinterMochaChaletForEnding(Plot):
         self._go_to_chalet(camp)
 
     def _go_to_chalet(self, camp):
+        self.activate(camp)
         camp.destination, camp.entrance = self.elements["LOCALE"], self.elements["ENTRANCE"]
 
     NPC_LIST = ("VIKKI","HYOLEE","CARTER")
     def _prepare_for_conclusion(self, camp):
-        myscene = self.elements["LOCALE"]
-        # Move all the needed NPCs to the chalet. Make sure they're alright.
-        for npcid in self.NPC_LIST:
-            npc = self.elements[npcid]
-            npc.restore_all()
-            myscene.deploy_actor(npc)
-        # Remove all the NPCs and their mecha from the party.
-        for npc in list(camp.party):
-            if isinstance(npc, gears.base.Being) and npc is not camp.pc:
-                camp.party.remove(npc)
-            elif isinstance(npc, gears.base.Mecha) and npc.pilot is not camp.pc:
-                camp.party.remove(npc)
-            elif npc is not camp.pc:
-                camp.party.remove(npc)
+        if not self.did_prep:
+            myscene = self.elements["LOCALE"]
+            # Move all the needed NPCs to the chalet. Make sure they're alright.
+            for npcid in self.NPC_LIST:
+                npc = self.elements[npcid]
+                npc.restore_all()
+                myscene.deploy_actor(npc)
+            # Remove all the NPCs and their mecha from the party.
+            for npc in list(camp.party):
+                if isinstance(npc, gears.base.Being) and npc is not camp.pc:
+                    camp.party.remove(npc)
+                elif isinstance(npc, gears.base.Mecha):
+                    if npc.pilot is not camp.pc:
+                        camp.party.remove(npc)
+                elif npc is not camp.pc:
+                    camp.party.remove(npc)
+            self.did_prep = True
 
-    def VIKKI_offers(self, camp):
+    def _get_blitzen(self, camp):
+        self.can_get_blitzen = False
+        camp.party.append(gears.selector.get_design_by_full_name("WM Custom Blitzen"))
+
+    def _refuse_blitzen(self, camp):
+        self.can_get_blitzen = False
+
+    def VIKKI_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
+        if self.won_mission and camp.campdata.get(MOVAR_LANCEMATE) == "VIKKI":
+            if self.can_get_blitzen:
+                mylist.append(Offer(
+                    "Hey, you know that weird reindeer mecha we fought out there? We got it as salvage! You can have it if you want.",
+                    ContextTag((context.HELLO,)),
+                ))
+                mylist.append(Offer(
+                    "I'm sure you will. Now to go drown my sorrows in coffee before the match I have at ten.",
+                    ContextTag((context.CUSTOM,)), effect=self._get_blitzen, data={"reply": "Thanks, I'll put it to good use!"}
+                ))
+                mylist.append(Offer(
+                    "Yeah, I don't really want it either... maybe Mecha Sporch in Hogye can use it as their new loaner mek.",
+                    ContextTag((context.CUSTOM,)), effect=self._refuse_blitzen, data={"reply": "No thanks, you can keep it."}
+                ))
+            else:
+                mylist.append(Offer(
+                    "We were victorious! Good work, [audience]. I'd feel a lot better about this mission if I didn't have an arena match coming up at ten... time to see how much coffee I can drink before then.",
+                    ContextTag((context.HELLO,)),
+                ))
+        else:
+            mylist.append(Offer(
+                "Welp, this was an exciting night for everyone. I'd go back to bed if I didn't have an arena match coming up in a couple of hours.",
+                ContextTag((context.HELLO,)),
+            ))
 
         return mylist
 
     def HYOLEE_offers(self, camp):
         mylist = list()
+        if self.won_mission and self.can_get_blitzen and not camp.campdata.get(MOVAR_LANCEMATE):
+            mylist.append(Offer(
+                "Welcome back [audience]; I didn't want to go back to sleep until seeing you got back okay. I hear you picked up some good salvage out there!",
+                ContextTag((context.HELLO,)),
+            ))
+            mylist.append(Offer(
+                "(Hyolee shows you the CavNet app on her phone) See right here, it says you can claim this 'WM Custom Blitzen', whatever that is. Must be a new model.",
+                ContextTag((context.CUSTOM,)), effect=self._get_blitzen, data={"reply": "What? I didn't hear about any salvage."}
+            ))
+        else:
+            mylist.append(Offer(
+                "I promised Vikki that I'd stay up for her next match, but I'm not sure that's going to happen... If I fall asleep right after the match starts then technically I've kept the promise.",
+                ContextTag((context.HELLO,)),
+            ))
 
         return mylist
 
     def CARTER_offers(self, camp):
         mylist = list()
+        if self.won_mission and camp.campdata.get(MOVAR_LANCEMATE) == "CARTER":
+            if self.can_get_blitzen:
+                mylist.append(Offer(
+                    "Hey [audience], we got some salvage from that mission- the Blitzen mecha their leader was riding. You want it?",
+                    ContextTag((context.HELLO,)),
+                ))
+                mylist.append(Offer(
+                    "It's definitely a unique mek, I'll give it that. I'm gonna go get cleaned up and then head the rest of the way to Gyori. I'll see you around sometime.",
+                    ContextTag((context.CUSTOM,)), effect=self._get_blitzen, data={"reply": "Of course! That mek is awesome."}
+                ))
+                mylist.append(Offer(
+                    "In that case I'll save it for some time when I need a backup mek. You can never have too many mecha, you know.",
+                    ContextTag((context.CUSTOM,)), effect=self._refuse_blitzen, data={"reply": "Not really. You can keep it."}
+                ))
+            else:
+                mylist.append(Offer(
+                    "Nice going, [audience]. If I ever need backup for a tough convoy run I'll keep your name in mind.",
+                    ContextTag((context.HELLO,)),
+                ))
+        else:
+            mylist.append(Offer(
+                "I'm gonna have a bit of a rest, and then I can finish bringing my convoy to Gyori when the roads get cleared. Good night... or morning, whatever time it is.",
+                ContextTag((context.HELLO,)),
+            ))
 
         return mylist
 

@@ -180,7 +180,8 @@ class Menu( Frect ):
                 return item_num
 
     def query(self):
-        # A return of False means selection was cancelled. 
+        # A return of False means selection was cancelled.
+        pygame.event.clear()
         if not self.items :
             return False
         elif self.selected_item >= len( self.items ):

@@ -131,19 +131,17 @@ def import_arena_character(tsrd):
     for f in myfiles:
         mygears = gears.oldghloader.GH1Loader(f)
         mygears.load()
-        rpc = mygears.find_pc()
-        pc = mygears.convert_character(rpc)
         egg = mygears.get_egg()
-        mymenu.add_item(str(pc), egg)
+        mymenu.add_item(str(egg.pc), egg)
     mymenu.sort()
 
     if not mymenu.items:
         mymenu.add_item('[No GH1 characters found]', None)
 
-    egg = mymenu.query()
-    if egg:
-        # pc.imagename = 'cha_wm_parka.png'
-        game.start_campaign(egg)
+    myegg = mymenu.query()
+    if myegg:
+        myegg.save()
+        pbge.BasicNotification("{} has been imported.".format(myegg.pc.name))
 
 
 def open_config_menu(tsrd):
@@ -207,7 +205,7 @@ def play_the_game():
     mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
     mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
     if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-        pass
+        mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
     mymenu.add_item("Quit", None)
 
     action = True
