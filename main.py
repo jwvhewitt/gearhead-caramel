@@ -90,7 +90,7 @@ def start_game(tsrd):
             egg.backup()
             os.remove(pbge.util.user_dir("egg_{}.sav".format(egg.pc.name)))
 
-        game.start_campaign(egg)
+        game.start_campaign(egg, tsrd)
 
 def load_game(tsrd):
     myfiles = glob.glob(pbge.util.user_dir("rpg_*.sav"))

@@ -534,6 +534,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.delete_save_file()
 
     def get_usable_party(self,map_scale,solo_map=False,just_checking=False):
+        #TODO: Check environment of scene and movement modes of characters
         usable_party = list()
         if not solo_map:
             party_candidates = self.party
@@ -722,6 +723,17 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         if hasattr(thing,"container") and thing.container:
             thing.container.remove(thing)
         self.storage.contents.append(thing)
+
+    def add_faction_score(self, fac: factions.Circle, delta):
+        if fac:
+            self.egg.faction_scores[fac.get_faction_tag()] += delta
+
+    def get_faction_reaction_modifier(self, fac):
+        if fac:
+            return self.egg.faction_scores.get(fac.get_faction_tag(), 0)
+        else:
+            return 0
+
 
 
 

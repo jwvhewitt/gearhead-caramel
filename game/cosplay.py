@@ -11,7 +11,7 @@ class ColorButtonWidget(pbge.widgets.ButtonWidget):
         super(ColorButtonWidget, self).__init__(dx, dy, w, h, **kwargs)
         self.color_edit = color_edit
     def render( self ):
-        if self.color_edit and self.data is self.color_edit.colors[self.color_edit.active_menu]:
+        if self.color_edit and self.data.equals(self.color_edit.colors[self.color_edit.active_menu]):
             self.sprite.render(self.get_rect(), 1)
         else:
             self.sprite.render(self.get_rect(), 0)

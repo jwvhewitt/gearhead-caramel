@@ -219,7 +219,7 @@ class BuildAMissionPlot(Plot):
             mydisplay = adventureseed.CombatMissionDisplay(title=self.adv.name, mission_seed=self.adv, width=400)
             pbge.alert_display(mydisplay.show)
             if self.elements.get("ENEMY_FACTION"):
-                camp.pc.add_faction_score(self.elements.get("ENEMY_FACTION"), -5)
+                camp.add_faction_score(self.elements.get("ENEMY_FACTION"), -5)
             self.gave_mission_reminder = True
 
     def t_ENDCOMBAT(self, camp):
@@ -257,9 +257,9 @@ class BuildAMissionPlot(Plot):
         if self.elements["ONE_CHANCE"] or self.adv.is_completed():
             if self.elements.get("ALLIED_FACTION"):
                 if self.adv.is_won():
-                    camp.pc.add_faction_score(self.elements.get("ALLIED_FACTION"), random.randint(1,6))
+                    camp.add_faction_score(self.elements.get("ALLIED_FACTION"), random.randint(1,6))
                 else:
-                    camp.pc.add_faction_score(self.elements.get("ALLIED_FACTION"), -3)
+                    camp.add_faction_score(self.elements.get("ALLIED_FACTION"), -3)
 
             self.adv.end_adventure(camp)
         elif not self.elements["ONE_CHANCE"]:

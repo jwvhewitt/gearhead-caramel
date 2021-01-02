@@ -6,8 +6,12 @@ class GHGradient( Gradient ):
         super().__init__(name,color_range)
         self.sets = sets
         self.family = family
+
     def get_tags(self):
         return set(self.sets + (self.family,))
+
+    def equals(self, other):
+        return isinstance(other, self.__class__) and self.name == other.name
 
 CLOTHING,SKIN,HAIR,MECHA,DETAILS,METAL = list(range(6))
 

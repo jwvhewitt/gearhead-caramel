@@ -6,7 +6,7 @@ from . import materials
 from . import damage, stats
 from .enchantments import Enchantment,END_COMBAT,ON_MOVE,ON_DISPEL_POSITIVE,ON_DISPEL_NEGATIVE
 import math
-from . import base
+from . import base, tags
 
 #  *************************
 #  ***   Utility  Junk   ***
@@ -149,8 +149,10 @@ class Skimming( movement.MoveMode ):
     NAME = 'skim'
     altitude = 1
 
+
 class Rolling( movement.MoveMode ):
     NAME = 'roll'
+
 
 class SpaceFlight( movement.MoveMode ):
     NAME = 'space flight'
@@ -158,7 +160,16 @@ class SpaceFlight( movement.MoveMode ):
     def get_short_name(cls):
         return 'space'
 
+
 MOVEMODE_LIST = (movement.Walking,movement.Flying,Skimming,Rolling,SpaceFlight)
+
+
+LEGAL_MOVEMODES = {
+    tags.GroundEnv: (movement.Walking, movement.Flying, Skimming, Rolling),
+    tags.UrbanEnv: (movement.Walking, Skimming, Rolling),
+    tags.AquaticEnv: (movement.Flying, Skimming),
+    tags.SpaceEnv: (SpaceFlight,)
+}
 
 #  *******************
 #  ***   AnimObs   ***
@@ -988,9 +999,12 @@ class DoDamage( effects.NoEffect ):
             scale = self.scale or target.scale
 
             if self.scatter:
-                num_packets = sum( sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) + self.damage_bonus for t in range(number_of_hits))
-                num_packets = max(int(num_packets * damage_percent //100), 1)
-                hits = [scale.scale_health(1, materials.DamageMat )] * num_packets
+                raw_damage = sum([max(sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) + self.damage_bonus, 1) for t in range(number_of_hits)])
+                hits = list()
+                while raw_damage > 0:
+                    myhit = random.randint(1,4)
+                    raw_damage -= myhit
+                    hits.append(max(scale.scale_health(myhit, materials.DamageMat )* damage_percent // 100,1))
             else:
                 hits = [max(int(scale.scale_health(
                   max(sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) + self.damage_bonus, 1),

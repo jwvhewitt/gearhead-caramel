@@ -1046,7 +1046,7 @@ class Armor(SizeClassedComponent, StandardDamageHandler):
             absorb_amount = random.randint(max_absorb // 4, max_absorb)
         if absorb_amount > 0:
             self.hp_damage = min(self.hp_damage + min(absorb_amount, dmg), self.max_health)
-            dmg -= 2 * absorb_amount
+            dmg -= absorb_amount//2
         return dmg
 
 
@@ -3924,7 +3924,6 @@ class Character(Being):
         self.job = job
         self.birth_year = birth_year
         self.faction = faction
-        self.faction_scores = collections.defaultdict(int)
         self.renown = renown
         self.badges = list(badges)
         self.bio = bio
@@ -3959,10 +3958,6 @@ class Character(Being):
             mytags.append(self.faction.get_faction_tag())
         return mytags
 
-    def add_faction_score(self, fac, delta):
-        if fac:
-            self.faction_scores[fac.get_faction_tag()] += delta
-
     def get_reaction_score(self, pc, camp):
         if self.relationship and pc is camp.pc:
             rs = self.relationship.reaction_mod
@@ -3989,7 +3984,8 @@ class Character(Being):
                 rs += 10
         fac = self.get_tacit_faction(camp)
         if fac:
-            rs += pc.faction_scores.get(fac.get_faction_tag(), 0)
+            if pc is camp.pc:
+                rs += camp.get_faction_reaction_modifier(fac)
             pc_fac = pc.get_tacit_faction(camp)
             if pc_fac and camp.are_faction_enemies(fac, pc_fac):
                 rs -= 20

@@ -1,5 +1,6 @@
 from pbge import container,util
 import pickle
+import collections
 
 # An Egg is a container for a player character and all of that player character's associated data:
 # - The PC object itself
@@ -29,7 +30,14 @@ class Egg(object):
         self.credits = credits
         self.data = dict()
         # past_adventures lists names of adventure modules this character has done, to prevent double dipping.
-        self.past_adventures = list()
+        self.past_adventures = set()
+        self.faction_scores = collections.defaultdict(int)
+
+    def __setstate__(self, state):
+        # For saves from V0.600 or earlier, make sure there's a faction_scores dict.
+        self.__dict__.update(state)
+        if "faction_scores" not in state:
+            self.faction_scores = collections.defaultdict(int)
 
     def _remove_container_for(self,thing,con_rec):
         if hasattr(thing,"container") and thing.container:

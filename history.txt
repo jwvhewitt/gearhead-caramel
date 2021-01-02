@@ -1,3 +1,7 @@
+- Added Adventure Module selection menu
+- Moved faction score from a Character property to an Egg property
+- Color menu will recognize identical colors now
+- Reworked the way scatter damage scatters
 - Added Eggzaminer to dev mode
 - Fixed Egg ejection bug
 - Fixed a lot of GH1 import bugs
@@ -14,7 +18,7 @@
 - Updated the Winter Mocha scenario
 - Python scripts in user content folder will be loaded at startup
 
-v0.600 November 29 2020
+v0.600 December 27 2020
 - DeadZone Drifter scenario now has a conclusion
 - Monsters may get a different number of actions per round
 - Fixed serious CharacterMover bug

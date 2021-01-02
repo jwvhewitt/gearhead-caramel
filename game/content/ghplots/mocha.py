@@ -11,6 +11,7 @@ from pbge.dialogue import Cue, ContextTag, Offer, Reply
 from gears import personality, color, stats
 import game.content.ghcutscene
 from game.content import ghwaypoints, ghterrain, gharchitecture
+from game.content.plotutility import AdventureModuleData
 
 
 # ********************************
@@ -247,8 +248,16 @@ class MochaStub(Plot):
     # - Head out to battle some raiders.
     # - Win or lose, the end.
 
+    ADVENTURE_MODULE_DATA = AdventureModuleData(
+        "Winter Mocha",
+        "Several months after the Typhon Incident, you are invited to a charity mecha tournament at the newly built Mauna Arena.",
+        (157, 12, 23), "VHS_WinterMocha.png",
+    )
+
     def custom_init(self, nart):
         """Create the world + starting scene."""
+        self.ADVENTURE_MODULE_DATA.apply(nart.camp)
+
         w: gears.GearHeadCampaign = nart.camp
         self.register_element("WORLD", w)
         self.adv = Adventure(world=w)

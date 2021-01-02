@@ -39,6 +39,10 @@ class ConfigEditor( object ):
         mystate = not util.config.getboolean( "GENERAL", "auto_save" )
         util.config.set( "GENERAL", "auto_save", str(mystate) )
 
+    def toggle_replay( self ):
+        mystate = not util.config.getboolean( "GENERAL", "can_replay_adventures" )
+        util.config.set( "GENERAL", "can_replay_adventures", str(mystate) )
+
     def __call__(self):
         action = True
         while action:
@@ -49,6 +53,7 @@ class ConfigEditor( object ):
             mymenu.add_item("Music On: {}".format(util.config.getboolean( "GENERAL", "music_on" )),self.toggle_music)
             mymenu.add_item("Names Above Heads: {}".format(util.config.getboolean( "GENERAL", "names_above_heads" )),self.toggle_names)
             mymenu.add_item("Auto Save on Scene Change: {}".format(util.config.getboolean( "GENERAL", "auto_save" )),self.toggle_autosave)
+            mymenu.add_item("Can Replay Adventures: {}".format(util.config.getboolean( "GENERAL", "can_replay_adventures" )),self.toggle_replay)
 
             for op in util.config.options("DIFFICULTY"):
                 mymenu.add_item("{}: {}".format(op,util.config.getboolean("DIFFICULTY",op)),OptionToggler(op,"DIFFICULTY"))

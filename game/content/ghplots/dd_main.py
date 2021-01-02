@@ -15,6 +15,7 @@ import game.content.plotutility
 import game.content.gharchitecture
 from game.content.ghwaypoints import Exit
 from game.content import PLOT_LIST
+from game.content.plotutility import AdventureModuleData
 
 # Room tags
 ON_THE_ROAD = "ON_THE_ROAD" # This location is connected to the highway, if appropriate.
@@ -26,9 +27,17 @@ class DeadzoneDrifterStub( Plot ):
     # Creates a DeadZone Drifter adventure.
     # - Start by creating the "home base" city that the player character will leave from.
 
+    ADVENTURE_MODULE_DATA = AdventureModuleData(
+        "DeadZone Drifter",
+        "",
+        (158, 3, 5), "VHS_DeadZoneDrifter.png",
+    )
+
     def custom_init( self, nart ):
         """Create the intro/tutorial."""
         wplot = self.add_first_locale_sub_plot( nart, locale_type="DZD_INTRO", ident="INTRO" )
+
+        self.ADVENTURE_MODULE_DATA.apply(nart.camp)
 
         # Copy over the sheriff and the name of the town
         self.register_element("DZ_CONTACT",wplot.elements["SHERIFF"])
