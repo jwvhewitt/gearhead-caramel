@@ -1,6 +1,29 @@
-from setuptools import setup, find_packages
+import sys
+from cx_Freeze import setup, Executable
 from Cython.Build import cythonize
 from main import VERSION
+import numpy
+
+# Dependencies are automatically detected, but it might need fine tuning.
+build_exe_options = {"packages": ["os", "numpy"], "includes": ["numpy"], "optimize": 2,
+                     "include_files": ["data","design","image","music","credits.md","history.txt","LICENSE","README.md",numpy.get_include()],
+                     "include_msvcr": True,}
+
+# GUI applications require a different base on Windows (the default is for a
+# console application).
+base = None
+if sys.platform == "win32":
+    base = "Win32GUI"
+
+setup(  name = "ghcaramel",
+        version = VERSION,
+        description = "My GUI application!",
+        options = {"build_exe": build_exe_options},
+        executables = [Executable("main.py", base=base)],
+        )
+
+"""
+from setuptools import setup, find_packages
 import numpy
 
 setup(  name='ghcaramel',
@@ -27,3 +50,4 @@ setup(  name='ghcaramel',
         ext_modules=cythonize("caramel-recolor-cython/pbgerecolor.pyx"),
         include_dirs=[numpy.get_include()],
       )
+"""
