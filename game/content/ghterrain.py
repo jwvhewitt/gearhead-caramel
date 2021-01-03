@@ -146,6 +146,10 @@ class ResidentialWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_residential.png'
     blocks = (Walking,Skimming,Rolling,Vision,Flying)
 
+class WoodenWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_wood.png'
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
 class HospitalWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_hospital.png'
     blocks = (Walking,Skimming,Rolling,Vision,Flying)

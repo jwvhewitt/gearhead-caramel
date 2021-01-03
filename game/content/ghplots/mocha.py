@@ -453,7 +453,7 @@ class FrozenHotSpringCity(Plot):
             if not self.got_vikki_mission:
                 mylist.append(Offer(
                     "Some bandits are attacking a convoy down on the Gyori Highway. Because of the blizzard last night, the Guardians are tied up with disaster relief. Even worse, the hangar where my and probably your mecha are stored is snowed under.",
-                    context=ContextTag([context.INFO, context.MISSION]), data={"subject": "mission", },
+                    context=ContextTag([context.INFO, context.MISSION]), data={"subject": "the mission", },
                     replies=[
                         Reply("[DOTHEYHAVEITEM]",
                               destination=Offer(
@@ -471,12 +471,12 @@ class FrozenHotSpringCity(Plot):
             else:
                 mylist.append(Offer(
                     "You should have had a cup of coffee. There are bandits on the Gyori Highway, you can get a mecha to use from the storage yard up north.",
-                    context=ContextTag([context.INFO, context.MISSION]), data={'subject': 'bandits'}, no_repeats=True))
+                    context=ContextTag([context.INFO, context.MISSION]), data={'subject': 'the bandits'}, no_repeats=True))
 
             if not self.got_vikki_history:
                 mylist.append(Offer("[INFO_PERSONAL]",
                                     context=ContextTag([context.INFO, context.PERSONAL]),
-                                    data={'subject': 'past six months'}, effect=self._ask_vikki_history,
+                                    data={'subject': 'the past six months'}, effect=self._ask_vikki_history,
                                     no_repeats=True))
 
             if self.elements["VIKKI"] not in camp.party:
@@ -564,11 +564,13 @@ class WinterMochaChaletForEnding(Plot):
             scale=gears.scale.HumanScale
         )
 
-        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.ResidentialBuilding())
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(
+            intscene, gharchitecture.ResidentialBuilding(wall_terrain=ghterrain.WoodenWall)
+        )
         self.register_scene(nart, intscene, intscenegen, ident="LOCALE")
 
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=random.randint(20,25),
-                                                                                 height=random.randint(11,15),
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=random.randint(10,15),
+                                                                                 height=random.randint(6,8),
                                                                                  anchor=pbge.randmaps.anchors.south,),
                                       dident="LOCALE")
         foyer.contents.append(team2)
@@ -2055,6 +2057,7 @@ class Choice_BringJusticeToMercenaries(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "You still don't know who hired the mercenaries you fought earlier. This could be an opportunity to trail them to their leader and find out who they work for."
@@ -2091,6 +2094,7 @@ class Choice_DutyToFightPirates(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "The pirates seem to be having trouble navigating on Earth. They've left the road and headed into the forest. It should be no problem to catch up with them there."
@@ -2127,6 +2131,7 @@ class Choice_FellowshipWithSmugglers(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "Marks in the snow indicate that the smugglers are still being pursued by {}. It seems cruel to leave them to their fate... You can defend the convoy and let the Guardians figure out what to do about the contraband later.".format(
@@ -2205,6 +2210,7 @@ class Choice_JusticeForWujungOrphans(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'From the tracks in the snow, you think this is the way the thieves brought the stolen toys. If you hurry you may still be able to catch them and return the toys to the children of Wujung.'
@@ -2353,6 +2359,7 @@ class Choice_GloryByFightingTheLeader(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "This seems to be the way that the raider leader went. It's time to finish this."
@@ -2389,6 +2396,7 @@ class Choice_DutyToCatchTheLeader(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to capture them?'
@@ -2425,6 +2433,7 @@ class Choice_PeaceToDisableThePrototype(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'This seems to be the direction that the prototype mecha was taken. A weapon that powerful should not fall into the wrong hands.'
@@ -2461,6 +2470,7 @@ class Choice_DutyToStopThePrototype(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to recover the stolen prototype?'
@@ -2618,7 +2628,6 @@ class FinalBattleAgainstTrucks(Plot):
         boss = self.elements["BOSS"]
         pos = self.elements["_goalroom"].area.center
         myscene.place_actor(boss, pos[0], pos[1], self.elements["_eteam"])
-        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def t_ENDCOMBAT(self, camp):
         myboss = self.elements["BOSS"]
@@ -2661,7 +2670,6 @@ class FinalBattleAgainstBoss(Plot):
         boss = self.elements["BOSS"]
         pos = self.elements["_goalroom"].area.center
         myscene.place_actor(boss, pos[0], pos[1], self.elements["_eteam"])
-        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def t_ENDCOMBAT(self, camp):
         myboss = self.elements["BOSS"]
@@ -2703,7 +2711,6 @@ class FinalBattleAgainstBossInWoods(Plot):
         boss = self.elements["BOSS"]
         pos = self.elements["_goalroom"].area.center
         myscene.place_actor(boss, pos[0], pos[1], self.elements["_eteam"])
-        camp.campdata[MOVAR_FOUGHTBLITZEN] = True
 
     def t_ENDCOMBAT(self, camp):
         myboss = self.elements["BOSS"]

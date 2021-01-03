@@ -52,7 +52,7 @@ class AdventureMenu(object):
             if hasattr(p, "ADVENTURE_MODULE_DATA") and p.ADVENTURE_MODULE_DATA.can_play(self.egg):
                 mymenu.add_item(
                     p.ADVENTURE_MODULE_DATA.name, p,
-                    'NT{}.{}.{}: {}'.format(*p.ADVENTURE_MODULE_DATA.date, p.ADVENTURE_MODULE_DATA.desc)
+                    'NT{}.{:02}.{:02}: {}'.format(*p.ADVENTURE_MODULE_DATA.date, p.ADVENTURE_MODULE_DATA.desc)
                 )
         mymenu.items.sort(key=lambda x: x.value.ADVENTURE_MODULE_DATA.date)
 
