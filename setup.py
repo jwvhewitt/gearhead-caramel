@@ -5,7 +5,7 @@ from main import VERSION
 import numpy
 
 # Dependencies are automatically detected, but it might need fine tuning.
-build_exe_options = {"packages": ["os", "numpy"], "includes": ["numpy"], "optimize": 2,
+build_exe_options = {"packages": ["os", "numpy"], "includes": ["numpy"],
                      "include_files": ["data","design","image","music","credits.md","history.txt","LICENSE","README.md",numpy.get_include()],
                      "include_msvcr": True,}
 
