@@ -9,21 +9,6 @@ instructions below.
 
 ![Screenshot](image/screenshot.png)
 
-ABOUT
-=====
-
-The first scenario for GearHead Caramel is Winter Mocha. Set a few months
-after the Typhon Incident, you are invited to take part in a charity mecha
-tournament at the newly constructed Mauna Arena.
-
-This is an early alpha release- there are tons of things that aren't finished
-yet. However, it's a fun little scenario, and will show you some of the new
-things that GearHead Caramel can do.
-
-Note: If you have trouble running ghcaramel on MacOS, you may need to set
-the executable permission on the file (chmod a+x ghcaramel) or configure
-MacOS gatekeeper to allow it to run.
-
 CONTROLS
 ========
 
@@ -50,6 +35,23 @@ arrow keys.
 
 In the combat movement interface, click the movemode to change movemode.
 
+TROUBLESHOOTING
+===============
+
+If you have trouble running ghcaramel on MacOS, you may need to set
+the executable permission on the file (chmod a+x ghcaramel) or configure
+MacOS gatekeeper to allow it to run.
+
+If you get a "permission denied" error on Linux, you may need to set the
+executable permission on the file. Right click the ghcaramel file and
+open the properties. Make sure "allow this file to run as a program" is
+enabled under "Permissions".
+
+If you double click on ghcaramel and instead of running it tries to open
+the program file in Mousepad, then congratulations! You are apparently using
+XUbuntu which is the same OS I use, but I have no idea why it's doing this
+strange thing. You can get around this by running the program from a terminal
+or making a shortcut for it on your desktop/app menu.
 
 BUILDING FROM SOURCE
 ====================
@@ -61,7 +63,7 @@ Cython packages. The easiest way to install these is with "pip". You may
 also need to install a C compiler for Cython; see the Cython page for
 details.
 
-  https://www.python.org/
+  https://cython.org/
   
 Before running the program for the first time, you need to build the
 caramel-recolor-cython package. Open a terminal in the caramel-recolor-cython
@@ -70,7 +72,18 @@ folder and type:
   python setup.py install
   
 Depending on your system, you may need to type "python3" instead of "python".
-Once this package is installed, you can run main.py to play the game.
+Once this package is installed, you can run main.py to play the game. If you are
+getting a "permissions denied" error, or you want to keep things local, use
+this command instead:
+
+  python setup.py install --user
+
+Once pbgerecolor has been built + installed you can run the main.py script
+directly. There is a cx_Freeze setup.py script in the root folder which may
+be used to build + install an executable version of GearHead Caramel; if you
+figure that out then more power to you.
+
+  python main.py
 
 The first time it's run, the game will create a "ghcaramel" folder in your
 home directory and place a configuration file there. This is where all of your

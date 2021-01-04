@@ -29,7 +29,7 @@ class DeadzoneDrifterStub( Plot ):
 
     ADVENTURE_MODULE_DATA = AdventureModuleData(
         "DeadZone Drifter",
-        "",
+        "The village you've been defending needs a power station. Getting them a new one will require questing from one end of the deadzone to the other.",
         (158, 3, 5), "VHS_DeadZoneDrifter.png",
     )
 
