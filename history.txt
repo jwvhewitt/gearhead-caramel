@@ -1,3 +1,5 @@
+v0.610 January 4 2021
+- Packaging system changed from PyInstaller to cx_Freeze, fixed Windows NumPy issue
 - Added Adventure Module selection menu
 - Moved faction score from a Character property to an Egg property
 - Color menu will recognize identical colors now

@@ -87,12 +87,12 @@ Mecha
                         BeamWeapon
                             name = "Intercept Laser"
                             reach = 2
-                            damage = 1
+                            damage = 2
                             accuracy = 2
-                            penetration = 0
+                            penetration = 1
                             integral = True
                             shot_anim = SmallBeam
-                            attributes = (Intercept)
+                            attributes = (Intercept, LinkedFire)
                     END
             END
         Arm
@@ -120,12 +120,12 @@ Mecha
                         BeamWeapon
                             name = "Intercept Laser"
                             reach = 2
-                            damage = 1
+                            damage = 2
                             accuracy = 2
-                            penetration = 0
+                            penetration = 1
                             integral = True
                             shot_anim = SmallBeam
-                            attributes = (Intercept)
+                            attributes = (Intercept, LinkedFire)
                     END
             END
         Leg
