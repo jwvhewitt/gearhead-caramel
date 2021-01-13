@@ -31,9 +31,10 @@ class AdventureMenu(object):
         if item:
             myrect = self.LEFT_COLUMN.get_rect()
             pbge.default_border.render(myrect)
-            if item not in self.posters:
-                self.posters[item] = pbge.image.Image(item.ADVENTURE_MODULE_DATA.title_card)
-            self.posters[item].render((myrect.x,myrect.y))
+            if item.ADVENTURE_MODULE_DATA.title_card:
+                if item not in self.posters:
+                    self.posters[item] = pbge.image.Image(item.ADVENTURE_MODULE_DATA.title_card)
+                self.posters[item].render((myrect.x,myrect.y))
             if menu_item.desc:
                 myrect = self.TEXT_AREA.get_rect()
                 pbge.default_border.render(myrect)

@@ -745,7 +745,7 @@ class GH1Loader(object):
         pc.renown = pc.renown // 2
         my_egg = eggs.Egg(pc)
         my_egg.mecha = selector.MechaShoppingList.generate_single_mecha(pc.renown*2, None, tags.GroundEnv)
-        my_egg.past_adventures.append("The Typhon Incident")
+        my_egg.past_adventures.add("The Typhon Incident")
         my_egg.credits = max(rpc.natt.get((self.NAG_EXPERIENCE, self.NAS_CREDITS), 500000),500000)
         self.record_pc_stuff(rpc,pc)
         self.get_relationships(rpc,my_egg)

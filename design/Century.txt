@@ -1,0 +1,113 @@
+Mecha
+    name = "Century"
+    desig = "CNA-15"
+    imagename = "mav_century.png"
+    portrait = "mecha_century.png"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (ProDuelistAssociation,ClanIronwind,DeadzoneFederation,TerranFederation)
+    role_list = (Trooper,)
+    desc = "A mecha designed by the now defunct Rupert Enterprises. There are still a few around on Earth and in the hands of professional duelists."
+
+    SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                    integral = True
+                Sensor
+                    size = 2
+                    integral = True
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                STC LAS-5 Intercept Laser
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 650
+                Gyroscope
+                Launcher
+                    size = 8
+                    SUB
+                        Missile
+                            name = "Long Range Missiles"
+                            reach = 7
+                            damage = 1
+                            accuracy = 1
+                            penetration = 2
+                            quantity = 40
+                    END
+
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                    integral = True
+                BallisticWeapon
+                    name = "Arm Autocannon"
+                    reach = 5
+                    damage = 4
+                    accuracy = 2
+                    penetration = 3
+                    ammo_type = Caseless_165mm
+                    attributes = (Accurate,)
+                    integral = True
+                    shot_anim = HugeBullet
+                    SUB
+                        Ammo
+                            ammo_type=Caseless_165mm
+                            quantity=20
+                    END
+
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+                    INV
+                        BeamWeapon
+                            name = "Targeting Laser"
+                            reach = 4
+                            damage = 2
+                            accuracy = 3
+                            penetration = 1
+                            shot_anim = GunBeam
+                            attributes = (Designator,)
+                    END
+
+            END
+        Leg
+            name = "Right Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                HeavyActuators
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                HeavyActuators
+                    size = 4
+            END
+    END

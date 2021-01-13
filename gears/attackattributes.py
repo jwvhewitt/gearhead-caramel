@@ -194,6 +194,29 @@ class Defender(Singleton):
     POWER_MODIFIER = 1.0
     PARRY_BONUS = 20
 
+class Designator(Singleton):
+    name = "Designator"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.3
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def modify_basic_attack(self, weapon, attack):
+        # Add a Sensor Lock status to the children.
+        attack.fx.children[0].children.append(
+            geffects.IfEnchantmentOK(
+                geffects.SensorLock,
+                on_success=(
+                    geffects.OpposedSkillRoll(
+                        stats.Ego,weapon.get_attack_skill(),stats.Ego,stats.Computers,roll_mod=25,
+                        min_chance=10,
+                        on_success=(geffects.AddEnchantment(geffects.SensorLock,dur_n=3,dur_d=3,anim=geffects.SensorLockAnim),)
+                    ),
+                ),
+            )
+        )
+
 
 class DisintegrateAttack(Singleton):
     name = "Disintegrate"

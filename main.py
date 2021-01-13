@@ -10,7 +10,7 @@ import glob
 import pickle
 import copy
 
-VERSION = "v0.610"
+VERSION = "v0.612"
 
 
 class TitleScreenRedraw(object):
