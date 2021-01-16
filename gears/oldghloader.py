@@ -15,6 +15,7 @@ from . import portraits
 from . import genderobj
 from . import tags
 from . import relationships
+from . import materials
 
 TYPHON_SLAYER = meritbadges.UniversalReactionBadge("Typhon Slayer", "You led the team that defeated Typhon.", 10)
 CETUS_SLAYER = meritbadges.UniversalReactionBadge("Cetus Slayer", "You defeated the biomonster Cetus.", 3)
@@ -601,8 +602,17 @@ class GH1Loader(object):
         # Determine gender.
         gender = self.GENDER_OPS.get(pc.natt.get((self.NAG_CHARDESCRIPTION, self.NAS_GENDER), 0),genderobj.Gender.get_default_nonbinary())
 
+        jobname = pc.satt.get("JOB", None)
+        if jobname == "ROBOT":
+            material = materials.Metal
+            channels = color.ROBOTNPC_COLOR_CHANNELS
+        else:
+            material = materials.Meat
+            channels = color.CHARACTER_COLOR_CHANNELS
+
         ghcpc = base.Character(name=pc.satt.get('NAME', "Bob's Dwarf"), statline=statline, personality=traits,
-                              colors=pc_colors, portrait_gen=portraits.Portrait(), gender=gender)
+                               colors=pc_colors, portrait_gen=portraits.Portrait(channels), gender=gender,
+                               material=material)
 
         # Set experience totals and renown.
         ghcpc.experience[ghcpc.TOTAL_XP] = pc.natt.get((self.NAG_EXPERIENCE,self.NAS_TOTAL_XP),0)
@@ -610,7 +620,6 @@ class GH1Loader(object):
         ghcpc.renown = pc.natt.get((self.NAG_CHARDESCRIPTION,self.NAS_RENOWNED),1)
 
         # Set a job, if possible.
-        jobname = pc.satt.get("JOB", None)
         if jobname and jobname in jobs.ALL_JOBS:
             ghcpc.job = jobs.ALL_JOBS[jobname]
         else:
@@ -734,6 +743,7 @@ class GH1Loader(object):
                     nu_relationship.tags.add(relationships.RT_FAMILY)
                 elif rtype == self.NAS_LOVER:
                     nu_relationship.role = relationships.R_ROMANCE
+                    nu_relationship.tags.add(relationships.RT_LANCEMATE)
                 elif rtype == self.NAS_ARCHENEMY:
                     nu_relationship.role = relationships.R_ADVERSARY
                 nu_npc.relationship = nu_relationship

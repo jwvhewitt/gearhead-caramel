@@ -45,7 +45,7 @@ class AdventureMenu(object):
             self.RIGHT_COLUMN.dx,
             self.RIGHT_COLUMN.dy,
             self.RIGHT_COLUMN.w, self.RIGHT_COLUMN.h,
-            font=pbge.my_state.huge_font, predraw=self.redrawer
+            font=pbge.my_state.huge_font, predraw=self.redrawer, padding=16
         )
         mymenu.descobj = self.adventure_desc
 

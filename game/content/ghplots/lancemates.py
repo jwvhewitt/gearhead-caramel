@@ -197,6 +197,36 @@ class MutantLancemate(Plot):
         return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
+class FormerLancemateReturns(Plot):
+    LABEL = "RANDOM_LANCEMATE"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        npc = nart.camp.egg.seek_dramatis_person(nart.camp, self._is_good_npc, self)
+        if npc:
+            scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+            self.register_element("NPC", npc, dident="LOCALE")
+            self.add_sub_plot(nart, "RLM_Relationship")
+        return npc
+
+    def _is_good_npc(self,nart,candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.relationship and gears.relationships.RT_LANCEMATE in candidate.relationship.tags
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is not self.elements["NPC"]:
+            mygram["[News]"] = ["{NPC} has been hanging out at {LOCALE}".format(**self.elements), ]
+        return mygram
+
+    def t_START(self, camp):
+        if self.elements["NPC"] in camp.party:
+            self.end_plot(camp)
+
+
 #   **************************
 #   ***  RLM_Relationship  ***
 #   **************************

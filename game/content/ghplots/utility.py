@@ -9,7 +9,7 @@ from game.ghdialogue import context
 import random
 from pbge.dialogue import ContextTag,Offer
 from game.content.ghplots import dd_main
-import game.content.plotutility
+from game.content import plotutility
 import game.content.gharchitecture
 from . import missionbuilder
 import collections
@@ -48,6 +48,24 @@ class FightingRandomNPC(Plot):
 
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
+#  *************************************
+#  ***   ADD_INSTANT_EGG_LANCEMATE   ***
+#  *************************************
+#   Add a lancemate from the Egg directly to the party.
+
+class BasicEggLancemate(Plot):
+    LABEL = "ADD_INSTANT_EGG_LANCEMATE"
+
+    def custom_init(self, nart):
+        npc = nart.camp.egg.seek_dramatis_person(nart.camp, self._is_good_npc, self)
+        if npc:
+            plotutility.AutoJoiner(npc)(nart.camp)
+        return True
+
+    def _is_good_npc(self,nart,candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.relationship and gears.relationships.RT_LANCEMATE in candidate.relationship.tags
 
 
 #  *****************************

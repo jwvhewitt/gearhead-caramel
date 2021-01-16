@@ -1,3 +1,6 @@
+- Robot NPCs from GH1 will be Metal, not Meat
+- Lancemates from previous adventures may show up in DeadZone Drifter
+
 v0.612 January 13 2021
 - Added the CNA-15 Century mecha
 - Fixed bug with importing GH1 characters

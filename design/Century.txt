@@ -4,7 +4,7 @@ Mecha
     imagename = "mav_century.png"
     portrait = "mecha_century.png"
     environment_list = (GroundEnv,UrbanEnv,)
-    faction_list = (ProDuelistAssociation,ClanIronwind,DeadzoneFederation,TerranFederation)
+    faction_list = (ProDuelistAssociation, ClanIronwind, DeadzoneFederation, TerranFederation)
     role_list = (Trooper,)
     desc = "A mecha designed by the now defunct Rupert Enterprises. There are still a few around on Earth and in the hands of professional duelists."
 

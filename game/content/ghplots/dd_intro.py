@@ -52,6 +52,9 @@ class DZDIntro_GetInTheMekShimli(Plot):
         self.add_sub_plot(nart,"DZD_INTRO_MISSION",ident="MISSION")
         self.add_sub_plot(nart,"DZD_MISSION_DEBRIEFING",ident="DEBRIEFING")
 
+        # Add an egg lancemate, if possible.
+        self.add_sub_plot(nart, "ADD_INSTANT_EGG_LANCEMATE", necessary=False)
+
         # Attempt to load the test mission.
         mytest = self.add_sub_plot(nart,"DZRE_TEST",spstate=pbge.plots.PlotState(rank=1,elements={"METRO":myscene.metrodat,"MISSION_GATE":mychute,"FACTION":game.content.plotutility.RandomBanditCircle(nart.camp),"DZREPR_MISSION_WINS":0}).based_on(self),necessary=False)
 

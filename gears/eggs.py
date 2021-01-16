@@ -1,6 +1,7 @@
 from pbge import container,util
 import pickle
 import collections
+import random
 
 # An Egg is a container for a player character and all of that player character's associated data:
 # - The PC object itself
@@ -67,3 +68,17 @@ class Egg(object):
     def backup( self ):
         # Save a record of all the containers.
         self.save(sfpat='backup_{}.sav')
+
+    def seek_dramatis_person(self, camp, check_fun, myplot=None):
+        # Characters who get "checked out" from an egg are stored in the campaign's uniques set, to make sure
+        # that two copies of the same character don't show up in the same scenario.
+        # check_fun is a function with parameters (camp,candidate) that returns True if candidate is accepted
+        # Return the selected candidate.
+        if self.dramatis_personae:
+            candidates = [c for c in self.dramatis_personae if check_fun(camp,c) and c not in camp.uniques]
+            if candidates:
+                mynpc = random.choice(candidates)
+                camp.uniques.add(mynpc)
+                if myplot:
+                    myplot.move_records.append((mynpc,camp.uniques))
+                return mynpc

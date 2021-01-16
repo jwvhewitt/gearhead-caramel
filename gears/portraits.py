@@ -19,9 +19,9 @@ FRAMES = ((0, 0, 400, 600), (0, 600, 100, 100), (100, 600, 64, 64))
 TAG_COMMON = "Common"
 
 class Portrait(object):
-    def __init__(self):
+    def __init__(self, color_channels=color.CHARACTER_COLOR_CHANNELS):
         self.bits = list()
-        self.color_channels = list(color.CHARACTER_COLOR_CHANNELS)
+        self.color_channels = list(color_channels)
 
     @staticmethod
     def get_list_of_type(ptype, form_tags,use_weight=True, use_style=True):
