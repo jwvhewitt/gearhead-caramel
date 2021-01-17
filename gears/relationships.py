@@ -45,6 +45,7 @@ E_AMORFATI = "Amor Fati"        # NPC has accepted their own fate
 E_ILLUMINATED = "Illuminated"   # NPC has attained transcendence
 
 # Role- The NPC's relationship with the PC, explained briefly.
+R_CREATION = "Creation"         # NPC was created by the PC; probably means they're a robot
 R_OPPONENT = "Opponent"         # NPC knows the PC somewhat, but from the enemy side.
 R_COLLEAGUE = "Colleague"       # NPC knows the PC, but just in a bizness sense
 R_ADVERSARY = "Adversary"       # Relationship defined by conflict

@@ -61,6 +61,55 @@ class FloorBorder( object ):
                 spr.render( dest, corners )
 
 
+class DuckTerrain(object):
+    def __init__(self, name="Duck Terrain", image_bottom='', image_biddle='', image_middle='', image_top='', blocks=(),
+                 frame=0, altitude=0, colors=None, transparent=False, border=None, movement_cost=None):
+        self.name = name
+        self.image_bottom = image_bottom
+        self.image_biddle = image_biddle
+        self.image_middle = image_middle
+        self.image_top = image_top
+        self.blocks = tuple(blocks)
+        self.frame = frame
+        self.altitude = altitude
+        self.colors = colors
+        self.transparent = transparent
+        self.border = border
+        self.movement_cost = dict()
+        if movement_cost:
+            self.movement_cost.update(movement_cost)
+
+    def render_top( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        if self.image_top:
+            spr = view.get_terrain_sprite( self.image_top, (x,y), transparent=self.transparent, colors=self.colors )
+            spr.render( dest, self.frame )
+
+    def render_biddle( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        if self.image_biddle:
+            spr = view.get_terrain_sprite( self.image_biddle, (x,y), transparent=self.transparent, colors=self.colors )
+            spr.render( dest, self.frame )
+
+    def render_middle( self, dest, view, x, y ):
+        """Draw terrain that should appear in front of a model in the same tile"""
+        if self.image_middle:
+            spr = view.get_terrain_sprite( self.image_middle, (x,y), transparent=self.transparent, colors=self.colors )
+            spr.render( dest, self.frame )
+
+    def render_bottom( self, dest, view, x, y ):
+        """Draw terrain that should appear behind a model in the same tile"""
+        if self.image_bottom:
+            spr = view.get_terrain_sprite( self.image_bottom, (x,y), transparent=self.transparent, colors=self.colors )
+            spr.render( dest, self.frame )
+
+    def place( self, scene, pos ):
+        if scene.on_the_map( *pos ):
+            scene._map[pos[0]][pos[1]].decor = self
+
+    def __str__( self ):
+        return self.name
+
 
 class Terrain( Singleton ):
     name = 'Undefined Terrain'
@@ -108,10 +157,7 @@ class Terrain( Singleton ):
     @classmethod
     def __str__( self ):
         return self.name
-    @classmethod
-    def getz_sprite( self ):
-        """Generate the sprite for this terrain."""
-        return image.Image(self.image_top,64,64)
+
 
 class VariableTerrain( Terrain ):
     frames = (0,1,2,3,4,5,6,7)

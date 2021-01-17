@@ -757,9 +757,14 @@ class DZD_BlueFortressHQ(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
+        dd = {
+            "image_bottom": 'terrain_building_brick_b.png', "image_top": 'terrain_building_brick_u.png',
+             "blocks": (pbge.scenes.movement.Walking,gears.geffects.Skimming,gears.geffects.Rolling,pbge.scenes.movement.Flying),
+            "colors": (gears.color.SteelBlue, gears.color.DeepSeaBlue, gears.color.Straw, gears.color.Black, gears.color.Black)
+        }
         building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Blue Fortress")},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], duck_dict=dd), dident="LOCALE",)
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")

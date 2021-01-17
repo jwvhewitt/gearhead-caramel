@@ -59,28 +59,28 @@ class SceneView( object ):
             self.modelsprite[obj] = spr
         return spr
 
-    def get_named_sprite( self, fname, transparent=False ):
+    def get_named_sprite( self, fname, transparent=False, colors=None ):
         """Return the requested sprite. If no sprite exists, try to load one."""
-        spr = self.namedsprite.get( (fname,transparent) )
+        spr = self.namedsprite.get( (fname,transparent,colors) )
         if not spr:
-            spr = image.Image(fname,self.TILE_WIDTH,self.TILE_WIDTH, transparent=transparent)
-            self.namedsprite[(fname,transparent)] = spr
+            spr = image.Image(fname,self.TILE_WIDTH,self.TILE_WIDTH, color=colors, transparent=transparent)
+            self.namedsprite[(fname,transparent,colors)] = spr
         return spr
 
-    def get_terrain_sprite(self,fname,pos,transparent=False):
+    def get_terrain_sprite(self,fname,pos,transparent=False, colors=None):
         if self.scene.in_sight:
             if pos in self.scene.in_sight:
-                return self.get_named_sprite(fname,transparent=transparent)
+                return self.get_named_sprite(fname,transparent=transparent,colors=colors)
             else:
-                spr = self.darksprite.get(fname)
+                spr = self.darksprite.get((fname,colors))
                 if not spr:
-                    spr = self.get_named_sprite(fname, transparent=transparent).copy()
+                    spr = self.get_named_sprite(fname, transparent=transparent, colors=colors).copy()
                     spr.bitmap.fill((190, 180, 200), special_flags=pygame.BLEND_MULT)
                     spr.bitmap.set_colorkey((0, 0, 199))
-                    self.darksprite[fname] = spr
+                    self.darksprite[(fname,colors)] = spr
                 return spr
         else:
-            return self.get_named_sprite(fname, transparent=transparent)
+            return self.get_named_sprite(fname, transparent=transparent, colors=colors)
 
     def get_pseudo_random( self, x, y ):
         #self.seed = ( 73 * x + 101 * y + x * y ) % 1024

@@ -1,3 +1,4 @@
+- Added DuckTerrain, duck_dict option for TerrainSet
 - Robot NPCs from GH1 will be Metal, not Meat
 - Lancemates from previous adventures may show up in DeadZone Drifter
 

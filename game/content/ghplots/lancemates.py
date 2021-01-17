@@ -1,5 +1,6 @@
 import pbge
 from game.content.plotutility import LMSkillsSelfIntro
+from game.content import backstory
 from pbge.plots import Plot
 from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
@@ -203,11 +204,12 @@ class FormerLancemateReturns(Plot):
     scope = "METRO"
 
     def custom_init(self, nart):
-        npc = nart.camp.egg.seek_dramatis_person(nart.camp, self._is_good_npc, self)
+        npc: gears.base.Character = nart.camp.egg.seek_dramatis_person(nart.camp, self._is_good_npc, self)
         if npc:
             scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
             self.register_element("NPC", npc, dident="LOCALE")
-            self.add_sub_plot(nart, "RLM_Relationship")
+            #print(npc,scene)
+            self.bs = backstory.Backstory(("LONGTIMENOSEE",),keywords=[t.name.upper() for t in npc.get_tags()])
         return npc
 
     def _is_good_npc(self,nart,candidate):
@@ -218,9 +220,19 @@ class FormerLancemateReturns(Plot):
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
-        if npc is not self.elements["NPC"]:
+        if npc is self.elements["NPC"]:
+            for k in self.bs.results.keys():
+                mygram[k] = [self.bs.get_one(k),]
+        else:
             mygram["[News]"] = ["{NPC} has been hanging out at {LOCALE}".format(**self.elements), ]
         return mygram
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer("[INFO_PERSONAL]",
+                            context=ContextTag([context.PERSONAL]),
+                            no_repeats=True, effect=self.end_plot))
+        return mylist
 
     def t_START(self, camp):
         if self.elements["NPC"] in camp.party:

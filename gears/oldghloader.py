@@ -135,6 +135,7 @@ class GH1Loader(object):
     NAS_RENOWNED = -6
     NAS_PRAGMATIC = -7
     NAS_GENDER = 0
+    NAS_DAGE = 1
 
     NAG_EXPERIENCE = 4
     NAS_TOTAL_XP = 0
@@ -496,6 +497,9 @@ class GH1Loader(object):
 
         my_color = self.COLOR_CONVERT.get((r, g, b), None)
         if my_color:
+            # Maize was a skin tone in GH1. In GHC it doesn't work at all. Switch to nearest analogue.
+            if color_type == SKIN_COLORS and my_color == color.Maize:
+                my_color = color.SandyBrown
             return my_color, color_string
         else:
             return random.choice(color_type), color_string
@@ -599,20 +603,22 @@ class GH1Loader(object):
         else:
             pc_colors = random_character_colors()
 
-        # Determine gender.
+        # Determine gender and age.
         gender = self.GENDER_OPS.get(pc.natt.get((self.NAG_CHARDESCRIPTION, self.NAS_GENDER), 0),genderobj.Gender.get_default_nonbinary())
+        birth_year = 137 - pc.natt.get((self.NAG_CHARDESCRIPTION,self.NAS_DAGE),0)
 
-        jobname = pc.satt.get("JOB", None)
+        jobname: str = pc.satt.get("JOB", None)
         if jobname == "ROBOT":
             material = materials.Metal
             channels = color.ROBOTNPC_COLOR_CHANNELS
+            birth_year = 157
         else:
             material = materials.Meat
             channels = color.CHARACTER_COLOR_CHANNELS
 
         ghcpc = base.Character(name=pc.satt.get('NAME', "Bob's Dwarf"), statline=statline, personality=traits,
                                colors=pc_colors, portrait_gen=portraits.Portrait(channels), gender=gender,
-                               material=material)
+                               material=material, birth_year=birth_year)
 
         # Set experience totals and renown.
         ghcpc.experience[ghcpc.TOTAL_XP] = pc.natt.get((self.NAG_EXPERIENCE,self.NAS_TOTAL_XP),0)
@@ -620,10 +626,10 @@ class GH1Loader(object):
         ghcpc.renown = pc.natt.get((self.NAG_CHARDESCRIPTION,self.NAS_RENOWNED),1)
 
         # Set a job, if possible.
-        if jobname and jobname in jobs.ALL_JOBS:
-            ghcpc.job = jobs.ALL_JOBS[jobname]
+        if jobname and jobname.title() in jobs.ALL_JOBS:
+            ghcpc.job = jobs.ALL_JOBS[jobname.title()]
         else:
-            ghcpc.job = jobs.Job("Cavalier")
+            ghcpc.job = jobs.Job(jobname.title())
 
         return ghcpc
 
@@ -736,6 +742,8 @@ class GH1Loader(object):
                     reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,mynpc.natt.get(self.NAG_PERSONAL,self.NAS_CHARACTERID)),0),
                 )
                 nu_relationship.met_before = True
+                if nu_npc.material == materials.Metal:
+                    nu_relationship.role = relationships.R_CREATION
                 rtype = mynpc.natt.get((self.NAG_RELATIONSHIP,0),0)
                 if rtype == self.NAS_ARCHALLY:
                     nu_relationship.tags.add(relationships.RT_LANCEMATE)

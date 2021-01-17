@@ -16,7 +16,8 @@ class TerrSet( Room ):
         (None,None,None),
     )
     WAYPOINT_POS = dict()
-    def __init__(self,tags=(), anchor=None, parent=None, archi=None, waypoints=dict(),border=1,dont_calc_dimensions=False):
+    def __init__(self, tags=(), anchor=None, parent=None, archi=None, waypoints=dict(),border=1,
+                 dont_calc_dimensions=False, duck_dict=None):
         self.border = border
         if dont_calc_dimensions:
             self.width,self.height = random.randint(7,15), random.randint(7,15)
@@ -30,6 +31,7 @@ class TerrSet( Room ):
         self.contents = container.ContainerList(owner=self)
         self.waypoints = dict()
         self.waypoints.update(waypoints)
+        self.duck_dict=duck_dict
         if parent:
             parent.contents.append( self )
 
@@ -45,6 +47,8 @@ class TerrSet( Room ):
                 if scene.on_the_map(x,y) and col is not None:
                     if inspect.isclass( col ) and issubclass(col,scenes.terrain.Terrain):
                         scene._map[x][y].wall = col
+                    elif self.duck_dict:
+                        scene._map[x][y].wall = scenes.terrain.DuckTerrain(**self.duck_dict, frame=col)
                     else:
                         scene._map[x][y].wall = self.TERRAIN_TYPE
                         scene.data[(x,y)] = col
@@ -79,7 +83,8 @@ class BuildingSet( TerrSet ):
     GF5_TILE = (19,24)
 
     DEFAULT_DECOR_OPTIONS = ()
-    def __init__(self, tags=(), anchor=None, parent=None, archi=None, waypoints=dict(), border=1, decor_options=(), door_sign=None, other_sign=None):
+    def __init__(self, tags=(), anchor=None, parent=None, archi=None, waypoints=dict(), border=1, decor_options=(),
+                 door_sign=None, other_sign=None, duck_dict=None):
         # door_sign is a tuple containing the (south,east) versions of terrain to place above the door.
         # other_sign is a tuple containing the (south,east) versions of terrain to place above the other waypoint.
         self.TERRAIN_MAP = list()
@@ -91,7 +96,7 @@ class BuildingSet( TerrSet ):
         # Create the WAYPOINT_POS dictionary. Add a spot for a door and a spot for some other reachable ground tile.
         self.WAYPOINT_POS = dict()
 
-        super(BuildingSet,self).__init__(tags,anchor,parent,archi,waypoints,border,dont_calc_dimensions=True)
+        super().__init__(tags,anchor,parent,archi,waypoints,border,dont_calc_dimensions=True, duck_dict=duck_dict)
 
     def design(self):
         # height = dimy + dimz - 1 + 2 * self.border

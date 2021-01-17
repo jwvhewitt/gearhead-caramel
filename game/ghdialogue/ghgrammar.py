@@ -1214,6 +1214,24 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[HELLO:PERSONAL]": {
+        Default: ["How have you been these days?",
+                  "What have you been doing lately?"
+                  ],
+        personality.Cheerful: ["Good to see you! How are things?",
+                               ],
+        personality.Grim: ["Good to see that you're still alive. How are you?",
+                           ],
+        personality.Easygoing: ["So, how's it been this past while?",
+                                ],
+        personality.Passionate: ["You must tell me about the adventures you've had!",
+                                 ],
+        personality.Sociable: ["I'd love to catch up with eveyrthing you've been doing.",
+                               ],
+        personality.Shy: ["What's up?",
+                          ],
+    },
+
     "[HELLO:PROPOSAL]": {
         Default: ["I want to talk about {subject}.",
                   "Let's talk about {subject}."

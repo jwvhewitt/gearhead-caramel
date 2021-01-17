@@ -1,0 +1,171 @@
+[
+  {
+    "name": "Doing Missions",
+    "command": "LONGTIMENOSEE",
+    "results": {
+      "[IP_STATUS]": "I've been keeping busy; work has been plentiful.",
+      "[IP_Business]": "I've been doing a lot of missions"
+    },
+    "add_keywords": ["missions"],
+    "next_command": "LONGTIMENOSEE_NEWS"
+  },
+  {
+    "name": "Mission News: Mecha Swap",
+    "command": "LONGTIMENOSEE_NEWS",
+    "requires": ["missions"],
+    "results": {
+      "[IP_GoodNews]": "I picked up a lot of great salvage",
+      "[IP_BadNews]": "I got my best mek shot out from under me"
+    },
+    "add_keywords": ["mecha"],
+    "next_command": "LONGTIMENOSEE_THOUGHTS"
+  },
+  {
+    "name": "Mission News: Gotta Be The Best",
+    "command": "LONGTIMENOSEE_NEWS",
+    "requires": ["missions"],
+    "results": {
+      "[IP_GoodNews]": "I've been working hard to improve my skills",
+      "[IP_BadNews]": "I had a hard time on some of my recent jobs"
+    },
+    "add_keywords": ["skills"],
+    "next_command": "LONGTIMENOSEE_THOUGHTS"
+  },
+    {
+    "name": "Thoughts: Missions Generally",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["missions"],
+    "results": {
+      "[IP_Hope]": "I've been pretty successful at this job",
+      "[IP_Worry]": "I'm still waiting for the big payday"
+    }
+  },
+    {
+    "name": "Thoughts: Missions Renown",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["missions"],
+    "results": {
+      "[IP_Hope]": "all this hard work has improved my renown",
+      "[IP_Worry]": "I always worry about where I'm going to find my next mission"
+    }
+  },
+      {
+    "name": "Thoughts: Easygoing Mission",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["missions", "EASYGOING"],
+    "results": {
+      "[IP_Hope]": "I'll probably find another mission later, when I feel like it",
+      "[IP_Worry]": "I'm starting to get a bit bored"
+    }
+  },
+      {
+    "name": "Thoughts: Passionate Mission",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["missions", "PASSIONATE"],
+    "results": {
+      "[IP_Hope]": "I am eager to find my next great challenge",
+      "[IP_Worry]": "someday my ambition will outweigh my skill"
+    }
+  },
+
+    {
+    "name": "Mechanical Dreams",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha"],
+    "results": {
+      "[IP_Hope]": "I'm saving up for an even better mecha",
+      "[IP_Worry]": "I hope I'll be able to get a new mek soon"
+    }
+  },
+    {
+    "name": "Thoughts: Mecha Engineering",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha"],
+    "results": {
+      "[IP_Hope]": "I have some good ideas for how to upgrade my mek",
+      "[IP_Worry]": "I'm afraid my current mecha isn't up to snuff anymore"
+    }
+  },
+    {
+    "name": "Thoughts: Happy Mecha",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha", "CHEERFUL"],
+    "results": {
+      "[IP_Hope]": "piloting is the best job I can imagine",
+      "[IP_Worry]": "maybe someday this will stop being fun"
+    }
+  },
+    {
+    "name": "Thoughts: Grim Mecha",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha", "GRIM"],
+    "results": {
+      "[IP_Hope]": "I'm too good at piloting to die easily",
+      "[IP_Worry]": "someday I'll probably die at the controls of my mecha"
+    }
+  },
+    {
+    "name": "Thoughts: Easygoing Mecha",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha", "EASYGOING"],
+    "results": {
+      "[IP_Hope]": "my current mecha suits my style",
+      "[IP_Worry]": "I should probably think about upgrading my gear sometime"
+    }
+  },
+    {
+    "name": "Thoughts: Passionate Mecha",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha", "PASSIONATE"],
+    "results": {
+      "[IP_Hope]": "I can't wait to show you my new upgrades",
+      "[IP_Worry]": "the fire of battle is calling to me"
+    }
+  },
+    {
+    "name": "Future without Mecha",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha", "PEACE"],
+    "results": {
+      "[IP_Hope]": "I hope that some day mecha will no longer be used as weapons",
+      "[IP_Worry]": "I worry that there is more warfare in our future"
+    }
+  },
+    {
+    "name": "The New Mecha",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha", "GLORY"],
+    "results": {
+      "[IP_Hope]": "I'm excited about next season's mecha",
+      "[IP_Worry]": "I don't think I can afford a new top of the line mek just yet"
+    }
+  },
+    {
+    "name": "Keep on Trucking",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha", "DUTY"],
+    "results": {
+      "[IP_Hope]": "I want to keep doing this as long as I can",
+      "[IP_Worry]": "I know that some day I'll have to stop being a cavalier"
+    }
+  },
+    {
+    "name": "Thoughts: Mecha Justice?",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha", "JUSTICE"],
+    "results": {
+      "[IP_Hope]": "I think I've earned a mecha upgrade sometime soon",
+      "[IP_Worry]": "It's important to keep your gear one step ahead of your opponent's"
+    }
+  },
+    {
+    "name": "Thoughts: Ikea Lamp Mek",
+    "command": "LONGTIMENOSEE_THOUGHTS",
+    "requires": ["mecha", "FELLOWSHIP"],
+    "results": {
+      "[IP_Hope]": "I hope to keep my current mek for a while longer",
+      "[IP_Worry]": "I'll really miss my mek when it goes to that big salvage pit in the sky"
+    }
+  }
+
+]

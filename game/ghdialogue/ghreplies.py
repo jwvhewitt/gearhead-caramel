@@ -97,6 +97,10 @@ HELLO_OPENSCHOOL = Reply( "[HELLO:OPEN_SCHOOL]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.OPEN_SCHOOL]) ) )
 
+HELLO_PERSONAL = Reply( "[HELLO:PERSONAL]" ,
+            context = ContextTag([context.HELLO]),
+            destination = Cue( ContextTag([context.PERSONAL]) ) )
+
 HELLO_PROBLEM = Reply( "[HELLO:PROBLEM]",
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.PROBLEM]) ) )
@@ -152,6 +156,14 @@ MISSIONPROBLEM_JOIN = Reply( "[MISSION_PROBLEM:JOIN]" ,
 MISSIONPROBLEM_GOODBYE = Reply( "[MISSION_PROBLEM:GOODBYE]" ,
             context = ContextTag([context.MISSION,context.PROBLEM]),
             destination = Cue( ContextTag([context.GOODBYE]) ) )
+
+PERSONAL_GOODBYE = Reply( "[INFO_PERSONAL:GOODBYE]" ,
+            context = ContextTag([context.PERSONAL]),
+            destination = Cue( ContextTag([context.GOODBYE]) ) )
+
+PERSONAL_JOIN = Reply( "[INFO_PERSONAL:JOIN]" ,
+            context = ContextTag([context.PERSONAL]),
+            destination = Cue( ContextTag([context.JOIN]) ) )
 
 PROPOSAL_ACCEPT = Reply( "[PROPOSAL:ACCEPT]" ,
             context = ContextTag([context.PROPOSAL]),

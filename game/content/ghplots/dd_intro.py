@@ -5,7 +5,7 @@ import gears
 import pbge
 import random
 from game import teams,ghdialogue
-from game.content import gharchitecture,ghterrain,ghwaypoints
+from game.content import gharchitecture,ghterrain,ghwaypoints,backstory
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
@@ -121,6 +121,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
     def SHERIFF_offers(self,camp):
         mylist = list()
+
         if camp.scene is self.elements["LOCALE"]:
             yes_tutorial = Offer(
                 "Alright. When we get to the field, I'll give you a brief tutorial. You can get in your mecha by using the boarding chute over there.",
