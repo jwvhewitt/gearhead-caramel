@@ -1,3 +1,4 @@
+- Fixed fullscreen lockup on Linux
 - Added DuckTerrain, duck_dict option for TerrainSet
 - Robot NPCs from GH1 will be Metal, not Meat
 - Lancemates from previous adventures may show up in DeadZone Drifter
@@ -9,8 +10,6 @@ v0.612 January 13 2021
 v0.611 January 4 2021
 - Added a description to the DeadZone Drifter adventure module
 - Updated the README.md file for the first time in ages
-
-v0.610 January 4 2021
 - Packaging system changed from PyInstaller to cx_Freeze, fixed Windows NumPy issue
 - Added Adventure Module selection menu
 - Moved faction score from a Character property to an Egg property

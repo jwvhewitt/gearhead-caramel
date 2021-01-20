@@ -179,11 +179,11 @@ def play_the_game():
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 
-    #mypic = pbge.image.Image('Zerosaiko.png',color=gears.factions.ProDuelistAssociation.mecha_colors)
+    #mypic = pbge.image.Image('Corsair.png',color=gears.factions.TerranDefenseForce.mecha_colors)
     #mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
     #mydest.fill((0, 0, 255))
     #mypic.render((0,0),dest_surface=mydest)
-    #pygame.image.save(mydest, pbge.util.user_dir("out_Kerebos.png"))
+    #pygame.image.save(mydest, pbge.util.user_dir("out_Corsair.png"))
 
     # mypor = gears.portraits.Portrait()
     # mypor.bits = ["FBA NoBody","Haywire B3 Head"]

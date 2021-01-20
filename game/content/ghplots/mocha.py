@@ -57,13 +57,14 @@ class WinterMochaFenceTerrain(pbge.scenes.terrain.TerrSetTerrain):
 class WinterMochaFence(pbge.randmaps.terrset.TerrSet):
     TERRAIN_TYPE = WinterMochaFenceTerrain
     TERRAIN_MAP = (
+        (WinterMochaSnowdrift,),
         (0,),
         (1,),
         (2,),
         (WinterMochaSnowdrift, WinterMochaSnowdrift,)
     )
     WAYPOINT_POS = {
-        "DOOR": (0, 1)
+        "DOOR": (0, 2)
     }
 
 
@@ -336,7 +337,7 @@ class FrozenHotSpringCity(Plot):
         myroom4 = self.register_element("FENCE_GATE_ROOM",
                                         pbge.randmaps.rooms.OpenRoom(6, 5, anchor=pbge.randmaps.anchors.northwest,
                                                                       parent=myscenegen))
-        myroom5 = WinterMochaFence(parent=myroom4, anchor=pbge.randmaps.anchors.west, waypoints={'DOOR': fence_gate})
+        myroom5 = WinterMochaFence(parent=myroom4, anchor=pbge.randmaps.anchors.west, border=0, waypoints={'DOOR': fence_gate})
 
         # I don't know why I added a broken shovel. Just thought it was funny.
         myroom6 = pbge.randmaps.rooms.NoWallRoom(3, 3, parent=myscenegen)

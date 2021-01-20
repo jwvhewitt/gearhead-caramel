@@ -16,6 +16,7 @@ from . import util
 import glob
 import random
 import weakref
+import sys
 
 # Import the android module. If we can't import it, set it to None - this
 # lets us test it, and check to see if we want android-specific behavior.
@@ -561,8 +562,10 @@ class BasicNotification(frects.Frect):
 #FULLSCREEN_RES = (800,600)
 FULLSCREEN_FLAGS = pygame.FULLSCREEN
 WINDOWED_FLAGS = pygame.RESIZABLE
-FULLSCREEN_RES = (0,0)
-
+if sys.platform.startswith("linux"):
+    FULLSCREEN_RES = (800,600)
+else:
+    FULLSCREEN_RES = (0,0)
 
 
 def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.png"):

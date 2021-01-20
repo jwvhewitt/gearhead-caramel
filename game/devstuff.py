@@ -4,6 +4,9 @@ import glob
 import copy
 import pickle
 
+class GradEditor(object):
+    def __init__(self):
+        pass
 
 class Eggzaminer(object):
     LEFT_COLUMN = pbge.frects.Frect(-320, -200,300,450)

@@ -53,6 +53,12 @@ XUbuntu which is the same OS I use, but I have no idea why it's doing this
 strange thing. You can get around this by running the program from a terminal
 or making a shortcut for it on your desktop/app menu.
 
+If the game crashes when you try to open the configuration menu, probably
+you have an old config file from a previous installation. Delete config.cfg
+from your user directory and reload ghcaramel.
+
+If you have a different problem, you can file a bug report at https://github.com/jwvhewitt/gearhead-caramel/issues
+
 BUILDING FROM SOURCE
 ====================
 
