@@ -669,9 +669,111 @@ class DeadzoneClinic(Plot):
         return mylist
 
 
+class AmateurCyberdoc(Plot):
+    LABEL = "DZRS_HOSPITAL"
 
-#   *********************
-#   ***   DZRS_SHOP   ***
-#   *********************
+    active = True
+    scope = "INTERIOR"
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.register_element("DOCTOR",
+                                    gears.selector.random_character(50, local_tags=self.elements["METROSCENE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Tekno"]))
+
+        # Create a building within the town.
+        self.myname = "{} Medical".format(npc)
+        building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.myname)},
+            door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, self.myname, player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
+                                       scale=gears.scale.HumanScale)
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ScrapIronWorkshop())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(12,10,anchor=pbge.randmaps.anchors.south, ),
+                                      dident="INTERIOR")
+
+        foyer.contents.append(ghwaypoints.RecoveryBed())
+        foyer.contents.append(ghwaypoints.RecoveryBed())
+        foyer.contents.append(ghwaypoints.Biotank(name="Biotank",desc="You peer through the glass to see what's inside. This tank is being used as a storage bin for spare organs and second hand cyberware."))
+        foyer.contents.append(ghwaypoints.Bookshelf(name="Bookshelf", desc="The top shelf is full of PreZero medical texts. The second shelf is full of contemporary tech magazines. The lower shelves are crammed with spare mechanical components and comic books."))
+        foyer.contents.append(ghwaypoints.RetroComputer(name="Computer", desc="Someone has been playing 'Princess Wrestler Genesis'."))
+
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        cybershop = services.Shop( npc = None
+                                 , rank = 70, num_items=5
+                                 , ware_types = services.CYBERWARE_STORE
+                                 )
+        foyer.contents.append(ghwaypoints.CyberdocTerminal(shop = cybershop))
 
 
+        npc.place(intscene, team=team2)
+
+        myrobot = gears.selector.get_design_by_full_name("Workbot")
+        myrobot.name = "A-00 Medical Bot"
+        myrobot.place(intscene, team=team2)
+
+        self.shop = services.Shop(services.PHARMACY, allow_misc=False, caption="Pharmacy", rank=self.rank, npc=npc)
+        self.asked_question = False
+        self.asked_other_question = False
+
+        return True
+
+    def DOCTOR_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Welcome to {METROSCENE}'s premiere medical establishment.".format(**self.elements),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.myname, "wares": "drugs"}
+                            ))
+
+        if not self.asked_question:
+            mylist.append(Offer("Well, no, but I've read a lot of medical books, and I programmed tons of information into A-woo over there. Our village didn't have a doctor so I decided it'd be better to build one myself rather than do without.",
+                                context=ContextTag([context.CUSTOM]), effect=self._ask_question,
+                                data={"reply": "You're not actually a doctor, are you?"}
+                                ))
+        elif not self.asked_other_question:
+            mylist.append(Offer("You're a curious person; I can respect that. Well, you know, it's no problem to get all kinds of organs in the dead zone if you know who to ask. The problem, usually, is getting the right ones for the job that needs doing.",
+                                context=ContextTag([context.CUSTOM]), effect=self._ask_other_question,
+                                data={"reply": "Where do you get all of these body parts?"}
+                                ))
+
+        return mylist
+
+    def _ask_question(self, camp):
+        self.asked_question = True
+
+    def _ask_other_question(self, camp):
+        self.asked_other_question = True
+
+
+#   ************************
+#   ***   DZRS_FEATURE   ***
+#   ************************
+# Weapon Shop
+# Armor Shop
+# General Store
+# Lostech Shop
+# Trading Hub
+# Missing Foragers
+# Synth Dungeon
+# Lucky Crystal
+# Thrunet Node
+# Local Bar Needs Entertainment
+# Mine Monster
+# Retired Cavalier Dojo
+# Abandoned video production facility- Director needs next script, which is lost in ruins.
