@@ -79,6 +79,7 @@ class DZD_DeadZoneTown(Plot):
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
         self.add_sub_plot(nart, "RANDOM_LANCEMATE")
+        self.add_sub_plot(nart, "DZRS_FEATURE")
 
         # Add the local tarot.
         threat_card = nart.add_tarot_card(self, (tarot_cards.MT_THREAT,))
@@ -166,6 +167,7 @@ class DZD_DeadZoneVillage(Plot):
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
         self.add_sub_plot(nart, "RANDOM_LANCEMATE")
+        self.add_sub_plot(nart, "DZRS_FEATURE")
 
         # Add the local tarot.
         threat_card = nart.add_tarot_card(self, (tarot_cards.MT_THREAT,))
@@ -777,3 +779,151 @@ class AmateurCyberdoc(Plot):
 # Mine Monster
 # Retired Cavalier Dojo
 # Abandoned video production facility- Director needs next script, which is lost in ruins.
+
+class DZRS_GeneralStore(Plot):
+    LABEL = "DZRS_FEATURE"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        npc1 = self.register_element("SHOPKEEPER",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+
+        self.shopname = self._generate_shop_name()
+
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", ghterrain.ConcreteBuilding(
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
+            door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="METROSCENE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, self.shopname, player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+                                       scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+                                                                                 decorate=gharchitecture.CheeseShopDecor()),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["METROSCENE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        npc1.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc1, ware_types=services.GENERAL_STORE)
+
+        return True
+
+    TITLE_PATTERNS = (
+        "{METROSCENE} General Shop", "{SHOPKEEPER}'s Shop",
+    )
+    def _generate_shop_name(self):
+        return random.choice(self.TITLE_PATTERNS).format(**self.elements)
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] This is {}; take a look around.".format(self.shopname),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.shopname, "wares": "gear"},
+                            ))
+
+        return mylist
+
+
+class DZRS_WeaponArmorShop(Plot):
+    LABEL = "DZRS_FEATURE"
+
+    active = True
+    scope = "INTERIOR"
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc1 = self.register_element("WEAPONS_S",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+        npc2 = self.register_element("ARMOR_S",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+
+        self.shopname = self._generate_shop_name()
+
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", ghterrain.ConcreteBuilding(
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
+            door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="METROSCENE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(35, 35, self.shopname, player_team=team1, civilian_team=team2,
+                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+                                       scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+                                                                                 decorate=gharchitecture.CheeseShopDecor()),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(self, self.elements["METROSCENE"], intscene,
+                                                                 room1=building,
+                                                                 room2=foyer, door1=building.waypoints["DOOR"],
+                                                                 move_door1=False)
+
+        npc1.place(intscene, team=team2)
+        npc2.place(intscene, team=team2)
+
+        self.weapon_shop = services.Shop(npc=npc1, ware_types=services.WEAPON_STORE)
+        self.armor_shop = services.Shop(npc=npc2, ware_types=services.ARMOR_STORE)
+
+        return True
+
+    TITLE_PATTERNS = (
+        "{METROSCENE} Armory", "{WEAPONS_S} & {ARMOR_S}", "{WEAPONS_S} & Company", "{ARMOR_S} & Partner",
+        "{METROSCENE} Combat Shop", "{METROSCENE} Outfitters", "{METROSCENE} Army Surplus"
+    )
+    def _generate_shop_name(self):
+        return random.choice(self.TITLE_PATTERNS).format(**self.elements)
+
+    def WEAPONS_S_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] You look like you could use some new weapons.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.weapon_shop,
+                            data={"shop_name": self.shopname, "wares": "weapons"},
+                            ))
+
+        return mylist
+
+    def ARMOR_S_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] You look like you could use some new armor.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.armor_shop,
+                            data={"shop_name": self.shopname, "wares": "armor"},
+                            ))
+
+        return mylist
