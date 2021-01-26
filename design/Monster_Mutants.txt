@@ -1,0 +1,27 @@
+Monster
+    name = "Icky Slime"
+    statline = {Reflexes = 5, Body=6, Speed=7, Perception=5, Craft=1, Knowledge=1, Ego=1, Charm = 1,
+			CloseCombat = 3
+	}
+	scale = HumanScale
+	imagename = 'mon_mutants.png'
+	frame = 0
+	colors = (Aquamarine,BrightRed,GunRed,Terracotta,Black)
+    threat = 5
+    type_tags = ("MUTANT", "CAVE",)
+    families = ("VERMIN",)
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Torso
+            size = 2
+            SUB
+				MeleeWeapon
+					name="Tendril"
+					reach=1
+					damage=1
+					accuracy=3
+					penetration=4
+					integral = True
+            END
+    END

@@ -40,6 +40,100 @@ Monster
     END
 
 Monster
+    name = "Death Rat"
+    statline = {Reflexes = 12, Body=7, Speed=14, Perception=8, Craft=8, Knowledge=6, Ego=6, Charm = 2,
+			CloseCombat = 7, Dodge = 6
+	}
+	scale = HumanScale
+	imagename = 'mon_animals.png'
+	frame = 0
+	colors = (Ebony,Ebony,Terracotta,GunRed,Black)
+    threat = 50
+    actions = 3
+    type_tags = ("ANIMAL", "CAVE", "MUTANT", "DESERT", "EARTH", "CITY", "VERMIN")
+    families = ("RATS","VERMIN")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 2
+            SUB
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=2
+					integral = True
+                    attributes = (FastAttack)
+            END
+        Torso
+            size = 2
+        Leg
+            size = 2
+        Leg
+            size = 2
+        Leg
+            size = 2
+        Leg
+            size = 2
+        Tail
+            size = 2
+    END
+
+Monster
+    name = "Dragon Serpent"
+    statline = {Reflexes = 12, Body=13, Speed=12, Perception=5, Craft=2, Knowledge=2, Ego=16, Charm = 2,
+			RangedCombat = 2, CloseCombat = 4, Dodge = 1, Vitality = 2
+	}
+	scale = HumanScale
+	imagename = 'mon_animals.png'
+	frame = 1
+	colors = (MassiveGreen,BrightRed,HeavyPurple,Black,Black)
+    threat = 30
+    type_tags = ("ANIMAL", "EXOTIC", "CAVE", "FIRE", "DESERT", "FOREST", "REPTILE")
+    families = ("REPTILE",)
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 2
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=2
+					accuracy=3
+					penetration=2
+					integral = True
+
+				BeamWeapon
+					name="Fire Breath"
+					reach=6
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+                    shot_anim = FireBall
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 2
+            END
+        Tail
+            size = 5
+            SUB
+                Armor
+                    size = 2
+            END
+    END
+
+
+Monster
     name = "Giant Frog"
     statline = {Reflexes = 9, Body=13, Speed=10, Perception=9, Craft=2, Knowledge=2, Ego=2, Charm = 2,
 			CloseCombat = 4, Dodge = 1, Vitality = 5
@@ -76,6 +170,55 @@ Monster
         Leg
             size = 3
     END
+
+Monster
+    name = "Fire Toad"
+    statline = {Reflexes = 10, Body=17, Speed=9, Perception=10, Craft=2, Knowledge=2, Ego=2, Charm = 2,
+			RangedCombat = 3, CloseCombat = 5, Dodge = 3, Vitality = 5
+	}
+	scale = HumanScale
+	imagename = 'mon_animals.png'
+	frame = 3
+	colors = (CometRed,LemonYellow,GreenYellow,Avocado,BrightRed)
+    threat = 35
+    type_tags = ("ANIMAL", "SWAMP", "EARTH", "MUTANT", "CAVE", "FIRE")
+    families = ("FROGS",)
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Head
+            size = 4
+            SUB
+				MeleeWeapon
+					name="Bite"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=2
+					integral = True
+
+				BeamWeapon
+					name="Fire Breath"
+					reach=6
+					damage=2
+					accuracy=2
+					penetration=2
+					integral = True
+                    shot_anim = FireBall
+                    attributes = (BurnAttack)
+            END
+        Torso
+            size = 3
+        Leg
+            size = 3
+        Leg
+            size = 3
+        Leg
+            size = 3
+        Leg
+            size = 3
+    END
+
 
 Monster
     name = "Giant Leech"

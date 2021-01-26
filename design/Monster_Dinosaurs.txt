@@ -1,171 +1,138 @@
 Monster
-    name = "Tyrannosaur"
-    statline = {Reflexes = 12, Body=6, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
-			MechaFighting = 8, Dodge = 1
+    name = "Oviraptor"
+    statline = {Reflexes = 10, Body=6, Speed=11, Perception=13, Craft=7, Knowledge=7, Ego=5, Charm = 5,
+			CloseCombat = 2,
 	}
-	scale = MechaScale
-	imagename = 'mon_dinosaurs.png'
+	scale = HumanScale
+	imagename = 'mon_dinosaurs_ps.png'
 	frame = 0
-	colors = (Olive,Alabaster,GreenYellow,Mustard,Eggplant)
+	colors = (Cactus,Cream,LemonYellow,Avocado,Turquoise)
     threat = 10
-    type_tags = ("ANIMAL", "DINOSAUR")
-    families = ("DINOSAUR","CARNIVORE")
+    type_tags = ("DINOSAUR", ""EXOTIC", "CAVE", "DESERT", "REPTILE",)
+    families = ("DINOSAUR",)
     environment_list = (GroundEnv,UrbanEnv)
 
 	SUB
         Head
-            size = 3
+            size = 1
             SUB
-				MeleeWeapon
-					name="Jaws"
-					reach=1
-					damage=2
-					accuracy=1
-					penetration=3
-					integral = True
-
                 Armor
-                    size = 2
+                    size = 1
             END
         Torso
-            size = 3
+            size = 2
             SUB
                 Armor
-                    size = 2
+                    size = 1
             END
         Arm
             size = 1
             SUB
                 Armor
-                    size = 2
+                    size = 1
             END
         Arm
             size = 1
             SUB
                 Armor
-                    size = 2
+                    size = 1
             END
         Leg
-            size = 3
+            size = 2
             SUB
                 Armor
-                    size = 2
-
-				MeleeWeapon
-					name="Claws"
+                    size = 1
+                MeleeWeapon
+					name="Claw"
 					reach=1
-					damage=2
+					damage=1
 					accuracy=3
 					penetration=1
 					integral = True
+                    attributes = (MultiWielded,)
             END
         Leg
-            size = 3
+            size = 2
             SUB
                 Armor
-                    size = 2
-
-				MeleeWeapon
-					name="Claws"
+                    size = 1
+                MeleeWeapon
+					name="Claw"
 					reach=1
-					damage=2
+					damage=1
 					accuracy=3
 					penetration=1
 					integral = True
+                    attributes = (MultiWielded,)
             END
-        Tail
-            size = 3
     END
 
+
 Monster
-    name = "Megosaur"
-    statline = {Reflexes = 15, Body=10, Speed=13, Perception=12, Craft=8, Knowledge=6, Ego=14, Charm = 13,
-			MechaFighting = 8, Dodge = 1, Vitality=4
+    name = "Velociraptor"
+    statline = {Reflexes = 14, Body=13, Speed=16, Perception=11, Craft=8, Knowledge=7, Ego=5, Charm = 5,
+			CloseCombat = 4, Dodge = 2, Vitality = 2
 	}
-	scale = MechaScale
-	imagename = 'mon_dinosaurs.png'
-	frame = 1
-	colors = (Olive,Alabaster,HunterOrange,Mustard,Eggplant)
+	scale = HumanScale
+	imagename = 'mon_dinosaurs_ps.png'
+	frame = 0
+	colors = (AceScarlet,Cream,Malachite,Avocado,Saffron)
     threat = 30
-    type_tags = ("ANIMAL", "DINOSAUR")
-    families = ("DINOSAUR","CARNIVORE")
+    type_tags = ("DINOSAUR", ""EXOTIC", "CAVE", "DESERT", "REPTILE",)
+    families = ("DINOSAUR",)
     environment_list = (GroundEnv,UrbanEnv)
-    material = Biotech
 
 	SUB
         Head
-            size = 5
+            size = 2
             SUB
-				MeleeWeapon
-					name="Jaws"
-					reach=1
-					damage=3
-					accuracy=1
-					penetration=3
-					integral = True
-
                 Armor
-                    size = 6
+                    size = 1
             END
         Torso
-            size = 5
+            size = 3
             SUB
                 Armor
-                    size = 6
+                    size = 1
             END
         Arm
-            size = 5
+            size = 1
             SUB
                 Armor
-                    size = 6
+                    size = 1
             END
         Arm
-            size = 5
+            size = 1
             SUB
                 Armor
-                    size = 6
+                    size = 1
             END
         Leg
-            size = 5
+            size = 2
             SUB
                 Armor
-                    size = 6
-
-				MeleeWeapon
-					name="Claws"
+                    size = 1
+                MeleeWeapon
+					name="Claw"
 					reach=1
-					damage=3
+					damage=2
 					accuracy=3
 					penetration=1
 					integral = True
+                    attributes = (MultiWielded,)
             END
         Leg
-            size = 5
+            size = 2
             SUB
                 Armor
-                    size = 6
-
-				MeleeWeapon
-					name="Claws"
+                    size = 1
+                MeleeWeapon
+					name="Claw"
 					reach=1
-					damage=3
+					damage=2
 					accuracy=3
 					penetration=1
 					integral = True
+                    attributes = (MultiWielded,)
             END
-        Tail
-            size = 5
-            SUB
-                Armor
-                    size = 6
-
-				MeleeWeapon
-					name="Thagomizer"
-					reach=1
-					damage=4
-					accuracy=2
-					penetration=2
-					integral = True
-            END
-
     END

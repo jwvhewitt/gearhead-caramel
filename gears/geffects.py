@@ -373,6 +373,9 @@ class SmallBeam( animobs.ShotAnim ):
 class PlasmaBall( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_shot_plasma.png"
 
+class FireBall( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_shot_fire.png"
+
 
 class Missile1( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_s_missile1.png"

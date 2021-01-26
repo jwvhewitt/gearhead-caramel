@@ -768,7 +768,6 @@ class AmateurCyberdoc(Plot):
 #   ************************
 # Weapon Shop
 # Armor Shop
-# General Store
 # Lostech Shop
 # Trading Hub
 # Missing Foragers
