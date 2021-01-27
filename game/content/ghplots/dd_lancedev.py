@@ -509,7 +509,7 @@ class DDLD_HermitMechaniac(LMPlot):
         shopkeeper.place(mwsp.elements["LOCALE"],team=mwsp.elements["LOCALE"].civilian_team)
 
         plotutility.IntConcreteBuildingConnection(
-            self,fcsp.elements["LOCALE"],mwsp.elements["LOCALE"],room1=fcsp.elements["CASTLE_ROOM"],
+            nart, self,fcsp.elements["LOCALE"],mwsp.elements["LOCALE"],room1=fcsp.elements["CASTLE_ROOM"],
             room2=mwsp.elements["FOYER"],
         )
 

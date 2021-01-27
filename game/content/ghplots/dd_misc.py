@@ -32,7 +32,7 @@ class RanMagnusMechaFactory(Plot):
         tplot = self.add_sub_plot(nart, "MECHA_WORKSHOP", elements={"BUILDING_NAME": garage_name})
         self.elements["LOCALE"] = tplot.elements["LOCALE"]
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["METROSCENE"], tplot.elements["LOCALE"],
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["METROSCENE"], tplot.elements["LOCALE"],
                                                     room2=tplot.elements["FOYER"],
                                                     room1=building, door1=building.waypoints["DOOR"],
                                                     move_door1=False)

@@ -56,6 +56,10 @@ class StoneUndercityDecor(OmniDec):
     FLOOR_DECOR = (ghterrain.FloorStones,)
     FLOOR_FILL_FACTOR = 0.10
 
+class DesertDecor(OmniDec):
+    FLOOR_DECOR = (ghterrain.Bones,)
+    FLOOR_FILL_FACTOR = 0.05
+
 
 class BunkerDecor(OmniDec):
     WALL_DECOR = (ghterrain.LockersTerrain,ghterrain.VentFanTerrain,ghterrain.ShippingShelvesTerrain,)
@@ -112,6 +116,14 @@ class HumanScaleDeadzone(Architecture):
 #    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.CrackedEarth
+
+
+class HumanScaleDeadzoneWilderness(Architecture):
+    DEFAULT_WALL_TERRAIN = ghterrain.SandDuneWall
+    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.SandDuneWall)
+    DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
+    DEFAULT_FLOOR_TERRAIN = ghterrain.CrackedEarth
+    DEFAULT_ROOM_CLASSES = (ghrooms.OpenRoom,)
 
 
 class HumanScaleSemiDeadzone(Architecture):

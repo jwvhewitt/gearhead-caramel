@@ -44,8 +44,9 @@ class SceneConnection(object):
     DEFAULT_DOOR_1 = ghwaypoints.Exit
     DEFAULT_DOOR_2 = ghwaypoints.Exit
 
-    def __init__(self, plot, scene1, scene2, room1=None, room1_id=None, room2=None, room2_id=None, anchor1=None,
+    def __init__(self, nart, plot, scene1, scene2, room1=None, room1_id=None, room2=None, room2_id=None, anchor1=None,
                  anchor2=None, door1=None, door1_id=None, door2=None, door2_id=None, move_door1=True, move_door2=True):
+        self.nart = nart
         self.scene1 = scene1
         self.scene2 = scene2
         if not room1:
@@ -84,6 +85,21 @@ class SceneConnection(object):
 
     def get_door2(self):
         return self.DEFAULT_DOOR_2(anchor=pbge.randmaps.anchors.middle)
+
+
+class NatureTrailConnection(SceneConnection):
+    DEFAULT_DOOR_1 = ghwaypoints.TrailSign
+    DEFAULT_DOOR_2 = ghwaypoints.TrailSign
+    def get_room1_anchor(self):
+        scenegen = self.nart.get_map_generator(self.scene1)
+        if scenegen and scenegen.edge_positions:
+            return scenegen.edge_positions.pop()
+
+    def get_room2_anchor(self):
+        scenegen = self.nart.get_map_generator(self.scene2)
+        if scenegen and scenegen.edge_positions:
+            return scenegen.edge_positions.pop()
+
 
 class TownBuildingConnection(SceneConnection):
     DEFAULT_ROOM_2 = pbge.randmaps.rooms.ClosedRoom

@@ -106,6 +106,7 @@ SCENE_SOLO = "SOLO"     # Only the PC will be deployed here.
 SCENE_DUNGEON = "DUNGEON"
 SCENE_SEMIPUBLIC = "SEMIPUBLIC"  # No-one is stopping you from going there. Usually used for dungeons.
 SCENE_FACTORY = "FACTORY"
+SCENE_OUTDOORS = "OUTDOORS"
 
 # Shop Tags
 

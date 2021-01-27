@@ -79,7 +79,7 @@ class MechaGraveyardAdventure(Plot):
         d_entrance = pbge.randmaps.rooms.ClosedRoom(7, 7, anchor=pbge.randmaps.anchors.south)
         mydungeon.entry_level.contents.append(d_entrance)
         mycon2 = plotutility.TownBuildingConnection(
-            self, outside_scene, mydungeon.entry_level,
+            nart, self, outside_scene, mydungeon.entry_level,
             room1=mygoal,
             room2=d_entrance,
             door1=ghwaypoints.DZDDefiledFactory(name="Defiled Factory", anchor=pbge.randmaps.anchors.middle),

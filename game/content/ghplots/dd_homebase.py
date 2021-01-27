@@ -422,7 +422,7 @@ class TestCharMover(Plot):
                                                                                  decorate=game.content.gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -507,7 +507,7 @@ class DZD_BronzeHorseInn(Plot):
                                       dident="INTERIOR")
         foyer.contents.append(team2)
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -784,7 +784,7 @@ class DZD_BlueFortressHQ(Plot):
             desc="""General Anna "The Pure" Greencrown was originally one of General Cauchi's lieutenants. She was instrumental in quashing the Ipshil Pirate Insurrection. Greencrown succeeded Cauchi as leader of Wujung following his mysterious death from blood loss in NT41.\n Following the Data Miner's Rebellion in NT59, Greencrown voluntarily retired from politics, ushering in a new age of peace and democracy."""))
         foyer.contents.append(ghwaypoints.GoldPlaque(desc="""The Terran Defense Force\n Blue Fortress"""))
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -956,7 +956,7 @@ class DZD_AlliedArmor(Plot):
         foyer.contents.append(ghwaypoints.AlliedArmorSignWP())
         foyer.contents.append(team2)
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["OTHER"],
                                                                  move_door1=False)
@@ -1003,7 +1003,7 @@ class DZD_AlliedArmor(Plot):
             decor=gharchitecture.StoneUndercityDecor()
         )
         self.elements["DUNGEON"] = mydungeon.entry_level
-        mycon2 = plotutility.TrapdoorToStairsUpConnector(self, self.elements["OTHERSCENE"], mydungeon.entry_level)
+        mycon2 = plotutility.TrapdoorToStairsUpConnector(nart, self, self.elements["OTHERSCENE"], mydungeon.entry_level)
 
         return True
 
@@ -1117,7 +1117,7 @@ class DZD_WujungTires(Plot):
                                       dident="INTERIOR")
         foyer.contents.append(ghwaypoints.MechEngTerminal())
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -1175,7 +1175,7 @@ class DZD_EliteEquipment(Plot):
                                                                                  decorate=game.content.gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -1258,7 +1258,7 @@ class DZD_WujungHospital(Plot):
                                       dident="INTERIOR")
         foyer.contents.append(team2)
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -1465,7 +1465,7 @@ class DZD_LongRoadLogistics(Plot):
         for t in range(random.randint(5,12)):
             foyer.contents.append(ghwaypoints.ShippingShelves())
 
-        mycon2 = game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)

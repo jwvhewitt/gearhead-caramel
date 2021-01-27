@@ -165,6 +165,15 @@ class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     blocks = (Walking, Skimming, Rolling)
     movement_cost={pbge.scenes.movement.Vision:5}
 
+
+class SandDuneWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_dune.png'
+    bordername = None
+    altitude = 20
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost={pbge.scenes.movement.Vision:5}
+
+
 class MSRuinedWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_msruins.png'
     blocks = (Walking,Skimming,Rolling,Vision)
@@ -654,6 +663,12 @@ class TrapdoorTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking,Skimming,Rolling,Flying)
     movement_cost={pbge.scenes.movement.Vision:5}
     frame = 2
+
+class TrailSignTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_stairs.png'
+    blocks = (Walking,Skimming,Rolling,Flying)
+    movement_cost={pbge.scenes.movement.Vision:5}
+    frame = 3
 
 class StoneStairsUpTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_stonestairs.png'

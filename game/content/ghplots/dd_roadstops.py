@@ -6,7 +6,7 @@ import gears
 import pbge
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
-from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot
+from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker
 from . import tarot_cards
 
 
@@ -220,7 +220,7 @@ class DemocraticOrder(Plot):
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                     dident="INTERIOR")
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -292,7 +292,7 @@ class MilitaryOrder(Plot):
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                     dident="INTERIOR")
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -365,7 +365,7 @@ class TechnocraticOrder(Plot):
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                     dident="INTERIOR")
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -430,7 +430,7 @@ class VaultOrder(Plot):
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                     dident="INTERIOR")
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room2=foyer, door1=ghwaypoints.UndergroundEntrance(name="Fallout Shelter"))
 
         npc = self.register_element("LEADER",
@@ -519,7 +519,7 @@ class SomewhatOkayGarage(Plot):
         for item in self.additional_waypoints:
             foyer.contents.append(item())
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -642,7 +642,7 @@ class DeadzoneClinic(Plot):
 
         foyer.contents.append(ghwaypoints.RecoveryBed())
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -707,7 +707,7 @@ class AmateurCyberdoc(Plot):
         foyer.contents.append(ghwaypoints.Bookshelf(name="Bookshelf", desc="The top shelf is full of PreZero medical texts. The second shelf is full of contemporary tech magazines. The lower shelves are crammed with spare mechanical components and comic books."))
         foyer.contents.append(ghwaypoints.RetroComputer(name="Computer", desc="Someone has been playing 'Princess Wrestler Genesis'."))
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["LOCALE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -770,7 +770,6 @@ class AmateurCyberdoc(Plot):
 # Armor Shop
 # Lostech Shop
 # Trading Hub
-# Missing Foragers
 # Synth Dungeon
 # Lucky Crystal
 # Thrunet Node
@@ -778,6 +777,75 @@ class AmateurCyberdoc(Plot):
 # Mine Monster
 # Retired Cavalier Dojo
 # Abandoned video production facility- Director needs next script, which is lost in ruins.
+
+
+class DZRS_LostForager(Plot):
+    LABEL = "DZRS_FEATURE"
+
+    active = True
+    scope = "METRO"
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        # Create the NPC in town who will serve as the actual mission giver.
+        npc1 = self.register_element("MISSION_GIVER",
+                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes))
+
+        # Create the Explorer NPC that the PC can rescue.
+        npc2 = self.register_element("NPC",
+                                    gears.selector.random_character(self.rank + random.randint(1,8),
+                                                                    local_tags=self.elements["LOCALE"].attributes,
+                                                                    job=gears.jobs.ALL_JOBS["Explorer"]))
+
+        # Create the desert mountain dungeon.
+        self.area_name = plotutility.random_deadzone_spot_name()
+        mydungeon = dungeonmaker.DungeonMaker(
+            nart, self, self.elements["METROSCENE"], self.area_name,
+            gharchitecture.HumanScaleDeadzoneWilderness(), self.rank,
+            monster_tags = ("ANIMAL", "DESERT", "MUTANT", "FIRE"),
+            scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_SEMIPUBLIC),
+            decor=gharchitecture.DesertDecor(),
+            connector=plotutility.NatureTrailConnection
+        )
+        self.elements["DUNGEON"] = mydungeon.entry_level
+
+        # Add the dungeon entry room.
+        mymapgen = nart.get_map_generator(mydungeon.entry_level)
+        if mymapgen and mymapgen.edge_positions:
+            myanchor = mymapgen.edge_positions.pop()
+        else:
+            myanchor = None
+        d_entrance_room = self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5, anchor=myanchor))
+        mydungeon.entry_level.contents.append(d_entrance_room)
+
+        myent = self.register_element(
+            "ENTRANCE", ghwaypoints.Exit(
+                anchor=pbge.randmaps.anchors.middle,
+                dest_scene=self.elements["METROSCENE"],
+                dest_entrance=self.elements["MISSION_GATE"]),
+            dident="ENTRANCE_ROOM"
+        )
+
+        # Place the explorer NPC on a random level.
+        candidates = [l for l in mydungeon.levels if l is not mydungeon.entry_level]
+        real_goal = random.choice(candidates)
+        d_npc_room = pbge.randmaps.rooms.OpenRoom(9, 9)
+        real_goal.contents.append(d_npc_room)
+        myteam = teams.Team()
+        d_npc_room.contents.append(myteam)
+        myteam.contents.append(npc2)
+
+        #print(self.elements["METROSCENE"])
+
+        return True
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if True:
+            thingmenu.add_item("Go to {} on foot.".format(self.area_name), self.go_to_locale)
+
+    def go_to_locale(self, camp):
+        camp.destination, camp.entrance = self.elements["DUNGEON"], self.elements["ENTRANCE"]
+
 
 class DZRS_GeneralStore(Plot):
     LABEL = "DZRS_FEATURE"
@@ -805,13 +873,13 @@ class DZRS_GeneralStore(Plot):
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
                                                                                  decorate=gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["METROSCENE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["METROSCENE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
@@ -876,10 +944,10 @@ class DZRS_WeaponArmorShop(Plot):
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.CheeseShopDecor()),
+                                                                                 decorate=gharchitecture.RundownFactoryDecor()),
                                       dident="INTERIOR")
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["METROSCENE"], intscene,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["METROSCENE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)

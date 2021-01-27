@@ -1,3 +1,4 @@
+- SceneConnectors now take narrative request as first parameter
 - Fixed fullscreen lockup on Linux
 - Added DuckTerrain, duck_dict option for TerrainSet
 - Robot NPCs from GH1 will be Metal, not Meat

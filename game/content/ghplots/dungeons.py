@@ -59,7 +59,7 @@ class TestDungeon(Plot):
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=myanchor, ),
                                       dident="LOCALE")
 
-        mycon2 = plotutility.TownBuildingConnection(self, self.elements["METROSCENE"], mydungeon.entry_level,
+        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["METROSCENE"], mydungeon.entry_level,
                                                     room2=foyer,
                                                     door1=ghwaypoints.UndergroundEntrance(name="The Ruins"),
                                                     door2=ghwaypoints.StoneStairsUp(

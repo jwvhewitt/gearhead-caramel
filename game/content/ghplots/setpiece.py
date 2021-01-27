@@ -205,7 +205,7 @@ class MWP_OfflineGenerator(Plot):
 
         # Connect the dungeon level.
         plotutility.StairsDownToStairsUpConnector(
-            self, self.elements["LOCALE"], sp.elements["LOCALE"], room1=myroom,
+            nart, self, self.elements["LOCALE"], sp.elements["LOCALE"], room1=myroom,
         )
 
         # Add the generator room and broken generator
@@ -453,7 +453,7 @@ class BasicTavern(Plot):
         npc.place(intscene, team=barteam)
 
 
-        mycon = plotutility.TownBuildingConnection(self, self.elements["METROSCENE"], intscene,
+        mycon = plotutility.TownBuildingConnection(nart, self, self.elements["METROSCENE"], intscene,
                                                                  room1=building,
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)

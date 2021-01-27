@@ -226,7 +226,7 @@ class ClueInBunker(Plot):
 
         self.register_element(ME_PUZZLEITEM, random.choice(self.ITEM_TYPES)(plot_locked=True), dident="_introom")
 
-        int_con = game.content.plotutility.IntConcreteBuildingConnection(self, outside_scene, inside_scene,
+        int_con = game.content.plotutility.IntConcreteBuildingConnection(nart, self, outside_scene, inside_scene,
                                                                          room1=mygoal, room2=introom)
 
         self.add_sub_plot(
@@ -1872,7 +1872,7 @@ class BasicRobberBaron(Plot):
                                           dident="INTERIOR")
             foyer.contents.append(ghwaypoints.MechEngTerminal())
 
-            game.content.plotutility.TownBuildingConnection(self, self.elements["LOCALE"], scene,
+            game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], scene,
                                                              room1=building,
                                                              room2=foyer, door1=building.waypoints["DOOR"],
                                                              move_door1=False)

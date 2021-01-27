@@ -1,4 +1,4 @@
-from . import plotutility, gharchitecture
+from . import plotutility, gharchitecture, GHNarrativeRequest
 import random
 from pbge.plots import Plot, PlotState
 import gears
@@ -42,8 +42,9 @@ class ProtoDLevel(object):
 class DungeonMaker(object):
     # Create a set of dungeon levels. Connect them to one another.
     # Will set goal_level and entry_level. The entry_level scene has no entrance; need to make one.
-    def __init__(self, nart, parent_plot: Plot, parent_scene, name, architecture, rank,
-                 scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_SEMIPUBLIC), monster_tags=(),
+    def __init__(self, nart: GHNarrativeRequest, parent_plot: Plot, parent_scene, name, architecture, rank,
+                 scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_SEMIPUBLIC),
+                 monster_tags=(),
                  temporary=False,
                  connector=plotutility.StairsDownToStairsUpConnector,
                  explo_music="Good Night.ogg", combat_music="Apex.ogg",
@@ -77,7 +78,7 @@ class DungeonMaker(object):
             if proto.terminal:
                 sp.add_sub_plot(nart, "DUNGEON_GOAL")
             if parent and parent is not parent_scene:
-                connector(parent_plot, parent, proto.real_scene, )
+                connector(nart, parent_plot, parent, proto.real_scene, )
             else:
                 self.entry_level = proto.real_scene
 

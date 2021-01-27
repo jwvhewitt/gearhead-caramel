@@ -59,6 +59,9 @@ class SceneGenerator( Room ):
             self.MUTATE = mutate
         if decorate:
             self.DECORATE = decorate
+        self.edge_positions = list(anchors.EDGES)
+        random.shuffle((self.edge_positions))
+
 
     def make( self ):
         """Assemble this stuff into a real map."""

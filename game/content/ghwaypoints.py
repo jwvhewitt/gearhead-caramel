@@ -334,6 +334,9 @@ class StairsDown(Exit):
 class Trapdoor(Exit):
     TILE = pbge.scenes.Tile(None, None, ghterrain.TrapdoorTerrain)
 
+class TrailSign(Exit):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.TrailSignTerrain)
+
 class DZDDefiledFactory(Exit):
     TILE = pbge.scenes.Tile(None, None, ghterrain.DZDDefiledFactoryTerrain)
 

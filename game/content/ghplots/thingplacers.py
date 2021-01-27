@@ -45,7 +45,7 @@ class CombatSceneToTargetScene(Plot):
                                             pbge.randmaps.rooms.ClosedRoom(random.randint(6, 10), random.randint(6, 10),
                                                                          anchor=pbge.randmaps.anchors.south,),
                                             dident="GOAL_SCENE")
-        int_con = game.content.plotutility.IntConcreteBuildingConnection(self, outside_scene, inside_scene, room1=mygoal, room2=inside_room)
+        int_con = game.content.plotutility.IntConcreteBuildingConnection(nart, self, outside_scene, inside_scene, room1=mygoal, room2=inside_room)
 
         self.add_sub_plot(
             nart, "MECHA_ENCOUNTER",
@@ -114,7 +114,7 @@ class ThingInBunker(Plot):
         mything = self.elements["THING"]
         self.place_element(mything,introom)
 
-        int_con = game.content.plotutility.IntConcreteBuildingConnection(self, outside_scene, inside_scene, room1=mygoal, room2=introom)
+        int_con = game.content.plotutility.IntConcreteBuildingConnection(nart, self, outside_scene, inside_scene, room1=mygoal, room2=introom)
 
         self.add_sub_plot(
             nart, "MECHA_ENCOUNTER",
