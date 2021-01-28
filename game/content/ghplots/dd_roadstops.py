@@ -7,7 +7,8 @@ import pbge
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
 from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker
-from . import tarot_cards
+from . import tarot_cards, missionbuilder
+from game.memobrowser import Memo
 
 
 
@@ -793,9 +794,14 @@ class DZRS_LostForager(Plot):
 
         # Create the Explorer NPC that the PC can rescue.
         npc2 = self.register_element("NPC",
-                                    gears.selector.random_character(self.rank + random.randint(1,8),
+                                    gears.selector.random_character(self.rank + random.randint(1,8), combatant=True,
                                                                     local_tags=self.elements["LOCALE"].attributes,
                                                                     job=gears.jobs.ALL_JOBS["Explorer"]))
+        self.npcs = (npc1,npc2)
+
+        # Place the mission-giving NPC
+        myscene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"], backup_seek_func=self._is_good_scene)
+        myscene.contents.append(npc1)
 
         # Create the desert mountain dungeon.
         self.area_name = plotutility.random_deadzone_spot_name()
@@ -803,7 +809,7 @@ class DZRS_LostForager(Plot):
             nart, self, self.elements["METROSCENE"], self.area_name,
             gharchitecture.HumanScaleDeadzoneWilderness(), self.rank,
             monster_tags = ("ANIMAL", "DESERT", "MUTANT", "FIRE"),
-            scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_SEMIPUBLIC),
+            scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_OUTDOORS,),
             decor=gharchitecture.DesertDecor(),
             connector=plotutility.NatureTrailConnection
         )
@@ -835,16 +841,114 @@ class DZRS_LostForager(Plot):
         d_npc_room.contents.append(myteam)
         myteam.contents.append(npc2)
 
-        #print(self.elements["METROSCENE"])
+        print(self.elements["METROSCENE"])
+        self.dungeon_unlocked = False
+        self.got_rumor = False
+        self.npc_rescued = False
+        self.npc_lm = False
 
         return True
 
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_HOSPITAL in candidate.attributes
+
+    def _is_good_scene(self,nart,candidate):
+        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
     def MISSION_GATE_menu(self, camp, thingmenu):
-        if True:
+        if self.dungeon_unlocked:
             thingmenu.add_item("Go to {} on foot.".format(self.area_name), self.go_to_locale)
 
     def go_to_locale(self, camp):
         camp.destination, camp.entrance = self.elements["DUNGEON"], self.elements["ENTRANCE"]
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc not in self.npcs and not self.got_rumor and not self.dungeon_unlocked:
+            mygram["[News]"] = ["{} hasn't returned from {}".format(self.elements["NPC"], self.area_name),]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        mynpc = self.elements["NPC"]
+        if npc not in self.npcs and not self.got_rumor and not self.dungeon_unlocked:
+            goffs.append(Offer(
+                msg="{NPC} is an explorer who goes foraging in the wastes; {MISSION_GIVER} at {LOCALE} is worried because {NPC.gender.subject_pronoun} has been gone for too long.".format(**self.elements),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self,camp):
+        self.got_rumor = True
+        self.memo = Memo( "{MISSION_GIVER} has been worried about {NPC}.".format(**self.elements)
+                        , self.elements["LOCALE"]
+                        )
+
+    def MISSION_GIVER_offers(self, camp):
+        myoffs = list()
+
+        if not self.dungeon_unlocked:
+            myoffs.append(Offer(
+                "[HELLO] I hope that {NPC} gets back soon...".format(**self.elements),
+                context=ContextTag((context.HELLO,)),
+            ))
+
+            myoffs.append(Offer(
+                "{} went foraging for scrap metal in {}, but hasn't come back yet. I really hope that nothing bad has happened.".format(self.elements["NPC"], self.area_name),
+                context=ContextTag((context.INFO,)), effect=self._unlock_dungeon,
+                data={"subject": str(self.elements["NPC"])}, no_repeats=True
+            ))
+
+        return myoffs
+
+    def _unlock_dungeon(self, camp):
+        self.dungeon_unlocked = True
+        self.memo = Memo( "{} has not returned from foraging in {}.".format(self.elements["NPC"], self.area_name)
+                        , self.elements["METROSCENE"]
+                        )
+        missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
+
+    def NPC_offers(self, camp):
+        myoffs = list()
+        npc = self.elements["NPC"]
+
+        if not self.npc_rescued:
+            myoffs.append(Offer(
+                "[HELLO] I wandered out too far from {METROSCENE} and got a bit lost... I don't suppose you're heading back that way soon?".format(**self.elements),
+                context=ContextTag((context.HELLO,)),
+            ))
+
+            myoffs.append(Offer(
+                "Thanks. Let's get going.",
+                context=ContextTag((context.CUSTOM,)), effect=self._rescue_npc,
+                data={"reply": "Sure, I can help you to get home."}, no_repeats=True
+            ))
+        elif not self.npc_lm:
+            myoffs.append(Offer(
+                "[HELLO] Thanks for getting me back to {METROSCENE}; if you ever need the services of an experienced explorer, just let me know!".format(**self.elements),
+                context=ContextTag((context.HELLO,)), effect=self._add_lancemate
+            ))
+
+        return myoffs
+
+    def _rescue_npc(self, camp: gears.GearHeadCampaign):
+        self.npc_rescued = True
+        npc = self.elements["NPC"]
+        npc.place(self.elements["METROSCENE"], team=self.elements["METROSCENE"].civilian_team)
+        camp.destination, camp.entrance = self.elements["METROSCENE"], self.elements["MISSION_GATE"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        camp.dole_xp(200)
+
+    def _add_lancemate(self, camp):
+        npc = self.elements["NPC"]
+        npc.relationship.history.append(gears.relationships.Memory(
+            "you rescued me from {}".format(self.area_name),
+            "I rescued you from {}".format(self.area_name),
+            10, [gears.relationships.MEM_AidedByPC,]
+        ))
+        self.npc_lm = True
 
 
 class DZRS_GeneralStore(Plot):

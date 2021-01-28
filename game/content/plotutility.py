@@ -89,7 +89,6 @@ class SceneConnection(object):
 
 class NatureTrailConnection(SceneConnection):
     DEFAULT_DOOR_1 = ghwaypoints.TrailSign
-    DEFAULT_DOOR_2 = ghwaypoints.TrailSign
     def get_room1_anchor(self):
         scenegen = self.nart.get_map_generator(self.scene1)
         if scenegen and scenegen.edge_positions:
