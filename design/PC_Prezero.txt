@@ -1,0 +1,77 @@
+
+MeleeWeapon
+    name="Bonesword"
+    desc = "An ancient biotech sword with a regenerating monomolecular edge. These blades were created for the military brass of Pax Europa."
+    reach=1
+    damage=5
+    accuracy=4
+    penetration=3
+    scale = HumanScale
+    material = Biotech
+    attributes = (Defender,MultiWielded)
+    shop_tags= ("ANTIQUE","LOSTECH")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Zetan Blade"
+    desc = "A PreZero ceramic blade. These shortswords were carried by the military officers of Imperator Zeta."
+    reach=1
+    damage=3
+    accuracy=3
+    penetration=5
+    scale = HumanScale
+    material = Ceramic
+    attributes = (Defender,MultiWielded)
+    shop_tags= ("ANTIQUE","LOSTECH")
+    faction_list = (None,)
+
+TorsoClothing
+    name = "Chitin Breastplate"
+    desc = "An ornate breastplate, apparently made of bone. It feels warm to the touch."
+    scale = HumanScale
+    material = Biotech
+    shop_tags = ("ANTIQUE","LOSTECH")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 4
+    END
+
+
+HeadClothing
+    name = "Chitin Helmet"
+    desc = "An ornate helmet, apparently made of bone. It feels warm to the touch."
+    scale = HumanScale
+    material = Biotech
+    shop_tags = ("ANTIQUE","LOSTECH")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 4
+    END
+
+ArmClothing
+    name = "Chitin Bracer"
+    desc = "An ornate bracer, apparently made of bone. It feels warm to the touch."
+    scale = HumanScale
+    material = Biotech
+    shop_tags = ("ANTIQUE","LOSTECH")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 4
+    END
+
+LegClothing
+    name = "Chitin Greave"
+    desc = "An ornate shinguard, apparently made of bone. It feels warm to the touch."
+    scale = HumanScale
+    material = Biotech
+    shop_tags = ("ANTIQUE","LOSTECH")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 4
+    END
+
+

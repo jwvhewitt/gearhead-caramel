@@ -184,6 +184,11 @@ class StoneWall(pbge.scenes.terrain.WallTerrain):
     blocks = (Walking,Skimming,Rolling,Vision,Flying)
 
 
+class EarthWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_redearth.png'
+    blocks = (Walking,Skimming,Rolling,Vision,Flying)
+
+
 class WallStones(pbge.scenes.terrain.OnTheWallVariableTerrain):
     image_top = 'terrain_decor_wallstones.png'
     south_frames = (8,9,10,11,12,13,14,15)

@@ -15,7 +15,7 @@ class GenericDungeonLevel(Plot):
 
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")
-        intscene = gears.GearHeadScene(50, 50, self.elements[DG_NAME], player_team=team1,
+        intscene = gears.GearHeadScene(65, 65, self.elements[DG_NAME], player_team=team1,
                                        attributes=self.elements[DG_SCENE_TAGS],
                                        combat_music=self.elements[DG_COMBAT_MUSIC],
                                        exploration_music=self.elements[DG_EXPLO_MUSIC],

@@ -281,7 +281,7 @@ Treasure
 Treasure
     name = "Warrior Ring"
     desc = "An ancient ring made of impervium. The meaning of the runes carved on it have been lost to time."
-    shop_tags= ("TREASURE", "JEWELRY")
+    shop_tags= ("TREASURE", "JEWELRY", "ANTIQUE")
     value = 145000
     weight = 1
 
@@ -340,26 +340,26 @@ PowerSource
     size = 6
     material = Biotech
     scale = HumanScale
-    shop_tags= ("TREASURE", "LOSTECH", "ODDITY")
+    shop_tags= ("TREASURE", "LOSTECH", "ODDITY", "ANTIQUE")
 
 Treasure
     name = "Mecha Figurine"
     desc = "A small statue of a PreZero mecha, rendered in PVC."
-    shop_tags= ("TREASURE", "ODDITY")
+    shop_tags= ("TREASURE", "ODDITY", "ANTIQUE")
     value = 18000
     weight = 2
 
 Treasure
     name = "Daemon Figurine"
     desc = "A small statue of a PreZero cryptid, rendered in PVC."
-    shop_tags= ("TREASURE", "ODDITY")
+    shop_tags= ("TREASURE", "ODDITY", "ANTIQUE")
     value = 58000
     weight = 2
 
 Treasure
     name = "Goddess Figurine"
     desc = "A small statue of the PreZero mecha goddess Atan, rendered in PVC."
-    shop_tags= ("TREASURE", "ODDITY")
+    shop_tags= ("TREASURE", "ODDITY", "ANTIQUE")
     value = 241000
     weight = 2
 

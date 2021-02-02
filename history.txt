@@ -1,3 +1,5 @@
+- Added ROADEDGE_FEATURE to each village in DeadZone Drifter
+- Increased size of standard dungeon level to 65x65
 - SceneConnectors now take narrative request as first parameter
 - Fixed fullscreen lockup on Linux
 - Added DuckTerrain, duck_dict option for TerrainSet

@@ -60,6 +60,12 @@ class DesertDecor(OmniDec):
     FLOOR_DECOR = (ghterrain.Bones,)
     FLOOR_FILL_FACTOR = 0.05
 
+class CaveDecor(OmniDec):
+    WALL_DECOR = (ghterrain.WallStones,)
+    WALL_FILL_FACTOR = 0.25
+    FLOOR_DECOR = (ghterrain.FloorStones,)
+    FLOOR_FILL_FACTOR = 0.10
+
 
 class BunkerDecor(OmniDec):
     WALL_DECOR = (ghterrain.LockersTerrain,ghterrain.VentFanTerrain,ghterrain.ShippingShelvesTerrain,)
@@ -209,6 +215,14 @@ class StoneBuilding(Architecture):
     DEFAULT_FLOOR_TERRAIN = ghterrain.Flagstone
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+class EarthCave(Architecture):
+    DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
+    DEFAULT_WALL_TERRAIN = ghterrain.EarthWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.SmallDeadZoneGround
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+    DEFAULT_ROOM_CLASSES = (pbge.randmaps.rooms.FuzzyRoom,)
 
 
 class DeadZoneHighwaySceneGen( pbge.randmaps.SceneGenerator ):

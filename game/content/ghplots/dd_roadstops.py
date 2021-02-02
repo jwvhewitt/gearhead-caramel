@@ -779,6 +779,104 @@ class AmateurCyberdoc(Plot):
 # Retired Cavalier Dojo
 # Abandoned video production facility- Director needs next script, which is lost in ruins.
 
+class TreasureCave(Plot):
+    LABEL = "DZRS_FEATURE"
+
+    active = True
+    scope = "METRO"
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        # Create the cave dungeon.
+        self.area_name = '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
+        mydungeon = dungeonmaker.DungeonMaker(
+            nart, self, self.elements["METROSCENE"], self.area_name,
+            gharchitecture.EarthCave(), self.rank,
+            monster_tags=("MUTANT", "SYNTH", "EARTH", "CAVE"),
+            scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_SEMIPUBLIC,),
+            decor=gharchitecture.CaveDecor(),
+        )
+        self.elements["DUNGEON"] = mydungeon.entry_level
+        self.elements["DGOAL"] = mydungeon.goal_level
+
+        # Add the dungeon entry room.
+        mymapgen = nart.get_map_generator(mydungeon.entry_level)
+        d_entrance_room = self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5, anchor=pbge.randmaps.anchors.south))
+        mydungeon.entry_level.contents.append(d_entrance_room)
+
+        myent = self.register_element(
+            "ENTRANCE", ghwaypoints.Exit(
+                anchor=pbge.randmaps.anchors.middle,
+                dest_scene=self.elements["METROSCENE"],
+                dest_entrance=self.elements["MISSION_GATE"]),
+            dident="ENTRANCE_ROOM"
+        )
+
+        # Add the treasure room.
+        troom = self.register_element("TREASURE_ROOM", pbge.randmaps.rooms.OpenRoom(10, 10), dident="DGOAL")
+        mychest = self.register_element("GOAL", ghwaypoints.Crate(name="Crate", anchor=pbge.randmaps.anchors.middle), dident="TREASURE_ROOM")
+        mychest.contents += gears.selector.get_random_loot(self.rank+15,250,(gears.tags.ST_TREASURE, gears.tags.ST_LOSTECH, gears.tags.ST_WEAPON))
+
+        myteam = self.register_element("_eteam", teams.Team(enemies=(mydungeon.goal_level.player_team,)), dident="TREASURE_ROOM")
+        myteam.contents += gears.selector.RandomMonsterUnit(self.rank+20, 200, mydungeon.goal_level.environment,
+                                                            ("ROBOT","SYNTH","GUARD"), mydungeon.goal_level.scale).contents
+
+        # Add the unlock computer.
+        compyscene = self.register_element("COMPY_SCENE", random.choice(mydungeon.levels))
+        compyroom = self.register_element("COMPY_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="COMPY_SCENE")
+        mycompy = self.register_element("COMPY", ghwaypoints.OldTerminal(name="Computer", plot_locked=True, anchor=pbge.randmaps.anchors.middle), dident="COMPY_ROOM")
+
+        #print(self.elements["METROSCENE"])
+        self.dungeon_unlocked = False
+        self.compy_hacked = False
+        return True
+
+    def COMPY_menu(self, camp, thingmenu):
+        thingmenu.desc = "You stand before an old computer security terminal."
+        if not self.compy_hacked:
+            thingmenu.add_item("Leave it alone.", None)
+
+            mypc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Computers, self.rank, no_random=True)
+            if mypc:
+                if mypc == camp.pc:
+                    thingmenu.add_item("Disable the security protocols.", self._hack_compy)
+                else:
+                    thingmenu.add_item("Ask {} to disable the security protocols.".format(mypc), self._hack_compy)
+
+    def _hack_compy(self, camp):
+        self.compy_hacked = True
+        self.elements["_eteam"].make_allies(self.elements["DGOAL"].player_team)
+        pbge.alert("The security protocols have been disabled.")
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.dungeon_unlocked:
+            thingmenu.add_item("Go to {}.".format(self.area_name), self.go_to_locale)
+
+    def go_to_locale(self, camp):
+        camp.destination, camp.entrance = self.elements["DUNGEON"], self.elements["ENTRANCE"]
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if not self.dungeon_unlocked:
+            mygram["[News]"] = ["there is hidden bandit treasure in {}".format(self.area_name,), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.dungeon_unlocked:
+            goffs.append(Offer(
+                msg="The way the story goes, years ago there was a bandit gang around here and they amassed a huge amount of treasure. They hid it in one of the nearby caves, but for whatever reason never came back to collect it. Maybe they forgot the password?".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=self.area_name, data={"subject": self.area_name}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self, camp):
+        self.dungeon_unlocked = True
+        missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
+
 
 class DZRS_LostForager(Plot):
     LABEL = "DZRS_FEATURE"
@@ -841,7 +939,7 @@ class DZRS_LostForager(Plot):
         d_npc_room.contents.append(myteam)
         myteam.contents.append(npc2)
 
-        print(self.elements["METROSCENE"])
+        #print(self.elements["METROSCENE"])
         self.dungeon_unlocked = False
         self.got_rumor = False
         self.npc_rescued = False
