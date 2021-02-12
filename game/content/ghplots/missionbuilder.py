@@ -89,7 +89,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone(),
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg",
-                 one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None, **kwargs):
+                 one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None,
+                 environment=gears.tags.GroundEnv, **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
         cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
 
@@ -138,6 +139,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             self.rewards.append(adventureseed.SalvageReward())
         self.rewards.append(adventureseed.RenownReward())
 
+        self.environment = environment
+
     def end_adventure(self, camp):
         # Update before ending, and again after.
         camp.check_trigger("UPDATE")
@@ -148,8 +151,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         super(BuildAMissionSeed, self).end_adventure(camp)
         camp.day += 1
 
-    def __call__(self, camp):
-        if camp.has_mecha_party(self.solo_mission):
+    def __call__(self, camp: gears.GearHeadCampaign):
+        if camp.has_mecha_party(self.solo_mission, enviro=self.environment):
             super().__call__(camp)
         else:
             pbge.alert("You cannot proceed on this mission without a mecha.")
@@ -172,6 +175,12 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             candidate not in nart.camp.party and candidate.renown <= (self.rank + 25)
         )
 
+    def __setstate__(self, state):
+        # For saves from v0.612 or earlier, make sure there's an environment.
+        self.__dict__.update(state)
+        if "environment" not in state:
+            self.environment = gears.tags.GroundEnv
+
 
 class BuildAMissionPlot(Plot):
     # Go fight mecha. Repeatedly.
@@ -184,7 +193,8 @@ class BuildAMissionPlot(Plot):
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(
             50, 50, "Combat Zone", player_team=team1, scale=gears.scale.MechaScale,
-            combat_music=self.elements["COMBAT_MUSIC"], exploration_music=self.elements["EXPLO_MUSIC"]
+            combat_music=self.elements["COMBAT_MUSIC"], exploration_music=self.elements["EXPLO_MUSIC"],
+            environment=self.adv.environment
         )
         if self.adv.solo_mission:
             myscene.attributes.add(gears.tags.SCENE_SOLO)

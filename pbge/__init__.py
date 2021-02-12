@@ -421,7 +421,7 @@ def alert(text,font=None):
     while True:
         ev = wait_event()
         if ( ev.type == pygame.MOUSEBUTTONUP) or ( ev.type == pygame.QUIT ) or (ev.type == pygame.KEYDOWN):
-            break
+            return ev
         elif ev.type == TIMEREVENT:
             if my_state.view:
                 my_state.view()

@@ -327,7 +327,7 @@ class PopUpMenu( Menu ):
     """Creates a small menu at the current mouse position."""
     WIDTH = 200
     HEIGHT = 250
-    def __init__( self, predraw=None, border=default_border ):
+    def __init__( self, predraw=None, border=default_border, **kwargs ):
         x,y = my_state.mouse_pos
         x += 8
         y += 8
@@ -337,7 +337,7 @@ class PopUpMenu( Menu ):
         if y + self.HEIGHT + 32 > sh:
             y += -self.HEIGHT - 32
 
-        super(PopUpMenu, self).__init__(x,y,self.WIDTH,self.HEIGHT,ANCHOR_UPPERLEFT, border=border, predraw=predraw)
+        super().__init__(x,y,self.WIDTH,self.HEIGHT,ANCHOR_UPPERLEFT, border=border, predraw=predraw, **kwargs)
 
 
 

@@ -533,15 +533,14 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.egg = None
         self.delete_save_file()
 
-    def get_usable_party(self,map_scale,solo_map=False,just_checking=False):
-        #TODO: Check environment of scene and movement modes of characters
+    def get_usable_party(self,map_scale,solo_map=False,just_checking=False, enviro=tags.GroundEnv):
         usable_party = list()
         if not solo_map:
             party_candidates = self.party
         else:
             party_candidates = [pc for pc in self.party if pc is self.pc or (hasattr(pc,"pilot") and pc.pilot is self.pc)]
         for pc in party_candidates:
-            if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc,(base.Character,base.Mecha)):
+            if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc,(base.Character,base.Mecha)) and geffects.model_matches_environment(pc,enviro):
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational() and pc.check_design():
                         if not just_checking:
@@ -553,8 +552,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             usable_party.append(self.pc)
         return usable_party
 
-    def has_mecha_party(self, solo_map=False):
-        party = self.get_usable_party(scale.MechaScale,solo_map=solo_map,just_checking=True)
+    def has_mecha_party(self, solo_map=False, enviro=tags.GroundEnv):
+        party = self.get_usable_party(scale.MechaScale,solo_map=solo_map,just_checking=True, enviro=enviro)
         return len(party) > 0
 
     def choose_party(self):

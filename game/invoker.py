@@ -78,7 +78,7 @@ class InvocationsWidget(pbge.widgets.Widget):
                 self.prev_shelf()
             elif ev.button == 5:
                 self.next_shelf()
-            elif ev.button == 3:
+            elif ev.button == 2:
                 self.pop_invo_menu()
         elif ev.type == pygame.KEYDOWN:
             if ev.key in pbge.my_state.get_keys_for("up"):
@@ -250,7 +250,7 @@ class InvocationUI(object):
     SC_ZEROCURSOR = 7
     LIBRARY_WIDGET = InvocationsWidget
 
-    def __init__(self, camp, pc, build_library_function, source=None, top_shelf_fun=None, bottom_shelf_fun=None):
+    def __init__(self, camp, pc, build_library_function, source=None, top_shelf_fun=None, bottom_shelf_fun=None, name="invocations" ):
         self.camp = camp
         self.pc = pc
         # self.change_invo(invo)
@@ -260,6 +260,7 @@ class InvocationUI(object):
             camp, pc, build_library_function, self.change_invo, source,
             top_shelf_fun=top_shelf_fun, bottom_shelf_fun=bottom_shelf_fun
         )
+        self.name = name
         self.my_widget.active = False
         pbge.my_state.widgets.append(self.my_widget)
         self.record = False
@@ -424,6 +425,44 @@ class InvocationUI(object):
                 return min(self.firing_points, key=lambda r: mynav.cost_to_tile.get(r, 10000))
             else:
                 return self.pc.pos
+
+    def name_current_option(self):
+        op_list = list()
+        op_list.append(self.my_widget.shelf.name)
+        my_invo = self.my_widget.get_invo()
+        if my_invo:
+            if my_invo.name:
+                op_list.append(my_invo.name)
+            else:
+                op_list.append(str(self.my_widget.invo))
+        return op_list
+
+    def find_shelf_invo(self, op_list):
+        # Attempt to find the requested shelf and invocation.
+        shelf_name = op_list.pop(0)
+        shelf = None
+        for candidate in self.my_widget.library:
+            if candidate.name == shelf_name:
+                shelf = candidate
+                break
+        if shelf:
+            invo = None
+            if op_list:
+                invo_name = op_list.pop(0)
+                if invo_name.isdigit():
+                    invo_num = int(invo_name)
+                    if invo_num < len(shelf.invo_list):
+                        invo = shelf.invo_list[invo_num]
+                else:
+                    for candidate in shelf.invo_list:
+                        if candidate.name == invo_name:
+                            invo = candidate
+                            break
+
+            if not invo:
+                invo = shelf.get_first_working_invo(self.pc, bool(self.camp.fight))
+
+            self.my_widget.set_shelf_invo(shelf, invo)
 
     @classmethod
     def explo_invoke(cls, explo, pc, build_library_function, source=None):

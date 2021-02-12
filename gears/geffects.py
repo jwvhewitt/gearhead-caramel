@@ -171,9 +171,17 @@ LEGAL_MOVEMODES = {
     tags.SpaceEnv: (SpaceFlight,)
 }
 
+
+def model_matches_environment(model, enviro):
+    legal_mm = LEGAL_MOVEMODES.get(enviro,())
+    for mm in legal_mm:
+        if model.get_speed(mm) > 0:
+            return True
+
 #  *******************
 #  ***   AnimObs   ***
 #  *******************
+
 
 class SmallBoom( animobs.AnimOb ):
     SPRITE_NAME = 'anim_smallboom.png'
@@ -183,40 +191,50 @@ class SmallBoom( animobs.AnimOb ):
         self.x_off,self.y_off = self.SPRITE_OFF[sprite]
         self.y_off += y_off
 
+
 class NoDamageBoom( SmallBoom ):
     SPRITE_NAME = 'anim_nodamage.png'
+
 
 class BigBoom( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_bigboom.png"
     DEFAULT_END_FRAME = 7
 
+
 class SuperBoom( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_frogatto_nuke.png"
     DEFAULT_END_FRAME = 9
+
 
 class SmokePoof( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_smokepoof.png"
     DEFAULT_END_FRAME = 7
 
+
 class DustCloud( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_dustcloud.png"
     DEFAULT_END_FRAME = 7
+
 
 class BurnAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_burning.png"
     DEFAULT_END_FRAME = 7
 
+
 class Fireball( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_fireball.png"
     DEFAULT_END_FRAME = 7
+
 
 class DisintegrationAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_disintegration.png"
     DEFAULT_END_FRAME = 15
 
+
 class DeathWaveAnim( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_deathwave.png"
     DEFAULT_END_FRAME = 15
+
 
 class InvokeDeathWaveAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Death Wave!'

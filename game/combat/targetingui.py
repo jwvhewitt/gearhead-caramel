@@ -38,7 +38,7 @@ class AttackWidget(invoker.InvocationsWidget):
 class TargetingUI(invoker.InvocationUI):
     LIBRARY_WIDGET = AttackWidget
     def __init__(self,camp,attacker,**kwargs):
-        super(TargetingUI,self).__init__(camp,attacker,attacker.get_attack_library,**kwargs)
+        super().__init__(camp,attacker,attacker.get_attack_library,**kwargs)
     def activate( self ):
         super(TargetingUI,self).activate()
         self.my_widget.maybe_select_shelf_with_this_source(self.camp.fight.cstat[self.pc].last_weapon_used)

@@ -51,13 +51,14 @@ class MovementUI( object ):
     SC_VOIDCURSOR = 0
     SC_TRAILMARKER = 6
     SC_ZEROCURSOR = 7
-    def __init__(self, camp, mover, top_shelf_fun=None, bottom_shelf_fun=None):
+    def __init__(self, camp, mover, top_shelf_fun=None, bottom_shelf_fun=None, name="movement"):
         self.camp = camp
         self.mover = mover
         self.origin = mover.pos
         self.needs_tile_update = True
         self.top_shelf_fun = top_shelf_fun
         self.bottom_shelf_fun = bottom_shelf_fun
+        self.name = name
 
         self.cursor_sprite = pbge.image.Image('sys_mapcursor.png',64,64)
         self.my_widget = MoveWidget(camp,mover,on_click=self.open_movemode_menu)

@@ -114,6 +114,57 @@ class PlayerTurn( object ):
         if self.active_ui in self.bottom_shelf_funs:
             self.bottom_shelf_funs[self.active_ui]()
 
+    def focus_on_pc(self):
+        pbge.my_state.view.focus(self.pc.pos[0], self.pc.pos[1])
+
+    def quit_the_game(self):
+        self.camp.fight.no_quit = False
+
+    def pop_menu(self):
+        # Pop Pop PopMenu Pop Pop PopMenu
+        mymenu = pbge.rpgmenu.PopUpMenu()
+        mymenu.add_item("Center on {}".format(self.pc.get_pilot()), self.focus_on_pc)
+        mymenu.add_item("Record hotkey for current action", self.gui_record_hotkey)
+        mymenu.add_item("Quit Game", self.quit_the_game)
+
+        choice = mymenu.query()
+        if choice:
+            choice()
+
+    def find_this_option(self, op_string):
+        op_list = op_string.split('/')
+        ui_name = op_list.pop(0)
+        myui = None
+        for ui in self.all_uis:
+            if ui.name == ui_name and ui in self.all_funs:
+                self.all_funs[ui]()
+                myui = ui
+                break
+        if op_list and myui and hasattr(myui,"find_shelf_invo"):
+            myui.find_shelf_invo(op_list)
+
+    def name_current_option(self):
+        op_list = list()
+        op_list.append(self.active_ui.name)
+        if hasattr(self.active_ui,"name_current_option"):
+            op_list += self.active_ui.name_current_option()
+        return '/'.join(op_list)
+
+    def record_hotkey(self, mykey):
+        option_string = self.name_current_option()
+
+        pbge.util.config.set("HOTKEYS", mykey, option_string)
+        pbge.BasicNotification("New hotkey set: {} = {}".format(mykey,option_string), count=200)
+        # Export the new config options.
+        with open( pbge.util.user_dir( "config.cfg" ) , "wt" ) as f:
+            pbge.util.config.write( f )
+
+    def gui_record_hotkey(self):
+        myevent = pbge.alert("Press an alphabetic key to record a new macro for {}. You could also do this by holding Alt + key.".format(self.name_current_option()))
+
+        if myevent.type == pygame.KEYDOWN and myevent.unicode.isalpha():
+            self.record_hotkey(myevent.unicode)
+
     def go( self ):
         # Perform this character's turn.
         #Start by making a hotmap centered on PC, to see how far can move.
@@ -134,13 +185,14 @@ class PlayerTurn( object ):
         self.all_uis.append(self.movement_ui)
         self.all_funs[self.movement_ui] = self.switch_movement
 
-        self.attack_ui = targetingui.TargetingUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
+        self.attack_ui = targetingui.TargetingUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,
+                                                 bottom_shelf_fun=self.switch_bottom_shelf, name="attacks")
         self.all_uis.append(self.attack_ui)
         self.all_funs[self.attack_ui] = self.switch_attack
 
         has_skills = self.pc.get_skill_library(True)
         self.skill_ui = invoker.InvocationUI(self.camp, self.pc, self._get_skill_library,
-                                             top_shelf_fun=self.switch_top_shelf,
+                                             top_shelf_fun=self.switch_top_shelf, name="skills",
                                              bottom_shelf_fun=self.switch_bottom_shelf)
         if has_skills:
             buttons_to_add.append((8,9,self.switch_skill,'Skills'))
@@ -148,14 +200,16 @@ class PlayerTurn( object ):
             self.all_funs[self.skill_ui] = self.switch_skill
 
         has_programs = self.pc.get_program_library()
-        self.program_ui = programsui.ProgramsUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
+        self.program_ui = programsui.ProgramsUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,
+                                                bottom_shelf_fun=self.switch_bottom_shelf, name="programs")
         if has_programs:
             buttons_to_add.append((10, 11, self.switch_programs, 'Programs'))
             self.all_uis.append(self.program_ui)
             self.all_funs[self.program_ui] = self.switch_programs
 
         has_usables = self.pc.get_usable_library()
-        self.usable_ui = usableui.UsablesUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf)
+        self.usable_ui = usableui.UsablesUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,
+                                            bottom_shelf_fun=self.switch_bottom_shelf, name="usables")
         if has_usables:
             buttons_to_add.append((12, 13, self.switch_usables, 'Usables'))
             self.all_uis.append(self.usable_ui)
@@ -187,15 +241,22 @@ class PlayerTurn( object ):
             self.active_ui.update( gdi, self )
 
             if gdi.type == pygame.KEYDOWN:
-                if gdi.unicode == "Q":
+                if gdi.unicode.isalpha() and gdi.mod & pygame.KMOD_ALT:
+                    # Record a hotkey.
+                    self.record_hotkey(gdi.unicode)
+                elif gdi.unicode.isalpha() and pbge.util.config.has_option("HOTKEYS", gdi.unicode):
+                    self.find_this_option(pbge.util.config.get("HOTKEYS", gdi.unicode))
+                elif gdi.unicode == "Q":
                     keep_going = False
                     self.camp.fight.no_quit = False
                 elif gdi.unicode == "c":
-                    pbge.my_state.view.focus( self.pc.pos[0], self.pc.pos[1] )
+                    self.focus_on_pc()
                 elif gdi.key == pygame.K_ESCAPE:
                     mymenu = configedit.PopupGameMenu()
                     mymenu(self.camp.fight)
-
+            elif gdi.type == pygame.MOUSEBUTTONUP:
+                if gdi.button == 3:
+                    self.pop_menu()
 
         pbge.my_state.widgets.remove(self.my_radio_buttons)
         pbge.my_state.view.overlays.clear()
@@ -319,7 +380,7 @@ class Combat( object ):
             if nav:
                 return firing_points.intersection(list(nav.cost_to_tile.keys()))
             else:
-                return set([chara.pos]).intersection(firing_points)
+                return {chara.pos}.intersection(firing_points)
 
     def move_and_invoke(self,pc,nav,invo,target_list,firing_points,record=False):
         fp = min(firing_points, key=lambda r: nav.cost_to_tile.get(r, 10000))

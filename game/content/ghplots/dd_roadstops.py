@@ -7,7 +7,7 @@ import pbge
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
 from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker
-from . import tarot_cards, missionbuilder
+from . import tarot_cards, missionbuilder, dd_homebase
 from game.memobrowser import Memo
 
 
@@ -771,13 +771,101 @@ class AmateurCyberdoc(Plot):
 # Armor Shop
 # Lostech Shop
 # Trading Hub
-# Synth Dungeon
 # Lucky Crystal
 # Thrunet Node
 # Local Bar Needs Entertainment
 # Mine Monster
 # Retired Cavalier Dojo
 # Abandoned video production facility- Director needs next script, which is lost in ruins.
+
+class SynthCave(Plot):
+    LABEL = "DZRS_FEATURE"
+
+    active = True
+    scope = "METRO"
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        # Create the cave dungeon.
+        self.area_name = '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
+        mydungeon = dungeonmaker.DungeonMaker(
+            nart, self, self.elements["METROSCENE"], self.area_name,
+            gharchitecture.StoneCave(), self.rank,
+            monster_tags=("DARK", "SYNTH", "EARTH", "CAVE"),
+            scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_SEMIPUBLIC,),
+            decor=gharchitecture.CaveDecor(),
+        )
+        self.elements["DUNGEON"] = mydungeon.entry_level
+        self.elements["DGOAL"] = mydungeon.goal_level
+
+        # Add the dungeon entry room.
+        mymapgen = nart.get_map_generator(mydungeon.entry_level)
+        d_entrance_room = self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5, anchor=pbge.randmaps.anchors.south))
+        mydungeon.entry_level.contents.append(d_entrance_room)
+
+        myent = self.register_element(
+            "ENTRANCE", ghwaypoints.Exit(
+                anchor=pbge.randmaps.anchors.middle,
+                dest_scene=self.elements["METROSCENE"],
+                dest_entrance=self.elements["MISSION_GATE"]),
+            dident="ENTRANCE_ROOM"
+        )
+
+        # Add the treasure room.
+        troom = self.register_element("TREASURE_ROOM", pbge.randmaps.rooms.OpenRoom(10, 10), dident="DGOAL")
+        self.register_element("GOAL", ghwaypoints.BrokenBiotank(
+            name="Broken Biotank", desc="You stand before a broken biotank. Maybe this place was part of a laboratory long, long ago.", anchor=pbge.randmaps.anchors.middle
+        ), dident="TREASURE_ROOM")
+        self.register_element("COMPY", ghwaypoints.OldTerminal(
+            name="Computer Terminal", desc="You stand before a broken computer terminal. It looks like it has already been ransacked for spare parts.",
+        ), dident="TREASURE_ROOM")
+
+        #print(self.elements["METROSCENE"])
+        self.dungeon_unlocked = False
+        self.tech_found = False
+        return True
+
+    def GOAL_BUMP(self, camp):
+        if not self.tech_found:
+            self.tech_found = True
+            dd_homebase.BiotechDiscovery(
+                camp, "I found the remains of an old biotech lab in {METROSCENE}.".format(**self.elements),
+                "[THATS_INTERESTING] That was a major industrial area during the Age of Superpowers. Here's {cash} for your discovery.",
+                self.rank
+            )
+
+    def COMPY_BUMP(self, camp):
+        self.GOAL_BUMP(camp)
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.dungeon_unlocked:
+            thingmenu.add_item("Go to {}.".format(self.area_name), self.go_to_locale)
+
+    def go_to_locale(self, camp):
+        camp.destination, camp.entrance = self.elements["DUNGEON"], self.elements["ENTRANCE"]
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if not self.dungeon_unlocked:
+            mygram["[News]"] = ["{} is full of biomonsters and mutants".format(self.area_name,), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        if not self.dungeon_unlocked:
+            goffs.append(Offer(
+                msg="Lots of people have gone there hoping to find PreZero treasure, but no, it just seems to be a big cave full of nasty stuff. You can try your luck if you want.".format(
+                    **self.elements),
+                context=ContextTag((context.INFO,)), effect=self._get_rumor,
+                subject=self.area_name, data={"subject": self.area_name}, no_repeats=True
+            ))
+        return goffs
+
+    def _get_rumor(self, camp):
+        self.dungeon_unlocked = True
+        missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
+
 
 class TreasureCave(Plot):
     LABEL = "DZRS_FEATURE"
