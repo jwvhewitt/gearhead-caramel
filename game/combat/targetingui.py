@@ -45,3 +45,7 @@ class TargetingUI(invoker.InvocationUI):
     def launch(self):
         self.camp.fight.cstat[self.pc].last_weapon_used = self.my_widget.shelf.source
         super(TargetingUI,self).launch()
+
+    def name_current_invo(self):
+        # For weapons, always use the attack number.
+        return str(self.my_widget.invo)

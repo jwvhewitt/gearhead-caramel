@@ -426,15 +426,19 @@ class InvocationUI(object):
             else:
                 return self.pc.pos
 
+    def name_current_invo(self):
+        my_invo = self.my_widget.get_invo()
+        if my_invo and my_invo.name:
+            return my_invo.name
+        else:
+            return str(self.my_widget.invo)
+
     def name_current_option(self):
         op_list = list()
         op_list.append(self.my_widget.shelf.name)
         my_invo = self.my_widget.get_invo()
         if my_invo:
-            if my_invo.name:
-                op_list.append(my_invo.name)
-            else:
-                op_list.append(str(self.my_widget.invo))
+            op_list.append(self.name_current_invo())
         return op_list
 
     def find_shelf_invo(self, op_list):
