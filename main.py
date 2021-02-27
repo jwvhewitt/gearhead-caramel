@@ -10,7 +10,7 @@ import glob
 import pickle
 import copy
 
-VERSION = "v0.612"
+VERSION = "v0.612x"
 
 
 class TitleScreenRedraw(object):
@@ -158,12 +158,19 @@ def open_chargen_menu(tsrd):
 
 
 def play_the_game():
-    try:
-        # running in a bundle
+    # Step one is to find our gamedir. The process is slightly different depending on whether we are running from
+    # source, running from a PyInstaller build, or running from a cx_Freeze build.
+    if getattr(sys, "_MEIPASS", False):
+        # PyInstaller build.
         gamedir = sys._MEIPASS
-    except Exception:
-        # running live
+    elif getattr(sys, "frozen", False):
+        # cx_Freeze build.
+        gamedir = os.path.dirname(sys.executable)
+    else:
+        # The application is not frozen
         gamedir = os.path.dirname(__file__)
+
+    print("GameDir: {}".format(gamedir))
     # print '"'+gamedir+'"'
     pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
     pbge.please_stand_by()

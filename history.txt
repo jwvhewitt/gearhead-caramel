@@ -1,3 +1,4 @@
+- Fixed bug when running ghcaramel from a different directory
 - Combat hotkeys can be set by pressing Alt + Key when using desired action, or by editing config file
 - Combat popup menu added if right mouse button clicked
 - Alert will now return the event that ended the alert display
