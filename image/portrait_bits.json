@@ -613,6 +613,10 @@
     "children": [
       "Pants"
     ]
+  },
+    {
+    "name": "No Accessory",
+    "btype": "Accessories"
   }
 
 

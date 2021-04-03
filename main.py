@@ -170,8 +170,6 @@ def play_the_game():
         # The application is not frozen
         gamedir = os.path.dirname(__file__)
 
-    print("GameDir: {}".format(gamedir))
-    # print '"'+gamedir+'"'
     pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
     pbge.please_stand_by()
     gears.init_gears()

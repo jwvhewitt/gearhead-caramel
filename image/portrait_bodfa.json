@@ -11,7 +11,7 @@
       {"name":"Body","fname":"avatar_body_fa.png","anchor":"midbottom","depth":2000}
     ],
     "children": [
-      "Clothing","Head"
+      "Clothing","Head", "Accessories"
     ],
     "anchors": {
       "head": [11,-140],
@@ -182,6 +182,49 @@
     "avatar_layers": [
       {"name":"Right Sleeve","fname":"avatar_sleeves_bandarmor.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":6,"frame_height":9,"y_offset":3},
       {"name":"Left Sleeve","fname":"avatar_sleeves_bandarmor.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":6,"frame_height":9,"y_offset":3}
+    ],
+    "requires": ["BodFA"],
+    "style": ["Combatant"]
+  },
+      {
+    "name": "LordErin BodFA Pilot Jacket",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_lorderin_bodfa_pilot_jacket.png","anchor":"center","depth":3000,"x_offset":5,"y_offset":20},
+      {"name":"Right Sleeve","fname":"por_lorderin_bodfa_pilot_rarm.png","anchor":"center","depth":5000,"x_offset":-107,"y_offset":56},
+      {"name":"Left Sleeve","fname":"por_lorderin_bodfa_pilot_larm.png","anchor":"center","depth":1500,"x_offset":91,"y_offset":78}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_lorderin_bodfa_pilot_jacket.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":1}
+    ],
+    "requires": ["BodFA"],
+    "style": ["Combatant"],
+    "children": [
+      "Pants"
+    ]
+  },
+    {
+    "name": "LordErin BodFA Pilot Pants",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_lorderin_bodfa_pants.png","anchor":"midbottom","depth":2500,"x_offset":-4,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_lorderin_bodfa_pants.png","anchor":"midbottom","depth":2500,"x_offset":-1, "y_offset":  -2}
+    ],
+    "requires": ["BodFA"],
+    "style": ["Combatant"],
+    "children": ["Shoes"]
+  },
+      {
+    "name": "LordErin BodFA Pilot Gloves",
+    "btype": "Accessories",
+    "layers": [
+      {"name":"Right Glove","fname":"por_lorderin_bodfa_gloves.png","anchor":"center","depth":5100,"frame_width":70,"frame_height":72,"x_offset":-61,"y_offset":186},
+      {"name":"Left Glove","fname":"por_lorderin_bodfa_gloves.png","anchor":"center","depth":1600,"frame":1,"frame_width":70,"frame_height":72,"x_offset":131,"y_offset":227}
+    ],
+    "avatar_layers": [
+      {"name":"Gloves","fname":"avatar_lorderin_bodfa_gloves.png","anchor":"center","depth":2500,"x_offset":-1, "y_offset":  12}
     ],
     "requires": ["BodFA"],
     "style": ["Combatant"]

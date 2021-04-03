@@ -11,11 +11,11 @@
       {"name":"Body","fname":"avatar_body_fc.png","anchor":"midbottom","depth":2000}
     ],
     "children": [
-      "Clothing","Head"
+      "Clothing","Head","Accessories"
     ],
     "anchors": {
       "head": [11,-156],
-      "avatar_head": [-1,-4], "avatar_body": [-1,6], "avatar_right_shoulder": [-8,0], "avatar_left_shoulder": [6,0]
+      "avatar_head": [-1,-5], "avatar_body": [-1,6], "avatar_right_shoulder": [-8,0], "avatar_left_shoulder": [6,0]
     },
     "requires": ["Feminine"],
     "nostyle": ["-Body"],
@@ -89,6 +89,50 @@
     ],
     "requires": ["BodFC"],
     "style": ["Combatant"]
+  },
+        {
+    "name": "LordErin BodFC Pilot Jacket",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_lorderin_bodfc_pilot_jacket.png","anchor":"center","depth":3000,"x_offset":10,"y_offset":5},
+      {"name":"Right Sleeve","fname":"por_lorderin_bodfc_pilot_rarm.png","anchor":"center","depth":5000,"x_offset":-103,"y_offset":53},
+      {"name":"Left Sleeve","fname":"por_lorderin_bodfc_pilot_larm.png","anchor":"center","depth":1500,"x_offset":108,"y_offset":49}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_lorderin_bodfc_pilot_jacket.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":-1}
+    ],
+    "requires": ["BodFC"],
+    "style": ["Combatant"],
+    "children": [
+      "Pants"
+    ]
+  },
+    {
+    "name": "LordErin BodFC Pilot Pants",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_lorderin_bodfc_pants.png","anchor":"midbottom","depth":2500,"x_offset":-9,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_lorderin_bodfc_pants.png","anchor":"midbottom","depth":2500,"x_offset":-1, "y_offset":  -2}
+    ],
+    "requires": ["BodFC"],
+    "style": ["Combatant"],
+    "children": ["Shoes"]
+  },
+      {
+    "name": "LordErin BodFC Pilot Gloves",
+    "btype": "Accessories",
+    "layers": [
+      {"name":"Right Glove","fname":"por_lorderin_bodfc_glove_r.png","anchor":"center","depth":5100,"x_offset":-28,"y_offset":188},
+      {"name":"Left Glove","fname":"por_lorderin_bodfc_glove_l.png","anchor":"center","depth":1600,"x_offset":142,"y_offset":227}
+    ],
+    "avatar_layers": [
+      {"name":"Gloves","fname":"avatar_lorderin_bodfc_gloves.png","anchor":"center","depth":2500,"x_offset":-1, "y_offset":  11}
+    ],
+    "requires": ["BodFC"],
+    "style": ["Combatant"]
   }
+
 
 ]

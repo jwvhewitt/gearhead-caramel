@@ -11,11 +11,11 @@
       {"name":"Body","fname":"avatar_body_fb.png","anchor":"midbottom","depth":2000}
     ],
     "children": [
-      "Clothing","Head"
+      "Clothing","Head","Accessories"
     ],
     "anchors": {
       "head": [8,-125],
-      "avatar_head": [-1,-2], "avatar_body": [-1,8], "avatar_right_shoulder": [-7,1], "avatar_left_shoulder": [7,1]
+      "avatar_head": [-1,-2], "avatar_body": [-1,8], "avatar_right_shoulder": [-8,1], "avatar_left_shoulder": [7,1]
     },
     "requires": ["Feminine"],
     "form_tags": ["BodFB"],
@@ -75,5 +75,49 @@
       {"name":"Left Sleeve","fname":"avatar_sleeves_fb1.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":6,"frame_height":6,"y_offset":4}
     ],
     "requires": ["BodFB"]
+  },
+        {
+    "name": "LordErin BodFB Pilot Jacket",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_lorderin_bodfb_pilot_jacket.png","anchor":"center","depth":3000,"x_offset":1,"y_offset":47},
+      {"name":"Right Sleeve","fname":"por_lorderin_bodfb_pilot_rarm.png","anchor":"center","depth":5000,"x_offset":-101,"y_offset":89},
+      {"name":"Left Sleeve","fname":"por_lorderin_bodfb_pilot_larm.png","anchor":"center","depth":1500,"x_offset":117,"y_offset":62}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_lorderin_bodfb_pilot_jacket.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
+    ],
+    "requires": ["BodFB"],
+    "style": ["Combatant"],
+    "children": [
+      "Pants"
+    ]
+  },
+    {
+    "name": "LordErin BodFB Pilot Pants",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_lorderin_bodfb_pants.png","anchor":"midbottom","depth":2500,"x_offset":-3,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_lorderin_bodfb_pants.png","anchor":"midbottom","depth":2500,"x_offset":-1, "y_offset":  -2}
+    ],
+    "requires": ["BodFB"],
+    "style": ["Combatant"],
+    "children": ["Shoes"]
+  },
+      {
+    "name": "LordErin BodFB Pilot Gloves",
+    "btype": "Accessories",
+    "layers": [
+      {"name":"Right Glove","fname":"por_lorderin_bodfb_gloves.png","anchor":"center","depth":5100,"frame_width":60,"frame_height":79,"x_offset":-139,"y_offset":260},
+      {"name":"Left Glove","fname":"por_lorderin_bodfb_gloves.png","anchor":"center","depth":1600,"frame":1,"frame_width":60,"frame_height":79,"x_offset":103,"y_offset":200}
+    ],
+    "avatar_layers": [
+      {"name":"Gloves","fname":"avatar_lorderin_bodfb_gloves.png","anchor":"center","depth":2500,"x_offset":-1, "y_offset":  14}
+    ],
+    "requires": ["BodFB"],
+    "style": ["Combatant"]
   }
+
 ]
