@@ -2013,6 +2013,12 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Listen;",
                           ],
+        DISLIKE:    [
+            "Listen here, [audience]:"
+        ],
+        HATE: [
+            "Listen here, you maggot:"
+        ],
     },
 
     "[LONGTIMENOSEE]": {

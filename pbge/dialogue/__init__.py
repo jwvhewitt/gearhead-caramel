@@ -52,11 +52,13 @@ class Offer(object):
     # "no_repeats" means this offer can't be replied by an offer with the same context + subject
     # "dead_end" means this offer will have no automatically generated replies
     # "custom_menu_fun" is a function that takes (reply,menu,pcgrammar) and alters the menu.
+    # "is_generic" tells whether or not this is a generic offer
+    # "allow_generics" allows generic offers to link from this one
 
     # "data" is a dict holding strings that may be requested by format.
     def __init__(
             self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, no_repeats=False,
-            dead_end=False, data=None, custom_menu_fun=None
+            dead_end=False, data=None, custom_menu_fun=None, is_generic=False, allow_generics=True
     ):
         self.msg = msg
         self.context = ContextTag(context)
@@ -67,6 +69,8 @@ class Offer(object):
         self.no_repeats = no_repeats
         self.dead_end = dead_end
         self.custom_menu_fun = custom_menu_fun
+        self.is_generic = is_generic
+        self.allow_generics = allow_generics
 
         if not replies:
             self.replies = list()
@@ -218,8 +222,8 @@ class DynaConversation(object):
             # No good. Try one of the standard offers instead.
             return self._find_std_offer_to_match_cue(cue)
 
-    def _get_reply_for_offers(self,off1,off2):
-        if not (off1.no_repeats and off1.subject == off2.subject and off1.context == off2.context):
+    def _get_reply_for_offers(self,off1: Offer,off2: Offer):
+        if not ((off1.no_repeats and off1.subject == off2.subject and off1.context == off2.context) or (off2.is_generic and not off1.allow_generics)):
             candidates = [r for r in STANDARD_REPLIES if r.context.matches(off1.context) and r.destination.context.matches(off2.context)
                           and (off1.subject == off2.subject or off2.subject is None or str(off2.subject) in off1.msg or off2.subject_start)]
             if candidates:

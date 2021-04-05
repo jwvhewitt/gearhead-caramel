@@ -87,8 +87,8 @@ from . import adventureseed
 def narrative_convenience_function( pc_egg, adv_type="SCENARIO_DEADZONEDRIFTER" ):
 #def narrative_convenience_function(adv_type="SCENARIO_MOCHA"):
     # Start an adventure.
-    init = pbge.plots.PlotState(rank=1)
     camp = gears.GearHeadCampaign(name=str(pc_egg.pc),explo_class=exploration.Explorer,egg=pc_egg)
+    init = pbge.plots.PlotState(rank=1, adv=pbge.plots.Adventure(world=camp))
     nart = GHNarrativeRequest(camp,init,adv_type,PLOT_LIST)
     if nart.story:
         nart.build()

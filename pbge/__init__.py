@@ -276,6 +276,7 @@ ITALICFONT = None
 BIGFONT = None
 ANIMFONT = None
 MEDIUMFONT = None
+ALTTEXTFONT = None  # Use this instead of MEDIUMFONT when you want to shake things up a bit.
 POSTERS = list()
 my_state = GameState()
 
@@ -617,6 +618,10 @@ def init(winname,appname,gamedir,icon="sys_icon.png",poster_pattern="poster_*.pn
         global MEDIUMFONT
         MEDIUMFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-Bold.ttf" ) , 14 )
         my_state.medium_font = MEDIUMFONT
+
+        global ALTTEXTFONT
+        ALTTEXTFONT = pygame.font.Font( util.image_dir( "DejaVuSansCondensed-BoldOblique.ttf" ) , 15 )
+        my_state.alt_text_font = ALTTEXTFONT
 
 
         global ITALICFONT

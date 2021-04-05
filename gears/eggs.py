@@ -82,3 +82,8 @@ class Egg(object):
                 if myplot:
                     myplot.move_records.append((mynpc,camp.uniques))
                 return mynpc
+
+    def has_dramatis_person(self, camp, check_fun):
+        # Kinda like the above, but just see if a candidate exists.
+        if self.dramatis_personae:
+            return bool([c for c in self.dramatis_personae if check_fun(camp,c) and c not in camp.uniques])
