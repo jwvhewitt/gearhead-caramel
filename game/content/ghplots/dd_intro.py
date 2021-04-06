@@ -96,6 +96,10 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
             npc = self.elements["SHERIFF"]
             npc.relationship = gears.relationships.Relationship(random.randint(1,20))
+            npc.relationship.history.append(gears.relationships.Memory("you helped protect {} from raiders".format(self.elements["DZ_TOWN_NAME"]),
+                                                                       "I helped you protect {} from raiders".format(self.elements["DZ_TOWN_NAME"]),
+                                                                       10, (gears.relationships.MEM_AidedByPC,)))
+
             while npc.get_reaction_score(camp.pc,camp) < 20:
                 npc.relationship.reaction_mod += random.randint(1,50)
             self._did_first_reply = False
@@ -225,6 +229,203 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
     def _skip_first_mission(self,camp):
         self.adv.end_adventure(camp)
+
+
+class DZDIntro_CousinIntro(DZDIntro_GetInTheMekShimli):
+    # Alternate intro for DeadZone characters.
+    LABEL = "DZD_INTRO"
+    active = True
+    scope = True
+
+    @classmethod
+    def matches( self, pstate: pbge.plots.PlotState ):
+        """Returns True if this plot matches the current plot state."""
+        return gears.personality.DeadZone in pstate.adv.world.pc.personality
+
+    def t_START(self,camp):
+        if camp.scene is self.elements["LOCALE"] and not self.started_the_intro:
+            # Make sure the PC has a mecha.
+            mek = camp.get_pc_mecha(camp.pc)
+            if not mek:
+                mek = gears.selector.MechaShoppingList.generate_single_mecha(camp.pc.renown,gears.factions.TerranDefenseForce,env=gears.tags.GroundEnv)
+                camp.assign_pilot_to_mecha(camp.pc,mek)
+                camp.party.append(mek)
+
+            pbge.alert("You have spent the past few weeks in {}, helping your cousin {} defend the town against raiders. Things have been going about as well as expected.".format(self.elements["DZ_TOWN_NAME"], self.elements["SHERIFF"]))
+
+            npc = self.elements["SHERIFF"]
+            npc.relationship = gears.relationships.Relationship(random.randint(1,20))
+            npc.relationship.tags.add(gears.relationships.RT_FAMILY)
+            npc.relationship.history.append(gears.relationships.Memory("you helped me defend {}".format(self.elements["DZ_TOWN_NAME"]),
+                                                                       "I helped you defend {}".format(self.elements["DZ_TOWN_NAME"]),
+                                                                       10, (gears.relationships.MEM_AidedByPC,)))
+
+            self._did_first_reply = False
+            ghdialogue.start_conversation(camp,camp.pc,npc)
+
+            self.started_the_intro = True
+
+    def SHERIFF_offers(self,camp):
+        mylist = list()
+
+        if camp.scene is self.elements["LOCALE"]:
+
+            mylist.append(Offer(
+                "Alright. When we get to the field, I'll give you a brief tutorial. You can get in your mecha by using the boarding chute over there.",
+                dead_end=True, effect=self._activate_tutorial,
+                context=ContextTag([context.CUSTOMREPLY]), subject="TUTORIAL",
+                data={"reply": "[YESPLEASE]"}
+            ))
+            mylist.append(Offer(
+                "Understood. You can get in your mecha by using the boarding chute over there.",
+                dead_end=True, effect=self._deactivate_tutorial,
+                context=ContextTag([context.CUSTOMREPLY]), subject="TUTORIAL",
+                data={"reply": "[NOTHANKYOU]"}
+            ))
+
+            if not self._did_first_reply:
+                mylist.append(Offer(
+                        "Guess what? The power station is under attack again! The local bandits must really covet our huge supplies of copper wire. All ready to suit up and roll out?".format(**self.elements),
+                        context=ContextTag([context.HELLO]), allow_generics=False
+                ))
+
+                mylist.append(Offer(
+                    "[GOOD] I'm really glad you've been here to help us out. One more question: Do you want me to walk you through the new mecha control upgrade?".format(
+                        self.elements["DZ_TOWN_NAME"]),
+                    context=ContextTag([context.CUSTOM]), effect=self._choose_friendly_reply,
+                    data={"reply": "[IWOULDLOVETO]"}, subject="TUTORIAL", subject_start=True,
+                ))
+
+                mylist.append(Offer(
+                    "You know, I really owe you one for helping me defend {DZ_TOWN_NAME}. One question before we go: Do you want me to walk you through the new mecha control upgrade?".format(**self.elements),
+                    context=ContextTag([context.CUSTOM]), effect=self._choose_professional_reply,
+                    data={"reply": "[LETS_START_MECHA_MISSION]"}, subject="TUTORIAL", subject_start=True,
+                ))
+
+            else:
+                mylist.append(Offer(
+                    "Time to go defend the power station. Do you want me to walk you through the new mecha control upgrade when we get there?",
+                    context=ContextTag([context.HELLO]), allow_generics=False,
+                ))
+                mylist.append(Offer(
+                    "Alright. When we get to the field, I'll give you a brief tutorial. You can get in your mecha by using the boarding chute over there.",
+                    dead_end=True, effect=self._activate_tutorial,
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "[YESPLEASE]"}
+                ))
+                mylist.append(Offer(
+                    "Understood. You can get in your mecha by using the boarding chute over there.",
+                    dead_end=True, effect=self._deactivate_tutorial,
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "[NOTHANKYOU]"}
+                ))
+
+        return mylist
+
+
+class DZDIntro_SoldierIntro(DZDIntro_GetInTheMekShimli):
+    # Alternate intro for Soldier reputation.
+    LABEL = "DZD_INTRO"
+    active = True
+    scope = True
+
+    MISSION_ELEMENTS = {"ENEMY_FACTION": gears.factions.ClanIronwind}
+    DEBRIEFING_ELEMENTS = {
+        "DEBRIEFING_HELLO": "Our town militia isn't strong enough to hold off Clan Ironwind forever; there's too much ground to cover and not enough of us to do it. Plus, now we have to deal with a ransacked powerplant. Who knows if it can even be fixed?",
+        "DEBRIEFING_MISSION": "I'd like for you to head to Wujung. Hire some lancemates. Find someone who can help us with our energy problems. Then come back here and we'll see if we can drive those invaders out of {DZ_TOWN_NAME} permanently."
+    }
+
+    @classmethod
+    def matches( self, pstate: pbge.plots.PlotState ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.adv.world.pc.has_badge("Soldier")
+
+    def t_START(self,camp):
+        if camp.scene is self.elements["LOCALE"] and not self.started_the_intro:
+            # Make sure the PC has a mecha.
+            mek = camp.get_pc_mecha(camp.pc)
+            if not mek:
+                mek = gears.selector.MechaShoppingList.generate_single_mecha(camp.pc.renown,gears.factions.TerranDefenseForce,env=gears.tags.GroundEnv)
+                camp.assign_pilot_to_mecha(camp.pc,mek)
+                camp.party.append(mek)
+
+            pbge.alert("These days you have been working in {DZ_TOWN_NAME}, helping the local militia to push back a Clan Ironwind invasion force. Just when it looked like the town was safe you got called in for one last mission.".format(**self.elements))
+
+            npc = self.elements["SHERIFF"]
+            npc.relationship = gears.relationships.Relationship(random.randint(1,20))
+            npc.relationship.history.append(gears.relationships.Memory("you saved {} from Clan Ironwind".format(self.elements["DZ_TOWN_NAME"]),
+                                                                       "I saved {} from Clan Ironwind".format(self.elements["DZ_TOWN_NAME"]),
+                                                                       10, (gears.relationships.MEM_AidedByPC,)))
+
+            self._did_first_reply = False
+            ghdialogue.start_conversation(camp,camp.pc,npc)
+
+            self.started_the_intro = True
+
+    def SHERIFF_offers(self,camp):
+        mylist = list()
+
+        if camp.scene is self.elements["LOCALE"]:
+
+            mylist.append(Offer(
+                "Alright. When we get to the field, I'll give you a brief tutorial. You can get in your mecha by using the boarding chute over there.",
+                dead_end=True, effect=self._activate_tutorial,
+                context=ContextTag([context.CUSTOMREPLY]), subject="TUTORIAL",
+                data={"reply": "[YESPLEASE]"}
+            ))
+            mylist.append(Offer(
+                "Understood. You can get in your mecha by using the boarding chute over there.",
+                dead_end=True, effect=self._deactivate_tutorial,
+                context=ContextTag([context.CUSTOMREPLY]), subject="TUTORIAL",
+                data={"reply": "[NOTHANKYOU]"}
+            ))
+
+            if not self._did_first_reply:
+                mylist.append(Offer(
+                        "We just got an alarm from the power station- it's under attack. Are you ready to suit up and roll out?".format(**self.elements),
+                        context=ContextTag([context.HELLO]), allow_generics=False
+                ))
+
+                mylist.append(Offer(
+                    "[GOOD] You've been a true friend to {}, and to me personally. One more question: Do you want me to walk you through the new mecha control upgrade?".format(
+                        self.elements["DZ_TOWN_NAME"]),
+                    context=ContextTag([context.CUSTOM]), effect=self._choose_friendly_reply,
+                    data={"reply": "[IWOULDLOVETO]"},  subject="TUTORIAL", subject_start=True,
+                ))
+
+                mylist.append(Offer(
+                    "Without your help, {DZ_TOWN_NAME} would have fallen to Clan Ironwind by now. One question before we go: Do you want me to walk you through the new mecha control upgrade?".format(**self.elements),
+                    context=ContextTag([context.CUSTOM]), effect=self._choose_professional_reply,
+                    data={"reply": "[LETS_START_MECHA_MISSION]"}, subject="TUTORIAL", subject_start=True,
+                ))
+
+                if self.elements["SHERIFF"].get_reaction_score(camp.pc, camp) > 25:
+                    mylist.append(Offer(
+                        "I'm flattered, but right now we need to save {}. One question before we go: Do you want me to walk you through the new mecha control upgrade?".format(
+                            self.elements["DZ_TOWN_NAME"]),
+                        effect=self._choose_flirty_reply, subject="TUTORIAL", subject_start=True,
+                        context = ContextTag([context.CUSTOM]), data = {"reply": "Sure! The only reason I'm still in town is to spend more time with you."}
+                    ))
+
+            else:
+                mylist.append(Offer(
+                    "Time to go defend the power station. Do you want me to walk you through the new mecha control upgrade when we get there?",
+                    context=ContextTag([context.HELLO]), allow_generics=False,
+                ))
+                mylist.append(Offer(
+                    "Alright. When we get to the field, I'll give you a brief tutorial. You can get in your mecha by using the boarding chute over there.",
+                    dead_end=True, effect=self._activate_tutorial,
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "[YESPLEASE]"}
+                ))
+                mylist.append(Offer(
+                    "Understood. You can get in your mecha by using the boarding chute over there.",
+                    dead_end=True, effect=self._deactivate_tutorial,
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "[NOTHANKYOU]"}
+                ))
+
+        return mylist
 
 
 class DZDIntro_NotSoSmoothCriminal(DZDIntro_GetInTheMekShimli):

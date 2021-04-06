@@ -45,8 +45,14 @@ class CharacterInfoWidget(widgets.Widget):
         self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Do Training", justify=0, draw_border=True, on_click=self.open_training))
         self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Assign Mecha", justify=0, draw_border=True, on_click=self.assign_mecha))
         self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Change Colors", justify=0, draw_border=True, on_click=self.change_colors))
+        if pc.relationship and pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):
+            self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Jump to Next Dev", justify=0, draw_border=True, on_click=self.jump_plot))
         self.fhq = fhq
         self.info = CharaFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, font=pbge.SMALLFONT, camp=camp)
+
+    def jump_plot(self,wid,ev):
+        while not self.pc.relationship.can_do_development():
+            self.pc.relationship.missions_together += 10
 
     def open_training(self,wid,ev):
         self.fhq.active = False

@@ -9,9 +9,11 @@ RT_LANCEMATE = "Lancemate"
 # Attitude- the NPC's mood and/or their attitude towards the PC
 # Note that this is a Proppian Ratchet- you can change attitude from one previous in the following order to one
 #  later in the following order, but do not move backwards.
+A_DISTANT = "Distant"   # NPC don't emote much
 A_JUNIOR = "Junior"     # NPC is PC's junior/subordinate/student
 A_SENIOR = "Senior"     # NPC is PC's senior/superior/mentor
 A_DESPAIR = "Despair"   # NPC has a sad
+A_OPENUP = "OpenUp"     # NPC begins opening up to the PC about stuff
 A_RESENT = "Resent"     # NPC resents the PC for one reason or another. Maybe just because PCs are annoying.
 A_FRIENDLY = "Friendly" # NPC is casually friendly with the PC
 A_THANKFUL = "Thankful" # NPC is thankful to the PC for something

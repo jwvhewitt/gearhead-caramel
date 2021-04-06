@@ -1,9 +1,10 @@
+- Added some more opening scenarios
 - Fixed bug when running ghcaramel from a different directory
 - Combat hotkeys can be set by pressing Alt + Key when using desired action, or by editing config file
 - Combat popup menu added if right mouse button clicked
 - Alert will now return the event that ended the alert display
 - MissionBuilder mission now checks scene environment for legal mecha
-- Added ROADEDGE_FEATURE to each village in DeadZone Drifter
+- Added a local feature to each village in DeadZone Drifter
 - Increased size of standard dungeon level to 65x65
 - SceneConnectors now take narrative request as first parameter
 - Fixed fullscreen lockup on Linux

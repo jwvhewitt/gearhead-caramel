@@ -3595,6 +3595,24 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[YES_YOU_CAN]": {
+        # Permission is granted to do something.
+        Default: ["Yes, you can."
+                  ],
+        personality.Cheerful: ["You have my enthusiastic permission.",
+                               ],
+        personality.Grim: ["By blazes, yes.",
+                           ],
+        personality.Easygoing: ["I'm not going to stop you.",
+                                ],
+        personality.Passionate: ["I couldn't stop you if I wanted to!",
+                                 ],
+        personality.Sociable: ["Yes, you absolutely can do that.",
+                               ],
+        personality.Shy: ["Yes.",
+                          ],
+    },
+
     "[YOU_ARE_THE_BOSS]": {
         # Underclassman disagrees with Senpai's decision, but will go along with it.
         Default: ["You're the boss."

@@ -11,72 +11,25 @@ import random
 from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,ghcutscene, dungeonmaker
 from . import missionbuilder,dd_customobjectives
 from game import memobrowser
-
+from .lancedev import LMPlot, LMMissionPlot
 Memo = memobrowser.Memo
 
-class LMPlot(Plot):
-    LANCEDEV_PLOT = True
-    # Contains convenience methods for lancemates.
-    def npc_is_ready_for_lancedev(self, camp, npc):
-        return (isinstance(npc, gears.base.Character) and npc in camp.party and npc.relationship
-                and npc.relationship.can_do_development())
-
-    def t_START(self,camp):
-        npc = self.elements["NPC"]
-        if self.LANCEDEV_PLOT and (npc.is_destroyed() or npc not in camp.party):
-            self.end_plot(camp)
-
-    def proper_end_plot(self,camp,improve_react=True):
-        self.elements["NPC"].relationship.development_plots += 1
-        if improve_react:
-            self.elements["NPC"].relationship.reaction_mod += random.randint(1,10)
-        self.end_plot(camp)
-
-    def proper_non_end(self,camp,improve_react=True):
-        # This plot is not ending, but it's entering a sort of torpor phase where we don't want it interfering
-        # with other DZD_LANCEDEV plots. For instance: if a plot adds a permanent new location to the world, you
-        # might not want to end the plot but you will want to unlock the NPC and whatever else.
-        self.elements["NPC"].relationship.development_plots += 1
-        self.LANCEDEV_PLOT = False
-        if improve_react:
-            self.elements["NPC"].relationship.reaction_mod += random.randint(1,10)
-        if "NPC" in self.locked_elements:
-            self.locked_elements.remove("NPC")
-
-
-class LMMissionPlot(LMPlot):
-    mission_active = False
-    mission_seed = None
-    MISSION_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_CAPTURE_BUILDINGS)
-    CASH_REWARD = 150
-    EXPERIENCE_REWARD = 150
-    MISSION_NAME = "{NPC}'s Mission"
-
-    def prep_mission(self, camp: gears.GearHeadCampaign):
-        self.mission_seed = missionbuilder.BuildAMissionSeed(
-            camp, self.MISSION_NAME.format(**self.elements),
-            (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
-            enemy_faction=self.elements.get("ENEMY_FACTION"),
-            rank=camp.renown, objectives=self.MISSION_OBJECTIVES,
-            cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
-            on_win=self.win_mission, on_loss=self.lose_mission
-        )
-
-    def MISSION_GATE_menu(self, camp, thingmenu):
-        if self.mission_active and self.mission_seed:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
-
-    def win_mission(self, camp):
-        self.proper_end_plot(camp)
-
-    def lose_mission(self, camp):
-        self.proper_end_plot(camp)
 
 
 #   **********************
 #   ***  DZD_LANCEDEV  ***
 #   **********************
-#  Required elements: METRO, M+
+#  Required elements: METRO, METROSCENE, MISSION_GATE
+
+class DDLD_VanillaLancedevLoader(Plot):
+    # Instead of a DZD lancedev plot, load one of the generic ones.
+    LABEL = "DZD_LANCEDEV"
+    active = False
+    scope = None
+
+    def custom_init( self, nart ):
+        self.add_sub_plot(nart, "LANCEDEV")
+        return True
 
 class DDLD_DutyColleagueMission(LMMissionPlot):
     LABEL = "DZD_LANCEDEV"
@@ -888,7 +841,7 @@ class DDLD_LackingVirtue(LMPlot):
         self.proper_end_plot(camp)
 
     def _fancy_answer(self,camp):
-        self.elements["NPC"].relationship.attitude = relationships.A_FRIENDLY
+        self.elements["NPC"].relationship.attitude = relationships.A_JUNIOR
         self.elements["NPC"].relationship.role = relationships.R_COLLEAGUE
         self.elements["NPC"].personality.add(self.elements["VIRTUE"])
         self.proper_end_plot(camp)

@@ -17,6 +17,7 @@ from . import dd_roadedge_unique
 from . import dd_roadstops
 from . import dungeons
 from . import encounters
+from . import lancedev
 from . import lancemates
 from . import missionbuilder
 from . import mission_conversations
@@ -65,6 +66,7 @@ harvest(dd_roadedge_unique)
 harvest(dd_roadstops)
 harvest(dungeons)
 harvest(encounters)
+harvest(lancedev)
 harvest(lancemates)
 harvest(missionbuilder)
 harvest(mission_conversations)
