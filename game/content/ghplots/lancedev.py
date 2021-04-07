@@ -55,13 +55,15 @@ class LMMissionPlot(LMPlot):
     MISSION_NAME = "{NPC}'s Mission"
 
     def prep_mission(self, camp: gears.GearHeadCampaign):
+        sgen, archi, enviro = gharchitecture.get_encounter_scenegen_architecture_and_environment(camp.scene.get_metro_scene())
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, self.MISSION_NAME.format(**self.elements),
             (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
             enemy_faction=self.elements.get("ENEMY_FACTION"),
             rank=camp.renown, objectives=self.MISSION_OBJECTIVES,
             cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
-            on_win=self.win_mission, on_loss=self.lose_mission
+            on_win=self.win_mission, on_loss=self.lose_mission,
+            scenegen=sgen, architecture=archi, environment=enviro
         )
 
     def MISSION_GATE_menu(self, camp, thingmenu):
@@ -74,7 +76,10 @@ class LMMissionPlot(LMPlot):
     def lose_mission(self, camp):
         self.proper_end_plot(camp)
 
+
 # The actual plots...
+
+
 
 class LMD_SociableSorting(LMPlot):
     LABEL = "LANCEDEV"

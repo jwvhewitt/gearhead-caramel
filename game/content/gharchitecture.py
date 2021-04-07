@@ -6,6 +6,7 @@ from pbge.randmaps.decor import OmniDec,ColumnsDecor,OfficeDecor
 import pbge
 from . import ghwaypoints,ghrooms
 from .ghrooms import MSWreckageDecor
+import gears
 
 
 class CheeseShopDecor(OmniDec):
@@ -84,18 +85,21 @@ class UlsaniteOfficeDecor(OfficeDecor):
     #WALL_DECOR = (ghterrain.TekruinsWallDecor,)
 
 class WorldScaleDeadzone(Architecture):
+    ENV = gears.tags.GroundEnv
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.Water,ghterrain.DeadZoneGround,ghterrain.TechnoRubble,higround=0.8,maxhiground=0.9)
     DEFAULT_FLOOR_TERRAIN = ghterrain.DeadZoneGround
 
 class MechaScaleDeadzone(Architecture):
+    ENV = gears.tags.GroundEnv
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.DeadZoneGround
     DEFAULT_ROOM_CLASSES = (ghrooms.ForestRoom,ghrooms.LakeRoom,ghrooms.WreckageRoom,ghrooms.DragonToothRoom,ghrooms.MSRuinsRoom)
 
 class MechaScaleRuins(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.MSRuinedWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.Water,ghterrain.DeadZoneGround,ghterrain.TechnoRubble,loground=0.0,higround=0.3)
@@ -103,6 +107,7 @@ class MechaScaleRuins(Architecture):
     DEFAULT_DECORATE = MSWreckageDecor()
 
 class MechaScaleSemiDeadzone(Architecture):
+    ENV = gears.tags.GroundEnv
     DEFAULT_CONVERTER = pbge.randmaps.converter.PlasmaConverter(ghterrain.DragonTeethWall,ghterrain.DragonTeethWall,ghterrain.Forest)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
@@ -110,6 +115,7 @@ class MechaScaleSemiDeadzone(Architecture):
     DEFAULT_ROOM_CLASSES = (ghrooms.ForestRoom,ghrooms.LakeRoom,ghrooms.WreckageRoom,ghrooms.DragonToothRoom,ghrooms.MSRuinsRoom)
 
 class MechaScaleSemiDeadzoneRuins(Architecture):
+    ENV = gears.tags.GroundEnv
     DEFAULT_CONVERTER = pbge.randmaps.converter.PlasmaConverter(ghterrain.DragonTeethWall,ghterrain.DragonTeethWall,ghterrain.Forest)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
@@ -118,13 +124,15 @@ class MechaScaleSemiDeadzoneRuins(Architecture):
 
 
 class HumanScaleDeadzone(Architecture):
-#    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
+    ENV = gears.tags.GroundEnv
+    #    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
 #    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.CrackedEarth
 
 
 class HumanScaleDeadzoneWilderness(Architecture):
+    ENV = gears.tags.GroundEnv
     DEFAULT_WALL_TERRAIN = ghterrain.SandDuneWall
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.SandDuneWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
@@ -133,6 +141,7 @@ class HumanScaleDeadzoneWilderness(Architecture):
 
 
 class HumanScaleSemiDeadzone(Architecture):
+    ENV = gears.tags.GroundEnv
     DEFAULT_CONVERTER = pbge.randmaps.converter.PlasmaConverter(ghterrain.DragonTeethWall,ghterrain.DragonTeethWall,ghterrain.Forest)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
@@ -141,31 +150,36 @@ class HumanScaleSemiDeadzone(Architecture):
 
 
 class HumanScaleGreenzone(Architecture):
-#    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
+    ENV = gears.tags.GroundEnv
+    #    DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
 #    DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.GreenZoneGrass
 
 
 class DefaultBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.DefaultWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 class ResidentialBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.ResidentialWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.HardwoodFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 class MakeScrapIronBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.ScrapIronWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 class ScrapIronWorkshop(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.ScrapIronWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.GrateFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
@@ -173,12 +187,14 @@ class ScrapIronWorkshop(Architecture):
 
 
 class CommercialBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.CommercialWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 class OrganicBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_WALL_TERRAIN = ghterrain.OrganicWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OrganicFloor
@@ -187,36 +203,42 @@ class OrganicBuilding(Architecture):
     DEFAULT_ROOM_CLASSES = (pbge.randmaps.rooms.FuzzyRoom,)
 
 class HospitalBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.HospitalWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.WhiteTileFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 class IndustrialBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.IndustrialWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 class FactoryBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.IndustrialWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.GrateFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 class FortressBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.FortressWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 class StoneBuilding(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.StoneWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.Flagstone
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 class EarthCave(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_WALL_TERRAIN = ghterrain.EarthWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.SmallDeadZoneGround
@@ -225,6 +247,7 @@ class EarthCave(Architecture):
     DEFAULT_ROOM_CLASSES = (pbge.randmaps.rooms.FuzzyRoom,)
 
 class StoneCave(Architecture):
+    ENV = gears.tags.UrbanEnv
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_WALL_TERRAIN = ghterrain.StoneWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.SmallDeadZoneGround
@@ -234,6 +257,7 @@ class StoneCave(Architecture):
 
 
 class DeadZoneHighwaySceneGen( pbge.randmaps.SceneGenerator ):
+    ENV = gears.tags.GroundEnv
     DO_DIRECT_CONNECTIONS = True
     def build( self, gb, archi ):
         self.fill(gb,pygame.Rect(0,gb.height//2-2,gb.width,5),wall=None)
@@ -245,3 +269,13 @@ class DeadZoneHighwaySceneGen( pbge.randmaps.SceneGenerator ):
         # Draw a gret big highway going from west to east.
         self.fill(gb,pygame.Rect(0,gb.height//2-2,gb.width,5),floor=self.archi.DEFAULT_FLOOR_TERRAIN)
         self.fill(gb,pygame.Rect(0,gb.height//2-1,gb.width,3),floor=ghterrain.Pavement)
+
+
+def get_encounter_scenegen_architecture_and_environment(mymetro: gears.GearHeadScene):
+    # Return a tuple containing an appropriate scenegen, architecture, and environment for a combat mission
+    # set in this metroscene.
+    scenegen = pbge.randmaps.SceneGenerator
+    archi = MechaScaleDeadzone()
+    enviro = archi.ENV
+
+    return scenegen, archi, enviro

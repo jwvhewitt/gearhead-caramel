@@ -11,7 +11,7 @@
       {"name":"Body","fname":"avatar_body_mc.png","anchor":"midbottom","depth":2000}
     ],
     "children": [
-      "Clothing","Head"
+      "Clothing","Head", "Accessories"
     ],
     "anchors": {
       "head": [8,-156],
@@ -91,6 +91,50 @@
     ],
     "requires": ["BodMC"],
     "style": ["Combatant"]
+  },
+  {
+    "name": "LordErin BodMC Pilot Jacket",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_lorderin_bodmc_pilot_jacket.png","anchor":"center","depth":3000,"x_offset":3,"y_offset":23},
+      {"name":"Right Sleeve","fname":"por_lorderin_bodmc_pilot_rarm.png","anchor":"center","depth":5000,"x_offset":-118,"y_offset":62},
+      {"name":"Left Sleeve","fname":"por_lorderin_bodmc_pilot_larm.png","anchor":"center","depth":1500,"x_offset":120,"y_offset":61}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_lorderin_bodmc_pilot_jacket.png","anchor":"center","depth":3000,"x_offset":-1,"y_offset":5}
+    ],
+    "requires": ["BodMC"],
+    "style": ["Combatant"],
+    "children": [
+      "Pants"
+    ]
+  },
+    {
+    "name": "LordErin BodMC Pilot Pants",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_lorderin_bodmc_pants.png","anchor":"midbottom","depth":2500,"x_offset":5,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_lorderin_bodmc_pants.png","anchor":"midbottom","depth":2500,"x_offset":-1, "y_offset":  -2}
+    ],
+    "requires": ["BodMC"],
+    "style": ["Combatant"],
+    "children": ["Shoes"]
+  },
+      {
+    "name": "LordErin BodMC Pilot Gloves",
+    "btype": "Accessories",
+    "layers": [
+      {"name":"Right Glove","fname":"por_lorderin_bodmc_glove_r.png","anchor":"center","depth":5100,"x_offset":-133,"y_offset":229},
+      {"name":"Left Glove","fname":"por_lorderin_bodmc_glove_l.png","anchor":"center","depth":1600,"x_offset":141,"y_offset":224}
+    ],
+    "avatar_layers": [
+      {"name":"Gloves","fname":"avatar_lorderin_bodmc_gloves.png","anchor":"center","depth":2500,"x_offset":-1, "y_offset":  11}
+    ],
+    "requires": ["BodMC"],
+    "style": ["Combatant"]
   }
+
 
 ]

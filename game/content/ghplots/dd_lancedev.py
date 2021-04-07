@@ -26,10 +26,387 @@ class DDLD_VanillaLancedevLoader(Plot):
     LABEL = "DZD_LANCEDEV"
     active = False
     scope = None
+    COMMON = True
 
     def custom_init( self, nart ):
         self.add_sub_plot(nart, "LANCEDEV")
         return True
+
+# Note: I changed some of these plots from DZD_LANCEDEV to LANCEDEV but I'm leaving them here so as not to
+#  break savefile capability.
+class DDLD_JuniorQuestions(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+    def custom_init( self, nart ):
+        npc = self.seek_element(nart,"NPC",self._is_good_npc,scope=nart.camp.scene,lock=True)
+        self.started_conversation = False
+        return True
+
+    def _is_good_npc(self,nart,candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp,candidate):
+            return not candidate.relationship.expectation and candidate.renown < 20 and candidate.relationship.attitude in (relationships.A_JUNIOR,None)
+
+    def t_UPDATE(self,camp):
+        if not self.started_conversation:
+            npc = self.elements["NPC"]
+            pbge.alert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene,npc))
+            npc.relationship.attitude = relationships.A_JUNIOR
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.QUERY)))
+            self.started_conversation = True
+
+    def NPC_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer(
+            "[CAN_I_ASK_A_QUESTION]",
+            (context.HELLO,context.QUERY),
+        ))
+        mylist.append(Offer(
+            "I'm pretty new at this cavalier business, and I don't have nearly as much sense for it as you do. What do I need to do to become a real cavalier?",
+            (context.QUERY,),subject=self,subject_start=True
+        ))
+        mylist.append(Offer(
+            "[THANKS_FOR_ADVICE] Yes, I see now that the purpose of a cavalier is to earn the fanciest toys available. I won't forget your advice!",
+            (context.ANSWER,),subject=self,data={"reply":"Just keep finding missions and keep getting paid. Then buy a bigger robot."},
+            effect=self._merc_answer
+        ))
+        mylist.append(Offer(
+            "[THANKS_FOR_ADVICE] To be a cavalier is a journey, not a destination. I promise that I will keep doing my best!",
+            (context.ANSWER,),subject=self,data={"reply":"Keep practicing, keep striving, and each day you move closer to the best pilot you can be."},
+            effect=self._pro_answer
+        ))
+        mylist.append(Offer(
+            "[THANKS_FOR_ADVICE] With gigantic megaweapons come gigantic responsibilities... I see that now. I promise I won't let you down!",
+            (context.ANSWER,),subject=self,data={"reply":"We do this so that we can help people. If you make life better for one person, you've succeeded."},
+            effect=self._help_answer
+        ))
+        mylist.append(Offer(
+            "[THANKS_FOR_ADVICE] In order to fight for great justice, I must first conquer my own inner demons. I promise not to forget your ephemeral wisdom!",
+            (context.ANSWER,),subject=self,data={"reply":"There are a lot of bad things in this world; just make sure you don't become one of them."},
+            effect=self._just_answer
+        ))
+        mylist.append(Offer(
+            "Thanks, I guess? I was hoping that you'd be able to give me some great insight, but it seems we're all working this out for ourselves. At least I feel a bit more confident now.",
+            (context.ANSWER,),subject=self,data={"reply":"[I_DONT_KNOW] And besides, you've proven yourself as a lancemate already."},
+            effect=self._fel_answer
+        ))
+        return mylist
+
+    def _merc_answer(self,camp):
+        self.elements["NPC"].relationship.expectation = relationships.E_MERCENARY
+        if gears.personality.Glory in self.elements["NPC"].personality:
+            self.elements["NPC"].statline[gears.stats.Vitality] += 1
+        else:
+            self.elements["NPC"].personality.add(gears.personality.Glory)
+        self.proper_end_plot(camp)
+
+    def _pro_answer(self,camp):
+        self.elements["NPC"].relationship.expectation = relationships.E_PROFESSIONAL
+        if gears.personality.Duty in self.elements["NPC"].personality:
+            self.elements["NPC"].statline[gears.stats.Concentration] += 1
+        else:
+            self.elements["NPC"].personality.add(gears.personality.Duty)
+        self.proper_end_plot(camp)
+
+    def _help_answer(self,camp):
+        self.elements["NPC"].relationship.expectation = relationships.E_GREATERGOOD
+        if gears.personality.Peace in self.elements["NPC"].personality:
+            self.elements["NPC"].statline[gears.stats.Athletics] += 1
+        else:
+            self.elements["NPC"].personality.add(gears.personality.Peace)
+        self.proper_end_plot(camp)
+
+    def _just_answer(self,camp):
+        self.elements["NPC"].relationship.expectation = relationships.E_IMPROVER
+        if gears.personality.Justice in self.elements["NPC"].personality:
+            self.elements["NPC"].statline[gears.stats.MechaPiloting] += 1
+        else:
+            self.elements["NPC"].personality.add(gears.personality.Justice)
+        self.proper_end_plot(camp)
+
+    def _fel_answer(self,camp):
+        self.elements["NPC"].relationship.attitude = relationships.A_FRIENDLY
+        if gears.personality.Fellowship in self.elements["NPC"].personality:
+            self.elements["NPC"].dole_experience(200,camp.pc.TOTAL_XP)
+            camp.pc.dole_experience(200,camp.pc.TOTAL_XP)
+        else:
+            self.elements["NPC"].personality.add(gears.personality.Fellowship)
+        self.proper_end_plot(camp)
+
+
+class DDLD_CareerChange(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene)
+        self.new_job = self._get_new_job(npc)
+        return True
+
+    def _get_new_job(self, npc):
+        candidates = list()
+        if gears.personality.Peace in npc.personality:
+            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Medic in job.tags and job.name != npc.job.name]
+        if gears.personality.Glory in npc.personality:
+            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Media in job.tags and job.name != npc.job.name]
+        if gears.personality.Fellowship in npc.personality:
+            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Craftsperson in job.tags and job.name != npc.job.name]
+        if gears.personality.Duty in npc.personality:
+            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Military in job.tags and job.name != npc.job.name]
+        if gears.personality.Justice in npc.personality:
+            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Academic in job.tags and job.name != npc.job.name]
+        if not candidates:
+            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Adventurer in job.tags and job.name != npc.job.name]
+        return random.choice(candidates)
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                candidate.job and
+                candidate.relationship.expectation == gears.relationships.E_IMPROVER and
+                candidate.relationship.attitude == gears.relationships.A_FRIENDLY
+            )
+
+    def METROSCENE_ENTER(self,camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        pbge.alert("As you enter {METROSCENE}, {NPC}'s phone beeps loudly; {NPC.gender.subject_pronoun} checks the screen and then gives a shout of joy.".format(**self.elements))
+
+        self.started_convo = True
+
+        npc.relationship.attitude = relationships.A_THANKFUL
+        ghcutscene.SimpleMonologueDisplay(
+            "I passed the test! I told you all that I was going to make a change, and now I have. From this point forward I'm an official certified {}!".format(self.new_job),
+            npc.get_root())(camp)
+
+        candidates = [npc2 for npc2 in camp.get_lancemates() if npc2 is not npc]
+        if candidates:
+            npc2 = random.choice(candidates)
+            ghcutscene.SimpleMonologueDisplay(
+                "Congratulations, {}!".format(npc),
+                npc2.get_root())(camp,False)
+
+        npc.job = self.new_job
+        for sk in self.new_job.skills:
+            npc.statline[sk] += 1
+
+        for sk,bonus in self.new_job.skill_modifiers.items():
+            if bonus > 0:
+                npc.statline[sk] += bonus
+            elif sk not in npc.statline:
+                npc.statline[sk] += 1
+
+        ghcutscene.SimpleMonologueDisplay(
+            "Thanks! I wouldn't have been able to do this without your support.",
+            npc.get_root())(camp, False)
+
+        self.proper_end_plot(camp)
+
+
+class DDLD_ThePurposeOfMoneyIsMecha(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.started_convo = False
+        myscene = self.seek_element(nart,"GARAGE",self._is_good_scene,scope=self.elements["METROSCENE"])
+        shopping_list = gears.selector.MechaShoppingList(max(gears.selector.calc_threat_points(npc.renown + 45), 350000), fac=npc.faction)
+        self.best_list = sorted(shopping_list.best_choices + shopping_list.backup_choices, reverse=True, key=lambda m: m.cost)
+
+        return len(self.best_list) > 1
+
+    def _is_good_scene(self,nart,candidate):
+        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_GARAGE in candidate.attributes and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                candidate.relationship.role == gears.relationships.R_FRIEND and
+                candidate.relationship.expectation == gears.relationships.E_MERCENARY
+            )
+
+    def METROSCENE_ENTER(self,camp):
+        if not self.started_convo:
+            npc = self.elements["NPC"]
+            pbge.alert("You notice {NPC} gazing longingly at {GARAGE}.".format(**self.elements))
+            ghcutscene.SimpleMonologueDisplay(
+                "What good is money, if not to spend it on the best mecha available? [TIME_TO_UPGRADE_MECHA] Let's go to {GARAGE} and see what they have.".format(**self.elements),
+                npc)(camp)
+            self.memo = Memo( "{NPC} wants to buy a new mecha.".format(**self.elements)
+                            , self.elements["GARAGE"]
+                            )
+            self.started_convo = True
+
+    def GARAGE_ENTER(self,camp):
+        npc = self.elements["NPC"]
+        ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.PROPOSAL)))
+
+    def NPC_offers(self,camp: gears.GearHeadCampaign):
+        mylist = list()
+        if camp.scene is self.elements["GARAGE"]:
+            npc: gears.base.Character = self.elements["NPC"]
+            mylist.append(Offer(
+                "My favorite, I think, is the {}. I'm planning to buy that one.".format(self.best_list[0].get_full_name()),
+                (context.HELLO,context.PROPOSAL),
+                subject=self, subject_start=True
+            ))
+            mylist.append(Offer(
+                "Yes, I definitely made a good call. I'll take it!".format(**self.elements),
+                (context.CUSTOM,),subject=self,data={"reply": "[AGREE]"},
+                effect=self._buy_zeroth
+            ))
+
+            mylist.append(Offer(
+                "You know what? You might be right. I'm going to pick that one instead.".format(**self.elements),
+                (context.CUSTOM,),subject=self,data={"reply": "I think the {} suits you better.".format(self.best_list[1].get_full_name())},
+                effect=self._buy_first
+            ))
+
+            if len(self.best_list) > 2:
+                mylist.append(Offer(
+                    "I never thought of that. You've changed my mind... the {} is the mecha for me.".format(self.best_list[2].get_full_name()),
+                    (context.CUSTOM,), subject=self,
+                    data={"reply": "The {} is more [adjective].".format(self.best_list[2].get_full_name())},
+                    effect=self._buy_second
+                ))
+
+            if len(self.best_list) > 3:
+                mylist.append(Offer(
+                    "Let me check that... best in reader satisfaction and post-sales maintenance. Neat. Looks like I'm getting a {}.".format(self.best_list[3].get_full_name()),
+                    (context.CUSTOM,), subject=self,
+                    data={"reply": "CavNet's NT157 survey put the {} at the top.".format(self.best_list[3].get_full_name())},
+                    effect=self._buy_third
+                ))
+
+        return mylist
+
+    def _buy_zeroth(self,camp):
+        self._finalize_purchase(camp, self.best_list[0])
+
+    def _buy_first(self,camp):
+        self._finalize_purchase(camp, self.best_list[1])
+
+    def _buy_second(self,camp):
+        self._finalize_purchase(camp, self.best_list[2])
+
+    def _buy_third(self,camp):
+        self._finalize_purchase(camp, self.best_list[3])
+
+    def _finalize_purchase(self, camp, mek):
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.mecha_pref = mek.get_full_name()
+        npc.relationship.data["mecha_level_bonus"] = npc.relationship.data.get("mecha_level_bonus", 0) + 25
+        npc.relationship.expectation = gears.relationships.E_MECHANIAC
+        # Auto leave the party, then auto join the party.
+        plotutility.AutoLeaver(npc)(camp)
+        plotutility.AutoJoiner(npc)(camp)
+        self.proper_end_plot(camp)
+
+
+
+class DDLD_LackingVirtue(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+    def custom_init( self, nart ):
+        npc = self.seek_element(nart,"NPC",self._is_good_npc,scope=nart.camp.scene,lock=True)
+        self.started_conversation = False
+        virtues = self.get_missing_virtues(nart.camp)
+        if virtues:
+            self.elements["VIRTUE"] = random.choice(list(virtues))
+            #print(self.elements["VIRTUE"])
+            return True
+
+    def _is_good_npc(self,nart,candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp,candidate):
+            return not candidate.relationship.role and not candidate.relationship.attitude
+
+    def get_missing_virtues(self, camp: gears.GearHeadCampaign):
+        virtues = set(gears.personality.VIRTUES)
+        for pc in camp.get_active_party():
+            virtues = virtues.difference(pc.personality)
+        return virtues
+
+    def t_UPDATE(self,camp):
+        if not self.started_conversation:
+            npc = self.elements["NPC"]
+            pbge.alert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene,npc))
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.QUERY)))
+            self.started_conversation = True
+
+    OATH = {
+        gears.personality.Peace: "to do right to all, and wrong no one",
+        gears.personality.Glory: "to strive every moment of my life to make myself better and better, to the best of my ability, for the benefit of all",
+        gears.personality.Justice: "to think of the right and lend all my assistance to those who need it, with no regard for anything but justice",
+        gears.personality.Fellowship: "to be considerate of my fellow citizens and my associates in everything I say and do",
+        gears.personality.Duty: "to face what comes with a smile, without loss of courage"
+    }
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer(
+            "[CAN_I_ASK_A_QUESTION]",
+            (context.HELLO,context.QUERY),
+        ))
+        mylist.append(Offer(
+            "I haven't been in this lance long, so I want to understand how you run things. I've always thought that {} is the most important part of being a cavalier: {}. Do you agree?".format(self.elements["VIRTUE"].name,self.OATH[self.elements["VIRTUE"]]),
+            (context.QUERY,),subject=self,subject_start=True
+        ))
+        mylist.append(Offer(
+            "You seem to be an open minded leader. I look forward to working together.",
+            (context.ANSWER,),subject=self,data={"reply":"[AGREE]"},
+            effect=self._agree_answer
+        ))
+        mylist.append(Offer(
+            "I see. You are not afraid to state your opinions directly, though I get the impression that we are going to butt heads in the future.",
+            (context.ANSWER,),subject=self,data={"reply":"[DISAGREE]"},
+            effect=self._disagree_answer
+        ))
+        if camp.pc.get_stat(gears.stats.Knowledge) > 12:
+            mylist.append(Offer(
+                "A wise answer. I look forward to working with you.",
+                (context.ANSWER,), subject=self, data={"reply": "No virtue is most important; the five cavalier virtues must be considered together."},
+                effect=self._fancy_answer
+            ))
+        elif camp.pc.get_stat(gears.stats.Knowledge) < 10:
+            mylist.append(Offer(
+                "I see. Your non-answer tells me all I need to know about your leadership style.",
+                (context.ANSWER,), subject=self, data={"reply": "There are many questions about things that may be most important, or not."},
+                effect=self._non_answer
+            ))
+
+        return mylist
+
+    def _agree_answer(self,camp):
+        self.elements["NPC"].relationship.role = relationships.R_COLLEAGUE
+        self.elements["NPC"].personality.add(self.elements["VIRTUE"])
+        self.proper_end_plot(camp)
+
+    def _disagree_answer(self,camp):
+        self.elements["NPC"].relationship.attitude = relationships.A_RESENT
+        self.elements["NPC"].relationship.reaction_mod -= 10
+        self.elements["NPC"].personality.add(self.elements["VIRTUE"])
+        self.proper_end_plot(camp)
+
+    def _fancy_answer(self,camp):
+        self.elements["NPC"].relationship.attitude = relationships.A_JUNIOR
+        self.elements["NPC"].relationship.role = relationships.R_COLLEAGUE
+        self.elements["NPC"].personality.add(self.elements["VIRTUE"])
+        self.proper_end_plot(camp)
+
+    def _non_answer(self,camp):
+        self.elements["NPC"].relationship.attitude = relationships.A_DESPAIR
+        self.elements["NPC"].relationship.reaction_mod -= 10
+        self.elements["NPC"].personality.add(self.elements["VIRTUE"])
+        self.proper_end_plot(camp, False)
+
+
 
 class DDLD_DutyColleagueMission(LMMissionPlot):
     LABEL = "DZD_LANCEDEV"
@@ -755,205 +1132,8 @@ class DDLD_ProfessionalGlory(LMMissionPlot):
         self.proper_end_plot(camp)
 
 
-class DDLD_LackingVirtue(LMPlot):
-    LABEL = "DZD_LANCEDEV"
-    active = True
-    scope = True
-    UNIQUE = True
-    def custom_init( self, nart ):
-        npc = self.seek_element(nart,"NPC",self._is_good_npc,scope=nart.camp.scene,lock=True)
-        self.started_conversation = False
-        virtues = self.get_missing_virtues(nart.camp)
-        if virtues:
-            self.elements["VIRTUE"] = random.choice(list(virtues))
-            #print(self.elements["VIRTUE"])
-            return True
-
-    def _is_good_npc(self,nart,candidate):
-        if self.npc_is_ready_for_lancedev(nart.camp,candidate):
-            return not candidate.relationship.role and not candidate.relationship.attitude
-
-    def get_missing_virtues(self, camp: gears.GearHeadCampaign):
-        virtues = set(gears.personality.VIRTUES)
-        for pc in camp.get_active_party():
-            virtues = virtues.difference(pc.personality)
-        return virtues
-
-    def t_UPDATE(self,camp):
-        if not self.started_conversation:
-            npc = self.elements["NPC"]
-            pbge.alert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene,npc))
-            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.QUERY)))
-            self.started_conversation = True
-
-    OATH = {
-        gears.personality.Peace: "to do right to all, and wrong no one",
-        gears.personality.Glory: "to strive every moment of my life to make myself better and better, to the best of my ability, for the benefit of all",
-        gears.personality.Justice: "to think of the right and lend all my assistance to those who need it, with no regard for anything but justice",
-        gears.personality.Fellowship: "to be considerate of my fellow citizens and my associates in everything I say and do",
-        gears.personality.Duty: "to face what comes with a smile, without loss of courage"
-    }
-
-    def NPC_offers(self, camp):
-        mylist = list()
-        mylist.append(Offer(
-            "[CAN_I_ASK_A_QUESTION]",
-            (context.HELLO,context.QUERY),
-        ))
-        mylist.append(Offer(
-            "I haven't been in this lance long, so I want to understand how you run things. I've always thought that {} is the most important part of being a cavalier: {}. Do you agree?".format(self.elements["VIRTUE"].name,self.OATH[self.elements["VIRTUE"]]),
-            (context.QUERY,),subject=self,subject_start=True
-        ))
-        mylist.append(Offer(
-            "You seem to be an open minded leader. I look forward to working together.",
-            (context.ANSWER,),subject=self,data={"reply":"[AGREE]"},
-            effect=self._agree_answer
-        ))
-        mylist.append(Offer(
-            "I see. You are not afraid to state your opinions directly, though I get the impression that we are going to butt heads in the future.",
-            (context.ANSWER,),subject=self,data={"reply":"[DISAGREE]"},
-            effect=self._disagree_answer
-        ))
-        if camp.pc.get_stat(gears.stats.Knowledge) > 12:
-            mylist.append(Offer(
-                "A wise answer. I look forward to working with you.",
-                (context.ANSWER,), subject=self, data={"reply": "No virtue is most important; the five cavalier virtues must be considered together."},
-                effect=self._fancy_answer
-            ))
-        elif camp.pc.get_stat(gears.stats.Knowledge) < 10:
-            mylist.append(Offer(
-                "I see. Your non-answer tells me all I need to know about your leadership style.",
-                (context.ANSWER,), subject=self, data={"reply": "There are many questions about things that may be most important, or not."},
-                effect=self._non_answer
-            ))
-
-        return mylist
-
-    def _agree_answer(self,camp):
-        self.elements["NPC"].relationship.role = relationships.R_COLLEAGUE
-        self.elements["NPC"].personality.add(self.elements["VIRTUE"])
-        self.proper_end_plot(camp)
-
-    def _disagree_answer(self,camp):
-        self.elements["NPC"].relationship.attitude = relationships.A_RESENT
-        self.elements["NPC"].relationship.reaction_mod -= 10
-        self.elements["NPC"].personality.add(self.elements["VIRTUE"])
-        self.proper_end_plot(camp)
-
-    def _fancy_answer(self,camp):
-        self.elements["NPC"].relationship.attitude = relationships.A_JUNIOR
-        self.elements["NPC"].relationship.role = relationships.R_COLLEAGUE
-        self.elements["NPC"].personality.add(self.elements["VIRTUE"])
-        self.proper_end_plot(camp)
-
-    def _non_answer(self,camp):
-        self.elements["NPC"].relationship.attitude = relationships.A_DESPAIR
-        self.elements["NPC"].relationship.reaction_mod -= 10
-        self.elements["NPC"].personality.add(self.elements["VIRTUE"])
-        self.proper_end_plot(camp, False)
 
 
-class DDLD_ThePurposeOfMoneyIsMecha(LMPlot):
-    LABEL = "DZD_LANCEDEV"
-    active = True
-    scope = True
-    UNIQUE = True
-
-    def custom_init(self, nart):
-        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
-        self.started_convo = False
-        myscene = self.seek_element(nart,"GARAGE",self._is_good_scene,scope=self.elements["METROSCENE"])
-        shopping_list = gears.selector.MechaShoppingList(max(gears.selector.calc_threat_points(npc.renown + 45), 350000), fac=npc.faction)
-        self.best_list = sorted(shopping_list.best_choices + shopping_list.backup_choices, reverse=True, key=lambda m: m.cost)
-
-        return len(self.best_list) > 1
-
-    def _is_good_scene(self,nart,candidate):
-        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_GARAGE in candidate.attributes and gears.tags.SCENE_PUBLIC in candidate.attributes
-
-    def _is_good_npc(self, nart, candidate):
-        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
-            return (
-                candidate.relationship.role == gears.relationships.R_FRIEND and
-                candidate.relationship.expectation == gears.relationships.E_MERCENARY
-            )
-
-    def METROSCENE_ENTER(self,camp):
-        if not self.started_convo:
-            npc = self.elements["NPC"]
-            pbge.alert("You notice {NPC} gazing longingly at {GARAGE}.".format(**self.elements))
-            ghcutscene.SimpleMonologueDisplay(
-                "What good is money, if not to spend it on the best mecha available? [TIME_TO_UPGRADE_MECHA] Let's go to {GARAGE} and see what they have.".format(**self.elements),
-                npc)(camp)
-            self.memo = Memo( "{NPC} wants to buy a new mecha.".format(**self.elements)
-                            , self.elements["GARAGE"]
-                            )
-            self.started_convo = True
-
-    def GARAGE_ENTER(self,camp):
-        npc = self.elements["NPC"]
-        ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.PROPOSAL)))
-
-    def NPC_offers(self,camp: gears.GearHeadCampaign):
-        mylist = list()
-        if camp.scene is self.elements["GARAGE"]:
-            npc: gears.base.Character = self.elements["NPC"]
-            mylist.append(Offer(
-                "My favorite, I think, is the {}. I'm planning to buy that one.".format(self.best_list[0].get_full_name()),
-                (context.HELLO,context.PROPOSAL),
-                subject=self, subject_start=True
-            ))
-            mylist.append(Offer(
-                "Yes, I definitely made a good call. I'll take it!".format(**self.elements),
-                (context.CUSTOM,),subject=self,data={"reply": "[AGREE]"},
-                effect=self._buy_zeroth
-            ))
-
-            mylist.append(Offer(
-                "You know what? You might be right. I'm going to pick that one instead.".format(**self.elements),
-                (context.CUSTOM,),subject=self,data={"reply": "I think the {} suits you better.".format(self.best_list[1].get_full_name())},
-                effect=self._buy_first
-            ))
-
-            if len(self.best_list) > 2:
-                mylist.append(Offer(
-                    "I never thought of that. You've changed my mind... the {} is the mecha for me.".format(self.best_list[2].get_full_name()),
-                    (context.CUSTOM,), subject=self,
-                    data={"reply": "The {} is more [adjective].".format(self.best_list[2].get_full_name())},
-                    effect=self._buy_second
-                ))
-
-            if len(self.best_list) > 3:
-                mylist.append(Offer(
-                    "Let me check that... best in reader satisfaction and post-sales maintenance. Neat. Looks like I'm getting a {}.".format(self.best_list[3].get_full_name()),
-                    (context.CUSTOM,), subject=self,
-                    data={"reply": "CavNet's NT157 survey put the {} at the top.".format(self.best_list[3].get_full_name())},
-                    effect=self._buy_third
-                ))
-
-        return mylist
-
-    def _buy_zeroth(self,camp):
-        self._finalize_purchase(camp, self.best_list[0])
-
-    def _buy_first(self,camp):
-        self._finalize_purchase(camp, self.best_list[1])
-
-    def _buy_second(self,camp):
-        self._finalize_purchase(camp, self.best_list[2])
-
-    def _buy_third(self,camp):
-        self._finalize_purchase(camp, self.best_list[3])
-
-    def _finalize_purchase(self, camp, mek):
-        npc: gears.base.Character = self.elements["NPC"]
-        npc.mecha_pref = mek.get_full_name()
-        npc.relationship.data["mecha_level_bonus"] = npc.relationship.data.get("mecha_level_bonus", 0) + 25
-        npc.relationship.expectation = gears.relationships.E_MECHANIAC
-        # Auto leave the party, then auto join the party.
-        plotutility.AutoLeaver(npc)(camp)
-        plotutility.AutoJoiner(npc)(camp)
-        self.proper_end_plot(camp)
 
 
 class DDLD_ProBonoMetalPanic(LMMissionPlot):
@@ -1216,74 +1396,6 @@ class DDLD_ContactInTown(LMMissionPlot):
         self.proper_end_plot(camp,False)
 
 
-class DDLD_CareerChange(LMPlot):
-    LABEL = "DZD_LANCEDEV"
-    active = True
-    scope = True
-    UNIQUE = True
-
-    def custom_init(self, nart):
-        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene)
-        self.new_job = self._get_new_job(npc)
-        return True
-
-    def _get_new_job(self, npc):
-        candidates = list()
-        if gears.personality.Peace in npc.personality:
-            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Medic in job.tags and job.name != npc.job.name]
-        if gears.personality.Glory in npc.personality:
-            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Media in job.tags and job.name != npc.job.name]
-        if gears.personality.Fellowship in npc.personality:
-            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Craftsperson in job.tags and job.name != npc.job.name]
-        if gears.personality.Duty in npc.personality:
-            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Military in job.tags and job.name != npc.job.name]
-        if gears.personality.Justice in npc.personality:
-            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Academic in job.tags and job.name != npc.job.name]
-        if not candidates:
-            candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if gears.tags.Adventurer in job.tags and job.name != npc.job.name]
-        return random.choice(candidates)
-
-    def _is_good_npc(self, nart, candidate):
-        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
-            return (
-                candidate.job and
-                candidate.relationship.expectation == gears.relationships.E_IMPROVER and
-                candidate.relationship.attitude == gears.relationships.A_FRIENDLY
-            )
-
-    def METROSCENE_ENTER(self,camp: gears.GearHeadCampaign):
-        npc = self.elements["NPC"]
-        pbge.alert("As you enter {METROSCENE}, {NPC}'s phone beeps loudly; {NPC.gender.subject_pronoun} checks the screen and then gives a shout of joy.".format(**self.elements))
-
-        self.started_convo = True
-
-        npc.relationship.attitude = relationships.A_THANKFUL
-        ghcutscene.SimpleMonologueDisplay(
-            "I passed the test! I told you all that I was going to make a change, and now I have. From this point forward I'm an official certified {}!".format(self.new_job),
-            npc.get_root())(camp)
-
-        candidates = [npc2 for npc2 in camp.get_lancemates() if npc2 is not npc]
-        if candidates:
-            npc2 = random.choice(candidates)
-            ghcutscene.SimpleMonologueDisplay(
-                "Congratulations, {}!".format(npc),
-                npc2.get_root())(camp,False)
-
-        npc.job = self.new_job
-        for sk in self.new_job.skills:
-            npc.statline[sk] += 1
-
-        for sk,bonus in self.new_job.skill_modifiers.items():
-            if bonus > 0:
-                npc.statline[sk] += bonus
-            elif sk not in npc.statline:
-                npc.statline[sk] += 1
-
-        ghcutscene.SimpleMonologueDisplay(
-            "Thanks! I wouldn't have been able to do this without your support.",
-            npc.get_root())(camp, False)
-
-        self.proper_end_plot(camp)
 
 
 class DDLD_BeFriendsDoCrimes(LMMissionPlot):
@@ -1668,104 +1780,4 @@ class DDLD_SortingDuel(LMPlot):
         self.elements["NPC"].relationship.attitude = gears.relationships.A_RESENT
         self.proper_end_plot(camp,False)
 
-
-class DDLD_JuniorQuestions(LMPlot):
-    LABEL = "DZD_LANCEDEV"
-    active = True
-    scope = True
-    UNIQUE = True
-    def custom_init( self, nart ):
-        npc = self.seek_element(nart,"NPC",self._is_good_npc,scope=nart.camp.scene,lock=True)
-        self.started_conversation = False
-        return True
-
-    def _is_good_npc(self,nart,candidate):
-        if self.npc_is_ready_for_lancedev(nart.camp,candidate):
-            return not candidate.relationship.expectation and candidate.renown < 20 and candidate.relationship.attitude in (relationships.A_JUNIOR,None)
-
-    def t_UPDATE(self,camp):
-        if not self.started_conversation:
-            npc = self.elements["NPC"]
-            pbge.alert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene,npc))
-            npc.relationship.attitude = relationships.A_JUNIOR
-            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.QUERY)))
-            self.started_conversation = True
-
-    def NPC_offers(self,camp):
-        mylist = list()
-        mylist.append(Offer(
-            "[CAN_I_ASK_A_QUESTION]",
-            (context.HELLO,context.QUERY),
-        ))
-        mylist.append(Offer(
-            "I'm pretty new at this cavalier business, and I don't have nearly as much sense for it as you do. What do I need to do to become a real cavalier?",
-            (context.QUERY,),subject=self,subject_start=True
-        ))
-        mylist.append(Offer(
-            "[THANKS_FOR_ADVICE] Yes, I see now that the purpose of a cavalier is to earn the fanciest toys available. I won't forget your advice!",
-            (context.ANSWER,),subject=self,data={"reply":"Just keep finding missions and keep getting paid. Then buy a bigger robot."},
-            effect=self._merc_answer
-        ))
-        mylist.append(Offer(
-            "[THANKS_FOR_ADVICE] To be a cavalier is a journey, not a destination. I promise that I will keep doing my best!",
-            (context.ANSWER,),subject=self,data={"reply":"Keep practicing, keep striving, and each day you move closer to the best pilot you can be."},
-            effect=self._pro_answer
-        ))
-        mylist.append(Offer(
-            "[THANKS_FOR_ADVICE] With gigantic megaweapons come gigantic responsibilities... I see that now. I promise I won't let you down!",
-            (context.ANSWER,),subject=self,data={"reply":"We do this so that we can help people. If you make life better for one person, you've succeeded."},
-            effect=self._help_answer
-        ))
-        mylist.append(Offer(
-            "[THANKS_FOR_ADVICE] In order to fight for great justice, I must first conquer my own inner demons. I promise not to forget your ephemeral wisdom!",
-            (context.ANSWER,),subject=self,data={"reply":"There are a lot of bad things in this world; just make sure you don't become one of them."},
-            effect=self._just_answer
-        ))
-        mylist.append(Offer(
-            "Thanks, I guess? I was hoping that you'd be able to give me some great insight, but it seems we're all working this out for ourselves. At least I feel a bit more confident now.",
-            (context.ANSWER,),subject=self,data={"reply":"[I_DONT_KNOW] And besides, you've proven yourself as a lancemate already."},
-            effect=self._fel_answer
-        ))
-        return mylist
-
-    def _merc_answer(self,camp):
-        self.elements["NPC"].relationship.expectation = relationships.E_MERCENARY
-        if gears.personality.Glory in self.elements["NPC"].personality:
-            self.elements["NPC"].statline[gears.stats.Vitality] += 1
-        else:
-            self.elements["NPC"].personality.add(gears.personality.Glory)
-        self.proper_end_plot(camp)
-
-    def _pro_answer(self,camp):
-        self.elements["NPC"].relationship.expectation = relationships.E_PROFESSIONAL
-        if gears.personality.Duty in self.elements["NPC"].personality:
-            self.elements["NPC"].statline[gears.stats.Concentration] += 1
-        else:
-            self.elements["NPC"].personality.add(gears.personality.Duty)
-        self.proper_end_plot(camp)
-
-    def _help_answer(self,camp):
-        self.elements["NPC"].relationship.expectation = relationships.E_GREATERGOOD
-        if gears.personality.Peace in self.elements["NPC"].personality:
-            self.elements["NPC"].statline[gears.stats.Athletics] += 1
-        else:
-            self.elements["NPC"].personality.add(gears.personality.Peace)
-        self.proper_end_plot(camp)
-
-    def _just_answer(self,camp):
-        self.elements["NPC"].relationship.expectation = relationships.E_IMPROVER
-        if gears.personality.Justice in self.elements["NPC"].personality:
-            self.elements["NPC"].statline[gears.stats.MechaPiloting] += 1
-        else:
-            self.elements["NPC"].personality.add(gears.personality.Justice)
-        self.proper_end_plot(camp)
-
-    def _fel_answer(self,camp):
-        self.elements["NPC"].relationship.attitude = relationships.A_FRIENDLY
-        if gears.personality.Fellowship in self.elements["NPC"].personality:
-            self.elements["NPC"].dole_experience(200,camp.pc.TOTAL_XP)
-            camp.pc.dole_experience(200,camp.pc.TOTAL_XP)
-        else:
-            self.elements["NPC"].personality.add(gears.personality.Fellowship)
-        self.proper_end_plot(camp)
 

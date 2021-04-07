@@ -1,3 +1,4 @@
+- Added pilot suit portrait bits by LordErin
 - Added some more opening scenarios
 - Fixed bug when running ghcaramel from a different directory
 - Combat hotkeys can be set by pressing Alt + Key when using desired action, or by editing config file
