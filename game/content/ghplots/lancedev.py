@@ -79,6 +79,83 @@ class LMMissionPlot(LMPlot):
 
 # The actual plots...
 
+class LMD_GotMyEyeOnYou(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.started_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate: gears.base.Character):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                nart.camp.pc.has_badge("Criminal") and
+                gears.tags.Police in candidate.get_tags() and
+                candidate.relationship.role in (None,gears.relationships.R_OPPONENT)
+            )
+
+    def METROSCENE_ENTER(self,camp):
+        if not self.started_convo:
+            npc = self.elements["NPC"]
+            pbge.alert("As you enter {METROSCENE}, {NPC} pulls you aside for a private talk.".format(**self.elements))
+            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.PERSONAL)))
+            self.started_convo = True
+
+    def NPC_offers(self,camp: gears.GearHeadCampaign):
+        mylist = list()
+        mylist.append(Offer(
+            "I've been checking your history. I found out all about your criminal activities.".format(**self.elements),
+            (context.HELLO,context.PERSONAL),
+            subject=self, subject_start=True, allow_generics=False
+        ))
+
+        mylist.append(Offer(
+            "Regardless, I'm going to be keeping my eye on you.".format(**self.elements),
+            (context.CUSTOM,),subject=self,data={"reply": "That was in the past. I'm not doing that anymore."},
+            effect=self._keep_eye_on
+        ))
+
+        mylist.append(Offer(
+            "Not yet; I'm going to stay around for a while so I can keep an eye on you.".format(**self.elements),
+            (context.CUSTOM,),subject=self,data={"reply": "Well, you can quit the lance if you want to."}
+        ))
+
+        mylist.append(Offer(
+            "Oh I plan to. I'm going to be so happy that it'll scare you.",
+            (context.CUSTOMREPLY,),subject="for a while so I can keep an eye on you",data={"reply": "Do whatever makes you happy."},
+            effect=self._keep_eye_on
+        ))
+
+        mylist.append(Offer(
+            "Fine. I'll see you around, [audience].",
+            (context.CUSTOMREPLY,),subject="for a while so I can keep an eye on you",data={"reply": "No, seriously, you should quit the lance."},
+            effect=self._quit_lance
+        ))
+
+        return mylist
+
+    def _keep_eye_on(self, camp):
+        self.elements["NPC"].relationship.role = gears.relationships.R_CHAPERONE
+        self.elements["NPC"].dole_experience(200)
+        self.elements["NPC"].relationship.history.append(gears.relationships.Memory(
+            "I found out about your criminal past", "You went snooping around in my business", -10,
+            (gears.relationships.MEM_Ideological,)
+        ))
+
+        self.proper_end_plot(camp,False)
+
+    def _quit_lance(self, camp):
+        self.elements["NPC"].relationship.role = gears.relationships.R_ADVERSARY
+        self.elements["NPC"].dole_experience(200)
+        self.elements["NPC"].relationship.history.append(gears.relationships.Memory(
+            "I found out about your criminal past", "You went snooping around in my business", -25,
+            (gears.relationships.MEM_Ideological,)
+        ))
+        plotutility.AutoLeaver(self.elements["NPC"])(camp)
+        self.proper_end_plot(camp,False)
 
 
 class LMD_SociableSorting(LMPlot):

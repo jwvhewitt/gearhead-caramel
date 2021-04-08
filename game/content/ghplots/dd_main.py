@@ -62,14 +62,14 @@ class DeadzoneDrifterStub( Plot ):
             if camp.can_add_lancemate() and npc not in camp.party:
                 # If the NPC has the lancemate tag, they might join the party.
                 if npc.relationship.data.get("DZD_LANCEMATE_TIME_OFF",0) <= camp.day:
-                    mylist.append(Offer("[JOIN]",
+                    mylist.append(Offer("[JOIN]", is_generic=True,
                                         context=ContextTag([context.JOIN]), effect=game.content.plotutility.AutoJoiner(npc)))
                 else:
                     # This NPC is taking some time off. Come back tomorrow.
-                    mylist.append(Offer("[COMEBACKTOMORROW_JOIN]",
+                    mylist.append(Offer("[COMEBACKTOMORROW_JOIN]", is_generic=True,
                                         context=ContextTag([context.JOIN])))
             elif npc in camp.party and gears.tags.SCENE_PUBLIC in camp.scene.attributes:
-                mylist.append(Offer("[LEAVEPARTY]",
+                mylist.append(Offer("[LEAVEPARTY]", is_generic=True,
                                     context=ContextTag([context.LEAVEPARTY]), effect=game.content.plotutility.AutoLeaver(npc)))
             mylist.append(LMSkillsSelfIntro(npc))
         return mylist
