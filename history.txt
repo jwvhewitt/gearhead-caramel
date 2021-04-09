@@ -1,3 +1,6 @@
+- Fixed crash when prop goes haywire
+- Increased threat value of hunter synths
+
 v0.620 April 9 2021
 - Added pilot suit portrait bits by LordErin
 - Added some more opening scenarios

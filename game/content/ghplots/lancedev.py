@@ -79,6 +79,57 @@ class LMMissionPlot(LMPlot):
 
 # The actual plots...
 
+class LMD_PassingJudgment(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.started_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate: gears.base.Character):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                candidate.relationship.role == relationships.R_CHAPERONE and
+                candidate.relationship.missions_together > 10 and
+                candidate.relationship.attitude in (relationships.A_JUNIOR,relationships.A_DISTANT,relationships.A_RESENT)
+            )
+
+    def METROSCENE_ENTER(self,camp: gears.GearHeadCampaign):
+        if not self.started_convo:
+            npc: gears.base.Character = self.elements["NPC"]
+            pbge.alert("As you enter {METROSCENE}, {NPC} pulls you aside for a private talk.".format(**self.elements))
+            if npc.get_reaction_score(camp.pc, camp) > 20:
+                ghcutscene.SimpleMonologueDisplay(
+                    "When we started, I was suspicious of you. I didn't know what kind of person you were. But now, after all we've been through, I do know. I want you to know that I believe in you and I'm glad to be your lancemate.",
+                    npc
+                )(camp)
+                npc.relationship.role = relationships.R_COLLEAGUE
+                npc.relationship.attitude = relationships.A_FRIENDLY
+                camp.dole_xp(200)
+                self.proper_end_plot(camp)
+            else:
+                ghcutscene.SimpleMonologueDisplay(
+                    "When we started, I was suspicious of you. I didn't know what kind of person you were. But now, I do know, and I no longer want anything to do with you. If we ever meet again, it will be on opposite sides of the battlefield.",
+                    npc
+                )(camp)
+                npc.relationship.role = relationships.R_ADVERSARY
+                npc.relationship.attitude = relationships.A_RESENT
+                if relationships.RT_LANCEMATE in npc.relationship.tags:
+                    npc.relationship.tags.remove(relationships.RT_LANCEMATE)
+                plotutility.AutoLeaver(npc)(camp)
+                camp.freeze(npc)
+                npc.relationship.history.append(gears.relationships.Memory(
+                    "I quit your lance", "you quit my lance", -10,
+                    (gears.relationships.MEM_Ideological,)
+                ))
+                self.proper_end_plot(camp)
+
+            self.started_convo = True
+
+
 class LMD_GotMyEyeOnYou(LMPlot):
     LABEL = "LANCEDEV"
     active = True

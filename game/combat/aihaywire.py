@@ -11,7 +11,10 @@ class HaywireTurn(object):
 
     def bust_a_move(self):
         # Move to a randomly selected accessible tile.
-        if not self.pc.mmode:
+        if not hasattr(self.pc,"mmode"):
+            self.camp.fight.cstat[self.pc].spend_ap(1)
+            return
+        elif not self.pc.mmode:
             self.pc.gear_up()
         mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.pc.pos, self.pc.get_current_speed(),
                                                         self.pc.mmode, self.camp.scene.get_blocked_tiles())
