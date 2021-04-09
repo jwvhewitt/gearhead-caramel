@@ -1,3 +1,4 @@
+v0.620 April 9 2021
 - Added pilot suit portrait bits by LordErin
 - Added some more opening scenarios
 - Fixed bug when running ghcaramel from a different directory
