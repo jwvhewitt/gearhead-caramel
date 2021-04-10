@@ -144,7 +144,7 @@ class BanditsPalooza(DZDREProppStarterPlot):
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         myscene = camp.scene.get_root_scene()
-        if self.elements["DZ_EDGE"].connects_to_city(myscene):
+        if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:
             # This city is on this road.
             mygram["[News]"] = ["you should beware {} when traveling to {}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
         return mygram
@@ -239,7 +239,7 @@ class InvadersPalooza(DZDREProppStarterPlot):
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         myscene = camp.scene.get_root_scene()
-        if self.elements["DZ_EDGE"].connects_to_city(myscene):
+        if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:
             # This city is on this road.
             mygram["[News]"] = ["the road to {1} is frequented by {0}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
         return mygram
@@ -273,7 +273,7 @@ class UpgradedInvadersPalooza(DZDREProppStarterPlot):
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         myscene = camp.scene.get_root_scene()
-        if self.elements["DZ_EDGE"].connects_to_city(myscene):
+        if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:
             # This city is on this road.
             mygram["[News]"] = ["the road to {1} is controlled by {0}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
         return mygram

@@ -125,6 +125,7 @@ class PlayerTurn( object ):
         mymenu = pbge.rpgmenu.PopUpMenu()
         mymenu.add_item("Center on {}".format(self.pc.get_pilot()), self.focus_on_pc)
         mymenu.add_item("Record hotkey for current action", self.gui_record_hotkey)
+        mymenu.add_item("View hotkeys", self.gui_view_hotkeys)
         mymenu.add_item("Quit Game", self.quit_the_game)
 
         choice = mymenu.query()
@@ -164,6 +165,14 @@ class PlayerTurn( object ):
 
         if myevent.type == pygame.KEYDOWN and myevent.unicode.isalpha():
             self.record_hotkey(myevent.unicode)
+
+    def gui_view_hotkeys(self):
+        mymenu = pbge.rpgmenu.Menu(-250,-100,500,200, font=pbge.my_state.big_font)
+        for op in pbge.util.config.options("HOTKEYS"):
+            mymenu.add_item("{}: {}".format(op,pbge.util.config.get("HOTKEYS",op)), None)
+        mymenu.add_item("[Exit]", None)
+        mymenu.query()
+
 
     def go( self ):
         # Perform this character's turn.

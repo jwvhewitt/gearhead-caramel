@@ -281,10 +281,19 @@ class ExploMenu( object ):
                 mymenu.add_item('Use {}'.format(str(wayp)),BumpToCall(self.explo,wayp))
         # Add the standard options.
         mymenu.add_item('Field HQ', FieldHQCall(self.explo.camp))
-        mymenu.add_item('View Memos',memobrowser.MemoBrowser(self.explo.camp))
+        mymenu.add_item('View Memos', memobrowser.MemoBrowser(self.explo.camp))
+        pc = self.explo.camp.first_active_pc()
+        if pc:
+            mymenu.add_item('Center on {}'.format(pc.get_pilot()), self.center)
         mi = mymenu.query()
         if mi:
             mi()
+
+    def center(self):
+        # Center on the PC.
+        pc = self.explo.camp.first_active_pc()
+        pbge.my_state.view.focus(pc.pos[0], pc.pos[1])
+
 
 class Explorer( object ):
     # The object which is exploration of a scene. OO just got existential.

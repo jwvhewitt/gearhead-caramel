@@ -1,3 +1,6 @@
+- Added "View Hotkeys" to combat popup menu
+- DZD roadedge plots will stop rumors after the road is cleared
+- Added "center on party" to exploration menu
 - Fixed crash when prop goes haywire
 - Increased threat value of hunter synths
 
