@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Scenario",
+    "label": "SCENARIO",
+    "vars": {
+      "uname": "Scenario"
+    },
+    "scripts": {
+      "main": "#:includes\n#:plot",
+      "includes": "import gears\nfrom pbge.plots import Plot, Adventure, NarrativeRequest, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture\n\n",
+      "plot": "class {uname}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{uname}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        \"Pirates of the East Sea\",\n        \"Go fight pirates in Namok.\",\n        (158, 5, 10), None,\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        #:custom_init\n\n        return True\n\n"
+    },
+    "child_types": ["CITY"]
+  },
+  {
+    "name": "Add Metro Scene",
+    "label": "CITY",
+    "vars": {
+      "city_name": "Megacormack",
+      "city_faction": "None"
+    },
+    "scripts": {
+      "custom_init": "# Create a city scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(50, 50, \"{city_name}\", player_team=team1, civilian_team=team2,scale=gears.scale.HumanScale, is_metro=True, faction={city_faction}, attributes=(gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC), exploration_music='airtone_-_reCreation.ogg')\n\n# Create a scene generator\nmyscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleGreenzone(), road_terrain=game.content.ghterrain.Flagstone)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"METROSCENE\")\nself.register_element(\"METRO\", myscene.metrodat)\n\n# Create the entry/exit point.\nmyroom = self.register_element(\"_ENTRY_ROOM\", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.south), dident=\"METROSCENE\")\nmygate = self.register_element(\"MISSION_GATE\", Exit(name=\"To The Docks\", desc=\"You stand before the Namok waterfront. The southern docks are used for terrestrial shipping.\",anchor=pbge.randmaps.anchors.middle,plot_locked=True), dident=\"_ENTRY_ROOM\")\n",
+      "main": "# Just a comment."
+    }
+  }
+]

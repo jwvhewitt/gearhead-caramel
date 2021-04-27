@@ -11,6 +11,38 @@ from . import memobrowser
 from . import fieldhq
 import random
 
+import json
+import inspect
+
+class GHEncoder(json.JSONEncoder):
+    def __init__(self, *args, **kwargs):
+        self.__uid_lookup__ = dict()
+        super().__init__(*args, **kwargs)
+    def default(self, obj):
+        if inspect.isclass(obj) and obj in gears.SINGLETON_REVERSE:
+            return True
+        if obj and not isinstance(obj, (str, int, float, bool)):
+            # Check the __uid_lookup__ dict.
+            if repr(obj) in self.__uid_lookup__:
+                return True
+            else:
+                self.__uid_lookup__[repr(obj)] = "bla"
+                mydict = dir(obj)
+                return mydict
+        if isinstance(obj, pbge.container.ContainerList):
+            return list(obj)
+        if isinstance(obj, pbge.container.ContainerDict):
+            return dict(obj)
+        if isinstance(obj, pbge.container.Container):
+            return None
+
+        return json.JSONEncoder.default(self, obj)
+
+    @classmethod
+    def save_by_json(cls, camp):
+        with open( pbge.util.user_dir( "rpg_" + camp.name + ".json" ) , "wt" ) as f:
+            json.dump(camp, f, cls=cls)
+
 # Commands should be callable objects which take the explorer and return a value.
 # If untrue, the command stops.
 
@@ -531,6 +563,10 @@ class Explorer( object ):
 
 #                    elif gdi.unicode == "K" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
 #                        self.camp.pc.hp_damage += 100
+
+                    elif gdi.unicode == "J" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+                        # Experimenting with JSON serialization. It isn't going well.
+                        GHEncoder.save_by_json(self.camp)
 
                     elif gdi.unicode == "&" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         for x in range(self.scene.width):
