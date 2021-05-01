@@ -99,12 +99,15 @@ def init_plots():
     for dlcpath in dlcs:
         dlcname = os.path.basename(dlcpath).rpartition('.')[0]
         if dlcname not in modict:
-            spec = importlib.util.spec_from_file_location(dlcname, dlcpath)
-            module = importlib.util.module_from_spec(spec)
-            sys.modules[dlcname] = module
-            spec.loader.exec_module(module)
-            modict[dlcname] = module
-            harvest(module)
+            try:
+                spec = importlib.util.spec_from_file_location(dlcname, dlcpath)
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[dlcname] = module
+                spec.loader.exec_module(module)
+                modict[dlcname] = module
+                harvest(module)
+            except (IndentationError, SyntaxError) as err:
+                print("ERROR: {} could not be loaded due to error: {}".format(dlcpath, err))
         else:
             print("Warning: User content {} not loaded because of duplicate name".format(dlcname))
 

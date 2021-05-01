@@ -1,102 +1,190 @@
 import glob
 import pbge
 import json
-import collections
+from . import pbclasses
+from .pbclasses import ALL_BRICKS, BRICKS_BY_LABEL, BRICKS_BY_NAME, PlotBrick, BluePrint
+import pygame
 
 
-ALL_BRICKS = list()
-BRICKS_BY_LABEL = collections.defaultdict(list)
-BRICKS_BY_NAME = dict()
+class PartsNodeWidget(pbge.widgets.Widget):
+    def __init__(self,mypart,indent,editor,**kwargs):
+        self.font = pbge.BIGFONT
+        super().__init__(0,0,350,self.font.get_linesize()+1,data=mypart,**kwargs)
+        self.indent = indent
+        self.editor = editor
+        self.selected_image = self._draw_image(pbge.INFO_HILIGHT)
+        self.regular_image = self._draw_image(pbge.INFO_GREEN)
+        self.mouseover_image = self._draw_image(pbge.rpgmenu.MENU_SELECT_COLOR)
 
+    def _part_text(self):
+        return self.data.name
 
-class PlotBrick(object):
-    def __init__(self, scripts=None, **kwargs):
-        self.scripts = dict()
-        if scripts:
-            self.scripts.update(scripts)
-        self.data = kwargs.copy()
+    def _draw_image(self,text_color):
+        myimage = pygame.Surface((self.w,self.h))
+        myimage.fill((0, 0, 0))
+        myimage.set_colorkey((0, 0, 0), pygame.RLEACCEL)
 
+        myimage.blit(self.font.render(self._part_text(),True,text_color),(self.indent*12,0))
+        return myimage
 
-class BluePrint(object):
-    def __init__(self, brick: PlotBrick):
-        self._brick_name = brick.data.get("name")
-        self.brick = brick
-
-        self.children = list()
-        self.vars = dict()
-        self.vars.update(brick.data.get("vars", {}))
-
-    def get_section(self, section_name, my_scripts, child_scripts, prefix, touched_scripts, done_scripts):
-        if section_name in touched_scripts:
-            if section_name in done_scripts:
-                return done_scripts[section_name]
-            else:
-                print("Error: Circular Reference!")
-                return ()
+    def render( self ):
+        myrect = self.get_rect()
+        if myrect.collidepoint(*pbge.my_state.mouse_pos):
+            pbge.my_state.screen.blit( self.mouseover_image , myrect )
+            if self.editor:
+                self.editor.mouseover_part = self.data
+        elif self.data is self.editor.active_part:
+            pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
-            touched_scripts.add(section_name)
+            pbge.my_state.screen.blit( self.regular_image , myrect )
 
-        mys: str = my_scripts.get(section_name, "")
-        for script_line in mys.splitlines():
-            if script_line:
-                n = script_line.find("#:")
-                if n >= 0:
-                    print("Adding section..." + script_line)
-                    new_prefix = prefix + " " * n
-                    new_section_name = script_line[n+2:]
-                    insert_lines = self.get_section(new_section_name, my_scripts, child_scripts, new_prefix, touched_scripts, done_scripts)
-                    done_scripts[section_name] += insert_lines
-                else:
-                    done_scripts[section_name].append(prefix + script_line)
 
-        for script_line in child_scripts.get(section_name, ()):
-            done_scripts[section_name].append(prefix + script_line)
+class PlotTreeWidget(pbge.widgets.ColumnWidget):
+    def __init__(self,mypart,editor,dx=-350,dy=-250,w=325,h=500,**kwargs):
+        super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
+        up_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=0,off_frame=1)
+        down_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=2,off_frame=3)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(0,0,w,h-50,up_arrow,down_arrow,padding=0)
+        self.add_interior(up_arrow)
+        self.add_interior(self.scroll_column)
+        self.add_interior(down_arrow)
+        self.mypart = mypart
+        self.editor = editor
 
-        return done_scripts[section_name]
+        self.refresh_part_list()
 
-    def compile(self, inherited_vars=None):
-        # Return a dict of Python scripts to be added to the output file.
-        if inherited_vars:
-            vars = inherited_vars.copy()
-        else:
-            vars = dict()
-        vars.update(self.vars)
+    def refresh_part_list(self):
+        self.scroll_column.clear()
+        self.add_parts(self.mypart)
 
-        # Step one: collect the scripts from all children.
-        mykids = collections.defaultdict(list)
-        for kid in self.children:
-            kid_scripts = kid.compile(inherited_vars=vars)
-            for k,v in kid_scripts.items():
-                mykids[k] += v
 
-        # Step two: collect the default scripts from the brick.
-        myscripts = self.brick.scripts.copy()
-        for k,v in myscripts.items():
-            myscripts[k] = v.format(**self.vars)
+    def add_parts(self,part,indent=0):
+        self.scroll_column.add_interior(PartsNodeWidget(part,indent,self.editor,on_click=self.editor.click_part))
+        for bit in part.children:
+            self.add_parts(bit,indent+1)
 
-        touchedscripts = set()
-        donescripts = collections.defaultdict(list)
-        for k in myscripts.keys():
-            self.get_section(k, myscripts, mykids, "", touchedscripts, donescripts)
 
-        for k in mykids.keys():
-            if k not in donescripts:
-                self.get_section(k, myscripts, mykids, "", touchedscripts, donescripts)
+class StringVarEditorWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part, var_name, default_value, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8,**kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+        self.add_interior(pbge.widgets.TextEntryWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() + 8,default_value,on_change=self._do_change,font=pbge.MEDIUMFONT))
 
-        return donescripts
+    def _do_change(self, widj, ev):
+        self.part.vars[self.var_name] = widj.text
 
-    # Gonna set up the brick as a property.
-    def _get_brick(self):
-        return BRICKS_BY_NAME.get(self._brick_name,None)
 
-    def _set_brick(self,nuval):
-        self._brick_name = nuval.data.get("name")
+class VarEditorWidget(pbge.widgets.ColumnWidget):
+    def __init__(self,mypart,editor,dx=10,dy=-200,w=350,h=450,**kwargs):
+        super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
+        up_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=0,off_frame=1)
+        down_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=2,off_frame=3)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(0,0,w,h-50,up_arrow,down_arrow,padding=0)
+        self.add_interior(up_arrow)
+        self.add_interior(self.scroll_column)
+        self.add_interior(down_arrow)
+        self.mypart = mypart
+        self.editor = editor
 
-    def _del_brick(self):
-        self._brick_name = None
+        self.refresh_var_widgets()
 
-    brick = property(_get_brick,_set_brick,_del_brick)
+    def refresh_var_widgets(self):
+        self.scroll_column.clear()
+        mybrick = self.editor.active_part.brick
+        for k in mybrick.vars.keys():
+            self.scroll_column.add_interior(
+                StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+            )
 
+
+class PlotCreator(pbge.widgets.Widget):
+    def __init__(self, mytree: BluePrint, **kwargs):
+        super().__init__(-400,-300,800,600,**kwargs)
+
+        self.mytree = mytree
+        self.active_part = mytree
+
+        self.parts_widget = PlotTreeWidget(mytree,self)
+        self.children.append(self.parts_widget)
+
+        mybuttons = pbge.image.Image("sys_geareditor_buttons.png",40,40)
+        mybuttonrow = pbge.widgets.RowWidget(25,-255,350,40)
+        self.children.append(mybuttonrow)
+        mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=2,on_frame=2,off_frame=3,on_click=self._add_feature,tooltip="Add Feature"))
+        self.remove_gear_button = pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=4,on_frame=4,off_frame=5,on_click=self._remove_feature,tooltip="Remove Feature", show_when_inactive=True)
+        mybuttonrow.add_left(self.remove_gear_button)
+        mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=10,on_frame=10,off_frame=11,on_click=self._compile,tooltip="Compile Scenario"))
+        mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=6,on_frame=6,off_frame=7,on_click=self._exit_editor,tooltip="Exit Editor"))
+
+        self.vars_widget = VarEditorWidget(mytree, self)
+        self.children.append(self.vars_widget)
+
+        self.finished = False
+
+        self.update_tree()
+
+    def _add_feature(self,widj,ev):
+        mymenu = pbge.rpgmenu.Menu(-100,-200,250,400)
+        mymenu.add_descbox(175,-200,175,400)
+        mybrick = self.active_part.brick
+        for tlabel in mybrick.child_types:
+            for tbrick in BRICKS_BY_LABEL.get(tlabel, ()):
+                mymenu.add_item(tbrick.name, tbrick, tbrick.desc)
+        nubrick = mymenu.query()
+        if nubrick:
+            newbp = BluePrint(nubrick)
+            self.active_part.children.append(newbp)
+            self.set_active_part(newbp)
+
+    def _remove_feature(self,widj,ev):
+        if self.active_part != self.mytree and hasattr(self.active_part, "container"):
+            myparent = self.active_part.container.owner
+            myparent.children.remove(self.active_part)
+            self.set_active_part(myparent)
+
+    def _exit_editor(self,widj,ev):
+        self.finished = True
+
+    def _compile(self, widj, ev):
+        myprog = self.mytree.compile()
+        fname = "ADV_{}.py".format(self.mytree.vars["uname"])
+        with open(pbge.util.user_dir("content",fname), 'wt') as fp:
+            for l in myprog["main"]:
+                fp.write(l+'\n')
+        pbge.alert("{} has been written to your content folder. You will need to restart GearHead to load the scenario.".format(fname))
+
+    def click_part(self,widj,ev):
+        if widj.data:
+            self.set_active_part(widj.data)
+
+    def set_active_part(self,new_part):
+        self.active_part = new_part
+        self.update_tree()
+
+    def update_tree(self):
+        self.parts_widget.refresh_part_list()
+        self.vars_widget.refresh_var_widgets()
+
+    @classmethod
+    def create_and_invoke(cls, redraw):
+        # Create the UI. Run the UI. Clean up after you leave.
+        mytree = BluePrint(BRICKS_BY_NAME["Scenario"])
+        myui = cls(mytree)
+        pbge.my_state.widgets.append(myui)
+        pbge.my_state.view = redraw
+        keepgoing = True
+        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                redraw()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+
+        pbge.my_state.widgets.remove(myui)
 
 
 def init_plotcreator():
@@ -115,8 +203,3 @@ def init_plotcreator():
             print("Plot Brick Error: Multiple bricks named {}".format(j["name"]))
         BRICKS_BY_NAME[j["name"]] = mybrick
 
-    brick1 = BluePrint(ALL_BRICKS[0])
-    brick1.children.append(BluePrint(ALL_BRICKS[1]))
-    scripts = brick1.compile()
-    for sl in scripts.get("main"):
-        print(sl)
