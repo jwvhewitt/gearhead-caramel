@@ -1,7 +1,7 @@
 import collections
 import weakref
 from . import Tile
-from .. import my_state,anim_delay,WHITE
+from .. import my_state,anim_delay,WHITE, wrap_multi_line
 from .. import util, image
 import pygame
 from . import waypoints,terrain
@@ -17,11 +17,46 @@ OVERLAY_HIDDEN = 6
 
 SCROLL_STEP = 12
 
+
+class TextTicker( object ):
+    def __init__(self):
+        self.text_images = list()
+        self.counter = 0
+        self.height = my_state.anim_font.get_linesize() * 3
+        self.dy_off = 0
+
+    def add(self, text, dy_off=0):
+        pad = (self.counter // my_state.anim_font.get_linesize() - len(self.text_images))
+        if pad > 0:
+            for t in range(pad):
+                self.text_images.append(None)
+        newlines = wrap_multi_line(text, my_state.anim_font, 128)
+        self.text_images += [ my_state.anim_font.render(l, False, WHITE) for l in newlines]
+        self.dy_off = dy_off
+
+    def tick(self, view, x, y):
+        self.counter += 1
+        x += 32
+        y -= self.counter - self.dy_off - 32
+        for img in self.text_images[:4]:
+            if img:
+                mydest = img.get_rect(center=(x,y))
+                my_state.screen.blit(img, mydest)
+            y += my_state.anim_font.get_linesize()
+        if self.counter >= self.height:
+            self.counter = self.height - my_state.anim_font.get_linesize()
+            self.text_images.pop(0)
+
+    def needs_deletion(self):
+        return not self.text_images
+
+
 class SceneView( object ):
     def __init__(self, scene, postfx=None):
         self.overlays = dict()
         self.anim_list = list()
         self.anims = collections.defaultdict(list)
+        self.tickers = collections.defaultdict(TextTicker)
 
         self.modelmap = collections.defaultdict(list)
         self.uppermap = collections.defaultdict(list)
@@ -115,19 +150,19 @@ class SceneView( object ):
         """Return bitmask of visible connected walls at x,y."""
         it = 0
         if self.is_same_terrain(self.scene.get_wall( x , y - 1 ),terr) and \
-         not ( self.scene.tile_blocks_vision( x-1 , y -1 ) and self.scene.tile_blocks_vision( x - 1 , y ) \
+         not ( self.scene.tile_blocks_vision( x-1 , y -1 ) and self.scene.tile_blocks_vision( x - 1 , y )
          and self.scene.tile_blocks_vision( x + 1 , y - 1 ) and self.scene.tile_blocks_vision( x + 1 , y ) ):
             it += 2
         if self.is_same_terrain(self.scene.get_wall( x+1 , y ),terr) and \
-         not ( self.scene.tile_blocks_vision( x+1 , y -1 ) and self.scene.tile_blocks_vision( x , y-1 ) \
+         not ( self.scene.tile_blocks_vision( x+1 , y -1 ) and self.scene.tile_blocks_vision( x , y-1 )
          and self.scene.tile_blocks_vision( x + 1 , y + 1 ) and self.scene.tile_blocks_vision( x , y+1 ) ):
             it += 4
         if self.is_same_terrain(self.scene.get_wall( x , y + 1 ),terr) and \
-         not ( self.scene.tile_blocks_vision( x-1 , y +1 ) and self.scene.tile_blocks_vision( x - 1 , y ) \
+         not ( self.scene.tile_blocks_vision( x-1 , y +1 ) and self.scene.tile_blocks_vision( x - 1 , y )
          and self.scene.tile_blocks_vision( x + 1 , y + 1 ) and self.scene.tile_blocks_vision( x + 1 , y ) ):
             it += 8
         if self.is_same_terrain(self.scene.get_wall( x-1 , y ),terr) and \
-         not ( self.scene.tile_blocks_vision( x-1 , y -1 ) and self.scene.tile_blocks_vision( x , y-1 ) \
+         not ( self.scene.tile_blocks_vision( x-1 , y -1 ) and self.scene.tile_blocks_vision( x , y-1 )
          and self.scene.tile_blocks_vision( x - 1 , y + 1 ) and self.scene.tile_blocks_vision( x , y+1 ) ):
             it += 1
 
@@ -195,6 +230,9 @@ class SceneView( object ):
         """Return the relative y position of this tile, ignoring offset."""
         return ( y * self.HTH ) + ( x * self.HTH )
 
+    def screen_coords(self, x, y):
+        return (self.relative_x(x - 1, y - 1) + self.x_off, self.relative_y(x - 1, y - 1) + self.y_off)
+
     def map_x( self, sx, sy ):
         """Return the map x column for the given screen coordinates."""
         return int( float( sx - self.x_off ) / self.HTW + float( sy - self.y_off ) / self.HTH - 1) // 2 - 1
@@ -234,7 +272,7 @@ class SceneView( object ):
             self.modelsprite[ m ] = m.get_sprite()
 
     def draw_caption( self, center, txt ):
-        myimage = pygwrap.TINYFONT.render( txt, True, (240,240,240) )
+        myimage = my_state.tiny_font.render( txt, True, (240,240,240) )
         mydest = myimage.get_rect(center=center)
         myfill = pygame.Rect( mydest.x - 2, mydest.y - 1, mydest.width + 4, mydest.height + 2 )
         my_state.screen.fill( (36,37,36), myfill )
@@ -478,6 +516,14 @@ class SceneView( object ):
 
             x,y,line,keep_going = self.next_tile(x0,y0,x,y,line,sx,sy,screen_area )
 
+        for k,v in list(self.tickers.items()):
+            x,y = self.screen_coords(*k)
+            if v.needs_deletion():
+                del self.tickers[k]
+            elif x >= 0 and x <= my_state.screen.get_width() and y >= 0 and y <= my_state.screen.get_height():
+                v.tick(self, x, y)
+            else:
+                del self.tickers[k]
 
         self.phase = ( self.phase + 1 ) % 600
         self.mouse_tile = (self.map_x(mouse_x,mouse_y),self.map_y(mouse_x,mouse_y))

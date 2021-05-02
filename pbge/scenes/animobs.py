@@ -181,6 +181,7 @@ class Caption( AnimOb ):
     def __init__(self, txt=None, pos=(0,0), width=128, loop=16, color=None, delay=1, y_off=0 ):
         txt = txt or self.DEFAULT_TEXT
         color = color or self.DEFAULT_COLOR
+        self.txt = txt
         self.sprite = image.TextImage( txt, width, color=color )
         self.frame = 0
         self.counter = 0
@@ -199,11 +200,8 @@ class Caption( AnimOb ):
         if self.delay > 0:
             self.delay += -1
         else:
-            view.anims[view.PosToKey(self.pos)].append( self )
-            self.counter += 1
-            self.y_off = -32 - 2*self.counter + self.dy_off
-            if self.counter >= self.loop:
-                self.needs_deletion = True
+            view.tickers[view.PosToKey(self.pos)].add(self.txt, self.dy_off)
+            self.needs_deletion = True
 
 
 

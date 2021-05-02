@@ -41,17 +41,13 @@
     "desc": "Set the current scene as the starting scene for the adventure. Make sure that one scene you've created has this feature added.",
     "label": "SCENE_FEATURE",
     "vars": {
-      "scene_id": {
-        "default_val": "LOCALE",
-        "var_type": "string"
-      },
-      "entrance_id": {
-        "default_val": "ENTRANCE",
-        "var_type": "string"
+      "start_with_lancemate": {
+        "default_val": "True",
+        "var_type": "boolean"
       }
     },
     "scripts": {
-      "scene_init": "nart.camp.scene = self.elements.get( \"{scene_id}\" )\nnart.camp.entrance = self.elements.get( \"{entrance_id}\" )\n"
+      "scene_init": "nart.camp.scene = self.elements.get( \"{scene_id}\" )\nnart.camp.entrance = self.elements.get( \"{entrance_id}\" )\nif {start_with_lancemate}:\n            self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n"
     }
   },
 

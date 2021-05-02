@@ -1,3 +1,4 @@
+- The map viewer now uses a per-tile message ticker
 - Added "View Hotkeys" to combat popup menu
 - DZD roadedge plots will stop rumors after the road is cleared
 - Added "center on party" to exploration menu
