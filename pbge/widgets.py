@@ -1,5 +1,5 @@
 from . import frects
-from . import my_state,render_text,draw_text,TEXT_COLOR,Border,default_border,wait_event
+from . import my_state,render_text,draw_text,TEXT_COLOR,Border,default_border,wait_event, wrap_with_records
 import pygame
 from . import image
 from . import rpgmenu
@@ -409,3 +409,73 @@ class DropdownWidget( Widget ):
     def value(self):
         return self.menu.get_current_value()
 
+class TextEditorWidget( Widget ):
+    # This widget is going to be different from the text entry widget above in that it's meant to be a full
+    # functioned text editor. What have I gotten myself into?
+    ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"\''
+    def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, on_change=None, **kwargs ):
+        # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
+        super().__init__(dx,dy,w,h,**kwargs)
+        if not text:
+            text = ''
+        self.char_list = list(text)
+        self.color = color or TEXT_COLOR
+        self.font = font or my_state.big_font
+        self.justify = justify
+        self.cursor_image = image.Image("sys_editcursor.png", 8, 16)
+
+        up_arrow = ButtonWidget(0,0,w-32,-8,sprite=image.Image("sys_updownbuttons_small.png",32,16),on_frame=0,off_frame=1)
+        down_arrow = ButtonWidget(0,0,w-32,h+8,sprite=image.Image("sys_updownbuttons_small.png",32,16),on_frame=2,off_frame=3)
+
+        self.children.append(up_arrow)
+        self.children.append(down_arrow)
+
+        self.on_change = on_change
+        self.cursor_pos = 0
+        self.carat_pos = None
+        self.top_line = 0
+        self.num_lines = (self.h - 12) // self.font.get_linesize()
+
+    def render( self ):
+        mydest = self.get_rect()
+        if self is my_state.active_widget:
+            widget_border_on.render(mydest.inflate(-4,-4))
+        else:
+            widget_border_off.render(mydest.inflate(-4,-4))
+
+        lines, lengths = wrap_with_records(self.text, self.font, self.w)
+
+        if self.top_line + self.num_lines - 1 > len(lines):
+            self.top_line = max(0, len(lines) - self.num_lines)
+
+        textdest = mydest.inflate(-12,-12)
+        my_state.screen.set_clip( textdest )
+
+        for l in lines[self.top_line:self.top_line + self.num_lines]:
+            img = self.font.render(l, True, self.color )
+            my_state.screen.blit(img, textdest)
+            textdest.y += self.font.get_linesize()
+
+        my_state.screen.set_clip( None )
+
+    def _builtin_responder(self,ev):
+        if my_state.active_widget is self:
+            if ev.type == pygame.KEYDOWN:
+                if (ev.key == pygame.K_BACKSPACE) and (len(self.char_list) > 0):
+                    del self.char_list[-1]
+                    if self.on_change:
+                        self.on_change(self,ev)
+                elif (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
+                    self.char_list.append(ev.unicode)
+                    if self.on_change:
+                        self.on_change(self,ev)
+
+    def is_kb_selectable(self):
+        return True
+
+    def flash_when_active(self):
+        pass
+
+    @property
+    def text(self):
+        return "".join(self.char_list)

@@ -13,8 +13,8 @@ class LifepathChooser(object):
         self.cgen = cgen
 
         # Record the character generator zones.
-        self.title_zone = pbge.frects.Frect(-100,30,450,20)
-        self.charsheet_zone = pbge.frects.Frect(-125,-200,500,200)
+        self.title_zone = pbge.frects.Frect(-100,10,450,40)
+        self.charsheet_zone = pbge.frects.Frect(-125,-200,500,180)
         self.info_zone = pbge.frects.Frect(-125,80,170,120)
         self.menu_zone = pbge.frects.Frect(75, 80, 300, 120)
 
@@ -25,6 +25,7 @@ class LifepathChooser(object):
 
     def render(self):
         pbge.my_state.view()
+        self.cgen.render()
         pbge.default_border.render(self.title_zone.get_rect())
         pbge.default_border.render(self.charsheet_zone.get_rect())
         pbge.default_border.render(self.info_zone.get_rect())
@@ -43,6 +44,7 @@ class LifepathChooser(object):
 
     def choose_lifepath(self):
         self.info = lifepath.LifePathStatusPanel(model=self.cgen.pc,cgen=self.cgen,width=self.charsheet_zone.w,draw_border=False,padding=5)
+        self.cgen.active = False
 
         self.title = "Where is your character from?"
         choices = lifepath.STARTING_CHOICES
@@ -72,6 +74,7 @@ class LifepathChooser(object):
             else:
                 self.cancelled = True
 
+        self.cgen.active = True
         self.info = None
 
 class PortraitEditorW(pbge.widgets.Widget):

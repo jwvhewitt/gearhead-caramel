@@ -75,8 +75,19 @@ class StringVarEditorWidget(pbge.widgets.ColumnWidget):
     def _do_change(self, widj, ev):
         self.part.vars[self.var_name] = widj.text
 
+class TextVarEditorWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part, var_name, default_value, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() * 5 + 8,**kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+        self.add_interior(pbge.widgets.TextEditorWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() * 5 + 8,default_value,on_change=self._do_change,font=pbge.MEDIUMFONT))
 
-class VarEditorWidget(pbge.widgets.ColumnWidget):
+    def _do_change(self, widj, ev):
+        self.part.vars[self.var_name] = widj.text
+
+
+class VarEditorPanel(pbge.widgets.ColumnWidget):
     def __init__(self,mypart,editor,dx=10,dy=-200,w=350,h=450,**kwargs):
         super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
         up_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=0,off_frame=1)
@@ -94,8 +105,12 @@ class VarEditorWidget(pbge.widgets.ColumnWidget):
         self.scroll_column.clear()
         mybrick = self.editor.active_part.brick
         for k in mybrick.vars.keys():
+            if mybrick.vars[k].var_type == "text":
+                mywidget = TextVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+            else:
+                mywidget = StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
             self.scroll_column.add_interior(
-                StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+                mywidget
             )
 
 
@@ -118,7 +133,7 @@ class PlotCreator(pbge.widgets.Widget):
         mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=10,on_frame=10,off_frame=11,on_click=self._compile,tooltip="Compile Scenario"))
         mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=6,on_frame=6,off_frame=7,on_click=self._exit_editor,tooltip="Exit Editor"))
 
-        self.vars_widget = VarEditorWidget(mytree, self)
+        self.vars_widget = VarEditorPanel(mytree, self)
         self.children.append(self.vars_widget)
 
         self.finished = False

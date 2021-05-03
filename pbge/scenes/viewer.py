@@ -22,7 +22,7 @@ class TextTicker( object ):
     def __init__(self):
         self.text_images = list()
         self.counter = 0
-        self.height = my_state.anim_font.get_linesize() * 3
+        self.height = 20
         self.dy_off = 0
 
     def add(self, text, dy_off=0):
@@ -305,7 +305,7 @@ class SceneView( object ):
             pygame.image.save( my_state.screen, util.user_dir( "anim_{:0>3}.png".format(tick) ) )
             tick += 1
 
-        while self.anim_list:
+        while self.anim_list or self.tickers:
             should_delay = False
             self.anims.clear()
             for a in list(self.anim_list):
@@ -315,7 +315,7 @@ class SceneView( object ):
                 else:
                     should_delay = True
                     a.update(self)
-            if should_delay:
+            if should_delay or self.tickers:
                 self()
                 my_state.do_flip()
             if record_anim:

@@ -328,8 +328,34 @@ def wrapline(text, font, maxwidth):
         wrapped.append(stext.strip())                  
         text=text[nl:]
     return wrapped
- 
- 
+
+
+def wrapline(text, font, maxwidth):
+    done = 0
+    wrapped = []
+
+    while not done:
+        nl, done, stext = truncline(text, font, maxwidth)
+        wrapped.append(stext.strip())
+        text = text[nl:]
+    return wrapped
+
+def wrap_with_records(fulltext, font, maxwidth):
+    # Do a word wrap, but also return the length of each line including whitespace and newlines.
+    done = 0
+    wrapped = list()
+    line_lengths = list()
+
+    for text in fulltext.splitlines(True):
+        done = 0
+        while not done:
+            nl, done, stext = truncline(text, font, maxwidth)
+            wrapped.append(stext.strip())
+            line_lengths.append(nl)
+            text = text[nl:]
+    return wrapped, line_lengths
+
+
 def wrap_multi_line(text, font, maxwidth):
     """ returns text taking new lines into account.
     """
