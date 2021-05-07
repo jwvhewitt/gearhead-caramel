@@ -424,17 +424,33 @@ class TextEditorWidget( Widget ):
         self.justify = justify
         self.cursor_image = image.Image("sys_editcursor.png", 8, 16)
 
-        up_arrow = ButtonWidget(0,0,w-32,-8,sprite=image.Image("sys_updownbuttons_small.png",32,16),on_frame=0,off_frame=1)
-        down_arrow = ButtonWidget(0,0,w-32,h+8,sprite=image.Image("sys_updownbuttons_small.png",32,16),on_frame=2,off_frame=3)
+        up_arrow = ButtonWidget(w-32,-8,32,16,sprite=image.Image("sys_updownbuttons_small.png",32,16),on_frame=0,off_frame=1, parent=self)
+        down_arrow = ButtonWidget(w-32,h+8,32,16,sprite=image.Image("sys_updownbuttons_small.png",32,16),on_frame=2,off_frame=3, parent=self)
 
         self.children.append(up_arrow)
         self.children.append(down_arrow)
 
         self.on_change = on_change
-        self.cursor_pos = 0
-        self.carat_pos = None
+        # The current index of the cursor and carat:
+        self.cursor_i = 0
+        self.carat_i = None
         self.top_line = 0
         self.num_lines = (self.h - 12) // self.font.get_linesize()
+
+    def get_line_pos(self, index, lengths):
+        # Given the buffer index and lengths of each screen line (in characters), return the screen line
+        # and the screen index of this position.
+        line = 0
+        for l in lengths:
+            if index < l:
+                break
+            else:
+                index -= l
+                line += 1
+        return line, index
+
+    def get_buffer_index(self, dx, dy, lines):
+        pass
 
     def render( self ):
         mydest = self.get_rect()
@@ -443,7 +459,9 @@ class TextEditorWidget( Widget ):
         else:
             widget_border_off.render(mydest.inflate(-4,-4))
 
-        lines, lengths = wrap_with_records(self.text, self.font, self.w)
+        lines, lengths = wrap_with_records(self.text, self.font, self.w - 12)
+
+        cursor_line, cursor_pos = self.get_line_pos(self.cursor_i, lengths)
 
         if self.top_line + self.num_lines - 1 > len(lines):
             self.top_line = max(0, len(lines) - self.num_lines)
@@ -451,22 +469,47 @@ class TextEditorWidget( Widget ):
         textdest = mydest.inflate(-12,-12)
         my_state.screen.set_clip( textdest )
 
+        current_line = self.top_line
+        #print(cursor_countdown, cursor_line, cursor_pos)
         for l in lines[self.top_line:self.top_line + self.num_lines]:
             img = self.font.render(l, True, self.color )
             my_state.screen.blit(img, textdest)
+            if self is my_state.active_widget and current_line == cursor_line:
+                cdest = textdest.copy()
+                cdest.x += self.font.size(l[:cursor_pos])[0] - 4
+                self.cursor_image.render(cdest.topleft, (my_state.anim_phase // 5) % 4)
+            current_line += 1
             textdest.y += self.font.get_linesize()
 
         my_state.screen.set_clip( None )
+
+    def _insert(self, new_text):
+        for c in list(new_text):
+            self.char_list.insert(self.cursor_i, new_text)
+            self.cursor_i += 1
 
     def _builtin_responder(self,ev):
         if my_state.active_widget is self:
             if ev.type == pygame.KEYDOWN:
                 if (ev.key == pygame.K_BACKSPACE) and (len(self.char_list) > 0):
-                    del self.char_list[-1]
-                    if self.on_change:
-                        self.on_change(self,ev)
+                    if self.cursor_i > 0:
+                        del self.char_list[self.cursor_i - 1]
+                        self.cursor_i -= 1
+                        if self.on_change:
+                            self.on_change(self,ev)
+                elif (ev.key == pygame.K_DELETE) and (len(self.char_list) > 0):
+                    if self.cursor_i < len(self.char_list):
+                        del self.char_list[self.cursor_i]
+                        if self.on_change:
+                            self.on_change(self, ev)
+                elif ev.key == pygame.K_LEFT:
+                    if self.cursor_i > 0:
+                        self.cursor_i -= 1
+                elif ev.key == pygame.K_RIGHT:
+                    if self.cursor_i < len(self.char_list):
+                        self.cursor_i += 1
                 elif (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
-                    self.char_list.append(ev.unicode)
+                    self._insert(ev.unicode)
                     if self.on_change:
                         self.on_change(self,ev)
 

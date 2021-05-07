@@ -350,8 +350,9 @@ def wrap_with_records(fulltext, font, maxwidth):
         done = 0
         while not done:
             nl, done, stext = truncline(text, font, maxwidth)
-            wrapped.append(stext.strip())
-            line_lengths.append(nl)
+            wrapped.append(stext.lstrip())
+            #wrapped.append(stext)
+            line_lengths.append(nl + 1)
             text = text[nl:]
     return wrapped, line_lengths
 

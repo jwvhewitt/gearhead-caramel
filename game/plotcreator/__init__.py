@@ -1,4 +1,6 @@
 import glob
+
+import gears
 import pbge
 import json
 from . import pbclasses
@@ -87,6 +89,43 @@ class TextVarEditorWidget(pbge.widgets.ColumnWidget):
         self.part.vars[self.var_name] = widj.text
 
 
+class FactionEditorWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part: BluePrint, var_name, default_value, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8,**kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+        mymenu = pbge.widgets.DropdownWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() + 8,justify=0,font=pbge.MEDIUMFONT, on_select=self._do_change)
+        self.add_interior(mymenu)
+        for fac in gears.ALL_FACTIONS:
+            mymenu.add_item(fac.name, "gears.factions." + fac.__name__)
+        for k,fac in part.get_elements().items():
+            if fac.e_type == "faction":
+                mymenu.add_item(fac.name, "self.elements[{}]".format(k))
+        mymenu.menu.sort()
+        mymenu.add_item("==None==", None)
+        mymenu.menu.set_item_by_value(part.vars.get(var_name,None))
+
+    def _do_change(self, result):
+        self.part.vars[self.var_name] = result
+
+
+class BoolEditorWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part, var_name, default_value, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8,**kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+        mymenu = pbge.widgets.DropdownWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() + 8,justify=0,font=pbge.MEDIUMFONT, on_select=self._do_change)
+        self.add_interior(mymenu)
+        mymenu.add_item("True", True)
+        mymenu.add_item("False", False)
+        mymenu.menu.set_item_by_value(part.vars.get(var_name,True))
+
+    def _do_change(self, result):
+        self.part.vars[self.var_name] = result
+
+
 class VarEditorPanel(pbge.widgets.ColumnWidget):
     def __init__(self,mypart,editor,dx=10,dy=-200,w=350,h=450,**kwargs):
         super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
@@ -107,6 +146,10 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
         for k in mybrick.vars.keys():
             if mybrick.vars[k].var_type == "text":
                 mywidget = TextVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+            elif mybrick.vars[k].var_type == "faction":
+                mywidget = FactionEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+            elif mybrick.vars[k].var_type == "boolean":
+                mywidget = BoolEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
             else:
                 mywidget = StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
             self.scroll_column.add_interior(
@@ -130,6 +173,7 @@ class PlotCreator(pbge.widgets.Widget):
         mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=2,on_frame=2,off_frame=3,on_click=self._add_feature,tooltip="Add Feature"))
         self.remove_gear_button = pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=4,on_frame=4,off_frame=5,on_click=self._remove_feature,tooltip="Remove Feature", show_when_inactive=True)
         mybuttonrow.add_left(self.remove_gear_button)
+        mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=8,on_frame=8,off_frame=9,on_click=self._save,tooltip="Save Scenario"))
         mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=10,on_frame=10,off_frame=11,on_click=self._compile,tooltip="Compile Scenario"))
         mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=6,on_frame=6,off_frame=7,on_click=self._exit_editor,tooltip="Exit Editor"))
 
@@ -162,13 +206,18 @@ class PlotCreator(pbge.widgets.Widget):
     def _exit_editor(self,widj,ev):
         self.finished = True
 
+    def _save(self, widj, ev):
+        fname = "PLOTCREATOR_{}.json".format(self.mytree.vars["uname"])
+        with open(pbge.util.user_dir("content",fname), 'wt') as fp:
+            json.dump(self.mytree.get_save_dict(), fp, indent='\t')
+
     def _compile(self, widj, ev):
         myprog = self.mytree.compile()
         fname = "ADV_{}.py".format(self.mytree.vars["uname"])
         with open(pbge.util.user_dir("content",fname), 'wt') as fp:
             for l in myprog["main"]:
                 fp.write(l+'\n')
-        pbge.alert("{} has been written to your content folder. You will need to restart GearHead to load the scenario.".format(fname))
+        pbge.BasicNotification("{} has been written. Restart GearHead to load the scenario.".format(fname))
 
     def click_part(self,widj,ev):
         if widj.data:
@@ -183,9 +232,8 @@ class PlotCreator(pbge.widgets.Widget):
         self.vars_widget.refresh_var_widgets()
 
     @classmethod
-    def create_and_invoke(cls, redraw):
+    def create_and_invoke(cls, redraw, mytree):
         # Create the UI. Run the UI. Clean up after you leave.
-        mytree = BluePrint(BRICKS_BY_NAME["Scenario"])
         myui = cls(mytree)
         pbge.my_state.widgets.append(myui)
         pbge.my_state.view = redraw
@@ -200,6 +248,25 @@ class PlotCreator(pbge.widgets.Widget):
                     keepgoing = False
 
         pbge.my_state.widgets.remove(myui)
+
+
+def start_plot_creator(redraw):
+    mainmenu = pbge.rpgmenu.Menu(-150, 0, 300, 226, predraw=redraw, font=pbge.BIGFONT)
+    mainmenu.add_item("+Create New Scenario", "CNS")
+    myfiles = glob.glob(pbge.util.user_dir( "content", "PLOTCREATOR_*.json"))
+    for f in myfiles:
+        mainmenu.add_item(f, f)
+
+    fname = mainmenu.query()
+    if fname == "CNS":
+        mytree = BluePrint(BRICKS_BY_NAME["Scenario"])
+        PlotCreator.create_and_invoke(redraw, mytree)
+    elif fname:
+        with open(fname, 'rt') as fp:
+            mydict = json.load(fp)
+            if mydict:
+                mytree = BluePrint.load_save_dict(mydict)
+                PlotCreator.create_and_invoke(redraw, mytree)
 
 
 def init_plotcreator():

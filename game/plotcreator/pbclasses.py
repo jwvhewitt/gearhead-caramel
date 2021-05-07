@@ -10,8 +10,15 @@ class VariableDefinition(object):
         self.data = kwargs.copy()
 
 
+class ElementDefinition(object):
+    def __init__(self, name, e_type="misc", **kwargs):
+        self.name = name
+        self.e_type = e_type
+        self.etc = kwargs
+
+
 class PlotBrick(object):
-    def __init__(self, name="", desc="", scripts=None, vars=None, child_types=(), **kwargs):
+    def __init__(self, name="", desc="", scripts=None, vars=None, child_types=(), elements=None, is_new_branch=False, **kwargs):
         self.name = name
         self.desc = desc
         self.scripts = dict()
@@ -22,7 +29,13 @@ class PlotBrick(object):
             for k, v in vars.items():
                 self.vars[k] = VariableDefinition(**v)
         self.child_types = list(child_types)
+        self.elements = dict()
+        if elements:
+            for k,v in elements.items():
+                self.elements[k] = ElementDefinition(**v)
+        self.is_new_branch = is_new_branch
         self.data = kwargs.copy()
+
 
     def get_default_vars(self):
         myvars = dict()
@@ -39,6 +52,30 @@ class BluePrint(object):
         self.vars = brick.get_default_vars()
         self._uid = 0
 
+    def get_save_dict(self):
+        mydict = dict()
+        mydict["brick"] = self._brick_name
+        mydict["uid"] = self._uid
+        mydict["vars"] = self.vars
+        mydict["children"] = list()
+        if hasattr(self, "max_uid"):
+            mydict["max_uid"] = self.max_uid
+        for c in self.children:
+            mydict["children"].append(c.get_save_dict())
+        return mydict
+
+    @classmethod
+    def load_save_dict(cls, jdict: dict):
+        mybrick = BRICKS_BY_NAME[jdict["brick"]]
+        mybp = cls(mybrick)
+        mybp._uid = jdict["uid"]
+        mybp.vars.update(jdict["vars"])
+        if "max_uid" in jdict:
+            mybp.max_uid = jdict["max_uid"]
+        for cdict in jdict["children"]:
+            mybp.children.append(cls.load_save_dict(cdict))
+        return mybp
+
     def get_section(self, section_name, my_scripts, child_scripts, prefix, touched_scripts, done_scripts, used_scripts):
         if section_name in touched_scripts:
             if section_name in done_scripts:
@@ -54,7 +91,6 @@ class BluePrint(object):
             if script_line:
                 n = script_line.find("#:")
                 if n >= 0:
-                    print("Adding section..." + script_line)
                     new_prefix = prefix + " " * n
                     new_section_name = script_line[n+2:].strip()
                     insert_lines = self.get_section(new_section_name, my_scripts, child_scripts, new_prefix, touched_scripts, done_scripts, used_scripts)
@@ -67,6 +103,17 @@ class BluePrint(object):
             done_scripts[section_name].append(prefix + script_line)
 
         return done_scripts[section_name]
+
+    def get_ultra_vars(self):
+        # Return all variables readable by this blueprint, including the _uid.
+        vars = dict()
+        my_ancestors = list(self.ancestors())
+        my_ancestors.reverse()
+        for a in my_ancestors:
+            vars.update(a.vars)
+        vars.update(self.vars)
+        vars["_uid"] = self.uid
+        return vars
 
     def compile(self, inherited_vars=None):
         # Return a dict of Python scripts to be added to the output file.
@@ -130,6 +177,23 @@ class BluePrint(object):
         else:
             return self
 
+    def ancestors(self):
+        if hasattr(self, "container") and self.container:
+            yield self.container.owner
+            for p in self.container.owner.ancestors():
+                yield p
+
+    def predecessors(self):
+        if hasattr(self, "container") and self.container:
+            yield self.container.owner
+            for p in self.container.owner.children:
+                if p is self:
+                    break
+                elif not p.brick.is_new_branch:
+                    yield p
+            for p in self.container.owner.predecessors():
+                yield p
+
     def _get_uid(self):
         if self._uid != 0:
             return self._uid
@@ -143,6 +207,24 @@ class BluePrint(object):
             return self._uid
 
     uid = property(_get_uid)
+
+    def get_elements(self):
+        # Return a dict of elements accessible from this block.
+        # key = element_ID
+        # value = ElementDefinition
+        elements = dict()
+        my_ancestors = list(self.predecessors())
+        my_ancestors.reverse()
+        for a in my_ancestors:
+            avars = a.get_ultra_vars()
+            for k,v in a.brick.elements.items():
+                elements[k.format(**avars)] = ElementDefinition(v.name.format(**avars), e_type=v.e_type)
+
+        avars = self.get_ultra_vars()
+        for k,v in self.brick.elements.items():
+            elements[k.format(**avars)] = ElementDefinition(v.name.format(**avars), e_type=v.e_type)
+
+        return elements
 
 
 ALL_BRICKS = list()
