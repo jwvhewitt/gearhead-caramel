@@ -1,0 +1,29 @@
+[
+    {
+    "name": "Add Dialogue Offer",
+    "desc": "Adds something for the NPC to say during a conversation.",
+    "label": "NPC_FEATURE",
+    "vars": {
+      "context": {"default_val": "context.HELLO", "var_type": "dialogue_context"},
+      "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
+      "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "subject": {"default_val": "", "var_type": "string"},
+      "subject_start": {"default_val":  true, "var_type":  "boolean"}
+    },
+    "scripts": {
+      "npc_offers": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data}\n    #: dialogue_effect\n))"
+    },
+    "child_types": ["DIALOGUE_EFFECT"]
+    },
+    {
+    "name": "Add Dialogue Effect",
+    "desc": "Adds an effect to a dialogue line. Note that dialogue effects are executed after the dialogue offer is made, not before.",
+    "label": "DIALOGUE_EFFECT",
+    "scripts": {
+      "dialogue_effect": "effect = self._{uname}{_uid}_effect,",
+      "npc_methods": "def _{uname}{_uid}_effect(self, camp):\n    pass\n    #: effect"
+    },
+    "child_types": ["EFFECT"]
+    }
+
+]

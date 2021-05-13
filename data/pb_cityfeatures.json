@@ -5,16 +5,19 @@
     "label": "CITY_FEATURE",
     "is_new_branch": true,
     "vars": {
-      "townhall_name": {"default_val": "Town Hall", "var_type": "string"}
+      "townhall_name": {"default_val": "Town Hall", "var_type": "string"},
+      "npc_name": {"default_val": "Sam", "var_type": "string"}
     },
     "scripts": {
       "city_subplots": "self.add_sub_plot(nart, \"TOWNHALL_{uname}_{_uid}\")",
-      "main": "class {scriptname}_{_uid}_Townhall( Plot ):\n    LABEL=\"TOWNHALL_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: building_subplots\n        #: scene_subplots\n        return True\n    def TOWNHALL_{_uid}_ENTER(self, camp):\n        pass\n        #: building_enter\n        #: scene_enter",
-      "building_init": "# Create a building.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(50, 50, \"{city_name}\", player_team=team1, civilian_team=team2,scale=gears.scale.HumanScale, is_metro=True, faction={city_faction}, attributes=(gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC), exploration_music='airtone_-_reCreation.ogg')\n\n# Create a scene generator\nmyscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleGreenzone(), road_terrain=game.content.ghterrain.Flagstone)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"METROSCENE\")\nself.register_element(\"METRO\", myscene.metrodat)\n\n# Create the entry/exit point.\nmyroom = self.register_element(\"_ENTRY_ROOM\", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.south), dident=\"METROSCENE\")\nmygate = self.register_element(\"MISSION_GATE\", Exit(name=\"{entrance_name}\", desc=\"{entrance_desc}\",anchor=pbge.randmaps.anchors.middle,plot_locked=True), dident=\"_ENTRY_ROOM\")\nself.elements[\"LOCALE\"] = myscene\nself.elements[\"ENTRANCE\"] = mygate\n#:scene_init\n"
+      "main": "class {scriptname}_{_uid}_Townhall( Plot ):\n    LABEL=\"TOWNHALL_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def TOWNHALL_{_uid}_ENTER(self, camp):\n        pass\n        #: building_enter\n        #: scene_enter\n    def MAYOR_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods",
+      "building_init": "# Create a building within the town.\n# First move the parent plot's LOCALE to CITY\nself.elements[\"CITY\"] = self.elements.get(\"LOCALE\")\nbuilding = self.register_element(\"_EXTERIOR\", ghterrain.ResidentialBuilding(waypoints=dict(DOOR = ghwaypoints.ScrapIronDoor(name=\"{townhall_name}\")), tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident=\"CITY\")\n\n# Add the interior scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\",faction=self.elements[\"METROSCENE\"].faction)\nintscene = gears.GearHeadScene(35, 35, \"{townhall_name}\", player_team=team1, civilian_team=team2, attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT), scale=gears.scale.HumanScale)\nintscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())\nself.register_scene(nart, intscene, intscenegen, ident=\"TOWNHALL_{_uid}\", dident=\"CITY\")\nfoyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,), dident=\"TOWNHALL_{_uid}\")\n\nmycon2 = plotutility.TownBuildingConnection(nart, self, self.elements[\"CITY\"], intscene, room1=building, room2=foyer, door1=building.waypoints[\"DOOR\"], move_door1=False)\nself.elements[\"LOCALE\"] = intscene\nself.elements[\"ENTRANCE\"] = mycon2.door2\n#:scene_init\n",
+      "npc_init": "npc = self.register_element(\"MAYOR_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", local_tags=self.elements[\"CITY\"].attributes, job=gears.jobs.ALL_JOBS[\"Mayor\"], faction = self.elements[\"CITY\"].faction))\nnpc.place(intscene, team=intscene.civilian_team)\nself.elements[\"NPC\"] = npc"
     },
-    "child_types": ["SCENE_FEATURE"],
+    "child_types": ["SCENE_FEATURE", "NPC_FEATURE"],
     "elements": {
-      "TOWNHALL_{_uid}": {"e_type": "scene", "name": "{townhall_name}"}
+      "TOWNHALL_{_uid}": {"e_type": "scene", "name": "{townhall_name}"},
+      "MAYOR_{_uid}": {"e_type": "npc", "name": "{npc_name}"}
     }
   }
 ]

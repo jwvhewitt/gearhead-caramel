@@ -233,7 +233,7 @@ class DemocraticOrder(Plot):
                                         job=gears.jobs.ALL_JOBS["Mayor"],
                                         faction = self.elements["METRO_FACTION"]
                                     ))
-        npc.place(intscene, team=team2)
+        npc.place(intscene, team=intscene.civilian_team)
 
         self.town_origin_ready = True
 

@@ -1,5 +1,5 @@
 from . import frects
-from . import my_state,render_text,draw_text,TEXT_COLOR,Border,default_border,wait_event, wrap_with_records
+from . import my_state,render_text,draw_text,TEXT_COLOR,Border,default_border,wait_event, wrap_with_records, wrap_multi_line
 import pygame
 from . import image
 from . import rpgmenu
@@ -87,6 +87,8 @@ class LabelWidget( Widget ):
         self.text = text
         self.color = color or TEXT_COLOR
         self.font = font or my_state.small_font
+        if h == 0:
+            self.h = len(wrap_multi_line(text, self.font, self.w)) * self.font.get_linesize()
         self.justify = justify
         self.draw_border = draw_border
         self.border = border
@@ -376,6 +378,7 @@ class RowWidget(Widget):
             self.border.render(self.get_rect())
 
 class DropdownWidget( Widget ):
+    MENU_HEIGHT = 150
     def __init__( self, dx, dy, w, h, color=None, font=None, justify=-1, on_select=None, **kwargs ):
         # on_select is a callable that takes the menu query result as its argument
         super(DropdownWidget, self).__init__(dx,dy,w,h,**kwargs)
@@ -383,7 +386,7 @@ class DropdownWidget( Widget ):
         self.font = font or my_state.small_font
         self.on_select = on_select
         self.on_click = self.open_menu
-        self.menu = rpgmenu.Menu(dx,dy,w,150,border=popup_menu_border,font=font,anchor=frects.ANCHOR_UPPERLEFT)
+        self.menu = rpgmenu.Menu(dx,dy,w,self.MENU_HEIGHT,border=popup_menu_border,font=font,anchor=frects.ANCHOR_UPPERLEFT)
     def render( self ):
         mydest = self.get_rect()
         if self is my_state.active_widget:

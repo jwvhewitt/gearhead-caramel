@@ -58,7 +58,7 @@ class MenuItem( object ):
 
 class DescBox( Frect ):
     # The DescBox inherits from Frect, since that's basically what it is.
-    def __init__(self,menu,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,border=default_border,justify=-1,font=None,color=None):
+    def __init__(self,menu,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,border=default_border,justify=-1,font=None,color=None, **kwargs):
         self.menu = menu
         self.border = border
         self.justify = justify
@@ -66,7 +66,7 @@ class DescBox( Frect ):
             anchor = menu.anchor
         self.font = font or my_state.small_font
         self.color = color or INFO_GREEN
-        super(DescBox, self).__init__(dx,dy,w,h,anchor)
+        super(DescBox, self).__init__(dx,dy,w,h,anchor, **kwargs)
 
     def __call__(self,menu_item):
         mydest = self.get_rect()
@@ -109,8 +109,8 @@ class Menu( Frect ):
         item = self.item_class( msg , value , desc, self )
         self.items.append( item )
 
-    def add_descbox(self,x,y,w=30,h=10,justify=-1,font=None):
-        self.descobj = DescBox( self, x , y , w , h, border=self.border, justify=justify, font=font or self.font )
+    def add_descbox(self,x,y,w=30,h=10,justify=-1,font=None, **kwargs):
+        self.descobj = DescBox( self, x , y , w , h, border=self.border, justify=justify, font=font or self.font, **kwargs)
 
     def arrange(self):
         # Set the position of all on-screen menu items.

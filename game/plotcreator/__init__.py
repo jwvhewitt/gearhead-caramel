@@ -3,9 +3,10 @@ import glob
 import gears
 import pbge
 import json
-from . import pbclasses
+from . import pbclasses, statefinders
 from .pbclasses import ALL_BRICKS, BRICKS_BY_LABEL, BRICKS_BY_NAME, PlotBrick, BluePrint
 import pygame
+
 
 
 class PartsNodeWidget(pbge.widgets.Widget):
@@ -72,7 +73,7 @@ class StringVarEditorWidget(pbge.widgets.ColumnWidget):
         self.part = part
         self.var_name = var_name
         self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
-        self.add_interior(pbge.widgets.TextEntryWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() + 8,default_value,on_change=self._do_change,font=pbge.MEDIUMFONT))
+        self.add_interior(pbge.widgets.TextEntryWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() + 8,str(default_value),on_change=self._do_change,font=pbge.MEDIUMFONT))
 
     def _do_change(self, widj, ev):
         self.part.vars[self.var_name] = widj.text
@@ -89,25 +90,36 @@ class TextVarEditorWidget(pbge.widgets.ColumnWidget):
         self.part.vars[self.var_name] = widj.text
 
 
-class FactionEditorWidget(pbge.widgets.ColumnWidget):
-    def __init__(self, part: BluePrint, var_name, default_value, **kwargs):
+class FiniteStateEditorWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part: BluePrint, var_name, desc_fun=None, refresh_fun=None, **kwargs):
+        # desc_fun, if it exists, is a function that takes value and returns a description
         super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8,**kwargs)
         self.part = part
         self.var_name = var_name
         self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+
+        my_states = statefinders.get_possible_states(part, part.brick.vars[var_name].var_type)
         mymenu = pbge.widgets.DropdownWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() + 8,justify=0,font=pbge.MEDIUMFONT, on_select=self._do_change)
         self.add_interior(mymenu)
-        for fac in gears.ALL_FACTIONS:
-            mymenu.add_item(fac.name, "gears.factions." + fac.__name__)
-        for k,fac in part.get_elements().items():
-            if fac.e_type == "faction":
-                mymenu.add_item(fac.name, "self.elements[{}]".format(k))
+
+        self.refresh_fun = refresh_fun
+
+        if desc_fun:
+            mymenu.menu.add_descbox(-325, 0, 300, mymenu.MENU_HEIGHT, anchor=pbge.frects.ANCHOR_UPPERLEFT, parent=mymenu.menu)
+            for name,value in my_states:
+                mymenu.add_item(name, value, desc_fun(value))
+
+        else:
+            for name,value in my_states:
+                mymenu.add_item(name, value)
+
         mymenu.menu.sort()
-        mymenu.add_item("==None==", None)
         mymenu.menu.set_item_by_value(part.vars.get(var_name,None))
 
     def _do_change(self, result):
         self.part.vars[self.var_name] = result
+        if self.refresh_fun:
+            self.refresh_fun()
 
 
 class BoolEditorWidget(pbge.widgets.ColumnWidget):
@@ -126,12 +138,77 @@ class BoolEditorWidget(pbge.widgets.ColumnWidget):
         self.part.vars[self.var_name] = result
 
 
+class DialogueContextWidget(FiniteStateEditorWidget):
+    def __init__(self, part: BluePrint, var_name, desc_fun=None, refresh_fun=None, **kwargs):
+        super().__init__(part, var_name, desc_fun, refresh_fun, **kwargs)
+        myinfo = statefinders.CONTEXT_INFO.get(part.vars.get(var_name, None), None)
+        if myinfo:
+            self.add_interior(pbge.widgets.LabelWidget(
+                0,0,self.w,0, myinfo.desc,
+                font=pbge.SMALLFONT, justify=0, color=pbge.INFO_GREEN
+            ))
+        self.add_interior(pbge.widgets.LabelWidget(
+            0,0,self.w,0, self.get_comes_from_and_goes_to(part.vars.get(var_name, None)),
+            font=pbge.SMALLFONT, justify=0, color=pbge.INFO_GREEN
+        ))
+
+    def get_comes_from_and_goes_to(self, mycontext):
+        cf = set()
+        gt = set()
+        if mycontext:
+            for rep in pbge.dialogue.STANDARD_REPLIES:
+                if rep.context[0] == mycontext:
+                    gt.add(rep.destination.context[0])
+                if rep.destination.context[0] == mycontext:
+                    cf.add(rep.context[0])
+        if cf:
+            cfs = ', '.join(cf)
+        else:
+            cfs = "None"
+        if gt:
+            gts = ', '.join(gt)
+        else:
+            gts = "None"
+        return "Comes From: {}\nGoes To: {}".format(cfs,gts)
+
+
+class DataDictItemEditorWidget(pbge.widgets.RowWidget):
+    def __init__(self, part, mydict, mykey, **kwargs):
+        super().__init__(0,0,350,pbge.MEDIUMFONT.get_linesize() * 3 + 8,**kwargs)
+        self.part = part
+        self.mydict = mydict
+        self.mykey = mykey
+        self.add_left(pbge.widgets.LabelWidget(0,0,90,self.h,mykey,font=pbge.SMALLFONT, justify=1, color=pbge.INFO_GREEN))
+        self.add_right(pbge.widgets.TextEditorWidget(0,0,250,pbge.MEDIUMFONT.get_linesize() * 3 + 8, str(mydict.get(mykey,"")),on_change=self._do_change,font=pbge.MEDIUMFONT))
+
+    def _do_change(self, widj, ev):
+        self.mydict[self.mykey] = widj.text
+
+
+class DialogueOfferDataWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part, var_name, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8,**kwargs)
+
+        self.var_name = var_name
+        self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+        mycontext = part.vars.get("context", None)
+        if mycontext:
+            myinfo = statefinders.CONTEXT_INFO.get(mycontext, None)
+            if myinfo:
+                for d in myinfo.needed_data:
+                    self.add_interior(DataDictItemEditorWidget(part, part.vars[var_name], d))
+
+        if len(self.children) < 2:
+            self.add_interior(
+                pbge.widgets.LabelWidget(0, 0, self.w, pbge.SMALLFONT.get_linesize(), "No Data", justify=0, color=pbge.INFO_GREEN, font=pbge.SMALLFONT))
+
+
 class VarEditorPanel(pbge.widgets.ColumnWidget):
     def __init__(self,mypart,editor,dx=10,dy=-200,w=350,h=450,**kwargs):
         super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
         up_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=0,off_frame=1)
         down_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=2,off_frame=3)
-        self.scroll_column = pbge.widgets.ScrollColumnWidget(0,0,w,h-50,up_arrow,down_arrow,padding=0)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(0,0,w,h-50,up_arrow,down_arrow,padding=10)
         self.add_interior(up_arrow)
         self.add_interior(self.scroll_column)
         self.add_interior(down_arrow)
@@ -147,9 +224,13 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
             if mybrick.vars[k].var_type == "text":
                 mywidget = TextVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
             elif mybrick.vars[k].var_type == "faction":
-                mywidget = FactionEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+                mywidget = FiniteStateEditorWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type == "boolean":
                 mywidget = BoolEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+            elif mybrick.vars[k].var_type == "dialogue_context":
+                mywidget = DialogueContextWidget(self.editor.active_part, k, lambda v: statefinders.CONTEXT_INFO[v].desc, refresh_fun=self.refresh_var_widgets)
+            elif mybrick.vars[k].var_type == "dialogue_data":
+                mywidget = DialogueOfferDataWidget(self.editor.active_part, k)
             else:
                 mywidget = StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
             self.scroll_column.add_interior(

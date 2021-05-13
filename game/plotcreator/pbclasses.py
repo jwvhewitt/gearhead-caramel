@@ -1,11 +1,15 @@
 import collections
-
+import copy
 import pbge.container
 
 
 class VariableDefinition(object):
     def __init__(self, default_val=0, var_type="integer", **kwargs):
-        self.default_val = default_val
+        if isinstance(default_val, dict):
+            self.default_val = dict()
+            self.default_val.update(default_val)
+        else:
+            self.default_val = default_val
         self.var_type = var_type
         self.data = kwargs.copy()
 
@@ -36,12 +40,12 @@ class PlotBrick(object):
         self.is_new_branch = is_new_branch
         self.data = kwargs.copy()
 
-
     def get_default_vars(self):
         myvars = dict()
         for k,v in self.vars.items():
-            myvars[k] = v.default_val
+            myvars[k] = copy.copy(v.default_val)
         return myvars
+
 
 class BluePrint(object):
     def __init__(self, brick: PlotBrick):
@@ -136,6 +140,7 @@ class BluePrint(object):
         # Step two: collect the default scripts from the brick.
         myscripts = self.brick.scripts.copy()
         for k,v in myscripts.items():
+            print(v)
             myscripts[k] = v.format(**ultravars)
 
         touchedscripts = set()

@@ -1,0 +1,11 @@
+[
+  {
+    "label": "EFFECT",
+    "needed_sections": ["effect"]
+  },
+    {
+    "label": "SCENE_FEATURE",
+    "needed_sections": ["effect"]
+  }
+
+]
