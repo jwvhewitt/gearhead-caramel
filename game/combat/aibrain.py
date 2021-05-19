@@ -163,7 +163,7 @@ class BasicAI( object ):
         return max(points,1)
 
     def _desirability( self, pos ):
-        # Fill out all the self.* vars before calling this function.
+        # Fill out all the self.* raw_vars before calling this function.
         return self.calc_tile_desirability(self.camp,pos,
             self.minr,self.midr,self.maxr,self.target,self.enemies)
 

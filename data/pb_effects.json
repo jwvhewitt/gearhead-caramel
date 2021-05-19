@@ -1,0 +1,46 @@
+[
+      {
+    "name": "Alert Message",
+    "label": "EFFECT",
+    "vars": {
+      "message": {
+        "default_val": "Blah bla blah.",
+        "var_type": "text"
+      }
+    },
+    "scripts": {
+      "effect": "pbge.alert('''{message}''')"
+    }
+  },
+    {
+    "name": "Give XP to the Lance",
+    "label": "EFFECT",
+    "vars": {
+      "amount": {
+        "default_val": "100",
+        "var_type": "integer"
+      }
+    },
+    "scripts": {
+      "effect": "camp.dole_xp({amount})"
+    }
+  },
+    {
+    "name": "Set Campaign Variable",
+    "label": "EFFECT",
+    "vars": {
+      "var_name": {
+        "var_type": "campaign_variable",
+        "default_val": "x"
+      },
+      "value": {
+        "default_val": 0,
+        "var_type": "integer"
+      }
+    },
+    "scripts": {
+      "effect": "camp.campdata[\"{var_name}\"] = {value}"
+    }
+  }
+
+]

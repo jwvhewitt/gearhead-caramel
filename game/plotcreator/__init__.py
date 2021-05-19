@@ -76,7 +76,8 @@ class StringVarEditorWidget(pbge.widgets.ColumnWidget):
         self.add_interior(pbge.widgets.TextEntryWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() + 8,str(default_value),on_change=self._do_change,font=pbge.MEDIUMFONT))
 
     def _do_change(self, widj, ev):
-        self.part.vars[self.var_name] = widj.text
+        self.part.raw_vars[self.var_name] = widj.text
+
 
 class TextVarEditorWidget(pbge.widgets.ColumnWidget):
     def __init__(self, part, var_name, default_value, **kwargs):
@@ -87,7 +88,7 @@ class TextVarEditorWidget(pbge.widgets.ColumnWidget):
         self.add_interior(pbge.widgets.TextEditorWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() * 5 + 8,default_value,on_change=self._do_change,font=pbge.MEDIUMFONT))
 
     def _do_change(self, widj, ev):
-        self.part.vars[self.var_name] = widj.text
+        self.part.raw_vars[self.var_name] = widj.text
 
 
 class FiniteStateEditorWidget(pbge.widgets.ColumnWidget):
@@ -114,10 +115,10 @@ class FiniteStateEditorWidget(pbge.widgets.ColumnWidget):
                 mymenu.add_item(name, value)
 
         mymenu.menu.sort()
-        mymenu.menu.set_item_by_value(part.vars.get(var_name,None))
+        mymenu.menu.set_item_by_value(part.raw_vars.get(var_name, None))
 
     def _do_change(self, result):
-        self.part.vars[self.var_name] = result
+        self.part.raw_vars[self.var_name] = result
         if self.refresh_fun:
             self.refresh_fun()
 
@@ -132,23 +133,23 @@ class BoolEditorWidget(pbge.widgets.ColumnWidget):
         self.add_interior(mymenu)
         mymenu.add_item("True", True)
         mymenu.add_item("False", False)
-        mymenu.menu.set_item_by_value(part.vars.get(var_name,True))
+        mymenu.menu.set_item_by_value(part.raw_vars.get(var_name, True))
 
     def _do_change(self, result):
-        self.part.vars[self.var_name] = result
+        self.part.raw_vars[self.var_name] = result
 
 
 class DialogueContextWidget(FiniteStateEditorWidget):
     def __init__(self, part: BluePrint, var_name, desc_fun=None, refresh_fun=None, **kwargs):
         super().__init__(part, var_name, desc_fun, refresh_fun, **kwargs)
-        myinfo = statefinders.CONTEXT_INFO.get(part.vars.get(var_name, None), None)
+        myinfo = statefinders.CONTEXT_INFO.get(part.raw_vars.get(var_name, None), None)
         if myinfo:
             self.add_interior(pbge.widgets.LabelWidget(
                 0,0,self.w,0, myinfo.desc,
                 font=pbge.SMALLFONT, justify=0, color=pbge.INFO_GREEN
             ))
         self.add_interior(pbge.widgets.LabelWidget(
-            0,0,self.w,0, self.get_comes_from_and_goes_to(part.vars.get(var_name, None)),
+            0,0,self.w,0, self.get_comes_from_and_goes_to(part.raw_vars.get(var_name, None)),
             font=pbge.SMALLFONT, justify=0, color=pbge.INFO_GREEN
         ))
 
@@ -191,16 +192,124 @@ class DialogueOfferDataWidget(pbge.widgets.ColumnWidget):
 
         self.var_name = var_name
         self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
-        mycontext = part.vars.get("context", None)
+        mycontext = part.raw_vars.get("context", None)
         if mycontext:
             myinfo = statefinders.CONTEXT_INFO.get(mycontext, None)
             if myinfo:
                 for d in myinfo.needed_data:
-                    self.add_interior(DataDictItemEditorWidget(part, part.vars[var_name], d))
+                    self.add_interior(DataDictItemEditorWidget(part, part.raw_vars[var_name], d))
 
         if len(self.children) < 2:
             self.add_interior(
                 pbge.widgets.LabelWidget(0, 0, self.w, pbge.SMALLFONT.get_linesize(), "No Data", justify=0, color=pbge.INFO_GREEN, font=pbge.SMALLFONT))
+
+
+class ConditionalValueEditor(pbge.widgets.RowWidget):
+    def __init__(self, part, val_list, refresh_fun, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + 8,**kwargs)
+        var_type = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_type)
+        for vt in pbclasses.CONDITIONAL_VALUE_TYPES:
+            var_type.add_item(vt.capitalize(), vt)
+        var_type.menu.set_item_by_value(val_list[0])
+        val_list[0] = var_type.value
+        self.add_left(var_type)
+
+        self.val_list = val_list
+        self.refresh_fun = refresh_fun
+
+        if val_list[0] == pbclasses.CONDITIONAL_VALUE_TYPES[0]:
+            # This is an integer.
+            value_entry = pbge.widgets.TextEntryWidget(0,0,150,self.h, str(val_list[1]),font=pbge.SMALLFONT,justify=0, on_change=self.set_text)
+            self.add_left(value_entry)
+        elif val_list[0] == pbclasses.CONDITIONAL_VALUE_TYPES[1]:
+            # This is a campaign variable.
+            name_entry = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
+            for cvn in part.get_campaign_variable_names():
+                name_entry.add_item(cvn, cvn)
+            name_entry.add_item('None', None)
+            name_entry.menu.set_item_by_value(val_list[1])
+            self.add_left(name_entry)
+
+    def set_type(self, result):
+        if self.val_list[0] != result:
+            self.val_list[0] = result
+            if result == pbclasses.CONDITIONAL_VALUE_TYPES[0]:
+                self.val_list[1] = 0
+            elif result == pbclasses.CONDITIONAL_VALUE_TYPES[1]:
+                self.val_list[1] = None
+            self.refresh_fun()
+
+    def set_value(self, result):
+        self.val_list[1] = result
+
+    def set_text(self, wid, ev):
+        self.val_list[1] = wid.text
+
+class ConditionalOperatorEditor(pbge.widgets.DropdownWidget):
+    def __init__(self, part, var_name, var_index, **kwargs):
+        super().__init__(0, 0, 350, pbge.SMALLFONT.get_linesize() + 8, font=pbge.SMALLFONT, justify=0, **kwargs)
+        for op in pbclasses.CONDITIONAL_EXPRESSION_OPS:
+            self.add_item(op.capitalize(), op)
+        self.menu.set_item_by_value(part.raw_vars[var_name][var_index][0])
+
+
+class ConditionalExpressionEditor(pbge.widgets.ColumnWidget):
+    def __init__(self, part, var_name, var_index, refresh_fun, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + 8, **kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.var_index = var_index
+        elist = self.part.raw_vars[var_name][var_index]
+        if elist[0] in pbclasses.CONDITIONAL_EXPRESSION_OPS:
+            self.add_interior(ConditionalValueEditor(part, elist[1], refresh_fun))
+            self.add_interior(ConditionalOperatorEditor(part, var_name, var_index))
+            self.add_interior(ConditionalValueEditor(part, elist[2], refresh_fun))
+
+
+class BooleanOperatorEditor(pbge.widgets.DropdownWidget):
+    def __init__(self, part, var_name, var_index, refresh_fun, **kwargs):
+        super().__init__(0, 0, 350, pbge.SMALLFONT.get_linesize() + 8, font=pbge.SMALLFONT, justify=0, on_select=self._select_operator, **kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.var_index = var_index
+        self.refresh_fun = refresh_fun
+        for op in pbclasses.CONDITIONAL_BOOL_OPS:
+            self.add_item(op.capitalize(), op)
+        self.menu.set_item_by_value(part.raw_vars[var_name][var_index])
+
+    def _select_operator(self, result):
+        self.part.raw_vars[self.var_name][self.var_index] = result
+        #self.refresh_fun()
+
+
+class ConditionalEditorWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part, var_name, refresh_fun, **kwargs):
+        my_conditions = part.raw_vars.get(var_name, list())
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8,**kwargs)
+        self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+        self.part = part
+        self.var_name = var_name
+        self.refresh_fun = refresh_fun
+
+        for t, item in enumerate(my_conditions):
+            if isinstance(item, list):
+                # This is an expression.
+                self.add_interior(ConditionalExpressionEditor(part, var_name, t, refresh_fun))
+            else:
+                # This must be a boolean operator.
+                self.add_interior(BooleanOperatorEditor(part, var_name, t, refresh_fun))
+
+        self.add_interior(pbge.widgets.LabelWidget(0,0,100,0,"Add Expression", draw_border=True, on_click=self.add_expression))
+
+    def add_expression(self, wid, ev):
+        my_conditions = self.part.raw_vars.get(self.var_name, list())
+        if not isinstance(my_conditions, list):
+            my_conditions = list()
+            self.part.raw_vars[self.var_name] = my_conditions
+        if my_conditions:
+            my_conditions.append(pbclasses.CONDITIONAL_BOOL_OPS[0])
+        my_conditions.append([pbclasses.CONDITIONAL_EXPRESSION_OPS[2], ["integer",1], ["integer",1]])
+        self.refresh_fun()
 
 
 class VarEditorPanel(pbge.widgets.ColumnWidget):
@@ -222,17 +331,19 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
         mybrick = self.editor.active_part.brick
         for k in mybrick.vars.keys():
             if mybrick.vars[k].var_type == "text":
-                mywidget = TextVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+                mywidget = TextVarEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
             elif mybrick.vars[k].var_type == "faction":
                 mywidget = FiniteStateEditorWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type == "boolean":
-                mywidget = BoolEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+                mywidget = BoolEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
             elif mybrick.vars[k].var_type == "dialogue_context":
                 mywidget = DialogueContextWidget(self.editor.active_part, k, lambda v: statefinders.CONTEXT_INFO[v].desc, refresh_fun=self.refresh_var_widgets)
             elif mybrick.vars[k].var_type == "dialogue_data":
                 mywidget = DialogueOfferDataWidget(self.editor.active_part, k)
+            elif mybrick.vars[k].var_type == "conditional":
+                mywidget = ConditionalEditorWidget(self.editor.active_part, k, refresh_fun=self.refresh_var_widgets)
             else:
-                mywidget = StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.vars.get(k))
+                mywidget = StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
             self.scroll_column.add_interior(
                 mywidget
             )
@@ -288,13 +399,13 @@ class PlotCreator(pbge.widgets.Widget):
         self.finished = True
 
     def _save(self, widj, ev):
-        fname = "PLOTCREATOR_{}.json".format(self.mytree.vars["uname"])
+        fname = "PLOTCREATOR_{}.json".format(self.mytree.raw_vars["uname"])
         with open(pbge.util.user_dir("content",fname), 'wt') as fp:
             json.dump(self.mytree.get_save_dict(), fp, indent='\t')
 
     def _compile(self, widj, ev):
         myprog = self.mytree.compile()
-        fname = "ADV_{}.py".format(self.mytree.vars["uname"])
+        fname = "ADV_{}.py".format(self.mytree.raw_vars["uname"])
         with open(pbge.util.user_dir("content",fname), 'wt') as fp:
             for l in myprog["main"]:
                 fp.write(l+'\n')

@@ -16,6 +16,18 @@
     "child_types": ["DIALOGUE_EFFECT"]
     },
     {
+    "name": "Add Dialogue If",
+    "desc": "Add an if block to the dialogue method for this NPC.",
+    "label": "NPC_FEATURE",
+    "vars": {
+      "conditions": {"default_val": [], "var_type": "conditional"}
+    },
+    "scripts": {
+      "npc_offers": "if {conditions}:\n    pass\n    #: dialogue_if\n#: dialogue_elif\n#: dialogue_else"
+    },
+    "child_types": ["DIALOGUE_IF", "DIALOGUE_ELSE", "DIALOGUE_ELIF"]
+    },
+    {
     "name": "Add Dialogue Effect",
     "desc": "Adds an effect to a dialogue line. Note that dialogue effects are executed after the dialogue offer is made, not before.",
     "label": "DIALOGUE_EFFECT",

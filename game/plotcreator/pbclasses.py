@@ -14,6 +14,38 @@ class VariableDefinition(object):
         self.data = kwargs.copy()
 
 
+# conditional format: [expression], boolop, [expression]...
+CONDITIONAL_BOOL_OPS = ("and", "or", "and not", "or not")
+CONDITIONAL_EXPRESSION_OPS = ("<", "<=", "==", "!=", ">=", ">")
+CONDITIONAL_VALUE_TYPES = ("integer", "campaign variable")
+
+def get_conditional_value(vallist):
+    # Parse a value list, returning the Python code for the value.
+    val_type = vallist[0]
+    if val_type == "integer":
+        return str(vallist[1])
+    elif val_type == "campaign variable":
+        return "camp.campdata.get(\"{}\", 0)".format(vallist[1])
+
+def build_conditional(rawlist):
+    formatted_list = list()
+    for t in rawlist:
+        if isinstance(t, list):
+            # This must be an expression.
+            expop = t[0]
+            if expop in CONDITIONAL_EXPRESSION_OPS:
+                a,b = get_conditional_value(t[1]), get_conditional_value(t[2])
+                formatted_list.append("{} {} {}".format(a, expop, b))
+
+        elif t in CONDITIONAL_BOOL_OPS:
+            # This must be a boolean operation.
+            formatted_list.append(t)
+
+    if not formatted_list:
+        return "True"
+    else:
+        return " ".join(formatted_list)
+
 class ElementDefinition(object):
     def __init__(self, name, e_type="misc", **kwargs):
         self.name = name
@@ -53,14 +85,14 @@ class BluePrint(object):
         self.brick = brick
 
         self.children = pbge.container.ContainerList(owner=self)
-        self.vars = brick.get_default_vars()
+        self.raw_vars = brick.get_default_vars()
         self._uid = 0
 
     def get_save_dict(self):
         mydict = dict()
         mydict["brick"] = self._brick_name
         mydict["uid"] = self._uid
-        mydict["vars"] = self.vars
+        mydict["vars"] = self.raw_vars
         mydict["children"] = list()
         if hasattr(self, "max_uid"):
             mydict["max_uid"] = self.max_uid
@@ -73,7 +105,7 @@ class BluePrint(object):
         mybrick = BRICKS_BY_NAME[jdict["brick"]]
         mybp = cls(mybrick)
         mybp._uid = jdict["uid"]
-        mybp.vars.update(jdict["vars"])
+        mybp.raw_vars.update(jdict["vars"])
         if "max_uid" in jdict:
             mybp.max_uid = jdict["max_uid"]
         for cdict in jdict["children"]:
@@ -108,14 +140,26 @@ class BluePrint(object):
 
         return done_scripts[section_name]
 
+    def get_formatted_vars(self):
+        # Get vars in the format they need to be in for output to a Python file.
+        myvars = dict()
+        for k,v in self.raw_vars.items():
+            vardef: VariableDefinition = self.brick.vars.get(k)
+            if vardef:
+                if vardef.var_type == "conditional":
+                    myvars[k] = build_conditional(v)
+                else:
+                    myvars[k] = v
+        return myvars
+
     def get_ultra_vars(self):
         # Return all variables readable by this blueprint, including the _uid.
         vars = dict()
         my_ancestors = list(self.ancestors())
         my_ancestors.reverse()
         for a in my_ancestors:
-            vars.update(a.vars)
-        vars.update(self.vars)
+            vars.update(a.get_formatted_vars())
+        vars.update(self.get_formatted_vars())
         vars["_uid"] = self.uid
         return vars
 
@@ -125,7 +169,7 @@ class BluePrint(object):
             vars = inherited_vars.copy()
         else:
             vars = dict()
-        vars.update(self.vars)
+        vars.update(self.get_formatted_vars())
 
         ultravars = vars.copy()
         ultravars["_uid"] = self.uid
@@ -230,6 +274,19 @@ class BluePrint(object):
             elements[k.format(**avars)] = ElementDefinition(v.name.format(**avars), e_type=v.e_type)
 
         return elements
+
+    def get_campaign_variable_names(self, start_with_root=True):
+        myset = set()
+        if start_with_root:
+            part = self.get_root()
+        else:
+            part = self
+        for k,v in part.brick.vars.items():
+            if v.var_type == "campaign_variable":
+                myset.add(part.raw_vars.get(k,"x"))
+        for p in part.children:
+            myset.update(p.get_campaign_variable_names(False))
+        return myset
 
 
 ALL_BRICKS = list()
