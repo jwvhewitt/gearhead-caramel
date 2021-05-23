@@ -1,6 +1,7 @@
 import collections
 import copy
 import pbge.container
+from game.plotcreator.conditionals import build_conditional
 
 
 class VariableDefinition(object):
@@ -14,47 +15,31 @@ class VariableDefinition(object):
         self.data = kwargs.copy()
 
 
-# conditional format: [expression], boolop, [expression]...
-CONDITIONAL_BOOL_OPS = ("and", "or", "and not", "or not")
-CONDITIONAL_EXPRESSION_OPS = ("<", "<=", "==", "!=", ">=", ">")
-CONDITIONAL_VALUE_TYPES = ("integer", "campaign variable")
-
-def get_conditional_value(vallist):
-    # Parse a value list, returning the Python code for the value.
-    val_type = vallist[0]
-    if val_type == "integer":
-        return str(vallist[1])
-    elif val_type == "campaign variable":
-        return "camp.campdata.get(\"{}\", 0)".format(vallist[1])
-
-def build_conditional(rawlist):
-    formatted_list = list()
-    for t in rawlist:
-        if isinstance(t, list):
-            # This must be an expression.
-            expop = t[0]
-            if expop in CONDITIONAL_EXPRESSION_OPS:
-                a,b = get_conditional_value(t[1]), get_conditional_value(t[2])
-                formatted_list.append("{} {} {}".format(a, expop, b))
-
-        elif t in CONDITIONAL_BOOL_OPS:
-            # This must be a boolean operation.
-            formatted_list.append(t)
-
-    if not formatted_list:
-        return "True"
-    else:
-        return " ".join(formatted_list)
-
 class ElementDefinition(object):
-    def __init__(self, name, e_type="misc", **kwargs):
+    def __init__(self, name, e_type="misc", aliases=(), **kwargs):
+        # name = Human readable name; may use variables like a script block.
+        # aliases = Names used to reference this element by descendant parts. Should be all-caps.
         self.name = name
         self.e_type = e_type
+        self.aliases = list(aliases)
         self.etc = kwargs
 
 
 class PlotBrick(object):
-    def __init__(self, name="", desc="", scripts=None, vars=None, child_types=(), elements=None, is_new_branch=False, **kwargs):
+    # label is a string describing what sort of brick this is.
+    # name is a unique identifier for this plot brick.
+    # desc is a human-readable description of its function, for a certain definition of "human-readable".
+    # scripts is a dict containing the scripts that will be placed in the compiled Python script.
+    #    key = section name; this determines where the script will be placed.
+    #    index = the block of Python code to be inserted.
+    # vars: Descriptions for the user-configurable variables of this plot block.
+    #    key = variable name. Should be all lowercase.
+    #    value = variable description.
+    # child_types: List of brick labels that can be added as children of this brick.
+    # elements: Descriptions for the elements defined within this brick.
+    # is_new_branch: True if this brick begins a new Plot. This is needed to check element + var inheritance.
+    def __init__(self, label="PLOT_BLOCK", name="", desc="", scripts=None, vars=None, child_types=(), elements=None, is_new_branch=False, **kwargs):
+        self.label = label
         self.name = name
         self.desc = desc
         self.scripts = dict()
@@ -174,6 +159,10 @@ class BluePrint(object):
         ultravars = vars.copy()
         ultravars["_uid"] = self.uid
 
+        # Add element aliases.
+        elems = self.get_element_aliases()
+        ultravars.update(elems)
+
         # Step one: collect the scripts from all children.
         mykids = collections.defaultdict(list)
         for kid in self.children:
@@ -272,6 +261,21 @@ class BluePrint(object):
         avars = self.get_ultra_vars()
         for k,v in self.brick.elements.items():
             elements[k.format(**avars)] = ElementDefinition(v.name.format(**avars), e_type=v.e_type)
+
+        return elements
+
+    def get_element_aliases(self):
+        # Return a dict of elements accessible from this block.
+        # key = element alias
+        # value = ELement ID
+        elements = dict()
+        my_ancestors = list(self.predecessors())
+        my_ancestors.reverse()
+        for a in my_ancestors:
+            avars = a.get_ultra_vars()
+            for k,v in a.brick.elements.items():
+                for a in v.aliases:
+                    elements[a] = k.format(**avars)
 
         return elements
 

@@ -57,6 +57,13 @@ CONTEXT_INFO = {
 
 }
 
+def find_elements(part: pbclasses.BluePrint, e_type):
+    mylist = list()
+    for k, fac in part.get_elements().items():
+        if fac.e_type == e_type:
+            mylist.append((fac.name, "self.elements[\"{}\"]".format(k)))
+    mylist.append(("==None==", None))
+    return mylist
 
 
 def get_possible_states(part: pbclasses.BluePrint, category):
@@ -67,4 +74,6 @@ def get_possible_states(part: pbclasses.BluePrint, category):
         for k,v in CONTEXT_INFO.items():
             mylist.append((v.name, k))
         return mylist
+    else:
+        return find_elements(part, category)
 

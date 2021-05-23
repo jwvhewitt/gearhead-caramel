@@ -11,7 +11,7 @@
     },
     "scripts": {
       "main": "#: includes\n#: plot",
-      "includes": "import gears\nfrom pbge.plots import Plot, Adventure, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain\n\n",
+      "includes": "import gears\nfrom pbge.plots import Plot, Adventure, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain\nfrom game.memobrowser import Memo\n",
       "plot": "class {uname}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{uname}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        \"{adventure_name}\",\n        \"{adventure_desc}\",\n        {adventure_date}, None,\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        #:scenario_init\n        #:scenario_subplots\n\n        return True\n\n    #: world_methods"
     },
     "child_types": ["CITY","WORLD_FEATURE"]
@@ -29,6 +29,24 @@
     },
     "elements": {
       "FACTION_{_uid}": {"e_type": "faction", "name": "{faction_name}"}
+    }
+  },
+  {
+    "name": "New Campaign Variable",
+    "desc": "Define a campaign variable.",
+    "label": "WORLD_FEATURE",
+    "vars": {
+      "var_name": {
+        "var_type": "campaign_variable",
+        "default_val": "x"
+      },
+      "value": {
+        "default_val": 0,
+        "var_type": "integer"
+      }
+    },
+    "scripts": {
+      "scenario_init": "nart.camp.campdata[\"{var_name}\"] = {value}"
     }
   },
   {
@@ -61,41 +79,15 @@
     },
     "scripts": {
       "scenario_subplots": "self.add_sub_plot(nart, \"CITY_{uname}_{scriptname}_{_uid}\")",
-      "main": "class {scriptname}_{_uid}_City( Plot ):\n    LABEL=\"CITY_{uname}_{scriptname}_{_uid}\"\n    active = True\n    scope = True\n    def custom_init( self, nart ):\n        #: city_init\n        #: city_subplots\n        #: scene_subplots\n        return True\n    def METROSCENE_ENTER(self, camp):\n        #: city_enter",
-      "city_init": "# Create a city scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(50, 50, \"{city_name}\", player_team=team1, civilian_team=team2,scale=gears.scale.HumanScale, is_metro=True, faction={city_faction}, attributes=(gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC), exploration_music='airtone_-_reCreation.ogg')\n\n# Create a scene generator\nmyscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleGreenzone(), road_terrain=game.content.ghterrain.Flagstone)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"METROSCENE\")\nself.register_element(\"METRO\", myscene.metrodat)\n\n# Create the entry/exit point.\nmyroom = self.register_element(\"_ENTRY_ROOM\", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.south), dident=\"METROSCENE\")\nmygate = self.register_element(\"MISSION_GATE\", Exit(name=\"{entrance_name}\", desc=\"{entrance_desc}\",anchor=pbge.randmaps.anchors.middle,plot_locked=True), dident=\"_ENTRY_ROOM\")\nself.elements[\"LOCALE\"] = myscene\nself.elements[\"ENTRANCE\"] = mygate\n#:scene_init\n",
+      "main": "class {scriptname}_{_uid}_City( Plot ):\n    LABEL=\"CITY_{uname}_{scriptname}_{_uid}\"\n    active = True\n    scope = True\n    def custom_init( self, nart ):\n        #: city_init\n        #:scene_init\n        #: city_subplots\n        #: scene_subplots\n        return True\n    def METROSCENE_ENTER(self, camp):\n        #: city_enter\n    #: scene_methods",
+      "city_init": "# Create a city scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(50, 50, \"{city_name}\", player_team=team1, civilian_team=team2,scale=gears.scale.HumanScale, is_metro=True, faction={city_faction}, attributes=(gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC), exploration_music='airtone_-_reCreation.ogg')\n\n# Create a scene generator\nmyscenegen = pbge.randmaps.CityGridGenerator(myscene, game.content.gharchitecture.HumanScaleGreenzone(), road_terrain=game.content.ghterrain.Flagstone)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"METROSCENE\")\nself.register_element(\"METRO\", myscene.metrodat)\n\n# Create the entry/exit point.\nmyroom = self.register_element(\"_ENTRY_ROOM\", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.south), dident=\"METROSCENE\")\nmygate = self.register_element(\"MISSION_GATE\", Exit(name=\"{entrance_name}\", desc=\"{entrance_desc}\",anchor=pbge.randmaps.anchors.middle,plot_locked=True), dident=\"_ENTRY_ROOM\")\nself.elements[\"ENTRANCE\"] = mygate\n",
       "city_enter": "# Upon entering this scene, deal with any dead or incapacitated party members.\n# Also, deal with party members who have lost their mecha. This may include the PC.\ncamp.home_base = (self.elements[\"METROSCENE\"], self.elements[\"MISSION_GATE\"])\netlr = plotutility.EnterTownLanceRecovery(camp, self.elements[\"METROSCENE\"], self.elements[\"METRO\"])\nif {lancedev_on} and not etlr.did_recovery:\n    # We can maybe load a lancemate scene here. Yay!\n    if not any(p for p in camp.all_plots() if hasattr(p, \"LANCEDEV_PLOT\") and p.LANCEDEV_PLOT):\n        nart = GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type=\"LANCEDEV\", plot_list=game.content.PLOT_LIST)\n        if nart.story:\n            nart.build()\n#: scene_enter"
     },
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
     "elements": {
-      "METROSCENE": {"e_type": "scene", "name": "{city_name}"},
+      "METROSCENE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["LOCALE","CITY"]},
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}"}
     }
-  },
-  {
-    "name": "Set Starting Scene",
-    "desc": "Set the current scene as the starting scene for the adventure. Make sure that one scene you've created has this feature added.",
-    "label": "SCENE_FEATURE",
-    "vars": {
-      "start_with_lancemate": {
-        "default_val": true,
-        "var_type": "boolean"
-      }
-    },
-    "scripts": {
-      "scene_subplots": "nart.camp.scene = self.elements.get( \"LOCALE\" )\nnart.camp.entrance = self.elements.get( \"ENTRANCE\" )\nif {start_with_lancemate}:\n    self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n"
-    }
-  },
-
-    {
-    "name": "First Time Entry Effect",
-    "desc": "The first time you enter this scene, something is going to happen. Add some Effect features to determine what that something is.",
-    "label": "SCENE_FEATURE",
-    "scripts": {
-      "scene_init": "self.entered_scene_{_uid} = False\n",
-      "scene_enter": "if not self.entered_scene_{_uid}:\n    self.entered_scene_{_uid} = True\n    #: effect"
-    },
-    "child_types": ["EFFECT"]
-    }
-
+  }
 
 ]

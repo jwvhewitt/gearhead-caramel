@@ -4,28 +4,50 @@
     "desc": "Adds something for the NPC to say during a conversation.",
     "label": "NPC_FEATURE",
     "vars": {
-      "context": {"default_val": "context.HELLO", "var_type": "dialogue_context"},
+      "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
       "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
       "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
       "subject": {"default_val": "", "var_type": "string"},
       "subject_start": {"default_val":  true, "var_type":  "boolean"}
     },
     "scripts": {
-      "npc_offers": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data}\n    #: dialogue_effect\n))"
+      "npc_offers": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data},\n    #: dialogue_effect\n))"
     },
     "child_types": ["DIALOGUE_EFFECT"]
     },
     {
     "name": "Add Dialogue If",
-    "desc": "Add an if block to the dialogue method for this NPC.",
+    "desc": "Add a conditional dialogue offer for this NPC to say.",
     "label": "NPC_FEATURE",
     "vars": {
-      "conditions": {"default_val": [], "var_type": "conditional"}
+      "conditions": {"default_val": [], "var_type": "conditional"},
+      "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
+      "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
+      "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "subject": {"default_val": "", "var_type": "string"},
+      "subject_start": {"default_val":  true, "var_type":  "boolean"}
     },
     "scripts": {
-      "npc_offers": "if {conditions}:\n    pass\n    #: dialogue_if\n#: dialogue_elif\n#: dialogue_else"
+      "npc_offers": "if {conditions}:\n    #: dialogue_if\n#: dialogue_elif\n#: dialogue_else",
+      "dialogue_if": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data},\n    #: dialogue_effect\n))"
     },
-    "child_types": ["DIALOGUE_IF", "DIALOGUE_ELSE", "DIALOGUE_ELIF"]
+    "child_types": ["DIALOGUE_IF", "DIALOGUE_ELSE", "DIALOGUE_ELIF", "DIALOGUE_EFFECT"]
+    },
+    {
+    "name": "Add Another Iffy Offer",
+    "desc": "Adds another dialogue offer to the condition defined by the parent.",
+    "label": "DIALOGUE_IF",
+    "vars": {
+      "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
+      "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
+      "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "subject": {"default_val": "", "var_type": "string"},
+      "subject_start": {"default_val":  true, "var_type":  "boolean"}
+    },
+    "scripts": {
+      "dialogue_if": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data},\n    #: dialogue_effect\n))"
+    },
+    "child_types": ["DIALOGUE_EFFECT"]
     },
     {
     "name": "Add Dialogue Effect",
@@ -36,6 +58,23 @@
       "npc_methods": "def _{uname}{_uid}_effect(self, camp):\n    pass\n    #: effect"
     },
     "child_types": ["EFFECT"]
+    },
+    {
+    "name": "Add Dialogue Elif",
+    "desc": "Add a conditional dialogue offer for this NPC to say.",
+    "label": "DIALOGUE_ELIF",
+    "vars": {
+      "conditions": {"default_val": [], "var_type": "conditional"},
+      "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
+      "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
+      "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "subject": {"default_val": "", "var_type": "string"},
+      "subject_start": {"default_val":  true, "var_type":  "boolean"}
+    },
+    "scripts": {
+      "dialogue_elif": "elif {conditions}:\n    #: dialogue_if",
+      "dialogue_if": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data},\n    #: dialogue_effect\n))"
+    },
+    "child_types": ["DIALOGUE_IF", "DIALOGUE_EFFECT"]
     }
-
 ]

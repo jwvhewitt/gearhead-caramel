@@ -1,5 +1,5 @@
 [
-      {
+  {
     "name": "Alert Message",
     "label": "EFFECT",
     "vars": {
@@ -10,6 +10,32 @@
     },
     "scripts": {
       "effect": "pbge.alert('''{message}''')"
+    }
+  },
+  {
+    "name": "Set Memo",
+    "desc": "Set a message that will appear in the memo browser. If there is already a memo for this plot, it will be overwritten.",
+    "label": "EFFECT",
+    "vars": {
+      "message": {
+        "default_val": "",
+        "var_type": "text"
+      },
+      "memo_scene": {
+        "default_val": "None",
+        "var_type": "scene"
+      }
+    },
+    "scripts": {
+      "effect": "self.memo = Memo(\"{message}\", {memo_scene})"
+    }
+  },
+  {
+    "name": "Clear Memo",
+    "desc": "Deletes the memo currently set for this plot. If there is no current memo, it has no effect.",
+    "label": "EFFECT",
+    "scripts": {
+      "effect": "self.memo = None"
     }
   },
     {
@@ -41,6 +67,21 @@
     "scripts": {
       "effect": "camp.campdata[\"{var_name}\"] = {value}"
     }
+  },
+      {
+    "name": "NPC Joins Party",
+    "desc": "Select an NPC to join the party and receive the RT_LANCEMATE tag.",
+    "label": "EFFECT",
+    "vars": {
+      "npc": {
+        "var_type": "npc",
+        "default_val": null
+      }
+    },
+    "scripts": {
+      "effect": "plotutility.AutoJoiner({npc})(camp)\n{npc}.relationship.tags.add(gears.relationships.RT_LANCEMATE)"
+    }
   }
+
 
 ]

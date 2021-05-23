@@ -1,0 +1,46 @@
+[
+    {
+    "name": "Set Starting Scene",
+    "desc": "Set the current scene as the starting scene for the adventure. Make sure that one scene you've created has this feature added.",
+    "label": "SCENE_FEATURE",
+    "vars": {
+      "start_with_lancemate": {
+        "default_val": true,
+        "var_type": "boolean"
+      }
+    },
+    "scripts": {
+      "scene_subplots": "nart.camp.scene = self.elements.get( \"{LOCALE}\" )\nnart.camp.entrance = self.elements.get( \"ENTRANCE\" )\nif {start_with_lancemate}:\n    self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n"
+    }
+  },
+
+    {
+    "name": "First Time Entry Effect",
+    "desc": "The first time you enter this scene, something is going to happen. Add some Effect features to determine what that something is.",
+    "label": "SCENE_FEATURE",
+    "scripts": {
+      "scene_init": "self.entered_scene_{_uid} = False\n",
+      "scene_enter": "if not self.entered_scene_{_uid}:\n    self.entered_scene_{_uid} = True\n    #: effect"
+    },
+    "child_types": ["EFFECT"]
+    },
+
+    {
+    "name": "New NPC",
+    "desc": "Adds an NPC to this scene.",
+    "label": "SCENE_FEATURE",
+    "vars": {
+      "npc_name": {"default_val": "Sam", "var_type": "string"},
+      "npc_combatant": {"default_val":  false, "var_type":  "boolean"},
+      "npc_faction": {"default_val": null, "var_type": "faction"}
+    },
+    "scripts": {
+      "scene_init": "npc = self.register_element(\"NPC_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", combatant={npc_combatant}, local_tags=self.elements[\"{CITY}\"].attributes, faction={npc_faction}), dident=\"{LOCALE}\")",
+      "scene_methods": "def NPC_{_uid}_offers(self, camp):\n    mylist = list()\n    #: npc_offers\n    return mylist\n"
+    },
+    "child_types": ["NPC_FEATURE"],
+    "elements": {
+      "NPC_{_uid}": {"e_type": "npc", "name": "{npc_name}", "aliases":  ["NPC"]}
+    }
+  }
+]

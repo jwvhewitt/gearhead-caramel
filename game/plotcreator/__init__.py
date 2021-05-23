@@ -1,5 +1,6 @@
 import glob
 
+import game.plotcreator.conditionals
 import gears
 import pbge
 import json
@@ -208,7 +209,7 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
     def __init__(self, part, val_list, refresh_fun, **kwargs):
         super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + 8,**kwargs)
         var_type = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_type)
-        for vt in pbclasses.CONDITIONAL_VALUE_TYPES:
+        for vt in game.plotcreator.conditionals.CONDITIONAL_VALUE_TYPES:
             var_type.add_item(vt.capitalize(), vt)
         var_type.menu.set_item_by_value(val_list[0])
         val_list[0] = var_type.value
@@ -217,11 +218,11 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
         self.val_list = val_list
         self.refresh_fun = refresh_fun
 
-        if val_list[0] == pbclasses.CONDITIONAL_VALUE_TYPES[0]:
+        if val_list[0] == game.plotcreator.conditionals.CONDITIONAL_VALUE_TYPES[0]:
             # This is an integer.
             value_entry = pbge.widgets.TextEntryWidget(0,0,150,self.h, str(val_list[1]),font=pbge.SMALLFONT,justify=0, on_change=self.set_text)
             self.add_left(value_entry)
-        elif val_list[0] == pbclasses.CONDITIONAL_VALUE_TYPES[1]:
+        elif val_list[0] == game.plotcreator.conditionals.CONDITIONAL_VALUE_TYPES[1]:
             # This is a campaign variable.
             name_entry = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
             for cvn in part.get_campaign_variable_names():
@@ -233,9 +234,9 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
     def set_type(self, result):
         if self.val_list[0] != result:
             self.val_list[0] = result
-            if result == pbclasses.CONDITIONAL_VALUE_TYPES[0]:
+            if result == game.plotcreator.conditionals.CONDITIONAL_VALUE_TYPES[0]:
                 self.val_list[1] = 0
-            elif result == pbclasses.CONDITIONAL_VALUE_TYPES[1]:
+            elif result == game.plotcreator.conditionals.CONDITIONAL_VALUE_TYPES[1]:
                 self.val_list[1] = None
             self.refresh_fun()
 
@@ -246,11 +247,64 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
         self.val_list[1] = wid.text
 
 class ConditionalOperatorEditor(pbge.widgets.DropdownWidget):
-    def __init__(self, part, var_name, var_index, **kwargs):
-        super().__init__(0, 0, 350, pbge.SMALLFONT.get_linesize() + 8, font=pbge.SMALLFONT, justify=0, **kwargs)
-        for op in pbclasses.CONDITIONAL_EXPRESSION_OPS:
+    def __init__(self, part, var_name, var_index, refresh_fun, **kwargs):
+        super().__init__(0, 0, 350, pbge.SMALLFONT.get_linesize() + 8, font=pbge.SMALLFONT, justify=0, on_select=self.set_value, **kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.var_index = var_index
+        for op in game.plotcreator.conditionals.CONDITIONAL_EXPRESSION_OPS:
+            self.add_item(op.capitalize(), op)
+        for op,desc in conditionals.CONDITIONAL_FUNCTIONS.items():
             self.add_item(op.capitalize(), op)
         self.menu.set_item_by_value(part.raw_vars[var_name][var_index][0])
+        self.refresh_fun = refresh_fun
+
+    def set_value(self, result):
+        old_var = self.part.raw_vars[self.var_name][self.var_index][0]
+        if old_var in game.plotcreator.conditionals.CONDITIONAL_EXPRESSION_OPS and result in game.plotcreator.conditionals.CONDITIONAL_EXPRESSION_OPS:
+            self.part.raw_vars[self.var_name][self.var_index][0] = result
+        else:
+            # Gonna need a brand new expression.
+            self.part.raw_vars[self.var_name][self.var_index] = game.plotcreator.conditionals.generate_new_conditional_expression(result)
+            self.refresh_fun()
+
+
+class ConditionalFunParamEditor(pbge.widgets.RowWidget):
+    def __init__(self, part, val_list, param_type, param_index, refresh_fun, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + 8,**kwargs)
+        var_type = pbge.widgets.LabelWidget(0, 0, 150, self.h, param_type, justify=1, font=pbge.SMALLFONT)
+        self.add_left(var_type)
+
+        self.val_list = val_list
+        self.param_index = param_index
+        self.refresh_fun = refresh_fun
+
+        if param_type == game.plotcreator.conditionals.CONDITIONAL_VALUE_TYPES[0]:
+            # This is an integer.
+            value_entry = pbge.widgets.TextEntryWidget(0,0,150,self.h, str(val_list[1]),font=pbge.SMALLFONT,justify=0, on_change=self.set_text)
+            self.add_left(value_entry)
+        elif param_type == game.plotcreator.conditionals.CONDITIONAL_VALUE_TYPES[1]:
+            # This is a campaign variable.
+            name_entry = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
+            for cvn in part.get_campaign_variable_names():
+                name_entry.add_item(cvn, "camp.campdata.get(\"{}\", 0)".format(cvn))
+            name_entry.add_item('None', None)
+            name_entry.menu.set_item_by_value(val_list[1])
+            self.add_left(name_entry)
+        else:
+            # Dunno what this is. Assume it's a finite state thingamabob.
+            name_entry = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
+            for fsname,fscode in statefinders.get_possible_states(part, param_type):
+                name_entry.add_item(fsname,fscode)
+            name_entry.add_item('None', None)
+            name_entry.menu.set_item_by_value(val_list[param_index])
+            self.add_left(name_entry)
+
+    def set_value(self, result):
+        self.val_list[self.param_index] = result
+
+    def set_text(self, wid, ev):
+        self.val_list[self.param_index] = wid.text
 
 
 class ConditionalExpressionEditor(pbge.widgets.ColumnWidget):
@@ -260,10 +314,14 @@ class ConditionalExpressionEditor(pbge.widgets.ColumnWidget):
         self.var_name = var_name
         self.var_index = var_index
         elist = self.part.raw_vars[var_name][var_index]
-        if elist[0] in pbclasses.CONDITIONAL_EXPRESSION_OPS:
+        if elist[0] in game.plotcreator.conditionals.CONDITIONAL_EXPRESSION_OPS:
             self.add_interior(ConditionalValueEditor(part, elist[1], refresh_fun))
-            self.add_interior(ConditionalOperatorEditor(part, var_name, var_index))
+            self.add_interior(ConditionalOperatorEditor(part, var_name, var_index, refresh_fun))
             self.add_interior(ConditionalValueEditor(part, elist[2], refresh_fun))
+        elif elist[0] in conditionals.CONDITIONAL_FUNCTIONS:
+            self.add_interior(ConditionalOperatorEditor(part, var_name, var_index, refresh_fun))
+            for pt, t in enumerate(conditionals.CONDITIONAL_FUNCTIONS[elist[0]].param_types, 1):
+                self.add_interior(ConditionalFunParamEditor(part, elist, pt, t, refresh_fun))
 
 
 class BooleanOperatorEditor(pbge.widgets.DropdownWidget):
@@ -273,7 +331,7 @@ class BooleanOperatorEditor(pbge.widgets.DropdownWidget):
         self.var_name = var_name
         self.var_index = var_index
         self.refresh_fun = refresh_fun
-        for op in pbclasses.CONDITIONAL_BOOL_OPS:
+        for op in game.plotcreator.conditionals.CONDITIONAL_BOOL_OPS:
             self.add_item(op.capitalize(), op)
         self.menu.set_item_by_value(part.raw_vars[var_name][var_index])
 
@@ -307,8 +365,9 @@ class ConditionalEditorWidget(pbge.widgets.ColumnWidget):
             my_conditions = list()
             self.part.raw_vars[self.var_name] = my_conditions
         if my_conditions:
-            my_conditions.append(pbclasses.CONDITIONAL_BOOL_OPS[0])
-        my_conditions.append([pbclasses.CONDITIONAL_EXPRESSION_OPS[2], ["integer",1], ["integer",1]])
+            my_conditions.append(game.plotcreator.conditionals.CONDITIONAL_BOOL_OPS[0])
+        my_conditions.append(game.plotcreator.conditionals.generate_new_conditional_expression(
+            game.plotcreator.conditionals.CONDITIONAL_EXPRESSION_OPS[2]))
         self.refresh_fun()
 
 
@@ -332,7 +391,7 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
         for k in mybrick.vars.keys():
             if mybrick.vars[k].var_type == "text":
                 mywidget = TextVarEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
-            elif mybrick.vars[k].var_type == "faction":
+            elif mybrick.vars[k].var_type in ("faction", "scene", "npc"):
                 mywidget = FiniteStateEditorWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type == "boolean":
                 mywidget = BoolEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
