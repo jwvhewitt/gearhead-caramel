@@ -371,6 +371,38 @@ class ConditionalEditorWidget(pbge.widgets.ColumnWidget):
         self.refresh_fun()
 
 
+class MusicEditorWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part: BluePrint, var_name, **kwargs):
+        # desc_fun, if it exists, is a function that takes value and returns a description
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8,**kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+
+        myrow = pbge.widgets.RowWidget(0,0,self.w, pbge.MEDIUMFONT.get_linesize() + 8)
+        self.add_interior(myrow)
+
+        mymenu = pbge.widgets.DropdownWidget(0,0,300,pbge.MEDIUMFONT.get_linesize() + 8,justify=0,font=pbge.MEDIUMFONT, on_select=self._do_change)
+        myrow.add_left(mymenu)
+        mymenu.menu.w += 200
+        for name in pbge.my_state.get_music_list():
+            mymenu.add_item(name, name)
+        mymenu.add_item("==None==", None)
+        mymenu.menu.sort()
+        mymenu.menu.set_item_by_value(part.raw_vars.get(var_name, None))
+
+        mybutton = pbge.widgets.LabelWidget(0,0,40,pbge.MEDIUMFONT.get_linesize()+2, "play", font=pbge.MEDIUMFONT, on_click=self._click_play, draw_border=True, justify=0)
+        myrow.add_right(mybutton)
+
+    def _do_change(self, result):
+        self.part.raw_vars[self.var_name] = result
+
+    def _click_play(self, wid, ev):
+        mysong = self.part.raw_vars.get(self.var_name, None)
+        if mysong:
+            pbge.my_state.start_music(mysong, True)
+
+
 class VarEditorPanel(pbge.widgets.ColumnWidget):
     def __init__(self,mypart,editor,dx=10,dy=-200,w=350,h=450,**kwargs):
         super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
@@ -401,6 +433,8 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
                 mywidget = DialogueOfferDataWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type == "conditional":
                 mywidget = ConditionalEditorWidget(self.editor.active_part, k, refresh_fun=self.refresh_var_widgets)
+            elif mybrick.vars[k].var_type == "music":
+                mywidget = MusicEditorWidget(self.editor.active_part, k)
             else:
                 mywidget = StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
             self.scroll_column.add_interior(

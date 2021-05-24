@@ -403,6 +403,7 @@ class DropdownWidget( Widget ):
     def open_menu(self,also_self_probably,ev):
         mydest = self.get_rect()
         mydest.h = self.menu.h
+        mydest.w = self.menu.w
         mydest.clamp_ip(my_state.screen.get_rect())
         self.menu.dx,self.menu.dy = mydest.x,mydest.y
         result = self.menu.query()

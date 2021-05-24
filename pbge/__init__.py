@@ -17,6 +17,7 @@ import glob
 import random
 import weakref
 import sys
+import os
 
 # Import the android module. If we can't import it, set it to None - this
 # lets us test it, and check to see if we want android-specific behavior.
@@ -183,9 +184,10 @@ class GameState( object ):
             self.music_library[mfname] = sound
             return sound
 
-    def start_music( self, mfname ):
-        if (mfname and mfname != self.music_name and self.audio_enabled and
-                util.config.getboolean( "GENERAL", "music_on" ) and
+    def start_music( self, mfname, yafi=False ):
+        # yafi = You Asked For It
+        if ((yafi or (mfname and mfname != self.music_name and
+                util.config.getboolean( "GENERAL", "music_on" ))) and self.audio_enabled and
                 not util.config.getboolean( "TROUBLESHOOTING", "disable_audio_entirely" )):
             sound = self.locate_music(mfname)
             if self.music:
@@ -202,6 +204,10 @@ class GameState( object ):
         if self.music_name:
             mname,self.music_name = self.music_name,None
             self.start_music(mname)
+
+    def get_music_list(self):
+        mylist = glob.glob(util.music_dir("*.ogg"))
+        return [os.path.basename(m) for m in mylist]
 
     def _set_active_widget(self,widj):
         if widj:
@@ -281,8 +287,6 @@ POSTERS = list()
 my_state = GameState()
 
 
-INIT_DONE = False
-
 # The FPS the game runs at.
 FPS = 30
 
@@ -318,16 +322,6 @@ def truncline(text, font, maxwidth):
             real=len(stext)               
             done=0                        
         return real, done, stext             
-        
-def wrapline(text, font, maxwidth): 
-    done=0                      
-    wrapped=[]                  
-                               
-    while not done:             
-        nl, done, stext=truncline(text, font, maxwidth) 
-        wrapped.append(stext.strip())                  
-        text=text[nl:]
-    return wrapped
 
 
 def wrapline(text, font, maxwidth):

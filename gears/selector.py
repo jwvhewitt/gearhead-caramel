@@ -217,7 +217,7 @@ def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, c
         creation_matrix.update(kwargs)
     pc = base.Character(**creation_matrix
                         )
-    if "name" not in creation_matrix:
+    if "name" not in creation_matrix or not pc.name:
         pc.name = random_name(pc)
     if can_cyberize is None:
         can_cyberize = "name" not in creation_matrix

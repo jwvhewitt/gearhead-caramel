@@ -6,18 +6,49 @@
     "is_new_branch": true,
     "vars": {
       "townhall_name": {"default_val": "Town Hall", "var_type": "string"},
-      "npc_name": {"default_val": "Sam", "var_type": "string"}
+      "npc_name": {"default_val": "", "var_type": "string"},
+      "npc_role": {"default_val": "Mayor", "var_type": "string"},
+      "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
+      "combat_music": {"default_val":  "Late.ogg", "var_type": "music"}
+
     },
     "scripts": {
       "city_subplots": "self.add_sub_plot(nart, \"TOWNHALL_{uname}_{_uid}\")",
       "main": "class {scriptname}_{_uid}_Townhall( Plot ):\n    LABEL=\"TOWNHALL_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def TOWNHALL_{_uid}_ENTER(self, camp):\n        pass\n        #: building_enter\n        #: scene_enter\n    def MAYOR_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods",
-      "building_init": "# Create a building within the town.\nbuilding = self.register_element(\"_EXTERIOR\", ghterrain.ResidentialBuilding(waypoints=dict(DOOR = ghwaypoints.ScrapIronDoor(name=\"{townhall_name}\")), tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident=\"{CITY}\")\n\n# Add the interior scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\",faction=self.elements[\"METROSCENE\"].faction)\nintscene = gears.GearHeadScene(35, 35, \"{townhall_name}\", player_team=team1, civilian_team=team2, attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT), scale=gears.scale.HumanScale)\nintscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())\nself.register_scene(nart, intscene, intscenegen, ident=\"TOWNHALL_{_uid}\", dident=\"{CITY}\")\nfoyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,), dident=\"TOWNHALL_{_uid}\")\n\nmycon2 = plotutility.TownBuildingConnection(nart, self, self.elements[\"{CITY}\"], intscene, room1=building, room2=foyer, door1=building.waypoints[\"DOOR\"], move_door1=False)\nself.elements[\"ENTRANCE\"] = mycon2.door2\n",
-      "npc_init": "npc = self.register_element(\"MAYOR_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", local_tags=self.elements[\"{CITY}\"].attributes, job=gears.jobs.ALL_JOBS[\"Mayor\"], faction = self.elements[\"{CITY}\"].faction))\nnpc.place(intscene, team=intscene.civilian_team)\nself.elements[\"NPC\"] = npc"
+      "building_init": "# Create a building within the town.\nbuilding = self.register_element(\"_EXTERIOR\", ghterrain.ResidentialBuilding(waypoints=dict(DOOR = ghwaypoints.ScrapIronDoor(name=\"{townhall_name}\")), tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident=\"{CITY}\")\n\n# Add the interior scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\",faction=self.elements[\"METROSCENE\"].faction)\nintscene = gears.GearHeadScene(35, 35, \"{townhall_name}\", player_team=team1, civilian_team=team2, attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT), scale=gears.scale.HumanScale, exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\")\nintscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())\nself.register_scene(nart, intscene, intscenegen, ident=\"TOWNHALL_{_uid}\", dident=\"{CITY}\")\nfoyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,), dident=\"TOWNHALL_{_uid}\")\n\nmycon2 = plotutility.TownBuildingConnection(nart, self, self.elements[\"{CITY}\"], intscene, room1=building, room2=foyer, door1=building.waypoints[\"DOOR\"], move_door1=False)\nself.elements[\"ENTRANCE\"] = mycon2.door2\n",
+      "npc_init": "npc = self.register_element(\"MAYOR_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", local_tags=self.elements[\"{CITY}\"].attributes, job=gears.jobs.ALL_JOBS[\"Mayor\"], faction = self.elements[\"{CITY}\"].faction))\nnpc.place(intscene, team=intscene.civilian_team)\n"
     },
     "child_types": ["SCENE_FEATURE", "NPC_FEATURE"],
     "elements": {
       "TOWNHALL_{_uid}": {"e_type": "scene", "name": "{townhall_name}", "aliases":  ["LOCALE"]},
-      "MAYOR_{_uid}": {"e_type": "npc", "name": "{npc_name}", "aliases":  ["NPC"]}
+      "MAYOR_{_uid}": {"e_type": "npc", "name": "{npc_role}({npc_name})", "aliases":  ["NPC"]}
+    }
+  },
+      {
+    "name": "New Hospital Scene",
+    "desc": "Adds a hospital and a doctor NPC to the city.",
+    "label": "CITY_FEATURE",
+    "is_new_branch": true,
+    "vars": {
+      "hospital_name": {"default_val": "Town Hall", "var_type": "string"},
+      "npc_name": {"default_val": "", "var_type": "string"},
+      "npc_role": {"default_val": "Doctor", "var_type": "string"},
+      "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
+      "combat_music": {"default_val":  "Late.ogg", "var_type": "music"}
+
+    },
+    "scripts": {
+      "city_subplots": "self.add_sub_plot(nart, \"HOSPITAL_{uname}_{_uid}\")",
+      "main": "class {scriptname}_{_uid}_Hospital( Plot ):\n    LABEL=\"HOSPITAL_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def TOWNHALL_{_uid}_ENTER(self, camp):\n        pass\n        #: building_enter\n        #: scene_enter\n    def DOCTOR_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods",
+      "building_init": "building = self.register_element(\"_EXTERIOR\", ghterrain.BrickBuilding(\n            waypoints=dict(DOOR=ghwaypoints.WoodenDoor(name=\"{hospital_name}\")),\n            door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),\n            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident=\"{CITY}\")\n\n# Add the interior scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\")\nintscene = gears.GearHeadScene(35, 35, \"{hospital_name}\", player_team=team1, civilian_team=team2,\n    attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),\n     scale=gears.scale.HumanScale, exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\")\nintscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.HospitalBuilding())\nself.register_scene(nart, intscene, intscenegen, ident=\"HOSPITAL_{_uid}\", dident=\"{CITY}\")\nfoyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),\n    dident=\"HOSPITAL_{_uid}\")\n\nfoyer.contents.append(ghwaypoints.RecoveryBed())\n\nmycon2 = plotutility.TownBuildingConnection(nart, self, self.elements[\"{CITY}\"], intscene,\n    room1=building,\n    room2=foyer, door1=building.waypoints[\"DOOR\"],\n    move_door1=False)\n",
+      "npc_init": "npc = self.register_element(\"DOCTOR_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", local_tags=self.elements[\"{CITY}\"].attributes, job=gears.jobs.ALL_JOBS[\"Doctor\"], faction = self.elements[\"{CITY}\"].faction))\nnpc.place(intscene, team=intscene.civilian_team)\nself.shop_{_uid} = services.Shop(services.PHARMACY, allow_misc=False, caption=\"Pharmacy\", rank=self.rank, npc=npc)",
+      "npc_offers": "mylist.append(Offer(\"[OPENSHOP]\",\n    context=ContextTag([context.OPEN_SHOP]), effect=self.shop_{_uid},\n    data=dict(shop_name= \"{hospital_name}\", wares= \"medicine\")\n    ))\n"
+    },
+    "child_types": ["SCENE_FEATURE", "NPC_FEATURE"],
+    "elements": {
+      "HOSPITAL_{_uid}": {"e_type": "scene", "name": "{townhall_name}", "aliases":  ["LOCALE"]},
+      "DOCTOR_{_uid}": {"e_type": "npc", "name": "{npc_role}({npc_name})", "aliases":  ["NPC"]}
     }
   }
+
 ]

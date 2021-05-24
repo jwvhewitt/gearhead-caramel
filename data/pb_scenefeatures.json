@@ -30,7 +30,8 @@
     "desc": "Adds an NPC to this scene.",
     "label": "SCENE_FEATURE",
     "vars": {
-      "npc_name": {"default_val": "Sam", "var_type": "string"},
+      "npc_name": {"default_val": "", "var_type": "string"},
+      "npc_role": {"default_val": "Civilian", "var_type": "string"},
       "npc_combatant": {"default_val":  false, "var_type":  "boolean"},
       "npc_faction": {"default_val": null, "var_type": "faction"}
     },
@@ -40,7 +41,7 @@
     },
     "child_types": ["NPC_FEATURE"],
     "elements": {
-      "NPC_{_uid}": {"e_type": "npc", "name": "{npc_name}", "aliases":  ["NPC"]}
+      "NPC_{_uid}": {"e_type": "npc", "name": "{npc_role}({npc_name})", "aliases":  ["NPC"]}
     }
   }
 ]
