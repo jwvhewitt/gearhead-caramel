@@ -51,7 +51,7 @@ Khaki = GHGradient('Khaki',(252,240,147,32,64,39),(CLOTHING,MECHA),YELLOW)
 LemonYellow = GHGradient('Lemon Yellow',(255,255,77,74,80,56),(CLOTHING,HAIR,MECHA,DETAILS),YELLOW)
 Gold = GHGradient('Gold',(0xDB,0xF8,0x96,0xDD,0x7C,0x00),(CLOTHING,HAIR,MECHA,DETAILS,METAL),YELLOW)
 ElectricYellow = GHGradient('Electric Yellow',(255,224,0,120,69,80),(CLOTHING,HAIR,MECHA,DETAILS),YELLOW)
-NobleGold = GHGradient('NobleGold',(255,249,128,69,38,23),(CLOTHING,HAIR,MECHA,DETAILS,METAL),YELLOW)
+NobleGold = GHGradient('Noble Gold',(255,249,128,69,38,23),(CLOTHING,HAIR,MECHA,DETAILS,METAL),YELLOW)
 CharredBlonde = GHGradient('Charred Blonde',(255,255,208,111,80,56),(HAIR,MECHA,DETAILS),YELLOW)
 Mustard = GHGradient('Mustard',(179,139,19,41,36,4),(CLOTHING,HAIR,MECHA,DETAILS),YELLOW)
 
@@ -171,11 +171,28 @@ def random_character_colors():
 def random_mecha_colors():
     return [random.choice(MECHA_COLORS),random.choice(MECHA_COLORS),random.choice(DETAIL_COLORS),random.choice(METAL_COLORS),random.choice(MECHA_COLORS)]
 
+def random_building_colors():
+    # Main, Glassy, Gravely, Metallic, Detail
+    return [
+        choose_color_by_one_tag([WHITE, BROWN, GREY]),
+        choose_color_by_one_tag([BLACK, BLUE, PURPLE]),
+        choose_color_by_one_tag([GREY, BLACK, BROWN]),
+        random.choice(METAL_COLORS),
+        random.choice(DETAIL_COLORS)
+    ]
+
 def choose_color_by_tags(all_these_tags):
     # Choose a color which has all of the requested tags. Return None if no appropriate colors found.
     candidates = [c for c in ALL_COLORS if c.get_tags().issuperset(all_these_tags)]
     if candidates:
         return random.choice(candidates)
+
+def choose_color_by_one_tag(any_of_these_tags):
+    # Choose a color which has all of the requested tags. Return None if no appropriate colors found.
+    candidates = [c for c in ALL_COLORS if c.get_tags().intersection(any_of_these_tags)]
+    if candidates:
+        return random.choice(candidates)
+
 
 def mutate_colors(original_color_tuple):
     mylist = list()

@@ -71,6 +71,7 @@ def harvest_color(dict_to_add_to):
         o = getattr(color, name)
         if isinstance(o, color.GHGradient):
             dict_to_add_to[name] = o
+            SINGLETON_REVERSE[o] = name
             ALL_COLORS.append(o)
             if color.CLOTHING in o.sets:
                 CLOTHING_COLORS.append(o)

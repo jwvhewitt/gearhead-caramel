@@ -1,5 +1,7 @@
 import collections
 import copy
+
+import gears.color
 import pbge.container
 from game.plotcreator.conditionals import build_conditional
 
@@ -60,7 +62,10 @@ class PlotBrick(object):
     def get_default_vars(self):
         myvars = dict()
         for k,v in self.vars.items():
-            myvars[k] = copy.copy(v.default_val)
+            if v.var_type == "palette":
+                myvars[k] = [gears.SINGLETON_REVERSE[c] for c in gears.color.random_building_colors()]
+            else:
+                myvars[k] = copy.copy(v.default_val)
         return myvars
 
 
@@ -133,6 +138,10 @@ class BluePrint(object):
             if vardef:
                 if vardef.var_type == "conditional":
                     myvars[k] = build_conditional(v)
+                elif vardef.var_type == "palette":
+                    #if not v:
+                    #    v = ['Black', 'Black', 'Black', 'Black', 'Black']
+                    myvars[k] = "({}, {}, {}, {}, {})".format(*["gears.color.{}".format(c) for c in v])
                 else:
                     myvars[k] = v
         return myvars

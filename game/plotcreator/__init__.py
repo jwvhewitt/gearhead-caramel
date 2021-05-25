@@ -402,6 +402,42 @@ class MusicEditorWidget(pbge.widgets.ColumnWidget):
         if mysong:
             pbge.my_state.start_music(mysong, True)
 
+class ColorSwatchEditorWidget(pbge.widgets.DropdownWidget):
+    def __init__(self, mypalette, color_index, **kwargs):
+        super().__init__(0, 0, 24, 36, on_select=self.update_swatch, **kwargs)
+        self.palette = mypalette
+        self.color_index = color_index
+        self.sprite = None
+        self.update_swatch(self.palette[self.color_index])
+        self.menu.w = 300
+        for c in gears.color.ALL_COLORS:
+            self.add_item(c.name, gears.SINGLETON_REVERSE[c])
+        self.menu.sort()
+
+    def update_swatch(self, color_name):
+        if color_name:
+            self.palette[self.color_index] = color_name
+            color = gears.SINGLETON_TYPES[color_name]
+            self.sprite = pbge.image.Image("sys_color_menu_swatch.png", 24, 36, color=[color, color, color, color, color])
+
+    def render( self ):
+        self.sprite.render(self.get_rect(), 0)
+
+
+class PaletteEditorWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part: BluePrint, var_name, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + 36,**kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+
+        myrow = pbge.widgets.RowWidget(0,0,self.w, 36)
+        self.add_interior(myrow)
+
+        mypalette = part.raw_vars.get(var_name)
+        for t in range(5):
+            myrow.add_center(ColorSwatchEditorWidget(mypalette, t))
+
 
 class VarEditorPanel(pbge.widgets.ColumnWidget):
     def __init__(self,mypart,editor,dx=10,dy=-200,w=350,h=450,**kwargs):
@@ -435,6 +471,8 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
                 mywidget = ConditionalEditorWidget(self.editor.active_part, k, refresh_fun=self.refresh_var_widgets)
             elif mybrick.vars[k].var_type == "music":
                 mywidget = MusicEditorWidget(self.editor.active_part, k)
+            elif mybrick.vars[k].var_type == "palette":
+                mywidget = PaletteEditorWidget(self.editor.active_part, k)
             else:
                 mywidget = StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
             self.scroll_column.add_interior(

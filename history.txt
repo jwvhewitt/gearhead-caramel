@@ -1,3 +1,4 @@
+- Colors have been added to the SINGLETON_REVERSE dict
 - Fixed problems with choose lifepath display
 - The map viewer now uses a per-tile message ticker
 - Added "View Hotkeys" to combat popup menu

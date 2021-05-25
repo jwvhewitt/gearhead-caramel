@@ -356,10 +356,6 @@ class SteelPipeSouthMid(pbge.scenes.terrain.Terrain):
     frame = 3
     image_top = 'terrain_decor_pipes.png'
 
-class SteelPipeSouthMid(pbge.scenes.terrain.Terrain):
-    frame = 3
-    image_top = 'terrain_decor_pipes.png'
-
 class SteelPipe(pbge.scenes.terrain.OnTheWallVariableTerrain):
     east_frames = (0,2,2)
     south_frames = (1,3,3)
