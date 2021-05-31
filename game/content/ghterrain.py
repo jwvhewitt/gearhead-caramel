@@ -451,6 +451,41 @@ class CrossedSwordsTerrainEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_crossedswords.png'
 
 
+class KettelLogoTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_kettellogo.png'
+
+class KettelLogoTerrainSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_kettellogo.png'
+
+class KettelLogoTerrainEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_kettellogo.png'
+
+class RegExLogoTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_logo_regex.png'
+
+class RegExLogoTerrainSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_logo_regex.png'
+
+class RegExLogoTerrainEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_logo_regex.png'
+
+class HospitalSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_hospitalsign.png'
+
+class HospitalSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_hospitalsign.png'
+
+class HospitalSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_hospitalsign.png'
+
+
+
 class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = ScrapIronBuildingTerrain
     DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((JunkWindowSouth,), (JunkWindowEast,)),
@@ -642,8 +677,6 @@ class UlsaniteBookshelfTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     SOUTH_FRAME = 5
     EAST_FRAME = 4
 
-class RegExLogoTerrain(pbge.scenes.terrain.OnTheWallTerrain):
-    image_top = 'terrain_decor_logo_regex.png'
 
 class HamsterCageTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_hamstercage.png'
@@ -675,17 +708,6 @@ class StoneStairsUpTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_stonestairs.png'
     blocks = (Walking,Skimming,Rolling,Flying)
     movement_cost={pbge.scenes.movement.Vision:5}
-
-class HospitalSign(pbge.scenes.terrain.OnTheWallTerrain):
-    image_top = 'terrain_decor_hospitalsign.png'
-
-class HospitalSignSouth(pbge.scenes.terrain.Terrain):
-    frame = 0
-    image_top = 'terrain_decor_hospitalsign.png'
-
-class HospitalSignEast(pbge.scenes.terrain.Terrain):
-    frame = 1
-    image_top = 'terrain_decor_hospitalsign.png'
 
 class BedTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_bed.png'

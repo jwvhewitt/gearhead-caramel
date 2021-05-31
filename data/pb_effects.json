@@ -81,7 +81,62 @@
     "scripts": {
       "effect": "plotutility.AutoJoiner({npc})(camp)\n{npc}.relationship.tags.add(gears.relationships.RT_LANCEMATE)"
     }
-  }
+  },
 
+  {
+    "name": "Activate Mission",
+    "desc": "Add a mission to the MISSION_GATE in this city.",
+    "label": "EFFECT",
+    "is_new_branch": true,
+    "vars": {
+      "mission_name": {
+        "default_val": "Mission",
+        "var_type": "string"
+      },
+      "objectives":  {
+        "default_val": [],
+        "var_type": "list:objectives"
+      },
+      "enemy_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      },
+      "allied_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      },
+      "exploration_music": {"default_val":  "Chronos.ogg", "var_type": "music"},
+      "combat_music": {"default_val":  "Komiku_-_03_-_Battle_Theme.ogg", "var_type": "music"}
+    },
+    "scripts": {
+      "effect_init": "self.add_sub_plot(nart, \"MISSION_{uname}_{_uid}\", ident=\"MISSION_{_uid}\")",
+      "effect": "self.subplots[\"MISSION_{_uid}\"].activate_mission(camp)",
+      "main": "class {scriptname}_{_uid}_Mission( Plot ):\n    LABEL=\"MISSION_{uname}_{_uid}\"\n    active = False\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: mission_init\n        return True\n    def activate_mission(self, camp):\n        #: mission_activate\n    def {MISSION_GATE}_menu(self, camp, thingmenu):\n        if self.mission_seed:\n            thingmenu.add_item(self.mission_seed.name, self.mission_seed)\n    #: mission_methods",
+      "mission_init": "self.mission_seed = missionbuilder.BuildAMissionSeed(\n    nart.camp, \"{mission_name}\",\n    (self.elements[\"{CITY}\"], self.elements[\"{MISSION_GATE}\"]),\n    {enemy_faction}, {allied_faction}, rank=self.rank,\n    objectives={objectives},\n    exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\",\n    #: on_win_effect,\n    #: on_loss_effect\n)",
+
+      "mission_activate": "self.activate(camp)\nmissionbuilder.NewMissionNotification(self.mission_seed.name, self.elements[\"{MISSION_GATE}\"])"
+    },
+    "child_types": ["ON_WIN_EFFECT", "ON_LOSS_EFFECT"]
+  },
+      {
+    "name": "Add Win Effect",
+    "desc": "Adds an effect that will run if the player wins this mission.",
+    "label": "ON_WIN_EFFECT",
+    "scripts": {
+      "on_win_effect": "on_win = self._{uname}{_uid}_win,",
+      "mission_methods": "def _{uname}{_uid}_win(self, camp):\n    pass\n    #: effect"
+    },
+    "child_types": ["EFFECT"]
+    },
+        {
+    "name": "Add Loss Effect",
+    "desc": "Adds an effect that will run if the player loses this mission.",
+    "label": "ON_LOSS_EFFECT",
+    "scripts": {
+      "on_loss_effect": "on_loss = self._{uname}{_uid}_loss,",
+      "mission_methods": "def _{uname}{_uid}_loss(self, camp):\n    pass\n    #: effect"
+    },
+    "child_types": ["EFFECT"]
+    }
 
 ]

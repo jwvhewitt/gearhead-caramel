@@ -57,6 +57,37 @@ CONTEXT_INFO = {
 
 }
 
+LIST_TYPES = {
+    "door_sign": (
+        "AlliedArmorSign", "FixitShopSign", "RustyFixitShopSign", "CrossedSwordsTerrain", "KettelLogoTerrain",
+        "RegExLogoTerrain", "HospitalSign"
+    ),
+    "door_type": (
+        "ScrapIronDoor", "GlassDoor", "ScreenDoor", "WoodenDoor"
+    ),
+    "objectives": (
+        game.content.ghplots.missionbuilder.BAMO_AID_ALLIED_FORCES,
+        game.content.ghplots.missionbuilder.BAMO_CAPTURE_THE_MINE,
+        game.content.ghplots.missionbuilder.BAMO_CAPTURE_BUILDINGS,
+        game.content.ghplots.missionbuilder.BAMO_DEFEAT_ARMY,
+        game.content.ghplots.missionbuilder.BAMO_DEFEAT_COMMANDER,
+        game.content.ghplots.missionbuilder.BAMO_DEFEAT_NPC,
+        game.content.ghplots.missionbuilder.BAMO_DEFEAT_THE_BANDITS,
+        game.content.ghplots.missionbuilder.BAMO_DESTROY_ARTILLERY,
+        game.content.ghplots.missionbuilder.BAMO_EXTRACT_ALLIED_FORCES,
+        game.content.ghplots.missionbuilder.BAMO_EXTRACT_ALLIED_FORCES_VS_DINOSAURS,
+        game.content.ghplots.missionbuilder.BAMO_FIGHT_DINOSAURS,
+        game.content.ghplots.missionbuilder.BAMO_LOCATE_ENEMY_FORCES,
+        game.content.ghplots.missionbuilder.BAMO_NEUTRALIZE_ALL_DRONES,
+        game.content.ghplots.missionbuilder.BAMO_PROTECT_BUILDINGS_FROM_DINOSAURS,
+        game.content.ghplots.missionbuilder.BAMO_RECOVER_CARGO,
+        game.content.ghplots.missionbuilder.BAMO_RESCUE_NPC,
+        game.content.ghplots.missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL,
+        game.content.ghplots.missionbuilder.BAMO_STORM_THE_CASTLE,
+        game.content.ghplots.missionbuilder.BAMO_SURVIVE_THE_AMBUSH
+    )
+}
+
 def find_elements(part: pbclasses.BluePrint, e_type):
     mylist = list()
     for k, fac in part.get_elements().items():
@@ -74,6 +105,8 @@ def get_possible_states(part: pbclasses.BluePrint, category):
         for k,v in CONTEXT_INFO.items():
             mylist.append((v.name, k))
         return mylist
+    elif category in LIST_TYPES:
+        return [(a,a) for a in LIST_TYPES[category]]
     else:
         return find_elements(part, category)
 

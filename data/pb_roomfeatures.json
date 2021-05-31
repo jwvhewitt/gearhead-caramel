@@ -1,0 +1,22 @@
+[
+      {
+    "name": "New NPC",
+    "desc": "Adds an NPC to this scene.",
+    "label": "ROOM_FEATURE",
+    "vars": {
+      "npc_name": {"default_val": "", "var_type": "string"},
+      "npc_role": {"default_val": "Civilian", "var_type": "string"},
+      "npc_combatant": {"default_val":  false, "var_type":  "boolean"},
+      "npc_faction": {"default_val": null, "var_type": "faction"}
+    },
+    "scripts": {
+      "room_init": "npc = self.register_element(\"NPC_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", combatant={npc_combatant}, local_tags=self.elements[\"{CITY}\"].attributes, faction={npc_faction}), dident=\"{ROOM}\")",
+      "room_methods": "def NPC_{_uid}_offers(self, camp):\n    mylist = list()\n    #: npc_offers\n    return mylist\n#: npc_methods"
+    },
+    "child_types": ["NPC_FEATURE"],
+    "elements": {
+      "NPC_{_uid}": {"e_type": "npc", "name": "{npc_role}({npc_name})", "aliases":  ["NPC"]}
+    }
+  }
+
+]

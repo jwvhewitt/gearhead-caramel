@@ -106,7 +106,7 @@ def init_plots():
                 spec.loader.exec_module(module)
                 modict[dlcname] = module
                 harvest(module)
-            except (IndentationError, SyntaxError) as err:
+            except (IndentationError, SyntaxError, ImportError) as err:
                 print("ERROR: {} could not be loaded due to error: {}".format(dlcpath, err))
         else:
             print("Warning: User content {} not loaded because of duplicate name".format(dlcname))

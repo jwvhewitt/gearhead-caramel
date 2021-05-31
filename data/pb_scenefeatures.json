@@ -19,29 +19,10 @@
     "desc": "The first time you enter this scene, something is going to happen. Add some Effect features to determine what that something is.",
     "label": "SCENE_FEATURE",
     "scripts": {
-      "scene_init": "self.entered_scene_{_uid} = False\n",
+      "scene_init": "self.entered_scene_{_uid} = False\n#: effect_init",
       "scene_enter": "if not self.entered_scene_{_uid}:\n    self.entered_scene_{_uid} = True\n    #: effect"
     },
     "child_types": ["EFFECT"]
-    },
-
-    {
-    "name": "New NPC",
-    "desc": "Adds an NPC to this scene.",
-    "label": "SCENE_FEATURE",
-    "vars": {
-      "npc_name": {"default_val": "", "var_type": "string"},
-      "npc_role": {"default_val": "Civilian", "var_type": "string"},
-      "npc_combatant": {"default_val":  false, "var_type":  "boolean"},
-      "npc_faction": {"default_val": null, "var_type": "faction"}
-    },
-    "scripts": {
-      "scene_init": "npc = self.register_element(\"NPC_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", combatant={npc_combatant}, local_tags=self.elements[\"{CITY}\"].attributes, faction={npc_faction}), dident=\"{LOCALE}\")",
-      "scene_methods": "def NPC_{_uid}_offers(self, camp):\n    mylist = list()\n    #: npc_offers\n    return mylist\n"
-    },
-    "child_types": ["NPC_FEATURE"],
-    "elements": {
-      "NPC_{_uid}": {"e_type": "npc", "name": "{npc_role}({npc_name})", "aliases":  ["NPC"]}
     }
-  }
+
 ]

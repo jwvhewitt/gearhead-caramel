@@ -439,6 +439,52 @@ class PaletteEditorWidget(pbge.widgets.ColumnWidget):
             myrow.add_center(ColorSwatchEditorWidget(mypalette, t))
 
 
+class AddRemoveFSOptionsWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part, var_name,**kwargs):
+        super().__init__(0,0,350,100,**kwargs)
+        self.part = part
+        self.var_name = var_name
+
+        self.ops_taken = part.raw_vars[var_name]
+
+        self.op_candidates = tuple(a[0] for a in statefinders.get_possible_states(part, part.brick.vars[var_name].var_type[5:]))
+
+        mytitle = pbge.widgets.RowWidget(0,0,self.w,max(pbge.SMALLFONT.get_linesize(),16))
+        minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
+        mytitle.add_left(pbge.widgets.LabelWidget(0,0,250,mytitle.h,font=pbge.SMALLFONT,text=var_name))
+
+        mytitle.add_right(pbge.widgets.ButtonWidget(0,0,16,16,minus_plus_image,on_click=self._delete_op,active=kwargs.get("active",True)))
+        mytitle.add_right(pbge.widgets.ButtonWidget(0,0,16,16,minus_plus_image,frame=1,on_click=self._add_op,active=kwargs.get("active",True)))
+        self.add_interior(mytitle)
+        self.add_interior(pbge.widgets.LabelWidget(0,0,300,50,font=pbge.MEDIUMFONT,draw_border=True,text_fun=self._get_op_string))
+
+    def _get_op_string(self, widg):
+        if not self.ops_taken:
+            return "None"
+        elif len(self.ops_taken) == 1:
+            return str(self.ops_taken[0])
+        else:
+            return ', '.join([str(p) for p in self.ops_taken])
+
+    def _delete_op(self,widg,ev):
+        if self.ops_taken:
+            mymenu = pbge.rpgmenu.PopUpMenu()
+            for p in self.ops_taken:
+                mymenu.add_item(p, p)
+            delete_this_one = mymenu.query()
+            if delete_this_one in self.ops_taken:
+                self.ops_taken.remove(delete_this_one)
+
+    def _add_op(self,widg,ev):
+        mymenu = pbge.rpgmenu.PopUpMenu()
+        for p in self.op_candidates:
+            if p not in self.ops_taken:
+                mymenu.add_item(p,p)
+        add_this_one = mymenu.query()
+        if add_this_one:
+            self.ops_taken.append(add_this_one)
+
+
 class VarEditorPanel(pbge.widgets.ColumnWidget):
     def __init__(self,mypart,editor,dx=10,dy=-200,w=350,h=450,**kwargs):
         super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
@@ -461,6 +507,8 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
                 mywidget = TextVarEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
             elif mybrick.vars[k].var_type in ("faction", "scene", "npc"):
                 mywidget = FiniteStateEditorWidget(self.editor.active_part, k)
+            elif mybrick.vars[k].var_type in statefinders.LIST_TYPES:
+                mywidget = FiniteStateEditorWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type == "boolean":
                 mywidget = BoolEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
             elif mybrick.vars[k].var_type == "dialogue_context":
@@ -473,6 +521,8 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
                 mywidget = MusicEditorWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type == "palette":
                 mywidget = PaletteEditorWidget(self.editor.active_part, k)
+            elif mybrick.vars[k].var_type.startswith("list:"):
+                mywidget = AddRemoveFSOptionsWidget(self.editor.active_part, k)
             else:
                 mywidget = StringVarEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
             self.scroll_column.add_interior(

@@ -54,6 +54,7 @@
     "desc": "Adds an effect to a dialogue line. Note that dialogue effects are executed after the dialogue offer is made, not before.",
     "label": "DIALOGUE_EFFECT",
     "scripts": {
+      "npc_init": "#: effect_init",
       "dialogue_effect": "effect = self._{uname}{_uid}_effect,",
       "npc_methods": "def _{uname}{_uid}_effect(self, camp):\n    pass\n    #: effect"
     },
