@@ -15,7 +15,7 @@ VERSION = "v0.620"
 
 class TitleScreenRedraw(object):
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
-    MENU_DEST = pbge.frects.Frect(-150, 0, 300, 226)
+    MENU_DEST = pbge.frects.Frect(-150, 0, 300, 254)
 
     def __init__(self):
         self.title = pbge.image.Image("sys_maintitle.png")

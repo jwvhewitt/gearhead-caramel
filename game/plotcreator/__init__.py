@@ -7,13 +7,15 @@ import json
 from . import pbclasses, statefinders
 from .pbclasses import ALL_BRICKS, BRICKS_BY_LABEL, BRICKS_BY_NAME, PlotBrick, BluePrint
 import pygame
+import os
 
 
 
 class PartsNodeWidget(pbge.widgets.Widget):
     def __init__(self,mypart,indent,editor,**kwargs):
-        self.font = pbge.BIGFONT
-        super().__init__(0,0,350,self.font.get_linesize()+1,data=mypart,**kwargs)
+        self.font = pbge.MEDIUMFONT
+        super().__init__(0,0,325
+                         ,self.font.get_linesize()+1,data=mypart,**kwargs)
         self.indent = indent
         self.editor = editor
         self.selected_image = self._draw_image(pbge.INFO_HILIGHT)
@@ -41,6 +43,30 @@ class PartsNodeWidget(pbge.widgets.Widget):
             pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
             pbge.my_state.screen.blit( self.regular_image , myrect )
+
+    def _builtin_responder(self, ev):
+        if self.get_rect().collidepoint(pbge.my_state.mouse_pos):
+            if self.is_kb_selectable() and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 3) and not pbge.my_state.widget_clicked:
+                if not pbge.my_state.widget_clicked:
+                    pbge.my_state.active_widget = self
+                pbge.my_state.widget_clicked = True
+                self._open_popup()
+
+    def _open_popup(self):
+        mymenu = pbge.rpgmenu.PopUpMenu()
+        mymenu.add_item("Copy", self._copy_node)
+        if self.editor.clipboard and self.editor.clipboard.brick.label in self.data.brick.child_types:
+            mymenu.add_item("Paste", self._paste_node)
+        q = mymenu.query()
+        if q:
+            q()
+
+    def _copy_node(self):
+        self.editor.clipboard = self.data.copy()
+
+    def _paste_node(self):
+        self.data.children.append(self.editor.clipboard.copy())
+        self.editor.update_tree()
 
 
 class PlotTreeWidget(pbge.widgets.ColumnWidget):
@@ -78,6 +104,31 @@ class StringVarEditorWidget(pbge.widgets.ColumnWidget):
 
     def _do_change(self, widj, ev):
         self.part.raw_vars[self.var_name] = widj.text
+
+
+class CampaignVarNameWidget(pbge.widgets.ColumnWidget):
+    def __init__(self, part, var_name, **kwargs):
+        super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8,**kwargs)
+        self.part = part
+        self.var_name = var_name
+        self.add_interior(pbge.widgets.LabelWidget(0,0,self.w,pbge.SMALLFONT.get_linesize(),var_name,font=pbge.SMALLFONT))
+        myrow = pbge.widgets.RowWidget(0,0,self.w, pbge.MEDIUMFONT.get_linesize() + 8)
+        self.add_interior(myrow)
+        self.text_widget = pbge.widgets.TextEntryWidget(0,0,300,pbge.MEDIUMFONT.get_linesize() + 8,str(part.raw_vars.get(var_name,"x")),on_change=self._do_change,font=pbge.MEDIUMFONT)
+        myrow.add_left(self.text_widget)
+        myrow.add_right(pbge.widgets.LabelWidget(0,0,40,pbge.MEDIUMFONT.get_linesize() + 4, "<--", font=pbge.MEDIUMFONT, justify=0, draw_border=True, on_click=self._click_arrow))
+
+    def _do_change(self, widj, ev):
+        self.part.raw_vars[self.var_name] = widj.text
+
+    def _click_arrow(self, wid, ev):
+        mymenu = pbge.rpgmenu.PopUpMenu(w=300)
+        for cvn in self.part.get_campaign_variable_names():
+            mymenu.add_item(cvn, cvn)
+        mymenu.sort()
+        choice = mymenu.query()
+        if choice:
+            self.text_widget.text = choice
 
 
 class TextVarEditorWidget(pbge.widgets.ColumnWidget):
@@ -227,6 +278,7 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
             name_entry = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
             for cvn in part.get_campaign_variable_names():
                 name_entry.add_item(cvn, cvn)
+            name_entry.menu.sort()
             name_entry.add_item('None', None)
             name_entry.menu.set_item_by_value(val_list[1])
             self.add_left(name_entry)
@@ -246,24 +298,38 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
     def set_text(self, wid, ev):
         self.val_list[1] = wid.text
 
-class ConditionalOperatorEditor(pbge.widgets.DropdownWidget):
+class ConditionalOperatorEditor(pbge.widgets.RowWidget):
     def __init__(self, part, var_name, var_index, refresh_fun, **kwargs):
-        super().__init__(0, 0, 350, pbge.SMALLFONT.get_linesize() + 8, font=pbge.SMALLFONT, justify=0, on_select=self.set_value, **kwargs)
+        super().__init__(0, 0, 350, pbge.SMALLFONT.get_linesize() + 8, **kwargs)
         self.part = part
         self.var_name = var_name
         self.var_index = var_index
+        self.dropper = pbge.widgets.DropdownWidget(0, 0, 320, pbge.SMALLFONT.get_linesize() + 8, font=pbge.SMALLFONT, justify=0, on_select=self.set_value)
+        self.add_left(self.dropper)
         for op in game.plotcreator.conditionals.CONDITIONAL_EXPRESSION_OPS:
-            self.add_item(op.capitalize(), op)
+            self.dropper.add_item(op.capitalize(), op)
         for op,desc in conditionals.CONDITIONAL_FUNCTIONS.items():
-            self.add_item(op.capitalize(), op)
-        self.menu.set_item_by_value(part.raw_vars[var_name][var_index][0])
+            self.dropper.add_item(op.capitalize(), op)
+        self.dropper.menu.set_item_by_value(part.raw_vars[var_name][var_index][0])
         self.refresh_fun = refresh_fun
+
+        self.add_right(pbge.widgets.LabelWidget(0,0,20,pbge.SMALLFONT.get_linesize() + 4, "X", font=pbge.SMALLFONT, justify=0, draw_border=True, on_click=self._delete_expression))
+
+    def _delete_expression(self, wid, ev):
+        mylist = self.part.raw_vars[self.var_name]
+        if self.var_index > 0:
+            del mylist[self.var_index-1:self.var_index+1]
+        elif len(mylist) > 1:
+            del mylist[0:2]
+        else:
+            del mylist[self.var_index]
+        self.refresh_fun()
 
     def set_value(self, result):
         old_var = self.part.raw_vars[self.var_name][self.var_index][0]
         if old_var in game.plotcreator.conditionals.CONDITIONAL_EXPRESSION_OPS and result in game.plotcreator.conditionals.CONDITIONAL_EXPRESSION_OPS:
             self.part.raw_vars[self.var_name][self.var_index][0] = result
-        else:
+        elif result:
             # Gonna need a brand new expression.
             self.part.raw_vars[self.var_name][self.var_index] = game.plotcreator.conditionals.generate_new_conditional_expression(result)
             self.refresh_fun()
@@ -288,6 +354,7 @@ class ConditionalFunParamEditor(pbge.widgets.RowWidget):
             name_entry = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
             for cvn in part.get_campaign_variable_names():
                 name_entry.add_item(cvn, "camp.campdata.get(\"{}\", 0)".format(cvn))
+            name_entry.menu.sort()
             name_entry.add_item('None', None)
             name_entry.menu.set_item_by_value(val_list[1])
             self.add_left(name_entry)
@@ -336,8 +403,9 @@ class BooleanOperatorEditor(pbge.widgets.DropdownWidget):
         self.menu.set_item_by_value(part.raw_vars[var_name][var_index])
 
     def _select_operator(self, result):
-        self.part.raw_vars[self.var_name][self.var_index] = result
-        #self.refresh_fun()
+        if result:
+            self.part.raw_vars[self.var_name][self.var_index] = result
+            #self.refresh_fun()
 
 
 class ConditionalEditorWidget(pbge.widgets.ColumnWidget):
@@ -505,6 +573,8 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
         for k in mybrick.vars.keys():
             if mybrick.vars[k].var_type == "text":
                 mywidget = TextVarEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
+            elif mybrick.vars[k].var_type == "campaign_variable":
+                mywidget = CampaignVarNameWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type in ("faction", "scene", "npc"):
                 mywidget = FiniteStateEditorWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type in statefinders.LIST_TYPES:
@@ -536,6 +606,7 @@ class PlotCreator(pbge.widgets.Widget):
 
         self.mytree = mytree
         self.active_part = mytree
+        self.clipboard = None
 
         self.parts_widget = PlotTreeWidget(mytree,self)
         self.children.append(self.parts_widget)
@@ -620,6 +691,7 @@ class PlotCreator(pbge.widgets.Widget):
                 if ev.key == pygame.K_ESCAPE:
                     keepgoing = False
 
+        myui._save(None, None)
         pbge.my_state.widgets.remove(myui)
 
 
@@ -628,7 +700,7 @@ def start_plot_creator(redraw):
     mainmenu.add_item("+Create New Scenario", "CNS")
     myfiles = glob.glob(pbge.util.user_dir( "content", "PLOTCREATOR_*.json"))
     for f in myfiles:
-        mainmenu.add_item(f, f)
+        mainmenu.add_item(os.path.basename(f), f)
 
     fname = mainmenu.query()
     if fname == "CNS":

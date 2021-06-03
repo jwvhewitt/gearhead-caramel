@@ -1,3 +1,5 @@
+- Added PlotCreator scenario editor
+- Popup menu can now take custom width and height
 - Colors have been added to the SINGLETON_REVERSE dict
 - Fixed problems with choose lifepath display
 - The map viewer now uses a per-tile message ticker

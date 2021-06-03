@@ -146,9 +146,15 @@ class TextEntryWidget( Widget ):
     def flash_when_active(self):
         pass
 
-    @property
-    def text(self):
+    def _get_text(self):
         return "".join(self.char_list)
+
+    def _set_text(self, text):
+        self.char_list = list(text)
+        if self.on_change:
+            self.on_change(self, None)
+
+    text = property(_get_text, _set_text)
 
 
 class RadioButtonWidget( Widget ):
@@ -523,6 +529,12 @@ class TextEditorWidget( Widget ):
     def flash_when_active(self):
         pass
 
-    @property
-    def text(self):
+    def _get_text(self):
         return "".join(self.char_list)
+
+    def _set_text(self, text):
+        self.char_list = list(text)
+        if self.on_change:
+            self.on_change(self, None)
+
+    text = property(_get_text, _set_text)

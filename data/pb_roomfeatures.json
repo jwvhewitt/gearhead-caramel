@@ -1,6 +1,7 @@
 [
       {
     "name": "New NPC",
+    "display_name": "NPC: {npc_role}({npc_name})",
     "desc": "Adds an NPC to this scene.",
     "label": "ROOM_FEATURE",
     "vars": {

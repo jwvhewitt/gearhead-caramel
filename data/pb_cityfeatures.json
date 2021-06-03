@@ -1,6 +1,7 @@
 [
     {
     "name": "New Town Hall Scene",
+      "display_name": "Town Hall: {townhall_name}",
     "desc": "Adds a town hall and a leader NPC to the city.",
     "label": "CITY_FEATURE",
     "is_new_branch": true,
@@ -23,11 +24,12 @@
     "elements": {
       "TOWNHALL_{_uid}": {"e_type": "scene", "name": "{townhall_name}", "aliases":  ["LOCALE"]},
       "MAYOR_{_uid}": {"e_type": "npc", "name": "{npc_role}({npc_name})", "aliases":  ["NPC"]},
-      "ROOM_{_uid}": {"e_type": "room", "name": "{building_name} Foyer", "aliases":  ["ROOM"]}
+      "ROOM_{_uid}": {"e_type": "room", "name": "{townhall_name} Foyer", "aliases":  ["ROOM"]}
     }
   },
       {
     "name": "New Hospital Scene",
+      "display_name": "Hospital: {hospital_name}",
     "desc": "Adds a hospital and a doctor NPC to the city.",
     "label": "CITY_FEATURE",
     "is_new_branch": true,
@@ -57,11 +59,12 @@
     "elements": {
       "HOSPITAL_{_uid}": {"e_type": "scene", "name": "{hospital_name}", "aliases":  ["LOCALE"]},
       "DOCTOR_{_uid}": {"e_type": "npc", "name": "{npc_role}({npc_name})", "aliases":  ["NPC"]},
-      "ROOM_{_uid}": {"e_type": "room", "name": "{building_name} Foyer", "aliases":  ["ROOM"]}
+      "ROOM_{_uid}": {"e_type": "room", "name": "{hospital_name} Foyer", "aliases":  ["ROOM"]}
     }
   },
       {
     "name": "New General Store",
+      "display_name": "Shop: {building_name}",
     "desc": "Adds a personal scale equipment shop and a shopkeeper NPC to the city.",
     "label": "CITY_FEATURE",
     "is_new_branch": true,
@@ -96,6 +99,7 @@
   },
       {
     "name": "New Garage",
+    "display_name": "Garage: {building_name}",
     "desc": "Adds a garage/mecha shop and a shopkeeper NPC to the city.",
     "label": "CITY_FEATURE",
     "is_new_branch": true,
@@ -130,6 +134,7 @@
   },
       {
     "name": "Corporate Custom Shop",
+    "display_name": "Custom Shop: {building_name}",
     "desc": "Adds a garage/mecha shop and a shopkeeper NPC to the city.",
     "label": "CITY_FEATURE",
     "is_new_branch": true,

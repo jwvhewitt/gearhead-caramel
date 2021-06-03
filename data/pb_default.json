@@ -1,6 +1,7 @@
 [
   {
     "name": "Scenario",
+    "display_name": "Scenario: {adventure_name}",
     "desc": "",
     "label": "SCENARIO",
     "vars": {
@@ -23,6 +24,7 @@
   },
   {
     "name": "New Sub Faction",
+    "display_name": "Faction: {faction_name}",
     "desc": "Adds a new sub-faction to a world.",
     "label": "WORLD_FEATURE",
     "vars": {
@@ -38,6 +40,7 @@
   },
   {
     "name": "New Campaign Variable",
+    "display_name": "Define {var_name} = {value}",
     "desc": "Define a campaign variable.",
     "label": "WORLD_FEATURE",
     "vars": {
@@ -71,6 +74,7 @@
   },
   {
     "name": "New Metro Scene",
+    "display_name": "City: {city_name}",
     "desc": "Adds a metro scene to the adventure. This is generally a city scene that serves as the player's home base between adventures. The metro scene handles the following things:\n - Provides a MetroDat slot for local plots.\n - Handles injury and death recovery.\n - Loads lancemate character dev plots (if enabled).",
     "label": "CITY",
     "is_new_branch": true,

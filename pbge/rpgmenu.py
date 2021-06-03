@@ -325,19 +325,17 @@ class Menu( Frect ):
 
 class PopUpMenu( Menu ):
     """Creates a small menu at the current mouse position."""
-    WIDTH = 200
-    HEIGHT = 250
-    def __init__( self, predraw=None, border=default_border, **kwargs ):
+    def __init__( self, w=200, h=250, predraw=None, border=default_border, **kwargs ):
         x,y = my_state.mouse_pos
         x += 8
         y += 8
         sw,sh = my_state.screen.get_size()
-        if x + self.WIDTH + 32 > sw:
-            x += -self.WIDTH - 32
-        if y + self.HEIGHT + 32 > sh:
-            y += -self.HEIGHT - 32
+        if x + w + 32 > sw:
+            x += -w - 32
+        if y + h + 32 > sh:
+            y += -h - 32
 
-        super().__init__(x,y,self.WIDTH,self.HEIGHT,ANCHOR_UPPERLEFT, border=border, predraw=predraw, **kwargs)
+        super().__init__(x,y,w,h,ANCHOR_UPPERLEFT, border=border, predraw=predraw, **kwargs)
 
 
 

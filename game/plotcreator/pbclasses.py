@@ -40,9 +40,10 @@ class PlotBrick(object):
     # child_types: List of brick labels that can be added as children of this brick.
     # elements: Descriptions for the elements defined within this brick.
     # is_new_branch: True if this brick begins a new Plot. This is needed to check element + var inheritance.
-    def __init__(self, label="PLOT_BLOCK", name="", desc="", scripts=None, vars=None, child_types=(), elements=None, is_new_branch=False, **kwargs):
+    def __init__(self, label="PLOT_BLOCK", name="", display_name="", desc="", scripts=None, vars=None, child_types=(), elements=None, is_new_branch=False, **kwargs):
         self.label = label
         self.name = name
+        self.display_name = display_name or name
         self.desc = desc
         self.scripts = dict()
         if scripts:
@@ -78,29 +79,34 @@ class BluePrint(object):
         self.raw_vars = brick.get_default_vars()
         self._uid = 0
 
-    def get_save_dict(self):
+    def get_save_dict(self, include_uid=True):
         mydict = dict()
         mydict["brick"] = self._brick_name
-        mydict["uid"] = self._uid
         mydict["vars"] = self.raw_vars
         mydict["children"] = list()
-        if hasattr(self, "max_uid"):
-            mydict["max_uid"] = self.max_uid
+        if include_uid:
+            mydict["uid"] = self._uid
+            if hasattr(self, "max_uid"):
+                mydict["max_uid"] = self.max_uid
         for c in self.children:
-            mydict["children"].append(c.get_save_dict())
+            mydict["children"].append(c.get_save_dict(include_uid))
         return mydict
 
     @classmethod
     def load_save_dict(cls, jdict: dict):
         mybrick = BRICKS_BY_NAME[jdict["brick"]]
         mybp = cls(mybrick)
-        mybp._uid = jdict["uid"]
+        mybp._uid = jdict.get("uid",0)
         mybp.raw_vars.update(jdict["vars"])
         if "max_uid" in jdict:
             mybp.max_uid = jdict["max_uid"]
         for cdict in jdict["children"]:
             mybp.children.append(cls.load_save_dict(cdict))
         return mybp
+
+    def copy(self):
+        myinfo = self.get_save_dict(False)
+        return self.__class__.load_save_dict(myinfo)
 
     def get_section(self, section_name, my_scripts, child_scripts, prefix, touched_scripts, done_scripts, used_scripts):
         if section_name in touched_scripts:
@@ -214,7 +220,7 @@ class BluePrint(object):
     brick = property(_get_brick,_set_brick,_del_brick)
 
     def _get_name(self):
-        return self._brick_name
+        return self.brick.display_name.format(**self.get_ultra_vars())
 
     name = property(_get_name)
 

@@ -1,6 +1,7 @@
 [
   {
     "name": "Alert Message",
+    "display_name": "Alert: {message}",
     "label": "EFFECT",
     "vars": {
       "message": {
@@ -14,6 +15,7 @@
   },
   {
     "name": "Set Memo",
+    "display_name": "Memo: {message}",
     "desc": "Set a message that will appear in the memo browser. If there is already a memo for this plot, it will be overwritten.",
     "label": "EFFECT",
     "vars": {
@@ -40,6 +42,7 @@
   },
     {
     "name": "Give XP to the Lance",
+      "display_name": "XP {+amount}",
     "label": "EFFECT",
     "vars": {
       "amount": {
@@ -53,6 +56,7 @@
   },
     {
     "name": "Set Campaign Variable",
+    "display_name": "Set {var_name} = {value}",
     "label": "EFFECT",
     "vars": {
       "var_name": {
