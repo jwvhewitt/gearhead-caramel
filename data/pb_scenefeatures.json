@@ -23,6 +23,29 @@
       "scene_enter": "if not self.entered_scene_{_uid}:\n    self.entered_scene_{_uid} = True\n    #: effect"
     },
     "child_types": ["EFFECT"]
+    },
+
+      {
+    "name": "Every Time Entry Effect",
+    "desc": "Every time you enter this scene, something is going to happen. Add some Effect features to determine what that something is.",
+    "label": "SCENE_FEATURE",
+    "scripts": {
+      "scene_enter": "#: effect"
+    },
+    "child_types": ["EFFECT"]
+    },
+
+      {
+    "name": "Add Random Civilians",
+    "desc": "Add a random NPC to this scene. Or several, in fact.",
+    "label": "SCENE_FEATURE",
+    "vars": {
+      "number_of_npcs": {"default_val": "1", "var_type": "integer"}
+    },
+    "scripts": {
+      "scene_init": "for t in range({number_of_npcs}):\n    self.add_sub_plot(nart, \"ADD_PERSON_TO_LOCALE\", elements=dict(LOCALE=self.elements[\"{LOCALE}\"]))"
     }
+  }
+
 
 ]

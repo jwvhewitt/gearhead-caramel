@@ -579,6 +579,8 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
                 mywidget = FiniteStateEditorWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type in statefinders.LIST_TYPES:
                 mywidget = FiniteStateEditorWidget(self.editor.active_part, k)
+            elif mybrick.vars[k].var_type.endswith(".png"):
+                mywidget = FiniteStateEditorWidget(self.editor.active_part, k)
             elif mybrick.vars[k].var_type == "boolean":
                 mywidget = BoolEditorWidget(self.editor.active_part, k, self.editor.active_part.raw_vars.get(k))
             elif mybrick.vars[k].var_type == "dialogue_context":
@@ -635,6 +637,7 @@ class PlotCreator(pbge.widgets.Widget):
         for tlabel in mybrick.child_types:
             for tbrick in BRICKS_BY_LABEL.get(tlabel, ()):
                 mymenu.add_item(tbrick.name, tbrick, tbrick.desc)
+        mymenu.sort()
         nubrick = mymenu.query()
         if nubrick:
             newbp = BluePrint(nubrick)
@@ -662,6 +665,9 @@ class PlotCreator(pbge.widgets.Widget):
             for l in myprog["main"]:
                 fp.write(l+'\n')
         pbge.BasicNotification("{} has been written. Restart GearHead to load the scenario.".format(fname))
+        for k,v in myprog.items():
+            if k != "main":
+                print("Leftover section: {}".format(k))
 
     def click_part(self,widj,ev):
         if widj.data:
@@ -691,7 +697,9 @@ class PlotCreator(pbge.widgets.Widget):
                 if ev.key == pygame.K_ESCAPE:
                     keepgoing = False
 
-        myui._save(None, None)
+        if myui.mytree.raw_vars["uname"]:
+            myui._save(None, None)
+
         pbge.my_state.widgets.remove(myui)
 
 

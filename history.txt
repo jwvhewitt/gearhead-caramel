@@ -1,3 +1,4 @@
+v0.700 June 13 2021
 - Added PlotCreator scenario editor
 - Popup menu can now take custom width and height
 - Colors have been added to the SINGLETON_REVERSE dict

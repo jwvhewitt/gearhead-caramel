@@ -14,11 +14,12 @@
 
     },
     "scripts": {
-      "city_subplots": "self.add_sub_plot(nart, \"TOWNHALL_{uname}_{_uid}\")",
-      "main": "class {scriptname}_{_uid}_Townhall( Plot ):\n    LABEL=\"TOWNHALL_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def TOWNHALL_{_uid}_ENTER(self, camp):\n        pass\n        #: building_enter\n        #: scene_enter\n    def MAYOR_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
+      "city_init": "self.add_sub_plot(nart, \"TOWNHALL_{uname}_{_uid}\")",
+      "main": "class {scriptname}_{_uid}_Townhall( Plot ):\n    LABEL=\"TOWNHALL_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def MAYOR_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
       "building_init": "# Create a building within the town.\ndd = dict(\n    image_bottom='terrain_building_residential_b.png', image_top='terrain_building_residential_u.png',\n    blocks=(pbge.scenes.movement.Walking,gears.geffects.Skimming,gears.geffects.Rolling,pbge.scenes.movement.Flying),\n    colors={city_palette}\n)\nbuilding = self.register_element(\"_EXTERIOR\", ghterrain.ResidentialBuilding(waypoints=dict(DOOR = ghwaypoints.WoodenDoor(name=\"{townhall_name}\")), tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], duck_dict=dd), dident=\"{CITY}\")\n\n# Add the interior scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\",faction=self.elements[\"METROSCENE\"].faction)\nintscene = gears.GearHeadScene(35, 35, \"{townhall_name}\", player_team=team1, civilian_team=team2, attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT), scale=gears.scale.HumanScale, exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\")\nintscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())\nself.register_scene(nart, intscene, intscenegen, ident=\"TOWNHALL_{_uid}\", dident=\"{CITY}\")\n#: room_init\n\nmycon2 = plotutility.TownBuildingConnection(nart, self, self.elements[\"{CITY}\"], intscene, room1=building, room2=foyer, door1=building.waypoints[\"DOOR\"], move_door1=False)\nself.elements[\"ENTRANCE\"] = mycon2.door2\n",
       "npc_init": "npc = self.register_element(\"MAYOR_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", local_tags=self.elements[\"{CITY}\"].attributes, job=gears.jobs.ALL_JOBS[\"Mayor\"], faction = self.elements[\"{CITY}\"].faction))\nnpc.place(intscene, team=intscene.civilian_team)\n",
-      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,), dident=\"TOWNHALL_{_uid}\")"
+      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,), dident=\"TOWNHALL_{_uid}\")",
+      "scene_methods": "def TOWNHALL_{_uid}_ENTER(self, camp):\n    pass\n    #: scene_enter"
     },
     "child_types": ["SCENE_FEATURE", "NPC_FEATURE"],
     "elements": {
@@ -48,12 +49,13 @@
 
     },
     "scripts": {
-      "city_subplots": "self.add_sub_plot(nart, \"HOSPITAL_{uname}_{_uid}\")",
-      "main": "class {scriptname}_{_uid}_Hospital( Plot ):\n    LABEL=\"HOSPITAL_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def TOWNHALL_{_uid}_ENTER(self, camp):\n        pass\n        #: building_enter\n        #: scene_enter\n    def DOCTOR_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
+      "city_init": "self.add_sub_plot(nart, \"HOSPITAL_{uname}_{_uid}\")",
+      "main": "class {scriptname}_{_uid}_Hospital( Plot ):\n    LABEL=\"HOSPITAL_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def DOCTOR_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
       "building_init": "dd = dict(\n    image_bottom='terrain_building_brick_b.png', image_top='terrain_building_brick_u.png',\n    blocks=(pbge.scenes.movement.Walking,gears.geffects.Skimming,gears.geffects.Rolling,pbge.scenes.movement.Flying),\n    colors={city_palette}\n)\nbuilding = self.register_element(\"_EXTERIOR\", ghterrain.BrickBuilding(\n    waypoints=dict(DOOR=ghwaypoints.{shop_door}(name=\"{hospital_name}\")),\n    door_sign=(ghterrain.{shop_sign}East, ghterrain.{shop_sign}South),\n    tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], duck_dict=dd), dident=\"{CITY}\")\n\n# Add the interior scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\")\nintscene = gears.GearHeadScene(35, 35, \"{hospital_name}\", player_team=team1, civilian_team=team2,\n    attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),\n     scale=gears.scale.HumanScale, exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\")\nintscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.HospitalBuilding())\nself.register_scene(nart, intscene, intscenegen, ident=\"HOSPITAL_{_uid}\", dident=\"{CITY}\")\n#: room_init\n\nmycon2 = plotutility.TownBuildingConnection(nart, self, self.elements[\"{CITY}\"], intscene,\n    room1=building,\n    room2=foyer, door1=building.waypoints[\"DOOR\"],\n    move_door1=False)\n",
       "npc_init": "npc = self.register_element(\"DOCTOR_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", local_tags=self.elements[\"{CITY}\"].attributes, job=gears.jobs.ALL_JOBS[\"Doctor\"], faction = self.elements[\"{CITY}\"].faction))\nnpc.place(intscene, team=intscene.civilian_team)\nself.shop_{_uid} = services.Shop(services.PHARMACY, allow_misc=False, caption=\"Pharmacy\", rank=self.rank, npc=npc)",
       "npc_offers": "mylist.append(Offer(\"[OPENSHOP]\",\n    context=ContextTag([context.OPEN_SHOP]), effect=self.shop_{_uid},\n    data=dict(shop_name= \"{hospital_name}\", wares= \"medicine\")\n    ))\n",
-      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),\n    dident=\"HOSPITAL_{_uid}\")\n\nfoyer.contents.append(ghwaypoints.RecoveryBed())"
+      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),\n    dident=\"HOSPITAL_{_uid}\")\n\nfoyer.contents.append(ghwaypoints.RecoveryBed())",
+      "scene_methods": "def HOSPITAL_{_uid}_ENTER(self, camp):\n    pass\n    #: scene_enter"
     },
     "child_types": ["SCENE_FEATURE", "NPC_FEATURE", "ROOM_FEATURE"],
     "elements": {
@@ -83,12 +85,13 @@
 
     },
     "scripts": {
-      "city_subplots": "self.add_sub_plot(nart, \"GENERALSTORE_{uname}_{_uid}\")",
-      "main": "class {scriptname}_{_uid}_GeneralStore( Plot ):\n    LABEL=\"GENERALSTORE_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def TOWNHALL_{_uid}_ENTER(self, camp):\n        pass\n        #: building_enter\n        #: scene_enter\n    def SHOPKEEPER_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
+      "city_init": "self.add_sub_plot(nart, \"GENERALSTORE_{uname}_{_uid}\")",
+      "main": "class {scriptname}_{_uid}_GeneralStore( Plot ):\n    LABEL=\"GENERALSTORE_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def SHOPKEEPER_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
       "building_init": "dd = dict(\n    image_bottom='terrain_building_commercial_b.png', image_top='terrain_building_commercial_u.png',\n    blocks=(pbge.scenes.movement.Walking,gears.geffects.Skimming,gears.geffects.Rolling,pbge.scenes.movement.Flying),\n    colors={city_palette}\n)\nbuilding = self.register_element(\"_EXTERIOR\", ghterrain.CommercialBuilding(\n    waypoints=dict(DOOR=ghwaypoints.{shop_door}(name=\"{building_name}\")),\n    door_sign=(ghterrain.{shop_sign}East, ghterrain.{shop_sign}South),\n    tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], duck_dict=dd), dident=\"{CITY}\")\n\n# Add the interior scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\")\nintscene = gears.GearHeadScene(35, 35, \"{building_name}\", player_team=team1, civilian_team=team2,\n    attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),\n     scale=gears.scale.HumanScale, exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\")\nintscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())\nself.register_scene(nart, intscene, intscenegen, ident=\"GENERALSTORE_{_uid}\", dident=\"{CITY}\")\n#: room_init\nmycon2 = plotutility.TownBuildingConnection(nart, self, self.elements[\"{CITY}\"], intscene,\n    room1=building,\n    room2=foyer, door1=building.waypoints[\"DOOR\"],\n    move_door1=False)\n",
       "npc_init": "npc = self.register_element(\"SHOPKEEPER_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", local_tags=self.elements[\"{CITY}\"].attributes, job=gears.jobs.ALL_JOBS[\"Shopkeeper\"]))\nnpc.place(intscene, team=intscene.civilian_team)\nself.shop_{_uid} = services.Shop(services.GENERAL_STORE, allow_misc=False, caption=\"General Store\", rank=self.rank, npc=npc)",
       "npc_offers": "mylist.append(Offer(\"[OPENSHOP]\",\n    context=ContextTag([context.OPEN_SHOP]), effect=self.shop_{_uid},\n    data=dict(shop_name= \"{building_name}\", wares= \"equipment\")\n    ))\n",
-      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),\n    dident=\"GENERALSTORE_{_uid}\")"
+      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),\n    dident=\"GENERALSTORE_{_uid}\")",
+      "scene_methods": "def GENERALSTORE_{_uid}_ENTER(self, camp):\n    pass\n    #: scene_enter"
     },
     "child_types": ["SCENE_FEATURE", "NPC_FEATURE", "ROOM_FEATURE"],
     "elements": {
@@ -118,12 +121,13 @@
 
     },
     "scripts": {
-      "city_subplots": "self.add_sub_plot(nart, \"GARAGE_{uname}_{_uid}\")",
-      "main": "class {scriptname}_{_uid}_Garage( Plot ):\n    LABEL=\"GARAGE_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def TOWNHALL_{_uid}_ENTER(self, camp):\n        pass\n        #: building_enter\n        #: scene_enter\n    def SHOPKEEPER_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
+      "city_init": "self.add_sub_plot(nart, \"GARAGE_{uname}_{_uid}\")",
+      "main": "class {scriptname}_{_uid}_Garage( Plot ):\n    LABEL=\"GARAGE_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        return True\n    def SHOPKEEPER_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
       "building_init": "dd = dict(\n    image_bottom='terrain_building_industrial_b.png', image_top='terrain_building_industrial_u.png',\n    blocks=(pbge.scenes.movement.Walking,gears.geffects.Skimming,gears.geffects.Rolling,pbge.scenes.movement.Flying),\n    colors={city_palette}\n)\nbuilding = self.register_element(\"_EXTERIOR\", ghterrain.IndustrialBuilding(\n    waypoints=dict(DOOR=ghwaypoints.{shop_door}(name=\"{building_name}\")),\n    door_sign=(ghterrain.{shop_sign}East, ghterrain.{shop_sign}South),\n    tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], duck_dict=dd), dident=\"{CITY}\")\n\n# Add the interior scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\")\nintscene = gears.GearHeadScene(35, 35, \"{building_name}\", player_team=team1, civilian_team=team2,\n    attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP, gears.tags.SCENE_GARAGE),\n     scale=gears.scale.HumanScale, exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\")\nintscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())\nself.register_scene(nart, intscene, intscenegen, ident=\"GARAGE_{_uid}\", dident=\"{CITY}\")\n#: room_init\nfoyer.contents.append(ghwaypoints.MechEngTerminal())\nmycon2 = plotutility.TownBuildingConnection(nart, self, self.elements[\"{CITY}\"], intscene,\n    room1=building,\n    room2=foyer, door1=building.waypoints[\"DOOR\"],\n    move_door1=False)\n",
       "npc_init": "npc = self.register_element(\"SHOPKEEPER_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", local_tags=self.elements[\"{CITY}\"].attributes, job=gears.jobs.ALL_JOBS[\"Mechanic\"]))\nnpc.place(intscene, team=intscene.civilian_team)\nself.shop_{_uid} = services.Shop(services.MECHA_STORE, allow_misc=False, caption=\"Garage\", rank=self.rank, npc=npc)",
       "npc_offers": "mylist.append(Offer(\"[OPENSHOP]\",\n    context=ContextTag([context.OPEN_SHOP]), effect=self.shop_{_uid},\n    data=dict(shop_name= \"{building_name}\", wares= \"mecha\")\n    ))\n",
-      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),\n    dident=\"GARAGE_{_uid}\")"
+      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),\n    dident=\"GARAGE_{_uid}\")",
+      "scene_methods": "def GARAGE_{_uid}_ENTER(self, camp):\n    pass\n    #: scene_enter"
     },
     "child_types": ["SCENE_FEATURE", "NPC_FEATURE", "ROOM_FEATURE"],
     "elements": {
@@ -156,12 +160,13 @@
 
     },
     "scripts": {
-      "city_subplots": "self.add_sub_plot(nart, \"GARAGE_{uname}_{_uid}\")",
-      "main": "class {scriptname}_{_uid}_Garage( Plot ):\n    LABEL=\"GARAGE_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        #: room_subplots\n        return True\n    def TOWNHALL_{_uid}_ENTER(self, camp):\n        pass\n        #: building_enter\n        #: scene_enter\n    def SHOPKEEPER_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
+      "city_init": "self.add_sub_plot(nart, \"GARAGE_{uname}_{_uid}\")",
+      "main": "class {scriptname}_{_uid}_Garage( Plot ):\n    LABEL=\"GARAGE_{uname}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: building_init\n        #: scene_init\n        #: npc_init\n        #: building_subplots\n        #: scene_subplots\n        #: npc_subplots\n        #: room_subplots\n        return True\n    def SHOPKEEPER_{_uid}_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n    #: npc_methods\n    #: scene_methods\n    #: room_methods",
       "building_init": "dd = dict(\n    image_bottom='terrain_building_industrial_b.png', image_top='terrain_building_industrial_u.png',\n    blocks=(pbge.scenes.movement.Walking,gears.geffects.Skimming,gears.geffects.Rolling,pbge.scenes.movement.Flying),\n    colors={shop_palette}\n)\nbuilding = self.register_element(\"_EXTERIOR\", ghterrain.IndustrialBuilding(\n    waypoints=dict(DOOR=ghwaypoints.{shop_door}(name=\"{building_name}\")),\n    door_sign=(ghterrain.{shop_sign}East, ghterrain.{shop_sign}South),\n    tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], duck_dict=dd), dident=\"{CITY}\")\n\n# Add the interior scene.\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\")\nintscene = gears.GearHeadScene(35, 35, \"{building_name}\", player_team=team1, civilian_team=team2,\n    attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP, gears.tags.SCENE_GARAGE),\n     scale=gears.scale.HumanScale, exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\")\nintscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())\nself.register_scene(nart, intscene, intscenegen, ident=\"GARAGE_{_uid}\", dident=\"{CITY}\")\n#: room_init\nmycon2 = plotutility.TownBuildingConnection(nart, self, self.elements[\"{CITY}\"], intscene,\n    room1=building,\n    room2=foyer, door1=building.waypoints[\"DOOR\"],\n    move_door1=False)\n",
       "npc_init": "npc = self.register_element(\"SHOPKEEPER_{_uid}\",gears.selector.random_character(self.rank, name=\"{npc_name}\", local_tags=self.elements[\"{CITY}\"].attributes, faction={shop_faction}), dident='ROOM_{_uid}')\nself.shop_{_uid} = services.Shop(services.MEXTRA_STORE, allow_misc=False, caption=\"Custom Shop\", rank=self.rank+10, npc=npc, shop_faction={shop_faction})",
       "npc_offers": "mylist.append(Offer(\"[OPENSHOP]\",\n    context=ContextTag([context.OPEN_SHOP]), effect=self.shop_{_uid},\n    data=dict(shop_name= \"{building_name}\", wares= \"mecha\")\n    ))\n",
-      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),\n    dident=\"GARAGE_{_uid}\")\nfoyer.contents.append(ghwaypoints.MechEngTerminal())"
+      "room_init": "foyer = self.register_element('ROOM_{_uid}', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),\n    dident=\"GARAGE_{_uid}\")\nfoyer.contents.append(ghwaypoints.MechEngTerminal())",
+      "scene_methods": "def GARAGE_{_uid}_ENTER(self, camp):\n    pass\n    #: scene_enter"
     },
     "child_types": ["SCENE_FEATURE", "NPC_FEATURE", "ROOM_FEATURE"],
     "elements": {
@@ -169,6 +174,19 @@
       "SHOPKEEPER_{_uid}": {"e_type": "npc", "name": "{npc_role}({npc_name})", "aliases":  ["NPC"]},
       "ROOM_{_uid}": {"e_type": "room", "name": "{building_name} Foyer", "aliases":  ["ROOM"]}
     }
+  },
+
+  {
+    "name": "Add Random Lancemates",
+    "desc": "Add some random lancemates to this city.",
+    "label": "CITY_FEATURE",
+    "vars": {
+      "num_random_lancemates": {"default_val": "1", "var_type": "integer"}
+    },
+    "scripts": {
+      "city_subplots": "for t in range({num_random_lancemates}):\n    self.add_sub_plot(nart, \"RANDOM_LANCEMATE\")"
+    }
   }
+
 
 ]

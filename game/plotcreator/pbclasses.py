@@ -165,6 +165,12 @@ class BluePrint(object):
 
     def compile(self, inherited_vars=None):
         # Return a dict of Python scripts to be added to the output file.
+        # Inside the scripts, "#:" and "#>" mark places where blocks will be inserted.
+        # "#:" appends the scripts from the current brick and all children.
+        # "#>" just sticks the scripts from the children here, ignoring siblings + whatever.
+        #    It is generally used when we need a recursive script block definition, such as a conditional "effect"
+        #    block that can have children "effects".
+        # Clear as mud? Good enough.
         if inherited_vars:
             vars = inherited_vars.copy()
         else:
@@ -188,9 +194,28 @@ class BluePrint(object):
         # Step two: collect the default scripts from the brick.
         myscripts = self.brick.scripts.copy()
         for k,v in myscripts.items():
-            print(v)
             myscripts[k] = v.format(**ultravars)
 
+        # Step three: If any of the default scripts have slots for the kid scripts, insert those there.
+        for k,v in myscripts.items():
+            nuscript = list()
+            for script_line in v.splitlines():
+                if script_line:
+                    n = script_line.find("#>")
+                    if n >= 0:
+                        prefix = " " * n
+                        new_section_name = script_line[n + 2:].strip()
+                        if new_section_name in mykids:
+                            for nuline in mykids[new_section_name]:
+                                nuscript.append(prefix + nuline)
+                            del mykids[new_section_name]
+                        else:
+                            nuscript.append(script_line)
+                    else:
+                        nuscript.append(script_line)
+            myscripts[k] = "\n".join(nuscript)
+
+        # Finally, incorporate all the rest of the scripts together.
         touchedscripts = set()
         donescripts = collections.defaultdict(list)
         usedscripts = set()

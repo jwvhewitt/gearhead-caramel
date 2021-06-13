@@ -68,6 +68,26 @@ class BasicEggLancemate(Plot):
         return isinstance(candidate, gears.base.Character) and candidate.relationship and gears.relationships.RT_LANCEMATE in candidate.relationship.tags
 
 
+#  ********************************
+#  ***   ADD_PERSON_TO_LOCALE   ***
+#  ********************************
+# This is roughly the equivalent of GH2's *CIVILIAN plot. Add a person to the scene passed as LOCALE. Usually
+# the person will be an unassuming civilian, but maybe not?
+
+class ThisIsAPersonInYourNeighborhood(Plot):
+    LABEL = "ADD_PERSON_TO_LOCALE"
+
+    def custom_init(self, nart):
+        npc = gears.selector.random_character(local_tags=tuple(self.elements["METROSCENE"].attributes))
+        if "LOCALE" not in self.elements:
+            self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+        self.register_element("NPC", npc, dident="LOCALE")
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
 #  *****************************
 #  ***   ADD_REMOTE_OFFICE   ***
 #  *****************************
@@ -105,6 +125,48 @@ class BoringRemoteOffice( Plot ):
         team2.contents.append(gears.selector.random_character(self.rank+10,job=job,combatant=True,faction=self.elements["FACTION"]))
 
         return True
+
+#  ********************************
+#  ***   ADD_FROZEN_COMBATANT   ***
+#  ********************************
+#
+#   We want to add a frozen faction member to this adventure, presumably so we'll have someone to show up in random
+#   combats and whatever. This frozen member will start frozen and remain frozen until called forth by some other
+#   plot.
+#
+#  FACTION: The Faction to add a frozen member for. May be "None".
+
+class BasicFrozenMember( Plot ):
+    LABEL = "ADD_FROZEN_COMBATANT"
+
+    def custom_init( self, nart ):
+        npc = None
+
+        # Check the PC's egg for an appropriate NPC; returning allies and/or arch-enemies are cool.
+        if random.randint(1,6) != 5:
+            npc = nart.camp.egg.seek_dramatis_person(nart.camp, self._is_good_npc, self)
+            if npc and npc.job and self.rank > (npc.renown - 10):
+                npc.job.scale_skills(npc, self.rank + 10)
+
+        # Add the NPC.
+        if not npc:
+            if self.elements["FACTION"]:
+                if self.rank > 25 and random.randint(1,3) != 1:
+                    job = self.elements["FACTION"].choose_job(gears.tags.Commander)
+                elif random.randint(1,3) == 1:
+                    job = self.elements["FACTION"].choose_job(gears.tags.Support)
+                elif random.randint(1,20) != 17:
+                    job = self.elements["FACTION"].choose_job(gears.tags.Trooper)
+                else:
+                    job = random.choice(list(gears.jobs.ALL_JOBS.values()))
+            else:
+                job = random.choice(list(gears.jobs.ALL_JOBS.values()))
+            npc = gears.selector.random_character(self.rank+10,job=job,combatant=True,faction=self.elements["FACTION"])
+        nart.camp.freeze(npc)
+        return True
+
+    def _is_good_npc(self, camp, npc):
+        return isinstance(npc, gears.base.Character) and npc.combatant and npc.faction == self.elements["FACTION"]
 
 
 #  *************************************

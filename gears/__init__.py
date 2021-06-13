@@ -408,7 +408,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         myscene = self.scene.get_metro_scene()
         if myscene:
             for p in myscene.metrodat.scripts:
-                yield p
+                if p.active:
+                    yield p
 
     def all_plots(self):
         for ob in self.all_contents(self):

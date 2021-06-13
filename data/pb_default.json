@@ -8,16 +8,17 @@
       "adventure_name": {"default_val": "Adventure!", "var_type": "string"},
       "adventure_desc": {"default_val": "Go fight some pirates.", "var_type": "text"},
       "adventure_date": {"default_val": "(158, 5, 12)", "var_type": "date"},
-      "uname": {"default_val": "Scenario", "var_type": "string"},
+      "uname": {"default_val": "", "var_type": "string"},
       "adventure_threat": {
         "default_val": 0,
         "var_type": "integer"
-      }
+      },
+      "adventure_cover": {"default_val": null, "var_type": "VHS_*.png"}
     },
     "scripts": {
       "main": "#: includes\n#: plot",
-      "includes": "import gears\nfrom pbge.plots import Plot, Adventure, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain\nfrom game.memobrowser import Memo\nfrom game.content.ghplots import missionbuilder",
-      "plot": "class {uname}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{uname}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        \"{adventure_name}\",\n        \"{adventure_desc}\",\n        {adventure_date}, None,\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        #:scenario_init\n        #:scenario_subplots\n\n        return True\n\n    #: world_methods",
+      "includes": "import gears\nfrom pbge.plots import Plot, Adventure, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain\nfrom game.memobrowser import Memo\nfrom game.content.ghplots import missionbuilder\n",
+      "plot": "class {uname}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{uname}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        \"{adventure_name}\",\n        \"{adventure_desc}\",\n        {adventure_date}, \"{adventure_cover}\",\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        #:scenario_init\n        #:scenario_subplots\n\n        return True\n\n    #: world_methods",
       "scenario_init": "if {adventure_threat} > 0:\n    self.rank = {adventure_threat}\nelse:\n    self.rank = nart.camp.renown"
     },
     "child_types": ["CITY","WORLD_FEATURE"]
@@ -65,11 +66,9 @@
       "lancemate_slots": {"default_val": 3, "var_type": "integer"}
     },
     "scripts": {
+      "includes": "from game.content.plotutility import LMSkillsSelfIntro\n",
       "scenario_init": "nart.camp.num_lancemates = {lancemate_slots}",
       "world_methods": "def _get_generic_offers( self, npc, camp ):\n    mylist = list()\n    if npc.relationship and gears.relationships.RT_LANCEMATE in npc.relationship.tags:\n        if camp.can_add_lancemate() and npc not in camp.party:\n            # If the NPC has the lancemate tag, they might join the party.\n            if npc.relationship.data.get(\"DZD_LANCEMATE_TIME_OFF\",0) <= camp.day:\n                mylist.append(Offer(\"[JOIN]\", is_generic=True, context=ContextTag([context.JOIN]), effect=game.content.plotutility.AutoJoiner(npc)))\n            else:\n                # This NPC is taking some time off. Come back tomorrow.\n                mylist.append(Offer(\"[COMEBACKTOMORROW_JOIN]\", is_generic=True, context=ContextTag([context.JOIN])))\n        elif npc in camp.party and gears.tags.SCENE_PUBLIC in camp.scene.attributes:\n            mylist.append(Offer(\"[LEAVEPARTY]\", is_generic=True, context=ContextTag([context.LEAVEPARTY]), effect=game.content.plotutility.AutoLeaver(npc)))\n        mylist.append(LMSkillsSelfIntro(npc))\n    return mylist"
-    },
-    "elements": {
-      "FACTION_{_uid}": {"e_type": "faction", "name": "{faction_name}"}
     }
   },
   {
@@ -99,6 +98,18 @@
     "elements": {
       "METROSCENE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["LOCALE","CITY"]},
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["MISSION_GATE"]}
+    }
+  },
+
+    {
+    "name": "Add Frozen Combatant",
+    "desc": "Add a random faction member who starts the game in cold storage. This NPC may be encountered during missions and other plots that use a global character search.",
+    "label": "WORLD_FEATURE",
+    "vars": {
+      "npc_faction": {"default_val": null, "var_type": "faction"}
+    },
+    "scripts": {
+      "scenario_init": "self.add_sub_plot(nart, \"ADD_FROZEN_COMBATANT\", elements=dict(FACTION={npc_faction}))"
     }
   }
 

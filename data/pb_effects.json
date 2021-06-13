@@ -14,6 +14,50 @@
     }
   },
   {
+    "name": "Conditional Effect",
+    "display_name": "If {conditions}...",
+    "desc": "Add an effect that will only happen under the specified conditions.",
+    "label": "EFFECT",
+    "vars": {
+      "conditions": {"default_val": [], "var_type": "conditional"}
+    },
+    "scripts": {
+      "effect": "if {conditions}:\n    #> effect\n#: elif\n#: else"
+    },
+    "child_types": ["EFFECT","ELIF","ELSE"]
+  },
+  {
+    "name": "Elif Effect",
+    "display_name": "Elif {conditions}...",
+    "desc": "Add an elif (else if) effect to this conditional.",
+    "label": "ELIF",
+    "vars": {
+      "conditions": {"default_val": [], "var_type": "conditional"}
+    },
+    "scripts": {
+      "elif": "elif {conditions}:\n    #: effect"
+    },
+    "child_types": ["EFFECT"]
+  },
+  {
+    "name": "Else Effect",
+    "display_name": "Else...",
+    "desc": "Add an else effect to this conditional.",
+    "label": "ELSE",
+    "scripts": {
+      "else": "else:\n    #: effect"
+    },
+    "child_types": ["EFFECT"]
+  },
+  {
+    "name": "End Scenario",
+    "desc": "End the scenario and eject the PC.",
+    "label": "EFFECT",
+    "scripts": {
+      "effect": "camp.eject()"
+    }
+  },
+  {
     "name": "Set Memo",
     "display_name": "Memo: {message}",
     "desc": "Set a message that will appear in the memo browser. If there is already a memo for this plot, it will be overwritten.",
@@ -72,6 +116,24 @@
       "effect": "camp.campdata[\"{var_name}\"] = {value}"
     }
   },
+  {
+    "name": "Add Campaign Variable",
+    "display_name": "Add {var_name} + {value}",
+    "label": "EFFECT",
+    "vars": {
+      "var_name": {
+        "var_type": "campaign_variable",
+        "default_val": "x"
+      },
+      "value": {
+        "default_val": 0,
+        "var_type": "integer"
+      }
+    },
+    "scripts": {
+      "effect": "camp.campdata[\"{var_name}\"] = camp.campdata.get(\"{var_name}\",0) + {value}"
+    }
+  },
       {
     "name": "NPC Joins Party",
     "desc": "Select an NPC to join the party and receive the RT_LANCEMATE tag.",
@@ -89,6 +151,7 @@
 
   {
     "name": "Activate Mission",
+    "display_name": "Mission: {mission_name}",
     "desc": "Add a mission to the MISSION_GATE in this city.",
     "label": "EFFECT",
     "is_new_branch": true,
@@ -115,12 +178,12 @@
     "scripts": {
       "effect_init": "self.add_sub_plot(nart, \"MISSION_{uname}_{_uid}\", ident=\"MISSION_{_uid}\")",
       "effect": "self.subplots[\"MISSION_{_uid}\"].activate_mission(camp)",
-      "main": "class {scriptname}_{_uid}_Mission( Plot ):\n    LABEL=\"MISSION_{uname}_{_uid}\"\n    active = False\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: mission_init\n        return True\n    def activate_mission(self, camp):\n        #: mission_activate\n    def {MISSION_GATE}_menu(self, camp, thingmenu):\n        if self.mission_seed:\n            thingmenu.add_item(self.mission_seed.name, self.mission_seed)\n    #: mission_methods",
-      "mission_init": "self.mission_seed = missionbuilder.BuildAMissionSeed(\n    nart.camp, \"{mission_name}\",\n    (self.elements[\"{CITY}\"], self.elements[\"{MISSION_GATE}\"]),\n    {enemy_faction}, {allied_faction}, rank=self.rank,\n    objectives={objectives},\n    exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\",\n    #: on_win_effect,\n    #: on_loss_effect\n)",
+      "main": "class {scriptname}_{_uid}_Mission( Plot ):\n    LABEL=\"MISSION_{uname}_{_uid}\"\n    active = False\n    scope = \"METRO\"\n    def custom_init( self, nart ):\n        #: mission_init\n        return True\n    def activate_mission(self, camp):\n        #: mission_activate\n    def {MISSION_GATE}_menu(self, camp, thingmenu):\n        if self.mission_seed and not self.mission_seed.is_completed():\n            thingmenu.add_item(self.mission_seed.name, self.mission_seed)\n    #: mission_methods",
+      "mission_init": "self.mission_seed = missionbuilder.BuildAMissionSeed(\n    nart.camp, \"{mission_name}\",\n    (self.elements[\"{CITY}\"], self.elements[\"{MISSION_GATE}\"]),\n    {enemy_faction}, {allied_faction}, rank=self.rank,\n    objectives={objectives},\n    exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\",\n    #: on_win_effect\n    #: on_loss_effect\n    #: mission_grammar\n)",
 
       "mission_activate": "self.activate(camp)\nmissionbuilder.NewMissionNotification(self.mission_seed.name, self.elements[\"{MISSION_GATE}\"])"
     },
-    "child_types": ["ON_WIN_EFFECT", "ON_LOSS_EFFECT"]
+    "child_types": ["ON_WIN_EFFECT", "ON_LOSS_EFFECT", "MISSION_GRAMMAR"]
   },
       {
     "name": "Add Win Effect",
@@ -141,6 +204,23 @@
       "mission_methods": "def _{uname}{_uid}_loss(self, camp):\n    pass\n    #: effect"
     },
     "child_types": ["EFFECT"]
+    },
+    {
+    "name": "Add Mission Grammar",
+    "desc": "Mission grammar is a set of text strings describing the objectives and possible outcomes of this mission from both the player and enemy perspectives. It is used to construct dialogue and memories related to this mission.",
+    "label": "MISSION_GRAMMAR",
+    "vars": {
+      "player_objective": {"default_val": "", "var_type": "text"},
+      "enemy_objective": {"default_val": "", "var_type": "text"},
+      "player_win_memory": {"default_val": "", "var_type": "text"},
+      "player_lose_memory": {"default_val": "", "var_type": "text"},
+      "enemy_win_memory": {"default_val": "", "var_type": "text"},
+      "enemy_lose_memory": {"default_val": "", "var_type": "text"}
+    },
+
+    "scripts": {
+      "mission_grammar": "mission_grammar = missionbuilder.MissionGrammar(\n    objective_pp=\"{player_objective}\", objective_ep=\"{enemy_objective}\",\n    win_pp=\"{player_win_memory}\", win_ep=\"{enemy_lose_memory}\",\n    lose_pp=\"{player_lose_memory}\", lose_ep=\"{enemy_win_memory}\"\n),"
+    }
     }
 
 ]
