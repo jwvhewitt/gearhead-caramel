@@ -33,8 +33,8 @@ class CombatSceneToTargetScene(Plot):
 
         self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5, anchor=random.choice(pbge.randmaps.anchors.EDGES)), dident="LOCALE")
         myent = self.register_element(
-            "ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle,
-            dest_scene=self.elements["METROSCENE"], dest_entrance=self.elements["MISSION_GATE"]),
+            "ENTRANCE",
+            game.content.ghwaypoints.Exit(dest_wp=self.elements["MISSION_GATE"], anchor=pbge.randmaps.anchors.middle),
             dident="ENTRANCE_ROOM"
         )
 
@@ -67,7 +67,7 @@ class CombatSceneToTargetScene(Plot):
             thingmenu.add_item("Go to {}".format(self.elements["LOCALE"]), self.go_to_locale)
 
     def go_to_locale(self,camp):
-        camp.destination, camp.entrance = self.elements["LOCALE"],self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
 
 
@@ -96,8 +96,8 @@ class ThingInBunker(Plot):
 
         self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5, anchor=random.choice(pbge.randmaps.anchors.EDGES)), dident="LOCALE")
         myent = self.register_element(
-            "ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle,
-            dest_scene=self.elements["METROSCENE"], dest_entrance=self.elements["MISSION_GATE"]),
+            "ENTRANCE",
+            game.content.ghwaypoints.Exit(dest_wp=self.elements["MISSION_GATE"], anchor=pbge.randmaps.anchors.middle),
             dident="ENTRANCE_ROOM"
         )
 
@@ -137,5 +137,5 @@ class ThingInBunker(Plot):
             thingmenu.add_item("Go to {}".format(self.elements["LOCALE"]), self.go_to_locale)
 
     def go_to_locale(self,camp):
-        camp.destination, camp.entrance = self.elements["LOCALE"],self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 

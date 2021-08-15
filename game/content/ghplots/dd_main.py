@@ -34,6 +34,9 @@ class DeadzoneDrifterStub( Plot ):
     )
 
     def custom_init( self, nart ):
+        """Load the features."""
+        self.add_sub_plot(nart,"CF_STANDARD_LANCEMATE_HANDLER")
+
         """Create the intro/tutorial."""
         wplot = self.add_first_locale_sub_plot( nart, locale_type="DZD_INTRO", ident="INTRO" )
 
@@ -51,32 +54,9 @@ class DeadzoneDrifterStub( Plot ):
 
         return True
 
-    def _get_generic_offers( self, npc, camp ):
-        """
-
-        :type camp: gears.GearHeadCampaign
-        :type npc: gears.base.Character
-        """
-        mylist = list()
-        if npc.relationship and gears.relationships.RT_LANCEMATE in npc.relationship.tags:
-            if camp.can_add_lancemate() and npc not in camp.party:
-                # If the NPC has the lancemate tag, they might join the party.
-                if npc.relationship.data.get("DZD_LANCEMATE_TIME_OFF",0) <= camp.day:
-                    mylist.append(Offer("[JOIN]", is_generic=True,
-                                        context=ContextTag([context.JOIN]), effect=game.content.plotutility.AutoJoiner(npc)))
-                else:
-                    # This NPC is taking some time off. Come back tomorrow.
-                    mylist.append(Offer("[COMEBACKTOMORROW_JOIN]", is_generic=True,
-                                        context=ContextTag([context.JOIN])))
-            elif npc in camp.party and gears.tags.SCENE_PUBLIC in camp.scene.attributes:
-                mylist.append(Offer("[LEAVEPARTY]", is_generic=True,
-                                    context=ContextTag([context.LEAVEPARTY]), effect=game.content.plotutility.AutoLeaver(npc)))
-            mylist.append(LMSkillsSelfIntro(npc))
-        return mylist
-
     def t_INTRO_END(self, camp):
         # Wujung should be registered as the home base, so send the player there.
-        camp.destination,camp.entrance = camp.home_base
+        camp.go(camp.home_base)
         npc = self.elements["DZ_CONTACT"]
         npc.place(camp.campdata["DISTANT_TOWN"],team=camp.campdata["DISTANT_TEAM"])
 
@@ -152,9 +132,9 @@ class RoadEdge(object):
         else:
             return self.go_to_end_node
     def go_to_end_node(self,camp):
-        camp.destination,camp.entrance = self.end_node.destination,self.end_node.entrance
+        camp.go(self.end_node.entrance)
     def go_to_start_node(self,camp):
-        camp.destination,camp.entrance = self.start_node.destination,self.start_node.entrance
+        camp.go(self.start_node.entrance)
 
 class RoadMap(object):
     MAP_WIDTH = 20
@@ -371,7 +351,7 @@ class DZDRoadMapExit(Exit):
     def __init__( self, roadmap, node, **kwargs ):
         self.roadmap = roadmap
         self.node = node
-        super(DZDRoadMapExit,self).__init__(**kwargs)
+        super(DZDRoadMapExit, self).__init__(**kwargs)
 
     def unlocked_use( self, camp ):
         rpm = self.MENU_CLASS(camp, self)

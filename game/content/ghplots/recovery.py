@@ -22,7 +22,7 @@ class PC_HospitalRecovery( Plot ):
         """Find a hospital, move the PC to there."""
         myscene = self.seek_element(nart,"HOSPITAL",self._is_good_scene,scope=self.elements["METROSCENE"], backup_seek_func=self._is_public_scene)
         myent = self.seek_element(nart,"BED",self._is_good_bed,scope=myscene,check_subscenes=False, backup_seek_func=self._is_any_waypoint)
-        self.mission_entrance = (myscene,myent)
+        self.mission_entrance = myent
         self.started_mission = False
         self.plots_to_run = list()
         if nart.camp.dead_party:
@@ -46,7 +46,7 @@ class PC_HospitalRecovery( Plot ):
 
         :type camp: gears.GearHeadCampaign
         """
-        camp.destination, camp.entrance = self.mission_entrance
+        camp.go(self.mission_entrance)
         if not self.started_mission:
             if camp.pc in camp.incapacitated_party:
                 camp.incapacitated_party.remove(camp.pc)

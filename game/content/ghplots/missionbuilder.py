@@ -81,10 +81,9 @@ class NewLocationNotification(pbge.BasicNotification):
 
 
 class BuildAMissionSeed(adventureseed.AdventureSeed):
-    # adv_return: a tuple containing the (scene,entrance) to go to when the mission is over.
     # Optional elements:
     #   ENTRANCE_ANCHOR:    Anchor for the PC's entrance
-    def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, rank=None, objectives=(),
+    def __init__(self, camp, name, metroscene, return_wp, enemy_faction=None, allied_faction=None, rank=None, objectives=(),
                  adv_type="BAM_MISSION", custom_elements=None, auto_exit=False, solo_mission=False,
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone(),
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
@@ -93,7 +92,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  environment=gears.tags.GroundEnv, **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
         cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
-
+        cms_pstate.elements["METROSCENE"] = metroscene
+        cms_pstate.elements["ADVENTURE_RETURN"] = return_wp
         cms_pstate.elements["ENEMY_FACTION"] = enemy_faction
         self.enemy_faction = enemy_faction
         cms_pstate.elements["ALLIED_FACTION"] = allied_faction
@@ -103,7 +103,6 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         cms_pstate.elements["ARCHITECTURE"] = architecture
         cms_pstate.elements[
             "ONE_CHANCE"] = one_chance  # If False, you can return to the combat zone until all objectives are complete.
-        cms_pstate.elements["METROSCENE"] = adv_return[0]
         cms_pstate.elements["AUTO_EXIT"] = auto_exit
         if custom_elements:
             cms_pstate.elements.update(custom_elements)
@@ -128,8 +127,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.on_win = on_win
         self.on_loss = on_loss
 
-        super().__init__(camp, name, adv_type=adv_type, adv_return=adv_return, pstate=cms_pstate, auto_set_rank=False,
-                         **kwargs)
+        super().__init__(camp, name, adv_type=adv_type, pstate=cms_pstate, auto_set_rank=False, **kwargs)
 
         if cash_reward > 0:
             self.rewards.append(adventureseed.CashReward(size=cash_reward))
@@ -211,7 +209,7 @@ class BuildAMissionPlot(Plot):
         for ob in self.elements["OBJECTIVES"]:
             self.add_sub_plot(nart, ob)
 
-        self.mission_entrance = (myscene, myent)
+        self.mission_entrance = myent
         self.started_mission = False
         self.gave_mission_reminder = False
         self.gave_ending_message = False
@@ -220,7 +218,7 @@ class BuildAMissionPlot(Plot):
         return True
 
     def start_mission(self, camp):
-        camp.destination, camp.entrance = self.mission_entrance
+        camp.go(self.mission_entrance)
         if not self.started_mission:
             self.started_mission = True
 
@@ -253,16 +251,16 @@ class BuildAMissionPlot(Plot):
 
     def _ENTRANCE_menu(self, camp, thingmenu):
         if self.adv.is_completed():
-            thingmenu.desc = "Are you ready to return to {}?".format(self.elements["ADVENTURE_RETURN"][0])
+            thingmenu.desc = "Are you ready to return to {}?".format(self.elements["METROSCENE"])
         else:
             thingmenu.desc = "Do you want to abort this mission and return to {}?".format(
-                self.elements["ADVENTURE_RETURN"][0])
+                self.elements["METROSCENE"])
 
         thingmenu.add_item("End Mission", self.exit_the_mission)
         thingmenu.add_item("Continue Mission", None)
 
-    def exit_the_mission(self, camp):
-        camp.destination, camp.entrance = self.elements["ADVENTURE_RETURN"]
+    def exit_the_mission(self, camp: gears.GearHeadCampaign):
+        camp.go(self.elements["ADVENTURE_RETURN"])
         self.exited_mission = True
         if self.elements["ONE_CHANCE"] or self.adv.is_completed():
             if self.elements.get("ALLIED_FACTION"):

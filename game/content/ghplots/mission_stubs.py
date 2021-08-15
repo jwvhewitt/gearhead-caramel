@@ -67,7 +67,7 @@ class RecoverMyBuilding(Plot):
     def register_adventure(self, camp):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "{}'s Mission".format(self.elements["NPC"]),
-            (self.elements["METROSCENE"], self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             self.elements.get("ENEMY_FACTION"), rank=self.rank,
             objectives=(missionbuilder.BAMO_CAPTURE_BUILDINGS,missionbuilder.BAMO_LOCATE_ENEMY_FORCES),
             on_win=self._win_mission,

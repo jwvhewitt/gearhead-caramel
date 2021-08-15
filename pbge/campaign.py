@@ -1,26 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #       
-#       Copyright 2013 Joeph Hewitt <pyrrho12@yahoo.ca>
-#       
-#       This program is free software; you can redistribute it and/or modify
-#       it under the terms of the GNU General Public License as published by
-#       the Free Software Foundation; either version 2 of the License, or
-#       (at your option) any later version.
-#       
-#       This program is distributed in the hope that it will be useful,
-#       but WITHOUT ANY WARRANTY; without even the implied warranty of
-#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#       GNU General Public License for more details.
-#       
-#       You should have received a copy of the GNU General Public License
-#       along with this program; if not, write to the Free Software
-#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#       MA 02110-1301, USA.
-#       
+#       Copyright 2021 Joseph Hewitt <pyrrho12@yahoo.ca>
+#
 # 
 
-from . import my_state
+from . import my_state, alert
 from . import container
 from . import util, dialogue
 import pickle
@@ -36,8 +21,7 @@ class Campaign( object ):
         self.name = name
         self.party = list()
         self.scene = None 
-        self.entrance = None
-        self.destination = None
+        self._destination = None
         self.contents = container.ContainerList()
         self.scripts = container.ContainerList()
         self.uniques = set()
@@ -48,6 +32,19 @@ class Campaign( object ):
         # It must have scripts in place to restore the party or end the game.
         self.home_base = home_base
 
+    def go(self, dest_wp: scenes.waypoints.Waypoint):
+        dest_scene = dest_wp.scene
+        if dest_scene:
+            self._destination = dest_wp
+
+    def _really_go(self):
+        dest_wp = self._destination
+        dest_scene = self._destination.scene
+
+        if self.scene:
+            self.remove_party_from_scene()
+        self.scene, self._destination = dest_scene, None
+        self.place_party(dest_wp)
 
     def save( self ):
         with open( util.user_dir( "rpg_" + self.name + ".sav" ) , "wb" ) as f:
@@ -60,6 +57,12 @@ class Campaign( object ):
         # The default version of this method will keep playing forever.
         # You're probably gonna want to redefine this in your subclass.
         return True
+
+    def keep_playing_scene(self):
+        return not self._destination
+
+    def has_a_destination(self):
+        return self._destination
 
     def active_plots( self ):
         for p in self.scene.scripts:
@@ -101,7 +104,7 @@ class Campaign( object ):
             thingmenu.add_alpha_keys()
 
 
-    def place_party( self ):
+    def place_party( self, entrance ):
         """Stick the party close to the waypoint."""
         raise NotImplementedError("Method place_party needs custom implementation.")
 
@@ -115,10 +118,8 @@ class Campaign( object ):
         while self.keep_playing_campaign() and not my_state.got_quit:
             exp = self.explo_class( self )
             exp.go()
-            if self.destination:
-                self.remove_party_from_scene()
-                self.scene, self.destination = self.destination, None
-                self.place_party()
+            if self._destination:
+                self._really_go()
             elif not exp.no_quit:
                 # If the player quit in exploration mode, exit to main menu.
                 break
@@ -126,8 +127,8 @@ class Campaign( object ):
                 # IMPORTANT: If home_base is defined, it MUST have some kind of code to deal with a defeated party!
                 # Otherwise this is gonna get stuck in an endless loop of going to home base over and over.
                 self.remove_party_from_scene()
-                self.scene, self.entrance = self.home_base
-                self.place_party()
+                self.go(self.home_base)
+                self._really_go()
 
     def dump_info( self ):
         # Print info on all scenes in this world.

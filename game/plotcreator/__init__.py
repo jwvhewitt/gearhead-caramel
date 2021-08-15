@@ -12,7 +12,7 @@ import os
 
 
 class PartsNodeWidget(pbge.widgets.Widget):
-    def __init__(self,mypart,indent,editor,**kwargs):
+    def __init__(self,mypart,indent,editor,physical_view=None,**kwargs):
         self.font = pbge.MEDIUMFONT
         super().__init__(0,0,325
                          ,self.font.get_linesize()+1,data=mypart,**kwargs)
@@ -94,6 +94,31 @@ class PlotTreeWidget(pbge.widgets.ColumnWidget):
             self.add_parts(bit,indent+1)
 
 
+class PhysicalTreeWidget(pbge.widgets.ColumnWidget):
+    # Instead of editing the plot nodes directly, show the physical contents of this adventure.
+    def __init__(self,mypart,editor,dx=-350,dy=-250,w=325,h=500,**kwargs):
+        super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
+        up_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=0,off_frame=1)
+        down_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=2,off_frame=3)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(0,0,w,h-50,up_arrow,down_arrow,padding=0)
+        self.add_interior(up_arrow)
+        self.add_interior(self.scroll_column)
+        self.add_interior(down_arrow)
+        self.mypart = mypart
+        self.editor = editor
+
+        self.refresh_part_list()
+
+    def refresh_part_list(self):
+        self.scroll_column.clear()
+        self.add_parts(self.mypart)
+
+
+    def add_parts(self,part,indent=0):
+        self.scroll_column.add_interior(PartsNodeWidget(part,indent,self.editor,on_click=self.editor.click_part))
+        for bit in part.children:
+            self.add_parts(bit,indent+1)
+
 class StringVarEditorWidget(pbge.widgets.ColumnWidget):
     def __init__(self, part, var_name, default_value, **kwargs):
         super().__init__(0,0,350,pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8,**kwargs)
@@ -154,6 +179,7 @@ class FiniteStateEditorWidget(pbge.widgets.ColumnWidget):
         my_states = statefinders.get_possible_states(part, part.brick.vars[var_name].var_type)
         mymenu = pbge.widgets.DropdownWidget(0,0,350,pbge.MEDIUMFONT.get_linesize() + 8,justify=0,font=pbge.MEDIUMFONT, on_select=self._do_change)
         self.add_interior(mymenu)
+        self.legal_states = list()
 
         self.refresh_fun = refresh_fun
 
@@ -161,16 +187,19 @@ class FiniteStateEditorWidget(pbge.widgets.ColumnWidget):
             mymenu.menu.add_descbox(-325, 0, 300, mymenu.MENU_HEIGHT, anchor=pbge.frects.ANCHOR_UPPERLEFT, parent=mymenu.menu)
             for name,value in my_states:
                 mymenu.add_item(name, value, desc_fun(value))
+                self.legal_states.append(value)
 
         else:
             for name,value in my_states:
                 mymenu.add_item(name, value)
+                self.legal_states.append(value)
 
         mymenu.menu.sort()
         mymenu.menu.set_item_by_value(part.raw_vars.get(var_name, None))
 
     def _do_change(self, result):
-        self.part.raw_vars[self.var_name] = result
+        if result in self.legal_states:
+            self.part.raw_vars[self.var_name] = result
         if self.refresh_fun:
             self.refresh_fun()
 
@@ -453,9 +482,11 @@ class MusicEditorWidget(pbge.widgets.ColumnWidget):
         mymenu = pbge.widgets.DropdownWidget(0,0,300,pbge.MEDIUMFONT.get_linesize() + 8,justify=0,font=pbge.MEDIUMFONT, on_select=self._do_change)
         myrow.add_left(mymenu)
         mymenu.menu.w += 200
-        for name in pbge.my_state.get_music_list():
+        self.legal_states = list(pbge.my_state.get_music_list())
+        for name in self.legal_states:
             mymenu.add_item(name, name)
         mymenu.add_item("==None==", None)
+        self.legal_states.append(None)
         mymenu.menu.sort()
         mymenu.menu.set_item_by_value(part.raw_vars.get(var_name, None))
 
@@ -463,7 +494,8 @@ class MusicEditorWidget(pbge.widgets.ColumnWidget):
         myrow.add_right(mybutton)
 
     def _do_change(self, result):
-        self.part.raw_vars[self.var_name] = result
+        if result in self.legal_states:
+            self.part.raw_vars[self.var_name] = result
 
     def _click_play(self, wid, ev):
         mysong = self.part.raw_vars.get(self.var_name, None)

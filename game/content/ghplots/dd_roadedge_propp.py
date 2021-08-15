@@ -189,7 +189,7 @@ class DZREPR_BaseMission(Plot):
         else:
             mgram = None
         self.mission_seed = missionbuilder.BuildAMissionSeed(
-            camp, self.MISSION_NAME, (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            camp, self.MISSION_NAME, self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             enemy_faction = self.elements["FACTION"], rank=self.rank,
             objectives = self.OBJECTIVES, one_chance=True,
             architecture=self.MISSION_ARCHITECTURE(), mission_grammar=mgram,
@@ -316,7 +316,7 @@ class DZREPRC_ConclusionTemplate(Plot):
             mgram = None
 
         self.mission_seed = missionbuilder.BuildAMissionSeed(
-            camp, self.MISSION_NAME, (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            camp, self.MISSION_NAME, self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             enemy_faction = self.elements["FACTION"], rank=self.rank,
             objectives = self.OBJECTIVES, one_chance=True, mission_grammar=mgram,
             architecture=gharchitecture.MechaScaleDeadzone(),

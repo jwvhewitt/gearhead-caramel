@@ -7,13 +7,12 @@ import random
 
 
 class AdventureSeed(Adventure):
-    def __init__(self, camp, name, adv_type, adv_return, pstate=None, auto_set_rank=True, restore_at_end=True,
-                 display_results_at_end=True, include_health_objective=True ):
-        # adv_return is a (Destination,Entrance) tuple.
+    def __init__(self, camp, name, adv_type, pstate=None, auto_set_rank=True, restore_at_end=True,
+                 display_results_at_end=True, include_health_objective=True):
+        # return_wp is the waypoint to return to after the adventure is finished.
         super(AdventureSeed, self).__init__(name=name, world=None)
         self.pstate = pstate or pbge.plots.PlotState(adv=self,rank=camp.pc.renown)
         self.pstate.adv = self
-        self.pstate.elements["ADVENTURE_RETURN"] = adv_return
         self.adv_type = adv_type
         self.auto_set_rank = auto_set_rank
         self.restore_at_end = restore_at_end

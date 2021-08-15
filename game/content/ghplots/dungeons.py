@@ -36,7 +36,7 @@ class GenericDungeonLevel(Plot):
         camp.bring_out_your_dead(True)
         if camp.pc not in camp.party:
             pbge.alert("You lose consciousness...")
-            camp.scene, camp.entrance = camp.home_base
+            camp.go(camp.home_base)
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         if camp.day > self.last_update:

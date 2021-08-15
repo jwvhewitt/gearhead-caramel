@@ -29,7 +29,7 @@ from . import missionbuilder
 class CombatMissionSeed(missionbuilder.BuildAMissionSeed):
     OBJECTIVE_TAGS = (missionbuilder.BAMO_DEFEAT_COMMANDER,missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL,missionbuilder.BAMO_EXTRACT_ALLIED_FORCES)
     CRIME_TAGS = ("DZDCM_DO_CRIMES",)
-    def __init__(self, camp, name, adv_return, enemy_faction=None, allied_faction=None, include_war_crimes=False, **kwargs):
+    def __init__(self, camp, name, metroscene, return_wp, enemy_faction=None, allied_faction=None, include_war_crimes=False, **kwargs):
         # Determine 2 to 3 objectives for the mission.
         if include_war_crimes:
             objs = random.sample(self.OBJECTIVE_TAGS+self.CRIME_TAGS,2)
@@ -37,7 +37,7 @@ class CombatMissionSeed(missionbuilder.BuildAMissionSeed):
             objs = random.sample(self.OBJECTIVE_TAGS,2)
         self.crimes_happened = False
 
-        super(CombatMissionSeed, self).__init__(camp, name, adv_return=adv_return, rank=max(camp.pc.renown+1,10),
+        super(CombatMissionSeed, self).__init__(camp, name, metroscene=metroscene, return_wp=return_wp, rank=max(camp.pc.renown + 1, 10),
                                                 objectives=objs, win_message="You have completed the mission.",
                                                 enemy_faction=enemy_faction, allied_faction=allied_faction, **kwargs)
 

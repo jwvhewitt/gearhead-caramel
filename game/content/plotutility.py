@@ -71,8 +71,8 @@ class SceneConnection(object):
         if move_door2:
             plot.place_element(door2, room2)
         self.door2 = door2
-        self.door1.dest_scene, self.door1.dest_entrance = self.scene2, self.door2
-        self.door2.dest_scene, self.door2.dest_entrance = self.scene1, self.door1
+        self.door1.dest_wp = self.door2
+        self.door2.dest_wp = self.door1
 
     def get_room1_anchor(self):
         return None

@@ -138,9 +138,8 @@ class Plot( object ):
         # Utility function for a frequently used special case.
         sp = self.add_sub_plot( nart, locale_type, ident=ident )
         if sp:
-            nart.camp.scene = sp.elements.get( "LOCALE" )
             self.register_element( "LOCALE", sp.elements.get( "LOCALE" ) )
-            nart.camp.entrance = sp.elements.get( "ENTRANCE" )
+            nart.camp.go(sp.elements.get( "ENTRANCE" ))
         return sp
 
     def place_element( self, ele, dest ):

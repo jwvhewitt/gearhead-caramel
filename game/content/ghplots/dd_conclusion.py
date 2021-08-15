@@ -367,11 +367,11 @@ class DoomedTown(Plot):
             else:
                 myanchor = pbge.randmaps.anchors.east
             myadv = missionbuilder.BuildAMissionSeed(
-                camp, "Cetus Attacks", (start_node.destination,start_node.entrance),
+                camp, "Cetus Attacks", start_node.destination, start_node.entrance,
                 rank=self.rank,
                 objectives = (dd_customobjectives.DDBAMO_MEET_CETUS,),
                 adv_type = "DZD_ROAD_MISSION",
-                custom_elements={"ADVENTURE_GOAL": (dest_node.destination,dest_node.entrance),"ENTRANCE_ANCHOR": myanchor},
+                custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"ENTRANCE_ANCHOR": myanchor},
                 scenegen= gharchitecture.DeadZoneHighwaySceneGen,
                 architecture=gharchitecture.MechaScaleDeadzone(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
                 cash_reward=100, on_loss=self._end_this_bit, on_win=self._end_this_bit
@@ -637,7 +637,7 @@ class CetusFight(Plot):
 
         # Create the Cetus encounter.
         self.mission = missionbuilder.BuildAMissionSeed(
-            nart.camp, "Cetus Attacks", (myscene, self.elements["MISSION_GATE"]),
+            nart.camp, "Cetus Attacks", myscene, self.elements["MISSION_GATE"],
             rank=self.rank,
             objectives=(dd_customobjectives.DDBAMO_FIGHT_CETUS,),
             architecture=gharchitecture.MechaScaleSemiDeadzoneRuins(),

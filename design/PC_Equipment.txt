@@ -236,7 +236,7 @@ HeadClothing
 
 ArmClothing
     name = "Elbow Pad"
-    desc = "Protects knees from grazes and other accidents."
+    desc = "Protects elbows from common everyday accidents and small monsters."
     scale = HumanScale
     material = Metal
     shop_tags = ("CLOTHING","ESSENTIAL")

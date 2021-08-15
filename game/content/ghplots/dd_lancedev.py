@@ -465,7 +465,7 @@ class DDLD_DutyColleagueMission(LMMissionPlot):
     def prep_mission(self, camp: gears.GearHeadCampaign):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, self.MISSION_NAME.format(**self.elements),
-            (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"],self.elements["MISSION_GATE"],
             enemy_faction=self.elements.get("ENEMY_FACTION"),
             rank=camp.renown, objectives=self.MISSION_OBJECTIVES,
             cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
@@ -749,7 +749,7 @@ class DDLD_WangttaScent(LMPlot):
         self.started_conversation = False
         self.accepted_duel = False
         self.duel = missionbuilder.BuildAMissionSeed(
-            nart.camp, "{}'s Duel".format(npc), (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            nart.camp, "{}'s Duel".format(npc), self.elements["METROSCENE"],self.elements["MISSION_GATE"],
             rank = npc.renown, objectives = [dd_customobjectives.DDBAMO_DUEL_LANCEMATE],solo_mission=True,
             custom_elements={"LMNPC":npc},experience_reward=200,salvage_reward=False
         )
@@ -987,7 +987,7 @@ class DDLD_ProfessionalColleague(LMMissionPlot):
     def prep_mission(self, camp: gears.GearHeadCampaign):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, self.MISSION_NAME.format(**self.elements),
-            (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"],self.elements["MISSION_GATE"],
             enemy_faction=self.elements.get("ENEMY_FACTION"),
             allied_faction=self.elements["METROSCENE"].faction,
             rank=camp.renown, objectives=(missionbuilder.BAMO_DEFEAT_NPC, missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL),
@@ -1300,7 +1300,7 @@ class DDLD_FriendInTroubleRightNow(LMMissionPlot):
     def prep_mission(self, camp: gears.GearHeadCampaign):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, self.MISSION_NAME.format(**self.elements),
-            (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"],self.elements["MISSION_GATE"],
             enemy_faction=self.elements.get("ENEMY_FACTION"),
             rank=camp.renown + 5, objectives=self.MISSION_OBJECTIVES,
             cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
@@ -1573,10 +1573,8 @@ class DDLD_SharingMyInfo(LMPlot):
         )
         d_entrance = pbge.randmaps.rooms.ClosedRoom(7, 7, anchor=pbge.randmaps.anchors.middle)
         self.dungeon.entry_level.contents.append(d_entrance)
-        self.dungeon_entrance = ghwaypoints.Exit(
-            dest_scene=self.elements["METROSCENE"], dest_entrance=self.elements["MISSION_GATE"],
-            anchor=pbge.randmaps.anchors.middle,
-        )
+        self.dungeon_entrance = ghwaypoints.Exit(dest_wp=self.elements["MISSION_GATE"],
+                                                 anchor=pbge.randmaps.anchors.middle)
         d_entrance.contents.append(self.dungeon_entrance)
 
         # Add the goal room
@@ -1624,7 +1622,7 @@ class DDLD_SharingMyInfo(LMPlot):
             thingmenu.add_item("Go to {}".format(self.dungeon_name), self.go_to_dungeon)
 
     def go_to_dungeon(self, camp):
-        camp.destination, camp.entrance = self.dungeon.entry_level,self.dungeon_entrance
+        camp.go(self.dungeon_entrance)
 
     def t_START(self,camp):
         if not self.got_info:
@@ -1714,7 +1712,7 @@ class DDLD_SortingDuel(LMPlot):
         self.started_conversation = False
         self.accepted_duel = False
         self.duel = missionbuilder.BuildAMissionSeed(
-            nart.camp, "{}'s Duel".format(npc), (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            nart.camp, "{}'s Duel".format(npc), self.elements["METROSCENE"],self.elements["MISSION_GATE"],
             rank = npc.renown, objectives = [dd_customobjectives.DDBAMO_DUEL_LANCEMATE],solo_mission=True,
             custom_elements={"LMNPC":npc},experience_reward=200,salvage_reward=False
         )

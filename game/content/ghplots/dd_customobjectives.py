@@ -479,7 +479,7 @@ class DDBAMO_SkilledAvoidance( Plot ):
                 go(camp)
 
     def cancel_the_adventure(self,camp):
-        camp.destination, camp.entrance = self.elements["ADVENTURE_GOAL"]
+        camp.go(self.elements["ADVENTURE_GOAL"])
         self.adv.cancel_adventure(camp)
 
 

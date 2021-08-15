@@ -57,7 +57,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
                                                             job=gears.jobs.ALL_JOBS["Sheriff"]))
         npc.place(myscene, team=team2)
 
-        self.register_element("MISSION_RETURN", (myscene,myent))
+        self.register_element("MISSION_RETURN", myent)
 
         # Request the intro mission and debriefing.
         self.add_sub_plot(nart, self.MISSION_LABEL, ident="MISSION", elements=self.MISSION_ELEMENTS)
@@ -641,7 +641,7 @@ class DZDIntroMission( Plot ):
 
     def start_mission(self,camp,tutorial_on):
         self.tutorial_on = tutorial_on
-        camp.destination,camp.entrance=self.elements["LOCALE"],self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
     def t_PCMOVE(self,camp):
         if camp.scene is self.elements["LOCALE"]:
@@ -703,7 +703,7 @@ class DZDIntroMission( Plot ):
     def end_the_mission(self,camp):
         # Restore the party at the end of the mission, then send them back to the hangar.
         camp.totally_restore_party()
-        camp.destination, camp.entrance = self.elements["MISSION_RETURN"]
+        camp.go(self.elements["MISSION_RETURN"])
         camp.check_trigger("END", self)
 
 

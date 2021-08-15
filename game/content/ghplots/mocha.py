@@ -578,7 +578,8 @@ class WinterMochaChaletForEnding(Plot):
 
         self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_introom")
 
-        self.register_element("EXIT", ghwaypoints.Exit(name="Exit", anchor=pbge.randmaps.anchors.south, plot_locked=True), dident="_introom")
+        self.register_element("EXIT",
+                              ghwaypoints.Exit(name="Exit", anchor=pbge.randmaps.anchors.south, plot_locked=True), dident="_introom")
 
         self.did_prep = False
         self.did_intro = False
@@ -626,7 +627,7 @@ class WinterMochaChaletForEnding(Plot):
 
     def _go_to_chalet(self, camp):
         self.activate(camp)
-        camp.destination, camp.entrance = self.elements["LOCALE"], self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
     NPC_LIST = ("VIKKI","HYOLEE","CARTER")
     def _prepare_for_conclusion(self, camp):
@@ -955,8 +956,7 @@ class MochaMissionBattleBuilder(Plot):
         myroom2.contents.append(myent2)
 
         mygoal = pbge.randmaps.rooms.NoWallRoom(5, 5, parent=myscene1, anchor=pbge.randmaps.anchors.north)
-        myexit = ghwaypoints.Exit(dest_scene=myscene2, dest_entrance=myent2, name="Continue Onward",
-                                  anchor=pbge.randmaps.anchors.north)
+        myexit = ghwaypoints.Exit(dest_wp=myent2, name="Continue Onward", anchor=pbge.randmaps.anchors.north)
         mygoal.contents.append(myexit)
 
         # Create a boss mecha, but don't place it yet. It may be claimed by one
@@ -979,8 +979,7 @@ class MochaMissionBattleBuilder(Plot):
         return True
 
     def enter_combat(self, camp):
-        camp.destination = self.elements["FIRST_PART"]
-        camp.entrance = self.elements["FIRST_ENTRANCE"]
+        camp.go(self.elements["FIRST_ENTRANCE"])
 
 
 
@@ -2542,8 +2541,7 @@ class FinalBattleAgainstSynths(Plot):
 
     def start_battle(self, camp):
         myscene = self.elements["LOCALE"]
-        camp.destination = myscene
-        camp.entrance = self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
@@ -2583,8 +2581,7 @@ class FinalBattleAgainstBase(Plot):
 
     def start_battle(self, camp):
         myscene = self.elements["LOCALE"]
-        camp.destination = myscene
-        camp.entrance = self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
     def t_ENDCOMBAT(self, camp):
         myboss = self.elements["BOSS"]
@@ -2624,8 +2621,7 @@ class FinalBattleAgainstTrucks(Plot):
 
     def start_battle(self, camp):
         myscene = self.elements["LOCALE"]
-        camp.destination = myscene
-        camp.entrance = self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
         boss = self.elements["BOSS"]
         pos = self.elements["_goalroom"].area.center
         myscene.place_actor(boss, pos[0], pos[1], self.elements["_eteam"])
@@ -2666,8 +2662,7 @@ class FinalBattleAgainstBoss(Plot):
 
     def start_battle(self, camp):
         myscene = self.elements["LOCALE"]
-        camp.destination = myscene
-        camp.entrance = self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
         boss = self.elements["BOSS"]
         pos = self.elements["_goalroom"].area.center
         myscene.place_actor(boss, pos[0], pos[1], self.elements["_eteam"])
@@ -2707,8 +2702,7 @@ class FinalBattleAgainstBossInWoods(Plot):
 
     def start_battle(self, camp):
         myscene = self.elements["LOCALE"]
-        camp.destination = myscene
-        camp.entrance = self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
         boss = self.elements["BOSS"]
         pos = self.elements["_goalroom"].area.center
         myscene.place_actor(boss, pos[0], pos[1], self.elements["_eteam"])
@@ -2788,8 +2782,7 @@ class WinterBattle(Plot):
         pass
 
     def enter_combat(self, camp):
-        camp.destination = self.elements["LOCALE"]
-        camp.entrance = self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
 
 #  ************************

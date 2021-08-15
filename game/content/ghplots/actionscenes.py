@@ -41,14 +41,15 @@ class STC_FenixCastle( Plot ):
 
         self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(6,6,anchor=random.choice(pbge.randmaps.anchors.EDGES)),dident="LOCALE")
         destination,entrance = self.elements["MISSION_GATE"].scene, self.elements["MISSION_GATE"]
-        myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Exit(dest_scene=destination,dest_entrance=entrance,anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
+        myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Exit(dest_wp=entrance,
+                                                                                 anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
 
         castle_room = self.register_element("CASTLE_ROOM",pbge.randmaps.rooms.FuzzyRoom(10,10,anchor=pbge.randmaps.anchors.middle),dident="LOCALE")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="CASTLE_ROOM")
         #myunit = gears.selector.RandomMechaUnit(level=self.rank,strength=150,fac=self.elements["ENEMY_FACTION"],env=myscene.environment)
         #team2.contents += myunit.mecha_list
 
-        self.mission_entrance = (myscene,myent)
+        self.mission_entrance = myent
         self.next_update = 0
         self.encounters_on = True
 
@@ -58,7 +59,7 @@ class STC_FenixCastle( Plot ):
         thingmenu.add_item("Go to {}".format(self.elements["CASTLE_NAME"]), self.go_to_castle)
 
     def go_to_castle(self, camp):
-        camp.destination, camp.entrance = self.mission_entrance
+        camp.go(self.mission_entrance)
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: game.teams.Team = self.elements["_eteam"]
@@ -79,7 +80,7 @@ class STC_FenixCastle( Plot ):
             camp.check_trigger("WIN",self)
             camp.dole_xp(100)
         elif not camp.first_active_pc():
-            camp.destination, camp.entrance = self.elements["MISSION_GATE"].scene, self.elements["MISSION_GATE"]
+            camp.go(self.elements["MISSION_GATE"])
             camp.check_trigger("LOSE",self)
 
 

@@ -21,16 +21,14 @@ class VendingMachine( Waypoint ):
 class Exit( Waypoint ):
     name = "Exit"
     TILE = pbge.scenes.Tile( None, ghterrain.ExitTerrain, None )
-    def __init__( self, dest_scene=None, dest_entrance=None, **kwargs ):
-        self.dest_scene = dest_scene
-        self.dest_entrance = dest_entrance
+    def __init__(self, dest_wp=None, **kwargs):
+        self.dest_wp = dest_wp
         super(Exit,self).__init__(**kwargs)
 
-    def unlocked_use( self, camp ):
+    def unlocked_use( self, camp: gears.GearHeadCampaign ):
         # Perform this waypoint's special action.
-        if self.dest_scene and self.dest_entrance:
-            camp.destination = self.dest_scene
-            camp.entrance = self.dest_entrance
+        if self.dest_wp:
+            camp.go(self.dest_wp)
         else:
             pbge.alert("This door doesn't seem to go anywhere.")
 

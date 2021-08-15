@@ -97,7 +97,7 @@ class PriceyHeadMk3(Plot):
         if not self.mission_seed:
             self.mission_seed = missionbuilder.BuildAMissionSeed(
                 camp, "Capture {}".format(self.elements[ME_PERSON]),
-                (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+                self.elements["LOCALE"], self.elements["MISSION_GATE"],
                 enemy_faction=self.elements.get(ME_FACTION), rank=self.rank,
                 objectives=(missionbuilder.BAMO_DEFEAT_NPC,),
                 cash_reward=500, experience_reward=250,
@@ -204,7 +204,7 @@ class GuardianJudgment(Plot):
     def _start_mission(self,camp):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "Strike {}'s command center".format(self._get_villain()),
-            (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+            self.elements["LOCALE"], self.elements["MISSION_GATE"],
             enemy_faction=self.elements.get(ME_FACTION), rank=self.rank,
             objectives=(missionbuilder.BAMO_STORM_THE_CASTLE,),
             cash_reward=500, experience_reward=250,
@@ -519,7 +519,7 @@ class HoldBackTheDinosaurs(Plot):
         if not self.mission_seed:
             self.mission_seed = missionbuilder.BuildAMissionSeed(
                 camp, "Defeat All Dinosaurs",
-                (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+                self.elements["LOCALE"], self.elements["MISSION_GATE"],
                 allied_faction=self.elements["METROSCENE"].faction, rank=self.rank,
                 objectives=(missionbuilder.BAMO_FIGHT_DINOSAURS,),
                 cash_reward=500, experience_reward=250,
@@ -1083,7 +1083,7 @@ class InvestigateUsingGiantRobots(Plot):
         villain = self.card.elements.get(ME_FACTION) or self.elements.get(ME_FACTION)
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "Infiltrate {}'s base".format(self.elements[ME_FACTION]),
-            (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+            self.elements["LOCALE"], self.elements["MISSION_GATE"],
             enemy_faction=villain, rank=self.rank,
             objectives=(missionbuilder.BAMO_CAPTURE_BUILDINGS,missionbuilder.BAMO_LOCATE_ENEMY_FORCES),
             cash_reward=500, experience_reward=250, one_chance=False,

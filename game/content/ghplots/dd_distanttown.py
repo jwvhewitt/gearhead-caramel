@@ -80,7 +80,7 @@ class DZD_TheTownYouStartedIn(Plot):
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
-        camp.home_base = (self.elements["METROSCENE"],self.elements["MISSION_GATE"])
+        camp.home_base = self.elements["MISSION_GATE"]
         etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
         if not etlr.did_recovery:
             # We can maybe load a lancemate scene here. Yay!

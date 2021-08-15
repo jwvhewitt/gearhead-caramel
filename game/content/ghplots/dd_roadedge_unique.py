@@ -53,11 +53,11 @@ class KerberosEncounterPlot(DZDREBasicPlotWithEncounterStuff):
         else:
             myanchor = pbge.randmaps.anchors.east
         myadv = missionbuilder.BuildAMissionSeed(
-            camp, "Kerberos Attacks", (start_node.destination, start_node.entrance),
+            camp, "Kerberos Attacks", start_node.destination, start_node.entrance,
             enemy_faction=None, rank=self.rank,
             objectives=(dd_customobjectives.DDBAMO_KERBEROS,),
             adv_type="DZD_ROAD_MISSION",
-            custom_elements={"ADVENTURE_GOAL": (dest_node.destination, dest_node.entrance), "ENTRANCE_ANCHOR": myanchor,
+            custom_elements={"ADVENTURE_GOAL": dest_node.entrance, "ENTRANCE_ANCHOR": myanchor,
                              missionbuilder.BAME_MONSTER_TAGS: ("ZOMBOT",)},
             scenegen=DeadZoneHighwaySceneGen,
             architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
@@ -189,8 +189,7 @@ class KerberosAttacks(Plot):
         myent = self.register_element(
             "ENTRANCE", game.content.ghwaypoints.StairsUp(
                 anchor=pbge.randmaps.anchors.middle,
-                dest_scene=self.elements["METROSCENE"],
-                dest_entrance=self.elements["MISSION_GATE"]),
+                dest_wp=self.elements["METROSCENE"]),
             dident="ENTRANCE_ROOM"
         )
 
@@ -230,7 +229,7 @@ class KerberosAttacks(Plot):
         camp.scene.contents.remove(pc)
         pilot = pc.get_pilot()
         if pilot is camp.pc:
-            camp.destination, camp.entrance = self.elements["DUNGEON_ENTRANCE"], self.elements["KIDNAP_ROOM_WP"]
+            camp.go(self.elements["KIDNAP_ROOM_WP"])
             camp.campdata["KERBEROS_DUNGEON_OPEN"] = True
         else:
             plotutility.AutoLeaver(pilot)(camp)
@@ -251,7 +250,7 @@ class KerberosAttacks(Plot):
         camp.check_trigger("WIN", self)
 
     def go_to_locale(self, camp):
-        camp.destination, camp.entrance = self.elements["DUNGEON_ENTRANCE"], self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
     def t_START(self, camp):
         if self.intro_ready and camp.scene is self.elements["DUNGEON_ENTRANCE"]:

@@ -18,7 +18,7 @@
     "scripts": {
       "main": "#: includes\n#: plot",
       "includes": "import gears\nfrom pbge.plots import Plot, Adventure, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain\nfrom game.memobrowser import Memo\nfrom game.content.ghplots import missionbuilder\n",
-      "plot": "class {uname}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{uname}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        \"{adventure_name}\",\n        \"{adventure_desc}\",\n        {adventure_date}, \"{adventure_cover}\",\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        #:scenario_init\n        #:scenario_subplots\n\n        return True\n\n    #: world_methods",
+      "plot": "class {uname}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{uname}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        \"{adventure_name}\",\n        \"{adventure_desc}\",\n        {adventure_date}, {adventure_cover},\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        #:scenario_init\n        #:scenario_subplots\n\n        return True\n\n    #: world_methods",
       "scenario_init": "if {adventure_threat} > 0:\n    self.rank = {adventure_threat}\nelse:\n    self.rank = nart.camp.renown"
     },
     "child_types": ["CITY","WORLD_FEATURE"]

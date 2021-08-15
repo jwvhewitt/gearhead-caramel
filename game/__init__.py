@@ -70,7 +70,7 @@ def start_campaign(pc_egg, redrawer):
         pbge.please_stand_by()
         camp = content.narrative_convenience_function(pc_egg,adv_type=adv_type.LABEL)
         if camp:
-            camp.place_party()
+            camp._really_go()
             camp.save()
             camp.play()
 

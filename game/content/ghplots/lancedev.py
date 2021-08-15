@@ -58,7 +58,7 @@ class LMMissionPlot(LMPlot):
         sgen, archi, enviro = gharchitecture.get_encounter_scenegen_architecture_and_environment(camp.scene.get_metro_scene())
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, self.MISSION_NAME.format(**self.elements),
-            (self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             enemy_faction=self.elements.get("ENEMY_FACTION"),
             rank=camp.renown, objectives=self.MISSION_OBJECTIVES,
             cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,

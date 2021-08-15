@@ -56,7 +56,7 @@ class DZD_Wujung(Plot):
         self.register_element("MISSION_GATE", westgate)
 
         # Setting Wujung to the home base.
-        nart.camp.home_base = (myscene, westgate)
+        nart.camp.home_base = westgate
 
         # Add the services.
         tplot = self.add_sub_plot(nart, "DZDHB_WujungTires")
@@ -111,7 +111,7 @@ class DZD_Wujung(Plot):
     def METROSCENE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
-        camp.home_base = (self.elements["METROSCENE"], self.elements["MISSION_GATE"])
+        camp.home_base = self.elements["MISSION_GATE"]
         etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
         if self.intro_ready:
             # Give a different entry message depending on the nature of the PC.
@@ -472,7 +472,7 @@ class TestCharMover(Plot):
     def register_adventure(self, camp):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "{}'s Mission".format(self.elements["NPC"]),
-            (self.elements["METROSCENE"], self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             self.elements.get("ENEMY_FACTION"), rank=self.rank,
             objectives=(missionbuilder.BAMO_DEFEAT_COMMANDER,),
         )
@@ -553,7 +553,7 @@ class DZD_BronzeHorseInn(Plot):
                                                gears.stats.Dodge, gears.stats.CloseCombat, gears.stats.RangedCombat))
 
         self.mission_seed = missionbuilder.BuildAMissionSeed(
-            nart.camp,"Help Osmund's Friend",(self.elements["METROSCENE"],self.elements["MISSION_GATE"]),
+            nart.camp,"Help Osmund's Friend",self.elements["METROSCENE"],self.elements["MISSION_GATE"],
             objectives=(missionbuilder.BAMO_CAPTURE_THE_MINE,missionbuilder.BAMO_NEUTRALIZE_ALL_DRONES),cash_reward=500,
             architecture = gharchitecture.MechaScaleSemiDeadzone(),
             enemy_faction=plotutility.RandomBanditCircle(nart.camp),
@@ -842,7 +842,7 @@ class DZD_BlueFortressHQ(Plot):
 
     def register_adventure(self, camp):
         self.adventure_seed = CombatMissionSeed(camp, "{}'s Mission".format(self.elements["DISPATCHER"]),
-                                                (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+                                                self.elements["LOCALE"], self.elements["MISSION_GATE"],
                                                 enemy_faction=self.next_enemy_faction,
                                                 allied_faction=factions.TerranDefenseForce)
         missionbuilder.NewMissionNotification(self.adventure_seed.name,self.elements["MISSION_GATE"])
@@ -990,7 +990,7 @@ class DZD_AlliedArmor(Plot):
         self.register_scene(nart, otherscene, intscenegen, ident="OTHERSCENE", dident="INTERIOR")
         hiddenroom = pbge.randmaps.rooms.ClosedRoom()
         otherscene.contents.append(hiddenroom)
-        mystairs = self.register_element("STAIRSUP",ghwaypoints.StoneStairsUp(dest_scene=intscene,dest_entrance=secretstairs))
+        mystairs = self.register_element("STAIRSUP",ghwaypoints.StoneStairsUp(dest_wp=secretstairs))
         hiddenroom.contents.append(mystairs)
 
         cwnpc = self.register_element("CWORKER", gears.selector.random_character(combatant=False, job=gears.jobs.ALL_JOBS["Construction Worker"]))
@@ -1038,7 +1038,7 @@ class DZD_AlliedArmor(Plot):
 
     def _use_bookshelf(self,camp):
         pbge.alert("Moving the white book activates a hidden staircase!")
-        camp.destination,camp.entrance = self.elements["OTHERSCENE"],self.elements["STAIRSUP"]
+        camp.go(self.elements["STAIRSUP"])
 
     def _ask_about_terminal(self, camp):
         self.asked_about_terminal = True

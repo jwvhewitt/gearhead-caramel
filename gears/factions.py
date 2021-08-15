@@ -246,7 +246,7 @@ class TheSolarNavy(Faction):
 
 
 class ProDuelistAssociation(Faction):
-    name = "he Pro Duelist Association"
+    name = "the Pro Duelist Association"
     factags = (tags.Adventurer,tags.Media)
     mecha_colors = (color.PlasmaBlue, color.GunRed, color.Malachite, color.SteelBlue, color.FreedomBlue)
     CAREERS = {

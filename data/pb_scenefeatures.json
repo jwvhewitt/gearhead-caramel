@@ -10,7 +10,7 @@
       }
     },
     "scripts": {
-      "scene_subplots": "nart.camp.scene = self.elements.get( \"{LOCALE}\" )\nnart.camp.entrance = self.elements.get( \"ENTRANCE\" )\nif {start_with_lancemate}:\n    self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n"
+      "scene_subplots": "nart.camp.go(self.elements.get( \"ENTRANCE\" ))\nif {start_with_lancemate}:\n    self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n"
     }
   },
 

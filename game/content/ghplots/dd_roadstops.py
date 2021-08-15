@@ -96,7 +96,7 @@ class DZD_DeadZoneTown(Plot):
     def METROSCENE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
-        camp.home_base = (self.elements["METROSCENE"], self.elements["MISSION_GATE"])
+        camp.home_base = self.elements["MISSION_GATE"]
         etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
         if not etlr.did_recovery:
             # We can maybe load a lancemate scene here. Yay!
@@ -183,7 +183,7 @@ class DZD_DeadZoneVillage(Plot):
     def METROSCENE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
-        camp.home_base = (self.elements["METROSCENE"], self.elements["MISSION_GATE"])
+        camp.home_base = self.elements["MISSION_GATE"]
         etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
         if not etlr.did_recovery:
             # We can maybe load a lancemate scene here. Yay!
@@ -804,10 +804,7 @@ class SynthCave(Plot):
         mydungeon.entry_level.contents.append(d_entrance_room)
 
         myent = self.register_element(
-            "ENTRANCE", ghwaypoints.Exit(
-                anchor=pbge.randmaps.anchors.middle,
-                dest_scene=self.elements["METROSCENE"],
-                dest_entrance=self.elements["MISSION_GATE"]),
+            "ENTRANCE", ghwaypoints.Exit(dest_wp=self.elements["MISSION_GATE"], anchor=pbge.randmaps.anchors.middle),
             dident="ENTRANCE_ROOM"
         )
 
@@ -842,7 +839,7 @@ class SynthCave(Plot):
             thingmenu.add_item("Go to {}.".format(self.area_name), self.go_to_locale)
 
     def go_to_locale(self, camp):
-        camp.destination, camp.entrance = self.elements["DUNGEON"], self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -893,10 +890,7 @@ class TreasureCave(Plot):
         mydungeon.entry_level.contents.append(d_entrance_room)
 
         myent = self.register_element(
-            "ENTRANCE", ghwaypoints.Exit(
-                anchor=pbge.randmaps.anchors.middle,
-                dest_scene=self.elements["METROSCENE"],
-                dest_entrance=self.elements["MISSION_GATE"]),
+            "ENTRANCE", ghwaypoints.Exit(dest_wp=self.elements["MISSION_GATE"], anchor=pbge.randmaps.anchors.middle),
             dident="ENTRANCE_ROOM"
         )
 
@@ -941,7 +935,7 @@ class TreasureCave(Plot):
             thingmenu.add_item("Go to {}.".format(self.area_name), self.go_to_locale)
 
     def go_to_locale(self, camp):
-        camp.destination, camp.entrance = self.elements["DUNGEON"], self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -1011,10 +1005,7 @@ class DZRS_LostForager(Plot):
         mydungeon.entry_level.contents.append(d_entrance_room)
 
         myent = self.register_element(
-            "ENTRANCE", ghwaypoints.Exit(
-                anchor=pbge.randmaps.anchors.middle,
-                dest_scene=self.elements["METROSCENE"],
-                dest_entrance=self.elements["MISSION_GATE"]),
+            "ENTRANCE", ghwaypoints.Exit(dest_wp=self.elements["MISSION_GATE"], anchor=pbge.randmaps.anchors.middle),
             dident="ENTRANCE_ROOM"
         )
 
@@ -1046,7 +1037,7 @@ class DZRS_LostForager(Plot):
             thingmenu.add_item("Go to {} on foot.".format(self.area_name), self.go_to_locale)
 
     def go_to_locale(self, camp):
-        camp.destination, camp.entrance = self.elements["DUNGEON"], self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
     def get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -1123,7 +1114,7 @@ class DZRS_LostForager(Plot):
         self.npc_rescued = True
         npc = self.elements["NPC"]
         npc.place(self.elements["METROSCENE"], team=self.elements["METROSCENE"].civilian_team)
-        camp.destination, camp.entrance = self.elements["METROSCENE"], self.elements["MISSION_GATE"]
+        camp.go(self.elements["MISSION_GATE"])
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
         camp.dole_xp(200)
 

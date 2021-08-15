@@ -1,3 +1,6 @@
+- Added Campaign go method
+- Singletons should return the intended str() value
+
 v0.700 June 13 2021
 - Added PlotCreator scenario editor
 - Popup menu can now take custom width and height

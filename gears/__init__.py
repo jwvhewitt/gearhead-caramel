@@ -570,9 +570,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             usable_party += self.get_usable_party(self.scene.scale,tags.SCENE_SOLO in self.scene.attributes)
         return usable_party
 
-    def place_party(self):
+    def place_party(self, entrance):
         """Stick the party close to the waypoint."""
-        x0, y0 = self.entrance.pos
+        x0, y0 = entrance.pos
         entry_points = pbge.scenes.pfov.WalkReach(self.scene, x0, y0, 3, True).tiles
         entry_points = entry_points.difference(self.scene.get_blocked_tiles())
         entry_points = list(entry_points)
@@ -582,7 +582,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     pos = random.choice(entry_points)
                     entry_points.remove(pos)
                 else:
-                    pos = self.entrance.pos
+                    pos = entrance.pos
                 pc.place(self.scene, pos, self.scene.player_team)
                 pc.gear_up()
                 #pbge.scenes.pfov.PCPointOfView(self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale))

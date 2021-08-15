@@ -54,9 +54,8 @@ class MechaGraveyardAdventure(Plot):
                 5, 5, anchor=random.choice(pbge.randmaps.anchors.EDGES)), dident="LOCALE"
         )
         myent = self.register_element(
-            "ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle,
-                                                      dest_scene=self.elements["METROSCENE"],
-                                                      dest_entrance=self.elements["MISSION_GATE"]),
+            "ENTRANCE",
+            game.content.ghwaypoints.Exit(dest_wp=self.elements["MISSION_GATE"], anchor=pbge.randmaps.anchors.middle),
             dident="ENTRANCE_ROOM"
         )
 
@@ -310,4 +309,4 @@ class MechaGraveyardAdventure(Plot):
             pbge.alert("This computer uses a PreZero operating system that is far beyond your understanding.")
 
     def go_to_locale(self, camp):
-        camp.destination, camp.entrance = self.elements["LOCALE"], self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])

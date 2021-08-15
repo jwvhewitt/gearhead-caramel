@@ -107,7 +107,7 @@ def get_possible_states(part: pbclasses.BluePrint, category: str):
             mylist.append((v.name, k))
         return mylist
     elif category.endswith(".png"):
-        return [(a,a) for a in pbge.image.glob_images(category)] + [("None", None),]
+        return [(a,'"{}"'.format(a)) for a in pbge.image.glob_images(category)] + [("None", None),]
     elif category in LIST_TYPES:
         return [(a,a) for a in LIST_TYPES[category]]
     else:

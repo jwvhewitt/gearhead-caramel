@@ -203,9 +203,8 @@ class ClueInBunker(Plot):
                               pbge.randmaps.rooms.OpenRoom(5, 5, anchor=random.choice(pbge.randmaps.anchors.EDGES)),
                               dident="LOCALE")
         myent = self.register_element(
-            "ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle,
-                                                      dest_scene=self.elements["METROSCENE"],
-                                                      dest_entrance=self.elements["MISSION_GATE"]),
+            "ENTRANCE",
+            game.content.ghwaypoints.Exit(dest_wp=self.elements["MISSION_GATE"], anchor=pbge.randmaps.anchors.middle),
             dident="ENTRANCE_ROOM"
         )
 
@@ -253,7 +252,7 @@ class ClueInBunker(Plot):
             thingmenu.add_item("Go to {}".format(self.elements["LOCALE"]), self.go_to_locale)
 
     def go_to_locale(self, camp):
-        camp.destination, camp.entrance = self.elements["LOCALE"], self.elements["ENTRANCE"]
+        camp.go(self.elements["ENTRANCE"])
 
     def ME_PUZZLEITEM_menu(self, camp, thingmenu):
         if self.clue_uncovered:
@@ -566,7 +565,7 @@ class DinosaurMission(Plot):
     def register_adventure(self, camp):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "{}'s Dinosaur Hunt".format(self.elements["NPC"]),
-            (self.elements["METROSCENE"], self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             rank=self.rank, allied_faction=self.elements["METROSCENE"].faction,
             objectives=[missionbuilder.BAMO_FIGHT_DINOSAURS, random.choice(self.MOBJs)],
         )
@@ -1135,7 +1134,7 @@ class FightThatHenchman(Plot):
     def register_adventure(self, camp):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "{}'s Mission".format(self.elements["NPC"]),
-            (self.elements["METROSCENE"], self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             self.elements.get(ME_FACTION), rank=self.rank,
             objectives=[missionbuilder.BAMO_DEFEAT_NPC, random.choice(self.MOBJs)],
             custom_elements={missionbuilder.BAME_NPC: self.elements[ME_PERSON]}
@@ -1633,7 +1632,7 @@ class PasswordThroughCombat(Plot):
     def register_adventure(self, camp):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "{}'s Mission".format(self.elements["NPC"]),
-            (self.elements["METROSCENE"], self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             self.elements["ME_FACTION"], rank=self.rank, objectives=random.sample(self.MOBJs, 2),
             on_win=self._win_mission,
         )
@@ -1945,7 +1944,7 @@ class BasicRobberBaron(Plot):
     def register_adventure(self, camp):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "{}'s Mission".format(self.elements[ME_PERSON]),
-            (self.elements["METROSCENE"], self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             random.choice(self.ENEMY_FACTIONS), rank=self.rank,
             objectives=random.sample(self.OBJECTIVES,2),
             architecture=gharchitecture.MechaScaleSemiDeadzone(),
@@ -2048,7 +2047,7 @@ class GuardTheShipment(Plot):
     def register_adventure(self, camp):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "{}'s Mission".format(self.elements["NPC"]),
-            (self.elements["METROSCENE"], self.elements["MISSION_GATE"]),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             self.elements.get(ME_FACTION), rank=self.rank,
             objectives=[missionbuilder.BAMO_DEFEAT_THE_BANDITS, ],
             custom_elements={"ENTRANCE_ANCHOR": pbge.randmaps.anchors.east},
@@ -2422,7 +2421,7 @@ class LunarRefugeeLost(Plot):
 
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             nart.camp, "Investigate {}'s village".format(self.elements["NPC"]),
-            (self.elements["LOCALE"], self.elements["MISSION_GATE"]),
+            self.elements["LOCALE"], self.elements["MISSION_GATE"],
             enemy_faction=self.elements[ME_FACTION], rank=self.rank,
             objectives=(dd_customobjectives.DDBAMO_INVESTIGATE_REFUGEE_CAMP,),
             cash_reward=500, experience_reward=250, one_chance=False,
