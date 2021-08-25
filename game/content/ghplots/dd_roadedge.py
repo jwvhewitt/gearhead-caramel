@@ -4,7 +4,7 @@ import pbge
 import random
 from game.content import gharchitecture, plotutility
 from . import missionbuilder,dd_customobjectives
-from missionbuilder import RoadMissionPlot
+#from missionbuilder import RoadMissionPlot
 
 #   ***************************************************
 #   ***   SUPPORT  CLASSES  FOR  BAM_ROAD_MISSION   ***
