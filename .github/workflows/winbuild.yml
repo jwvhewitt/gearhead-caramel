@@ -28,6 +28,7 @@ jobs:
         pip install numpy==1.19.3
         pip install cython
         pip install cx-freeze
+        pip install pyinstaller
     - name: build caramel-recolor-cython
       run: |
         cd caramel-recolor-cython
