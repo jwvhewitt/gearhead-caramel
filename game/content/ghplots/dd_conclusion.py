@@ -370,7 +370,7 @@ class DoomedTown(Plot):
                 camp, "Cetus Attacks", start_node.destination, start_node.entrance,
                 rank=self.rank,
                 objectives = (dd_customobjectives.DDBAMO_MEET_CETUS,),
-                adv_type = "DZD_ROAD_MISSION",
+                adv_type = "BAM_ROAD_MISSION",
                 custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"ENTRANCE_ANCHOR": myanchor},
                 scenegen= gharchitecture.DeadZoneHighwaySceneGen,
                 architecture=gharchitecture.MechaScaleDeadzone(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),

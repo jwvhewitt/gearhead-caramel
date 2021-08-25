@@ -56,7 +56,7 @@ class KerberosEncounterPlot(DZDREBasicPlotWithEncounterStuff):
             camp, "Kerberos Attacks", start_node.destination, start_node.entrance,
             enemy_faction=None, rank=self.rank,
             objectives=(dd_customobjectives.DDBAMO_KERBEROS,),
-            adv_type="DZD_ROAD_MISSION",
+            adv_type="BAM_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": dest_node.entrance, "ENTRANCE_ANCHOR": myanchor,
                              missionbuilder.BAME_MONSTER_TAGS: ("ZOMBOT",)},
             scenegen=DeadZoneHighwaySceneGen,

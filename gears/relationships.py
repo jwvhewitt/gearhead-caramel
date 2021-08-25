@@ -59,6 +59,15 @@ R_PARTNER = "Partner"           # NPC and PC have taken their romance to the nex
 R_NEMESIS = "Nemesis"           # Like "Adversary" but now it's personal
 R_COMPANION = "Companion"       # Bonded at the highest level
 
+FAVORABLE_TAGS = (
+    A_FRIENDLY, A_THANKFUL, A_HEARTFUL, A_FLIRTY, A_ADMIRE, R_CREATION, R_CHAPERONE, R_CRUSH, R_FRIEND, R_ROMANCE,
+    R_PARTNER, R_COMPANION
+)
+
+UNFAVORABLE_TAGS = (
+    A_RESENT, A_DISRESPECT, A_ENVY, A_HATE, E_RIVAL, R_OPPONENT, R_ADVERSARY, R_NEMESIS
+)
+
 # Memory Types
 MEM_DefeatPC = "MEM_DefeatPC"   # The NPC defeated the PC in this memory.
 MEM_LoseToPC = "MEM_LoseToPC"   # The NPC was defeated by the PC in this memory
@@ -142,3 +151,20 @@ class Relationship(object):
         for mem in reversed(self.history):
             if mem.reaction_mod > 0:
                 return mem
+
+    # A favorable NPC is likely to come to the PC's aid, or expect to be aided by the PC.
+    # An unfavorable NPC is likely to attack the PC, or otherwise oppose them.
+    # Note that it is possible for an NPC to be favorable and unfavorable at the same time- for example, a member
+    # of an enemy faction that is also an old school friend of the PC.
+
+    def is_favorable(self):
+        return (
+                RT_LANCEMATE in self.tags or self.attitude in FAVORABLE_TAGS or self.role in FAVORABLE_TAGS or
+                RT_FAMILY in self.tags or self.expectation in FAVORABLE_TAGS
+        )
+
+    def is_unfavorable(self):
+        return (
+                self.attitude in UNFAVORABLE_TAGS or self.role in UNFAVORABLE_TAGS or
+                self.expectation in UNFAVORABLE_TAGS
+        )

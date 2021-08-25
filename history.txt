@@ -1,3 +1,5 @@
+- Fighting a mission against a faction may make that faction unfavorable to the PC
+- Added is_favorable_to_pc, is_unfavorable_to_pc methods to GearHeadCampaign
 - Added Campaign go method
 - Singletons should return the intended str() value
 

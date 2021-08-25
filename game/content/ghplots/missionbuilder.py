@@ -89,7 +89,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg",
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None,
-                 environment=gears.tags.GroundEnv, **kwargs):
+                 environment=gears.tags.GroundEnv, make_enemies=True, **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
         cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
         cms_pstate.elements["METROSCENE"] = metroscene
@@ -116,6 +116,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         if not mission_grammar:
             mission_grammar = MissionGrammar()
         self.mission_grammar = mission_grammar
+        self.make_enemies = make_enemies
 
         # Data is a dict of stuff that will get used by whatever plot created this adventure seed, or maybe it
         # can be used by some of the objectives. I dunno! It's just a dict of stuff! Do with it as you will.
@@ -139,13 +140,17 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
 
         self.environment = environment
 
-    def end_adventure(self, camp):
+    def end_adventure(self, camp: gears.GearHeadCampaign):
         # Update before ending, and again after.
         camp.check_trigger("UPDATE")
         if self.on_win and self.is_won():
             self.on_win(camp)
         elif self.on_loss and not self.is_won():
             self.on_loss(camp)
+        if self.make_enemies and self.is_won() and self.enemy_faction:
+            if self.enemy_faction not in camp.faction_relations:
+                camp.faction_relations[self.enemy_faction] = gears.factions.FactionRelations()
+            camp.faction_relations[self.enemy_faction].pc_relation = camp.faction_relations[self.enemy_faction].ENEMY
         super(BuildAMissionSeed, self).end_adventure(camp)
         camp.day += 1
 
@@ -288,6 +293,32 @@ class BuildAMissionPlot(Plot):
 
     def get_dialogue_grammar(self, npc, camp):
         return self.adv.mission_grammar.copy()
+
+
+class RoadMissionPlot( BuildAMissionPlot ):
+    # based on the regular Build-a-Mission plot, but automatically exits when the mission is complete.
+    # Custom element: ADVENTURE_GOAL, the waypoint of the destination node.
+    LABEL = "BAM_ROAD_MISSION"
+
+    def t_ENDCOMBAT(self,camp):
+        # If the player team gets wiped out, end the mission.
+        if not camp.first_active_pc():
+            self.exit_the_mission(camp)
+        elif self.adv.is_completed():
+            self.exit_the_mission(camp)
+
+    def _ENTRANCE_menu(self, camp, thingmenu):
+        thingmenu.desc = "Do you want to end this journey and return to {}?".format(self.elements["METROSCENE"])
+
+        thingmenu.add_item("Return to {}".format(self.elements["METROSCENE"]),self.exit_the_mission)
+        thingmenu.add_item("Journey Onward", None)
+
+    def exit_the_mission(self,camp):
+        if self.adv.is_won():
+            camp.go(self.elements["ADVENTURE_GOAL"])
+        else:
+            camp.go(self.elements["ADVENTURE_RETURN"])
+        self.adv.end_adventure(camp)
 
 
 #   ****************************

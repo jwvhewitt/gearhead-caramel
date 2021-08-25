@@ -395,7 +395,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             while egg.stuff:
                 mek = egg.stuff.pop()
                 self.party.append(mek)
-            self.pc = egg.pc
+            self.pc: base.Character = egg.pc
 
     def get_dialogue_offers_and_grammar(self, npc: base.Character):
         doffs, grams = super().get_dialogue_offers_and_grammar(npc)
@@ -670,14 +670,14 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             repair_total += pc.restore_all()
         return repair_total
 
-    def get_relationship(self,npc):
+    def get_relationship(self, npc):
         if npc.mnpcid:
-            return self.egg.major_npc_records.setdefault(npc.mnpcid,relationships.Relationship())
+            return self.egg.major_npc_records.setdefault(npc.mnpcid, relationships.Relationship())
         else:
             return relationships.Relationship()
 
     # Faction Methods
-    def get_faction(self,mything):
+    def get_faction(self, mything):
         if isinstance(mything,factions.Circle):
             return mything
         elif inspect.isclass(mything) and issubclass(mything,factions.Faction):
@@ -712,12 +712,47 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     if (fac1 in self.faction_relations and fac2 in self.faction_relations[fac1].enemies) or (fac2 in self.faction_relations and fac1 in self.faction_relations[fac2].enemies):
                         return True
 
-    def set_faction_ally(self,a,b):
-        if a not in self.faction_relations:
-            self.faction_relations[a] = factions.FactionRelations()
-        self.faction_relations[a].allies.append(b)
-        if b in self.faction_relations[a].enemies:
-            self.faction_relations[a].enemies.remove(b)
+    def is_favorable_to_pc(self, other_thing):
+        """ is the other_thing- an NPC, faction, scene, whatever- likely to want to aid the PC?
+        """
+        it = False
+        ofac = self.get_faction(other_thing)
+        if self.pc.faction and ofac:
+            it = self.are_faction_allies(self.pc.faction, ofac)
+        if ofac:
+            ofacfam = self._get_faction_family(ofac)
+            for ffac in ofacfam:
+                ofacrel = self.faction_relations.get(ffac)
+                if ofacrel and ofacrel.pc_relation == ofacrel.ENEMY:
+                    it = False
+                    break
+                elif ofacrel and ofacrel.pc_relation == ofacrel.ALLY:
+                    it = True
+                    break
+        if hasattr(other_thing, "relationship"):
+            it = it or other_thing.relationship.is_favorable()
+        return it
+
+    def is_unfavorable_to_pc(self, other_thing):
+        """ is the other_thing- an NPC, faction, scene, whatever- likely to want to fight the PC?
+        """
+        it = False
+        ofac = self.get_faction(other_thing)
+        if self.pc.faction and ofac:
+            it = self.are_faction_enemies(self.pc.faction, ofac)
+        if ofac:
+            ofacfam = self._get_faction_family(ofac)
+            for ffac in ofacfam:
+                ofacrel = self.faction_relations.get(ffac)
+                if ofacrel and ofacrel.pc_relation == ofacrel.ENEMY:
+                    it = True
+                    break
+                elif ofacrel and ofacrel.pc_relation == ofacrel.ALLY:
+                    it = False
+                    break
+        if hasattr(other_thing, "relationship"):
+            it = it or other_thing.relationship.is_unfavorable()
+        return it
 
     def freeze(self,thing):
         # Move something, probably an NPC, into storage.

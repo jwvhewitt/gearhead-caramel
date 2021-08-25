@@ -1,3 +1,5 @@
+import collections
+
 from pbge import Singleton
 from . import color
 from . import jobs
@@ -294,7 +296,7 @@ class Circle(object):
 
     def get_faction_tag(self):
         if self.parent_faction:
-            return self.parent_faction
+            return self.parent_faction.get_faction_tag()
         else:
             return self
 
@@ -315,9 +317,42 @@ class Circle(object):
         return self.name
 
 class FactionRelations(object):
+    ALLY = 1
+    NEUTRAL = 0
+    ENEMY = -1
     def __init__(self,allies=(),enemies=()):
-        self.allies = list(allies)
-        self.enemies = list(enemies)
+        self.relations = collections.defaultdict(int)
+        for a in allies:
+            self.relations[a] = self.ALLY
+        for e in enemies:
+            self.relations[e] = self.ENEMY
+        self.pc_relation = self.NEUTRAL
+
+    @property
+    def allies(self):
+        return [a for a in self.relations.keys() if self.relations[a] == self.ALLY]
+
+    @property
+    def enemies(self):
+        return [e for e in self.relations.keys() if self.relations[e] == self.ENEMY]
+
+    def set_faction_ally(self, other_faction):
+        self.relations[other_faction] = self.ALLY
+
+    def set_faction_neutral(self, other_faction):
+        self.relations[other_faction] = self.NEUTRAL
+
+    def set_faction_enemy(self, other_faction):
+        self.relations[other_faction] = self.ENEMY
+
+    def set_pc_ally(self):
+        self.pc_relation = self.ALLY
+
+    def set_pc_neutral(self):
+        self.pc_relation = self.NEUTRAL
+
+    def set_pc_enemy(self):
+        self.pc_relation = self.ENEMY
 
 
 DEFAULT_FACTION_DICT_NT158 = {

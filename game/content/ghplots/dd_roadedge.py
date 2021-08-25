@@ -4,37 +4,14 @@ import pbge
 import random
 from game.content import gharchitecture, plotutility
 from . import missionbuilder,dd_customobjectives
+from missionbuilder import RoadMissionPlot
 
 #   ***************************************************
-#   ***   DZD_ROAD_MISSION  and  SUPPORT  CLASSES   ***
+#   ***   SUPPORT  CLASSES  FOR  BAM_ROAD_MISSION   ***
 #   ***************************************************
 from ..gharchitecture import DeadZoneHighwaySceneGen
 
 
-class RoadMissionPlot( missionbuilder.BuildAMissionPlot ):
-    # based on the regular Build-a-Mission plot, but automatically exits when the mission is complete.
-    # Custom element: ADVENTURE_GOAL, the waypoint of the destination node.
-    LABEL = "DZD_ROAD_MISSION"
-
-    def t_ENDCOMBAT(self,camp):
-        # If the player team gets wiped out, end the mission.
-        if not camp.first_active_pc():
-            self.exit_the_mission(camp)
-        elif self.adv.is_completed():
-            self.exit_the_mission(camp)
-
-    def _ENTRANCE_menu(self, camp, thingmenu):
-        thingmenu.desc = "Do you want to end this journey and return to {}?".format(self.elements["METROSCENE"])
-
-        thingmenu.add_item("Return to {}".format(self.elements["METROSCENE"]),self.exit_the_mission)
-        thingmenu.add_item("Journey Onward", None)
-
-    def exit_the_mission(self,camp):
-        if self.adv.is_won():
-            camp.go(self.elements["ADVENTURE_GOAL"])
-        else:
-            camp.go(self.elements["ADVENTURE_RETURN"])
-        self.adv.end_adventure(camp)
 
 class DZDREBasicPlotWithEncounterStuff(Plot):
     LABEL = "UTILITY_PARENT"
@@ -65,7 +42,7 @@ class DZDREBasicPlotWithEncounterStuff(Plot):
             camp, self.ENCOUNTER_NAME, start_node.destination, start_node.entrance,
             enemy_faction = self.elements.get("FACTION"), rank=self.rank,
             objectives = self.ENCOUNTER_OBJECTIVES + (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
-            adv_type = "DZD_ROAD_MISSION",
+            adv_type = "BAM_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"ENTRANCE_ANCHOR": myanchor},
             scenegen=DeadZoneHighwaySceneGen,
             architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
@@ -85,7 +62,7 @@ class DZDREBasicPlotWithEncounterStuff(Plot):
             camp, "Highway Encounter", start_node.destination, start_node.entrance,
             enemy_faction = random.choice(self.RANDOM_ENEMIES), rank=self.rank,
             objectives = (missionbuilder.BAMO_DEFEAT_COMMANDER,dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
-            adv_type = "DZD_ROAD_MISSION",
+            adv_type = "BAM_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"ENTRANCE_ANCHOR": myanchor},
             scenegen=DeadZoneHighwaySceneGen,
             architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
@@ -182,7 +159,7 @@ class TheMechaGraveyard(DZDREBasicPlotWithEncounterStuff):
             camp, "Zombot Attack", start_node.destination, start_node.entrance,
             enemy_faction = None, rank=self.rank,
             objectives = (missionbuilder.BAMO_FIGHT_MONSTERS, dd_customobjectives.DDBAMO_ENCOUNTER_ZOMBOTS,),
-            adv_type = "DZD_ROAD_MISSION",
+            adv_type = "BAM_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"ENTRANCE_ANCHOR": myanchor,
                              missionbuilder.BAME_MONSTER_TAGS: ("ZOMBOT",)},
             scenegen=DeadZoneHighwaySceneGen,
