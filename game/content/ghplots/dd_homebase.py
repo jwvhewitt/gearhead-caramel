@@ -798,6 +798,9 @@ class DZD_BlueFortressHQ(Plot):
 
         self.adventure_seed = None
         self.next_enemy_faction = self.generate_enemy_faction()
+        self.next_mission_date = 0
+        self.total_mission_wins = 0
+        self.not_yet_told_no_missions_left = True
         #self.register_adventure(nart.camp)
 
         room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(), dident="INTERIOR")
@@ -844,8 +847,20 @@ class DZD_BlueFortressHQ(Plot):
         self.adventure_seed = CombatMissionSeed(camp, "{}'s Mission".format(self.elements["DISPATCHER"]),
                                                 self.elements["LOCALE"], self.elements["MISSION_GATE"],
                                                 enemy_faction=self.next_enemy_faction,
-                                                allied_faction=factions.TerranDefenseForce)
+                                                allied_faction=factions.TerranDefenseForce,
+                                                on_win=self._win_mission)
         missionbuilder.NewMissionNotification(self.adventure_seed.name,self.elements["MISSION_GATE"])
+
+    def _win_mission(self, camp: gears.GearHeadCampaign):
+        self.total_mission_wins += 1
+
+    def _tell_no_missions(self, camp):
+        self.not_yet_told_no_missions_left = False
+
+    def deny_adventure(self, camp: gears.GearHeadCampaign):
+        self.adventure_seed = None
+        self.next_mission_date = camp.day + 1
+        self.next_enemy_faction = self.generate_enemy_faction()
 
     def t_UPDATE(self, camp):
         # If the adventure has ended, get rid of it.
@@ -853,14 +868,40 @@ class DZD_BlueFortressHQ(Plot):
             self.adventure_seed = None
             self.next_enemy_faction = self.generate_enemy_faction()
 
-    def DISPATCHER_offers(self, camp):
+    def DISPATCHER_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
 
-        if not self.adventure_seed:
+        if self.total_mission_wins >= 20:
+            if self.not_yet_told_no_missions_left and not self.adventure_seed:
+                mylist.append(
+                    Offer(
+                        "Sorry, but you've done such a good job defending Wujung, there aren't any missions left for you to do.",
+                        context=ContextTag([context.MISSION, ]), effect=self._tell_no_missions,
+                    )
+                )
+
+        elif camp.day >= self.next_mission_date and not self.adventure_seed:
             mylist.append(
                 Offer(
-                    "The Defense Force is short handed at the moment, so there are always missions available. [MechaMissionVsEnemyFaction]; [IWillSendMissionDetails].",
-                    context=ContextTag([context.MISSION, ]), effect=self.register_adventure, data={"enemy_faction":self.next_enemy_faction.name}
+                    "The Defense Force is short handed at the moment, so there are almost always missions available. [MechaMissionVsEnemyFaction].",
+                    context=ContextTag([context.MISSION, ]), subject=self, subject_start=True,
+                    data={"enemy_faction":self.next_enemy_faction.name}
+                )
+            )
+
+            mylist.append(
+                Offer(
+                    "[IWillSendMissionDetails]. You can start the mission by heading to the West Gate.",
+                    context=ContextTag([context.ACCEPT, ]), subject=self, effect=self.register_adventure,
+                    data={"enemy_faction":self.next_enemy_faction.name}
+                )
+            )
+
+            mylist.append(
+                Offer(
+                    "[UNDERSTOOD] You can come back tomorrow for a different mission.",
+                    context=ContextTag([context.DENY, ]), subject=self, effect=self.deny_adventure,
+                    data={"enemy_faction":self.next_enemy_faction.name}
                 )
             )
 
