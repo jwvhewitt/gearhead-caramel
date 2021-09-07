@@ -86,6 +86,10 @@ class DZD_DeadZoneTown(Plot):
         threat_card = nart.add_tarot_card(self, (tarot_cards.MT_THREAT,))
         mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0])
 
+        # Add the features
+        self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
+        self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")
+
         return True
 
     TOWN_NAME_PATTERNS = ("Fort {}","{} Fortress","{} Oasis","Mount {}", "{}",
@@ -93,17 +97,6 @@ class DZD_DeadZoneTown(Plot):
     def _generate_town_name(self):
         return random.choice(self.TOWN_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
 
-    def METROSCENE_ENTER(self, camp):
-        # Upon entering this scene, deal with any dead or incapacitated party members.
-        # Also, deal with party members who have lost their mecha. This may include the PC.
-        camp.home_base = self.elements["MISSION_GATE"]
-        etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
-        if not etlr.did_recovery:
-            # We can maybe load a lancemate scene here. Yay!
-            if not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT):
-                nart = GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=PLOT_LIST)
-                if nart.story:
-                    nart.build()
 
 class DZD_DeadZoneVillage(Plot):
     LABEL = "DZD_ROADSTOP"
@@ -174,23 +167,16 @@ class DZD_DeadZoneVillage(Plot):
         threat_card = nart.add_tarot_card(self, (tarot_cards.MT_THREAT,))
         mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0])
 
+        # Add the features
+        self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
+        self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")
+
         return True
 
     TOWN_NAME_PATTERNS = ("{} Village","{} Hamlet","Camp {}","Mount {}", "{}", "{} Ruins" )
     def _generate_town_name(self):
         return random.choice(self.TOWN_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
 
-    def METROSCENE_ENTER(self, camp):
-        # Upon entering this scene, deal with any dead or incapacitated party members.
-        # Also, deal with party members who have lost their mecha. This may include the PC.
-        camp.home_base = self.elements["MISSION_GATE"]
-        etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
-        if not etlr.did_recovery:
-            # We can maybe load a lancemate scene here. Yay!
-            if not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT):
-                nart = GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=PLOT_LIST)
-                if nart.story:
-                    nart.build()
 
 
 #   **********************

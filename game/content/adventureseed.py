@@ -49,7 +49,8 @@ class AdventureSeed(Adventure):
             else:
                 for e in nart.errors:
                     print(e)
-        self.root_plot.start_mission(camp)
+        if self.root_plot:
+            self.root_plot.start_mission(camp)
 
 
     def get_completion(self,include_optional=False):

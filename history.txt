@@ -1,3 +1,6 @@
+- Added standardized in-town recovery/lance development loader
+- Added militia defense if PC attempts to enter an unfavorable town
+- Added standardized world map encounter handler
 - The Terran Defense Force mission in Wujung can now be rejected, and stops being offered after 20 wins
 - Fighting a mission against a faction may make that faction unfavorable to the PC
 - Added is_favorable_to_pc, is_unfavorable_to_pc methods to GearHeadCampaign

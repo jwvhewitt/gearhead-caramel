@@ -603,6 +603,13 @@ class Explorer( object ):
                                 pc.free_pilots()
                                 print(pc)
                                 self.camp.party.remove(pc)
+                    elif gdi.unicode == "F" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        for k in self.camp.faction_relations.keys():
+                            if self.camp.is_unfavorable_to_pc(k):
+                                print("{}: Enemy".format(k))
+                            elif self.camp.is_favorable_to_pc(k):
+                                print("{}: Ally".format(k))
+
                     elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for card in self.camp.active_tarot_cards():
                             print(card.__class__.__name__)

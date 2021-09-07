@@ -91,6 +91,10 @@ class DZD_Wujung(Plot):
         self.add_sub_plot(nart,"TEST_TAROT_SOCKET",necessary=False)
         self.add_sub_plot(nart,"TEST_TAROT_REVEAL",necessary=False)
 
+        # Add the features
+        self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
+        self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")
+
         # Local info counters.
         self.local_info = (
             OneShotInfoBlast("Wujung",
@@ -111,8 +115,6 @@ class DZD_Wujung(Plot):
     def METROSCENE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
-        camp.home_base = self.elements["MISSION_GATE"]
-        etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
         if self.intro_ready:
             # Give a different entry message depending on the nature of the PC.
             if camp.pc.has_badge("Typhon Slayer"):
@@ -128,12 +130,6 @@ class DZD_Wujung(Plot):
                 pbge.alert("You enter Wujung, the gateway to the Dead Zone. The harsh wasteland outside the wall quickly gives way to lush grass and busy streets. This section of the city is where traders and merchants operate.")
                 pbge.alert("According to its thrupage, the Bronze Horse Inn is somewhere in this neighborhood. You can check out some of these other buildings while trying to find it.")
             self.intro_ready = False
-        elif not etlr.did_recovery:
-            # We can maybe load a lancemate scene here. Yay!
-            if not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT):
-                nart = game.content.GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=game.content.PLOT_LIST)
-                if nart.story:
-                    nart.build()
 
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""

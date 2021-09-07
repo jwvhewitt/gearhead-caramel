@@ -10,7 +10,7 @@ from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
-from . import missionbuilder
+from . import missionbuilder, rwme_objectives
 from gears import champions
 
 DDBAMO_DUEL_LANCEMATE = "DDBAMO_DuelLancemate"      # Custom Element: LMNPC
@@ -19,7 +19,7 @@ DDBAMO_ENCOUNTER_ZOMBOTS = "DDBAMO_EncounterZombots"
 DDBAMO_INVESTIGATE_METEOR = "DDBAMO_InvestigateMeteor"
 DDBAMO_INVESTIGATE_REFUGEE_CAMP = "DDBAMO_INVESTIGATE_REFUGEE_CAMP"
 DDBAMO_KERBEROS = "DDBAMO_KERBEROS"
-DDBAMO_MAYBE_AVOID_FIGHT = "DDBAMO_MaybeAvoidFight"
+DDBAMO_MAYBE_AVOID_FIGHT = rwme_objectives.RWMO_MAYBE_AVOID_FIGHT
 DDBAMO_MEET_CETUS = "DDBAMO_CETUS1"
 DDBAMO_FIGHT_CETUS = "DDBAMO_CETUS2"
 
@@ -421,66 +421,6 @@ class DDBAMO_FightKerberos(Plot):
             self.obj.win(camp, 100)
 
 
-class DDBAMO_SkilledAvoidance( Plot ):
-    LABEL = DDBAMO_MAYBE_AVOID_FIGHT
-    active = True
-    scope = "LOCALE"
-    def custom_init( self, nart ):
-        self.intro_ready = True
-        return True
-
-    def LOCALE_ENTER(self,camp):
-        if self.intro_ready:
-            self.intro_ready = False
-            if random.randint(1,3) == 1:
-                self.attempt_scouting(camp)
-            elif random.randint(1,2) == 1:
-                self.attempt_stealth(camp)
-            else:
-                self.attempt_wildcraft(camp)
-
-    def attempt_scouting(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Scouting,self.rank)
-        if pc:
-            if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("You detect hostile mecha on the road ahead. They are still far enough away that you can avoid them if you want to.")
-            else:
-                mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_DETECTED_ENEMIES] [WE_CAN_AVOID_COMBAT]",pc,camp)
-            mymenu.add_item("Avoid them",self.cancel_the_adventure)
-            mymenu.add_item("Engage them",None)
-            go = mymenu.query()
-            if go:
-                go(camp)
-
-    def attempt_stealth(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Stealth,self.rank)
-        if pc:
-            if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
-            else:
-                mymenu = ghcutscene.SimpleMonologueMenu("[ENEMIES_HAVE_NOT_DETECTED_US] [WE_CAN_AVOID_COMBAT]",pc,camp)
-            mymenu.add_item("Avoid them",self.cancel_the_adventure)
-            mymenu.add_item("Engage them",None)
-            go = mymenu.query()
-            if go:
-                go(camp)
-
-    def attempt_wildcraft(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Wildcraft,self.rank)
-        if pc:
-            if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("You find tracks belonging to enemy mecha. It would be a simple matter to find an alternate route around them.")
-            else:
-                mymenu = ghcutscene.SimpleMonologueMenu("[THERE_ARE_ENEMY_TRACKS] [WE_CAN_AVOID_COMBAT]",pc,camp)
-            mymenu.add_item("Avoid them",self.cancel_the_adventure)
-            mymenu.add_item("Engage them",None)
-            go = mymenu.query()
-            if go:
-                go(camp)
-
-    def cancel_the_adventure(self,camp):
-        camp.go(self.elements["ADVENTURE_GOAL"])
-        self.adv.cancel_adventure(camp)
 
 
 class DDBAM_FightCetusFirstTime(Plot):

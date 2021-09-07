@@ -3,7 +3,7 @@ import gears
 import pbge
 import random
 from game.content import gharchitecture, plotutility
-from . import missionbuilder,dd_customobjectives
+from . import missionbuilder, dd_customobjectives, campfeatures
 #from missionbuilder import RoadMissionPlot
 
 #   ***************************************************
@@ -21,6 +21,7 @@ class DZDREBasicPlotWithEncounterStuff(Plot):
     BASE_RANK = 15
     RATCHET_SETUP = "DZRE_BanditProblem"
     ENCOUNTER_CHANCE = BASE_RANK + 30
+    RANDOM_ENCOUNTER_CHANCE = 20
     ENCOUNTER_NAME = "Bandit Ambush!"
     ENCOUNTER_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,)
     ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleSemiDeadzone
@@ -50,23 +51,21 @@ class DZDREBasicPlotWithEncounterStuff(Plot):
         )
         return myadv
 
-    RANDOM_ENEMIES = (gears.factions.AegisOverlord,gears.factions.ClanIronwind,gears.factions.BoneDevils,
-                      gears.factions.BladesOfCrihna,None)
     def get_random_encounter(self, camp, dest_node):
         start_node = self.elements["DZ_EDGE"].get_link(dest_node)
         if start_node.pos[0] < dest_node.pos[0]:
             myanchor = pbge.randmaps.anchors.west
         else:
             myanchor = pbge.randmaps.anchors.east
-        myadv = missionbuilder.BuildAMissionSeed(
-            camp, "Highway Encounter", start_node.destination, start_node.entrance,
-            enemy_faction = random.choice(self.RANDOM_ENEMIES), rank=self.rank,
-            objectives = (missionbuilder.BAMO_DEFEAT_COMMANDER,dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
-            adv_type = "BAM_ROAD_MISSION",
-            custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"ENTRANCE_ANCHOR": myanchor},
+
+        myadv = camp.campdata[campfeatures.WORLD_MAP_ENCOUNTERS](
+            camp, start_node.destination, start_node.entrance,
+            dest_scene=dest_node.destination, dest_wp=dest_node.entrance,
+            rank=self.rank, encounter_chance=self.RANDOM_ENCOUNTER_CHANCE,
             scenegen=DeadZoneHighwaySceneGen,
-            architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
-            cash_reward=0,
+            architecture=self.ENCOUNTER_ARCHITECTURE,
+            environment=gears.tags.GroundEnv,
+            entrance_anchor=myanchor
         )
         return myadv
 
@@ -75,7 +74,7 @@ class DZDREBasicPlotWithEncounterStuff(Plot):
         if self.active and camp.has_mecha_party():
             if random.randint(1,100) <= self.ENCOUNTER_CHANCE and not self.road_cleared:
                 return self.get_enemy_encounter(camp, dest_node)
-            elif random.randint(1,100) <= 15:
+            else:
                 return self.get_random_encounter(camp, dest_node)
 
     def MISSION_WIN(self,camp):

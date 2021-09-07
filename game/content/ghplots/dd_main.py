@@ -36,6 +36,7 @@ class DeadzoneDrifterStub( Plot ):
     def custom_init( self, nart ):
         """Load the features."""
         self.add_sub_plot(nart,"CF_STANDARD_LANCEMATE_HANDLER")
+        self.add_sub_plot(nart,"CF_WORLD_MAP_ENCOUNTER_HANDLER")
 
         """Create the intro/tutorial."""
         wplot = self.add_first_locale_sub_plot( nart, locale_type="DZD_INTRO", ident="INTRO" )
