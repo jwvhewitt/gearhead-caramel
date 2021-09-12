@@ -1383,6 +1383,7 @@ class BAM_RespondToDistressCall(Plot):
                 pbge.alert("The missing cargo has been secured.")
                 self.combat_finished = True
 
+
 class BAM_ExtractTrucker(Plot):
     LABEL = BAMO_RESPOND_TO_DISTRESS_CALL
     active = True

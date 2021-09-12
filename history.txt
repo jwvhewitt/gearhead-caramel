@@ -1,3 +1,6 @@
+- Lancemates will not rejoin the party if they currently dislike the PC
+- Lancemate reaction score will decrease if that lancemate is incapacitated or loses their mecha
+- Unfavorable NPCs limit their conversation options
 - Added standardized in-town recovery/lance development loader
 - Added militia defense if PC attempts to enter an unfavorable town
 - Added standardized world map encounter handler

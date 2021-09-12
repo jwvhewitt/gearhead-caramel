@@ -26,6 +26,10 @@ HATE = "HATE"
 FIRST_TIME = "FIRST_TIME"
 MET_BEFORE = "MET_BEFORE"
 
+FAVORABLE = "FAVORABLE"
+UNFAVORABLE = "UNFAVORABLE"
+
+
 DEFAULT_GRAMMAR = {
     "[ACCEPT_CHALLENGE]": {
         Default: ["I accept your challenge!",
@@ -719,6 +723,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[DISTRESS_CALL]": {
+        Default: ["I am under attack by [enemy_meks]... If there are any friendly units in the area, I could use some backup."
+                  ],
+        personality.Cheerful: ["Hey, any cavaliers out there! Wanna come help me fight some [enemy_meks]?"
+                               ],
+        personality.Grim: ["The situation is dire. If there are any friendly units in the nearby area, I need backup immediately.",
+                           ],
+        personality.Easygoing: ["Hey, if there's anyone listening to this, I could really use a bit of help right now."
+                                ],
+        personality.Passionate: ["This is an emergency... I'm outgunned, outnumbered, and need aid immediately!",
+                                 ],
+        personality.Sociable: ["Calling all cavaliers in the area... I'm under attack and need backup.",
+                               ],
+        personality.Shy: ["This is a distress call. [HELP_ME]",
+                          ],
+    },
+
     "[DOTHEYHAVEITEM]": {
     # The data block should hold the item name as "item".
         Default: [ "Don't they have {item}?",
@@ -1077,6 +1098,31 @@ DEFAULT_GRAMMAR = {
         personality.Glory: [
             "You've got the look of a cavalier about you. My name's [speaker]."
         ],
+    },
+
+    "[HELLO_UNFAV]": {
+        Default: ["Get lost.", "Go away."
+                  ],
+        personality.Cheerful: ["Are you trying to ruin my day?",
+                               ],
+        personality.Grim: ["Drop dead.",
+                           ],
+        personality.Sociable: ["I have nothing to say to you.",
+                               ],
+        personality.Shy: ['...',
+                          ],
+        personality.Easygoing: ["I think it would be better if you leave now.",
+                                ],
+        personality.Passionate: ["You've got a lot of nerve showing up here.",
+                                 ],
+        LOVE: ["This isn't a safe place for you, [audience].",
+               ],
+        LIKE: ["You shouldn't be here, [audience], but don't worry. I won't tell on you.",
+               ],
+        DISLIKE: ["Get out of here, while you still can.",
+                  ],
+        HATE: ["I know you can't be [audience] because [audience] wouldn't have the nerve to show up here.",
+               ],
     },
 
     # The data block should hold the item name as "item".
@@ -1862,6 +1908,24 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Alright. [LETSGO]",
                           ],
 
+    },
+
+    "[JOIN_REFUSAL]": {
+        Default: ["Actually I'm kind of busy at the moment.",
+                  "Join your [lance]? No thanks."
+                  ],
+        personality.Cheerful: ["I've got better things to do than join your [lance].",
+                               ],
+        personality.Grim: ["Blazes no. Go find someone else.",
+                           ],
+        personality.Easygoing: ["Nah, I don't really want to.",
+                                ],
+        personality.Passionate: ["I haven't forgiven you yet.",
+                                 ],
+        personality.Sociable: ["I'm still too upset to join your [lance].",
+                               ],
+        personality.Shy: ["No.",
+                          ],
     },
 
     "[lance]": {
@@ -3521,6 +3585,39 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Justice: [
             "Have you made peace with your past acts, [audience]?",
+        ],
+    },
+
+    "[WE_SHOULD_HAVE_HELPED_THEM]": {
+        # A lancemate disagrees with the PC's decision to not aid someone.
+        Default: ["We should have helped them."
+                  ],
+        personality.Cheerful: ["I'm not happy about your decision.",
+                               ],
+        personality.Grim: ["I can't believe you'd just abandon someone like that.",
+                           ],
+        personality.Sociable: ["Let's hope that no-one hears about this.",
+                               ],
+        personality.Shy: ["It may be none of my business, but I think we should have helped them.",
+                          ],
+        personality.Easygoing: ["Wow. I didn't expect you to just give up like that.",
+                                ],
+        personality.Passionate: ["[audience]! How could you refuse someone in need?",
+                                 ],
+        personality.Duty: [
+            "It's a cavalier's duty to help people in need, whoever they are.",
+        ],
+        personality.Fellowship: [
+            "What good is it being a cavalier if you aren't even going to help people who need it?",
+        ],
+        personality.Glory: [
+            "It's your decision, but I really don't like passing up on a good fight.",
+        ],
+        personality.Peace: [
+            "Cavaliers are supposed to protect people. We really should have helped them.",
+        ],
+        personality.Justice: [
+            "Hopefully if we ever need help, we won't be abandoned.",
         ],
     },
 

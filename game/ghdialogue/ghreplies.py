@@ -25,6 +25,10 @@ ATTACK_WITHDRAW = Reply( "[ATTACK:WITHDRAW]" ,
             destination = Cue( ContextTag([context.WITHDRAW]) ) ,
             context = ContextTag([context.ATTACK]) )
 
+BADHELLO_REVEAL = Reply( "[HELLO:REVEAL]" ,
+            destination = Cue( ContextTag([context.REVEAL]) ) ,
+            context = ContextTag([context.UNFAVORABLE_HELLO]) )
+
 CHAT_CHAT = Reply( "[CHAT:CHAT]" ,
             destination = Cue( ContextTag([context.CHAT]) ) ,
             context = ContextTag([context.CHAT]) )

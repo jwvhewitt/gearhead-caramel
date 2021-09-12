@@ -7,7 +7,7 @@ import gears
 class LancemateConvoItem(pbge.rpgmenu.MenuItem):
     PORTRAIT_AREA = pbge.frects.Frect(-120,50,100,100)
     SORT_LAYER = -1
-    def __init__(self,msg,value,desc,menu,npc,msg_form = '{} says {}'):
+    def __init__(self,msg,value,desc,menu,npc,msg_form = '{} says "{}"'):
         msg = msg_form.format(npc,msg)
         super().__init__(msg,value,desc,menu)
         self.npc = npc

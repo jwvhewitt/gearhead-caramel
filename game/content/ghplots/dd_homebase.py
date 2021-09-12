@@ -91,6 +91,9 @@ class DZD_Wujung(Plot):
         self.add_sub_plot(nart,"TEST_TAROT_SOCKET",necessary=False)
         self.add_sub_plot(nart,"TEST_TAROT_REVEAL",necessary=False)
 
+        # Add the random world map encounter objective test.
+        self.add_sub_plot(nart, "TEST_RWMO", necessary=False)
+
         # Add the features
         self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
         self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")

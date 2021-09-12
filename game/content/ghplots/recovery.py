@@ -142,6 +142,8 @@ class BeBackAfterShopping( Plot ):
     def start_recovery(self,camp):
         npc = self.elements["NPC"]
         garage = self.elements["GARAGE"]
+        if npc.relationship:
+            npc.relationship.reaction_mod -= random.randint(1,10)
         SimpleMonologueDisplay("My mecha was destroyed... I'm going to go to {} and get a new one.".format(garage),npc)(camp)
         if random.randint(1,10) == 1:
             # Random chance that instead of getting the same mecha, they'll look for a new kind.

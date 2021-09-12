@@ -20,6 +20,7 @@ Memo = memobrowser.Memo
 # This unit contains plots that handle standard features you may want to add to a campaign or a scene in that campaign.
 
 # Some constants for camp.campdata to let other plots know what features are present in this campaign.
+LANCE_HANDLER_ENABLED = "LANCE_HANDLER_ENABLED" # If True, the standard lancemate handler is in effect.
 LANCEDEV_ENABLED = "LANCEDEV_ENABLED"   # If this value exists, it will be a function with signature fun(camp)
                                         # that returns True if a lancemate development plot can be loaded now.
 WORLD_MAP_ENCOUNTERS = "WORLD_MAP_ENCOUNTERS"   # If exists, this will be a function that returns a MissionSeed.
@@ -33,13 +34,14 @@ class StandardLancemateHandler(Plot):
     scope = True
 
     def custom_init( self, nart ):
+        nart.camp.campdata[LANCE_HANDLER_ENABLED] = True
         nart.camp.campdata[LANCEDEV_ENABLED] = self.can_load_lancedev_plot
         return True
 
     def can_load_lancedev_plot(self, camp):
         return not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT)
 
-    def _get_generic_offers( self, npc, camp ):
+    def _get_generic_offers( self, npc: gears.base.Character, camp: gears.GearHeadCampaign ):
         """
         :type camp: gears.GearHeadCampaign
         :type npc: gears.base.Character
@@ -48,7 +50,11 @@ class StandardLancemateHandler(Plot):
         if npc.relationship and gears.relationships.RT_LANCEMATE in npc.relationship.tags:
             if camp.can_add_lancemate() and npc not in camp.party:
                 # If the NPC has the lancemate tag, they might join the party.
-                if npc.relationship.data.get("DZD_LANCEMATE_TIME_OFF",0) <= camp.day:
+                if npc.get_reaction_score(camp.pc, camp) < -20:
+                    # A lancemate who is currently upset with the PC will not join the party.
+                    mylist.append(Offer("[JOIN_REFUSAL]", is_generic=True,
+                                        context=ContextTag([context.JOIN])))
+                elif npc.relationship.data.get("LANCEMATE_TIME_OFF",0) <= camp.day:
                     mylist.append(Offer("[JOIN]", is_generic=True,
                                         context=ContextTag([context.JOIN]), effect=game.content.plotutility.AutoJoiner(npc)))
                 else:
@@ -72,6 +78,10 @@ class MetrosceneRecoveryHandler(Plot):
         if not camp.is_unfavorable_to_pc(self.elements["METROSCENE"]):
             camp.home_base = self.elements["MISSION_GATE"]
             etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
+
+            if camp.campdata.get(LANCE_HANDLER_ENABLED, False) and not etlr.did_recovery:
+                pass
+
             if camp.campdata.get(LANCEDEV_ENABLED, False) and random.randint(1, 3) == 2 and not etlr.did_recovery:
                 # We can maybe load a lancemate scene here. Yay!
                 if camp.campdata[LANCEDEV_ENABLED](camp):
@@ -113,24 +123,25 @@ class WorldMapEncounterHandler(Plot):
                         encounter_chance = 100
 
         # Step two: Attempt to load a generic world map encounter plot.
-        myplotstate = PlotState(
-            rank=rank, elements={"METROSCENE": metroscene, "DEST_SCENE": dest_scene, "KWARGS": kwargs.copy()}
-        )
-        myplot = game.content.load_dynamic_plot(camp, "RWMENCOUNTER", myplotstate)
-        if myplot:
-            myseed = myplot.generate_world_map_encounter(
-                camp, metroscene, return_wp, dest_scene=dest_scene, dest_wp=dest_wp,
-                rank=rank, scenegen=scenegen, architecture=architecture,
-                environment=environment, **kwargs
+        for t in range(random.randint(2,6)):
+            myplotstate = PlotState(
+                rank=rank, elements={"METROSCENE": metroscene, "DEST_SCENE": dest_scene, "KWARGS": kwargs.copy()}
             )
-            if myseed:
-                if hasattr(myseed, "priority"):
-                    candidate_seeds += [myseed,] * myseed.priority
-                else:
-                    candidate_seeds.append(myseed)
+            myplot = game.content.load_dynamic_plot(camp, "RWMENCOUNTER", myplotstate)
+            if myplot:
+                myseed = myplot.generate_world_map_encounter(
+                    camp, metroscene, return_wp, dest_scene=dest_scene, dest_wp=dest_wp,
+                    rank=rank, scenegen=scenegen, architecture=architecture,
+                    environment=environment, **kwargs
+                )
+                if myseed:
+                    if hasattr(myseed, "priority"):
+                        candidate_seeds += [myseed,] * myseed.priority
+                    else:
+                        candidate_seeds.append(myseed)
 
-                if hasattr(myseed, "mandatory") and myseed.mandatory:
-                    encounter_chance = 100
+                    if hasattr(myseed, "mandatory") and myseed.mandatory:
+                        encounter_chance = 100
 
 
         if candidate_seeds and random.randint(1,100) <= encounter_chance:

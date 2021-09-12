@@ -127,3 +127,31 @@ class SimpleMonologueMenu(pbge.rpgmenu.Menu):
         mygrammar = pbge.dialogue.grammar.Grammar()
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc)
         self.myviz.text = pbge.dialogue.grammar.convert_tokens(text,mygrammar)
+
+
+def AddTagBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp, needed_tags):
+    # Add an item to this menu where a lancemate suggests something. Designed to be used with the above
+    # SimpleMonologueMenu, but really it can be used with any menu.
+    # Returns the lancemate who makes the suggestion, or None if there is no applicable lancemate.
+    needed_tags = set(needed_tags)
+    winners = [pc for pc in camp.get_active_party() if needed_tags.issubset( pc.get_pilot().get_tags()) and pc.get_pilot() is not camp.pc]
+    if winners:
+        mylm = random.choice(winners).get_pilot()
+        mygrammar = pbge.dialogue.grammar.Grammar()
+        pbge.dialogue.GRAMMAR_BUILDER(mygrammar, camp, mylm, camp.pc)
+        true_msg = pbge.dialogue.grammar.convert_tokens(msg, mygrammar)
+        mymenu.items.append(ghdialogue.ghdview.LancemateConvoItem(true_msg, value, desc=None, menu=mymenu, npc=mylm))
+        return mylm
+
+def AddSkillBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp: gears.GearHeadCampaign, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_AVERAGE):
+    # Add an item to this menu where a lancemate suggests something. Designed to be used with the above
+    # SimpleMonologueMenu, but really it can be used with any menu.
+    # Returns the lancemate who makes the suggestion, or None if there is no applicable lancemate.
+    winner = camp.make_skill_roll(stat_id, skill_id, rank, difficulty, include_pc=False)
+    if winner:
+        mylm = winner.get_pilot()
+        mygrammar = pbge.dialogue.grammar.Grammar()
+        pbge.dialogue.GRAMMAR_BUILDER(mygrammar, camp, mylm, camp.pc)
+        true_msg = pbge.dialogue.grammar.convert_tokens(msg, mygrammar)
+        mymenu.items.append(ghdialogue.ghdview.LancemateConvoItem(true_msg, value, desc=None, menu=mymenu, npc=mylm))
+        return mylm

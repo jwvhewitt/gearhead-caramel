@@ -123,7 +123,7 @@ class RoadEdge(object):
         return some_node is self.start_node or some_node is self.end_node
     def connects_to_city(self,some_city):
         return some_city is self.start_node.destination or some_city is self.end_node.destination
-    def get_menu_fun(self,camp,node_a):
+    def get_menu_fun(self,camp: gears.GearHeadCampaign ,node_a):
         if self.eplot:
             myadv = self.eplot.get_road_adventure(camp,node_a)
             if myadv:

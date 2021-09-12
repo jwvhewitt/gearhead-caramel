@@ -28,6 +28,9 @@ GOODBYE = "GOODBYE"             # The NPC says goodbye to the PC.
 JOIN = "JOIN"                   # The NPC will join the party
 LEAVEPARTY = "LEAVEPARTY"       # The NPC will leave the party
 PERSONAL = "PERSONAL"           # The NPC gives some personal information
+
+UNFAVORABLE_HELLO = "UNFAVORABLE_HELLO"     # The greeting from an NPC who is unfavorable.
+
 ATTACK  = "ATTACK"              # The greeting from a hostile NPC
 CHALLENGE = "CHALLENGE"         # The reply from a hostile (or now hostile) NPC when challenged by the PC
 COMBAT_INFO= "COMBAT_INFO"      # The NPC gives the PC some information during combat.

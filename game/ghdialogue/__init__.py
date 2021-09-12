@@ -22,7 +22,7 @@ def trait_absorb(mygram,nugram,traits):
                 mygram[pat] += v
 
 
-def build_grammar( mygram, camp, speaker, audience ):
+def build_grammar( mygram, camp: gears.GearHeadCampaign, speaker, audience ):
     speaker = speaker.get_pilot()
     tags = speaker.get_tags()
     if speaker.relationship and not speaker.relationship.met_before:
@@ -40,6 +40,12 @@ def build_grammar( mygram, camp, speaker, audience ):
             tags += [ghgrammar.DISLIKE,ghgrammar.HATE]
         elif react < -20:
             tags += [ghgrammar.DISLIKE,]
+        if audience is camp.pc:
+            if camp.is_favorable_to_pc(speaker):
+                tags.append(ghgrammar.FAVORABLE)
+            elif camp.is_unfavorable_to_pc(speaker):
+                tags.append(ghgrammar.UNFAVORABLE)
+
     trait_absorb(mygram,ghgrammar.DEFAULT_GRAMMAR,tags)
     for p in camp.active_plots():
         pgram = p.get_dialogue_grammar( speaker, camp )
@@ -69,6 +75,7 @@ pbge.dialogue.GENERIC_OFFERS.append(ghoffers.GOODBYE)
 pbge.dialogue.GENERIC_OFFERS.append(ghoffers.CHAT)
 
 HELLO_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.HELLO,)))
+UNFAVORABLE_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.UNFAVORABLE_HELLO,)))
 ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 
 class SkillBasedPartyReply(object):
@@ -126,11 +133,21 @@ class TagBasedPartyReply(SkillBasedPartyReply):
                 self.pc = pc
 
 
-def start_conversation(camp,pc,npc,cue=HELLO_STARTER):
+def start_conversation(camp: gears.GearHeadCampaign,pc,npc,cue=None):
     # If this NPC has no relationship with the PC, create that now.
     realnpc = npc.get_pilot()
     if realnpc and not realnpc.relationship:
         realnpc.relationship = camp.get_relationship(realnpc)
+    if not cue:
+        npcteam = camp.scene.local_teams.get(npc)
+        if npcteam and camp.scene.player_team.is_enemy(npcteam):
+            cue = ATTACK_STARTER
+        elif camp.is_favorable_to_pc(realnpc):
+            cue = HELLO_STARTER
+        elif npc not in camp.party and camp.is_unfavorable_to_pc(realnpc):
+            cue = UNFAVORABLE_STARTER
+        else:
+            cue = HELLO_STARTER
     cviz = ghdview.ConvoVisualizer(npc,camp,pc=pc)
     cviz.rollout()
     convo = pbge.dialogue.DynaConversation(camp,realnpc,pc,cue,visualizer=cviz)

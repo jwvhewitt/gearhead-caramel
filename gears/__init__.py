@@ -456,13 +456,17 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def get_party_skill(self, stat_id, skill_id):
         return max([pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party()] + [0])
 
-    def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False,no_random=False):
+    def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False,no_random=False,include_pc=True):
         # Make a skill roll against a given difficulty. If successful, return the lancemate
         # who made the roll.
         if untrained_ok:
             myparty = self.get_active_party()
         else:
             myparty = [pc for pc in self.get_active_party() if pc.has_skill(skill_id)]
+        if not include_pc:
+            for ppc in list(myparty):
+                if ppc.get_pilot() is self.pc:
+                    myparty.remove(ppc)
         if myparty:
             winners = list()
             target = stats.get_skill_target(rank,difficulty)
@@ -610,10 +614,15 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     else:
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
+                        if hasattr(pc, "relationship") and pc.relationship:
+                            pc.relationship.reaction_mod -= random.randint(1,10)
                         if announce_character_state:
                             pbge.alert("{} has been severely injured and is removed to a safe place.".format(pc))
                 elif random.randint(1,100) <= skill or not pbge.util.config.getboolean("DIFFICULTY","mecha_can_die") or pc not in self.scene.contents:
                     self.party.append(pc)
+                    lancemate = self.get_pc_mecha(pc)
+                    if lancemate and lancemate is not self.pc and hasattr(lancemate, "relationship") and lancemate.relationship:
+                        lancemate.relationship.reaction_mod -= random.randint(1,6)
                 elif announce_mecha_state:
                     pbge.alert("{} was wrecked beyond recovery.".format(pc.get_full_name()))
 
@@ -729,7 +738,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 elif ofacrel and ofacrel.pc_relation == ofacrel.ALLY:
                     it = True
                     break
-        if hasattr(other_thing, "relationship"):
+        if hasattr(other_thing, "relationship") and other_thing.relationship:
             it = it or other_thing.relationship.is_favorable()
         return it
 
@@ -750,7 +759,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 elif ofacrel and ofacrel.pc_relation == ofacrel.ALLY:
                     it = False
                     break
-        if hasattr(other_thing, "relationship"):
+        if hasattr(other_thing, "relationship") and other_thing.relationship:
             it = it or other_thing.relationship.is_unfavorable()
         return it
 
