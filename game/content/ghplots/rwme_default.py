@@ -51,6 +51,7 @@ class DefaultRandomWorldMapEncounter(Plot):
     ENCOUNTER_NAME = "Mecha Assault"
     ENCOUNTER_OBJECTIVES = (rwme_objectives.RWMO_FIGHT_RANDOS, rwme_objectives.RWMO_MAYBE_AVOID_FIGHT,)
     ENCOUNTER_CASH_REWARD = 0
+    ENCOUNTER_SALVAGE_REWARD = True
     PRIORITY = 1
 
     def custom_init( self, nart ):
@@ -73,7 +74,7 @@ class DefaultRandomWorldMapEncounter(Plot):
             scenegen=scenegen,
             architecture=architecture(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
             environment=environment,
-            cash_reward=self.ENCOUNTER_CASH_REWARD,
+            cash_reward=self.ENCOUNTER_CASH_REWARD, salvage_reward=self.ENCOUNTER_SALVAGE_REWARD,
         )
         return myadv
 
@@ -84,3 +85,9 @@ class DistressCallEncounter(DefaultRandomWorldMapEncounter):
     ENCOUNTER_CASH_REWARD = 50
     PRIORITY = 5
 
+class AChallengerApproaches(DefaultRandomWorldMapEncounter):
+    ENCOUNTER_NAME = "A Challenger Approaches"
+    ENCOUNTER_OBJECTIVES = (rwme_objectives.RWMO_A_CHALLENGER_APPROACHES,)
+    ENCOUNTER_CASH_REWARD = 100
+    ENCOUNTER_SALVAGE_REWARD = False
+    PRIORITY = 3

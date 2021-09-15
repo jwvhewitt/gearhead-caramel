@@ -56,6 +56,9 @@ def build_grammar( mygram, camp: gears.GearHeadCampaign, speaker, audience ):
     if speaker is camp.pc and audience and audience.relationship:
         mygram.absorb(audience.relationship.get_pc_grammar())
 
+    if hasattr(speaker, "faction") and speaker.faction:
+        mygram["[speaker_faction]"] = [str(speaker.faction),]
+
     mygram.absorb({"[speaker]":(str(speaker),),"[audience]":(str(audience),)})
 
 

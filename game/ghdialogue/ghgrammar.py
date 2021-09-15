@@ -1,3 +1,4 @@
+import gears.factions
 from gears import personality,tags
 #
 #   GearHead Grammar
@@ -493,6 +494,36 @@ DEFAULT_GRAMMAR = {
             ],
     },
 
+    "[CHANGE_MIND_AND_RETREAT]": {
+        Default: ["[OnSecondThought], I don't really want to fight today...",
+                  ],
+        personality.Cheerful: ["[OnSecondThought], why ruin a beautiful day with a senseless battle?",
+                               ],
+        personality.Grim: ["[OnSecondThought]... I think I would prefer to live.",
+                           ],
+        personality.Easygoing: ["[OnSecondThought]... I'm just going to get out of here while I still can.",
+                                ],
+        personality.Passionate: ["[OnSecondThought], I need to train harder before facing you again.",
+                                 ],
+        personality.Sociable: ["[OnSecondThought], the last thing I need right now is another loss on my record.",
+                               ],
+        personality.Shy: ["[OnSecondThought], I'm just going to go.",
+                          ],
+        personality.Peace: ["[OnSecondThought], fighting has never really solved anything, has it?",
+                              ],
+        personality.Glory: ["[OnSecondThought], there is no glory to be had in getting my arse handed to me.",
+                            ],
+        personality.Duty: [
+            "[OnSecondThought], this is a new mecha and I really don't want to damage the paint job."
+        ],
+        personality.Fellowship: [
+            "[OnSecondThought], there's no good reason for us to fight right now..."
+        ],
+        personality.Justice: [
+            "[OnSecondThought], maybe you're in the right on this one. I'll just leave you to it."
+        ]
+    },
+
     "[CHAT]": {
         Default: [
             "[chat_lead_in] [News].",
@@ -780,6 +811,38 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["I need a new lancemate.",
                           ],
+
+    },
+
+    "[DUEL_GREETING]": {
+        Default: ["May the best pilot win!",
+                  ],
+        personality.Cheerful: ["Let's try to have fun out there.",
+                               ],
+        personality.Grim: ["You have no chance to survive, make your time.",
+                           "Only one of us is going to leave this place intact, and it isn't going to be you!"
+                           ],
+        personality.Easygoing: ["Might as well get started.",
+                                ],
+        personality.Passionate: ["You don't know it yet, but I've already won!",
+                                 "I'm a hot blooded pilot, all ready to [defeat_you]!"
+                                 ],
+        personality.Sociable: ["Make sure to give my fans a good show!",
+                               ],
+        personality.Shy: ["En garde!",
+                          ],
+        personality.Glory: [
+            "For the glory of [speaker_faction]!",
+        ],
+        personality.Justice: [
+            "In the name of [speaker_faction], I will punish you!"
+        ],
+        personality.Duty: [
+            "I fight in the name of [speaker_faction]!"
+        ],
+        personality.Fellowship: [
+            "I salute you, my worthy opponent!"
+        ]
 
     },
 
@@ -1782,7 +1845,48 @@ DEFAULT_GRAMMAR = {
             ],
         },
 
+    "[I_PROPOSE_BATTLE]": {
+        # Speaker is challenging the opponent to battle; there's an implied option to decline.
+        Default: ["[BATTLE_GREETING] I challenge you to a fight!",
+                  ],
+        personality.Cheerful: ["[BATTLE_GREETING] It's a good day for a friendly battle, don't you think?",
+                               ],
+        personality.Grim: ["If you have the courage, I challenge you to battle! [LETSFIGHT]",
+                           ],
+        personality.Easygoing: ["[BATTLE_GREETING] Wanna fight?",
+                                ],
+        personality.Passionate: ["I challenge you to honorable combat! [LETSFIGHT]",
+                                 ],
+        personality.Sociable: ["[HELLO] If you have the time, I challenge you and your lance to battle.",
+                               ],
+        personality.Shy: ["[HELLO] I propose that we battle.",
+                          ],
+    },
 
+    "[I_PROPOSE_DUEL]": {
+        # Speaker is challenging the opponent to a pro duelist association regulations duel. PC can refuse.
+        Default: ["I challenge you to a one on one duel! Do you think you can defeat me?",
+                  ],
+        personality.Cheerful: ["How'd you like to play a game? I challenge you to a one-on-one duel!",
+                               ],
+        personality.Grim: ["[BATTLE_GREETING] Are you brave enough to face me in single combat?",
+                           ],
+        personality.Easygoing: ["Hey, I've been looking for someone to challenge to a duel, and you'll do. Standard Pro Duelist Association rules, of course.",
+                                ],
+        personality.Passionate: ["[BATTLE_GREETING] Do you accept or deny my challenge to a one-on-one duel?",
+                                 ],
+        personality.Sociable: ["[HELLO] I wish to challenge you to a one-on-one duel; there are no stakes but your reputation.",
+                               ],
+        personality.Shy: ["[HELLO] I challenge you to a duel.",
+                          ],
+        gears.factions.ProDuelistAssociation: [
+            "As a member of the Pro Duelist Association, I challenge you to a one on one duel! You are free to deny this challenge; if you accept, we will fight using standard association rules.",
+            "It's a tradition of the Pro Duelist Association to challenge great mecaha pilots whenever we meet! I propose a one on one duel, which you are of course free to refuse."
+        ],
+        personality.Glory: [
+            "[BATTLE_GREETING] I challenge you to a solo duel; the only stakes to this battle will be the glory of winning!"
+        ]
+    },
 
     # The data block should include "mission"
     "[IWILLDOMISSION]": {
@@ -2363,6 +2467,23 @@ DEFAULT_GRAMMAR = {
                   ],
         LIKE: ["As you wish.",
                ]
+    },
+
+    "[OnSecondThought]": {
+        Default: ["On second thought", "On the other hand"
+                  ],
+        personality.Cheerful: ["I just had a better idea",
+                               ],
+        personality.Grim: ["I think I have erred",
+                           ],
+        personality.Easygoing: ["Uh", "Er"
+                                ],
+        personality.Passionate: ["I have changed my mind",
+                                 ],
+        personality.Sociable: ["Something just occurred to me",
+                               ],
+        personality.Shy: ["Well",
+                          ],
     },
 
     "[OPENSHOP]": {

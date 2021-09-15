@@ -3958,6 +3958,7 @@ class Character(Being):
             mytags += list(self.job.tags)
         if self.faction:
             mytags.append(self.faction.get_faction_tag())
+            mytags += self.faction.factags
         return mytags
 
     def get_reaction_score(self, pc, camp):

@@ -1,3 +1,5 @@
+- Added ArenaRules scene attribute
+- Character tags include the tags of that character's faction
 - Lancemates will not rejoin the party if they currently dislike the PC
 - Lancemate reaction score will decrease if that lancemate is incapacitated or loses their mecha
 - Unfavorable NPCs limit their conversation options

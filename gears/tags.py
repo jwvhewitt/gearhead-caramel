@@ -107,6 +107,7 @@ SCENE_DUNGEON = "DUNGEON"
 SCENE_SEMIPUBLIC = "SEMIPUBLIC"  # No-one is stopping you from going there. Usually used for dungeons.
 SCENE_FACTORY = "FACTORY"
 SCENE_OUTDOORS = "OUTDOORS"
+SCENE_ARENARULES = "ARENARULES" # No death, no permanent loss of mecha possible.
 
 # Shop Tags
 

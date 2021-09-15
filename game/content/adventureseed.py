@@ -100,7 +100,8 @@ class AdventureSeed(Adventure):
         :type camp: gears.GearHeadCampaign
         """
         # Sort any incapacitated members first.
-        camp.bring_out_your_dead()
+        if gears.tags.SCENE_ARENARULES not in camp.scene.attributes:
+            camp.bring_out_your_dead()
 
         # Next, restore the party.
         repair_total = camp.totally_restore_party()

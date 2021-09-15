@@ -22,6 +22,32 @@ class NoDevBattleConversation(Plot):
                             context=ContextTag([context.CHALLENGE, ])))
         return mylist
 
+#  *******************************
+#  ***   MC_DUEL_DEVELOPMENT   ***
+#  *******************************
+# NPC: The opponent who needs character development
+# LOCALE: The fight scene.
+
+class BasicDuelConversation(Plot):
+    # No real character development, but record the memory of this battle.
+    LABEL = "MC_DUEL_DEVELOPMENT"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        self.convo_happened = False
+        return True
+
+    def NPC_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("[DUEL_GREETING]",
+                            context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
+        return mylist
+
+    def _start_conversation(self,camp):
+        self.convo_happened = True
+
+
 
 #  ********************************
 #  ***   MC_ENEMY_DEVELOPMENT   ***

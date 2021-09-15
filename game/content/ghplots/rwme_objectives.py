@@ -13,11 +13,213 @@ from game.content import adventureseed
 from . import missionbuilder
 from gears import champions
 
+RWMO_A_CHALLENGER_APPROACHES = "RWMO_A_CHALLENGER_APPROACHES"
 RWMO_DISTRESS_CALL = "RWMO_DISTRESS_CALL"
 RWMO_FIGHT_RANDOS = "RWMO_FIGHT_RANDOS"
 RWMO_MAYBE_AVOID_FIGHT = "RWMO_MAYBE_AVOID_FIGHT"
 
 RWMO_TEST_OBJECTIVE = "RWMO_TEST_OBJECTIVE"
+
+
+#   **************************************
+#   ***  RWMO_A_CHALLENGER_APPROACHES  ***
+#   **************************************
+
+class RWMO_TheGambler(Plot):
+    LABEL = RWMO_A_CHALLENGER_APPROACHES
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene: gears.GearHeadScene = self.elements["LOCALE"]
+        myscene.attributes |= {gears.tags.SCENE_SOLO, gears.tags.SCENE_ARENARULES}
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(5, 5, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        mynpc: gears.base.Character = self.seek_element(nart, "_commander", self.is_good_challenger, must_find=True, lock=True)
+        if not mynpc.job:
+            mynpc.job = gears.jobs.ALL_JOBS["Mecha Pilot"]
+        if mynpc.renown < self.rank:
+            mynpc.job.scale_skills(mynpc, mynpc.renown + random.randint(1,10))
+        self.add_sub_plot(nart,"MC_DUEL_DEVELOPMENT",elements={"NPC":mynpc})
+
+        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+
+        self.obj = adventureseed.MissionObjective("Defeat challenger {}".format(self.elements["_commander"]),
+                                                  missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+        self.choice_ready = True
+
+        return True
+
+    def is_good_challenger(self, nart, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and candidate.combatant and
+            candidate not in nart.camp.party and (
+            (candidate.faction and candidate.faction.get_faction_tag() is gears.factions.ProDuelistAssociation) or
+            (gears.personality.Glory in candidate.personality and gears.tags.Adventurer in candidate.get_tags())
+            ) and candidate.renown <= self.rank + 15
+        )
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def t_ENDCOMBAT(self, camp: gears.GearHeadCampaign):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, 100)
+
+    def LOCALE_ENTER(self,camp: gears.GearHeadCampaign):
+        if self.choice_ready:
+            self.choice_ready = False
+            # Allow the PC to decide whether or not to accept the challenge.
+            npc = self.elements["_commander"]
+            pbge.alert("You are approached by {}.".format(npc))
+
+            mymenu = game.content.ghcutscene.SimpleMonologueMenu("[I_PROPOSE_DUEL]", npc, camp)
+
+            mymenu.add_item("Accept the challenge", None)
+            mymenu.add_item("Reject the challenge", self.cancel_the_adventure)
+
+            choice = mymenu.query()
+            if choice:
+                choice(camp)
+
+    def cancel_the_adventure(self,camp: gears.GearHeadCampaign):
+        camp.go(self.elements["ADVENTURE_GOAL"])
+        self.adv.cancel_adventure(camp)
+
+
+class RWMO_GenericChallenger(Plot):
+    LABEL = RWMO_A_CHALLENGER_APPROACHES
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        mynpc: gears.base.Character = self.seek_element(nart, "_commander", self.is_good_challenger, must_find=True, lock=True)
+        myfac = mynpc.faction
+        if not mynpc.job:
+            mynpc.job = gears.jobs.ALL_JOBS["Mecha Pilot"]
+        if mynpc.renown < self.rank:
+            mynpc.job.scale_skills(mynpc, mynpc.renown + random.randint(1,10))
+
+        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+        myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+        self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
+
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Defeat challenger {}".format(self.elements["_commander"]),
+                                                  missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+        self.choice_ready = True
+
+        self.chose_glory = False
+        self.bounty_primed = False
+
+        return True
+
+    def is_good_challenger(self, nart, candidate):
+        # Similar to the missionbuilder utility function but a few key differences. Looks for an unfavorable NPC
+        # regardless of faction, and doesn't care about the NPC's renown.
+        return (
+            isinstance(candidate, gears.base.Character) and candidate.combatant and
+            nart.camp.is_unfavorable_to_pc(candidate) and candidate not in nart.camp.party
+        )
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def t_ENDCOMBAT(self, camp: gears.GearHeadCampaign):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, 100)
+
+        target = self.elements["_commander"].get_root()
+        if not target.is_operational():
+            if self.chose_glory:
+                for sk in gears.stats.COMBATANT_SKILLS:
+                    camp.dole_xp(50,sk)
+            if self.bounty_primed:
+                bounty_amount = gears.selector.calc_threat_points(self.elements["_commander"].renown,200)//5
+                pbge.alert("You earn a bounty of ${:,} for defeating {}.".format(bounty_amount, self.elements["_commander"]))
+                camp.credits += bounty_amount
+
+    def LOCALE_ENTER(self,camp: gears.GearHeadCampaign):
+        if self.choice_ready:
+            self.choice_ready = False
+            # Allow the PC to decide whether or not to accept the challenge.
+            npc = self.elements["_commander"]
+            pbge.alert("Without warning, you are confronted by {}.".format(npc))
+
+            mymenu = game.content.ghcutscene.SimpleMonologueMenu("[I_PROPOSE_BATTLE]", npc, camp)
+
+            if npc.renown > camp.renown + 10:
+                game.content.ghcutscene.AddTagBasedLancemateMenuItem(
+                    mymenu, "{} is out of our league, but just imagine the glory if we win!".format(npc),
+                    self._choose_glory, camp, (gears.personality.Glory,)
+                )
+            elif npc.renown < camp.renown - 20:
+                self.peace_npc = game.content.ghcutscene.AddTagBasedLancemateMenuItem(
+                    mymenu, "I don't like the idea of demolishing a lesser pilot like {npc}, but if that's what {npc.gender.subject_pronoun} wants...".format(npc=npc),
+                    self._choose_peace, camp, (gears.personality.Peace,)
+                )
+
+            if gears.tags.Criminal in npc.get_tags():
+                self.police_npc = game.content.ghcutscene.AddTagBasedLancemateMenuItem(
+                    mymenu,
+                    "There's probably a bounty for {npc}; defeat {npc.gender.object_pronoun} and we might earn a big payday.".format(npc=npc),
+                    self._choose_bounty, camp, (gears.tags.Police,)
+                )
+
+            mymenu.add_item("Accept the challenge", None)
+            mymenu.add_item("Reject the challenge", self.cancel_the_adventure)
+
+            choice = mymenu.query()
+            if choice:
+                choice(camp)
+
+    def _choose_bounty(self, camp):
+        self.police_npc.relationship.reaction_mod += random.randint(1,6)
+        self.bounty_primed = True
+
+    def _choose_peace(self, camp: gears.GearHeadCampaign):
+        self.peace_npc.relationship.reaction_mod += random.randint(1,10)
+        npc = self.elements["_commander"]
+        if camp.make_skill_roll(gears.stats.Ego, gears.stats.Negotiation, npc.renown):
+            ghcutscene.SimpleMonologueDisplay("[CHANGE_MIND_AND_RETREAT]", npc)
+
+            pbge.alert("Your challengers flee the battlefield.")
+            self.elements["_eteam"].retreat(camp)
+
+            camp.check_trigger("ENDCOMBAT")
+
+    def _choose_glory(self, camp):
+        self.chose_glory = True
+
+    def cancel_the_adventure(self,camp: gears.GearHeadCampaign):
+        camp.go(self.elements["ADVENTURE_GOAL"])
+        self.adv.end_adventure(camp)
 
 
 #   ****************************
