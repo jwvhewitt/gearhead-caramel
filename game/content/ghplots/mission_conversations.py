@@ -483,3 +483,48 @@ class ResentfulMercenaryBC(BasicBattleConversation):
             random.choice(self.adv.mission_grammar["[win_pp]"]),
             -10, memtags=(relationships.MEM_Clash, relationships.MEM_LoseToPC)
         ))
+
+
+#  ***************************
+#  ***   MC_GRUDGE_MATCH   ***
+#  ***************************
+# A battle conversation in which the enemy is acting on a grudge against the PC; the regular mission grammar can
+# usually be ignored, because all the NPC cares about is wrecking the PC.
+# NPC: The enemy who needs character development
+# LOCALE: The fight scene.
+
+class BasicGrudgeMatchConversation(Plot):
+    # No real character development, but the battle outcome will affect how angry the NPC is.
+    LABEL = "MC_GRUDGE_MATCH"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        self.convo_happened = False
+        self.memory_recorded = False
+        return True
+
+    def NPC_offers(self,camp):
+        mylist = list()
+        mylist.append(Offer("[BATTLE_GREETING] [ANNOUNCE_GRUDGE]",
+                            context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
+        mylist.append(Offer("[CHALLENGE]",
+                            context=ContextTag([context.CHALLENGE, ])))
+        return mylist
+
+    def _start_conversation(self,camp):
+        self.convo_happened = True
+
+    def _win_adventure(self,camp):
+        self.elements["NPC"].relationship.reaction_mod -= random.randint(1,10)
+
+    def _lose_adventure(self,camp):
+        self.elements["NPC"].relationship.reaction_mod += random.randint(1,6)
+
+    def t_UPDATE(self,camp):
+        if self.adv.is_completed() and self.convo_happened and not self.memory_recorded:
+            self.memory_recorded = True
+            if self.adv.is_won():
+                self._win_adventure(camp)
+            else:
+                self._lose_adventure(camp)

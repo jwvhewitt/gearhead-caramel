@@ -136,6 +136,33 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[ANNOUNCE_GRUDGE]": {
+        Default: ["I have a score to settle with you.",
+                  "I haven't forgiven you for when [MEM_LoseToPC]!",
+                  "I haven't forgotten that [MEM_Clash].",
+                  "Remember when [MEM_DefeatPC]?"
+                  ],
+        personality.Cheerful: ["I'm happy to see you today, so I can [fight_you]!"
+                               ],
+        personality.Grim: ["Today's the day that I will [defeat_you].",
+                           ],
+        personality.Easygoing: ["Don't think I've given up on [defeating_you].",
+                                "Why did [MEM_LoseToPC]? Now I have to [fight_you]."
+                                ],
+        personality.Passionate: ["I'm going to [fight_you], and this time it's personal!",
+                                 "You think you're so good just because [MEM_LoseToPC]; it's about time I [defeat_you]!",
+                                 "The moment [MEM_Clash], I knew that fate had bonded our destinies."
+                                 ],
+        personality.Sociable: ["Everybody knows why I need to [defeat_you].",
+                               "People have been talking about the time [MEM_LoseToPC]; this time I [defeat_you].",
+                               "Ever since [MEM_Clash], I knew that I would have to [defeat_you]."
+                               ],
+        personality.Shy: ["Prepare to die.",
+                          "Remember when [MEM_LoseToPC]? Today I [defeat_you].",
+                          "I won't forget [MEM_Clash]."
+                          ],
+    },
+
     "[as_far_as_I_know]": {
         Default: ["As far as I know"
                   ],
@@ -265,6 +292,33 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Justice: [ "It wouldn't be fair to fight you now.",
             ],
+    },
+
+    "[ATTACK:RETREAT]": {
+        Default: ["Leave before I [fight_you].", "I'll give you one chance to back out now."
+                  ],
+        personality.Cheerful: ["[HAGOODONE] You think you stand a chance?",
+                               ],
+        personality.Grim: ["So you choose to die by my hand? A brave choice, but a stupid one.",
+                           ],
+        personality.Easygoing: ["I mean, I'll [defeat_you] if you want, but you could save us all some time if you just run away now.",
+                                ],
+        personality.Passionate: ["You dare to challenge me?! Turn back now, before I [defeat_you]!",
+                                 ],
+        personality.Sociable: ["If you insist on fighting, I don't mind showing everyone just how pitiful you are.",
+                               ],
+        personality.Shy: ["Back off, or I'll [defeat_you].",
+                          ],
+        personality.Peace: ["Leave this place before you get hurt.",
+                            ],
+        personality.Duty: ["It's my duty to [defeat_you].",
+                           ],
+        personality.Fellowship: ["You can save yourself now if you get out of here.",
+                                 ],
+        personality.Glory: ["A pest like you is no challenge for my skills.",
+                            ],
+        personality.Justice: ["Get out of my face before I give you what you deserve.",
+                              ],
     },
 
     "[ATTACK:WITHDRAW]": {

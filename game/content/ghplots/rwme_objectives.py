@@ -25,6 +25,89 @@ RWMO_TEST_OBJECTIVE = "RWMO_TEST_OBJECTIVE"
 #   ***  RWMO_A_CHALLENGER_APPROACHES  ***
 #   **************************************
 
+class RWMO_ThisTimeItsPersonal(Plot):
+    LABEL = RWMO_A_CHALLENGER_APPROACHES
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        mynpc: gears.base.Character = self.seek_element(nart, "_commander", self.is_good_challenger, must_find=True, lock=True)
+        myfac = mynpc.faction
+        if not mynpc.job:
+            mynpc.job = gears.jobs.ALL_JOBS["Mecha Pilot"]
+        if mynpc.renown < self.rank:
+            mynpc.job.scale_skills(mynpc, mynpc.renown + random.randint(1,10))
+
+        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+        myunit = gears.selector.RandomMechaUnit(self.rank, 120 - mynpc.get_reaction_score(nart.camp.pc, nart.camp),
+                                                myfac, myscene.environment, add_commander=False)
+        self.add_sub_plot(nart,"MC_GRUDGE_MATCH", elements={"NPC":mynpc})
+
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Deal with {}".format(self.elements["_commander"]),
+                                                  missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+        self.alert_ready = True
+
+        return True
+
+    def is_good_challenger(self, nart, candidate):
+        # We want a challenger who is personally unfavorable to the PC and who has lost to the PC in the past.
+        return (
+            isinstance(candidate, gears.base.Character) and candidate.combatant and
+            candidate not in nart.camp.party and candidate.relationship and candidate.relationship.is_unfavorable() and
+            candidate.relationship.get_recent_memory({gears.relationships.MEM_LoseToPC,})
+        )
+
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def t_ENDCOMBAT(self, camp: gears.GearHeadCampaign):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, 100)
+
+    def LOCALE_ENTER(self,camp: gears.GearHeadCampaign):
+        if self.alert_ready:
+            self.alert_ready = False
+            # Allow the PC to decide whether or not to accept the challenge.
+            npc = self.elements["_commander"]
+            pbge.alert("The way forward is blocked by {}'s lance.".format(npc))
+
+    def _commander_offers(self, camp):
+        mylist = list()
+        npc = self.elements["_commander"]
+
+        ghdialogue.SkillBasedPartyReply(
+            Offer(
+                "[CHANGE_MIND_AND_RETREAT]",
+                context=ContextTag([context.RETREAT, ]), effect=self._retreat,
+            ), camp, mylist, gears.stats.Ego, gears.stats.Negotiation, rank=npc.renown,
+            difficulty=gears.stats.DIFFICULTY_HARD,
+            no_random=False
+        )
+
+        return mylist
+
+    def _retreat(self, camp):
+        pbge.alert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
+        self.elements["_eteam"].retreat(camp)
+
+
 class RWMO_TheGambler(Plot):
     LABEL = RWMO_A_CHALLENGER_APPROACHES
     active = True

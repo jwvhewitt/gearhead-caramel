@@ -21,6 +21,10 @@ ATTACK_MERCY = Reply( "[ATTACK:MERCY]" ,
             destination = Cue( ContextTag([context.MERCY]) ) ,
             context = ContextTag([context.ATTACK]) )
 
+ATTACK_RETREAT = Reply( "[ATTACK:RETREAT]" ,
+            destination = Cue( ContextTag([context.RETREAT]) ) ,
+            context = ContextTag([context.ATTACK]) )
+
 ATTACK_WITHDRAW = Reply( "[ATTACK:WITHDRAW]" ,
             destination = Cue( ContextTag([context.WITHDRAW]) ) ,
             context = ContextTag([context.ATTACK]) )

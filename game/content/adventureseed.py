@@ -61,7 +61,10 @@ class AdventureSeed(Adventure):
         else:
             awarded = sum([o.awarded_points for o in self.objectives if not o.failed and not o.optional])
         total = max(sum([o.mo_points for o in self.objectives if not o.optional]),1)
-        return (awarded * 100)//total
+        if total == 0:
+            return 100
+        else:
+            return (awarded * 100)//total
     def is_won(self):
         return self.get_completion() > 50
     def get_grade(self):
