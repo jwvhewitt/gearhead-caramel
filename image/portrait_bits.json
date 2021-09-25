@@ -388,6 +388,17 @@
     "style": ["Feminine"]
   },
   {
+    "name": "Battlefield Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_battlefield.png","anchor":"head","x_offset":-9, "y_offset":-40, "depth":6000}
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_battlefield.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-4}
+    ],
+    "style": ["Feminine"]
+  },
+  {
     "name": "Emo Hair",
     "btype": "Hair",
     "layers": [
@@ -494,6 +505,22 @@
     ],
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_natpo.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-1}
+    ],
+    "style": ["Feminine"]
+  },
+  {
+    "name": "LB Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_lb.png","anchor":"head","x_offset":-5, "y_offset":5, "frame": 0, "depth":10000,
+        "frame_width": 130, "frame_height": 187
+      },
+      {"name":"SideHair","fname":"por_hair_lb.png","anchor":"head","x_offset":-5, "y_offset":5, "frame": 1, "depth":500,
+        "frame_width": 130, "frame_height": 187
+      }
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_lb.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-1}
     ],
     "style": ["Feminine"]
   },
@@ -614,9 +641,19 @@
       "Pants"
     ]
   },
+  {
+    "name": "No Pants",
+    "btype": "Pants",
+    "requires": ["PantsOptional"],
+    "children": ["Shoes","ShirtAccessory"]
+  },
     {
     "name": "No Accessory",
     "btype": "Accessories"
+  },
+    {
+    "name": "No Shirt Accessory",
+    "btype": "ShirtAccessory"
   }
 
 
