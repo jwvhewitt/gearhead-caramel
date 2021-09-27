@@ -222,5 +222,5 @@ def test_roadedge_missions():
                     ghplots.dd_roadedge_propp.E_ACE]))
 
 
-test_roadedge_missions()
+#test_roadedge_missions()
 #test_mocha_encounters()

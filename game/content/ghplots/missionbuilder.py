@@ -89,7 +89,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg",
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None,
-                 environment=gears.tags.GroundEnv, make_enemies=True, **kwargs):
+                 make_enemies=True, **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
         cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
         cms_pstate.elements["METROSCENE"] = metroscene
@@ -138,7 +138,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             self.rewards.append(adventureseed.SalvageReward())
         self.rewards.append(adventureseed.RenownReward())
 
-        self.environment = environment
+        self.environment = architecture.ENV
 
     def end_adventure(self, camp: gears.GearHeadCampaign):
         # Update before ending, and again after.

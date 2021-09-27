@@ -780,6 +780,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             return 0
 
 
+class GearHeadArchitecture(pbge.randmaps.architect.Architecture):
+    ENV = tags.GroundEnv
+
 
 
 # Why did I create this complicated regular expression to parse lines of

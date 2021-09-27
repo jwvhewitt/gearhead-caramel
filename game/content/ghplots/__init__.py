@@ -118,3 +118,36 @@ def init_plots():
             print("Warning: User content {} not loaded because of duplicate name".format(dlcname))
 
 
+def reload_plot_module(mod_name):
+    # Reload a compiled adventure from disk.
+    modict = globals()
+
+    # Step one: get rid of existing module.
+    if mod_name in modict:
+        mod = modict[mod_name]
+        for name in dir(mod):
+            o = getattr(mod, name)
+            if inspect.isclass(o) and issubclass(o, Plot) and o is not Plot and o is not mechtarot.TarotCard:
+                PLOT_LIST[o.LABEL].remove(o)
+                UNSORTED_PLOT_LIST.remove(o)
+                # print o.__name__
+                if issubclass(o, mechtarot.TarotCard):
+                    del CARDS_BY_NAME[o.__name__]
+        del sys.modules[mod_name]
+        del modict[mod_name]
+
+    # Step two: reload the module.
+    try:
+        spec = importlib.util.spec_from_file_location(mod_name, pbge.util.user_dir('content','{}.py'.format(mod_name)))
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[mod_name] = module
+        spec.loader.exec_module(module)
+        modict[mod_name] = module
+        harvest(module)
+    except (IndentationError, SyntaxError, ImportError) as err:
+        print(
+            "ERROR: {} could not be loaded due to error: {}".format(pbge.util.user_dir('content','{}.py'.format(
+                mod_name)), err)
+        )
+
+
