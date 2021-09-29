@@ -13,7 +13,8 @@
     "scripts": {
       "npc_offers": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data},\n    #: dialogue_effect\n))"
     },
-    "child_types": ["DIALOGUE_EFFECT"]
+    "child_types": ["DIALOGUE_EFFECT"],
+    "sorting_rank": 4100
     },
     {
     "name": "Add Dialogue If",
@@ -31,7 +32,8 @@
       "npc_offers": "if {conditions}:\n    #: dialogue_if\n#: dialogue_elif\n#: dialogue_else",
       "dialogue_if": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data},\n    #: dialogue_effect\n))"
     },
-    "child_types": ["DIALOGUE_IF", "DIALOGUE_ELSE", "DIALOGUE_ELIF", "DIALOGUE_EFFECT"]
+    "child_types": ["DIALOGUE_IF", "DIALOGUE_ELSE", "DIALOGUE_ELIF", "DIALOGUE_EFFECT"],
+    "sorting_rank": 4100
     },
     {
     "name": "Add Another Iffy Offer",
@@ -47,7 +49,8 @@
     "scripts": {
       "dialogue_if": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data},\n    #: dialogue_effect\n))"
     },
-    "child_types": ["DIALOGUE_EFFECT"]
+    "child_types": ["DIALOGUE_EFFECT"],
+    "sorting_rank": 4100
     },
     {
     "name": "Add Dialogue Effect",
@@ -76,6 +79,7 @@
       "dialogue_elif": "elif {conditions}:\n    #: dialogue_if",
       "dialogue_if": "mylist.append(Offer(\n    \"{dialogue_text}\",\n    context=ContextTag([\"{context}\"]), data={dialogue_data},\n    #: dialogue_effect\n))"
     },
-    "child_types": ["DIALOGUE_IF", "DIALOGUE_EFFECT"]
-    }
+    "child_types": ["DIALOGUE_IF", "DIALOGUE_EFFECT"],
+     "sorting_rank": 4100
+   }
 ]

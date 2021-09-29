@@ -37,7 +37,8 @@
     },
     "elements": {
       "FACTION_{_uid}": {"e_type": "faction", "name": "{faction_name}"}
-    }
+    },
+    "sorting_rank": 100
   },
   {
     "name": "New Campaign Variable",
@@ -56,7 +57,8 @@
     },
     "scripts": {
       "scenario_init": "nart.camp.campdata[\"{var_name}\"] = {value}"
-    }
+    },
+    "sorting_rank": 200
   },
   {
     "name": "Standard Lancemate Handler",
@@ -68,7 +70,8 @@
     },
     "scripts": {
       "scenario_init": "nart.camp.num_lancemates = {lancemate_slots}\nself.add_sub_plot(nart,\"CF_STANDARD_LANCEMATE_HANDLER\", elements=dict(LANCEDEV_ENABLED={lancemate_development}))\n"
-    }
+    },
+    "sorting_rank": 300
   },
   {
     "name": "New Metro Scene",
@@ -96,7 +99,8 @@
     "elements": {
       "METROSCENE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["LOCALE","CITY"]},
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["MISSION_GATE"]}
-    }
+    },
+    "sorting_rank": 1000
   },
 
     {
@@ -108,7 +112,8 @@
     },
     "scripts": {
       "scenario_init": "self.add_sub_plot(nart, \"ADD_FROZEN_COMBATANT\", elements=dict(FACTION={npc_faction}))"
-    }
+    },
+    "sorting_rank": 2000
   }
 
 ]

@@ -674,12 +674,14 @@ class PlotCreator(pbge.widgets.Widget):
         if nubrick:
             newbp = BluePrint(nubrick)
             self.active_part.children.append(newbp)
+            self.mytree.sort()
             self.set_active_part(newbp)
 
     def _remove_feature(self,widj,ev):
         if self.active_part != self.mytree and hasattr(self.active_part, "container"):
             myparent = self.active_part.container.owner
             myparent.children.remove(self.active_part)
+            self.mytree.sort()
             self.set_active_part(myparent)
 
     def _exit_editor(self,widj,ev):

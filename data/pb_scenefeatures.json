@@ -11,7 +11,9 @@
     },
     "scripts": {
       "scene_subplots": "nart.camp.go(self.elements.get( \"ENTRANCE\" ))\nif {start_with_lancemate}:\n    self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n"
-    }
+    },
+    "sorting_rank": 300
+
   },
 
     {
@@ -22,7 +24,8 @@
       "scene_init": "self.entered_scene_{_uid} = False\n#: effect_init",
       "scene_enter": "if not self.entered_scene_{_uid}:\n    self.entered_scene_{_uid} = True\n    #: effect"
     },
-    "child_types": ["EFFECT"]
+    "child_types": ["EFFECT"],
+    "sorting_rank": 4000
     },
 
       {
@@ -44,7 +47,8 @@
     },
     "scripts": {
       "scene_init": "for t in range({number_of_npcs}):\n    self.add_sub_plot(nart, \"ADD_PERSON_TO_LOCALE\", elements=dict(LOCALE=self.elements[\"{LOCALE}\"]))"
-    }
+    },
+    "sorting_rank": 4000
   }
 
 

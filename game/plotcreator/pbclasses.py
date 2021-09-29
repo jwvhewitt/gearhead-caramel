@@ -40,7 +40,7 @@ class PlotBrick(object):
     # child_types: List of brick labels that can be added as children of this brick.
     # elements: Descriptions for the elements defined within this brick.
     # is_new_branch: True if this brick begins a new Plot. This is needed to check element + var inheritance.
-    def __init__(self, label="PLOT_BLOCK", name="", display_name="", desc="", scripts=None, vars=None, child_types=(), elements=None, is_new_branch=False, **kwargs):
+    def __init__(self, label="PLOT_BLOCK", name="", display_name="", desc="", scripts=None, vars=None, child_types=(), elements=None, is_new_branch=False, sorting_rank=1000, **kwargs):
         self.label = label
         self.name = name
         self.display_name = display_name or name
@@ -58,6 +58,7 @@ class PlotBrick(object):
             for k,v in elements.items():
                 self.elements[k] = ElementDefinition(**v)
         self.is_new_branch = is_new_branch
+        self.sorting_rank = sorting_rank
         self.data = kwargs.copy()
 
     def get_default_vars(self):
@@ -102,6 +103,7 @@ class BluePrint(object):
             mybp.max_uid = jdict["max_uid"]
         for cdict in jdict["children"]:
             mybp.children.append(cls.load_save_dict(cdict))
+        mybp.sort()
         return mybp
 
     def copy(self):
@@ -171,6 +173,7 @@ class BluePrint(object):
         #    It is generally used when we need a recursive script block definition, such as a conditional "effect"
         #    block that can have children "effects".
         # Clear as mud? Good enough.
+        self.sort()
         if inherited_vars:
             vars = inherited_vars.copy()
         else:
@@ -331,6 +334,11 @@ class BluePrint(object):
         for p in part.children:
             myset.update(p.get_campaign_variable_names(False))
         return myset
+
+    def sort(self):
+        self.children.sort(key=lambda c: c.brick.sorting_rank)
+        for c in self.children:
+            c.sort()
 
 
 ALL_BRICKS = list()

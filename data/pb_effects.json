@@ -11,7 +11,8 @@
     },
     "scripts": {
       "effect": "pbge.alert('''{message}''')"
-    }
+    },
+    "sorting_rank": 4000
   },
   {
     "name": "Conditional Effect",
@@ -24,7 +25,8 @@
     "scripts": {
       "effect": "if {conditions}:\n    #> effect\n#: elif\n#: else"
     },
-    "child_types": ["EFFECT","ELIF","ELSE"]
+    "child_types": ["EFFECT","ELIF","ELSE"],
+    "sorting_rank": 4000
   },
   {
     "name": "Elif Effect",
@@ -114,7 +116,8 @@
     },
     "scripts": {
       "effect": "camp.campdata[\"{var_name}\"] = {value}"
-    }
+    },
+    "sorting_rank": 200
   },
   {
     "name": "Add Campaign Variable",
@@ -132,7 +135,8 @@
     },
     "scripts": {
       "effect": "camp.campdata[\"{var_name}\"] = camp.campdata.get(\"{var_name}\",0) + {value}"
-    }
+    },
+    "sorting_rank": 200
   },
       {
     "name": "NPC Joins Party",

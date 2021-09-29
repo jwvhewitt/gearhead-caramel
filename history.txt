@@ -1,3 +1,4 @@
+- PlotCreator blueprints now automatically sorted
 - You can start a newly compiled scenario without restarting the game
 - PlotCreator updated to use campfeatures utilities
 - MissionBuilder no longer needs environment parameter, since this info is included in GearHeadArchitecture subclass

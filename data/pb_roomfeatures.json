@@ -17,7 +17,8 @@
     "child_types": ["NPC_FEATURE"],
     "elements": {
       "NPC_{_uid}": {"e_type": "npc", "name": "{npc_role}({npc_name})", "aliases":  ["NPC"]}
-    }
+    },
+    "sorting_rank": 2000
   }
 
 ]
