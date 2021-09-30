@@ -27,7 +27,6 @@ class TestRandomWorldMapEncounterObjective(Plot):
             custom_elements={"ADVENTURE_GOAL": mission_gate, "ENTRANCE_ANCHOR": pbge.randmaps.anchors.east},
             scenegen=gharchitecture.DeadZoneHighwaySceneGen,
             architecture=gharchitecture.MechaScaleSemiDeadzone(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
-            environment=gears.tags.GroundEnv,
             cash_reward=100,
         )
 

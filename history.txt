@@ -1,3 +1,5 @@
+v0.800 September 30 2021
+- Campaign save file compatibility probably broken; character save files are okay
 - PlotCreator blueprints now automatically sorted
 - You can start a newly compiled scenario without restarting the game
 - PlotCreator updated to use campfeatures utilities
