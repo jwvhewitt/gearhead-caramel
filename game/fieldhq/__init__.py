@@ -7,6 +7,7 @@ from game import cosplay
 from . import backpack
 from . import training
 from . import fhqinfo
+from . import pceditor
 
 
 class AssignMechaDescObject(object):
@@ -47,8 +48,16 @@ class CharacterInfoWidget(widgets.Widget):
         self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Change Colors", justify=0, draw_border=True, on_click=self.change_colors))
         if pc.relationship and pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):
             self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Jump to Next Dev", justify=0, draw_border=True, on_click=self.jump_plot))
+        if pc is camp.pc:
+            self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Edit Character", justify=0, draw_border=True, on_click=self.edit_pc))
         self.fhq = fhq
         self.info = CharaFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, font=pbge.SMALLFONT, camp=camp)
+
+    def edit_pc(self, wid, ev):
+        self.fhq.active = False
+        pceditor.PCEditorWidget.create_and_invoke(self.camp, self.pc)
+        self.info.update()
+        self.fhq.active = True
 
     def jump_plot(self,wid,ev):
         while not self.pc.relationship.can_do_development():

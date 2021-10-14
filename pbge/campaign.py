@@ -50,8 +50,9 @@ class Campaign( object ):
         with open( util.user_dir( "rpg_" + self.name + ".sav" ) , "wb" ) as f:
             pickle.dump( self , f, -1 )
 
-    def delete_save_file( self ):
-        os.remove(util.user_dir("rpg_{}.sav".format(self.name)))
+    def delete_save_file( self, del_name=None ):
+        name = del_name or self.name
+        os.remove(util.user_dir("rpg_{}.sav".format(name)))
 
     def keep_playing_campaign( self ):
         # The default version of this method will keep playing forever.

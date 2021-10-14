@@ -156,6 +156,10 @@ class TextEntryWidget( Widget ):
 
     text = property(_get_text, _set_text)
 
+    def quietly_set_text(self, text):
+        # Set the text without calling on_change.
+        self.char_list = list(text)
+
 
 class RadioButtonWidget( Widget ):
     def __init__( self, dx, dy, w, h, sprite=None, buttons=(), spacing=2, **kwargs ):
@@ -538,3 +542,42 @@ class TextEditorWidget( Widget ):
             self.on_change(self, None)
 
     text = property(_get_text, _set_text)
+
+
+# Widgets for columns
+
+class ColTextEntryWidget(RowWidget):
+    def __init__(self, width, prompt="Enter Text", text='***', color=None, font=None, justify=-1, on_change=None, **kwargs):
+        mylabel = LabelWidget(0,0,width*2//5-10,0,prompt,font=font)
+        super().__init__(0,0,width,mylabel.h+8,**kwargs)
+        self.add_left(mylabel)
+        self.my_text_widget = TextEntryWidget(0,0,width*3//5,mylabel.h+8,text,color,font,justify,on_change=on_change,)
+        self.add_right(self.my_text_widget)
+
+    def _get_text(self):
+        return self.my_text_widget.text
+
+    def _set_text(self, text):
+        self.my_text_widget.text = text
+
+    text = property(_get_text, _set_text)
+
+    def quietly_set_text(self, text):
+        # Set the text without calling on_change.
+        self.my_text_widget.quietly_set_text(text)
+
+
+class ColDropdownWidget(RowWidget):
+    def __init__(self, width, prompt="Choose Option", font=None, justify=-1, on_select=None, **kwargs):
+        mylabel = LabelWidget(0,0,width*2//5-10,0,prompt,font=font)
+        super().__init__(0,0,width,mylabel.h+8,**kwargs)
+        self.add_left(mylabel)
+        self.my_menu_widget = DropdownWidget(0,0,width*3//5,mylabel.h+8, font=font, justify=justify, on_select=on_select)
+        self.add_right(self.my_menu_widget)
+
+    def add_item(self,msg,value,desc=None):
+        self.my_menu_widget.add_item(msg,value,desc)
+
+    @property
+    def value(self):
+        return self.my_menu_widget.value

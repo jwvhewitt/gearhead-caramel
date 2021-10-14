@@ -19,6 +19,7 @@ With-Element Triggers:
 "ENTER"         When a scene.script_room rect is entered by a party member
 "GET"       When an item is picked up
 "WIN"           When a subplot is won*
+"SEMIVICTORIOUS"    When a subplot is sorta won, kinda. Use this trigger if it makes sense in context.*
 "LOSE"		When a subplot is lost*
 "END"		When a subplot is ended*
 

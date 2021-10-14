@@ -484,7 +484,6 @@ def input_string(font=None, redrawer=None, prompt="Enter text below", prompt_col
     # Input a string from the user.
     it = []
     keep_going = True
-    cursor_frame = 1
 
     if not font:
         font = BIGFONT
@@ -508,9 +507,8 @@ def input_string(font=None, redrawer=None, prompt="Enter text below", prompt_col
             my_state.screen.get_width() / 2 - myimage.get_width() / 2, my_state.screen.get_height() / 2))
             INPUT_CURSOR.render(
                 (my_state.screen.get_width() / 2 + myimage.get_width() / 2 + 2, my_state.screen.get_height() / 2),
-                cursor_frame / 3)
+                ( my_state.anim_phase // 3 ) % 4)
             my_state.screen.set_clip(None)
-            cursor_frame = (cursor_frame + 1) % (INPUT_CURSOR.num_frames() * 3)
             my_state.do_flip(False)
 
 

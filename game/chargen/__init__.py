@@ -78,12 +78,11 @@ class LifepathChooser(object):
         self.info = None
 
 class PortraitEditorW(pbge.widgets.Widget):
-    def __init__(self,cgen,form_tags,**kwargs):
+    def __init__(self, pc, por_gen, portrait, form_tags,**kwargs):
         super(PortraitEditorW, self).__init__(-400, -300, 800, 600, **kwargs)
-        self.cgen = cgen
-        self.pc = cgen.pc
-        self.por = cgen.pc.portrait_gen
-        self.portrait = cgen.portrait
+        self.pc = pc
+        self.por = por_gen
+        self.portrait = portrait
         self.form_tags = form_tags
 
         self.portrait_zone = pbge.frects.Frect(-400,-300,400,600)
@@ -168,10 +167,11 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.finished = True
 
     @classmethod
-    def create_and_invoke(cls, cgen, formtags):
+    def create_and_invoke_with_cgen(cls, cgen, formtags):
         # Run the UI. Return a DoInvocation action if an invocation
-        # was chosen, or None if the invocation was cancelled.
-        myui = cls(cgen,formtags)
+        # was chosen, or None if the invocation was cancelled.... wait, that's not right.
+        # Copy and paste is my undoing again!
+        myui = cls(cgen.pc, cgen.pc.portrait_gen, cgen.portrait, formtags)
         pbge.my_state.widgets.append(myui)
         myui.children.append(pbge.widgets.LabelWidget(150,220,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
 
@@ -189,6 +189,126 @@ class PortraitEditorW(pbge.widgets.Widget):
 
         cgen.portrait = myui.portrait
         pbge.my_state.widgets.remove(myui)
+
+    @classmethod
+    def create_and_invoke_with_pc(cls, pc: gears.base.Character):
+        # Run the UI.
+        myui = cls(pc, pc.portrait_gen, pc.get_portrait(), gears.portraits.Portrait.get_form_tags(pc))
+        pbge.my_state.widgets.append(myui)
+        myui.children.append(pbge.widgets.LabelWidget(150,220,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
+
+        keepgoing = True
+        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+                elif ev.key == pygame.K_F1:
+                    pygame.image.save(myui.portrait.bitmap, pbge.util.user_dir("out.png"))
+
+        pbge.my_state.widgets.remove(myui)
+
+
+class GenderCustomizationWidget(pbge.widgets.ColumnWidget):
+    PROPERTIES = ("noun", "adjective", "subject_pronoun", "object_pronoun", "possessive_determiner",
+                  "absolute_pronoun", "reflexive_pronoun")
+    def __init__(self, pc: gears.base.Character, **kwargs):
+        super().__init__(-200, -225, 400, 450, center_interior=True, padding=16, draw_border=True, **kwargs)
+        self.set_header(pbge.widgets.LabelWidget(0,0,200,24,"Custom Gender",color=pbge.WHITE, font=pbge.BIGFONT, justify=0, draw_border=True))
+
+        self.pc = pc
+        self.gender = copy.deepcopy(pc.gender)
+        self.property_widgets = dict()
+
+        for prop in self.PROPERTIES:
+            mywidget = pbge.widgets.ColTextEntryWidget(
+                self.w, prop, getattr(self.gender, prop),
+                on_change=self._set_property, data=prop
+            )
+            self.add_interior(mywidget)
+            self.property_widgets[prop] = mywidget
+
+        self.style_menu = pbge.widgets.ColDropdownWidget(
+            self.w, "Style Options", on_select=self._set_style
+        )
+        self.add_interior(self.style_menu)
+        self.style_menu.add_item("All Options", {gears.genderobj.TAG_MASC, gears.genderobj.TAG_FEMME})
+        self.style_menu.add_item("Feminine", {gears.genderobj.TAG_FEMME,})
+        self.style_menu.add_item("Masculine", {gears.genderobj.TAG_MASC,})
+        self.style_menu.my_menu_widget.menu.set_item_by_value(self.gender.tags)
+
+        self.add_interior(pbge.widgets.LabelWidget(
+            0,0,200,0,"Set Default Female", justify=0, draw_border=True, on_click=self._set_defaults,
+            data=self.gender.DEF_FEMALE_PARAMS
+        ))
+        self.add_interior(pbge.widgets.LabelWidget(
+            0,0,200,0,"Set Default Male", justify=0, draw_border=True, on_click=self._set_defaults,
+            data=self.gender.DEF_MALE_PARAMS
+        ))
+        self.add_interior(pbge.widgets.LabelWidget(
+            0,0,200,0,"Set Default Nonbinary", justify=0, draw_border=True, on_click=self._set_defaults,
+            data=self.gender.DEF_NONBINARY_PARAMS
+        ))
+
+        myrow = pbge.widgets.RowWidget(0, 0, self.w, 16)
+        myrow.add_left(pbge.widgets.LabelWidget(0,0,100,0,"Done",font=pbge.BIGFONT, on_click=self._done, justify=0,
+                                                draw_border=True))
+        myrow.add_right(pbge.widgets.LabelWidget(0,0,100,0,"Cancel",font=pbge.BIGFONT, on_click=self._cancel,
+                                                 justify=0, draw_border=True))
+        self.add_interior(myrow)
+
+        self.finished = False
+
+    def _done(self, wid, ev):
+        self.pc.gender = self.gender
+        self.finished = True
+
+    def _cancel(self, wid, ev):
+        self.finished = True
+
+    def _set_defaults(self, wid, ev):
+        for k,v in wid.data.items():
+            setattr(self.gender, k, v)
+            if k in self.PROPERTIES:
+                self.property_widgets[k].quietly_set_text(v)
+
+        self.style_menu.my_menu_widget.menu.set_item_by_value(self.gender.tags)
+
+    def _set_property(self, wid, ev):
+        setattr(self.gender, wid.data, wid.text)
+
+    def _set_style(self, result):
+        self.gender.tags = result
+
+    @classmethod
+    def create_and_invoke(cls, pc):
+        # Run the UI. You know, usually I'm a big fan of commenting code but I just noticed that I've copied and
+        # pasted this "create_and_invoke" method a bazillion times (often with very minor changes that make it
+        # difficult to genderalize) and most of them have kept the comment from the Invoker widget. This method
+        # will not return an Invocation object. Most of the cases where the comment says create_and_invoke will
+        # return an Invocation object are lying to you, unless you're dealing with an Invoker widget or one of its
+        # descendants. I leave this extra long comment here as a warning to other programmers who may be reading
+        # this code. When you copy and paste something a lot, consider making it a method of the parent class.
+        # And if you can't do that, then for Eris' sake check the comments and make sure they stll apply to your
+        # modified version.
+        myui = cls(pc)
+        pbge.my_state.widgets.append(myui)
+
+        keepgoing = True
+        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+
+        pbge.my_state.widgets.remove(myui)
+
 
 
 class CharacterGeneratorW(pbge.widgets.Widget):
@@ -231,6 +351,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         gender_menu.add_item("Male",gears.genderobj.Gender.get_default_male())
         gender_menu.add_item("Female",gears.genderobj.Gender.get_default_female())
         gender_menu.add_item("Nonbinary",gears.genderobj.Gender.get_default_nonbinary())
+        gender_menu.add_item("Custom",1234567)
         gender_menu.menu.set_item_by_position(random.choice((0,0,0,1,1,1,2)))
         self.pc.gender = gender_menu.menu.get_current_item().value
 
@@ -286,7 +407,10 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     def set_age(self,new_age):
         self.pc.birth_year = self.year - new_age
     def set_gender(self,new_gender):
-        self.pc.gender = new_gender
+        if new_gender == 1234567:
+            GenderCustomizationWidget.create_and_invoke(self.pc)
+        else:
+            self.pc.gender = new_gender
     def stat_display(self,wid):
         return str(self.pc.get_stat(wid.data) + self.bio_bonuses.get(wid.data,0))
     def stat_minus(self,wid,ev):
@@ -379,7 +503,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def portrait_edit(self,wid,ev):
         self.active = False
-        PortraitEditorW.create_and_invoke(self,self.get_portrait_tags())
+        PortraitEditorW.create_and_invoke_with_cgen(self, self.get_portrait_tags())
         self.active = True
 
     def portrait_random(self,wid,ev):

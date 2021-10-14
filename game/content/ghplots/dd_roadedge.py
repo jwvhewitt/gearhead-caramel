@@ -126,6 +126,35 @@ class BanditsPalooza(DZDREProppStarterPlot):
         return mygram
 
 
+class BlackMarketBluesStarter(DZDREBasicPlotWithEncounterStuff):
+    LABEL = "DZD_ROADEDGE_YELLOW"
+    UNIQUE = True
+
+    GOOD_ENEMIES = (
+        gears.factions.ClanIronwind, gears.factions.BoneDevils, gears.factions.ClanIronwind,
+        gears.factions.BoneDevils, gears.factions.BladesOfCrihna,
+    )
+
+    def custom_init(self, nart):
+        super().custom_init(nart)
+        myedge = self.elements["DZ_EDGE"]
+        self.add_sub_plot(nart, "DZRE_BLACKMARKETBLUES", ident="MISSION", spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
+        return True
+
+    def get_enemy_faction(self,nart):
+        myedge = self.elements["DZ_EDGE"]
+        base_faction = random.choice(self.GOOD_ENEMIES)
+        return gears.factions.Circle(nart.camp,base_faction,enemies=(myedge.start_node.destination.faction,))
+
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        myscene = camp.scene.get_root_scene()
+        if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:
+            # This city is on this road.
+            mygram["[News]"] = ["{} have been robbing travelers going to {}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
+        return mygram
+
+
 #   *******************************
 #   ***   DZD_ROADEDGE_ORANGE   ***
 #   *******************************
@@ -173,7 +202,7 @@ class TheMechaGraveyard(DZDREBasicPlotWithEncounterStuff):
         if self.active and camp.has_mecha_party():
             if random.randint(1,100) <= self.ENCOUNTER_CHANCE and not self.road_cleared:
                 return self.get_enemy_encounter(camp, dest_node)
-            elif random.randint(1,100) <= 15:
+            elif random.randint(1,100) <= 15 or self.road_cleared:
                 return self.get_random_encounter(camp, dest_node)
 
     def MISSION_WIN(self,camp):

@@ -13,6 +13,51 @@ from . import dd_customobjectives
 from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
 
 
+#   *******************************
+#   ***  DZRE_BLACKMARKETBLUES  ***
+#   *******************************
+
+class BlackMarketBluesMain(Plot):
+    # There are bandits raiding the highway. They're operating out of a black market near METROSCENE.
+    # The player first needs to find the black market, and then will have a number of choices for how to
+    # deal with the problem.
+    LABEL = "DZRE_BLACKMARKETBLUES"
+    UNIQUE = True
+    active = True
+    scope = "METRO"
+
+    def custom_init( self, nart ):
+
+        nart.camp.campdata["BlackMarketBluesMissionCounter"] = random.randint(4,8)
+        self.black_market_found = False
+
+        return True
+
+    def METROSCENE_ENTER(self, camp):
+        if not self.black_market_found:
+            mymetro: gears.MetroData = self.elements["METRO"]
+            if not any(p for p in mymetro.scripts if p.LABEL == "DZREP_AntiBanditMission"):
+                self.subplots["MISSION"] = game.content.load_dynamic_plot(camp, "DZREP_AntiBanditMission", PlotState().based_on(self))
+
+    def MISSION_WIN(self, camp):
+        self.black_market_found = True
+
+
+class DZRE_BMB_AntiBanditMission(Plot):
+    # Someone in town will give the PC a mission to go fight the bandits. The mission has a secret objective-
+    # with the right skills, the lance will be able to track down where the bandits are coming from. If the player
+    # runs down the misson counter, the black market gets revealed automatically.
+    # Trigger a "WIN" if the player finds the black market.
+    LABEL = "DZREP_AntiBanditMission"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+
+
+        return True
+
+
 #   ******************************
 #   ***  DZRE_MECHA_GRAVEYARD  ***
 #   ******************************

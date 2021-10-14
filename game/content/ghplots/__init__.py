@@ -30,6 +30,7 @@ from . import recovery
 from . import romance
 from . import rwme_default
 from . import rwme_objectives
+from . import seekenemybase
 from . import setpiece
 from . import tarot_cards
 from . import tarot_reveal
@@ -82,6 +83,7 @@ harvest(recovery)
 harvest(romance)
 harvest(rwme_default)
 harvest(rwme_objectives)
+harvest(seekenemybase)
 harvest(setpiece)
 harvest(tarot_cards)
 harvest(tarot_reveal)
