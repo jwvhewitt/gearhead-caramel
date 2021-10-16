@@ -1,4 +1,4 @@
-from pbge.plots import Plot, PlotState
+from pbge.plots import Plot, PlotState, Rumor
 import game
 import gears
 import pbge
@@ -10,7 +10,8 @@ from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
-from . import missionbuilder, rwme_objectives
+from . import missionbuilder, rwme_objectives, campfeatures
+from game.memobrowser import Memo
 
 SEEK_ENEMY_BASE_MISSION = "SEEK_ENEMY_BASE_MISSION"
 AUTOFIND_ENEMY_BASE_MISSION = "AUTOFIND_ENEMY_BASE_MISSION"
@@ -32,29 +33,27 @@ SEBO_SEARCH_FOR_BASE = "SEBO_SEARCH_FOR_BASE"
 # ENEMY_BASE_NAME: The name to be used for the enemy base.
 #
 
-class SeekEnemyBaseMain(Plot):
+class SeekEnemyBaseMain(campfeatures.MetrosceneRandomPlotHandler):
     LABEL = "SEEK_ENEMY_BASE"
-    active = True
-    scope = "METRO"
+
+    MAX_PLOTS = 1
+    SUBPLOT_LABEL = SEEK_ENEMY_BASE_MISSION
 
     def custom_init( self, nart ):
-        self.mission_patience = random.randint(4,8)
-        self.rank_modifier = 0
-        return True
+        print(self.elements["METROSCENE"])
+        ok = super().custom_init(nart)
+        if ok:
+            self.mission_patience = random.randint(1,2)
+            self.rank_modifier = 0
+            self.elements["WIN_FUN"] = self.locate_the_base
+            self.elements["SEMIWIN_FUN"] = self.win_a_mission
+        return ok
 
-    def METROSCENE_ENTER(self, camp):
-        if self.active and self.mission_patience > 0:
-            mymetro: gears.MetroData = self.elements["METRO"]
-            if not any(p for p in mymetro.scripts if p.LABEL == SEEK_ENEMY_BASE_MISSION):
-                self.subplots["MISSION"] = game.content.load_dynamic_plot(
-                    camp, SEEK_ENEMY_BASE_MISSION, PlotState(rank=self.rank+self.rank_modifier).based_on(self)
-                )
-
-    def MISSON_WIN(self, camp: gears.GearHeadCampaign):
+    def locate_the_base(self, camp: gears.GearHeadCampaign):
         camp.check_trigger("WIN", self)
-        self.end_plot(camp, True)
+        self.adv.end_adventure(camp)
 
-    def MISSION_SEMIVICTORIOUS(self, camp):
+    def win_a_mission(self, camp):
         self.rank_modifier += random.randint(1, 3)
         self.mission_patience -= 1
         if self.active and self.mission_patience < 1:
@@ -62,20 +61,62 @@ class SeekEnemyBaseMain(Plot):
                 camp, AUTOFIND_ENEMY_BASE_MISSION, PlotState(rank=self.rank + self.rank_modifier).based_on(self)
             )
 
-    def get_dialogue_grammar(self, npc: gears.base.Character, camp):
+    def _get_dialogue_grammar(self, npc: gears.base.Character, camp):
         mygram = dict()
         if npc.faction is not self.elements.get("ENEMY_FACTION"):
             mygram["[News]"] = ["only {ENEMY_FACTION} know where {ENEMY_BASE_NAME} is".format(**self.elements), ]
         return mygram
+
+    def calc_rank(self, camp: gears.GearHeadCampaign):
+        return self.rank + self.rank_modifier
 
 
 #   *********************************
 #   ***  SEEK_ENEMY_BASE_MISSION  ***
 #   *********************************
 #
-# This plot will set a WIN trigger when the base (or whatever) is located, or a SEMIVICTORIOUS trigger when the
-# mission is nominally a success but the base is not found.
+# Elements:
+# WIN_FUN = A function with signature (camp) to call when the enemy base is located.
+# SEMIWIN_FUN = A function with signature (camp) to call when a mission is "won", but base not located.
 #
+
+class BasicCombatBaseSearch(Plot):
+    LABEL = SEEK_ENEMY_BASE_MISSION
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        "{NPC} lost a fight to {ENEMY_FACTION}",
+        offer_msg="You can ask {NPC} about {ENEMY_FACTION} yourself; speak to {NPC.gender.object_pronoun} at {NPC_SCENE}.",
+        memo="{NPC} lost a battle against {ENEMY_FACTION}.", prohibited_npcs=("NPC",)
+    )
+
+    def custom_init( self, nart ):
+        npc = self.seek_element(nart, "NPC", self.is_good_npc, scope=self.elements["METROSCENE"])
+        self.elements["NPC_SCENE"] = npc.scene
+        print(npc.scene)
+        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            nart.camp, "Fight {}".format(self.elements["ENEMY_FACTION"]),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            self.elements["ENEMY_FACTION"], npc.faction, self.rank,
+            objectives=(missionbuilder.BAMO_LOCATE_ENEMY_FORCES,),
+            scenegen=sgen, architecture=archi, on_win=self.elements["SEMIWIN_FUN"],
+        )
+        self.mission_active = False
+        return True
+
+    def is_good_npc(self, nart, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and candidate.combatant and
+            not nart.camp.are_faction_allies(candidate, self.elements["ENEMY_FACTION"])
+        )
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        if not self.mission_active:
+            pass
+        return mylist
 
 
 #   *************************************
@@ -89,7 +130,7 @@ class InsultinglyEasyAutofindEnemyBase(Plot):
 
     def t_UPDATE(self, camp: gears.GearHeadCampaign):
         pbge.alert("You find a piece of paper on the ground with the location of {ENEMY_BASE_NAME} written on it.".format(**self.elements))
-        camp.check_trigger("WIN", self)
+        self.elements["WIN_FUN"](camp)
         self.end_plot(camp)
 
 #   ******************************

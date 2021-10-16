@@ -218,7 +218,7 @@ class FormerLancemateReturns(Plot):
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is self.elements["NPC"]:
             for k in self.bs.results.keys():
@@ -283,7 +283,7 @@ class RLM_Beginner(Plot):
         mylist.append(LMSkillsSelfIntro(npc))
         return mylist
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"]:
             # This is an NPC in Wujung. Give them some news.
@@ -352,7 +352,7 @@ class RLM_Friendly(Plot):
         effect(camp)
         self.end_plot(camp)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"] and not self._got_rumor:
             # This is an NPC in Wujung. Give them some news.
@@ -420,7 +420,7 @@ class RLM_Medic(Plot):
 
         return mylist
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"]:
             # This is an NPC in Wujung. Give them some news.
@@ -485,7 +485,7 @@ class RLM_Mercenary(Plot):
 
         return mylist
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"]:
             # This is an NPC in Wujung. Give them some news.
@@ -566,7 +566,7 @@ class RLM_Professional(Plot):
 
         return mylist
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"]:
             # This is an NPC in Wujung. Give them some news.
@@ -649,7 +649,7 @@ class RLM_RatherGeneric(Plot):
 
         return mylist
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"]:
             mygram["[News]"] = ["{} is looking for a new lance to join".format(self.elements["NPC"]), ]
@@ -738,7 +738,7 @@ class RLM_DamagedGoodsSale(Plot):
 
         return mylist
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"]:
             mygram["[News]"] = ["{NPC} is a down on {NPC.gender.possessive_determiner} luck cavalier looking for another chance".format(**self.elements), ]

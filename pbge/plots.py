@@ -1,8 +1,11 @@
 import random
+from . import dialogue
+
 
 class PlotError( Exception ):
     """Plot init will call this if initialization impossible."""
     pass
+
 
 class Adventure(object):
     """ An adventure links a group of plots together."""
@@ -21,6 +24,7 @@ class Adventure(object):
         camp.check_trigger("END",self)
     def __str__(self):
         return self.name
+
 
 class PlotState( object ):
     """For passing state information to subplots."""
@@ -46,6 +50,85 @@ class PlotState( object ):
         return self
 
 
+class Memo(object):
+    def __init__(self, text, location=None):
+        self._text = text
+        self._location = location
+
+    def __str__(self):
+        if not self._location:
+            return self._text
+        if hasattr(self._location, 'get_root_scene'):
+            root = self._location.get_root_scene()
+            if root is not self._location:
+                loc = "{} at {}".format(self._location, root)
+            else:
+                loc = str(self._location)
+        else:
+            loc = str(self._location)
+        return "{}\n\nLocation: {}".format(self._text, loc)
+
+
+class RumorMemoEffect(object):
+    def __init__(self, memo, plot):
+        self.memo = memo
+        self.plot = plot
+
+    def __call__(self, camp):
+        self.plot.memo = self.memo
+        self.plot._rumor_memo_delivered = True
+
+
+class Rumor( object ):
+    """A grammar item that comes with an info offer that can set a memo."""
+    def __init__(self, rumor="", grammar_tag="[News]", offer_context=dialogue.INFO,
+                 offer_msg="", offer_subject="{NPC}", offer_subject_data="{NPC}", memo="",
+                 memo_location="NPC_SCENE", prohibited_npcs=()):
+        self.rumor = rumor
+        self.grammar_tag = grammar_tag
+        self.offer_msg = offer_msg
+        self.offer_context = dialogue.ContextTag([offer_context,])
+        self.offer_subject = offer_subject
+        self.offer_subject_data = offer_subject_data
+        self.memo = memo
+        self.memo_location = memo_location
+        self.prohibited_npcs = prohibited_npcs
+
+    def get_rumor_grammar(self, npc, camp, plot):
+        mygram = dict()
+        if self.npc_is_ok(npc, plot) and not plot._rumor_memo_delivered:
+            mygram[self.grammar_tag] = [self.rumor.format(**plot.elements),]
+        return mygram
+
+    def get_rumor_offers(self, npc, camp, plot):
+        myoffers = list()
+        if self.npc_is_ok(npc,plot) and not plot._rumor_memo_delivered:
+            myoffers.append( dialogue.Offer(
+                self.offer_msg.format(**plot.elements),
+                context=self.offer_context,
+                effect=RumorMemoEffect(Memo(self.memo.format(**plot.elements), plot.elements.get(self.memo_location)), plot),
+                subject=self.offer_subject.format(**plot.elements), no_repeats=True,
+                data={"subject": self.offer_subject_data.format(**plot.elements)}
+            ))
+        return myoffers
+
+    def npc_is_ok(self, npc, plot):
+        # Return True if this NPC can tell this rumor.
+        for ename in self.prohibited_npcs:
+            if plot.elements.get(ename, None) is npc:
+                return False
+        return True
+
+    def disable_rumor(self, plot):
+        plot._rumor_memo_delivered = True
+
+
+class TimeExpiration(object):
+    def __init__(self, camp, time_limit=10):
+        self.time_limit = camp.day + time_limit
+
+    def __call__(self, camp, plot):
+        return camp.day > self.time_limit
 
 
 class Plot( object ):
@@ -69,6 +152,13 @@ class Plot( object ):
     # gets built and its scripts will never be called.
     # Also note that self.active must be True for scripts to be triggered.
     scope = None
+
+    RUMOR = None
+
+    # expiration, if it exists, is a callable with signature (camp, plot) that returns True if this plot should
+    # be ended.
+    expiration = None
+
     def __init__( self, nart, pstate ):
         """Initialize + install this plot, or raise PlotError"""
         # nart = The Narrative object
@@ -98,6 +188,9 @@ class Plot( object ):
 
         # The call_on_end list contains functions that should be called when this plot ends.
         self.call_on_end = list()
+
+        # Record the rumor status
+        self._rumor_memo_delivered = False
 
         # Do the custom initialization
         allok = self.custom_init( nart )
@@ -231,7 +324,7 @@ class Plot( object ):
         return True
 
     def remove( self, nart=None ):
-        """Remove this plot, including subplots and new elements, from campaign."""
+        """Remove this plot, including subplots and new elements, from narrative request."""
         # First, remove all subplots.
         for sp in self.subplots.values():
             sp.remove( nart )
@@ -311,6 +404,8 @@ class Plot( object ):
             ogen = getattr( self, "{0}_offers".format(i), None )
             if ogen:
                 ofrz += ogen( camp )
+        if self.RUMOR:
+            ofrz += self.RUMOR.get_rumor_offers(npc, camp, self)
         return ofrz
 
     def modify_puzzle_menu( self, camp, thing, thingmenu ):
@@ -328,10 +423,22 @@ class Plot( object ):
         """Get any offers that could apply to non-element NPCs."""
         return list()
 
-    def get_dialogue_grammar( self, npc, camp ):
+    def get_dialogue_grammar(self, npc, camp):
         """Return any grammar rules appropriate to this situation."""
-        return None
+        # The public face of this method- will gather grammar from the rumor and custom function. Maybe even other
+        # places! I dunno...
+        mygram = dict()
+        if self.RUMOR:
+            rgram = self.RUMOR.get_rumor_grammar(npc, camp, self)
+            mygram.update(rgram)
+        ogram = self._get_dialogue_grammar(npc, camp)
+        if ogram:
+            mygram.update(ogram)
+        return mygram
 
+    def _get_dialogue_grammar(self, npc, camp):
+        # The secret private function that returns custom grammar.
+        return None
 
     @classmethod
     def matches( self, pstate ):
@@ -369,6 +476,17 @@ class Plot( object ):
             coef(camp)
 
         camp.check_trigger( 'UPDATE' )
+
+    def update(self, camp):
+        if self.expiration and self.expiration(camp, self):
+            self.end_plot(camp)
+
+    def __setstate__(self, state):
+        # For saves from V0.800 or earlier, make sure there's a _rumor_memo_delivered var.
+        self.__dict__.update(state)
+        if "_rumor_memo_delivered" not in state:
+            self._rumor_memo_delivered = False
+
 
 class NarrativeRequest( object ):
     """The builder class which constructs a story out of individual plots."""
@@ -432,6 +550,7 @@ class NarrativeRequest( object ):
         for g in self.generators:
             g.make()
         self.story.install( self )
+
 
 
 

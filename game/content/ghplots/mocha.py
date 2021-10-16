@@ -423,7 +423,7 @@ class FrozenHotSpringCity(Plot):
         self.mission_started = True
         self.subplots["COMBAT"].enter_combat(camp)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         if npc is self.elements["VIKKI"]:
             # Return the IP_ grammar.
             mygram = dict()
@@ -763,7 +763,7 @@ class WinterMochaHyolee(Plot):
         self.asked_join = False
         return True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         if npc is self.elements["HYOLEE"]:
             # Return the IP_ grammar.
             mygram = dict()
@@ -819,7 +819,7 @@ class WinterMochaCarter(Plot):
         self.register_element("CARTER", carter, dident="FENCE_GATE_ROOM")
         return True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         if npc is self.elements["CARTER"]:
             # Return the IP_ grammar.
             mygram = dict()

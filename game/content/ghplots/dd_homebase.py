@@ -143,7 +143,7 @@ class DZD_Wujung(Plot):
                 goffs.append(inf.build_offer())
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         # This is an NPC in Wujung. Give them some news.
         mygram["[News]"] = ["Wujung is still repairing the damage Typhon caused", ]
@@ -387,7 +387,7 @@ class WujungGarrison(Plot):
 
         return mylist
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc in self.npcs:
             mygram["[CURRENT_EVENTS]"] = [
@@ -670,7 +670,7 @@ class DZD_BronzeHorseInn(Plot):
         if self.mission_seed and self.mission_seed.ended:
             self.mission_seed = None
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["LOCALE"]:
             # This is an NPC in Wujung. Give them some news.
@@ -959,7 +959,7 @@ class DZD_BlueFortressHQ(Plot):
             for sk in (gears.stats.MechaGunnery, gears.stats.MechaFighting, gears.stats.MechaPiloting):
                 camp.dole_xp(150, sk)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         mynpc = self.elements["VIKKI"]
         if npc is not mynpc and not self.got_tutorial:

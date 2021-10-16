@@ -117,7 +117,7 @@ class DZDREProppStarterPlot(DZDREBasicPlotWithEncounterStuff):
 class BanditsPalooza(DZDREProppStarterPlot):
     LABEL = "DZD_ROADEDGE_YELLOW"
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         myscene = camp.scene.get_root_scene()
         if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:
@@ -138,6 +138,7 @@ class BlackMarketBluesStarter(DZDREBasicPlotWithEncounterStuff):
     def custom_init(self, nart):
         super().custom_init(nart)
         myedge = self.elements["DZ_EDGE"]
+        self.register_element("FACTION", self.get_enemy_faction(nart))
         self.add_sub_plot(nart, "DZRE_BLACKMARKETBLUES", ident="MISSION", spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
         return True
 
@@ -146,7 +147,7 @@ class BlackMarketBluesStarter(DZDREBasicPlotWithEncounterStuff):
         base_faction = random.choice(self.GOOD_ENEMIES)
         return gears.factions.Circle(nart.camp,base_faction,enemies=(myedge.start_node.destination.faction,))
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         myscene = camp.scene.get_root_scene()
         if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:
@@ -209,7 +210,7 @@ class TheMechaGraveyard(DZDREBasicPlotWithEncounterStuff):
         self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE
         self.road_cleared = True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         myscene = camp.scene.get_root_scene()
         if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:
@@ -241,7 +242,7 @@ class InvadersPalooza(DZDREProppStarterPlot):
         base_faction = random.choice(self.GOOD_INVADERS)
         return gears.factions.Circle(nart.camp,base_faction,enemies=(myedge.start_node.destination.faction,))
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         myscene = camp.scene.get_root_scene()
         if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:
@@ -275,7 +276,7 @@ class UpgradedInvadersPalooza(DZDREProppStarterPlot):
         base_faction = random.choice(self.GOOD_INVADERS)
         return gears.factions.Circle(nart.camp,base_faction,enemies=(myedge.start_node.destination.faction,))
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         myscene = camp.scene.get_root_scene()
         if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:

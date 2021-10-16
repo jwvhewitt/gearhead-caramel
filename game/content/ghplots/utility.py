@@ -402,7 +402,7 @@ class QualityOfLifeReporter(Plot):
     active = True
     scope = "METRO"
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
         mygram["[metroscene]"].append(str(self.elements["METROSCENE"]))
@@ -448,7 +448,7 @@ class EverybodyKnows( Plot ):
     LABEL = "REVEAL_LOCATION"
     active = True
     scope = "METRO"
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         mygram["[News]"] = ["there's something unusual at {LOCALE}".format(**self.elements)]
         return mygram
@@ -490,7 +490,7 @@ class TruckerKnowledge( Plot ):
                 gears.tags.SCENE_TRANSPORT in candidate.attributes)
     def _is_good_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements["NPC"] and not self.got_rumor:
             mygram["[News]"] = ["{NPC} saw something unusual outside of town".format(**self.elements)]

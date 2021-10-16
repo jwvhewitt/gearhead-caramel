@@ -406,7 +406,7 @@ class Hellsteader(Plot):
 
         return myoffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements["NPC"] and npc not in camp.party and not self.got_memo:
             # This is an NPC in Wujung. Give them some news.

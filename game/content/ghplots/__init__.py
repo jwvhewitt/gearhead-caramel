@@ -26,6 +26,7 @@ from . import mission_stubs
 from . import mission_teamups
 from . import mocha
 from . import peopleplots
+from . import randomplots
 from . import recovery
 from . import romance
 from . import rwme_default
@@ -79,6 +80,7 @@ harvest(mission_stubs)
 harvest(mission_teamups)
 harvest(mocha)
 harvest(peopleplots)
+harvest(randomplots)
 harvest(recovery)
 harvest(romance)
 harvest(rwme_default)

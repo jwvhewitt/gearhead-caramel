@@ -254,7 +254,7 @@ class DZREPR_NPCMission(DZREPR_BaseMission):
                             no_repeats=True
                             ))
         return mylist
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if npc is not self.elements["NPC"] and not self.got_rumor:
             mygram["[News]"].append(self.DEFAULT_NEWS.format(**self.elements))
@@ -379,7 +379,7 @@ class DZREPR_LookForTrouble(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not npc.combatant and not self.mission_active:
             mygram["[News]"].append("maybe a pilot would know how to find {}.".format(self.elements["FACTION"]))
@@ -435,7 +435,7 @@ class DZREPR_HighwayPatrol(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if gears.tags.Politician not in npc.get_tags() and not self.mission_active:
             mygram["[News]"].append("the people in charge know more about {} than they're letting on.".format(self.elements["FACTION"]))
@@ -467,7 +467,7 @@ class DZREPR_SeeWhatTheyreMadeOf(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not self.mission_active and npc not in camp.party and not camp.are_faction_allies(npc,self.elements["FACTION"]):
             if npc.combatant:
@@ -614,7 +614,7 @@ class DZREPR_ThoseAreNotBandits(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if npc.combatant and not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("{FACTION} aren't acting like regular bandits".format(**self.elements))
@@ -687,7 +687,7 @@ class DZREPR_TheyHaveUsSurrounded(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not npc.combatant and not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("people are starting to get nervous about {FACTION}".format(**self.elements))
@@ -763,7 +763,7 @@ class DZREPR_JustThwackThem(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("someone should just go and fight {FACTION}".format(**self.elements))
@@ -818,7 +818,7 @@ class DZREPR_BanditAbductions(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not npc.combatant and not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("{FACTION} has been abducting travelers coming into or leaving {METROSCENE}".format(**self.elements))
@@ -912,7 +912,7 @@ class DZREPR_JustifiedParanoia(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not npc.combatant and not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("{FACTION} has been doing some weird stuff near {METROSCENE}".format(**self.elements))
@@ -1008,7 +1008,7 @@ class DZREPR_AngryAtSponsorship(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not npc.combatant and not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("{FACTION} have been acting like they own {METROSCENE}".format(**self.elements))
@@ -1082,7 +1082,7 @@ class DZREPR_FOTIBountyHunt(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not npc.combatant and not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("nobody knows what {FACTION} has in store for {METROSCENE}".format(**self.elements))
@@ -1261,7 +1261,7 @@ class DZREPR_SleepingGiant(DZREPR_BaseMission):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not npc.combatant and not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("they say {FACTION} has been searching the {METROSCENE} undercity".format(**self.elements))
@@ -1299,7 +1299,7 @@ class DZREPRC_CallOutBattle(DZREPRC_ConclusionTemplate):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("{FACTION} have challenged you to one final battle".format(**self.elements))
@@ -1332,7 +1332,7 @@ class DZREPC_CallOutChampionFight(DZREPRC_ConclusionTemplate):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if not self.mission_active and npc not in camp.party:
             mygram["[News]"].append("{FACTION} have challenged you to one final duel".format(**self.elements))
@@ -1386,7 +1386,7 @@ class DZREPRC_RazeTheFortress(DZREPRC_ConclusionTemplate):
                             no_repeats=True
                             ))
         return mylist
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if npc is not self.elements["NPC"] and not self.mission_active:
             mygram["[News]"].append("{NPC} at {NPC_SCENE} has been looking for you".format(**self.elements))
@@ -1410,7 +1410,7 @@ class DZREPR_PrettyStandardBandits(DZREPR_BasePlot):
 
     STARTING_MOTIVE = DZRE_MOTIVE_PROFIT
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if npc not in camp.party and not self.start_missions:
             mygram["[News]"].append("{FACTION} have been robbing travelers from {METROSCENE}".format(**self.elements))
@@ -1439,7 +1439,7 @@ class DZREPR_HiddenBandits(DZREPR_BasePlot):
 
     STARTING_ACE = DZRE_ACE_HIDDENBASE
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if npc not in camp.party and not self.start_missions:
             mygram["[News]"].append("nobody knows much about {FACTION}, except that they can seemingly strike from nowhere ".format(**self.elements))
@@ -1469,7 +1469,7 @@ class DZREPR_ToleratedBandits(DZREPR_BasePlot):
 
     STARTING_MOTIVE = DZRE_MOTIVE_PROFIT
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if npc not in camp.party and not self.start_missions:
             mygram["[News]"].append("{} have been raiding convoys between here and {}".format(self.elements["FACTION"],self.elements["DZ_EDGE"].get_city_link(self.elements["METROSCENE"])))
@@ -1500,7 +1500,7 @@ class DZREPR_DislikedBandits(DZREPR_BasePlot):
     STARTING_ACE = DZRE_ACE_UNKNOWN
     STARTING_TOWN = DZRE_TOWN_AGAINST
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if npc not in camp.party and not self.start_missions:
             mygram["[News]"].append("{FACTION} have been causing a lot of problems in {METROSCENE}".format(**self.elements))
@@ -1556,7 +1556,7 @@ class DZREPR_NewBanditsWhoThis(DZREPR_BasePlot):
     def _is_good_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"] and not self.got_rumor:
             mygram["[News]"].append("the trucker {} lost {} convoy on the way into town.".format(self.elements["NPC"],self.elements["NPC"].gender.possessive_determiner))
@@ -1646,7 +1646,7 @@ class DZREPR_PrettyStandardInvaders(DZREPR_BasePlot):
 
     STARTING_MOTIVE = DZRE_MOTIVE_CONQUEST
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if npc not in camp.party and not self.start_missions:
             mygram["[News]"].append("{FACTION} have been trying to establish a stronghold nearby".format(**self.elements))

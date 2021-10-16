@@ -1,3 +1,5 @@
+- Added automatic update and expiration for plots
+- Added automatic rumors/memos for plots
 - You can now edit your PC's name, portrait, and gender from the FieldHQ
 - Gender is now completely customizable
 

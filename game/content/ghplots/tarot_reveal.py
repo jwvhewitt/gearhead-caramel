@@ -70,7 +70,7 @@ class BasicBigScoop(Plot):
         camp.check_trigger("WIN", self)
         self.end_plot(camp)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements[ME_PERSON]:
             # This is an NPC in Wujung. Give them some news.
@@ -154,7 +154,7 @@ class FindAChemist(Plot):
                         )
         self.got_rumor = True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and not self.got_rumor:
             mygram["[News]"] = ["{ME_PERSON} is working on a cure for {ME_PROBLEM}".format(**self.elements), ]
@@ -342,7 +342,7 @@ class ThatEarthIsCursed(Plot):
 
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc not in camp.party:
             mygram["[CURRENT_EVENTS]"] = ["The soil around here is dead.".format(**self.elements), ]
@@ -418,7 +418,7 @@ class MediaDemagogue(Plot):
                         , self.elements["LOCALE"]
                         )
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and npc not in camp.party:
             if gears.personality.Fellowship in npc.personality:
@@ -489,7 +489,7 @@ class DinosaurMission(Plot):
             ))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is self.elements["NPC"]:
             mygram["[CURRENT_EVENTS]"] = ["Please remember that the dinosaurs are not friendly.",
@@ -605,7 +605,7 @@ class PeopleAreSickDuh(Plot):
 
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc not in camp.party:
             mygram["[CURRENT_EVENTS]"] = ["Be careful of {ME_PROBLEM}.".format(**self.elements), ]
@@ -679,7 +679,7 @@ class RecoverTheFarm(Plot):
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements["NPC"] and not self.got_rumor:
             mygram["[News]"] = [
@@ -742,7 +742,7 @@ class WidespreadDisapproval(Plot):
 
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and npc not in camp.party:
             mygram["[CURRENT_EVENTS]"] = ["{ME_PERSON} needs to be stopped.".format(**self.elements), ]
@@ -855,7 +855,7 @@ class SpFa_MilitarySplinter(Plot):
                 subject=str(self.elements[ME_FACTION])))
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc.faction is not self.elements[tarot_cards.ME_FACTION]:
             mygram["[News]"] = ["{ME_FACTION} are fanatical in their defense of {LOCALE}".format(**self.elements), ]
@@ -968,7 +968,7 @@ class HateClub_GenericHaters(Plot):
             self.won = True
             camp.check_trigger("WIN", self)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc.faction is not self.elements[tarot_cards.ME_FACTION] and not self.won:
             mygram["[News]"] = ["{ME_FACTION} are a local hate club".format(**self.elements), ]
@@ -1032,7 +1032,7 @@ class TheAngelInvestor(Plot):
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON]:
             # This is an NPC in Wujung. Give them some news.
@@ -1145,7 +1145,7 @@ class FightThatHenchman(Plot):
         self.got_rumor = True
         camp.check_trigger("WIN", self)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements["NPC"] and not self.got_rumor:
             mygram["[News]"] = ["{NPC} is a bounty hunter who needs a bit of help these days".format(**self.elements), ]
@@ -1210,7 +1210,7 @@ class IkeaForTechnobabble(Plot):
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and npc not in camp.party:
             mygram["[News]"] = ["{ME_PERSON} is working on a solution for {ME_PROBLEM}".format(**self.elements), ]
@@ -1295,7 +1295,7 @@ class FindAnInventor(Plot):
                         )
         self.got_rumor = True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and not self.got_rumor:
             mygram["[News]"] = ["{ME_PERSON} is working on a fix for {ME_PROBLEM}".format(**self.elements), ]
@@ -1356,7 +1356,7 @@ class InvestigativeReporter(Plot):
         camp.check_trigger("WIN", self)
         self.end_plot(camp)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements[ME_PERSON]:
             # This is an NPC in Wujung. Give them some news.
@@ -1433,7 +1433,7 @@ class PrivateInvestigator(Plot):
         camp.check_trigger("WIN", self)
         self.end_plot(camp)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if camp.scene.get_root_scene() is self.elements["METROSCENE"] and npc is not self.elements[ME_PERSON]:
             # This is an NPC in Wujung. Give them some news.
@@ -1492,7 +1492,7 @@ class CorruptOfficial(Plot):
         camp.check_trigger("WIN", self)
         self.got_memo = True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and npc not in camp.party and not self.got_memo:
             mygram["[News]"] = ["{ME_PERSON} always has one hand in the cookie jar".format(**self.elements), ]
@@ -1646,7 +1646,7 @@ class PasswordThroughCombat(Plot):
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements["NPC"] and not self.got_rumor:
             mygram["[News]"] = [
@@ -1735,7 +1735,7 @@ class WitnessToTheCrime(Plot):
                         , self.elements["NPC"].get_scene()
                         )
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and npc is not self.elements["NPC"] and not self.got_rumor:
             mygram["[News]"] = ["{NPC} has been acting nervous lately".format(**self.elements), ]
@@ -1804,7 +1804,7 @@ class UnemployedQuitter(Plot):
         camp.check_trigger("WIN", self)
         self.got_rumor = True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and not self.got_rumor:
             # This is an NPC in Wujung. Give them some news.
@@ -1951,7 +1951,7 @@ class BasicRobberBaron(Plot):
         )
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements["ME_PERSON"] and not self.got_rumor:
             mygram["[News]"] = ["{ME_PERSON} basically owns this town".format(**self.elements), ]
@@ -2061,7 +2061,7 @@ class GuardTheShipment(Plot):
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements["NPC"] and not self.got_rumor:
             mygram["[News]"] = [
@@ -2135,7 +2135,7 @@ class PeopleAreHungry(Plot):
 
         return goffs
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc not in camp.party:
             mygram["[CURRENT_EVENTS]"] = ["When are the shortages going to end?".format(**self.elements), ]
@@ -2212,7 +2212,7 @@ class ReporterLookingForStory(Plot):
     def _reveal(self, camp):
         camp.check_trigger("WIN", self)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and not self.got_rumor:
             # This is an NPC in Wujung. Give them some news.
@@ -2291,7 +2291,7 @@ class TeknoChangeo(Plot):
         self.won_subplot = True
         self.got_rumor = True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and not self.got_rumor:
             # This is an NPC in Wujung. Give them some news.
@@ -2369,7 +2369,7 @@ class UnemployedReporter(Plot):
                         , self.elements["LOCALE"]
                         )
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is not self.elements[ME_PERSON] and not self.got_rumor:
             # This is an NPC in Wujung. Give them some news.
@@ -2443,7 +2443,7 @@ class LunarRefugeeLost(Plot):
     def _is_best_scene(self, nart, candidate):
         return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = collections.defaultdict(list)
         if camp.scene.get_root_scene() is self.elements["LOCALE"] and npc is not self.elements[
             "NPC"] and not self.got_rumor:

@@ -1,10 +1,11 @@
+import pbge
 
 # Constants for dialogue contexts.
 
 HELLO = "HELLO"                 # HELLO = NPC says hello. Usually the first offer in a peaceful conversation.
 ASK_FOR_ITEM = "ASK_FOR_ITEM"   # ASK_FOR_ITEM: The NPC gives the PC an item, or at least replies to the request.
                                 #       The data property should contain "item"
-INFO = "INFO"                   # INFO: The NPC gives the PC some information.
+INFO = pbge.dialogue.INFO       # INFO: The NPC gives the PC some information.
                                 #       The data property should contain "subject"
 SELFINTRO = "SELFINTRO"         # The NPC will tell the PC about themself; mostly for lancemate intros.
 REVEAL = "REVEAL"               # The NPC receives information from the PC.

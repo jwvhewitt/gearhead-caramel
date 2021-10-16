@@ -4,6 +4,11 @@ from . import grammar
 from .. import my_state,default_border,frects,draw_text,rpgmenu
 import random
 
+# Basic context tags.
+
+INFO = "INFO"                   # INFO: The NPC gives the PC some information.
+                                #       The data property should contain "subject"
+
 
 # Configuration constants- fill out these lists with game-specific stuff.
 

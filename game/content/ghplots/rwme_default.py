@@ -58,8 +58,7 @@ class DefaultRandomWorldMapEncounter(Plot):
 
     def generate_world_map_encounter(self, camp, metroscene, return_wp, dest_scene, dest_wp,
                                      scenegen=gharchitecture.DeadZoneHighwaySceneGen,
-                                     architecture=gharchitecture.MechaScaleSemiDeadzone,
-                                     environment=gears.tags.GroundEnv, **kwargs):
+                                     architecture=gharchitecture.MechaScaleSemiDeadzone, **kwargs):
         myanchor = kwargs.get("entrance_anchor", None)
         if not myanchor:
             myanchor = pbge.randmaps.anchors.east
@@ -72,7 +71,6 @@ class DefaultRandomWorldMapEncounter(Plot):
             custom_elements={"ADVENTURE_GOAL": dest_wp, "ENTRANCE_ANCHOR": myanchor},
             scenegen=scenegen,
             architecture=architecture(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
-            environment=environment,
             cash_reward=self.ENCOUNTER_CASH_REWARD, salvage_reward=self.ENCOUNTER_SALVAGE_REWARD,
         )
         return myadv

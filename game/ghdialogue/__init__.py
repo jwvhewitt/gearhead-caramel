@@ -48,7 +48,7 @@ def build_grammar( mygram, camp: gears.GearHeadCampaign, speaker, audience ):
 
     trait_absorb(mygram,ghgrammar.DEFAULT_GRAMMAR,tags)
     for p in camp.active_plots():
-        pgram = p.get_dialogue_grammar( speaker, camp )
+        pgram = p.get_dialogue_grammar(speaker, camp)
         if pgram:
             mygram.absorb( pgram )
     if speaker.relationship and audience is camp.pc:

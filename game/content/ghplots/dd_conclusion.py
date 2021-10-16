@@ -185,7 +185,7 @@ class VictoryParty(Plot):
         pbge.alert("As you finish your speech, {} rushes over and pulls you aside.".format(self.elements["DZ_CONTACT"]))
         self._end_the_party(camp)
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc is camp.pc:
             mygram = {

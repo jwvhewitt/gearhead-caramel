@@ -108,7 +108,7 @@ class RanMagnusMechaFactory(Plot):
         ))
         camp.campdata["CD_SPOKE_TO_RAN"] = True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         mygram["[_MAGNUS_SPIEL]"] = [
             "This factory is where the magic happens.",

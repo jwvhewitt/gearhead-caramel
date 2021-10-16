@@ -117,6 +117,7 @@ class Campaign( object ):
 
     def play( self ):
         while self.keep_playing_campaign() and not my_state.got_quit:
+            self._update_plots()
             exp = self.explo_class( self )
             exp.go()
             if self._destination:
@@ -130,6 +131,12 @@ class Campaign( object ):
                 self.remove_party_from_scene()
                 self.go(self.home_base)
                 self._really_go()
+
+    def _update_plots(self):
+        # Perform maintenance on all plots. This happens in between scenes, so don't do anything screwy during
+        # the update. Mostly this is for removing expired plots from the campaign.
+        for p in self.all_plots():
+            p.update(self)
 
     def dump_info( self ):
         # Print info on all scenes in this world.

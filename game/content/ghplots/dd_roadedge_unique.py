@@ -79,7 +79,7 @@ class KerberosEncounterPlot(DZDREBasicPlotWithEncounterStuff):
         self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE
         self.road_cleared = True
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         myscene = camp.scene.get_root_scene()
         if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared:

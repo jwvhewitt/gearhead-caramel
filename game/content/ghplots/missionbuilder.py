@@ -291,7 +291,7 @@ class BuildAMissionPlot(Plot):
             for o in self.adv.objectives:
                 o.reset_objective()
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         return self.adv.mission_grammar.copy()
 
 

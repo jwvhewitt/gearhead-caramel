@@ -188,3 +188,33 @@ class MetrosceneWMEDefenseHandler(Plot):
             myadv.priority = 50
             myadv.mandatory = True
             return myadv
+
+
+class MetrosceneRandomPlotHandler(Plot):
+    # Keep this metro area stocked with random plots.
+    LABEL = "CF_METROSCENE_RANDOM_PLOT_HANDLER"
+    active = True
+    scope = "METRO"
+
+    MAX_PLOTS = 5
+    SUBPLOT_LABEL = "RANDOM_PLOT"
+
+    def custom_init( self, nart ):
+        self.adv = pbge.plots.Adventure(name="Plot Handler")
+        return True
+
+    def t_START(self, camp):
+        while self.should_load_plot(camp):
+            game.content.load_dynamic_plot(
+                camp, self.SUBPLOT_LABEL, pstate=PlotState(
+                    rank=self.calc_rank(camp)
+                ).based_on(self)
+            )
+
+    def should_load_plot(self, camp):
+        mymetro: gears.MetroData = self.elements["METRO"]
+        return len([p for p in mymetro.scripts if p.LABEL == self.SUBPLOT_LABEL]) < self.MAX_PLOTS
+
+    def calc_rank(self, camp: gears.GearHeadCampaign):
+        return camp.renown
+

@@ -827,7 +827,7 @@ class SynthCave(Plot):
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if not self.dungeon_unlocked:
             mygram["[News]"] = ["{} is full of biomonsters and mutants".format(self.area_name,), ]
@@ -923,7 +923,7 @@ class TreasureCave(Plot):
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if not self.dungeon_unlocked:
             mygram["[News]"] = ["there is hidden bandit treasure in {}".format(self.area_name,), ]
@@ -1025,7 +1025,7 @@ class DZRS_LostForager(Plot):
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
 
-    def get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         if npc not in self.npcs and not self.got_rumor and not self.dungeon_unlocked:
             mygram["[News]"] = ["{} hasn't returned from {}".format(self.elements["NPC"], self.area_name),]
