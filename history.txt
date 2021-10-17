@@ -1,3 +1,4 @@
+- Fixed bug in which GearHeadCampaign all_plots method did not return metro plots
 - Added automatic update and expiration for plots
 - Added automatic rumors/memos for plots
 - You can now edit your PC's name, portrait, and gender from the FieldHQ

@@ -102,7 +102,7 @@ class Rumor( object ):
 
     def get_rumor_offers(self, npc, camp, plot):
         myoffers = list()
-        if self.npc_is_ok(npc,plot) and not plot._rumor_memo_delivered:
+        if self.npc_is_ok(npc,plot) and self.offer_msg and not plot._rumor_memo_delivered:
             myoffers.append( dialogue.Offer(
                 self.offer_msg.format(**plot.elements),
                 context=self.offer_context,
@@ -128,6 +128,7 @@ class TimeExpiration(object):
         self.time_limit = camp.day + time_limit
 
     def __call__(self, camp, plot):
+        print("Checking time...")
         return camp.day > self.time_limit
 
 

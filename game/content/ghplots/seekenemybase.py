@@ -94,7 +94,6 @@ class BasicCombatBaseSearch(Plot):
     def custom_init( self, nart ):
         npc = self.seek_element(nart, "NPC", self.is_good_npc, scope=self.elements["METROSCENE"])
         self.elements["NPC_SCENE"] = npc.scene
-        print(npc.scene)
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             nart.camp, "Fight {}".format(self.elements["ENEMY_FACTION"]),

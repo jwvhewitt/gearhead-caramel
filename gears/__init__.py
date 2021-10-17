@@ -416,6 +416,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if hasattr(ob,"scripts"):
                 for p in ob.scripts:
                     yield p
+            if hasattr(ob, "metrodat"):
+                for p in ob.metrodat.scripts:
+                    yield p
 
     def active_tarot_cards(self):
         for p in self.active_plots():
