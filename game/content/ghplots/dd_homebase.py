@@ -97,8 +97,7 @@ class DZD_Wujung(Plot):
         # Add the features
         self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
         self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")
-
-        self.add_sub_plot(nart, "RANDOM_PLOT")
+        self.add_sub_plot(nart, "CF_METROSCENE_RANDOM_PLOT_HANDLER")
 
         # Local info counters.
         self.local_info = (

@@ -205,11 +205,14 @@ class MetrosceneRandomPlotHandler(Plot):
 
     def t_START(self, camp):
         while self.should_load_plot(camp):
-            game.content.load_dynamic_plot(
+            myplot = game.content.load_dynamic_plot(
                 camp, self.SUBPLOT_LABEL, pstate=PlotState(
                     rank=self.calc_rank(camp)
                 ).based_on(self)
             )
+            if not myplot:
+                print("Warning: No plot found for {}".format(self.SUBPLOT_LABEL))
+                break
 
     def should_load_plot(self, camp):
         mymetro: gears.MetroData = self.elements["METRO"]

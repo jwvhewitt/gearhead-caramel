@@ -29,6 +29,10 @@ ATTACK_WITHDRAW = Reply( "[ATTACK:WITHDRAW]" ,
             destination = Cue( ContextTag([context.WITHDRAW]) ) ,
             context = ContextTag([context.ATTACK]) )
 
+BADHELLO_BADCUSTOM = Reply( "{reply}" ,
+            destination = Cue( ContextTag([context.UNFAVORABLE_CUSTOM]) ) ,
+            context = ContextTag([context.UNFAVORABLE_HELLO]) )
+
 BADHELLO_REVEAL = Reply( "[HELLO:REVEAL]" ,
             destination = Cue( ContextTag([context.REVEAL]) ) ,
             context = ContextTag([context.UNFAVORABLE_HELLO]) )

@@ -105,6 +105,21 @@ def harvest_styles(mod):
 
 harvest_styles(colorstyle)
 
+class TimeOrNPCExpiration(object):
+    def __init__(self, camp, time_limit=10, npcs=()):
+        self.time_limit = camp.day + time_limit
+        self.npcs = npcs
+
+    def __call__(self, camp, plot):
+        allok = True
+        for npcid in self.npcs:
+            npc = plot.elements.get(npcid)
+            if not npc or npc.is_destroyed():
+                allok = False
+                break
+        return allok and camp.day > self.time_limit
+
+
 class QualityOfLife(object):
     # A measurement of a community's quality of life. I'll have you know I was up all night reading Wikipedia
     # articles to come up with these QOL measures. Positive = good, negative = bad.

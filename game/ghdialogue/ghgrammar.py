@@ -965,6 +965,28 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[FACTION_DEFEATED_ME]": {
+        # data must contain "faction" element
+        Default: ["Earlier, I was defeated by {faction} in combat.",
+                  ],
+        personality.Cheerful: ["I had a bad time fighting {faction} earlier...",
+                               ],
+        personality.Grim: ["I was fighting {faction}, and they nearly killed me.",
+                           ],
+        personality.Easygoing: ["Meh, I lost a battle to {faction}.",
+                                ],
+        personality.Passionate: ["I got my arse handed to me by {faction}!",
+                                 ],
+        personality.Sociable: ["I was running a routine mission against {faction}, but they've gotten far more powerful than I expected.",
+                               ],
+        personality.Shy: ["{faction} defeated me.",
+                          ],
+        personality.Duty: ["I failed in my duty to defeat {faction}.",
+                           ],
+        personality.Glory: ["I hate to admit it, but {faction} beat me in combat.",
+                            ],
+    },
+
     "[FACTION_MUST_BE_PUNISHED]": {
         # data must contain "faction" element
         Default: ["{faction} must be punished!",
@@ -2028,6 +2050,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Alright, that sounds like a good idea.",
                                ],
         personality.Shy: ["Okay.",
+                          ],
+    },
+
+    "[I_WOULD_NOT_HAVE_LOST]": {
+        # Taunting the other person about losing a mission or somesuch.
+        Default: ["I wouldn't have lost."
+                  ],
+        personality.Cheerful: ["Ha! There's no way I would have gotten my arse kicked as badly as you.",
+                               ],
+        personality.Grim: ["That's what you deserve for overestimating your skill. I would not have made that mistake.",
+                           ],
+        personality.Easygoing: ["Sounds like someone is still butthurt over getting their arse kicked."
+                                ],
+        personality.Passionate: ["Accept your loss with dignity. I could have succeeded, where you have only failed."
+                                 ],
+        personality.Sociable: ["Based on what I've heard, I'm not surprised you lost. I would have done much better.",
+                               ],
+        personality.Shy: ["You lost. I wouldn't have.",
                           ],
     },
 
@@ -3811,6 +3851,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Sorry to say that I'm not in the mood for visitors right now.",
                                ],
         personality.Shy: ["An intruder!",
+                          ],
+    },
+
+    "[WILL_YOU_AVENGE_ME]": {
+        # The NPC will ask the PC to avenge something. Probably not their death, since they're still talking.
+        Default: ["Will you avenge me?"
+                  ],
+        personality.Cheerful: ["It'd really cheer me up if you could go avenge me."
+                               ],
+        personality.Grim: ["I have failed, but you can make sure this tragedy does not go unavenged!",
+                           ],
+        personality.Easygoing: ["I don't suppose you'd be able to go avenge this mess?",
+                                ],
+        personality.Passionate: ["And now, only you are capable of avenging me!",
+                                 ],
+        personality.Sociable: ["This is an insult that must not go unpunished; will you take up the cause and avenge me?",
+                               ],
+        personality.Shy: ["Please avenge me.",
                           ],
     },
 

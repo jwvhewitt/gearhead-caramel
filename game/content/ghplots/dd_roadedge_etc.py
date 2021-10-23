@@ -27,7 +27,6 @@ class BlackMarketBluesMain(Plot):
     scope = "METRO"
 
     def custom_init( self, nart ):
-
         self.add_sub_plot(
             nart, "SEEK_ENEMY_BASE", ident="MISSION",
             elements={"ENEMY_FACTION": self.elements["FACTION"], "ENEMY_BASE_NAME": "the Raider Base"}
@@ -37,7 +36,9 @@ class BlackMarketBluesMain(Plot):
         return True
 
     def MISSION_WIN(self, camp):
-        self.black_market_found = True
+        if not self.black_market_found:
+            pbge.alert("Black market found.")
+            self.black_market_found = True
 
 
 

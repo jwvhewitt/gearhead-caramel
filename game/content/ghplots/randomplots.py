@@ -15,7 +15,7 @@ from game.content import adventureseed
 from . import missionbuilder, rwme_objectives, campfeatures
 
 class DaveHasAPlot(Plot):
-    LABEL = "RANDOM_PLOT"
+    LABEL = "zRANDOM_PLOT"
     active = True
     scope = "METRO"
 

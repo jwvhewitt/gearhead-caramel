@@ -31,6 +31,8 @@ LEAVEPARTY = "LEAVEPARTY"       # The NPC will leave the party
 PERSONAL = "PERSONAL"           # The NPC gives some personal information
 
 UNFAVORABLE_HELLO = "UNFAVORABLE_HELLO"     # The greeting from an NPC who is unfavorable.
+UNFAVORABLE_CUSTOM = "UNFAVORABLE_HELLO"    # As Custom above, but only used when NPC is unfavorable to PC
+                                            # The data property should contain "reply", which is the PC's line
 
 ATTACK  = "ATTACK"              # The greeting from a hostile NPC
 CHALLENGE = "CHALLENGE"         # The reply from a hostile (or now hostile) NPC when challenged by the PC

@@ -45,6 +45,7 @@ class SeekEnemyBaseMain(campfeatures.MetrosceneRandomPlotHandler):
         if ok:
             self.mission_patience = random.randint(1,2)
             self.rank_modifier = 0
+            self.ran_out_of_patience = False
             self.elements["WIN_FUN"] = self.locate_the_base
             self.elements["SEMIWIN_FUN"] = self.win_a_mission
         return ok
@@ -56,10 +57,11 @@ class SeekEnemyBaseMain(campfeatures.MetrosceneRandomPlotHandler):
     def win_a_mission(self, camp):
         self.rank_modifier += random.randint(1, 3)
         self.mission_patience -= 1
-        if self.active and self.mission_patience < 1:
+        if self.active and self.mission_patience < 1 and not self.ran_out_of_patience:
             self.subplots["MISSION"] = game.content.load_dynamic_plot(
                 camp, AUTOFIND_ENEMY_BASE_MISSION, PlotState(rank=self.rank + self.rank_modifier).based_on(self)
             )
+            self.ran_out_of_patience = True
 
     def _get_dialogue_grammar(self, npc: gears.base.Character, camp):
         mygram = dict()
@@ -92,31 +94,83 @@ class BasicCombatBaseSearch(Plot):
     )
 
     def custom_init( self, nart ):
-        npc = self.seek_element(nart, "NPC", self.is_good_npc, scope=self.elements["METROSCENE"])
+        npc = self.seek_element(nart, "NPC", self.is_good_npc, scope=self.elements["METROSCENE"], lock=True)
         self.elements["NPC_SCENE"] = npc.scene
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
         self.mission_seed = missionbuilder.BuildAMissionSeed(
-            nart.camp, "Fight {}".format(self.elements["ENEMY_FACTION"]),
+            nart.camp, "Avenge {}".format(self.elements["NPC"]),
             self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             self.elements["ENEMY_FACTION"], npc.faction, self.rank,
             objectives=(missionbuilder.BAMO_LOCATE_ENEMY_FORCES,),
             scenegen=sgen, architecture=archi, on_win=self.elements["SEMIWIN_FUN"],
+            custom_elements={"FIND_BASE_FUN": self.elements["WIN_FUN"]}
         )
         self.mission_active = False
+        self.expiration = gears.TimeOrNPCExpiration(nart.camp, npcs=("NPC",))
         return True
 
     def is_good_npc(self, nart, candidate):
         return (
             isinstance(candidate, gears.base.Character) and candidate.combatant and
+            candidate not in nart.camp.party and
             not nart.camp.are_faction_allies(candidate, self.elements["ENEMY_FACTION"])
         )
 
     def NPC_offers(self, camp):
         mylist = list()
         if not self.mission_active:
-            pass
+            mylist.append(Offer(
+                "[HELLO] [FACTION_MUST_BE_PUNISHED]",
+                ContextTag([context.HELLO,]), data={"faction": str(self.elements["ENEMY_FACTION"])}
+            ))
+
+            mylist.append(Offer(
+                "[FACTION_DEFEATED_ME] [WILL_YOU_AVENGE_ME]",
+                ContextTag([context.MISSION, ]), data={"faction": str(self.elements["ENEMY_FACTION"])}
+            ))
+
+            mylist.append(Offer(
+                "[IWillSendMissionDetails]; [GOODLUCK]",
+                ContextTag([context.ACCEPT, ]), data={"faction": str(self.elements["ENEMY_FACTION"])},
+                effect=self._accept_mission
+            ))
+
+            mylist.append(Offer(
+                "[UNDERSTOOD]",
+                ContextTag([context.DENY, ]), data={"faction": str(self.elements["ENEMY_FACTION"])},
+                effect=self._deny_misssion
+            ))
+
+            mylist.append(Offer(
+                "[FACTION_DEFEATED_ME]",
+                ContextTag([context.UNFAVORABLE_HELLO,]), data={"faction": str(self.elements["ENEMY_FACTION"])}
+            ))
+
+            mylist.append(Offer(
+                "Well if you're so good, why don't you try beating {} yourself?!".format(self.elements["ENEMY_FACTION"]),
+                ContextTag([context.UNFAVORABLE_CUSTOM,]), data={"reply": "[I_WOULD_NOT_HAVE_LOST]"},
+                effect=self._accept_mission
+            ))
+
         return mylist
 
+    def _accept_mission(self, camp):
+        self.mission_active = True
+        self.RUMOR.disable_rumor(self)
+        self.expiration = None
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def _deny_misssion(self, camp):
+        self.end_plot(camp, True)
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_active:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+    def t_UPDATE(self, camp):
+        # If the adventure has ended, get rid of it.
+        if self.mission_seed.ended:
+            self.end_plot(camp, True)
 
 #   *************************************
 #   ***  AUTOFIND_ENEMY_BASE_MISSION  ***
@@ -129,8 +183,8 @@ class InsultinglyEasyAutofindEnemyBase(Plot):
 
     def t_UPDATE(self, camp: gears.GearHeadCampaign):
         pbge.alert("You find a piece of paper on the ground with the location of {ENEMY_BASE_NAME} written on it.".format(**self.elements))
-        self.elements["WIN_FUN"](camp)
         self.end_plot(camp)
+        self.elements["WIN_FUN"](camp)
 
 #   ******************************
 #   ***  SEBO_SEARCH_FOR_BASE  ***
@@ -143,7 +197,7 @@ class InsultinglyEasyAutofindEnemyBase(Plot):
 # FIND_BASE_FUN: A function with signature (camp) to call if the base is found.
 #
 
-class DDBAMOSearchForBase( Plot ):
+class SEBOSearchForBase( Plot ):
     LABEL = SEBO_SEARCH_FOR_BASE
     active = True
     scope = "LOCALE"
