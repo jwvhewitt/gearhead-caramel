@@ -148,9 +148,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         elif self.on_loss and not self.is_won():
             self.on_loss(camp)
         if self.make_enemies and self.is_won() and self.enemy_faction:
-            if self.enemy_faction not in camp.faction_relations:
-                camp.faction_relations[self.enemy_faction] = gears.factions.FactionRelations()
-            camp.faction_relations[self.enemy_faction].pc_relation = camp.faction_relations[self.enemy_faction].ENEMY
+            camp.set_faction_as_pc_enemy(self.enemy_faction)
         super(BuildAMissionSeed, self).end_adventure(camp)
         camp.day += 1
 

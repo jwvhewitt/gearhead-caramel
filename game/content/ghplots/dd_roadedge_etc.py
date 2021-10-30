@@ -3,14 +3,14 @@ import random
 import game.content
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints
-from game import teams
-from game.content.ghplots import missionbuilder
+from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed
+from game import teams, ghdialogue
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, PlotState
 from . import dd_customobjectives
 from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
+from . import missionbuilder, rwme_objectives
 
 
 #   *******************************
@@ -26,21 +26,221 @@ class BlackMarketBluesMain(Plot):
     active = True
     scope = "METRO"
 
+    BMES_ENTERED = 1
+    BMES_ATTACKED = 2
+
     def custom_init( self, nart ):
+        print(self.elements["METROSCENE"])
+        print(self.elements["FACTION"])
+
         self.add_sub_plot(
             nart, "SEEK_ENEMY_BASE", ident="MISSION",
             elements={"ENEMY_FACTION": self.elements["FACTION"], "ENEMY_BASE_NAME": "the Raider Base"}
         )
         self.black_market_found = False
+        self.black_market_announced = False
+
+        bmsp = self.add_sub_plot(
+            nart, "HIVE_OF_SCUM", elements={
+            "LOCALE_NAME": "{METROSCENE} Black Market".format(**self.elements),
+            "LOCALE_FACTION": gears.factions.TreasureHunters, "ENTRANCE": self.elements["MISSION_GATE"]}
+        )
+        self.register_element("BLACK_MARKET", bmsp.elements["LOCALE"])
+        self.black_market_entrance = bmsp.elements["EXIT"]
+        self.black_market_entry_status = 0
+
+        # Generate the boss of the black market.
+        self.register_element("NPC", gears.selector.random_character(
+            self.rank+25, local_tags=self.elements["METROSCENE"].attributes,
+            camp=nart.camp, faction=gears.factions.TreasureHunters, combatant=True
+        ))
 
         return True
 
     def MISSION_WIN(self, camp):
         if not self.black_market_found:
-            pbge.alert("Black market found.")
             self.black_market_found = True
 
+    def METROSCENE_ENTER(self, camp):
+        if self.black_market_found and not self.black_market_announced:
+            missionbuilder.NewLocationNotification("Black Market", self.elements["MISSION_GATE"])
+            self.black_market_announced = True
 
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.black_market_found:
+            thingmenu.add_item("Go to the Black Market.", self._go_to_market)
+
+    def _go_to_market(self, camp):
+        if self.black_market_entry_status == self.BMES_ENTERED:
+            camp.go(self.black_market_entrance)
+        elif self.black_market_entry_status == self.BMES_ATTACKED:
+            self._attack_the_black_market(camp)
+        else:
+            self._attempt_entry_to_black_market(camp)
+
+    def _attack_the_black_market(self, camp):
+        self.black_market_entry_status = self.BMES_ATTACKED
+        my_mission = missionbuilder.BuildAMissionSeed(
+            camp, "Destroy the Black Market", self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            enemy_faction=self.elements["FACTION"], rank=self.rank+10,
+            objectives=(missionbuilder.BAMO_STORM_THE_CASTLE, missionbuilder.BAMO_SURVIVE_THE_AMBUSH),
+            cash_reward=500, on_win=self._destroy_black_market
+        )
+        my_mission(camp)
+
+    def _enter_the_black_market(self, camp):
+        self.black_market_entry_status = self.BMES_ENTERED
+        camp.go(self.black_market_entrance)
+
+    GUARD_FACTIONS = (gears.factions.BoneDevils, gears.factions.TreasureHunters, gears.factions.BladesOfCrihna)
+    def _attempt_entry_to_black_market(self, camp):
+        my_mission = missionbuilder.BuildAMissionSeed(
+            camp, "Enter the Black Market", self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            enemy_faction=random.choice(self.GUARD_FACTIONS), rank=self.rank+5,
+            objectives=("DZDBMBMission_AttemptEntry", rwme_objectives.RWMO_MAYBE_AVOID_FIGHT,),
+            custom_elements={"ADVENTURE_GOAL": self.black_market_entrance, "BLACK_MARKET": self.elements["BLACK_MARKET"]},
+            auto_exit=True, cash_reward=0, on_win=self._win_entry_fight, make_enemies=False
+        )
+        my_mission(camp)
+
+    def _win_entry_fight(self, camp):
+        mymenu = pbge.rpgmenu.AlertMenu("How do you want to deal with the {}?".format(self.elements["BLACK_MARKET"]))
+        mymenu.add_item("Attack and destroy it.", self._attack_the_black_market)
+        mymenu.add_item("Enter on foot", self._enter_the_black_market)
+        mymenu.can_cancel = False
+        a = mymenu.query()
+        if a:
+            a(camp)
+
+    def _destroy_black_market(self, camp: gears.GearHeadCampaign):
+        camp.check_trigger("WIN", self)
+        self._npc_becomes_enemy(camp)
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship.history.append(gears.relationships.Memory(
+            "you destroyed {}".format(self.elements["BLACK_MARKET"]),
+            "I destroyed {}".format(self.elements["BLACK_MARKET"]),
+            -20, (gears.relationships.MEM_Clash, gears.relationships.MEM_LoseToPC)
+        ))
+        self.elements["BLACK_MARKET"].remove_all_npcs(camp)
+        self.end_plot(camp)
+
+    def _npc_becomes_enemy(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        camp.freeze(npc)
+        if not npc.relationship:
+            npc.relationship = camp.get_relationship(npc)
+        npc.relationship.attitude = gears.relationships.A_RESENT
+        npc.relationship.role = gears.relationships.R_ADVERSARY
+        npc.relationship.expectation = gears.relationships.E_REVENGE
+        if npc not in camp.egg.dramatis_personae:
+            camp.egg.dramatis_personae.append(npc)
+        camp.set_faction_as_pc_enemy(gears.factions.TreasureHunters)
+
+    def BLACK_MARKET_ENTER(self, camp):
+        self.black_market_entry_status = self.BMES_ENTERED
+
+
+class BMB_AttemptEntry(Plot):
+    LABEL = "DZDBMBMission_AttemptEntry"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
+        if mynpc:
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+            self.register_element("_commander", myunit.commander)
+
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Get past the guards".format(self.elements["_commander"]),
+                                                  missionbuilder.MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, 100)
+
+    def _commander_offers(self, camp):
+        mylist = list()
+        npc = self.elements["_commander"]
+
+        mylist.append(Offer(
+            "[HALT] State your business in the {METROSCENE} Black Market.".format(**self.elements),
+            context=ContextTag([context.ATTACK,])
+        ))
+
+        mylist.append(Offer(
+            "[WITHDRAW]",
+            context=ContextTag([context.WITHDRAW,]), effect=self._withdraw
+        ))
+
+        mylist.append(Offer(
+            "[CHALLENGE]",
+            context=ContextTag([context.COMBAT_CUSTOM,]),
+            data={"reply": "[LETSFIGHT]"}
+        ))
+
+        ghdialogue.SkillBasedPartyReply(
+            Offer(
+                "[CHANGE_MIND_AND_RETREAT]",
+                context=ContextTag([context.RETREAT, ]), effect=self._retreat,
+            ), camp, mylist, gears.stats.Ego, gears.stats.Negotiation, rank=npc.renown,
+            difficulty=gears.stats.DIFFICULTY_HARD,
+            no_random=False
+        )
+
+        ghdialogue.SkillBasedPartyReply(
+            Offer(
+                "In that case, you're free to pass.",
+                context=ContextTag([context.COMBAT_CUSTOM, ]), effect=self._permission,
+                data={"reply": "We have important business with the Thieves Guild."}
+            ), camp, mylist, gears.stats.Charm, gears.stats.Stealth, rank=npc.renown,
+            no_random=False
+        )
+
+        ghdialogue.TagBasedPartyReply(
+            Offer(
+                "Sounds legit. You're free to pass.",
+                context=ContextTag([context.COMBAT_CUSTOM, ]), effect=self._permission,
+                data={"reply": "You know: smuggling, larceny, all the basics."}
+            ), camp, mylist, (gears.tags.Criminal,)
+        )
+
+        return mylist
+
+    def _retreat(self, camp):
+        pbge.alert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
+        self.elements["_eteam"].retreat(camp)
+
+    def _withdraw(self, camp):
+        self.elements["LOCALE"].player_team.retreat(camp)
+
+    def _permission(self, camp):
+        self.adv.cancel_adventure(camp)
+        camp.go(self.elements["ADVENTURE_GOAL"])
 
 
 #   ******************************

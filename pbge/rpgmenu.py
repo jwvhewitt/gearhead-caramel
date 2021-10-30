@@ -5,7 +5,7 @@ from .frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
 import random
 import collections
 
-from . import default_border,render_text,wait_event,TIMEREVENT,my_state,INFO_GREEN
+from . import default_border,render_text, draw_text, wait_event,TIMEREVENT,my_state,INFO_GREEN
 
 class MenuItem( object ):
     def __init__(self,msg,value,desc,menu):
@@ -337,5 +337,23 @@ class PopUpMenu( Menu ):
 
         super().__init__(x,y,w,h,ANCHOR_UPPERLEFT, border=border, predraw=predraw, **kwargs)
 
+
+class AlertMenu( Menu ):
+    WIDTH = 350
+    HEIGHT = 250
+    MENU_HEIGHT = 75
+
+    FULL_RECT = Frect(-175,-125,350,250)
+    TEXT_RECT = Frect(-175,-125,350,165)
+
+    def __init__(self, desc):
+        super().__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,border=None,predraw=self.pre)
+        self.desc = desc
+
+    def pre( self ):
+        if my_state.view:
+            my_state.view()
+        default_border.render(self.FULL_RECT.get_rect())
+        draw_text(my_state.medium_font, self.desc, self.TEXT_RECT.get_rect(), justify=0)
 
 

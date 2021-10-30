@@ -41,6 +41,8 @@ COMBAT_INFO= "COMBAT_INFO"      # The NPC gives the PC some information during c
 MERCY = "MERCY"                 # This hostile NPC is being allowed to flee the battle
 RETREAT = "RETREAT"             # This hostile NPC is retreating from the battle
 WITHDRAW = "WITHDRAW"           # The NPC responds to the PC withdrawing from battle
+COMBAT_CUSTOM = "COMBAT_CUSTOM" # As CUSTOM, but follows ATTACK
+
 CHAT = "CHAT"                   # The NPC will relay some bit of local news
 OPEN_SHOP = "OPEN_SHOP"         # The NPC will show the PC what they have for sale.
 OPEN_SCHOOL = "OPEN_SCHOOL"     # The NPC will provide skill training for the PC.

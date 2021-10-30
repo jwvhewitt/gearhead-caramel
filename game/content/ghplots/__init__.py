@@ -33,6 +33,7 @@ from . import rwme_default
 from . import rwme_objectives
 from . import seekenemybase
 from . import setpiece
+from . import shops_plus
 from . import tarot_cards
 from . import tarot_reveal
 from . import tarot_sockets
@@ -87,6 +88,7 @@ harvest(rwme_default)
 harvest(rwme_objectives)
 harvest(seekenemybase)
 harvest(setpiece)
+harvest(shops_plus)
 harvest(tarot_cards)
 harvest(tarot_reveal)
 harvest(tarot_sockets)

@@ -10,6 +10,75 @@ from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backst
 from . import tarot_cards
 
 
+#   **********************
+#   ***  HIVE_OF_SCUM  ***
+#   **********************
+#
+#   Create a town/neighborhood of ill repute. The HoS will be placed as a child of METROSCENE but no connection
+#   will be made; that's up to the parent plot to handle.
+#
+#   Needed Elements:
+#   METROSCENE, METRO, ENTRANCE
+#   LOCALE_NAME: Optional; gives a name for this location
+#   LOCALE_FACTION: The faction that runs this place
+#
+#   Generated Elements:
+#   LOCALE: The hive of scum scene
+#   FOYER: An empty room on one of the edges.
+#   EXIT: An exit leading back to ENTRANCE
+#
+
+class BanditsDen(Plot):
+    LABEL = "HIVE_OF_SCUM"
+    active = True
+    scope = "METRO"
+
+    def custom_init( self, nart ):
+        # Step One: Create the scene
+        town_name = self.elements.get("LOCALE_NAME") or self._generate_locale_name()
+        town_fac = self.elements.get("LOCALE_FACTION") or plotutility.RandomBanditCircle(nart.camp)
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team", allies=(team1,), faction=town_fac)
+
+        myscene = gears.GearHeadScene(50, 50, town_name, player_team=team1, civilian_team=team2,
+                                      scale=gears.scale.HumanScale,
+                                      faction=town_fac,
+                                      attributes=(
+                                      gears.tags.Criminal, gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_SEMIPUBLIC))
+        myscene.exploration_music = 'Komiku_-_06_-_Friendss_theme.ogg'
+
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.HumanScaleDeadzone(),)
+        self.register_scene(nart, myscene, myscenegen, ident="LOCALE", dident="METROSCENE")
+
+        # Add some NPCs to the scene.
+        for t in range(random.randint(2,4)):
+            npc = gears.selector.random_character(50, local_tags=myscene.attributes, needed_tags=(gears.tags.Criminal,))
+            npc.place(myscene, team=team2)
+
+        defender = self.register_element(
+            "DEFENDER", gears.selector.random_character(
+                self.rank, local_tags=self.elements["METROSCENE"].attributes, faction=town_fac
+        ))
+        defender.place(myscene, team=team2)
+
+        # Add the services.
+        self.add_sub_plot(nart, "SHOP_BLACKMARKET", elements={"INTERIOR_TAGS": (gears.tags.SCENE_SEMIPUBLIC,)})
+
+        myroom2 = self.register_element(
+            "FOYER", pbge.randmaps.rooms.Room(5, 5, anchor=random.choice(pbge.randmaps.anchors.EDGES)),
+            dident="LOCALE")
+        towngate = self.register_element(
+            "EXIT", ghwaypoints.Exit(name="Back to {}".format(self.elements["METROSCENE"]),
+                                     dest_wp=self.elements["ENTRANCE"]), dident="FOYER")
+
+        return True
+
+    LOCALE_NAME_PATTERNS = ("{} Den", "{} Hive")
+
+    def _generate_locale_name(self):
+        return random.choice(self.LOCALE_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
+
+
 #   **************************
 #   ***   MECHA_WORKSHOP   ***
 #   **************************

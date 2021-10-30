@@ -81,7 +81,7 @@ class BladesOfCrihna(Faction):
     CAREERS = {
         tags.Trooper: ("Pirate","Thief"),
         tags.Commander: ("Pirate Captain",),
-        tags.Support: ("Mecha Pilot",),
+        tags.Support: ("Mecha Pilot", "Hacker"),
     }
     ADJECTIVES = ("Pirate",)
     NOUNS = ("Blades","Fleet")
@@ -95,12 +95,28 @@ class BoneDevils(Faction):
     CAREERS = {
         tags.Trooper: ("Bandit","Thief"),
         tags.Commander: ("Commander","Scavenger"),
-        tags.Support: ("Mecha Pilot",),
+        tags.Support: ("Mecha Pilot", "Tekno"),
     }
     LOCATIONS = (personality.DeadZone,)
-    ADJECTIVES = ("Bone Devil",)
-    NOUNS = ("Gang",)
+    ADJECTIVES = ("Devil", "Bone", "Death")
+    NOUNS = ("Gang", "Barons", "Skulls")
     uniform_colors = (color.Black,None,None,color.BrightRed,color.Terracotta)
+
+
+class TreasureHunters(Faction):
+    name = "the Treasure Hunter Guild"
+    factags = (tags.Criminal, tags.Adventurer)
+    mecha_colors = (color.Charcoal, color.Gold, color.OrangeRed, color.SlateGrey, color.DeepSeaBlue)
+    CAREERS = {
+        tags.Trooper: ("Mercenary", "Thief", "Explorer"),
+        tags.Commander: ("Smuggler", "Kingpin", "Crimelord"),
+        tags.Support: ("Hacker", "Scavenger", "Assassin"),
+    }
+    LOCATIONS = (personality.DeadZone, personality.GreenZone)
+    ADJECTIVES = ("Treasure", "Secret", "Thieves")
+    NOUNS = ("Club", "Guild")
+    uniform_colors = (color.Gold,None,None,color.NobleGold,color.Cobalt)
+
 
 class TerranFederation(Faction):
     name = "the Terran Federation"
@@ -196,7 +212,7 @@ class DeadzoneFederation(Faction):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot","Mercenary"),
         tags.Commander: ("Commander","Aristo","Warlord"),
-        tags.Support: ("Recon Pilot","Scavenger"),
+        tags.Support: ("Recon Pilot","Scavenger", "Tekno"),
     }
     LOCATIONS = (personality.DeadZone,)
     ADJECTIVES = ("Deadzone","Wasteland","Frontier")
@@ -210,7 +226,7 @@ class ClanIronwind(Faction):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot","Mercenary","Bandit"),
         tags.Commander: ("Aristo","Warlord"),
-        tags.Support: ("Recon Pilot","Scavenger"),
+        tags.Support: ("Recon Pilot","Scavenger", "Gladiator", "Tekno"),
     }
     LOCATIONS = (personality.DeadZone,)
     ADJECTIVES = ("Deadzone","Wasteland","Iron")
@@ -397,6 +413,10 @@ DEFAULT_FACTION_DICT_NT158 = {
         enemies=(AegisOverlord,BladesOfCrihna)
     ),
     ProDuelistAssociation: FactionRelations(),
+    TreasureHunters: FactionRelations(
+        allies=(BladesOfCrihna, BoneDevils),
+        enemies=(Guardians,)
+    )
 
 }
 

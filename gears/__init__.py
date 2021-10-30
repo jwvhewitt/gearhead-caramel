@@ -289,6 +289,14 @@ class GearHeadScene(pbge.scenes.Scene):
         for subscene in self.sub_scenes:
             subscene.purge_faction(camp,fac)
 
+    def remove_all_npcs(self, camp):
+        # Remove all the NPCs in this scene, including subscenes.
+        for npc in list(self.contents):
+            if isinstance(npc, (base.Character, base.Mecha)) and npc not in camp.party:
+                self.contents.remove(npc)
+        for subscene in self.sub_scenes:
+            subscene.remove_all_npcs(camp)
+
     def list_empty_spots( self, room=None ):
         good_spots = set()
         if not room:
@@ -796,6 +804,11 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             return self.egg.faction_scores.get(fac.get_faction_tag(), 0)
         else:
             return 0
+
+    def set_faction_as_pc_enemy(self, fac):
+        if fac not in self.faction_relations:
+            self.faction_relations[fac] = factions.FactionRelations()
+        self.faction_relations[fac].set_pc_enemy()
 
 
 class GearHeadArchitecture(pbge.randmaps.architect.Architecture):

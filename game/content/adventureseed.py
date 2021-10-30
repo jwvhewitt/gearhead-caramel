@@ -116,33 +116,34 @@ class AdventureSeed(Adventure):
         super(AdventureSeed,self).end_adventure(camp)
 
     def end_adventure(self,camp):
-        for rfun in self.rewards:
-            rfun(camp,self)
+        if not self.finished:
+            for rfun in self.rewards:
+                rfun(camp,self)
 
-        for pc in camp.party:
-            if hasattr(pc,"relationship") and pc.relationship:
-                pc.relationship.missions_together += 1
+            for pc in camp.party:
+                if hasattr(pc,"relationship") and pc.relationship:
+                    pc.relationship.missions_together += 1
+                    if self.is_won():
+                        pc.relationship.reaction_mod += random.randint(1,3)
+                    else:
+                        pc.relationship.reaction_mod -= random.randint(1,5)
+
+            grade = self.get_grade()
+
+            if self.restore_at_end:
+                self.restore_party(camp)
+
+            if self.display_results_at_end:
                 if self.is_won():
-                    pc.relationship.reaction_mod += random.randint(1,3)
+                    mydisplay = CombatResultsDisplay(title="Victory: {}".format(grade), mission_seed=self,
+                                                     width=400)
                 else:
-                    pc.relationship.reaction_mod -= random.randint(1,5)
+                    mydisplay = CombatResultsDisplay(title="Failure: {}".format(grade),
+                                                     title_color=pygame.color.Color(250, 50, 0), mission_seed=self,
+                                                     width=400)
+                pbge.alert_display(mydisplay.show)
 
-        grade = self.get_grade()
-
-        if self.restore_at_end:
-            self.restore_party(camp)
-
-        if self.display_results_at_end:
-            if self.is_won():
-                mydisplay = CombatResultsDisplay(title="Victory: {}".format(grade), mission_seed=self,
-                                                 width=400)
-            else:
-                mydisplay = CombatResultsDisplay(title="Failure: {}".format(grade),
-                                                 title_color=pygame.color.Color(250, 50, 0), mission_seed=self,
-                                                 width=400)
-            pbge.alert_display(mydisplay.show)
-
-        self.finished = True
+            self.finished = True
 
         super(AdventureSeed,self).end_adventure(camp)
 

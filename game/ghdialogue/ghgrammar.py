@@ -182,7 +182,8 @@ DEFAULT_GRAMMAR = {
 
     "[ATTACK]": {
         Default: ["I don't know what you're doing here, but you'll feel my wrath. [LETSFIGHT]",
-            "You shouldn't have come here. [LETSFIGHT]", "[BATTLE_GREETING] [LETSFIGHT]"
+                  "You shouldn't have come here. [LETSFIGHT]", "[BATTLE_GREETING] [LETSFIGHT]",
+                  "Do you remember that [MEM_Clash]? [LETSFIGHT]"
             ],
         personality.Cheerful: ["I was hoping that today would be interesting, and now here you are... [LETSFIGHT]",
             ],
@@ -209,6 +210,10 @@ DEFAULT_GRAMMAR = {
             ],
         personality.Glory: [ "Only one of us is going to leave here victorious. [LETSFIGHT]",
             ],
+        personality.Justice: [
+            "I'm going to give you what you deserve... [LETSFIGHT]",
+            "Remember when [MEM_LoseToPC]? Now you will taste justice."
+        ]
     },
     
     "[ATTACK:CHALLENGE]": {
@@ -1180,9 +1185,28 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Ha!",
             ],
         },
+
+    "[HALT]": {
+        Default: ["Halt.", "Stop right there.", "I know you; [MEM_Clash]."
+                  ],
+        personality.Cheerful: ["Hey, where do you think you're going?",
+                               ],
+        personality.Grim: ["Don't move or you're dead."
+                           ],
+        personality.Easygoing: ["I'm afraid I'm gonna have to stop you right there.",
+                                ],
+        personality.Passionate: ["Halt!!!",
+                                 ],
+        personality.Sociable: ["Halt; come and closer and I'll be forced to attack.",
+                               ],
+        personality.Shy: ["Stop.",
+                          ],
+    },
+
     "[HELLO_PLUS]": {
         Default: ["[HELLO]","[HELLO] [CURRENT_EVENTS]"]
     },
+
     "[HELLO]": {
         MET_BEFORE: ["[HELLO_AGAIN]",],
         FIRST_TIME: ["[HELLO_FIRST]",],
@@ -1359,6 +1383,25 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Word is that you need a pilot for a mission.",
                                ],
         personality.Shy: ["I'm here for a mission.",
+                          ],
+
+    },
+
+    "[HELLOMISSION:MISSION]": {
+        Default: ["Tell me the mission details.",
+                  "[HELLO:MISSION]"
+                  ],
+        personality.Cheerful: ["[GOOD] Tell me about it.",
+                               ],
+        personality.Grim: ["Tell me your terms, then I'll decide.",
+                           ],
+        personality.Easygoing: ["What kind of mission are we talking about here?",
+                                ],
+        personality.Passionate: ["You need the best, and that means me!",
+                                 ],
+        personality.Sociable: ["[GOOD] Let me know about it.",
+                               ],
+        personality.Shy: ["I'm listening.",
                           ],
 
     },
@@ -2306,6 +2349,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Everybody, come here, I found something...",
                                ],
         personality.Shy: ["Look at this.",
+                          ],
+    },
+
+    "[LOOKING_FOR_CAVALIER]": {
+        # The NPC has a mission for a cavalier.
+        Default: ["I need a cavalier for an upcoming mission.",
+                  ],
+        personality.Cheerful: ["This could be your lucky day; I'm looking to hire a cavalier...",
+                               ],
+        personality.Grim: ["I need to find a cavalier for this mission, since the last one I hired died...",
+                           ],
+        personality.Easygoing: ["Hey, are you looking for work?",
+                                ],
+        personality.Passionate: ["I need a hot-blooded pilot for an urgent mission!"
+                                 ],
+        personality.Sociable: ["I suppose you've heard that I'm looking for a pilot.",
+                               ],
+        personality.Shy: ["I'm looking for a pilot.",
                           ],
     },
 

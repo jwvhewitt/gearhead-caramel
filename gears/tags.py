@@ -129,6 +129,7 @@ ST_GEMSTONE = "GEMSTONE"
 ST_ODDITY = "ODDITY"
 ST_JEWELRY = "JEWELRY"
 ST_ANTIQUE = "ANTIQUE"
+ST_CONTRABAND = "CONTRABAND"
 
 # Inventory Slots- note that these don't work exactly like slots in most RPGs.
 # Multiple items can be equipped in the same place as long as none of them have the same slot.

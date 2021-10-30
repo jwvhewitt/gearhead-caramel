@@ -13,6 +13,10 @@ ATTACK_CHALLENGE = Reply( "[ATTACK:CHALLENGE]" ,
             destination = Cue( ContextTag([context.CHALLENGE]) ) ,
             context = ContextTag([context.ATTACK]) )
 
+ATTACK_COMBATCUSTOM = Reply( "{reply}" ,
+            destination = Cue( ContextTag([context.COMBAT_CUSTOM]) ) ,
+            context = ContextTag([context.ATTACK]) )
+
 ATTACK_COMBATINFO = Reply( "[ATTACK:COMBAT_INFO]" ,
             destination = Cue( ContextTag([context.COMBAT_INFO]) ) ,
             context = ContextTag([context.ATTACK]) )
@@ -79,6 +83,10 @@ HELLO_GOODBYE = Reply( "[HELLO:GOODBYE]" ,
 
 HELLO_MISSION = Reply( "[HELLO:MISSION]" ,
             context = ContextTag([context.HELLO]),
+            destination = Cue( ContextTag([context.MISSION]) ) )
+
+HELLOMISSION_MISSION = Reply( "[HELLOMISSION:MISSION]" ,
+            context = ContextTag([context.HELLO,context.MISSION]),
             destination = Cue( ContextTag([context.MISSION]) ) )
 
 HELLO_PROPOSAL = Reply( "[HELLO:PROPOSAL]" ,

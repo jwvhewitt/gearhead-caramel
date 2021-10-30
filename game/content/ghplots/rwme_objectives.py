@@ -683,6 +683,10 @@ class FightSomeAlmostRandos(FightSomeRandos):
 #   ********************************
 #   ***  RWMO_MAYBE_AVOID_FIGHT  ***
 #   ********************************
+#
+# Note: This doesn't need to be a road map adventure! As long as you pass an ADVENTURE_GOAL element to the mission,
+#   you can call it from any mission and avoiding combat will take the player to the adventure goal.
+#
 
 class RWMO_SkilledAvoidance( Plot ):
     LABEL = RWMO_MAYBE_AVOID_FIGHT
@@ -745,5 +749,5 @@ class RWMO_SkilledAvoidance( Plot ):
                 go(camp)
 
     def cancel_the_adventure(self,camp):
-        camp.go(self.elements["ADVENTURE_GOAL"])
         self.adv.cancel_adventure(camp)
+        camp.go(self.elements["ADVENTURE_GOAL"])

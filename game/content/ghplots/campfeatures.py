@@ -191,7 +191,7 @@ class MetrosceneWMEDefenseHandler(Plot):
 
 
 class MetrosceneRandomPlotHandler(Plot):
-    # Keep this metro area stocked with random plots.
+    # Keep this metro area stocked with random plots.Deadzone
     LABEL = "CF_METROSCENE_RANDOM_PLOT_HANDLER"
     active = True
     scope = "METRO"

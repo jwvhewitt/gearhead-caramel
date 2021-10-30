@@ -40,7 +40,6 @@ class SeekEnemyBaseMain(campfeatures.MetrosceneRandomPlotHandler):
     SUBPLOT_LABEL = SEEK_ENEMY_BASE_MISSION
 
     def custom_init( self, nart ):
-        print(self.elements["METROSCENE"])
         ok = super().custom_init(nart)
         if ok:
             self.mission_patience = random.randint(1,2)
@@ -93,17 +92,20 @@ class BasicCombatBaseSearch(Plot):
         memo="{NPC} lost a battle against {ENEMY_FACTION}.", prohibited_npcs=("NPC",)
     )
 
+    MISSION_NAME = "Avenge {NPC}"
+    MISSION_OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES, SEBO_SEARCH_FOR_BASE)
+
     def custom_init( self, nart ):
         npc = self.seek_element(nart, "NPC", self.is_good_npc, scope=self.elements["METROSCENE"], lock=True)
         self.elements["NPC_SCENE"] = npc.scene
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
         self.mission_seed = missionbuilder.BuildAMissionSeed(
-            nart.camp, "Avenge {}".format(self.elements["NPC"]),
+            nart.camp, self.MISSION_NAME.format(**self.elements),
             self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             self.elements["ENEMY_FACTION"], npc.faction, self.rank,
-            objectives=(missionbuilder.BAMO_LOCATE_ENEMY_FORCES,),
+            objectives=self.MISSION_OBJECTIVES,
             scenegen=sgen, architecture=archi, on_win=self.elements["SEMIWIN_FUN"],
-            custom_elements={"FIND_BASE_FUN": self.elements["WIN_FUN"]}
+            custom_elements={"FIND_BASE_FUN": self.elements["WIN_FUN"], "ENEMY_BASE_NAME": self.elements["ENEMY_BASE_NAME"]}
         )
         self.mission_active = False
         self.expiration = gears.TimeOrNPCExpiration(nart.camp, npcs=("NPC",))
@@ -113,6 +115,7 @@ class BasicCombatBaseSearch(Plot):
         return (
             isinstance(candidate, gears.base.Character) and candidate.combatant and
             candidate not in nart.camp.party and
+            gears.tags.SCENE_PUBLIC in candidate.scene.attributes and
             not nart.camp.are_faction_allies(candidate, self.elements["ENEMY_FACTION"])
         )
 
@@ -126,19 +129,20 @@ class BasicCombatBaseSearch(Plot):
 
             mylist.append(Offer(
                 "[FACTION_DEFEATED_ME] [WILL_YOU_AVENGE_ME]",
-                ContextTag([context.MISSION, ]), data={"faction": str(self.elements["ENEMY_FACTION"])}
+                ContextTag([context.MISSION, ]), data={"faction": str(self.elements["ENEMY_FACTION"])},
+                subject=self, subject_start=True
             ))
 
             mylist.append(Offer(
                 "[IWillSendMissionDetails]; [GOODLUCK]",
                 ContextTag([context.ACCEPT, ]), data={"faction": str(self.elements["ENEMY_FACTION"])},
-                effect=self._accept_mission
+                effect=self._accept_mission, subject=self
             ))
 
             mylist.append(Offer(
                 "[UNDERSTOOD]",
                 ContextTag([context.DENY, ]), data={"faction": str(self.elements["ENEMY_FACTION"])},
-                effect=self._deny_misssion
+                effect=self._deny_misssion, subject=self
             ))
 
             mylist.append(Offer(
@@ -172,6 +176,116 @@ class BasicCombatBaseSearch(Plot):
         if self.mission_seed.ended:
             self.end_plot(camp, True)
 
+
+class TownEnemyCombatBaseSearch(BasicCombatBaseSearch):
+    RUMOR = Rumor(
+        "{NPC} is looking for someone to fight {ENEMY_FACTION}",
+        offer_msg="If you want to get the job, you can find {NPC} at {NPC_SCENE}.",
+        memo="{NPC} is looking for someone to fight {ENEMY_FACTION}.", prohibited_npcs=("NPC",)
+    )
+
+    MISSION_NAME = "{NPC}'s Mission"
+    MISSION_OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES, SEBO_SEARCH_FOR_BASE)
+
+    def is_good_npc(self, nart, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and candidate.combatant and
+            candidate not in nart.camp.party and
+            gears.tags.SCENE_PUBLIC in candidate.scene.attributes and
+            nart.camp.are_faction_enemies(candidate, self.elements["ENEMY_FACTION"])
+        )
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        if not self.mission_active:
+            mylist.append(Offer(
+                "[HELLO] [LOOKING_FOR_CAVALIER]",
+                ContextTag([context.HELLO,context.MISSION]), data={"faction": str(self.elements["ENEMY_FACTION"])}
+            ))
+
+            mylist.append(Offer(
+                "[MechaMissionVsEnemyFaction]; [THEYAREOURENEMY]",
+                ContextTag([context.MISSION, ]), data={"enemy_faction": str(self.elements["ENEMY_FACTION"]),
+                                                       "they": str(self.elements["ENEMY_FACTION"])},
+                subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[GOODLUCK] [IWillSendMissionDetails].",
+                ContextTag([context.ACCEPT, ]), data={"faction": str(self.elements["ENEMY_FACTION"])},
+                effect=self._accept_mission, subject=self
+            ))
+
+            mylist.append(Offer(
+                "[UNDERSTOOD]",
+                ContextTag([context.DENY, ]), data={"faction": str(self.elements["ENEMY_FACTION"])},
+                effect=self._deny_misssion, subject=self
+            ))
+
+            mylist.append(Offer(
+                "Get out of here; I've got work to do.",
+                ContextTag([context.UNFAVORABLE_HELLO,]), data={"faction": str(self.elements["ENEMY_FACTION"])},
+                effect=self._deny_misssion
+            ))
+        return mylist
+
+
+class CriminalCombatBaseSearch(BasicCombatBaseSearch):
+    RUMOR = Rumor(
+        "{NPC} had a shipment of cargo stolen by {ENEMY_FACTION}",
+        offer_msg="Go talk to {NPC} at {NPC_SCENE}; maybe you can get a mission out of it.",
+        memo="{NPC} is looking for someone to recover cargo stolen by {ENEMY_FACTION}.", prohibited_npcs=("NPC",)
+    )
+
+    MISSION_NAME = "{NPC}'s Mission"
+    MISSION_OBJECTIVES = (missionbuilder.BAMO_RECOVER_CARGO, SEBO_SEARCH_FOR_BASE)
+
+    @classmethod
+    def matches( self, pstate ):
+        return "ENEMY_FACTION" in pstate.elements and gears.tags.Criminal in pstate.elements["ENEMY_FACTION"].factags
+
+    def is_good_npc(self, nart, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and candidate not in nart.camp.party and
+            gears.tags.SCENE_PUBLIC in candidate.scene.attributes and
+            {gears.tags.Merchant, gears.tags.CorporateWorker, gears.tags.Laborer}.intersection(candidate.get_tags())
+        )
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        if not self.mission_active:
+            mylist.append(Offer(
+                "[HELLO] [LOOKING_FOR_CAVALIER]",
+                ContextTag([context.HELLO,context.MISSION]), data={"faction": str(self.elements["ENEMY_FACTION"])}
+            ))
+
+            mylist.append(Offer(
+                "[MechaMissionVsEnemyFaction]; [THEYARETHIEVES]",
+                ContextTag([context.MISSION, ]), data={"enemy_faction": str(self.elements["ENEMY_FACTION"]),
+                                                       "they": str(self.elements["ENEMY_FACTION"])},
+                subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[GOODLUCK] [IWillSendMissionDetails].",
+                ContextTag([context.ACCEPT, ]), data={"faction": str(self.elements["ENEMY_FACTION"])},
+                effect=self._accept_mission, subject=self
+            ))
+
+            mylist.append(Offer(
+                "[UNDERSTOOD]",
+                ContextTag([context.DENY, ]), data={"faction": str(self.elements["ENEMY_FACTION"])},
+                effect=self._deny_misssion, subject=self
+            ))
+
+            mylist.append(Offer(
+                "You've got no business being here.",
+                ContextTag([context.UNFAVORABLE_HELLO,]), data={"faction": str(self.elements["ENEMY_FACTION"])},
+                effect=self._deny_misssion
+            ))
+        return mylist
+
+
 #   *************************************
 #   ***  AUTOFIND_ENEMY_BASE_MISSION  ***
 #   *************************************
@@ -203,6 +317,7 @@ class SEBOSearchForBase( Plot ):
     scope = "LOCALE"
     def custom_init( self, nart ):
         self.intro_ready = True
+        self.extro_ready = True
         return True
 
     def LOCALE_ENTER(self,camp: gears.GearHeadCampaign):
@@ -213,22 +328,28 @@ class SEBOSearchForBase( Plot ):
                 candidates.append(self.attempt_scouting)
             if camp.party_has_skill(gears.stats.Stealth):
                 candidates.append(self.attempt_stealth)
-            if camp.party_has_skill(gears.stats.Wildcraft):
-                candidates.append(self.attempt_wildcraft)
             if candidates:
                 random.choice(candidates)(camp)
 
-    def t_END(self, camp):
-        pass
+    def t_ENDCOMBAT(self, camp):
+        if self.adv.is_won() and self.extro_ready:
+            self.extro_ready = False
+            candidates = list()
+            if camp.party_has_skill(gears.stats.Wildcraft):
+                candidates.append(self.attempt_wildcraft)
+            if camp.party_has_skill(gears.stats.Computers):
+                candidates.append(self.attempt_computers)
+            if candidates:
+                random.choice(candidates)(camp)
 
     def attempt_scouting(self,camp):
         pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Scouting,self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("You detect hostile mecha on the road ahead. They are still far enough away that you can avoid them if you want to.")
+                mymenu = ghcutscene.PromptMenu("As you approach {ENEMY_FACTION}, you realize you could probably follow them back to their base.".format(**self.elements))
             else:
-                mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_DETECTED_ENEMIES] [WE_CAN_AVOID_COMBAT]",pc,camp)
-            mymenu.add_item("Avoid them",self.cancel_the_adventure)
+                mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_DETECTED_ENEMIES] If we want to know where their base is, our best bet would be to stand back and follow them at a distance.",pc,camp)
+            mymenu.add_item("Follow them to their base",self.find_the_base)
             mymenu.add_item("Engage them",None)
             go = mymenu.query()
             if go:
@@ -240,8 +361,8 @@ class SEBOSearchForBase( Plot ):
             if pc.get_pilot() is camp.pc:
                 mymenu = ghcutscene.PromptMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
             else:
-                mymenu = ghcutscene.SimpleMonologueMenu("[ENEMIES_HAVE_NOT_DETECTED_US] [WE_CAN_AVOID_COMBAT]",pc,camp)
-            mymenu.add_item("Avoid them",self.cancel_the_adventure)
+                mymenu = ghcutscene.SimpleMonologueMenu("[ENEMIES_HAVE_NOT_DETECTED_US] If you're interested in finding their base, we can tail them all the way back.",pc,camp)
+            mymenu.add_item("Follow them to their base",self.find_the_base)
             mymenu.add_item("Engage them",None)
             go = mymenu.query()
             if go:
@@ -251,15 +372,24 @@ class SEBOSearchForBase( Plot ):
         pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Wildcraft,self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("You find tracks belonging to enemy mecha. It would be a simple matter to find an alternate route around them.")
+                pbge.alert("After the battle, you find tracks leading directly back to {}.".format(self.elements["ENEMY_BASE_NAME"]))
             else:
-                mymenu = ghcutscene.SimpleMonologueMenu("[THERE_ARE_ENEMY_TRACKS] [WE_CAN_AVOID_COMBAT]",pc,camp)
-            mymenu.add_item("Avoid them",self.cancel_the_adventure)
-            mymenu.add_item("Engage them",None)
-            go = mymenu.query()
-            if go:
-                go(camp)
+                ghcutscene.SimpleMonologueDisplay("Take a look at these tracks... I think we can trace them back to {}.".format(self.elements["ENEMY_BASE_NAME"]),pc)(camp)
+            self.find_the_base(camp, True)
 
-    def find_the_base(self,camp: gears.GearHeadCampaign):
+    def attempt_computers(self,camp):
+        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Computers,self.rank)
+        if pc:
+            if pc.get_pilot() is camp.pc:
+                pbge.alert("After the battle, you hack into one of the enemy's navcomps and learn the location of {}.".format(self.elements["ENEMY_BASE_NAME"]))
+            else:
+                ghcutscene.SimpleMonologueDisplay("[LOOK_AT_THIS] I managed to hack into their navcomp and found out where {} is.".format(self.elements["ENEMY_BASE_NAME"]),pc)(camp)
+            self.find_the_base(camp, True)
 
-        self.adv.cancel_adventure(camp)
+    def find_the_base(self,camp: gears.GearHeadCampaign, win_mission=False):
+        self.elements["FIND_BASE_FUN"](camp)
+        camp.go(self.elements["ADVENTURE_RETURN"])
+        if win_mission:
+            self.adv.end_adventure(camp)
+        else:
+            self.adv.cancel_adventure(camp)
