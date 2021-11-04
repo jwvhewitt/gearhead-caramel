@@ -148,7 +148,7 @@ class VictoryParty(Plot):
     def _give_speech(self, camp):
         pbge.alert("At this suggestion, everyone in the bar turns to you and applauds. It seems you won't be getting out of here tonight without saying a few words.")
 
-        mymenu= ghcutscene.PromptMenu("How do you want to begin your speech?")
+        mymenu= pbge.rpgmenu.AlertMenu("How do you want to begin your speech?")
         mymenu.add_item("Start on a joke.", "[DZDC_VICTORY_PARTY:TRY_FUNNY]")
         mymenu.add_item("Introduce yourself.", "[DZDC_VICTORY_PARTY:TRY_INTRODUCTION]")
 
@@ -159,7 +159,7 @@ class VictoryParty(Plot):
             ghcutscene.SimpleMonologueDisplay("...", camp.pc)(camp,False)
             pbge.alert("The rest of the party watches you with anticipation.")
 
-        mymenu= ghcutscene.PromptMenu("What will you say next?")
+        mymenu= pbge.rpgmenu.AlertMenu("What will you say next?")
         mymenu.add_item("Tell then about securing the highway.", "[DZDC_VICTORY_PARTY:TELL_HIGHWAY]")
         mymenu.add_item("Tell them about the adventures you've had.", "[DZDC_VICTORY_PARTY:TELL_ADVENTURES]")
 
@@ -170,7 +170,7 @@ class VictoryParty(Plot):
             ghcutscene.SimpleMonologueDisplay("um...", camp.pc)(camp,False)
             pbge.alert("Everybody stares at you expectantly.")
 
-        mymenu= ghcutscene.PromptMenu("How will you conclude?")
+        mymenu= pbge.rpgmenu.AlertMenu("How will you conclude?")
         mymenu.add_item("Make a toast to {}.".format(self.elements["METROSCENE"]), "[DZDC_VICTORY_PARTY:TOAST_TOWN]")
         mymenu.add_item("Thank {} for {} help.".format(self.elements["DZ_CONTACT"],self.elements["DZ_CONTACT"].gender.possessive_determiner), "[DZDC_VICTORY_PARTY:TOAST_SHERIFF]")
 

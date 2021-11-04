@@ -346,7 +346,7 @@ class SEBOSearchForBase( Plot ):
         pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Scouting,self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("As you approach {ENEMY_FACTION}, you realize you could probably follow them back to their base.".format(**self.elements))
+                mymenu = pbge.rpgmenu.AlertMenu("As you approach {ENEMY_FACTION}, you realize you could probably follow them back to their base.".format(**self.elements))
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_DETECTED_ENEMIES] If we want to know where their base is, our best bet would be to stand back and follow them at a distance.",pc,camp)
             mymenu.add_item("Follow them to their base",self.find_the_base)
@@ -359,7 +359,7 @@ class SEBOSearchForBase( Plot ):
         pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Stealth,self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
+                mymenu = pbge.rpgmenu.AlertMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[ENEMIES_HAVE_NOT_DETECTED_US] If you're interested in finding their base, we can tail them all the way back.",pc,camp)
             mymenu.add_item("Follow them to their base",self.find_the_base)

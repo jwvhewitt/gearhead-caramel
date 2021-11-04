@@ -57,7 +57,7 @@ class BanditsDen(Plot):
 
         defender = self.register_element(
             "DEFENDER", gears.selector.random_character(
-                self.rank, local_tags=self.elements["METROSCENE"].attributes, faction=town_fac
+                self.rank, local_tags=self.elements["METROSCENE"].attributes, faction=town_fac, combatant=True
         ))
         defender.place(myscene, team=team2)
 
@@ -542,3 +542,81 @@ class BasicTavern(Plot):
         monster1, monster2 = random.sample(gears.selector.MONSTER_LIST, 2)
         building_name = random.choice(self.NAME_PATTERNS).format(npc=owner_name,town=str(self.elements["METROSCENE"]), monster1=monster1, monster2=monster2)
         return npc_name, building_name
+
+
+#   ***********************
+#   ***  THIEVES_GUILD  ***
+#   ***********************
+#
+#   Elements:
+#       LOCALE: The scene into which the Thieves Guild will be placed
+#       ENTRANCE: The waypoint you go to when you leave the thieves guild
+#       FACTION: The faction the guild belongs to
+#   Optional:
+#       INTERIOR_TAGS: Defaults to (gears.tags.SCENE_SEMIPUBLIC,)
+#       GUILD_NAME: If not set, a random name will be chosen
+#   Returns:
+#       INTERIOR: The interior of the Thieves Guild
+#       EXIT: The exit leading back to the waypoint provided
+#
+
+class BasicThievesGuild(Plot):
+    LABEL = "THIEVES_GUILD"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Guild Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.elements.get("GUILD_NAME", self._generate_guild_name()), player_team=team1, civilian_team=team2, faction=self.elements.get("FACTION"),
+            attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_SEMIPUBLIC,)) + (gears.tags.SCENE_BUILDING, gears.tags.Criminal),
+            scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(10,10,anchor=pbge.randmaps.anchors.south),
+                                      dident="INTERIOR")
+        foyer.contents.append(team2)
+
+        exit = self.register_element(ghwaypoints.Exit(name="Exit", dest_wp=self.elements["ENTRANCE"], anchor=pbge.randmaps.anchors.south), dident="_introom")
+
+        # Add some ne'er do wells
+        for t in range(random.randint(2,4)):
+            npc = gears.selector.random_character(self.rank, combatant=True, local_tags=intscene.attributes, needed_tags=(gears.tags.Criminal,))
+            npc.place(intscene, team=team2)
+
+        return True
+
+    def INTERIOR_ENTER(self, camp: gears.GearHeadCampaign):
+        fac = self.elements["FACTION"]
+        if fac and camp.is_unfavorable_to_pc(fac):
+            # The guild team needs to attack...
+            pass
+
+    ADJECTIVES = (
+        "Shadow", "Sinister", "Criminal", "Crime", "Golden", "Secret", "Obscure", "Sneaky", "Illicit", "Nefarious",
+        "Infamous", "Chaotic", "Silent"
+    )
+
+    ORGS = (
+        "Guild", "Order", "Union", "Club", "Mafia", "Syndicate", "Cabal", "Coven", "Clique", "House", "Gang", "Society",
+        "League", "Legion"
+    )
+
+    JOBS = (
+        "Thieves", "Assassins", "Crooks", "Bandits", "Pirates", "Ninjas", "Gangsters", "Brigands", "Evildoers",
+        "Lawbreakers", "Outlaws"
+    )
+
+    TITLE_PATTERNS = (
+        "the {adjective} {job} {org}", "the {adjective} {org}", "the {adjective} {job}",
+        "the {adjective} {org} of {job}", "the {job} {org}", "the {org} of {job}"
+    )
+
+    def _generate_guild_name(self):
+        return random.choice(self.TITLE_PATTERNS).format(adjective=random.choice(self.ADJECTIVES), org=random.choice(self.ORGS), job=random.choice(self.JOBS))
+
+

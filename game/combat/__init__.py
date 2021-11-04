@@ -312,10 +312,14 @@ class Combat( object ):
             # Add team members
             for m in self.scene.contents:
                 if m not in self.active and self.scene.local_teams.get(m) is myteam and isinstance(m,gears.base.Combatant):
-                    self.active.append(m)
                     self.camp.check_trigger('ACTIVATE', m)
                     myview = scenes.pfov.PointOfView(self.scene, m.pos[0], m.pos[1], 5)
                     activation_area.update(myview.tiles)
+                    if not hasattr(m, "combatant") or m.combatant:
+                       self.active.append(m)
+                    else:
+                        pbge.my_state.view.anim_list.append(gears.geffects.SmokePoof(pos=m.pos))
+                        m.pos = None
 
             # Check for further activations
             for m in self.scene.contents:
@@ -324,6 +328,7 @@ class Combat( object ):
                     if ateam and ateam not in team_frontier:
                         team_frontier.append(ateam)
 
+        pbge.my_state.view.handle_anim_sequence()
         self.roll_initiative()
 
     def num_enemies( self ):
@@ -464,6 +469,14 @@ class Combat( object ):
             #    # Provide some end-of-combat first aid.
             #    #self.do_first_aid(explo)
             #    self.recover_fainted(explo)
+            for m in self.active:
+                if m in self.scene.contents and self.scene.is_an_actor(m):
+                    if not m.is_operational():
+                        self.camp.check_trigger("FAINT", m)
+                        n = m.get_pilot()
+                        if m is not n and not n.is_operational():
+                            self.camp.check_trigger("FAINT", n)
+
             self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)
 
 

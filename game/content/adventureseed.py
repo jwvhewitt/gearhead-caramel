@@ -281,7 +281,7 @@ class CashReward(object):
         # Only give a cash reward if the adventure is won.
         if adv.is_won():
             rank = self.rank or adv.pstate.rank
-            cash = gears.selector.calc_threat_points(rank,self.size)//5
+            cash = gears.selector.calc_mission_reward(rank,self.size)
             camp.credits += cash
             adv.results.append(("Pay","+${:,}".format(cash)))
 

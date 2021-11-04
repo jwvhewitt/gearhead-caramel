@@ -813,6 +813,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[DISTRACTION]": {
+        Default: ["[LOOK_AT_THIS] A [adjective] [noun]!"
+                  ],
+        personality.Cheerful: ["[LOOK_AT_THIS] Someone brought a cake!"
+                               ],
+        personality.Grim: ["[LOOK_AT_THIS] We're under sttack!",
+                           ],
+        personality.Easygoing: ["Say, is that a [adjective] [noun] over there?"
+                                ],
+        personality.Passionate: ["Stop! Did you hear something suspicious!?",
+                                 ],
+        personality.Sociable: ["Look, I know you're busy, but are you sure this area is secure? I saw some suspicious people milling around.",
+                               ],
+        personality.Shy: ["[LOOK_AT_THIS]",
+                          ],
+    },
+
     "[DISTRESS_CALL]": {
         Default: ["I am under attack by [enemy_meks]... If there are any friendly units in the area, I could use some backup."
                   ],
@@ -1682,6 +1699,23 @@ DEFAULT_GRAMMAR = {
         LOVE: ["For you, anything.",
                ],
 
+    },
+
+    "[I_CAN_PICK_LOCK]": {
+        Default: ["I can pick that lock.",
+                  ],
+        personality.Cheerful: ["Betcha I can pick that lock."
+                               ],
+        personality.Grim: ["I can't believe they're still using this kind of lock; I can bypass it easily.",
+                           ],
+        personality.Easygoing: ["I think I can probably pick the lock."
+                                ],
+        personality.Passionate: ["I can definitely pick this lock!!!",
+                                 ],
+        personality.Sociable: ["I've heard about this kind of lock, and I know how to bypass it.",
+                               ],
+        personality.Shy: ["Let me unlock it.",
+                          ],
     },
 
     "[I_DONT_KNOW]": {

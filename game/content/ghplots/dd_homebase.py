@@ -1146,7 +1146,7 @@ class DZD_WujungTires(Plot):
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team")
+        team2 = teams.Team(name="Civilian Team", allies=(team1,))
         intscene = gears.GearHeadScene(35, 35, "Wujung Tires", player_team=team1, civilian_team=team2,
                                        attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
@@ -1165,7 +1165,7 @@ class DZD_WujungTires(Plot):
 
         npc = self.register_element("SHOPKEEPER",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
-                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"], combatant=False))
         npc.place(intscene, team=team2)
 
         self.shop = services.Shop(npc=npc, ware_types=services.TIRE_STORE)

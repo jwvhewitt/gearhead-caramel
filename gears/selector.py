@@ -34,6 +34,8 @@ def calc_threat_points(level, percent=50):
         it = 20 * level * level - 900 * level + 19040
     return it * percent
 
+def calc_mission_reward(level, percent=100):
+    return max(calc_threat_points(level, percent) // 5, 10000)
 
 def check_design_list(echo_on=False):
     for mek in list(DESIGN_LIST):

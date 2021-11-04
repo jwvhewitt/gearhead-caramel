@@ -14,6 +14,7 @@ With-Element Triggers:
 "ACTIVATE"      When a combatant is activated
 "ACTIVATETEAM"  When a team is activated in combat
 "BUMP"          When a bumpable is bumped
+"FAINT"         When an actor is non-operational at the end of combat
 
 "ENTER"         When a scene entered or reloaded from disk
 "ENTER"         When a scene.script_room rect is entered by a party member

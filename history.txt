@@ -1,3 +1,5 @@
+- Noncombatants flee from combat
+- Added "FAINT" trigger
 - Fixed bug in which GearHeadCampaign all_plots method did not return metro plots
 - Added automatic update and expiration for plots
 - Added automatic rumor/info offer/memo option for plots

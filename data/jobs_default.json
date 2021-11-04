@@ -223,6 +223,16 @@
     }
   },
   {
+    "name": "Security Guard",
+    "tags": ["Labor","Police"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": -2,
+      "CloseCombat": 1,
+      "RangedCombat": 1
+    }
+  },
+  {
     "name": "Police Officer",
     "skills": [],
     "tags": ["Police"],

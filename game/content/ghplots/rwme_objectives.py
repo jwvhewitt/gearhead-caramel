@@ -713,7 +713,7 @@ class RWMO_SkilledAvoidance( Plot ):
         pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Scouting,self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("You detect hostile mecha on the road ahead. They are still far enough away that you can avoid them if you want to.")
+                mymenu = pbge.rpgmenu.AlertMenu("You detect hostile mecha on the road ahead. They are still far enough away that you can avoid them if you want to.")
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_DETECTED_ENEMIES] [WE_CAN_AVOID_COMBAT]",pc,camp)
             mymenu.add_item("Avoid them",self.cancel_the_adventure)
@@ -726,7 +726,7 @@ class RWMO_SkilledAvoidance( Plot ):
         pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Stealth,self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
+                mymenu = pbge.rpgmenu.AlertMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[ENEMIES_HAVE_NOT_DETECTED_US] [WE_CAN_AVOID_COMBAT]",pc,camp)
             mymenu.add_item("Avoid them",self.cancel_the_adventure)
@@ -739,7 +739,7 @@ class RWMO_SkilledAvoidance( Plot ):
         pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Wildcraft,self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = ghcutscene.PromptMenu("You find tracks belonging to enemy mecha. It would be a simple matter to find an alternate route around them.")
+                mymenu = pbge.rpgmenu.AlertMenu("You find tracks belonging to enemy mecha. It would be a simple matter to find an alternate route around them.")
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[THERE_ARE_ENEMY_TRACKS] [WE_CAN_AVOID_COMBAT]",pc,camp)
             mymenu.add_item("Avoid them",self.cancel_the_adventure)
