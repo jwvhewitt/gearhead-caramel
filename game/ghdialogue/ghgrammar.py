@@ -1718,6 +1718,24 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[I_DONT_FEEL_WELCOME]": {
+        # The speaker feels distinctly unwelcome, possibly threatened, in this place.
+        Default: ["I really don't feel welcome here."
+                  ],
+        personality.Cheerful: ["I get the feeling that I'm not going to have a good time here."
+                               ],
+        personality.Grim: ["I fear I may not leave this place alive.",
+                           ],
+        personality.Easygoing: ["Did you ever get the feeling that you don't really belong somewhere?"
+                                ],
+        personality.Passionate: ["I feel threatened by this place...",
+                                 ],
+        personality.Sociable: ["I get the distinct impression that I'm not going to fit in here.",
+                               ],
+        personality.Shy: ["Let's get out of here.",
+                          ],
+    },
+
     "[I_DONT_KNOW]": {
         Default: ["I don't know.", "How should I know?"
                   ],
@@ -3601,6 +3619,27 @@ DEFAULT_GRAMMAR = {
         personality.Shy: [
             "They are dangerous.",
         ],
+    },
+
+    "[THIS_CANNOT_BE_ALLOWED]": {
+        # The NPC has just been informed that someone is breaking the rules.
+        Default: ["This cannot be allowed."
+                  ],
+        personality.Cheerful: [
+            "Well, I guess someone really wants to get punished!"
+        ],
+        personality.Grim: ["They have crossed the line that must not be crossed.",
+                           ],
+        personality.Easygoing: ["You know, you wouldn't think it'd be hard to just follow the rules...",
+                                ],
+        personality.Passionate: [
+            "They have violated the pact! They must be made to pay.",
+        ],
+        personality.Sociable: [
+            "I should have known they would try something like this.",
+        ],
+        personality.Shy: ["I see.",
+                          ],
     },
 
     "[THIS_IS_AN_EMERGENCY]": {

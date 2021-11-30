@@ -810,6 +810,14 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             self.faction_relations[fac] = factions.FactionRelations()
         self.faction_relations[fac].set_pc_enemy()
 
+    def get_campdata(self, thing):
+        if thing:
+            if not hasattr(thing, "campdata"):
+                thing.campdata = dict()
+            return thing.campdata
+        else:
+            return self.campdata
+
 
 class GearHeadArchitecture(pbge.randmaps.architect.Architecture):
     ENV = tags.GroundEnv

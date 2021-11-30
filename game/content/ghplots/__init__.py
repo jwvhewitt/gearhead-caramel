@@ -2,6 +2,7 @@ import inspect
 
 from . import actionscenes
 from . import campfeatures
+from . import consequences
 from . import dd_combatmission
 from . import dd_conclusion
 from . import dd_customobjectives
@@ -57,6 +58,7 @@ def harvest( mod ):
 
 harvest(actionscenes)
 harvest(campfeatures)
+harvest(consequences)
 harvest(dd_combatmission)
 harvest(dd_conclusion)
 harvest(dd_customobjectives)

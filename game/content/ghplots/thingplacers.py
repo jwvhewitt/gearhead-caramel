@@ -32,8 +32,8 @@ class DaBouncer(Plot):
             '_introom', pbge.randmaps.rooms.ClosedRoom(),
             dident="LOCALE"
         )
-        bteam = self.register_element("_bteam", teams.Team("Bouncer Team", allies=(self.elements["LOCALE"].civilian_team)), dident="_introom")
-        bouncer = self.register_element("BOUNCER", gears.selector.random_character(self.rank, local_tags=self.elements["METROSCENE"].attributes, job="Security Guard"), lock=True, dident="_bteam")
+        bteam = self.register_element("_bteam", teams.Team("Bouncer Team", allies=(self.elements["LOCALE"].civilian_team,)), dident="_introom")
+        bouncer = self.register_element("BOUNCER", gears.selector.random_character(self.rank, local_tags=self.elements["METROSCENE"].attributes, job=gears.jobs.ALL_JOBS["Security Guard"]), lock=True, dident="_bteam")
 
         # Create the VIP's office.
         team1 = teams.Team(name="Player Team")
@@ -50,14 +50,14 @@ class DaBouncer(Plot):
                                                                       anchor=pbge.randmaps.anchors.south,
                                                                       decorate=gharchitecture.OfficeDecor()),
                                        dident="INTERIOR")
-
-        self.elements["NPC"].place(office, team=team2)
+        office.contents.append(team2)
+        team2.contents.append(self.elements["NPC"])
 
         office_exit = ghwaypoints.Exit(name="Exit", anchor=pbge.randmaps.anchors.south)
         office.contents.append(office_exit)
 
         elevator = self.register_element("_elevator", ghwaypoints.GlassDoor(name="Elevator", plot_locked=True,
-                                                                            dest_wp=office_exit))
+                                                                            dest_wp=office_exit), dident="_introom")
         office_exit.dest_wp = elevator
 
         self.lockpick_pc = None
@@ -69,7 +69,7 @@ class DaBouncer(Plot):
         mylist = list()
 
         mylist.append(Offer(
-            "{NPC} isn't taking any uninvited visitors right now.",
+            "{NPC} isn't taking any uninvited visitors right now.".format(**self.elements),
             ContextTag([context.HELLO,]),
         ))
 

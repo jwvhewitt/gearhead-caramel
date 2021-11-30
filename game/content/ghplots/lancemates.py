@@ -239,6 +239,32 @@ class FormerLancemateReturns(Plot):
             self.end_plot(camp)
 
 
+class BountyHunterLancemate(Plot):
+    LABEL = "RANDOM_LANCEMATE"
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = gears.selector.random_character(rank=min(random.randint(10, 50),random.randint(10, 50)),
+                                              job=gears.jobs.ALL_JOBS["Bounty Hunter"],
+                                              mecha_colors=gears.color.random_mecha_colors(),
+                                              local_tags=tuple(self.elements["METROSCENE"].attributes),
+                                              combatant=True)
+
+        npc.personality.add(gears.personality.Justice)
+
+        if random.randint(1,4) != 1:
+            npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1,4)
+
+        scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
+
+        self.register_element("NPC", npc, dident="LOCALE")
+        self.add_sub_plot(nart, "RLM_Relationship")
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
 #   **************************
 #   ***  RLM_Relationship  ***
 #   **************************

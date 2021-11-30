@@ -809,3 +809,8 @@ class AngelEggTerrain(pbge.scenes.terrain.Terrain):
     frame = 3
     image_top = 'terrain_dzd_mechaprops.png'
     blocks = (Walking,Skimming,Rolling)
+
+class SkullTownSignTerrain(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_skulltown.png'
+    blocks = (Walking, Skimming, Rolling)

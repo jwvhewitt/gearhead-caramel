@@ -19,8 +19,13 @@ class Team( object ):
     def set_mutual_reaction( self, other_team, reaction ):
         self.reactions[other_team] = reaction
         other_team.reactions[self] = reaction
-    def make_enemies( self, other_team ):
+
+    def attack( self, other_team ):
         self.set_mutual_reaction(other_team,ARE_ENEMIES)
+        for k,v in self.reactions:
+            if v == ARE_ALLIES:
+                k.set_mutual_reaction(other_team, ARE_ENEMIES)
+
     def is_enemy( self, other_team ):
         return self.reactions.get(other_team) == ARE_ENEMIES
 

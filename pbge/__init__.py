@@ -635,7 +635,8 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             if util.config.getboolean("GENERAL", "fullscreen"):
                 my_state.physical_screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
             else:
-                my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
+                #my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
+                my_state.physical_screen = pygame.display.set_mode((1280, 720), WINDOWED_FLAGS)
             my_state.resize()
         else:
             if util.config.getboolean("GENERAL", "fullscreen"):

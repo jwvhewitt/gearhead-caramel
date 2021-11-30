@@ -3,7 +3,7 @@ import random
 import game.content
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed
+from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain
 from game import teams, ghdialogue
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
@@ -25,6 +25,8 @@ class BlackMarketBluesMain(Plot):
     UNIQUE = True
     active = True
     scope = "METRO"
+
+    QOL = gears.QualityOfLife(prosperity=1, stability=-1)
 
     BMES_ENTERED = 1
     BMES_ATTACKED = 2
@@ -55,6 +57,41 @@ class BlackMarketBluesMain(Plot):
             camp=nart.camp, faction=gears.factions.TreasureHunters, combatant=True
         ))
 
+        # Place a thieves guild in the black market.
+        tgsp = self.add_sub_plot(
+            nart, "THIEVES_GUILD", elements={
+            "LOCALE": self.elements["BLACK_MARKET"],
+            "FACTION": gears.factions.TreasureHunters, "ENTRANCE": None}
+        )
+        self.elements["GUILD"] = tgsp.elements["INTERIOR"]
+        exterior = self.register_element("_exterior", ghterrain.BrickBuilding(
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=str(tgsp.elements["INTERIOR"]))},
+            door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]
+        ), dident="BLACK_MARKET")
+        plotutility.TownBuildingConnection(
+            nart, self, self.elements["BLACK_MARKET"], tgsp.elements["INTERIOR"],
+            room2=tgsp.elements["_introom"], door2=tgsp.elements["EXIT"], move_door2=False,
+            door1=exterior.waypoints["DOOR"], move_door1=False)
+
+        # Add the rules sign.
+        myroom = self.register_element("_skullroom", pbge.randmaps.rooms.OpenRoom(5,5), dident="BLACK_MARKET")
+        self.register_element("SKULL_SIGN",ghwaypoints.SkullTownSign(
+            name="Skull Sign", anchor=pbge.randmaps.anchors.middle,
+            desc="Rules of {BLACK_MARKET} as decreed and enforced by {NPC} of {GUILD}:\n-No fighting within the market.\n-No mecha combat within the market.\n-No attacking a rival gang's safehouse.\n-No raiding within 100km of {METROSCENE}.\n-Biomonsters to be leashed at all times.\n-Bounty hunters to be shot on sight.".format(**self.elements),
+            plot_locked=True
+        ), dident="_skullroom")
+
+
+        # Place the NPC in the thieves guild.
+        self.add_sub_plot(
+            nart, "VIP_SCREENING", elements={"LOCALE": tgsp.elements["INTERIOR"]}
+        )
+
+        self.bandit_base_found = False
+        self.permission_granted = False
+        self.bandit_base_destroyed = False
+
         return True
 
     def MISSION_WIN(self, camp):
@@ -69,6 +106,17 @@ class BlackMarketBluesMain(Plot):
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.black_market_found:
             thingmenu.add_item("Go to the Black Market.", self._go_to_market)
+        if self.bandit_base_found and not self.bandit_base_destroyed:
+            thingmenu.add_item("Attack the {} base.".format(self.elements["FACTION"]), self._attack_the_enemy_base)
+
+    def SKULL_SIGN_menu(self, camp, thingmenu):
+        thingmenu.add_item("[CONTINUE]", self._read_the_sign)
+
+    def _read_the_sign(self, camp: gears.GearHeadCampaign):
+        mybh = [bh for bh in camp.get_active_party() if bh.job and bh.job.name == "Bounty Hunter"]
+        if mybh:
+            npc = random.choice(mybh)
+            ghcutscene.SimpleMonologueDisplay("[I_DONT_FEEL_WELCOME]", npc)(camp)
 
     def _go_to_market(self, camp):
         if self.black_market_entry_status == self.BMES_ENTERED:
@@ -85,6 +133,16 @@ class BlackMarketBluesMain(Plot):
             enemy_faction=self.elements["FACTION"], rank=self.rank+10,
             objectives=(missionbuilder.BAMO_STORM_THE_CASTLE, missionbuilder.BAMO_SURVIVE_THE_AMBUSH),
             cash_reward=500, on_win=self._destroy_black_market
+        )
+        my_mission(camp)
+
+    def _attack_the_enemy_base(self, camp):
+        my_mission = missionbuilder.BuildAMissionSeed(
+            camp, "Destroy the {} Base".format(self.elements["FACTION"]), self.elements["METROSCENE"],
+            self.elements["MISSION_GATE"],
+            enemy_faction=self.elements["FACTION"], rank=self.rank+10,
+            objectives=(missionbuilder.BAMO_STORM_THE_CASTLE, ),
+            cash_reward=500, on_win=self._destroy_enemy_base
         )
         my_mission(camp)
 
@@ -124,20 +182,52 @@ class BlackMarketBluesMain(Plot):
         self.elements["BLACK_MARKET"].remove_all_npcs(camp)
         self.end_plot(camp)
 
+    def _destroy_enemy_base(self, camp: gears.GearHeadCampaign):
+        camp.check_trigger("WIN", self)
+        self.bandit_base_destroyed = True
+        if not self.permission_granted:
+            self._npc_becomes_enemy(camp)
+            npc: gears.base.Character = self.elements["NPC"]
+            npc.relationship.history.append(gears.relationships.Memory(
+                "you attacked the {} base without my permission".format(self.elements["FACTION"]),
+                "I broke the rules of {}".format(self.elements["BLACK_MARKET"]),
+                -5, (gears.relationships.MEM_Ideological,)
+            ))
+
     def _npc_becomes_enemy(self, camp):
         npc: gears.base.Character = self.elements["NPC"]
-        camp.freeze(npc)
-        if not npc.relationship:
-            npc.relationship = camp.get_relationship(npc)
-        npc.relationship.attitude = gears.relationships.A_RESENT
-        npc.relationship.role = gears.relationships.R_ADVERSARY
-        npc.relationship.expectation = gears.relationships.E_REVENGE
-        if npc not in camp.egg.dramatis_personae:
-            camp.egg.dramatis_personae.append(npc)
-        camp.set_faction_as_pc_enemy(gears.factions.TreasureHunters)
+        if npc.is_not_destroyed():
+            camp.freeze(npc)
+            if not npc.relationship:
+                npc.relationship = camp.get_relationship(npc)
+            npc.relationship.attitude = gears.relationships.A_RESENT
+            npc.relationship.role = gears.relationships.R_ADVERSARY
+            npc.relationship.expectation = gears.relationships.E_REVENGE
+            if npc not in camp.egg.dramatis_personae:
+                camp.egg.dramatis_personae.append(npc)
+            camp.set_faction_as_pc_enemy(gears.factions.TreasureHunters)
 
     def BLACK_MARKET_ENTER(self, camp):
         self.black_market_entry_status = self.BMES_ENTERED
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        if not self.permission_granted:
+            mylist.append(Offer(
+                "[THIS_CANNOT_BE_ALLOWED] You have my permission to utterly destroy their base.",
+                ContextTag([context.REVEAL,]), effect=self._get_permission,
+                data={"reveal": "{FACTION} has been raiding the highway near {METROSCENE}".format(**self.elements)}
+            ))
+        return mylist
+
+    def _get_permission(self, camp):
+        self.permission_granted = True
+        self._reveal_bandit_base(camp)
+
+    def _reveal_bandit_base(self, camp):
+        self.bandit_base_found = True
+        missionbuilder.NewMissionNotification("Attack {} Base".format(self.elements["FACTION"]),
+                                              self.elements["MISSION_GATE"])
 
 
 class BMB_AttemptEntry(Plot):

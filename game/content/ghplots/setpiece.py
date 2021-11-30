@@ -575,13 +575,13 @@ class BasicThievesGuild(Plot):
             attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_SEMIPUBLIC,)) + (gears.tags.SCENE_BUILDING, gears.tags.Criminal),
             scale=gears.scale.HumanScale)
 
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(10,10,anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
         foyer.contents.append(team2)
 
-        exit = self.register_element(ghwaypoints.Exit(name="Exit", dest_wp=self.elements["ENTRANCE"], anchor=pbge.randmaps.anchors.south), dident="_introom")
+        exit = self.register_element("EXIT", ghwaypoints.Exit(name="Exit", dest_wp=self.elements["ENTRANCE"], anchor=pbge.randmaps.anchors.south), dident="_introom")
 
         # Add some ne'er do wells
         for t in range(random.randint(2,4)):
@@ -594,7 +594,7 @@ class BasicThievesGuild(Plot):
         fac = self.elements["FACTION"]
         if fac and camp.is_unfavorable_to_pc(fac):
             # The guild team needs to attack...
-            pass
+            self.elements["INTERIOR"].civilian_team.attack(self.elements["INTERIOR"].player_team)
 
     ADJECTIVES = (
         "Shadow", "Sinister", "Criminal", "Crime", "Golden", "Secret", "Obscure", "Sneaky", "Illicit", "Nefarious",
@@ -608,7 +608,7 @@ class BasicThievesGuild(Plot):
 
     JOBS = (
         "Thieves", "Assassins", "Crooks", "Bandits", "Pirates", "Ninjas", "Gangsters", "Brigands", "Evildoers",
-        "Lawbreakers", "Outlaws"
+        "Lawbreakers", "Outlaws", "Libertines"
     )
 
     TITLE_PATTERNS = (

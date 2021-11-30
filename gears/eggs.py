@@ -45,25 +45,49 @@ class Egg(object):
             con_rec[thing] = thing.container
             thing.container.remove(thing)
 
+    def _remove_campdata_for(self, thing, cdat_rec):
+        if hasattr(thing, "campdata"):
+            cdat_rec[thing] = thing.campdata
+            del thing.campdata
+        for sc in thing.sub_com:
+            self._remove_campdata_for(sc, cdat_rec)
+        for sc in thing.inv_com:
+            self._remove_campdata_for(sc, cdat_rec)
+
     def _reset_container_for(self,thing, con_rec):
         if thing in con_rec:
             con_rec[thing].append(thing)
 
+    def _reset_campdata_for(self,thing, cdat_rec):
+        if thing in cdat_rec:
+            thing.campdata = cdat_rec[thing]
+        for sc in thing.sub_com:
+            self._reset_campdata_for(sc, cdat_rec)
+        for sc in thing.inv_com:
+            self._reset_campdata_for(sc, cdat_rec)
+
     def save( self, sfpat = 'egg_{}.sav' ):
         # Save a record of all the containers.
         con_rec = dict()
+        cdat_rec = dict()
         self._remove_container_for(self.pc, con_rec)
         self._remove_container_for(self.mecha, con_rec)
+        self._remove_campdata_for(self.pc, cdat_rec)
+        self._remove_campdata_for(self.mecha, cdat_rec)
         for npc in list(self.dramatis_personae):
             self._remove_container_for(npc, con_rec)
+            self._remove_campdata_for(npc, cdat_rec)
             if npc.is_destroyed():
                 self.dramatis_personae.remove(npc)
         with open( util.user_dir( sfpat.format( self.pc.name ) ) , "wb" ) as f:
             pickle.dump( self , f, -1 )
         self._reset_container_for(self.pc, con_rec)
         self._reset_container_for(self.mecha, con_rec)
+        self._reset_campdata_for(self.pc, cdat_rec)
+        self._reset_campdata_for(self.mecha, cdat_rec)
         for npc in self.dramatis_personae:
             self._reset_container_for(npc, con_rec)
+            self._reset_campdata_for(npc, cdat_rec)
 
     def backup( self ):
         # Save a record of all the containers.

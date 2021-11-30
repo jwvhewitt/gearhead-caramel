@@ -474,7 +474,7 @@ class Combat( object ):
                     if not m.is_operational():
                         self.camp.check_trigger("FAINT", m)
                         n = m.get_pilot()
-                        if m is not n and not n.is_operational():
+                        if n and m is not n and not n.is_operational():
                             self.camp.check_trigger("FAINT", n)
 
             self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)

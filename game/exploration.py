@@ -610,6 +610,13 @@ class Explorer( object ):
                             elif self.camp.is_favorable_to_pc(k):
                                 print("{}: Ally".format(k))
 
+                    elif gdi.unicode == "E" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        mymenu = pbge.rpgmenu.AlertMenu("Do you want to end this campaign?")
+                        mymenu.add_item("Yes, time to quit.", True)
+                        mymenu.add_item("No, I pressed the wrong key.", False)
+                        if mymenu.query():
+                            self.camp.eject()
+
                     elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for card in self.camp.active_tarot_cards():
                             print(card.__class__.__name__)

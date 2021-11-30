@@ -397,3 +397,8 @@ class PZHolo(Waypoint):
 
 class AngelEgg(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.AngelEggTerrain)
+
+class SkullTownSign(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.SkullTownSignTerrain)
+
+
