@@ -224,7 +224,7 @@
   },
   {
     "name": "Security Guard",
-    "tags": ["Labor","Police"],
+    "tags": ["Laborer","Police"],
     "always_combatant": true,
     "skill_modifiers": {
       "MechaFighting": -2,

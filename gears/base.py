@@ -1709,11 +1709,12 @@ class MeleeWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 3
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Brutal, attackattributes.IgnitesAmmo,
-                        attackattributes.ChargeAttack,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize, attackattributes.Brutal,
+                        attackattributes.IgnitesAmmo, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.HaywireAttack,
-                        attackattributes.OverloadAttack, attackattributes.Smash, attackattributes.DrainsPower,
+                        attackattributes.OverloadAttack, attackattributes.PoisonAttack, attackattributes.Smash,
+                        attackattributes.DrainsPower,
                         attackattributes.MultiWielded)
 
     def get_attack_skill(self):
@@ -1803,7 +1804,8 @@ class EnergyWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 12
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.IgnitesAmmo, attackattributes.ChargeAttack,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize, attackattributes.IgnitesAmmo,
+                        attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.DrainsPower,
                         attackattributes.MultiWielded)
@@ -1917,7 +1919,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     STACK_CRITERIA = ("ammo_type", 'attributes')
     SAVE_PARAMETERS = ('ammo_type', 'quantity', 'area_anim', 'attributes')
     LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.Brutal,
-                        attackattributes.BurnAttack, attackattributes.HaywireAttack,
+                        attackattributes.BurnAttack, attackattributes.HaywireAttack, attackattributes.PoisonAttack,
                         attackattributes.OverloadAttack, attackattributes.Scatter,
                         )
 
@@ -2214,7 +2216,7 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
     LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.DisintegrateAttack,
                         attackattributes.Designator,
-                        attackattributes.HaywireAttack, attackattributes.OverloadAttack,
+                        attackattributes.HaywireAttack, attackattributes.OverloadAttack, attackattributes.PoisonAttack,
                         attackattributes.Scatter,
                         )
 
@@ -2488,7 +2490,8 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Chem"
     STACK_CRITERIA = ('attributes',)
     SAVE_PARAMETERS = ('quantity', 'attributes', 'shot_anim', 'area_anim')
-    LEGAL_ATTRIBUTES = (attackattributes.Brutal, attackattributes.BurnAttack,)
+    LEGAL_ATTRIBUTES = (attackattributes.Agonize, attackattributes.Brutal, attackattributes.BurnAttack,
+                        attackattributes.DisintegrateAttack, attackattributes.PoisonAttack)
 
     def __init__(self, quantity=20, shot_anim=None, area_anim=None, attributes=(), **keywords):
         # Check the range of all parameters before applying.

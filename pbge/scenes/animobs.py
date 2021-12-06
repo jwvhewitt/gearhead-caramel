@@ -53,8 +53,10 @@ def get_fline( p1, p2, speed):
 
 class AnimOb( object ):
     """An animation for the map."""
-    def __init__( self, sprite_name=None, width=64, height=64, pos=(0,0), start_frame=0, end_frame=0, ticks_per_frame=0, loop=0, x_off=0, y_off=0, delay=1 ):
-        self.sprite = image.Image( sprite_name or self.DEFAULT_SPRITE_NAME, width, height )
+    def __init__( self, sprite_name=None, width=64, height=64, pos=(0,0), start_frame=0, end_frame=0, ticks_per_frame=0,
+                  loop=0, x_off=0, y_off=0, delay=1, is_transparent=False ):
+        self.sprite = image.Image( sprite_name or self.DEFAULT_SPRITE_NAME, width, height,
+                                   transparent=self.DEFAULT_TRANSPARENCY or is_transparent)
         self.start_frame = start_frame
         self.frame = start_frame or self.DEFAULT_START_FRAME
         self.end_frame = end_frame or self.DEFAULT_END_FRAME
@@ -72,6 +74,7 @@ class AnimOb( object ):
     DEFAULT_END_FRAME= 0
     DEFAULT_LOOP = 0
     DEFAULT_TICKS_PER_FRAME = 1
+    DEFAULT_TRANSPARENCY = False
 
     def update( self, view ):
         if self.delay > 0:
@@ -103,8 +106,10 @@ class AnimOb( object ):
 
 class ShotAnim( AnimOb ):
     """An AnimOb which moves along a line."""
-    def __init__( self, sprite_name=None, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=None, set_frame_offset=True, x_off=0, y_off=0, delay=0 ):
-        self.sprite = image.Image( sprite_name or self.DEFAULT_SPRITE_NAME, width, height )
+    def __init__( self, sprite_name=None, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=None,
+                  set_frame_offset=True, x_off=0, y_off=0, delay=0, is_transparent=False ):
+        self.sprite = image.Image( sprite_name or self.DEFAULT_SPRITE_NAME, width, height,
+                                   transparent=self.DEFAULT_TRANSPARENCY or is_transparent )
         if set_frame_offset:
             self.frame = frame + self.dir_frame_offset( self.isometric_pos(*start_pos), self.isometric_pos(*end_pos) )
         else:
@@ -120,6 +125,7 @@ class ShotAnim( AnimOb ):
         self.delay = delay
     DEFAULT_SPRITE_NAME = ''
     DEFAULT_SPEED = 0.5
+    DEFAULT_TRANSPARENCY = False
 
     def relative_x( self, x, y ):
         """Return the relative x position of this tile, ignoring offset."""

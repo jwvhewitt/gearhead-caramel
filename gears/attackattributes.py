@@ -18,6 +18,19 @@ class Accurate(Singleton):
         aa.data.thrill_power += 1
         return [aa]
 
+class Agonize(Singleton):
+    name = "Agonize"
+    MASS_MODIFIER = 1.5
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 3.0
+    POWER_MODIFIER = 1.0
+
+    @classmethod
+    def modify_basic_attack(self, weapon, attack):
+        attack.fx.children[0].children.append(
+            geffects.DoDrainStamina(1,6)
+        )
+
 class Automatic(Singleton):
     # This weapon has two extra modes: x5 ammo for 2 shots, or x10 ammo for 3 shots
     name = "Automatic"
@@ -222,7 +235,7 @@ class DisintegrateAttack(Singleton):
     name = "Disintegrate"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 2.0
-    COST_MODIFIER = 2.0
+    COST_MODIFIER = 3.0
     POWER_MODIFIER = 2.0
 
     @classmethod
@@ -428,6 +441,29 @@ class OverloadAttack(Singleton):
             geffects.IfEnchantmentOK(
                 geffects.OverloadStatus,
                 on_success=(geffects.AddEnchantment(geffects.OverloadStatus,dur_n=2,dur_d=4,anim=geffects.OverloadAnim),),
+            )
+        )
+
+
+class PoisonAttack(Singleton):
+    name = "Poison"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.0
+    POWER_MODIFIER = 2.0
+
+    @classmethod
+    def modify_basic_attack(self, weapon, attack):
+        # Add a disintegration status to the children.
+        attack.fx.children[0].children.append(
+            geffects.IfEnchantmentOK(
+                geffects.Poisoned,
+                on_success=(
+                    geffects.ResistanceRoll(stats.Craft,stats.Ego,roll_mod=25,min_chance=15,
+                        on_success=(geffects.AddEnchantment(geffects.Poisoned,dur_n=2,dur_d=4,
+                                                            anim=geffects.InflictPoisonAnim),)
+                    ),
+                ),
             )
         )
 

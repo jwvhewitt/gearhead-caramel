@@ -4,7 +4,7 @@ from pbge.scenes import animobs,movement,pfov
 import random
 from . import materials
 from . import damage, stats
-from .enchantments import Enchantment,END_COMBAT,ON_MOVE,ON_DISPEL_POSITIVE,ON_DISPEL_NEGATIVE
+from .enchantments import Enchantment,END_COMBAT,ON_MOVE,ON_DISPEL_POSITIVE,ON_DISPEL_NEGATIVE, USE_ANTIDOTE
 import math
 from . import base, tags
 
@@ -195,6 +195,10 @@ class SmallBoom( animobs.AnimOb ):
 class NoDamageBoom( SmallBoom ):
     SPRITE_NAME = 'anim_nodamage.png'
 
+class PoisonDamageBoom( SmallBoom ):
+    SPRITE_NAME = 'anim_poisondamage.png'
+    DEFAULT_TRANSPARENCY = True
+    DEFAULT_END_FRAME = 15
 
 class BigBoom( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_bigboom.png"
@@ -309,6 +313,10 @@ class InflictDisintegrationAnim( animobs.Caption ):
 
 class InflictHaywireAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Haywire!'
+
+class InflictPoisonAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Poisoned!'
+
 
 
 class AIAssistAnim( animobs.Caption ):
@@ -868,6 +876,7 @@ class OpposedSkillRoll( effects.NoEffect ):
         modifiers = [(self.roll_mod,'Base Modifier')]
         return self._calc_percent(camp,originator,target)/100.0,modifiers
 
+
 class ResistanceRoll( effects.NoEffect ):
     """ Two actors make a skill roll based on defense skill. One will succeed, one will fail.
     """
@@ -997,7 +1006,7 @@ class DoDamage( effects.NoEffect ):
     """
     DESTROY_TARGET_XP = 45
     def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False, scatter=False,
-                 damage_bonus=0, is_brutal=False):
+                 damage_bonus=0, is_brutal=False, can_be_divided=True, affected_by_armor=True):
         self.damage_n = damage_n
         self.damage_d = damage_d
         self.damage_bonus = damage_bonus
@@ -1010,6 +1019,8 @@ class DoDamage( effects.NoEffect ):
         self.hot_knife = hot_knife
         self.is_brutal = is_brutal
         self.scatter = scatter
+        self.can_be_divided = can_be_divided
+        self.affected_by_armor = affected_by_armor
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0 ):
         targets = camp.scene.get_operational_actors(pos)
@@ -1030,8 +1041,10 @@ class DoDamage( effects.NoEffect ):
                 hits = [max(int(scale.scale_health(
                   max(sum(random.randint(1,self.damage_d) for n in range(self.damage_n)) + self.damage_bonus, 1),
                   materials.DamageMat) * damage_percent // 100),1) for t in range(number_of_hits)]
-            mydamage = damage.Damage( camp, hits,
-                  penetration, target, anims, hot_knife=self.hot_knife, is_brutal=self.is_brutal )
+            mydamage = damage.Damage(
+                camp, hits, penetration, target, anims, hot_knife=self.hot_knife, is_brutal=self.is_brutal,
+                can_be_divided=self.can_be_divided, affected_by_armor=self.affected_by_armor
+            )
             # Hidden targets struck by an attack get revealed.
             myanim = animobs.RevealModel( target,delay=delay)
             anims.append(myanim)
@@ -1282,6 +1295,32 @@ class DoDrainPower( effects.NoEffect ):
             drain = random.randint(1, limit)
             target.consume_power(drain)
             myanim = animobs.Caption( "-{}Pw".format(drain)
+                                    , pos = target.pos
+                                    , delay = delay
+                                    , y_off = -camp.scene.model_altitude(target, *target.pos)
+                                    )
+            anims.append(myanim)
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
+
+
+class DoDrainStamina( effects.NoEffect ):
+    """ Drain the stamina of the target.
+    """
+    def __init__(self, drain_n=1, drain_d=6, **keywords):
+        self.drain_n = drain_n
+        self.drain_d = drain_d
+        super().__init__(**keywords)
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay = 0):
+        for target in camp.scene.get_operational_actors(pos):
+            if not hasattr(target, 'spend_stamina'):
+                continue
+            elif target.get_current_stamina() < 1:
+                continue
+
+            drain = min(sum(random.randint(1,self.drain_d) for n in range(self.drain_n)), target.get_current_stamina())
+
+            target.spend_stamina(drain)
+            myanim = animobs.Caption( "-{}SP".format(drain)
                                     , pos = target.pos
                                     , delay = delay
                                     , y_off = -camp.scene.model_altitude(target, *target.pos)
@@ -1888,12 +1927,12 @@ class Disintegration(NegativeEnchantment):
         burn = effects.Invocation(
             name = 'Disintegrate',
             fx= DoDamage(3,6,scale=owner.scale,scatter=True,
-                         anim=DisintegrationAnim,),
+                         anim=DisintegrationAnim, affected_by_armor=False),
             area=pbge.scenes.targetarea.SingleTarget(),)
         burn.invoke(camp, None, [owner.pos,], pbge.my_state.view.anim_list)
         pbge.my_state.view.handle_anim_sequence()
     def get_penetration_bonus(self,owner):
-        return 25
+        return 15
 
 
 class HaywireStatus(NegativeEnchantment):
@@ -1924,6 +1963,27 @@ class SensorLock(NegativeEnchantment):
     DEFAULT_DURATION = 5
     def get_mobility_bonus(self,owner):
         return -25
+
+class Poisoned(NegativeEnchantment):
+    name = 'Poisoned'
+    DEFAULT_DURATION = 6
+    DEFAULT_DISPEL = (USE_ANTIDOTE,)
+    def update(self,camp,owner):
+        burn = effects.Invocation(
+            name = 'Poison',
+            fx= SkillRoll(stats.Ego, stats.Vitality, max_chance=75,
+                on_failure=(
+                    DoDamage(1,6,scale=owner.scale, can_be_divided=False,
+                    anim=PoisonDamageBoom, affected_by_armor=False),
+                )
+            ),
+            area=pbge.scenes.targetarea.SingleTarget(),)
+        burn.invoke(camp, None, [owner.pos,], pbge.my_state.view.anim_list)
+        pbge.my_state.view.handle_anim_sequence()
+
+    @classmethod
+    def can_affect(cls,target):
+        return target.material in (materials.Meat,)
 
 
 class Prescience(PositiveEnchantment):

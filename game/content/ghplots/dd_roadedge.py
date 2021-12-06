@@ -219,6 +219,12 @@ class TheMechaGraveyard(DZDREBasicPlotWithEncounterStuff):
         return mygram
 
 
+class BlackMarketBluesOrange(BlackMarketBluesStarter):
+    # The BlackMarketBlues main part is unique, so even with two starter plots it'll only show up once.
+    LABEL = "DZD_ROADEDGE_ORANGE"
+    UNIQUE = True
+    BASE_RANK = 27
+
 
 class InvadersPalooza(DZDREProppStarterPlot):
     LABEL = "DZD_ROADEDGE_ORANGE"

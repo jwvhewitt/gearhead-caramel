@@ -18,7 +18,7 @@ Monster
             size = 3
             SUB
                 Armor
-                    size = 2
+                    size = 3
 				MeleeWeapon
 					name="Buzzsaw"
 					reach=1
@@ -32,13 +32,15 @@ Monster
             size = 1
             SUB
                 Armor
-                    size = 2
+                    size = 3
+                    integral = True
             END
         Leg
             size = 1
             SUB
                 Armor
-                    size = 2
+                    size = 3
+                    integral = True
             END
     END
 
@@ -62,7 +64,8 @@ Monster
             size = 5
             SUB
                 Armor
-                    size = 3
+                    size = 5
+                    integral = True
 				MeleeWeapon
 					name="Shock Baton"
 					reach=2
@@ -93,12 +96,12 @@ Monster
             size = 4
             SUB
                 Armor
-                    size = 3
+                    size = 5
             END
         Leg
             size = 4
             SUB
                 Armor
-                    size = 3
+                    size = 5
             END
     END

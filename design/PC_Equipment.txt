@@ -10,6 +10,59 @@ MeleeWeapon
     material = Metal
     shop_tags= ("WEAPON","MELEE WEAPON","ESSENTIAL")
     faction_list = (None,)
+    attributes = (Accurate,FastAttack)
+
+MeleeWeapon
+    name="Whip"
+    desc = "A long flexible lash. It doesn't do a lot of damage, but it hurts like the dickens."
+    reach=2
+    damage=1
+    accuracy=3
+    penetration=1
+    scale = HumanScale
+    material = Metal
+    shop_tags= ("MELEE WEAPON","ODDITY","CONTRABAND")
+    faction_list = (None,)
+    attributes = (Flail,Agonize)
+
+MeleeWeapon
+    name="Cutlass"
+    desc = "A curved short sword. In the past, this weapon was carried by military officers to show their rank. These days it just looks cool."
+    reach=1
+    damage=2
+    accuracy=3
+    penetration=2
+    scale = HumanScale
+    material = Ceramic
+    attributes = (Defender,FastAttack)
+    shop_tags= ("WEAPON","MELEE WEAPON","ANTIQUE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Sai"
+    desc = "A pointed metal dagger with two sideguards that may be used for trapping and blocking. Designed to be wielded in pairs."
+    reach=1
+    damage=2
+    accuracy=3
+    penetration=3
+    scale = HumanScale
+    material = Metal
+    attributes = (Defender,MultiWielded)
+    shop_tags= ("WEAPON","MELEE WEAPON",)
+    faction_list = (BladesOfCrihna,BoneDevils,TreasureHunters,KettelIndustries,ClanIronwind,ProDuelistAssociation)
+
+MeleeWeapon
+    name="Quarterstaff"
+    desc = "A long pole of synthetic material."
+    reach=2
+    damage=1
+    accuracy=2
+    penetration=2
+    scale = HumanScale
+    material = Ceramic
+    attributes = (Defender,FastAttack)
+    shop_tags= ("WEAPON","MELEE WEAPON",)
+    faction_list = (DeadzoneFederation,ClanIronwind,BoneDevils,TerranFederation,TerranDefenseForce,RegExCorporation)
 
 MeleeWeapon
     name="Longsword"
@@ -25,6 +78,32 @@ MeleeWeapon
     faction_list = (None,)
 
 MeleeWeapon
+    name="Rapier"
+    desc = "A pointed flexible sword. In the hands of an expert, this is a versatile and deadly weapon."
+    reach=1
+    damage=2
+    accuracy=3
+    penetration=3
+    scale = HumanScale
+    material = Metal
+    attributes = (Defender, Accuracy, FastAttack)
+    shop_tags= ("WEAPON","MELEE WEAPON",)
+    faction_list = (AegisOverlord,TreasureHunters,TerranFederation,BioCorp,TheSilverKnights,TheSolarNavy,ProDuelistAssociation)
+
+MeleeWeapon
+    name="Spear"
+    desc = "A primitive melee weapon, composed of a long shaft tipped with a metal piercing blade."
+    reach=2
+    damage=3
+    accuracy=2
+    penetration=2
+    scale = HumanScale
+    material = Metal
+    attributes = (ChargeAttack,)
+    shop_tags= ("WEAPON","MELEE WEAPON",)
+    faction_list = (DeadzoneFederation,ClanIronwind,BoneDevils,TerranFederation,TerranDefenseForce,RegExCorporation)
+
+MeleeWeapon
     name="Monosword"
     desc = "A finely crafted ceram sword with a monomolecularly sharp edge."
     reach=1
@@ -36,6 +115,45 @@ MeleeWeapon
     attributes = (Defender,)
     shop_tags= ("WEAPON","MELEE WEAPON","ESSENTIAL")
     faction_list = (None,)
+
+MeleeWeapon
+    name="Monorapier"
+    desc = "A pointed flexible sword. This version is created of advanced materials with a monomolecular tip."
+    reach=1
+    damage=4
+    accuracy=3
+    penetration=3
+    scale = HumanScale
+    material = Advanced
+    attributes = (Defender, Accuracy, FastAttack)
+    shop_tags= ("WEAPON","MELEE WEAPON",)
+    faction_list = (AegisOverlord,TreasureHunters,TerranFederation,BioCorp,TheSilverKnights,TheSolarNavy,ProDuelistAssociation)
+
+MeleeWeapon
+    name="Mace"
+    desc = "A crudely constructed steel club. A simple weapon, but you still wouldn't want to get thwacked in the head by one."
+    reach=1
+    damage=3
+    accuracy=2
+    penetration=2
+    scale = HumanScale
+    material = Metal
+    attributes = (Brutal,)
+    shop_tags= ("WEAPON","MELEE WEAPON")
+    faction_list = (DeadzoneFederation,ClanIronwind,BoneDevils)
+
+MeleeWeapon
+    name="Flail"
+    desc = "A set of spiked balls attached by chain to a handle."
+    reach=1
+    damage=4
+    accuracy=2
+    penetration=2
+    scale = HumanScale
+    material = Metal
+    attributes = (Brutal,Flail,Smash)
+    shop_tags= ("WEAPON","MELEE WEAPON")
+    faction_list = (DeadzoneFederation,ClanIronwind,BoneDevils)
 
 MeleeWeapon
     name="Combat Axe"
@@ -58,13 +176,13 @@ MeleeWeapon
     penetration=3
     scale = HumanScale
     material = Metal
-    attributes = (HaywireAttack,Smash)
+    attributes = (HaywireAttack)
     shop_tags= ("WEAPON","MELEE WEAPON",)
     faction_list = (None,)
 
 MeleeWeapon
     name="Thunder Star"
-    desc = "This flail releases a powerful electric charge on contact."
+    desc = "This ball and chain releases a powerful electric charge on contact."
     reach=1
     damage=4
     accuracy=1

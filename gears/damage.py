@@ -9,7 +9,8 @@ from . import base,stats
 
 class Damage( object ):
     BOOM_SPRITES = list(range(7))
-    def __init__( self, camp, hit_list, penetration, target, animlist, hot_knife=False, is_brutal=False ):
+    def __init__( self, camp, hit_list, penetration, target, animlist, hot_knife=False, is_brutal=False,
+                  can_be_divided=True, affected_by_armor=True ):
         self.camp = camp
         self.hit_list = hit_list
         self.penetration = penetration
@@ -18,6 +19,8 @@ class Damage( object ):
         self.animlist = animlist
         self.hot_knife = hot_knife
         self.is_brutal = is_brutal
+        self.can_be_divided = can_be_divided
+        self.affected_by_armor = affected_by_armor
         self.destroyed_parts = list()
         self.target_root = target.get_root()
         self.operational_at_start = self.target_root.is_operational()
@@ -77,26 +80,30 @@ class Damage( object ):
         #    1/23 chance to pass all to a single subcom, or if this gear undamageable.
         #    1/3 chance to split half here, half to a functional subcom.
         #    Otherwise apply all damage here.
-        armor = target.get_armor()
-        if armor and armor.is_not_destroyed():
-            # Reduce penetration by the armor's rating.
-            tar = armor.get_armor_rating()
-            if tar:
-                penetration -= tar
-            # Armor that gets used gets damaged.
-            dmg = armor.reduce_damage( dmg, self )
+        if self.affected_by_armor:
+            armor = target.get_armor()
+            if armor and armor.is_not_destroyed():
+                # Reduce penetration by the armor's rating.
+                tar = armor.get_armor_rating()
+                if tar:
+                    penetration -= tar
+                # Armor that gets used gets damaged.
+                dmg = armor.reduce_damage( dmg, self )
 
-        if penetration <= 0 and self.hot_knife and dmg > 0:
-            # A hot knife attack doesn't get stopped by armor, but it does get
-            # its damage reduced a fair chunk.
-            denom = max( 45 + penetration, 5 )
-            dmg = max( int( dmg * denom // 50 ), 1 )
-            penetration = 1
+            if penetration <= 0 and self.hot_knife and dmg > 0:
+                # A hot knife attack doesn't get stopped by armor, but it does get
+                # its damage reduced a fair chunk.
+                denom = max( 45 + penetration, 5 )
+                dmg = max( int( dmg * denom // 50 ), 1 )
+                penetration = 1
 
-        if penetration > 0 and dmg > 0:
+        if dmg > 0 and (penetration > 0 or not self.affected_by_armor):
             # A damaging strike.
             potential_next_targets = self._list_thwackable_subcoms( target )
-            if random.randint(1,23)==1 or not target.can_be_damaged():
+            if not self.can_be_divided:
+                # All damage to this part.
+                self.apply_damage(target, dmg)
+            elif random.randint(1,23)==1 or not target.can_be_damaged():
                 # Assign all damage to a single subcom.
                 if potential_next_targets:
                     self.real_damage_gear(random.choice(potential_next_targets),dmg,penetration)
@@ -126,6 +133,7 @@ class Damage( object ):
             for m in self.target_root.sub_com:
                 if isinstance( m, base.Torso ) and m.is_not_destroyed():
                     torso = m
+                    break
             if torso:
                 self.apply_damage( torso, self.overkill )
 

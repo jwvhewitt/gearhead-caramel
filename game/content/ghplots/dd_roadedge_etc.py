@@ -32,9 +32,6 @@ class BlackMarketBluesMain(Plot):
     BMES_ATTACKED = 2
 
     def custom_init( self, nart ):
-        print(self.elements["METROSCENE"])
-        print(self.elements["FACTION"])
-
         self.add_sub_plot(
             nart, "SEEK_ENEMY_BASE", ident="MISSION",
             elements={"ENEMY_FACTION": self.elements["FACTION"], "ENEMY_BASE_NAME": "the Raider Base"}

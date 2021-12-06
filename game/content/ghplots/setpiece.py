@@ -7,7 +7,7 @@ import pbge
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
 from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker, ghrooms
-from . import tarot_cards
+from . import lancemates, shops_plus
 
 
 #   **********************
@@ -63,6 +63,7 @@ class BanditsDen(Plot):
 
         # Add the services.
         self.add_sub_plot(nart, "SHOP_BLACKMARKET", elements={"INTERIOR_TAGS": (gears.tags.SCENE_SEMIPUBLIC,)})
+        self.add_sub_plot(nart, "HOS_SERVICES", elements={"INTERIOR_TAGS": (gears.tags.SCENE_SEMIPUBLIC,)})
 
         myroom2 = self.register_element(
             "FOYER", pbge.randmaps.rooms.Room(5, 5, anchor=random.choice(pbge.randmaps.anchors.EDGES)),
@@ -77,6 +78,169 @@ class BanditsDen(Plot):
 
     def _generate_locale_name(self):
         return random.choice(self.LOCALE_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
+
+
+#   ********************
+#   ***  HOS_THREAT  ***
+#   ********************
+#
+#   This hive of scum and villany would be no fun without some kind of threat.
+#
+#   Needed Elements:
+#   METROSCENE, METRO, ENTRANCE
+#   LOCALE_NAME: Optional; gives a name for this location
+#   LOCALE_FACTION: The faction that runs this place
+#   LOCALE: The hive of scum scene
+#
+
+
+#   **********************
+#   ***  HOS_SERVICES  ***
+#   **********************
+#
+#   Shops and other services for the Hive of Scum.
+#
+#   Needed Elements:
+#   METROSCENE, METRO, ENTRANCE
+#   LOCALE_NAME: Optional; gives a name for this location
+#   LOCALE_FACTION: The faction that runs this place
+#   LOCALE: The hive of scum scene
+#
+
+class ScumHiveWeapons(Plot):
+    LABEL = "HOS_SERVICES"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create the shopkeeper
+        npc1 = self.register_element("SHOPKEEPER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Trader"]))
+
+        self.shopname = self._generate_shop_name()
+
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", shops_plus.get_building(
+            self, ghterrain.ScrapIronBuilding,
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.shopname)},
+            door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
+            attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,)) + (gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+            scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(
+            nart, self, self.elements["METROSCENE"], intscene, room1=building,
+            room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        npc1.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc1, ware_types=services.WEAPON_STORE, rank=self.rank+15,
+                                  shop_faction=self.elements.get("LOCALE").faction)
+
+        return True
+
+    TITLE_PATTERNS = (
+        "{SHOPKEEPER}'s Armaments", "{SHOPKEEPER}'s Weapons", "{SHOPKEEPER}'s Munitions"
+    )
+    def _generate_shop_name(self):
+        return random.choice(self.TITLE_PATTERNS).format(**self.elements)
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Around here, you're going to need something to protect yourself; take a look around and see what you like.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.shopname, "wares": "weapons"},
+                            ))
+
+        return mylist
+
+
+class ScumHiveMecha(Plot):
+    LABEL = "HOS_SERVICES"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create the shopkeeper
+        npc1 = self.register_element("SHOPKEEPER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Mechanic"]))
+
+        self.shopname = self._generate_shop_name()
+
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", shops_plus.get_building(
+            self, ghterrain.IndustrialBuilding,
+            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.shopname)},
+            door_sign=(ghterrain.RustyFixitShopSignEast, ghterrain.RustyFixitShopSignSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
+            attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,)) + (gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+            scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(
+            nart, self, self.elements["METROSCENE"], intscene, room1=building,
+            room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        npc1.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc1, ware_types=services.MEXTRA_STORE, rank=self.rank+15,
+                                  shop_faction=random.choice(self.FACTIONS))
+
+        return True
+
+    FACTIONS = (gears.factions.BladesOfCrihna, gears.factions.BoneDevils, gears.factions.DeadzoneFederation,
+                gears.factions.ClanIronwind, gears.factions.BoneDevils)
+
+    TITLE_PATTERNS = (
+        "{SHOPKEEPER}'s Mecha", "{SHOPKEEPER}'s Salvage", "{SHOPKEEPER}'s Warbots", "Honest {SHOPKEEPER}'s"
+    )
+    def _generate_shop_name(self):
+        return random.choice(self.TITLE_PATTERNS).format(**self.elements)
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] I've got a good selection of second hand meks, hardly used, mostly in working order.",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.shopname, "wares": "meks"},
+                            ))
+
+        return mylist
+
 
 
 #   **************************
@@ -588,6 +752,8 @@ class BasicThievesGuild(Plot):
             npc = gears.selector.random_character(self.rank, combatant=True, local_tags=intscene.attributes, needed_tags=(gears.tags.Criminal,))
             npc.place(intscene, team=team2)
 
+        self.add_sub_plot(nart, "TGUILD_SERVICE")
+
         return True
 
     def INTERIOR_ENTER(self, camp: gears.GearHeadCampaign):
@@ -619,4 +785,113 @@ class BasicThievesGuild(Plot):
     def _generate_guild_name(self):
         return random.choice(self.TITLE_PATTERNS).format(adjective=random.choice(self.ADJECTIVES), org=random.choice(self.ORGS), job=random.choice(self.JOBS))
 
+
+#   ************************
+#   ***  TGUILD_SERVICE  ***
+#   ************************
+#
+#   Elements:
+#       LOCALE: The scene into which the Thieves Guild will be placed
+#       ENTRANCE: The waypoint you go to when you leave the thieves guild
+#       FACTION: The faction the guild belongs to
+#       INTERIOR: The interior of the Thieves Guild
+#
+
+class AssassinForHire(Plot):
+    LABEL = "TGUILD_SERVICE"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        npcroom = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(6,6),
+                                      dident="INTERIOR")
+
+        myteam = teams.Team(allies=(self.elements["INTERIOR"].civilian_team,))
+        npcroom.contents.append(myteam)
+
+        # Create the shopkeeper
+        npc1 = self.register_element("NPC", gears.selector.random_character(
+            self.rank+20, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Assassin"], combatant=True,
+            faction=self.elements.get("FACTION", gears.factions.TreasureHunters)
+        ))
+        myteam.contents.append(npc1)
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        npc = self.elements["NPC"]
+        self.hire_cost = lancemates.get_hire_cost(camp,npc)
+        if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
+            if camp.can_add_lancemate():
+                mylist.append(Offer("You can hire me for ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                                    context=ContextTag((context.PROPOSAL, context.JOIN)),
+                                    data={"subject": "joining my lance"},
+                                    subject=self, subject_start=True,
+                                    ))
+                mylist.append(Offer("[DENY_JOIN] [GOODBYE]",
+                                    context=ContextTag((context.DENY, context.JOIN)), subject=self
+                                    ))
+                if camp.credits >= self.hire_cost:
+                    mylist.append(Offer("[THANKS_FOR_CHOOSING_ME] [LETSGO]",
+                                        context=ContextTag((context.ACCEPT, context.JOIN)), subject=self,
+                                        effect=self._join_lance
+                                        ))
+            mylist.append(Offer(
+                "[HELLO] If you're looking for a hired killer, I'm not doing much at the moment.", context=ContextTag((context.HELLO,))
+            ))
+            mylist.append(plotutility.LMSkillsSelfIntro(npc))
+
+        return mylist
+
+    def _join_lance(self, camp):
+        npc = self.elements["NPC"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        camp.credits -= self.hire_cost
+        effect = plotutility.AutoJoiner(npc)
+        effect(camp)
+        self.end_plot(camp)
+
+
+class GuildMarket(Plot):
+    LABEL = "TGUILD_SERVICE"
+
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        shoproom = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(8,8),
+                                      dident="INTERIOR")
+
+        myteam = teams.Team(allies=(self.elements["INTERIOR"].civilian_team,))
+        shoproom.contents.append(myteam)
+
+        # Create the shopkeeper
+        npc1 = self.register_element("SHOPKEEPER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Smuggler"], combatant=False))
+        myteam.contents.append(npc1)
+
+        self.shopname = "{}'s Shop".format(npc1)
+
+        self.shop = services.Shop(npc=npc1, ware_types=services.BLACK_MARKET, rank=self.rank+random.randint(1,50),
+                                  shop_faction=self.elements.get("FACTION", gears.factions.TreasureHunters))
+
+        return True
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Can I interest you in anything forbidden or dangerous?",
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.shopname, "wares": "gear"},
+                            ))
+
+        return mylist
 

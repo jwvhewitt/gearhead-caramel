@@ -1,3 +1,5 @@
+- Added Agonize attack attribute
+
 v0.810 November 30 2021
 - Gears may have individual campdata dicts which don't get exported when campaign is finished
 - Noncombatants flee from combat
