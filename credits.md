@@ -40,6 +40,8 @@ Slightly Smiling Face, Beaming Face with Smiling Eyes by Emily Jäger
 * link by Hassan ali from the Noun Project
 * bag by zidney from the Noun Project
 * Folder by Ines Simoes from the Noun Project
+* Medicine by Braja Omar Justico from NounProject.com
+* Vaccine by Anconer Design from NounProject.com
 
 MUSIC
 =====

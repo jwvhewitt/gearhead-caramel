@@ -698,6 +698,22 @@ Consumable
     shop_tags = ("MEDICINE","ESSENTIAL")
 
 Consumable
+    name = "Antidote"
+    desig = "10 Pack"
+    effect = AntidotePill
+    quantity = 10
+    desc = "A broad-spectrum antitoxin that will immediately cure nearly any poison."
+    shop_tags = ("MEDICINE","ESSENTIAL")
+
+Consumable
+    name = "Antidote"
+    desig = "5 Pack"
+    effect = AntidotePill
+    quantity = 5
+    desc = "A broad-spectrum antitoxin that will immediately cure nearly any poison."
+    shop_tags = ("MEDICINE","ESSENTIAL")
+
+Consumable
     name = "Duct Tape"
     effect = DuctTape
     quantity = 10

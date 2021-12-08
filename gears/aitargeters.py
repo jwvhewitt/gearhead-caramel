@@ -35,6 +35,13 @@ class TargetIsDamaged(object):
         return damage > 0
 
 
+class TargetHasEnchantment(object):
+    def __init__(self, enchantment_class):
+        self.enchantment_class = enchantment_class
+    def __call__(self, camp, pc, npc):
+        return hasattr(npc,'ench_list') and npc.ench_list.get_enchantment_of_class(self.enchantment_class)
+
+
 class TargetDoesNotHaveEnchantment(object):
     def __init__(self, enchantment_class):
         self.enchantment_class = enchantment_class

@@ -4,7 +4,7 @@ import pbge
 import random
 from . import materials
 from . import aitargeters
-from . import listentomysong
+from . import listentomysong, enchantments
 
 DIFFICULTY_TRIVIAL = -50
 DIFFICULTY_EASY = -25
@@ -171,6 +171,22 @@ class Medicine( Skill ):
             price=[geffects.MentalPrice(5)],
             targets=1)
         invodict[self].append(ba)
+
+        antidote = pbge.effects.Invocation(
+            name = 'Cure Poison',
+            fx=geffects.DispelEnchantments(
+                dispel_this=enchantments.USE_ANTIDOTE,
+                anim = geffects.MedicineAnim,
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=1),
+            used_in_combat = True, used_in_exploration=True,
+            ai_tar = aitargeters.GenericTargeter(impulse_score=50,conditions=[aitargeters.TargetIsAlly(),aitargeters.TargetIsOperational(),aitargeters.TargetHasEnchantment(geffects.Poisoned)],targetable_types=pbge.scenes.PlaceableThing),
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),15),
+            price=[geffects.MentalPrice(5), geffects.StatValuePrice(self, 5)],
+            targets=1
+        )
+        invodict[self].append(antidote)
 
 
 class Biotechnology( Skill ):
