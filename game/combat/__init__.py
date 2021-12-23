@@ -67,44 +67,48 @@ class PlayerTurn( object ):
             self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
     def switch_attack( self, button=None, ev=None ):
-        if self.active_ui != self.attack_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_attack_library():
-            self.active_ui.deactivate()
-            self.attack_ui.activate()
-            self.active_ui = self.attack_ui
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[1])
-        else:
-            # If the attack UI can't be activated, switch back to movement UI.
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
+        if self.active_ui != self.attack_ui:
+            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_attack_library():
+                self.active_ui.deactivate()
+                self.attack_ui.activate()
+                self.active_ui = self.attack_ui
+                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[1])
+            else:
+                # If the attack UI can't be activated, switch back to movement UI.
+                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
     def switch_skill( self, button=None, ev=None ):
-        if self.active_ui != self.skill_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_skill_library(True):
-            self.active_ui.deactivate()
-            self.skill_ui.activate()
-            self.active_ui = self.skill_ui
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_skill))
-        else:
-            # If the attack UI can't be activated, switch back to movement UI.
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
+        if self.active_ui != self.skill_ui:
+            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_skill_library(True):
+                self.active_ui.deactivate()
+                self.skill_ui.activate()
+                self.active_ui = self.skill_ui
+                self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_skill))
+            else:
+                # If the attack UI can't be activated, switch back to movement UI.
+                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
     def switch_programs( self, button=None, ev=None ):
-        if self.active_ui != self.program_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_program_library():
-            self.active_ui.deactivate()
-            self.program_ui.activate()
-            self.active_ui = self.program_ui
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_programs))
-        else:
-            # If the attack UI can't be activated, switch back to movement UI.
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
+        if self.active_ui != self.program_ui:
+            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_program_library():
+                self.active_ui.deactivate()
+                self.program_ui.activate()
+                self.active_ui = self.program_ui
+                self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_programs))
+            else:
+                # If the attack UI can't be activated, switch back to movement UI.
+                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
     def switch_usables( self, button=None, ev=None ):
-        if self.active_ui != self.usable_ui and self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_usable_library():
-            self.active_ui.deactivate()
-            self.usable_ui.activate()
-            self.active_ui = self.usable_ui
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_usables))
-        else:
-            # If the attack UI can't be activated, switch back to movement UI.
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
+        if self.active_ui != self.usable_ui:
+            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_usable_library():
+                self.active_ui.deactivate()
+                self.usable_ui.activate()
+                self.active_ui = self.usable_ui
+                self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_usables))
+            else:
+                # If the attack UI can't be activated, switch back to movement UI.
+                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
     def switch_top_shelf(self):
         if self.active_ui in self.top_shelf_funs:
@@ -173,6 +177,37 @@ class PlayerTurn( object ):
         mymenu.add_item("[Exit]", None)
         mymenu.query()
 
+    def _use_attack_menu(self, button, ev):
+        mymenu = pbge.rpgmenu.PopUpMenu()
+        for shelf in self.attack_ui.my_widget.library:
+            mymenu.add_item(shelf.name, '/'.join([self.attack_ui.name, shelf.name, '0']))
+        op = mymenu.query()
+        if op:
+            self.find_this_option(op)
+
+    def _use_skills_menu(self, button, ev):
+        mymenu = pbge.rpgmenu.PopUpMenu()
+        for shelf in self.skill_ui.my_widget.library:
+            mymenu.add_item(shelf.name, '/'.join([self.skill_ui.name, shelf.name, '0']))
+        op = mymenu.query()
+        if op:
+            self.find_this_option(op)
+
+    def _use_programs_menu(self, button, ev):
+        mymenu = pbge.rpgmenu.PopUpMenu()
+        for shelf in self.program_ui.my_widget.library:
+            mymenu.add_item(shelf.name, '/'.join([self.program_ui.name, shelf.name, '0']))
+        op = mymenu.query()
+        if op:
+            self.find_this_option(op)
+
+    def _use_usables_menu(self, button, ev):
+        mymenu = pbge.rpgmenu.PopUpMenu()
+        for shelf in self.usable_ui.my_widget.library:
+            mymenu.add_item(shelf.name, '/'.join([self.usable_ui.name, shelf.name, '0']))
+        op = mymenu.query()
+        if op:
+            self.find_this_option(op)
 
     def go( self ):
         # Perform this character's turn.
@@ -188,7 +223,10 @@ class PlayerTurn( object ):
         self.all_funs = dict()
         self.all_uis = list()
 
-        buttons_to_add = [(6,7,self.switch_movement,'Movement'),(2,3,self.switch_attack,'Attack'),]
+        buttons_to_add = [
+            dict(on_frame=6,off_frame=7,on_click=self.switch_movement,tooltip='Movement'),
+            dict(on_frame=2,off_frame=3,on_click=self.switch_attack,tooltip='Attack', on_right_click=self._use_attack_menu),
+        ]
 
         self.movement_ui = movementui.MovementUI( self.camp, self.pc,top_shelf_fun=self.switch_top_shelf,bottom_shelf_fun=self.switch_bottom_shelf )
         self.all_uis.append(self.movement_ui)
@@ -204,7 +242,9 @@ class PlayerTurn( object ):
                                              top_shelf_fun=self.switch_top_shelf, name="skills",
                                              bottom_shelf_fun=self.switch_bottom_shelf)
         if has_skills:
-            buttons_to_add.append((8,9,self.switch_skill,'Skills'))
+            buttons_to_add.append(
+                dict(on_frame=8,off_frame=9,on_click=self.switch_skill,tooltip='Skills', on_right_click=self._use_skills_menu)
+            )
             self.all_uis.append(self.skill_ui)
             self.all_funs[self.skill_ui] = self.switch_skill
 
@@ -212,7 +252,9 @@ class PlayerTurn( object ):
         self.program_ui = programsui.ProgramsUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,
                                                 bottom_shelf_fun=self.switch_bottom_shelf, name="programs")
         if has_programs:
-            buttons_to_add.append((10, 11, self.switch_programs, 'Programs'))
+            buttons_to_add.append(
+                dict(on_frame=10, off_frame=11, on_click=self.switch_programs, tooltip='Programs', on_right_click=self._use_programs_menu)
+            )
             self.all_uis.append(self.program_ui)
             self.all_funs[self.program_ui] = self.switch_programs
 
@@ -220,11 +262,15 @@ class PlayerTurn( object ):
         self.usable_ui = usableui.UsablesUI(self.camp,self.pc,top_shelf_fun=self.switch_top_shelf,
                                             bottom_shelf_fun=self.switch_bottom_shelf, name="usables")
         if has_usables:
-            buttons_to_add.append((12, 13, self.switch_usables, 'Usables'))
+            buttons_to_add.append(
+                dict(on_frame=12, off_frame=13, on_click=self.switch_usables, tooltip='Usables', on_right_click=self._use_usables_menu)
+            )
             self.all_uis.append(self.usable_ui)
             self.all_funs[self.usable_ui] = self.switch_usables
 
-        buttons_to_add.append((4,5,self.end_turn,'End Turn'))
+        buttons_to_add.append(
+            dict(on_frame=4, off_frame=5, on_click=self.end_turn, tooltip='End Turn')
+        )
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget( 8, 8, 220, 40,
          sprite=pbge.image.Image('sys_combat_mode_buttons.png',40,40),
          buttons=buttons_to_add,
@@ -264,7 +310,7 @@ class PlayerTurn( object ):
                     mymenu = configedit.PopupGameMenu()
                     mymenu(self.camp.fight)
             elif gdi.type == pygame.MOUSEBUTTONUP:
-                if gdi.button == 3:
+                if gdi.button == 3 and not pbge.my_state.widget_clicked:
                     self.pop_menu()
 
         pbge.my_state.widgets.remove(self.my_radio_buttons)

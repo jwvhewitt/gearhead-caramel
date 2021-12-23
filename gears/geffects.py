@@ -314,9 +314,13 @@ class InflictDisintegrationAnim( animobs.Caption ):
 class InflictHaywireAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Haywire!'
 
+
 class InflictPoisonAnim( animobs.Caption ):
     DEFAULT_TEXT = 'Poisoned!'
 
+
+class AmmoExplosionAnim( animobs.Caption ):
+    DEFAULT_TEXT = 'Ammo Explosion!'
 
 
 class AIAssistAnim( animobs.Caption ):

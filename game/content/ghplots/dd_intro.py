@@ -221,7 +221,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
         self.active = False
         self.subplots["DEBRIEFING"].activate(camp)
 
-    def CHUTE_menu(self, camp, thingmenu):
+    def CHUTE_menu(self, camp: gears.GearHeadCampaign, thingmenu):
         thingmenu.desc = "This boarding chute leads to\n your {}.".format(camp.get_pc_mecha(camp.pc).get_full_name())
         thingmenu.add_item("Board mecha",self._start_mission)
         if pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):

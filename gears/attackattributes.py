@@ -166,8 +166,8 @@ class ChargeAttack(Singleton):
     COST_MODIFIER = 2.2
     POWER_MODIFIER = 1.0
 
-    # Treat weapons with this modifier as having at least reach 5.
-    COST_EFFECTIVE_REACH_MIN = 5
+    # Treat weapons with this modifier as having at least reach 3.
+    COST_EFFECTIVE_REACH_MIN = 3
 
     @classmethod
     def get_attacks( self, weapon ):
@@ -325,25 +325,10 @@ class DrainsPower(Singleton):
                                      )
         attack.fx.children[0].children.append(pbge.effects.InvokeEffect(invocation = inv))
 
-class IgnitesAmmo(Singleton):
-    name = "Ignites Ammo"
-    MASS_MODIFIER = 1.0
-    VOLUME_MODIFIER = 1.0
-    COST_MODIFIER = 2.5
-    POWER_MODIFIER = 1.5
-
-    @classmethod
-    def modify_basic_attack(self, weapon, attack):
-        # Add a drain power effect to the children.
-        # Construct an invocation that is invoked after damage is dealt,
-        # otherwise the -100Ammo caption will overlap with the damage caption.
-        fx = pbge.effects.NoEffect(children = [geffects.DoIgniteAmmo()])
-        inv = pbge.effects.Invocation( area = pbge.scenes.targetarea.SingleTarget(delay_from = -1)
-                                     , fx = fx
-                                     )
-        attack.fx.children[0].children.append(pbge.effects.InvokeEffect(invocation = inv))
-        # Add a burn status to the children.
-        attack.fx.children.append(geffects.AddEnchantment(geffects.Burning,))
+class IgnitesAmmo(BurnAttack):
+    # Ammo now explodes, so this attack attribute is being phased out. Should be safe to remove this entirely
+    # by v1.000 or so.
+    pass
 
 class Intercept(Singleton):
     name = "Intercept"
@@ -405,6 +390,7 @@ class LinkedFire(Singleton):
             if cls.matches(weapon,wep):
                 mylist.append(wep)
         return mylist
+
     @staticmethod
     def matches(wep1,wep2):
         return (

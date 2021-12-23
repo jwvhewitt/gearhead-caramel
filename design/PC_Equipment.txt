@@ -203,7 +203,7 @@ MeleeWeapon
     penetration=2
     scale = HumanScale
     material = Advanced
-    attributes = (IgnitesAmmo,ChargeAttack)
+    attributes = (BurnAttack,ChargeAttack)
     shop_tags= ("WEAPON","MELEE WEAPON","ESSENTIAL")
     faction_list = (None,)
 

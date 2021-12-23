@@ -198,7 +198,7 @@ Mecha
                              damage = 3
                              accuracy = 3
                              penetration = 1
-                             attributes = (Flail, FastAttack, IgnitesAmmo)
+                             attributes = (Flail, FastAttack, BurnAttack)
                     END
             END
             INV

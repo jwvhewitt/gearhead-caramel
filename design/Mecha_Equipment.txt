@@ -113,7 +113,7 @@ MeleeWeapon
     penetration=3
     scale = MechaScale
     material = Ceramic
-    attributes = (IgnitesAmmo,)
+    attributes = (BurnAttack,)
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
@@ -126,7 +126,7 @@ MeleeWeapon
     penetration = 3
     material = Ceramic
     scale = MechaScale
-    attributes = (Flail,IgnitesAmmo)
+    attributes = (Flail,BurnAttack)
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 

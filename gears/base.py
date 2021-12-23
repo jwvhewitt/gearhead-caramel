@@ -552,6 +552,7 @@ class BaseGear(scenes.PlaceableThing):
     SAVE_PARAMETERS = (
         'name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot',
         'faction_list')
+    REPORT_DESTRUCTION = False
 
     def __init__(self, uniqueid=None, shop_tags=(), desc="", slot=None, faction_list=(None,), **keywords):
         self.__base_gear_pos = None
@@ -1210,6 +1211,7 @@ class Gyroscope(Component, StandardDamageHandler):
     DEFAULT_NAME = "Gyroscope"
     base_mass = 10
     INTEGRAL_BY_DEFAULT = True
+    REPORT_DESTRUCTION = True
 
     def is_legal_sub_com(self, part):
         return isinstance(part, Armor)
@@ -1528,6 +1530,7 @@ class Weapon(Component, StandardDamageHandler):
     DEFAULT_SHOT_ANIM = None
     DEFAULT_AREA_ANIM = geffects.BigBoom
     LEGAL_ATTRIBUTES = ()
+    REPORT_DESTRUCTION = True
 
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
@@ -1592,6 +1595,9 @@ class Weapon(Component, StandardDamageHandler):
             v -= 1
         return max((int(v * mult) + 1) // 2, 1)
 
+    def _get_reach_cost_factor(self, reach):
+        return ((reach ** 2 - reach) // 2 + 1)
+
     @property
     def base_cost(self):
         # Multiply the stats together, squaring damage and range because they're so important.
@@ -1606,7 +1612,7 @@ class Weapon(Component, StandardDamageHandler):
             (self.COST_FACTOR * (self.damage ** 2) *
              (self.accuracy ** 2 // 10 + self.accuracy + 1) *
              (self.penetration ** 2 // 5 + self.penetration + 1) *
-             ((reach ** 2 - reach) // 2 + 1)) * mult
+             self._get_reach_cost_factor(reach)) * mult
         )
 
     def is_legal_sub_com(self, part):
@@ -1710,7 +1716,7 @@ class MeleeWeapon(Weapon):
     MAX_PENETRATION = 5
     COST_FACTOR = 3
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize, attackattributes.Brutal,
-                        attackattributes.IgnitesAmmo, attackattributes.ChargeAttack,
+                        attackattributes.BurnAttack, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.HaywireAttack,
                         attackattributes.OverloadAttack, attackattributes.PoisonAttack, attackattributes.Smash,
@@ -1791,6 +1797,16 @@ class MeleeWeapon(Weapon):
             rstr = '{}'.format(self.reach)
         return rstr
 
+    def _get_reach_cost_factor(self, reach):
+        return ((int(pow(reach,2.5)) - reach) // 2 + 1)
+
+    def __setstate__(self, state):
+        # For saves from V0.810 or earlier, convert IgnitesAmmo to BurnAttack.
+        if "attributes" in state and attackattributes.IgnitesAmmo in state["attributes"]:
+            state["attributes"].remove(attackattributes.IgnitesAmmo)
+            state["attributes"].append(attackattributes.BurnAttack)
+        self.__dict__.update(state)
+
 
 class EnergyWeapon(Weapon):
     # Energy weapons do "hot knife" damage. It gets reduced by, but not stopped
@@ -1804,7 +1820,7 @@ class EnergyWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 12
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize, attackattributes.IgnitesAmmo,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize, attackattributes.BurnAttack,
                         attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.DrainsPower,
@@ -1913,6 +1929,16 @@ class EnergyWeapon(Weapon):
             rstr = '{}'.format(self.reach)
         return rstr
 
+    def _get_reach_cost_factor(self, reach):
+        return ((int(pow(reach,2.5)) - reach) // 2 + 1)
+
+    def __setstate__(self, state):
+        # For saves from V0.810 or earlier, convert IgnitesAmmo to BurnAttack.
+        if "attributes" in state and attackattributes.IgnitesAmmo in state["attributes"]:
+            state["attributes"].remove(attackattributes.IgnitesAmmo)
+            state["attributes"].append(attackattributes.BurnAttack)
+        self.__dict__.update(state)
+
 
 class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Ammo"
@@ -1960,6 +1986,10 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.COST_MODIFIER * max(aa.VOLUME_MODIFIER, 1.0)
+        if self.ammo_type.risk == calibre.RISK_INERT:
+            mult *= 1.2
+        elif self.ammo_type.risk == calibre.RISK_VOLATILE:
+            mult *= 0.7
         return int(mult * self.ammo_type.bang * self.quantity // 10)
 
     base_health = 1
@@ -1975,6 +2005,28 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         ac = self.get_reload_cost()
         self.spent = 0
         return ac + super(Ammo, self).restore()
+
+    def on_destruction(self, camp, anim_list):
+        my_root = self.get_root()
+        my_module = self.get_module()
+        if my_module and my_module.form is not MF_Storage and self.ammo_type.risk != calibre.RISK_INERT and self.quantity > self.spent:
+            if self.ammo_type.risk == calibre.RISK_VOLATILE:
+                my_invo = pbge.effects.Invocation(
+                    fx=pbge.effects.NoEffect(
+                        anim=geffects.AmmoExplosionAnim,
+                        children=(
+                            geffects.DoDamage(3, max(self.ammo_type.bang//2,6), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
+                        )),
+                    area=pbge.scenes.targetarea.SelfCentered(radius=random.randint(1,max(self.ammo_type.bang//4,2)), delay_from=-1))
+            else:
+                my_invo = pbge.effects.Invocation(
+                    fx=pbge.effects.NoEffect(
+                        anim=geffects.AmmoExplosionAnim,
+                        children=(
+                            geffects.DoDamage(2, max(self.ammo_type.bang//2,6), scale=self.scale, scatter=True, is_brutal=True),
+                        )),
+                    area=pbge.scenes.targetarea.SingleTarget())
+            my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
 
 class BallisticWeapon(Weapon):
@@ -2312,6 +2364,20 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
         self.spent = 0
         return ac + super(Missile, self).restore()
 
+    def on_destruction(self, camp, anim_list):
+        my_root = self.get_root()
+        my_module = self.get_module()
+        if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
+            my_invo = pbge.effects.Invocation(
+                fx=pbge.effects.NoEffect(
+                    anim=geffects.AmmoExplosionAnim,
+                    children=(
+                        geffects.DoDamage(min(self.quantity-self.spent,10), max(self.damage,3), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
+                    )),
+                area=pbge.scenes.targetarea.SelfCentered(radius=min(random.randint(1,2),random.randint(1,2)))
+            )
+            my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
+
 
 class Launcher(BaseGear, ContainerDamageHandler):
     DEFAULT_NAME = "Launcher"
@@ -2541,6 +2607,20 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         ac = self.get_reload_cost()
         self.spent = 0
         return ac + super(Chem, self).restore()
+
+    def on_destruction(self, camp, anim_list):
+        my_root = self.get_root()
+        my_module = self.get_module()
+        if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
+            my_invo = pbge.effects.Invocation(
+                fx=pbge.effects.NoEffect(
+                    anim=geffects.AmmoExplosionAnim,
+                    children=(
+                        geffects.DoDamage(2,8, anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
+                    )),
+                area=pbge.scenes.targetarea.SelfCentered(radius=min(3,random.randint(1,max((self.quantity-self.spent)//50,2))))
+            )
+            my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
 
 class ChemThrower(Weapon):
@@ -2974,6 +3054,7 @@ class MF_Storage(ModuleForm):
 
 class Module(BaseGear, StandardDamageHandler):
     SAVE_PARAMETERS = ('form', 'size', 'info_tier')
+    REPORT_DESTRUCTION = True
 
     def __init__(self, form=MF_Storage, size=1, info_tier=None, **keywords):
         keywords["name"] = keywords.pop("name", form.name)

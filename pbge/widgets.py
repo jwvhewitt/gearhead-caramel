@@ -21,13 +21,15 @@ popup_menu_border = Border( border_width=8, tex_width=16, border_name="sys_widbo
 
 
 class Widget( frects.Frect ):
-    def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True, show_when_inactive=False, **kwargs ):
+    def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True, show_when_inactive=False, on_right_click=None, **kwargs ):
         # on_click takes widget, event as parameters.
+        # on_right_click takes widget, event as parameters.
         super().__init__(dx,dy,w,h,**kwargs)
         self.data = data
         self.active = active
         self.tooltip = tooltip
         self.on_click = on_click
+        self.on_right_click = on_right_click
         self.children = list(children)
         self.show_when_inactive = show_when_inactive
     def respond_event( self, ev ):
@@ -40,6 +42,11 @@ class Widget( frects.Frect ):
                         my_state.active_widget = self
                     if self.on_click:
                         self.on_click(self,ev)
+                    my_state.widget_clicked = True
+                elif self.is_kb_selectable() and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 3) and self.on_right_click and not my_state.widget_clicked:
+                    if not my_state.widget_clicked:
+                        my_state.active_widget = self
+                    self.on_right_click(self, ev)
                     my_state.widget_clicked = True
             elif my_state.active_widget is self:
                 if self.on_click and (ev.type == pygame.KEYDOWN) and (ev.key in my_state.get_keys_for("click_widget")):
@@ -163,14 +170,21 @@ class TextEntryWidget( Widget ):
 
 class RadioButtonWidget( Widget ):
     def __init__( self, dx, dy, w, h, sprite=None, buttons=(), spacing=2, **kwargs ):
-        # buttons is a list of tuples of (on_frame,off_frame,on_click,tooltip)
-        super(RadioButtonWidget, self).__init__(dx,dy,w,h,**kwargs)
+        # buttons is a list of dicts possibly containing: on_frame, off_frame, on_click, on_right_click, tooltip
+        super().__init__(dx,dy,w,h,**kwargs)
         self.sprite = sprite
         self.buttons = list()
         self.spacing = spacing
         ddx = 0
         for b in buttons:
-            self.buttons.append(ButtonWidget(ddx,0,sprite.frame_width,sprite.frame_height,sprite,frame=b[1],on_frame=b[0],off_frame=b[1],on_click=self.click_radio,data=b[2],tooltip=b[3],parent=self,anchor=frects.ANCHOR_UPPERLEFT))
+            self.buttons.append(ButtonWidget(
+                ddx,0,sprite.frame_width,sprite.frame_height,sprite,
+                frame=b.get("off_frame", 1), on_frame=b.get("on_frame", 0),
+                off_frame=b.get("off_frame", 1), tooltip=b.get("tooltip", None),
+                on_click=self.click_radio, data=b.get("on_click", None),
+                on_right_click=b.get("on_right_click", None),
+                parent=self, anchor=frects.ANCHOR_UPPERLEFT
+            ))
             ddx += sprite.frame_width + self.spacing
         self.buttons[0].frame = self.buttons[0].on_frame
         self.active_button = self.buttons[0]

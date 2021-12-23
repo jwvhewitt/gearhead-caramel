@@ -169,6 +169,15 @@ class Damage( object ):
                 myanim = geffects.BigBoom(pos=self.target_root.pos,delay=num_booms*2,
                 y_off=-self.camp.scene.model_altitude(self.target_root,*self.target_root.pos))
                 self.animlist.append( myanim )
+            else:
+                # Record the destroyed parts, as appropriate.
+                for dp in self.destroyed_parts:
+                    if dp.REPORT_DESTRUCTION:
+                        self.animlist.append(pbge.scenes.animobs.Caption(
+                            "{} Destroyed!".format(dp), pos=self.target_root.pos, delay=num_booms*2,
+                            y_off=-self.camp.scene.model_altitude(self.target_root, *self.target_root.pos)
+                        ))
+
         else:
             for t in range(2):
                 myanim = geffects.NoDamageBoom(sprite=self.BOOM_SPRITES[t],

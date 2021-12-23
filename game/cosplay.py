@@ -60,7 +60,15 @@ class ColorEditor(pbge.widgets.Widget):
             self.channel_menus[t] = chanmenu
         self.active_menu = 0
         self.channel_menus[0].active = True
-        self.radio_pages = pbge.widgets.RadioButtonWidget(0,0,200,20,sprite=pbge.image.Image("sys_color_editor_tabs.png",40,20),buttons=((0,1,self.click_radio,"Red Channel"),(2,3,self.click_radio,"Yellow Channel"),(4,5,self.click_radio,"Green Channel"),(6,7,self.click_radio,"Cyan Channel"),(8,9,self.click_radio,"Magenta Channel")),spacing=0,anchor=pbge.frects.ANCHOR_UPPERLEFT,parent=self)
+        self.radio_pages = pbge.widgets.RadioButtonWidget(
+            0,0,200,20,sprite=pbge.image.Image("sys_color_editor_tabs.png",40,20),buttons=(
+                dict(on_frame=0, off_frame=1, on_click=self.click_radio, tooltip="Red Channel"),
+                dict(on_frame=2, off_frame=3, on_click=self.click_radio, tooltip="Yellow Channel"),
+                dict(on_frame=4, off_frame=5, on_click=self.click_radio, tooltip="Green Channel"),
+                dict(on_frame=6, off_frame=7, on_click=self.click_radio, tooltip="Cyan Channel"),
+                dict(on_frame=8, off_frame=9, on_click=self.click_radio, tooltip="Magenta Channel")
+            ),spacing=0,anchor=pbge.frects.ANCHOR_UPPERLEFT,parent=self
+        )
         self.children.append(self.radio_pages)
         if not colors or len(colors) < 5:
             colors = (gears.color.ChannelRed,gears.color.ChannelYellow,gears.color.ChannelGreen,gears.color.ChannelCyan,gears.color.ChannelMagenta)
