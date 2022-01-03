@@ -10,7 +10,7 @@ from . import container
 from . import util, dialogue
 import pickle
 import os
-from . import scenes
+from . import scenes, challenges
 
 ALL_CONTENTS_SEARCH_PATH = ["contents","sub_scenes"]
 
@@ -73,6 +73,22 @@ class Campaign( object ):
             if p.active:
                 yield p
 
+    def get_active_challenges(self):
+        my_challenges = set()
+        for p in self.active_plots():
+            for k,v in p.elements.items():
+                if isinstance(v, challenges.Challenge) and v.active:
+                    my_challenges.add(v)
+        return my_challenges
+
+    def get_active_resources(self):
+        my_challenges = set()
+        for p in self.active_plots():
+            for k,v in p.elements.items():
+                if isinstance(v, challenges.Challenge) and v.active:
+                    my_challenges.add(v)
+        return my_challenges
+
     def get_dialogue_offers_and_grammar(self, npc):
         npc_offers = list()
         pgram = dialogue.grammar.Grammar()
@@ -81,6 +97,15 @@ class Campaign( object ):
             nugram = p.get_dialogue_grammar(npc, self)
             if nugram:
                 pgram.absorb(nugram)
+
+        my_challenges = self.get_active_challenges()
+        for c in my_challenges:
+            npc_offers += c.get_dialogue_offers(npc, self)
+            pgram.absorb(c.grammar)
+
+        for r in self.get_active_resources():
+            npc_offers += r.get_dialogue_offers(npc, self, my_challenges)
+
         return npc_offers, pgram
 
     def all_plots(self):
@@ -98,6 +123,15 @@ class Campaign( object ):
         # Something is happened that plots may need to react to.
         for p in self.active_plots():
             p.modify_puzzle_menu( self, thing, thingmenu )
+
+        my_challenges = self.get_active_challenges()
+        for c in my_challenges:
+            c.modify_puzzle_menu(self, thing, thingmenu)
+
+        for r in self.get_active_resources():
+            r.modify_puzzle_menu(self, thing, thingmenu, my_challenges)
+
+
         if not thingmenu.items:
             thingmenu.add_item( "[Continue]", None )
         else:

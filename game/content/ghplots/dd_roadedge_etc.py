@@ -13,6 +13,7 @@ from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
 from . import missionbuilder, rwme_objectives
 
 
+
 #   *******************************
 #   ***  DZRE_BLACKMARKETBLUES  ***
 #   *******************************
@@ -627,3 +628,21 @@ class MechaGraveyardAdventure(Plot):
 
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
+
+
+#   ******************************
+#   ***  DZRE_WARONTHEHIGHWAY  ***
+#   ******************************
+
+class WarOnTheHighwayMain(Plot):
+    # Two towns are having a bit of a spat, and that has caused the road to close. Gonna construct this quest using
+    # the Narrative Challenge system. So, in theory, this plot should just have to describe the challenge and then
+    # let the challenge builder supply the means to the various ends.
+    LABEL = "DZRE_WARONTHEHIGHWAY"
+    UNIQUE = True
+    active = True
+    scope = True
+
+    def custom_init( self, nart ):
+
+        return True

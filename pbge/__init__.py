@@ -552,6 +552,7 @@ from . import campaign
 from . import widgets
 from . import dialogue
 from . import cutscene
+from . import challenges
 
 
 class BasicNotification(frects.Frect):
