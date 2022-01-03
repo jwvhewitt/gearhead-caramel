@@ -82,12 +82,12 @@ class Campaign( object ):
         return my_challenges
 
     def get_active_resources(self):
-        my_challenges = set()
+        my_resources = set()
         for p in self.active_plots():
             for k,v in p.elements.items():
-                if isinstance(v, challenges.Challenge) and v.active:
-                    my_challenges.add(v)
-        return my_challenges
+                if isinstance(v, challenges.Resource) and v.active:
+                    my_resources.add(v)
+        return my_resources
 
     def get_dialogue_offers_and_grammar(self, npc):
         npc_offers = list()
@@ -142,6 +142,8 @@ class Campaign( object ):
     def place_party( self, entrance ):
         """Stick the party close to the waypoint."""
         raise NotImplementedError("Method place_party needs custom implementation.")
+    def modify_puzzle_menu(self, camp, thing, thingmenu):
+        pass
 
     def remove_party_from_scene( self ):
         for pc in self.party:

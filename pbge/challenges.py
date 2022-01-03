@@ -3,6 +3,7 @@ from . import dialogue
 # Triggers used by Challenges and Resources:
 ADVANCE_CHALLENGE = "ADVANCE_CHALLENGE"
 SETBACK_CHALLENGE = "SETBACK_CHALLENGE"
+SPEND_RESOURCE = "SPEND_RESOURCE"
 
 # Challenge Types
 
@@ -18,13 +19,6 @@ class InvolvedSet(object):
         return ob in self.things
 
 
-# AutoOffer
-#   A callable that takes (Challenge, Campaign, NPC) and may return an Offer.
-#  offer_dict = A dictionary holding the parameters for the Offer creation
-#  involvement = An involvement checker. If None, use the involvement checker of the challenge.
-#  access_fun = Basically another involvement checker; a callable that takes (camp,npc) and returns True if this offer
-#   can be added. May be used to add skill rolls or whatnot.
-
 class AutoOfferInvoker(object):
     def __init__(self, aoffer, npc):
         self.aoffer = aoffer
@@ -35,6 +29,12 @@ class AutoOfferInvoker(object):
 
 
 class AutoOffer(object):
+    # AutoOffer
+    #   A callable that takes (Challenge, Campaign, NPC) and may return an Offer.
+    #  offer_dict = A dictionary holding the parameters for the Offer creation
+    #  involvement = An involvement checker. If None, use the involvement checker of the challenge.
+    #  access_fun = Basically another involvement checker; a callable that takes (camp,npc) and returns True if this offer
+    #   can be added. May be used to add skill rolls or whatnot.
     def __init__(self, offer_dict, active=True, uses=1, involvement=None, access_fun=None, once_per_npc=True):
         self.offer_dict = offer_dict.copy()
         self.offer_effect = offer_dict.get("effect", None)
@@ -72,7 +72,43 @@ class AutoOffer(object):
 
 
 # AutoUsage
-#   A callable that takes (Campaign, Ob, Thingmenu) and may add a menu item.
+#   A callable that takes (Challenge, Campaign, Ob, Thingmenu) and may add a menu item.
+#
+#   effect = A callable that takes (Campaign)
+#   access_fun = A callable that takes (camp,item) and returns True or False
+
+class AutoUsage(object):
+    def __init__(self, menu_text, effect, active=True, uses=1, involvement=None, access_fun=None, once_per_item=True):
+        self.menu_text = menu_text
+        self.effect = effect
+        self.active = active
+        self.uses = uses
+        self.used_on = set()
+        self.used = False
+        self.involvement = involvement
+        self.access_fun = access_fun
+        self.once_per_item = once_per_item
+
+    def invoke_effect(self, camp, item):
+        self.effect(camp)
+        self.used = True
+        self.uses -= 1
+        if self.uses < 1:
+            self.active = False
+        if self.once_per_item:
+            self.used_on.add(item)
+
+    def _modify_menu(self, my_challenge, thing, thingmenu):
+        thingmenu.add_item(self.menu_text.format(challenge=my_challenge), AutoOfferInvoker(self,thing))
+
+    def __call__(self, my_challenge, camp, thing, thingmenu):
+        if self.active and (not self.access_fun or self.access_fun(camp, thing)) and thing not in self.used_on:
+            if self.involvement and self.involvement(camp, thing):
+                self._modify_menu(my_challenge, thing, thingmenu)
+            elif my_challenge.involvement and my_challenge.involvement(camp, thing):
+                self._modify_menu(my_challenge, thing, thingmenu)
+            else:
+                self._modify_menu(my_challenge, thing, thingmenu)
 
 
 
@@ -103,6 +139,7 @@ class Challenge(object):
     # oppoffers = A list of AutoOffers used by this challenge
     # oppuses = A list of AutoUsages used by this challenge
     def __init__(self, name, chaltype, key=(), involvement=None, active=True, grammar=None, oppoffers=(), oppuses=()):
+        self.name = name
         self.points_earned = 0
         self.active = active
         self.chaltype = chaltype
@@ -141,16 +178,21 @@ class Challenge(object):
         return mylist
 
     def modify_puzzle_menu(self, camp, thing, thingmenu):
-        pass
+        for o in self.oppuses:
+            o(self, camp, thing, thingmenu)
+
+    def __str__(self):
+        return self.name
 
 
 class ResourceSpender(object):
-    def __init__(self, my_resource, my_challenge):
+    def __init__(self, my_resource, my_challenge, call_dialogue_effect=True):
         self.my_resource = my_resource
         self.my_challenge = my_challenge
+        self.call_dialogue_effect = call_dialogue_effect
 
     def __call__(self, camp):
-        self.my_resource.spend_resource(camp, self.my_challenge)
+        self.my_resource.spend_resource(camp, self.my_challenge, self.call_dialogue_effect)
 
 
 class Resource(object):
@@ -180,19 +222,26 @@ class Resource(object):
 
         self.menu_item_text = menu_item_text
 
-    def spend_resource(self, camp, my_challenge: Challenge):
-        my_challenge.advance(self.points)
+    def spend_resource(self, camp, my_challenge: Challenge, call_dialogue_effect=True):
+        my_challenge.advance(camp, self.points)
         self.used = True
         if self.single_use:
             self.active = False
-        if self.spend_offer_effect:
+        if self.spend_offer_effect and call_dialogue_effect:
             self.spend_offer_effect(camp)
+        camp.check_trigger(SPEND_RESOURCE, self)
 
     def _get_offer(self, my_challenge):
         mydict = self.spend_offer_dict.copy()
-        mydict["msg"] = self.spend_offer_dict["msg"].format(resource=self.name, challenge=my_challenge.name)
-        mydict["effect"] = ResourceSpender(self, my_challenge)
+        mydict["msg"] = self.spend_offer_dict["msg"].format(resource=self, challenge=my_challenge)
+        mydict["effect"] = ResourceSpender(self, my_challenge, True)
         return dialogue.Offer(**mydict)
+
+    def is_involved(self, camp, thing):
+        if self.involvement:
+            return self.involvement(camp, thing)
+        else:
+            return True
 
     def get_dialogue_offers(self, npc, camp, clist):
         # clist is a list of challenges.
@@ -206,10 +255,17 @@ class Resource(object):
 
         for c in clist:
             if c.can_spend_resource(self) and c.is_involved(camp, npc):
-                mylist.append(self._get_offer(self, c))
+                mylist.append(self._get_offer(c))
 
         return mylist
 
     def modify_puzzle_menu(self, camp, thing, thingmenu, clist):
-        pass
+        if self.menu_item_text and self.is_involved(camp, thing):
+            for c in clist:
+                if c.can_spend_resource(self) and c.is_involved(camp, thing):
+                    thingmenu.add_item(self.menu_item_text.format(resource=self, challenge=c),
+                                       ResourceSpender(self, c, False))
+
+    def __str__(self):
+        return self.name
 
