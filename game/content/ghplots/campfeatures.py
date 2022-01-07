@@ -191,19 +191,27 @@ class MetrosceneWMEDefenseHandler(Plot):
 
 
 class MetrosceneRandomPlotHandler(Plot):
-    # Keep this metro area stocked with random plots.Deadzone
+    # Keep this metro area stocked with random plots.
     LABEL = "CF_METROSCENE_RANDOM_PLOT_HANDLER"
     active = True
     scope = "METRO"
 
     MAX_PLOTS = 5
     SUBPLOT_LABEL = "RANDOM_PLOT"
+    CHALLENGE_LABEL = "CHALLENGE_PLOT"
 
     def custom_init( self, nart ):
         self.adv = pbge.plots.Adventure(name="Plot Handler")
         return True
 
     def t_START(self, camp):
+        # Attempt to load at least one challenge plot, then load some more plots.
+        if self.should_load_plot(camp):
+            game.content.load_dynamic_plot(
+                camp, self.CHALLENGE_LABEL, pstate=PlotState(
+                    rank=self.calc_rank(camp)
+                ).based_on(self)
+            )
         while self.should_load_plot(camp):
             myplot = game.content.load_dynamic_plot(
                 camp, self.SUBPLOT_LABEL, pstate=PlotState(

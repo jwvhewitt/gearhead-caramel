@@ -12,6 +12,7 @@ from . import ghcutscene
 import uuid
 from . import backstory
 from . import ghrooms
+from . import ghchallenges
 
 
 # The list of plots will be stored as a dictionary based on label.
@@ -21,6 +22,10 @@ CARDS_BY_NAME = dict()
 
 
 class GHNarrativeRequest(pbge.plots.NarrativeRequest):
+    def __init__(self, camp: gears.GearHeadCampaign, *args, **kwargs):
+        super().__init__(camp, *args, **kwargs)
+        self.challenges = camp.get_active_challenges()
+
     def init_tarot_card(self,myplot,card_class,pstate,ident=None):
         cp = card_class(self,pstate)
         if cp:
@@ -96,6 +101,7 @@ def narrative_convenience_function( pc_egg, adv_type="SCENARIO_DEADZONEDRIFTER" 
     else:
         for e in nart.errors:
             print(e)
+
 
 def load_dynamic_plot(camp: gears.GearHeadCampaign, adv_type, pstate):
     if not pstate:

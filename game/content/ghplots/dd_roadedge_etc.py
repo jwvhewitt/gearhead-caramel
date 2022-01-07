@@ -3,7 +3,7 @@ import random
 import game.content
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain
+from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain, ghchallenges
 from game import teams, ghdialogue
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
@@ -11,7 +11,7 @@ from pbge.plots import Plot, PlotState
 from . import dd_customobjectives
 from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
 from . import missionbuilder, rwme_objectives
-
+from pbge.challenges import Challenge
 
 
 #   *******************************
@@ -643,6 +643,28 @@ class WarOnTheHighwayMain(Plot):
     active = True
     scope = True
 
-    def custom_init( self, nart ):
+    def custom_init(self, nart):
+        myedge = self.elements["DZ_EDGE"]
+
+        city1: gears.GearHeadScene = self.register_element("CITY1", myedge.start_node.destination)
+        city2: gears.GearHeadScene = self.register_element("CITY2", myedge.end_node.destination)
+
+        self.register_element("C1_WAR", Challenge(
+            "Defeat {}".format(city2), ghchallenges.FIGHT_CHALLENGE, (city2.faction,),
+            involvement=ghchallenges.InvolvedMetroFactionNPCs(city1),
+        ))
+
+        self.register_element("C2_WAR", Challenge(
+            "Defeat {}".format(city1), ghchallenges.FIGHT_CHALLENGE, (city1.faction,),
+            involvement=ghchallenges.InvolvedMetroFactionNPCs(city2),
+        ))
 
         return True
+
+    def C1_WAR_ADVANCE_CHALLENGE(self, camp):
+        pass
+
+    def C2_WAR_ADVANCE_CHALLENGE(self, camp):
+        pass
+
+

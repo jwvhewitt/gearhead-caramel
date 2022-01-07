@@ -14,6 +14,17 @@ from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
 from . import missionbuilder, rwme_objectives, campfeatures
 
+class LoadChallengePlot(Plot):
+    LABEL = "RANDOM_PLOT"
+    active = False
+    scope = None
+    COMMON = True
+
+    def custom_init(self, nart):
+        self.add_sub_plot(nart, "CHALLENGE_PLOT")
+        return True
+
+
 class DaveHasAPlot(Plot):
     LABEL = "zRANDOM_PLOT"
     active = True

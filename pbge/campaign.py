@@ -65,7 +65,7 @@ class Campaign( object ):
     def has_a_destination(self):
         return self._destination
 
-    def active_plots( self ):
+    def active_plots(self):
         for p in self.scene.scripts:
             if p.active:
                 yield p
@@ -75,10 +75,11 @@ class Campaign( object ):
 
     def get_active_challenges(self):
         my_challenges = set()
-        for p in self.active_plots():
-            for k,v in p.elements.items():
-                if isinstance(v, challenges.Challenge) and v.active:
-                    my_challenges.add(v)
+        if self.scene:
+            for p in self.active_plots():
+                for k,v in p.elements.items():
+                    if isinstance(v, challenges.Challenge) and v.active:
+                        my_challenges.add(v)
         return my_challenges
 
     def get_active_resources(self):

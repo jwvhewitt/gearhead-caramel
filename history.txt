@@ -1,3 +1,5 @@
+- Active Challenges are listed in GHNarrativeRequest
+- Added Challenges and Resources
 - Right clicking on combat radio button will bring up library menu
 - Widgets may now be given an "on_right_click" property
 - Radio buttons widget now takes dicts to describe the button properties
