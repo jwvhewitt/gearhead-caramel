@@ -85,7 +85,7 @@ HELLO_MISSION = Reply( "[HELLO:MISSION]" ,
             context = ContextTag([context.HELLO]),
             destination = Cue( ContextTag([context.MISSION]) ) )
 
-HELLOMISSION_MISSION = Reply( "[HELLOMISSION:MISSION]" ,
+HELLOMISSION_MISSION = Reply( "[HELLOMISSION:MISSION]",
             context = ContextTag([context.HELLO,context.MISSION]),
             destination = Cue( ContextTag([context.MISSION]) ) )
 

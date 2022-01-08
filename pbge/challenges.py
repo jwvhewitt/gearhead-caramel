@@ -138,7 +138,9 @@ class Challenge(object):
     # grammar = Dialogue grammar to be used while this challenge is active
     # oppoffers = A list of AutoOffers used by this challenge
     # oppuses = A list of AutoUsages used by this challenge
-    def __init__(self, name, chaltype, key=(), involvement=None, active=True, grammar=None, oppoffers=(), oppuses=()):
+    # data = A dict of challenge-specific data that may be used by scenario generators. Just keeping my options open.
+    def __init__(self, name, chaltype, key=(), involvement=None, active=True, grammar=None, oppoffers=(), oppuses=(),
+                 data=None):
         self.name = name
         self.points_earned = 0
         self.active = active
@@ -150,6 +152,9 @@ class Challenge(object):
             self.grammar.update(grammar)
         self.oppoffers = oppoffers
         self.oppuses = oppuses
+        self.data = dict()
+        if data:
+            self.data.update(data)
 
     def advance(self, camp, delta):
         self.points_earned += delta

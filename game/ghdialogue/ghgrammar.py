@@ -854,6 +854,26 @@ DEFAULT_GRAMMAR = {
             ],
         },
 
+    "[DOYOUACCEPTMISSION]": {
+        Default: ["Do you accept this mission?",
+                  ],
+        personality.Cheerful: ["This could be a great opportunity for you.",
+                               ],
+        personality.Grim: ["You look like you could use the money.",
+                           ],
+        personality.Easygoing: ["If you're interested, this mission is yours.",
+                                ],
+        personality.Passionate: ["Are you prepared to face this challenge?!",
+                                 ],
+        personality.Sociable: ["What do you think? Are you willing to do this mission?",
+                               ],
+        personality.Shy: ["Can you do this?",
+                          ],
+        LIKE: ["I'd really appreciate it if you could do this."],
+        LOVE: ["It would mean a lot to me if you accept this mission."],
+        DISLIKE: ["I wouldn't be asking you if I wasn't desperate for help."],
+    },
+
     "[DOYOUACCEPTMYOFFER]": {
         Default: ["Do you accept my offer?",
                   ],
@@ -3784,7 +3804,7 @@ DEFAULT_GRAMMAR = {
         personality.Cheerful: [
             "I can accept that."
             ],
-        personality.Grim: ["So I see.",
+        personality.Grim: ["So I see.", "[THATSUCKS]"
                            ],
         personality.Easygoing: ["Whatever.",
                                 ],

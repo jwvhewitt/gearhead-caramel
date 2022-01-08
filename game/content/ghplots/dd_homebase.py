@@ -7,7 +7,7 @@ from gears import factions, personality
 import game.content.gharchitecture
 import pbge
 import game.content.plotutility
-from game.content import ghwaypoints, gharchitecture, plotutility, ghrooms, dungeonmaker
+from game.content import ghwaypoints, gharchitecture, plotutility, ghrooms, dungeonmaker, ghchallenges
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
@@ -109,12 +109,42 @@ class DZD_Wujung(Plot):
                              "They're the military government that controls [Luna] right now. [chat_lead_in] Aegis operatives are the ones who activated Typhon and led it to Wujung."),
             OneShotInfoBlast("salvage",
                              "After completing a mission, you're entitled to claim any equipment left behind on the battlefield. Of course getting it off the battlefield before someone else nabs it can be a problem. You can up your chances by bringing along a repair expert."),
-
         )
+
+        self.register_element("TEST_CHALLENGE", pbge.challenges.Challenge(
+            "Defeat Aegis Overlord", ghchallenges.FIGHT_CHALLENGE, (gears.factions.AegisOverlord,),
+            involvement=ghchallenges.InvolvedMetroFactionNPCs(myscene),
+            data={
+                "challenge_objectives": ("defend Wujung from Aegis attacks", "discover what Aegis is doing on the western border"),
+                "enemy_objectives":  ("keep Wujung from interfering in our plans", "claim this region for Aegis Overlord Luna"),
+                "mission_intros":  ("There have been conflicts with Aegis along the edge of the deadzone.",
+                                    "An Aegis force has moved into the area; we don't know what they're doing but they must be stopped."),
+                "mission_objectives": (
+                    ghchallenges.DescribedObjective(
+                        missionbuilder.BAMO_SURVIVE_THE_AMBUSH,
+                        "Aegis forces have been ambushing our patrols; your job is to catch them.",
+                        "put an end to your ambushes", "destroy Wujung's militia",
+                        "I drove you out of Wujung", "you drove me out of Wujung",
+                        "you crushed the Wujung defense force", "I crushed the Wujung defense force"
+                    ),
+                    ghchallenges.DescribedObjective(
+                        missionbuilder.BAMO_EXTRACT_ALLIED_FORCES,
+                        "One of our scouts went missing; I suspect they've been captured by Aegis.",
+                        "protect Wujung from Aegis", "capture and interrogate a defense force pilot",
+                        "I protected the Wujung defense force from you", "you foiled my mission in Wujung",
+                        "you kidnapped pilots from Wujung", "I learned all about Wujung's defenses"
+                    ),
+                )
+            }
+        ))
+
 
         self.intro_ready = True
 
         return True
+
+    def TEST_CHALLENGE_ADVANCE_CHALLENGE(self, camp):
+        pass
 
     def METROSCENE_ENTER(self, camp):
         # Upon entering this scene, deal with any dead or incapacitated party members.

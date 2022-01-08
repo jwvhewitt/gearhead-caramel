@@ -29,6 +29,15 @@ class BasicFightChallenge(Plot):
         prohibited_npcs=("NPC",)
     )
 
+    DEFAULT_OBJECTIVES = (
+        ghchallenges.DescribedObjective(
+            missionbuilder.BAMO_LOCATE_ENEMY_FORCES, "mecha from {ENEMY_FACTION} have been detected nearby"
+        ),
+        ghchallenges.DescribedObjective(
+            missionbuilder.BAMO_DEFEAT_COMMANDER, "an agent of {ENEMY_FACTION} has been operating in this area"
+        )
+    )
+
     @classmethod
     def matches(cls, pstate: PlotState):
         return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
@@ -42,18 +51,27 @@ class BasicFightChallenge(Plot):
             self.register_element("ENEMY_FACTION", mychallenge.key[0])
             self.expiration = TimeExpiration(nart.camp, time_limit=5)
 
-            mgram = missionbuilder.MissionGrammar(
+            my_dobjectives = random.sample(self.DEFAULT_OBJECTIVES + mychallenge.data.get("mission_objectives", ()), 2)
+            self.mission_desc = random.choice(my_dobjectives).mission_desc.format(**self.elements)
 
+            mgram = missionbuilder.MissionGrammar(
+                random.choice(mychallenge.data.get("challenge_objectives", ("[defeat_you]",)) + tuple(c.objective_pp for c in my_dobjectives)),
+                random.choice(mychallenge.data.get("enemy_objectives", ("[defeat_you]",)) + tuple(c.objective_ep for c in my_dobjectives)),
+                random.choice([c.win_pp for c in my_dobjectives]),
+                random.choice([c.win_ep for c in my_dobjectives]),
+                random.choice([c.lose_pp for c in my_dobjectives]),
+                random.choice([c.lose_ep for c in my_dobjectives])
             )
 
             sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
             self.mission_seed = missionbuilder.BuildAMissionSeed(
-                nart.camp, "", self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+                nart.camp, "{NPC}'s Mission".format(**self.elements),
+                self.elements["METROSCENE"], self.elements["MISSION_GATE"],
                 allied_faction=npc.faction,
                 enemy_faction=self.elements["ENEMY_FACTION"], rank=self.rank,
-                objectives=(), one_chance=True,
-                scenegen=sgen,
-                architecture=archi, mission_grammar=mgram,
+                objectives=[c.objective for c in my_dobjectives],
+                one_chance=True,
+                scenegen=sgen, architecture=archi, mission_grammar=mgram,
                 cash_reward=120,
                 on_win=self._win_the_mission
             )
@@ -73,8 +91,39 @@ class BasicFightChallenge(Plot):
         self.elements["CHALLENGE"].advance(camp, max((comp-61)//10, 1))
         self.end_plot(camp)
 
+    def get_mission_intro(self):
+        mylist = ["[MechaMissionVsEnemyFaction]."]
+        mychallenge = self.elements["CHALLENGE"]
+        mylist += mychallenge.data.get("mission_intros", [])
+
+        return random.choice(mylist)
+
     def NPC_offers(self, camp):
         mylist = list()
+
+        if not self.mission_active:
+            mylist.append(Offer(
+                "[LOOKING_FOR_CAVALIER] {}".format(self.get_mission_intro()),
+                ContextTag([context.HELLO, context.MISSION]), data={"enemy_faction": self.elements["ENEMY_FACTION"]}
+            ))
+
+            mylist.append(Offer(
+                "{} [DOYOUACCEPTMISSION]".format(self.mission_desc),
+                ContextTag([context.MISSION]), data={"enemy_faction": self.elements["ENEMY_FACTION"]},
+                subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[IWillSendMissionDetails]; [GOODLUCK]",
+                ContextTag([context.ACCEPT]), effect=self.activate_mission,
+                subject=self
+            ))
+
+            mylist.append(Offer(
+                "[UNDERSTOOD] [GOODBYE]",
+                ContextTag([context.DENY]), effect=self.end_plot,
+                subject=self
+            ))
 
         return mylist
 

@@ -23,8 +23,8 @@ CARDS_BY_NAME = dict()
 
 class GHNarrativeRequest(pbge.plots.NarrativeRequest):
     def __init__(self, camp: gears.GearHeadCampaign, *args, **kwargs):
-        super().__init__(camp, *args, **kwargs)
         self.challenges = camp.get_active_challenges()
+        super().__init__(camp, *args, **kwargs)
 
     def init_tarot_card(self,myplot,card_class,pstate,ident=None):
         cp = card_class(self,pstate)
