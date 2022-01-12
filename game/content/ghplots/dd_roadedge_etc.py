@@ -11,7 +11,7 @@ from pbge.plots import Plot, PlotState
 from . import dd_customobjectives
 from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
 from . import missionbuilder, rwme_objectives
-from pbge.challenges import Challenge
+from pbge.challenges import Challenge, AutoOffer
 
 
 #   *******************************
@@ -639,25 +639,75 @@ class WarOnTheHighwayMain(Plot):
     # the Narrative Challenge system. So, in theory, this plot should just have to describe the challenge and then
     # let the challenge builder supply the means to the various ends.
     LABEL = "DZRE_WARONTHEHIGHWAY"
-    UNIQUE = True
     active = True
     scope = True
 
     def custom_init(self, nart):
         myedge = self.elements["DZ_EDGE"]
 
-        city1: gears.GearHeadScene = self.register_element("CITY1", myedge.start_node.destination)
-        city2: gears.GearHeadScene = self.register_element("CITY2", myedge.end_node.destination)
+        cities = [myedge.start_node.destination, myedge.end_node.destination]
+        random.shuffle(cities)
+
+        city1: gears.GearHeadScene = self.register_element("CITY1", cities[0])
+        city2: gears.GearHeadScene = self.register_element("CITY2", cities[1])
+
+        nart.camp.set_faction_enemies(city1, city2)
 
         self.register_element("C1_WAR", Challenge(
             "Defeat {}".format(city2), ghchallenges.FIGHT_CHALLENGE, (city2.faction,),
             involvement=ghchallenges.InvolvedMetroFactionNPCs(city1),
+            data={
+                "challenge_objectives": ["defend {} from {}".format(city1, city2),],
+                "enemy_objectives": ["control the highway between {} and {}".format(city2, city1),],
+                "mission_intros": ["The highway to {} has been blocked by enemy forces.".format(city2),],
+                "mission_objectives": [
+                    ghchallenges.DescribedObjective(
+                        missionbuilder.BAMO_RECOVER_CARGO,
+                        "Enemy forces have seized a shipment of cargo needed in {}.".format(city1),
+                        "recover {}'s goods".format(city1), "cut off all trade to {}".format(city1),
+                        "I took back the goods you stole", "you broke our sanctions against {}".format(city1),
+                        "you stole supplies needed by {}".format(city1),
+                        "I enforced our sanctions against {}".format(city1)
+                    ),
+                    ghchallenges.DescribedObjective(
+                        missionbuilder.BAMO_LOCATE_ENEMY_FORCES,
+                        "{} mecha have occupied the highway.".format(city2),
+                        "open the highway", "protect {}'s sovereignty".format(city2),
+                        "I broke through your highway blockade", "you trespassed into {}".format(city2),
+                        "you blocked the highway to {}".format(city1), "you tried to invade {}".format(city2)
+                    ),
+                ]
+            }
         ))
 
         self.register_element("C2_WAR", Challenge(
             "Defeat {}".format(city1), ghchallenges.FIGHT_CHALLENGE, (city1.faction,),
             involvement=ghchallenges.InvolvedMetroFactionNPCs(city2),
+            data={
+                "challenge_objectives": ["defend {} from {}".format(city2, city1), ],
+                "enemy_objectives": ["control the highway between {} and {}".format(city1, city2), ],
+                "mission_intros": ["The highway to {} has been blocked by enemy forces.".format(city1), ],
+                "mission_objectives": [
+                    ghchallenges.DescribedObjective(
+                        missionbuilder.BAMO_RECOVER_CARGO,
+                        "Enemy forces have seized a shipment of cargo needed in {}.".format(city2),
+                        "recover {}'s goods".format(city2), "cut off all trade to {}".format(city2),
+                        "I took back the goods you stole", "you broke our sanctions against {}".format(city2),
+                        "you stole supplies needed by {}".format(city2),
+                        "I enforced our sanctions against {}".format(city2)
+                    ),
+                    ghchallenges.DescribedObjective(
+                        missionbuilder.BAMO_LOCATE_ENEMY_FORCES,
+                        "{} mecha have occupied the highway.".format(city1),
+                        "open the highway", "protect {}'s sovereignty".format(city1),
+                        "I broke through your highway blockade", "you trespassed into {}".format(city1),
+                        "you blocked the highway to {}".format(city2), "you tried to invade {}".format(city1)
+                    ),
+                ]
+            }
         ))
+
+        self.add_sub_plot(nart, "DZRE_WOTH_CASUSBELLI", ident="CASUSBELLI")
 
         return True
 
@@ -667,4 +717,200 @@ class WarOnTheHighwayMain(Plot):
     def C2_WAR_ADVANCE_CHALLENGE(self, camp):
         pass
 
+    def CASUSBELLI_WIN(self, camp: gears.GearHeadCampaign):
+        camp.check_trigger("WIN", self)
+        self.deactivate(camp)
 
+
+#   ******************************
+#   ***  DZRE_WOTH_CASUSBELLI  ***
+#   ******************************
+#
+#   The cause of the conflict in a WarOnTheHighway plot.
+#   If the casus belli is resolved and the war subsequently ended, this plot will set a WIN trigger.
+#
+
+class WOTHCB_BothSidesWrong(Plot):
+    # The two towns involved? They have grievances going back over a century. This scenario is symmetrical; it's the
+    # test case so I'll be adding some more nuanced conflicts later.
+    LABEL = "DZRE_WOTH_CASUSBELLI"
+    UNIQUE = True
+    active = True
+    scope = True
+
+    def custom_init(self, nart):
+        c1war = self.elements["C1_WAR"]
+        c2war = self.elements["C2_WAR"]
+
+        self.register_element("C1_DIPLOMACY", Challenge(
+            "Negotiate peace in {}".format(self.elements["CITY1"]),
+            ghchallenges.DIPLOMACY_CHALLENGE, [self.elements["CITY1"].faction, self.elements["CITY2"].faction],
+            involvement=ghchallenges.InvolvedMetroResidentNPCs(self.elements["CITY1"]), active=False,
+            data={
+                "challenge_subject": "the war with {CITY2}".format(**self.elements),
+                "challenge_statements": (
+                    "the only way to end this conflict with {CITY2} is to crush their army completely".format(**self.elements),
+                    "we won't have peace until {CITY2} is defeated for good".format(**self.elements),
+                ),
+                "pc_rebuttals": (
+                    "if you keep fighting, you'll never have peace",
+                    "the people of {CITY2} probably think the same about you".format(**self.elements)
+                ),
+                "npc_agreement": (
+                    "we need to fix our role in this conflict",
+                    "peace is only possible if both sides assent"
+                ),
+                "npc_disagreement": (
+                    "you don't know the atrocities they've committed",
+                    "if they were interested in peace, they would have surrendered already"
+                ),
+            },
+            oppoffers=(
+                AutoOffer(
+                    dict(
+                        msg="[OPEN_TO_PEACE_WITH_ENEMY_FACTION]",
+                        context=ContextTag([context.CUSTOM,]), effect=self._use_c1_diplomacy,
+                        data={
+                            "reply": "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]",
+                            "enemy_faction": self.elements["CITY2"].faction
+                        }
+                    ), active=True, uses=99, involvement=c1war.involvement,
+                    access_fun=ghchallenges.AccessSocialRoll(
+                        gears.stats.Charm, gears.stats.Negotiation, self.rank, untrained_ok=True
+                    )
+                ),
+                AutoOffer(
+                    dict(
+                        msg="[OPEN_TO_PEACE_WITH_ENEMY_FACTION]",
+                        context=ContextTag([context.UNFAVORABLE_CUSTOM, ]), effect=self._use_c1_diplomacy,
+                        data={
+                            "reply": "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]",
+                            "enemy_faction": self.elements["CITY2"].faction
+                        }
+                    ), active=True, uses=99, involvement=c1war.involvement,
+                    access_fun=ghchallenges.AccessSocialRoll(
+                        gears.stats.Charm, gears.stats.Negotiation, self.rank,
+                        difficulty=gears.stats.DIFFICULTY_HARD, untrained_ok=True
+                    )
+                )
+            )
+
+        ))
+
+
+        self.register_element("C2_DIPLOMACY", Challenge(
+            "Negotiate peace in {}".format(self.elements["CITY2"]),
+            ghchallenges.DIPLOMACY_CHALLENGE, [self.elements["CITY2"].faction, self.elements["CITY1"].faction],
+            involvement=ghchallenges.InvolvedMetroResidentNPCs(self.elements["CITY2"]), active=False,
+            data={
+                "challenge_subject": "the attacks by {CITY1}".format(**self.elements),
+                "challenge_statements": (
+                    "{CITY1} has to pay for attacking {CITY2}".format(**self.elements),
+                    "this war is entirely the fault of {CITY1}".format(**self.elements),
+                ),
+                "pc_rebuttals": (
+                    "the cycle of retribution can only be broken by justice",
+                    "more fighting is only going to lead to more retribution"
+                ),
+                "npc_agreement": (
+                    "{CITY2} and {CITY1} both need to own up to our history".format(**self.elements),
+                    "reconciliation will be difficult, but maybe it is possible"
+                ),
+                "npc_disagreement": (
+                    "they started it",
+                    "there would be no war now if {CITY1} accepted they lost the last one".format(**self.elements)
+                ),
+            },
+            oppoffers=(
+                AutoOffer(
+                    dict(
+                        msg="[OPEN_TO_PEACE_WITH_ENEMY_FACTION]",
+                        context=ContextTag([context.CUSTOM, ]), effect=self._use_c2_diplomacy,
+                        data={
+                            "reply": "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]",
+                            "enemy_faction": self.elements["CITY1"].faction
+                        }
+                    ), active=True, uses=99, involvement=c2war.involvement,
+                    access_fun=ghchallenges.AccessSocialRoll(
+                        gears.stats.Charm, gears.stats.Negotiation, self.rank, untrained_ok=True
+                    )
+                ),
+                AutoOffer(
+                    dict(
+                        msg="[OPEN_TO_PEACE_WITH_ENEMY_FACTION]",
+                        context=ContextTag([context.UNFAVORABLE_CUSTOM, ]), effect=self._use_c2_diplomacy,
+                        data={
+                            "reply": "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]",
+                            "enemy_faction": self.elements["CITY1"].faction
+                        }
+                    ), active=True, uses=99, involvement=c2war.involvement,
+                    access_fun=ghchallenges.AccessSocialRoll(
+                        gears.stats.Charm, gears.stats.Negotiation, self.rank,
+                        difficulty=gears.stats.DIFFICULTY_HARD, untrained_ok=True
+                    )
+                )
+            )
+        ))
+
+        self.has_activated_negotiations = False
+
+        return True
+
+    def _use_c1_diplomacy(self, camp):
+        self.elements["C1_DIPLOMACY"].advance(camp, 2)
+
+    def _use_c2_diplomacy(self, camp):
+        self.elements["C2_DIPLOMACY"].advance(camp, 2)
+
+    def C1_DIPLOMACY_ADVANCE_CHALLENGE(self, camp):
+        mydip: Challenge = self.elements["C1_DIPLOMACY"]
+        otherdip: Challenge = self.elements["C2_DIPLOMACY"]
+        if mydip.points_earned >= 10 and otherdip.points_earned >= 10:
+            self.win_peace(camp)
+        elif mydip.points_earned >= 10:
+            pbge.BasicNotification("The citizens of {CITY1} are willing to accept peace.")
+            self.elements["C1_DIPLOMACY"].active = False
+
+    def C2_DIPLOMACY_ADVANCE_CHALLENGE(self, camp):
+        mydip: Challenge = self.elements["C1_DIPLOMACY"]
+        otherdip: Challenge = self.elements["C2_DIPLOMACY"]
+        if mydip.points_earned >= 10 and otherdip.points_earned >= 10:
+            self.win_peace(camp)
+        elif mydip.points_earned >= 10:
+            pbge.BasicNotification("The citizens of {CITY1} are willing to accept peace.")
+            self.elements["C1_DIPLOMACY"].active = False
+
+    def win_peace(self, camp: gears.GearHeadCampaign):
+        camp.check_trigger("WIN", self)
+        self.elements["C1_DIPLOMACY"].active = False
+        self.elements["C2_DIPLOMACY"].active = False
+        pbge.alert("Thanks to your efforts, {CITY1} and {CITY2} begin peace negotiations. The war is over.".format(**self.elements))
+        camp.set_faction_as_pc_ally(self.elements["CITY1"].faction)
+        camp.set_faction_as_pc_ally(self.elements["CITY2"].faction)
+        camp.set_faction_neutral(self.elements["CITY1"].faction, self.elements["CITY2"].faction)
+        self.end_plot(camp)
+
+    def _get_generic_offers( self, npc, camp ):
+        myoffs = list()
+
+        if not self.has_activated_negotiations:
+            if self.elements["C1_WAR"].is_involved(camp, npc):
+                myoffs.append(Offer(
+                    "Our conflict goes back decades; there is a lot of bad blood on both sides. Still, maybe an outsider like you could find a solution.",
+                    ContextTag([context.CUSTOM,]), effect=self._activate_negotiations,
+                    data={"reply": "[HAVE_YOU_TRIED_PEACE]", "enemy_faction": str(self.elements["CITY2"])}
+                ))
+            elif self.elements["C2_WAR"].is_involved(camp, npc):
+                myoffs.append(Offer(
+                    "We've been at war with {} on and off for decades... but this time, they were the ones who attacked us! Maybe someone like you can find a way to end this cycle.".format(self.elements["CITY1"]),
+                    ContextTag([context.CUSTOM,]), effect=self._activate_negotiations,
+                    data={"reply": "[HAVE_YOU_TRIED_PEACE]", "enemy_faction": str(self.elements["CITY1"])}
+                ))
+
+
+        return myoffs
+
+    def _activate_negotiations(self, camp):
+        self.elements["C1_DIPLOMACY"].active = True
+        self.elements["C2_DIPLOMACY"].active = True
+        self.has_activated_negotiations = True

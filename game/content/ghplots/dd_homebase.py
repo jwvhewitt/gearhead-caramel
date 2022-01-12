@@ -114,6 +114,7 @@ class DZD_Wujung(Plot):
         self.register_element("TEST_CHALLENGE", pbge.challenges.Challenge(
             "Defeat Aegis Overlord", ghchallenges.FIGHT_CHALLENGE, (gears.factions.AegisOverlord,),
             involvement=ghchallenges.InvolvedMetroFactionNPCs(myscene),
+            active=False,
             data={
                 "challenge_objectives": ("defend Wujung from Aegis attacks", "discover what Aegis is doing on the western border"),
                 "enemy_objectives":  ("keep Wujung from interfering in our plans", "claim this region for Aegis Overlord Luna"),

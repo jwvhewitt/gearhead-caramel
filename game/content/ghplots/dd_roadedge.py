@@ -155,6 +155,21 @@ class BlackMarketBluesStarter(DZDREBasicPlotWithEncounterStuff):
             mygram["[News]"] = ["{} have been robbing travelers going to {}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
         return mygram
 
+class WarOnTheHighwayStarter(DZDREBasicPlotWithEncounterStuff):
+    LABEL = "DZD_ROADEDGE_YELLOW"
+
+    def custom_init(self, nart):
+        super().custom_init(nart)
+        myedge = self.elements["DZ_EDGE"]
+        self.register_element("FACTION", self.get_enemy_faction(nart))
+        self.add_sub_plot(nart, "DZRE_WARONTHEHIGHWAY", ident="MISSION")
+        print(myedge.start_node.destination, myedge.end_node.destination)
+        return True
+
+    def get_enemy_faction(self,nart):
+        return self.elements["DZ_EDGE"].start_node.destination.faction
+
+
 
 #   *******************************
 #   ***   DZD_ROADEDGE_ORANGE   ***

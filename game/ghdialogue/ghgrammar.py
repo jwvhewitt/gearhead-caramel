@@ -677,6 +677,25 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[CONTROVERSIAL_OPINION]": {
+        # data block needs {opinion}
+        Default: ["I think {opinion}.",
+                  ],
+        personality.Cheerful: ["I honestly believe {opinion}.",
+                               ],
+        personality.Grim: [
+            "There's no denying that {opinion}.",
+            ],
+        personality.Easygoing: ["In my opinion, {opinion}."
+                                ],
+        personality.Passionate: ["It's undeniable that {opinion}!"
+                                 ],
+        personality.Sociable: ["It is a truth universally acknowledged that {opinion}.",
+                               ],
+        personality.Shy: ["{opinion}.",
+                          ],
+    },
+
     "[CRYPTIC_GREETING]": {
         Default: [
             "We live in dangerous times, but there is still a light in the darkness.",
@@ -1102,6 +1121,26 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]": {
+        # Data block should include enemy_faction
+        Default: ["Have you considered making peace with {enemy_faction}?"
+                  ],
+        personality.Cheerful: ["What's so funny about making peace with {enemy_faction}?",
+                               ],
+        personality.Grim: ["Fighting {enemy_faction} will only lead to more bloodshed.",
+                           ],
+        personality.Easygoing: ["Instead of fighting, why not negotiate with {enemy_faction}?",
+                                ],
+        personality.Passionate: ["Your stupid war will be the end of you! Negotiate peace with {enemy_faction}.",
+                                 ],
+        personality.Sociable: ["This war must end; you should talk to {enemy_faction} and make peace."
+                               ],
+        personality.Shy: ["You should make peace with {enemy_faction}.",
+                          ],
+        personality.Peace: [
+            "Give peace with {enemy_faction} a chance!"
+        ],
+    },
 
     "[GOODBYE]": {
         Default: ["Goodbye."
@@ -1234,9 +1273,48 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["Halt!!!",
                                  ],
-        personality.Sociable: ["Halt; come and closer and I'll be forced to attack.",
+        personality.Sociable: ["Halt; come any closer and I'll be forced to attack.",
                                ],
         personality.Shy: ["Stop.",
+                          ],
+    },
+
+    "[HAVE_YOU_CONSIDERED]": {
+        # Speaker is floating an idea for consideration.
+        # data should include "consider_this"
+        Default: ["Have you considered that {consider_this}?"
+                  ],
+        personality.Cheerful: ["Here's an idea: {consider_this}!",
+                               ],
+        personality.Grim: ["You've obviously failed to consider that {consider_this}."
+                           ],
+        personality.Easygoing: ["Maybe {consider_this}.",
+                                ],
+        personality.Passionate: ["But {consider_this}!!!",
+                                 ],
+        personality.Sociable: [
+            "I would suggest that {consider_this}.",
+            ],
+        personality.Shy: ["I think {consider_this}.",
+                          ],
+        DISLIKE: ["But actually, {consider_this}."]
+    },
+
+    "[HAVE_YOU_TRIED_PEACE]": {
+        # data should include "enemy_faction"
+        Default: ["Have you tried negotiating for peace with {enemy_faction}?"
+                  ],
+        personality.Cheerful: ["Maybe you can end this thing with {enemy_faction} without hurting anyone else.",
+                               ],
+        personality.Grim: ["Seems to me you can keep fighting {enemy_faction}, or you can work out a deal."
+                           ],
+        personality.Easygoing: ["Wouldn't it be easier to just talk through your problems with {enemy_faction}?",
+                                ],
+        personality.Passionate: ["You will never end this conflict through further violence!",
+                                 ],
+        personality.Sociable: ["It seems to me that your conflict with {enemy_faction} requires talking, not more fighting.",
+                               ],
+        personality.Shy: ["There might be a diplomatic solution to your conflict with {enemy_faction}.",
                           ],
     },
 
@@ -2448,6 +2526,24 @@ DEFAULT_GRAMMAR = {
         personality.DeadZone: ["the moon","the moon","the moon",],
     },
 
+    "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION]": {
+        # data block must include "opinion"
+        Default: ["Maybe you're right; {opinion}."
+                  ],
+        personality.Cheerful: ["So really {opinion}?",
+                               ],
+        personality.Grim: ["It appears I've misjudged things horribly; {opinion}.",
+                           ],
+        personality.Easygoing: ["So {opinion}? Sounds legit.",
+                                ],
+        personality.Passionate: ["Could it be? {opinion}!",
+                                 ],
+        personality.Sociable: ["You may very well be right that {opinion}.",
+                               ],
+        personality.Shy: ["So, {opinion}.",
+                          ],
+    },
+
     "[MAYBE_YOU_COULD_HELP]": {
         Default: ["Maybe you could help me with this."
                   ],
@@ -2774,6 +2870,27 @@ DEFAULT_GRAMMAR = {
             "[BrowseWares]; let's just get this over with.",
             "Don't try any funny business in my shop",
             "I'll sell you crap but don't expect me to be nice about it"
+        ],
+    },
+
+    "[OPEN_TO_PEACE_WITH_ENEMY_FACTION]": {
+        # Data block should include enemy_faction
+        Default: [""
+                  ],
+        personality.Cheerful: ["It would be a happy day if {enemy_faction} agreed to a peace deal.",
+                               ],
+        personality.Grim: ["Do you really think {enemy_faction} is open to peace? I would agree, but I doubt that'll happen.",
+                           ],
+        personality.Easygoing: ["Yeah, if {enemy_faction} accepted a peace deal, that'd make life easier for everyone.",
+                                ],
+        personality.Passionate: ["You expect us to lay down our arms?! Only if {enemy_faction} agrees first!",
+                                 ],
+        personality.Sociable: ["We would be willing to consider peace with {enemy_faction}, if they were willing to accept."
+                               ],
+        personality.Shy: ["I would accept a treaty with {enemy_faction}.",
+                          ],
+        personality.Peace: [
+            "Of course I want peace with {enemy_faction}!"
         ],
     },
 
@@ -4116,6 +4233,24 @@ DEFAULT_GRAMMAR = {
         personality.Duty: [
             "I disagree with your decision, but will not fail in my duty."
         ]
+    },
+
+    "[YOU_COULD_BE_RIGHT]": {
+        # Different from MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION because no opinion is given.
+        Default: ["You could be right."
+                  ],
+        personality.Cheerful: ["That's definitely possible.",
+                               ],
+        personality.Grim: ["I hate to say it, but you may be right.",
+                           ],
+        personality.Easygoing: ["Maybe.",
+                                ],
+        personality.Passionate: ["Your idea, that could be it!",
+                                 ],
+        personality.Sociable: ["I have to admit that you could be right.",
+                               ],
+        personality.Shy: ["I won't say that you're wrong.",
+                          ],
     },
 
     "[YOUR_PLAN_IS_HOPELESS]": {

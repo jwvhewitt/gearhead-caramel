@@ -1,6 +1,11 @@
 import gears
 
+#   *********************************
+#   ***  FIGHT  CHALLENGE  STUFF  ***
+#   *********************************
+
 FIGHT_CHALLENGE = "FIGHT_CHALLENGE"
+# The involvement for a fight challenge lists the NPCs who might give the PC a combat mission
 # The key for a fight challenge is (Faction_to_be_fought,)
 # The data for a fight challenge should include:
 #   challenge_objectives = A list of objectives that can be given by the challenge-givers; infinitive verb phrase
@@ -26,6 +31,22 @@ class DescribedObjective(object):
         self.lose_ep = lose_ep
 
 
+#   *************************************
+#   ***  DIPLOMACY  CHALLENGE  STUFF  ***
+#   *************************************
+
+DIPLOMACY_CHALLENGE = "DIPLOMACY_CHALLENGE"
+# The involvement for a diplomacy challenge identifies the NPCs whose opinion you want to sway
+# The key for a diplomacy challenge is (Faction_to_be_swayed, [Faction_doing_swaying])
+# The data for a diplomacy challenge should include:
+#   challenge_subject: A string identifying the challenge
+#   challenge_statements = A list of prevailing opinions that the PC wants to challenge; primary clause
+#   pc_rebuttals = A list of replies the PC can give to challenge the statement above; primary clause
+#   npc_agreement = A list of positive replies to the PC's rebuttal
+#   npc_disagreement = A list of negative replies to the PC's rebuttal
+#
+
+
 #   **********************
 #   ***  INVOLVEMENTS  ***
 #   **********************
@@ -39,4 +60,36 @@ class InvolvedMetroFactionNPCs(object):
     def __call__(self, camp: gears.GearHeadCampaign, ob):
         return (isinstance(ob, gears.base.Character) and ob.scene.get_metro_scene() is self.metroscene and
                 camp.are_faction_allies(ob, self.faction))
+
+
+class InvolvedMetroResidentNPCs(object):
+    # Return True if ob is a non-lancemate NPC in the provided Metro area.
+    def __init__(self, metroscene):
+        self.metroscene = metroscene
+
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        return (isinstance(ob, gears.base.Character) and ob.scene.get_metro_scene() is self.metroscene and
+                ob not in camp.party and
+                (not ob.relationship or gears.relationships.RT_LANCEMATE not in ob.relationship.tags))
+
+
+#   ***************************
+#   ***  ACCESS  FUNCTIONS  ***
+#   ***************************
+
+class AccessSocialRoll(object):
+    # Return True if the party can pass a social skill roll.
+    def __init__(self, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_AVERAGE,
+                          untrained_ok=False):
+        self.stat_id = stat_id
+        self.skill_id = skill_id
+        self.rank = rank
+        self.difficulty = difficulty
+        self.untrained_ok = untrained_ok
+
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        return (isinstance(ob, gears.base.Character) and
+                camp.social_skill_roll(ob, self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok, no_random=True))
+
+
 

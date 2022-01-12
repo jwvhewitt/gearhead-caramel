@@ -482,7 +482,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def get_party_skill(self, stat_id, skill_id):
         return max([pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party()] + [0])
 
-    def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False,no_random=False,include_pc=True):
+    def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False,
+                        no_random=False,include_pc=True, modifier=0):
         # Make a skill roll against a given difficulty. If successful, return the lancemate
         # who made the roll.
         if untrained_ok:
@@ -495,7 +496,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     myparty.remove(ppc)
         if myparty:
             winners = list()
-            target = stats.get_skill_target(rank,difficulty)
+            target = stats.get_skill_target(rank,difficulty)+modifier
             for roller in myparty:
                 if no_random:
                     roll = 55 + roller.get_skill_score(stat_id,skill_id)
@@ -507,6 +508,11 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 pc = random.choice(winners)
                 pc.dole_experience(max(rank//3,5),skill_id)
                 return pc
+
+    def social_skill_roll(self, npc: base.Character, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE,
+                          untrained_ok=False, no_random=False,include_pc=True):
+        modifier = -npc.get_reaction_score(self.pc, self)//4
+        return self.make_skill_roll(stat_id, skill_id, rank, difficulty, untrained_ok, no_random, include_pc, modifier)
 
     def party_has_skill(self,skill_id):
         return any(pc for pc in self.get_active_party() if pc.has_skill(skill_id))
@@ -747,6 +753,33 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     if (fac1 in self.faction_relations and fac2 in self.faction_relations[fac1].enemies) or (fac2 in self.faction_relations and fac1 in self.faction_relations[fac2].enemies):
                         return True
 
+    def set_faction_allies(self, a, b):
+        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+        if a_fac not in self.faction_relations:
+            self.faction_relations[a_fac] = factions.FactionRelations()
+        if b_fac not in self.faction_relations:
+            self.faction_relations[b_fac] = factions.FactionRelations()
+        self.faction_relations[a_fac].set_faction_ally(b_fac)
+        self.faction_relations[b_fac].set_faction_ally(a_fac)
+
+    def set_faction_enemies(self, a, b):
+        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+        if a_fac not in self.faction_relations:
+            self.faction_relations[a_fac] = factions.FactionRelations()
+        if b_fac not in self.faction_relations:
+            self.faction_relations[b_fac] = factions.FactionRelations()
+        self.faction_relations[a_fac].set_faction_ally(b_fac)
+        self.faction_relations[b_fac].set_faction_ally(a_fac)
+
+    def set_faction_neutral(self, a, b):
+        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+        if a_fac not in self.faction_relations:
+            self.faction_relations[a_fac] = factions.FactionRelations()
+        if b_fac not in self.faction_relations:
+            self.faction_relations[b_fac] = factions.FactionRelations()
+        self.faction_relations[a_fac].set_faction_neutral(b_fac)
+        self.faction_relations[b_fac].set_faction_neutral(a_fac)
+
     def is_favorable_to_pc(self, other_thing):
         """ is the other_thing- an NPC, faction, scene, whatever- likely to want to aid the PC?
         """
@@ -809,6 +842,16 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         if fac not in self.faction_relations:
             self.faction_relations[fac] = factions.FactionRelations()
         self.faction_relations[fac].set_pc_enemy()
+
+    def set_faction_as_pc_neutral(self, fac):
+        if fac not in self.faction_relations:
+            self.faction_relations[fac] = factions.FactionRelations()
+        self.faction_relations[fac].set_pc_neutral()
+
+    def set_faction_as_pc_ally(self, fac):
+        if fac not in self.faction_relations:
+            self.faction_relations[fac] = factions.FactionRelations()
+        self.faction_relations[fac].set_pc_ally()
 
     def get_campdata(self, thing):
         if thing:

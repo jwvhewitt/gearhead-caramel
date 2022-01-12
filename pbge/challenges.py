@@ -63,10 +63,12 @@ class AutoOffer(object):
 
     def __call__(self, my_challenge, camp, npc):
         if self.active and (not self.access_fun or self.access_fun(camp, npc)) and npc not in self.used_on:
-            if self.involvement and self.involvement(camp, npc):
-                return self._get_offer(npc)
-            elif my_challenge.involvement and my_challenge.involvement(camp, npc):
-                return self._get_offer(npc)
+            if self.involvement:
+                if self.involvement(camp, npc):
+                    return self._get_offer(npc)
+            elif my_challenge.involvement:
+                if my_challenge.involvement(camp, npc):
+                    return self._get_offer(npc)
             else:
                 return self._get_offer(npc)
 
@@ -103,10 +105,12 @@ class AutoUsage(object):
 
     def __call__(self, my_challenge, camp, thing, thingmenu):
         if self.active and (not self.access_fun or self.access_fun(camp, thing)) and thing not in self.used_on:
-            if self.involvement and self.involvement(camp, thing):
-                self._modify_menu(my_challenge, thing, thingmenu)
-            elif my_challenge.involvement and my_challenge.involvement(camp, thing):
-                self._modify_menu(my_challenge, thing, thingmenu)
+            if self.involvement:
+                if self.involvement(camp, thing):
+                    self._modify_menu(my_challenge, thing, thingmenu)
+            elif my_challenge.involvement:
+                if my_challenge.involvement(camp, thing):
+                    self._modify_menu(my_challenge, thing, thingmenu)
             else:
                 self._modify_menu(my_challenge, thing, thingmenu)
 
