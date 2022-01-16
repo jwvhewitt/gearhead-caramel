@@ -27,7 +27,8 @@ class DZD_TheTownYouStartedIn(Plot):
                                       scale=gears.scale.HumanScale, is_metro=True,
                                       faction=town_fac,
                                       attributes=(
-                                      gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC))
+                                      gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC,
+                                      "DISTANT_TOWN"))
         myscene.exploration_music = 'Good Night.ogg'
 
         for t in range(random.randint(1,3)):
@@ -78,7 +79,7 @@ class DZD_TheTownYouStartedIn(Plot):
         # Add the features
         self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
         self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")
-        self.add_sub_plot(nart, "CF_METROSCENE_RANDOM_PLOT_HANDLER")
+        self.add_sub_plot(nart, "CF_METROSCENE_RANDOM_PLOT_HANDLER", elements={"USE_PLOT_RANK": True})
 
         return True
 

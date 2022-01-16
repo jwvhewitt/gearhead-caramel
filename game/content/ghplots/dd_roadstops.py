@@ -89,7 +89,7 @@ class DZD_DeadZoneTown(Plot):
         # Add the features
         self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
         self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")
-        self.add_sub_plot(nart, "CF_METROSCENE_RANDOM_PLOT_HANDLER")
+        self.add_sub_plot(nart, "CF_METROSCENE_RANDOM_PLOT_HANDLER", elements={"USE_PLOT_RANK": True})
 
         return True
 
@@ -171,7 +171,7 @@ class DZD_DeadZoneVillage(Plot):
         # Add the features
         self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
         self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")
-        self.add_sub_plot(nart, "CF_METROSCENE_RANDOM_PLOT_HANDLER")
+        self.add_sub_plot(nart, "CF_METROSCENE_RANDOM_PLOT_HANDLER", elements={"USE_PLOT_RANK": True})
 
         return True
 

@@ -84,7 +84,7 @@ ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 class SkillBasedPartyReply(object):
     def __init__(
             self,myoffer,camp,mylist,stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_EASY, no_random=True,
-            message_format = '{} says "{}"',**kwargs
+            message_format = '{} says "{}"', **kwargs
     ):
         # Check the skill of each party member against a target number. If any party member can
         # make the test, they get to say the line of dialogue.
@@ -118,12 +118,13 @@ class SkillBasedPartyReply(object):
 
 
 class TagBasedPartyReply(SkillBasedPartyReply):
-    def __init__(self,myoffer,camp,mylist,needed_tags):
+    def __init__(self,myoffer,camp,mylist,needed_tags, message_format = '{} says "{}"'):
         # Check the skill of each party member against a target number. If any party member can
         # make the test, they get to say the line of dialogue.
         # If nobody makes the test, don't add myoffer to mylist.
         self.camp = camp
         self.offer = myoffer
+        self.message_format = message_format
         needed_tags = set(needed_tags)
         winners = [pc for pc in camp.get_active_party() if needed_tags.issubset( pc.get_pilot().get_tags())]
         if winners:

@@ -17,6 +17,7 @@ RWMO_A_CHALLENGER_APPROACHES = "RWMO_A_CHALLENGER_APPROACHES"
 RWMO_DISTRESS_CALL = "RWMO_DISTRESS_CALL"
 RWMO_FIGHT_RANDOS = "RWMO_FIGHT_RANDOS"
 RWMO_MAYBE_AVOID_FIGHT = "RWMO_MAYBE_AVOID_FIGHT"
+RWMO_SECURITY_CHECK = "RWMO_SECURITY_CHECK"
 
 RWMO_TEST_OBJECTIVE = "RWMO_TEST_OBJECTIVE"
 
@@ -751,3 +752,89 @@ class RWMO_SkilledAvoidance( Plot ):
     def cancel_the_adventure(self,camp):
         self.adv.cancel_adventure(camp)
         camp.go(self.elements["ADVENTURE_GOAL"])
+
+#   *****************************
+#   ***  RWMO_SECURITY_CHECK  ***
+#   *****************************
+#
+# The "enemy faction" isn't necessarily going to attack; instead they're just doing a patrol to keep enemies out.
+#
+
+class RWMO_BasicSecurityCheck(Plot):
+    LABEL = RWMO_SECURITY_CHECK
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True, backup_seek_func=self.adv.is_good_backup_enemy)
+        self.regular_checkpoint = True
+        if mynpc:
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+            if nart.camp.is_unfavorable_to_pc(myfac):
+                self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
+                self.regular_checkpoint = False
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+            self.register_element("_commander", myunit.commander)
+            if nart.camp.is_unfavorable_to_pc(myfac):
+                self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
+                self.regular_checkpoint = False
+
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Pass {} Checkpoint".format(myfac),
+                                                  missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, 100)
+
+    def _commander_offers(self, camp):
+        mylist = list()
+        npc = self.elements["_commander"]
+
+        if self.regular_checkpoint:
+            mylist.append(Offer(
+                "[HALT] Please state your business in {}.".format(self.elements["DEST_SCENE"]),
+                ContextTag((context.ATTACK,))
+            ))
+
+            mylist.append(Offer(
+                "[UNDERSTOOD] You're clear to pass.".format(self.elements["DEST_SCENE"]),
+                ContextTag((context.COMBAT_CUSTOM,)), effect=self.cancel_the_adventure,
+                data={"reply": "[I_DONT_WANT_TROUBLE]"}
+            ))
+
+            mylist.append(Offer(
+                "[CHALLENGE]",
+                ContextTag((context.COMBAT_CUSTOM,)),
+                data={"reply": "[I_DECLARE_WAR]"}
+            ))
+
+        return mylist
+
+    def cancel_the_adventure(self, camp):
+        self.adv.cancel_adventure(camp)
+        camp.go(self.elements["ADVENTURE_GOAL"])
+

@@ -3,7 +3,7 @@ import gears
 import pbge
 import random
 from game.content import gharchitecture, plotutility
-from . import missionbuilder, dd_customobjectives, campfeatures
+from . import missionbuilder, dd_customobjectives, campfeatures, rwme_objectives
 #from missionbuilder import RoadMissionPlot
 
 #   ***************************************************
@@ -44,7 +44,8 @@ class DZDREBasicPlotWithEncounterStuff(Plot):
             enemy_faction = self.elements.get("FACTION"), rank=self.rank,
             objectives = self.ENCOUNTER_OBJECTIVES + (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
             adv_type = "BAM_ROAD_MISSION",
-            custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"ENTRANCE_ANCHOR": myanchor},
+            custom_elements={"ADVENTURE_GOAL": dest_node.entrance, "DEST_SCENE": dest_node.destination,
+                             "ENTRANCE_ANCHOR": myanchor},
             scenegen=DeadZoneHighwaySceneGen,
             architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
             cash_reward=0,
@@ -155,19 +156,56 @@ class BlackMarketBluesStarter(DZDREBasicPlotWithEncounterStuff):
             mygram["[News]"] = ["{} have been robbing travelers going to {}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
         return mygram
 
+
 class WarOnTheHighwayStarter(DZDREBasicPlotWithEncounterStuff):
     LABEL = "DZD_ROADEDGE_YELLOW"
+    ENCOUNTER_OBJECTIVES = (rwme_objectives.RWMO_SECURITY_CHECK,)
+
+    @classmethod
+    def matches(cls, pstate):
+        # Only load this plot if both cities involved are members of the Deadzone Federation. Conflicts between other
+        # factions will eventually be handled by a separate plot, since those other conflicts will be much different
+        # from a conflict between two towns that are nominally on the same team!
+        myedge = pstate.elements["DZ_EDGE"]
+        return (myedge.start_node.destination.faction.get_faction_tag() is gears.factions.DeadzoneFederation and
+                myedge.end_node.destination.faction.get_faction_tag() is gears.factions.DeadzoneFederation and
+                "DISTANT_TOWN" not in myedge.start_node.destination.attributes)
 
     def custom_init(self, nart):
         super().custom_init(nart)
-        myedge = self.elements["DZ_EDGE"]
-        self.register_element("FACTION", self.get_enemy_faction(nart))
         self.add_sub_plot(nart, "DZRE_WARONTHEHIGHWAY", ident="MISSION")
-        print(myedge.start_node.destination, myedge.end_node.destination)
+        # myedge = self.elements["DZ_EDGE"]
+        # print(myedge.start_node.destination, myedge.end_node.destination)
         return True
 
-    def get_enemy_faction(self,nart):
-        return self.elements["DZ_EDGE"].start_node.destination.faction
+    def get_enemy_encounter(self, camp, dest_node):
+        start_node = self.elements["DZ_EDGE"].get_link(dest_node)
+        enemy_faction = dest_node.destination.faction
+        if start_node.pos[0] < dest_node.pos[0]:
+            myanchor = pbge.randmaps.anchors.west
+        else:
+            myanchor = pbge.randmaps.anchors.east
+        myadv = missionbuilder.BuildAMissionSeed(
+            camp, "{} Cheeckpoint".format(enemy_faction), start_node.destination, start_node.entrance,
+            enemy_faction=enemy_faction, rank=self.rank,
+            objectives=self.ENCOUNTER_OBJECTIVES + (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
+            adv_type="BAM_ROAD_MISSION",
+            custom_elements={"ADVENTURE_GOAL": dest_node.entrance, "DEST_SCENE": dest_node.destination,
+                             "ENTRANCE_ANCHOR": myanchor},
+            scenegen=DeadZoneHighwaySceneGen,
+            architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
+            cash_reward=0,
+            mission_grammar=missionbuilder.MissionGrammar(
+                objective_ep="defend {} against {} aggression".format(dest_node.destination, start_node.destination),
+                objective_pp="go to {}".format(dest_node.destination),
+                win_pp="I got past your checkpoint",
+                win_ep="you invaded {}".format(dest_node.destination),
+                lose_pp="you stopped me from entering {}".format(dest_node.destination),
+                lose_ep="I protected {} from you".format(dest_node.destination)
+            )
+        )
+        return myadv
+
 
 
 
@@ -204,8 +242,8 @@ class TheMechaGraveyard(DZDREBasicPlotWithEncounterStuff):
             enemy_faction = None, rank=self.rank,
             objectives = (missionbuilder.BAMO_FIGHT_MONSTERS, dd_customobjectives.DDBAMO_ENCOUNTER_ZOMBOTS,),
             adv_type = "BAM_ROAD_MISSION",
-            custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"ENTRANCE_ANCHOR": myanchor,
-                             missionbuilder.BAME_MONSTER_TAGS: ("ZOMBOT",)},
+            custom_elements={"ADVENTURE_GOAL": dest_node.entrance, "DEST_SCENE": dest_node.destination,
+                             "ENTRANCE_ANCHOR": myanchor, missionbuilder.BAME_MONSTER_TAGS: ("ZOMBOT",)},
             scenegen=DeadZoneHighwaySceneGen,
             architecture=self.ENCOUNTER_ARCHITECTURE(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
             cash_reward=0,
@@ -238,6 +276,11 @@ class BlackMarketBluesOrange(BlackMarketBluesStarter):
     # The BlackMarketBlues main part is unique, so even with two starter plots it'll only show up once.
     LABEL = "DZD_ROADEDGE_ORANGE"
     UNIQUE = True
+    BASE_RANK = 27
+
+
+class WarOnTheHighwayOrange(WarOnTheHighwayStarter):
+    LABEL = "DZD_ROADEDGE_ORANGE"
     BASE_RANK = 27
 
 
@@ -304,4 +347,9 @@ class UpgradedInvadersPalooza(DZDREProppStarterPlot):
             # This city is on this road.
             mygram["[News]"] = ["the road to {1} is controlled by {0}".format(str(self.elements["FACTION"]),self.elements["DZ_EDGE"].get_city_link(myscene)), ]
         return mygram
+
+
+class WarOnTheHighwayRed(WarOnTheHighwayStarter):
+    LABEL = "DZD_ROADEDGE_RED"
+    BASE_RANK = 38
 

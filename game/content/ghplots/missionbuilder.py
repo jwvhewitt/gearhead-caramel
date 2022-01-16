@@ -165,6 +165,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             isinstance(candidate, gears.base.Character) and candidate.combatant and
             (candidate.faction == self.enemy_faction or
              (candidate.faction and candidate.faction.get_faction_tag() == self.enemy_faction)) and
+            (not nart.camp.are_faction_allies(candidate, self.allied_faction)) and
             candidate not in nart.camp.party and candidate.renown <= (self.rank + 25)
         )
 
@@ -173,6 +174,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         return (
             isinstance(candidate, gears.base.Character) and candidate.combatant and
             nart.camp.are_faction_allies(candidate, self.enemy_faction) and
+            (not nart.camp.are_faction_allies(candidate, self.allied_faction)) and
             candidate not in nart.camp.party and candidate.renown <= (self.rank + 25)
         )
 

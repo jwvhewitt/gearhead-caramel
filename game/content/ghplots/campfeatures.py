@@ -157,7 +157,7 @@ class MetrosceneWMEDefenseHandler(Plot):
                                      dest_scene: gears.GearHeadScene, dest_wp,
                                      scenegen=gharchitecture.DeadZoneHighwaySceneGen,
                                      architecture=gharchitecture.MechaScaleSemiDeadzone,
-                                     environment=gears.tags.GroundEnv, **kwargs):
+                                     **kwargs):
         if camp.is_unfavorable_to_pc(dest_scene):
             myanchor = kwargs.get("entrance_anchor", None)
             if not myanchor:
@@ -172,10 +172,9 @@ class MetrosceneWMEDefenseHandler(Plot):
                 enemy_faction = dest_scene.faction, rank=myrank,
                 objectives = (missionbuilder.BAMO_DEFEAT_COMMANDER,),
                 adv_type = "BAM_ROAD_MISSION",
-                custom_elements={"ADVENTURE_GOAL": dest_wp, "ENTRANCE_ANCHOR": myanchor},
+                custom_elements={"ADVENTURE_GOAL": dest_wp, "DEST_SCENE": dest_scene, "ENTRANCE_ANCHOR": myanchor},
                 scenegen=scenegen,
                 architecture=architecture(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
-                environment=environment,
                 cash_reward=0,
                 mission_grammar=missionbuilder.MissionGrammar(
                     objective_ep="keep you out of {}".format(dest_scene),
@@ -192,6 +191,7 @@ class MetrosceneWMEDefenseHandler(Plot):
 
 class MetrosceneRandomPlotHandler(Plot):
     # Keep this metro area stocked with random plots.
+    # Set the element "USE_PLOT_RANK" to True to keep the rank of local plots tied to the plot rank
     LABEL = "CF_METROSCENE_RANDOM_PLOT_HANDLER"
     active = True
     scope = "METRO"
@@ -199,6 +199,7 @@ class MetrosceneRandomPlotHandler(Plot):
     MAX_PLOTS = 5
     SUBPLOT_LABEL = "RANDOM_PLOT"
     CHALLENGE_LABEL = "CHALLENGE_PLOT"
+    ALL_RANDOM_PLOT_TYPES = (SUBPLOT_LABEL, CHALLENGE_LABEL)
 
     def custom_init( self, nart ):
         self.adv = pbge.plots.Adventure(name="Plot Handler")
@@ -224,8 +225,12 @@ class MetrosceneRandomPlotHandler(Plot):
 
     def should_load_plot(self, camp):
         mymetro: gears.MetroData = self.elements["METRO"]
-        return len([p for p in mymetro.scripts if p.LABEL == self.SUBPLOT_LABEL]) < self.MAX_PLOTS
+        return len([p for p in mymetro.scripts if p.LABEL in self.ALL_RANDOM_PLOT_TYPES]) < self.MAX_PLOTS
 
     def calc_rank(self, camp: gears.GearHeadCampaign):
-        return camp.renown
+        if self.elements.get("USE_PLOT_RANK", False):
+            # If the player's renown is higher than this plot rank, adjust things upward, but not all the way.
+            return max(self.rank, (camp.renown + self.rank)//2)
+        else:
+            return camp.renown
 

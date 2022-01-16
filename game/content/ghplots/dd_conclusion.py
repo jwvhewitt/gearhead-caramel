@@ -371,7 +371,8 @@ class DoomedTown(Plot):
                 rank=self.rank,
                 objectives = (dd_customobjectives.DDBAMO_MEET_CETUS,),
                 adv_type = "BAM_ROAD_MISSION",
-                custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"ENTRANCE_ANCHOR": myanchor},
+                custom_elements={"ADVENTURE_GOAL": dest_node.entrance,"DEST_SCENE": dest_node.destination,
+                                 "ENTRANCE_ANCHOR": myanchor},
                 scenegen= gharchitecture.DeadZoneHighwaySceneGen,
                 architecture=gharchitecture.MechaScaleDeadzone(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
                 cash_reward=100, on_loss=self._end_this_bit, on_win=self._end_this_bit

@@ -712,10 +712,16 @@ class WarOnTheHighwayMain(Plot):
         return True
 
     def C1_WAR_ADVANCE_CHALLENGE(self, camp):
-        pass
+        if self.elements["C1_WAR"].points_earned > 10:
+            pbge.alert("{CITY2} has been defeated; the war with {CITY1} is over.".format(**self.elements))
+            camp.check_trigger("WIN", self)
+            self.deactivate(camp)
 
     def C2_WAR_ADVANCE_CHALLENGE(self, camp):
-        pass
+        if self.elements["C2_WAR"].points_earned > 10:
+            pbge.alert("{CITY1} has been defeated; the war with {CITY2} is over.".format(**self.elements))
+            camp.check_trigger("WIN", self)
+            self.deactivate(camp)
 
     def CASUSBELLI_WIN(self, camp: gears.GearHeadCampaign):
         camp.check_trigger("WIN", self)
@@ -730,7 +736,7 @@ class WarOnTheHighwayMain(Plot):
 #   If the casus belli is resolved and the war subsequently ended, this plot will set a WIN trigger.
 #
 
-class WOTHCB_BothSidesWrong(Plot):
+class WOTHCB_BothSidesSame(Plot):
     # The two towns involved? They have grievances going back over a century. This scenario is symmetrical; it's the
     # test case so I'll be adding some more nuanced conflicts later.
     LABEL = "DZRE_WOTH_CASUSBELLI"
@@ -868,17 +874,17 @@ class WOTHCB_BothSidesWrong(Plot):
         if mydip.points_earned >= 10 and otherdip.points_earned >= 10:
             self.win_peace(camp)
         elif mydip.points_earned >= 10:
-            pbge.BasicNotification("The citizens of {CITY1} are willing to accept peace.")
+            pbge.BasicNotification("The citizens of {CITY1} are willing to accept peace.".format(**self.elements))
             self.elements["C1_DIPLOMACY"].active = False
 
     def C2_DIPLOMACY_ADVANCE_CHALLENGE(self, camp):
-        mydip: Challenge = self.elements["C1_DIPLOMACY"]
-        otherdip: Challenge = self.elements["C2_DIPLOMACY"]
+        mydip: Challenge = self.elements["C2_DIPLOMACY"]
+        otherdip: Challenge = self.elements["C1_DIPLOMACY"]
         if mydip.points_earned >= 10 and otherdip.points_earned >= 10:
             self.win_peace(camp)
         elif mydip.points_earned >= 10:
-            pbge.BasicNotification("The citizens of {CITY1} are willing to accept peace.")
-            self.elements["C1_DIPLOMACY"].active = False
+            pbge.BasicNotification("The citizens of {CITY2} are willing to accept peace.".format(**self.elements))
+            self.elements["C2_DIPLOMACY"].active = False
 
     def win_peace(self, camp: gears.GearHeadCampaign):
         camp.check_trigger("WIN", self)
@@ -890,23 +896,36 @@ class WOTHCB_BothSidesWrong(Plot):
         camp.set_faction_neutral(self.elements["CITY1"].faction, self.elements["CITY2"].faction)
         self.end_plot(camp)
 
-    def _get_generic_offers( self, npc, camp ):
+    def _get_generic_offers( self, npc: gears.base.Character, camp ):
+        # To start the peace process going, you need at least one person on either side or a lance member who is
+        # interested in peace.
         myoffs = list()
 
         if not self.has_activated_negotiations:
             if self.elements["C1_WAR"].is_involved(camp, npc):
-                myoffs.append(Offer(
+                myoff = Offer(
                     "Our conflict goes back decades; there is a lot of bad blood on both sides. Still, maybe an outsider like you could find a solution.",
                     ContextTag([context.CUSTOM,]), effect=self._activate_negotiations,
                     data={"reply": "[HAVE_YOU_TRIED_PEACE]", "enemy_faction": str(self.elements["CITY2"])}
-                ))
+                )
+                if gears.personality.Peace in npc.personality:
+                    myoffs.append(myoff)
+                else:
+                    ghdialogue.TagBasedPartyReply(
+                        myoff, camp, myoffs, (gears.personality.Peace,)
+                    )
             elif self.elements["C2_WAR"].is_involved(camp, npc):
-                myoffs.append(Offer(
+                myoff = Offer(
                     "We've been at war with {} on and off for decades... but this time, they were the ones who attacked us! Maybe someone like you can find a way to end this cycle.".format(self.elements["CITY1"]),
                     ContextTag([context.CUSTOM,]), effect=self._activate_negotiations,
                     data={"reply": "[HAVE_YOU_TRIED_PEACE]", "enemy_faction": str(self.elements["CITY1"])}
-                ))
-
+                )
+                if gears.personality.Peace in npc.personality:
+                    myoffs.append(myoff)
+                else:
+                    ghdialogue.TagBasedPartyReply(
+                        myoff, camp, myoffs, (gears.personality.Peace,)
+                    )
 
         return myoffs
 

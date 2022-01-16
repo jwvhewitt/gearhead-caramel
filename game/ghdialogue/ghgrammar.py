@@ -183,7 +183,7 @@ DEFAULT_GRAMMAR = {
     "[ATTACK]": {
         Default: ["I don't know what you're doing here, but you'll feel my wrath. [LETSFIGHT]",
                   "You shouldn't have come here. [LETSFIGHT]", "[BATTLE_GREETING] [LETSFIGHT]",
-                  "Do you remember that [MEM_Clash]? [LETSFIGHT]"
+                  "Do you remember that [MEM_Clash]? [LETSFIGHT]", "Today I will [objective_ep]; [LETSFIGHT]"
             ],
         personality.Cheerful: ["I was hoping that today would be interesting, and now here you are... [LETSFIGHT]",
             ],
@@ -532,25 +532,39 @@ DEFAULT_GRAMMAR = {
     },
 
     "[CHALLENGE]": {
-        Default: ["[THREATEN]",
+        # NOTE: This grammar tag is for opponent NPC use only! It calls on the [objective_ep] tag.
+        Default: ["[THREATEN]", "To [objective_ep] I will [defeat_you]!"
             ],
-        personality.Cheerful: ["Time to party.",
+        personality.Cheerful: ["Time to party.", "You can't stop me now; I will [objective_ep]!"
             ],
         personality.Grim: ["Prepare for death.","You don't stand a chance.",
+                           "If I have to kill you to [objective_ep], I will!"
             ],
-        personality.Easygoing: [ "Shall we get started? Alright.",
+        personality.Easygoing: [ "Shall we get started? Alright.", "You might not like it, but I will [objective_ep]."
             ],
-        personality.Passionate: ["Show me what you have.",
+        personality.Passionate: ["Show me what you have.", "I will unleash my full power to [objective_ep]!"
             ],
-        personality.Sociable: ["That's big talk. Prove it to me.",
+        personality.Sociable: [
+            "That's big talk. Prove it to me.",
             "You know what I'm going to do? [THREATEN]",
-            ],
+            "You think you can defeat me, but I will [objective_ep]. Would I waste time talking to you if I thought you had a chance of winning?",
+            "[THREATEN] That's right, I said it.",
+        ],
         personality.Shy: ["Shut up and fight.",
             ],
         personality.Justice: [ "For great justice!",
             ],
         personality.Glory: [ "May the best fighter win!",
             ],
+        personality.Duty: [
+            "I will [objective_ep], as is my duty!"
+        ],
+        LIKE: [
+            "It's sad that we're on differtent sides, but I must [objective_ep].",
+        ],
+        DISLIKE: [
+            "It'll be my pleasure to [defeat_you].",
+        ]
     },
 
     "[CHANGE_MIND_AND_RETREAT]": {
@@ -1834,6 +1848,26 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[I_DECLARE_WAR]": {
+        # NOTE: This tag is for PC use only! It uses the objective_pp tag.
+        Default: [
+            "I declare war! [LETSFIGHT]", "I'm here to [threat]!", "I will [defeat_you]!",
+            "I'll [defeat_you] to [objective_pp]!"
+        ],
+        personality.Cheerful: ["I thought it'd be fun to [defeat_you]."
+                               ],
+        personality.Grim: ["I come bearing gifts of destruction and decimation!",
+                           ],
+        personality.Easygoing: ["Maybe instead of talking we could fight this out?"
+                                ],
+        personality.Passionate: ["I'm here to show you my combat skills! [LETSFIGHT]",
+                                 ],
+        personality.Sociable: ["You must know that I'm here to fight you.",
+                               ],
+        personality.Shy: ["I declare war.",
+                          ],
+    },
+
     "[I_DONT_KNOW]": {
         Default: ["I don't know.", "How should I know?"
                   ],
@@ -1849,6 +1883,42 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Good question.",
                           ],
+    },
+
+    "[I_DONT_WANT_TROUBLE]": {
+        # Expresses a desire to not fight anyone.
+        Default: ["I'm not looking for any trouble."
+                  ],
+        personality.Cheerful: [
+            "I'm here for a good time, not a violent time."
+        ],
+        personality.Grim: ["You can relax; I'm not here to fight.",
+                           ],
+        personality.Easygoing: ["Take it easy, I don't want any trouble.",
+                                ],
+        personality.Passionate: [
+            "My purpose today is not to do battle!",
+        ],
+        personality.Sociable: [
+            "Can we talk this over? I'm not here to fight.",
+        ],
+        personality.Shy: ["I come in peace.",
+                          ],
+        personality.Justice: [
+            "I have no reason to fight you.",
+        ],
+        personality.Duty: [
+            "Relax, I haven't been sent to fight you.",
+        ],
+        personality.Peace: [
+            "I have no intention of fighting today.",
+        ],
+        personality.Glory: [
+            "As much as I'd love a quick battle, that's not what I'm here for.",
+        ],
+        personality.Fellowship: [
+            "Calm down, nobody here wants to hurt anyone.",
+        ],
     },
 
     "[I_FORGOT]": {

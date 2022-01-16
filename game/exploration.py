@@ -586,10 +586,17 @@ class Explorer( object ):
                                 for skill in pc.statline:
                                     if skill in gears.stats.ALL_SKILLS:
                                         pc.statline[skill] += 10
+
                     elif gdi.unicode == "@" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         for thing in self.scene.contents:
                             if hasattr(thing,"pos"):
                                 print("{}: {}".format(thing,thing.pos))
+
+                    elif gdi.unicode == "*" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+                        for thing in self.camp.all_contents(self.camp):
+                            if isinstance(thing, gears.base.Character):
+                                print("{}: {}/{}".format(thing, thing.faction, thing.scene.get_root_scene()))
+
                     elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.active_plots():
                             print("{}".format(thing.__class__.__name__))
