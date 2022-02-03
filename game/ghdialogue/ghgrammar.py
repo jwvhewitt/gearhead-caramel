@@ -3475,6 +3475,25 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[SURRENDER_TO_FACTION]": {
+        # data needs "faction"
+        Default: ["Surrender to {faction} at once!",
+                  "Your only hope is to surrender to {faction}."
+                  ],
+        personality.Cheerful: ["It's your lucky day; {faction} is willing to let you surrender."
+                               ],
+        personality.Grim: ["You have just one chance to survive, and that is to surrender to {faction}.",
+                           ],
+        personality.Easygoing: ["It'd be a lot easier for everyone if you just surrendered to {faction}.",
+                                ],
+        personality.Passionate: ["You can surrender to {faction}, or be crushed without mercy!",
+                                 ],
+        personality.Sociable: ["I demand right now that you surrender to {faction}!",
+                               ],
+        personality.Shy: ["Surrender to {faction}.",
+                          ],
+    },
+
     "[SWEAR]": {
         Default: ["Well [expletive] on that...", "Oh [expletive]!"
                   ],
@@ -3495,7 +3514,7 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Easygoing: ["Hey, you made it!",
                                 ],
-        personality.Passionate: ["Than Atan that you're still alive!",
+        personality.Passionate: ["Thank Atan that you're still alive!",
                                  ],
         personality.Sociable: ["[audience]! They said that you were dead.",
                                ],

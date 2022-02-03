@@ -1,5 +1,38 @@
 import gears
 
+
+#   ************************************
+#   ***  DETHRONE  CHALLENGE  STUFF  ***
+#   ************************************
+
+DETHRONE_CHALLENGE = "DETHRONE_CHALLENGE"
+# The involvement for a diplomacy challenge identifies the NPCs protecting/supporting the NPC to be dethroned
+# The key for a diplomacy challenge is (NPC_to_be_dethroned,)
+# The data for a dethrone challenge should include:
+#   challenge_subject: A string identifying the challenge
+#   challenge_statements = A list of prevailing opinions that the PC wants to challenge; primary clause
+#   pc_rebuttals = A list of replies the PC can give to challenge the statement above; primary clause
+#   npc_agreement = A list of positive replies to the PC's rebuttal
+#   npc_disagreement = A list of negative replies to the PC's rebuttal
+#
+
+
+#   *************************************
+#   ***  DIPLOMACY  CHALLENGE  STUFF  ***
+#   *************************************
+
+DIPLOMACY_CHALLENGE = "DIPLOMACY_CHALLENGE"
+# The involvement for a diplomacy challenge identifies the NPCs whose opinion you want to sway
+# The key for a diplomacy challenge is (Faction_to_be_swayed, [Faction_doing_swaying])
+# The data for a diplomacy challenge should include:
+#   challenge_subject: A string identifying the challenge
+#   challenge_statements = A list of prevailing opinions that the PC wants to challenge; primary clause
+#   pc_rebuttals = A list of replies the PC can give to challenge the statement above; primary clause
+#   npc_agreement = A list of positive replies to the PC's rebuttal
+#   npc_disagreement = A list of negative replies to the PC's rebuttal
+#
+
+
 #   *********************************
 #   ***  FIGHT  CHALLENGE  STUFF  ***
 #   *********************************
@@ -31,20 +64,6 @@ class DescribedObjective(object):
         self.lose_ep = lose_ep
 
 
-#   *************************************
-#   ***  DIPLOMACY  CHALLENGE  STUFF  ***
-#   *************************************
-
-DIPLOMACY_CHALLENGE = "DIPLOMACY_CHALLENGE"
-# The involvement for a diplomacy challenge identifies the NPCs whose opinion you want to sway
-# The key for a diplomacy challenge is (Faction_to_be_swayed, [Faction_doing_swaying])
-# The data for a diplomacy challenge should include:
-#   challenge_subject: A string identifying the challenge
-#   challenge_statements = A list of prevailing opinions that the PC wants to challenge; primary clause
-#   pc_rebuttals = A list of replies the PC can give to challenge the statement above; primary clause
-#   npc_agreement = A list of positive replies to the PC's rebuttal
-#   npc_disagreement = A list of negative replies to the PC's rebuttal
-#
 
 
 #   **********************

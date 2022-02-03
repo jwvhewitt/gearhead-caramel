@@ -150,6 +150,7 @@ class BasicFightChallenge(Plot):
             )
 
             sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+            # Create the mission seed. Turn the defeat_trigger off because we'll be handling that manually.
             self.mission_seed = missionbuilder.BuildAMissionSeed(
                 nart.camp, "{NPC}'s Mission".format(**self.elements),
                 self.elements["METROSCENE"], self.elements["MISSION_GATE"],
@@ -159,7 +160,7 @@ class BasicFightChallenge(Plot):
                 one_chance=True,
                 scenegen=sgen, architecture=archi, mission_grammar=mgram,
                 cash_reward=120,
-                on_win=self._win_the_mission
+                on_win=self._win_the_mission, defeat_trigger_on=False
             )
 
             self.mission_active = False

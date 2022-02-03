@@ -144,7 +144,7 @@ class Challenge(object):
     # oppuses = A list of AutoUsages used by this challenge
     # data = A dict of challenge-specific data that may be used by scenario generators. Just keeping my options open.
     def __init__(self, name, chaltype, key=(), involvement=None, active=True, grammar=None, oppoffers=(), oppuses=(),
-                 data=None):
+                 data=None, points_target=10):
         self.name = name
         self.points_earned = 0
         self.active = active
@@ -159,13 +159,17 @@ class Challenge(object):
         self.data = dict()
         if data:
             self.data.update(data)
+        self.points_target = points_target
 
     def advance(self, camp, delta):
-        self.points_earned += delta
-        if delta > 0:
-            camp.check_trigger(ADVANCE_CHALLENGE, self)
-        elif delta < 0:
-            camp.check_trigger(SETBACK_CHALLENGE, self)
+        if self.active:
+            self.points_earned += delta
+            if delta > 0:
+                camp.check_trigger(ADVANCE_CHALLENGE, self)
+                if self.points_earned >= self.points_target:
+                    camp.check_trigger("WIN", self)
+            elif delta < 0:
+                camp.check_trigger(SETBACK_CHALLENGE, self)
 
     def can_spend_resource(self, resource):
         return self.chaltype == resource.chaltype and self.key == resource.key[:len(self.key)]
@@ -189,6 +193,9 @@ class Challenge(object):
     def modify_puzzle_menu(self, camp, thing, thingmenu):
         for o in self.oppuses:
             o(self, camp, thing, thingmenu)
+
+    def is_won(self):
+        return self.points_earned >= self.points_target
 
     def __str__(self):
         return self.name

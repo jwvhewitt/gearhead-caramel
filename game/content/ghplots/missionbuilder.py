@@ -89,7 +89,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg",
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None,
-                 make_enemies=True, **kwargs):
+                 make_enemies=True, defeat_trigger_on=True, **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
         cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
         cms_pstate.elements["METROSCENE"] = metroscene
@@ -117,6 +117,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             mission_grammar = MissionGrammar()
         self.mission_grammar = mission_grammar
         self.make_enemies = make_enemies
+        self.defeat_trigger_on = defeat_trigger_on
 
         # Data is a dict of stuff that will get used by whatever plot created this adventure seed, or maybe it
         # can be used by some of the objectives. I dunno! It's just a dict of stuff! Do with it as you will.
@@ -147,8 +148,11 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             self.on_win(camp)
         elif self.on_loss and not self.is_won():
             self.on_loss(camp)
-        if self.make_enemies and self.is_won() and self.enemy_faction:
-            camp.set_faction_as_pc_enemy(self.enemy_faction)
+        if self.is_won() and self.enemy_faction:
+            if self.defeat_trigger_on:
+                camp.check_trigger("DEFEAT", self.enemy_faction)
+            if self.make_enemies:
+                camp.set_faction_as_pc_enemy(self.enemy_faction)
         super(BuildAMissionSeed, self).end_adventure(camp)
         camp.day += 1
 
