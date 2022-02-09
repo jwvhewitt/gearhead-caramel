@@ -1974,6 +1974,40 @@ DEFAULT_GRAMMAR = {
                             ],
     },
 
+    "[I_LEARNED_NOTHING]": {
+        Default: ["I don't think I learned anything.", "I have learned nothing."
+                  ],
+        personality.Cheerful: ["That was fun, but I don't think I learned anything."
+                               ],
+        personality.Grim: ["I'm afraid this is beyond my abilities.",
+                           ],
+        personality.Easygoing: ["This stuff is way too hard for me."
+                                ],
+        personality.Passionate: ["I have failed! I am never going to master this...",
+                                 ],
+        personality.Sociable: ["I really don't think that I've learned anything from this experience.",
+                               ],
+        personality.Shy: ["I learned nothing.",
+                          ],
+    },
+
+    "[I_LEARNED_SOMETHING]": {
+        Default: ["I think I learned something.", "I feel like I'm better than before."
+                  ],
+        personality.Cheerful: ["Wow, I think I have a natural aptitude for this!"
+                               ],
+        personality.Grim: ["I can't believe it, but I seem to be improving.",
+                           ],
+        personality.Easygoing: ["Hey, this stuff isn't as hard as I thought."
+                                ],
+        personality.Passionate: ["I have increased my power level!",
+                                 ],
+        personality.Sociable: ["I can tell that my abilities have improved.",
+                               ],
+        personality.Shy: ["I learned something.",
+                          ],
+    },
+
     "[I_MUST_CONSIDER_MY_NEXT_STEP]": {
         Default: ["I must consider what I'm going to do next...",
                   ],
@@ -1999,6 +2033,23 @@ DEFAULT_GRAMMAR = {
                             ],
         personality.Duty: ["I'm going to have to think about how best to fulfil my duty.",
                             ],
+    },
+
+    "[I_NEED_MORE_PRACTICE]": {
+        Default: ["I need more practice.", "I should probably practice more."
+                  ],
+        personality.Cheerful: ["I'd really like to practice."
+                               ],
+        personality.Grim: ["I'm afraid that I need more practice.",
+                           ],
+        personality.Easygoing: ["Yeah, I guess I could use some practice."
+                                ],
+        personality.Passionate: ["I am always ready to improve my skills!",
+                                 ],
+        personality.Sociable: ["I think that I should proabably get some pactice.",
+                               ],
+        personality.Shy: ["I need to practice.",
+                          ],
     },
 
     "[INFO:INFO]": {
@@ -2477,6 +2528,27 @@ DEFAULT_GRAMMAR = {
         DISLIKE: ["Nothing to do now but keep on going...",
                   ],
         LIKE: ["Wherever we go next, I'm glad to be going with you.",
+               ]
+    },
+
+    "[LETS_GET_STARTED]": {
+        Default: ["Let's get started!",
+                  ],
+        personality.Cheerful: ["Let's get this party started!",
+                               ],
+        personality.Grim: ["Are you prepared for the challenges ahead? I am.",
+                           ],
+        personality.Easygoing: ["We can start whenever you're ready.",
+                                ],
+        personality.Passionate: ["Let's rev up and get to it!"
+                                 ],
+        personality.Sociable: ["Here we go!", "Shall we get started?"
+                               ],
+        personality.Shy: ["Let us begin.",
+                          ],
+        DISLIKE: ["I guess I don't have much choice about this.",
+                  ],
+        LIKE: ["I'm looking forward to getting started.",
                ]
     },
 
@@ -4055,6 +4127,27 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[WE_ARE_DOOMED]": {
+        Default: ["We are doomed.", "All hope is lost."
+                  ],
+        personality.Cheerful: [
+            "I can't see any way for this to have a happy ending."
+        ],
+        personality.Grim: ["Nothing can save us now.",
+                           "There is nothing left for us to do but die.",
+                           ],
+        personality.Easygoing: ["I hate to say it, but we might be doomed.",
+                                ],
+        personality.Passionate: [
+            "All hope is lost, but at least we can die dramatically!",
+        ],
+        personality.Sociable: [
+            "Is there no-one left to save us now?",
+        ],
+        personality.Shy: ["We're done for.",
+                          ],
+    },
+
     "[WE_ARE_IN_DANGER]": {
         # The NPC expresses the danger of the current situation. Useful for lancemates.
         Default: ["This is bad news.", "I think we're in danger..."
@@ -4211,6 +4304,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Sorry to say that I'm not in the mood for visitors right now.",
                                ],
         personality.Shy: ["An intruder!",
+                          ],
+    },
+
+    "[WHY_SHOULD_I]": {
+        # A suggestion has been made which the speaker finds unreasonable.
+        Default: ["Why should I?",
+                  ],
+        personality.Cheerful: ["[HAGOODONE]",
+                               ],
+        personality.Grim: ["Your suggestion fills me with disgust.",
+                           ],
+        personality.Easygoing: ["No, I don't think so.",
+                                ],
+        personality.Passionate: ["And why the blazes should I?!",
+                                 ],
+        personality.Sociable: ["I'm afraid I don't understand why you would suggest that.",
+                               ],
+        personality.Shy: ["Why?",
                           ],
     },
 

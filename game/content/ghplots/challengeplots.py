@@ -237,3 +237,58 @@ class BasicFightChallenge(Plot):
         if self.mission_seed and self.mission_active:
             thingmenu.add_item(self.mission_seed.name, self.mission_seed)
 
+
+#   ******************************
+#   ***  RAISE_ARMY_CHALLENGE  ***
+#   ******************************
+
+class RaiseArmyChallenge(Plot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        "{NPC} has been trying to acquire some mecha for the war effort",
+        offer_msg="In addition to soldiers and pilots, we're also going to need machines. {NPC} is working hard at {NPC_SCENE} to get as many mecha in battle condition as we can get.",
+        memo="{NPC} needs help obtaining mecha for the war effort.",
+        prohibited_npcs=("NPC",)
+    )
+
+    @classmethod
+    def matches(cls, pstate: PlotState):
+        return "METROSCENE" in pstate.elements
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.RAISE_ARMY_CHALLENGE]
+        if self.candidates:
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            self.register_element("NPC_SCENE", npc.scene)
+
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+
+            return True
+
+    def _get_challenge_for_npc(self, nart, npc):
+        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
+        if candidates:
+            return random.choice(candidates)
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
+            candidate.job and
+            {gears.tags.Craftsperson, gears.tags.Merchant, gears.tags.CorporateWorker}.intersection(candidate.job.tags)
+            and self._get_challenge_for_npc(nart, candidate)
+        )
+
+    def _win_the_mission(self, camp):
+        self.elements["CHALLENGE"].advance(camp, 3)
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+
+
+        return mylist

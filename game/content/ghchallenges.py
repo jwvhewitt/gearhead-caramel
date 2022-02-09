@@ -6,14 +6,13 @@ import gears
 #   ************************************
 
 DETHRONE_CHALLENGE = "DETHRONE_CHALLENGE"
-# The involvement for a diplomacy challenge identifies the NPCs protecting/supporting the NPC to be dethroned
+# The involvement for a dethrone challenge identifies the NPCs protecting/supporting the NPC to be dethroned
 # The key for a diplomacy challenge is (NPC_to_be_dethroned,)
 # The data for a dethrone challenge should include:
-#   challenge_subject: A string identifying the challenge
-#   challenge_statements = A list of prevailing opinions that the PC wants to challenge; primary clause
-#   pc_rebuttals = A list of replies the PC can give to challenge the statement above; primary clause
-#   npc_agreement = A list of positive replies to the PC's rebuttal
-#   npc_disagreement = A list of negative replies to the PC's rebuttal
+#   reasons_to_dethrone: A list of phrases explaining why the NPC should be dethroned; dependent clause
+#   reasons_to_support: A list of phrases explaining why the NPC should be supported; dependent clause
+#   violated_virtue: The virtue the NPC to be dethroned has violated. May be None.
+#   upheld_virtue: The virtue that the NPC's supporters seek to uphold. May also be None.
 #
 
 
@@ -63,6 +62,17 @@ class DescribedObjective(object):
         self.lose_pp = lose_pp
         self.lose_ep = lose_ep
 
+
+#   ***************************************
+#   ***  RAISE  ARMY  CHALLENGE  STUFF  ***
+#   ***************************************
+
+RAISE_ARMY_CHALLENGE = "RAISE_ARMY_CHALLENGE"
+# The involvement for a raise_army challenge identifies the NPCs who can potentially join the army
+# The key for a raise army challenge is (city_or_faction_that_needs_army,)
+# The data for a raise army challenge should include:
+#   threat: The faction or NPC that the army needs to be raised to oppose; may be None
+#
 
 
 

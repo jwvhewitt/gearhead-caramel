@@ -717,12 +717,16 @@ class WarOnTheHighwayMain(Plot):
     def C1_WAR_ADVANCE_CHALLENGE(self, camp):
         if self.elements["C1_WAR"].points_earned > 10:
             pbge.alert("{CITY2} has been defeated; the war with {CITY1} is over.".format(**self.elements))
+            self.elements["C1_WAR"].active = False
+            self.elements["C2_WAR"].active = False
             camp.check_trigger("WIN", self)
             self.deactivate(camp)
 
     def C2_WAR_ADVANCE_CHALLENGE(self, camp):
         if self.elements["C2_WAR"].points_earned > 10:
             pbge.alert("{CITY1} has been defeated; the war with {CITY2} is over.".format(**self.elements))
+            self.elements["C1_WAR"].active = False
+            self.elements["C2_WAR"].active = False
             camp.check_trigger("WIN", self)
             self.deactivate(camp)
 
@@ -734,6 +738,8 @@ class WarOnTheHighwayMain(Plot):
 
     def CASUSBELLI_WIN(self, camp: gears.GearHeadCampaign):
         camp.check_trigger("WIN", self)
+        self.elements["C1_WAR"].active = False
+        self.elements["C2_WAR"].active = False
         self.deactivate(camp)
 
 
@@ -755,23 +761,41 @@ class WOTHCB_DoubleTheChallenge(Plot):
         self.add_sub_plot(
             nart, "DZRE_WOTH_CBMOTIVE", ident="CBMOTIVE1",
             elements={
-                "THIS_CITY": self.elements["CITY1"], "THIS_WAR:": self.elements["C1_WAR"],
-                "THAT_CITY": self.elements["CITY2"], "THAT_WAR:": self.elements["C2_WAR"],
+                "THIS_CITY": self.elements["CITY1"], "THIS_WAR": self.elements["C1_WAR"],
+                "THIS_METRO": self.elements["CITY1"].metrodat,
+                "THAT_CITY": self.elements["CITY2"], "THAT_WAR": self.elements["C2_WAR"],
+                "THAT_METRO": self.elements["CITY2"].metrodat,
             }
         )
 
         self.add_sub_plot(
             nart, "DZRE_WOTH_CBMOTIVE", ident="CBMOTIVE2",
             elements={
-                "THIS_CITY": self.elements["CITY2"], "THIS_WAR:": self.elements["C2_WAR"],
-                "THAT_CITY": self.elements["CITY1"], "THAT_WAR:": self.elements["C1_WAR"],
+                "THIS_CITY": self.elements["CITY2"], "THIS_WAR": self.elements["C2_WAR"],
+                "THIS_METRO": self.elements["CITY2"].metrodat,
+                "THAT_CITY": self.elements["CITY1"], "THAT_WAR": self.elements["C1_WAR"],
+                "THAT_METRO": self.elements["CITY1"].metrodat,
             }
         )
 
         self.city1_peace = False
         self.city2_peace = False
 
+        print(self.elements["CITY1"], self.elements["CITY2"])
+
         return True
+
+    def C1_WAR_WIN(self, camp: gears.GearHeadCampaign):
+        if hasattr(self.subplots["CBMOTIVE1"], "won_the_war"):
+            self.subplots["CBMOTIVE1"].won_the_war(camp)
+        if hasattr(self.subplots["CBMOTIVE2"], "lost_the_war"):
+            self.subplots["CBMOTIVE2"].lost_the_war(camp)
+
+    def C2_WAR_WIN(self, camp: gears.GearHeadCampaign):
+        if hasattr(self.subplots["CBMOTIVE2"], "won_the_war"):
+            self.subplots["CBMOTIVE2"].won_the_war(camp)
+        if hasattr(self.subplots["CBMOTIVE1"], "lost_the_war"):
+            self.subplots["CBMOTIVE1"].lost_the_war(camp)
 
     def CBMOTIVE1_WIN(self, camp: gears.GearHeadCampaign):
         self.city1_peace = True
@@ -789,6 +813,10 @@ class WOTHCB_DoubleTheChallenge(Plot):
         camp.set_faction_as_pc_ally(self.elements["CITY1"].faction)
         camp.set_faction_as_pc_ally(self.elements["CITY2"].faction)
         camp.set_faction_neutral(self.elements["CITY1"].faction, self.elements["CITY2"].faction)
+        if hasattr(self.subplots["CBMOTIVE1"], "peace_happened"):
+            self.subplots["CBMOTIVE1"].peace_happened(camp)
+        if hasattr(self.subplots["CBMOTIVE2"], "peace_happened"):
+            self.subplots["CBMOTIVE2"].peace_happened(camp)
         self.end_plot(camp)
 
 
@@ -1019,48 +1047,205 @@ class WOTHCB_BothSidesSame(Plot):
 #       THIS_CITY, THIS_WAR: The city and war challenge of the city this motive applies to
 #       THAT_CITY, THAT_WAR: The city and war of the other side
 #
+#   Optional Methods:
+#       peace_happened(self, camp): Call this method if peace is achieved.
+#       won_the_war(self, camp):    Call this method if this side won the war.
+#       lost_the_war(self, camp):   Call this method if this side lost the war.
 
 class WOTHCBM_AspiringConqueror(Plot):
     # This town's war effort is being led by a wannabe conqueror. Peace is not possible until either that leader is
     # deposed or intimidated into compliance. Also, if this town wins the war, the other town is going to get occupied.
     LABEL = "DZRE_WOTH_CBMOTIVE"
     active = True
-    scope = True
+    scope = "THIS_METRO"
     UNIQUE = True
 
-    def custom_init(self, nart):
-        self.agreed_to_peace = False
+    RUMOR = pbge.plots.Rumor(
+        "{NPC} will lead us to victory over {THAT_CITY}",
+        offer_msg="{NPC} plans to make {THIS_CITY} the most powerful city in the deadzone! Starting with {THAT_CITY}, we will build an empire to surpass Clan Ironwind.",
+        memo="{NPC}, the warlord of {THIS_CITY}, has plans to conquer {THAT_CITY}.", memo_location="SCENE",
+        prohibited_npcs=("NPC",)
+    )
 
+    def custom_init(self, nart):
         this_war: pbge.challenges.Challenge = self.elements["THIS_WAR"]
-        this_war.data["challenge_objectives"].append("defend us from {THAT_CITY}".format(**self.elements))
-        this_war.data["challenge_objectives"].append("protect {THIS_CITY}".format(**self.elements))
-        this_war.data["enemy_objectives"].append("conquer {THIS_CITY}".format(**self.elements))
+        this_war.data["challenge_objectives"].append("conquer {THAT_CITY}".format(**self.elements))
+        this_war.data["enemy_objectives"].append("protect {THAT_CITY}".format(**self.elements))
         this_war.data["mission_objectives"].append(
             ghchallenges.DescribedObjective(
-                missionbuilder.BAMO_EXTRACT_ALLIED_FORCES,
-                "Our militia is having trouble holding back the enemy forces",
-                "defend {THIS_TOWN}".format(**self.elements), "capture {THIS_TOWN}".format(**self.elements),
-                "I defended {THIS_TOWN} from you".format(**self.elements),
-                "you defeated me in {THIS_TOWN}".format(**self.elements),
-                "you invaded {THIS_TOWN}".format(**self.elements),
-                "I invaded {THIS_TOWN}".format(**self.elements)
+                missionbuilder.BAMO_CAPTURE_THE_MINE,
+                "We need to seize control of {THAT_CITY}'s strategic resources".format(**self.elements),
+                "conquer {THAT_CITY}".format(**self.elements), "repel your invasion",
+                "I led {THIS_CITY} to victory".format(**self.elements),
+                "you invaded {THAT_CITY}".format(**self.elements),
+                "you drove me out of {THAT_CITY}".format(**self.elements),
+                "I protected {THAT_CITY} from you".format(**self.elements)
             )
         )
+
+        myhq = self.seek_element(nart, "SCENE", self._is_good_hq, scope=self.elements["THIS_CITY"])
+        npc: gears.base.Character = self.register_element("NPC", gears.selector.random_character(
+            self.rank, current_year=nart.camp.year, camp=nart.camp, combatant=True, job=gears.jobs.ALL_JOBS["Warlord"],
+            faction=self.elements["THIS_CITY"].faction
+        ), dident="SCENE")
+        if gears.personality.Glory not in npc.personality:
+            npc.personality.add(gears.personality.Glory)
+        if gears.personality.Justice in npc.personality:
+            npc.personality.remove(gears.personality.Justice)
+
+        self.register_element("PEACE_CHALLENGE", Challenge(
+            "Dethrone the Warlord", ghchallenges.DETHRONE_CHALLENGE, (npc,),
+            ghchallenges.InvolvedMetroResidentNPCs(self.elements["THIS_CITY"]),
+            active=False, data={
+                "reasons_to_dethrone": [
+                    "{NPC} is waging war against {THAT_CITY} for no reason".format(**self.elements),
+                    "{NPC} will lead {THIS_CITY} into neverending war".format(**self.elements)
+                ],
+                "reasons_to_support": [
+                    "{NPC} has led {THIS_CITY} to glory".format(**self.elements),
+                    "{NPC}'s plan will make {THIS_CITY} prosperous again".format(**self.elements)
+                ],
+                "violated_virtue": gears.personality.Justice,
+                "upheld_virtue": gears.personality.Glory
+            }
+        ))
         return True
+
+    def _is_good_hq(self, nart, candidate):
+        return (isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_GOVERNMENT in candidate.attributes
+                and gears.tags.SCENE_PUBLIC in candidate.attributes)
+
+    def PEACE_CHALLENGE_WIN(self, camp: gears.GearHeadCampaign):
+        pbge.alert("The citizens of {THIS_CITY} relieve {NPC} from {NPC.gender.possessive_determiner} role as warlord. The path to a peaceful resolution for this conflict is now clear.".format(**self.elements))
+        self.elements["NPC"].faction = None
+        self.elements["PEACE_CHALLENGE"].active = False
+        self.elements["THIS_METRO"].city_leader = None
+        camp.freeze(self.elements["NPC"])
+        camp.check_trigger("WIN", self)
+        self.end_plot(camp)
+
+    def won_the_war(self, camp):
+        myscene: gears.GearHeadScene = self.elements["THAT_CITY"]
+        self.elements["PEACE_CHALLENGE"].active = False
+        game.content.load_dynamic_plot(camp, "CONSEQUENCE_MILOCCUPATION", PlotState(
+            rank=self.rank, elements={
+                "METRO": myscene.metrodat, "METROSCENE": myscene,
+                "OCCUPYING_FACTION": self.elements["THIS_CITY"].faction
+            }
+        ).based_on(self))
+        self.end_plot(camp)
+
+    def lost_the_war(self, camp):
+        self.elements["PEACE_CHALLENGE"].active = False
+        self.end_plot(camp)
+
+    def peace_happened(self, camp):
+        self.elements["PEACE_CHALLENGE"].active = False
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.elements["PEACE_CHALLENGE"].active:
+            ghdialogue.TagBasedPartyReply(Offer(
+                "[WHY_SHOULD_I] My conquest of {THAT_CITY} is just the first step... Soon the entire deadzone will fear the might of {THIS_CITY}!".format(**self.elements),
+                context=ContextTag([context.CUSTOM, ]), effect=self._reveal_warlord_intentions,
+                data={
+                    "reply": "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]",
+                    "enemy_faction": str(self.elements["THAT_CITY"])
+                }
+            ), camp, mylist, (gears.personality.Peace,)
+            )
+
+            ghdialogue.TagBasedPartyReply(Offer(
+                "[WHY_SHOULD_I] My conquest of {THAT_CITY} is just the first step... Soon the entire deadzone will fear the might of {THIS_CITY}!".format(**self.elements),
+                context=ContextTag([context.UNFAVORABLE_CUSTOM, ]), effect=self._reveal_warlord_intentions,
+                data={
+                    "reply": "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]",
+                    "enemy_faction": str(self.elements["THAT_CITY"])
+                }
+            ), camp, mylist, (gears.personality.Peace,)
+            )
+
+        if self.elements["THAT_WAR"].points_earned > 0:
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "Yeah, maybe I wasn't cut out for this deadzone conqueror business... I'm willing to talk peace if {THAT_CITY} is as well.".format(**self.elements),
+                    ContextTag([context.CUSTOM, ]), effect=self.surrender,
+                    data={"reply": "[SURRENDER_TO_FACTION]", "faction": str(self.elements["THAT_CITY"])}
+                ), camp, mylist, gears.stats.Ego, gears.stats.Negotiation,
+                self.rank + 25 - self.elements["THAT_WAR"].points_earned * 10,
+                gears.stats.DIFFICULTY_HARD
+            )
+
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "Yeah, maybe I wasn't cut out for this deadzone conqueror business... I'm willing to talk peace if {THAT_CITY} is as well.".format(**self.elements),
+                    ContextTag([context.UNFAVORABLE_CUSTOM, ]), effect=self.surrender,
+                    data={"reply": "[SURRENDER_TO_FACTION]", "faction": str(self.elements["THAT_CITY"])}
+                ), camp, mylist, gears.stats.Ego, gears.stats.Negotiation,
+                self.rank + 25 - self.elements["THAT_WAR"].points_earned * 10,
+                gears.stats.DIFFICULTY_HARD
+            )
+
+        return mylist
+
+    def _get_generic_offers( self, npc, camp ):
+        mylist = list()
+
+        if (self.elements["THAT_WAR"].points_earned > self.elements["THIS_WAR"].points_earned and
+                npc is not self.elements["NPC"] and self.elements["THIS_WAR"].is_involved(camp, npc) and
+                not self.elements["PEACE_CHALLENGE"].active):
+            mylist.append(Offer(
+                "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION] It might be better if {NPC.gender.subject_pronoun} were removed from power.".format(**self.elements),
+                context=ContextTag([context.CUSTOM, ]), effect=self._reveal_warlord_intentions,
+                data={"reply": "You realize that you are going to lose this war, right?",
+                      "opinion": "{NPC} has gotten us into an unwinnable situation".format(**self.elements)}
+            ))
+
+            mylist.append(Offer(
+                "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION] It might be better if {NPC.gender.subject_pronoun} were removed from power.".format(**self.elements),
+                context=ContextTag([context.UNFAVORABLE_CUSTOM, ]), effect=self._reveal_warlord_intentions,
+                data={"reply": "You realize that you are going to lose this war, right?",
+                      "opinion": "{NPC} has gotten us into an unwinnable situation".format(**self.elements)}
+            ))
+
+        return mylist
+
+    def _reveal_warlord_intentions(self, camp):
+        self.elements["PEACE_CHALLENGE"].active = True
+
+    def surrender(self, camp: gears.GearHeadCampaign):
+        # The warlord has wisely chosen to surrender. They can stay in power.
+        pbge.BasicNotification("The leadership of {THIS_CITY} is willing to accept peace.".format(**self.elements))
+        self.elements["PEACE_CHALLENGE"].active = False
+        camp.check_trigger("WIN", self)
+        camp.set_faction_as_pc_neutral(self.elements["THIS_CITY"].faction)
+        self.end_plot(camp)
 
 
 class WOTHCBM_PeacefulPeople(Plot):
-    # This town doesn't really want to fight.
-    # This motive is so simple, I'm not even gonna add a Challenge for it.
+    # This town doesn't really want to fight. I mean, really really doesn't want to fight. You're gonna have to
+    # complete a challenge just to open the fight path.
     LABEL = "DZRE_WOTH_CBMOTIVE"
     active = True
-    scope = True
+    scope = "THIS_METRO"
     UNIQUE = True
+
+    RUMOR = pbge.plots.Rumor(
+        "{THIS_CITY} is under attack by {THAT_CITY} but we can't even defend ourselves",
+        offer_subject="{THIS_CITY} is under attack by {THAT_CITY}", offer_subject_data="this town's defenses",
+        offer_msg="We are a peaceful people and our militia isn't strong enough to defeat {THAT_CITY}.",
+        memo="{THIS_CITY} is being attacked by {THAT_CITY}, but lacks the defenses to resist.",
+        memo_location="THIS_CITY"
+    )
 
     def custom_init(self, nart):
         self.agreed_to_peace = False
+        self.army_untrained = True
 
         this_war: pbge.challenges.Challenge = self.elements["THIS_WAR"]
+        this_war.active = False
         this_war.data["challenge_objectives"].append("defend us from {THAT_CITY}".format(**self.elements))
         this_war.data["challenge_objectives"].append("protect {THIS_CITY}".format(**self.elements))
         this_war.data["enemy_objectives"].append("conquer {THIS_CITY}".format(**self.elements))
@@ -1068,14 +1253,41 @@ class WOTHCBM_PeacefulPeople(Plot):
             ghchallenges.DescribedObjective(
                 missionbuilder.BAMO_EXTRACT_ALLIED_FORCES,
                 "Our militia is having trouble holding back the enemy forces",
-                "defend {THIS_TOWN}".format(**self.elements), "capture {THIS_TOWN}".format(**self.elements),
-                "I defended {THIS_TOWN} from you".format(**self.elements),
-                "you defeated me in {THIS_TOWN}".format(**self.elements),
-                "you invaded {THIS_TOWN}".format(**self.elements),
-                "I invaded {THIS_TOWN}".format(**self.elements)
+                "defend {THIS_CITY}".format(**self.elements), "capture {THIS_CITY}".format(**self.elements),
+                "I defended {THIS_CITY} from you".format(**self.elements),
+                "you defeated me in {THIS_CITY}".format(**self.elements),
+                "you invaded {THIS_CITY}".format(**self.elements),
+                "I invaded {THIS_CITY}".format(**self.elements)
             )
         )
+
+        self.register_element("PEACE_CHALLENGE", Challenge(
+            "Train an Army", ghchallenges.RAISE_ARMY_CHALLENGE, (self.elements["THIS_CITY"],),
+            involvement=ghchallenges.InvolvedMetroResidentNPCs(self.elements["THIS_CITY"]),
+            active=False, points_target=5,
+            data={
+                "threat": self.elements["THAT_CITY"]
+            }, oppoffers=(
+                AutoOffer(
+                    dict(
+                        msg="[I_NEED_MORE_PRACTICE] [LETS_GET_STARTED]",
+                        context=ContextTag([context.CUSTOM, ]),
+                        data={
+                            "reply": "Are you prepared to defend {THIS_CITY} from {THAT_CITY}?".format(**self.elements)
+                        }, dead_end=True
+                    ), active=True, uses=99, npc_effect=self._train_soldier
+                ),
+            )
+        ))
         return True
+
+    def _train_soldier(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
+        pbge.alert("You begin training {} in the ways of mecha warfare.".format(npc))
+        if camp.make_skill_roll(gears.stats.Knowledge, gears.stats.MechaPiloting, self.rank, gears.stats.DIFFICULTY_HARD):
+            ghcutscene.SimpleMonologueDisplay("[I_LEARNED_SOMETHING] I'm all ready to take on {THAT_CITY}!".format(**self.elements), npc)(camp, False)
+            self.elements["PEACE_CHALLENGE"].advance(camp, 1)
+        else:
+            ghcutscene.SimpleMonologueDisplay("[I_LEARNED_NOTHING] [WE_ARE_DOOMED]", npc)(camp, False)
 
     def _get_generic_offers( self, npc: gears.base.Character, camp ):
         # To start the peace process going, you need at least one person on either side or a lance member who is
@@ -1116,7 +1328,29 @@ class WOTHCBM_PeacefulPeople(Plot):
                     gears.stats.DIFFICULTY_HARD
                 )
 
+            if self.army_untrained and not self.elements["PEACE_CHALLENGE"].active:
+                myoffs.append(Offer(
+                    "[HELLO] It's only a matter of time before {THAT_CITY} defeats us.".format(**self.elements),
+                    ContextTag([context.HELLO,]),
+                ))
+
+                myoffs.append(Offer(
+                    "Our town militia is small and inexperienced; in order to fight back effectively, we are going to need more pilots and training.",
+                    ContextTag([context.CUSTOM,]), effect=self.start_training,
+                    data={"reply": "You should fight back against {THAT_CITY}!".format(**self.elements)},
+                    subject=str(self.elements["THAT_CITY"]),
+                ))
+
         return myoffs
+
+    def start_training(self, camp):
+        self.elements["PEACE_CHALLENGE"].active = True
+        self.army_untrained = False
+
+    def PEACE_CHALLENGE_WIN(self, camp):
+        pbge.alert("{THIS_CITY} is all ready to defend itself against {THAT_CITY}.".format(**self.elements))
+        self.elements["PEACE_CHALLENGE"].active = False
+        self.elements["THIS_WAR"].active = True
 
     def win_peace(self, camp: gears.GearHeadCampaign):
         pbge.BasicNotification("The citizens of {THIS_CITY} are willing to accept peace.".format(**self.elements))
@@ -1131,5 +1365,18 @@ class WOTHCBM_PeacefulPeople(Plot):
                 "METRO": myscene.metrodat, "METROSCENE": myscene, "OCCUPYING_FACTION": self.elements["THAT_CITY"].faction
             }
         ).based_on(self))
+        self.elements["PEACE_CHALLENGE"].active = False
+        self.end_plot(camp)
 
+    def won_the_war(self, camp):
+        self.elements["PEACE_CHALLENGE"].active = False
+        self.end_plot(camp)
+
+    def lost_the_war(self, camp):
+        self.elements["PEACE_CHALLENGE"].active = False
+        self.end_plot(camp)
+
+    def peace_happened(self, camp):
+        self.elements["PEACE_CHALLENGE"].active = False
+        self.end_plot(camp)
 

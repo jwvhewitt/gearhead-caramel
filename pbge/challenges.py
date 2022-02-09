@@ -35,7 +35,9 @@ class AutoOffer(object):
     #  involvement = An involvement checker. If None, use the involvement checker of the challenge.
     #  access_fun = Basically another involvement checker; a callable that takes (camp,npc) and returns True if this offer
     #   can be added. May be used to add skill rolls or whatnot.
-    def __init__(self, offer_dict, active=True, uses=1, involvement=None, access_fun=None, once_per_npc=True):
+    #  npc_effect = A function that is called when this offer is selected that has signature (camp, npc)
+    def __init__(self, offer_dict, active=True, uses=1, involvement=None, access_fun=None, once_per_npc=True,
+                 npc_effect=None):
         self.offer_dict = offer_dict.copy()
         self.offer_effect = offer_dict.get("effect", None)
         self.active = active
@@ -45,10 +47,13 @@ class AutoOffer(object):
         self.involvement = involvement
         self.access_fun = access_fun
         self.once_per_npc = once_per_npc
+        self.npc_effect = npc_effect
 
     def invoke_effect(self, camp, npc):
         if self.offer_effect:
             self.offer_effect(camp)
+        if self.npc_effect:
+            self.npc_effect(camp, npc)
         self.used = True
         self.uses -= 1
         if self.uses < 1:

@@ -171,9 +171,10 @@ class QualityOfLife(object):
 
 
 class MetroData(object):
-    def __init__(self):
+    def __init__(self, city_leader=None):
         self.scripts = pbge.container.ContainerList(owner=self)
         self.local_reputation = 0
+        self.city_leader = city_leader
 
     def get_quality_of_life(self):
         qol = QualityOfLife()
@@ -181,6 +182,12 @@ class MetroData(object):
             if plot.active and hasattr(plot,"QOL"):
                 qol.add(plot.QOL)
         return qol
+
+    def __setstate__(self, state):
+        # For saves from V0.810 or earlier, make sure there's a city_leader.
+        self.__dict__.update(state)
+        if "city_leader" not in state:
+            self.city_leader = None
 
 
 class GearHeadScene(pbge.scenes.Scene):
@@ -478,6 +485,11 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def can_add_lancemate(self):
         lancemates = self.get_lancemates()
         return len(lancemates) < self.num_lancemates
+
+    def is_not_lancemate(self, npc):
+        # Return True if the NPC is neither a current member of the lance nor a lancemate on vacation.
+        return (npc not in self.party and
+                (not npc.relationship or relationships.RT_LANCEMATE not in npc.relationship.tags))
 
     def get_party_skill(self, stat_id, skill_id):
         return max([pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party()] + [0])

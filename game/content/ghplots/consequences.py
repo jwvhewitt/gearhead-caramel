@@ -25,7 +25,7 @@ class MilitaryOccupation(Plot):
         0, -2, 0, -2, -1
     )
 
-    def custom_init(self, nart: game.content.GHNarrativeRequest):
+    def custom_init(self, nart):
         # Step One: Check to make sure the city isn't already occupied.
         mycity: gears.GearHeadScene = self.elements.get("METROSCENE")
         camp: gears.GearHeadCampaign = nart.camp
