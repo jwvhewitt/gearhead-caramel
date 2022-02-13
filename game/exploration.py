@@ -334,7 +334,7 @@ class Explorer( object ):
     def __init__( self, camp: gears.GearHeadCampaign ):
         pbge.please_stand_by()
         self.camp = camp
-        self.scene = camp.scene
+        self.scene: gears.GearHeadScene = camp.scene
         self.view = scenes.viewer.SceneView( camp.scene )
         self.mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
         self.time = 0
@@ -572,12 +572,7 @@ class Explorer( object ):
                         for x in range(self.scene.width):
                             for y in range(self.scene.height):
                                 self.scene.set_visible(x,y,True)
-                    elif gdi.unicode == "C" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for sc in self.camp.contents:
-                            print(sc)
-                            if sc.name.endswith(" Base"):
-                                for pc in sc.contents:
-                                    print('--> {}'.format(pc))
+
                     elif gdi.unicode == "!" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         self.camp.egg.credits += 1000000
                         for mpc in self.camp.get_active_party():
@@ -600,6 +595,9 @@ class Explorer( object ):
                     elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.active_plots():
                             print("{}".format(thing.__class__.__name__))
+                    elif gdi.unicode == "C" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        myfac = self.camp.faction_relations.get(self.scene.get_metro_scene().faction)
+                        print(myfac.enemies)
                     elif gdi.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for pc in self.camp.get_active_party():
                             if hasattr(pc,"relationship") and pc.relationship:

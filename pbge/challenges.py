@@ -175,6 +175,7 @@ class Challenge(object):
                     camp.check_trigger("WIN", self)
             elif delta < 0:
                 camp.check_trigger(SETBACK_CHALLENGE, self)
+            camp.check_trigger("UPDATE")
 
     def can_spend_resource(self, resource):
         return self.chaltype == resource.chaltype and self.key == resource.key[:len(self.key)]

@@ -780,8 +780,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             self.faction_relations[a_fac] = factions.FactionRelations()
         if b_fac not in self.faction_relations:
             self.faction_relations[b_fac] = factions.FactionRelations()
-        self.faction_relations[a_fac].set_faction_ally(b_fac)
-        self.faction_relations[b_fac].set_faction_ally(a_fac)
+        self.faction_relations[a_fac].set_faction_enemy(b_fac)
+        self.faction_relations[b_fac].set_faction_enemy(a_fac)
 
     def set_faction_neutral(self, a, b):
         a_fac,b_fac = self.get_faction(a),self.get_faction(b)

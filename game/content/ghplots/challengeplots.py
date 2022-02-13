@@ -49,7 +49,7 @@ class BasicDiplomaticChallenge(Plot):
                 memo="{} wants to argue about {}".format(npc, mychallenge.data["challenge_subject"]),
                 prohibited_npcs=("NPC",)
             )
-
+            del self.candidates
             return True
 
     def _get_challenge_for_npc(self, nart, npc):
@@ -164,7 +164,7 @@ class BasicFightChallenge(Plot):
             )
 
             self.mission_active = False
-
+            del self.candidates
             return True
 
     def _get_challenge_for_npc(self, nart, npc):
@@ -266,6 +266,7 @@ class RaiseArmyChallenge(Plot):
             self.register_element("NPC_SCENE", npc.scene)
 
             self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+            del self.candidates
 
             return True
 
@@ -288,7 +289,40 @@ class RaiseArmyChallenge(Plot):
 
     def NPC_offers(self, camp):
         mylist = list()
+        mychallenge: pbge.challenges.Challenge = self.elements["CHALLENGE"]
 
+        if "threat" in mychallenge.data:
+            mylist.append(Offer(
+                "[HELLO] I need to obtain more mecha for the battle against {}.".format(mychallenge.data["threat"]),
+                ContextTag([context.HELLO,])
+            ))
+        else:
+            mylist.append(Offer(
+                "[HELLO] I need to obtain more mecha for the war effort.",
+                ContextTag([context.HELLO,])
+            ))
+
+        ghdialogue.SkillBasedPartyReply(
+            Offer(
+                "[THANKS_FOR_HELP] With your guidance we've been able to strip one wreck for the parts to get two more running again.",
+                ContextTag([context.CUSTOM,]), effect=self._win_the_mission, subject="obtain more mecha",
+                data={"reply": "I can use my repair knowledge to help you get some of these wrecks back into working order."}
+            ), camp, mylist, gears.stats.Knowledge, gears.stats.Repair, self.rank, gears.stats.DIFFICULTY_HARD
+        )
+
+        ghdialogue.SkillBasedPartyReply(
+            Offer(
+                "[THANKS_FOR_HELP] The improvements you've suggested should produce immediate savings in both time and resources.",
+                ContextTag([context.CUSTOM,]), effect=self._win_the_mission, subject="obtain more mecha",
+                data={"reply": "My scientific knowledge might be able to increase your mecha production capacity."}
+            ), camp, mylist, gears.stats.Knowledge, gears.stats.Science, self.rank, gears.stats.DIFFICULTY_AVERAGE
+        )
+
+        if self._rumor_memo_delivered:
+            mylist.append(Offer(
+                "Yes, I've been hard at work to obtain more mecha for {}. We have a ton of salvage, but nothing that will put up a fight.".format(mychallenge.key[0]),
+                ContextTag([context.INFO,]), data={"subject": "the war effort"}
+            ))
 
 
         return mylist
