@@ -174,7 +174,6 @@ class WarOnTheHighwayStarter(DZDREBasicPlotWithEncounterStuff):
     def custom_init(self, nart):
         super().custom_init(nart)
         self.add_sub_plot(nart, "DZRE_WARONTHEHIGHWAY", ident="MISSION")
-        nart.camp.set_faction_enemies()
         # myedge = self.elements["DZ_EDGE"]
         # print(myedge.start_node.destination, myedge.end_node.destination)
         return True

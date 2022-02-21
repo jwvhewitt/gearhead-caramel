@@ -33,6 +33,12 @@ ATTACK_WITHDRAW = Reply( "[ATTACK:WITHDRAW]" ,
             destination = Cue( ContextTag([context.WITHDRAW]) ) ,
             context = ContextTag([context.ATTACK]) )
 
+BADCUSTOM_CUSTOMREPLY = Reply(
+    "{reply}",
+    destination=Cue(ContextTag([context.CUSTOMREPLY])),
+    context=ContextTag([context.UNFAVORABLE_CUSTOM])
+)
+
 BADHELLO_BADCUSTOM = Reply( "{reply}" ,
             destination = Cue( ContextTag([context.UNFAVORABLE_CUSTOM]) ) ,
             context = ContextTag([context.UNFAVORABLE_HELLO]) )

@@ -529,6 +529,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def party_has_skill(self,skill_id):
         return any(pc for pc in self.get_active_party() if pc.has_skill(skill_id))
 
+    def party_has_personality(self,personality_trait):
+        return any(pc for pc in self.get_active_party() if personality_trait in pc.get_pilot().personality)
+
     def get_pc_mecha(self,pc):
         meklist = [mek for mek in self.party if isinstance(mek,base.Mecha) and mek.pilot is pc]
         if meklist:

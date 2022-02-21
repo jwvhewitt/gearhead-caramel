@@ -88,7 +88,7 @@ def convert_tokens( in_text, gramdb, allow_maybe=True, auto_format = True, start
             if word == "a" or word =="A":
                 if original_words and original_words[0][0] in "aeiouAEIOU":
                     word = word + 'n'
-            if capitalize:
+            if capitalize and word and word[0] != "{":
                 word = word.capitalize()
                 capitalize = False
             if word[-1] in ".\n":

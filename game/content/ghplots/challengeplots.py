@@ -21,6 +21,141 @@ class TimeAndChallengeExpiration(object):
     def __call__(self, camp, plot):
         return camp.day > self.time_limit or not self.chal.active
 
+#   ****************************
+#   ***  DETHRONE_CHALLENGE  ***
+#   ****************************
+
+class DethroneByDuelingSupporter(Plot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+    RUMOR = Rumor(
+        "{NPC} is a loyal supporter of {LEADER}",
+        offer_msg="You can talk to {NPC} at {NPC_SCENE} if you want to change {NPC.gender.possessive_determiner} mind.",
+        memo="{NPC} is a loyal supporter of {LEADER}.",
+        prohibited_npcs=("NPC",)
+    )
+
+    @classmethod
+    def matches(cls, pstate: PlotState):
+        return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.DETHRONE_CHALLENGE]
+        if self.candidates:
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            self.register_element("NPC_SCENE", npc.scene)
+
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+
+            sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+            # Create the mission seed. Turn the defeat_trigger off because we'll be handling that manually.
+            self.mission_seed = missionbuilder.BuildAMissionSeed(
+                nart.camp, "Duel {NPC}".format(**self.elements),
+                self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+                enemy_faction=npc.faction, rank=self.rank,
+                objectives=[missionbuilder.BAMO_DUEL_NPC],
+                one_chance=True,
+                scenegen=sgen, architecture=archi,
+                cash_reward=120, solo_mission=True,
+                on_win=self._win_the_mission, custom_elements={missionbuilder.BAME_NPC: npc},
+                make_enemies=False
+            )
+
+            self.elements["LEADER"] = mychallenge.key[0]
+
+            self.mission_active = False
+            del self.candidates
+            return True
+
+    def _get_challenge_for_npc(self, nart, npc):
+        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
+        if candidates:
+            return random.choice(candidates)
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
+            candidate.combatant and self._get_challenge_for_npc(nart, candidate)
+        )
+
+    def _win_the_mission(self, camp):
+        comp = self.mission_seed.get_completion(True)
+        self.elements["CHALLENGE"].advance(camp, max((comp-51)//10, 3))
+        self.end_plot(camp)
+
+    def _conversation_win(self, camp: gears.GearHeadCampaign):
+        if camp.party_has_personality(self.elements["CHALLENGE"].data["violated_virtue"]):
+            npc: gears.base.Character = self.elements["NPC"]
+            npc.relationship.reaction_mod += 10
+        self.elements["CHALLENGE"].advance(camp, 4)
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.mission_active:
+            mychallenge: pbge.challenges.Challenge = self.elements["CHALLENGE"]
+
+            mylist.append(Offer(
+                "[HELLO] {LEADER} is a great {LEADER.gender.noun} and deserves our support.".format(**self.elements),
+                ContextTag([context.HELLO,])
+            ))
+
+            mylist.append(Offer(
+                "[YOU_DONT_UNDERSTAND] The truth is that {}.".format(random.choice(mychallenge.data["reasons_to_support"])),
+                ContextTag([context.CUSTOM]), data={"reply": "But {}!".format(random.choice(mychallenge.data["reasons_to_dethrone"]))},
+                subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[YOU_DONT_UNDERSTAND] In reality {}.".format(random.choice(mychallenge.data["reasons_to_support"])),
+                ContextTag([context.UNFAVORABLE_CUSTOM]),
+                data={"reply": "You know that {}!".format(random.choice(mychallenge.data["reasons_to_dethrone"]))},
+                subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[ACCEPT_CHALLENGE] I will meet you outside of town, to defend the honor of {LEADER}!".format(**self.elements),
+                ContextTag([context.CUSTOMREPLY]), effect=self.activate_mission,
+                subject=self, data={"reply": "[ARE_YOU_WILLING_TO_BET_YOUR_LIFE_ON_THAT]"}
+            ))
+
+            vv = mychallenge.data.get("violated_virtue")
+            if vv and vv in self.elements["NPC"].personality:
+                ghdialogue.SkillBasedPartyReply(
+                    Offer(
+                        "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION] [I_MUST_CONSIDER_MY_NEXT_STEP]",
+                        ContextTag([context.CUSTOMREPLY, ]), effect=self._conversation_win,
+                        data={
+                            "reply": "[HAVE_YOU_CONSIDERED]",
+                            "consider_this": "{} is working against {}".format(self.elements["LEADER"], vv),
+                            "opinion": "{LEADER} may not be as great as I thought".format(**self.elements)
+                        }, subject=self
+                    ), camp, mylist, gears.stats.Perception, gears.stats.Negotiation, self.rank,
+                    gears.stats.DIFFICULTY_AVERAGE
+                )
+
+        return mylist
+
+    def t_START(self, camp):
+        if self.LABEL == "DZRE_TEST" and not self.mission_active:
+            self.mission_active = True
+
+    def t_UPDATE(self,camp):
+        if self.mission_seed.ended:
+            self.end_plot(camp)
+
+    def activate_mission(self,camp):
+        self.mission_active = True
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed and self.mission_active:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+
 
 #   *****************************
 #   ***  DIPLOMACY_CHALLENGE  ***
@@ -231,7 +366,6 @@ class BasicFightChallenge(Plot):
     def activate_mission(self,camp):
         self.mission_active = True
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
-        self.expiration = None
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:

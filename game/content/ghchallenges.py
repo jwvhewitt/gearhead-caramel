@@ -82,24 +82,27 @@ RAISE_ARMY_CHALLENGE = "RAISE_ARMY_CHALLENGE"
 
 class InvolvedMetroFactionNPCs(object):
     # Return True if ob is an NPC allied with the given faction and in the same Metro area.
-    def __init__(self, metroscene, faction=None):
+    def __init__(self, metroscene, faction=None, exclude=()):
         self.metroscene = metroscene
         self.faction = faction or metroscene.faction
+        self.exclude = set()
+        self.exclude.update(exclude)
 
     def __call__(self, camp: gears.GearHeadCampaign, ob):
         return (isinstance(ob, gears.base.Character) and ob.scene.get_metro_scene() is self.metroscene and
-                camp.are_faction_allies(ob, self.faction))
+                camp.are_faction_allies(ob, self.faction) and camp.is_not_lancemate(ob) and ob not in self.exclude)
 
 
 class InvolvedMetroResidentNPCs(object):
     # Return True if ob is a non-lancemate NPC in the provided Metro area.
-    def __init__(self, metroscene):
+    def __init__(self, metroscene, exclude=()):
         self.metroscene = metroscene
+        self.exclude = set()
+        self.exclude.update(exclude)
 
     def __call__(self, camp: gears.GearHeadCampaign, ob):
         return (isinstance(ob, gears.base.Character) and ob.scene.get_metro_scene() is self.metroscene and
-                ob not in camp.party and
-                (not ob.relationship or gears.relationships.RT_LANCEMATE not in ob.relationship.tags))
+                camp.is_not_lancemate(ob) and ob not in self.exclude)
 
 
 #   ***************************

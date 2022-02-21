@@ -163,6 +163,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[ARE_YOU_WILLING_TO_BET_YOUR_LIFE_ON_THAT]": {
+        Default: ["Are you willing to bet your life on that?"
+                  ],
+        personality.Cheerful: ["If you're so sure, why don't we have a little game?"
+                               ],
+        personality.Grim: ["Are you truly willing to die for your belief?",
+                           ],
+        personality.Easygoing: ["Strange hill to die on, but if you wanna die..."
+                                ],
+        personality.Passionate: ["Your ignorance will get you killed, likely by my hand!",
+                                 ],
+        personality.Sociable: ["Are you willing to settle our differences on the field of battle?",
+                               ],
+        personality.Shy: ["Want to bet your life on that?",
+                          ],
+    },
+
     "[as_far_as_I_know]": {
         Default: ["As far as I know"
                   ],
@@ -3017,7 +3034,7 @@ DEFAULT_GRAMMAR = {
 
     "[OPEN_TO_PEACE_WITH_ENEMY_FACTION]": {
         # Data block should include enemy_faction
-        Default: [""
+        Default: ["I am open to peace with {enemy_faction}."
                   ],
         personality.Cheerful: ["It would be a happy day if {enemy_faction} agreed to a peace deal.",
                                ],
@@ -4450,6 +4467,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I have to admit that you could be right.",
                                ],
         personality.Shy: ["I won't say that you're wrong.",
+                          ],
+    },
+
+    "[YOU_DONT_UNDERSTAND]": {
+        # The speaker is about to question the audience's understanding of this situation.
+        Default: ["You don't understand...",
+                  ],
+        personality.Cheerful: ["Are you kidding me?",
+                               ],
+        personality.Grim: ["Your words betray how little you know about this.",
+                           ],
+        personality.Easygoing: ["I'm not sure that you understand.",
+                                ],
+        personality.Passionate: ["You could not be more wrong about that!",
+                                 ],
+        personality.Sociable: ["It seems to me that you don't understand this situation as well as you think you do.",
+                               ],
+        personality.Shy: ["You're wrong.",
                           ],
     },
 

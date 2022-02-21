@@ -1093,9 +1093,11 @@ class WOTHCBM_AspiringConqueror(Plot):
         if gears.personality.Justice in npc.personality:
             npc.personality.remove(gears.personality.Justice)
 
+        self.elements["THIS_METRO"].city_leader = npc
+
         self.register_element("PEACE_CHALLENGE", Challenge(
             "Dethrone the Warlord", ghchallenges.DETHRONE_CHALLENGE, (npc,),
-            ghchallenges.InvolvedMetroResidentNPCs(self.elements["THIS_CITY"]),
+            ghchallenges.InvolvedMetroResidentNPCs(self.elements["THIS_CITY"], exclude=[npc]),
             active=False, data={
                 "reasons_to_dethrone": [
                     "{NPC} is waging war against {THAT_CITY} for no reason".format(**self.elements),
@@ -1107,9 +1109,43 @@ class WOTHCBM_AspiringConqueror(Plot):
                 ],
                 "violated_virtue": gears.personality.Justice,
                 "upheld_virtue": gears.personality.Glory
-            }
+            },
+            oppoffers=(
+                AutoOffer(
+                    dict(
+                        msg="[YOU_COULD_BE_RIGHT] [OPEN_TO_PEACE_WITH_ENEMY_FACTION]",
+                        context=ContextTag([context.CUSTOM, ]), effect=self._convince_to_evict,
+                        data={
+                            "reply": "{NPC} must be removed from power.".format(**self.elements),
+                            "enemy_faction": self.elements["THAT_CITY"].faction
+                        }
+                    ), active=True, uses=99,
+                    access_fun=ghchallenges.AccessSocialRoll(
+                        gears.stats.Charm, gears.stats.Negotiation, self.rank,
+                        difficulty=gears.stats.DIFFICULTY_HARD, untrained_ok=True
+                    )
+                ),
+                AutoOffer(
+                    dict(
+                        msg="[YOU_COULD_BE_RIGHT] [OPEN_TO_PEACE_WITH_ENEMY_FACTION]",
+                        context=ContextTag([context.UNFAVORABLE_CUSTOM, ]), effect=self._convince_to_evict,
+                        data={
+                            "reply": "{NPC} must be removed from power.".format(**self.elements),
+                            "enemy_faction": self.elements["THAT_CITY"].faction
+                        }
+                    ), active=True, uses=99,
+                    access_fun=ghchallenges.AccessSocialRoll(
+                        gears.stats.Charm, gears.stats.Negotiation, self.rank,
+                        difficulty=gears.stats.DIFFICULTY_LEGENDARY, untrained_ok=True
+                    )
+                )
+            )
+
         ))
         return True
+
+    def _convince_to_evict(self, camp):
+        self.elements["PEACE_CHALLENGE"].advance(camp, 1)
 
     def _is_good_hq(self, nart, candidate):
         return (isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_GOVERNMENT in candidate.attributes

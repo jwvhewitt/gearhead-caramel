@@ -222,6 +222,8 @@ class DemocraticOrder(Plot):
                                         faction = self.elements["METRO_FACTION"]
                                     ))
         npc.place(intscene, team=intscene.civilian_team)
+        self.elements["METRO"].city_leader = npc
+
 
         self.town_origin_ready = True
 
@@ -294,6 +296,7 @@ class MilitaryOrder(Plot):
                                         faction = self.elements["METRO_FACTION"]
                                     ))
         npc.place(intscene, team=team2)
+        self.elements["METRO"].city_leader = npc
 
         self.town_origin_ready = True
 
@@ -366,6 +369,7 @@ class TechnocraticOrder(Plot):
                                         faction = self.elements["METRO_FACTION"]
                                     ))
         npc.place(intscene, team=team2)
+        self.elements["METRO"].city_leader = npc
 
         self.town_origin_ready = True
 
@@ -429,6 +433,7 @@ class VaultOrder(Plot):
                                         faction = self.elements["METRO_FACTION"]
                                     ))
         npc.place(intscene, team=team2)
+        self.elements["METRO"].city_leader = npc
 
         self.town_origin_ready = True
 
