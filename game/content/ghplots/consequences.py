@@ -73,3 +73,44 @@ class MilitaryOccupation(Plot):
         if self.elements["METROSCENE"].faction is not self.elements["OCCUPYING_FACTION"]:
             self.end_plot(camp, True)
 
+
+class TotalitarianCrackdown(Plot):
+    # Elements:
+    #   METROSCENE, METRO
+    #   CRACKDOWN_REASON: An independent clause describing the circumstances of the crackdown.
+    LABEL = "CONSEQUENCE_TOTALCRACKDOWN"
+    active = True
+    scope = "METRO"
+
+    QOL = gears.QualityOfLife(
+        0, 1, -2, -3, 0
+    )
+
+    def custom_init(self, nart):
+        npc = self.register_element("NPC", self.elements["METRO"].city_leader)
+        self.elements["ORIGINAL_FACTION"] = self.elements["METROSCENE"].faction
+        return True
+
+    def get_dialogue_grammar(self, npc: gears.base.Character, camp: gears.GearHeadCampaign):
+        mygram = dict()
+
+        if npc is not self.elements["NPC"]:
+            mygram["[CURRENT_EVENTS]"] = [
+                "{CRACKDOWN_REASON}.".format(**self.elements),
+                "[THIS_IS_A_SECRET] {CRACKDOWN_REASON}.".format(**self.elements)
+            ]
+
+            if self.elements["NPC"]:
+                mygram["News"] = [
+                    "{NPC} rules {METROSCENE} with an iron fist".format(**self.elements),
+                    "{NPC} has been cracking down on {METROSCENE}".format(**self.elements)
+                ]
+
+        return mygram
+
+    def t_UPDATE(self, camp):
+        # This plot ends if the metroscene faction changes or the NPC is deposed.
+        if self.elements["METROSCENE"].faction is not self.elements["ORIGINAL_FACTION"]:
+            self.end_plot(camp, True)
+        elif self.elements["NPC"] and self.elements["METRO"].city_leader is not self.elements["NPC"]:
+            self.end_plot(camp, True)

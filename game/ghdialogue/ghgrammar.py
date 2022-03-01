@@ -2350,6 +2350,24 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[I_worry_that]": {
+        # The beginning of a sentence expressing worry about a dependent clause
+        Default: ["I worry that",
+                  ],
+        personality.Cheerful: ["I'm not feeling optimistic that"
+                               ],
+        personality.Grim: ["It is inevitable that",
+                           ],
+        personality.Easygoing: ["I'm kinda nervous that"
+                                ],
+        personality.Passionate: ["I will face the danger that",
+                                 ],
+        personality.Sociable: ["I've heard people worrying that",
+                               ],
+        personality.Shy: ["It seems that",
+                          ],
+    },
+
     "[I_WOULD_APPRECIATE_IT]": {
         Default: ["I'd really appreciate it.", "Thanks for your help."
                   ],

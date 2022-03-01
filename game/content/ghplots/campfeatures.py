@@ -221,7 +221,12 @@ class MetrosceneRandomPlotHandler(Plot):
             )
             if not myplot:
                 print("Warning: No plot found for {}".format(self.SUBPLOT_LABEL))
+                self._resolve_unfound_plot(camp)
                 break
+
+    def _resolve_unfound_plot(self, camp):
+        # Do whatever needs to be done when a plot could not be found.
+        pass
 
     def should_load_plot(self, camp):
         mymetro: gears.MetroData = self.elements["METRO"]

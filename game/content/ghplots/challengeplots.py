@@ -213,6 +213,13 @@ class BasicDiplomaticChallenge(Plot):
             data={"opinion": subject}
         ))
 
+        if self._rumor_memo_delivered:
+            mylist.append(Offer(
+                "Yes, it's true! [CONTROVERSIAL_OPINION]",
+                ContextTag([context.CUSTOM, ]),
+                data={"opinion": subject, "reply": "I hear that you have some controversial opinions."}
+            ))
+
         ghdialogue.SkillBasedPartyReply(
             Offer(
                 "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION] [I_MUST_CONSIDER_MY_NEXT_STEP]",
@@ -228,6 +235,24 @@ class BasicDiplomaticChallenge(Plot):
         mylist.append(Offer(
             "{}. [GOODBYE]".format(random.choice(self.elements["CHALLENGE"].data["npc_disagreement"])),
             ContextTag([context.CUSTOM]), effect=self.end_plot,
+            data={"reply": "[YOU_COULD_BE_RIGHT]"}, subject=subject
+        ))
+
+        ghdialogue.SkillBasedPartyReply(
+            Offer(
+                "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION] [I_MUST_CONSIDER_MY_NEXT_STEP]",
+                ContextTag([context.CUSTOMREPLY,]), effect=self._win_the_mission,
+                data={
+                    "reply": "[HAVE_YOU_CONSIDERED]",
+                    "consider_this": random.choice(self.elements["CHALLENGE"].data["pc_rebuttals"]),
+                    "opinion": random.choice(self.elements["CHALLENGE"].data["npc_agreement"])
+                }, subject=subject
+            ), camp, mylist, gears.stats.Charm, gears.stats.Negotiation, self.rank, gears.stats.DIFFICULTY_AVERAGE
+        )
+
+        mylist.append(Offer(
+            "{}. [GOODBYE]".format(random.choice(self.elements["CHALLENGE"].data["npc_disagreement"])),
+            ContextTag([context.CUSTOMREPLY]), effect=self.end_plot,
             data={"reply": "[YOU_COULD_BE_RIGHT]"}, subject=subject
         ))
 

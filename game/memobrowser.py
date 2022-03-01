@@ -1,13 +1,14 @@
 import pbge
 import pygame
+import gears
 from pbge.plots import Memo
 
 
 class MemoBrowser(object):
-    def __init__(self,camp):
+    def __init__(self, camp: gears.GearHeadCampaign):
         self.camp = camp
         self.text_area = pbge.frects.Frect(-200,-100,400,200)
-        self.memos = [p.memo for p in camp.active_plots() if p.memo]
+        self.memos = camp.get_memos()
         if not self.memos:
             self.memos = ["<<No memos.>>"]
         self.memo_n = 0
@@ -45,6 +46,8 @@ class MemoBrowser(object):
         elif ev.type == pygame.KEYDOWN:
             if ev.key == pygame.K_LEFT:
                 self.prev_memo()
+            elif ev.key == pygame.K_RIGHT:
+                self.next_memo()
             elif ev.key == pygame.K_ESCAPE:
                 self.keep_browsing = False
 

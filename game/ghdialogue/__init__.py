@@ -136,6 +136,25 @@ class TagBasedPartyReply(SkillBasedPartyReply):
                 myoffer.custom_menu_fun = self.custom_menu_fun
                 self.pc = pc
 
+class MatchingTagPartyReply(SkillBasedPartyReply):
+    def __init__(self, myoffer, camp, mylist, npc, needed_tag, npc_tag=None, message_format = '{} says "{}"'):
+        # Check the skill of each party member against a target number. If any party member can
+        # make the test, they get to say the line of dialogue.
+        # If nobody makes the test, don't add myoffer to mylist.
+        self.camp = camp
+        self.offer = myoffer
+        self.message_format = message_format
+        winners = [pc for pc in camp.get_active_party() if needed_tag in pc.get_pilot().get_tags()]
+        needed_npc_tag = npc_tag or needed_tag
+        if winners and needed_npc_tag in npc.get_pilot().get_tags():
+            pc = random.choice(winners)
+            if pc.get_pilot() is camp.pc:
+                mylist.append(myoffer)
+            else:
+                mylist.append(myoffer)
+                myoffer.custom_menu_fun = self.custom_menu_fun
+                self.pc = pc
+
 
 def start_conversation(camp: gears.GearHeadCampaign,pc,npc,cue=None):
     # If this NPC has no relationship with the PC, create that now.
@@ -173,3 +192,12 @@ class OneShotInfoBlast(object):
 
     def blast_that_info(self, *args):
         self.active = False
+
+
+class NPCInclusiveOfferEffect(object):
+    def __init__(self, npc, effect):
+        self.npc = npc
+        self.effect = effect
+    def __call__(self, camp):
+        self.effect(camp, self.npc)
+

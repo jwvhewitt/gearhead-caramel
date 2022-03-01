@@ -38,6 +38,7 @@ class SeekEnemyBaseMain(campfeatures.MetrosceneRandomPlotHandler):
 
     MAX_PLOTS = 1
     SUBPLOT_LABEL = SEEK_ENEMY_BASE_MISSION
+    ALL_RANDOM_PLOT_TYPES = (SUBPLOT_LABEL,)
 
     def custom_init( self, nart ):
         ok = super().custom_init(nart)
@@ -70,6 +71,12 @@ class SeekEnemyBaseMain(campfeatures.MetrosceneRandomPlotHandler):
 
     def calc_rank(self, camp: gears.GearHeadCampaign):
         return self.rank + self.rank_modifier
+
+    def _resolve_unfound_plot(self, camp):
+        self.subplots["MISSION"] = game.content.load_dynamic_plot(
+            camp, AUTOFIND_ENEMY_BASE_MISSION, PlotState(rank=self.rank + self.rank_modifier).based_on(self)
+        )
+        self.ran_out_of_patience = True
 
 
 #   *********************************

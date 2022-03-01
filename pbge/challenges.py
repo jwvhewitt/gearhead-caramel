@@ -5,7 +5,18 @@ ADVANCE_CHALLENGE = "ADVANCE_CHALLENGE"
 SETBACK_CHALLENGE = "SETBACK_CHALLENGE"
 SPEND_RESOURCE = "SPEND_RESOURCE"
 
-# Challenge Types
+class ChallengeMemo(object):
+    def __init__(self, text, challenge=None):
+        self._text = text
+        self.challenge = challenge
+
+    def __str__(self):
+        if not self.challenge:
+            return self._text
+        else:
+            return "{}\n\nCompletion: {}/{}".format(
+                self._text, self.challenge.points_earned, self.challenge.points_target
+            )
 
 
 # Involvement Checker
@@ -149,10 +160,10 @@ class Challenge(object):
     # oppuses = A list of AutoUsages used by this challenge
     # data = A dict of challenge-specific data that may be used by scenario generators. Just keeping my options open.
     def __init__(self, name, chaltype, key=(), involvement=None, active=True, grammar=None, oppoffers=(), oppuses=(),
-                 data=None, points_target=10):
+                 data=None, points_target=10, memo=None, memo_active=False):
         self.name = name
         self.points_earned = 0
-        self.active = active
+        self._active = active
         self.chaltype = chaltype
         self.key = tuple(key)
         self.involvement = involvement
@@ -165,9 +176,13 @@ class Challenge(object):
         if data:
             self.data.update(data)
         self.points_target = points_target
+        self.memo = memo
+        if self.memo:
+            self.memo.challenge = self
+        self.memo_active = memo_active
 
     def advance(self, camp, delta):
-        if self.active:
+        if self._active:
             self.points_earned += delta
             if delta > 0:
                 camp.check_trigger(ADVANCE_CHALLENGE, self)
@@ -175,7 +190,20 @@ class Challenge(object):
                     camp.check_trigger("WIN", self)
             elif delta < 0:
                 camp.check_trigger(SETBACK_CHALLENGE, self)
+            self.memo_active = True
             camp.check_trigger("UPDATE")
+
+    def activate(self, camp):
+        self._active = True
+        camp.check_trigger("UPDATE")
+
+    def deactivate(self, camp):
+        self._active = False
+        camp.check_trigger("UPDATE")
+
+    @property
+    def active(self):
+        return self._active
 
     def can_spend_resource(self, resource):
         return self.chaltype == resource.chaltype and self.key == resource.key[:len(self.key)]
@@ -205,6 +233,10 @@ class Challenge(object):
 
     def __str__(self):
         return self.name
+
+    def get_memo(self):
+        if self.memo and self.memo_active and self.active:
+            return self.memo
 
 
 class ResourceSpender(object):

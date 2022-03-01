@@ -117,8 +117,12 @@ class Campaign( object ):
 
     def check_trigger( self, trigger, thing=None ):
         # Something is happened that plots may need to react to.
-        for p in self.active_plots():
-            p.handle_trigger( self, trigger, thing )
+        # Only check a trigger if the campaign has been constructed.
+        if self.scene:
+            if trigger == "UPDATE":
+                self._update_plots()
+            for p in self.active_plots():
+                p.handle_trigger( self, trigger, thing )
 
     def expand_puzzle_menu( self, thing, thingmenu ):
         # Something is happened that plots may need to react to.
@@ -190,3 +194,14 @@ class Campaign( object ):
                     if check_subscenes or not isinstance(t, scenes.Scene):
                         for tt in self.all_contents(t, check_subscenes):
                             yield tt
+
+    def get_memos(self):
+        mymemos = [p.memo for p in self.active_plots() if p.memo]
+        for c in self.get_active_challenges():
+            cmemo = c.get_memo()
+            if cmemo:
+                mymemos.append(cmemo)
+        mymemos.sort(key=lambda m: str(m))
+        return mymemos
+
+

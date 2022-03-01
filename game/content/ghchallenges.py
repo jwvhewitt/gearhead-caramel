@@ -41,6 +41,7 @@ FIGHT_CHALLENGE = "FIGHT_CHALLENGE"
 # The key for a fight challenge is (Faction_to_be_fought,)
 # The data for a fight challenge should include:
 #   challenge_objectives = A list of objectives that can be given by the challenge-givers; infinitive verb phrase
+#   challenge_fears = A list of things that the challenge-givers can accuse the enemy faction of planning; infinitive verb phrase
 #   enemy_objectives = A list of objectives that can be given by the enemy faction (key[0]); infinitive verb phrase
 #   mission_intros = A list of things for mission-givers to say; primary clause
 #   mission_objectives = A list of custom DescribedObjectives
