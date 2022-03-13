@@ -145,6 +145,7 @@ from . import animobs
 from . import targetarea
 from . import waypoints
 from . import areaindicator
+from . import mapcursor
 
 class TeamDictionary( weakref.WeakKeyDictionary ):
     # It's like a regular WeakKeyDictionary but it pickles.

@@ -69,6 +69,10 @@ class Caseless_165mm( BaseCalibre ):
     bang = 12
     scale = scale.MechaScale
 
+class Ferrous_10mm( BaseCalibre ):
+    bang = 1
+    scale = scale.MechaScale
+    risk = RISK_INERT
 
 class Ferrous_25mm( BaseCalibre ):
     bang = 5

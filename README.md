@@ -9,6 +9,8 @@ instructions below.
 
 ![Screenshot](image/screenshot.png)
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/C0C4ULFU)
+
 CONTROLS
 ========
 

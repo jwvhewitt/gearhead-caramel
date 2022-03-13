@@ -225,7 +225,7 @@ class MetrosceneRandomPlotHandler(Plot):
                 break
 
     def _resolve_unfound_plot(self, camp):
-        # Do whatever needs to be done when a plot could not be found.
+        # Do whatever needs to be done when a plot could not be found. Not used here, but might get used in subclasses.
         pass
 
     def should_load_plot(self, camp):

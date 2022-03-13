@@ -604,7 +604,7 @@ DEFAULT_GRAMMAR = {
         personality.Glory: ["[OnSecondThought], there is no glory to be had in getting my arse handed to me.",
                             ],
         personality.Duty: [
-            "[OnSecondThought], this is a new mecha and I really don't want to damage the paint job."
+            "[OnSecondThought], this is a new mecha and it would be irresponsible of me to damage the paint job."
         ],
         personality.Fellowship: [
             "[OnSecondThought], there's no good reason for us to fight right now..."

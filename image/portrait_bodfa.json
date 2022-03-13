@@ -287,6 +287,21 @@
     "requires": ["BodFA"],
     "style": ["Combatant"]
   },
+
+  {
+    "name": "KBW Rose Ribbon",
+    "btype": "ShirtAccessory",
+    "layers": [
+      {"name":"Ribbon","fname":"por_bodfa_accessories_kbwrose.png","anchor":"center","depth":5100,"x_offset": 0,"y_offset":-52}
+    ],
+    "avatar_layers": [
+      {"name":"Ribbon","fname":"avatar_bodfa_accessory_kbwrose.png","anchor":"center","depth":2500,"x_offset":-1, "y_offset": 1}
+    ],
+    "rejects": ["NoScarf"],
+    "requires": ["BodFA"]
+  },
+
+
   {
     "name": "PBLB Scarf",
     "btype": "ShirtAccessory",

@@ -721,7 +721,7 @@ class WarOnTheHighwayMain(Plot):
         return True
 
     def C1_WAR_ADVANCE_CHALLENGE(self, camp):
-        if self.elements["C1_WAR"].points_earned > 10:
+        if self.elements["C1_WAR"].points_earned >= 10:
             pbge.alert("{CITY2} has been defeated; the war with {CITY1} is over.".format(**self.elements))
             self.elements["C1_WAR"].deactivate(camp)
             self.elements["C2_WAR"].deactivate(camp)
@@ -729,7 +729,7 @@ class WarOnTheHighwayMain(Plot):
             self.deactivate(camp)
 
     def C2_WAR_ADVANCE_CHALLENGE(self, camp):
-        if self.elements["C2_WAR"].points_earned > 10:
+        if self.elements["C2_WAR"].points_earned >= 10:
             pbge.alert("{CITY1} has been defeated; the war with {CITY2} is over.".format(**self.elements))
             self.elements["C1_WAR"].deactivate(camp)
             self.elements["C2_WAR"].deactivate(camp)
@@ -1410,6 +1410,10 @@ class WOTHCBM_AspiringConqueror(Plot):
     scope = "THIS_METRO"
     UNIQUE = True
 
+    QOL = gears.QualityOfLife(
+        1, 0, -1, -1, 2
+    )
+
     RUMOR = pbge.plots.Rumor(
         "{NPC} will lead us to victory over {THAT_CITY}",
         offer_msg="{NPC} plans to make {THIS_CITY} the most powerful city in the deadzone! Starting with {THAT_CITY}, we will build an empire to surpass Clan Ironwind.",
@@ -1626,6 +1630,10 @@ class WOTHCBM_PeacefulPeople(Plot):
     scope = "THIS_METRO"
     UNIQUE = True
 
+    QOL = gears.QualityOfLife(
+        0, 1, 2, 2, -2
+    )
+
     RUMOR = pbge.plots.Rumor(
         "{THIS_CITY} is under attack by {THAT_CITY} but we can't even defend ourselves",
         offer_subject="{THIS_CITY} is under attack by {THAT_CITY}", offer_subject_data="this town's defenses",
@@ -1637,6 +1645,7 @@ class WOTHCBM_PeacefulPeople(Plot):
     def custom_init(self, nart):
         self.agreed_to_peace = False
         self.army_untrained = True
+        self.war_is_over = False
 
         this_war: pbge.challenges.Challenge = self.elements["THIS_WAR"]
         this_war.deactivate(nart.camp)
@@ -1696,6 +1705,8 @@ class WOTHCBM_PeacefulPeople(Plot):
         # To start the peace process going, you need at least one person on either side or a lance member who is
         # interested in peace.
         myoffs = list()
+        if self.war_is_over:
+            return myoffs
 
         if self.elements["THIS_WAR"].is_involved(camp, npc):
             if not self.agreed_to_peace:
@@ -1773,7 +1784,9 @@ class WOTHCBM_PeacefulPeople(Plot):
 
     def won_the_war(self, camp):
         self.elements["PEACE_CHALLENGE"].deactivate(camp)
-        self.end_plot(camp)
+        self.war_is_over = True
+        self.memo = None
+        self.RUMOR = None
 
     def lost_the_war(self, camp):
         self.elements["PEACE_CHALLENGE"].deactivate(camp)
@@ -1781,5 +1794,7 @@ class WOTHCBM_PeacefulPeople(Plot):
 
     def peace_happened(self, camp):
         self.elements["PEACE_CHALLENGE"].deactivate(camp)
-        self.end_plot(camp)
+        self.war_is_over = True
+        self.memo = None
+        self.RUMOR = None
 

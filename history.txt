@@ -1,3 +1,6 @@
+v0.820 March 13 2021
+- Added the Ice Wind mecha family
+- Added more portrait bits
 - Update trigger automatically updates plots
 - Trigger check during campaign construction will no longer cause crash
 - Left and right keys may be used to browse memos

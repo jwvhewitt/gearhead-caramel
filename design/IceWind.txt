@@ -1,0 +1,397 @@
+Mecha
+    name = "Ice Wind"
+    desig = "CBG-87"
+    imagename = "mav_icewind_87a.png"
+    portrait = "mecha_icewind.png"
+    family = "IceWind"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (TerranFederation, RegExCorporation, BioCorp, KettelIndustries, DeadzoneFederation)
+    role_list = (Trooper,)
+    material = Advanced
+
+    SUB
+        Head
+            size = 2
+            SUB
+                Armor
+                    size = 2
+                Sensor
+                    size = 2
+            END
+        Torso
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Engine
+                    size = 550
+                Gyroscope
+                Cockpit
+                BeamWeapon
+                    name = "Twin Combat Lasers"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 1
+                    integral = True
+                    attributes = (Intercept, BurstFire2)
+                    shot_anim = SmallBeam
+                HoverJets
+                    size = 3
+                    integral = True
+            END
+        Arm
+            name = "Right Arm"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BallisticWeapon
+                            name = "Sliver Cannon"
+                            reach = 5
+                            damage = 1
+                            accuracy = 2
+                            penetration = 2
+                            ammo_type = Ferrous_10mm
+                            attributes = (BurstFire5)
+                            shot_anim = SmallBullet
+                            SUB
+                                Ammo
+                                    ammo_type=Ferrous_10mm
+                                    quantity=150
+                            END
+
+                    END
+                Mount
+                    name = "Right Arm Mount"
+            END
+        Arm
+            name = "Left Arm"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+                    INV
+                        Launcher
+                            size = 3
+                            SUB
+                                Missile
+                                    name = "Punch Rockets"
+                                    reach = 4
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 3
+                                    quantity = 20
+                            END
+                    END
+
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HoverJets
+                    size = 3
+                Mount
+                    name = "Right Leg Mount"
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HoverJets
+                    size = 3
+                Mount
+                    name = "Left Leg Mount"
+
+            END
+    END
+
+Mecha
+    name = "Ice Wind"
+    desig = "CBG-87b Command"
+    imagename = "mav_icewind_87b.png"
+    portrait = "mecha_icewind.png"
+    family = "IceWind"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (TerranFederation, RegExCorporation, BioCorp, KettelIndustries, DeadzoneFederation)
+    role_list = (Commander,)
+    material = Advanced
+
+    SUB
+        Head
+            size = 2
+            SUB
+                Armor
+                    size = 2
+                Sensor
+                    size = 2
+            END
+        Torso
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Engine
+                    size = 550
+                Gyroscope
+                Cockpit
+                BeamWeapon
+                    name = "Twin Combat Lasers"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 1
+                    integral = True
+                    attributes = (Intercept, BurstFire2)
+                    shot_anim = SmallBeam
+                HoverJets
+                    size = 3
+                    integral = True
+            END
+        Arm
+            name = "Right Arm"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Hand
+                    name = "Right Hand"
+                    INV
+                        EnergyWeapon
+                            name = "Beam Sabre"
+                            damage=3
+                            accuracy=3
+                            penetration=2
+                    END
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        BallisticWeapon
+                            name = "Sliver Gun"
+                            reach = 4
+                            damage = 1
+                            accuracy = 3
+                            penetration = 3
+                            ammo_type = Ferrous_10mm
+                            attributes = (BurstFire5)
+                            shot_anim = SmallBullet
+                            SUB
+                                Ammo
+                                    ammo_type=Ferrous_10mm
+                                    quantity=120
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+            END
+            INV
+                BeamShield
+                    size = 3
+                    bonus = 2
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HoverJets
+                    size = 3
+                Mount
+                    name = "Right Leg Mount"
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HoverJets
+                    size = 3
+                Mount
+                    name = "Left Leg Mount"
+            END
+    END
+
+Mecha
+    name = "Ice Wind"
+    desig = "CBG-88d"
+    imagename = "mav_icewind_88d.png"
+    portrait = "mecha_icewind.png"
+    family = "IceWind"
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (TerranFederation, RegExCorporation, BioCorp, KettelIndustries, DeadzoneFederation)
+    role_list = (Support,Trooper)
+    material = Advanced
+
+    SUB
+        Head
+            size = 2
+            SUB
+                Armor
+                    size = 2
+                Sensor
+                    size = 2
+            END
+        Torso
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Engine
+                    size = 675
+                Gyroscope
+                Cockpit
+                BeamWeapon
+                    name = "Twin Combat Lasers"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 1
+                    integral = True
+                    attributes = (Intercept, BurstFire2)
+                    shot_anim = SmallBeam
+                HoverJets
+                    size = 3
+                    integral = True
+            END
+        Arm
+            name = "Right Arm"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BallisticWeapon
+                            name = "Rail Rifle"
+                            reach = 6
+                            damage = 3
+                            accuracy = 2
+                            penetration = 3
+                            ammo_type = Ferrous_70mm
+                            attributes = (Accurate, VariableFire2)
+                            shot_anim = BigBullet
+                            SUB
+                                Ammo
+                                    ammo_type=Ferrous_70mm
+                                    quantity=30
+                            END
+
+                    END
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        Launcher
+                            size = 3
+                            SUB
+                                Missile
+                                    name = "Punch Rockets"
+                                    reach = 4
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 3
+                                    quantity = 20
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+                    INV
+                        Launcher
+                            size = 3
+                            SUB
+                                Missile
+                                    name = "Punch Rockets"
+                                    reach = 4
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 3
+                                    quantity = 20
+                            END
+                    END
+
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HoverJets
+                    size = 3
+                Mount
+                    name = "Right Leg Mount"
+                    INV
+                        Launcher
+                            size = 3
+                            SUB
+                                Missile
+                                    name = "Punch Rockets"
+                                    reach = 4
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 3
+                                    quantity = 20
+                            END
+                    END
+
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                HoverJets
+                    size = 3
+                Mount
+                    name = "Left Leg Mount"
+                    INV
+                        Launcher
+                            size = 3
+                            SUB
+                                Missile
+                                    name = "Punch Rockets"
+                                    reach = 4
+                                    damage = 1
+                                    accuracy = 1
+                                    penetration = 3
+                                    quantity = 20
+                            END
+                    END
+
+            END
+    END
+
+

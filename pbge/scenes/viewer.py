@@ -52,7 +52,7 @@ class TextTicker( object ):
 
 
 class SceneView( object ):
-    def __init__(self, scene, postfx=None):
+    def __init__(self, scene, postfx=None, cursor=None):
         self.overlays = dict()
         self.anim_list = list()
         self.anims = collections.defaultdict(list)
@@ -82,6 +82,8 @@ class SceneView( object ):
         self.mouse_tile = (-1,-1)
 
         self.postfx = postfx
+
+        self.cursor = cursor
 
         my_state.view = self
 
@@ -450,6 +452,12 @@ class SceneView( object ):
                     o_sprite,o_frame = self.overlays[(x-1,y-1)]
                     o_sprite.render(o_dest,o_frame)
 
+                if self.cursor and self.cursor.x == x-1 and self.cursor.y == y-1:
+                    c_dest = dest.copy()
+                    if self.scene._map[x - 1][y - 1].altitude() > 0:
+                        c_dest.y -= self.scene._map[x - 1][y - 1].altitude()
+                    self.cursor.render(c_dest)
+
                 mlist = self.uppermap.get( (x-1,y-1) )
                 if mlist:
                     if len( mlist ) > 1:
@@ -491,6 +499,12 @@ class SceneView( object ):
                     o_sprite,o_frame = self.overlays[(x-1,y-1)]
                     
                     o_sprite.render(o_dest,o_frame)
+
+                if self.cursor and self.cursor.x == x-1 and self.cursor.y == y-1:
+                    c_dest = dest.copy()
+                    if self.scene._map[x - 1][y - 1].altitude() > 0:
+                        c_dest.y -= self.scene._map[x - 1][y - 1].altitude()
+                    self.cursor.render(c_dest)
 
                 mlist = self.uppermap.get( (x-1,y-1) )
                 if mlist:
