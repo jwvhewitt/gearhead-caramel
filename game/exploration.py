@@ -335,8 +335,10 @@ class Explorer( object ):
         pbge.please_stand_by()
         self.camp = camp
         self.scene: gears.GearHeadScene = camp.scene
-        self.view = scenes.viewer.SceneView( camp.scene )
-        self.mapcursor = pbge.image.Image('sys_mapcursor.png',64,64)
+        pc: gears.base.Character = camp.get_active_party()[0]
+        self.view = scenes.viewer.SceneView( camp.scene, cursor=pbge.scenes.mapcursor.MapCursor(
+            pc.pos[0], pc.pos[1], pbge.image.Image('sys_mapcursor.png',64,64)
+        ))
         self.time = 0
 
         self.threat_tiles = set()
@@ -459,6 +461,24 @@ class Explorer( object ):
             pbge.alert("{} picks up {}.".format(pc,i))
             self.camp.check_trigger("GET",i)
 
+    def click_left(self):
+        # Left mouse button.
+        if (self.view.mouse_tile != self.camp.pc.get_root().pos) and self.scene.on_the_map(*self.view.mouse_tile):
+            npc = self.view.modelmap.get(self.view.mouse_tile)
+            if npc and npc[0].is_operational() and self.scene.is_an_actor(npc[0]):
+                npteam = self.scene.local_teams.get(npc[0])
+                if npteam and self.scene.player_team.is_enemy(npteam):
+                    self.activate_foe(npc[0])
+                elif not isinstance(npc[0], (gears.base.Prop, gears.base.Monster)):
+                    self.order = TalkTo(self, npc[0])
+                    self.view.overlays.clear()
+            else:
+                self.order = MoveTo(self, self.view.mouse_tile)
+                self.view.overlays.clear()
+        elif self.scene.on_the_map(*self.view.mouse_tile):
+            # Clicking the same tile where the PC is standing; get an item.
+            self.get_item()
+
     def go( self ):
         self.no_quit = True
         self.order = None
@@ -511,13 +531,13 @@ class Explorer( object ):
             elif gdi.type == pbge.TIMEREVENT:
                 self.view.overlays.clear()
                 self.threat_viewer.update(self.view, self.threat_tiles)
-                self.view.overlays[ self.view.mouse_tile ] = (self.mapcursor,0)
                 self.view()
 
                 # Display info for this tile.
                 my_info = self.scene.get_tile_info(self.view.mouse_tile)
                 if my_info:
-                    my_info.popup()
+                    pos = self.view.screen_coords(*self.view.mouse_tile)
+                    my_info.popup((pos[0]+32, pos[1]+64))
 
                 pbge.my_state.do_flip()
 
@@ -561,8 +581,8 @@ class Explorer( object ):
                     elif gdi.unicode == "A" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         self.record_count = 30
 
-#                    elif gdi.unicode == "K" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
-#                        self.camp.pc.hp_damage += 100
+                    elif gdi.key in pbge.my_state.get_keys_for("cursor_click"):
+                        self.click_left()
 
                     elif gdi.unicode == "J" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         # Experimenting with JSON serialization. It isn't going well.
@@ -637,25 +657,11 @@ class Explorer( object ):
 
                 elif gdi.type == pygame.MOUSEBUTTONUP:
                     if gdi.button == 1:
-                        # Left mouse button.
-                        if ( self.view.mouse_tile != self.camp.pc.get_root().pos ) and self.scene.on_the_map( *self.view.mouse_tile ):
-                            npc = self.view.modelmap.get(self.view.mouse_tile)
-                            if npc and npc[0].is_operational() and self.scene.is_an_actor(npc[0]):
-                                npteam = self.scene.local_teams.get(npc[0])
-                                if npteam and self.scene.player_team.is_enemy(npteam):
-                                    self.activate_foe(npc[0])
-                                elif not isinstance(npc[0],(gears.base.Prop,gears.base.Monster)):
-                                    self.order = TalkTo( self, npc[0] )
-                                    self.view.overlays.clear()
-                            else:
-                                self.order = MoveTo( self, self.view.mouse_tile )
-                                self.view.overlays.clear()
-                        elif self.scene.on_the_map( *self.view.mouse_tile ):
-                            # Clicking the same tile where the PC is standing; get an item.
-                            self.get_item()
+                        self.click_left()
                     else:
                         pc = self.scene.get_main_actor(self.view.mouse_tile)
                         ExploMenu(self,pc)
+
 
         if not self.no_quit:
             self.camp.save()

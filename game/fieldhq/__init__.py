@@ -156,7 +156,7 @@ class CharacterInfoWidget(widgets.Widget):
         mydest.midbottom = fhqinfo.PORTRAIT_AREA.get_rect().midbottom
         self.portrait.render(mydest, 0)
 
-    def render(self):
+    def render(self, flash=False):
         self.draw_portrait(False)
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x,mydest.y)
@@ -183,7 +183,7 @@ class MechaInfoWidget(widgets.Widget):
         mydest.midbottom = fhqinfo.PORTRAIT_AREA.get_rect().midbottom
         self.portrait.render(mydest, 0)
 
-    def render(self):
+    def render(self, flash=False):
         self.draw_portrait(False)
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x,mydest.y)
@@ -274,7 +274,7 @@ class ItemInfoWidget(widgets.Widget):
         self.column.add_interior(widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Give Item", justify=0, draw_border=True, on_click=self.give_item))
         self.fhq = fhq
 
-    def render(self):
+    def render(self, flash=False):
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x,mydest.y)
 
@@ -305,9 +305,9 @@ class PartyMemberButton(widgets.Widget):
         self.fhq = fhq
         self.avatar_pic = pc.get_sprite()
         self.avatar_frame = pc.frame
-    def render(self):
+    def render(self, flash=False):
         mydest = self.get_rect().inflate(-8,-8)
-        if self.pc is self.fhq.active_pc:
+        if flash:
             widgets.widget_border_on.render(mydest)
         else:
             widgets.widget_border_off.render(mydest)
@@ -322,12 +322,15 @@ class FieldHQ(widgets.Widget):
     # In the center: the character info/action widgets
     # To the right: The list of characters/mecha in the party
     def __init__(self,camp):
+        self._active_info = None
         super(FieldHQ, self).__init__(0,0,0,0)
 
         self.up_button = widgets.ButtonWidget(0, 0, fhqinfo.RIGHT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
         self.down_button = widgets.ButtonWidget(0, 0, fhqinfo.RIGHT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
 
-        self.member_selector = widgets.ScrollColumnWidget(0, 0, fhqinfo.RIGHT_COLUMN.w, fhqinfo.RIGHT_COLUMN.h - 42, up_button = self.up_button, down_button=self.down_button)
+        self.member_selector = widgets.ScrollColumnWidget(0, 0, fhqinfo.RIGHT_COLUMN.w, fhqinfo.RIGHT_COLUMN.h - 42,
+                                                          up_button = self.up_button, down_button=self.down_button,
+                                                          autoclick=True, focus_locked=True)
 
         self.r_column = widgets.ColumnWidget(fhqinfo.RIGHT_COLUMN.dx, fhqinfo.RIGHT_COLUMN.dy, fhqinfo.RIGHT_COLUMN.w, fhqinfo.RIGHT_COLUMN.h)
         self.r_column.add_interior(self.up_button)
@@ -339,9 +342,20 @@ class FieldHQ(widgets.Widget):
         self.update_party()
         self.finished = False
         self.active_pc = camp.pc
-        self.active_widget = self.member_widgets.get(camp.pc,None)
-        if self.active_widget:
-            self.active_widget.active = True
+
+        self.active_info = camp.pc
+
+    def _set_active_info(self, pc):
+        if self._active_info:
+            self._active_info.active = False
+        self._active_info = self.member_widgets.get(pc, None)
+        if self._active_info:
+            self._active_info.active = True
+
+    def _get_active_info(self):
+        return self._active_info
+
+    active_info = property(_get_active_info, _set_active_info)
 
     def update_party(self):
         self.member_selector.clear()
@@ -359,15 +373,11 @@ class FieldHQ(widgets.Widget):
             else:
                 self.member_widgets[pc] = ItemInfoWidget(self.camp,pc,self,active=False)
                 self.children.append(self.member_widgets[pc])
+        self.active_info = self.active_pc
 
     def click_member(self,wid,ev):
-        if self.active_widget:
-            self.active_widget.active = False
-        self.active_widget = self.member_widgets.get(wid.pc,None)
         self.active_pc = wid.pc
-        if self.active_widget:
-            self.active_widget.active = True
-            self.active_widget.info.update()
+        self.active_info = wid.pc
 
     def done_button(self,wid,ev):
         if not pbge.my_state.widget_clicked:

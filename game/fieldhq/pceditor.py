@@ -73,9 +73,9 @@ class PCEditorWidget(widgets.Widget):
 
         self.camp.save()
 
-    def render(self, draw_background=True):
-        if draw_background and not self.active:
-            pbge.my_state.view()
+    def render(self, flash=False):
+        #if draw_background and not self.active:
+        #    pbge.my_state.view()
         mydest = self.portrait.get_rect(0)
         mydest.midbottom = self.portrait_area.get_rect().midbottom
         self.portrait.render(mydest, 0)

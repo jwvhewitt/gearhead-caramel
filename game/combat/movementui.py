@@ -27,7 +27,7 @@ class MoveWidget( pbge.widgets.Widget ):
         mymenu = pbge.rpgmenu.Menu(-130,32,100,200,anchor=pbge.frects.ANCHOR_UPPERRIGHT)
         return mymenu
 
-    def render( self ):
+    def render(self, flash=False):
         if self.active:
             self.sprite.render(self.get_rect(),0)
 
@@ -140,6 +140,22 @@ class MovementUI( object ):
                 if path.results[-2] in self.nav.cost_to_tile:
                     self.reachable_waypoints[wp.pos] = (wp,path.results[-2])
 
+    def click_left(self, player_turn):
+        if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
+            # Move!
+            dest = self.camp.fight.move_model_to(self.mover, self.nav, pbge.my_state.view.mouse_tile)
+            self.needs_tile_update = True
+        elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
+            # Bump!
+            wp, target_tile = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
+            dest = self.camp.fight.move_model_to(self.mover, self.nav, target_tile)
+            self.needs_tile_update = True
+            if dest == target_tile:
+                wp.combat_bump(self.camp, self.mover)
+        else:
+            mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
+            if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
+                player_turn.switch_attack()
 
     def update( self, ev, player_turn ):
         # We just got an event. Deal with it.
@@ -157,26 +173,14 @@ class MovementUI( object ):
             elif ev.button == 5 and self.bottom_shelf_fun:
                 self.bottom_shelf_fun()
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
-            if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
-                # Move!
-                dest = self.camp.fight.move_model_to(self.mover,self.nav,pbge.my_state.view.mouse_tile)
-                self.needs_tile_update = True
-            elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
-                # Bump!
-                wp,target_tile = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
-                dest = self.camp.fight.move_model_to(self.mover, self.nav, target_tile)
-                self.needs_tile_update = True
-                if dest == target_tile:
-                    wp.combat_bump(self.camp, self.mover)
-            else:
-                mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
-                if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
-                    player_turn.switch_attack()
+            self.click_left(player_turn)
         elif ev.type == pygame.KEYDOWN:
             if ev.key in pbge.my_state.get_keys_for("up") and self.top_shelf_fun:
                 self.top_shelf_fun()
             elif ev.key in pbge.my_state.get_keys_for("down") and self.bottom_shelf_fun:
                 self.bottom_shelf_fun()
+            elif ev.key in pbge.my_state.get_keys_for("cursor_click") and not pbge.my_state.widget_clicked:
+                self.click_left(player_turn)
 
             elif ev.unicode == "t":
                 mypos = pbge.my_state.view.mouse_tile

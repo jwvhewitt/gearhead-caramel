@@ -276,8 +276,8 @@ class CoreUI(pbge.widgets.Widget):
         self._installed_listwidget.refresh_item_list()
         self._available_listwidget.refresh_item_list()
 
-    def render(self):
-        super().render()
+    def render(self, flash=False):
+        super().render(flash)
         rect = INFO_PANEL_FRECT.get_rect()
         if self._mouseover_gear:
             if not (self._mouseover_gear is self._mouseover_prevgear):

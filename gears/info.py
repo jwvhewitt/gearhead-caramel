@@ -35,12 +35,17 @@ class InfoPanel( object ):
             if hasattr(block,"update"):
                 block.update()
 
-    def popup( self ):
+    def popup(self, pos=None, anchor=None):
         w,h = self.get_dimensions()
-        x,y = pbge.my_state.mouse_pos
+        if pos:
+            x, y = pos
+        else:
+            x, y = pbge.my_state.mouse_pos
         x -= w//2
         y -= h + 64
         myrect = pygame.Rect(x,y,w,h)
+#        if anchor and hasattr(myrect, anchor):
+#            setattr(myrect, anchor, (x,y))
         myrect.clamp_ip(pbge.my_state.screen.get_rect())
         self.render(myrect.left,myrect.top)
 

@@ -224,7 +224,7 @@ class InvocationsWidget(pbge.widgets.Widget):
 
         return '{} ({})'.format(invo.name, ', '.join(descs))
 
-    def render(self):
+    def render(self, flash=False):
         self.sprite.render(self.get_rect(), 0)
 
     def get_invo(self):
@@ -295,7 +295,7 @@ class InvocationUI(object):
                 self.mypath = self.nav.get_path(fp)
                 return True
 
-    def render(self):
+    def render(self, flash=False):
         pbge.my_state.view.overlays.clear()
         pbge.my_state.view.overlays[self.pc.pos] = (self.cursor_sprite, self.SC_ORIGIN)
         mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
@@ -357,6 +357,31 @@ class InvocationUI(object):
             self.activate()
             self.camp.scene.update_party_position(self.camp)
 
+    def click_left(self, player_turn):
+        if pbge.my_state.view.mouse_tile in self.legal_tiles:
+            self.targets.append(pbge.my_state.view.mouse_tile)
+        elif self.can_move_and_attack(pbge.my_state.view.mouse_tile) and pbge.my_state.view.modelmap.get(
+                pbge.my_state.view.mouse_tile):
+            if self.camp.fight:
+                # Maybe we can move into range? We can determine firing points by
+                # checking from the target's position.
+                tarp = pbge.my_state.view.mouse_tile
+                firing_points = self.camp.fight.can_move_and_invoke(self.pc, self.nav, self.invo, tarp)
+                if firing_points:
+                    self.camp.fight.move_and_invoke(self.pc, self.nav, self.invo, [tarp, ], firing_points,
+                                                    self.record)
+                    # Recalculate the combat info.
+                    self.targets = list()
+                    self.my_widget.update_buttons()
+                    self.record = False
+                    self.activate()
+            else:
+                self.targets.append(pbge.my_state.view.mouse_tile)
+
+        if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.pc, True):
+            self.launch()
+
+
     def update(self, ev, player_turn):
         # We just got an event. Deal with it.
 
@@ -370,34 +395,17 @@ class InvocationUI(object):
             pbge.my_state.do_flip()
 
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
-            if pbge.my_state.view.mouse_tile in self.legal_tiles:
-                self.targets.append(pbge.my_state.view.mouse_tile)
-            elif self.can_move_and_attack(pbge.my_state.view.mouse_tile) and pbge.my_state.view.modelmap.get(
-                    pbge.my_state.view.mouse_tile):
-                if self.camp.fight:
-                    # Maybe we can move into range? We can determine firing points by
-                    # checking from the target's position.
-                    tarp = pbge.my_state.view.mouse_tile
-                    firing_points = self.camp.fight.can_move_and_invoke(self.pc, self.nav, self.invo, tarp)
-                    if firing_points:
-                        self.camp.fight.move_and_invoke(self.pc, self.nav, self.invo, [tarp, ], firing_points,
-                                                        self.record)
-                        # Recalculate the combat info.
-                        self.targets = list()
-                        self.my_widget.update_buttons()
-                        self.record = False
-                        self.activate()
-                else:
-                    self.targets.append(pbge.my_state.view.mouse_tile)
-
-            if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.pc, True):
-                self.launch()
+            self.click_left(player_turn)
 
         elif ev.type == pygame.KEYDOWN:
             if ev.unicode == "r":
                 # self.camp.save(self.screen)
                 self.record = True
                 print("Recording")
+
+            elif ev.key in pbge.my_state.get_keys_for("cursor_click") and not pbge.my_state.widget_clicked:
+                self.click_left(player_turn)
+
             elif ev.key == pygame.K_ESCAPE:
                 self.keep_exploring = False
 

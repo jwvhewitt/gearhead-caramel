@@ -32,18 +32,19 @@ class Widget( frects.Frect ):
         self.on_right_click = on_right_click
         self.children = list(children)
         self.show_when_inactive = show_when_inactive
+
     def respond_event( self, ev ):
         if self.active:
             for c in self.children:
                 c.respond_event(ev)
             if self.get_rect().collidepoint(my_state.mouse_pos):
-                if self.is_kb_selectable() and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1) and not my_state.widget_clicked:
+                if self.active and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1) and not my_state.widget_clicked:
                     if not my_state.widget_clicked:
                         my_state.active_widget = self
                     if self.on_click:
                         self.on_click(self,ev)
                     my_state.widget_clicked = True
-                elif self.is_kb_selectable() and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 3) and self.on_right_click and not my_state.widget_clicked:
+                elif self.active and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 3) and self.on_right_click and not my_state.widget_clicked:
                     if not my_state.widget_clicked:
                         my_state.active_widget = self
                     self.on_right_click(self, ev)
@@ -60,20 +61,34 @@ class Widget( frects.Frect ):
     def super_render( self ):
         # This renders the widget and children, setting tooltip and whatnot.
         if self.active or self.show_when_inactive:
-            self.render()
-            if self is my_state.active_widget:
-                self.flash_when_active()
+            self.render(self._should_flash())
             if self.tooltip and self.get_rect().collidepoint(my_state.mouse_pos):
                 my_state.widget_tooltip = self.tooltip
             for c in self.children:
                 c.super_render()
-    def flash_when_active(self):
-        if my_state.active_widget_hilight:
-            pygame.draw.rect(my_state.screen, ACTIVE_FLASH[my_state.anim_phase % len(ACTIVE_FLASH)], self.get_rect(), 1)
-    def render( self ):
-        pass
+
+    def _should_flash(self):
+        if self.parent and hasattr(self.parent, "kb_flash_override"):
+            return self.parent.kb_flash_override(self)
+        elif hasattr(self, "kbhandler") and self.kbhandler and hasattr(self.kbhandler, "kb_flash_override"):
+            return self.kbhandler.kb_flash_override(self)
+        else:
+            return (self is my_state.active_widget) and my_state.active_widget_hilight
+
+    def _default_flash(self):
+        pygame.draw.rect(my_state.screen, ACTIVE_FLASH[my_state.anim_phase % len(ACTIVE_FLASH)], self.get_rect(), 1)
+
+    def render(self, flash=False):
+        if flash:
+            self._default_flash()
+
     def is_kb_selectable(self):
-        return self.on_click
+        if self.parent and hasattr(self.parent, "kb_select_override"):
+            return self.parent.kb_select_override(self)
+        elif hasattr(self, "kbhandler") and self.kbhandler and hasattr(self.kbhandler, "kb_select_override"):
+            return self.kbhandler.kb_select_override(self)
+        else:
+            return self.on_click
 
 
 class ButtonWidget( Widget ):
@@ -83,9 +98,12 @@ class ButtonWidget( Widget ):
         self.frame = frame
         self.on_frame = on_frame
         self.off_frame = off_frame
-    def render( self ):
+
+    def render(self, flash=False):
         if self.sprite:
             self.sprite.render(self.get_rect(),self.frame)
+        if flash:
+            self._default_flash()
 
 class LabelWidget( Widget ):
     def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, draw_border=False, border=widget_border_off, text_fun = None, **kwargs ):
@@ -100,12 +118,14 @@ class LabelWidget( Widget ):
         self.draw_border = draw_border
         self.border = border
         self.text_fun = text_fun
-    def render( self ):
+    def render(self, flash=False):
         if self.draw_border:
             self.border.render(self.get_rect())
         if self.text_fun:
             self.text = self.text_fun(self)
         draw_text(self.font,self.text,self.get_rect(),self.color,self.justify)
+        if flash:
+            self._default_flash()
 
 class TextEntryWidget( Widget ):
     ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
@@ -121,7 +141,7 @@ class TextEntryWidget( Widget ):
         self.input_cursor = image.Image( "sys_textcursor.png" , 8 , 16 )
         self.on_change = on_change
 
-    def render( self ):
+    def render(self, flash=False):
         mydest = self.get_rect()
         if self is my_state.active_widget:
             widget_border_on.render(mydest.inflate(-4,-4))
@@ -132,8 +152,9 @@ class TextEntryWidget( Widget ):
         textdest = myimage.get_rect(center=mydest.center)
         my_state.screen.blit( myimage , textdest )
         my_state.screen.set_clip( None )
-        if my_state.active_widget is self:
+        if flash or (my_state.active_widget is self):
             self.input_cursor.render( textdest.topright , ( my_state.anim_phase // 3 ) % 4 )
+
 
     def _builtin_responder(self,ev):
         if my_state.active_widget is self:
@@ -149,9 +170,6 @@ class TextEntryWidget( Widget ):
 
     def is_kb_selectable(self):
         return True
-
-    def flash_when_active(self):
-        pass
 
     def _get_text(self):
         return "".join(self.char_list)
@@ -252,12 +270,16 @@ class ColumnWidget(Widget):
             dy += widg.h + self.padding
         self.h = dy
 
-    def render(self):
+    def render(self, flash=False):
         if self.draw_border:
             self.border.render(self.get_rect())
+        if flash:
+            self._default_flash()
+
 
 class ScrollColumnWidget(Widget):
-    def __init__( self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5, **kwargs ):
+    def __init__(self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5,
+                 autoclick=False, focus_locked=False, **kwargs):
         super(ScrollColumnWidget, self).__init__(dx,dy,w,h,**kwargs)
         self.draw_border = draw_border
         self.border = border
@@ -266,10 +288,47 @@ class ScrollColumnWidget(Widget):
         self.top_widget = 0
         self.up_button = up_button
         self.up_button.on_click = self.scroll_up
-        self.up_button.frame = self.up_button.off_frame
+        self.up_button.kbhandler = self
         self.down_button = down_button
         self.down_button.on_click = self.scroll_down
         self.down_button.frame = self.down_button.off_frame
+        self.down_button.kbhandler = self
+        self.autoclick = autoclick
+        self.focus_locked = focus_locked
+        self._active_widget = -1
+        self.active_widget = 0
+
+    def _set_active_widget(self, widindex):
+        if widindex >= 0 and widindex < len(self._interior_widgets) and widindex != self._active_widget:
+            self._active_widget = widindex
+            wid = self._interior_widgets[widindex]
+            if not wid.active:
+                self.scroll_to_index(widindex)
+            if self.autoclick and wid.on_click:
+                wid.on_click(wid, None)
+
+    def _get_active_widget(self):
+        return self._active_widget
+
+    active_widget = property(_get_active_widget, _set_active_widget)
+
+    def kb_select_override(self, child):
+        return not (child in self._interior_widgets or child is self.up_button or child is self.down_button)
+
+    def kb_flash_override(self, child):
+        return ((my_state.active_widget is self) or self.focus_locked) and (child in self._interior_widgets) and (
+            self._interior_widgets.index(child) == self.active_widget
+        )
+
+    def is_kb_selectable(self):
+        return True
+
+    def decorate_click(self, other_on_click):
+        def nuclick(wid, ev):
+            if wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
+                self.active_widget = self._interior_widgets.index(wid)
+            other_on_click(wid, ev)
+        return nuclick
 
     def add_interior(self,other_w):
         self.children.append(other_w)
@@ -279,6 +338,8 @@ class ScrollColumnWidget(Widget):
         other_w.dx = 0
         other_w.anchor = frects.ANCHOR_UPPERLEFT
         self._position_contents()
+        if other_w.on_click:
+            other_w.on_click = self.decorate_click(other_w.on_click)
 
     def clear(self):
         for w in list(self._interior_widgets):
@@ -310,6 +371,11 @@ class ScrollColumnWidget(Widget):
         else:
             self.down_button.frame = self.down_button.off_frame
 
+        if self.active_widget < self.top_widget:
+            self.active_widget = self.top_widget
+        elif self.active_widget >= (n-1):
+            self.active_widget = max(n - 2,0)
+
     def scroll_up(self,*args):
         if self.top_widget > 0:
             self.top_widget -= 1
@@ -322,9 +388,10 @@ class ScrollColumnWidget(Widget):
 
     def scroll_to_index(self, index):
         '''Programmatic access to ensure a particular list item is shown'''
-        if not self._interior_widgets[index].active:
+        if index < len(self._interior_widgets) and not self._interior_widgets[index].active:
             self.top_widget = index
             self._position_contents()
+            self.active_widget = index
 
     def sort(self,key=None):
         self._interior_widgets.sort(key=key)
@@ -336,10 +403,23 @@ class ScrollColumnWidget(Widget):
                 self.scroll_up()
             elif (ev.button == 5):
                 self.scroll_down()
+        elif ((my_state.active_widget is self) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
+            if ev.key in my_state.get_keys_for("click_widget"):
+                if self.active_widget < len(self._interior_widgets):
+                    mybutton = self._interior_widgets[self.active_widget]
+                    mybutton.on_click(mybutton, ev)
+                    my_state.widget_clicked = True
+            elif ev.key in my_state.get_keys_for("up") and self.active_widget > 0:
+                self.active_widget -= 1
+            elif ev.key in my_state.get_keys_for("down") and self.active_widget < (len(self._interior_widgets)-1):
+                self.active_widget += 1
 
-    def render(self):
+    def render(self, flash=False):
         if self.draw_border:
             self.border.render(self.get_rect())
+        if flash:
+            self._default_flash()
+
 
 class RowWidget(Widget):
     def __init__( self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, **kwargs ):
@@ -397,9 +477,12 @@ class RowWidget(Widget):
                 widg.anchor = frects.ANCHOR_RIGHT
                 dx += widg.w + self.padding
 
-    def render(self):
+    def render(self, flash=False):
         if self.draw_border:
             self.border.render(self.get_rect())
+        if flash:
+            self._default_flash()
+
 
 class DropdownWidget( Widget ):
     MENU_HEIGHT = 150
@@ -411,7 +494,7 @@ class DropdownWidget( Widget ):
         self.on_select = on_select
         self.on_click = self.open_menu
         self.menu = rpgmenu.Menu(dx,dy,w,self.MENU_HEIGHT,border=popup_menu_border,font=font,anchor=frects.ANCHOR_UPPERLEFT)
-    def render( self ):
+    def render(self, flash=False):
         mydest = self.get_rect()
         if self is my_state.active_widget:
             widget_border_on.render(mydest.inflate(-4,-4))
@@ -422,6 +505,9 @@ class DropdownWidget( Widget ):
         textdest = myimage.get_rect(center=mydest.center)
         my_state.screen.blit( myimage , textdest )
         my_state.screen.set_clip( None )
+        if flash:
+            self._default_flash()
+
     def add_item(self,msg,value,desc=None):
         self.menu.add_item(msg,value,desc)
     def open_menu(self,also_self_probably,ev):
@@ -480,9 +566,9 @@ class TextEditorWidget( Widget ):
     def get_buffer_index(self, dx, dy, lines):
         pass
 
-    def render( self ):
+    def render(self, flash=False):
         mydest = self.get_rect()
-        if self is my_state.active_widget:
+        if flash or (self is my_state.active_widget):
             widget_border_on.render(mydest.inflate(-4,-4))
         else:
             widget_border_off.render(mydest.inflate(-4,-4))
@@ -543,9 +629,6 @@ class TextEditorWidget( Widget ):
 
     def is_kb_selectable(self):
         return True
-
-    def flash_when_active(self):
-        pass
 
     def _get_text(self):
         return "".join(self.char_list)

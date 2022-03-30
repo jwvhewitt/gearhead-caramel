@@ -23,9 +23,9 @@ class InvItemWidget(widgets.Widget):
             self.text = item.get_full_name()
         super(InvItemWidget,self).__init__(0,0,INVENTORY_COLUMN.w,pbge.MEDIUMFONT.get_linesize(),**kwargs)
 
-    def render(self):
+    def render(self, flash=False):
         mydest = self.get_rect()
-        if self is self.bp.active_item:
+        if flash or (self is self.bp.active_item):
             color = pbge.INFO_HILIGHT
         else:
             color = pbge.INFO_GREEN
@@ -251,7 +251,7 @@ class BackpackWidget(widgets.Widget):
         if cmd:
             cmd(wid)
 
-    def render(self):
+    def render(self, flash=False):
         if self.active_item:
             if self.active_item.item not in self.info_cache:
                 self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,width=INFO_COLUMN.w)
@@ -335,7 +335,7 @@ class ItemExchangeWidget(widgets.Widget):
     def done_button(self, wid, ev):
         self.finished = True
 
-    def render(self):
+    def render(self, flash=False):
         if self.active_item:
             if self.active_item.item not in self.info_cache:
                 self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,width=INFO_COLUMN.w)

@@ -33,13 +33,13 @@ class PartsNodeWidget(pbge.widgets.Widget):
         myimage.blit(self.font.render(self._part_text(),True,text_color),(self.indent*12,0))
         return myimage
 
-    def render( self ):
+    def render(self, flash=False):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
             pbge.my_state.screen.blit( self.mouseover_image , myrect )
             if self.editor:
                 self.editor.mouseover_part = self.data
-        elif self.data is self.editor.active_part:
+        elif flash or (self.data is self.editor.active_part):
             pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
             pbge.my_state.screen.blit( self.regular_image , myrect )
@@ -520,8 +520,10 @@ class ColorSwatchEditorWidget(pbge.widgets.DropdownWidget):
             color = gears.SINGLETON_TYPES[color_name]
             self.sprite = pbge.image.Image("sys_color_menu_swatch.png", 24, 36, color=[color, color, color, color, color])
 
-    def render( self ):
+    def render(self, flash=False):
         self.sprite.render(self.get_rect(), 0)
+        if flash:
+            self._default_flash()
 
 
 class PaletteEditorWidget(pbge.widgets.ColumnWidget):
@@ -772,4 +774,21 @@ def init_plotcreator():
         if j["name"] in BRICKS_BY_NAME:
             print("Plot Brick Error: Multiple bricks named {}".format(j["name"]))
         BRICKS_BY_NAME[j["name"]] = mybrick
+
+
+class PlotBrickCompiler(object):
+    def __init__(self):
+        self.myfiles = glob.glob(pbge.util.game_dir("ploteditorsource", "*.pes"))
+
+        for fname in self.myfiles:
+            mylist = self.load(fname)
+
+    def load(self, fname):
+        with open(fname, 'rt') as f:
+            mylist = self.load_list(f)
+        return mylist
+
+    def load_list(self, p_file):
+        """Given an open file, load the text and return the json-compatiple list of plot bricks"""
+
 

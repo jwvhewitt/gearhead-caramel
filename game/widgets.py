@@ -26,7 +26,7 @@ class SingleListItemWidget(pbge.widgets.Widget):
         self._color = value
         self._image = pbge.render_text(self.font, self.text, self.w, self.color)
 
-    def render(self):
+    def render(self, flash=False):
         myrect = self.get_rect()
         pbge.my_state.screen.blit(self._image, myrect)
         if self.on_enter or self.on_leave:

@@ -159,7 +159,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.portrait = self.por.build_portrait(self.pc,force_rebuild=True)
         self.rebuild_menu()
 
-    def render(self):
+    def render(self, flash=False):
         self.portrait.render(self.portrait_zone.get_rect(),0)
         self.portrait.render(self.portrait_zone.get_rect(),2)
 
@@ -571,7 +571,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     def cancel(self,wid,ev):
         self.finished = True
 
-    def render(self):
+    def render(self, flash=False):
         self.portrait.render(self.portrait_zone.get_rect(),0)
 
     @classmethod

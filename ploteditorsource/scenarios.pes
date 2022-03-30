@@ -1,0 +1,56 @@
+#
+# Alright, let's talk about this folder. Previously the scenario editor PlotBricks were written in JSON and the Python
+# code involved was defined in long ugly strings. Well, turns out that way of doing things is prone to errors and
+# makes it kinda difficult to see what's goimg on. So now I've decided to move the source code to a semi-proper source
+# file. Of course this means writing another effing parser. This file will be manually parsed and turned
+# into a JSON file that will be loaded by the scenario editor and then compiled back into a Python file. The circle of
+# life continues and Eris smiles.
+#
+
+
+
+# PB Scenario
+#
+#= main
+import gears
+from pbge.plots import Plot, Adventure, PlotState
+import pbge
+from pbge.dialogue import Offer, ContextTag
+from game import teams, ghdialogue, services
+from game.ghdialogue import context
+import pygame
+import random
+from game.content.ghwaypoints import Exit
+from game.content.plotutility import AdventureModuleData
+import game
+from game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain
+from game.memobrowser import Memo
+from game.content.ghplots import missionbuilder
+#: includes
+
+class {uname}_Scenario( Plot ):
+    LABEL = "SCENARIO_{uname}"
+    active = True
+    scope = True
+
+    ADVENTURE_MODULE_DATA = AdventureModuleData(
+        "{adventure_name}",
+        "{adventure_desc}",
+        {adventure_date}, {adventure_cover},
+    )
+
+    def custom_init( self, nart ):
+        self.ADVENTURE_MODULE_DATA.apply(nart.camp)
+
+        if {adventure_threat} > 0:
+            self.rank = {adventure_threat}
+        else:
+            self.rank = nart.camp.renown
+        #:scenario_init
+        #:scenario_subplots
+
+        return True
+
+    #: world_methods
+
+

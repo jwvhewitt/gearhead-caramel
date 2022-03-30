@@ -254,13 +254,16 @@ class GameState(object):
                     mylist += self._get_all_kb_selectable_widgets(w.children)
         return mylist
 
-    def activate_next_widget(self):
+    def activate_next_widget(self, backwards=False):
         wlist = self._get_all_kb_selectable_widgets(self.widgets)
         awid = self.active_widget
         if awid and awid in wlist:
-            n = wlist.index(awid) + 1
-            if n >= len(wlist):
-                n = 0
+            if backwards:
+                n = wlist.index(awid) - 1
+            else:
+                n = wlist.index(awid) + 1
+                if n >= len(wlist):
+                    n = 0
             self.active_widget = wlist[n]
         elif wlist:
             self.active_widget = wlist[0]
@@ -423,7 +426,7 @@ def wait_event():
             pygame.image.save(my_state.screen, util.user_dir("out.png"))
         elif ev.key in my_state.get_keys_for("next_widget"):
             my_state.active_widget_hilight = True
-            my_state.activate_next_widget()
+            my_state.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
     elif ev.type == pygame.VIDEORESIZE:
         # PG2 Change
         # pygame.display._resize_event(ev)
@@ -434,6 +437,10 @@ def wait_event():
     if my_state.widgets_active:
         for w in my_state.widgets:
             w.respond_event(ev)
+
+    # If the view has a check_event method, call that.
+    if my_state.view and hasattr(my_state.view, "check_event"):
+        my_state.view.check_event(ev)
 
     return ev
 

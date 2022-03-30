@@ -1,3 +1,9 @@
+- ScrollColumn widgets may force focus
+- ScrollColumn widgets act like menus when accessed by keyboard
+- Widgets may provide their own keyboard handling
+- Added mapcursor module; can be used to move & target invocations via the keyboard
+- Holding shift with tab will select the previous widget
+
 v0.820 March 13 2021
 - Added the Ice Wind mecha family
 - Added more portrait bits

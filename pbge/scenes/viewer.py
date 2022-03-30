@@ -79,7 +79,9 @@ class SceneView( object ):
         self.y_off = -200
         self.phase = 0
 
-        self.mouse_tile = (-1,-1)
+        # _mouse_tile contains the actual tile the mouse is hovering over. However, in most cases what we really want
+        # is the location of the mouse cursor. Time to make a property!
+        self._mouse_tile = (-1,-1)
 
         self.postfx = postfx
 
@@ -87,6 +89,12 @@ class SceneView( object ):
 
         my_state.view = self
 
+    @property
+    def mouse_tile(self):
+        if self.cursor:
+            return self.cursor.x, self.cursor.y
+        else:
+            return self._mouse_tile
 
     def get_sprite( self, obj ):
         """Return the sprite for the requested object. If no sprite exists, try to load one."""
@@ -540,8 +548,11 @@ class SceneView( object ):
                 del self.tickers[k]
 
         self.phase = ( self.phase + 1 ) % 600
-        self.mouse_tile = (self.map_x(mouse_x,mouse_y),self.map_y(mouse_x,mouse_y))
+        self._mouse_tile = (self.map_x(mouse_x,mouse_y),self.map_y(mouse_x,mouse_y))
 
         if self.postfx:
             self.postfx()
 
+    def check_event(self, ev):
+        if self.cursor:
+            self.cursor.update(self, ev)

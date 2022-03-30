@@ -464,7 +464,7 @@ class PartsNodeWidget(pbge.widgets.Widget):
         myimage.blit(self.font.render(self.prefix + self._part_text(),True,text_color),(self.indent*12,0))
         return myimage
 
-    def render( self ):
+    def render(self, flash=False):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
             pbge.my_state.screen.blit( self.mouseover_image , myrect )
@@ -709,7 +709,7 @@ class CommonHeader(pbge.widgets.Widget):
         myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 64, 64), frame=frame)
         return pygame.transform.scale2x(mybmp)
 
-    def render(self):
+    def render(self, flash=False):
         mydest = self.get_rect()
         pbge.default_border.render(mydest)
 
@@ -753,7 +753,7 @@ class MechaStatsHeader(CommonHeader):
         sprite = self.mecha.get_sprite()
         self.image = self.create_image(sprite, self.mecha.frame)
 
-    def render(self):
+    def render(self, flash=False):
         mydest = self.get_rect()
         pbge.default_border.render(mydest)
 
@@ -789,7 +789,7 @@ class CharacterHeader(CommonHeader):
         sprite = self.char.get_sprite()
         self.image = self.create_image(sprite, self.char.frame)
 
-    def render(self):
+    def render(self, flash=False):
         mydest = self.get_rect()
         pbge.default_border.render(mydest)
 
