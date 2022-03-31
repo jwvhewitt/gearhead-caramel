@@ -1,3 +1,5 @@
+v0.821 March 31 2021
+- Fixed the loverboy beard error
 - ScrollColumn widgets may force focus
 - ScrollColumn widgets act like menus when accessed by keyboard
 - Widgets may provide their own keyboard handling
