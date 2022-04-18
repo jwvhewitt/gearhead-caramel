@@ -1,17 +1,31 @@
 #
 # Alright, let's talk about this folder. Previously the scenario editor PlotBricks were written in JSON and the Python
 # code involved was defined in long ugly strings. Well, turns out that way of doing things is prone to errors and
-# makes it kinda difficult to see what's goimg on. So now I've decided to move the source code to a semi-proper source
+# makes it kinda difficult to see what's going on. So now I've decided to move the source code to a semi-proper source
 # file. Of course this means writing another effing parser. This file will be manually parsed and turned
 # into a JSON file that will be loaded by the scenario editor and then compiled back into a Python file. The circle of
 # life continues and Eris smiles.
 #
 
 
+*NEW SCENARIO
+"name": "Scenario",
+"display_name": "Scenario {adventure_name}",
+"desc": "The base plot brick for creating an adventure module.",
+"vars": {
+      "adventure_name": {"default_val": "Adventure!", "var_type": "string"},
+      "adventure_desc": {"default_val": "Go fight some pirates.", "var_type": "text"},
+      "adventure_date": {"default_val": "(158, 5, 10)", "var_type": "date"},
+      "uname": {"default_val": "", "var_type": "string"},
+      "adventure_threat": {
+        "default_val": 0,
+        "var_type": "integer"
+      },
+      "adventure_cover": {"default_val": null, "var_type": "VHS_*.png"}
+},
+"child_types": ["CITY", "WORLD_FEATURE"]
 
-# PB Scenario
-#
-#= main
+*SCRIPT main
 import gears
 from pbge.plots import Plot, Adventure, PlotState
 import pbge

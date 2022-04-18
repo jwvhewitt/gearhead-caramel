@@ -1,13 +1,12 @@
 import gears
 import game
 from game.ghdialogue import context
-from . import pbclasses
 import pbge
 
 # For any variable which can only be one of a set of possible states, find those states and return them as a series
 # of (name,code) tuples. This will be used both for the widgets and also for validating blueprints.
 
-def find_factions(part: pbclasses.BluePrint):
+def find_factions(part):
     mylist = list()
     for fac in gears.ALL_FACTIONS:
         mylist.append((fac.name, "gears.factions." + fac.__name__))
@@ -89,7 +88,7 @@ LIST_TYPES = {
     )
 }
 
-def find_elements(part: pbclasses.BluePrint, e_type):
+def find_elements(part, e_type):
     mylist = list()
     for k, fac in part.get_elements().items():
         if fac.e_type == e_type:
@@ -98,7 +97,7 @@ def find_elements(part: pbclasses.BluePrint, e_type):
     return mylist
 
 
-def get_possible_states(part: pbclasses.BluePrint, category: str):
+def get_possible_states(part, category: str):
     if category == "faction":
         return find_factions(part)
     elif category == "dialogue_context":

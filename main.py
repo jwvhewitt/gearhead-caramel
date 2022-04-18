@@ -211,6 +211,7 @@ def play_the_game():
     mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
     mymenu.add_item("Edit Scenario", game.plotcreator.start_plot_creator)
     if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+        mymenu.add_item("Compile Plot Bricks", game.plotcreator.PlotBrickCompiler)
         mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
     mymenu.add_item("Quit", None)
 

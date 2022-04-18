@@ -4,17 +4,7 @@ import copy
 import gears.color
 import pbge.container
 from game.plotcreator.conditionals import build_conditional
-
-
-class VariableDefinition(object):
-    def __init__(self, default_val=0, var_type="integer", **kwargs):
-        if isinstance(default_val, dict):
-            self.default_val = dict()
-            self.default_val.update(default_val)
-        else:
-            self.default_val = default_val
-        self.var_type = var_type
-        self.data = kwargs.copy()
+from . import pbvars
 
 
 class ElementDefinition(object):
@@ -51,7 +41,7 @@ class PlotBrick(object):
         self.vars = dict()
         if vars:
             for k, v in vars.items():
-                self.vars[k] = VariableDefinition(**v)
+                self.vars[k] = pbvars.get_variable_definition(**v)
         self.child_types = list(child_types)
         self.elements = dict()
         if elements:
@@ -63,11 +53,8 @@ class PlotBrick(object):
 
     def get_default_vars(self):
         myvars = dict()
-        for k,v in self.vars.items():
-            if v.var_type == "palette":
-                myvars[k] = [gears.SINGLETON_REVERSE[c] for c in gears.color.random_building_colors()]
-            else:
-                myvars[k] = copy.copy(v.default_val)
+        for k, v in self.vars.items():
+            myvars[k] = copy.copy(v.default_val)
         return myvars
 
 
@@ -142,16 +129,9 @@ class BluePrint(object):
         # Get vars in the format they need to be in for output to a Python file.
         myvars = dict()
         for k,v in self.raw_vars.items():
-            vardef: VariableDefinition = self.brick.vars.get(k)
+            vardef = self.brick.vars.get(k)
             if vardef:
-                if vardef.var_type == "conditional":
-                    myvars[k] = build_conditional(v)
-                elif vardef.var_type == "palette":
-                    #if not v:
-                    #    v = ['Black', 'Black', 'Black', 'Black', 'Black']
-                    myvars[k] = "({}, {}, {}, {}, {})".format(*["gears.color.{}".format(c) for c in v])
-                else:
-                    myvars[k] = v
+                myvars[k] = vardef.format_for_python(v)
         return myvars
 
     def get_ultra_vars(self):
@@ -339,7 +319,6 @@ class BluePrint(object):
         self.children.sort(key=lambda c: c.brick.sorting_rank)
         for c in self.children:
             c.sort()
-
 
 ALL_BRICKS = list()
 BRICKS_BY_LABEL = collections.defaultdict(list)
