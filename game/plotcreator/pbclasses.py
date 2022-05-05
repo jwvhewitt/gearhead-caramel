@@ -1,9 +1,7 @@
 import collections
 import copy
 
-import gears.color
 import pbge.container
-from game.plotcreator.conditionals import build_conditional
 from . import pbvars
 
 
@@ -17,6 +15,36 @@ class ElementDefinition(object):
         self.etc = kwargs
 
 
+class PhysicalDefinition(object):
+    def __init__(self, the_brick, element_key, parent=None, variable_keys=(), child_keys=(), **kwargs):
+        # the_brick = The brick that contains this physical object; used for error checking
+        # element_key = The element th is physical definition is based on; must be an element defined in this brick.
+        # parent = The element this physical definition will be shown as a child of in the browser; if None or not
+        #   found, this physical definition will be shown as a child of World.
+        # variable_keys: Which PlotBrick variables are associated with this thing and can be edited in the thing view.
+        # child_keys: Which PlotBrick child types are associated with this thing and can be edited in the thing view.
+        #   If None, all of the child types will be shown in the thing view.
+        self.element_key = element_key
+        if element_key and element_key not in the_brick.elements:
+            print("Physical Error in {}: Element {} not found".format(the_brick, element_key))
+        self.parent = parent
+        if parent and parent not in the_brick.elements:
+            print("Physical Error in {}: Parent {} not found".format(the_brick, parent))
+        self.variable_keys = set(variable_keys)
+        if not self.variable_keys.issubset(the_brick.vars.get_keys()):
+            print("Physical Error in {}: Variable keys {} not found".format(
+                the_brick, self.variable_keys.difference(the_brick.vars.get_keys())
+            ))
+        if isinstance(child_keys, (list, tuple, set)):
+            self.child_keys = set(child_keys)
+            if not self.child_keys.issubset(the_brick.child_types):
+                print("Physical Error in {}: Child types {} not found".format(
+                    the_brick, self.child_keys.difference(the_brick.child_types)
+                ))
+        else:
+            self.child_keys = None
+
+
 class PlotBrick(object):
     # label is a string describing what sort of brick this is.
     # name is a unique identifier for this plot brick.
@@ -28,9 +56,14 @@ class PlotBrick(object):
     #    key = variable name. Should be all lowercase.
     #    value = variable description.
     # child_types: List of brick labels that can be added as children of this brick.
-    # elements: Descriptions for the elements defined within this brick.
+    # elements: Descriptions for the elements defined within this brick in dict form.
+    #     Element keys should be all uppercase to differentiate them from variable identifiers
+    # physicals: Descriptions for the physical objects defined within this brick in dict form.
     # is_new_branch: True if this brick begins a new Plot. This is needed to check element + var inheritance.
-    def __init__(self, label="PLOT_BLOCK", name="", display_name="", desc="", scripts=None, vars=None, child_types=(), elements=None, is_new_branch=False, sorting_rank=1000, **kwargs):
+    def __init__(
+            self, label="PLOT_BLOCK", name="", display_name="", desc="", scripts=None, vars=None, child_types=(),
+            elements=None, physicals=None, is_new_branch=False, sorting_rank=1000, **kwargs
+    ):
         self.label = label
         self.name = name
         self.display_name = display_name or name
@@ -47,6 +80,10 @@ class PlotBrick(object):
         if elements:
             for k,v in elements.items():
                 self.elements[k] = ElementDefinition(**v)
+        self.physicals = dict()
+        if physicals:
+            for k,v in physicals.items():
+                self.physicals[k] = PhysicalDefinition(self, **v)
         self.is_new_branch = is_new_branch
         self.sorting_rank = sorting_rank
         self.data = kwargs.copy()
@@ -57,15 +94,30 @@ class PlotBrick(object):
             myvars[k] = copy.copy(v.default_val)
         return myvars
 
+    def __str__(self):
+        return self.name
 
 class BluePrint(object):
-    def __init__(self, brick: PlotBrick):
+    def __init__(self, brick: PlotBrick, parent):
+        if parent:
+            self.parent.children.append(self)
         self._brick_name = brick.name
         self.brick = brick
 
         self.children = pbge.container.ContainerList(owner=self)
         self.raw_vars = brick.get_default_vars()
         self._uid = 0
+
+        uvars = self.get_ultra_vars()
+        for k,v in brick.elements.items():
+            self.raw_vars["{}_UID".format(k)] = self.new_element_uid()
+
+    def new_element_uid(self):
+        myroot = self.get_root()
+        if not hasattr(myroot, "max_element_uid"):
+            myroot.max_element_uid = 0
+        myroot.max_eleemnt_uid += 1
+        return "{:0=8}".format(myroot.max_element_uid)
 
     def get_save_dict(self, include_uid=True):
         mydict = dict()
@@ -94,8 +146,12 @@ class BluePrint(object):
         return mybp
 
     def copy(self):
-        myinfo = self.get_save_dict(False)
-        return self.__class__.load_save_dict(myinfo)
+        oldcontainer = getattr(self, "container", None)
+        self.container = None
+        myclone = copy.deepcopy(self)
+        myclone._uid = 0
+        self.container = oldcontainer
+        return myclone
 
     def get_section(self, section_name, my_scripts, child_scripts, prefix, touched_scripts, done_scripts, used_scripts):
         if section_name in touched_scripts:

@@ -1,3 +1,4 @@
+import collections
 import glob
 
 import game.plotcreator.conditionals
@@ -17,7 +18,7 @@ class PartsNodeWidget(pbge.widgets.Widget):
     def __init__(self,mypart,indent,editor,physical_view=None,**kwargs):
         self.font = pbge.MEDIUMFONT
         super().__init__(0,0,325
-                         ,self.font.get_linesize()+1,data=mypart,**kwargs)
+                         ,self.font.get_linesize()+1, data=mypart, on_right_click=self._open_popup, **kwargs)
         self.indent = indent
         self.editor = editor
         self.selected_image = self._draw_image(pbge.INFO_HILIGHT)
@@ -46,15 +47,7 @@ class PartsNodeWidget(pbge.widgets.Widget):
         else:
             pbge.my_state.screen.blit( self.regular_image , myrect )
 
-    def _builtin_responder(self, ev):
-        if self.get_rect().collidepoint(pbge.my_state.mouse_pos):
-            if self.is_kb_selectable() and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 3) and not pbge.my_state.widget_clicked:
-                if not pbge.my_state.widget_clicked:
-                    pbge.my_state.active_widget = self
-                pbge.my_state.widget_clicked = True
-                self._open_popup()
-
-    def _open_popup(self):
+    def _open_popup(self, *args):
         mymenu = pbge.rpgmenu.PopUpMenu()
         mymenu.add_item("Copy", self._copy_node)
         if self.editor.clipboard and self.editor.clipboard.brick.label in self.data.brick.child_types:
@@ -96,6 +89,47 @@ class PlotTreeWidget(pbge.widgets.ColumnWidget):
             self.add_parts(bit,indent+1)
 
 
+class PhysicalNodeWidget(pbge.widgets.RowWidget):
+    def __init__(self, myblueprint, myphysical, indent, editor, **kwargs):
+        self.font = pbge.MEDIUMFONT
+        super().__init__(
+            0, 0, 325, self.font.get_linesize()+1, data=(myblueprint, myphysical), **kwargs
+        )
+        self.myblueprint = myblueprint
+        self.myphysical = myphysical
+        self.indent = indent
+        self.editor = editor
+
+        self.selected_image = self._draw_image(pbge.INFO_HILIGHT)
+        self.regular_image = self._draw_image(pbge.INFO_GREEN)
+        self.mouseover_image = self._draw_image(pbge.rpgmenu.MENU_SELECT_COLOR)
+
+    def _part_text(self):
+        myvars = self.myblueprint.get_ultra_vars()
+        myelements = self.myblueprint.get_elements()
+        myelement = myelements[self.myblueprint.brick.physicals[self.myphysical].element_key.format(**myvars)]
+        return myelement.name
+
+    def _draw_image(self,text_color):
+        myimage = pygame.Surface((self.w,self.h))
+        myimage.fill((0, 0, 0))
+        myimage.set_colorkey((0, 0, 0), pygame.RLEACCEL)
+
+        myimage.blit(self.font.render(self._part_text(),True,text_color),(self.indent*12,0))
+        return myimage
+
+    def render(self, flash=False):
+        myrect = self.get_rect()
+        if myrect.collidepoint(*pbge.my_state.mouse_pos):
+            pbge.my_state.screen.blit( self.mouseover_image , myrect )
+            if self.editor:
+                self.editor.mouseover_part = self.data
+        elif flash or (self.data is self.editor.active_part):
+            pbge.my_state.screen.blit(self.selected_image, myrect)
+        else:
+            pbge.my_state.screen.blit( self.regular_image , myrect )
+
+
 class PhysicalTreeWidget(pbge.widgets.ColumnWidget):
     # Instead of editing the plot nodes directly, show the physical contents of this adventure.
     def __init__(self,mypart,editor,dx=-350,dy=-250,w=325,h=500,**kwargs):
@@ -112,14 +146,59 @@ class PhysicalTreeWidget(pbge.widgets.ColumnWidget):
         self.refresh_part_list()
 
     def refresh_part_list(self):
+        # myparts is a dict. Key = (blueprint, physical ID), Value = list of (blueprint, physical ID) tuples
+        myparts = collections.defaultdict(list)
+        myphysicals = dict()
         self.scroll_column.clear()
-        self.add_parts(self.mypart)
+        menutree = self.build_tree(self.mypart, myparts, myphysicals)
 
+    def build_tree(self, part, myparts, physicals):
+        # Given a part, record any physicas in physicals and stick them in the correct slot of myparts
+        brick_physicals = part.brick.physicals
 
     def add_parts(self,part,indent=0):
         self.scroll_column.add_interior(PartsNodeWidget(part,indent,self.editor,on_click=self.editor.click_part))
         for bit in part.children:
             self.add_parts(bit,indent+1)
+
+
+class TreeBrowserWidget(pbge.widgets.ColumnWidget):
+    # A browser for the parts of the adventure. May switch between physical and unsorted views.
+    def __init__(self, editor, dx=-350, dy=-250, w=325, h=500, **kwargs):
+        super().__init__(dx, dy, w, h, draw_border=False, center_interior=True, optimize_height=False,
+                         padding=12, **kwargs)
+
+        myradio = pbge.widgets.TextTabsWidget(0, 0, self.w, 0, (
+            {"text": "Physical View", "on_click": self.click_physical},
+            {"text": "Unsorted View", "on_click": self.click_unsorted}
+        ), font=pbge.BIGFONT)
+
+        self.add_interior(myradio)
+        self.mode_column = pbge.widgets.ColumnWidget(
+            0, 0, self.w, self.h-myradio.h-self.padding, optimize_height=False
+        )
+        self.add_interior(self.mode_column)
+        self.editor = editor
+
+        self.click_physical()
+
+        print(self.h)
+        print(self.mode_column._interior_widgets[0].h)
+
+    def click_physical(self, *args):
+        self.mode_column.clear()
+        self.mode_column.add_interior(PlotTreeWidget(
+            self.editor.mytree, self.editor, dx=0, dy=0, w=self.w, h=self.mode_column.h
+        ))
+
+    def click_unsorted(self, *args):
+        self.mode_column.clear()
+        self.mode_column.add_interior(PlotTreeWidget(
+            self.editor.mytree, self.editor, dx=0, dy=0, w=self.w, h=self.mode_column.h
+        ))
+
+    def refresh_part_list(self):
+        self.mode_column._interior_widgets[0].refresh_part_list()
 
 
 class VarEditorPanel(pbge.widgets.ColumnWidget):
@@ -155,7 +234,7 @@ class PlotCreator(pbge.widgets.Widget):
         self.active_part = mytree
         self.clipboard = None
 
-        self.parts_widget = PlotTreeWidget(mytree,self)
+        self.parts_widget = TreeBrowserWidget(self)
         self.children.append(self.parts_widget)
 
         mybuttons = pbge.image.Image("sys_geareditor_buttons.png",40,40)
@@ -185,13 +264,12 @@ class PlotCreator(pbge.widgets.Widget):
         mymenu.sort()
         nubrick = mymenu.query()
         if nubrick:
-            newbp = BluePrint(nubrick)
-            self.active_part.children.append(newbp)
+            newbp = BluePrint(nubrick, self.active_part)
             self.mytree.sort()
             self.set_active_part(newbp)
 
     def _remove_feature(self,widj,ev):
-        if self.active_part != self.mytree and hasattr(self.active_part, "container"):
+        if self.active_part != self.mytree and hasattr(self.active_part, "container") and self.active_part.container:
             myparent = self.active_part.container.owner
             myparent.children.remove(self.active_part)
             self.mytree.sort()

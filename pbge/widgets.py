@@ -1,5 +1,6 @@
+import pbge
 from . import frects
-from . import my_state,render_text,draw_text,TEXT_COLOR,Border,default_border,wait_event, wrap_with_records, wrap_multi_line
+from . import my_state,draw_text,TEXT_COLOR,Border,default_border, wrap_with_records, wrap_multi_line
 import pygame
 from . import image
 from . import rpgmenu
@@ -21,10 +22,11 @@ popup_menu_border = Border( border_width=8, tex_width=16, border_name="sys_widbo
 
 
 class Widget( frects.Frect ):
-    def __init__( self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True, show_when_inactive=False, on_right_click=None, **kwargs ):
+    def __init__(self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True,
+                 show_when_inactive=False, on_right_click=None, anchor=frects.ANCHOR_CENTER, parent=None, **kwargs):
         # on_click takes widget, event as parameters.
         # on_right_click takes widget, event as parameters.
-        super().__init__(dx,dy,w,h,**kwargs)
+        super().__init__(dx, dy, w, h, anchor, parent)
         self.data = data
         self.active = active
         self.tooltip = tooltip
@@ -106,12 +108,14 @@ class ButtonWidget( Widget ):
             self._default_flash()
 
 class LabelWidget( Widget ):
-    def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, draw_border=False, border=widget_border_off, text_fun = None, **kwargs ):
+    def __init__( self, dx, dy, w=0, h=0, text='***', color=None, font=None, justify=-1, draw_border=False, border=widget_border_off, text_fun = None, **kwargs ):
         # text_fun is a function that takes this widget as a parameter. It returns the text to display.
-        super(LabelWidget, self).__init__(dx,dy,w,h,**kwargs)
+        super().__init__(dx,dy,w,h,**kwargs)
         self.text = text
         self.color = color or TEXT_COLOR
         self.font = font or my_state.small_font
+        if w == 0:
+            self.w = self.font.size(self.text)[0]
         if h == 0:
             self.h = len(wrap_multi_line(text, self.font, self.w)) * self.font.get_linesize()
         self.justify = justify
@@ -127,8 +131,10 @@ class LabelWidget( Widget ):
         if flash:
             self._default_flash()
 
+
 class TextEntryWidget( Widget ):
     ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
+
     def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, on_change=None, **kwargs ):
         # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
         super(TextEntryWidget, self).__init__(dx,dy,w,h,**kwargs)
@@ -147,14 +153,13 @@ class TextEntryWidget( Widget ):
             widget_border_on.render(mydest.inflate(-4,-4))
         else:
             widget_border_off.render(mydest.inflate(-4,-4))
-        myimage = self.font.render( self.text, True, self.color )
+        myimage = self.font.render(self.text, True, self.color)
         my_state.screen.set_clip( mydest )
         textdest = myimage.get_rect(center=mydest.center)
         my_state.screen.blit( myimage , textdest )
         my_state.screen.set_clip( None )
         if flash or (my_state.active_widget is self):
             self.input_cursor.render( textdest.topright , ( my_state.anim_phase // 3 ) % 4 )
-
 
     def _builtin_responder(self,ev):
         if my_state.active_widget is self:
@@ -189,7 +194,7 @@ class TextEntryWidget( Widget ):
 class RadioButtonWidget( Widget ):
     def __init__( self, dx, dy, w, h, sprite=None, buttons=(), spacing=2, **kwargs ):
         # buttons is a list of dicts possibly containing: on_frame, off_frame, on_click, on_right_click, tooltip
-        super().__init__(dx,dy,w,h,**kwargs)
+        super().__init__(dx, dy, w, h, **kwargs)
         self.sprite = sprite
         self.buttons = list()
         self.spacing = spacing
@@ -224,8 +229,49 @@ class RadioButtonWidget( Widget ):
             button.data(button,ev)
 
 
+class TextTabsWidget( Widget ):
+    def __init__( self, dx, dy, w, h, buttons=(), spacing=12, font=None, **kwargs ):
+        # Basically radio buttons, but with text labels.
+        # buttons is a list of dicts possibly containing: text, on_right_click, tooltip
+        self.font = font or pbge.MEDIUMFONT
+        super().__init__(dx, dy, w, max(h, self.font.get_linesize() + 8),  **kwargs)
+        self.buttons = list()
+        self.spacing = spacing
+        ddx = 0
+        for b in buttons:
+            mylabel = LabelWidget(
+                ddx, 0, text=b.get("text", "Tab"),
+                tooltip=b.get("tooltip", None),
+                on_click=self.click_radio, data=b.get("on_click", None), draw_border=True,
+                on_right_click=b.get("on_right_click", None), font=self.font, color=pbge.GREY,
+                parent=self, anchor=frects.ANCHOR_UPPERLEFT, border=widget_border_off
+            )
+            self.buttons.append(mylabel)
+            ddx += mylabel.w + self.spacing
+        if self.buttons:
+            self.active_button = self.buttons[0]
+            self.activate_button(self.buttons[0])
+        self.children += self.buttons
+
+    def activate_button( self, button ):
+        self.active_button.border = widget_border_off
+        self.active_button = button
+        button.border = widget_border_on
+
+    def get_button(self, data_sought):
+        for b in self.buttons:
+            if b.data == data_sought:
+                return b
+
+    def click_radio( self, button, ev ):
+        self.activate_button(button)
+        if button.data:
+            button.data(button, ev)
+
+
 class ColumnWidget(Widget):
-    def __init__( self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, center_interior=False, **kwargs ):
+    def __init__( self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, center_interior=False,
+                  optimize_height=True, **kwargs ):
         super(ColumnWidget, self).__init__(dx,dy,w,h,**kwargs)
         self.draw_border = draw_border
         self.border = border
@@ -233,6 +279,7 @@ class ColumnWidget(Widget):
         self._header_widget = None
         self.padding = padding
         self.center_interior = center_interior
+        self.optimize_height=optimize_height
 
     def add_interior(self,other_w):
         self.children.append(other_w)
@@ -245,7 +292,7 @@ class ColumnWidget(Widget):
         self.children.append(other_w)
         self._header_widget = other_w
         # Set the position of other_w inside this widget.
-        other_w.parent = self
+        other_w.parent = selfColumn
         self._position_contents()
 
     def clear(self):
@@ -268,7 +315,8 @@ class ColumnWidget(Widget):
             widg.dy = dy
             widg.anchor = frects.ANCHOR_UPPERLEFT
             dy += widg.h + self.padding
-        self.h = dy
+        if self.optimize_height:
+            self.h = dy
 
     def render(self, flash=False):
         if self.draw_border:
