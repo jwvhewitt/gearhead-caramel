@@ -210,9 +210,9 @@ def play_the_game():
     mymenu.add_item("Config Options", open_config_menu)
     mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
     mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
-    mymenu.add_item("Edit Scenario", game.plotcreator.start_plot_creator)
+    mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
     if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-        mymenu.add_item("Compile Plot Bricks", game.plotcreator.PlotBrickCompiler)
+        mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
         mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
     mymenu.add_item("Quit", None)
 
@@ -225,10 +225,8 @@ def play_the_game():
 
 
 if __name__ == "__main__":
-    # clay = gears.Loader.load_design_file('Trailblazer.txt')
-    # for item in clay:
-    #    item.termdump()
-    # clay[0].statusdump()
-
     play_the_game()
     pygame.quit()
+    # Been getting some problems with the program continuing to run sometimes after pygame.quit().
+    # StackExchange suggested the following... I figure it couldn't hurt.
+    sys.exit()

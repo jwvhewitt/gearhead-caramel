@@ -1,11 +1,11 @@
 import collections
 import glob
 
-import game.plotcreator.conditionals
+import game
 import pbge
 import json
-from . import pbclasses, statefinders, pbvars, varwidgets
-from .pbclasses import ALL_BRICKS, BRICKS_BY_LABEL, BRICKS_BY_NAME, PlotBrick, BluePrint
+from . import scclasses, statefinders, scvars, varwidgets, conditionals
+from .scclasses import ALL_BRICKS, BRICKS_BY_LABEL, BRICKS_BY_NAME, PlotBrick, BluePrint
 import pygame
 import os
 
@@ -15,10 +15,10 @@ from .varwidgets import StringVarEditorWidget, CampaignVarNameWidget, TextVarEdi
 
 
 class PartsNodeWidget(pbge.widgets.Widget):
-    def __init__(self,mypart,indent,editor,physical_view=None,**kwargs):
+    def __init__(self, mypart, indent, editor, physical_view=None, **kwargs):
         self.font = pbge.MEDIUMFONT
-        super().__init__(0,0,325
-                         ,self.font.get_linesize()+1, data=mypart, on_right_click=self._open_popup, **kwargs)
+        super().__init__(0, 0, 325
+                         , self.font.get_linesize() + 1, data=mypart, on_right_click=self._open_popup, **kwargs)
         self.indent = indent
         self.editor = editor
         self.selected_image = self._draw_image(pbge.INFO_HILIGHT)
@@ -28,24 +28,24 @@ class PartsNodeWidget(pbge.widgets.Widget):
     def _part_text(self):
         return self.data.name
 
-    def _draw_image(self,text_color):
-        myimage = pygame.Surface((self.w,self.h))
+    def _draw_image(self, text_color):
+        myimage = pygame.Surface((self.w, self.h))
         myimage.fill((0, 0, 0))
         myimage.set_colorkey((0, 0, 0), pygame.RLEACCEL)
 
-        myimage.blit(self.font.render(self._part_text(),True,text_color),(self.indent*12,0))
+        myimage.blit(self.font.render(self._part_text(), True, text_color), (self.indent * 12, 0))
         return myimage
 
     def render(self, flash=False):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
-            pbge.my_state.screen.blit( self.mouseover_image , myrect )
+            pbge.my_state.screen.blit(self.mouseover_image, myrect)
             if self.editor:
                 self.editor.mouseover_part = self.data
         elif flash or (self.data is self.editor.active_part):
             pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
-            pbge.my_state.screen.blit( self.regular_image , myrect )
+            pbge.my_state.screen.blit(self.regular_image, myrect)
 
     def _open_popup(self, *args):
         mymenu = pbge.rpgmenu.PopUpMenu()
@@ -65,11 +65,13 @@ class PartsNodeWidget(pbge.widgets.Widget):
 
 
 class PlotTreeWidget(pbge.widgets.ColumnWidget):
-    def __init__(self,mypart,editor,dx=-350,dy=-250,w=325,h=500,**kwargs):
-        super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
-        up_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=0,off_frame=1)
-        down_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=2,off_frame=3)
-        self.scroll_column = pbge.widgets.ScrollColumnWidget(0,0,w,h-50,up_arrow,down_arrow,padding=0)
+    def __init__(self, mypart, editor, dx=-350, dy=-250, w=325, h=500, **kwargs):
+        super().__init__(dx, dy, w, h, draw_border=True, center_interior=True, **kwargs)
+        up_arrow = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+                                             on_frame=0, off_frame=1)
+        down_arrow = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+                                               on_frame=2, off_frame=3)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(0, 0, w, h - 50, up_arrow, down_arrow, padding=0)
         self.add_interior(up_arrow)
         self.add_interior(self.scroll_column)
         self.add_interior(down_arrow)
@@ -82,18 +84,17 @@ class PlotTreeWidget(pbge.widgets.ColumnWidget):
         self.scroll_column.clear()
         self.add_parts(self.mypart)
 
-
-    def add_parts(self,part,indent=0):
-        self.scroll_column.add_interior(PartsNodeWidget(part,indent,self.editor,on_click=self.editor.click_part))
+    def add_parts(self, part, indent=0):
+        self.scroll_column.add_interior(PartsNodeWidget(part, indent, self.editor, on_click=self.editor.click_part))
         for bit in part.children:
-            self.add_parts(bit,indent+1)
+            self.add_parts(bit, indent + 1)
 
 
 class PhysicalNodeWidget(pbge.widgets.RowWidget):
     def __init__(self, myblueprint, myphysical, indent, editor, **kwargs):
         self.font = pbge.MEDIUMFONT
         super().__init__(
-            0, 0, 325, self.font.get_linesize()+1, data=(myblueprint, myphysical), **kwargs
+            0, 0, 325, self.font.get_linesize() + 1, data=(myblueprint, myphysical), **kwargs
         )
         self.myblueprint = myblueprint
         self.myphysical = myphysical
@@ -110,33 +111,69 @@ class PhysicalNodeWidget(pbge.widgets.RowWidget):
         myelement = myelements[self.myblueprint.brick.physicals[self.myphysical].element_key.format(**myvars)]
         return myelement.name
 
-    def _draw_image(self,text_color):
-        myimage = pygame.Surface((self.w,self.h))
+    def _draw_image(self, text_color):
+        myimage = pygame.Surface((self.w, self.h))
         myimage.fill((0, 0, 0))
         myimage.set_colorkey((0, 0, 0), pygame.RLEACCEL)
 
-        myimage.blit(self.font.render(self._part_text(),True,text_color),(self.indent*12,0))
+        myimage.blit(self.font.render(self._part_text(), True, text_color), (self.indent * 12, 0))
         return myimage
 
     def render(self, flash=False):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
-            pbge.my_state.screen.blit( self.mouseover_image , myrect )
+            pbge.my_state.screen.blit(self.mouseover_image, myrect)
             if self.editor:
                 self.editor.mouseover_part = self.data
         elif flash or (self.data is self.editor.active_part):
             pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
-            pbge.my_state.screen.blit( self.regular_image , myrect )
+            pbge.my_state.screen.blit(self.regular_image, myrect)
+
+
+class PhysicalPartDesc(object):
+    def __init__(self, blueprint, rawkey, uniqueid, formatted_definition, variable_keys, child_keys, children=()):
+        self.blueprint = blueprint
+        self.rawkey = rawkey
+        self.uniqueid = uniqueid
+        self.formatted_definition = formatted_definition
+        self.variable_keys = variable_keys
+        self.child_keys = child_keys
+        self.children = list(children)
+
+
+class PhysicalPartTree(object):
+    def __init__(self, root_blueprint):
+        self.id_to_part = dict()
+        self.get_physical(root_blueprint)
+
+    def get_physical(self, blueprint):
+        for phys in blueprint.brick.physicals:
+            uvars = blueprint.get_ultra_vars()
+            my_elements = blueprint.get_elements()
+
+            phys_element = phys.element_key.format(**uvars)
+            phys_id = my_elements[phys_element].uid
+            variable_keys = [v.format(**uvars) for v in phys.variable_keys]
+
+            phys_desc = PhysicalPartDesc(blueprint, phys.element_key, phys_id, my_elements[phys_element],
+                                         variable_keys, phys.child_keys)
+
+            self.id_to_part[phys_id] = phys_desc
+
+        for c in blueprint.children:
+            self.get_physical(c)
 
 
 class PhysicalTreeWidget(pbge.widgets.ColumnWidget):
     # Instead of editing the plot nodes directly, show the physical contents of this adventure.
-    def __init__(self,mypart,editor,dx=-350,dy=-250,w=325,h=500,**kwargs):
-        super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
-        up_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=0,off_frame=1)
-        down_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=2,off_frame=3)
-        self.scroll_column = pbge.widgets.ScrollColumnWidget(0,0,w,h-50,up_arrow,down_arrow,padding=0)
+    def __init__(self, mypart, editor, dx=-350, dy=-250, w=325, h=500, **kwargs):
+        super().__init__(dx, dy, w, h, draw_border=True, center_interior=True, **kwargs)
+        up_arrow = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+                                             on_frame=0, off_frame=1)
+        down_arrow = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+                                               on_frame=2, off_frame=3)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(0, 0, w, h - 50, up_arrow, down_arrow, padding=0)
         self.add_interior(up_arrow)
         self.add_interior(self.scroll_column)
         self.add_interior(down_arrow)
@@ -152,14 +189,15 @@ class PhysicalTreeWidget(pbge.widgets.ColumnWidget):
         self.scroll_column.clear()
         menutree = self.build_tree(self.mypart, myparts, myphysicals)
 
-    def build_tree(self, part, myparts, physicals):
-        # Given a part, record any physicas in physicals and stick them in the correct slot of myparts
-        brick_physicals = part.brick.physicals
+    def build_tree(self, blueprint, myparts, physicals):
+        # Given a part, record any physicals in physicals and stick them in the correct slot of myparts
+        for p in myparts:
+            pass
 
-    def add_parts(self,part,indent=0):
-        self.scroll_column.add_interior(PartsNodeWidget(part,indent,self.editor,on_click=self.editor.click_part))
+    def add_parts(self, part, indent=0):
+        self.scroll_column.add_interior(PartsNodeWidget(part, indent, self.editor, on_click=self.editor.click_part))
         for bit in part.children:
-            self.add_parts(bit,indent+1)
+            self.add_parts(bit, indent + 1)
 
 
 class TreeBrowserWidget(pbge.widgets.ColumnWidget):
@@ -175,18 +213,16 @@ class TreeBrowserWidget(pbge.widgets.ColumnWidget):
 
         self.add_interior(myradio)
         self.mode_column = pbge.widgets.ColumnWidget(
-            0, 0, self.w, self.h-myradio.h-self.padding, optimize_height=False
+            0, 0, self.w, self.h - myradio.h - self.padding, optimize_height=False
         )
         self.add_interior(self.mode_column)
         self.editor = editor
 
         self.click_physical()
 
-        print(self.h)
-        print(self.mode_column._interior_widgets[0].h)
-
     def click_physical(self, *args):
         self.mode_column.clear()
+        PhysicalPartTree(self.editor.mytree)
         self.mode_column.add_interior(PlotTreeWidget(
             self.editor.mytree, self.editor, dx=0, dy=0, w=self.w, h=self.mode_column.h
         ))
@@ -202,11 +238,13 @@ class TreeBrowserWidget(pbge.widgets.ColumnWidget):
 
 
 class VarEditorPanel(pbge.widgets.ColumnWidget):
-    def __init__(self,mypart,editor,dx=10,dy=-200,w=350,h=450,**kwargs):
-        super().__init__(dx,dy,w,h,draw_border=True,center_interior=True,**kwargs)
-        up_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=0,off_frame=1)
-        down_arrow = pbge.widgets.ButtonWidget(0,0,128,16,sprite=pbge.image.Image("sys_updownbuttons.png",128,16),on_frame=2,off_frame=3)
-        self.scroll_column = pbge.widgets.ScrollColumnWidget(0,0,w,h-50,up_arrow,down_arrow,padding=10)
+    def __init__(self, mypart, editor, dx=10, dy=-200, w=350, h=450, **kwargs):
+        super().__init__(dx, dy, w, h, draw_border=True, center_interior=True, **kwargs)
+        up_arrow = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+                                             on_frame=0, off_frame=1)
+        down_arrow = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+                                               on_frame=2, off_frame=3)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(0, 0, w, h - 50, up_arrow, down_arrow, padding=10)
         self.add_interior(up_arrow)
         self.add_interior(self.scroll_column)
         self.add_interior(down_arrow)
@@ -226,9 +264,9 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
                 )
 
 
-class PlotCreator(pbge.widgets.Widget):
+class ScenarioEditor(pbge.widgets.Widget):
     def __init__(self, mytree: BluePrint, **kwargs):
-        super().__init__(-400,-300,800,600,**kwargs)
+        super().__init__(-400, -300, 800, 600, **kwargs)
 
         self.mytree = mytree
         self.active_part = mytree
@@ -237,15 +275,22 @@ class PlotCreator(pbge.widgets.Widget):
         self.parts_widget = TreeBrowserWidget(self)
         self.children.append(self.parts_widget)
 
-        mybuttons = pbge.image.Image("sys_geareditor_buttons.png",40,40)
-        mybuttonrow = pbge.widgets.RowWidget(25,-255,350,40)
+        mybuttons = pbge.image.Image("sys_geareditor_buttons.png", 40, 40)
+        mybuttonrow = pbge.widgets.RowWidget(25, -255, 350, 40)
         self.children.append(mybuttonrow)
-        mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=2,on_frame=2,off_frame=3,on_click=self._add_feature,tooltip="Add Feature"))
-        self.remove_gear_button = pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=4,on_frame=4,off_frame=5,on_click=self._remove_feature,tooltip="Remove Feature", show_when_inactive=True)
+        mybuttonrow.add_left(pbge.widgets.ButtonWidget(0, 0, 40, 40, mybuttons, frame=2, on_frame=2, off_frame=3,
+                                                       on_click=self._add_feature, tooltip="Add Feature"))
+        self.remove_gear_button = pbge.widgets.ButtonWidget(0, 0, 40, 40, mybuttons, frame=4, on_frame=4, off_frame=5,
+                                                            on_click=self._remove_feature, tooltip="Remove Feature",
+                                                            show_when_inactive=True)
         mybuttonrow.add_left(self.remove_gear_button)
-        mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=8,on_frame=8,off_frame=9,on_click=self._save,tooltip="Save Scenario"))
-        mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=10,on_frame=10,off_frame=11,on_click=self._compile,tooltip="Compile Scenario"))
-        mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=6,on_frame=6,off_frame=7,on_click=self._exit_editor,tooltip="Exit Editor"))
+        mybuttonrow.add_right(
+            pbge.widgets.ButtonWidget(0, 0, 40, 40, mybuttons, frame=8, on_frame=8, off_frame=9, on_click=self._save,
+                                      tooltip="Save Scenario"))
+        mybuttonrow.add_right(pbge.widgets.ButtonWidget(0, 0, 40, 40, mybuttons, frame=10, on_frame=10, off_frame=11,
+                                                        on_click=self._compile, tooltip="Compile Scenario"))
+        mybuttonrow.add_right(pbge.widgets.ButtonWidget(0, 0, 40, 40, mybuttons, frame=6, on_frame=6, off_frame=7,
+                                                        on_click=self._exit_editor, tooltip="Exit Editor"))
 
         self.vars_widget = VarEditorPanel(mytree, self)
         self.children.append(self.vars_widget)
@@ -254,13 +299,14 @@ class PlotCreator(pbge.widgets.Widget):
 
         self.update_tree()
 
-    def _add_feature(self,widj,ev):
-        mymenu = pbge.rpgmenu.Menu(-100,-200,250,400)
-        mymenu.add_descbox(175,-200,175,400)
+    def _add_feature(self, widj, ev):
+        mymenu = pbge.rpgmenu.Menu(-100, -200, 250, 400)
+        mymenu.add_descbox(175, -200, 175, 400)
         mybrick = self.active_part.brick
         for tlabel in mybrick.child_types:
             for tbrick in BRICKS_BY_LABEL.get(tlabel, ()):
-                mymenu.add_item(tbrick.name, tbrick, tbrick.desc)
+                if not (tbrick.singular and any([t.name == tbrick.name for t in self.active_part.children])):
+                    mymenu.add_item(tbrick.name, tbrick, tbrick.desc)
         mymenu.sort()
         nubrick = mymenu.query()
         if nubrick:
@@ -268,38 +314,38 @@ class PlotCreator(pbge.widgets.Widget):
             self.mytree.sort()
             self.set_active_part(newbp)
 
-    def _remove_feature(self,widj,ev):
+    def _remove_feature(self, widj, ev):
         if self.active_part != self.mytree and hasattr(self.active_part, "container") and self.active_part.container:
             myparent = self.active_part.container.owner
             myparent.children.remove(self.active_part)
             self.mytree.sort()
             self.set_active_part(myparent)
 
-    def _exit_editor(self,widj,ev):
+    def _exit_editor(self, widj, ev):
         self.finished = True
 
     def _save(self, widj, ev):
-        fname = "PLOTCREATOR_{}.json".format(self.mytree.raw_vars["uname"])
-        with open(pbge.util.user_dir("content",fname), 'wt') as fp:
+        fname = "PLOTCREATOR_{}.json".format(self.mytree.raw_vars["unique_id"])
+        with open(pbge.util.user_dir("content", fname), 'wt') as fp:
             json.dump(self.mytree.get_save_dict(), fp, indent='\t')
 
     def _compile(self, widj, ev):
         myprog = self.mytree.compile()
-        fname = "ADV_{}.py".format(self.mytree.raw_vars["uname"])
-        with open(pbge.util.user_dir("content",fname), 'wt') as fp:
+        fname = "ADV_{}.py".format(self.mytree.raw_vars["unique_id"])
+        with open(pbge.util.user_dir("content", fname), 'wt') as fp:
             for l in myprog["main"]:
-                fp.write(l+'\n')
+                fp.write(l + '\n')
         pbge.BasicNotification("{} has been written. You can start the scenario from the main menu.".format(fname))
         game.content.ghplots.reload_plot_module(fname.rpartition('.')[0])
-        for k,v in myprog.items():
+        for k, v in myprog.items():
             if k != "main":
                 print("Leftover section: {}".format(k))
 
-    def click_part(self,widj,ev):
+    def click_part(self, widj, ev):
         if widj.data:
             self.set_active_part(widj.data)
 
-    def set_active_part(self,new_part):
+    def set_active_part(self, new_part):
         self.active_part = new_part
         self.update_tree()
 
@@ -323,7 +369,7 @@ class PlotCreator(pbge.widgets.Widget):
                 if ev.key == pygame.K_ESCAPE:
                     keepgoing = False
 
-        if myui.mytree.raw_vars["uname"]:
+        if myui.mytree.raw_vars["unique_id"]:
             myui._save(None, None)
 
         pbge.my_state.widgets.remove(myui)
@@ -332,25 +378,25 @@ class PlotCreator(pbge.widgets.Widget):
 def start_plot_creator(redraw):
     mainmenu = pbge.rpgmenu.Menu(-150, 0, 300, 226, predraw=redraw, font=pbge.BIGFONT)
     mainmenu.add_item("+Create New Scenario", "CNS")
-    myfiles = glob.glob(pbge.util.user_dir( "content", "PLOTCREATOR_*.json"))
+    myfiles = glob.glob(pbge.util.user_dir("content", "PLOTCREATOR_*.json"))
     for f in myfiles:
         mainmenu.add_item(os.path.basename(f), f)
 
     fname = mainmenu.query()
     if fname == "CNS":
-        mytree = BluePrint(BRICKS_BY_NAME["Scenario"])
-        PlotCreator.create_and_invoke(redraw, mytree)
+        mytree = BluePrint(BRICKS_BY_NAME["Scenario"], None)
+        ScenarioEditor.create_and_invoke(redraw, mytree)
     elif fname:
         with open(fname, 'rt') as fp:
             mydict = json.load(fp)
             if mydict:
                 mytree = BluePrint.load_save_dict(mydict)
-                PlotCreator.create_and_invoke(redraw, mytree)
+                ScenarioEditor.create_and_invoke(redraw, mytree)
 
 
 def init_plotcreator():
     protobits = list()
-    myfiles = glob.glob(pbge.util.data_dir( "pb_*.json"))
+    myfiles = glob.glob(pbge.util.data_dir("sed_*.json"))
     for f in myfiles:
         with open(f, 'rt') as fp:
             mylist = json.load(fp)
@@ -367,18 +413,25 @@ def init_plotcreator():
 
 class PlotBrickCompiler(object):
     def __init__(self, *args):
-        self.myfiles = glob.glob(pbge.util.game_dir("ploteditorsource", "*.pes"))
+        self.myfiles = glob.glob(pbge.util.game_dir("scenariocreatorsource", "*.ses"))
 
         self.source_block = None
         self.current_file = None
 
         for fname in self.myfiles:
-            mylist = self.load(fname)
+            self.process(fname)
 
-    def load(self, fname):
+        ALL_BRICKS.clear()
+        BRICKS_BY_NAME.clear()
+        BRICKS_BY_LABEL.clear()
+        init_plotcreator()
+
+    def process(self, fname):
         self.current_file = os.path.basename(fname)
         with open(fname, 'rt') as f:
             mylist = self.load_list(f)
+        with open(pbge.util.data_dir("sed_{}.json".format(self.current_file[:-4])), "wt") as f:
+            json.dump(mylist, f, indent=2)
         self.current_file = None
         return mylist
 
@@ -437,3 +490,4 @@ class PlotBrickCompiler(object):
 
         # Flush the buffer one more time.
         self.flush_buffer(current_brick, line_buffer)
+        return(mylist)

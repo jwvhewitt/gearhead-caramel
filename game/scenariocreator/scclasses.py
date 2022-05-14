@@ -2,17 +2,19 @@ import collections
 import copy
 
 import pbge.container
-from . import pbvars
+from . import scvars
 
 
 class ElementDefinition(object):
-    def __init__(self, name, e_type="misc", aliases=(), **kwargs):
+    def __init__(self, name, e_type="misc", aliases=(), uid=None, **kwargs):
         # name = Human readable name; may use variables like a script block.
         # aliases = Names used to reference this element by descendant parts. Should be all-caps.
+        # uid = The element's unique ID; only provided for "live" elements.
         self.name = name
         self.e_type = e_type
         self.aliases = list(aliases)
         self.etc = kwargs
+        self.uid = uid
 
 
 class PhysicalDefinition(object):
@@ -31,7 +33,7 @@ class PhysicalDefinition(object):
         if parent and parent not in the_brick.elements:
             print("Physical Error in {}: Parent {} not found".format(the_brick, parent))
         self.variable_keys = set(variable_keys)
-        if not self.variable_keys.issubset(the_brick.vars.get_keys()):
+        if not self.variable_keys.issubset(the_brick.vars.keys()):
             print("Physical Error in {}: Variable keys {} not found".format(
                 the_brick, self.variable_keys.difference(the_brick.vars.get_keys())
             ))
@@ -58,11 +60,11 @@ class PlotBrick(object):
     # child_types: List of brick labels that can be added as children of this brick.
     # elements: Descriptions for the elements defined within this brick in dict form.
     #     Element keys should be all uppercase to differentiate them from variable identifiers
-    # physicals: Descriptions for the physical objects defined within this brick in dict form.
+    # physicals: Descriptions for the physical objects defined within this brick in list form.
     # is_new_branch: True if this brick begins a new Plot. This is needed to check element + var inheritance.
     def __init__(
             self, label="PLOT_BLOCK", name="", display_name="", desc="", scripts=None, vars=None, child_types=(),
-            elements=None, physicals=None, is_new_branch=False, sorting_rank=1000, **kwargs
+            elements=None, physicals=(), is_new_branch=False, sorting_rank=1000, singular=False, **kwargs
     ):
         self.label = label
         self.name = name
@@ -74,18 +76,16 @@ class PlotBrick(object):
         self.vars = dict()
         if vars:
             for k, v in vars.items():
-                self.vars[k] = pbvars.get_variable_definition(**v)
+                self.vars[k] = scvars.get_variable_definition(**v)
         self.child_types = list(child_types)
         self.elements = dict()
         if elements:
             for k,v in elements.items():
                 self.elements[k] = ElementDefinition(**v)
-        self.physicals = dict()
-        if physicals:
-            for k,v in physicals.items():
-                self.physicals[k] = PhysicalDefinition(self, **v)
+        self.physicals = [PhysicalDefinition(self, **v) for v in physicals]
         self.is_new_branch = is_new_branch
         self.sorting_rank = sorting_rank
+        self.singular = singular
         self.data = kwargs.copy()
 
     def get_default_vars(self):
@@ -100,7 +100,7 @@ class PlotBrick(object):
 class BluePrint(object):
     def __init__(self, brick: PlotBrick, parent):
         if parent:
-            self.parent.children.append(self)
+            parent.children.append(self)
         self._brick_name = brick.name
         self.brick = brick
 
@@ -110,14 +110,19 @@ class BluePrint(object):
 
         uvars = self.get_ultra_vars()
         for k,v in brick.elements.items():
-            self.raw_vars["{}_UID".format(k)] = self.new_element_uid()
+            self.raw_vars[self.get_element_uid_var_name(k, uvars)] = self.new_element_uid()
+
+    def get_element_uid_var_name(self, rawvarname, uvars=None):
+        if not uvars:
+            uvars = self.get_ultra_vars()
+        return "_{}_UID".format(rawvarname.format(**uvars))
 
     def new_element_uid(self):
         myroot = self.get_root()
         if not hasattr(myroot, "max_element_uid"):
             myroot.max_element_uid = 0
-        myroot.max_eleemnt_uid += 1
-        return "{:0=8}".format(myroot.max_element_uid)
+        myroot.max_element_uid += 1
+        return repr("{:0=8}".format(myroot.max_element_uid))
 
     def get_save_dict(self, include_uid=True):
         mydict = dict()
@@ -128,20 +133,25 @@ class BluePrint(object):
             mydict["uid"] = self._uid
             if hasattr(self, "max_uid"):
                 mydict["max_uid"] = self.max_uid
+            if hasattr(self, "max_element_uid"):
+                mydict["max_element_uid"] = self.max_element_uid
+
         for c in self.children:
             mydict["children"].append(c.get_save_dict(include_uid))
         return mydict
 
     @classmethod
-    def load_save_dict(cls, jdict: dict):
+    def load_save_dict(cls, jdict: dict, parent=None):
         mybrick = BRICKS_BY_NAME[jdict["brick"]]
-        mybp = cls(mybrick)
+        mybp = cls(mybrick, parent)
         mybp._uid = jdict.get("uid",0)
         mybp.raw_vars.update(jdict["vars"])
         if "max_uid" in jdict:
             mybp.max_uid = jdict["max_uid"]
+        if "max_element_uid" in jdict:
+            mybp.max_element_uid = jdict["max_element_uid"]
         for cdict in jdict["children"]:
-            mybp.children.append(cls.load_save_dict(cdict))
+            cls.load_save_dict(cdict, mybp)
         mybp.sort()
         return mybp
 
@@ -188,6 +198,8 @@ class BluePrint(object):
             vardef = self.brick.vars.get(k)
             if vardef:
                 myvars[k] = vardef.format_for_python(v)
+            else:
+                myvars[k] = v
         return myvars
 
     def get_ultra_vars(self):
@@ -325,7 +337,7 @@ class BluePrint(object):
 
     uid = property(_get_uid)
 
-    def get_elements(self):
+    def get_elements(self, uvars=None, format_keys=True):
         # Return a dict of elements accessible from this block.
         # key = element_ID
         # value = ElementDefinition
@@ -335,11 +347,16 @@ class BluePrint(object):
         for a in my_ancestors:
             avars = a.get_ultra_vars()
             for k,v in a.brick.elements.items():
-                elements[k.format(**avars)] = ElementDefinition(v.name.format(**avars), e_type=v.e_type)
+                if format_keys:
+                    k = k.format(**avars)
+                elements[k.format(**avars)] = ElementDefinition(v.name.format(**avars), e_type=v.e_type, uid=avars[self.get_element_uid_var_name(v.name, avars)])
 
-        avars = self.get_ultra_vars()
+        if not uvars:
+            uvars = self.get_ultra_vars()
         for k,v in self.brick.elements.items():
-            elements[k.format(**avars)] = ElementDefinition(v.name.format(**avars), e_type=v.e_type)
+            if format_keys:
+                k = k.format(**uvars)
+            elements[k] = ElementDefinition(v.name.format(**uvars), e_type=v.e_type, uid=uvars[self.get_element_uid_var_name(k, uvars)])
 
         return elements
 

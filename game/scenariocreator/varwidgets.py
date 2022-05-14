@@ -1,7 +1,7 @@
-import game.plotcreator
+import game.scenariocreator
 import gears
 import pbge
-from game.plotcreator import statefinders, conditionals
+from game.scenariocreator import statefinders, conditionals
 
 
 class StringVarEditorWidget(pbge.widgets.ColumnWidget):

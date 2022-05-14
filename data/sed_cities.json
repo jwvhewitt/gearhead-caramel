@@ -1,0 +1,95 @@
+[
+  {
+    "label": "CITY",
+    "scripts": {
+      "scenario_subplots": "self.add_sub_plot(nart, \"CITY_{unique_id}_{_uid}\")\n\n",
+      "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = True\n\n    def custom_init( self, nart ):\n        #: city_init\n        #:scene_init\n        #: city_subplots\n        #: scene_subplots\n        return True\n\n    def METROSCENE_ENTER(self, camp):\n        #: city_enter\n\n    #: scene_methods\n\n",
+      "scenario_build": "# Build the city here, store it in the_world\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(\n    50, 50, \"{city_name}\", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,\n    faction={city_faction}, attributes=(gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC),\n    exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\"\n)\n\n# Create a scene generator\nmyscenegen = pbge.randmaps.CityGridGenerator(\n    myscene, game.content.gharchitecture.HumanScaleGreenzone(), road_terrain=game.content.ghterrain.Flagstone\n)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"_CITY_{_uid}\")\n\nthe_world[{_METROSCENE_UID}] = myscene\n\n# Create the entry/exit point.\nmyroom = self.register_element(\n    \"_ENTRY_ROOM_{_uid}\", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.south),\n    dident=\"_CITY_{_uid}\"\n)\n\nmygate = self.register_element(\n    \"_MISSION_GATE_{_uid}\", Exit(name=\"{entrance_name}\", desc=\"{entrance_desc}\",\n    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident=\"_ENTRY_ROOM_{_uid}\"\n)\n\nthe_world[{_MISSION_GATE_UID}] = mygate\n\n",
+      "city_init": "# Retrieve the city from the_world\nmyscene = nart.camp.campdata[THE_WORLD][{_METROSCENE_UID}]\nself.elements[\"METROSCENE\"] = myscene\nself.elements[\"METRO\"] = myscene.metrodat\n\nmygate = nart.camp.campdata[THE_WORLD][{_MISSION_GATE_UID}]\nself.elements[\"MISSION_GATE\"] = mygate\nself.elements[\"ENTRANCE\"] = mygate\nself.add_sub_plot(nart, \"CF_METROSCENE_RECOVERY_HANDLER\")\nself.add_sub_plot(nart, \"CF_METROSCENE_WME_DEFENSE_HANDLER\")\n\n",
+      "city_enter": "pass\n#: scene_enter\"\n\n\n"
+    },
+    "name": "New Metro Scene",
+    "display_name": "City: {city_name}",
+    "desc": "Adds a metro scene to the adventure. This is generally a city scene that serves as the player's home base between adventures. The metro scene handles the following things:\n - Provides a MetroDat slot for local plots.\n - Handles injury and death recovery.\n - Loads lancemate character dev plots (if enabled).",
+    "is_new_branch": true,
+    "vars": {
+      "city_name": {
+        "default_val": "Megacormack",
+        "var_type": "string"
+      },
+      "city_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      },
+      "entrance_name": {
+        "default_val": "Exit",
+        "var_type": "string"
+      },
+      "entrance_desc": {
+        "default_val": "Where do you want to go?",
+        "var_type": "text"
+      },
+      "exploration_music": {
+        "default_val": "airtone_-_reCreation.ogg",
+        "var_type": "music"
+      },
+      "combat_music": {
+        "default_val": "Late.ogg",
+        "var_type": "music"
+      },
+      "city_palette": {
+        "default_val": [
+          "Black",
+          "Black",
+          "Black",
+          "Black",
+          "Black"
+        ],
+        "var_type": "palette"
+      }
+    },
+    "child_types": [
+      "CITY_FEATURE",
+      "SCENE_FEATURE"
+    ],
+    "elements": {
+      "METROSCENE": {
+        "e_type": "scene",
+        "name": "{city_name}",
+        "aliases": [
+          "LOCALE",
+          "CITY"
+        ]
+      },
+      "MISSION_GATE": {
+        "e_type": "gate",
+        "name": "{entrance_name}",
+        "aliases": [
+          "MISSION_GATE"
+        ]
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "METROSCENE",
+        "variable_keys": [
+          "city_name",
+          "city_faction",
+          "exploration_music",
+          "combat_music",
+          "city_palette"
+        ]
+      },
+      {
+        "element_key": "MISSION_GATE",
+        "parent": "METROSCENE",
+        "variable_keys": [
+          "entrance_name",
+          "entrance_desc"
+        ],
+        "child_keys": null
+      }
+    ],
+    "sorting_rank": 1000
+  }
+]

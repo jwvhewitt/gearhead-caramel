@@ -5,6 +5,7 @@ a CC-BY-4.0 license.
 ARTWORK
 =======
 
+* eyecatch_sierrabravo_*.png screens by Sierra Bravo, https://www.sierrabravoart.com/, CC-BY-4.0
 * eyecatch_nickyrodriguez_*.png screens by Nicky Rodriguez, https://www.artofnickyrodriguez.com/, CC-BY-4.0
 * eyecatch_noppy_*.png screens by Thomas Noppers, https://www.etsy.com/shop/ToppyNoppy, CC-BY-4.0
 * por_lorderin_*.png portrait bits by Lord Erin

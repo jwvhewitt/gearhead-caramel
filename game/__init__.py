@@ -12,7 +12,7 @@ from . import fieldhq
 from . import mechabrowser
 from . import geareditor
 from . import devstuff
-from . import plotcreator
+from . import scenariocreator
 from game.fieldhq import backpack
 import pbge
 
@@ -78,4 +78,4 @@ def start_campaign(pc_egg, redrawer):
 def init_game():
     content.backstory.init_backstory()
     content.ghplots.init_plots()
-    plotcreator.init_plotcreator()
+    scenariocreator.init_plotcreator()

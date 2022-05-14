@@ -45,6 +45,11 @@ class IntegerVariable(BaseVariableDefinition):
             return 0
 
 
+class FiniteStateVariable(BaseVariableDefinition):
+    DEFAULT_VAR_TYPE = "list"
+    WIDGET_TYPE = varwidgets.FiniteStateEditorWidget
+
+
 class FiniteStateListVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "list"
     WIDGET_TYPE = varwidgets.AddRemoveFSOptionsWidget
@@ -188,11 +193,13 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
     elif var_type == "campaign_variable":
         return CampaignVariableVariable(default_val, **kwargs)
     elif var_type in ("faction", "scene", "npc"):
-        return FiniteStateListVariable(default_val, var_type, **kwargs)
+        return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.LIST_TYPES:
         return FiniteStateListVariable(default_val, var_type, **kwargs)
+    elif var_type.startswith("physical:"):
+        return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type.endswith(".png"):
-        return FiniteStateListVariable(default_val, var_type, **kwargs)
+        return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type == "boolean":
         return BooleanVariable(default_val, **kwargs)
     elif var_type == "dialogue_context":

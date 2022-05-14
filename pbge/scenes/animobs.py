@@ -80,7 +80,7 @@ class AnimOb( object ):
         if self.delay > 0:
             self.delay += -1
         else:
-            view.anims[view.PosToKey(self.pos)].append( self )
+            view.anims[view.pos_to_key(self.pos)].append(self)
             self.counter += 1
             if self.counter >= self.ticks_per_frame:
                 self.frame += 1
@@ -176,7 +176,7 @@ class ShotAnim( AnimOb ):
         if self.delay > 0:
             self.delay += -1
         else:
-            view.anims[view.PosToKey(self.pos)].append( self )
+            view.anims[view.pos_to_key(self.pos)].append(self)
             self.counter += 1
             if self.counter >= len( self.itinerary ):
                 self.needs_deletion = True
@@ -206,7 +206,7 @@ class Caption( AnimOb ):
         if self.delay > 0:
             self.delay += -1
         else:
-            view.tickers[view.PosToKey(self.pos)].add(self.txt, self.dy_off)
+            view.tickers[view.pos_to_key(self.pos)].add(self.txt, self.dy_off)
             self.needs_deletion = True
 
 

@@ -1,0 +1,158 @@
+#
+# Alright, let's talk about this folder. Previously the scenario editor PlotBricks were written in JSON and the Python
+# code involved was defined in long ugly strings. Well, turns out that way of doing things is prone to errors and
+# makes it kinda difficult to see what's going on. So now I've decided to move the source code to a semi-proper source
+# file. Of course this means writing another effing parser. This file will be manually parsed and turned
+# into a JSON file that will be loaded by the scenario editor and then compiled back into a Python file. The circle of
+# life continues and Eris smiles.
+#
+
+
+*NEW SCENARIO
+"name": "Scenario",
+"display_name": "Scenario {adventure_name}",
+"desc": "The base plot brick for creating an adventure module.",
+"vars": {
+      "adventure_name": {"default_val": "Adventure!", "var_type": "string"},
+      "adventure_desc": {"default_val": "Go fight some pirates.", "var_type": "text"},
+      "adventure_date": {"default_val": "(158, 5, 10)", "var_type": "date"},
+      "unique_id": {"default_val": "", "var_type": "string"},
+      "adventure_threat": {
+        "default_val": 0,
+        "var_type": "integer"
+      },
+      "adventure_cover": {"default_val": null, "var_type": "VHS_*.png"},
+      "starting_point": {"default_val": null, "var_type": "physical:gate"},
+      "start_with_lancemate": {"default_val": true, "var_type": "boolean"}
+},
+"child_types": ["CITY", "WORLD_FEATURE"]
+
+*SCRIPT main
+import gears
+from pbge.plots import Plot, Adventure, PlotState
+import pbge
+from pbge.dialogue import Offer, ContextTag
+from game import teams, ghdialogue, services
+from game.ghdialogue import context
+import pygame
+import random
+from game.content.ghwaypoints import Exit
+from game.content.plotutility import AdventureModuleData
+import game
+from game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain
+from game.memobrowser import Memo
+from game.content.ghplots import missionbuilder
+#: includes
+
+THE_WORLD = "SCENARIO_ELEMENT_UIDS"
+
+class {unique_id}_Scenario( Plot ):
+    LABEL = "SCENARIO_{unique_id}"
+    active = True
+    scope = True
+
+    ADVENTURE_MODULE_DATA = AdventureModuleData(
+        "{adventure_name}",
+        "{adventure_desc}",
+        {adventure_date}, {adventure_cover},
+    )
+
+    def custom_init( self, nart ):
+        self.ADVENTURE_MODULE_DATA.apply(nart.camp)
+
+        if {adventure_threat} > 0:
+            self.rank = {adventure_threat}
+        else:
+            self.rank = nart.camp.renown
+        #:scenario_init
+
+        self.build_world(nart)
+
+        #:scenario_subplots
+
+        # Handle the entry and lancemate stuff here.
+        entry_point = nart.camp.campdata[THE_WORLD].get({starting_point})
+        nart.camp.go(entry_point)
+        if {start_with_lancemate}:
+            self.add_sub_plot(nart, "ADD_INSTANT_EGG_LANCEMATE", necessary=False)
+
+        return True
+
+    def build_world(self, nart):
+        # When adding physical things to the world, do that here instead of inside your individual plots. That way,
+        # all the physical objects in the world get defined before individual plots get loaded and the elements they
+        # define can be grabbed from THE_WORLD campaign variable.
+        the_world = dict()
+        nart.camp.campdata[THE_WORLD] = the_world
+
+        #:scenario_build
+
+    #: world_methods
+
+
+
+*NEW WORLD_FEATURE
+"name": "New Sub Faction",
+"display_name": "Faction: {faction_name}",
+"desc": "Adds a new sub-faction to a world.",
+"vars": {
+  "faction_name": {"default_val": "the Them", "var_type": "string"},
+  "base_faction": {"default_val": null, "var_type": "faction"}
+},
+"elements": {
+  "FACTION_{_uid}": {"e_type": "faction", "name": "{faction_name}"}
+},
+"sorting_rank": 100
+
+*SCRIPT scenario_init
+self.register_element( \"FACTION_{_uid}\", gears.factions.Circle(nart.camp, parent_faction={base_faction}, name=\"{faction_name}\"))
+
+
+
+*NEW WORLD_FEATURE
+"name": "New Campaign Variable",
+"display_name": "Define {var_name} = {value}",
+"desc": "Define a campaign variable.",
+"vars": {
+  "var_name": {
+    "var_type": "campaign_variable",
+    "default_val": "x"
+  },
+  "value": {
+    "default_val": 0,
+    "var_type": "integer"
+  }
+},
+"sorting_rank": 200
+
+*SCRIPT scenario_init
+nart.camp.campdata[\"{var_name}\"] = {value}
+
+
+
+*NEW WORLD_FEATURE
+"name": "Standard Lancemate Handler",
+"desc": "Adds the regular Lancemate handling scripts: an NPC can join your party if they have the lancemate tag; you can ask lancemates to leave if you are in a public scene; you can have a number of lancemates defined by the campaign..",
+"vars": {
+  "lancemate_slots": {"default_val": 3, "var_type": "integer"},
+  "lancemate_development": {"default_val":  true, "var_type": "boolean"}
+},
+"singular": true,
+"sorting_rank": 300
+
+*SCRIPT scenario_init
+nart.camp.num_lancemates = {lancemate_slots}
+self.add_sub_plot(nart, "CF_STANDARD_LANCEMATE_HANDLER", elements=dict(LANCEDEV_ENABLED={lancemate_development}))
+
+
+
+*NEW WORLD_FEATURE
+"name": "Add Frozen Combatant",
+"desc": "Add a random faction member who starts the game in cold storage. This NPC may be encountered during missions and other plots that use a global character search.",
+"vars": {
+  "npc_faction": {"default_val": null, "var_type": "faction"}
+},
+"sorting_rank": 2000
+
+*SCRIPT scenario_init
+self.add_sub_plot(nart, \"ADD_FROZEN_COMBATANT\", elements=dict(FACTION={npc_faction}))

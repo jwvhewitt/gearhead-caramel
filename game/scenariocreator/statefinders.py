@@ -17,6 +17,26 @@ def find_factions(part):
     return mylist
 
 
+def _check_part_for_physicals(part, e_type=None):
+    mylist = list()
+    uvars = part.get_ultra_vars()
+    myelements = part.get_elements(uvars=uvars)
+
+    for p in part.brick.physicals:
+        elem = myelements[p.element_key.format(**uvars)]
+        if (not e_type) or (e_type == elem.e_type):
+            mylist.append((elem.name, elem.uid))
+
+    for c in part.children:
+        mylist += _check_part_for_physicals(c, e_type)
+
+    return mylist
+
+def find_physicals(part, e_type=None):
+    mylist = _check_part_for_physicals(part, e_type)
+    mylist.append(("==None==", None))
+    return mylist
+
 class DialogueContextDescription(object):
     def __init__(self, name, desc, needed_data=()):
         self.name = name
@@ -100,6 +120,8 @@ def find_elements(part, e_type):
 def get_possible_states(part, category: str):
     if category == "faction":
         return find_factions(part)
+    elif category.startswith("physical:"):
+        return find_physicals(part.get_root(), category[9:])
     elif category == "dialogue_context":
         mylist = list()
         for k,v in CONTEXT_INFO.items():
