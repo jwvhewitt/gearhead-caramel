@@ -9,6 +9,8 @@ from .scclasses import ALL_BRICKS, BRICKS_BY_LABEL, BRICKS_BY_NAME, PlotBrick, B
 import pygame
 import os
 
+from yapf.yapflib.yapf_api import FormatCode
+
 from .varwidgets import StringVarEditorWidget, CampaignVarNameWidget, TextVarEditorWidget, FiniteStateEditorWidget, \
     BoolEditorWidget, DialogueContextWidget, DialogueOfferDataWidget, ConditionalEditorWidget, MusicEditorWidget, \
     PaletteEditorWidget, AddRemoveFSOptionsWidget
@@ -332,9 +334,12 @@ class ScenarioEditor(pbge.widgets.Widget):
     def _compile(self, widj, ev):
         myprog = self.mytree.compile()
         fname = "ADV_{}.py".format(self.mytree.raw_vars["unique_id"])
+        fullprog, changed = FormatCode('\n'.join(myprog["main"]))
+
         with open(pbge.util.user_dir("content", fname), 'wt') as fp:
-            for l in myprog["main"]:
-                fp.write(l + '\n')
+            fp.write(fullprog)
+            #for l in fullprog:
+            #    fp.write(l + '\n')
         pbge.BasicNotification("{} has been written. You can start the scenario from the main menu.".format(fname))
         game.content.ghplots.reload_plot_module(fname.rpartition('.')[0])
         for k, v in myprog.items():
