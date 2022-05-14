@@ -35,7 +35,7 @@ jobs:
         cd ..
     - name: build with cx-freeze
       run: |
-        cxfreeze -c main.py --target-dir dist/ghcaramel --include-files=data,design,image,music,credits.md,history.txt,LICENSE,README.md -s --target-name=ghcaramel --packages=pygame,numpy,pbgerecolor
+        cxfreeze -c main.py --target-dir dist/ghcaramel --include-files=data,design,image,music,credits.md,history.md,LICENSE,README.md -s --target-name=ghcaramel --packages=pygame,numpy,pbgerecolor
     - name: Upload the file
       uses: actions/upload-artifact@v1
       with:
