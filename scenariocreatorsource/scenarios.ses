@@ -6,6 +6,17 @@
 # into a JSON file that will be loaded by the scenario editor and then compiled back into a Python file. The circle of
 # life continues and Eris smiles.
 #
+# *********************
+# ***   DA  RULEZ   ***
+# *********************
+#
+# A line starting with "#:" merges in any child scripts with the same label.
+# A line starting with "+subplot" adds the named subplot and includes all public elements by all their aliases
+#     If your needs are more specialized, you can call add_sub_plot directly.
+# New plots ("is_new_branch": true) should include a "#: plot_init" line near the top of the custom_init method
+# "element_alias_list" is a variable that automatically gets added to custom_init, so don't create a variable with
+#     that name yourself.
+#
 
 
 *NEW SCENARIO
@@ -25,7 +36,8 @@
       "starting_point": {"default_val": null, "var_type": "physical:gate"},
       "start_with_lancemate": {"default_val": true, "var_type": "boolean"}
 },
-"child_types": ["CITY", "WORLD_FEATURE"]
+"child_types": ["CITY", "WORLD_FEATURE"],
+"is_new_branch": true
 
 *SCRIPT main
 import gears
@@ -64,6 +76,7 @@ class {unique_id}_Scenario( Plot ):
             self.rank = {adventure_threat}
         else:
             self.rank = nart.camp.renown
+        #: plot_init
         #:scenario_init
 
         self.build_world(nart)

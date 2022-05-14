@@ -346,8 +346,7 @@ class ScenarioEditor(pbge.widgets.Widget):
 
         with open(pbge.util.user_dir("content", fname), 'wt') as fp:
             fp.write(fullprog)
-            #for l in fullprog:
-            #    fp.write(l + '\n')
+
         pbge.BasicNotification("{} has been written. You can start the scenario from the main menu.".format(fname))
         game.content.ghplots.reload_plot_module(fname.rpartition('.')[0])
         for k, v in myprog.items():

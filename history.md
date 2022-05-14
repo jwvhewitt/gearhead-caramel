@@ -1,3 +1,4 @@
+* Scenario Creator has subplot loader utility which passes all element aliases
 * Scenario Creator builds the world before loading subplots
 * Possibly fixed the problem with pygame.quit() not really quitting
 * Scenario creator variables return their own widgets; may return a list of widgets rather than a single widget

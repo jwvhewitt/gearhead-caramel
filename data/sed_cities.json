@@ -2,8 +2,8 @@
   {
     "label": "CITY",
     "scripts": {
-      "scenario_subplots": "self.add_sub_plot(nart, \"CITY_{unique_id}_{_uid}\")\n\n",
-      "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = True\n\n    def custom_init( self, nart ):\n        #: city_init\n        #:scene_init\n        #: city_subplots\n        #: scene_subplots\n        return True\n\n    def METROSCENE_ENTER(self, camp):\n        #: city_enter\n\n    #: scene_methods\n\n",
+      "scenario_subplots": "+subplot CITY_{unique_id}_{_uid}\n\n",
+      "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = True\n\n    def custom_init( self, nart ):\n        #: plot_init\n        #: city_init\n        #:scene_init\n        #: city_subplots\n        #: scene_subplots\n        return True\n\n    def METROSCENE_ENTER(self, camp):\n        #: city_enter\n\n    #: scene_methods\n\n",
       "scenario_build": "# Build the city here, store it in the_world\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(\n    50, 50, \"{city_name}\", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,\n    faction={city_faction}, attributes=(gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC),\n    exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\"\n)\n\n# Create a scene generator\nmyscenegen = pbge.randmaps.CityGridGenerator(\n    myscene, game.content.gharchitecture.HumanScaleGreenzone(), road_terrain=game.content.ghterrain.Flagstone\n)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"_CITY_{_uid}\")\n\nthe_world[{_METROSCENE_UID}] = myscene\n\n# Create the entry/exit point.\nmyroom = self.register_element(\n    \"_ENTRY_ROOM_{_uid}\", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.south),\n    dident=\"_CITY_{_uid}\"\n)\n\nmygate = self.register_element(\n    \"_MISSION_GATE_{_uid}\", Exit(name=\"{entrance_name}\", desc=\"{entrance_desc}\",\n    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident=\"_ENTRY_ROOM_{_uid}\"\n)\n\nthe_world[{_MISSION_GATE_UID}] = mygate\n\n",
       "city_init": "# Retrieve the city from the_world\nmyscene = nart.camp.campdata[THE_WORLD][{_METROSCENE_UID}]\nself.elements[\"METROSCENE\"] = myscene\nself.elements[\"METRO\"] = myscene.metrodat\n\nmygate = nart.camp.campdata[THE_WORLD][{_MISSION_GATE_UID}]\nself.elements[\"MISSION_GATE\"] = mygate\nself.elements[\"ENTRANCE\"] = mygate\nself.add_sub_plot(nart, \"CF_METROSCENE_RECOVERY_HANDLER\")\nself.add_sub_plot(nart, \"CF_METROSCENE_WME_DEFENSE_HANDLER\")\n\n",
       "city_enter": "pass\n#: scene_enter\"\n\n\n"
@@ -65,7 +65,7 @@
         "e_type": "gate",
         "name": "{entrance_name}",
         "aliases": [
-          "MISSION_GATE"
+          "ENTRANCE"
         ]
       }
     },

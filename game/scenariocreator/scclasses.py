@@ -88,6 +88,23 @@ class PlotBrick(object):
         self.singular = singular
         self.data = kwargs.copy()
 
+        self._format_scripts()
+
+    def _format_scripts(self):
+        if self.is_new_branch:
+            aliases = list()
+            for elemkey, elemdesc in self.elements.items():
+                for a in elemdesc.aliases:
+                    aliases.append((a, elemkey))
+            element_alias_list = repr(aliases)
+            self.scripts["plot_init"] = "element_alias_list = {}\n".format(element_alias_list) + self.scripts.get("plot_init", "")
+        elif self.elements:
+            if "plot_init" not in self.scripts:
+                self.scripts["plot_init"] = ""
+            for elemkey, elemdesc in self.elements.items():
+                for a in elemdesc.aliases:
+                    self.scripts["plot_init"] += "\nelement_alias_list.append(('{}','{}'))".format(a, elemkey)
+
     def get_default_vars(self):
         myvars = dict()
         for k, v in self.vars.items():
@@ -96,6 +113,7 @@ class PlotBrick(object):
 
     def __str__(self):
         return self.name
+
 
 class BluePrint(object):
     def __init__(self, brick: PlotBrick, parent):
@@ -122,7 +140,7 @@ class BluePrint(object):
         if not hasattr(myroot, "max_element_uid"):
             myroot.max_element_uid = 0
         myroot.max_element_uid += 1
-        return repr("{:0=8}".format(myroot.max_element_uid))
+        return repr("{:0=8X}".format(myroot.max_element_uid))
 
     def get_save_dict(self, include_uid=True):
         mydict = dict()
@@ -252,8 +270,8 @@ class BluePrint(object):
             nuscript = list()
             for script_line in v.splitlines():
                 if script_line:
-                    n = script_line.find("#>")
-                    if n >= 0:
+                    if script_line.strip().startswith("#:"):
+                        n = script_line.find("#:")
                         prefix = " " * n
                         new_section_name = script_line[n + 2:].strip()
                         if new_section_name in mykids:
@@ -262,6 +280,19 @@ class BluePrint(object):
                             del mykids[new_section_name]
                         else:
                             nuscript.append(script_line)
+                    elif script_line.strip().startswith("+subplot"):
+                        n = script_line.find("+subplot")
+                        prefix = " " * n
+                        subplot_name = script_line[n + 8:].strip()
+                        if subplot_name:
+                            nuscript.append(
+                                prefix + "self.add_sub_plot(nart, '{}', elements={})".format(
+                                    subplot_name,
+                                    "dict([('a', self.elements['b']) for a,b in element_alias_list])"
+                                )
+                            )
+                        else:
+                            print("Error in {}: No subplot for {}".format(self.brick.name, script_line))
                     else:
                         nuscript.append(script_line)
             myscripts[k] = "\n".join(nuscript)

@@ -15,7 +15,7 @@
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
     "elements": {
       "METROSCENE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["LOCALE","CITY"]},
-      "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["MISSION_GATE"]}
+      "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
     "physicals": [
         {"element_key": "METROSCENE", "variable_keys": ["city_name", "city_faction", "exploration_music", "combat_music", "city_palette"]},
@@ -24,7 +24,7 @@
     "sorting_rank": 1000
 
 *SCRIPT scenario_subplots
-self.add_sub_plot(nart, "CITY_{unique_id}_{_uid}")
++subplot CITY_{unique_id}_{_uid}
 
 *SCRIPT main
 class City_{unique_id}_{_uid}( Plot ):
@@ -33,6 +33,7 @@ class City_{unique_id}_{_uid}( Plot ):
     scope = True
 
     def custom_init( self, nart ):
+        #: plot_init
         #: city_init
         #:scene_init
         #: city_subplots
