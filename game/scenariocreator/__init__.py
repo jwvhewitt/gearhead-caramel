@@ -9,7 +9,12 @@ from .scclasses import ALL_BRICKS, BRICKS_BY_LABEL, BRICKS_BY_NAME, PlotBrick, B
 import pygame
 import os
 
-from yapf.yapflib.yapf_api import FormatCode
+try:
+    from yapf.yapflib.yapf_api import FormatCode
+
+except ImportError:
+    FormatCode = None
+
 
 from .varwidgets import StringVarEditorWidget, CampaignVarNameWidget, TextVarEditorWidget, FiniteStateEditorWidget, \
     BoolEditorWidget, DialogueContextWidget, DialogueOfferDataWidget, ConditionalEditorWidget, MusicEditorWidget, \
@@ -334,7 +339,10 @@ class ScenarioEditor(pbge.widgets.Widget):
     def _compile(self, widj, ev):
         myprog = self.mytree.compile()
         fname = "ADV_{}.py".format(self.mytree.raw_vars["unique_id"])
-        fullprog, changed = FormatCode('\n'.join(myprog["main"]))
+        if FormatCode:
+            fullprog, changed = FormatCode('\n'.join(myprog["main"]))
+        else:
+            fullprog = '\n'.join(myprog["main"])
 
         with open(pbge.util.user_dir("content", fname), 'wt') as fp:
             fp.write(fullprog)

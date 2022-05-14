@@ -29,6 +29,7 @@ jobs:
         pip install cython
         pip install cx-freeze
         pip install pyinstaller
+        pip install yapf
     - name: build caramel-recolor-cython
       run: |
         cd caramel-recolor-cython
