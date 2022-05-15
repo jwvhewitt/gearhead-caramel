@@ -86,9 +86,8 @@ self.elements["METRO"] = myscene.metrodat
 
 mygate = nart.camp.campdata[THE_WORLD][{_MISSION_GATE_UID}]
 self.elements["MISSION_GATE"] = mygate
-self.elements["ENTRANCE"] = mygate
-self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
-self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")
++subplot CF_METROSCENE_RECOVERY_HANDLER
++subplot CF_METROSCENE_WME_DEFENSE_HANDLER
 
 *SCRIPT city_enter
 pass

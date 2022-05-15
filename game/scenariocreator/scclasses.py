@@ -116,7 +116,7 @@ class PlotBrick(object):
 
 
 class BluePrint(object):
-    def __init__(self, brick: PlotBrick, parent):
+    def __init__(self, brick: PlotBrick, parent, loaded_uid=0, loaded_vars=None):
         if parent:
             parent.children.append(self)
         self._brick_name = brick.name
@@ -124,11 +124,14 @@ class BluePrint(object):
 
         self.children = pbge.container.ContainerList(owner=self)
         self.raw_vars = brick.get_default_vars()
-        self._uid = 0
+        if loaded_vars:
+            self.raw_vars.update(loaded_vars)
+        self._uid = 0 or loaded_uid
 
         uvars = self.get_ultra_vars()
         for k,v in brick.elements.items():
-            self.raw_vars[self.get_element_uid_var_name(k, uvars)] = self.new_element_uid()
+            if self.get_element_uid_var_name(k, uvars) not in self.raw_vars:
+                self.raw_vars[self.get_element_uid_var_name(k, uvars)] = self.new_element_uid()
 
     def get_element_uid_var_name(self, rawvarname, uvars=None):
         if not uvars:
@@ -161,9 +164,7 @@ class BluePrint(object):
     @classmethod
     def load_save_dict(cls, jdict: dict, parent=None):
         mybrick = BRICKS_BY_NAME[jdict["brick"]]
-        mybp = cls(mybrick, parent)
-        mybp._uid = jdict.get("uid",0)
-        mybp.raw_vars.update(jdict["vars"])
+        mybp = cls(mybrick, parent, loaded_uid=jdict.get("uid", 0), loaded_vars=jdict["vars"])
         if "max_uid" in jdict:
             mybp.max_uid = jdict["max_uid"]
         if "max_element_uid" in jdict:

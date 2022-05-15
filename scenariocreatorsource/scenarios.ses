@@ -14,8 +14,10 @@
 # A line starting with "+subplot" adds the named subplot and includes all public elements by all their aliases
 #     If your needs are more specialized, you can call add_sub_plot directly.
 # New plots ("is_new_branch": true) should include a "#: plot_init" line near the top of the custom_init method
-# "element_alias_list" is a variable that automatically gets added to custom_init, so don't create a variable with
-#     that name yourself.
+# "element_alias_list" is a variable that automatically gets added to custom_init via #:plot_init, so don't create
+#     a variable with that name yourself.
+# "SCENARIO_ELEMENT_UIDS" is a campdata variable that contains all the physical objects in the world. So please
+#     don't overwrite this with your own global variable of the same name. That would mess everything up.
 #
 
 
@@ -109,7 +111,7 @@ class {unique_id}_Scenario( Plot ):
 "display_name": "Faction: {faction_name}",
 "desc": "Adds a new sub-faction to a world.",
 "vars": {
-  "faction_name": {"default_val": "the Them", "var_type": "string"},
+  "faction_name": {"default_val": "Those Folks", "var_type": "string"},
   "base_faction": {"default_val": null, "var_type": "faction"}
 },
 "elements": {
