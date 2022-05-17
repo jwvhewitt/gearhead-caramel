@@ -23,7 +23,7 @@
     ],
     "sorting_rank": 1000
 
-*SCRIPT scenario_subplots
+*SCRIPT plot_subplots
 +subplot CITY_{unique_id}_{_uid}
 
 *SCRIPT main
@@ -33,17 +33,23 @@ class City_{unique_id}_{_uid}( Plot ):
     scope = True
 
     def custom_init( self, nart ):
+        +init_plot
         #: plot_init
         #: city_init
-        #:scene_init
+        #: plot_actions
+        #: plot_subplots
+        +subplot CF_METROSCENE_RECOVERY_HANDLER
+        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER
+
         #: city_subplots
         #: scene_subplots
         return True
 
     def METROSCENE_ENTER(self, camp):
+        pass
         #: city_enter
 
-    #: scene_methods
+    #: plot_methods
 
 *SCRIPT scenario_build
 # Build the city here, store it in the_world
@@ -63,7 +69,7 @@ myscenegen = pbge.randmaps.CityGridGenerator(
 # Register the city scene and the metro data
 self.register_scene(nart, myscene, myscenegen, ident="_CITY_{_uid}")
 
-the_world[{_METROSCENE_UID}] = myscene
+the_world[{METROSCENE_UID}] = myscene
 
 # Create the entry/exit point.
 myroom = self.register_element(
@@ -76,21 +82,7 @@ mygate = self.register_element(
     anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_ENTRY_ROOM_{_uid}"
 )
 
-the_world[{_MISSION_GATE_UID}] = mygate
+the_world[{MISSION_GATE_UID}] = mygate
 
-*SCRIPT city_init
-# Retrieve the city from the_world
-myscene = nart.camp.campdata[THE_WORLD][{_METROSCENE_UID}]
-self.elements["METROSCENE"] = myscene
-self.elements["METRO"] = myscene.metrodat
-
-mygate = nart.camp.campdata[THE_WORLD][{_MISSION_GATE_UID}]
-self.elements["MISSION_GATE"] = mygate
-+subplot CF_METROSCENE_RECOVERY_HANDLER
-+subplot CF_METROSCENE_WME_DEFENSE_HANDLER
-
-*SCRIPT city_enter
-pass
-#: scene_enter"
 
 

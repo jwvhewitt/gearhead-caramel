@@ -7,13 +7,15 @@ class BaseVariableDefinition(object):
     WIDGET_TYPE = None
     DEFAULT_VAR_TYPE = "integer"
 
-    def __init__(self, default_val=0, var_type=None, **kwargs):
+    def __init__(self, default_val=0, var_type=None, must_be_defined=False, **kwargs):
+        # if must_be_defined is True, this scenario won't compile if the variable is undefined.
         if isinstance(default_val, dict):
             self.default_val = dict()
             self.default_val.update(default_val)
         else:
             self.default_val = default_val
         self.var_type = var_type or self.DEFAULT_VAR_TYPE
+        self.must_be_defined = must_be_defined
         self.data = kwargs.copy()
 
     def get_widgets(self, part, key, **kwargs):
@@ -21,6 +23,12 @@ class BaseVariableDefinition(object):
         mylist = list()
         mylist.append(self.WIDGET_TYPE(part, key, **kwargs))
         return mylist
+
+    def has_valid_value(self, part, key):
+        # Return True if this variable has a valid value, or False otherwise.
+        uvals = part.get_ultra_vars()
+        if key in uvals:
+            return key or not self.must_be_defined
 
     @staticmethod
     def format_for_python(value):

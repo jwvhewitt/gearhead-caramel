@@ -340,9 +340,9 @@ class ScenarioEditor(pbge.widgets.Widget):
         myprog = self.mytree.compile()
         fname = "ADV_{}.py".format(self.mytree.raw_vars["unique_id"])
         if FormatCode:
-            fullprog, changed = FormatCode('\n'.join(myprog["main"]))
+            fullprog, changed = FormatCode(myprog["main"])
         else:
-            fullprog = '\n'.join(myprog["main"])
+            fullprog = myprog["main"]
 
         with open(pbge.util.user_dir("content", fname), 'wt') as fp:
             fp.write(fullprog)

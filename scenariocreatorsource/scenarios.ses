@@ -10,14 +10,42 @@
 # ***   DA  RULEZ   ***
 # *********************
 #
-# A line starting with "#:" merges in any child scripts with the same label.
+# Scenarios are created using PlotBricks. I dunno how I come up with names for classes. Probably read too much
+#   Jack Kirby as a kid.
+#
+# A script line starting with "#:" Inserts any child scripts with the given label at this point. If no insertion point
+#   is given using "#:", child scripts get appended to the end of the script with the same label in this brick. If no
+#   script with the same name appears in this brick, one will be added. Everything then gets passed back to the parent
+#   and the circle of life continues.
+#
+# A new plot should include the following lines:
+#     +init_plot            A macro that must come before #: plot_init inside the custom_init function
+#     #: plot_init          Contains the initialization procedures, loading of elements, etc.
+#     #: plot_actions       Contains any extra work this plot needs to do.
+#     #: plot_subplots      Contains calls to load subplots.
+#     #: plot_methods       Following the custom_init method, this reserves space for extra plot methods
+#
 # A line starting with "+subplot" adds the named subplot and includes all public elements by all their aliases
-#     If your needs are more specialized, you can call add_sub_plot directly.
-# New plots ("is_new_branch": true) should include a "#: plot_init" line near the top of the custom_init method
-# "element_alias_list" is a variable that automatically gets added to custom_init via #:plot_init, so don't create
+#     If your needs are more specialized, you can call add_sub_plot directly. Lines starting with "+" are macros
+#     that do repetitive stuff in the PlotBrick compiler.
+#
+# "+add_physical [element ID] [variable name]" is a macro that should be used in the #:scenario_build script. It
+#     sticks a variable you just created (presumably a physical object of some type) into the world and records its
+#     unique ID.
+#
+# "+register_physical [element ID]" is another macro. It locates the physical thing created in the #:scenario_build
+#     script and registers its element ID in the current plot. Fortunately enough, this macro is called automatically
+#     by the +init_plot macro and so you should never have to use it manually! Just including the info here out of a
+#     misplaced sense of completeness.
+#
+# "element_alias_list" is a variable that automatically gets added to custom_init via +init_plot, so don't create
 #     a variable with that name yourself.
+#
 # "SCENARIO_ELEMENT_UIDS" is a campdata variable that contains all the physical objects in the world. So please
 #     don't overwrite this with your own global variable of the same name. That would mess everything up.
+#
+# Variable keys and element keys are string literals; they can't use {} format strings.
+#     This is different from the first version of the plot editor, where element keys could use {} format strings.
 #
 
 
@@ -78,12 +106,15 @@ class {unique_id}_Scenario( Plot ):
             self.rank = {adventure_threat}
         else:
             self.rank = nart.camp.renown
+        +init_plot
         #: plot_init
         #:scenario_init
 
         self.build_world(nart)
 
-        #:scenario_subplots
+        #: plot_actions
+
+        #: plot_subplots
 
         # Handle the entry and lancemate stuff here.
         entry_point = nart.camp.campdata[THE_WORLD].get({starting_point})
@@ -103,6 +134,7 @@ class {unique_id}_Scenario( Plot ):
         #:scenario_build
 
     #: world_methods
+    #: plot_methods
 
 
 
@@ -119,7 +151,7 @@ class {unique_id}_Scenario( Plot ):
 },
 "sorting_rank": 100
 
-*SCRIPT scenario_init
+*SCRIPT plot_init
 self.register_element( \"FACTION_{_uid}\", gears.factions.Circle(nart.camp, parent_faction={base_faction}, name=\"{faction_name}\"))
 
 
@@ -140,7 +172,7 @@ self.register_element( \"FACTION_{_uid}\", gears.factions.Circle(nart.camp, pare
 },
 "sorting_rank": 200
 
-*SCRIPT scenario_init
+*SCRIPT plot_init
 nart.camp.campdata[\"{var_name}\"] = {value}
 
 
@@ -155,7 +187,7 @@ nart.camp.campdata[\"{var_name}\"] = {value}
 "singular": true,
 "sorting_rank": 300
 
-*SCRIPT scenario_init
+*SCRIPT plot_actions
 nart.camp.num_lancemates = {lancemate_slots}
 self.add_sub_plot(nart, "CF_STANDARD_LANCEMATE_HANDLER", elements=dict(LANCEDEV_ENABLED={lancemate_development}))
 
@@ -169,5 +201,5 @@ self.add_sub_plot(nart, "CF_STANDARD_LANCEMATE_HANDLER", elements=dict(LANCEDEV_
 },
 "sorting_rank": 2000
 
-*SCRIPT scenario_init
+*SCRIPT plot_init
 self.add_sub_plot(nart, \"ADD_FROZEN_COMBATANT\", elements=dict(FACTION={npc_faction}))

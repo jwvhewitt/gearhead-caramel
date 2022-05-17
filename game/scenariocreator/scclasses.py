@@ -91,19 +91,15 @@ class PlotBrick(object):
         self._format_scripts()
 
     def _format_scripts(self):
-        if self.is_new_branch:
-            aliases = list()
-            for elemkey, elemdesc in self.elements.items():
-                for a in elemdesc.aliases:
-                    aliases.append((a, elemkey))
-            element_alias_list = repr(aliases)
-            self.scripts["plot_init"] = "element_alias_list = {}\n".format(element_alias_list) + self.scripts.get("plot_init", "")
-        elif self.elements:
+        if not self.is_new_branch and self.elements:
             if "plot_init" not in self.scripts:
                 self.scripts["plot_init"] = ""
             for elemkey, elemdesc in self.elements.items():
                 for a in elemdesc.aliases:
                     self.scripts["plot_init"] += "\nelement_alias_list.append(('{}','{}'))".format(a, elemkey)
+
+            for phys in self.physicals:
+                self.scripts["plot_init"] += "\n+register_physical {}".format(phys.element_key)
 
     def get_default_vars(self):
         myvars = dict()
@@ -128,15 +124,12 @@ class BluePrint(object):
             self.raw_vars.update(loaded_vars)
         self._uid = 0 or loaded_uid
 
-        uvars = self.get_ultra_vars()
         for k,v in brick.elements.items():
-            if self.get_element_uid_var_name(k, uvars) not in self.raw_vars:
-                self.raw_vars[self.get_element_uid_var_name(k, uvars)] = self.new_element_uid()
+            if self.get_element_uid_var_name(k) not in self.raw_vars:
+                self.raw_vars[self.get_element_uid_var_name(k)] = self.new_element_uid()
 
-    def get_element_uid_var_name(self, rawvarname, uvars=None):
-        if not uvars:
-            uvars = self.get_ultra_vars()
-        return "_{}_UID".format(rawvarname.format(**uvars))
+    def get_element_uid_var_name(self, rawvarname):
+        return "{}_UID".format(rawvarname)
 
     def new_element_uid(self):
         myroot = self.get_root()
@@ -182,35 +175,7 @@ class BluePrint(object):
         self.container = oldcontainer
         return myclone
 
-    def get_section(self, section_name, my_scripts, child_scripts, prefix, touched_scripts, done_scripts, used_scripts):
-        if section_name in touched_scripts:
-            if section_name in done_scripts:
-                return done_scripts[section_name]
-            else:
-                print("Error: Circular Reference!")
-                return ()
-        else:
-            touched_scripts.add(section_name)
-
-        mys: str = my_scripts.get(section_name, "")
-        for script_line in mys.splitlines():
-            if script_line:
-                n = script_line.find("#:")
-                if n >= 0:
-                    new_prefix = prefix + " " * n
-                    new_section_name = script_line[n+2:].strip()
-                    insert_lines = self.get_section(new_section_name, my_scripts, child_scripts, new_prefix, touched_scripts, done_scripts, used_scripts)
-                    done_scripts[section_name] += insert_lines
-                    used_scripts.add(new_section_name)
-                else:
-                    done_scripts[section_name].append(prefix + script_line)
-
-        for script_line in child_scripts.get(section_name, ()):
-            done_scripts[section_name].append(prefix + script_line)
-
-        return done_scripts[section_name]
-
-    def get_formatted_vars(self):
+    def _get_formatted_vars(self):
         # Get vars in the format they need to be in for output to a Python file.
         myvars = dict()
         for k,v in self.raw_vars.items():
@@ -223,64 +188,62 @@ class BluePrint(object):
 
     def get_ultra_vars(self):
         # Return all variables readable by this blueprint, including the _uid.
+        # Don't pass on private vars- those preceded by an underscore.
         vars = dict()
         my_ancestors = list(self.ancestors())
         my_ancestors.reverse()
         for a in my_ancestors:
-            vars.update(a.get_formatted_vars())
-        vars.update(self.get_formatted_vars())
+            avars = a._get_formatted_vars()
+            for k,v in avars.items():
+                if not k.startswith("_"):
+                    vars[k] = v
+            # Add the aliased element UIDs
+            for k,v in a.brick.elements.items():
+                for alias in v.aliases:
+                    vars[a.get_element_uid_var_name(alias)] = avars[a.get_element_uid_var_name(k)]
+
+        vars.update(self._get_formatted_vars())
         vars["_uid"] = self.uid
         return vars
 
-    def compile(self, inherited_vars=None):
+    def compile(self):
         # Return a dict of Python scripts to be added to the output file.
-        # Inside the scripts, "#:" and "#>" mark places where blocks will be inserted.
-        # "#:" appends the scripts from the current brick and all children.
-        # "#>" just sticks the scripts from the children here, ignoring siblings + whatever.
-        #    It is generally used when we need a recursive script block definition, such as a conditional "effect"
-        #    block that can have children "effects".
-        # Clear as mud? Good enough.
-        self.sort()
-        if inherited_vars:
-            vars = inherited_vars.copy()
-        else:
-            vars = dict()
-        vars.update(self.get_formatted_vars())
-
-        ultravars = vars.copy()
-        ultravars["_uid"] = self.uid
-
-        # Add element aliases.
-        elems = self.get_element_aliases()
-        ultravars.update(elems)
+        # Inside the scripts, "#>" marks a place where a block will be inserted.
+        ultravars = self.get_ultra_vars()
 
         # Step one: collect the scripts from all children.
-        mykids = collections.defaultdict(list)
+        mykids = collections.defaultdict(str)
         for kid in self.children:
-            kid_scripts = kid.compile(inherited_vars=vars)
+            kid_scripts = kid.compile()
             for k,v in kid_scripts.items():
-                mykids[k] += v
+                mykids[k] += "\n" + v
 
         # Step two: collect the default scripts from the brick.
         myscripts = self.brick.scripts.copy()
         for k,v in myscripts.items():
             myscripts[k] = v.format(**ultravars)
 
+        to_be_merged = list()
+
         # Step three: If any of the default scripts have slots for the kid scripts, insert those there.
         for k,v in myscripts.items():
             nuscript = list()
-            for script_line in v.splitlines():
+            to_be_processed = v.splitlines()
+            while to_be_processed:
+                script_line = to_be_processed.pop(0)
                 if script_line:
                     if script_line.strip().startswith("#:"):
                         n = script_line.find("#:")
                         prefix = " " * n
                         new_section_name = script_line[n + 2:].strip()
+
                         if new_section_name in mykids:
-                            for nuline in mykids[new_section_name]:
-                                nuscript.append(prefix + nuline)
+                            to_be_processed = ["{}{}".format(prefix, line) for line in mykids[new_section_name].splitlines()] + to_be_processed
                             del mykids[new_section_name]
                         else:
+                            # No kids found here... maybe it'll come in handy later?
                             nuscript.append(script_line)
+
                     elif script_line.strip().startswith("+subplot"):
                         n = script_line.find("+subplot")
                         prefix = " " * n
@@ -289,31 +252,66 @@ class BluePrint(object):
                             nuscript.append(
                                 prefix + "self.add_sub_plot(nart, '{}', elements={})".format(
                                     subplot_name,
-                                    "dict([('a', self.elements['b']) for a,b in element_alias_list])"
+                                    "dict([(a, self.elements[b]) for a,b in element_alias_list])"
                                 )
                             )
                         else:
                             print("Error in {}: No subplot for {}".format(self.brick.name, script_line))
+
+                    elif script_line.strip().startswith("+add_physical"):
+                        n = script_line.find("+add_physical")
+                        prefix = " " * n
+                        element_name, variable_name = script_line[n + 13:].strip().split()
+                        if element_name and element_name in self.brick.elements and variable_name.is_identifier():
+                            nuscript.append(
+                                prefix + "the_world[{}] = {}".format(
+                                    ultravars[self.get_element_uid_var_name(element_name)],
+                                    variable_name
+                                )
+                            )
+                        else:
+                            print("Error in {}: Cannot parse {}".format(self.brick.name, script_line))
+                    elif script_line.strip().startswith("+register_physical"):
+                        n = script_line.find("+register_physical")
+                        prefix = " " * n
+                        element_name = script_line[n + 18:].strip()
+                        if element_name and element_name in self.brick.elements:
+                            nuscript.append(
+                                prefix + "self.elements['{}'] = nart.camp.campdata[{}]".format(
+                                    element_name,
+                                    ultravars[self.get_element_uid_var_name(element_name)]
+                                )
+                            )
+                        else:
+                            print("Error in {}: Cannot parse {}".format(self.brick.name, script_line))
+
+                    elif script_line.strip().startswith("+init_plot"):
+                        n = script_line.find("+init_plot")
+                        prefix = " " * n
+                        aliases = list()
+                        for elemkey, elemdesc in self.brick.elements.items():
+                            for a in elemdesc.aliases:
+                                aliases.append((a, elemkey))
+                        to_be_processed.insert(0, "{}element_alias_list = {}\n".format(prefix, repr(aliases)))
+
+                        for phys in self.brick.physicals:
+                            to_be_processed.insert(0, "{}+register_physical {}".format(prefix, phys.element_key))
+
+                    elif script_line.strip().startswith("+"):
+                        print("Error in {}: Unknown macro {}".format(self.brick_name, script_line))
+
                     else:
                         nuscript.append(script_line)
+
             myscripts[k] = "\n".join(nuscript)
 
-        # Finally, incorporate all the rest of the scripts together.
-        touchedscripts = set()
-        donescripts = collections.defaultdict(list)
-        usedscripts = set()
-        for k in myscripts.keys():
-            self.get_section(k, myscripts, mykids, "", touchedscripts, donescripts, usedscripts)
-
         for k in mykids.keys():
-            if k not in donescripts:
-                self.get_section(k, myscripts, mykids, "", touchedscripts, donescripts, usedscripts)
+            ms = myscripts.get(k, "")
+            ks = mykids.get(k, "")
+            if ms or ks:
+                myscripts[k] = ms + "\n" + ks
 
-        for k in usedscripts:
-            if k in donescripts:
-                del donescripts[k]
-
-        return donescripts
+        return myscripts
 
     # Gonna set up the brick as a property.
     def _get_brick(self):
@@ -369,7 +367,7 @@ class BluePrint(object):
 
     uid = property(_get_uid)
 
-    def get_elements(self, uvars=None, format_keys=True):
+    def get_elements(self, uvars=None):
         # Return a dict of elements accessible from this block.
         # key = element_ID
         # value = ElementDefinition
@@ -379,31 +377,12 @@ class BluePrint(object):
         for a in my_ancestors:
             avars = a.get_ultra_vars()
             for k,v in a.brick.elements.items():
-                if format_keys:
-                    k = k.format(**avars)
-                elements[k.format(**avars)] = ElementDefinition(v.name.format(**avars), e_type=v.e_type, uid=avars[self.get_element_uid_var_name(v.name, avars)])
+                elements[k] = ElementDefinition(v.name.format(**avars), e_type=v.e_type, uid=avars[self.get_element_uid_var_name(k)])
 
         if not uvars:
             uvars = self.get_ultra_vars()
         for k,v in self.brick.elements.items():
-            if format_keys:
-                k = k.format(**uvars)
-            elements[k] = ElementDefinition(v.name.format(**uvars), e_type=v.e_type, uid=uvars[self.get_element_uid_var_name(k, uvars)])
-
-        return elements
-
-    def get_element_aliases(self):
-        # Return a dict of elements accessible from this block.
-        # key = element alias
-        # value = ELement ID
-        elements = dict()
-        my_ancestors = list(self.predecessors())
-        my_ancestors.reverse()
-        for a in my_ancestors:
-            avars = a.get_ultra_vars()
-            for k,v in a.brick.elements.items():
-                for a in v.aliases:
-                    elements[a] = k.format(**avars)
+            elements[k] = ElementDefinition(v.name.format(**uvars), e_type=v.e_type, uid=uvars[self.get_element_uid_var_name(k)])
 
         return elements
 
