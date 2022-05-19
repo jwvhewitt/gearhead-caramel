@@ -152,6 +152,7 @@ class PhysicalPartDesc(object):
 class PhysicalPartTree(object):
     def __init__(self, root_blueprint):
         self.id_to_part = dict()
+        self.physical_parts = list()
         self.get_physical(root_blueprint)
 
     def get_physical(self, blueprint):
@@ -159,14 +160,19 @@ class PhysicalPartTree(object):
             uvars = blueprint.get_ultra_vars()
             my_elements = blueprint.get_elements()
 
-            phys_element = phys.element_key.format(**uvars)
-            phys_id = my_elements[phys_element].uid
+            phys_id = my_elements[phys.element_key].uid
             variable_keys = [v.format(**uvars) for v in phys.variable_keys]
 
-            phys_desc = PhysicalPartDesc(blueprint, phys.element_key, phys_id, my_elements[phys_element],
+            phys_desc = PhysicalPartDesc(blueprint, phys.element_key, phys_id, my_elements[phys.element_key],
                                          variable_keys, phys.child_keys)
 
             self.id_to_part[phys_id] = phys_desc
+
+            if phys.parent:
+                myparent = my_elements[phys.parent].uid
+                self.id_to_part[myparent].children.append(phys_desc)
+            else:
+                self.physical_parts.append(phys_desc)
 
         for c in blueprint.children:
             self.get_physical(c)

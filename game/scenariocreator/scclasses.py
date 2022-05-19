@@ -277,7 +277,7 @@ class BluePrint(object):
                         element_name = script_line[n + 18:].strip()
                         if element_name and element_name in self.brick.elements:
                             nuscript.append(
-                                prefix + "self.elements['{}'] = nart.camp.campdata[{}]".format(
+                                prefix + "self.elements['{}'] = nart.camp.campdata[THE_WORLD][{}]".format(
                                     element_name,
                                     ultravars[self.get_element_uid_var_name(element_name)]
                                 )

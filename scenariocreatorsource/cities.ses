@@ -30,10 +30,11 @@
 class City_{unique_id}_{_uid}( Plot ):
     LABEL = "CITY_{unique_id}_{_uid}"
     active = True
-    scope = True
+    scope = "METRO"
 
     def custom_init( self, nart ):
         +init_plot
+        self.elements["METRO"] = self.elements["METROSCENE"].metrodat
         #: plot_init
         #: city_init
         #: plot_actions
