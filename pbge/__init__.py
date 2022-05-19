@@ -685,6 +685,8 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
 
         my_state.huge_font = pygame.font.Font(util.image_dir(display_font), 24)
 
+        my_state.mono_font = pygame.font.Font(util.image_dir("DejaVuSansMono.ttf"), 16)
+
         global POSTERS
         POSTERS += glob.glob(util.image_dir(poster_pattern))
 

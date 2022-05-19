@@ -1,3 +1,7 @@
+* ScenarioCreator output is pretty printed with yapf if available
+* Refactored the ScenarioCreator compiler
+* Text editor widget now a column of text entry widgets; cursor movement works properly
+* Text entry widget now has movable cursor
 * Scenario Creator has subplot loader utility which passes all element aliases
 * Scenario Creator builds the world before loading subplots
 * Possibly fixed the problem with pygame.quit() not really quitting

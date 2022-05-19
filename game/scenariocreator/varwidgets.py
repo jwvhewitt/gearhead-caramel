@@ -59,7 +59,7 @@ class TextVarEditorWidget(pbge.widgets.ColumnWidget):
             pbge.widgets.LabelWidget(0, 0, self.w, pbge.SMALLFONT.get_linesize(), var_name, font=pbge.SMALLFONT))
         self.add_interior(
             pbge.widgets.TextEditorWidget(0, 0, 350, pbge.MEDIUMFONT.get_linesize() * 5 + 8, default_value,
-                                          on_change=self._do_change, font=pbge.MEDIUMFONT))
+                                          on_change=self._do_change))
 
     def _do_change(self, widj, ev):
         self.part.raw_vars[self.var_name] = widj.text
@@ -166,7 +166,7 @@ class DataDictItemEditorWidget(pbge.widgets.RowWidget):
             pbge.widgets.LabelWidget(0, 0, 90, self.h, mykey, font=pbge.SMALLFONT, justify=1, color=pbge.INFO_GREEN))
         self.add_right(
             pbge.widgets.TextEditorWidget(0, 0, 250, pbge.MEDIUMFONT.get_linesize() * 3 + 8, str(mydict.get(mykey, "")),
-                                          on_change=self._do_change, font=pbge.MEDIUMFONT))
+                                          on_change=self._do_change))
 
     def _do_change(self, widj, ev):
         self.mydict[self.mykey] = widj.text

@@ -13,13 +13,13 @@
 # Scenarios are created using PlotBricks. I dunno how I come up with names for classes. Probably read too much
 #   Jack Kirby as a kid.
 #
-# A script line starting with "#:" Inserts any child scripts with the given label at this point. If no insertion point
+# A script line starting with "#:" inserts any child scripts with the given label at this point. If no insertion point
 #   is given using "#:", child scripts get appended to the end of the script with the same label in this brick. If no
 #   script with the same name appears in this brick, one will be added. Everything then gets passed back to the parent
 #   and the circle of life continues.
 #
 # A new plot should include the following lines:
-#     +init_plot            A macro that must come before #: plot_init inside the custom_init function
+#     +init_plot            A macro that must come before "#: plot_init" inside the custom_init function
 #     #: plot_init          Contains the initialization procedures, loading of elements, etc.
 #     #: plot_actions       Contains any extra work this plot needs to do.
 #     #: plot_subplots      Contains calls to load subplots.
@@ -30,7 +30,7 @@
 #     that do repetitive stuff in the PlotBrick compiler.
 #
 # "+add_physical [element ID] [variable name]" is a macro that should be used in the #:scenario_build script. It
-#     sticks a variable you just created (presumably a physical object of some type) into the world and records its
+#     sticks an object you just created (presumably a physical thing of some type) into the world and records its
 #     unique ID.
 #
 # "+register_physical [element ID]" is another macro. It locates the physical thing created in the #:scenario_build
@@ -39,7 +39,7 @@
 #     misplaced sense of completeness.
 #
 # "element_alias_list" is a variable that automatically gets added to custom_init via +init_plot, so don't create
-#     a variable with that name yourself.
+#     a variable in custom_init with that name yourself.
 #
 # "SCENARIO_ELEMENT_UIDS" is a campdata variable that contains all the physical objects in the world. So please
 #     don't overwrite this with your own global variable of the same name. That would mess everything up.

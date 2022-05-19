@@ -1,6 +1,6 @@
 import pbge
 from . import frects
-from . import my_state,draw_text,TEXT_COLOR,Border,default_border, wrap_with_records, wrap_multi_line
+from . import my_state, draw_text, TEXT_COLOR, Border, default_border, wrap_multi_line, wrapline
 import pygame
 from . import image
 from . import rpgmenu
@@ -13,15 +13,18 @@ from . import rpgmenu
 # Or, as the child of another widget. Removing it from that list
 # removes it.
 
-ACTIVE_FLASH = [(0,0,0),] * 5 + [(230,230,0),] * 20
+ACTIVE_FLASH = [(0, 0, 0), ] * 5 + [(230, 230, 0), ] * 20
 
-widget_border_off = Border( border_width=8, tex_width=16, border_name="sys_widbor_edge1.png", tex_name="sys_widbor_back.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=2 )
-widget_border_on = Border( border_width=8, tex_width=16, border_name="sys_widbor_edge2.png", tex_name="sys_widbor_back.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=2 )
-popup_menu_border = Border( border_width=8, tex_width=16, border_name="sys_widbor_edge2.png", tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=8, transparent=False )
+widget_border_off = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge1.png",
+                           tex_name="sys_widbor_back.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=2)
+widget_border_on = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge2.png",
+                          tex_name="sys_widbor_back.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=2)
+popup_menu_border = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge2.png",
+                           tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=8,
+                           transparent=False)
 
 
-
-class Widget( frects.Frect ):
+class Widget(frects.Frect):
     def __init__(self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True,
                  show_when_inactive=False, on_right_click=None, anchor=frects.ANCHOR_CENTER, parent=None, **kwargs):
         # on_click takes widget, event as parameters.
@@ -35,32 +38,34 @@ class Widget( frects.Frect ):
         self.children = list(children)
         self.show_when_inactive = show_when_inactive
 
-    def respond_event( self, ev ):
+    def respond_event(self, ev):
         if self.active:
             for c in self.children:
                 c.respond_event(ev)
             if self.get_rect().collidepoint(my_state.mouse_pos):
-                if self.active and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1) and not my_state.widget_clicked:
+                if self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
+                        ev.button == 1) and not my_state.widget_clicked:
                     if not my_state.widget_clicked:
                         my_state.active_widget = self
                     if self.on_click:
-                        self.on_click(self,ev)
+                        self.on_click(self, ev)
                     my_state.widget_clicked = True
-                elif self.active and (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 3) and self.on_right_click and not my_state.widget_clicked:
+                elif self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
+                        ev.button == 3) and self.on_right_click and not my_state.widget_clicked:
                     if not my_state.widget_clicked:
                         my_state.active_widget = self
                     self.on_right_click(self, ev)
                     my_state.widget_clicked = True
             elif my_state.active_widget is self:
                 if self.on_click and (ev.type == pygame.KEYDOWN) and (ev.key in my_state.get_keys_for("click_widget")):
-                    self.on_click(self,ev)
+                    self.on_click(self, ev)
                     my_state.widget_clicked = True
             self._builtin_responder(ev)
 
-    def _builtin_responder(self,ev):
+    def _builtin_responder(self, ev):
         pass
 
-    def super_render( self ):
+    def super_render(self):
         # This renders the widget and children, setting tooltip and whatnot.
         if self.active or self.show_when_inactive:
             self.render(self._should_flash())
@@ -93,9 +98,9 @@ class Widget( frects.Frect ):
             return self.on_click
 
 
-class ButtonWidget( Widget ):
-    def __init__( self, dx, dy, w, h, sprite=None, frame=0, on_frame=0, off_frame=0, **kwargs ):
-        super(ButtonWidget, self).__init__(dx,dy,w,h,**kwargs)
+class ButtonWidget(Widget):
+    def __init__(self, dx, dy, w, h, sprite=None, frame=0, on_frame=0, off_frame=0, **kwargs):
+        super(ButtonWidget, self).__init__(dx, dy, w, h, **kwargs)
         self.sprite = sprite
         self.frame = frame
         self.on_frame = on_frame
@@ -103,14 +108,16 @@ class ButtonWidget( Widget ):
 
     def render(self, flash=False):
         if self.sprite:
-            self.sprite.render(self.get_rect(),self.frame)
+            self.sprite.render(self.get_rect(), self.frame)
         if flash:
             self._default_flash()
 
-class LabelWidget( Widget ):
-    def __init__( self, dx, dy, w=0, h=0, text='***', color=None, font=None, justify=-1, draw_border=False, border=widget_border_off, text_fun = None, **kwargs ):
+
+class LabelWidget(Widget):
+    def __init__(self, dx, dy, w=0, h=0, text='***', color=None, font=None, justify=-1, draw_border=False,
+                 border=widget_border_off, text_fun=None, **kwargs):
         # text_fun is a function that takes this widget as a parameter. It returns the text to display.
-        super().__init__(dx,dy,w,h,**kwargs)
+        super().__init__(dx, dy, w, h, **kwargs)
         self.text = text
         self.color = color or TEXT_COLOR
         self.font = font or my_state.small_font
@@ -122,77 +129,19 @@ class LabelWidget( Widget ):
         self.draw_border = draw_border
         self.border = border
         self.text_fun = text_fun
+
     def render(self, flash=False):
         if self.draw_border:
             self.border.render(self.get_rect())
         if self.text_fun:
             self.text = self.text_fun(self)
-        draw_text(self.font,self.text,self.get_rect(),self.color,self.justify)
+        draw_text(self.font, self.text, self.get_rect(), self.color, self.justify)
         if flash:
             self._default_flash()
 
 
-class TextEntryWidget( Widget ):
-    ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
-
-    def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, on_change=None, **kwargs ):
-        # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
-        super(TextEntryWidget, self).__init__(dx,dy,w,h,**kwargs)
-        if not text:
-            text = ''
-        self.char_list = list(text)
-        self.color = color or TEXT_COLOR
-        self.font = font or my_state.big_font
-        self.justify = justify
-        self.input_cursor = image.Image( "sys_textcursor.png" , 8 , 16 )
-        self.on_change = on_change
-
-    def render(self, flash=False):
-        mydest = self.get_rect()
-        if self is my_state.active_widget:
-            widget_border_on.render(mydest.inflate(-4,-4))
-        else:
-            widget_border_off.render(mydest.inflate(-4,-4))
-        myimage = self.font.render(self.text, True, self.color)
-        my_state.screen.set_clip( mydest )
-        textdest = myimage.get_rect(center=mydest.center)
-        my_state.screen.blit( myimage , textdest )
-        my_state.screen.set_clip( None )
-        if flash or (my_state.active_widget is self):
-            self.input_cursor.render( textdest.topright , ( my_state.anim_phase // 3 ) % 4 )
-
-    def _builtin_responder(self,ev):
-        if my_state.active_widget is self:
-            if ev.type == pygame.KEYDOWN:
-                if (ev.key == pygame.K_BACKSPACE) and (len(self.char_list) > 0):
-                    del self.char_list[-1]
-                    if self.on_change:
-                        self.on_change(self,ev)
-                elif (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
-                    self.char_list.append(ev.unicode)
-                    if self.on_change:
-                        self.on_change(self,ev)
-
-    def is_kb_selectable(self):
-        return True
-
-    def _get_text(self):
-        return "".join(self.char_list)
-
-    def _set_text(self, text):
-        self.char_list = list(text)
-        if self.on_change:
-            self.on_change(self, None)
-
-    text = property(_get_text, _set_text)
-
-    def quietly_set_text(self, text):
-        # Set the text without calling on_change.
-        self.char_list = list(text)
-
-
-class RadioButtonWidget( Widget ):
-    def __init__( self, dx, dy, w, h, sprite=None, buttons=(), spacing=2, **kwargs ):
+class RadioButtonWidget(Widget):
+    def __init__(self, dx, dy, w, h, sprite=None, buttons=(), spacing=2, **kwargs):
         # buttons is a list of dicts possibly containing: on_frame, off_frame, on_click, on_right_click, tooltip
         super().__init__(dx, dy, w, h, **kwargs)
         self.sprite = sprite
@@ -201,7 +150,7 @@ class RadioButtonWidget( Widget ):
         ddx = 0
         for b in buttons:
             self.buttons.append(ButtonWidget(
-                ddx,0,sprite.frame_width,sprite.frame_height,sprite,
+                ddx, 0, sprite.frame_width, sprite.frame_height, sprite,
                 frame=b.get("off_frame", 1), on_frame=b.get("on_frame", 0),
                 off_frame=b.get("off_frame", 1), tooltip=b.get("tooltip", None),
                 on_click=self.click_radio, data=b.get("on_click", None),
@@ -213,7 +162,7 @@ class RadioButtonWidget( Widget ):
         self.active_button = self.buttons[0]
         self.children += self.buttons
 
-    def activate_button( self, button ):
+    def activate_button(self, button):
         self.active_button.frame = self.active_button.off_frame
         self.active_button = button
         button.frame = button.on_frame
@@ -223,18 +172,18 @@ class RadioButtonWidget( Widget ):
             if b.data == data_sought:
                 return b
 
-    def click_radio( self, button, ev ):
-        self.activate_button( button )
+    def click_radio(self, button, ev):
+        self.activate_button(button)
         if button.data:
-            button.data(button,ev)
+            button.data(button, ev)
 
 
-class TextTabsWidget( Widget ):
-    def __init__( self, dx, dy, w, h, buttons=(), spacing=12, font=None, **kwargs ):
+class TextTabsWidget(Widget):
+    def __init__(self, dx, dy, w, h, buttons=(), spacing=12, font=None, **kwargs):
         # Basically radio buttons, but with text labels.
         # buttons is a list of dicts possibly containing: text, on_right_click, tooltip
         self.font = font or pbge.MEDIUMFONT
-        super().__init__(dx, dy, w, max(h, self.font.get_linesize() + 8),  **kwargs)
+        super().__init__(dx, dy, w, max(h, self.font.get_linesize() + 8), **kwargs)
         self.buttons = list()
         self.spacing = spacing
         ddx = 0
@@ -253,7 +202,7 @@ class TextTabsWidget( Widget ):
             self.activate_button(self.buttons[0])
         self.children += self.buttons
 
-    def activate_button( self, button ):
+    def activate_button(self, button):
         self.active_button.border = widget_border_off
         self.active_button = button
         button.border = widget_border_on
@@ -263,36 +212,36 @@ class TextTabsWidget( Widget ):
             if b.data == data_sought:
                 return b
 
-    def click_radio( self, button, ev ):
+    def click_radio(self, button, ev):
         self.activate_button(button)
         if button.data:
             button.data(button, ev)
 
 
 class ColumnWidget(Widget):
-    def __init__( self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, center_interior=False,
-                  optimize_height=True, **kwargs ):
-        super(ColumnWidget, self).__init__(dx,dy,w,h,**kwargs)
+    def __init__(self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, center_interior=False,
+                 optimize_height=True, **kwargs):
+        super(ColumnWidget, self).__init__(dx, dy, w, h, **kwargs)
         self.draw_border = draw_border
         self.border = border
         self._interior_widgets = list()
         self._header_widget = None
         self.padding = padding
         self.center_interior = center_interior
-        self.optimize_height=optimize_height
+        self.optimize_height = optimize_height
 
-    def add_interior(self,other_w):
+    def add_interior(self, other_w):
         self.children.append(other_w)
         self._interior_widgets.append(other_w)
         # Set the position of other_w inside this widget.
         other_w.parent = self
         self._position_contents()
 
-    def set_header(self,other_w):
+    def set_header(self, other_w):
         self.children.append(other_w)
         self._header_widget = other_w
         # Set the position of other_w inside this widget.
-        other_w.parent = selfColumn
+        other_w.parent = self
         self._position_contents()
 
     def clear(self):
@@ -309,7 +258,7 @@ class ColumnWidget(Widget):
             dy += self._header_widget.h // 2 + self.padding
         for widg in self._interior_widgets:
             if self.center_interior:
-                widg.dx = ( self.w - widg.w ) // 2
+                widg.dx = (self.w - widg.w) // 2
             else:
                 widg.dx = 0
             widg.dy = dy
@@ -328,7 +277,7 @@ class ColumnWidget(Widget):
 class ScrollColumnWidget(Widget):
     def __init__(self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5,
                  autoclick=False, focus_locked=False, **kwargs):
-        super(ScrollColumnWidget, self).__init__(dx,dy,w,h,**kwargs)
+        super(ScrollColumnWidget, self).__init__(dx, dy, w, h, **kwargs)
         self.draw_border = draw_border
         self.border = border
         self._interior_widgets = list()
@@ -347,7 +296,7 @@ class ScrollColumnWidget(Widget):
         self.active_widget = 0
 
     def _set_active_widget(self, widindex):
-        if widindex >= 0 and widindex < len(self._interior_widgets) and widindex != self._active_widget:
+        if 0 <= widindex < len(self._interior_widgets) and widindex != self._active_widget:
             self._active_widget = widindex
             wid = self._interior_widgets[widindex]
             if not wid.active:
@@ -365,7 +314,7 @@ class ScrollColumnWidget(Widget):
 
     def kb_flash_override(self, child):
         return ((my_state.active_widget is self) or self.focus_locked) and (child in self._interior_widgets) and (
-            self._interior_widgets.index(child) == self.active_widget
+                self._interior_widgets.index(child) == self.active_widget
         )
 
     def is_kb_selectable(self):
@@ -376,9 +325,10 @@ class ScrollColumnWidget(Widget):
             if wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
                 self.active_widget = self._interior_widgets.index(wid)
             other_on_click(wid, ev)
+
         return nuclick
 
-    def add_interior(self,other_w):
+    def add_interior(self, other_w):
         self.children.append(other_w)
         self._interior_widgets.append(other_w)
         # Set the position of other_w inside this widget.
@@ -405,7 +355,7 @@ class ScrollColumnWidget(Widget):
         while (dy < self.h) and (n < len(self._interior_widgets)):
             widg = self._interior_widgets[n]
             widg.dy = dy
-            if (dy==0) or (dy + widg.h + self.padding <= self.h):
+            if (dy == 0) or (dy + widg.h + self.padding <= self.h):
                 widg.active = True
             dy += widg.h + self.padding
             n += 1
@@ -421,15 +371,15 @@ class ScrollColumnWidget(Widget):
 
         if self.active_widget < self.top_widget:
             self.active_widget = self.top_widget
-        elif self.active_widget >= (n-1):
-            self.active_widget = max(n - 2,0)
+        elif self.active_widget >= (n - 1):
+            self.active_widget = max(n - 2, 0)
 
-    def scroll_up(self,*args):
+    def scroll_up(self, *args):
         if self.top_widget > 0:
             self.top_widget -= 1
             self._position_contents()
 
-    def scroll_down(self,*args):
+    def scroll_down(self, *args):
         if self._interior_widgets and not self._interior_widgets[-1].active:
             self.top_widget += 1
             self._position_contents()
@@ -441,11 +391,11 @@ class ScrollColumnWidget(Widget):
             self._position_contents()
             self.active_widget = index
 
-    def sort(self,key=None):
+    def sort(self, key=None):
         self._interior_widgets.sort(key=key)
         self._position_contents()
 
-    def _builtin_responder(self,ev):
+    def _builtin_responder(self, ev):
         if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(my_state.mouse_pos):
             if (ev.button == 4):
                 self.scroll_up()
@@ -459,7 +409,7 @@ class ScrollColumnWidget(Widget):
                     my_state.widget_clicked = True
             elif ev.key in my_state.get_keys_for("up") and self.active_widget > 0:
                 self.active_widget -= 1
-            elif ev.key in my_state.get_keys_for("down") and self.active_widget < (len(self._interior_widgets)-1):
+            elif ev.key in my_state.get_keys_for("down") and self.active_widget < (len(self._interior_widgets) - 1):
                 self.active_widget += 1
 
     def render(self, flash=False):
@@ -470,8 +420,8 @@ class ScrollColumnWidget(Widget):
 
 
 class RowWidget(Widget):
-    def __init__( self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, **kwargs ):
-        super().__init__(dx,dy,w,h,**kwargs)
+    def __init__(self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, **kwargs):
+        super().__init__(dx, dy, w, h, **kwargs)
         self.draw_border = draw_border
         self.border = border
         self._left_widgets = list()
@@ -479,21 +429,21 @@ class RowWidget(Widget):
         self._right_widgets = list()
         self.padding = padding
 
-    def add_left(self,other_w):
+    def add_left(self, other_w):
         self.children.append(other_w)
         self._left_widgets.append(other_w)
         # Set the position of other_w inside this widget.
         other_w.parent = self
         self._position_contents()
 
-    def add_center(self,other_w):
+    def add_center(self, other_w):
         self.children.append(other_w)
         self._center_widgets.append(other_w)
         # Set the position of other_w inside this widget.
         other_w.parent = self
         self._position_contents()
 
-    def add_right(self,other_w):
+    def add_right(self, other_w):
         self.children.append(other_w)
         self._right_widgets.append(other_w)
         # Set the position of other_w inside this widget.
@@ -505,15 +455,15 @@ class RowWidget(Widget):
         self.h = max(w.h for w in self._right_widgets + self._center_widgets + self._left_widgets)
         for widg in self._left_widgets:
             widg.dx = dx
-            widg.dy = -widg.h//2
+            widg.dy = -widg.h // 2
             widg.anchor = frects.ANCHOR_LEFT
             dx += widg.w + self.padding
 
         if self._center_widgets:
-            dx = -(sum(w.w for w in self._center_widgets) + (len(self._center_widgets) - 1) * self.padding)//2
+            dx = -(sum(w.w for w in self._center_widgets) + (len(self._center_widgets) - 1) * self.padding) // 2
             for widg in self._center_widgets:
                 widg.dx = dx
-                widg.dy = -widg.h//2
+                widg.dy = -widg.h // 2
                 widg.anchor = frects.ANCHOR_CENTER
                 dx += widg.w + self.padding
 
@@ -521,7 +471,7 @@ class RowWidget(Widget):
             dx = -sum(w.w for w in self._right_widgets) - (len(self._right_widgets) - 1) * self.padding
             for widg in self._right_widgets:
                 widg.dx = dx
-                widg.dy = -widg.h//2
+                widg.dy = -widg.h // 2
                 widg.anchor = frects.ANCHOR_RIGHT
                 dx += widg.w + self.padding
 
@@ -532,148 +482,134 @@ class RowWidget(Widget):
             self._default_flash()
 
 
-class DropdownWidget( Widget ):
+class DropdownWidget(Widget):
     MENU_HEIGHT = 150
-    def __init__( self, dx, dy, w, h, color=None, font=None, justify=-1, on_select=None, **kwargs ):
+
+    def __init__(self, dx, dy, w, h, color=None, font=None, justify=-1, on_select=None, **kwargs):
         # on_select is a callable that takes the menu query result as its argument
-        super(DropdownWidget, self).__init__(dx,dy,w,h,**kwargs)
+        super(DropdownWidget, self).__init__(dx, dy, w, h, **kwargs)
         self.color = color or TEXT_COLOR
         self.font = font or my_state.small_font
         self.on_select = on_select
         self.on_click = self.open_menu
-        self.menu = rpgmenu.Menu(dx,dy,w,self.MENU_HEIGHT,border=popup_menu_border,font=font,anchor=frects.ANCHOR_UPPERLEFT)
+        self.menu = rpgmenu.Menu(dx, dy, w, self.MENU_HEIGHT, border=popup_menu_border, font=font,
+                                 anchor=frects.ANCHOR_UPPERLEFT)
+
     def render(self, flash=False):
         mydest = self.get_rect()
         if self is my_state.active_widget:
-            widget_border_on.render(mydest.inflate(-4,-4))
+            widget_border_on.render(mydest.inflate(-4, -4))
         else:
-            widget_border_off.render(mydest.inflate(-4,-4))
-        myimage = self.font.render( str(self.menu.get_current_item()), True, self.color )
-        my_state.screen.set_clip( mydest )
+            widget_border_off.render(mydest.inflate(-4, -4))
+        myimage = self.font.render(str(self.menu.get_current_item()), True, self.color)
+        my_state.screen.set_clip(mydest)
         textdest = myimage.get_rect(center=mydest.center)
-        my_state.screen.blit( myimage , textdest )
-        my_state.screen.set_clip( None )
+        my_state.screen.blit(myimage, textdest)
+        my_state.screen.set_clip(None)
         if flash:
             self._default_flash()
 
-    def add_item(self,msg,value,desc=None):
-        self.menu.add_item(msg,value,desc)
-    def open_menu(self,also_self_probably,ev):
+    def add_item(self, msg, value, desc=None):
+        self.menu.add_item(msg, value, desc)
+
+    def open_menu(self, also_self_probably, ev):
         mydest = self.get_rect()
         mydest.h = self.menu.h
         mydest.w = self.menu.w
         mydest.clamp_ip(my_state.screen.get_rect())
-        self.menu.dx,self.menu.dy = mydest.x,mydest.y
+        self.menu.dx, self.menu.dy = mydest.x, mydest.y
         result = self.menu.query()
         if self.on_select:
             self.on_select(result)
+
     @property
     def value(self):
         return self.menu.get_current_value()
 
-class TextEditorWidget( Widget ):
-    # This widget is going to be different from the text entry widget above in that it's meant to be a full
-    # functioned text editor. What have I gotten myself into?
-    ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"\''
-    def __init__( self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, on_change=None, **kwargs ):
+
+class TextEntryWidget(Widget):
+    ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
+
+    def __init__(self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, on_change=None, draw_border=True,
+                 on_left_at_zero=None, on_right_at_end=None, on_backspace_at_zero=None, **kwargs):
+        # on_left_at_zero, on_right_at_end, and on_backspace_at_zero are functions that get called when these events
+        #   happen. Usually nothing happens, but when this text entry widget is part of a text entry panel (see below)
+        #   we need some special behaviours.
+        self.font = font or my_state.mono_font
+        h = h or font.get_linesize()
         # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
-        super().__init__(dx,dy,w,h,**kwargs)
+        super(TextEntryWidget, self).__init__(dx, dy, w, h, **kwargs)
         if not text:
             text = ''
         self.char_list = list(text)
         self.color = color or TEXT_COLOR
-        self.font = font or my_state.big_font
         self.justify = justify
-        self.cursor_image = image.Image("sys_editcursor.png", 8, 16)
-
-        up_arrow = ButtonWidget(w-32,-8,32,16,sprite=image.Image("sys_updownbuttons_small.png",32,16),on_frame=0,off_frame=1, parent=self)
-        down_arrow = ButtonWidget(w-32,h+8,32,16,sprite=image.Image("sys_updownbuttons_small.png",32,16),on_frame=2,off_frame=3, parent=self)
-
-        self.children.append(up_arrow)
-        self.children.append(down_arrow)
-
+        self.input_cursor = image.Image("sys_textcursor.png", 8, 16)
         self.on_change = on_change
-        # The current index of the cursor and carat:
-        self.cursor_i = 0
-        self.carat_i = None
-        self.top_line = 0
-        self.num_lines = (self.h - 12) // self.font.get_linesize()
-
-    def get_line_pos(self, index, lengths):
-        # Given the buffer index and lengths of each screen line (in characters), return the screen line
-        # and the screen index of this position.
-        line = 0
-        for l in lengths:
-            if index < l:
-                break
-            else:
-                index -= l
-                line += 1
-        return line, index
-
-    def get_buffer_index(self, dx, dy, lines):
-        pass
+        self.draw_border = draw_border
+        self.cursor_i = len(text)  # The cursor index is the character the cursor is currently sitting right on
+        # top of. So at index len(text), it's sitting at the end of the text past the last character.
+        self.on_left_at_zero = on_left_at_zero
+        self.on_right_at_end = on_right_at_end
+        self.on_backspace_at_zero = on_backspace_at_zero
 
     def render(self, flash=False):
         mydest = self.get_rect()
-        if flash or (self is my_state.active_widget):
-            widget_border_on.render(mydest.inflate(-4,-4))
-        else:
-            widget_border_off.render(mydest.inflate(-4,-4))
+        if self.draw_border:
+            if self is my_state.active_widget:
+                widget_border_on.render(mydest.inflate(-4, -4))
+            else:
+                widget_border_off.render(mydest.inflate(-4, -4))
+        myimage = self.font.render(self.text, True, self.color)
+        my_state.screen.set_clip(mydest)
+        textdest = myimage.get_rect(center=mydest.center)
+        my_state.screen.blit(myimage, textdest)
+        my_state.screen.set_clip(None)
+        if flash or (my_state.active_widget is self):
+            cursor_dest = self.input_cursor.bitmap.get_rect(topleft=textdest.topleft)
+            if self.cursor_i > 0:
+                cursor_dest.left += self.font.size(self.text[:self.cursor_i])[0]
+            self.input_cursor.render(cursor_dest, (my_state.anim_phase // 3) % 4)
 
-        lines, lengths = wrap_with_records(self.text, self.font, self.w - 12)
-
-        cursor_line, cursor_pos = self.get_line_pos(self.cursor_i, lengths)
-
-        if self.top_line + self.num_lines - 1 > len(lines):
-            self.top_line = max(0, len(lines) - self.num_lines)
-
-        textdest = mydest.inflate(-12,-12)
-        my_state.screen.set_clip( textdest )
-
-        current_line = self.top_line
-        #print(cursor_countdown, cursor_line, cursor_pos)
-        for l in lines[self.top_line:self.top_line + self.num_lines]:
-            img = self.font.render(l, True, self.color )
-            my_state.screen.blit(img, textdest)
-            if self is my_state.active_widget and current_line == cursor_line:
-                cdest = textdest.copy()
-                cdest.x += self.font.size(l[:cursor_pos])[0] - 4
-                self.cursor_image.render(cdest.topleft, (my_state.anim_phase // 5) % 4)
-            current_line += 1
-            textdest.y += self.font.get_linesize()
-
-        my_state.screen.set_clip( None )
-
-    def _insert(self, new_text):
-        for c in list(new_text):
-            self.char_list.insert(self.cursor_i, new_text)
-            self.cursor_i += 1
-
-    def _builtin_responder(self,ev):
+    def _builtin_responder(self, ev):
         if my_state.active_widget is self:
             if ev.type == pygame.KEYDOWN:
-                if (ev.key == pygame.K_BACKSPACE) and (len(self.char_list) > 0):
-                    if self.cursor_i > 0:
+                if ev.key == pygame.K_BACKSPACE:
+                    if (len(self.char_list) > 0) and self.cursor_i > 0:
                         del self.char_list[self.cursor_i - 1]
                         self.cursor_i -= 1
                         if self.on_change:
-                            self.on_change(self,ev)
-                elif (ev.key == pygame.K_DELETE) and (len(self.char_list) > 0):
-                    if self.cursor_i < len(self.char_list):
-                        del self.char_list[self.cursor_i]
-                        if self.on_change:
                             self.on_change(self, ev)
-                elif ev.key == pygame.K_LEFT:
+                    elif self.on_backspace_at_zero:
+                        self.on_backspace_at_zero()
+                elif (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
+                    self.char_list.insert(max(self.cursor_i, 0), ev.unicode)
+                    self.cursor_i += 1
+                    if self.on_change:
+                        self.on_change(self, ev)
+                elif ev.key in my_state.get_keys_for("left"):
                     if self.cursor_i > 0:
                         self.cursor_i -= 1
-                elif ev.key == pygame.K_RIGHT:
+                    elif self.on_left_at_zero:
+                        self.on_left_at_zero()
+                elif ev.key in my_state.get_keys_for("right"):
                     if self.cursor_i < len(self.char_list):
                         self.cursor_i += 1
-                elif (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
-                    self._insert(ev.unicode)
-                    if self.on_change:
-                        self.on_change(self,ev)
+                    elif self.on_right_at_end:
+                        self.on_right_at_end()
+        if ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and self.get_rect().collidepoint(my_state.mouse_pos):
+            mytext = self.text
+            mydest = self.get_rect()
+            w, h = self.font.size(mytext)
+            textdest = pygame.Rect(0, 0, w, h)
+            textdest.center = mydest.center
+            self.cursor_i = len(mytext)
+            for c in range(1, len(mytext) + 1):
+                w, h = self.font.size(mytext[:c])
+                textdest.width = w
+                if textdest.collidepoint(my_state.mouse_pos):
+                    self.cursor_i = c - 1
+                    break
 
     def is_kb_selectable(self):
         return True
@@ -688,15 +624,201 @@ class TextEditorWidget( Widget ):
 
     text = property(_get_text, _set_text)
 
+    def quietly_set_text(self, text):
+        # Set the text without calling on_change.
+        self.char_list = list(text)
+
+
+class TextEditorPanel(ScrollColumnWidget):
+    def __init__(self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5,
+                 text="***", color=None, font=None, justify=-1, on_change=None, **kwargs):
+        # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
+        super().__init__(dx, dy, w, h, up_button, down_button, padding=0, autoclick=True,
+                         draw_border=True, **kwargs)
+        if not text:
+            text = ''
+        self.color = color or TEXT_COLOR
+        self.font = font or my_state.mono_font
+        self.justify = justify
+
+        self.update_text(text)
+        # self.children.append(up_arrow)
+        # self.children.append(down_arrow)
+
+        self.on_change = on_change
+        # The current index of the cursor and carat:
+        self.cursor_i = 0
+
+    def update_text(self, text=None):
+        editor_i = 0
+        editor_total = 0
+        mylines = list()
+        for line in self._interior_widgets:
+            myline = line.text.lstrip().strip()
+            mylines.append(myline)
+            if line is my_state.active_widget:
+                editor_i = editor_total + line.cursor_i
+            editor_total += len(myline)
+            if line is not self._interior_widgets[-1]:
+                editor_total += 1
+        self.clear()
+        if not text:
+            text = ' '.join(mylines)
+        mylines = wrapline(text, self.font, self.w)
+        has_set_active = False
+        for n, line in enumerate(mylines):
+            textwidget = TextEntryWidget(0, 0, self.w - 8, 0, line, font=self.font, color=self.color,
+                                         on_left_at_zero=self._on_left_at_zero, on_right_at_end=self._on_right_at_end,
+                                         on_backspace_at_zero=self._on_backspace_at_zero,
+                                         on_change=self._change_line, draw_border=False)
+            self.add_interior(textwidget)
+            if not has_set_active:
+                if editor_i <= len(line):
+                    self.active_widget = n
+                    textwidget.cursor_i = editor_i
+                    has_set_active = True
+                elif line is mylines[-1] and editor_i > len(line):
+                    self.active_widget = n
+                    textwidget.char_list.append(" ")
+                    textwidget.cursor_i = len(textwidget.char_list)
+                    has_set_active = True
+                editor_i -= len(line) + 1
+
+        if not self._interior_widgets:
+            textwidget = TextEntryWidget(0, 0, self.w - 8, 0, "", font=self.font,
+                                         on_left_at_zero=self._on_left_at_zero, on_right_at_end=self._on_right_at_end,
+                                         on_backspace_at_zero=self._on_backspace_at_zero,
+                                         on_change=self._change_line, draw_border=False)
+            self.add_interior(textwidget)
+            my_state.active_widget = textwidget
+
+    def _on_left_at_zero(self):
+        if self.active_widget > 0:
+            self.active_widget -= 1
+            self._interior_widgets[self.active_widget].cursor_i = len(self._interior_widgets[self.active_widget].char_list)
+
+    def _on_right_at_end(self):
+        if self.active_widget < (len(self._interior_widgets) - 1):
+            self.active_widget += 1
+            # I am setting the cursor_i to -1 since the new widget is also going to get this keyboard event and move
+            # the cursor_i one more step to the right, because it's the widget after the widget that called this
+            # function and hasn't processed events yet. It's kludgey and ugly but if it works waddaya gonna do?
+            # If anyone has a more elegant solution please submit a pull request on GitHub.
+            self._interior_widgets[self.active_widget].cursor_i = -1
+
+    def _on_backspace_at_zero(self):
+        if self.active_widget > 0:
+            widj0 = self._interior_widgets[self.active_widget]
+            cursor_i = widj0.cursor_i
+            self.active_widget -= 1
+            widj1 = self._interior_widgets[self.active_widget]
+            widj1.cursor_i = len(widj1.char_list) + cursor_i
+            widj1.char_list += widj0.char_list
+            widj0.char_list = list()
+            self.update_text()
+
+    def _set_active_widget(self, widindex):
+        if 0 <= widindex < len(self._interior_widgets) and widindex != self._active_widget:
+            #self._active_widget = widindex
+            wid = self._interior_widgets[widindex]
+            my_state.active_widget = wid
+            if not wid.active:
+                self.scroll_to_index(widindex)
+            if self.autoclick and wid.on_click:
+                wid.on_click(wid, None)
+
+    def _get_active_widget(self):
+        if my_state.active_widget in self._interior_widgets:
+            return self._interior_widgets.index(my_state.active_widget)
+        else:
+            return 0
+
+    active_widget = property(_get_active_widget, _set_active_widget)
+
+    def _change_line(self, wid, ev):
+        self.update_text(self.text)
+        if self.on_change:
+            self.on_change(self, ev)
+
+    def _get_text(self):
+        lines = list()
+        for w in self._interior_widgets:
+            lines.append(w.text.lstrip().strip())
+        return " ".join(lines)
+
+    def _set_text(self, text):
+        self.update_text(text)
+
+    text = property(_get_text, _set_text)
+
+    def _builtin_responder(self, ev):
+        if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(my_state.mouse_pos):
+            if (ev.button == 4):
+                self.scroll_up()
+            elif (ev.button == 5):
+                self.scroll_down()
+        elif ((my_state.active_widget in self._interior_widgets) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
+            if ev.key in my_state.get_keys_for("up") and self.active_widget > 0:
+                cursor_i = self._interior_widgets[self.active_widget].cursor_i
+                self.active_widget -= 1
+                self._interior_widgets[self.active_widget].cursor_i = min(cursor_i, len(
+                    self._interior_widgets[self.active_widget].char_list))
+                my_state.active_widget = self._interior_widgets[self.active_widget]
+            elif ev.key in my_state.get_keys_for("down") and self.active_widget < (len(self._interior_widgets) - 1):
+                cursor_i = self._interior_widgets[self.active_widget].cursor_i
+                self.active_widget += 1
+                self._interior_widgets[self.active_widget].cursor_i = min(cursor_i, len(
+                    self._interior_widgets[self.active_widget].char_list))
+                my_state.active_widget = self._interior_widgets[self.active_widget]
+
+    def is_kb_selectable(self):
+        return False
+
+
+class TextEditorWidget(Widget):
+    # This widget is going to be different from the text entry widget above in that it's meant to be a full
+    # functioned text editor. What have I gotten myself into?
+    def __init__(self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, on_change=None, **kwargs):
+        # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
+        super().__init__(dx, dy, w, h, **kwargs)
+        if not text:
+            text = ''
+
+        up_arrow = ButtonWidget(-32, -16, 32, 16, sprite=image.Image("sys_updownbuttons_small.png", 32, 16),
+                                on_frame=0, off_frame=1, parent=self, anchor=frects.ANCHOR_UPPERRIGHT)
+        down_arrow = ButtonWidget(-32, 0, 32, 16, sprite=image.Image("sys_updownbuttons_small.png", 32, 16),
+                                  on_frame=2, off_frame=3, parent=self, anchor=frects.ANCHOR_LOWERRIGHT)
+
+        self.editor_area = TextEditorPanel(8, 4, w - 16, h - 8, up_arrow, down_arrow,
+                                           color=color, font=font, justify=justify, on_change=on_change, text=text,
+                                           parent=self, draw_border=True, anchor=frects.ANCHOR_UPPERLEFT)
+
+        self.children.append(self.editor_area)
+        self.children.append(up_arrow)
+        self.children.append(down_arrow)
+
+        # self.children.append(up_arrow)
+        # self.children.append(down_arrow)
+
+    def _get_text(self):
+        return self.editor_area.text
+
+    def _set_text(self, text):
+        self.editor_area.text = text
+
+    text = property(_get_text, _set_text)
+
 
 # Widgets for columns
 
 class ColTextEntryWidget(RowWidget):
-    def __init__(self, width, prompt="Enter Text", text='***', color=None, font=None, justify=-1, on_change=None, **kwargs):
-        mylabel = LabelWidget(0,0,width*2//5-10,0,prompt,font=font)
-        super().__init__(0,0,width,mylabel.h+8,**kwargs)
+    def __init__(self, width, prompt="Enter Text", text='***', color=None, font=None, justify=-1, on_change=None,
+                 **kwargs):
+        mylabel = LabelWidget(0, 0, width * 2 // 5 - 10, 0, prompt, font=font)
+        super().__init__(0, 0, width, mylabel.h + 8, **kwargs)
         self.add_left(mylabel)
-        self.my_text_widget = TextEntryWidget(0,0,width*3//5,mylabel.h+8,text,color,font,justify,on_change=on_change,)
+        self.my_text_widget = TextEntryWidget(0, 0, width * 3 // 5, mylabel.h + 8, text, color, font, justify,
+                                              on_change=on_change, )
         self.add_right(self.my_text_widget)
 
     def _get_text(self):
@@ -714,14 +836,15 @@ class ColTextEntryWidget(RowWidget):
 
 class ColDropdownWidget(RowWidget):
     def __init__(self, width, prompt="Choose Option", font=None, justify=-1, on_select=None, **kwargs):
-        mylabel = LabelWidget(0,0,width*2//5-10,0,prompt,font=font)
-        super().__init__(0,0,width,mylabel.h+8,**kwargs)
+        mylabel = LabelWidget(0, 0, width * 2 // 5 - 10, 0, prompt, font=font)
+        super().__init__(0, 0, width, mylabel.h + 8, **kwargs)
         self.add_left(mylabel)
-        self.my_menu_widget = DropdownWidget(0,0,width*3//5,mylabel.h+8, font=font, justify=justify, on_select=on_select)
+        self.my_menu_widget = DropdownWidget(0, 0, width * 3 // 5, mylabel.h + 8, font=font, justify=justify,
+                                             on_select=on_select)
         self.add_right(self.my_menu_widget)
 
-    def add_item(self,msg,value,desc=None):
-        self.my_menu_widget.add_item(msg,value,desc)
+    def add_item(self, msg, value, desc=None):
+        self.my_menu_widget.add_item(msg, value, desc)
 
     @property
     def value(self):

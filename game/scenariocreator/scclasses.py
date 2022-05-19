@@ -208,7 +208,7 @@ class BluePrint(object):
 
     def compile(self):
         # Return a dict of Python scripts to be added to the output file.
-        # Inside the scripts, "#>" marks a place where a block will be inserted.
+        # Inside the scripts, "#:" marks a place where a block will be inserted.
         ultravars = self.get_ultra_vars()
 
         # Step one: collect the scripts from all children.
@@ -298,7 +298,7 @@ class BluePrint(object):
                             to_be_processed.insert(0, "{}+register_physical {}".format(prefix, phys.element_key))
 
                     elif script_line.strip().startswith("+"):
-                        print("Error in {}: Unknown macro {}".format(self.brick_name, script_line))
+                        print("Error in {}: Unknown macro {}".format(self.brick.name, script_line))
 
                     else:
                         nuscript.append(script_line)
