@@ -530,7 +530,7 @@ class DropdownWidget(Widget):
 class TextEntryWidget(Widget):
     ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
 
-    def __init__(self, dx, dy, w, h, text='***', color=None, font=None, justify=-1, on_change=None, draw_border=True,
+    def __init__(self, dx, dy, w, h, text='***', color=None, font=None, justify=0, on_change=None, draw_border=True,
                  on_left_at_zero=None, on_right_at_end=None, on_backspace_at_zero=None, **kwargs):
         # on_left_at_zero, on_right_at_end, and on_backspace_at_zero are functions that get called when these events
         #   happen. Usually nothing happens, but when this text entry widget is part of a text entry panel (see below)
@@ -553,6 +553,16 @@ class TextEntryWidget(Widget):
         self.on_right_at_end = on_right_at_end
         self.on_backspace_at_zero = on_backspace_at_zero
 
+    def get_text_rect(self, w, h, mydest):
+        myrect = pygame.Rect(0,0,w,h)
+        if self.justify == -1:
+            myrect.midleft=mydest.midleft
+        elif self.justify == 1:
+            myrect.midright=mydest.midright
+        else:
+            myrect.center=mydest.center
+        return myrect
+
     def render(self, flash=False):
         mydest = self.get_rect()
         if self.draw_border:
@@ -561,8 +571,8 @@ class TextEntryWidget(Widget):
             else:
                 widget_border_off.render(mydest.inflate(-4, -4))
         myimage = self.font.render(self.text, True, self.color)
+        textdest = self.get_text_rect(myimage.get_width(), myimage.get_height(), mydest)
         my_state.screen.set_clip(mydest)
-        textdest = myimage.get_rect(center=mydest.center)
         my_state.screen.blit(myimage, textdest)
         my_state.screen.set_clip(None)
         if flash or (my_state.active_widget is self):
@@ -601,8 +611,7 @@ class TextEntryWidget(Widget):
             mytext = self.text
             mydest = self.get_rect()
             w, h = self.font.size(mytext)
-            textdest = pygame.Rect(0, 0, w, h)
-            textdest.center = mydest.center
+            textdest = self.get_text_rect(w, h, mydest)
             self.cursor_i = len(mytext)
             for c in range(1, len(mytext) + 1):
                 w, h = self.font.size(mytext[:c])
@@ -669,7 +678,7 @@ class TextEditorPanel(ScrollColumnWidget):
         for n, line in enumerate(mylines):
             textwidget = TextEntryWidget(0, 0, self.w - 8, 0, line, font=self.font, color=self.color,
                                          on_left_at_zero=self._on_left_at_zero, on_right_at_end=self._on_right_at_end,
-                                         on_backspace_at_zero=self._on_backspace_at_zero,
+                                         on_backspace_at_zero=self._on_backspace_at_zero, justify=self.justify,
                                          on_change=self._change_line, draw_border=False)
             self.add_interior(textwidget)
             if not has_set_active:

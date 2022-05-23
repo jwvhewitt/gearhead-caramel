@@ -1,3 +1,4 @@
+* Justify property now works with text entry and text editor widgets
 * ScenarioCreator output is pretty printed with yapf if available
 * Refactored the ScenarioCreator compiler
 * Text editor widget now a column of text entry widgets; cursor movement works properly

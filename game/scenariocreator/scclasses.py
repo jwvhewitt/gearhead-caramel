@@ -18,13 +18,13 @@ class ElementDefinition(object):
 
 
 class PhysicalDefinition(object):
-    def __init__(self, the_brick, element_key, parent=None, variable_keys=(), child_keys=(), **kwargs):
+    def __init__(self, the_brick, element_key, parent=None, variable_keys=(), child_types=(), **kwargs):
         # the_brick = The brick that contains this physical object; used for error checking
         # element_key = The element th is physical definition is based on; must be an element defined in this brick.
         # parent = The element this physical definition will be shown as a child of in the browser; if None or not
         #   found, this physical definition will be shown as a child of World.
         # variable_keys: Which PlotBrick variables are associated with this thing and can be edited in the thing view.
-        # child_keys: Which PlotBrick child types are associated with this thing and can be edited in the thing view.
+        # child_types: Which PlotBrick child types are associated with this thing and can be edited in the thing view.
         #   If None, all of the child types will be shown in the thing view.
         self.element_key = element_key
         if element_key and element_key not in the_brick.elements:
@@ -37,14 +37,14 @@ class PhysicalDefinition(object):
             print("Physical Error in {}: Variable keys {} not found".format(
                 the_brick, self.variable_keys.difference(the_brick.vars.get_keys())
             ))
-        if isinstance(child_keys, (list, tuple, set)):
-            self.child_keys = set(child_keys)
-            if not self.child_keys.issubset(the_brick.child_types):
+        if isinstance(child_types, (list, tuple, set)):
+            self.child_types = set(child_types)
+            if not self.child_types.issubset(the_brick.child_types):
                 print("Physical Error in {}: Child types {} not found".format(
-                    the_brick, self.child_keys.difference(the_brick.child_types)
+                    the_brick, self.child_types.difference(the_brick.child_types)
                 ))
         else:
-            self.child_keys = None
+            self.child_types = None
 
 
 class PlotBrick(object):
