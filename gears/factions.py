@@ -307,7 +307,7 @@ class Circle(object):
         if self.parent_faction:
             self.locations += self.parent_faction.LOCATIONS
         self.active = active
-        if camp and (allies or enemies):
+        if camp:
             camp.faction_relations[self] = FactionRelations(allies=allies,enemies=enemies)
 
     def get_faction_tag(self):

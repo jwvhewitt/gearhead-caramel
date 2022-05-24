@@ -135,6 +135,9 @@ class BluePrint(object):
     def get_element_uid_var_name(self, rawvarname):
         return "{}_UID".format(rawvarname)
 
+    def __str__(self):
+        return self.name
+
     def new_element_uid(self):
         myroot = self.get_root()
         if not hasattr(myroot, "max_element_uid"):
@@ -209,6 +212,22 @@ class BluePrint(object):
         vars.update(self._get_formatted_vars())
         vars["_uid"] = self.uid
         return vars
+
+    def get_errors(self):
+        # Check this brick for problems. If any are found, return a string describing the problem.
+        myerrors = list()
+
+        parent = self.get_parent()
+        if parent and self.brick.singular and len([b for b in parent.children if b._brick_name == self._brick_name]) > 1:
+            myerrors.append("Multiple {} bricks in {}".format(self._brick_name, parent))
+
+        for vkey, vdef in self.brick.vars.items():
+            myerrors += vdef.get_errors(self, vkey)
+
+        for child in self.children:
+            myerrors += child.get_errors()
+
+        return myerrors
 
     def compile(self):
         # Return a dict of Python scripts to be added to the output file.
@@ -340,6 +359,10 @@ class BluePrint(object):
         else:
             return self
 
+    def get_parent(self):
+        if hasattr(self, "container") and self.container:
+            return self.container.owner
+
     def ancestors(self):
         if hasattr(self, "container") and self.container:
             yield self.container.owner
@@ -378,10 +401,12 @@ class BluePrint(object):
         elements = dict()
         my_ancestors = list(self.predecessors())
         my_ancestors.reverse()
-        for a in my_ancestors:
-            avars = a.get_ultra_vars()
-            for k,v in a.brick.elements.items():
-                elements[k] = ElementDefinition(v.name.format(**avars), e_type=v.e_type, uid=avars[self.get_element_uid_var_name(k)])
+        if my_ancestors:
+            my_ancestors[0].sort()
+            for a in my_ancestors:
+                avars = a.get_ultra_vars()
+                for k,v in a.brick.elements.items():
+                    elements[k] = ElementDefinition(v.name.format(**avars), e_type=v.e_type, uid=avars[self.get_element_uid_var_name(k)])
 
         if not uvars:
             uvars = self.get_ultra_vars()

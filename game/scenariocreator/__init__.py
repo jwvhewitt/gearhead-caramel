@@ -470,6 +470,16 @@ class ScenarioEditor(pbge.widgets.Widget):
             json.dump(self.mytree.get_save_dict(), fp, indent='\t')
 
     def _compile(self, widj, ev):
+        fname = "ADV_{}.py".format(self.mytree.raw_vars["unique_id"])
+
+        # First, check for errors.
+        myerrors = self.mytree.get_errors()
+        if myerrors:
+            pbge.BasicNotification("{} has errors. Check the console.".format(fname))
+            for e in myerrors:
+                print(e)
+            return
+
         myprog = self.mytree.compile()
         fname = "ADV_{}.py".format(self.mytree.raw_vars["unique_id"])
         if FormatCode:

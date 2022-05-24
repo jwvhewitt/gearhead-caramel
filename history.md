@@ -1,3 +1,5 @@
+* Changed the way custom factions are stored and accessed in Scenario Creator
+* Scenario editor now does basic error checking before compiling
 * Focus mode added to scenario editor physical view
 * Added identifier, literal scenario creator variable types
 * Justify property now works with text entry and text editor widgets

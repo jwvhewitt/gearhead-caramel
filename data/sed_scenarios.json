@@ -2,7 +2,7 @@
   {
     "label": "SCENARIO",
     "scripts": {
-      "main": "import gears\nfrom pbge.plots import Plot, Adventure, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain\nfrom game.memobrowser import Memo\nfrom game.content.ghplots import missionbuilder\n#: includes\n\nTHE_WORLD = \"SCENARIO_ELEMENT_UIDS\"\n\nclass {unique_id}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{unique_id}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        {adventure_name},\n        {adventure_desc},\n        {adventure_date}, {adventure_cover},\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        if {adventure_threat} > 0:\n            self.rank = {adventure_threat}\n        else:\n            self.rank = nart.camp.renown\n        +init_plot\n        #: plot_init\n        #:scenario_init\n\n        self.build_world(nart)\n\n        #: plot_actions\n\n        #: plot_subplots\n\n        # Handle the entry and lancemate stuff here.\n        entry_point = nart.camp.campdata[THE_WORLD].get({starting_point})\n        nart.camp.go(entry_point)\n        if {start_with_lancemate}:\n            self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n\n        return True\n\n    def build_world(self, nart):\n        # When adding physical things to the world, do that here instead of inside your individual plots. That way,\n        # all the physical objects in the world get defined before individual plots get loaded and the elements they\n        # define can be grabbed from THE_WORLD campaign variable.\n        the_world = dict()\n        nart.camp.campdata[THE_WORLD] = the_world\n\n        #:scenario_build\n\n    #: world_methods\n    #: plot_methods\n\n\n\n"
+      "main": "import gears\nfrom pbge.plots import Plot, Adventure, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain\nfrom game.memobrowser import Memo\nfrom game.content.ghplots import missionbuilder\n#: includes\n\nTHE_WORLD = \"SCENARIO_ELEMENT_UIDS\"\nCUSTOM_FACTIONS = \"CUSTOM_FACTIONS\"\n\nclass {unique_id}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{unique_id}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        {adventure_name},\n        {adventure_desc},\n        {adventure_date}, {adventure_cover},\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        self.elements[CUSTOM_FACTIONS] = dict()\n\n        if {adventure_threat} > 0:\n            self.rank = {adventure_threat}\n        else:\n            self.rank = nart.camp.renown\n        +init_plot\n        #: plot_init\n        #:scenario_init\n\n        self.build_world(nart)\n\n        #: plot_actions\n\n        #: plot_subplots\n\n        # Handle the entry and lancemate stuff here.\n        entry_point = nart.camp.campdata[THE_WORLD].get({starting_point})\n        nart.camp.go(entry_point)\n        if {start_with_lancemate}:\n            self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n\n        return True\n\n    def build_world(self, nart):\n        # When adding physical things to the world, do that here instead of inside your individual plots. That way,\n        # all the physical objects in the world get defined before individual plots get loaded and the elements they\n        # define can be grabbed from THE_WORLD campaign variable.\n        the_world = dict()\n        nart.camp.campdata[THE_WORLD] = the_world\n\n        #:scenario_build\n\n    #: world_methods\n    #: plot_methods\n\n\n\n"
     },
     "name": "Scenario",
     "display_name": "Scenario {adventure_name}",
@@ -50,7 +50,7 @@
   {
     "label": "WORLD_FEATURE",
     "scripts": {
-      "plot_init": "self.register_element( \\\"FACTION_{_uid}\\\", gears.factions.Circle(nart.camp, parent_faction={base_faction}, name=\\\"{faction_name}\\\"))\n\n\n\n"
+      "plot_init": "self.elements[CUSTOM_FACTIONS][\"FACTION_{_uid}\"] = gears.factions.Circle(nart.camp, parent_faction={base_faction}, name={faction_name})\n\n\n\n"
     },
     "name": "New Sub Faction",
     "display_name": "Faction: {faction_name}",
@@ -58,7 +58,7 @@
     "vars": {
       "faction_name": {
         "default_val": "Those Folks",
-        "var_type": "string"
+        "var_type": "literal"
       },
       "base_faction": {
         "default_val": null,

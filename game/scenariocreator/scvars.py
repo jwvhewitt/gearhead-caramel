@@ -24,11 +24,14 @@ class BaseVariableDefinition(object):
         mylist.append(self.WIDGET_TYPE(part, key, **kwargs))
         return mylist
 
-    def has_valid_value(self, part, key):
-        # Return True if this variable has a valid value, or False otherwise.
-        uvals = part.get_ultra_vars()
-        if key in uvals:
-            return key or not self.must_be_defined
+    def get_errors(self, part, key):
+        # Return a list of strings if there are errors with this variable.
+        myerrors = list()
+        if self.must_be_defined:
+            uvals = part.get_ultra_vars()
+            if key not in uvals or not uvals[key]:
+                myerrors.append("Variable {} in {} needs a value".format(key, part))
+        return myerrors
 
     @staticmethod
     def format_for_python(value):
@@ -53,11 +56,14 @@ class StringIdentifierVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "identifier"
     WIDGET_TYPE = varwidgets.StringVarEditorWidget
 
-    def has_valid_value(self, part, key):
-        # Return True if this variable has a valid value, or False otherwise.
-        uvals = part.get_ultra_vars()
-        if key and key in uvals and uvals[key]:
-            return uvals[key].isidentifier or not self.must_be_defined
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        myval = part.get_ultra_vars().get(key, "")
+        if not isinstance(myval, str) or not myval.isidentifier():
+            myerrors.append("Variable {} in {} is not a valid identifier".format(key, part))
+
+        return myerrors
 
 
 class IntegerVariable(BaseVariableDefinition):
@@ -72,22 +78,58 @@ class IntegerVariable(BaseVariableDefinition):
             print("Value error: not an int")
             return 0
 
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        myval = part.get_ultra_vars().get(key, "")
+        try:
+            int(myval)
+        except ValueError:
+            myerrors.append("Variable {} in {} is not an integer".format(key, part))
+
+        return myerrors
+
 
 class FiniteStateVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "list"
     WIDGET_TYPE = varwidgets.FiniteStateEditorWidget
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        my_names_and_states = statefinders.get_possible_states(part, part.brick.vars[key].var_type)
+        mystates = [a[1] for a in my_names_and_states]
+        mystates.append(None)
+        myval = part.get_ultra_vars().get(key, "")
+        if myval not in mystates:
+            myerrors.append("Variable {} in {} has unknown value {}".format(key, part, myval))
+
+        return myerrors
 
 
 class FiniteStateListVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "list"
     WIDGET_TYPE = varwidgets.AddRemoveFSOptionsWidget
 
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        my_names_and_states = statefinders.get_possible_states(part, part.brick.vars[key].var_type)
+        mystates = [a[1] for a in my_names_and_states]
+        mystates.append(None)
+        mylist = part.get_ultra_vars().get(key, "")
+        for myval in mylist:
+            if myval not in mystates:
+                myerrors.append("Variable {} in {} has unknown value {}".format(key, part, myval))
+
+        return myerrors
+
 
 class PaletteVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "palette"
     WIDGET_TYPE = varwidgets.PaletteEditorWidget
 
-    def __init__(self, default_val=0, var_type=None, **kwargs):
+    def __init__(self, default_val=0, var_type=None, must_be_defined=False, **kwargs):
         try:
             if isinstance(default_val, list) and len(default_val) == 5 and all([issubclass(p, gears.color.GHGradient) for p in default_val]):
                 self._default_val = default_val
@@ -97,6 +139,7 @@ class PaletteVariable(BaseVariableDefinition):
             self._default_val = None
         self.var_type = var_type or self.DEFAULT_VAR_TYPE
         self.data = kwargs.copy()
+        self.must_be_defined = must_be_defined
 
     @property
     def default_val(self):
@@ -104,6 +147,19 @@ class PaletteVariable(BaseVariableDefinition):
             return self._default_val
         else:
             return [gears.SINGLETON_REVERSE[c] for c in gears.color.random_building_colors()]
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        mylist = part.get_ultra_vars().get(key, "")
+        if not isinstance(mylist, list):
+            myerrors.append("Variable {} in {} is not a color list".format(key, part))
+        elif len(mylist) < 5:
+            myerrors.append("Variable {} in {} has wrong number of colors for a color list".format(key, part))
+        elif not all([p in gears.SINGLETON_TYPES for p in mylist]):
+            myerrors.append("Variable {} in {} has unknown colors: {}".format(key, part, mylist))
+
+        return myerrors
 
 
 class MusicVariable(BaseVariableDefinition):

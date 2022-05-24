@@ -10,9 +10,11 @@ def find_factions(part):
     mylist = list()
     for fac in gears.ALL_FACTIONS:
         mylist.append((fac.name, "gears.factions." + fac.__name__))
-    for k, fac in part.get_elements().items():
-        if fac.e_type == "faction":
-            mylist.append((fac.name, "self.elements[\"{}\"]".format(k)))
+
+    myroot = part.get_root()
+    for c in myroot.children:
+        if c.brick.name == "New Sub Faction":
+            mylist.append((c.raw_vars["faction_name"], "self.elements[CUSTOM_FACTIONS][FACTION_{}]".format(c._uid)))
     mylist.append(("==None==", None))
     return mylist
 

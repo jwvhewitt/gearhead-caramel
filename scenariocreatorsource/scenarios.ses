@@ -25,7 +25,7 @@
 #     #: plot_subplots      Contains calls to load subplots.
 #     #: plot_methods       Following the custom_init method, this reserves space for extra plot methods
 #
-# A line starting with "+subplot" adds the named subplot and includes all public elements by all their aliases
+# "+subplot [subplot_label]" adds the named subplot and includes all public elements by all their aliases
 #     If your needs are more specialized, you can call add_sub_plot directly. Lines starting with "+" are macros
 #     that do repetitive stuff in the PlotBrick compiler.
 #
@@ -43,6 +43,9 @@
 #
 # "SCENARIO_ELEMENT_UIDS" is a campdata variable that contains all the physical objects in the world. So please
 #     don't overwrite this with your own global variable of the same name. That would mess everything up.
+#
+# Similarly, "CUSTOM_FACTIONS" is a global element that is a dict of custom factions. Don't define a new element with
+#     this name.
 #
 # Variable keys and element keys are string literals; they can't use {} format strings.
 #     This is different from the first version of the plot editor, where element keys could use {} format strings.
@@ -87,6 +90,7 @@ from game.content.ghplots import missionbuilder
 #: includes
 
 THE_WORLD = "SCENARIO_ELEMENT_UIDS"
+CUSTOM_FACTIONS = "CUSTOM_FACTIONS"
 
 class {unique_id}_Scenario( Plot ):
     LABEL = "SCENARIO_{unique_id}"
@@ -101,6 +105,8 @@ class {unique_id}_Scenario( Plot ):
 
     def custom_init( self, nart ):
         self.ADVENTURE_MODULE_DATA.apply(nart.camp)
+
+        self.elements[CUSTOM_FACTIONS] = dict()
 
         if {adventure_threat} > 0:
             self.rank = {adventure_threat}
@@ -143,7 +149,7 @@ class {unique_id}_Scenario( Plot ):
 "display_name": "Faction: {faction_name}",
 "desc": "Adds a new sub-faction to a world.",
 "vars": {
-  "faction_name": {"default_val": "Those Folks", "var_type": "string"},
+  "faction_name": {"default_val": "Those Folks", "var_type": "literal"},
   "base_faction": {"default_val": null, "var_type": "faction"}
 },
 "elements": {
@@ -153,7 +159,7 @@ class {unique_id}_Scenario( Plot ):
 "category": "FACTIONS"
 
 *SCRIPT plot_init
-self.register_element( \"FACTION_{_uid}\", gears.factions.Circle(nart.camp, parent_faction={base_faction}, name=\"{faction_name}\"))
+self.elements[CUSTOM_FACTIONS]["FACTION_{_uid}"] = gears.factions.Circle(nart.camp, parent_faction={base_faction}, name={faction_name})
 
 
 
