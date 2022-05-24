@@ -54,10 +54,10 @@
 "display_name": "Scenario {adventure_name}",
 "desc": "The base plot brick for creating an adventure module.",
 "vars": {
-      "adventure_name": {"default_val": "Adventure!", "var_type": "string"},
+      "adventure_name": {"default_val": "Adventure!", "var_type": "literal"},
       "adventure_desc": {"default_val": "Go fight some pirates.", "var_type": "text"},
       "adventure_date": {"default_val": "(158, 5, 10)", "var_type": "date"},
-      "unique_id": {"default_val": "", "var_type": "string"},
+      "unique_id": {"default_val": "", "var_type": "identifier"},
       "adventure_threat": {
         "default_val": 0,
         "var_type": "integer"
@@ -94,8 +94,8 @@ class {unique_id}_Scenario( Plot ):
     scope = True
 
     ADVENTURE_MODULE_DATA = AdventureModuleData(
-        "{adventure_name}",
-        "{adventure_desc}",
+        {adventure_name},
+        {adventure_desc},
         {adventure_date}, {adventure_cover},
     )
 
@@ -149,7 +149,8 @@ class {unique_id}_Scenario( Plot ):
 "elements": {
   "FACTION_{_uid}": {"e_type": "faction", "name": "{faction_name}"}
 },
-"sorting_rank": 100
+"sorting_rank": 100,
+"category": "FACTIONS"
 
 *SCRIPT plot_init
 self.register_element( \"FACTION_{_uid}\", gears.factions.Circle(nart.camp, parent_faction={base_faction}, name=\"{faction_name}\"))
@@ -170,7 +171,8 @@ self.register_element( \"FACTION_{_uid}\", gears.factions.Circle(nart.camp, pare
     "var_type": "integer"
   }
 },
-"sorting_rank": 200
+"sorting_rank": 200,
+"category": "VARIABLES"
 
 *SCRIPT plot_init
 nart.camp.campdata[\"{var_name}\"] = {value}

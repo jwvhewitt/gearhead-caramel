@@ -40,6 +40,26 @@ class StringVariable(BaseVariableDefinition):
     WIDGET_TYPE = varwidgets.StringVarEditorWidget
 
 
+class StringLiteralVariable(BaseVariableDefinition):
+    DEFAULT_VAR_TYPE = "literal"
+    WIDGET_TYPE = varwidgets.StringVarEditorWidget
+
+    @staticmethod
+    def format_for_python(value):
+        return repr(value)
+
+
+class StringIdentifierVariable(BaseVariableDefinition):
+    DEFAULT_VAR_TYPE = "identifier"
+    WIDGET_TYPE = varwidgets.StringVarEditorWidget
+
+    def has_valid_value(self, part, key):
+        # Return True if this variable has a valid value, or False otherwise.
+        uvals = part.get_ultra_vars()
+        if key and key in uvals and uvals[key]:
+            return uvals[key].isidentifier or not self.must_be_defined
+
+
 class IntegerVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "integer"
     WIDGET_TYPE = varwidgets.StringVarEditorWidget
@@ -194,10 +214,18 @@ class TextVariable(BaseVariableDefinition):
         )
         return mylist
 
+    @staticmethod
+    def format_for_python(value):
+        return repr(value)
+
 
 def get_variable_definition(default_val=0, var_type="integer", **kwargs):
     if var_type == "text":
         return TextVariable(default_val, **kwargs)
+    elif var_type == "literal":
+        return StringLiteralVariable(default_val, **kwargs)
+    elif var_type == "identifier":
+        return StringIdentifierVariable(default_val, **kwargs)
     elif var_type == "campaign_variable":
         return CampaignVariableVariable(default_val, **kwargs)
     elif var_type in ("faction", "scene", "npc"):

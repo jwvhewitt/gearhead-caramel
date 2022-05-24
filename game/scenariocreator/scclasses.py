@@ -59,12 +59,15 @@ class PlotBrick(object):
     #    value = variable description.
     # child_types: List of brick labels that can be added as children of this brick.
     # elements: Descriptions for the elements defined within this brick in dict form.
+    # singular: If True, a blueprint can only have one child of this brick
+    # category: Used for sorting children in the PhysicalFocusWidget
     #     Element keys should be all uppercase to differentiate them from variable identifiers
     # physicals: Descriptions for the physical objects defined within this brick in list form.
     # is_new_branch: True if this brick begins a new Plot. This is needed to check element + var inheritance.
     def __init__(
             self, label="PLOT_BLOCK", name="", display_name="", desc="", scripts=None, vars=None, child_types=(),
-            elements=None, physicals=(), is_new_branch=False, sorting_rank=1000, singular=False, **kwargs
+            elements=None, physicals=(), is_new_branch=False, sorting_rank=1000, singular=False, category="MISC",
+            **kwargs
     ):
         self.label = label
         self.name = name
@@ -86,6 +89,7 @@ class PlotBrick(object):
         self.is_new_branch = is_new_branch
         self.sorting_rank = sorting_rank
         self.singular = singular
+        self.category = category
         self.data = kwargs.copy()
 
         self._format_scripts()

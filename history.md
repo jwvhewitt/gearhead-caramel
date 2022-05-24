@@ -1,3 +1,5 @@
+* Focus mode added to scenario editor physical view
+* Added identifier, literal scenario creator variable types
 * Justify property now works with text entry and text editor widgets
 * ScenarioCreator output is pretty printed with yapf if available
 * Refactored the ScenarioCreator compiler

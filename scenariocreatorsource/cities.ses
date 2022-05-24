@@ -21,7 +21,8 @@
         {"element_key": "METROSCENE", "variable_keys": ["city_name", "city_faction", "exploration_music", "combat_music", "city_palette"]},
         {"element_key": "MISSION_GATE", "parent": "METROSCENE", "variable_keys": ["entrance_name", "entrance_desc"], "child_keys": null}
     ],
-    "sorting_rank": 1000
+    "sorting_rank": 1000,
+    "category": "LOCATIONS"
 
 *SCRIPT plot_subplots
 +subplot CITY_{unique_id}_{_uid}
@@ -79,7 +80,7 @@ myroom = self.register_element(
 )
 
 mygate = self.register_element(
-    "_MISSION_GATE_{_uid}", Exit(name="{entrance_name}", desc="{entrance_desc}",
+    "_MISSION_GATE_{_uid}", Exit(name="{entrance_name}", desc={entrance_desc},
     anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_ENTRY_ROOM_{_uid}"
 )
 
