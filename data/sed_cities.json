@@ -3,7 +3,7 @@
     "label": "CITY",
     "scripts": {
       "plot_subplots": "+subplot CITY_{unique_id}_{_uid}\n\n",
-      "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"METRO\"] = self.elements[\"METROSCENE\"].metrodat\n        #: plot_init\n        #: city_init\n        #: plot_actions\n        #: plot_subplots\n        +subplot CF_METROSCENE_RECOVERY_HANDLER\n        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER\n\n        #: city_subplots\n        #: scene_subplots\n        return True\n\n    def METROSCENE_ENTER(self, camp):\n        pass\n        #: city_enter\n\n    #: plot_methods\n\n",
+      "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"METRO\"] = self.elements[\"METROSCENE\"].metrodat\n        #: plot_init\n        #: city_init\n        #: plot_actions\n        #: plot_subplots\n        +subplot CF_METROSCENE_RECOVERY_HANDLER\n        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER\n\n        if {allow_random_plots}:\n            +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER\n\n        return True\n\n    #: plot_methods\n\n",
       "scenario_build": "# Build the city here, store it in the_world\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(\n    50, 50, \"{city_name}\", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,\n    faction={city_faction}, attributes=(gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC),\n    exploration_music=\"{exploration_music}\", combat_music=\"{combat_music}\"\n)\n\n# Create a scene generator\nmyscenegen = pbge.randmaps.CityGridGenerator(\n    myscene, game.content.gharchitecture.HumanScaleGreenzone(), road_terrain=game.content.ghterrain.Flagstone\n)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"_CITY_{_uid}\")\n\nthe_world[{METROSCENE_UID}] = myscene\n\n# Create the entry/exit point.\nmyroom = self.register_element(\n    \"_ENTRY_ROOM_{_uid}\", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.south),\n    dident=\"_CITY_{_uid}\"\n)\n\nmygate = self.register_element(\n    \"_MISSION_GATE_{_uid}\", Exit(name=\"{entrance_name}\", desc={entrance_desc},\n    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident=\"_ENTRY_ROOM_{_uid}\"\n)\n\nthe_world[{MISSION_GATE_UID}] = mygate\n\n\n\n"
     },
     "name": "New Metro Scene",
@@ -44,6 +44,10 @@
           "Black"
         ],
         "var_type": "palette"
+      },
+      "allow_random_plots": {
+        "default_val": true,
+        "var_type": "boolean"
       }
     },
     "child_types": [
@@ -90,5 +94,76 @@
     ],
     "sorting_rank": 1000,
     "category": "LOCATIONS"
+  },
+  {
+    "label": "CITY_FEATURE",
+    "scripts": {
+      "plot_subplots": "for t in range({num_random_lancemates}):\n    +subplot RANDOM_LANCEMATE\n\n\n\n"
+    },
+    "name": "Add Random Lancemates",
+    "desc": "Add some random lancemates to this city.",
+    "vars": {
+      "num_random_lancemates": {
+        "default_val": "1",
+        "var_type": "integer"
+      }
+    },
+    "singular": true
+  },
+  {
+    "label": "CITY_FEATURE",
+    "scripts": {
+      "scenario_build": "splot = self.add_sub_plot(nart, \"SHOP_BLACKMARKET\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical SHOPKEEPER splot.elements[\"SHOPKEEPER\"]\n\n",
+      "plot_init": "+subplot BLACKMARKET_{unique_id}_{_uid}\n\n",
+      "main": "class BlackMarket_{unique_id}_{_uid}( Plot ):\n    LABEL = \"BLACKMARKET_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n\n        if {shop_name}:\n            self.elements[\"LOCALE\"].name = {shop_name}\n\n        if {npc_name}:\n            self.elements[\"SHOPKEEPER\"].name = {npc_name}\n\n        #: plot_init\n        #: city_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def SHOPKEEPER_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n"
+    },
+    "name": "Add Black Market",
+    "display_name": "Black Market: {shop_name}",
+    "desc": "Adds a black market and a shopkeeper NPC to the city.",
+    "is_new_branch": true,
+    "vars": {
+      "shop_name": {
+        "default_val": "",
+        "var_type": "literal"
+      },
+      "npc_name": {
+        "default_val": "",
+        "var_type": "literal"
+      },
+      "shop_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      }
+    },
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "Black Market: {shop_name}"
+      },
+      "SHOPKEEPER": {
+        "e_type": "npc",
+        "name": "Shopkeeper: {npc_name}",
+        "aliases": [
+          "NPC"
+        ]
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "METROSCENE",
+        "variable_keys": [
+          "shop_name",
+          "shop_faction"
+        ]
+      },
+      {
+        "element_key": "SHOPKEEPER",
+        "parent": "LOCALE",
+        "variable_keys": [
+          "npc_name"
+        ]
+      }
+    ]
   }
 ]

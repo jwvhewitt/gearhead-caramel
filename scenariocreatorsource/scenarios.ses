@@ -152,9 +152,6 @@ class {unique_id}_Scenario( Plot ):
   "faction_name": {"default_val": "Those Folks", "var_type": "literal"},
   "base_faction": {"default_val": null, "var_type": "faction"}
 },
-"elements": {
-  "FACTION_{_uid}": {"e_type": "faction", "name": "{faction_name}"}
-},
 "sorting_rank": 100,
 "category": "FACTIONS"
 

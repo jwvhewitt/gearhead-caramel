@@ -21,7 +21,7 @@ def get_building(plot: Plot, bclass, **kwargs):
     # a "terrain_building_whatever_u.png" file. As long as that exists, you should be good to go.
     if "CITY_COLORS" in plot.elements:
         image_name = bclass.TERRAIN_TYPE.image_top
-        image_root = image_name.patition('.')[0]
+        image_root = image_name.partition('.')[0]
         dd = {
             "image_bottom": bclass.TERRAIN_TYPE.image_bottom, "image_top": '{}_u.png'.format(image_root),
             "blocks": bclass.TERRAIN_TYPE.blocks,
@@ -81,7 +81,7 @@ class BasicBlackMarket(Plot):
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
-            nart, self, self.elements["METROSCENE"], intscene, room1=building,
+            nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
         npc1.place(intscene, team=team2)

@@ -128,7 +128,7 @@ class ShopPanel(BuySellCounters):
     def bought(self):
         return self._bought
 
-    def render(self):
+    def render(self, flash):
         myrect = SHOP_PANEL_FRECT.get_rect()
         pbge.default_border.render(myrect)
         if self.portrait:

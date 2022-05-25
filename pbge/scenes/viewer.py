@@ -1,6 +1,5 @@
 import collections
 import weakref
-from . import Tile
 from .. import my_state, anim_delay, WHITE, wrap_multi_line
 from .. import util, image
 import pygame
@@ -106,6 +105,8 @@ class SceneView(object):
 
     def get_named_sprite(self, fname, transparent=False, colors=None):
         """Return the requested sprite. If no sprite exists, try to load one."""
+        if isinstance(colors, list):
+            colors = tuple(colors)
         spr = self.namedsprite.get((fname, transparent, colors))
         if not spr:
             spr = image.Image(fname, self.TILE_WIDTH, self.TILE_WIDTH, color=colors, transparent=transparent)
@@ -131,27 +132,6 @@ class SceneView(object):
         # self.seed = ( 73 * x + 101 * y + x * y ) % 1024
         # return self.seed
         return self.randoms[(x + y * self.scene.width) % len(self.randoms)]
-
-    def calc_floor_score(self, x, y, terr):
-        """Return bitmask of how many floors of type terrain border tile x,y."""
-        it = 0
-        if (self.scene.get_floor(x - 1, y - 1) == terr) or \
-                (self.scene.get_floor(x, y - 1) == terr) or \
-                (self.scene.get_floor(x - 1, y) == terr):
-            it += 1
-        if (self.scene.get_floor(x + 1, y - 1) == terr) or \
-                (self.scene.get_floor(x, y - 1) == terr) or \
-                (self.scene.get_floor(x + 1, y) == terr):
-            it += 2
-        if (self.scene.get_floor(x + 1, y + 1) == terr) or \
-                (self.scene.get_floor(x, y + 1) == terr) or \
-                (self.scene.get_floor(x + 1, y) == terr):
-            it += 4
-        if (self.scene.get_floor(x - 1, y + 1) == terr) or \
-                (self.scene.get_floor(x, y + 1) == terr) or \
-                (self.scene.get_floor(x - 1, y) == terr):
-            it += 8
-        return it
 
     def is_same_terrain(self, terr_to_check, terr_prototype):
         if terr_to_check:
@@ -383,6 +363,16 @@ class SceneView(object):
             self.x_off = nu_x_off
             self.y_off = nu_y_off
 
+    def get_floor_borders(self, x0, y0, center_floor):
+        # Return a list of floor terrain with borders to draw on this tile, in order of border_priority
+        my_bordered_floors = list()
+        for dx, dy in self.scene.DELTA8:
+            myfloor = self.scene.get_floor(x0 + dx, y0 + dy)
+            if myfloor and myfloor.border and myfloor.border_priority > center_floor.border_priority and myfloor not in my_bordered_floors:
+                my_bordered_floors.append(myfloor)
+        my_bordered_floors.sort(key=lambda f: f.border_priority)
+        return my_bordered_floors
+
     def __call__(self):
         """Draws this mapview to the provided screen."""
         screen_area = my_state.screen.get_rect()
@@ -446,13 +436,19 @@ class SceneView(object):
                         m.render((self.relative_x(mx, my) + self.x_off + self.HTW,
                                   self.relative_y(mx, my) + self.y_off + self.TILE_WIDTH - self.HTH - y_alt), self)
                         if show_names:
-                            self.show_model_name(m, self.relative_x(mx, my) + self.x_off + self.HTW, self.relative_y(mx,
-                                                                                                                     my) + self.y_off + self.TILE_WIDTH - self.HTH - y_alt)
+                            self.show_model_name(
+                                m, self.relative_x(mx, my) + self.x_off + self.HTW,
+                                   self.relative_y(mx, my) + self.y_off + self.TILE_WIDTH - self.HTH - y_alt
+                            )
 
                 self.scene._map[x][y].render_biddle(dest, self, x, y)
 
-                if self.scene._map[x][y].floor and self.scene._map[x][y].floor.border:
-                    self.scene._map[x][y].floor.border.render(dest, self, x, y)
+                # Draw any floor borders at this point.
+                myfloor = self.scene.get_floor(x, y)
+                if myfloor:
+                    borders = self.get_floor_borders(x, y, myfloor)
+                    for b in borders:
+                        b.border.render(dest, self, x, y)
 
             # We don't print the model in this tile yet- we print the one in
             # the tile above it.

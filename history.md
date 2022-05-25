@@ -1,3 +1,4 @@
+* Floor borders now based on priority, not keyed to specific terrain pairs
 * Changed the way custom factions are stored and accessed in Scenario Creator
 * Scenario editor now does basic error checking before compiling
 * Focus mode added to scenario editor physical view

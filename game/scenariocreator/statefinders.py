@@ -14,7 +14,7 @@ def find_factions(part):
     myroot = part.get_root()
     for c in myroot.children:
         if c.brick.name == "New Sub Faction":
-            mylist.append((c.raw_vars["faction_name"], "self.elements[CUSTOM_FACTIONS][FACTION_{}]".format(c._uid)))
+            mylist.append((c.raw_vars["faction_name"], "self.elements[CUSTOM_FACTIONS]['FACTION_{}']".format(c._uid)))
     mylist.append(("==None==", None))
     return mylist
 

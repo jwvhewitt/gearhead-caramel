@@ -149,7 +149,6 @@ class WinterMochaBlower(ghwaypoints.Waypoint):
 
 class WinterMochaPavement(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_pavement.png'
-    border = pbge.scenes.terrain.FloorBorder(ghterrain.Snow, 'terrain_border_snowline.png')
 
 
 class WinterMochaTruckTerrain(pbge.scenes.terrain.Terrain):

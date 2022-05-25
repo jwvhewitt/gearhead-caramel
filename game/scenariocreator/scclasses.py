@@ -30,8 +30,6 @@ class PhysicalDefinition(object):
         if element_key and element_key not in the_brick.elements:
             print("Physical Error in {}: Element {} not found".format(the_brick, element_key))
         self.parent = parent
-        if parent and parent not in the_brick.elements:
-            print("Physical Error in {}: Parent {} not found".format(the_brick, parent))
         self.variable_keys = set(variable_keys)
         if not self.variable_keys.issubset(the_brick.vars.keys()):
             print("Physical Error in {}: Variable keys {} not found".format(
@@ -285,7 +283,7 @@ class BluePrint(object):
                         n = script_line.find("+add_physical")
                         prefix = " " * n
                         element_name, variable_name = script_line[n + 13:].strip().split()
-                        if element_name and element_name in self.brick.elements and variable_name.is_identifier():
+                        if element_name and element_name in self.brick.elements:
                             nuscript.append(
                                 prefix + "the_world[{}] = {}".format(
                                     ultravars[self.get_element_uid_var_name(element_name)],

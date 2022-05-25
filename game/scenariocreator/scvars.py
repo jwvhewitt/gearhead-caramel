@@ -151,7 +151,8 @@ class PaletteVariable(BaseVariableDefinition):
     def get_errors(self, part, key):
         myerrors = list()
         myerrors += super().get_errors(part, key)
-        mylist = part.get_ultra_vars().get(key, "")
+        mylist = part.raw_vars.get(key, "")
+        #mylist = part.get_ultra_vars().get(key, "")
         if not isinstance(mylist, list):
             myerrors.append("Variable {} in {} is not a color list".format(key, part))
         elif len(mylist) < 5:
@@ -160,6 +161,11 @@ class PaletteVariable(BaseVariableDefinition):
             myerrors.append("Variable {} in {} has unknown colors: {}".format(key, part, mylist))
 
         return myerrors
+
+    @staticmethod
+    def format_for_python(value):
+        print("Formatting palette!")
+        return "(gears.color.{}, gears.color.{}, gears.color.{}, gears.color.{}, gears.color.{})".format(*value)
 
 
 class MusicVariable(BaseVariableDefinition):

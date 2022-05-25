@@ -65,12 +65,6 @@
         "var_type": "faction"
       }
     },
-    "elements": {
-      "FACTION_{_uid}": {
-        "e_type": "faction",
-        "name": "{faction_name}"
-      }
-    },
     "sorting_rank": 100,
     "category": "FACTIONS"
   },

@@ -10,7 +10,8 @@
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
       "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
       "combat_music": {"default_val":  "Late.ogg", "var_type": "music"},
-      "city_palette": {"default_val":  ["Black","Black","Black","Black","Black"], "var_type": "palette"}
+      "city_palette": {"default_val":  ["Black","Black","Black","Black","Black"], "var_type": "palette"},
+      "allow_random_plots": {"default_val": true, "var_type": "boolean"}
     },
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
     "elements": {
@@ -43,13 +44,10 @@ class City_{unique_id}_{_uid}( Plot ):
         +subplot CF_METROSCENE_RECOVERY_HANDLER
         +subplot CF_METROSCENE_WME_DEFENSE_HANDLER
 
-        #: city_subplots
-        #: scene_subplots
-        return True
+        if {allow_random_plots}:
+            +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER
 
-    def METROSCENE_ENTER(self, camp):
-        pass
-        #: city_enter
+        return True
 
     #: plot_methods
 
@@ -87,4 +85,74 @@ mygate = self.register_element(
 the_world[{MISSION_GATE_UID}] = mygate
 
 
+
+*NEW CITY_FEATURE
+    "name": "Add Random Lancemates",
+    "desc": "Add some random lancemates to this city.",
+    "label": "CITY_FEATURE",
+    "vars": {
+      "num_random_lancemates": {"default_val": "1", "var_type": "integer"}
+    },
+    "singular": true
+
+*SCRIPT plot_subplots
+for t in range({num_random_lancemates}):
+    +subplot RANDOM_LANCEMATE
+
+
+
+*NEW CITY_FEATURE
+    "name": "Add Black Market",
+    "display_name": "Black Market: {shop_name}",
+    "desc": "Adds a black market and a shopkeeper NPC to the city.",
+    "is_new_branch": true,
+    "vars": {
+      "shop_name": {"default_val": "", "var_type": "literal"},
+      "npc_name": {"default_val": "", "var_type": "literal"},
+      "shop_faction": {"default_val":  null, "var_type": "faction"}
+   },
+   "elements": {
+      "LOCALE": {"e_type": "scene", "name": "Black Market: {shop_name}"},
+      "SHOPKEEPER": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"]},
+        {"element_key": "SHOPKEEPER", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+    ]
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "SHOP_BLACKMARKET", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}))
++add_physical LOCALE splot.elements["INTERIOR"]
++add_physical SHOPKEEPER splot.elements["SHOPKEEPER"]
+
+*SCRIPT plot_init
++subplot BLACKMARKET_{unique_id}_{_uid}
+
+*SCRIPT main
+class BlackMarket_{unique_id}_{_uid}( Plot ):
+    LABEL = "BLACKMARKET_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        +init_plot
+
+        if {shop_name}:
+            self.elements["LOCALE"].name = {shop_name}
+
+        if {npc_name}:
+            self.elements["SHOPKEEPER"].name = {npc_name}
+
+        #: plot_init
+        #: city_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+        #: npc_offers
+        return mylist
+
+    #: plot_methods
 
