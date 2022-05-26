@@ -1,5 +1,6 @@
 import gears
 import game
+from game.content import ghterrain
 from game.ghdialogue import context
 import pbge
 
@@ -107,6 +108,26 @@ LIST_TYPES = {
         game.content.ghplots.missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL,
         game.content.ghplots.missionbuilder.BAMO_STORM_THE_CASTLE,
         game.content.ghplots.missionbuilder.BAMO_SURVIVE_THE_AMBUSH
+    ),
+}
+
+SINGULAR_TYPES = {
+    "scene_generator": (
+        pbge.randmaps.SceneGenerator.__name__, pbge.randmaps.CityGridGenerator.__name__
+    )
+}
+
+TERRAIN_TYPES = {
+    "floor": (
+        ghterrain.GreenZoneGrass, ghterrain.Sand, ghterrain.Flagstone, ghterrain.DeadZoneGround,
+        ghterrain.SemiDeadZoneGround, ghterrain.Pavement, ghterrain.SmallDeadZoneGround, ghterrain.TechnoRubble,
+        ghterrain.OldTilesFloor, ghterrain.WhiteTileFloor, ghterrain.HardwoodFloor, ghterrain.GrateFloor,
+        ghterrain.CrackedEarth, ghterrain.Snow, ghterrain.SmallSnow, ghterrain.OrganicFloor, ghterrain.Water
+    ),
+    "wall": (
+        ghterrain.FortressWall, ghterrain.ScrapIronWall, ghterrain.DefaultWall, ghterrain.CommercialWall,
+        ghterrain.ResidentialWall, ghterrain.WoodenWall, ghterrain.HospitalWall, ghterrain.IndustrialWall,
+        ghterrain.MSRuinedWall, ghterrain.StoneWall, ghterrain.EarthWall, ghterrain.OrganicWall,
     )
 }
 
@@ -133,6 +154,10 @@ def get_possible_states(part, category: str):
         return [(a,'"{}"'.format(a)) for a in pbge.image.glob_images(category)] + [("None", None),]
     elif category in LIST_TYPES:
         return [(a,a) for a in LIST_TYPES[category]]
+    elif category in SINGULAR_TYPES:
+        return [(a, a) for a in SINGULAR_TYPES[category]]
+    elif category.startswith("terrain:") and category[8:] in TERRAIN_TYPES:
+        return [(a.__name__, "ghterrain.{}".format(a.__name__)) for a in TERRAIN_TYPES[category[8:]]]
     else:
         return find_elements(part, category)
 

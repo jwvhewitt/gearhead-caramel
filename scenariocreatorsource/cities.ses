@@ -6,11 +6,14 @@
     "vars": {
       "city_name": {"default_val": "Megacormack", "var_type": "string"},
       "city_faction": {"default_val": null, "var_type": "faction"},
+      "scene_generator": {"default_val": "CityGridGenerator", "var_type": "scene_generator", "must_be_defined": true},
       "entrance_name": {"default_val": "Exit", "var_type": "string"},
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
       "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
       "combat_music": {"default_val":  "Late.ogg", "var_type": "music"},
       "city_palette": {"default_val":  ["Black","Black","Black","Black","Black"], "var_type": "palette"},
+      "floor_terrain": {"default_val": "ghterrain.GreenZoneGrass", "var_type": "terrain:floor"},
+      "road_terrain": {"default_val": "ghterrain.Pavement", "var_type": "terrain:floor"},
       "allow_random_plots": {"default_val": true, "var_type": "boolean"}
     },
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
@@ -19,8 +22,8 @@
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
     "physicals": [
-        {"element_key": "METROSCENE", "variable_keys": ["city_name", "city_faction", "exploration_music", "combat_music", "city_palette"]},
-        {"element_key": "MISSION_GATE", "parent": "METROSCENE", "variable_keys": ["entrance_name", "entrance_desc"], "child_keys": null}
+        {"element_key": "METROSCENE", "variable_keys": ["city_name", "city_faction", "scene_generator", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain"], "child_types": null},
+        {"element_key": "MISSION_GATE", "parent": "METROSCENE", "variable_keys": ["entrance_name", "entrance_desc"]}
     ],
     "sorting_rank": 1000,
     "category": "LOCATIONS"
@@ -62,8 +65,8 @@ myscene = gears.GearHeadScene(
 )
 
 # Create a scene generator
-myscenegen = pbge.randmaps.CityGridGenerator(
-    myscene, game.content.gharchitecture.HumanScaleGreenzone(), road_terrain=game.content.ghterrain.Flagstone
+myscenegen = pbge.randmaps.{scene_generator}(
+    myscene, game.content.gharchitecture.HumanScaleGreenzone(floor_terrain={floor_terrain}), road_terrain={road_terrain}
 )
 
 # Register the city scene and the metro data
@@ -121,7 +124,7 @@ for t in range({num_random_lancemates}):
     ]
 
 *SCRIPT scenario_build
-splot = self.add_sub_plot(nart, "SHOP_BLACKMARKET", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}))
+splot = self.add_sub_plot(nart, "SHOP_BLACKMARKET", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical SHOPKEEPER splot.elements["SHOPKEEPER"]
 
@@ -136,13 +139,155 @@ class BlackMarket_{unique_id}_{_uid}( Plot ):
 
     def custom_init( self, nart ):
         +init_plot
+        #: plot_init
+        #: city_init
+        #: plot_actions
+        #: plot_subplots
+        return True
 
-        if {shop_name}:
-            self.elements["LOCALE"].name = {shop_name}
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+        #: npc_offers
+        return mylist
 
-        if {npc_name}:
-            self.elements["SHOPKEEPER"].name = {npc_name}
+    #: plot_methods
 
+
+
+*NEW CITY_FEATURE
+    "name": "Add General Store",
+    "display_name": "General Store: {shop_name}",
+    "desc": "Adds a general store and a shopkeeper NPC to the city. Leave shop_name and/or npc_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "shop_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "shop_faction": {"default_val":  null, "var_type": "faction"}
+   },
+   "elements": {
+      "LOCALE": {"e_type": "scene", "name": "General Store: {shop_name}"},
+      "SHOPKEEPER": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"]},
+        {"element_key": "SHOPKEEPER", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+    ]
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "SHOP_GENERALSTORE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
++add_physical LOCALE splot.elements["INTERIOR"]
++add_physical SHOPKEEPER splot.elements["SHOPKEEPER"]
+
+*SCRIPT plot_init
++subplot GENERALSTORE_{unique_id}_{_uid}
+
+*SCRIPT main
+class GeneralStore_{unique_id}_{_uid}( Plot ):
+    LABEL = "GENERALSTORE_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: city_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+        #: npc_offers
+        return mylist
+
+    #: plot_methods
+
+
+
+*NEW CITY_FEATURE
+    "name": "Add Garage",
+    "display_name": "Garage: {shop_name}",
+    "desc": "Adds a garage and a mechanic NPC to the city. Leave shop_name and/or npc_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "shop_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "shop_faction": {"default_val":  null, "var_type": "faction"}
+   },
+   "elements": {
+      "LOCALE": {"e_type": "scene", "name": "Garage: {shop_name}"},
+      "SHOPKEEPER": {"e_type": "npc", "name": "Mechanic: {npc_name}", "aliases": ["NPC"]}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"]},
+        {"element_key": "SHOPKEEPER", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+    ]
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "SHOP_GARAGE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
++add_physical LOCALE splot.elements["INTERIOR"]
++add_physical SHOPKEEPER splot.elements["SHOPKEEPER"]
+
+*SCRIPT plot_init
++subplot GARAGE_{unique_id}_{_uid}
+
+*SCRIPT main
+class Garage_{unique_id}_{_uid}( Plot ):
+    LABEL = "GARAGE_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: city_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+        #: npc_offers
+        return mylist
+
+    #: plot_methods
+
+
+
+*NEW CITY_FEATURE
+    "name": "Add Tavern",
+    "display_name": "Tavern: {tavern_name}",
+    "desc": "Adds a tavern and associated content to the city. Leave shop_name and/or npc_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "tavern_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"}
+   },
+   "elements": {
+      "LOCALE": {"e_type": "scene", "name": "Tavern: {tavern_name}"},
+      "BARTENDER": {"e_type": "npc", "name": "Mechanic: {npc_name}", "aliases": ["NPC"]}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["tavern_name"]},
+        {"element_key": "BARTENDER", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+    ]
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "SHOP_GARAGE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
++add_physical LOCALE splot.elements["INTERIOR"]
++add_physical SHOPKEEPER splot.elements["SHOPKEEPER"]
+
+*SCRIPT plot_init
++subplot GARAGE_{unique_id}_{_uid}
+
+*SCRIPT main
+class Garage_{unique_id}_{_uid}( Plot ):
+    LABEL = "GARAGE_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        +init_plot
         #: plot_init
         #: city_init
         #: plot_actions

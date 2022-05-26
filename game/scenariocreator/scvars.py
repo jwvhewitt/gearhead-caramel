@@ -7,7 +7,7 @@ class BaseVariableDefinition(object):
     WIDGET_TYPE = None
     DEFAULT_VAR_TYPE = "integer"
 
-    def __init__(self, default_val=0, var_type=None, must_be_defined=False, **kwargs):
+    def __init__(self, default_val=0, var_type=None, must_be_defined=False, tooltip="", **kwargs):
         # if must_be_defined is True, this scenario won't compile if the variable is undefined.
         if isinstance(default_val, dict):
             self.default_val = dict()
@@ -16,12 +16,13 @@ class BaseVariableDefinition(object):
             self.default_val = default_val
         self.var_type = var_type or self.DEFAULT_VAR_TYPE
         self.must_be_defined = must_be_defined
+        self.tooltip = tooltip
         self.data = kwargs.copy()
 
     def get_widgets(self, part, key, **kwargs):
         # Return a list of widgets having to do with this variable.
         mylist = list()
-        mylist.append(self.WIDGET_TYPE(part, key, **kwargs))
+        mylist.append(self.WIDGET_TYPE(part, key, tooltip=self.tooltip, **kwargs))
         return mylist
 
     def get_errors(self, part, key):
@@ -140,6 +141,7 @@ class PaletteVariable(BaseVariableDefinition):
         self.var_type = var_type or self.DEFAULT_VAR_TYPE
         self.data = kwargs.copy()
         self.must_be_defined = must_be_defined
+        self.tooltip = None
 
     @property
     def default_val(self):
@@ -164,7 +166,6 @@ class PaletteVariable(BaseVariableDefinition):
 
     @staticmethod
     def format_for_python(value):
-        print("Formatting palette!")
         return "(gears.color.{}, gears.color.{}, gears.color.{}, gears.color.{}, gears.color.{})".format(*value)
 
 
@@ -294,7 +295,11 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.LIST_TYPES:
         return FiniteStateListVariable(default_val, var_type, **kwargs)
+    elif var_type in statefinders.SINGULAR_TYPES:
+        return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type.startswith("physical:"):
+        return FiniteStateVariable(default_val, var_type, **kwargs)
+    elif var_type.startswith("terrain:"):
         return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type.endswith(".png"):
         return FiniteStateVariable(default_val, var_type, **kwargs)

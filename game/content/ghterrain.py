@@ -45,6 +45,12 @@ class Smoke(pbge.scenes.terrain.AnimTerrain):
 class GreenZoneGrass(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_grass.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_grassy.png')
+    border_priority = 200
+
+
+class Sand(pbge.scenes.terrain.VariableTerrain):
+    image_bottom = 'terrain_floor_sand.png'
+    border = pbge.scenes.terrain.FloorBorder('terrain_border_sand.png')
     border_priority = 100
 
 
@@ -100,12 +106,14 @@ class WorldMapRoad(pbge.scenes.terrain.RoadTerrain):
 class Snow(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_snow.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_snowline.png')
-    border_priority = 200
+    border_priority = 300
 
 
 class SmallSnow(pbge.scenes.terrain.VariableTerrain):
     # As above, but uses the human scale graphics.
     image_bottom = 'terrain_floor_snow_small.png'
+    border = pbge.scenes.terrain.FloorBorder('terrain_border_snowline.png')
+    border_priority = 300
 
 
 class Bones(pbge.scenes.terrain.VariableTerrain):
@@ -918,9 +926,11 @@ class BrokenBiotankTerrain(pbge.scenes.terrain.Terrain):
 class PZHoloTerrain(pbge.scenes.terrain.AnimTerrain):
     transparent = True
     frames = (
-    1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 3, 5, 1, 4, 7,
-    2, 6, 7, 6, 5, 4, 3, 2,
-    1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 4, 3, 4, 5, 6, 5, 4, 3, 2)
+        1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 3, 5, 1,
+        4, 7,
+        2, 6, 7, 6, 5, 4, 3, 2,
+        1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 4, 3, 4, 5, 6, 5, 4, 3,
+        2)
     image_top = "terrain_decor_pzholo.png"
     blocks = (Walking, Skimming, Rolling, Flying)
     anim_delay = 3

@@ -70,6 +70,10 @@ class PlotNodeWidget(pbge.widgets.Widget):
         self.data.children.append(self.editor.clipboard.copy())
         self.editor.update_parts_widget()
 
+    @property
+    def blueprint(self):
+        return self.data
+
     def get_bp_and_var_keys(self):
         return self.data, None
 
@@ -112,6 +116,10 @@ class PhysicalNodeWidget(pbge.widgets.RowWidget):
             pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
             pbge.my_state.screen.blit(self.regular_image, myrect)
+
+    @property
+    def blueprint(self):
+        return self.physical_desc.blueprint
 
     def get_bp_and_var_keys(self):
         return self.physical_desc.blueprint, self.physical_desc.variable_keys
@@ -201,8 +209,13 @@ class PhysicalPartTree(object):
             phys_id = my_elements[phys.element_key].uid
             variable_keys = list(phys.variable_keys)
 
+            if phys.child_types is None:
+                child_types = blueprint.brick.child_types
+            else:
+                child_types = phys.child_types
+
             phys_desc = PhysicalPartDesc(blueprint, phys.element_key, phys_id, my_elements[phys.element_key],
-                                         variable_keys, phys.child_types)
+                                         variable_keys, child_types)
 
             self.id_to_part[phys_id] = phys_desc
 
@@ -440,6 +453,7 @@ class ScenarioEditor(pbge.widgets.Widget):
         mymenu = pbge.rpgmenu.Menu(-100, -200, 250, 400)
         mymenu.add_descbox(175, -200, 175, 400)
         my_blueprint, child_types = self.active_node.get_bp_and_child_types()
+        print(child_types)
         mybrick = my_blueprint.brick
         for tlabel in child_types:
             for tbrick in BRICKS_BY_LABEL.get(tlabel, ()):
@@ -454,12 +468,13 @@ class ScenarioEditor(pbge.widgets.Widget):
             # self.set_active_node(newbp)
 
     def _remove_feature(self, widj, ev):
-        if self.active_node != self.mytree and hasattr(self.active_node, "container") and self.active_node.container:
-            myparent = self.active_node.container.owner
-            myparent.children.remove(self.active_node)
+        mybp = self.active_node.blueprint
+        if mybp != self.mytree and hasattr(mybp, "container") and mybp.container:
+            myparent = mybp.container.owner
+            myparent.children.remove(mybp)
             self.update_parts_widget()
             self.mytree.sort()
-            self.set_active_node(myparent)
+            #self.set_active_node(myparent)
 
     def _exit_editor(self, widj, ev):
         self.finished = True

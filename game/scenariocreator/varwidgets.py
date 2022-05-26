@@ -438,6 +438,7 @@ class ColorSwatchEditorWidget(pbge.widgets.DropdownWidget):
 
     def update_swatch(self, color_name):
         if color_name:
+            self.tooltip = color_name
             self.palette[self.color_index] = color_name
             color = gears.SINGLETON_TYPES[color_name]
             self.sprite = pbge.image.Image("sys_color_menu_swatch.png", 24, 36,
