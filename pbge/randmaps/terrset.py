@@ -82,6 +82,9 @@ class BuildingSet( TerrSet ):
     GF4_TILE = (18,23)
     GF5_TILE = (19,24)
 
+    MIN_RANDOM_SIZE = 7
+    MAX_RANDOM_SIZE = 12
+
     DEFAULT_DECOR_OPTIONS = ()
     def __init__(self, tags=(), anchor=None, parent=None, archi=None, waypoints=dict(), border=1, decor_options=(),
                  door_sign=None, other_sign=None, duck_dict=None):

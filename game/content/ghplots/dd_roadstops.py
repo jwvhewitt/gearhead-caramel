@@ -196,7 +196,8 @@ class DemocraticOrder(Plot):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", ghterrain.ResidentialBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -270,7 +271,8 @@ class MilitaryOrder(Plot):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -344,7 +346,8 @@ class TechnocraticOrder(Plot):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -498,7 +501,8 @@ class SomewhatOkayGarage(Plot):
         building = self.register_element("_EXTERIOR", self.GarageBuilding(
             waypoints={"DOOR": self.GarageDoor(name=garage_name)},
             door_sign=self.door_sign,
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -621,7 +625,8 @@ class DeadzoneClinic(Plot):
         building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
             waypoints={"DOOR": ghwaypoints.WoodenDoor(name=self.myname)},
             door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -682,7 +687,8 @@ class AmateurCyberdoc(Plot):
         building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.myname)},
             door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -1138,7 +1144,8 @@ class DZRS_GeneralStore(Plot):
         building = self.register_element("_EXTERIOR", ghterrain.ConcreteBuilding(
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
             door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="METROSCENE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="METROSCENE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -1206,7 +1213,8 @@ class DZRS_WeaponArmorShop(Plot):
         building = self.register_element("_EXTERIOR", ghterrain.ConcreteBuilding(
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
             door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="METROSCENE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="METROSCENE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")

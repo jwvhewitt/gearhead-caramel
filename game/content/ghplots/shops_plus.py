@@ -62,7 +62,8 @@ class BasicBlackMarket(Plot):
             self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.shopname)},
             door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -139,7 +140,8 @@ class BasicGarage(Plot):
             self, ghterrain.IndustrialBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
             door_sign=(ghterrain.FixitShopSignEast, ghterrain.FixitShopSignSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -220,7 +222,8 @@ class BasicGeneralStore(Plot):
             self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
             door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")

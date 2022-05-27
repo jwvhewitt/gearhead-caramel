@@ -1,8 +1,6 @@
 import pygame
 import random
 from .. import scenes
-import math
-from .. import container
 
 from . import plasma
 from . import anchors
@@ -170,6 +168,86 @@ class CityGridGenerator(SceneGenerator):
 
     def connect_contents(self, gb, archi):
         pass
+
+
+IS_CITY_ROOM = "This room is part of the city"
+IS_CONNECTED_ROOM = "This room is connected to the road network"
+
+
+class PartlyUrbanGenerator(SceneGenerator):
+    # Make a scene that is partly urban and partly not. Maybe it's partly wilderness. Maybe it's partly a cave system.
+    # Only the architecture knows. Anyhow, it's similar to the CityGridGenerator but limits the city parts to a
+    # limited rect.
+    DO_DIRECT_CONNECTIONS = False
+
+    def __init__(self, myscene, archi, road_terrain, road_thickness=2, urban_area=None, **kwargs):
+        super().__init__(myscene, archi, **kwargs)
+        self.road_terrain = road_terrain
+        self.road_thickness = road_thickness
+        if not urban_area:
+            self.urban_area = rooms.Room(20, 20, anchor=anchors.middle, parent=self)
+        else:
+            self.urban_area = urban_area
+            self.contents.append(urban_area)
+            if not (hasattr(urban_area, "area") and urban_area.area):
+                self.urban_area.area = pygame.Rect(0, 0, urban_area.width, urban_area.height)
+                self.urban_area.area.center = self.area.center
+
+    def arrange_contents(self, gb):
+        # Step Two: Arrange subcomponents within this area.
+        closed_area = list()
+        # Add already placed rooms to the closed_area list.
+        for r in self.contents:
+            if hasattr(r, "area") and r.area:
+                closed_area.append(r.area)
+        # Add rooms with defined anchors next
+        for r in self.contents:
+            if hasattr(r, "anchor") and r.anchor and hasattr(r, "area"):
+                myrect = pygame.Rect(0, 0, r.width, r.height)
+                r.anchor(self.area, myrect)
+                if myrect.collidelist(closed_area) == -1:
+                    r.area = myrect
+                    closed_area.append(myrect)
+
+        # Assign areas for unplaced rooms.
+        for r in list(self.contents):
+            if hasattr(r, "area") and not r.area:
+                if IS_CITY_ROOM in r.tags:
+                    self.contents.remove(r)
+                    self.urban_area.contents.append(r)
+                else:
+                    self.find_spot_for_room(closed_area, r)
+
+    def build(self, gb, archi):
+        super().build(gb, archi)
+        frontier = [r for r in self.all_rooms() if IS_CONNECTED_ROOM in r.tags]
+        done_rooms = list()
+        if frontier:
+            start_point = random.choice(frontier)
+            frontier.remove(start_point)
+            done_rooms.append(start_point)
+            frontier.sort(key=lambda r: gb.distance(start_point.area.center, r.area.center))
+            while frontier:
+                nuroom = frontier.pop(0)
+                connect_to = min(done_rooms, key=lambda r: gb.distance(nuroom.area.center, r.area.center))
+                self.draw_road(gb, nuroom.area.centerx, nuroom.area.centery, connect_to.area.centerx, connect_to.area.centery)
+                done_rooms.append(nuroom)
+
+
+    def draw_road_segment(self, gb, x1, y1, x2, y2):
+        path = scenes.animobs.get_line(x1, y1, x2, y2)
+        for p in path:
+            mydest = pygame.Rect(0,0,self.road_thickness, self.road_thickness)
+            mydest.center = p
+            self.fill(gb, mydest, floor=self.road_terrain, wall=None, decor=None)
+
+    def draw_road(self, gb: scenes.Scene, x1, y1, x2, y2):
+        if random.randint(1, 2) == 1:
+            cx, cy = x1, y2
+        else:
+            cx, cy = x2, y1
+        self.draw_road_segment(gb, x1, y1, cx, cy)
+        self.draw_road_segment(gb, x2, y2, cx, cy)
 
 
 class PackedBuildingGenerator(SceneGenerator):

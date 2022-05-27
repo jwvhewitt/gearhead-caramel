@@ -22,10 +22,12 @@ class Room(object):
     DECORATE = None
     DO_DIRECT_CONNECTIONS = False
     ON_THE_EDGE = False
+    MIN_RANDOM_SIZE = 7
+    MAX_RANDOM_SIZE = 12
 
     def __init__(self, width=None, height=None, tags=(), anchor=None, parent=None, archi=None, decorate=None, **kwargs):
-        self.width = width or random.randint(7, 12)
-        self.height = height or random.randint(7, 12)
+        self.width = width or random.randint(self.MIN_RANDOM_SIZE, self.MAX_RANDOM_SIZE)
+        self.height = height or random.randint(self.MIN_RANDOM_SIZE, self.MAX_RANDOM_SIZE)
         self.tags = tags
         self.anchor = anchor
         self.archi = archi
@@ -85,6 +87,27 @@ class Room(object):
             if isinstance(r, Room):
                 r.step_seven(gb)
 
+    def find_spot_for_room(self, closed_area, myroom):
+        myrect = pygame.Rect(0, 0, myroom.width, myroom.height)
+        count = 0
+        while (count < 1000) and not myroom.area:
+            myrect.x = random.choice(list(range(self.area.x, self.area.x + self.area.width - myroom.width)))
+            myrect.y = random.choice(list(range(self.area.y, self.area.y + self.area.height - myroom.height)))
+            if self.ON_THE_EDGE and count < 500:
+                if random.randint(1, 2) == 1:
+                    myrect.x = random.choice((self.area.x, self.area.x + self.area.width - myroom.width))
+                else:
+                    myrect.y = random.choice((self.area.y, self.area.y + self.area.height - myroom.height))
+            if myrect.inflate(6, 6).collidelist(closed_area) == -1:
+                myroom.area = myrect
+                closed_area.append(myrect)
+            elif count > 200 and myrect.collidelist(closed_area) == -1:
+                myroom.area = myrect
+                closed_area.append(myrect)
+            count += 1
+        if not myroom.area:
+            raise RoomError("ROOM ERROR: {}:{} cannot place {}".format(str(self), str(self.__class__), str(myroom)))
+
     def arrange_contents(self, gb):
         # Step Two: Arrange subcomponents within this area.
         closed_area = list()
@@ -102,27 +125,28 @@ class Room(object):
                     closed_area.append(myrect)
         # old_closed = list(closed_area)
         # Assign areas for unplaced rooms.
-        for r in self.contents:
-            if hasattr(r, "area") and not r.area:
-                myrect = pygame.Rect(0, 0, r.width, r.height)
-                count = 0
-                while (count < 1000) and not r.area:
-                    myrect.x = random.choice(list(range(self.area.x, self.area.x + self.area.width - r.width)))
-                    myrect.y = random.choice(list(range(self.area.y, self.area.y + self.area.height - r.height)))
-                    if self.ON_THE_EDGE and count < 500:
-                        if random.randint(1, 2) == 1:
-                            myrect.x = random.choice((self.area.x, self.area.x + self.area.width - r.width))
-                        else:
-                            myrect.y = random.choice((self.area.y, self.area.y + self.area.height - r.height))
-                    if myrect.inflate(6, 6).collidelist(closed_area) == -1:
-                        r.area = myrect
-                        closed_area.append(myrect)
-                    elif count > 200 and myrect.collidelist(closed_area) == -1:
-                        r.area = myrect
-                        closed_area.append(myrect)
-                    count += 1
-                if not r.area:
-                    raise RoomError("ROOM ERROR: {}:{} cannot place {}".format(str(self), str(self.__class__), str(r)))
+        unplaced_rooms = [r for r in self.contents if hasattr(r, "area") and not r.area]
+        tries = 100
+        while tries > 0:
+            try:
+                for r in unplaced_rooms:
+                    ok = self.find_spot_for_room(closed_area, r)
+                break
+            except RoomError:
+                for r in unplaced_rooms:
+                    if r.area in closed_area:
+                        closed_area.remove(r.area)
+                    r.area = None
+                    tries -= 1
+                    if (tries < 50 or random.randint(1, 3) == 3) and r.width > r.MIN_RANDOM_SIZE:
+                        r.width -= 1
+                    if (tries < 50 or random.randint(1, 3) == 3) and r.height > r.MIN_RANDOM_SIZE:
+                        r.height -= 1
+                    if tries < 10:
+                        print("Warning: Running out of tries!")
+        if tries < 1:
+            raise RoomError(
+                "ROOM ERROR: {}:{} cannot place all requested rooms.".format(str(self), str(self.__class__)))
 
     def connect_contents(self, gb, archi):
         # Step Three: Connect all rooms in contents, making trails on map.
@@ -287,6 +311,14 @@ class Room(object):
             if m.pos in mylist:
                 mylist.remove(m.pos)
         return mylist
+
+    def all_rooms(self):
+        myrooms = list()
+        myrooms.append(self)
+        for c in self.contents:
+            if hasattr(c, "all_rooms"):
+                myrooms += c.all_rooms()
+        return myrooms
 
 
 class FuzzyRoom(Room):

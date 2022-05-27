@@ -126,7 +126,8 @@ class ScumHiveWeapons(Plot):
             self, ghterrain.ScrapIronBuilding,
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.shopname)},
             door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -192,7 +193,8 @@ class ScumHiveMecha(Plot):
             self, ghterrain.IndustrialBuilding,
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.shopname)},
             door_sign=(ghterrain.RustyFixitShopSignEast, ghterrain.RustyFixitShopSignSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -654,7 +656,8 @@ class BasicTavern(Plot):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", ghterrain.ResidentialBuilding(
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=building_name)},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="METROSCENE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="METROSCENE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
