@@ -48,7 +48,7 @@ class Architecture( object ):
         # adding a floor if need be.
         if gb.on_the_map(x,y):
             gb._map[x][y].wall = None
-            if gb._map[x][y].blocks_walking() or gb._map[x][y].altitude != 0:
+            if gb._map[x][y].blocks_walking() or gb._map[x][y].altitude() != 0:
                 gb._map[x][y].floor = self.floor_terrain
 
     def place_a_door(self, gb, x, y):

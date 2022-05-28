@@ -33,7 +33,7 @@ class PhysicalDefinition(object):
         self.variable_keys = set(variable_keys)
         if not self.variable_keys.issubset(the_brick.vars.keys()):
             print("Physical Error in {}: Variable keys {} not found".format(
-                the_brick, self.variable_keys.difference(the_brick.vars.get_keys())
+                the_brick, self.variable_keys.difference(the_brick.vars.keys())
             ))
         if isinstance(child_types, (list, tuple, set)):
             self.child_types = set(child_types)

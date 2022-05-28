@@ -474,8 +474,11 @@ class AddRemoveFSOptionsWidget(pbge.widgets.ColumnWidget):
 
         self.ops_taken = part.raw_vars[var_name]
 
-        self.op_candidates = tuple(
-            a[0] for a in statefinders.get_possible_states(part, part.brick.vars[var_name].var_type[5:]))
+        if part.brick.vars[var_name].var_type.startswith("list:"):
+            mytype = part.brick.vars[var_name].var_type[5:]
+        else:
+            mytype = part.brick.vars[var_name].var_type
+        self.op_candidates = tuple(a[0] for a in statefinders.get_possible_states(part, mytype))
 
         mytitle = pbge.widgets.RowWidget(0, 0, self.w, max(pbge.SMALLFONT.get_linesize(), 16))
         minus_plus_image = pbge.image.Image("sys_minus_plus.png", 16, 16)

@@ -2774,6 +2774,35 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[MEDICAL_GREETING]": {
+        Default: ["And how are you feeling today?"
+                  ],
+        personality.Cheerful: ["You appear to be in good health today.",
+                               ],
+        personality.Grim: [
+            "Don't forget to schedule a regular checkup; that's the only way to catch serious problems before they become terminal problems.",
+            "Good to see that you're still alive."
+        ],
+        personality.Easygoing: [
+            "And how can I help you today?", "Being ill is worse than a [adjective] [noun]."
+        ],
+        personality.Passionate: ["Remember- take care of your body, since it's all you have in this world!"
+                                 ],
+        personality.Sociable: ["Is there anything you'd like to speak with me about?",
+                               ],
+        personality.Shy: ["If you aren't feeling well I'll get you some forms to fill out."
+                          ],
+        personality.Glory: [
+            "I have a wide supply of pharmaceuticals that could come in handy on your next mission.",
+        ],
+        personality.Duty: [
+            "I will do everything in my power to ensure your good health.",
+        ],
+        personality.Peace: [
+            "Health is the best thing a person can have; that's why we work so hard to protect it."
+        ],
+    },
+
     "[MISSION_PROBLEM:JOIN]": {
         Default: ["I could really use your help out there.",
             "Sounds like I could use some backup.",
@@ -3541,20 +3570,21 @@ DEFAULT_GRAMMAR = {
     "[shop_feature]": {
         Default: [
             "quality", "good service", "value for money", "the latest gear", "the [adjective] [noun]",
-            "your satisfaction", "something"
+            "your satisfaction", "something", "a great selection"
         ]
     },
 
     "[shop_features]": {
         Default: [
-            "the lowest prices", "happy customers", "great deals", "friendly staff"
+            "the lowest prices", "happy customers", "great deals", "friendly staff", "[adjective] products"
         ]
     },
 
     "[shop_descriptive_phrase]": {
         Default: [
             "our legal obligation", "a happy accident", "an unexpected surprise", "possible", "everything",
-            "better than a [noun]", "the law", "truly [adjective]", "job one"
+            "better than a [noun]", "the law", "truly [adjective]", "job one", "mandatory", "not impossible",
+            "relatively likely", "guaranteed"
         ]
     },
 

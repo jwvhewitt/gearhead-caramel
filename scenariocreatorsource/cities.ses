@@ -6,7 +6,7 @@
     "vars": {
       "city_name": {"default_val": "Megacormack", "var_type": "string"},
       "city_faction": {"default_val": null, "var_type": "faction"},
-      "scene_generator": {"default_val": "CityGridGenerator", "var_type": "scene_generator", "must_be_defined": true},
+      "city_attributes": {"default_val": ["gears.SINGLETON_TYPES[\"GreenZone\"]", "gears.SINGLETON_TYPES[\"City\"]", "gears.tags.SCENE_PUBLIC"], "var_type": "scene_tags"},
       "entrance_name": {"default_val": "Exit", "var_type": "string"},
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
       "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
@@ -22,7 +22,7 @@
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
     "physicals": [
-        {"element_key": "METROSCENE", "variable_keys": ["city_name", "city_faction", "scene_generator", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain"], "child_types": null},
+        {"element_key": "METROSCENE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain"], "child_types": null},
         {"element_key": "MISSION_GATE", "parent": "METROSCENE", "variable_keys": ["entrance_name", "entrance_desc"]}
     ],
     "sorting_rank": 1000,
@@ -60,12 +60,12 @@ team1 = teams.Team(name="Player Team")
 team2 = teams.Team(name="Civilian Team", allies=(team1,))
 myscene = gears.GearHeadScene(
     50, 50, "{city_name}", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,
-    faction={city_faction}, attributes=(gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC),
+    faction={city_faction}, attributes={city_attributes},
     exploration_music="{exploration_music}", combat_music="{combat_music}"
 )
 
 # Create a scene generator
-myscenegen = pbge.randmaps.{scene_generator}(
+myscenegen = pbge.randmaps.CityGridGenerator(
     myscene, game.content.gharchitecture.HumanScaleGreenzone(floor_terrain={floor_terrain}), road_terrain={road_terrain}
 )
 
@@ -79,6 +79,108 @@ myroom = self.register_element(
     "_ENTRY_ROOM_{_uid}", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.south),
     dident="_CITY_{_uid}"
 )
+
+mygate = self.register_element(
+    "_MISSION_GATE_{_uid}", Exit(name="{entrance_name}", desc={entrance_desc},
+    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="_ENTRY_ROOM_{_uid}"
+)
+
+the_world[{MISSION_GATE_UID}] = mygate
+
+
+
+*NEW CITY
+    "name": "New Beachfront Metro Scene",
+    "display_name": "City: {city_name}",
+    "desc": "Adds a metro scene to the adventure. This is generally a city scene that serves as the player's home base between adventures. The metro scene handles the following things:\n - Provides a MetroDat slot for local plots.\n - Handles injury and death recovery.\n - Loads lancemate character dev plots (if enabled).",
+    "is_new_branch": true,
+    "vars": {
+      "city_name": {"default_val": "Megabusan", "var_type": "string"},
+      "city_faction": {"default_val": null, "var_type": "faction"},
+      "city_attributes": {"default_val": ["gears.SINGLETON_TYPES[\"GreenZone\"]", "gears.SINGLETON_TYPES[\"City\"]", "gears.tags.SCENE_PUBLIC"], "var_type": "scene_tags"},
+      "room_name": {"default_val": "The Beach", "var_type": "string"},
+      "entrance_name": {"default_val": "To The Docks", "var_type": "string"},
+      "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
+      "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
+      "combat_music": {"default_val":  "Late.ogg", "var_type": "music"},
+      "city_palette": {"default_val":  ["Black","Black","Black","Black","Black"], "var_type": "palette"},
+      "city_terrain": {"default_val": "ghterrain.GreenZoneGrass", "var_type": "terrain:floor"},
+      "beach_terrain": {"default_val": "ghterrain.Sand", "var_type": "terrain:floor"},
+      "water_terrain": {"default_val": "ghterrain.Water", "var_type": "terrain:floor"},
+      "road_terrain": {"default_val": "ghterrain.Pavement", "var_type": "terrain:floor"},
+      "allow_random_plots": {"default_val": true, "var_type": "boolean"}
+    },
+    "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
+    "elements": {
+      "METROSCENE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["LOCALE","CITY"]},
+      "THE_BEACH": {"e_type": "room", "name": "{room_name}", "aliases": ["ROOM"]},
+      "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
+    },
+    "physicals": [
+        {"element_key": "METROSCENE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "city_terrain", "beach_terrain", "water_terrain", "road_terrain"], "child_types": null},
+        {"element_key": "THE_BEACH", "parent": "METROSCENE", "variable_keys": ["room_name"]},
+        {"element_key": "MISSION_GATE", "parent": "THE_BEACH", "variable_keys": ["entrance_name", "entrance_desc"]}
+    ],
+    "sorting_rank": 1000,
+    "category": "LOCATIONS"
+
+*SCRIPT plot_subplots
++subplot CITY_{unique_id}_{_uid}
+
+*SCRIPT main
+class City_{unique_id}_{_uid}( Plot ):
+    LABEL = "CITY_{unique_id}_{_uid}"
+    active = True
+    scope = "METRO"
+
+    def custom_init( self, nart ):
+        +init_plot
+        self.elements["METRO"] = self.elements["METROSCENE"].metrodat
+        #: plot_init
+        #: city_init
+        #: plot_actions
+        #: plot_subplots
+        +subplot CF_METROSCENE_RECOVERY_HANDLER
+        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER
+
+        if {allow_random_plots}:
+            +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER
+
+        return True
+
+    #: plot_methods
+
+*SCRIPT scenario_build
+# Build the city here, store it in the_world
+team1 = teams.Team(name="Player Team")
+team2 = teams.Team(name="Civilian Team", allies=(team1,))
+myscene = gears.GearHeadScene(
+    50, 60, "{city_name}", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,
+    faction={city_faction}, attributes={city_attributes},
+    exploration_music="{exploration_music}", combat_music="{combat_music}"
+)
+
+# Create a scene generator
+myroom = pbge.randmaps.rooms.Room(40,25)
+myroom.area = pygame.Rect(5,10,40,25)
+myscenegen = pbge.randmaps.PartlyUrbanGenerator(
+    myscene, game.content.gharchitecture.HumanScaleGreenzone(prepare=pbge.randmaps.prep.GradientPrep([[{city_terrain},40],[{beach_terrain},15],[{water_terrain},5]])), road_terrain={road_terrain},
+    urban_area=myroom
+)
+
+# Register the city scene and the metro data
+self.register_scene(nart, myscene, myscenegen, ident="_CITY_{_uid}")
+
+the_world[{METROSCENE_UID}] = myscene
+
+# Create the entry/exit point.
+myroom = self.register_element(
+    "_ENTRY_ROOM_{_uid}", pbge.randmaps.rooms.Room(50, 10),
+    dident="_CITY_{_uid}"
+)
+myroom.area = pygame.Rect(0,40,50,10)
+
++add_physical THE_BEACH myroom
 
 mygate = self.register_element(
     "_MISSION_GATE_{_uid}", Exit(name="{entrance_name}", desc={entrance_desc},
@@ -273,16 +375,16 @@ class Garage_{unique_id}_{_uid}( Plot ):
     ]
 
 *SCRIPT scenario_build
-splot = self.add_sub_plot(nart, "SHOP_GARAGE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
+splot = self.add_sub_plot(nart, "SHOP_TAVERN", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={tavern_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
-+add_physical SHOPKEEPER splot.elements["SHOPKEEPER"]
++add_physical BARTENDER splot.elements["SHOPKEEPER"]
 
 *SCRIPT plot_init
-+subplot GARAGE_{unique_id}_{_uid}
++subplot TAVERN_{unique_id}_{_uid}
 
 *SCRIPT main
-class Garage_{unique_id}_{_uid}( Plot ):
-    LABEL = "GARAGE_{unique_id}_{_uid}"
+class Tavern_{unique_id}_{_uid}( Plot ):
+    LABEL = "TAVERN_{unique_id}_{_uid}"
     active = True
     scope = "LOCALE"
 

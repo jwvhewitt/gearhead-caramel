@@ -126,6 +126,28 @@ class FiniteStateListVariable(BaseVariableDefinition):
         return myerrors
 
 
+class SceneTagListVariable(BaseVariableDefinition):
+    DEFAULT_VAR_TYPE = "list"
+    WIDGET_TYPE = varwidgets.AddRemoveFSOptionsWidget
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        my_names_and_states = statefinders.get_possible_states(part, part.brick.vars[key].var_type)
+        mynames = [a[1] for a in my_names_and_states]
+        mylist = part.get_ultra_vars().get(key, "")
+        for myval in mylist:
+            if myval not in mynames:
+                myerrors.append("Variable {} in {} has unknown name {}".format(key, part, myval))
+
+        return myerrors
+
+    @staticmethod
+    def format_for_python(value):
+        mydict = dict(statefinders.get_scene_tags())
+        return [mydict[v] for v in value]
+
+
 class PaletteVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "palette"
     WIDGET_TYPE = varwidgets.PaletteEditorWidget
@@ -295,6 +317,8 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.LIST_TYPES:
         return FiniteStateListVariable(default_val, var_type, **kwargs)
+    elif var_type == "scene_tags":
+        return SceneTagListVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.SINGULAR_TYPES:
         return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type.startswith("physical:"):

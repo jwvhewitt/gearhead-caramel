@@ -1,3 +1,6 @@
+* Added new eyecatch screen by Sierra Bravo
+* Fixed the map scrolling problem at the edges and corners of the map
+* Fixed a longstanding bug with Architecture.draw_fuzzy_ground
 * Added PartlyUrban map generator
 * Random map room placement should now be more robust
 * Floor borders now based on priority, not keyed to specific terrain pairs

@@ -108,8 +108,16 @@ LIST_TYPES = {
         game.content.ghplots.missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL,
         game.content.ghplots.missionbuilder.BAMO_STORM_THE_CASTLE,
         game.content.ghplots.missionbuilder.BAMO_SURVIVE_THE_AMBUSH
-    ),
+    )
 }
+
+SCENE_TAGS = (
+    gears.tags.SCENE_BUILDING, gears.tags.SCENE_PUBLIC, gears.tags.SCENE_SHOP, gears.tags.SCENE_GARAGE,
+    gears.tags.SCENE_HOSPITAL, gears.tags.SCENE_ARENA, gears.tags.SCENE_BASE, gears.tags.SCENE_MEETING,
+    gears.tags.SCENE_CULTURE, gears.tags.SCENE_TRANSPORT, gears.tags.SCENE_GOVERNMENT, gears.tags.SCENE_RUINS,
+    gears.tags.SCENE_SOLO, gears.tags.SCENE_DUNGEON, gears.tags.SCENE_SEMIPUBLIC, gears.tags.SCENE_FACTORY,
+    gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_ARENARULES, gears.tags.City, gears.tags.Village,
+) + gears.personality.ORIGINS
 
 SINGULAR_TYPES = {
     "scene_generator": (
@@ -131,6 +139,17 @@ TERRAIN_TYPES = {
     )
 }
 
+
+def get_scene_tags():
+    mylist = list()
+    for st in SCENE_TAGS:
+        if isinstance(st, str):
+            mylist.append((st,"gears.tags.{}".format(st)))
+        else:
+            mylist.append((st.__name__, "gears.SINGLETON_TYPES[\"{}\"]".format(st.__name__)))
+    return mylist
+
+
 def find_elements(part, e_type):
     mylist = list()
     for k, fac in part.get_elements().items():
@@ -150,6 +169,8 @@ def get_possible_states(part, category: str):
         for k,v in CONTEXT_INFO.items():
             mylist.append((v.name, k))
         return mylist
+    elif category == "scene_tags":
+        return get_scene_tags()
     elif category.endswith(".png"):
         return [(a,'"{}"'.format(a)) for a in pbge.image.glob_images(category)] + [("None", None),]
     elif category in LIST_TYPES:

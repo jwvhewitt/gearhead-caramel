@@ -1,4 +1,6 @@
 from . import plasma
+import pygame
+import random
 
 #   ******************
 #   ***  PREPPERS  ***
@@ -47,4 +49,62 @@ class HeightfieldPrep( object ):
                 else:
                     mapgen.gb._map[x][y].floor = self.hiterr
                     mapgen.gb._map[x][y].wall = True
+
+
+class GradientPrep( object ):
+    """Make horizontal or vertical bands of terrain with some overlap."""
+    def __init__( self, bands, overlap=2, vertical=True ):
+        # Bands is a list of (terrain, width) pairs which describe the bands.
+        self.bands = bands
+        self.overlap = overlap
+        self.vertical = vertical
+
+    def adjust_offset(self, offset):
+        if random.randint(1,23) == 5:
+            offset = 0
+        offset = offset + random.randint(0, 1) - random.randint(0, 1)
+        return max(min(offset, self.overlap), -self.overlap)
+
+    def __call__( self, mapgen ):
+        # First, do the basic filling.
+        band_start = 0
+        for band in self.bands:
+            if self.vertical:
+                mydest = pygame.Rect(0, band_start, mapgen.width, band[1])
+            else:
+                mydest = pygame.Rect(band_start, 0, band[1], mapgen.height)
+            if band is self.bands[-1]:
+                # Error check- we want to make sure the map is completely filled! So, if this is the last band, make
+                # sure that it reaches the bottom right corner of the map.
+                mydest.bottomright = (mapgen.width, mapgen.height)
+            mapgen.fill(mapgen.gb, mydest, floor=band[0])
+            if self.vertical:
+                band_start = mydest.bottom
+            else:
+                band_start = mydest.right
+
+        # Second, randomize those bands up a bit.
+        baseline = self.bands[0][1]
+        for b in range(len(self.bands)-1):
+            offset = random.randint(0, self.overlap) - random.randint(0, self.overlap)
+            b0,b1 = self.bands[b], self.bands[b+1]
+            if self.vertical:
+                for x in range(mapgen.width):
+                    if offset < 0:
+                        for dy in range(abs(offset-1)):
+                            mapgen.gb.set_floor(x, baseline - dy, b1[0])
+                    elif offset > 0:
+                        for dy in range(offset+1):
+                            mapgen.gb.set_floor(x, baseline + dy, b0[0])
+                    offset = self.adjust_offset(offset)
+            else:
+                for y in range(mapgen.height):
+                    if offset < 0:
+                        for dx in range(abs(offset-1)):
+                            mapgen.gb.set_floor(baseline - dx, y, b1[0])
+                    elif offset > 0:
+                        for dx in range(offset+1):
+                            mapgen.gb.set_floor(baseline + dx, y, b0[0])
+                    offset = self.adjust_offset(offset)
+            baseline += b1[1]
 

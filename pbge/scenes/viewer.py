@@ -356,8 +356,8 @@ class SceneView(object):
         else:
             nu_y_off = self.y_off
 
-        mx = self.map_x(screen_area.w // 2, screen_area.h // 2, nu_x_off, nu_y_off)
-        my = self.map_y(screen_area.w // 2, screen_area.h // 2, nu_x_off, nu_y_off)
+        mx = self.map_x(screen_area.w // 2 + self.HTW, screen_area.h // 2 + self.HTH*3, nu_x_off, nu_y_off)
+        my = self.map_y(screen_area.w // 2 + self.HTW, screen_area.h // 2 + self.HTH*3, nu_x_off, nu_y_off)
 
         if self.scene.on_the_map(mx, my):
             self.x_off = nu_x_off

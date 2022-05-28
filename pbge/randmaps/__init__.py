@@ -178,14 +178,14 @@ class PartlyUrbanGenerator(SceneGenerator):
     # Make a scene that is partly urban and partly not. Maybe it's partly wilderness. Maybe it's partly a cave system.
     # Only the architecture knows. Anyhow, it's similar to the CityGridGenerator but limits the city parts to a
     # limited rect.
-    DO_DIRECT_CONNECTIONS = False
+    DO_DIRECT_CONNECTIONS = True
 
     def __init__(self, myscene, archi, road_terrain, road_thickness=2, urban_area=None, **kwargs):
         super().__init__(myscene, archi, **kwargs)
         self.road_terrain = road_terrain
         self.road_thickness = road_thickness
         if not urban_area:
-            self.urban_area = rooms.Room(20, 20, anchor=anchors.middle, parent=self)
+            self.urban_area = rooms.Room(25, 25, anchor=anchors.middle, parent=self)
         else:
             self.urban_area = urban_area
             self.contents.append(urban_area)
@@ -232,7 +232,6 @@ class PartlyUrbanGenerator(SceneGenerator):
                 connect_to = min(done_rooms, key=lambda r: gb.distance(nuroom.area.center, r.area.center))
                 self.draw_road(gb, nuroom.area.centerx, nuroom.area.centery, connect_to.area.centerx, connect_to.area.centery)
                 done_rooms.append(nuroom)
-
 
     def draw_road_segment(self, gb, x1, y1, x2, y2):
         path = scenes.animobs.get_line(x1, y1, x2, y2)
