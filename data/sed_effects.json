@@ -1,0 +1,17 @@
+[
+  {
+    "label": "EFFECT",
+    "scripts": {
+      "effect": "pbge.alert({message})"
+    },
+    "name": "Alert Message",
+    "display_name": "Alert: {message}",
+    "vars": {
+      "message": {
+        "default_val": "Blah bla blah.",
+        "var_type": "text"
+      }
+    },
+    "sorting_rank": 4000
+  }
+]

@@ -1,10 +1,16 @@
 [
   {
     "label": "SCENE_FEATURE",
-    "scripts": {},
-    "name": "Add Vending Machine",
-    "display_name": "Vending Machine",
-    "desc": "Adds a metro scene to the adventure. This is generally a city scene that serves as the player's home base between adventures. The metro scene handles the following things:\n - Provides a MetroDat slot for local plots.\n - Handles injury and death recovery.\n - Loads lancemate character dev plots (if enabled).",
-    "sorting_rank": 1000
+    "scripts": {
+      "plot_methods": "def LOCALE_ENTER(self, camp):\n    #: effect\n"
+    },
+    "name": "Add Entry Effect",
+    "display_name": "Entry Effect",
+    "desc": "Adds a method to run effects when this scene is enetered.",
+    "sorting_rank": 1000,
+    "child_types": [
+      "EFFECT"
+    ],
+    "category": "On Entry"
   }
 ]

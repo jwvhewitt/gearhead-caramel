@@ -58,13 +58,15 @@ class PlotBrick(object):
     # child_types: List of brick labels that can be added as children of this brick.
     # elements: Descriptions for the elements defined within this brick in dict form.
     # singular: If True, a blueprint can only have one child of this brick
+    # needs_children: If True, an error is raised if this brick doesn't have children
     # category: Used for sorting children in the PhysicalFocusWidget
     #     Element keys should be all uppercase to differentiate them from variable identifiers
     # physicals: Descriptions for the physical objects defined within this brick in list form.
     # is_new_branch: True if this brick begins a new Plot. This is needed to check element + var inheritance.
     def __init__(
             self, label="PLOT_BLOCK", name="", display_name="", desc="", scripts=None, vars=None, child_types=(),
-            elements=None, physicals=(), is_new_branch=False, sorting_rank=1000, singular=False, category="MISC",
+            elements=None, physicals=(), is_new_branch=False, sorting_rank=1000, singular=False, needs_children=False,
+            category="MISC",
             **kwargs
     ):
         self.label = label
@@ -87,6 +89,7 @@ class PlotBrick(object):
         self.is_new_branch = is_new_branch
         self.sorting_rank = sorting_rank
         self.singular = singular
+        self.needs_children = needs_children
         self.category = category
         self.data = kwargs.copy()
 
@@ -218,6 +221,9 @@ class BluePrint(object):
         parent = self.get_parent()
         if parent and self.brick.singular and len([b for b in parent.children if b._brick_name == self._brick_name]) > 1:
             myerrors.append("Multiple {} bricks in {}".format(self._brick_name, parent))
+
+        if self.brick.needs_children and not self.children:
+            myerrors.append("{} brick in {} needs children".format(self._brick_name, parent))
 
         for vkey, vdef in self.brick.vars.items():
             myerrors += vdef.get_errors(self, vkey)
@@ -405,6 +411,8 @@ class BluePrint(object):
                 avars = a.get_ultra_vars()
                 for k,v in a.brick.elements.items():
                     elements[k] = ElementDefinition(v.name.format(**avars), e_type=v.e_type, uid=avars[self.get_element_uid_var_name(k)])
+                    for alias in v.aliases:
+                        elements[alias] = elements[k]
 
         if not uvars:
             uvars = self.get_ultra_vars()

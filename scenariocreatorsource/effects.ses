@@ -1,0 +1,13 @@
+*NEW EFFECT
+    "name": "Alert Message",
+    "display_name": "Alert: {message}",
+    "vars": {
+      "message": {
+        "default_val": "Blah bla blah.",
+        "var_type": "text"
+      }
+    },
+    "sorting_rank": 4000
+
+*SCRIPT effect
+pbge.alert({message})

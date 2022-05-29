@@ -6,7 +6,7 @@
     "vars": {
       "city_name": {"default_val": "Megacormack", "var_type": "string"},
       "city_faction": {"default_val": null, "var_type": "faction"},
-      "city_attributes": {"default_val": ["gears.SINGLETON_TYPES[\"GreenZone\"]", "gears.SINGLETON_TYPES[\"City\"]", "gears.tags.SCENE_PUBLIC"], "var_type": "scene_tags"},
+      "city_attributes": {"default_val": ["OUTDOORS", "City", "GreenZone", "PUBLIC"], "var_type": "scene_tags"},
       "entrance_name": {"default_val": "Exit", "var_type": "string"},
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
       "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
@@ -18,12 +18,12 @@
     },
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
     "elements": {
-      "METROSCENE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["LOCALE","CITY"]},
+      "LOCALE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["METROSCENE","CITY"]},
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
     "physicals": [
-        {"element_key": "METROSCENE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain"], "child_types": null},
-        {"element_key": "MISSION_GATE", "parent": "METROSCENE", "variable_keys": ["entrance_name", "entrance_desc"]}
+        {"element_key": "LOCALE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain"], "child_types": null},
+        {"element_key": "MISSION_GATE", "parent": "LOCALE", "variable_keys": ["entrance_name", "entrance_desc"]}
     ],
     "sorting_rank": 1000,
     "category": "LOCATIONS"
@@ -39,9 +39,8 @@ class City_{unique_id}_{_uid}( Plot ):
 
     def custom_init( self, nart ):
         +init_plot
-        self.elements["METRO"] = self.elements["METROSCENE"].metrodat
+        self.elements["METRO"] = self.elements["LOCALE"].metrodat
         #: plot_init
-        #: city_init
         #: plot_actions
         #: plot_subplots
         +subplot CF_METROSCENE_RECOVERY_HANDLER
@@ -72,7 +71,7 @@ myscenegen = pbge.randmaps.CityGridGenerator(
 # Register the city scene and the metro data
 self.register_scene(nart, myscene, myscenegen, ident="_CITY_{_uid}")
 
-the_world[{METROSCENE_UID}] = myscene
+the_world[{LOCALE_UID}] = myscene
 
 # Create the entry/exit point.
 myroom = self.register_element(
@@ -97,7 +96,7 @@ the_world[{MISSION_GATE_UID}] = mygate
     "vars": {
       "city_name": {"default_val": "Megabusan", "var_type": "string"},
       "city_faction": {"default_val": null, "var_type": "faction"},
-      "city_attributes": {"default_val": ["gears.SINGLETON_TYPES[\"GreenZone\"]", "gears.SINGLETON_TYPES[\"City\"]", "gears.tags.SCENE_PUBLIC"], "var_type": "scene_tags"},
+      "city_attributes": {"default_val": ["OUTDOORS", "City", "GreenZone", "PUBLIC"], "var_type": "scene_tags"},
       "room_name": {"default_val": "The Beach", "var_type": "string"},
       "entrance_name": {"default_val": "To The Docks", "var_type": "string"},
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
@@ -112,13 +111,13 @@ the_world[{MISSION_GATE_UID}] = mygate
     },
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
     "elements": {
-      "METROSCENE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["LOCALE","CITY"]},
+      "LOCALE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["METROSCENE","CITY"]},
       "THE_BEACH": {"e_type": "room", "name": "{room_name}", "aliases": ["ROOM"]},
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
     "physicals": [
-        {"element_key": "METROSCENE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "city_terrain", "beach_terrain", "water_terrain", "road_terrain"], "child_types": null},
-        {"element_key": "THE_BEACH", "parent": "METROSCENE", "variable_keys": ["room_name"]},
+        {"element_key": "LOCALE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "city_terrain", "beach_terrain", "water_terrain", "road_terrain"], "child_types": null},
+        {"element_key": "THE_BEACH", "parent": "LOCALE", "variable_keys": ["room_name"]},
         {"element_key": "MISSION_GATE", "parent": "THE_BEACH", "variable_keys": ["entrance_name", "entrance_desc"]}
     ],
     "sorting_rank": 1000,
@@ -135,9 +134,8 @@ class City_{unique_id}_{_uid}( Plot ):
 
     def custom_init( self, nart ):
         +init_plot
-        self.elements["METRO"] = self.elements["METROSCENE"].metrodat
+        self.elements["METRO"] = self.elements["LOCALE"].metrodat
         #: plot_init
-        #: city_init
         #: plot_actions
         #: plot_subplots
         +subplot CF_METROSCENE_RECOVERY_HANDLER
@@ -171,7 +169,7 @@ myscenegen = pbge.randmaps.PartlyUrbanGenerator(
 # Register the city scene and the metro data
 self.register_scene(nart, myscene, myscenegen, ident="_CITY_{_uid}")
 
-the_world[{METROSCENE_UID}] = myscene
+the_world[{LOCALE_UID}] = myscene
 
 # Create the entry/exit point.
 myroom = self.register_element(
@@ -216,19 +214,20 @@ for t in range({num_random_lancemates}):
       "npc_name": {"default_val": "", "var_type": "literal"},
       "shop_faction": {"default_val":  null, "var_type": "faction"}
    },
+   "child_types": ["SCENE_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Black Market: {shop_name}"},
-      "SHOPKEEPER": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
+      "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"]},
-        {"element_key": "SHOPKEEPER", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
     ]
 
 *SCRIPT scenario_build
 splot = self.add_sub_plot(nart, "SHOP_BLACKMARKET", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
-+add_physical SHOPKEEPER splot.elements["SHOPKEEPER"]
++add_physical NPC splot.elements["SHOPKEEPER"]
 
 *SCRIPT plot_init
 +subplot BLACKMARKET_{unique_id}_{_uid}
@@ -242,12 +241,11 @@ class BlackMarket_{unique_id}_{_uid}( Plot ):
     def custom_init( self, nart ):
         +init_plot
         #: plot_init
-        #: city_init
         #: plot_actions
         #: plot_subplots
         return True
 
-    def SHOPKEEPER_offers(self, camp):
+    def NPC_offers(self, camp):
         mylist = list()
         #: npc_offers
         return mylist
@@ -266,19 +264,20 @@ class BlackMarket_{unique_id}_{_uid}( Plot ):
       "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
       "shop_faction": {"default_val":  null, "var_type": "faction"}
    },
+  "child_types": ["SCENE_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "General Store: {shop_name}"},
-      "SHOPKEEPER": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
+      "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"]},
-        {"element_key": "SHOPKEEPER", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
     ]
 
 *SCRIPT scenario_build
 splot = self.add_sub_plot(nart, "SHOP_GENERALSTORE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
-+add_physical SHOPKEEPER splot.elements["SHOPKEEPER"]
++add_physical NPC splot.elements["SHOPKEEPER"]
 
 *SCRIPT plot_init
 +subplot GENERALSTORE_{unique_id}_{_uid}
@@ -292,12 +291,11 @@ class GeneralStore_{unique_id}_{_uid}( Plot ):
     def custom_init( self, nart ):
         +init_plot
         #: plot_init
-        #: city_init
         #: plot_actions
         #: plot_subplots
         return True
 
-    def SHOPKEEPER_offers(self, camp):
+    def NPC_offers(self, camp):
         mylist = list()
         #: npc_offers
         return mylist
@@ -316,19 +314,20 @@ class GeneralStore_{unique_id}_{_uid}( Plot ):
       "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
       "shop_faction": {"default_val":  null, "var_type": "faction"}
    },
+   "child_types": ["SCENE_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Garage: {shop_name}"},
-      "SHOPKEEPER": {"e_type": "npc", "name": "Mechanic: {npc_name}", "aliases": ["NPC"]}
+      "NPC": {"e_type": "npc", "name": "Mechanic: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"]},
-        {"element_key": "SHOPKEEPER", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
     ]
 
 *SCRIPT scenario_build
 splot = self.add_sub_plot(nart, "SHOP_GARAGE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
-+add_physical SHOPKEEPER splot.elements["SHOPKEEPER"]
++add_physical NPC splot.elements["SHOPKEEPER"]
 
 *SCRIPT plot_init
 +subplot GARAGE_{unique_id}_{_uid}
@@ -342,12 +341,61 @@ class Garage_{unique_id}_{_uid}( Plot ):
     def custom_init( self, nart ):
         +init_plot
         #: plot_init
-        #: city_init
         #: plot_actions
         #: plot_subplots
         return True
 
-    def SHOPKEEPER_offers(self, camp):
+    def NPC_offers(self, camp):
+        mylist = list()
+        #: npc_offers
+        return mylist
+
+    #: plot_methods
+
+
+
+*NEW CITY_FEATURE
+    "name": "Add Hospital",
+    "display_name": "Hospital: {shop_name}",
+    "desc": "Adds a garage and a mechanic NPC to the city. Leave shop_name and/or npc_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "shop_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "shop_faction": {"default_val":  null, "var_type": "faction"}
+   },
+   "child_types": ["SCENE_FEATURE"],
+   "elements": {
+      "LOCALE": {"e_type": "scene", "name": "Hospital: {shop_name}"},
+      "NPC": {"e_type": "npc", "name": "Doctor: {npc_name}", "aliases": ["NPC"]}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+    ]
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "SHOP_HOSPITAL", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
++add_physical LOCALE splot.elements["INTERIOR"]
++add_physical NPC splot.elements["SHOPKEEPER"]
+
+*SCRIPT plot_init
++subplot HOSPITAL_{unique_id}_{_uid}
+
+*SCRIPT main
+class Hospital_{unique_id}_{_uid}( Plot ):
+    LABEL = "HOSPITAL_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    def NPC_offers(self, camp):
         mylist = list()
         #: npc_offers
         return mylist
@@ -365,19 +413,20 @@ class Garage_{unique_id}_{_uid}( Plot ):
       "tavern_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
       "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"}
    },
+   "child_types": ["SCENE_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Tavern: {tavern_name}"},
-      "BARTENDER": {"e_type": "npc", "name": "Mechanic: {npc_name}", "aliases": ["NPC"]}
+      "NPC": {"e_type": "npc", "name": "Bartender: {npc_name}"}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["tavern_name"]},
-        {"element_key": "BARTENDER", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["tavern_name"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
     ]
 
 *SCRIPT scenario_build
 splot = self.add_sub_plot(nart, "SHOP_TAVERN", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={tavern_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
-+add_physical BARTENDER splot.elements["SHOPKEEPER"]
++add_physical NPC splot.elements["SHOPKEEPER"]
 
 *SCRIPT plot_init
 +subplot TAVERN_{unique_id}_{_uid}
@@ -391,12 +440,11 @@ class Tavern_{unique_id}_{_uid}( Plot ):
     def custom_init( self, nart ):
         +init_plot
         #: plot_init
-        #: city_init
         #: plot_actions
         #: plot_subplots
         return True
 
-    def SHOPKEEPER_offers(self, camp):
+    def NPC_offers(self, camp):
         mylist = list()
         #: npc_offers
         return mylist

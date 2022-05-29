@@ -60,13 +60,13 @@
       "adventure_name": {"default_val": "Adventure!", "var_type": "literal"},
       "adventure_desc": {"default_val": "Go fight some pirates.", "var_type": "text"},
       "adventure_date": {"default_val": "(158, 5, 10)", "var_type": "date"},
-      "unique_id": {"default_val": "", "var_type": "identifier"},
+      "unique_id": {"default_val": "", "var_type": "identifier", "must_be_defined": true},
       "adventure_threat": {
         "default_val": 0,
         "var_type": "integer"
       },
       "adventure_cover": {"default_val": null, "var_type": "VHS_*.png"},
-      "starting_point": {"default_val": null, "var_type": "physical:gate"},
+      "starting_point": {"default_val": null, "var_type": "physical:gate", "must_be_defined": true},
       "start_with_lancemate": {"default_val": true, "var_type": "boolean"}
 },
 "child_types": ["CITY", "WORLD_FEATURE"],
