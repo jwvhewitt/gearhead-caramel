@@ -213,6 +213,7 @@ class BuildingSet( TerrSet ):
 
     def build( self, scene, archi):
         self.design()
+        scene.fill(self.area, wall=None)
         TerrSet.build(self,scene,archi)
 
 

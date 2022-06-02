@@ -5,6 +5,8 @@ ADVANCE_CHALLENGE = "ADVANCE_CHALLENGE"
 SETBACK_CHALLENGE = "SETBACK_CHALLENGE"
 SPEND_RESOURCE = "SPEND_RESOURCE"
 
+MYSTERY_CHALLENGE = "MYSTERY_CHALLENGE"
+
 class ChallengeMemo(object):
     def __init__(self, text, challenge=None):
         self._text = text
@@ -323,3 +325,30 @@ class Resource(object):
     def __str__(self):
         return self.name
 
+
+class MysteryDeck(object):
+    def __init__(self, name, cards):
+        self.name = name
+        self.caards = list(cards)
+
+    def __str__(self):
+        return self.name
+
+
+class MysteryCard(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
+
+class MysteryChallenge(Challenge):
+    # A mystery challenge works a bit like Cluedo or the Zebra Puzzle. You have a mystery to uncover; the mystery
+    # answer is composed of a series of parts, such as (culprit, weapon, room). There are a series of clues to find
+    # which either connect certain parts or disprove a connection between those parts.
+    # cards is a list of MysteryDecks. You should have at least 2 and no more than 5.
+    # answer is a dict of MysteryCards, with keys equal to a MysteryDeck name and vals equaling one of the cards in that
+    #   deck.
+    def __init__(self, name, cards, answer, **kwargs):
+        super().__init__(name, MYSTERY_CHALLENGE, **kwargs)

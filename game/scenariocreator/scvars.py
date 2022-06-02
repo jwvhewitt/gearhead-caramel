@@ -286,6 +286,10 @@ class CampaignVariableVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "campaign_variable"
     WIDGET_TYPE = varwidgets.CampaignVarNameWidget
 
+    @staticmethod
+    def format_for_python(value):
+        return repr(value)
+
 
 class TextVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "text"

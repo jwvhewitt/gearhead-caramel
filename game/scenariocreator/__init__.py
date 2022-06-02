@@ -453,7 +453,6 @@ class ScenarioEditor(pbge.widgets.Widget):
         mymenu = pbge.rpgmenu.Menu(-100, -200, 250, 400)
         mymenu.add_descbox(175, -200, 175, 400)
         my_blueprint, child_types = self.active_node.get_bp_and_child_types()
-        print(child_types)
         mybrick = my_blueprint.brick
         for tlabel in child_types:
             for tbrick in BRICKS_BY_LABEL.get(tlabel, ()):
@@ -615,13 +614,17 @@ class PlotBrickCompiler(object):
         init_plotcreator()
 
     def process(self, fname):
-        self.current_file = os.path.basename(fname)
-        with open(fname, 'rt') as f:
-            mylist = self.load_list(f)
-        with open(pbge.util.data_dir("sed_{}.json".format(self.current_file[:-4])), "wt") as f:
-            json.dump(mylist, f, indent=2)
-        self.current_file = None
-        return mylist
+        try:
+            self.current_file = os.path.basename(fname)
+            with open(fname, 'rt') as f:
+                mylist = self.load_list(f)
+            with open(pbge.util.data_dir("sed_{}.json".format(self.current_file[:-4])), "wt") as f:
+                json.dump(mylist, f, indent=2)
+            self.current_file = None
+            return mylist
+
+        except json.decoder.JSONDecodeError as err:
+            print("JSON decode error: {} in {}".format(err, self.current_file))
 
     def flush_buffer(self, current_brick, line_buffer: list):
         if not line_buffer:
@@ -631,12 +634,8 @@ class PlotBrickCompiler(object):
         elif self.source_block:
             current_brick["scripts"][self.source_block] = "".join(line_buffer)
         else:
-            try:
-                mydict = json.loads("{" + "".join(line_buffer) + "}")
-                current_brick.update(mydict)
-            except json.decoder.JSONDecodeError as err:
-                print("JSON decode error: {} in {}".format(err, self.current_file))
-                print("{" + "".join(line_buffer) + "}")
+            mydict = json.loads("{" + "".join(line_buffer) + "}")
+            current_brick.update(mydict)
         self.source_block = None
         line_buffer.clear()
 

@@ -10,6 +10,11 @@ class Forest(pbge.scenes.terrain.VariableTerrain):
     movement_cost = {pbge.scenes.movement.Walking: 2.0, gears.geffects.Skimming: 2.0, gears.geffects.Rolling: 2.0,
                      pbge.scenes.movement.Vision: 5}
 
+class Bushes(pbge.scenes.terrain.VariableTerrain):
+    image_top = 'terrain_bushes.png'
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+    blocks = (Walking, Skimming, Rolling)
+
 
 class Water(pbge.scenes.terrain.AnimTerrain):
     image_biddle = 'terrain_water2.png'

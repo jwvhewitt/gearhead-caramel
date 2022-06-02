@@ -11,3 +11,179 @@
 
 *SCRIPT effect
 pbge.alert({message})
+
+
+
+*NEW EFFECT
+    "name": "One Time Effect",
+    "display_name": "Once...",
+    "desc": "Add an effect that will only happen once.",
+    "child_types": ["EFFECT"],
+    "needs_children": true
+
+*SCRIPT plot_actions
+self.one_time_effect_{_uid}_ready = True
+
+*SCRIPT effect
+if self.one_time_effect_{_uid}_ready:
+    #: effect
+    self.one_time_effect_{_uid}_ready = False
+
+
+
+*NEW EFFECT
+    "name": "Conditional Effect",
+    "display_name": "If {conditions}...",
+    "desc": "Add an effect that will only happen under the specified conditions.",
+    "vars": {
+      "conditions": {"default_val": [], "var_type": "conditional"}
+    },
+    "child_types": ["EFFECT","ELIF","ELSE"],
+    "sorting_rank": 4000,
+    "needs_children": true
+
+*SCRIPT effect
+if {conditions}:
+    #: effect
+#: elif
+#: else
+
+
+
+*NEW ELIF
+    "name": "Elif Effect",
+    "display_name": "Elif {conditions}...",
+    "desc": "Add an elif (else if) effect to this conditional.",
+    "vars": {
+      "conditions": {"default_val": [], "var_type": "conditional"}
+    },
+    "child_types": ["EFFECT"],
+    "needs_children": true
+
+*SCRIPT elif
+elif {conditions}:
+    #: effect
+
+
+
+*NEW ELSE
+    "name": "Else Effect",
+    "display_name": "Else...",
+    "desc": "Add an else effect to this conditional.",
+    "child_types": ["EFFECT"],
+    "needs_children": true,
+    "singular": true
+
+*SCRIPT else
+else:
+    #: effect
+
+
+*NEW EFFECT
+    "name": "End Scenario",
+    "desc": "End the scenario and eject the PC."
+
+*SCRIPT effect
+camp.eject()
+
+
+
+*NEW EFFECT
+    "name": "Set Memo",
+    "display_name": "Memo: {message}",
+    "desc": "Set a message that will appear in the memo browser. If there is already a memo for this plot, it will be overwritten.",
+    "vars": {
+      "message": {
+        "default_val": "",
+        "var_type": "text"
+      },
+      "memo_scene": {
+        "default_val": "None",
+        "var_type": "scene"
+      }
+    }
+
+*SCRIPT effect
+self.memo = Memo({message}, {memo_scene})
+
+
+
+*NEW EFFECT
+    "name": "Clear Memo",
+    "desc": "Deletes the memo currently set for this plot. If there is no current memo, it has no effect."
+
+*SCRIPT effect
+self.memo = None
+
+
+
+*NEW EFFECT
+    "name": "Give XP to the Lance",
+    "display_name": "XP {+amount}",
+    "vars": {
+      "amount": {
+        "default_val": "100",
+        "var_type": "integer"
+      }
+    }
+
+*SCRIPT effect
+camp.dole_xp({amount})
+
+
+
+NEW EFFECT
+    "name": "Set Campaign Variable",
+    "display_name": "Set {var_name} = {value}",
+    "vars": {
+      "var_name": {
+        "var_type": "campaign_variable",
+        "default_val": "x"
+      },
+      "value": {
+        "default_val": 0,
+        "var_type": "integer"
+      }
+    },
+    "sorting_rank": 200
+
+*SCRIPT effect
+camp.campdata[{var_name}] = {value}
+
+
+
+NEW EFFECT
+    "name": "Add Campaign Variable",
+    "display_name": "Add {var_name} + {value}",
+    "vars": {
+      "var_name": {
+        "var_type": "campaign_variable",
+        "default_val": "x"
+      },
+      "value": {
+        "default_val": 0,
+        "var_type": "integer"
+      }
+    },
+    "sorting_rank": 200
+
+*SCRIPT effect
+camp.campdata[{var_name}] = camp.campdata.get({var_name},0) + {value}
+
+
+
+*NEW EFFECT
+    "name": "NPC Joins Party",
+    "desc": "Select an NPC to join the party and receive the RT_LANCEMATE tag.",
+    "vars": {
+      "npc": {
+        "var_type": "npc",
+        "default_val": null,
+        "must_be_defined": true
+      }
+    }
+
+*SCRIPT effect
+plotutility.AutoJoiner({npc})(camp)
+{npc}.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+

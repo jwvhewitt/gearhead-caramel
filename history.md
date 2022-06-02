@@ -1,3 +1,4 @@
+* Terrset now actually draws border
 * Added new eyecatch screen by Sierra Bravo
 * Fixed the map scrolling problem at the edges and corners of the map
 * Fixed a longstanding bug with Architecture.draw_fuzzy_ground

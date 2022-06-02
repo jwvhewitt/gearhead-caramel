@@ -26,7 +26,7 @@ def get_conditional_value(vallist):
     if val_type == "integer":
         return str(vallist[1])
     elif val_type == "campaign variable":
-        return "camp.campdata.get(\"{}\", 0)".format(vallist[1])
+        return "camp.campdata.get({}, 0)".format(repr(vallist[1]))
 
 
 def build_conditional(rawlist):

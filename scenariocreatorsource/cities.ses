@@ -70,7 +70,7 @@ myscenegen = pbge.randmaps.CityGridGenerator(
 
 # Register the city scene and the metro data
 self.register_scene(nart, myscene, myscenegen, ident="_CITY_{_uid}")
-
+for t in range({num_random_lancemates}):
 the_world[{LOCALE_UID}] = myscene
 
 # Create the entry/exit point.
@@ -112,13 +112,13 @@ the_world[{MISSION_GATE_UID}] = mygate
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
     "elements": {
       "LOCALE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["METROSCENE","CITY"]},
-      "THE_BEACH": {"e_type": "room", "name": "{room_name}", "aliases": ["ROOM"]},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
     "physicals": [
         {"element_key": "LOCALE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "city_terrain", "beach_terrain", "water_terrain", "road_terrain"], "child_types": null},
-        {"element_key": "THE_BEACH", "parent": "LOCALE", "variable_keys": ["room_name"]},
-        {"element_key": "MISSION_GATE", "parent": "THE_BEACH", "variable_keys": ["entrance_name", "entrance_desc"]}
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
+        {"element_key": "MISSION_GATE", "parent": "ROOM", "variable_keys": ["entrance_name", "entrance_desc"]}
     ],
     "sorting_rank": 1000,
     "category": "LOCATIONS"
@@ -162,7 +162,10 @@ myscene = gears.GearHeadScene(
 myroom = pbge.randmaps.rooms.Room(40,25)
 myroom.area = pygame.Rect(5,10,40,25)
 myscenegen = pbge.randmaps.PartlyUrbanGenerator(
-    myscene, game.content.gharchitecture.HumanScaleGreenzone(prepare=pbge.randmaps.prep.GradientPrep([[{city_terrain},40],[{beach_terrain},15],[{water_terrain},5]])), road_terrain={road_terrain},
+    myscene, game.content.gharchitecture.HumanScaleGreenzone(prepare=pbge.randmaps.prep.GradientPrep([[{city_terrain},40],[{beach_terrain},15],[{water_terrain},5]]),
+                                                             mutate=pbge.randmaps.mutator.CellMutator(),
+                                                             wall_converter=pbge.randmaps.converter.WallOnlyOnFloorConverter(ghterrain.Bushes, {city_terrain})),
+    road_terrain={road_terrain},
     urban_area=myroom
 )
 
@@ -178,7 +181,7 @@ myroom = self.register_element(
 )
 myroom.area = pygame.Rect(0,40,50,10)
 
-+add_physical THE_BEACH myroom
++add_physical ROOM myroom
 
 mygate = self.register_element(
     "_MISSION_GATE_{_uid}", Exit(name="{entrance_name}", desc={entrance_desc},
@@ -210,23 +213,27 @@ for t in range({num_random_lancemates}):
     "desc": "Adds a black market and a shopkeeper NPC to the city.",
     "is_new_branch": true,
     "vars": {
-      "shop_name": {"default_val": "", "var_type": "literal"},
-      "npc_name": {"default_val": "", "var_type": "literal"},
+      "shop_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "room_name": {"default_val": "Foyer", "var_type": "literal"},
       "shop_faction": {"default_val":  null, "var_type": "faction"}
    },
    "child_types": ["SCENE_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Black Market: {shop_name}"},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
-        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
 
 *SCRIPT scenario_build
 splot = self.add_sub_plot(nart, "SHOP_BLACKMARKET", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
++add_physical ROOM splot.elements["FOYER"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
 
 *SCRIPT plot_init
@@ -262,21 +269,25 @@ class BlackMarket_{unique_id}_{_uid}( Plot ):
     "vars": {
       "shop_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
       "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "room_name": {"default_val": "Foyer", "var_type": "literal"},
       "shop_faction": {"default_val":  null, "var_type": "faction"}
    },
   "child_types": ["SCENE_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "General Store: {shop_name}"},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
-        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
 
 *SCRIPT scenario_build
 splot = self.add_sub_plot(nart, "SHOP_GENERALSTORE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
++add_physical ROOM splot.elements["FOYER"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
 
 *SCRIPT plot_init
@@ -312,22 +323,26 @@ class GeneralStore_{unique_id}_{_uid}( Plot ):
     "vars": {
       "shop_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
       "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "room_name": {"default_val": "Foyer", "var_type": "literal"},
       "shop_faction": {"default_val":  null, "var_type": "faction"}
    },
    "child_types": ["SCENE_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Garage: {shop_name}"},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Mechanic: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
-        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
 
 *SCRIPT scenario_build
 splot = self.add_sub_plot(nart, "SHOP_GARAGE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
++add_physical ROOM splot.elements["FOYER"]
 
 *SCRIPT plot_init
 +subplot GARAGE_{unique_id}_{_uid}
@@ -362,22 +377,26 @@ class Garage_{unique_id}_{_uid}( Plot ):
     "vars": {
       "shop_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
       "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "room_name": {"default_val": "Foyer", "var_type": "literal"},
       "shop_faction": {"default_val":  null, "var_type": "faction"}
    },
    "child_types": ["SCENE_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Hospital: {shop_name}"},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Doctor: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
-        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
 
 *SCRIPT scenario_build
 splot = self.add_sub_plot(nart, "SHOP_HOSPITAL", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
++add_physical ROOM splot.elements["FOYER"]
 
 *SCRIPT plot_init
 +subplot HOSPITAL_{unique_id}_{_uid}
@@ -411,22 +430,26 @@ class Hospital_{unique_id}_{_uid}( Plot ):
     "is_new_branch": true,
     "vars": {
       "tavern_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
-      "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"}
+      "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "room_name": {"default_val": "Foyer", "var_type": "literal"}
    },
    "child_types": ["SCENE_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Tavern: {tavern_name}"},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Bartender: {npc_name}"}
     },
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["tavern_name"], "child_types": ["SCENE_FEATURE"]},
-        {"element_key": "NPC", "parent": "LOCALE", "variable_keys": ["npc_name"]}
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
 
 *SCRIPT scenario_build
 splot = self.add_sub_plot(nart, "SHOP_TAVERN", elements=dict(LOCALE=the_world[{METROSCENE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={tavern_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
++add_physical ROOM splot.elements["FOYER"]
 
 *SCRIPT plot_init
 +subplot TAVERN_{unique_id}_{_uid}

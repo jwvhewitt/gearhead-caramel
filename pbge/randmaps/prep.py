@@ -67,6 +67,7 @@ class GradientPrep( object ):
 
     def __call__( self, mapgen ):
         # First, do the basic filling.
+        mapgen.fill( mapgen.gb, mapgen.area, wall=True )
         band_start = 0
         for band in self.bands:
             if self.vertical:

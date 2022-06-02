@@ -2,7 +2,7 @@
   {
     "label": "SCENE_FEATURE",
     "scripts": {
-      "plot_methods": "def LOCALE_ENTER(self, camp):\n    #: effect\n"
+      "plot_methods": "def LOCALE_ENTER(self, camp):\n    #: effect\n\n\n\n"
     },
     "name": "Add Entry Effect",
     "display_name": "Entry Effect",
@@ -11,6 +11,8 @@
     "child_types": [
       "EFFECT"
     ],
-    "category": "On Entry"
+    "category": "On Entry",
+    "singular": true,
+    "needs_children": true
   }
 ]

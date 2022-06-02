@@ -5,7 +5,8 @@
     "sorting_rank": 1000,
     "child_types": ["EFFECT"],
     "category": "On Entry",
-    "singular": true
+    "singular": true,
+    "needs_children": true
 
 *SCRIPT plot_methods
 def LOCALE_ENTER(self, camp):

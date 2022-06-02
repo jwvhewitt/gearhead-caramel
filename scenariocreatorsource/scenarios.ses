@@ -178,7 +178,7 @@ self.elements[CUSTOM_FACTIONS]["FACTION_{_uid}"] = gears.factions.Circle(nart.ca
 "category": "VARIABLES"
 
 *SCRIPT plot_init
-nart.camp.campdata[\"{var_name}\"] = {value}
+nart.camp.campdata[{var_name}] = {value}
 
 
 

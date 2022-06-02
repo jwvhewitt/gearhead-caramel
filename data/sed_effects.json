@@ -2,7 +2,7 @@
   {
     "label": "EFFECT",
     "scripts": {
-      "effect": "pbge.alert({message})"
+      "effect": "pbge.alert({message})\n\n\n\n"
     },
     "name": "Alert Message",
     "display_name": "Alert: {message}",
@@ -13,5 +13,138 @@
       }
     },
     "sorting_rank": 4000
+  },
+  {
+    "label": "EFFECT",
+    "scripts": {
+      "plot_actions": "self.one_time_effect_{_uid}_ready = True\n\n",
+      "effect": "if self.one_time_effect_{_uid}_ready:\n    #: effect\n    self.one_time_effect_{_uid}_ready = False\n\n\n\n"
+    },
+    "name": "One Time Effect",
+    "display_name": "Once...",
+    "desc": "Add an effect that will only happen once.",
+    "child_types": [
+      "EFFECT"
+    ],
+    "needs_children": true
+  },
+  {
+    "label": "EFFECT",
+    "scripts": {
+      "effect": "if {conditions}:\n    #: effect\n#: elif\n#: else\n\n\n\n"
+    },
+    "name": "Conditional Effect",
+    "display_name": "If {conditions}...",
+    "desc": "Add an effect that will only happen under the specified conditions.",
+    "vars": {
+      "conditions": {
+        "default_val": [],
+        "var_type": "conditional"
+      }
+    },
+    "child_types": [
+      "EFFECT",
+      "ELIF",
+      "ELSE"
+    ],
+    "sorting_rank": 4000,
+    "needs_children": true
+  },
+  {
+    "label": "ELIF",
+    "scripts": {
+      "elif": "elif {conditions}:\n    #: effect\n\n\n\n"
+    },
+    "name": "Elif Effect",
+    "display_name": "Elif {conditions}...",
+    "desc": "Add an elif (else if) effect to this conditional.",
+    "vars": {
+      "conditions": {
+        "default_val": [],
+        "var_type": "conditional"
+      }
+    },
+    "child_types": [
+      "EFFECT"
+    ],
+    "needs_children": true
+  },
+  {
+    "label": "ELSE",
+    "scripts": {
+      "else": "else:\n    #: effect\n\n\n"
+    },
+    "name": "Else Effect",
+    "display_name": "Else...",
+    "desc": "Add an else effect to this conditional.",
+    "child_types": [
+      "EFFECT"
+    ],
+    "needs_children": true,
+    "singular": true
+  },
+  {
+    "label": "EFFECT",
+    "scripts": {
+      "effect": "camp.eject()\n\n\n\n"
+    },
+    "name": "End Scenario",
+    "desc": "End the scenario and eject the PC."
+  },
+  {
+    "label": "EFFECT",
+    "scripts": {
+      "effect": "self.memo = Memo({message}, {memo_scene})\n\n\n\n"
+    },
+    "name": "Set Memo",
+    "display_name": "Memo: {message}",
+    "desc": "Set a message that will appear in the memo browser. If there is already a memo for this plot, it will be overwritten.",
+    "vars": {
+      "message": {
+        "default_val": "",
+        "var_type": "text"
+      },
+      "memo_scene": {
+        "default_val": "None",
+        "var_type": "scene"
+      }
+    }
+  },
+  {
+    "label": "EFFECT",
+    "scripts": {
+      "effect": "self.memo = None\n\n\n\n"
+    },
+    "name": "Clear Memo",
+    "desc": "Deletes the memo currently set for this plot. If there is no current memo, it has no effect."
+  },
+  {
+    "label": "EFFECT",
+    "scripts": {
+      "effect": "camp.campdata[{var_name}] = camp.campdata.get({var_name},0) + {value}\n\n\n\n"
+    },
+    "name": "Give XP to the Lance",
+    "display_name": "XP {+amount}",
+    "vars": {
+      "amount": {
+        "default_val": "100",
+        "var_type": "integer"
+      }
+    }
+  },
+  {
+    "label": "EFFECT",
+    "scripts": {
+      "effect": "plotutility.AutoJoiner({npc})(camp)\n{npc}.relationship.tags.add(gears.relationships.RT_LANCEMATE)\n\n"
+    },
+    "name": "NPC Joins Party",
+    "desc": "Select an NPC to join the party and receive the RT_LANCEMATE tag.",
+    "vars": {
+      "npc": {
+        "var_type": "npc",
+        "default_val": null,
+        "must_be_defined": true
+      }
+    }
   }
 ]

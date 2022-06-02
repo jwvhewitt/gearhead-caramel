@@ -22,7 +22,8 @@
       },
       "unique_id": {
         "default_val": "",
-        "var_type": "identifier"
+        "var_type": "identifier",
+        "must_be_defined": true
       },
       "adventure_threat": {
         "default_val": 0,
@@ -34,7 +35,8 @@
       },
       "starting_point": {
         "default_val": null,
-        "var_type": "physical:gate"
+        "var_type": "physical:gate",
+        "must_be_defined": true
       },
       "start_with_lancemate": {
         "default_val": true,
@@ -71,7 +73,7 @@
   {
     "label": "WORLD_FEATURE",
     "scripts": {
-      "plot_init": "nart.camp.campdata[\\\"{var_name}\\\"] = {value}\n\n\n\n"
+      "plot_init": "nart.camp.campdata[{var_name}] = {value}\n\n\n\n"
     },
     "name": "New Campaign Variable",
     "display_name": "Define {var_name} = {value}",

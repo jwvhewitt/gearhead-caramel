@@ -84,7 +84,7 @@ class BasicBlackMarket(Plot):
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
                                                                                  decorate=gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
@@ -165,7 +165,7 @@ class BasicGarage(Plot):
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
                                                                                  decorate=gharchitecture.FactoryDecor()),
                                       dident="INTERIOR")
 
@@ -252,7 +252,7 @@ class BasicGeneralStore(Plot):
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding(
             wall_terrain=ghterrain.DefaultWall))
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
                                                                                  decorate=gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
@@ -335,7 +335,7 @@ class BasicHospital(Plot):
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.HospitalBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
@@ -427,7 +427,7 @@ class BasicTavern(Plot):
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=random.randint(20, 25),
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(width=random.randint(20, 25),
                                                                                  height=random.randint(11, 15),
                                                                                  anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
