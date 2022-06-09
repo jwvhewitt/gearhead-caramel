@@ -4,6 +4,7 @@ import random
 import game.content
 import gears
 import pbge
+import pbge.memos
 from game.content import gharchitecture
 from game.content.ghplots import missionbuilder
 from game.ghdialogue import context
@@ -11,8 +12,7 @@ from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot
 from . import dd_customobjectives
 
-from game import memobrowser
-Memo = memobrowser.Memo
+Memo = pbge.memos.Memo
 
 
 #   *****************************************

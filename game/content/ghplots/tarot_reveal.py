@@ -1,4 +1,5 @@
 # This unit contains support plots for tarot cards.
+import pbge.memos
 from pbge.plots import Plot, PlotState
 from game.content import ghwaypoints, ghterrain, plotutility, backstory
 import gears
@@ -16,8 +17,7 @@ from . import dd_combatmission
 import collections
 from . import missionbuilder
 
-from game import memobrowser
-Memo = memobrowser.Memo
+Memo = pbge.memos.Memo
 
 
 #   ****************************

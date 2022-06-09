@@ -8,7 +8,7 @@ from .dd_main import DZDRoadMapExit,RoadNode
 import random
 from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker
 from . import tarot_cards, missionbuilder, dd_homebase
-from game.memobrowser import Memo
+from pbge.memos import Memo
 
 
 

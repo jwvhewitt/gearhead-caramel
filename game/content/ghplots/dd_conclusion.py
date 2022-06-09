@@ -10,7 +10,7 @@ from gears import relationships
 from game import content
 from . import dd_main, missionbuilder, dd_customobjectives
 from .dd_main import DZDRoadMapExit
-from game.memobrowser import Memo
+from pbge.memos import Memo
 
 DZDCVAR_NUM_ALLIANCES = "DZDCVAR_NUM_ALLIANCES"
 DZDCVAR_CETUS_TOWN = "DZDCVAR_CETUS_TOWN"

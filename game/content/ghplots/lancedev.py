@@ -10,7 +10,6 @@ from .dd_main import DZDRoadMapExit,RoadNode
 import random
 from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,ghcutscene, dungeonmaker
 from . import missionbuilder,dd_customobjectives
-from game.memobrowser import Memo
 
 
 #  Required elements: METRO, METROSCENE, MISSION_GATE

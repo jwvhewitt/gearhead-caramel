@@ -1,11 +1,11 @@
 import gears
+import pbge.memos
 from game.content import plotutility, backstory
 from game.content.mechtarot import TarotCard, CONSEQUENCE_WIN, ME_AUTOREVEAL, TarotSignal, TarotSocket, TarotTransformer
 import random
 from game import ghdialogue
-from game import memobrowser
 
-Memo = memobrowser.Memo
+Memo = pbge.memos.Memo
 
 MT_CRIME = "CRIME"
 MT_FACTION = "FACTION"

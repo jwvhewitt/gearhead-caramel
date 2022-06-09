@@ -1,3 +1,4 @@
+* Memo browser is now a widget, and memos can create custom widgets
 * Terrset now actually draws border
 * Added new eyecatch screen by Sierra Bravo
 * Fixed the map scrolling problem at the edges and corners of the map

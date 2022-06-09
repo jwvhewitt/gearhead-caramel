@@ -7,7 +7,7 @@ from . import combat
 from . import ghdialogue
 from . import configedit
 from . import invoker
-from . import memobrowser
+from pbge import memos
 from . import fieldhq
 import random
 
@@ -313,7 +313,7 @@ class ExploMenu( object ):
                 mymenu.add_item('Use {}'.format(str(wayp)),BumpToCall(self.explo,wayp))
         # Add the standard options.
         mymenu.add_item('Field HQ', FieldHQCall(self.explo.camp))
-        mymenu.add_item('View Memos', memobrowser.MemoBrowser(self.explo.camp))
+        mymenu.add_item('View Memos', memos.MemoBrowser(self.explo.camp))
         pc = self.explo.camp.first_active_pc()
         if pc:
             mymenu.add_item('Center on {}'.format(pc.get_pilot()), self.center)
@@ -575,7 +575,7 @@ class Explorer( object ):
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
                     elif gdi.unicode == "m":
-                        memobrowser.MemoBrowser.browse(self.camp)
+                        memos.MemoBrowser(self.camp)()
                     elif gdi.unicode == "R" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         print(self.camp.renown)
                     elif gdi.unicode == "A" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):

@@ -1,4 +1,4 @@
-from . import dialogue
+from . import dialogue, widgets, okapipuzzle, BasicNotification
 
 # Triggers used by Challenges and Resources:
 ADVANCE_CHALLENGE = "ADVANCE_CHALLENGE"
@@ -6,6 +6,7 @@ SETBACK_CHALLENGE = "SETBACK_CHALLENGE"
 SPEND_RESOURCE = "SPEND_RESOURCE"
 
 MYSTERY_CHALLENGE = "MYSTERY_CHALLENGE"
+
 
 class ChallengeMemo(object):
     def __init__(self, text, challenge=None):
@@ -119,7 +120,7 @@ class AutoUsage(object):
             self.used_on.add(item)
 
     def _modify_menu(self, my_challenge, thing, thingmenu):
-        thingmenu.add_item(self.menu_text.format(challenge=my_challenge), AutoOfferInvoker(self,thing))
+        thingmenu.add_item(self.menu_text.format(challenge=my_challenge), AutoOfferInvoker(self, thing))
 
     def __call__(self, my_challenge, camp, thing, thingmenu):
         if self.active and (not self.access_fun or self.access_fun(camp, thing)) and thing not in self.used_on:
@@ -131,7 +132,6 @@ class AutoUsage(object):
                     self._modify_menu(my_challenge, thing, thingmenu)
             else:
                 self._modify_menu(my_challenge, thing, thingmenu)
-
 
 
 class Challenge(object):
@@ -260,7 +260,8 @@ class Resource(object):
     #   - Be identified by a challenge it can be spent on
     #   - Identify a character or waypoint that can be used to spend the resource
     #   - Add a dialogue offer or a menu item to spend the resource
-    def __init__(self, name, chaltype, key=(), points=1, single_use=True, active=True, involvement=None, spend_offer_dict=None, menu_item_text=None):
+    def __init__(self, name, chaltype, key=(), points=1, single_use=True, active=True, involvement=None,
+                 spend_offer_dict=None, menu_item_text=None):
         self.name = name
         self.chaltype = chaltype
         self.key = tuple(key)
@@ -326,29 +327,60 @@ class Resource(object):
         return self.name
 
 
-class MysteryDeck(object):
-    def __init__(self, name, cards):
-        self.name = name
-        self.caards = list(cards)
+class MysteryMemo(object):
+    def __init__(self, text, challenge=None):
+        self._text = text
+        self.challenge = challenge
 
     def __str__(self):
-        return self.name
+        if not self.challenge:
+            return self._text
+        else:
+            return "{}\n\nCompletion: {}/{}".format(
+                self._text, self.challenge.points_earned, self.challenge.points_target
+            )
 
+    def get_widget(self, memobrowser, camp):
+        mylabel = widgets.LabelWidget(
+            memobrowser.dx, memobrowser.dy, memobrowser.w, memobrowser.h, text=str(self),
+            data=memobrowser, justify=0)
+        mybutton = widgets.LabelWidget(
+            0, 116, 0, 0, text="Examine Clues", draw_border=True, justify=0, border=widgets.widget_border_on,
+            on_click=self.open_mystery, data=(memobrowser,camp), parent=mylabel
+        )
+        mylabel.children.append(mybutton)
+        return mylabel
 
-class MysteryCard(object):
-    def __init__(self, name):
-        self.name = name
+    def open_mystery(self, wid, ev):
+        # Open the Hypothesis Widget.
+        memob, camp = wid.data
+        memob.active = False
+        okapipuzzle.OkapiPuzzleWidget(self.challenge.mystery, self.solve_mystery)
+        memob.active = True
 
-    def __str__(self):
-        return self.name
-
+    def solve_mystery(self):
+        pass
 
 class MysteryChallenge(Challenge):
-    # A mystery challenge works a bit like Cluedo or the Zebra Puzzle. You have a mystery to uncover; the mystery
-    # answer is composed of a series of parts, such as (culprit, weapon, room). There are a series of clues to find
-    # which either connect certain parts or disprove a connection between those parts.
-    # cards is a list of MysteryDecks. You should have at least 2 and no more than 5.
-    # answer is a dict of MysteryCards, with keys equal to a MysteryDeck name and vals equaling one of the cards in that
-    #   deck.
-    def __init__(self, name, cards, answer, **kwargs):
+    # A mystery challenge takes an Okapi Puzzle and makes a challenge of it.
+    # Instead of victory points you accumulate clues, and instead of winning when you've found all the clues you win
+    # when you solve the puzzle via a hypothesis widget. If no memo is provided, this challenge will add a memo that
+    # can open the hypothesis widget from the memo viewer.
+    def __init__(self, name, mystery, **kwargs):
         super().__init__(name, MYSTERY_CHALLENGE, **kwargs)
+        self.mystery = mystery
+
+    def advance(self, camp, clue=None):
+        if self._active:
+            if self.mystery.unknown_clues:
+                if self.mystery.unknown_clues and not (clue and clue in self.mystery.unknown_clues):
+                    clue = self.mystery.unknown_clues.pop()
+                if clue:
+                    self.mystery.known_clues.append(clue)
+                    BasicNotification("You learned {}!".format(clue), count=120)
+                camp.check_trigger(ADVANCE_CHALLENGE, self)
+            self.memo_active = True
+            camp.check_trigger("UPDATE")
+
+    def is_won(self):
+        return self.mystery.solved

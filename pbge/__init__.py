@@ -160,6 +160,11 @@ class GameState(object):
             if n.is_done():
                 self.notifications.remove(n)
 
+    def render_and_flip(self, show_widgets=True, reset_standing_by=True):
+        if self.view:
+            self.view()
+        self.do_flip(show_widgets=show_widgets, reset_standing_by=reset_standing_by)
+
     def do_flip(self, show_widgets=True, reset_standing_by=True):
         self.widget_tooltip = None
         if show_widgets:
@@ -545,23 +550,7 @@ def please_stand_by(caption=None):
         my_state.standing_by = True
         my_state.do_flip(False, reset_standing_by=False)
 
-
 from . import frects
-from . import rpgmenu
-from . import container
-from . import namegen
-from . import randmaps
-from . import scenes
-from . import plots
-from . import image
-from . import effects
-from . import campaign
-from . import widgets
-from . import dialogue
-from . import cutscene
-from . import okapipuzzle
-from . import challenges
-
 
 class BasicNotification(frects.Frect):
     IP_INFLATE = 0
@@ -607,6 +596,25 @@ class BasicNotification(frects.Frect):
 
     def is_done(self):
         return self._inflation_phase == self.IP_DONE
+
+
+from . import rpgmenu
+from . import container
+from . import namegen
+from . import randmaps
+from . import scenes
+from . import plots
+from . import image
+from . import effects
+from . import campaign
+from . import widgets
+from . import dialogue
+from . import cutscene
+from . import okapipuzzle
+from . import challenges
+from . import memos
+
+
 
 
 # PG2 Change

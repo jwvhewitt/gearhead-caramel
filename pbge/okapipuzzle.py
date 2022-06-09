@@ -1,4 +1,6 @@
 import random
+from . import widgets, INFO_HILIGHT, ENEMY_RED, INFO_GREEN, image, my_state, wait_event, TIMEREVENT, frects
+import pygame
 
 # This unit is called "Okapi Puzzle" because the puzzles it generates are not Zebra Puzzles exactly but they are sort
 # of related. Puzzle generation and solving are accomplished through brute force algorithms. I've seen examples
@@ -8,135 +10,407 @@ import random
 # Remember that it is harder to debug a program than to write it, so if you write the cleverest code you are capable of
 # then you are clearly incapable of troubleshooting that code.
 
-class SusCard():
-    def __init__(self, name):
+# Noun Roles
+SUS_SUBJECT = "SUBJECT"
+SUS_LOCATION = "LOCATION"
+
+# Verb Roles
+SUS_VERB = "VERB"
+
+# Triggers
+MYSTERY_SOLVED = "MYSTERY_SOLVED"
+
+
+class NounSusCard:
+    # The description of a suspect- one of a number of items the player must choose between to form a hypothesis.
+    # Despite the name, the SusCard doesn't need to refer to a person- it could be a place, an action, a motive, or
+    # anything else that forms part of the mystery. Kind of like the clue cards in the board game Cluedo. But that
+    # name has been taken, so SusCard it is.
+    # Data is a dict containing possible game-specific information.
+    def __init__(self, name, role=SUS_SUBJECT, data=None):
         self.name = name
+        self.role = role
+        self.data = dict()
+        if data:
+            self.data.update(data)
 
     def __str__(self):
         return self.name
 
-brands = ("Paris Baguette", "Rencontre", "Lotte", "Orion", "Nong Shim")
-flavors = ("Chocolate", "Mint", "Strawberry", "Tiramisu", "Vanilla")
-cakes = ("Roll Cake", "Castella", "Cheesecake", "Layer Cake", "Ice Cream Cake")
 
-class ABTogetherClue():
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
+class VerbSusCard:
+    # The description of a suspect- one of a number of items the player must choose between to form a hypothesis.
+    # Despite the name, the SusCard doesn't need to refer to a person- it could be a place, an action, a motive, or
+    # anything else that forms part of the mystery. Kind of like the clue cards in the board game Cluedo. But that
+    # name has been taken, so SusCard it is.
+    # Data is a dict containing possible game-specific information.
+    def __init__(self, name, to_verb, verbed, did_not_verb, role=SUS_VERB, data=None):
+        self.name = name
+        self.to_verb = to_verb
+        self.verbed = verbed
+        self.did_not_verb = did_not_verb
+        self.role = role
+        self.data = dict()
+        if data:
+            self.data.update(data)
+
+    def __str__(self):
+        return self.name
+
+
+class SusDeck:
+    # A collection of SusCards with some organizational information.
+    def __init__(self, name, cards):
+        self.name = name
+        self.cards = tuple(cards)
+
+    def __str__(self):
+        return self.name
+
+
+class ABTogetherClue:
+    CLUE_FORMATS = {
+        SUS_SUBJECT: {
+            SUS_SUBJECT: "{a.name} and {b.name} worked together.",
+            SUS_LOCATION: "{a.name} was seen at {b.name}.",
+            SUS_VERB: "{a.name} {b.verbed}."
+        },
+        SUS_LOCATION: {
+            SUS_SUBJECT: "Someone at {a.name} saw {b.name}.",
+            SUS_LOCATION: "{a.name} is connected to {b.name} somehow.",
+            SUS_VERB: "A person at {a.name} {b.verbed}."
+        },
+        SUS_VERB: {
+            SUS_SUBJECT: "{b.name} {a.verbed}.",
+            SUS_LOCATION: "Someone {a.verbed} at {b.name}.",
+            SUS_VERB: "The person who {a.verbed} also {b.verbed}."
+        }
+    }
+
+    def __init__(self, acard, bcard, mystery):
+        cards = [acard, bcard]
+        random.shuffle(cards)
+        self.acard = cards[0]
+        self.bcard = cards[1]
+        try:
+            self.text = self.CLUE_FORMATS[self.acard.role][self.bcard.role].format(a=self.acard, b=self.bcard,
+                                                                                   mystery=mystery)
+        except KeyError:
+            self.text = "{a} is involved with {b}.".format(a=self.acard, b=self.bcard, mystery=mystery)
 
     def matches(self, solution):
-        if self.a in solution or self.b in solution:
-            return self.a in solution and self.b in solution
+        if self.acard in solution or self.bcard in solution:
+            return self.acard in solution and self.bcard in solution
         else:
             return True
 
     def __str__(self):
-        return "{} and {} go together".format(self.a, self.b)
+        return self.text
 
-class ABNotTogetherClue():
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
+
+class ABNotTogetherClue:
+    CLUE_FORMATS = {
+        SUS_SUBJECT: {
+            SUS_SUBJECT: "{a.name} and {b.name} didn't work together.",
+            SUS_LOCATION: "{a.name} was not at {b.name}.",
+            SUS_VERB: "{a.name} {b.did_not_verb}."
+        },
+        SUS_LOCATION: {
+            SUS_SUBJECT: "{a.name} is not where {b.name} was.",
+            SUS_LOCATION: "{a.name} is not connected to {b.name}.",
+            SUS_VERB: "Nobody at {a.name} {b.verbed}."
+        },
+        SUS_VERB: {
+            SUS_SUBJECT: "{b.name} {a.did_not_verb}.",
+            SUS_LOCATION: "Nobody {a.verbed} at {b.name}.",
+            SUS_VERB: "The person who {a.verbed} {b.did_not_verb}."
+        }
+    }
+
+    def __init__(self, acard, bcard, mystery):
+        cards = [acard, bcard]
+        random.shuffle(cards)
+        self.acard = cards[0]
+        self.bcard = cards[1]
+        try:
+            self.text = self.CLUE_FORMATS[self.acard.role][self.bcard.role].format(a=self.acard, b=self.bcard,
+                                                                                   mystery=mystery)
+        except KeyError:
+            self.text = "{a} is not involved with {b}.".format(a=self.acard, b=self.bcard, mystery=mystery)
 
     def matches(self, solution):
-        return not (self.a in solution and self.b in solution)
+        return not (self.acard in solution and self.bcard in solution)
 
     def __str__(self):
-        return "{} and {} don't go together".format(self.a, self.b)
+        return self.text
 
-class ANotSolutionClue():
-    def __init__(self, a):
-        self.a = a
+
+class ANotSolutionClue:
+    CLUE_FORMATS = {
+        SUS_SUBJECT: "{a.name} is not involved in {mystery}.",
+        SUS_LOCATION: "{mystery} did not happen at {a}",
+        SUS_VERB: "Nobody {a.verbed}."
+    }
+
+    def __init__(self, acard, mystery):
+        self.acard = acard
+        try:
+            self.text = self.CLUE_FORMATS[self.acard.role].format(a=self.acard, mystery=mystery)
+        except KeyError:
+            self.text = "{a} has nothing to do with {mystery}.".format(a=self.acard, mystery=mystery)
 
     def matches(self, solution):
-        return self.a not in solution
+        return self.acard not in solution
 
     def __str__(self):
-        return "{} is disgusting".format(self.a)
+        return self.text
 
-class AIsSolutionClue():
-    def __init__(self, a):
-        self.a = a
+
+class AIsSolutionClue:
+    CLUE_FORMATS = {
+        SUS_SUBJECT: "{a.name} is involved in {mystery}.",
+        SUS_LOCATION: "{mystery} happened at {a}.",
+        SUS_VERB: "Somebody {a.verbed}."
+    }
+
+    def __init__(self, acard, mystery):
+        self.acard = acard
+        try:
+            self.text = self.CLUE_FORMATS[self.acard.role].format(a=self.acard, mystery=mystery)
+        except KeyError:
+            self.text = "{a} has something to do with {mystery}.".format(a=self.acard, mystery=mystery)
 
     def matches(self, solution):
-        return self.a in solution
+        return self.acard in solution
 
     def __str__(self):
-        return "{} is Joe's favorite".format(self.a)
+        return self.text
 
 
-class Mystery():
-    def __init__(self):
-        print("What kind of cake does Joe like?")
-        self.solution = (random.choice(brands), random.choice(flavors), random.choice(cakes))
+class OkapiPuzzle:
+    def __init__(self, name, decks, solution=None):
+        self.name = name
+        self.decks = decks
 
-        all_clues = self.generate_all_clues()
+        self.solution = solution or [random.choice([d.cards for d in decks])]
+
+        self.unknown_clues = self.generate_all_clues()
+        self.known_clues = list()
         all_solutions = self.generate_all_solutions()
 
-        t = 10
-        while t > 0 or len(all_clues) > 10:
+        t = len(self.decks) * 4
+        while t > 0 or len(self.unknown_clues) > 10:
             i = 1
-            while i < len(all_clues) and self.number_of_matches(all_clues[:i], all_solutions) > 1:
+            while i < len(self.unknown_clues) and self.number_of_matches(self.unknown_clues[:i], all_solutions) > 1:
                 i += 1
-            all_clues = all_clues[:i]
-            random.shuffle(all_clues)
-            if len(all_clues) < 6:
+            self.unknown_clues = self.unknown_clues[:i]
+            random.shuffle(self.unknown_clues)
+            if len(self.unknown_clues) < 6:
                 break
             t -= 1
             if t < -10:
                 break
 
-        print(self.solution)
-        for l in all_clues[:i]:
-            print(l)
+        self.solved = False
 
-    def generate_all_solutions(self):
+    def generate_all_solutions(self, deck_n=0):
         mylist = list()
-        for brand in brands:
-            for flavor in flavors:
-                for cake in cakes:
-                    mylist.append((brand, flavor, cake))
+        if deck_n < len(self.decks):
+            later_solutions = self.generate_all_solutions(deck_n + 1)
+            for card in self.decks[deck_n]:
+                for ls in later_solutions:
+                    mylist.append([card] + ls)
         return mylist
 
     def generate_all_clues(self):
         # Generate all possible clues for this puzzle.
         myclues = list()
 
-        myclues.append(ABTogetherClue(self.solution[0], self.solution[1]))
-        myclues.append(ABTogetherClue(self.solution[1], self.solution[2]))
-        myclues.append(ABTogetherClue(self.solution[0], self.solution[2]))
+        mydecks = list(self.decks)
+        random.shuffle(self.decks)
 
-        for b in brands:
-            if b not in self.solution:
-                myclues.append(ANotSolutionClue(b))
-                for f in flavors:
-                    myclues.append(ABNotTogetherClue(b, f))
-            else:
-                myclues.append(AIsSolutionClue(b))
-        for f in flavors:
-            if f not in self.solution:
-                myclues.append(ANotSolutionClue(f))
-                for c in cakes:
-                    myclues.append(ABNotTogetherClue(f, c))
-            else:
-                myclues.append(AIsSolutionClue(f))
-        for c in cakes:
-            if c not in self.solution:
-                myclues.append(ANotSolutionClue(c))
-                for b in brands:
-                    myclues.append(ABNotTogetherClue(c, b))
-            else:
-                myclues.append(AIsSolutionClue(c))
+        for t in range(len(self.solution) - 1):
+            for tt in range(t + 1, len(self.solution)):
+                myclues.append(ABTogetherClue(self.solution[t], self.solution[tt], self))
+
+        for t in range(len(mydecks)):
+            for card in mydecks[t].cards:
+                if card not in self.solution:
+                    myclues.append(ANotSolutionClue(card, self))
+                    for c2 in mydecks[t - 1].cards:
+                        myclues.append(ABNotTogetherClue(card, c2, self))
+                else:
+                    myclues.append(AIsSolutionClue(card, self))
 
         random.shuffle(myclues)
+
         return myclues
 
     def clues_match_solution(self, clues, solution):
-        return all([c.matches(solution) for c in clues])
+        return all([c.matches(solution) for c in clues]) and None not in solution
 
-    def number_of_matches(self, clues, all_solutions):
+    def number_of_matches(self, clues, all_solutions=None):
+        if not all_solutions:
+            all_solutions = self.generate_all_solutions()
         n = 0
         for s in all_solutions:
             if self.clues_match_solution(clues, s):
                 n += 1
         return n
+
+    def known_clues_match_solution(self, solution):
+        return self.clues_match_solution(self.known_clues, solution)
+
+    def number_of_known_matches(self, solution):
+        return self.number_of_matches(self.known_clues)
+
+    def __str__(self):
+        return self.name
+
+
+class ImageDeckWidget(widgets.ColumnWidget):
+    DEFAULT_HEIGHT = 164
+
+    def __init__(self, mydeck: SusDeck, on_select, **kwargs):
+        super().__init__(0, 0, 100, self.DEFAULT_HEIGHT, **kwargs)
+        self.add_interior(widgets.LabelWidget(0, 0, self.w, 0, mydeck.name, justify=0))
+        self._on_select = on_select
+
+        self.my_image = widgets.ButtonWidget(0, 0, 100, 100)
+        self.add_interior(self.my_image)
+
+        self.my_dropdown = widgets.DropdownWidget(0, 0, self.w, 0, draw_border=True, on_select=self.on_select)
+        self.add_interior(self.my_dropdown)
+        self.my_dropdown.add_item("==None==", None)
+
+        self.sprites = dict()
+        for card in mydeck.cards:
+            self.my_dropdown.add_item(card.name, card)
+            if "image" in card.data:
+                self.sprites[card] = card.data["image"]
+            elif "image_name" in card.data:
+                self.sprites[card] = image.Image(card.data["image_name"], 100, 100)
+
+    def on_select(self, card):
+        if card:
+            self.my_image.sprite = self.sprites.get(card, None)
+            self.my_image.frame = card.data.get("frame", 0)
+        else:
+            self.my_image.sprite = None
+        if self._on_select:
+            self._on_select()
+
+    @property
+    def value(self):
+        return self.my_dropdown.menu.get_current_value()
+
+
+class HypothesisWidget(widgets.ColumnWidget):
+    def __init__(self, mystery: OkapiPuzzle, on_change, on_solution, deck_widget=ImageDeckWidget, **kwargs):
+        # on_change and on_solution are methods that get called when the hypothesis changes or when the correct
+        # hypothesis is formed.
+        super().__init__(0, 0, 500, 100, **kwargs)
+        self.mystery = mystery
+        self.on_change = on_change
+        self.on_solution = on_solution
+        self.set_header(widgets.LabelWidget(0, 0, text=mystery.name, draw_border=True))
+        self.myrow = widgets.RowWidget(0, 0, self.w, deck_widget.DEFAULT_HEIGHT)
+        for deck in mystery.decks:
+            self.myrow.add_center(deck_widget(deck, self.on_select))
+        self.add_interior(self.myrow)
+        self.result_label = widgets.LabelWidget(0, 0, self.w, 0, "Possible", color=INFO_GREEN, justify=0)
+
+    def get_hypothesis(self):
+        return tuple([w.value for w in self.myrow._center_widgets])
+
+    def on_select(self, choice):
+        hypo = self.get_hypothesis()
+        if self.mystery.known_clues_match_solution(hypo):
+            if self.mystery.number_of_known_matches(hypo) == 1:
+                self.result_label.text = "Solved!"
+                self.result_label.color = INFO_HILIGHT
+                self.on_solution()
+            else:
+                self.result_label.text = "Possible"
+                self.result_label.color = INFO_GREEN
+                self.on_change()
+        else:
+            self.result_label.text = "Impossible"
+            self.result_label.color = ENEMY_RED
+            self.on_change()
+
+
+class OkapiPuzzleWidget(widgets.ColumnWidget):
+    def __init__(self, mystery: OkapiPuzzle, camp, on_solution, deck_widget=ImageDeckWidget, **kwargs):
+        super().__init__(-250, -200, 500, 400, center_interior=True, **kwargs)
+        self.mystery = mystery
+        self.camp = camp
+        self._solution_fun = on_solution
+        self.hywidget = HypothesisWidget(mystery, self.update_clues, self.on_solution, deck_widget=deck_widget)
+        self.add_interior(self.hywidget)
+
+        up_arrow = widgets.ButtonWidget(0, 0, 128, 16, sprite=image.Image("sys_updownbuttons.png", 128, 16),
+                                        on_frame=0, off_frame=1)
+        down_arrow = widgets.ButtonWidget(0, 0, 128, 16, sprite=image.Image("sys_updownbuttons.png", 128, 16),
+                                          on_frame=2, off_frame=3)
+        self.myclues = widgets.ScrollColumnWidget(0, 0, 350, 350 - self.hywidget.h, up_arrow, down_arrow,
+                                                  draw_border=True)
+        self.add_interior(up_arrow)
+        self.add_interior(self.myclues)
+        self.add_interior(down_arrow)
+
+        self.keep_going = True
+        closebuttonsprite = image.Image('sys_closeicon.png')
+
+        self.close_button = widgets.ButtonWidget(
+            -closebuttonsprite.frame_width // 2, -closebuttonsprite.frame_height // 2, closebuttonsprite.frame_width,
+            closebuttonsprite.frame_height, closebuttonsprite, 0, on_click=self.close_browser, parent=self,
+            anchor=frects.ANCHOR_UPPERRIGHT)
+        self.children.append(self.close_button)
+
+        self.update_clues()
+
+    def close_browser(self, button=None, ev=None):
+        self.keep_going = False
+        my_state.widgets.remove(self)
+
+    def update_clues(self):
+        self.myclues.clear()
+        ok_clues = list()
+        contradictions = list()
+        hypo = self.hywidget.get_hypothesis()
+
+        # Sort the clues between those that contradict the current hypothesis and those that don't.
+        for clue in self.mystery.known_clues:
+            if not self.mystery.clues_match_solution([clue], hypo):
+                contradictions.append(clue)
+            else:
+                ok_clues.append(clue)
+
+        contradictions.sort(key=lambda c: c.text)
+        ok_clues.sort(key=lambda c: c.text)
+        for c in contradictions:
+            self.myclues.add_interior(widgets.LabelWidget(0, 0, 350, 0, c.text, ENEMY_RED))
+        for c in ok_clues:
+            self.myclues.add_interior(widgets.LabelWidget(0, 0, 350, 0, c.text, INFO_GREEN))
+
+    def on_solution(self):
+        self.update_clues()
+        if self._solution_fun:
+            self._solution_fun()
+        self.mystery.solved = True
+        self.camp.check_trigger(MYSTERY_SOLVED, self.mystery)
+
+    def __call__(self):
+        # Run the UI. Clean up after you leave.
+        my_state.widgets.append(self)
+        while self.keep_going and not my_state.got_quit:
+            ev = wait_event()
+            if ev.type == TIMEREVENT:
+                my_state.render_and_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    self.keep_going = False
+
+        if self in my_state.widgets:
+            my_state.widgets.remove(self)

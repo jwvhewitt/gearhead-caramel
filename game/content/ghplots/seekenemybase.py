@@ -11,7 +11,6 @@ from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
 from . import missionbuilder, rwme_objectives, campfeatures
-from game.memobrowser import Memo
 
 SEEK_ENEMY_BASE_MISSION = "SEEK_ENEMY_BASE_MISSION"
 AUTOFIND_ENEMY_BASE_MISSION = "AUTOFIND_ENEMY_BASE_MISSION"

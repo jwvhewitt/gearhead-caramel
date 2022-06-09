@@ -3,9 +3,9 @@ from pbge import plots
 import random
 import inspect
 from . import GHNarrativeRequest, PLOT_LIST, CARDS_BY_NAME
-from game import memobrowser
+from pbge import memos
 
-Memo = memobrowser.Memo
+Memo = memos.Memo
 
 ME_TAROTPOSITION = "TAROT_POSITION"
 ME_AUTOREVEAL = "ME_AUTOREVEAL" # If this element is True, card is generated during adventure + doesn't need full init

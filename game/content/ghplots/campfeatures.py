@@ -1,3 +1,4 @@
+import pbge.memos
 from pbge.plots import Plot, PlotState
 import game.content.ghwaypoints
 import game.content.ghterrain
@@ -14,8 +15,8 @@ from . import missionbuilder
 import collections
 from game.content.plotutility import LMSkillsSelfIntro
 
-from game import memobrowser
-Memo = memobrowser.Memo
+from pbge import memos
+Memo = pbge.memos.Memo
 
 # This unit contains plots that handle standard features you may want to add to a campaign or a scene in that campaign.
 

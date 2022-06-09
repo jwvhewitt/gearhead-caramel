@@ -121,12 +121,16 @@ class LabelWidget(Widget):
         self.text = text
         self.color = color or TEXT_COLOR
         self.font = font or my_state.small_font
+        self.draw_border = draw_border
         if w == 0:
             self.w = self.font.size(self.text)[0]
+            if self.draw_border:
+                self.w += 16
         if h == 0:
             self.h = len(wrap_multi_line(text, self.font, self.w)) * self.font.get_linesize()
+            if self.draw_border:
+                self.h += 16
         self.justify = justify
-        self.draw_border = draw_border
         self.border = border
         self.text_fun = text_fun
 
@@ -487,9 +491,11 @@ class DropdownWidget(Widget):
 
     def __init__(self, dx, dy, w, h, color=None, font=None, justify=-1, on_select=None, **kwargs):
         # on_select is a callable that takes the menu query result as its argument
+        self.font = font or my_state.small_font
+        if h == 0:
+            h = self.font.get_linesize() + 16
         super(DropdownWidget, self).__init__(dx, dy, w, h, **kwargs)
         self.color = color or TEXT_COLOR
-        self.font = font or my_state.small_font
         self.on_select = on_select
         self.on_click = self.open_menu
         self.menu = rpgmenu.Menu(dx, dy, w, self.MENU_HEIGHT, border=popup_menu_border, font=font,

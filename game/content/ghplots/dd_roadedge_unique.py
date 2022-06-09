@@ -13,8 +13,7 @@ from pbge.plots import Plot, PlotState
 from . import dd_customobjectives
 from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
 from .dd_roadedge import DZDREBasicPlotWithEncounterStuff, DeadZoneHighwaySceneGen
-from game import memobrowser
-from game.memobrowser import Memo
+from pbge.memos import Memo
 
 
 #   *********************************

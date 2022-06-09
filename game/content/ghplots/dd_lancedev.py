@@ -1,4 +1,5 @@
 # Character development plots for lancemates.
+import pbge.memos
 from pbge.plots import Plot, PlotState
 from pbge.dialogue import Offer, ContextTag
 from game import teams, services, ghdialogue
@@ -10,9 +11,8 @@ from .dd_main import DZDRoadMapExit,RoadNode
 import random
 from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,ghcutscene, dungeonmaker
 from . import missionbuilder,dd_customobjectives
-from game import memobrowser
 from .lancedev import LMPlot, LMMissionPlot
-Memo = memobrowser.Memo
+Memo = pbge.memos.Memo
 
 
 

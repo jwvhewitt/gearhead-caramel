@@ -85,7 +85,7 @@ from game.content.ghwaypoints import Exit
 from game.content.plotutility import AdventureModuleData
 import game
 from game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain
-from game.memobrowser import Memo
+from pbge.memos import Memo
 from game.content.ghplots import missionbuilder
 #: includes
 

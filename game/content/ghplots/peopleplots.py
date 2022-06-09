@@ -14,7 +14,6 @@ import game.content.gharchitecture
 from . import missionbuilder
 import collections
 
-from game import memobrowser
 
 
 #  **********************

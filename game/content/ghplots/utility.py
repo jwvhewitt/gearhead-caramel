@@ -1,3 +1,4 @@
+import pbge.memos
 from pbge.plots import Plot, PlotState
 import game.content.ghwaypoints
 import game.content.ghterrain
@@ -14,8 +15,7 @@ import game.content.gharchitecture
 from . import missionbuilder
 import collections
 
-from game import memobrowser
-Memo = memobrowser.Memo
+Memo = pbge.memos.Memo
 
 #  **************************
 #  ***   ADD_BORING_NPC   ***

@@ -1,4 +1,5 @@
 import pbge
+import pbge.memos
 from game.content.plotutility import LMSkillsSelfIntro
 from game.content import backstory
 from pbge.plots import Plot
@@ -8,9 +9,8 @@ import gears
 import game.content.gharchitecture
 import game.content.ghterrain
 import random
-from game import memobrowser
 
-Memo = memobrowser.Memo
+Memo = pbge.memos.Memo
 
 #   *******************
 #   ***  UTILITIES  ***
