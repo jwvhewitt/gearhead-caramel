@@ -4037,12 +4037,12 @@ class Character(Being):
 
     def get_tags(self):
         # Return all of the character's personality, job, and faction tags.
-        mytags = list(self.personality)
+        mytags = set(self.personality)
         if self.job:
-            mytags += list(self.job.tags)
+            mytags |= set(self.job.tags)
         if self.faction:
-            mytags.append(self.faction.get_faction_tag())
-            mytags += self.faction.factags
+            mytags.add(self.faction.get_faction_tag())
+            mytags |= set(self.faction.factags)
         return mytags
 
     def get_reaction_score(self, pc, camp):

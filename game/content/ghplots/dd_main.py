@@ -53,6 +53,10 @@ class DeadzoneDrifterStub( Plot ):
         # Add Wujung and the rest of the world.
         #self.add_sub_plot(nart,"DZD_HOME_BASE",ident="HOMEBASE")
 
+        # Add an egg lancemate, if possible.
+        # This gets called last to prevent major NPCs who are used elsewhere in the plot from showing up here.
+        self.add_sub_plot(nart, "ADD_INSTANT_EGG_LANCEMATE", necessary=False)
+
         return True
 
     def t_INTRO_END(self, camp):

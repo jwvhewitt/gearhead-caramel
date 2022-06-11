@@ -56,6 +56,8 @@ class FightingRandomNPC(Plot):
 #   Add a lancemate from the Egg directly to the party.
 
 class BasicEggLancemate(Plot):
+    # Try to load this plot last in the scenario construction because it may attempt to grab a major NPC needed
+    # elsewhere.
     LABEL = "ADD_INSTANT_EGG_LANCEMATE"
 
     def custom_init(self, nart):
@@ -66,6 +68,7 @@ class BasicEggLancemate(Plot):
 
     def _is_good_npc(self,nart,candidate):
         return isinstance(candidate, gears.base.Character) and candidate.relationship and gears.relationships.RT_LANCEMATE in candidate.relationship.tags
+
 
 
 #  ********************************

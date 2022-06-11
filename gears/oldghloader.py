@@ -755,7 +755,7 @@ class GH1Loader(object):
                 elif rtype == self.NAS_ARCHENEMY:
                     nu_relationship.role = relationships.R_ADVERSARY
                 nu_npc.relationship = nu_relationship
-                egg.dramatis_personae.append(nu_npc)
+                egg.dramatis_personae.add(nu_npc)
 
     def get_egg(self):
         rpc = self.find_pc()

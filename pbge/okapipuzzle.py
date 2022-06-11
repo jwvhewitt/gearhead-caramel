@@ -217,7 +217,7 @@ class OkapiPuzzle:
         mylist = list()
         if deck_n < len(self.decks):
             later_solutions = self.generate_all_solutions(deck_n + 1)
-            for card in self.decks[deck_n]:
+            for card in self.decks[deck_n].cards:
                 for ls in later_solutions:
                     mylist.append([card] + ls)
         return mylist
@@ -227,7 +227,7 @@ class OkapiPuzzle:
         myclues = list()
 
         mydecks = list(self.decks)
-        random.shuffle(self.decks)
+        random.shuffle(mydecks)
 
         for t in range(len(self.solution) - 1):
             for tt in range(t + 1, len(self.solution)):
@@ -283,20 +283,22 @@ class ImageDeckWidget(widgets.ColumnWidget):
         self.add_interior(self.my_dropdown)
         self.my_dropdown.add_item("==None==", None)
 
+        self.mystery_sprite = image.Image("sys_mystery.png")
+
         self.sprites = dict()
         for card in mydeck.cards:
             self.my_dropdown.add_item(card.name, card)
-            if "image" in card.data:
-                self.sprites[card] = card.data["image"]
+            if "image_fun" in card.data:
+                self.sprites[card] = card.data["image_fun"]()
             elif "image_name" in card.data:
                 self.sprites[card] = image.Image(card.data["image_name"], 100, 100)
 
     def on_select(self, card):
         if card:
-            self.my_image.sprite = self.sprites.get(card, None)
+            self.my_image.sprite = self.sprites.get(card, self.mystery_sprite)
             self.my_image.frame = card.data.get("frame", 0)
         else:
-            self.my_image.sprite = None
+            self.my_image.sprite = self.mystery_sprite
         if self._on_select:
             self._on_select()
 
@@ -306,7 +308,7 @@ class ImageDeckWidget(widgets.ColumnWidget):
 
 
 class HypothesisWidget(widgets.ColumnWidget):
-    def __init__(self, mystery: OkapiPuzzle, on_change, on_solution, deck_widget=ImageDeckWidget, **kwargs):
+    def __init__(self, mystery: OkapiPuzzle, on_change, on_solution, deck_widget_class=ImageDeckWidget, **kwargs):
         # on_change and on_solution are methods that get called when the hypothesis changes or when the correct
         # hypothesis is formed.
         super().__init__(0, 0, 500, 100, **kwargs)
@@ -314,9 +316,9 @@ class HypothesisWidget(widgets.ColumnWidget):
         self.on_change = on_change
         self.on_solution = on_solution
         self.set_header(widgets.LabelWidget(0, 0, text=mystery.name, draw_border=True))
-        self.myrow = widgets.RowWidget(0, 0, self.w, deck_widget.DEFAULT_HEIGHT)
+        self.myrow = widgets.RowWidget(0, 0, self.w, deck_widget_class.DEFAULT_HEIGHT)
         for deck in mystery.decks:
-            self.myrow.add_center(deck_widget(deck, self.on_select))
+            self.myrow.add_center(deck_widget_class(deck, self.on_select))
         self.add_interior(self.myrow)
         self.result_label = widgets.LabelWidget(0, 0, self.w, 0, "Possible", color=INFO_GREEN, justify=0)
 
@@ -341,12 +343,12 @@ class HypothesisWidget(widgets.ColumnWidget):
 
 
 class OkapiPuzzleWidget(widgets.ColumnWidget):
-    def __init__(self, mystery: OkapiPuzzle, camp, on_solution, deck_widget=ImageDeckWidget, **kwargs):
+    def __init__(self, mystery: OkapiPuzzle, camp, on_solution, deck_widget_class=ImageDeckWidget, **kwargs):
         super().__init__(-250, -200, 500, 400, center_interior=True, **kwargs)
         self.mystery = mystery
         self.camp = camp
         self._solution_fun = on_solution
-        self.hywidget = HypothesisWidget(mystery, self.update_clues, self.on_solution, deck_widget=deck_widget)
+        self.hywidget = HypothesisWidget(mystery, self.update_clues, self.on_solution, deck_widget_class=deck_widget_class)
         self.add_interior(self.hywidget)
 
         up_arrow = widgets.ButtonWidget(0, 0, 128, 16, sprite=image.Image("sys_updownbuttons.png", 128, 16),

@@ -91,8 +91,11 @@ from . import oldghloader
 from . import jobs
 
 harvest_color(SINGLETON_TYPES)
-SINGLETON_TYPES.update(jobs.ALL_JOBS)
+#SINGLETON_TYPES.update(jobs.ALL_JOBS)
 jobs.SINGLETON_TYPES = SINGLETON_TYPES
+SINGLETON_TYPES["Female"] = genderobj.Gender.get_default_female()
+SINGLETON_TYPES["Male"] = genderobj.Gender.get_default_male()
+SINGLETON_TYPES["Nonbinary"] = genderobj.Gender.get_default_nonbinary()
 
 from . import colorstyle
 from . import champions
@@ -576,8 +579,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 if hasattr(pc, "container") and pc.container:
                     pc.container.remove(pc)
                 if isinstance(pc, base.Character):
-                    if pc not in self.egg.dramatis_personae and not pc.mnpcid:
-                        self.egg.dramatis_personae.append(pc)
+                    if pc not in self.egg.dramatis_personae:
+                        self.egg.dramatis_personae.add(pc)
                 elif pc not in self.egg.stuff and not hasattr(pc, "owner"):
                     self.egg.stuff.append(pc)
                     if hasattr(pc, "pilot"):
@@ -876,6 +879,23 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         else:
             return self.campdata
 
+    def get_major_npc(self, mnpcid):
+        # Return a major NPC. The NPC might be located in the PC's Dramatis Personae, or in the STL files.
+        # If the NPC is already in use in this adventure, None will be returned, so be ready for that.
+        mynpc = None
+        for npc in self.egg.dramatis_personae:
+            if npc.mnpcid == mnpcid:
+                mynpc = npc
+                break
+        if not mynpc:
+            mynpc = selector.MAJOR_NPCS.get(mnpcid, None)
+
+        if mynpc not in self.uniques:
+            if mynpc not in self.egg.dramatis_personae:
+                self.egg.dramatis_personae.add(mynpc)
+            self.uniques.add(mynpc)
+            return mynpc
+
 
 class GearHeadArchitecture(pbge.randmaps.architect.Architecture):
     ENV = tags.GroundEnv
@@ -883,7 +903,7 @@ class GearHeadArchitecture(pbge.randmaps.architect.Architecture):
 
 
 # Why did I create this complicated regular expression to parse lines of
-# the form "a = b"? I guess I didn't know about string.partition at the time.
+# the form "a = b"? I guess I didn't know about C
 # Anyhow, I'm leaving this here as a comment to remind me of the dangers of
 # overengineering. Also in case I ever need it again because I don't really
 # remember how regular expressions work and this looks complicated as heck.
@@ -1160,6 +1180,13 @@ class Saver(object):
         with open(self.fname, 'wt') as f:
             self.save_list(f, glist)
 
+def harvest_jobs():
+    for jobname, job in jobs.ALL_JOBS.items():
+        jobname = "".join(jobname.split())
+
+        SINGLETON_TYPES[jobname] = job
+        SINGLETON_REVERSE[job] = jobname
+
 
 #  ******************************
 #  ***   UTILITY  FUNCTIONS   ***
@@ -1182,7 +1209,11 @@ def init_gears():
     pbge.image.search_path.append(pbge.util.user_dir('image'))
     pbge.POSTERS += glob.glob(os.path.join(pbge.util.user_dir('image'), "eyecatch_*.png"))
 
-    # Load the STC files first.
+    # Initialize the jobs because these get used in the STL files.
+    jobs.init_jobs()
+    harvest_jobs()
+
+    # Load the STC files next.
     design_files = glob.glob(pbge.util.data_dir('stc_*.txt'))
     for f in design_files:
         selector.DESIGN_LIST += Loader(f).load()
@@ -1194,7 +1225,11 @@ def init_gears():
     for d in selector.DESIGN_LIST:
         if d.get_full_name() in selector.DESIGN_BY_NAME:
             print("Warning: Multiple designs named {}".format(d.get_full_name()))
-        selector.DESIGN_BY_NAME[d.get_full_name()] = d
+
+        if hasattr(d, "mnpcid"):
+            selector.MAJOR_NPCS[d.mnpcid] = d
+        else:
+            selector.DESIGN_BY_NAME[d.get_full_name()] = d
         d.stc = True
 
 
@@ -1215,7 +1250,6 @@ def init_gears():
             selector.MONSTER_LIST.append(d)
 
     portraits.init_portraits()
-    jobs.init_jobs()
 
     #for d in selector.DESIGN_LIST:
     #    if isinstance(d, base.Mecha):

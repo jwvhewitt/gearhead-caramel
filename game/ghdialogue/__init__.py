@@ -24,7 +24,7 @@ def trait_absorb(mygram,nugram,traits):
 
 def build_grammar( mygram, camp: gears.GearHeadCampaign, speaker, audience ):
     speaker = speaker.get_pilot()
-    tags = speaker.get_tags()
+    tags = list(speaker.get_tags())
     if speaker.relationship and not speaker.relationship.met_before:
         tags.append(ghgrammar.FIRST_TIME)
     else:

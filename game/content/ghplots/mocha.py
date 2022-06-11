@@ -295,23 +295,7 @@ class FrozenHotSpringCity(Plot):
         myent = self.register_element("ENTRANCE", WinterMochaBurningBarrel(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(myent)
 
-        vikki = gears.base.Character(
-            name="Vikki", statline={gears.stats.Reflexes: 15,
-                                    gears.stats.Body: 10, gears.stats.Speed: 13, gears.stats.Perception: 13,
-                                    gears.stats.Knowledge: 10, gears.stats.Craft: 10, gears.stats.Ego: 10,
-                                    gears.stats.Charm: 12, gears.stats.MechaPiloting: 7, gears.stats.MechaGunnery: 7,
-                                    gears.stats.MechaFighting: 7},
-            personality=[personality.Cheerful, personality.Shy, personality.Fellowship],
-            gender=gears.genderobj.Gender.get_default_female(),
-            portrait='card_f_wintervikki.png',
-            colors=(gears.color.ShiningWhite, gears.color.LightSkin, gears.color.NobleGold, gears.color.HunterOrange,
-                    gears.color.Olive),
-            job=gears.jobs.ALL_JOBS["Mecha Pilot"], renown=50, birth_year=138, combatant=True,
-            faction=gears.factions.TerranDefenseForce,
-            mnpcid=gears.oldghloader.GH1Loader.NPC_VIKKI,
-            mecha_colors=(gears.color.ShiningWhite, gears.color.Olive, gears.color.ElectricYellow, gears.color.GullGrey,
-                          gears.color.Terracotta),
-        )
+        vikki = nart.camp.get_major_npc("Vikki Shingo")
         # vikki.portrait = 'card_f_wintervikki.png'
         # vikki.portrait_gen = gears.portraits.Portrait()
         # vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)

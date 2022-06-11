@@ -355,7 +355,7 @@ class MysteryMemo(object):
         # Open the Hypothesis Widget.
         memob, camp = wid.data
         memob.active = False
-        okapipuzzle.OkapiPuzzleWidget(self.challenge.mystery, self.solve_mystery)
+        okapipuzzle.OkapiPuzzleWidget(self.challenge.mystery, camp, self.solve_mystery)
         memob.active = True
 
     def solve_mystery(self):

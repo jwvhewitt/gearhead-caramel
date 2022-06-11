@@ -199,6 +199,7 @@ class MutantLancemate(Plot):
 
 
 class FormerLancemateReturns(Plot):
+    # Please note this plot will never load a major NPC- they have to be added to the scenario by hand.
     LABEL = "RANDOM_LANCEMATE"
     active = True
     scope = "METRO"
@@ -213,7 +214,7 @@ class FormerLancemateReturns(Plot):
         return npc
 
     def _is_good_npc(self,nart,candidate):
-        return isinstance(candidate, gears.base.Character) and candidate.relationship and gears.relationships.RT_LANCEMATE in candidate.relationship.tags
+        return isinstance(candidate, gears.base.Character) and candidate.relationship and gears.relationships.RT_LANCEMATE in candidate.relationship.tags and not candidate.mnpcid
 
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes

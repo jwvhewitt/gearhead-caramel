@@ -30,7 +30,7 @@ class DZD_Wujung(Plot):
                                       scale=gears.scale.HumanScale, is_metro=True,
                                       faction=gears.factions.TerranFederation,
                                       attributes=(
-                                      gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC),
+                                      gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC, gears.tags.SCENE_OUTDOORS),
                                       exploration_music='Heroic Adventure.ogg')
 
         for t in range(random.randint(2,5)):
@@ -111,34 +111,7 @@ class DZD_Wujung(Plot):
                              "After completing a mission, you're entitled to claim any equipment left behind on the battlefield. Of course getting it off the battlefield before someone else nabs it can be a problem. You can up your chances by bringing along a repair expert."),
         )
 
-        self.register_element("TEST_CHALLENGE", pbge.challenges.Challenge(
-            "Defeat Aegis Overlord", ghchallenges.FIGHT_CHALLENGE, (gears.factions.AegisOverlord,),
-            involvement=ghchallenges.InvolvedMetroFactionNPCs(myscene),
-            active=False,
-            data={
-                "challenge_objectives": ("defend Wujung from Aegis attacks", "discover what Aegis is doing on the western border"),
-                "enemy_objectives":  ("keep Wujung from interfering in our plans", "claim this region for Aegis Overlord Luna"),
-                "mission_intros":  ("There have been conflicts with Aegis along the edge of the deadzone.",
-                                    "An Aegis force has moved into the area; we don't know what they're doing but they must be stopped."),
-                "mission_objectives": (
-                    ghchallenges.DescribedObjective(
-                        missionbuilder.BAMO_SURVIVE_THE_AMBUSH,
-                        "Aegis forces have been ambushing our patrols; your job is to catch them.",
-                        "put an end to your ambushes", "destroy Wujung's militia",
-                        "I drove you out of Wujung", "you drove me out of Wujung",
-                        "you crushed the Wujung defense force", "I crushed the Wujung defense force"
-                    ),
-                    ghchallenges.DescribedObjective(
-                        missionbuilder.BAMO_EXTRACT_ALLIED_FORCES,
-                        "One of our scouts went missing; I suspect they've been captured by Aegis.",
-                        "protect Wujung from Aegis", "capture and interrogate a defense force pilot",
-                        "I protected the Wujung defense force from you", "you foiled my mission in Wujung",
-                        "you kidnapped pilots from Wujung", "I learned all about Wujung's defenses"
-                    ),
-                )
-            }
-        ))
-
+        self.add_sub_plot(nart, "DZD_SKIPPYSNIGHTOUT")
 
         self.intro_ready = True
 
@@ -840,21 +813,8 @@ class DZD_BlueFortressHQ(Plot):
         for t in range(random.randint(3,7)):
             room2.contents.append(ghwaypoints.Lockers())
 
-        vikki = gears.base.Character(
-            name="Vikki", statline={gears.stats.Reflexes: 15,
-                                    gears.stats.Body: 10, gears.stats.Speed: 13, gears.stats.Perception: 13,
-                                    gears.stats.Knowledge: 10, gears.stats.Craft: 10, gears.stats.Ego: 10,
-                                    gears.stats.Charm: 12}, mecha_pref="THD-35 Thorshammer",
-            job=gears.jobs.ALL_JOBS["Mecha Pilot"], renown=50, birth_year=138, combatant=True,
-            faction=gears.factions.TerranDefenseForce,
-            personality=[personality.Cheerful, personality.Shy, personality.Fellowship],
-            mnpcid=gears.oldghloader.GH1Loader.NPC_VIKKI,
-            gender=gears.genderobj.Gender.get_default_female(), portrait='card_f_vikki_dzd.png',
-            colors=(gears.color.ShiningWhite, gears.color.LightSkin, gears.color.NobleGold, gears.color.HunterOrange,
-                    gears.color.Olive),
-            mecha_colors=(gears.color.ShiningWhite, gears.color.Olive, gears.color.ElectricYellow, gears.color.GullGrey,
-                          gears.color.Terracotta),
-                                     )
+        vikki = nart.camp.get_major_npc(gears.oldghloader.GH1Loader.NPC_VIKKI)
+        vikki.portrait='card_f_vikki_dzd.png'
         self.register_element("VIKKI", vikki)
         vikki.place(intscene, team=team3)
         self.got_tutorial = False
@@ -1640,3 +1600,77 @@ class DZD_LoRoTruckerLancemate(Plot):
         self.register_element("NPC", npc, dident="CIV_TEAM")
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
+
+
+#   *******************************
+#   ***  DZD_SKIPPYS_NIGHT_OUT  ***
+#   *******************************
+
+class DZD_SkippysNightOut(Plot):
+    LABEL = "DZD_SKIPPYSNIGHTOUT"
+    active = True
+    scope = "METRO"
+
+    RUMOR = pbge.plots.Rumor(
+        "Skip Tracer had a rough time last night",
+        offer_msg="Well, it's not really my place to say what happened... You can find out all about it if you ask him at {NPC_SCENE}.",
+        offer_subject="Skip Tracer",
+        memo="Skippy the bounty hunter apparently had a rough time last night.",
+        prohibited_npcs=("NPC",)
+    )
+
+    VERB_SUS_CARDS = (
+        {"name": "Dancing", "to_verb": "to dance with Skippy", "verbed": "danced all night with SKippy",
+         "did_not_verb": "didn't dance with Skippy", "data":{}},
+        {"name": "Making Out", "to_verb": "to make out with Skippy", "verbed": "made out with SKippy",
+         "did_not_verb": "didn't make out with Skippy", "data": {}},
+        {"name": "Play Shuggy", "to_verb": "to play shuggy with Skippy", "verbed": "played shuggy with SKippy",
+         "did_not_verb": "didn't play shuggy with Skippy", "data": {}},
+        {"name": "Drank Xozu", "to_verb": "to drink too much Xozu with Skippy", "verbed": "drank too much Xozu with SKippy",
+         "did_not_verb": "didn't go drinking with Skippy", "data": {}},
+        {"name": "Got Tattoos", "to_verb": "to get a matching tattoo with Skippy", "verbed": "got a matching tattoo with SKippy",
+         "did_not_verb": "didn't get tattoos with Skippy", "data": {}},
+    )
+
+    def custom_init( self, nart ):
+        self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
+
+        skippy = nart.camp.get_major_npc(gears.oldghloader.GH1Loader.NPC_SKIPPY)
+        self.register_element("NPC", skippy, dident="LOCALE")
+
+        self.sus_elements = list()
+        companion_cards = list()
+        for t in range(5):
+            npc = self.seek_element(nart, "COMPANION{}".format(t), self._is_best_npc, scope=self.elements["METROSCENE"])
+            companion_cards.append(pbge.okapipuzzle.NounSusCard(str(npc), data={"image_fun": npc.get_portrait, "frame": 1, "npc": npc}))
+            self.sus_elements.append(npc)
+
+        friend_susdeck = pbge.okapipuzzle.SusDeck("Companion", companion_cards)
+
+        activity_cards = list()
+        for t in range(5):
+            activity_cards.append(pbge.okapipuzzle.VerbSusCard(**self.VERB_SUS_CARDS[t]))
+
+        activity_susdeck = pbge.okapipuzzle.SusDeck("Activity", activity_cards)
+
+        scene_cards = list()
+        for t in range(5):
+            scene = self.seek_element(nart, "SCENE{}".format(t), self._is_good_meeting_scene, scope=self.elements["METROSCENE"])
+            scene_cards.append(pbge.okapipuzzle.NounSusCard(str(scene), role=pbge.okapipuzzle.SUS_LOCATION))
+            self.sus_elements.append(scene)
+        scene_susdeck = pbge.okapipuzzle.SusDeck("Location", scene_cards)
+
+        mymystery = self.register_element("MYSTERY", pbge.okapipuzzle.OkapiPuzzle("Skippy's night out", (friend_susdeck, activity_susdeck, scene_susdeck)))
+
+        return True
+
+    def _is_best_scene(self,nart,candidate):
+        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def _is_best_npc(self,nart,candidate):
+        return (isinstance(candidate,gears.base.Character) and candidate.combatant and
+                nart.camp.is_not_lancemate(candidate) and candidate not in self.sus_elements)
+
+    def _is_good_meeting_scene(self,nart,candidate):
+        return (isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
+                gears.tags.SCENE_OUTDOORS not in candidate.attributes and candidate not in self.sus_elements)

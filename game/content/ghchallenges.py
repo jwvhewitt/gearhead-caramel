@@ -63,6 +63,10 @@ class DescribedObjective(object):
         self.lose_pp = lose_pp
         self.lose_ep = lose_ep
 
+#   ***********************************
+#   ***  MYSTERY  CHALLENGE  STUFF  ***
+#   ***********************************
+
 
 #   ***************************************
 #   ***  RAISE  ARMY  CHALLENGE  STUFF  ***

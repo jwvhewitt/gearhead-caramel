@@ -202,7 +202,7 @@ class BlackMarketBluesMain(Plot):
             npc.relationship.role = gears.relationships.R_ADVERSARY
             npc.relationship.expectation = gears.relationships.E_REVENGE
             if npc not in camp.egg.dramatis_personae:
-                camp.egg.dramatis_personae.append(npc)
+                camp.egg.dramatis_personae.add(npc)
             camp.set_faction_as_pc_enemy(gears.factions.TreasureHunters)
 
     def BLACK_MARKET_ENTER(self, camp):

@@ -1,3 +1,4 @@
+* GearHead Campaign now has method for loading major NPCs
 * Memo browser is now a widget, and memos can create custom widgets
 * Terrset now actually draws border
 * Added new eyecatch screen by Sierra Bravo

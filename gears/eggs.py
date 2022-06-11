@@ -24,7 +24,7 @@ class Egg(object):
         self.pc = pc
         self.mecha = mecha
         self.stuff = container.ContainerList(stuff)
-        self.dramatis_personae = list(dramatis_personae)
+        self.dramatis_personae = set(dramatis_personae)
         self.major_npc_records = dict()
         if major_npc_records:
             self.major_npc_records.update(major_npc_records)
@@ -39,6 +39,8 @@ class Egg(object):
         self.__dict__.update(state)
         if "faction_scores" not in state:
             self.faction_scores = collections.defaultdict(int)
+        if isinstance(self.dramatis_personae, list):
+            self.dramatis_personae = set(self.dramatis_personae)
 
     def _remove_container_for(self,thing,con_rec):
         if hasattr(thing,"container") and thing.container:

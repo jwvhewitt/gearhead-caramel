@@ -17,6 +17,7 @@ STC_LIST = list()
 MONSTER_LIST = list()
 
 DESIGN_BY_NAME = dict()
+MAJOR_NPCS = dict()
 EARTH_NAMES = None
 LUNA_NAMES = None
 ORBITAL_NAMES = None
