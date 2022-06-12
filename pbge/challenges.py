@@ -336,8 +336,9 @@ class MysteryMemo(object):
         if not self.challenge:
             return self._text
         else:
-            return "{}\n\nCompletion: {}/{}".format(
-                self._text, self.challenge.points_earned, self.challenge.points_target
+            return "{}\n\nClues Discovered: {}/{}".format(
+                self._text, len(self.challenge.mystery.known_clues), len(self.challenge.mystery.known_clues) +
+                                                                     len(self.challenge.mystery.unknown_clues)
             )
 
     def get_widget(self, memobrowser, camp):
@@ -355,7 +356,7 @@ class MysteryMemo(object):
         # Open the Hypothesis Widget.
         memob, camp = wid.data
         memob.active = False
-        okapipuzzle.OkapiPuzzleWidget(self.challenge.mystery, camp, self.solve_mystery)
+        okapipuzzle.OkapiPuzzleWidget(self.challenge.mystery, camp, self.solve_mystery)()
         memob.active = True
 
     def solve_mystery(self):

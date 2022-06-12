@@ -1662,7 +1662,30 @@ class DZD_SkippysNightOut(Plot):
 
         mymystery = self.register_element("MYSTERY", pbge.okapipuzzle.OkapiPuzzle("Skippy's night out", (friend_susdeck, activity_susdeck, scene_susdeck)))
 
+        mychallenge = self.register_element("CHALLENGE", pbge.challenges.MysteryChallenge(
+            "Skippy's Challenge", mymystery,
+            memo=pbge.challenges.MysteryMemo("Find out what happened to Skippy's legs."), active=True,
+            oppoffers=[
+                pbge.challenges.AutoOffer(
+                    dict(
+                        msg="I can tell you a secret about it.",
+                        context=ContextTag([context.CUSTOM,]), effect=self._get_a_clue,
+                        data={
+                            "reply": "Do you know anything about what happened to Skippy last night?",
+                        }
+                    ), active=True, uses=99,
+                    involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], exclude=(skippy,)),
+                    access_fun=ghchallenges.AccessSocialRoll(
+                        gears.stats.Perception, gears.stats.Negotiation, self.rank, untrained_ok=True
+                    )
+                ),
+            ],
+        ))
+
         return True
+
+    def _get_a_clue(self, camp):
+        self.elements["CHALLENGE"].advance(camp)
 
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
