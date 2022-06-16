@@ -1,4 +1,4 @@
-from . import dialogue, widgets, okapipuzzle, BasicNotification
+from . import dialogue, widgets, okapipuzzle, BasicNotification, frects, my_state
 
 # Triggers used by Challenges and Resources:
 ADVANCE_CHALLENGE = "ADVANCE_CHALLENGE"
@@ -195,8 +195,10 @@ class Challenge(object):
             self.memo_active = True
             camp.check_trigger("UPDATE")
 
-    def activate(self, camp):
+    def activate(self, camp, activate_memo=True):
         self._active = True
+        if activate_memo:
+            self.memo_active = True
         camp.check_trigger("UPDATE")
 
     def deactivate(self, camp):
@@ -346,8 +348,9 @@ class MysteryMemo(object):
             memobrowser.dx, memobrowser.dy, memobrowser.w, memobrowser.h, text=str(self),
             data=memobrowser, justify=0)
         mybutton = widgets.LabelWidget(
-            0, 116, 0, 0, text="Examine Clues", draw_border=True, justify=0, border=widgets.widget_border_on,
-            on_click=self.open_mystery, data=(memobrowser,camp), parent=mylabel
+            -75, 20, 150, 24, text="Examine Clues", draw_border=True, justify=0, border=widgets.widget_border_on,
+            on_click=self.open_mystery, data=(memobrowser,camp), parent=mylabel, anchor=frects.ANCHOR_BOTTOM,
+            font=my_state.big_font
         )
         mylabel.children.append(mybutton)
         return mylabel

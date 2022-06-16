@@ -126,10 +126,12 @@ class LabelWidget(Widget):
             self.w = self.font.size(self.text)[0]
             if self.draw_border:
                 self.w += 16
+                self.dx -= 8
         if h == 0:
             self.h = len(wrap_multi_line(text, self.font, self.w)) * self.font.get_linesize()
-            if self.draw_border:
-                self.h += 16
+            #if self.draw_border:
+            #    self.h += 16
+            #    self.dy -= 8
         self.justify = justify
         self.border = border
         self.text_fun = text_fun

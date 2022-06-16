@@ -52,7 +52,7 @@ class Portrait(object):
         """
         form_tags = list()
         for pt in pc.get_tags():
-            form_tags.append(pt.name)
+            form_tags.append(str(pt))
         if pc.combatant:
             form_tags.append("Combatant")
         else:

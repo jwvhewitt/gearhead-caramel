@@ -4035,14 +4035,19 @@ class Character(Being):
                 faction = team.faction
         return faction
 
-    def get_tags(self):
-        # Return all of the character's personality, job, and faction tags.
+    def get_tags(self, include_all=True):
+        # Return the character's personality, job, and faction tags.
+        # If include_all is True, also include those tags the PC might not need to see.
         mytags = set(self.personality)
         if self.job:
+            if include_all:
+                mytags.add(self.job.name)
             mytags |= set(self.job.tags)
         if self.faction:
             mytags.add(self.faction.get_faction_tag())
             mytags |= set(self.faction.factags)
+        if self.mnpcid and include_all:
+            mytags.add(self.mnpcid)
         return mytags
 
     def get_reaction_score(self, pc, camp):

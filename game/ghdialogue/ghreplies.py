@@ -63,6 +63,10 @@ CUSTOM_CUSTOMREPLY = Reply( "{reply}" ,
             destination = Cue( ContextTag([context.CUSTOMREPLY]) ) ,
             context = ContextTag([context.CUSTOM]) )
 
+CUSTOM_INFO = Reply( "[INFO:INFO]" ,
+            context = ContextTag([context.CUSTOM]),
+            destination = Cue( ContextTag([context.INFO]) ) )
+
 CUSTOMREPLY_INFO = Reply( "[CHAT:INFO]" ,
             context = ContextTag([context.CUSTOMREPLY]),
             destination = Cue( ContextTag([context.INFO]) ) )

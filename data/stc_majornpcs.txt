@@ -20,7 +20,9 @@ Character
     statline={Reflexes=13, Body=13, Speed=12, Perception=15, Knowledge=9, Craft=12, Ego=15, Charm=12, Cybertech=5}
     personality=[Cheerful, Easygoing, Glory, Duty]
     gender=Male
-    colors=(ShiningWhite, LightSkin, NobleGold, HunterOrange, Olive)
+    colors=(CardinalRed, ForRami, Cobalt, Gold, Turquoise)
+    mecha_colors=(GunRed, Gold, Aquamarine, Cobalt, Turquoise)
+    portrait='card_m_skippy158.png'
     job=BountyHunter
     renown=35
     birth_year=135

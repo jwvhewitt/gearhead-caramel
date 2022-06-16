@@ -1,5 +1,6 @@
 import gears.factions
-from gears import personality,tags
+from gears import personality, tags
+
 #
 #   GearHead Grammar
 #
@@ -30,7 +31,6 @@ MET_BEFORE = "MET_BEFORE"
 FAVORABLE = "FAVORABLE"
 UNFAVORABLE = "UNFAVORABLE"
 
-
 DEFAULT_GRAMMAR = {
     "[ACCEPT_CHALLENGE]": {
         Default: ["I accept your challenge!",
@@ -53,69 +53,79 @@ DEFAULT_GRAMMAR = {
 
     "[ACCEPT_MISSION:GOODBYE]": {
         Default: ["I'll be back when I'm finished."
-            ],
+                  ],
         personality.Cheerful: ["See you later!",
-            ],
+                               ],
         personality.Grim: ["Time to get to work.",
-            ],
-        personality.Easygoing: [ "Guess I should get started.",
-            ],
+                           ],
+        personality.Easygoing: ["Guess I should get started.",
+                                ],
         personality.Passionate: ["I'll do my best!",
-            ],
+                                 ],
         personality.Sociable: ["I'll let you know how it goes.",
-            ],
+                               ],
         personality.Shy: ["Goodbye.",
-            ],
-        },
+                          ],
+    },
 
     "[ACCEPT_MISSION:JOIN]": {
         Default: ["Why don't you come with me?"
-            ],
+                  ],
         personality.Cheerful: ["Why don't you come too? It'll be fun.",
-            ],
+                               ],
         personality.Grim: ["My odds would be better if you came too.",
-            ],
-        personality.Easygoing: [ "Wanna come with me?",
-            ],
+                           ],
+        personality.Easygoing: ["Wanna come with me?",
+                                ],
         personality.Passionate: ["Would you join me on this glorious mission?",
-            ],
+                                 ],
         personality.Sociable: ["I could use some company out there.",
-            ],
+                               ],
         personality.Shy: ["Will you come too?",
-            ],
-        },
+                          ],
+    },
     "[Adjective]": {
         Default: [
-            "Useless","Useful","Artificial","Adorable","Uncomfortable","Comfortable","Good","Bad","Open","Modern",
-            "Shiny","Bright","Honorable","Stupid","Smart","Healthy","Sinful","Interesting","Surprising","Bland",
-            "Sexy","Loud","Quiet","New","Important","Wonderful","Great","Fun","Beautiful","Pretty","Ugly",
-            "Cool","Strange","Fast","Slow","Lucky","Big","Huge","Long","Small","Tiny","Exciting","Gigantic",
-            "Cosmic","Natural","Unwanted","Delicate","Stormy","Fragile","Strong","Flexible","Rigid","Cold",
-            "Hot","Irradiated","Poor","Living","Dead","Creamy","Delicious","Cool","Excellent","Boring","Happy",
-            "Sad","Confusing","Valuable","Old","Young","Loud","Hidden","Bouncy","Magnetic","Smelly","Hard",
-            "Easy","Serious","Kind","Gentle","Greedy","Lovely","Cute","Plain","Dangerous","Silly","Smart",
-            "Fresh","Obsolete","Perfect","Ideal","Professional","Current","Fat","Rich","Poor","Wise","Absurd",
-            "Foolish","Blind","Deaf","Creepy","Nice","Adequate","Expensive","Cheap","Fluffy","Rusted","Hormonal",
-            "Lying","Freezing","Acidic","Green","Red","Blue","Yellow","Orange",'Purple',"Grey","Brown","Pink",
-            "Dirty","Gothic","Metallic","Mutagenic","Outrageous","Incredible","Miraculous","Unlucky",
+            "Useless", "Useful", "Artificial", "Adorable", "Uncomfortable", "Comfortable", "Good", "Bad", "Open",
+            "Modern",
+            "Shiny", "Bright", "Honorable", "Stupid", "Smart", "Healthy", "Sinful", "Interesting", "Surprising",
+            "Bland",
+            "Sexy", "Loud", "Quiet", "New", "Important", "Wonderful", "Great", "Fun", "Beautiful", "Pretty", "Ugly",
+            "Cool", "Strange", "Fast", "Slow", "Lucky", "Big", "Huge", "Long", "Small", "Tiny", "Exciting", "Gigantic",
+            "Cosmic", "Natural", "Unwanted", "Delicate", "Stormy", "Fragile", "Strong", "Flexible", "Rigid", "Cold",
+            "Hot", "Irradiated", "Poor", "Living", "Dead", "Creamy", "Delicious", "Cool", "Excellent", "Boring",
+            "Happy",
+            "Sad", "Confusing", "Valuable", "Old", "Young", "Loud", "Hidden", "Bouncy", "Magnetic", "Smelly", "Hard",
+            "Easy", "Serious", "Kind", "Gentle", "Greedy", "Lovely", "Cute", "Plain", "Dangerous", "Silly", "Smart",
+            "Fresh", "Obsolete", "Perfect", "Ideal", "Professional", "Current", "Fat", "Rich", "Poor", "Wise", "Absurd",
+            "Foolish", "Blind", "Deaf", "Creepy", "Nice", "Adequate", "Expensive", "Cheap", "Fluffy", "Rusted",
+            "Hormonal",
+            "Lying", "Freezing", "Acidic", "Green", "Red", "Blue", "Yellow", "Orange", 'Purple', "Grey", "Brown",
+            "Pink",
+            "Dirty", "Gothic", "Metallic", "Mutagenic", "Outrageous", "Incredible", "Miraculous", "Unlucky",
             "Hated", "Loved", "Feared"
         ]
     },
     "[adjective]": {
         Default: [
-            "useless","useful","artificial","adorable","uncomfortable","comfortable","good","bad","open","modern",
-            "shiny","bright","honorable","stupid","smart","healthy","sinful","interesting","surprising","bland",
-            "sexy","loud","quiet","new","important","wonderful","great","fun","beautiful","pretty","ugly",
-            "cool","strange","fast","slow","lucky","big","huge","long","small","tiny","exciting","gigantic",
-            "cosmic","natural","unwanted","delicate","stormy","fragile","strong","flexible","rigid","cold",
-            "hot","irradiated","poor","living","dead","creamy","delicious","cool","excellent","boring","happy",
-            "sad","confusing","valuable","old","young","loud","hidden","bouncy","magnetic","smelly","hard",
-            "easy","serious","kind","gentle","greedy","lovely","cute","plain","dangerous","silly","smart",
-            "fresh","obsolete","perfect","ideal","professional","current","fat","rich","poor","wise","absurd",
-            "foolish","blind","deaf","creepy","nice","adequate","expensive","cheap","fluffy","rusted","hormonal",
-            "lying","freezing","acidic","green","red","blue","yellow","orange",'purple',"grey","brown","pink",
-            "dirty","gothic","metallic","mutagenic","outrageous","incredible","miraculous","unlucky",
-            "hated","loved","feared"
+            "useless", "useful", "artificial", "adorable", "uncomfortable", "comfortable", "good", "bad", "open",
+            "modern",
+            "shiny", "bright", "honorable", "stupid", "smart", "healthy", "sinful", "interesting", "surprising",
+            "bland",
+            "sexy", "loud", "quiet", "new", "important", "wonderful", "great", "fun", "beautiful", "pretty", "ugly",
+            "cool", "strange", "fast", "slow", "lucky", "big", "huge", "long", "small", "tiny", "exciting", "gigantic",
+            "cosmic", "natural", "unwanted", "delicate", "stormy", "fragile", "strong", "flexible", "rigid", "cold",
+            "hot", "irradiated", "poor", "living", "dead", "creamy", "delicious", "cool", "excellent", "boring",
+            "happy",
+            "sad", "confusing", "valuable", "old", "young", "loud", "hidden", "bouncy", "magnetic", "smelly", "hard",
+            "easy", "serious", "kind", "gentle", "greedy", "lovely", "cute", "plain", "dangerous", "silly", "smart",
+            "fresh", "obsolete", "perfect", "ideal", "professional", "current", "fat", "rich", "poor", "wise", "absurd",
+            "foolish", "blind", "deaf", "creepy", "nice", "adequate", "expensive", "cheap", "fluffy", "rusted",
+            "hormonal",
+            "lying", "freezing", "acidic", "green", "red", "blue", "yellow", "orange", 'purple', "grey", "brown",
+            "pink",
+            "dirty", "gothic", "metallic", "mutagenic", "outrageous", "incredible", "miraculous", "unlucky",
+            "hated", "loved", "feared"
         ]
     },
 
@@ -183,11 +193,11 @@ DEFAULT_GRAMMAR = {
     "[as_far_as_I_know]": {
         Default: ["As far as I know"
                   ],
-        personality.Cheerful: ["You'll be happy to know","To the best of my knowledge"
+        personality.Cheerful: ["You'll be happy to know", "To the best of my knowledge"
                                ],
         personality.Grim: ["I'm afraid that",
                            ],
-        personality.Easygoing: ["I kinda think","I could be wrong, but I've heard that"
+        personality.Easygoing: ["I kinda think", "I could be wrong, but I've heard that"
                                 ],
         personality.Passionate: ["I know that",
                                  ],
@@ -201,62 +211,62 @@ DEFAULT_GRAMMAR = {
         Default: ["I don't know what you're doing here, but you'll feel my wrath. [LETSFIGHT]",
                   "You shouldn't have come here. [LETSFIGHT]", "[BATTLE_GREETING] [LETSFIGHT]",
                   "Do you remember that [MEM_Clash]? [LETSFIGHT]", "Today I will [objective_ep]; [LETSFIGHT]"
-            ],
+                  ],
         personality.Cheerful: ["I was hoping that today would be interesting, and now here you are... [LETSFIGHT]",
-            ],
+                               ],
         personality.Grim: ["I'm afraid it's time for you to die... I'll try to make it painless. [LETSFIGHT]",
-            "Those who oppose me end up dead. [LETSFIGHT]"
-            ],
-        personality.Easygoing: [ "And here I thought this was going to be an easy day. [LETSFIGHT]",
-            "I don't mean to be unfriendly, but you've ended up in the wrong place at the wrong time. [LETSFIGHT]"
-            ],
+                           "Those who oppose me end up dead. [LETSFIGHT]"
+                           ],
+        personality.Easygoing: ["And here I thought this was going to be an easy day. [LETSFIGHT]",
+                                "I don't mean to be unfriendly, but you've ended up in the wrong place at the wrong time. [LETSFIGHT]"
+                                ],
         personality.Passionate: ["A challenger approaches... do you think you can defeat me? [LETSFIGHT]",
-            "I've been looking for someone to battle... [LETSFIGHT]",
-            "You dare to challenge me? [LETSFIGHT]"
-            ],
+                                 "I've been looking for someone to battle... [LETSFIGHT]",
+                                 "You dare to challenge me? [LETSFIGHT]"
+                                 ],
         personality.Sociable: ["I've heard of your skills, [audience]... [LETSFIGHT]",
-            "Is this a challenge? I accept. [LETSFIGHT]"
-            ],
+                               "Is this a challenge? I accept. [LETSFIGHT]"
+                               ],
         personality.Shy: ["[LETSFIGHT]",
-            ],
-        personality.Duty: [ "I can't allow you to interfere with my mission. [LETSFIGHT]",
-            ],
-        personality.Peace: [ "Though I don't wish to cause harm, I'm going to have to [fight_you]. [LETSFIGHT]",
-            ],
-        personality.Fellowship: [ "You know the rules... [LETSFIGHT]",
-            ],
-        personality.Glory: [ "Only one of us is going to leave here victorious. [LETSFIGHT]",
-            ],
+                          ],
+        personality.Duty: ["I can't allow you to interfere with my mission. [LETSFIGHT]",
+                           ],
+        personality.Peace: ["Though I don't wish to cause harm, I'm going to have to [fight_you]. [LETSFIGHT]",
+                            ],
+        personality.Fellowship: ["You know the rules... [LETSFIGHT]",
+                                 ],
+        personality.Glory: ["Only one of us is going to leave here victorious. [LETSFIGHT]",
+                            ],
         personality.Justice: [
             "I'm going to give you what you deserve... [LETSFIGHT]",
             "Remember when [MEM_LoseToPC]? Now you will taste justice."
         ]
     },
-    
+
     "[ATTACK:CHALLENGE]": {
-        Default: ["I accept your challenge.","This won't go so well for you.",
-            "I can take you.","Let's finish this.", "I must [objective_pp].", "I will [objective_pp]."
-            ],
-        personality.Cheerful: ["Sounds like fun.","Don't make me laugh.",
-            "This is getting fun!", "I'm here to [objective_pp] and crack jokes."
-            ],
-        personality.Grim: ["You will regret challenging me.","This may be your last mistake.",
-            "This will end in tears for you...", "I will [objective_pp] or die trying!"
-            ],
-        personality.Easygoing: [ "I guess we could do that.","Sure, I have nothing better to do.",
-                                 "I'm just gonna [objective_pp]."
-            ],
+        Default: ["I accept your challenge.", "This won't go so well for you.",
+                  "I can take you.", "Let's finish this.", "I must [objective_pp].", "I will [objective_pp]."
+                  ],
+        personality.Cheerful: ["Sounds like fun.", "Don't make me laugh.",
+                               "This is getting fun!", "I'm here to [objective_pp] and crack jokes."
+                               ],
+        personality.Grim: ["You will regret challenging me.", "This may be your last mistake.",
+                           "This will end in tears for you...", "I will [objective_pp] or die trying!"
+                           ],
+        personality.Easygoing: ["I guess we could do that.", "Sure, I have nothing better to do.",
+                                "I'm just gonna [objective_pp]."
+                                ],
         personality.Passionate: ["Prepare to be demolished.", "You don't know who you're messing with.",
-            "You have no chance of beating me.", "WAARGH!!!", "I will [objective_pp]!"
-            ],
+                                 "You have no chance of beating me.", "WAARGH!!!", "I will [objective_pp]!"
+                                 ],
         personality.Sociable: ["I'm all ready to fight.", "You're going to lose.", "I am here to [objective_pp]."
-            ],
-        personality.Shy: ["Enough talk.","Whatever.",
-            ],
-        personality.Peace: [ "Maybe you should just give up now?",
-            ],
-        personality.Fellowship: [ "Let's keep this an honorable duel.",
-            ],
+                               ],
+        personality.Shy: ["Enough talk.", "Whatever.",
+                          ],
+        personality.Peace: ["Maybe you should just give up now?",
+                            ],
+        personality.Fellowship: ["Let's keep this an honorable duel.",
+                                 ],
         personality.Duty: [
             "My mission is to [objective_pp]."
         ],
@@ -272,48 +282,48 @@ DEFAULT_GRAMMAR = {
     },
 
     "[ATTACK:COMBAT_INFO]": {
-    # The data block should include "subject"
-        Default: ["{subject}? What's that?","Tell me about {subject}."
-            ],
+        # The data block should include "subject"
+        Default: ["{subject}? What's that?", "Tell me about {subject}."
+                  ],
         personality.Cheerful: ["I'd like to hear more about {subject}.",
-            ],
+                               ],
         personality.Grim: ["Tell me about {subject} or die.",
-            ],
-        personality.Easygoing: [ "{subject}, you say?",
-            ],
+                           ],
+        personality.Easygoing: ["{subject}, you say?",
+                                ],
         personality.Passionate: ["What in blazes is {subject}?!",
-            ],
+                                 ],
         personality.Sociable: ["Tell me more about {subject}.",
-            ],
+                               ],
         personality.Shy: ["What is {subject}?",
-            ],
+                          ],
     },
 
     "[ATTACK:MERCY]": {
         Default: ["Get out of here.",
-            ],
+                  ],
         personality.Cheerful: ["It's your lucky day, you can go.",
-            ],
+                               ],
         personality.Grim: ["Get lost before I change my mind.",
-            ],
-        personality.Easygoing: [ "You can go home now.",
-            ],
+                           ],
+        personality.Easygoing: ["You can go home now.",
+                                ],
         personality.Passionate: ["Let me show you my mercy!",
-            ],
+                                 ],
         personality.Sociable: ["You can leave if you don't want to fight.",
-            ],
+                               ],
         personality.Shy: ["Go.",
-            ],
-        personality.Peace: [ "I have no desire to fight you.",
-            ],
-        personality.Duty: [ "Run away now and I won't chase you.",
-            ],
-        personality.Fellowship: [ "Go on, I won't challenge you.",
-            ],
-        personality.Glory: [ "Maybe we can duel later, but not today.",
-            ],
-        personality.Justice: [ "It wouldn't be fair to fight you now.",
-            ],
+                          ],
+        personality.Peace: ["I have no desire to fight you.",
+                            ],
+        personality.Duty: ["Run away now and I won't chase you.",
+                           ],
+        personality.Fellowship: ["Go on, I won't challenge you.",
+                                 ],
+        personality.Glory: ["Maybe we can duel later, but not today.",
+                            ],
+        personality.Justice: ["It wouldn't be fair to fight you now.",
+                              ],
     },
 
     "[ATTACK:RETREAT]": {
@@ -323,8 +333,9 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: ["So you choose to die by my hand? A brave choice, but a stupid one.",
                            ],
-        personality.Easygoing: ["I mean, I'll [defeat_you] if you want, but you could save us all some time if you just run away now.",
-                                ],
+        personality.Easygoing: [
+            "I mean, I'll [defeat_you] if you want, but you could save us all some time if you just run away now.",
+            ],
         personality.Passionate: ["You dare to challenge me?! Turn back now, before I [defeat_you]!",
                                  ],
         personality.Sociable: ["If you insist on fighting, I don't mind showing everyone just how pitiful you are.",
@@ -365,15 +376,15 @@ DEFAULT_GRAMMAR = {
     },
     "[BAD_NEWS]": {
         # NPC is about to announce_character_state something bad.
-        Default: ["Bad news...","Oh no..."
+        Default: ["Bad news...", "Oh no..."
                   ],
         personality.Cheerful: ["Well that's not good...",
                                ],
-        personality.Grim: ["That's just my luck.","Curses!"
+        personality.Grim: ["That's just my luck.", "Curses!"
                            ],
         personality.Easygoing: ["Guess what?",
                                 ],
-        personality.Passionate: ["Oh [expletive]...","This is terrible!"
+        personality.Passionate: ["Oh [expletive]...", "This is terrible!"
                                  ],
         personality.Sociable: ["Bad news, everyone...",
                                ],
@@ -383,12 +394,12 @@ DEFAULT_GRAMMAR = {
 
     "[bandit]": {
         Default: [
-            "bandit","brigand","thief","ravager","pirate","criminal","crimepunk","raider","blackheart"
+            "bandit", "brigand", "thief", "ravager", "pirate", "criminal", "crimepunk", "raider", "blackheart"
         ],
     },
     "[bandits]": {
         Default: [
-            "bandits","brigands","thieves","ravagers","pirates","criminals","crimepunks","raiders","blackhearts"
+            "bandits", "brigands", "thieves", "ravagers", "pirates", "criminals", "crimepunks", "raiders", "blackhearts"
         ],
     },
 
@@ -457,7 +468,7 @@ DEFAULT_GRAMMAR = {
         LOVE: ["You look like a nice person, it's a shame I'm going to have to [defeat_you].",
                ],
         DISLIKE: ["Who the blazes are you?",
-               ],
+                  ],
         personality.Glory: [
             "A new challenger approaches... My name's [speaker], and I will [defeat_you].",
         ],
@@ -472,7 +483,7 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: ["Maybe {subject} could really ruin your day",
                                ],
-        personality.Grim: ["You should know that {subject} is dangerous","Keep your eyes on {subject}"
+        personality.Grim: ["You should know that {subject} is dangerous", "Keep your eyes on {subject}"
                            ],
         personality.Easygoing: ["You didn't hear this from me, but {subject} is scary",
                                 ],
@@ -493,27 +504,27 @@ DEFAULT_GRAMMAR = {
                   ],
     },
     "[body_part]": {
-        Default: ["eye","nose","face","throat","groin","duodenum","skull",
+        Default: ["eye", "nose", "face", "throat", "groin", "duodenum", "skull",
                   ],
     },
 
     "[BrowseWares]": {
-        Default: ["Take a look around","Browse my wares"
+        Default: ["Take a look around", "Browse my wares"
                   ],
         personality.Cheerful: ["There are so many exciting things here", "Enjoy browsing our selection"
                                ],
-        personality.Grim: ["Caveat emptor","Make sure you don't break anything while browsing"
+        personality.Grim: ["Caveat emptor", "Make sure you don't break anything while browsing"
                            ],
         personality.Easygoing: [
             "Take your time browsing", "Have a look around",
-            ],
+        ],
         personality.Passionate: ["Behold my unsurpassed selection", "My wares are glorious"
                                  ],
         personality.Sociable: ["Feel free to browse our excellent selection",
                                "I can tell you all about everything we carry",
                                "Look around all you want"
                                ],
-        personality.Shy: ["Look around","Don't touch the merchandise unless you intend to buy"
+        personality.Shy: ["Look around", "Don't touch the merchandise unless you intend to buy"
                           ],
         LOVE: [
             "It's a pleasure to have you in my store",
@@ -523,10 +534,11 @@ DEFAULT_GRAMMAR = {
             "Always a pleasure to do business with you"
         ],
         DISLIKE: [
-            "Hurry up and find what you need","Browse the wares but don't try anything funny"
+            "Hurry up and find what you need", "Browse the wares but don't try anything funny"
         ],
         HATE: [
-            "Find what you need and get lost", "I'll be keeping my eye on you", "Don't try any funny business in my shop",
+            "Find what you need and get lost", "I'll be keeping my eye on you",
+            "Don't try any funny business in my shop",
             "I'll sell you crap but don't expect me to be nice about it"
         ],
     },
@@ -542,8 +554,9 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["[audience], I need to ask you something immediately.",
                                  ],
-        personality.Sociable: ["I've been waiting to talk with you about something. I was wondering if you'd mind answering my questions.",
-                               ],
+        personality.Sociable: [
+            "I've been waiting to talk with you about something. I was wondering if you'd mind answering my questions.",
+            ],
         personality.Shy: ["[audience], I have something to ask.",
                           ],
     },
@@ -551,16 +564,16 @@ DEFAULT_GRAMMAR = {
     "[CHALLENGE]": {
         # NOTE: This grammar tag is for opponent NPC use only! It calls on the [objective_ep] tag.
         Default: ["[THREATEN]", "To [objective_ep] I will [defeat_you]!"
-            ],
+                  ],
         personality.Cheerful: ["Time to party.", "You can't stop me now; I will [objective_ep]!"
-            ],
-        personality.Grim: ["Prepare for death.","You don't stand a chance.",
+                               ],
+        personality.Grim: ["Prepare for death.", "You don't stand a chance.",
                            "If I have to kill you to [objective_ep], I will!"
-            ],
-        personality.Easygoing: [ "Shall we get started? Alright.", "You might not like it, but I will [objective_ep]."
-            ],
+                           ],
+        personality.Easygoing: ["Shall we get started? Alright.", "You might not like it, but I will [objective_ep]."
+                                ],
         personality.Passionate: ["Show me what you have.", "I will unleash my full power to [objective_ep]!"
-            ],
+                                 ],
         personality.Sociable: [
             "That's big talk. Prove it to me.",
             "You know what I'm going to do? [THREATEN]",
@@ -568,11 +581,11 @@ DEFAULT_GRAMMAR = {
             "[THREATEN] That's right, I said it.",
         ],
         personality.Shy: ["Shut up and fight.",
-            ],
-        personality.Justice: [ "For great justice!",
-            ],
-        personality.Glory: [ "May the best fighter win!",
-            ],
+                          ],
+        personality.Justice: ["For great justice!",
+                              ],
+        personality.Glory: ["May the best fighter win!",
+                            ],
         personality.Duty: [
             "I will [objective_ep], as is my duty!"
         ],
@@ -600,7 +613,7 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["[OnSecondThought], I'm just going to go.",
                           ],
         personality.Peace: ["[OnSecondThought], fighting has never really solved anything, has it?",
-                              ],
+                            ],
         personality.Glory: ["[OnSecondThought], there is no glory to be had in getting my arse handed to me.",
                             ],
         personality.Duty: [
@@ -622,15 +635,16 @@ DEFAULT_GRAMMAR = {
 
     "[chat_lead_in]": {
         Default: [
-            "They say that","They say","I've heard that","I've heard","I think that","I think","Someone told me that",
-            "A friend told me that","I believe","It's rumored that","People say that","Word around here is that",
-            "It's been rumored that","Everyone knows that","Everyone says that","I heard a rumor that",
-            "I heard someone say that","You may have heard that","It's common knowledge that","You should know that",
-            "It's been said that","I often hear that","Someone said that","In my opinion,","In my humble opinion,",
-            "My friend said that","All my friends say that","My friend told me that",
-            "You may have heard this already, but","I bet","You'd never guess it, but","I bet you didn't know that",
-            "There's been a rumour going around that","For your information,","Don't say I told you so, but",
-            "To be completely honest with you,","Word is that", "[as_far_as_I_know]"
+            "They say that", "They say", "I've heard that", "I've heard", "I think that", "I think",
+            "Someone told me that",
+            "A friend told me that", "I believe", "It's rumored that", "People say that", "Word around here is that",
+            "It's been rumored that", "Everyone knows that", "Everyone says that", "I heard a rumor that",
+            "I heard someone say that", "You may have heard that", "It's common knowledge that", "You should know that",
+            "It's been said that", "I often hear that", "Someone said that", "In my opinion,", "In my humble opinion,",
+            "My friend said that", "All my friends say that", "My friend told me that",
+            "You may have heard this already, but", "I bet", "You'd never guess it, but", "I bet you didn't know that",
+            "There's been a rumour going around that", "For your information,", "Don't say I told you so, but",
+            "To be completely honest with you,", "Word is that", "[as_far_as_I_know]"
         ],
     },
 
@@ -696,8 +710,9 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: ["Much as I enjoy going with you, I really can't today.",
                                ],
-        personality.Grim: ["I am in no condition to go with you right now... but ask me again tomorrow, if I'm still alive.",
-                           ],
+        personality.Grim: [
+            "I am in no condition to go with you right now... but ask me again tomorrow, if I'm still alive.",
+            ],
         personality.Easygoing: ["Nope. Not right now. But come ask again tomorrow when I'm finished with this."
                                 ],
         personality.Passionate: ["Afraid I wouldn't be much help to you in my current condition... come back later."
@@ -716,7 +731,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: [
             "There's no denying that {opinion}.",
-            ],
+        ],
         personality.Easygoing: ["In my opinion, {opinion}."
                                 ],
         personality.Passionate: ["It's undeniable that {opinion}!"
@@ -742,7 +757,7 @@ DEFAULT_GRAMMAR = {
             "Nothing in life is permanent, not even the [noun].",
             "When you doubt your power, you give power to your doubts.",
             "Don't hate the [noun], hate the [noun]."
-            ],
+        ],
         personality.Easygoing: [
             "Don't worry about the [adjective] [noun] so you can focus on the important things.",
             "Those who grasp the [noun] will lose their [noun]."
@@ -764,8 +779,8 @@ DEFAULT_GRAMMAR = {
     "[deadzone_residence]": {
         # Some place where people might be living in the dead zone.
         Default: [
-            "abandoned factory","prezero ruin","low-rad zone","smuggler point","deserted fortress",
-            "ancient fallout shelter","shantytown","ruined city","demolition zone","scavenger camp"
+            "abandoned factory", "prezero ruin", "low-rad zone", "smuggler point", "deserted fortress",
+            "ancient fallout shelter", "shantytown", "ruined city", "demolition zone", "scavenger camp"
         ]
     },
 
@@ -789,22 +804,22 @@ DEFAULT_GRAMMAR = {
     },
 
     "[defeating_you]": {
-        Default: ["defeating you","beating you"
-            ],
-        personality.Cheerful: ["winning","kicking your arse"
-            ],
-        personality.Grim: ["destroying you","crushing you","causing you pain",
-            "watching you suffer","killing you",
-            ],
-        personality.Easygoing: [ "fighting you",
-            ],
-        personality.Passionate: ["facing a true challenge","annihilating you",
-            "showing you my true power",
-            ],
+        Default: ["defeating you", "beating you"
+                  ],
+        personality.Cheerful: ["winning", "kicking your arse"
+                               ],
+        personality.Grim: ["destroying you", "crushing you", "causing you pain",
+                           "watching you suffer", "killing you",
+                           ],
+        personality.Easygoing: ["fighting you",
+                                ],
+        personality.Passionate: ["facing a true challenge", "annihilating you",
+                                 "showing you my true power",
+                                 ],
         personality.Sociable: ["humiliating you",
-            ],
+                               ],
         personality.Shy: ["stopping you",
-            ],
+                          ],
     },
 
     "[defeat_them]": {
@@ -816,7 +831,8 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Easygoing: ["fight them", "try to defeat them", "show them what we can do"
                                 ],
-        personality.Passionate: ["show them our full power", "put them in their place", "unleash the fires of destruction"
+        personality.Passionate: ["show them our full power", "put them in their place",
+                                 "unleash the fires of destruction"
                                  ],
         personality.Sociable: ["humiliate them",
                                ],
@@ -825,7 +841,7 @@ DEFAULT_GRAMMAR = {
     },
 
     "[DENY_JOIN]": {
-        Default: ["That's too bad.","Too bad, I could have been a great help to you."
+        Default: ["That's too bad.", "Too bad, I could have been a great help to you."
                   ],
         personality.Cheerful: ["Aw, I was really looking forward to joining you."
                                ],
@@ -874,19 +890,22 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["Stop! Did you hear something suspicious!?",
                                  ],
-        personality.Sociable: ["Look, I know you're busy, but are you sure this area is secure? I saw some suspicious people milling around.",
-                               ],
+        personality.Sociable: [
+            "Look, I know you're busy, but are you sure this area is secure? I saw some suspicious people milling around.",
+            ],
         personality.Shy: ["[LOOK_AT_THIS]",
                           ],
     },
 
     "[DISTRESS_CALL]": {
-        Default: ["I am under attack by [enemy_meks]... If there are any friendly units in the area, I could use some backup."
-                  ],
+        Default: [
+            "I am under attack by [enemy_meks]... If there are any friendly units in the area, I could use some backup."
+            ],
         personality.Cheerful: ["Hey, any cavaliers out there! Wanna come help me fight some [enemy_meks]?"
                                ],
-        personality.Grim: ["The situation is dire. If there are any friendly units in the nearby area, I need backup immediately.",
-                           ],
+        personality.Grim: [
+            "The situation is dire. If there are any friendly units in the nearby area, I need backup immediately.",
+            ],
         personality.Easygoing: ["Hey, if there's anyone listening to this, I could really use a bit of help right now."
                                 ],
         personality.Passionate: ["This is an emergency... I'm outgunned, outnumbered, and need aid immediately!",
@@ -898,11 +917,11 @@ DEFAULT_GRAMMAR = {
     },
 
     "[DOTHEYHAVEITEM]": {
-    # The data block should hold the item name as "item".
-        Default: [ "Don't they have {item}?",
-            "They should have {item}.","What about their {item}?"
-            ],
-        },
+        # The data block should hold the item name as "item".
+        Default: ["Don't they have {item}?",
+                  "They should have {item}.", "What about their {item}?"
+                  ],
+    },
 
     "[DOYOUACCEPTMISSION]": {
         Default: ["Do you accept this mission?",
@@ -933,7 +952,7 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Easygoing: ["So, what do you say?",
                                 ],
-        personality.Passionate: ["I promise you won't regret it.","You know you want it.",
+        personality.Passionate: ["I promise you won't regret it.", "You know you want it.",
                                  ],
         personality.Sociable: ["Don't you think that's a fair offer?",
                                ],
@@ -997,36 +1016,40 @@ DEFAULT_GRAMMAR = {
         Default: ["[HOLD_ON] There are enemy mecha ahead, but they haven't detected us yet.",
                   "[HOLD_ON] There are [enemy_meks] nearby; they haven't seen us yet."
                   ],
-        personality.Cheerful: ["[BAD_NEWS] There's a group of [enemy_meks] just around the turn. The good news is, they haven't spotted us yet.",
-                               "[GOOD_NEWS] The [enemy_meks] that are lurking up ahead don't even know we're here."
-                               ],
+        personality.Cheerful: [
+            "[BAD_NEWS] There's a group of [enemy_meks] just around the turn. The good news is, they haven't spotted us yet.",
+            "[GOOD_NEWS] The [enemy_meks] that are lurking up ahead don't even know we're here."
+            ],
         personality.Grim: ["[LISTEN_UP] There are enemies ahead; one more step and they'll spot the rest of you.",
                            "[HOLD_ON] There's a lance of enemy mecha nearby, and you almost gave away our position."
                            ],
         personality.Easygoing: [
             "Those [enemy_meks] up ahead haven't figured out that we're here yet... it would be a piece of cake to sneak around them.",
             "I don't think the [enemy_meks] over there are paying attention. They don't even know we're here."
+        ],
+        personality.Passionate: [
+            "They way ahead is choked with enemies. But, there is another way, if you follow me...",
+            "[LISTEN_UP] Those [enemy_meks] must be asleep at the console. Follow me and I can sneak us all around them."
             ],
-        personality.Passionate: ["They way ahead is choked with enemies. But, there is another way, if you follow me...",
-                                 "[LISTEN_UP] Those [enemy_meks] must be asleep at the console. Follow me and I can sneak us all around them."
-                                 ],
         personality.Sociable: [
             "[LISTEN_UP] If you don't want to fight those [enemy_meks], I can easily provide us with a way around them.",
             "Did you notice those [enemy_meks] over there? I've been keeping my eye on them, but I don't think they've noticed us yet."
-            ],
+        ],
         personality.Shy: ["[HOLD_ON] They haven't detected us. I can get us around them.",
                           "[GOOD_NEWS] We spotted them before they spotted us. I can get us around them."
                           ],
-        personality.Peace: ["[GOOD_NEWS] The mecha up ahead haven't seen us yet; with a bit of trickery, we can find a safe path around them.",
-                            ],
+        personality.Peace: [
+            "[GOOD_NEWS] The mecha up ahead haven't seen us yet; with a bit of trickery, we can find a safe path around them.",
+            ],
         personality.Justice: [
             "The [enemy_meks] over there haven't spotted us yet. It's your call whether we challenge them or just slip by.",
-            ],
+        ],
         personality.Glory: [
             "[LISTEN_UP] The [enemy_meks] over there? They don't even know we're here. We can do whatever we want.",
+        ],
+        personality.Fellowship: [
+            "There's a group of mecha ahead; they appear to be hostile. They haven't spotted us yet.",
             ],
-        personality.Fellowship: ["There's a group of mecha ahead; they appear to be hostile. They haven't spotted us yet.",
-                                 ],
         personality.Duty: ["[HOLD_ON] The [enemy_meks] haven't seen us yet, so technically we could just sneak away.",
                            ],
     },
@@ -1035,16 +1058,16 @@ DEFAULT_GRAMMAR = {
         # Insert your favorite euphemism or trash talk,
         Default: ["mecha", "enemy mecha",
                   ],
-        personality.Cheerful: ["killer garbage cans","giant lawn mowers",
+        personality.Cheerful: ["killer garbage cans", "giant lawn mowers",
                                ],
-        personality.Grim: ["bastards","geared up arseholes",
+        personality.Grim: ["bastards", "geared up arseholes",
                            ],
-        personality.Easygoing: ["guys","meks",
+        personality.Easygoing: ["guys", "meks",
                                 ],
         personality.Passionate: ["losers",
                                  ],
         personality.Sociable: ["hostile mecha",
-            ],
+                               ],
         personality.Shy: ["enemies",
                           ],
         tags.Military: [
@@ -1053,7 +1076,7 @@ DEFAULT_GRAMMAR = {
     },
 
     "[expletive]": {
-        Default: ["ashes","blazes","hell"
+        Default: ["ashes", "blazes", "hell"
                   ],
     },
 
@@ -1069,8 +1092,9 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["I got my arse handed to me by {faction}!",
                                  ],
-        personality.Sociable: ["I was running a routine mission against {faction}, but they've gotten far more powerful than I expected.",
-                               ],
+        personality.Sociable: [
+            "I was running a routine mission against {faction}, but they've gotten far more powerful than I expected.",
+            ],
         personality.Shy: ["{faction} defeated me.",
                           ],
         personality.Duty: ["I failed in my duty to defeat {faction}.",
@@ -1108,22 +1132,22 @@ DEFAULT_GRAMMAR = {
     },
 
     "[fight_you]": {
-        Default: ["defeat you","fight you","beat you"
-            ],
+        Default: ["defeat you", "fight you", "beat you"
+                  ],
         personality.Cheerful: ["kick your arse",
-            ],
-        personality.Grim: ["destroy you","crush you","kill you",
-            ],
-        personality.Easygoing: [ "shoot you",
-            ],
-        personality.Passionate: ["battle you","challenge you","do battle",
-            ],
+                               ],
+        personality.Grim: ["destroy you", "crush you", "kill you",
+                           ],
+        personality.Easygoing: ["shoot you",
+                                ],
+        personality.Passionate: ["battle you", "challenge you", "do battle",
+                                 ],
         personality.Sociable: ["humiliate you",
-            ],
+                               ],
         personality.Shy: ["stop you",
-            ],
-        personality.Peace: [ "stop you","oppose you"
-            ],
+                          ],
+        personality.Peace: ["stop you", "oppose you"
+                            ],
     },
 
     "[foaf]": {
@@ -1131,19 +1155,19 @@ DEFAULT_GRAMMAR = {
         Default: ["an old friend", "my cousin", "a reliable source", "a person I know", "my contact"
                   ],
         tags.Military: ["an old pal from my unit", "my former seargent"
-                               ],
+                        ],
         tags.Adventurer: ["my former lancemate", "a cavalier I know", "a lady I used to get missions from"
-                           ],
+                          ],
         tags.Criminal: ["a fixer I used to work with", "an action merchant I know", "one who should not be named"
-                                ],
+                        ],
         tags.Police: ["a cop I know", "one of my sources", "the police scanner"
-                                 ],
+                      ],
         tags.Media: ["one of my contacts", "an important influencer"
-                               ],
+                     ],
         tags.Politician: ["an official I know",
                           ],
         tags.Faithworker: ["the word of the heavens", "a monk"
-                            ],
+                           ],
         personality.Sociable: [
             "my ex", "some guy I met last week"
         ],
@@ -1175,20 +1199,20 @@ DEFAULT_GRAMMAR = {
 
     "[GOODBYE]": {
         Default: ["Goodbye."
-            ],
+                  ],
         personality.Cheerful: ["Bye bye.",
-            ],
+                               ],
         personality.Grim: ["Until we meet again.",
-            ],
-        personality.Easygoing: [ "See ya.",
-            ],
+                           ],
+        personality.Easygoing: ["See ya.",
+                                ],
         personality.Passionate: ["Farewell.",
-            ],
-        personality.Sociable: ["I'll see you later.","Don't be a stranger."
-            ],
+                                 ],
+        personality.Sociable: ["I'll see you later.", "Don't be a stranger."
+                               ],
         personality.Shy: ["Bye.",
-            ],
-        },
+                          ],
+    },
 
     "[GOOD]": {
         Default: ["That's good.", "Good.", "Great!"
@@ -1199,7 +1223,7 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Easygoing: ["Nice.", "Alright!"
                                 ],
-        personality.Passionate: ["Fantastic!","Amazing!","Wonderful!"
+        personality.Passionate: ["Fantastic!", "Amazing!", "Wonderful!"
                                  ],
         personality.Sociable: ["That's good to hear.",
                                ],
@@ -1208,38 +1232,38 @@ DEFAULT_GRAMMAR = {
     },
 
     "[GOOD_IDEA]": {
-        Default: ["Good idea.","That's a good idea."
-            ],
+        Default: ["Good idea.", "That's a good idea."
+                  ],
         personality.Cheerful: ["Great idea, [audience]!",
-            ],
+                               ],
         personality.Grim: ["That's not a bad idea.",
-            ],
-        personality.Easygoing: [ "Yeah, that sounds alright.",
-            ],
+                           ],
+        personality.Easygoing: ["Yeah, that sounds alright.",
+                                ],
         personality.Passionate: ["That's a brilliant idea!",
-            ],
+                                 ],
         personality.Sociable: ["Good thinking, [audience].",
-            ],
+                               ],
         personality.Shy: ["Interesting.",
-            ],
-        },
+                          ],
+    },
 
     "[GOODLUCK]": {
-        Default: ["Good luck.","Good luck with that."
-            ],
+        Default: ["Good luck.", "Good luck with that."
+                  ],
         personality.Cheerful: ["Have fun out there.",
-            ],
+                               ],
         personality.Grim: ["Try not to get yourself killed.",
-            ],
-        personality.Easygoing: [ "Shouldn't be too hard.",
-            ],
+                           ],
+        personality.Easygoing: ["Shouldn't be too hard.",
+                                ],
         personality.Passionate: ["Do your best!", "Give it your all!",
-            ],
+                                 ],
         personality.Sociable: ["I wish you the best of luck.",
-            ],
+                               ],
         personality.Shy: ["Good luck.",
-            ],
-        },
+                          ],
+    },
 
     "[GOOD_NEWS]": {
         # NPC is about to announce_character_state something good.
@@ -1277,21 +1301,21 @@ DEFAULT_GRAMMAR = {
     },
 
     "[HAGOODONE]": {
-        Default: ["Ha! That's a good one.","Yeah, right."
-            ],
+        Default: ["Ha! That's a good one.", "Yeah, right."
+                  ],
         personality.Cheerful: ["LOL!",
-            ],
-        personality.Grim: ["Ha ha, very funny.","Was that supposed to be a joke?"
-            ],
-        personality.Easygoing: [ "You're funny.",
-            ],
+                               ],
+        personality.Grim: ["Ha ha, very funny.", "Was that supposed to be a joke?"
+                           ],
+        personality.Easygoing: ["You're funny.",
+                                ],
         personality.Passionate: ["Ha! You should've been a comedian.",
-            ],
+                                 ],
         personality.Sociable: ["Why don't you pull my other leg.",
-            ],
+                               ],
         personality.Shy: ["Ha!",
-            ],
-        },
+                          ],
+    },
 
     "[HALT]": {
         Default: ["Halt.", "Stop right there.", "I know you; [MEM_Clash]."
@@ -1325,7 +1349,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "I would suggest that {consider_this}.",
-            ],
+        ],
         personality.Shy: ["I think {consider_this}.",
                           ],
         DISLIKE: ["But actually, {consider_this}."]
@@ -1343,36 +1367,37 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["You will never end this conflict through further violence!",
                                  ],
-        personality.Sociable: ["It seems to me that your conflict with {enemy_faction} requires talking, not more fighting.",
-                               ],
+        personality.Sociable: [
+            "It seems to me that your conflict with {enemy_faction} requires talking, not more fighting.",
+            ],
         personality.Shy: ["There might be a diplomatic solution to your conflict with {enemy_faction}.",
                           ],
     },
 
     "[HELLO_PLUS]": {
-        Default: ["[HELLO]","[HELLO] [CURRENT_EVENTS]"]
+        Default: ["[HELLO]", "[HELLO] [CURRENT_EVENTS]"]
     },
 
     "[HELLO]": {
-        MET_BEFORE: ["[HELLO_AGAIN]",],
-        FIRST_TIME: ["[HELLO_FIRST]",],
+        MET_BEFORE: ["[HELLO_AGAIN]", ],
+        FIRST_TIME: ["[HELLO_FIRST]", ],
     },
 
     "[HELLO_AGAIN]": {
-        Default: ["Hello.","Hello [audience]."
-            ],
+        Default: ["Hello.", "Hello [audience]."
+                  ],
         personality.Cheerful: ["Good to see you, [audience].",
-            ],
-        personality.Grim: ["Oh, it's you.","We meet again."
-            ],
+                               ],
+        personality.Grim: ["Oh, it's you.", "We meet again."
+                           ],
         personality.Sociable: ['Hello there, [audience].',
-            ],
+                               ],
         personality.Shy: ['Hi.',
-            ],
-        personality.Easygoing: [ "Yo, [audience].","Hi [audience]."
-            ],
-        personality.Passionate: ['Hey [audience]!','[audience]!'
-            ],
+                          ],
+        personality.Easygoing: ["Yo, [audience].", "Hi [audience]."
+                                ],
+        personality.Passionate: ['Hey [audience]!', '[audience]!'
+                                 ],
         LOVE: ["Welcome back, [audience]!", "I was hoping to see you today, [audience]."
                ],
         LIKE: ["Glad to see you again, [audience].",
@@ -1380,8 +1405,8 @@ DEFAULT_GRAMMAR = {
         DISLIKE: ["What do you want, [audience]?",
                   ],
         HATE: ["Ugh, it's you.",
-                  ],
-        },
+               ],
+    },
 
     "[HELLO_FIRST]": {
         Default: ["Hello, I'm [speaker].",
@@ -1403,7 +1428,7 @@ DEFAULT_GRAMMAR = {
         LIKE: ["Hi, I'm [speaker]; it's nice to meet you.",
                ],
         HATE: ["Who the blazes are you?",
-                  ],
+               ],
         personality.Glory: [
             "You've got the look of a cavalier about you. My name's [speaker]."
         ],
@@ -1437,9 +1462,9 @@ DEFAULT_GRAMMAR = {
     # The data block should hold the item name as "item".
     "[HELLO:ASK_FOR_ITEM]": {
         Default: ["Do you have a {item}?",
-            "I'm looking for a {item}. Seen one?"
-            ],
-        },
+                  "I'm looking for a {item}. Seen one?"
+                  ],
+    },
 
     "[HELLO:CHAT]": {
         Default: ["What's up?", "What's been happening lately?"
@@ -1448,7 +1473,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: ["Got any bad news to share?",
                            ],
-        personality.Sociable: ["Hi, [audience]. What's new?","Just stopping by to chat.",
+        personality.Sociable: ["Hi, [audience]. What's new?", "Just stopping by to chat.",
                                ],
         personality.Shy: ["I'm looking for information.",
                           ],
@@ -1459,42 +1484,42 @@ DEFAULT_GRAMMAR = {
     },
 
     "[HELLO:GOODBYE]": {
-        Default: ["Well, I must be off.","See you later.",
-            ],
-        },
+        Default: ["Well, I must be off.", "See you later.",
+                  ],
+    },
 
     # The data block should include "subject"; if not a proper noun, subject should have "the".
     "[HELLO:INFO]": {
-        Default: [ "Tell me about {subject}.",
-            "What can you tell me about {subject}?"
-            ],
-        },
+        Default: ["Tell me about {subject}.",
+                  "What can you tell me about {subject}?"
+                  ],
+    },
 
     # The data block should include "subject"
     "[HELLO:INFO_PERSONAL]": {
-        Default: [ "How have you been doing?","What's new?",
-            "I hear you have a story about the {subject}."
-            ],
-        },
+        Default: ["How have you been doing?", "What's new?",
+                  "I hear you have a story about the {subject}."
+                  ],
+    },
 
     "[HELLO:JOIN]": {
-        Default: [ "Would you like to join my lance?",
-            "How about joining my lance?"
-            ],
+        Default: ["Would you like to join my lance?",
+                  "How about joining my lance?"
+                  ],
         personality.Cheerful: ["Come join my lance, it'll be fun.",
-            ],
+                               ],
         personality.Grim: ["It will be dangerous, but I need your help.",
-            ],
-        personality.Easygoing: [ "I could use some help on this mission.",
-            ],
+                           ],
+        personality.Easygoing: ["I could use some help on this mission.",
+                                ],
         personality.Passionate: ["I'd be honored if you would join my lance.",
-            ],
+                                 ],
         personality.Sociable: ["I want you to join my lance.",
-            ],
+                               ],
         personality.Shy: ["Your skills would be valuable on this mission.",
-            ],
+                          ],
 
-        },
+    },
 
     "[HELLO:LEAVEPARTY]": {
         Default: ["I need you to leave the [lance].",
@@ -1650,7 +1675,7 @@ DEFAULT_GRAMMAR = {
 
     "[HELLOQUERY:QUERY]": {
         Default: ["What do you want to know?",
-                  "Go ahead and ask.","[HELLO:QUERY]"
+                  "Go ahead and ask.", "[HELLO:QUERY]"
                   ],
         personality.Cheerful: ["Is it a question or a quiz? I love quizzes.",
                                ],
@@ -1729,7 +1754,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "I've been searching for anybody who can help me...",
-            ],
+        ],
         personality.Shy: ["I hate to ask, but I need help.",
                           ],
     },
@@ -1746,8 +1771,9 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["[HELP_ME] I'm fighting some [enemy_meks]!",
                                  ],
-        personality.Sociable: ["Finally, some reinforcements have arrived... I'm under attack by [enemy_meks]. [HELP_ME]",
-                               ],
+        personality.Sociable: [
+            "Finally, some reinforcements have arrived... I'm under attack by [enemy_meks]. [HELP_ME]",
+            ],
         personality.Shy: ["I am under attack. [HELP_ME]",
                           ],
     },
@@ -1775,17 +1801,17 @@ DEFAULT_GRAMMAR = {
         # Wait a minute...
         Default: ["Hold on...", "Wait a sec..."
                   ],
-        personality.Cheerful: ["Yikes!","Jinkies!"
+        personality.Cheerful: ["Yikes!", "Jinkies!"
                                ],
         personality.Grim: ["Halt...",
                            ],
-        personality.Easygoing: ["Just a sec...","Woah..."
+        personality.Easygoing: ["Just a sec...", "Woah..."
                                 ],
         personality.Passionate: ["Stop!",
                                  ],
         personality.Sociable: [
             "Everybody, hold on a second...",
-            ],
+        ],
         personality.Shy: ["Wait...",
                           ],
     },
@@ -1892,7 +1918,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: ["You are speaking of things beyond my knowledge.",
                            ],
-        personality.Easygoing: ["I really have no idea.","Did you really think I'd know that?"
+        personality.Easygoing: ["I really have no idea.", "Did you really think I'd know that?"
                                 ],
         personality.Passionate: ["I must confess my ignorance...",
                                  ],
@@ -1967,28 +1993,74 @@ DEFAULT_GRAMMAR = {
         personality.Grim: ["[HOLD_ON] The way ahead is blocked by [enemy_meks].",
                            "My sensors indicate a significant force of [enemy_meks] nearby."
                            ],
-        personality.Easygoing: ["I thought you'd all like to know that we're heading straight towards some [enemy_meks].",
-                                "Is anybody else picking up a big group of enemy meks ahead? Because I am picking up a big group of enemy meks ahead."
-                                ],
+        personality.Easygoing: [
+            "I thought you'd all like to know that we're heading straight towards some [enemy_meks].",
+            "Is anybody else picking up a big group of enemy meks ahead? Because I am picking up a big group of enemy meks ahead."
+            ],
         personality.Passionate: ["[GOOD_NEWS] I have detected our enemies, and they are nearby!",
                                  "[HOLD_ON] According to my sensors, we are surrounded by enemy forces!"
                                  ],
-        personality.Sociable: ["[HOLD_ON] We're not alone out here; I'm picking up a group of enemy mecha on my scanner.",
-                               "[LISTEN_UP] I just detected some [enemy_meks], and they're nearby."
-                               ],
+        personality.Sociable: [
+            "[HOLD_ON] We're not alone out here; I'm picking up a group of enemy mecha on my scanner.",
+            "[LISTEN_UP] I just detected some [enemy_meks], and they're nearby."
+            ],
         personality.Shy: ["[HOLD_ON] I'm reading enemy forces ahead.",
                           "There are [enemy_meks] nearby."
                           ],
         personality.Peace: ["[BAD_NEWS] My scanner has picked up some hostile mecha closing in on us.",
-                        ],
-        personality.Justice: ["[HOLD_ON] I just picked up some mecha ahead. I can't be sure what they want, but it probably isn't good.",
                             ],
-        personality.Glory: ["[GOOD_NEWS] If you were looking forward to getting in a fight today, I just detected [enemy_meks].",
-                            ],
+        personality.Justice: [
+            "[HOLD_ON] I just picked up some mecha ahead. I can't be sure what they want, but it probably isn't good.",
+            ],
+        personality.Glory: [
+            "[GOOD_NEWS] If you were looking forward to getting in a fight today, I just detected [enemy_meks].",
+            ],
         personality.Fellowship: ["[HOLD_ON] There's someone else out there; hostile mecha from the look of things.",
-                            ],
+                                 ],
         personality.Duty: ["[LISTEN_UP] My scanners just picked up some [enemy_meks] approaching our position.",
-                            ],
+                           ],
+    },
+
+    "[I_KNOW_THINGS_ABOUT_STUFF]": {
+        # Data must include "stuff"
+        Default: [
+            "I know things about {stuff}.",
+            "I know certain things about {stuff}...",
+            "[THIS_IS_A_SECRET]",
+        ],
+        personality.Cheerful: [
+            "I have some funny stories about {stuff}...",
+        ],
+        personality.Grim: [
+            "Long have I carried the burden of knowing too much about {stuff}...",
+        ],
+        personality.Easygoing: [
+            "You wanna know about {stuff}?",
+        ],
+        personality.Passionate: [
+            "I'm practically the solar system's leading expert in {stuff}!",
+        ],
+        personality.Sociable: [
+            "You haven't heard about {stuff} yet? I can fill you in.",
+        ],
+        personality.Shy: [
+            "Yeah, I know about {stuff}.",
+        ],
+        personality.Peace: [
+            "If it will prevent future harm, I can tell you about {stuff}.",
+        ],
+        personality.Justice: [
+            "You deserve to know about {stuff}.",
+        ],
+        personality.Glory: [
+            "Oh yeah, do I ever know about {stuff}!",
+        ],
+        personality.Fellowship: [
+            "I can share what I know about {stuff}.",
+        ],
+        personality.Duty: [
+            "[LISTEN_UP] It is my duty to let you know everything I've heard about {stuff}.",
+        ],
     },
 
     "[I_LEARNED_NOTHING]": {
@@ -2041,15 +2113,15 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["I need time to think.",
                           ],
         personality.Peace: ["I have to think deeply about how to proceed while minimizing harm.",
-                        ],
-        personality.Justice: ["I must think about how justice can be achieved.",
                             ],
+        personality.Justice: ["I must think about how justice can be achieved.",
+                              ],
         personality.Glory: ["It's clear that I'm going to need a new master plan.",
                             ],
         personality.Fellowship: ["After all this, I need to think about where I fit in.",
-                            ],
+                                 ],
         personality.Duty: ["I'm going to have to think about how best to fulfil my duty.",
-                            ],
+                           ],
     },
 
     "[I_NEED_MORE_PRACTICE]": {
@@ -2097,90 +2169,92 @@ DEFAULT_GRAMMAR = {
         #   IP_Pleasure: An independent clause about the character's social life
         #   IP_GoodNews,IP_BadNews: What it says on the tin. Independent clauses.
         #   IP_Worry,IP_Hope: Should be obvious. Independent clauses.
-        Default: ["[IP_STATUS]", "[IP_STATUS] [IP_NEWS]", "[IP_STATUS] [IP_NEWS] [IP_OPINION]", "[IP_STATUS] [IP_OPINION]",
-            "[IP_STATUS] [IP_Business]. [IP_BadNews], but [IP_GoodNews].",
-            "[IP_STATUS] [IP_Pleasure]. [IP_BadNews], but fortunately [IP_GoodNews].",
-            "[IP_STATUS] [IP_Business]. [IP_GoodNews]; unfortunately [IP_BadNews].",
-            "[IP_STATUS] [IP_Business], and [IP_Pleasure]. [IP_GoodNews].",
-            "[IP_STATUS] [IP_Business], and [IP_Pleasure]. [IP_BadNews].",
-            "[IP_STATUS] [IP_Pleasure]; also, [IP_GoodNews].",
-            "[IP_STATUS] [IP_Business]; unfortunately, [IP_BadNews].",
-            "[IP_STATUS] [IP_Pleasure]. [IP_GoodNews]; unfortunately [IP_BadNews].",
-            "[IP_STATUS] [IP_Business], and [IP_Pleasure]. [IP_BadNews], but [IP_GoodNews].",
-            "[IP_STATUS] [IP_Pleasure], and [IP_Business]. [IP_GoodNews], but [IP_BadNews].",
-            "[IP_STATUS] [IP_GoodNews]... [IP_Hope].",
-            "[IP_STATUS] [IP_BadNews]... [IP_Worry]."
-            ],
+        Default: ["[IP_STATUS]", "[IP_STATUS] [IP_NEWS]", "[IP_STATUS] [IP_NEWS] [IP_OPINION]",
+                  "[IP_STATUS] [IP_OPINION]",
+                  "[IP_STATUS] [IP_Business]. [IP_BadNews], but [IP_GoodNews].",
+                  "[IP_STATUS] [IP_Pleasure]. [IP_BadNews], but fortunately [IP_GoodNews].",
+                  "[IP_STATUS] [IP_Business]. [IP_GoodNews]; unfortunately [IP_BadNews].",
+                  "[IP_STATUS] [IP_Business], and [IP_Pleasure]. [IP_GoodNews].",
+                  "[IP_STATUS] [IP_Business], and [IP_Pleasure]. [IP_BadNews].",
+                  "[IP_STATUS] [IP_Pleasure]; also, [IP_GoodNews].",
+                  "[IP_STATUS] [IP_Business]; unfortunately, [IP_BadNews].",
+                  "[IP_STATUS] [IP_Pleasure]. [IP_GoodNews]; unfortunately [IP_BadNews].",
+                  "[IP_STATUS] [IP_Business], and [IP_Pleasure]. [IP_BadNews], but [IP_GoodNews].",
+                  "[IP_STATUS] [IP_Pleasure], and [IP_Business]. [IP_GoodNews], but [IP_BadNews].",
+                  "[IP_STATUS] [IP_GoodNews]... [IP_Hope].",
+                  "[IP_STATUS] [IP_BadNews]... [IP_Worry]."
+                  ],
         personality.Cheerful: ["[IP_STATUS] [IP_Pleasure], and [IP_GoodNews].",
-            "[IP_STATUS] [IP_Pleasure], and [IP_Business]. [IP_GoodNews], which is great.",
-            "[IP_STATUS] [IP_Business]. [IP_GoodNews]... [IP_Hope].",
-            "[IP_STATUS] [IP_Pleasure]. [IP_BadNews]... Still, [IP_Hope].",
-            "[IP_STATUS] [IP_Hope]... [IP_Pleasure], and [IP_GoodNews].",
-            "[IP_STATUS] [IP_Hope]... [IP_GoodNews].",
-            ],
+                               "[IP_STATUS] [IP_Pleasure], and [IP_Business]. [IP_GoodNews], which is great.",
+                               "[IP_STATUS] [IP_Business]. [IP_GoodNews]... [IP_Hope].",
+                               "[IP_STATUS] [IP_Pleasure]. [IP_BadNews]... Still, [IP_Hope].",
+                               "[IP_STATUS] [IP_Hope]... [IP_Pleasure], and [IP_GoodNews].",
+                               "[IP_STATUS] [IP_Hope]... [IP_GoodNews].",
+                               ],
         personality.Grim: ["[IP_STATUS] [IP_BadNews]... but at least [IP_Business].",
-            "[IP_STATUS] [IP_Business]. [IP_GoodNews], but then again [IP_BadNews].",
-            "[IP_STATUS] [IP_Business], and [IP_Pleasure]. As you might expect, [IP_BadNews].",
-            "[IP_STATUS] [IP_Worry]... [IP_BadNews]. Still, [IP_Pleasure].",
-            "[IP_STATUS] [IP_Worry]... [IP_BadNews].",
-            ],
-        personality.Easygoing: [ "[IP_STATUS] [IP_Business], but in my spare time [IP_Pleasure].",
-            "[IP_STATUS] Earlier on [IP_BadNews], but [IP_GoodNews]. You know.",
-            "[IP_STATUS] In my free time [IP_Pleasure]. [IP_OPINION]"
-            ],
-        personality.Passionate: ["[IP_STATUS] [IP_Pleasure], and also [IP_Business]. [IP_BadNews] but that doesn't worry me.",
+                           "[IP_STATUS] [IP_Business]. [IP_GoodNews], but then again [IP_BadNews].",
+                           "[IP_STATUS] [IP_Business], and [IP_Pleasure]. As you might expect, [IP_BadNews].",
+                           "[IP_STATUS] [IP_Worry]... [IP_BadNews]. Still, [IP_Pleasure].",
+                           "[IP_STATUS] [IP_Worry]... [IP_BadNews].",
+                           ],
+        personality.Easygoing: ["[IP_STATUS] [IP_Business], but in my spare time [IP_Pleasure].",
+                                "[IP_STATUS] Earlier on [IP_BadNews], but [IP_GoodNews]. You know.",
+                                "[IP_STATUS] In my free time [IP_Pleasure]. [IP_OPINION]"
+                                ],
+        personality.Passionate: [
+            "[IP_STATUS] [IP_Pleasure], and also [IP_Business]. [IP_BadNews] but that doesn't worry me.",
             "[IP_STATUS] Would you believe that [IP_GoodNews]? Also, [IP_Pleasure]!",
             "[IP_STATUS] [IP_NEWS] [IP_Worry], but [IP_Hope]!"
             "[IP_STATUS] I've been working hard; [IP_Business]. [IP_OPINION]"
             ],
-        personality.Sociable: ["[IP_STATUS] [IP_Pleasure], while by day [IP_Business]. [IP_BadNews], but [IP_GoodNews].",
+        personality.Sociable: [
+            "[IP_STATUS] [IP_Pleasure], while by day [IP_Business]. [IP_BadNews], but [IP_GoodNews].",
             "[IP_STATUS] The main thing I have to report is that [IP_Pleasure]. Also, [IP_GoodNews].",
             "[IP_STATUS] Did you hear that [IP_BadNews]? I'm afraid it's true. But at least [IP_Pleasure].",
             "[IP_STATUS] [IP_Worry], but also [IP_Hope].",
             "[IP_STATUS] You should know that [IP_NEWS] [IP_OPINION]",
             ],
-        personality.Shy: ["[IP_STATUS] [IP_Business].","[IP_STATUS] [IP_Business]. [IP_Pleasure].",
-            "[IP_STATUS] [IP_GoodNews], but [IP_BadNews].","[IP_STATUS] [IP_NEWS]",
-            ],
-        },
-
+        personality.Shy: ["[IP_STATUS] [IP_Business].", "[IP_STATUS] [IP_Business]. [IP_Pleasure].",
+                          "[IP_STATUS] [IP_GoodNews], but [IP_BadNews].", "[IP_STATUS] [IP_NEWS]",
+                          ],
+    },
 
     "[INFO_PERSONAL:JOIN]": {
         Default: ["Why don't you join my lance?",
-            ],
+                  ],
         personality.Cheerful: ["Let's go on an adventure together.",
-            ],
+                               ],
         personality.Grim: ["Let's go wreck some stuff.",
-            ],
-        personality.Easygoing: [ "That's cool. Wanna join my lance?",
-            ],
+                           ],
+        personality.Easygoing: ["That's cool. Wanna join my lance?",
+                                ],
         personality.Passionate: ["Here's an idea- Why not join my lance?",
-            "Join me; together we will be unbeatable!",
-            ],
+                                 "Join me; together we will be unbeatable!",
+                                 ],
         personality.Sociable: ["You're just the kind of lancemate I need.",
-            ],
+                               ],
         personality.Shy: ["Join me.",
-            ],
-        },
-        
+                          ],
+    },
+
     "[INFO_PERSONAL:GOODBYE]": {
         Default: ["Talk with you later.",
-            ],
+                  ],
         personality.Cheerful: ["Nice talking to you, but I have to go.",
-            ],
+                               ],
         personality.Grim: ["I must go.",
-            ],
-        personality.Easygoing: [ "I gotta run.",
-            ],
+                           ],
+        personality.Easygoing: ["I gotta run.",
+                                ],
         personality.Passionate: ["Wild. I'll see you around.",
-            ],
+                                 ],
         personality.Sociable: ["See you; we'll talk again later.",
-            ],
+                               ],
         personality.Shy: ["Yeah. I've got to go now.",
-            ],
+                          ],
         personality.Peace: ["Take care; I'll see you later.",
-            ],
-        },
+                            ],
+    },
 
     "[instrument]": {
         Default: [
@@ -2213,44 +2287,44 @@ DEFAULT_GRAMMAR = {
     },
 
     "[IP_NEWS]": {
-        Default: ["[IP_GoodNews].","[IP_BadNews].","[IP_Business].","[IP_Pleasure]."
-            ],
+        Default: ["[IP_GoodNews].", "[IP_BadNews].", "[IP_Business].", "[IP_Pleasure]."
+                  ],
         personality.Cheerful: ["[IP_GoodNews]."],
         personality.Grim: ["[IP_BadNews]."],
         personality.Fellowship: ["[IP_Pleasure]."],
         personality.Duty: ["[IP_Business]."],
-        },
+    },
 
     "[IP_OPINION]": {
-        Default: ["[IP_Hope].","[IP_Worry].",
-            ],
+        Default: ["[IP_Hope].", "[IP_Worry].",
+                  ],
         personality.Cheerful: ["[IP_Hope]."],
         personality.Grim: ["[IP_Worry]."],
-        },
-        
+    },
+
     "[IP_STATUS]": {
         # Opening statement for an INFO_PERSONAL offer.
-        Default: ["I'm fine.","Overall, not bad.","It's been alright."
-            ],
-        personality.Cheerful: ["I've been good.","I've been doing alright.",
-            "Things are good.","I'm good."
-            ],
-        personality.Grim: ["It hasn't been easy.","Nothing I can't handle.",
-            "I haven't died yet.","Things could be worse."
-            ],
-        personality.Easygoing: [ "Same as usual.","I'm keeping at it.",
-            "I've been taking it easy.","Trying not to work too hard."
-            ],
-        personality.Passionate: ["Life never ceases to amaze.","I'm keeping busy.",
-            "I've been working out.","I'm great!"
-            ],
-        personality.Sociable: ["You know how it is.","Let me tell you about it.",
-            "You've got to hear this.", "I've been dying to tell you."
-            ],
-        personality.Shy: ["I don't know what to say.","Where to start...",
-            "Um...", "Yeah."
-            ],
-        },
+        Default: ["I'm fine.", "Overall, not bad.", "It's been alright."
+                  ],
+        personality.Cheerful: ["I've been good.", "I've been doing alright.",
+                               "Things are good.", "I'm good."
+                               ],
+        personality.Grim: ["It hasn't been easy.", "Nothing I can't handle.",
+                           "I haven't died yet.", "Things could be worse."
+                           ],
+        personality.Easygoing: ["Same as usual.", "I'm keeping at it.",
+                                "I've been taking it easy.", "Trying not to work too hard."
+                                ],
+        personality.Passionate: ["Life never ceases to amaze.", "I'm keeping busy.",
+                                 "I've been working out.", "I'm great!"
+                                 ],
+        personality.Sociable: ["You know how it is.", "Let me tell you about it.",
+                               "You've got to hear this.", "I've been dying to tell you."
+                               ],
+        personality.Shy: ["I don't know what to say.", "Where to start...",
+                          "Um...", "Yeah."
+                          ],
+    },
 
     "[I_PROPOSE_BATTLE]": {
         # Speaker is challenging the opponent to battle; there's an implied option to decline.
@@ -2278,12 +2352,14 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: ["[BATTLE_GREETING] Are you brave enough to face me in single combat?",
                            ],
-        personality.Easygoing: ["Hey, I've been looking for someone to challenge to a duel, and you'll do. Standard Pro Duelist Association rules, of course.",
-                                ],
+        personality.Easygoing: [
+            "Hey, I've been looking for someone to challenge to a duel, and you'll do. Standard Pro Duelist Association rules, of course.",
+            ],
         personality.Passionate: ["[BATTLE_GREETING] Do you accept or deny my challenge to a one-on-one duel?",
                                  ],
-        personality.Sociable: ["[HELLO] I wish to challenge you to a one-on-one duel; there are no stakes but your reputation.",
-                               ],
+        personality.Sociable: [
+            "[HELLO] I wish to challenge you to a one-on-one duel; there are no stakes but your reputation.",
+            ],
         personality.Shy: ["[HELLO] I challenge you to a duel.",
                           ],
         gears.factions.ProDuelistAssociation: [
@@ -2295,28 +2371,49 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[I_REMEMBER_NOW]": {
+        # The speaker has just remembered something.
+        Default: ["Ah yes, now I remember."
+                  ],
+        personality.Cheerful: [
+            "Oh yeah, I can remember all about that."
+        ],
+        personality.Grim: ["The memories come flooding back, overwhelming my senses.",
+                           ],
+        personality.Easygoing: ["I think I remember something about that...",
+                                ],
+        personality.Passionate: [
+            "I can picture the memories with crystal clarity.",
+        ],
+        personality.Sociable: [
+            "I believe I remember some things that you might find useful, or at the very least interesting.",
+        ],
+        personality.Shy: ["Yes, I remember now.",
+                          ],
+    },
+
     # The data block should include "mission"
     "[IWILLDOMISSION]": {
-        Default: [ "I'll get to work.",
-            "I'll {mission}.", "[ICANDOTHAT]"
-            ],
+        Default: ["I'll get to work.",
+                  "I'll {mission}.", "[ICANDOTHAT]"
+                  ],
         personality.Cheerful: ["Sounds like fun.",
-            ],
+                               ],
         personality.Grim: ["This may get me killed, but I'll do it.",
-            ],
-        personality.Easygoing: [ "I guess I could {mission}.","Time to {mission}."
-            ],
-        personality.Passionate: ["I swear to {mission}!","I won't let you down!"
-            ],
+                           ],
+        personality.Easygoing: ["I guess I could {mission}.", "Time to {mission}."
+                                ],
+        personality.Passionate: ["I swear to {mission}!", "I won't let you down!"
+                                 ],
         personality.Sociable: ["I will do this mission.",
-            ],
-        personality.Shy: ["I'll do it.","Okay."
-            ],
+                               ],
+        personality.Shy: ["I'll do it.", "Okay."
+                          ],
 
-        },
+    },
 
     "[I_WANT_YOU_TO_INVESTIGATE]": {
-        Default: ["I want you to investigate this matter.","I'd appreciate if you could go see what's going on."
+        Default: ["I want you to investigate this matter.", "I'd appreciate if you could go see what's going on."
                   ],
         personality.Cheerful: ["It'd be super if you could go find out what's going on.",
                                ],
@@ -2394,7 +2491,7 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Easygoing: ["Sure, why not? I have nothing better to do."
                                 ],
-        personality.Passionate: ["Yes, I would love to do that!","I have been waiting for this!"
+        personality.Passionate: ["Yes, I would love to do that!", "I have been waiting for this!"
                                  ],
         personality.Sociable: ["Alright, that sounds like a good idea.",
                                ],
@@ -2421,22 +2518,22 @@ DEFAULT_GRAMMAR = {
     },
 
     "[IWillSendMissionDetails]": {
-        Default: [ "I'll send you the mission details",
-            ],
+        Default: ["I'll send you the mission details",
+                  ],
         personality.Cheerful: ["I just sent all the mission details to your navcomp",
-            ],
+                               ],
         personality.Grim: ["Pay close attention to the mission data I'm sending",
-            ],
-        personality.Easygoing: [ "Everything you need to know should already be uploaded to your mek",
-            ],
+                           ],
+        personality.Easygoing: ["Everything you need to know should already be uploaded to your mek",
+                                ],
         personality.Passionate: ["All the info you need will be sent to your navcomp",
-            ],
+                                 ],
         personality.Sociable: ["I've transmitted all the relevant dats to your mek's navcomp",
-            ],
+                               ],
         personality.Shy: ["Mission details will be sent to your mek",
-            ],
+                          ],
 
-        },
+    },
 
     "[JOIN]": {
         Default: ["Alright, I'll join your [lance]. [LETSGO]",
@@ -2491,7 +2588,8 @@ DEFAULT_GRAMMAR = {
     },
 
     "[LEAVEPARTY]": {
-        Default: ["I'll be around here if you need me again. [GOODBYE]", "[OK] Come back here if you need my services again.",
+        Default: ["I'll be around here if you need me again. [GOODBYE]",
+                  "[OK] Come back here if you need my services again.",
                   ],
         personality.Cheerful: ["Let me know when you want me to join your lance again. [GOODBYE]",
                                ],
@@ -2514,35 +2612,35 @@ DEFAULT_GRAMMAR = {
     },
 
     "[LETSFIGHT]": {
-        Default: ["Let's fight.","Prepare for battle.","I will [fight_you]."
-            ],
-        personality.Cheerful: ["Let's fight! This will be fun.","It'll be fun [defeating_you].",
-            "Shall we dance?","I can't wait to [fight_you]."
-            ],
-        personality.Grim: ["Time to finish this.","I will break you.","I will enjoy [defeating_you].",
-            "Your story comes to an end now.", "I will teach you what it means to suffer."
-            ],
-        personality.Easygoing: [ "We might as well start the fight.","Ready to go?",
-            "I'm gonna try [defeating_you], okay?","I don't think this battle will last too long.",
-            "Might as well get this over with.","The highlight of my day will be [defeating_you].",
-            "I think I have to [fight_you]."
-            ],
-        personality.Passionate: ["Let the battle begin!","I'll show you my true power!",
-            "You are about to learn the true meaning of power!", "Let's fight!",
-            "Defeat me if you can!", "Show me a real fight!","Just see how I [fight_you]!"
-            ],
-        personality.Sociable: ["Shall we battle?","Prepare to defend yourself.",
-            "I can't wait for everyone to see me [defeating_you].",
-            "Now I get to see if you can live up to your reputation.",
-            "I'm going to have to [fight_you] now."
-            ],
-        personality.Shy: ["Let's go.","Let's start.","Defend yourself.",
-            "I can take you."
-            ],
-        personality.Peace: [ "I'm afraid I must [fight_you].",
-            ],
-        personality.Justice: [ "You're about to get what you deserve.",
-            ],
+        Default: ["Let's fight.", "Prepare for battle.", "I will [fight_you]."
+                  ],
+        personality.Cheerful: ["Let's fight! This will be fun.", "It'll be fun [defeating_you].",
+                               "Shall we dance?", "I can't wait to [fight_you]."
+                               ],
+        personality.Grim: ["Time to finish this.", "I will break you.", "I will enjoy [defeating_you].",
+                           "Your story comes to an end now.", "I will teach you what it means to suffer."
+                           ],
+        personality.Easygoing: ["We might as well start the fight.", "Ready to go?",
+                                "I'm gonna try [defeating_you], okay?", "I don't think this battle will last too long.",
+                                "Might as well get this over with.", "The highlight of my day will be [defeating_you].",
+                                "I think I have to [fight_you]."
+                                ],
+        personality.Passionate: ["Let the battle begin!", "I'll show you my true power!",
+                                 "You are about to learn the true meaning of power!", "Let's fight!",
+                                 "Defeat me if you can!", "Show me a real fight!", "Just see how I [fight_you]!"
+                                 ],
+        personality.Sociable: ["Shall we battle?", "Prepare to defend yourself.",
+                               "I can't wait for everyone to see me [defeating_you].",
+                               "Now I get to see if you can live up to your reputation.",
+                               "I'm going to have to [fight_you] now."
+                               ],
+        personality.Shy: ["Let's go.", "Let's start.", "Defend yourself.",
+                          "I can take you."
+                          ],
+        personality.Peace: ["I'm afraid I must [fight_you].",
+                            ],
+        personality.Justice: ["You're about to get what you deserve.",
+                              ],
     },
 
     "[LETS_CONTINUE]": {
@@ -2592,20 +2690,20 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: ["This will be fun!",
                                ],
-        personality.Grim: [ "Let's go wreck some stuff.",
+        personality.Grim: ["Let's go wreck some stuff.",
                            ],
         personality.Easygoing: ["No worries, right?",
                                 ],
-        personality.Passionate: ["Excelsior!","Gear up and roll out!"
+        personality.Passionate: ["Excelsior!", "Gear up and roll out!"
                                  ],
-        personality.Sociable: ["Here we go!","Shall we get started?"
+        personality.Sociable: ["Here we go!", "Shall we get started?"
                                ],
         personality.Shy: ["Let's go.",
                           ],
-        DISLIKE: [ "Might as well get this over with.",
-                ],
-        LIKE:   ["It will be a pleasure to go with you.",
-                 ]
+        DISLIKE: ["Might as well get this over with.",
+                  ],
+        LIKE: ["It will be a pleasure to go with you.",
+               ]
     },
 
     "[LETS_START_MECHA_MISSION]": {
@@ -2629,6 +2727,24 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[LISTEN_TO_MY_INFO]": {
+        # The character is about to pass on some info.
+        Default: ["Let me tell you about it.",
+                  ],
+        personality.Cheerful: ["I think you're going to find this interesting.",
+                               ],
+        personality.Grim: ["Remember that once you hear my tale, you will never be able to un-hear it.",
+                           ],
+        personality.Easygoing: ["If I remember correctly it went something like this...",
+                                ],
+        personality.Passionate: ["I will now tell you this vital information!",
+                                 ],
+        personality.Sociable: ["This might end up being a long story, but I think you'll find it worthwhile...",
+                               ],
+        personality.Shy: ["Here's what I know...",
+                          ],
+    },
+
     "[LISTEN_UP]": {
         # The character is about to announce_character_state something important.
         Default: ["Listen up;",
@@ -2645,7 +2761,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Listen;",
                           ],
-        DISLIKE:    [
+        DISLIKE: [
             "Listen here, [audience]:"
         ],
         HATE: [
@@ -2655,12 +2771,12 @@ DEFAULT_GRAMMAR = {
 
     "[LONGTIMENOSEE]": {
         Default: ["Hello [audience], long time no see.",
-            "Long time no see, [audience].",],
+                  "Long time no see, [audience].", ],
         personality.Sociable: ["Well there's a face I haven't seen in a while.",
-            ],
+                               ],
         personality.Shy: ["Long time no see.",
-            ],
-        },
+                          ],
+    },
 
     "[LOOK_AT_THIS]": {
         Default: ["Look at this...", "[audience], look at this..."
@@ -2699,8 +2815,8 @@ DEFAULT_GRAMMAR = {
 
     "[Luna]": {
         Default: ["Luna", ],
-        personality.GreenZone: ["the moon","the moon",],
-        personality.DeadZone: ["the moon","the moon","the moon",],
+        personality.GreenZone: ["the moon", "the moon", ],
+        personality.DeadZone: ["the moon", "the moon", "the moon", ],
     },
 
     "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION]": {
@@ -2805,15 +2921,15 @@ DEFAULT_GRAMMAR = {
 
     "[MISSION_PROBLEM:JOIN]": {
         Default: ["I could really use your help out there.",
-            "Sounds like I could use some backup.",
-            "This would be easier if you came with me."
-            ],
-        },
+                  "Sounds like I could use some backup.",
+                  "This would be easier if you came with me."
+                  ],
+    },
 
     "[MISSION_PROBLEM:GOODBYE]": {
         Default: ["Well, I've heard enough about that.",
-            ],
-        },
+                  ],
+    },
 
     "[MISSION:ACCEPT]": {
         Default: ["I accept your mission.", "Alright, I'll get to work."
@@ -2930,55 +3046,55 @@ DEFAULT_GRAMMAR = {
 
     "[Noun]": {
         Default: [
-            "Hominid","Underwear","Paluke","Artifice","Lie","Knowledge","Battle","Weather","Food","News",
-            "Mecha","Fashion","Athlete","Music","Politics","Religion","Love","War","History",
-            "Technology","Time","Internet","Literature","Destiny","Romance","Base","Stuff","Agriculture",
-            "Sports","Science","Television","Atmosphere","Sky","Color","Sound","Taste","Friendship","Law",
-            "Beer","Singing","Cola","Pizza","Vaporware","Buzz","Mood","Dissent","City","House","Town",
-            "Village","Country","Planet","Fortress","Universe","Program","Arena","Wangtta","Hospital",
-            "Medicine","Therapy","Library","Education","Philosophy","Family","Jive","Feel","Coffee",
-            "Hope","Hate","Love","Fear","Sale","Life","Market","Enemy","Data","Fish","Beast",
-            "Something","Everything","Nothing","Sabotage","Justice","Fruit","Pocket","Parfait","Flavor",
-            "Talent","Prison","Plan","Noise","Bottom","Force","Anything","Top","Appeal","Booster",
-            "Complaint","Chatting","Dream","Heart","Secret","Fauna","Desire","Situation","Risk",
-            "Crime","Vice","Virtue","Treasure","Storm","Vapor","School","Uniform","World","Body",
-            "Pain","Fault","Profit","Business","Prophet","Animal","Bedroom","Kitchen","Home","Apartment",
-            "Vehicle","Machine","Bathroom","Fruit","Side","Entertainment","Movie","Game","Chemistry",
-            "Synergy","Opinion","Hero","Villain","Thief","Fantasy","Adventure","Mission","Job",
-            "Career","Glamour","Diary","Expression","Hairdo","Environment","Wizard","Drug"
+            "Hominid", "Underwear", "Paluke", "Artifice", "Lie", "Knowledge", "Battle", "Weather", "Food", "News",
+            "Mecha", "Fashion", "Athlete", "Music", "Politics", "Religion", "Love", "War", "History",
+            "Technology", "Time", "Internet", "Literature", "Destiny", "Romance", "Base", "Stuff", "Agriculture",
+            "Sports", "Science", "Television", "Atmosphere", "Sky", "Color", "Sound", "Taste", "Friendship", "Law",
+            "Beer", "Singing", "Cola", "Pizza", "Vaporware", "Buzz", "Mood", "Dissent", "City", "House", "Town",
+            "Village", "Country", "Planet", "Fortress", "Universe", "Program", "Arena", "Wangtta", "Hospital",
+            "Medicine", "Therapy", "Library", "Education", "Philosophy", "Family", "Jive", "Feel", "Coffee",
+            "Hope", "Hate", "Love", "Fear", "Sale", "Life", "Market", "Enemy", "Data", "Fish", "Beast",
+            "Something", "Everything", "Nothing", "Sabotage", "Justice", "Fruit", "Pocket", "Parfait", "Flavor",
+            "Talent", "Prison", "Plan", "Noise", "Bottom", "Force", "Anything", "Top", "Appeal", "Booster",
+            "Complaint", "Chatting", "Dream", "Heart", "Secret", "Fauna", "Desire", "Situation", "Risk",
+            "Crime", "Vice", "Virtue", "Treasure", "Storm", "Vapor", "School", "Uniform", "World", "Body",
+            "Pain", "Fault", "Profit", "Business", "Prophet", "Animal", "Bedroom", "Kitchen", "Home", "Apartment",
+            "Vehicle", "Machine", "Bathroom", "Fruit", "Side", "Entertainment", "Movie", "Game", "Chemistry",
+            "Synergy", "Opinion", "Hero", "Villain", "Thief", "Fantasy", "Adventure", "Mission", "Job",
+            "Career", "Glamour", "Diary", "Expression", "Hairdo", "Environment", "Wizard", "Drug"
         ]
     },
     "[noun]": {
         Default: [
-            "[instrument]","underwear","paluke","artifice","lie","knowledge","battle","weather","food","news",
-            "mecha","fashion","soccer competition","music","politics","religion","love","war","history",
-            "technology","time","internet","literature","destiny","romance","base","stuff","agriculture",
-            "sports","science","television","atmosphere","sky","color","sound","taste","friendship","law",
-            "beer","singing","cola","pizza","vaporware","buzz","mood","dissent","city","house","town",
-            "village","country","planet","fortress","universe","program","arena","wangtta","hospital",
-            "medicine","therapy","library","education","philosophy","family","jive","feel","coffee",
-            "hope","hate","love","fear","sale","life","market","enemy","data","fish","lion taming",
-            "something","everything","nothing","sabotage","justice","fruit","pocket","parfait","flavor",
-            "talent","prison","plan","noise","bottom","force","anything","top","appeal","booster",
-            "complaint","chatting","dream","heart","secret","fauna","desire","situation","risk",
-            "crime","vice","virtue","treasure","storm","vapor","school","uniform","world","body",
-            "pain","fault","profit","business","prophet","animal","bedroom","kitchen","home","apartment",
-            "vehicle","machine","bathroom","fruit","side","entertainment","movie","game","chemistry",
-            "synergy","opinion","hero","villain","thief","fantasy","adventure","mission","job",
-            "career","glamour","diary","expression","hairdo","environment","wizard","drug"
+            "[instrument]", "underwear", "paluke", "artifice", "lie", "knowledge", "battle", "weather", "food", "news",
+            "mecha", "fashion", "soccer competition", "music", "politics", "religion", "love", "war", "history",
+            "technology", "time", "internet", "literature", "destiny", "romance", "base", "stuff", "agriculture",
+            "sports", "science", "television", "atmosphere", "sky", "color", "sound", "taste", "friendship", "law",
+            "beer", "singing", "cola", "pizza", "vaporware", "buzz", "mood", "dissent", "city", "house", "town",
+            "village", "country", "planet", "fortress", "universe", "program", "arena", "wangtta", "hospital",
+            "medicine", "therapy", "library", "education", "philosophy", "family", "jive", "feel", "coffee",
+            "hope", "hate", "love", "fear", "sale", "life", "market", "enemy", "data", "fish", "lion taming",
+            "something", "everything", "nothing", "sabotage", "justice", "fruit", "pocket", "parfait", "flavor",
+            "talent", "prison", "plan", "noise", "bottom", "force", "anything", "top", "appeal", "booster",
+            "complaint", "chatting", "dream", "heart", "secret", "fauna", "desire", "situation", "risk",
+            "crime", "vice", "virtue", "treasure", "storm", "vapor", "school", "uniform", "world", "body",
+            "pain", "fault", "profit", "business", "prophet", "animal", "bedroom", "kitchen", "home", "apartment",
+            "vehicle", "machine", "bathroom", "fruit", "side", "entertainment", "movie", "game", "chemistry",
+            "synergy", "opinion", "hero", "villain", "thief", "fantasy", "adventure", "mission", "job",
+            "career", "glamour", "diary", "expression", "hairdo", "environment", "wizard", "drug"
 
         ]
     },
 
     "[object_pronoun]": {
         Default: [
-            "him","her","zem"
+            "him", "her", "zem"
         ]
     },
 
     "[OK]": {
         # A not necessarily enthusiastic agreement or assent...
-        Default: ["Okay.","Alright."
+        Default: ["Okay.", "Alright."
                   ],
         personality.Cheerful: ["Okay!",
                                ],
@@ -3038,10 +3154,11 @@ DEFAULT_GRAMMAR = {
                            "I have all the {wares} you could ever need. Just {wares}.",
                            "Having the right {wares} can mean the difference between life and death."
                            ],
-        personality.Easygoing: ["If you can't find what you're looking for today, remember that it might be here tomorrow.",
-                                "[BrowseWares]. Remember, {shop_name} is chock full of {wares}.",
-                                "Do you want {wares}? Because {shop_name} has got a ton of {wares}."
-                                ],
+        personality.Easygoing: [
+            "If you can't find what you're looking for today, remember that it might be here tomorrow.",
+            "[BrowseWares]. Remember, {shop_name} is chock full of {wares}.",
+            "Do you want {wares}? Because {shop_name} has got a ton of {wares}."
+            ],
         personality.Passionate: ["I think you'll agree this shop has the best selection you've ever seen!",
                                  "Whatever kind of {wares} you're looking for, you can bet that {shop_name} has it!",
                                  "[BrowseWares]. If you love {wares} as much as I do, you will not be disappointed!",
@@ -3085,14 +3202,16 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: ["It would be a happy day if {enemy_faction} agreed to a peace deal.",
                                ],
-        personality.Grim: ["Do you really think {enemy_faction} is open to peace? I would agree, but I doubt that'll happen.",
-                           ],
+        personality.Grim: [
+            "Do you really think {enemy_faction} is open to peace? I would agree, but I doubt that'll happen.",
+            ],
         personality.Easygoing: ["Yeah, if {enemy_faction} accepted a peace deal, that'd make life easier for everyone.",
                                 ],
         personality.Passionate: ["You expect us to lay down our arms?! Only if {enemy_faction} agrees first!",
                                  ],
-        personality.Sociable: ["We would be willing to consider peace with {enemy_faction}, if they were willing to accept."
-                               ],
+        personality.Sociable: [
+            "We would be willing to consider peace with {enemy_faction}, if they were willing to accept."
+            ],
         personality.Shy: ["I would accept a treaty with {enemy_faction}.",
                           ],
         personality.Peace: [
@@ -3120,8 +3239,9 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["The deal is signed, may fate strike down any who oppose it!",
                                  ],
-        personality.Sociable: ["May I just say what a pleasure it is to come to an agreement with a true professional like you.",
-                               ],
+        personality.Sociable: [
+            "May I just say what a pleasure it is to come to an agreement with a true professional like you.",
+            ],
         personality.Shy: ["So it's agreed.",
                           ],
     },
@@ -3167,13 +3287,13 @@ DEFAULT_GRAMMAR = {
     },
 
     "[PROPOSAL:DENY]": {
-        Default: ["I don't think so.","I will come back later."
+        Default: ["I don't think so.", "I will come back later."
                   ],
         personality.Cheerful: ["No for now, but maybe later.",
                                ],
-        personality.Grim: ["No.","Absolutely not."
+        personality.Grim: ["No.", "Absolutely not."
                            ],
-        personality.Easygoing: ["I need some time to think about this.","Maybe later? I can't now..."
+        personality.Easygoing: ["I need some time to think about this.", "Maybe later? I can't now..."
                                 ],
         personality.Passionate: ["I reject your offer.",
                                  ],
@@ -3224,14 +3344,14 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: [
             "This town has all the personality and sparkle of week-old roadkill.",
-            ],
+        ],
         personality.Easygoing: ["This is a boring and unfriendly town, but at least the rats are small."
                                 ],
         personality.Passionate: ["Around here, the only person you can depend on is yourself.",
                                  ],
         personality.Sociable: [
             "This isn't the kind of place where you make friends. This isn't even the kind of place you go by choice.",
-                               ],
+        ],
         personality.Shy: ["Nobody talks to their neighbors anymore. I like that.",
                           ],
     },
@@ -3295,7 +3415,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: [
             "If you don't have your health, you really have nothing.",
-            ],
+        ],
         personality.Easygoing: ["I don't worry about old age... don't expect to see it, honestly."
                                 ],
         personality.Passionate: ["I always wanted to live fast and die young, but not this young.",
@@ -3328,8 +3448,9 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: ["I'd like to go shopping, but who can afford it?",
                                ],
-        personality.Grim: ["They say we need to tighten our belts, but how can you do that when you're already starving?",
-                           ],
+        personality.Grim: [
+            "They say we need to tighten our belts, but how can you do that when you're already starving?",
+            ],
         personality.Easygoing: ["Seems like everyone is either broke or unemployed these days."
                                 ],
         personality.Passionate: ["No money, no hope. Maybe I should move somewhere else.",
@@ -3367,7 +3488,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: [
             "The muggers aren't that bad; it's the organleggers you really need to watch out for.",
-            ],
+        ],
         personality.Easygoing: ["Some folks out here would steal your arse if it wasn't firmly attached."
                                 ],
         personality.Passionate: ["This place is a hive of scum and villainy.",
@@ -3445,8 +3566,9 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["I may lack experience, but I have the warrior spirit!",
                                  ],
-        personality.Sociable: ["You probably haven't heard about me before, because I don't have a lot of experience...",
-                               ],
+        personality.Sociable: [
+            "You probably haven't heard about me before, because I don't have a lot of experience...",
+            ],
         personality.Shy: ["I am a new pilot.",
                           ],
 
@@ -3466,7 +3588,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "So far I've been able to hold my own as a cavalier.",
-            ],
+        ],
         personality.Shy: ["I've been doing this for some time.",
                           ],
 
@@ -3728,13 +3850,13 @@ DEFAULT_GRAMMAR = {
         # The PC is being thanked for doing something.
         Default: ["[THANK_YOU]", "Thanks for your help."
                   ],
-        personality.Cheerful: ["I'm glad you decided to help out; thanks!","That went well. Thanks!"
+        personality.Cheerful: ["I'm glad you decided to help out; thanks!", "That went well. Thanks!"
                                ],
-        personality.Grim: ["I guess I should thank you.","That could have gone a lot worse; thank you."
+        personality.Grim: ["I guess I should thank you.", "That could have gone a lot worse; thank you."
                            ],
-        personality.Easygoing: ["Thanks.","Hey, thanks for helping me out.",
+        personality.Easygoing: ["Thanks.", "Hey, thanks for helping me out.",
                                 ],
-        personality.Passionate: ["Thank you!!!","Thank you so much!",
+        personality.Passionate: ["Thank you!!!", "Thank you so much!",
                                  ],
         personality.Sociable: ["Thank you very much.",
                                ],
@@ -3759,7 +3881,7 @@ DEFAULT_GRAMMAR = {
         personality.Easygoing: ["Those [enemy_meks] weren't so tough after all.",
                                 ],
         personality.Passionate: ["Those [enemy_meks] didn't stand a chance against our combined might!",
-                                "Thanks for the assist against those [enemy_meks]!"
+                                 "Thanks for the assist against those [enemy_meks]!"
                                  ],
         personality.Sociable: ["Thanks; I don't know if I could have done that by myself.",
                                ],
@@ -3822,17 +3944,17 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: [
             "Aww..."
-            ],
-        personality.Grim: ["Ashes.","Blazes.",
+        ],
+        personality.Grim: ["Ashes.", "Blazes.",
                            ],
         personality.Easygoing: ["Aw, nuts.",
                                 ],
         personality.Passionate: [
             "That sucks.",
-            ],
+        ],
         personality.Sociable: [
             "That is unfortunate.",
-            ],
+        ],
         personality.Shy: ["Oh no.",
                           ],
     },
@@ -3845,10 +3967,11 @@ DEFAULT_GRAMMAR = {
         personality.Cheerful: [
             "[INTERESTING_NEWS] I hope I'm wrong about this, but these tracks look like they came from a whole bunch of meks, and not friendly ones.",
             "[LOOK_AT_THIS] These are definitely mecha tracks, and they're fresh."
+        ],
+        personality.Grim: [
+            "[HOLD_ON] I've been picking up signs of enemy activity for a while now. We're almost on top of them.",
+            "[LISTEN_UP] This area reeks of enemy activity. Fresh tracks are everywhere."
             ],
-        personality.Grim: ["[HOLD_ON] I've been picking up signs of enemy activity for a while now. We're almost on top of them.",
-                           "[LISTEN_UP] This area reeks of enemy activity. Fresh tracks are everywhere."
-                           ],
         personality.Easygoing: [
             "I don't want to alarm anyone, but this place has all the signs of recent enemy activity.",
             "[LOOK_AT_THIS] A clear impression of a mecha footprint. Fresh, too. Some people just don't know how to cover their tracks."
@@ -3856,7 +3979,7 @@ DEFAULT_GRAMMAR = {
         personality.Passionate: [
             "[GOOD_NEWS] The [enemy_meks] I've been tracking are close now... possibly too close.",
             "[HOLD_ON] There are signs of enemy patrols all over the place. We could be walking straight into a trap!"
-            ],
+        ],
         personality.Sociable: [
             "[LISTEN_UP] I didn't want to say anything before I was sure, but I've been seeing signs of enemy activity, and I'm certain there are [enemy_meks] nearby.",
             "[HOLD_ON] These tracks show signs of recent enemy movement. They are definitely nearby."
@@ -3866,7 +3989,7 @@ DEFAULT_GRAMMAR = {
                           ],
         personality.Peace: [
             "[BAD_NEWS] According to these tracks, there's an enemy patrol nearby, but we still have a chance to avoid it.",
-            ],
+        ],
         personality.Justice: [
             "[HOLD_ON] I think I've found tracks belonging to an enemy patrol. They are close to here...",
         ],
@@ -3875,9 +3998,10 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Fellowship: [
             "[LOOK_AT_THIS] You see that mark? It was made by a mecha, and not one of ours. They must still be close to here.",
+        ],
+        personality.Duty: [
+            "[LOOK_AT_THIS] I've been keeping an eye out for signs of enemy movement, and this is it. They must be close now.",
             ],
-        personality.Duty: ["[LOOK_AT_THIS] I've been keeping an eye out for signs of enemy movement, and this is it. They must be close now.",
-                           ],
     },
 
     "[THEYAREAMYSTERY]": {
@@ -3984,6 +4108,27 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[THINK_ABOUT_THIS]": {
+        # The speaker needs a moment to collect their thoughts.
+        Default: ["Let me think about this for a moment..."
+                  ],
+        personality.Cheerful: [
+            "Well, you know, that's a real puzzle."
+        ],
+        personality.Grim: ["This is something I must consider seriously.",
+                           ],
+        personality.Easygoing: ["Umm... Just a sec.",
+                                ],
+        personality.Passionate: [
+            "The answer to this is somewhere in my mind!",
+        ],
+        personality.Sociable: [
+            "I'm going to have to think about things for a minute.",
+        ],
+        personality.Shy: ["Let me think.",
+                          ],
+    },
+
     "[THIS_CANNOT_BE_ALLOWED]": {
         # The NPC has just been informed that someone is breaking the rules.
         Default: ["This cannot be allowed."
@@ -4032,8 +4177,9 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: ["I'm not one to gossip, but... who am I kidding? I love to gossip!",
                                ],
-        personality.Grim: ["What I'm about to tell you is one of those things most people know better than to speak about.",
-                           ],
+        personality.Grim: [
+            "What I'm about to tell you is one of those things most people know better than to speak about.",
+            ],
         personality.Easygoing: ["I don't think this is exactly a secret, but it isn't well known either...",
                                 ],
         personality.Passionate: ["You must swear that you will tell no-one you heard this from me.",
@@ -4072,51 +4218,51 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["I see.",
                           ],
-        personality.Duty: [ "You have done well to report this terrible news.",
-                    ],
+        personality.Duty: ["You have done well to report this terrible news.",
+                           ],
         personality.Glory: ["This is bad news; but there still may be a way to turn things around.",
-                           ],
+                            ],
         personality.Justice: ["This is a travesty!",
-                           ],
+                              ],
         personality.Peace: ["Absolutely tragic...",
-                           ],
+                            ],
         personality.Fellowship: ["We will all need to come together to deal with this.",
-                           ],
+                                 ],
         LIKE: ["[THANKS_FOR_BAD_NEWS]",
                ],
     },
 
     "[threat]": {
         Default: ["rend you limb from limb",
-            "mop the floor with you","defeat you","humiliate you",
-            "beat you","fight you","destroy you","demolish you",
-            "wreck you","obliterate you","spank your monkey",
-            "spank you","kill you","murder you","knock your clock",
-            "knock you down","make you wish you were never born",
-            "make you beg for mercy","make you beg for death",
-            "stop you","break you","make you cry","make you scream",
-            "eviscerate you","snap your neck","crush your bones",
-            "take you down","crush you","crush you like a bug",
-            "squash you","squash you like a grape","cut you to pieces",
-            "pound you","injure you terribly","beat you black and blue",
-            "give you a thorough ass-kicking","kick your ass",
-            "kick your behind","kick your butt","slap you around",
-            "send you to the hospital","be your worst nightmare",
-            "wreck your plans","raise a little hell","rant and roar",
-            "open a can of whoop-ass","do my limit break",
-            "rage like a rabid wolverine","get violent","get VERY violent",
-            "power up","go berserk","show you my true skills",
-            "demonstrate my fighting power","show you how strong I am",
-            "fight like a demon","show no mercy","fight dirty",
-            "hold back nothing","call upon my warrior spirit",
-            "boot your head","snap you like a twig","ruin your day",
-            "shred you","send you to oblivion","send you up the bomb",
-            ],
-        },
-        
+                  "mop the floor with you", "defeat you", "humiliate you",
+                  "beat you", "fight you", "destroy you", "demolish you",
+                  "wreck you", "obliterate you", "spank your monkey",
+                  "spank you", "kill you", "murder you", "knock your clock",
+                  "knock you down", "make you wish you were never born",
+                  "make you beg for mercy", "make you beg for death",
+                  "stop you", "break you", "make you cry", "make you scream",
+                  "eviscerate you", "snap your neck", "crush your bones",
+                  "take you down", "crush you", "crush you like a bug",
+                  "squash you", "squash you like a grape", "cut you to pieces",
+                  "pound you", "injure you terribly", "beat you black and blue",
+                  "give you a thorough ass-kicking", "kick your ass",
+                  "kick your behind", "kick your butt", "slap you around",
+                  "send you to the hospital", "be your worst nightmare",
+                  "wreck your plans", "raise a little hell", "rant and roar",
+                  "open a can of whoop-ass", "do my limit break",
+                  "rage like a rabid wolverine", "get violent", "get VERY violent",
+                  "power up", "go berserk", "show you my true skills",
+                  "demonstrate my fighting power", "show you how strong I am",
+                  "fight like a demon", "show no mercy", "fight dirty",
+                  "hold back nothing", "call upon my warrior spirit",
+                  "boot your head", "snap you like a twig", "ruin your day",
+                  "shred you", "send you to oblivion", "send you up the bomb",
+                  ],
+    },
+
     "[THREATEN]": {
-        Default: ["I'm going to [threat]!","I will [threat]!",
-        ],    
+        Default: ["I'm going to [threat]!", "I will [threat]!",
+                  ],
     },
 
     "[TIME_TO_UPGRADE_MECHA]": {
@@ -4146,24 +4292,24 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: [
             "I can accept that."
-            ],
+        ],
         personality.Grim: ["So I see.", "[THATSUCKS]"
                            ],
         personality.Easygoing: ["Whatever.",
                                 ],
         personality.Passionate: [
             "I hear and understand.",
-            ],
+        ],
         personality.Sociable: [
             "I understand what you're saying.",
-            ],
+        ],
         personality.Shy: ["Uh-huh.",
                           ],
     },
 
     "[vanquished]": {
-        Default: ["vanquished", "defeated","wiped out","subjugated","overwhelmed","conquered","trounced",
-                  "annihilated","subdued","crushed","demolished","destroyed","slaughtered"
+        Default: ["vanquished", "defeated", "wiped out", "subjugated", "overwhelmed", "conquered", "trounced",
+                  "annihilated", "subdued", "crushed", "demolished", "destroyed", "slaughtered"
                   ],
     },
 
@@ -4171,16 +4317,19 @@ DEFAULT_GRAMMAR = {
         # Waiting for a mission.
         Default: ["I'm just waiting for my next mission."
                   ],
-        personality.Cheerful: ["The time spent waiting between missions is like a mini-vacation, when you think about it."
-                               ],
+        personality.Cheerful: [
+            "The time spent waiting between missions is like a mini-vacation, when you think about it."
+            ],
         personality.Grim: ["I'm just temporarily unemployed. I'll find another mission soon.",
                            ],
         personality.Easygoing: ["I should probably be out there looking for a new mission, but whatever...",
                                 ],
-        personality.Passionate: ["I am currently between missions, but must remain ever vigilant. There could be an emergency at any time.",
-                                 ],
-        personality.Sociable: ["You wouldn't know of any mission openings, would you? I am between contracts at the moment.",
-                               ],
+        personality.Passionate: [
+            "I am currently between missions, but must remain ever vigilant. There could be an emergency at any time.",
+            ],
+        personality.Sociable: [
+            "You wouldn't know of any mission openings, would you? I am between contracts at the moment.",
+            ],
         personality.Shy: ["Just waiting for my next mission.",
                           ],
     },
@@ -4241,17 +4390,17 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: [
             "Luckily, there's nothing saying that we have to fight these [enemy_meks]."
-            ],
+        ],
         personality.Grim: ["The choice is yours: we can engage in mortal combat, or we can avoid them.",
                            ],
         personality.Easygoing: ["I'd just as soon avoid this conflict, but it's your choice.",
                                 ],
         personality.Passionate: [
             "We could just avoid this battle altogether, but I say we attack!",
-            ],
+        ],
         personality.Sociable: [
             "Well, what do you say, [audience]? Do we go around them or do we go through them?",
-            ],
+        ],
         personality.Shy: ["Shall we just go around them?",
                           ],
         personality.Justice: [
@@ -4287,7 +4436,7 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Hello, [audience]. Did you miss me?",
                                "Is this a social call? Or are you here on serious business?"
                                ],
-        personality.Shy: ['We meet again.',"I've been expecting you.",
+        personality.Shy: ['We meet again.', "I've been expecting you.",
                           ],
         personality.Easygoing: ["I have the wildest case of deja vu right now, [audience].",
                                 "This is starting to be a regular thing.",
@@ -4402,8 +4551,9 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["And now, only you are capable of avenging me!",
                                  ],
-        personality.Sociable: ["This is an insult that must not go unpunished; will you take up the cause and avenge me?",
-                               ],
+        personality.Sociable: [
+            "This is an insult that must not go unpunished; will you take up the cause and avenge me?",
+            ],
         personality.Shy: ["Please avenge me.",
                           ],
     },
@@ -4412,15 +4562,18 @@ DEFAULT_GRAMMAR = {
         # The PC is withdrawing from combat.
         Default: ["Off with you, then.", "Don't return to this place."
                   ],
-        personality.Cheerful: ["[GOODBYE] Remember, we don't like visitors right here.", "Ding-dong-deng, that's the right answer! [GOODBYE]"
+        personality.Cheerful: ["[GOODBYE] Remember, we don't like visitors right here.",
+                               "Ding-dong-deng, that's the right answer! [GOODBYE]"
                                ],
         personality.Grim: ["Good, you choose to live.", "Come back again and I will [threat].",
                            ],
         personality.Easygoing: ["No worries. See you around.", "Yeah, I think that'd be easiest for both of us.",
                                 ],
-        personality.Passionate: ["Too bad; I was looking forward to [defeating_you].", "I can tell you wouldn't have been a true challenge anyhow.",
+        personality.Passionate: ["Too bad; I was looking forward to [defeating_you].",
+                                 "I can tell you wouldn't have been a true challenge anyhow.",
                                  ],
-        personality.Sociable: ["Alright, I'll see you later... just not around here, okay?", "We really ought to put up some signs on the perimeter, keep people like you from wandering in. [GOODBYE]",
+        personality.Sociable: ["Alright, I'll see you later... just not around here, okay?",
+                               "We really ought to put up some signs on the perimeter, keep people like you from wandering in. [GOODBYE]",
                                ],
         personality.Shy: ["Go. Now.", "Smart choice.",
                           ],
@@ -4451,7 +4604,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: ["By blazes, yes.",
                            ],
-        personality.Easygoing: ["Okay.","Alright.",
+        personality.Easygoing: ["Okay.", "Alright.",
                                 ],
         personality.Passionate: ["Yes, definitely!",
                                  ],
@@ -4593,34 +4746,36 @@ DEFAULT_GRAMMAR = {
     },
 
     "[FORMAL_MECHA_DUEL]": {
-        Default: [ "May your armor break, may your cockpit shatter, may who deserves to win, be who destroys the other."
-                 ],
-        personality.Glory: [ "Thus today we two meet upon our arena. May victory shine upon me!"
-                           , "Glory shine upon the victor; one against one, strong against stronger."
-                           , "I formally challenge you to a duel to destruction. Glory upon us both; but I shall be the victor."
+        Default: ["May your armor break, may your cockpit shatter, may who deserves to win, be who destroys the other."
+                  ],
+        personality.Glory: ["Thus today we two meet upon our arena. May victory shine upon me!"
+            , "Glory shine upon the victor; one against one, strong against stronger."
+            , "I formally challenge you to a duel to destruction. Glory upon us both; but I shall be the victor."
+                            ],
+        personality.Peace: [
+            "I stand here the champion of my people; I fight against you now, for peace to prevail tomorrow."
+            , "I formally challenge you to a duel to destruction. May this be the final fight against you."
+            ],
+        personality.Justice: ["Well met on this day. Only the righteous shall stand after our fight."
+            , "This duel is my trial. May my victory today show the righteousness I stand for."
+            , "I formally challenge you to a duel to destruction. May my righteous stance shine through my mecha."
+                              ],
+        personality.Duty: ["I fight you today for my honor. My obligation shall be what defeats you."
+            , "Thus my duty stands before me: you, and your defeat."
+            ,
+                           "I formally challenge you to a duel to destruction. My obligation is to defeat you, and none shall stand in my way."
                            ],
-        personality.Peace: [ "I stand here the champion of my people; I fight against you now, for peace to prevail tomorrow."
-                           , "I formally challenge you to a duel to destruction. May this be the final fight against you."
-                           ],
-        personality.Justice: [ "Well met on this day. Only the righteous shall stand after our fight."
-                             , "This duel is my trial. May my victory today show the righteousness I stand for."
-                             , "I formally challenge you to a duel to destruction. May my righteous stance shine through my mecha."
-                             ],
-        personality.Duty: [ "I fight you today for my honor. My obligation shall be what defeats you."
-                          , "Thus my duty stands before me: you, and your defeat."
-                          , "I formally challenge you to a duel to destruction. My obligation is to defeat you, and none shall stand in my way."
-                          ],
-        personality.Fellowship: [ "I stand here in the stead of my friends, to fight alone against you, that they may live."
-                                , "I formally challenge you to a duel to destruction. My friends shall live, win or lose: and I shall defeat you."
-                                ]
+        personality.Fellowship: [
+            "I stand here in the stead of my friends, to fight alone against you, that they may live."
+            ,
+            "I formally challenge you to a duel to destruction. My friends shall live, win or lose: and I shall defeat you."
+            ]
     },
     "[FORMAL_LETSFIGHT]": {
-        Default: [ "[GOOD] Our destiny awaits. [LETSFIGHT]"
-                 , "This duel shall lead to [defeating_you]."
-                 , "Let it be remembered that today I [fight_you]."
-                 ]
+        Default: ["[GOOD] Our destiny awaits. [LETSFIGHT]"
+            , "This duel shall lead to [defeating_you]."
+            , "Let it be remembered that today I [fight_you]."
+                  ]
     }
 
 }
-
-

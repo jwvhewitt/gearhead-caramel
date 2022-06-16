@@ -184,8 +184,8 @@ def play_the_game():
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 
-    #fname = "BuruBuru.png"
-    #mypic = pbge.image.Image(fname, color=gears.factions.ProDuelistAssociation.mecha_colors)
+    #fname = "mecha_vadel.png"
+    #mypic = pbge.image.Image(fname, color=(gears.color.GunRed, gears.color.Gold, gears.color.Aquamarine, gears.color.Cobalt, gears.color.Turquoise))
     #mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
     #mydest.fill((0, 0, 25))
     #mypic.render((0,0),dest_surface=mydest)

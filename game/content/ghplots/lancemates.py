@@ -210,7 +210,7 @@ class FormerLancemateReturns(Plot):
             scene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"])
             self.register_element("NPC", npc, dident="LOCALE")
             #print(npc,scene)
-            self.bs = backstory.Backstory(("LONGTIMENOSEE",),keywords=[t.name.upper() for t in npc.get_tags()])
+            self.bs = backstory.Backstory(("LONGTIMENOSEE",),keywords=[str(t).upper() for t in npc.get_tags()])
         return npc
 
     def _is_good_npc(self,nart,candidate):

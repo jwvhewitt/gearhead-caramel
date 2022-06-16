@@ -4,6 +4,7 @@ import gears
 #   ************************************
 #   ***  DETHRONE  CHALLENGE  STUFF  ***
 #   ************************************
+import pbge.okapipuzzle
 
 DETHRONE_CHALLENGE = "DETHRONE_CHALLENGE"
 # The involvement for a dethrone challenge identifies the NPCs protecting/supporting the NPC to be dethroned
@@ -66,6 +67,44 @@ class DescribedObjective(object):
 #   ***********************************
 #   ***  MYSTERY  CHALLENGE  STUFF  ***
 #   ***********************************
+
+
+class NPCSusCard(pbge.okapipuzzle.NounSusCard):
+    def __init__(self, npc, role=pbge.okapipuzzle.SUS_SUBJECT, data=None):
+        super().__init__(str(npc), gameob=npc, role=role, data=data)
+        self.data["image_fun"] = npc.get_portrait
+        self.data["frame"] = 1
+
+
+class InvolvedIfCluesRemainAnd(object):
+    # This Involvement returns True if there are unknown clue cards remaining and some other inolvement also returns
+    # True.
+    def __init__(self, puzzle, other_involvement=None):
+        self.puzzle = puzzle
+        self.other_involvement = other_involvement
+
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        if self.other_involvement:
+            return self.puzzle.unknown_clues and self.other_involvement(camp, ob)
+        else:
+            return self.puzzle.unknown_clues
+
+
+class InvolvedIfAssociatedCluesRemainAnd(object):
+    # This Involvement returns True if there are unknown clue cards remaining which involve ob and some other
+    # inolvement also returns True.
+    def __init__(self, puzzle, deck_to_check, other_involvement=None):
+        self.puzzle = puzzle
+        self.deck_to_check = deck_to_check
+        self.other_involvement = other_involvement
+
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        if self.other_involvement:
+            return (self.puzzle.unknown_clues and any([c.is_involved(ob) for c in self.puzzle.unknown_clues]) and
+                    any([c.gameob is ob for c in self.deck_to_check.cards]) and self.other_involvement(camp, ob))
+        else:
+            return (self.puzzle.unknown_clues and any([c.is_involved(ob) for c in self.puzzle.unknown_clues]) and
+                    any([c.gameob is ob for c in self.deck_to_check.cards]))
 
 
 #   ***************************************

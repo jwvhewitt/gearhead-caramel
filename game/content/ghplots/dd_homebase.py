@@ -1620,15 +1620,15 @@ class DZD_SkippysNightOut(Plot):
     )
 
     VERB_SUS_CARDS = (
-        {"name": "Dancing", "to_verb": "to dance with Skippy", "verbed": "danced all night with SKippy",
-         "did_not_verb": "didn't dance with Skippy", "data":{}},
-        {"name": "Making Out", "to_verb": "to make out with Skippy", "verbed": "made out with SKippy",
+        {"name": "Carouse", "to_verb": "to carouse with Skippy", "verbed": "caroused all night with Skippy",
+         "did_not_verb": "didn't carouse with Skippy", "data":{}},
+        {"name": "Make Out", "to_verb": "to make out with Skippy", "verbed": "made out with Skippy",
          "did_not_verb": "didn't make out with Skippy", "data": {}},
-        {"name": "Play Shuggy", "to_verb": "to play shuggy with Skippy", "verbed": "played shuggy with SKippy",
+        {"name": "Play Shuggy", "to_verb": "to play shuggy with Skippy", "verbed": "played shuggy with Skippy",
          "did_not_verb": "didn't play shuggy with Skippy", "data": {}},
-        {"name": "Drank Xozu", "to_verb": "to drink too much Xozu with Skippy", "verbed": "drank too much Xozu with SKippy",
+        {"name": "Venus Xozu", "to_verb": "to drink too much Vesuvian Xozu with Skippy", "verbed": "drank too much Vesuvian Xozu with Skippy",
          "did_not_verb": "didn't go drinking with Skippy", "data": {}},
-        {"name": "Got Tattoos", "to_verb": "to get a matching tattoo with Skippy", "verbed": "got a matching tattoo with SKippy",
+        {"name": "Tattoos", "to_verb": "to get a matching tattoo with Skippy", "verbed": "got a matching tattoo with Skippy",
          "did_not_verb": "didn't get tattoos with Skippy", "data": {}},
     )
 
@@ -1636,13 +1636,14 @@ class DZD_SkippysNightOut(Plot):
         self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
 
         skippy = nart.camp.get_major_npc(gears.oldghloader.GH1Loader.NPC_SKIPPY)
-        self.register_element("NPC", skippy, dident="LOCALE")
+        self.register_element("NPC", skippy, dident="NPC_SCENE")
 
         self.sus_elements = list()
+        self.sus_elements.append(skippy)
         companion_cards = list()
         for t in range(5):
             npc = self.seek_element(nart, "COMPANION{}".format(t), self._is_best_npc, scope=self.elements["METROSCENE"])
-            companion_cards.append(pbge.okapipuzzle.NounSusCard(str(npc), data={"image_fun": npc.get_portrait, "frame": 1, "npc": npc}))
+            companion_cards.append(ghchallenges.NPCSusCard(npc))
             self.sus_elements.append(npc)
 
         friend_susdeck = pbge.okapipuzzle.SusDeck("Companion", companion_cards)
@@ -1664,25 +1665,51 @@ class DZD_SkippysNightOut(Plot):
 
         mychallenge = self.register_element("CHALLENGE", pbge.challenges.MysteryChallenge(
             "Skippy's Challenge", mymystery,
-            memo=pbge.challenges.MysteryMemo("Find out what happened to Skippy's legs."), active=True,
+            memo=pbge.challenges.MysteryMemo("Find out what happened to Skippy's legs."), active=False,
             oppoffers=[
                 pbge.challenges.AutoOffer(
                     dict(
-                        msg="I can tell you a secret about it.",
+                        msg="[I_KNOW_THINGS_ABOUT_STUFF] [LISTEN_TO_MY_INFO]",
                         context=ContextTag([context.CUSTOM,]), effect=self._get_a_clue,
                         data={
                             "reply": "Do you know anything about what happened to Skippy last night?",
+                            "stuff": "Skippy's misadventure"
                         }
                     ), active=True, uses=99,
-                    involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], exclude=(skippy,)),
+                    involvement=ghchallenges.InvolvedIfCluesRemainAnd(
+                        mymystery, ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"],
+                                                                         exclude=(skippy,))),
                     access_fun=ghchallenges.AccessSocialRoll(
                         gears.stats.Perception, gears.stats.Negotiation, self.rank, untrained_ok=True
                     )
                 ),
+                pbge.challenges.AutoOffer(
+                    dict(
+                        msg="[THINK_ABOUT_THIS] [I_REMEMBER_NOW]",
+                        context=ContextTag([context.CUSTOM, ]),
+                        data={
+                            "reply": "Do you remember seeing Skippy last night?",
+                            "stuff": "Skippy's misadventure"
+                        }
+                    ), active=True, uses=99,
+                    involvement=ghchallenges.InvolvedIfAssociatedCluesRemainAnd(mymystery, friend_susdeck),
+                    npc_effect=self._get_associated_clue,
+                ),
             ],
         ))
 
+        self.got_legs_story = False
+        self.started_mission = False
+        self.got_mystery_tutorial = False
+
         return True
+
+    def _get_associated_clue(self, camp, npc):
+        candidates = [c for c in self.elements["MYSTERY"].unknown_clues if c.is_involved(npc)]
+        if candidates:
+            self.elements["CHALLENGE"].advance(camp, random.choice(candidates))
+        else:
+            self.elements["CHALLENGE"].advance(camp)
 
     def _get_a_clue(self, camp):
         self.elements["CHALLENGE"].advance(camp)
@@ -1697,3 +1724,68 @@ class DZD_SkippysNightOut(Plot):
     def _is_good_meeting_scene(self,nart,candidate):
         return (isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
                 gears.tags.SCENE_OUTDOORS not in candidate.attributes and candidate not in self.sus_elements)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.got_legs_story:
+            if camp.pc.has_badge("Typhon Slayer"):
+                mylist.append(Offer(
+                    "On the way from Wujung to Snake Lake, Typhon stopped by to wreck Ipshil. I was there with the city militia but we didn't stand a chance against that monster. My Vadel went critical and I got caught in the blast when I ejected. Losing your legs once is bad enough but losing my cyberlegs again last night was a whole new level of suck.",
+                    context=ContextTag([context.CUSTOM,]), effect=self._get_legs_story,
+                    data={"reply": "What happened to your legs?"}
+                ))
+
+            game.ghdialogue.TagBasedPartyReply(
+                Offer(
+                    "Yeah, losing your legs will do that to you. Check out my arms though- I haven't been this buff since ever. When Typhon attacked Ipshil I was one of the defenders, but we didn't stand a chance. My engine went boom and I barely made it out in time... part of me didn't make it out in time. So now my doctor has me learning to use cyberlegs.",
+                    context=ContextTag([context.CUSTOM,]), effect=self._get_legs_story,
+                    data={"reply": "You've lost some weight since the last time I saw you."}
+                ), camp, mylist, (gears.oldghloader.GH1Loader.NPC_VIKKI,)
+            )
+
+        if not self.started_mission:
+            mylist.append(Offer(
+                "So last night I was out partying with some friends. This morning I woke up, back at the hotel, but without my cyberlegs. No idea where I left them. No idea how I got back to the hotel without them. I don't suppose you could help me track them down and figure out what happened last night?",
+                context=ContextTag([context.INFO,]), effect=self._start_mission,
+                data={"subject": "your cyberlegs"}, subject="cyberlegs"
+            ))
+
+            if self.memo:
+                mylist.append(Offer(
+                    "Wild?! That ain't the half of it. Y'see, I was out partying with some friends. This morning I woke up, back at the hotel, but without my cyberlegs. No idea where I left them. No idea how I got back to the hotel without them. I don't suppose you could help me track them down and figure out what happened last night?",
+                    context=ContextTag([context.CUSTOM, ]), effect=self._start_mission,
+                    data={"reply": "I hear you had a wild time last night."},
+                ))
+
+        mylist.append(Offer(
+            "That's the thing; I left this wheelchair at the hotel! Usually I prefer the chair for day-to-day getting around, but my legs are more convenient for clubbing. It's a real mystery, I'll tell you that.",
+            context=ContextTag([context.CUSTOM,]),
+            data={"reply": "Maybe you came back to the hotel in your wheelchair?"},
+            subject="This morning I woke up, back at the hotel, but without my cyberlegs."
+        ))
+
+
+        if not self.got_mystery_tutorial:
+            mylist.append(Offer(
+                "That's kind of my job, being a bounty hunter and all. The first thing you need to do is collect clues. Check the memo browser on your phone by pressing \"m\". When reading about the mystery you're working on, an extra button will appear marked \"Examine Clues\". Press that to review the clues you've found and to test different solutions.",
+                context=ContextTag([context.INFO,]),
+                data={"subject": "solving mysteries"}, subject="mystery", effect=self._give_mystery_tutorial
+            ))
+
+
+        return mylist
+
+    def _give_mystery_tutorial(self, camo):
+        self.got_mystery_tutorial = True
+
+    def _start_mission(self, camp):
+        self.started_mission = True
+        self.elements["CHALLENGE"].activate(camp)
+
+    def _get_legs_story(self, camp):
+        self.got_legs_story = True
+
+    def t_UPDATE(self, camp):
+        pass
+

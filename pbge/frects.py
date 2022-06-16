@@ -9,6 +9,7 @@ ANCHOR_LOWERRIGHT = (2,2)
 ANCHOR_TOP = (1,0)
 ANCHOR_LEFT = (0,1)
 ANCHOR_RIGHT = (2,1)
+ANCHOR_BOTTOM = (1,2)
 
 class Frect( object ):
     """Floating rect- changes position depending on the screen dimensions."""

@@ -317,7 +317,7 @@ class MeritBadgesBlock(LabeledItemsListBlock):
 class CharacterTagsBlock(LabeledItemsListBlock):
     LABEL = "Tags"
     def get_items(self):
-        return [b.name for b in self.model.get_tags()]
+        return [str(b) for b in self.model.get_tags(include_all=False)]
 
 class ExperienceBlock(object):
     def __init__(self,model,width=220,font=None,**kwargs):

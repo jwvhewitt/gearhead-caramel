@@ -26,9 +26,11 @@ class NounSusCard:
     # Despite the name, the SusCard doesn't need to refer to a person- it could be a place, an action, a motive, or
     # anything else that forms part of the mystery. Kind of like the clue cards in the board game Cluedo. But that
     # name has been taken, so SusCard it is.
+    # gameob is the game object this card refers to, if applicable.
     # Data is a dict containing possible game-specific information.
-    def __init__(self, name, role=SUS_SUBJECT, data=None):
+    def __init__(self, name, gameob=None, role=SUS_SUBJECT, data=None):
         self.name = name
+        self.gameob = gameob
         self.role = role
         self.data = dict()
         if data:
@@ -43,12 +45,14 @@ class VerbSusCard:
     # Despite the name, the SusCard doesn't need to refer to a person- it could be a place, an action, a motive, or
     # anything else that forms part of the mystery. Kind of like the clue cards in the board game Cluedo. But that
     # name has been taken, so SusCard it is.
+    # gameob is a game object this card refers to, if applicable.
     # Data is a dict containing possible game-specific information.
-    def __init__(self, name, to_verb, verbed, did_not_verb, role=SUS_VERB, data=None):
+    def __init__(self, name, to_verb, verbed, did_not_verb, gameob=None, role=SUS_VERB, data=None):
         self.name = name
         self.to_verb = to_verb
         self.verbed = verbed
         self.did_not_verb = did_not_verb
+        self.gameob = gameob
         self.role = role
         self.data = dict()
         if data:
@@ -104,6 +108,11 @@ class ABTogetherClue:
         else:
             return True
 
+    def is_involved(self, gameob):
+        # Return True if this gameob is involved with this card.
+        if gameob:
+            return gameob is self.acard.gameob or gameob is self.bcard.gameob
+
     def __str__(self):
         return self.text
 
@@ -141,6 +150,11 @@ class ABNotTogetherClue:
     def matches(self, solution):
         return not (self.acard in solution and self.bcard in solution)
 
+    def is_involved(self, gameob):
+        # Return True if this gameob is involved with this card.
+        if gameob:
+            return gameob is self.acard.gameob or gameob is self.bcard.gameob
+
     def __str__(self):
         return self.text
 
@@ -162,6 +176,10 @@ class ANotSolutionClue:
     def matches(self, solution):
         return self.acard not in solution
 
+    def is_involved(self, gameob):
+        # Return True if this gameob is involved with this card.
+        return gameob and gameob is self.acard.gameob
+
     def __str__(self):
         return self.text
 
@@ -182,6 +200,10 @@ class AIsSolutionClue:
 
     def matches(self, solution):
         return self.acard in solution
+
+    def is_involved(self, gameob):
+        # Return True if this gameob is involved with this card.
+        return gameob and gameob is self.acard.gameob
 
     def __str__(self):
         return self.text
@@ -278,14 +300,13 @@ class ImageDeckWidget(widgets.ColumnWidget):
         self.add_interior(widgets.LabelWidget(0, 0, self.w, 0, mydeck.name, justify=0))
         self._on_select = on_select
 
-        self.my_image = widgets.ButtonWidget(0, 0, 100, 100)
+        self.mystery_sprite = image.Image("sys_mystery.png")
+        self.my_image = widgets.ButtonWidget(0, 0, 100, 100, self.mystery_sprite, 0)
         self.add_interior(self.my_image)
 
         self.my_dropdown = widgets.DropdownWidget(0, 0, self.w, 0, draw_border=True, on_select=self.on_select)
         self.add_interior(self.my_dropdown)
         self.my_dropdown.add_item("==None==", None)
-
-        self.mystery_sprite = image.Image("sys_mystery.png")
 
         self.sprites = dict()
         for card in mydeck.cards:
@@ -313,16 +334,18 @@ class HypothesisWidget(widgets.ColumnWidget):
     def __init__(self, mystery: OkapiPuzzle, on_change, on_solution, deck_widget_class=ImageDeckWidget, **kwargs):
         # on_change and on_solution are methods that get called when the hypothesis changes or when the correct
         # hypothesis is formed.
-        super().__init__(0, 0, 500, 100, draw_border=True, **kwargs)
+        super().__init__(0, 0, 500, 100, draw_border=True, padding=10, **kwargs)
         self.mystery = mystery
         self.on_change = on_change
         self.on_solution = on_solution
-        self.set_header(widgets.LabelWidget(0, 0, text=mystery.name, draw_border=True))
+        self.set_header(
+            widgets.LabelWidget(0, 0, justify=0, text=mystery.name, font=my_state.big_font, draw_border=True))
         self.myrow = widgets.RowWidget(0, 0, self.w, deck_widget_class.DEFAULT_HEIGHT)
         for deck in mystery.decks:
             self.myrow.add_center(deck_widget_class(deck, self.on_select))
         self.add_interior(self.myrow)
-        self.result_label = widgets.LabelWidget(0, 0, self.w, 0, "Possible", color=INFO_GREEN, justify=0)
+        self.result_label = widgets.LabelWidget(0, 0, self.w, 0, "Possible", font=my_state.big_font, color=INFO_GREEN,
+                                                justify=0)
         self.add_interior(self.result_label)
 
     def get_hypothesis(self):
@@ -347,7 +370,7 @@ class HypothesisWidget(widgets.ColumnWidget):
 
 class OkapiPuzzleWidget(widgets.ColumnWidget):
     def __init__(self, mystery: OkapiPuzzle, camp, on_solution, deck_widget_class=ImageDeckWidget, **kwargs):
-        super().__init__(-250, -200, 500, 400, center_interior=True, **kwargs)
+        super().__init__(-250, -200, 500, 400, center_interior=True, padding=16, **kwargs)
         self.mystery = mystery
         self.camp = camp
         self._solution_fun = on_solution
