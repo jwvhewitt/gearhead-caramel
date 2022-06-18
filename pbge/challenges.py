@@ -337,6 +337,8 @@ class MysteryMemo(object):
     def __str__(self):
         if not self.challenge:
             return self._text
+        elif self.challenge.is_won():
+            return "You solved {}. {}".format(self.challenge.mystery, self.challenge.mystery.solution_text)
         else:
             return "{}\n\nClues Discovered: {}/{}".format(
                 self._text, len(self.challenge.mystery.known_clues), len(self.challenge.mystery.known_clues) +
@@ -347,12 +349,13 @@ class MysteryMemo(object):
         mylabel = widgets.LabelWidget(
             memobrowser.dx, memobrowser.dy, memobrowser.w, memobrowser.h, text=str(self),
             data=memobrowser, justify=0)
-        mybutton = widgets.LabelWidget(
-            -75, 20, 150, 24, text="Examine Clues", draw_border=True, justify=0, border=widgets.widget_border_on,
-            on_click=self.open_mystery, data=(memobrowser,camp), parent=mylabel, anchor=frects.ANCHOR_BOTTOM,
-            font=my_state.big_font
-        )
-        mylabel.children.append(mybutton)
+        if not self.challenge.is_won():
+            mybutton = widgets.LabelWidget(
+                -75, 20, 150, 24, text="Examine Clues", draw_border=True, justify=0, border=widgets.widget_border_on,
+                on_click=self.open_mystery, data=(memobrowser,camp), parent=mylabel, anchor=frects.ANCHOR_BOTTOM,
+                font=my_state.big_font
+            )
+            mylabel.children.append(mybutton)
         return mylabel
 
     def open_mystery(self, wid, ev):

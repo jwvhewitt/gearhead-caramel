@@ -30,10 +30,11 @@ class DZD_Wujung(Plot):
                                       scale=gears.scale.HumanScale, is_metro=True,
                                       faction=gears.factions.TerranFederation,
                                       attributes=(
-                                      gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC, gears.tags.SCENE_OUTDOORS),
+                                          gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC,
+                                          gears.tags.SCENE_OUTDOORS),
                                       exploration_music='Heroic Adventure.ogg')
 
-        for t in range(random.randint(2,5)):
+        for t in range(random.randint(2, 5)):
             npc = gears.selector.random_character(30, local_tags=myscene.attributes)
             npc.place(myscene, team=team2)
 
@@ -66,30 +67,30 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "DZDHB_WujungHospital")
         tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         tplot = self.add_sub_plot(nart, "DZDHB_WujungGarrison")
-        #tplot = self.add_sub_plot(nart, "TEST_DUNGEON")
-        #tplot = self.add_sub_plot(nart, "TEST_CHAR_MOVER")
-        # Black Isle Pub
+        # tplot = self.add_sub_plot(nart, "TEST_DUNGEON")
+        # tplot = self.add_sub_plot(nart, "TEST_CHAR_MOVER")
+        self.add_sub_plot(nart, "DZD_BLACK_ISLE_PUB")
         # Hwang-Sa Mission
         # Reconstruction Site
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
-        #tplot = self.add_sub_plot(nart, "TAVERN")
+        # tplot = self.add_sub_plot(nart, "TAVERN")
 
-
-        #tplot = self.add_sub_plot(nart, "MECHA_WORKSHOP")
-        #plotutility.TownBuildingConnection(self, myscene, tplot.elements["LOCALE"], room2=tplot.elements["FOYER"])
+        # tplot = self.add_sub_plot(nart, "MECHA_WORKSHOP")
+        # plotutility.TownBuildingConnection(self, myscene, tplot.elements["LOCALE"], room2=tplot.elements["FOYER"])
 
         # Add some local lancemates.
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")
 
         # Add the local tarot.
-        threat_card = nart.add_tarot_card(self, (game.content.ghplots.tarot_cards.MT_THREAT,), spstate = pbge.plots.PlotState(rank=15).based_on(self))
+        threat_card = nart.add_tarot_card(self, (game.content.ghplots.tarot_cards.MT_THREAT,),
+                                          spstate=pbge.plots.PlotState(rank=15).based_on(self))
         game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0])
 
         # Add the tarot tests
-        self.add_sub_plot(nart,"TEST_TAROT_SOCKET",necessary=False)
-        self.add_sub_plot(nart,"TEST_TAROT_REVEAL",necessary=False)
+        self.add_sub_plot(nart, "TEST_TAROT_SOCKET", necessary=False)
+        self.add_sub_plot(nart, "TEST_TAROT_REVEAL", necessary=False)
 
         # Add the random world map encounter objective test.
         self.add_sub_plot(nart, "TEST_RWMO", necessary=False)
@@ -126,17 +127,25 @@ class DZD_Wujung(Plot):
         if self.intro_ready:
             # Give a different entry message depending on the nature of the PC.
             if camp.pc.has_badge("Typhon Slayer"):
-                pbge.alert("You enter Wujung. Your battle with Typhon nearly ended before it began in this very spot. It feels like that happened years ago and a lifetime away... Yet here you are.")
-                pbge.alert("The Bronze Horse Inn doesn't sound familiar. It's probably part of the new construction happening alongside the rebuilding efforts.")
+                pbge.alert(
+                    "You enter Wujung. Your battle with Typhon nearly ended before it began in this very spot. It feels like that happened years ago and a lifetime away... Yet here you are.")
+                pbge.alert(
+                    "The Bronze Horse Inn doesn't sound familiar. It's probably part of the new construction happening alongside the rebuilding efforts.")
             elif gears.personality.DeadZone in camp.pc.personality:
-                pbge.alert("You arrive in Wujung, gateway to the Green Zone. The air here is clean and crisp; the grass is soft beneath your feet. Majestic buildings reach skyward like a picture of the PreZero age.")
-                pbge.alert("From the stories you heard about the biomonster Typhon, you were expecting this city to be half in ruins. Time to find the Bronze Horse Inn.")
+                pbge.alert(
+                    "You arrive in Wujung, gateway to the Green Zone. The air here is clean and crisp; the grass is soft beneath your feet. Majestic buildings reach skyward like a picture of the PreZero age.")
+                pbge.alert(
+                    "From the stories you heard about the biomonster Typhon, you were expecting this city to be half in ruins. Time to find the Bronze Horse Inn.")
             elif gears.personality.GreenZone in camp.pc.personality:
-                pbge.alert("You arrive in Wujung, the city known as the gateway to the Dead Zone. Once this place was considered unassailable; now, the damage caused by the biomonster Typhon provides a permanent reminder that no place on Earth is truly safe.")
-                pbge.alert("The Bronze Horse Inn is a new addition to the city. Might as well take a look around and see if you can find it.")
+                pbge.alert(
+                    "You arrive in Wujung, the city known as the gateway to the Dead Zone. Once this place was considered unassailable; now, the damage caused by the biomonster Typhon provides a permanent reminder that no place on Earth is truly safe.")
+                pbge.alert(
+                    "The Bronze Horse Inn is a new addition to the city. Might as well take a look around and see if you can find it.")
             else:
-                pbge.alert("You enter Wujung, the gateway to the Dead Zone. The harsh wasteland outside the wall quickly gives way to lush grass and busy streets. This section of the city is where traders and merchants operate.")
-                pbge.alert("According to its thrupage, the Bronze Horse Inn is somewhere in this neighborhood. You can check out some of these other buildings while trying to find it.")
+                pbge.alert(
+                    "You enter Wujung, the gateway to the Dead Zone. The harsh wasteland outside the wall quickly gives way to lush grass and busy streets. This section of the city is where traders and merchants operate.")
+                pbge.alert(
+                    "According to its thrupage, the Bronze Horse Inn is somewhere in this neighborhood. You can check out some of these other buildings while trying to find it.")
             self.intro_ready = False
 
     def _get_generic_offers(self, npc, camp):
@@ -160,30 +169,35 @@ class DZD_Wujung(Plot):
 
         qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
         if qol.prosperity > 0:
-            mygram["[CURRENT_EVENTS]"].append("Rebuilding Wujung took a lot of money, but I'd say it's better than ever.")
+            mygram["[CURRENT_EVENTS]"].append(
+                "Rebuilding Wujung took a lot of money, but I'd say it's better than ever.")
         elif qol.prosperity < 0:
             mygram["[CURRENT_EVENTS]"].append("Good luck finding a mission; money is tight these days.")
 
         if qol.community > 0:
-            mygram["[CURRENT_EVENTS]"].append("The only up side of the Typhon incident is how it brought everyone in Wujung together.")
+            mygram["[CURRENT_EVENTS]"].append(
+                "The only up side of the Typhon incident is how it brought everyone in Wujung together.")
         elif qol.community < 0:
             mygram["[CURRENT_EVENTS]"].append("I don't trust anyone anymore, not since Typhon.")
 
         if qol.stability > 0:
-            mygram["[CURRENT_EVENTS]"].append("This is one of the most peaceful cities on Earth, if you don't mind the occasional giant monster attack.")
+            mygram["[CURRENT_EVENTS]"].append(
+                "This is one of the most peaceful cities on Earth, if you don't mind the occasional giant monster attack.")
         elif qol.stability < 0:
             mygram["[CURRENT_EVENTS]"].append("Keep a close eye on your wallet; Wujung isn't as safe as it used to be.")
 
         if qol.health > 0:
-            mygram["[CURRENT_EVENTS]"].append("Did you know the hospital is the oldest building in town? It dates back to the Age of Superpowers.")
+            mygram["[CURRENT_EVENTS]"].append(
+                "Did you know the hospital is the oldest building in town? It dates back to the Age of Superpowers.")
         elif qol.health < 0:
             mygram["[CURRENT_EVENTS]"].append("Our hospital is old and decrepit; when will we get a new one?")
 
         if qol.defense > 0:
-            mygram["[CURRENT_EVENTS]"].append("The Terran Defense Force is the mightiest mecha legion in the solar system.")
+            mygram["[CURRENT_EVENTS]"].append(
+                "The Terran Defense Force is the mightiest mecha legion in the solar system.")
         elif qol.defense < 0:
-            mygram["[CURRENT_EVENTS]"].append("The Defense Force hasn't recovered from Typhon's rampage... what will happen if we're attacked again?")
-
+            mygram["[CURRENT_EVENTS]"].append(
+                "The Defense Force hasn't recovered from Typhon's rampage... what will happen if we're attacked again?")
 
         return mygram
 
@@ -196,23 +210,26 @@ class WujungGarrison(Plot):
 
     def custom_init(self, nart):
         self.npcs = list()
-        sp1 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.TerranFederation})
+        sp1 = self.add_sub_plot(nart, "PLACE_LOCAL_REPRESENTATIVES",
+                                elements={"FACTION": gears.factions.TerranFederation})
         self.elements["FEDERATION"] = sp1.elements["NPC"]
         self.npcs.append(sp1.elements["NPC"])
 
-        sp2 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.TerranDefenseForce})
+        sp2 = self.add_sub_plot(nart, "PLACE_LOCAL_REPRESENTATIVES",
+                                elements={"FACTION": gears.factions.TerranDefenseForce})
         self.elements["DEFENSE"] = sp2.elements["NPC"]
         self.npcs.append(sp2.elements["NPC"])
 
-        sp3 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.TheSolarNavy})
+        sp3 = self.add_sub_plot(nart, "PLACE_LOCAL_REPRESENTATIVES", elements={"FACTION": gears.factions.TheSolarNavy})
         self.elements["NAVY"] = sp3.elements["NPC"]
         self.npcs.append(sp3.elements["NPC"])
 
-        sp4 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.Guardians})
+        sp4 = self.add_sub_plot(nart, "PLACE_LOCAL_REPRESENTATIVES", elements={"FACTION": gears.factions.Guardians})
         self.elements["GUARDIAN"] = sp4.elements["NPC"]
         self.npcs.append(sp4.elements["NPC"])
 
-        sp5 = self.add_sub_plot(nart,"PLACE_LOCAL_REPRESENTATIVES",elements={"FACTION": gears.factions.KettelIndustries})
+        sp5 = self.add_sub_plot(nart, "PLACE_LOCAL_REPRESENTATIVES",
+                                elements={"FACTION": gears.factions.KettelIndustries})
         self.elements["KETTEL"] = sp5.elements["NPC"]
         self.npcs.append(sp5.elements["NPC"])
 
@@ -226,26 +243,26 @@ class WujungGarrison(Plot):
         if qol.community > 0:
             mylist.append(Offer(
                 "Things are going well, community-wise. The people of Wujung have pulled together to help one another in these difficult times. Whatever other challenges we face, we will face them together.",
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"life in Wujung"}
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "life in Wujung"}
             ))
         elif qol.community < 0:
             mylist.append(Offer(
                 "Things have not been great. Ever since Typhon attacked, tensions have been high. There's been a sharp rise in xenophobia and paranoia. Critics of the government say this proves that democracies always decay into authoritarianism. I don't believe that, and I intend to prove them wrong.",
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"life in Wujung"}
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "life in Wujung"}
             ))
         else:
             mylist.append(Offer(
                 "Things are about the same as they've always been. Wujung is an old fortress-city; we've been through a lot of bad times before and we always pull through.",
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"life in Wujung"}
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "life in Wujung"}
             ))
 
         mylist.append(Offer(
             "The Terran Federation is an alliance of various city-fortresses and states from all over the Earth. Ever since the Typhon incident last year we've been trying to get more states to join, since cooperation is the only way we will be able to resist Aegis Overlord.",
-            context=ContextTag([context.INFO,]), subject=gears.factions.TerranFederation.name,
-            no_repeats=True, data={"subject":"the Terran Federation"}
+            context=ContextTag([context.INFO, ]), subject=gears.factions.TerranFederation.name,
+            no_repeats=True, data={"subject": "the Terran Federation"}
         ))
 
         return mylist
@@ -257,38 +274,39 @@ class WujungGarrison(Plot):
         if qol.health > 0:
             mylist.append(Offer(
                 "For all our problems, Wujung remains one of the safest cities on Earth. As a member of the Defense Force I'm proud to help keep it that way.",
-                context=ContextTag([context.INFO,]),
+                context=ContextTag([context.INFO, ]),
                 no_repeats=True, data={"subject": "threats to Wujung"}
             ))
         elif qol.health < 0:
             mylist.append(Offer(
-                "I'm a {DEFENSE.job}; it's my duty to protect Wujung from military threats. Unfortunately, there are some dangers you can't fight with a giant robot. We've lost way too many good people lately.".format(**self.elements),
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"threats to Wujung"}
+                "I'm a {DEFENSE.job}; it's my duty to protect Wujung from military threats. Unfortunately, there are some dangers you can't fight with a giant robot. We've lost way too many good people lately.".format(
+                    **self.elements),
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "threats to Wujung"}
             ))
         else:
             mylist.append(Offer(
                 "We've been lucky enough to not have any plagues or famines these days. As for military threats, the Defense Force makes sure that they stay on the other side of the wall.",
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"threats to Wujung"}
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "threats to Wujung"}
             ))
 
         mylist.append(Offer(
             "We protect the Federation from terrestrial threats, such as Clan Ironwind and the Bone Devil Gang.",
-            context=ContextTag([context.INFO,]), subject=gears.factions.TerranDefenseForce.name,
-            no_repeats=True, data={"subject":"the Defense Force"}
+            context=ContextTag([context.INFO, ]), subject=gears.factions.TerranDefenseForce.name,
+            no_repeats=True, data={"subject": "the Defense Force"}
         ))
 
         mylist.append(Offer(
             "Ironwind Fortress is an imperialistic deadzone city south of here. They have conquered a small empire in southeast Eurasia and hope to expand their territory. It's widely believed that they're being funded by Aegis.",
-            context=ContextTag([context.INFO,]), subject="Ironwind",
-            no_repeats=True, data={"subject":"Clan Ironwind"}
+            context=ContextTag([context.INFO, ]), subject="Ironwind",
+            no_repeats=True, data={"subject": "Clan Ironwind"}
         ))
 
         mylist.append(Offer(
             "The Bone Devil Gang are a massive criminal conglomerate; they have their fingers in every dirty business you can name, from stimrunning to organlegging. They also do a whole lot of highway robbery.",
-            context=ContextTag([context.INFO,]), subject="Bone Devil Gang",
-            no_repeats=True, data={"subject":"the Bone Devils"}
+            context=ContextTag([context.INFO, ]), subject="Bone Devil Gang",
+            no_repeats=True, data={"subject": "the Bone Devils"}
         ))
 
         return mylist
@@ -300,32 +318,33 @@ class WujungGarrison(Plot):
         if qol.defense > 0:
             mylist.append(Offer(
                 "With the Defense Force backed up by additional Solar Navy patrols, this city is more secure than it's ever been. I only hope that when the next threat arises it will be enough.",
-                context=ContextTag([context.INFO,]),
+                context=ContextTag([context.INFO, ]),
                 no_repeats=True, data={"subject": "Wujung's defenses"}
             ))
         elif qol.defense < 0:
             mylist.append(Offer(
-                "Typhon's attack severely damaged our western defenses. The Blue Fortress garrison doesn't have the strength left to protect Wujung from all our enemies in the dead zone; that's why several Solar Navy lances have been called in from Namok.".format(**self.elements),
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"Wujung's defenses"}
+                "Typhon's attack severely damaged our western defenses. The Blue Fortress garrison doesn't have the strength left to protect Wujung from all our enemies in the dead zone; that's why several Solar Navy lances have been called in from Namok.".format(
+                    **self.elements),
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "Wujung's defenses"}
             ))
         else:
             mylist.append(Offer(
                 "Wujung is secure, for now. The Solar Navy detachment that was called in after Typhons's attack can continue our original mission of patroling the dead zone for Aegis and Crihna incursions.",
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"Wujung's defenses"}
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "Wujung's defenses"}
             ))
 
         mylist.append(Offer(
             "The Solar Navy has two jobs. First, we protect Earth against threats from space, such as Aegis Overlord and the Blades of Crihna. Second, we patrol the trade routes between Earth and the rest of the solar system.",
-            context=ContextTag([context.INFO,]), subject=gears.factions.TheSolarNavy.name,
-            no_repeats=True, data={"subject":"the Solar Navy"}
+            context=ContextTag([context.INFO, ]), subject=gears.factions.TheSolarNavy.name,
+            no_repeats=True, data={"subject": "the Solar Navy"}
         ))
 
         mylist.append(Offer(
             "The Blades of Crihna are a space pirate fleet originating from the L5 region. Until recently they didn't really have any operations on Earth, but now they're attempting to establish a presence in the dead zone. Their main business is smuggling.",
-            context=ContextTag([context.INFO,]), subject="of Crihna",
-            no_repeats=True, data={"subject":"the Blades"}
+            context=ContextTag([context.INFO, ]), subject="of Crihna",
+            no_repeats=True, data={"subject": "the Blades"}
         ))
 
         return mylist
@@ -337,26 +356,26 @@ class WujungGarrison(Plot):
         if qol.stability > 0:
             mylist.append(Offer(
                 "Crime is at an all-time low, which is good because it means I get to hang around here all day instead of going out there and getting shot at.",
-                context=ContextTag([context.INFO,]),
+                context=ContextTag([context.INFO, ]),
                 no_repeats=True, data={"subject": "crime in Wujung"}
             ))
         elif qol.stability < 0:
             mylist.append(Offer(
                 "In all my time on the force, I've never seen this degree of lawlessness. Violent crime is on the rise all over the city. Because of the reconstruction work, we don't have the budget or manpower to launch proper interventions.",
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"crime in Wujung"}
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "crime in Wujung"}
             ))
         else:
             mylist.append(Offer(
                 "Things are about the same as they've ever been. Wujung was one of the early adopters of community intervention programs, so our baseline for criminal activity has been pretty low anyway.",
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"crime in Wujung"}
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "crime in Wujung"}
             ))
 
         mylist.append(Offer(
             "The Guardians are the lawkeeping arm of the Terran Federation. Our mandate is to prevent, investigate, and prosecute crime wherever it occurs.",
-            context=ContextTag([context.INFO,]), subject=gears.factions.Guardians.name,
-            no_repeats=True, data={"subject":"the Guardians"}
+            context=ContextTag([context.INFO, ]), subject=gears.factions.Guardians.name,
+            no_repeats=True, data={"subject": "the Guardians"}
         ))
 
         return mylist
@@ -368,26 +387,26 @@ class WujungGarrison(Plot):
         if qol.prosperity > 0:
             mylist.append(Offer(
                 "This is a great time to be doing business in Wujung. Kettel Industries has just acquired a large parcel of land for our neotech division. Things can onlu possibly get better from here on out.",
-                context=ContextTag([context.INFO,]),
+                context=ContextTag([context.INFO, ]),
                 no_repeats=True, data={"subject": "business in Wujung"}
             ))
         elif qol.prosperity < 0:
             mylist.append(Offer(
                 "I won't say that this is the worst the economy has ever been... the days after the Night of Fire must have been pretty bad too.",
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"business in Wujung"}
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "business in Wujung"}
             ))
         else:
             mylist.append(Offer(
                 "The Typhon attack has been a boon to constrcution firms and weapon manufacturers. It's been a bad thing for tourism and consumer electronics. Plan your investments accordingly.",
-                context=ContextTag([context.INFO,]),
-                no_repeats=True, data={"subject":"business in Wujung"}
+                context=ContextTag([context.INFO, ]),
+                no_repeats=True, data={"subject": "business in Wujung"}
             ))
 
         mylist.append(Offer(
             "Kettel Industries is the megacorporation that empowers Earth to face the challenges of the second century NT. Our research department delves into both the lost technologies of the Age of Superpowers and new technologies never before imagined. Through the guidance of CEO Elisha Kettel, we aim to usher in a second golden age for mankind.",
-            context=ContextTag([context.INFO,]), subject=gears.factions.KettelIndustries.name,
-            no_repeats=True, data={"subject":"Kettel Industries"}
+            context=ContextTag([context.INFO, ]), subject=gears.factions.KettelIndustries.name,
+            no_repeats=True, data={"subject": "Kettel Industries"}
         ))
 
         return mylist
@@ -438,9 +457,9 @@ class TestCharMover(Plot):
 
         mycircle = self.register_element("ENEMY_FACTION", plotutility.RandomBanditCircle(nart.camp))
         npc2 = self.register_element("NPC2",
-                                    gears.selector.random_character(10, local_tags=self.elements["LOCALE"].attributes,
-                                                                    faction=mycircle,
-                                                                    job=gears.jobs.ALL_JOBS["Mecha Pilot"]))
+                                     gears.selector.random_character(10, local_tags=self.elements["LOCALE"].attributes,
+                                                                     faction=mycircle,
+                                                                     job=gears.jobs.ALL_JOBS["Mecha Pilot"]))
         npc2.place(intscene, team=team2)
 
         self.mission_seed = None
@@ -460,7 +479,8 @@ class TestCharMover(Plot):
         if not self.mission_seed:
             mylist.append(Offer(
                 "Go test this!".format(**self.elements),
-                context=ContextTag([context.MISSION, ]), subject=self, subject_start=True, effect=self.register_adventure
+                context=ContextTag([context.MISSION, ]), subject=self, subject_start=True,
+                effect=self.register_adventure
             ))
         return mylist
 
@@ -483,7 +503,6 @@ class TestCharMover(Plot):
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
 
-
 class DZD_BronzeHorseInn(Plot):
     LABEL = "DZDHB_BronzeHorseInn"
 
@@ -500,7 +519,8 @@ class DZD_BronzeHorseInn(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = self.register_element("FOYER_TEAM", teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(50, 35, "Bronze Horse Inn", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING),
+                                       attributes=(
+                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.ResidentialBuilding())
@@ -517,14 +537,21 @@ class DZD_BronzeHorseInn(Plot):
                                                                  move_door1=False)
 
         museum = self.register_element('_museum', pbge.randmaps.rooms.ClosedRoom(width=10, height=10),
-                                      dident="INTERIOR")
-        museum.contents.append(ghwaypoints.BuruBuruModel(desc="The BuruBuru is arguably the most popular mecha in the world. It is cheap, durable, and versatile. This may not be the most glamorous mecha you'll ever pilot, but at least it's better than having to ride an Ice Wind."))
-        museum.contents.append(ghwaypoints.KojedoModel(desc="The Kojedo is a new mecha designed by Biocorp for the Terran Defense Force. It's not exactly a replacement for the Corsair, more of a companion. This mecha packs some heavy firepower and an electronic warfare system."))
-        museum.contents.append(ghwaypoints.GladiusModel(desc="Since NT152, the Gladius mecha has been awarded to the winner of Snake Lake City's annual Robot Warriors competition. This makes it one of the rarest mecha in the world since only five of them have been constructed so far. The Gladius is based on a Savin frame, but has been heavily modified by the Ran Magnus workshop."))
-        museum.contents.append(ghwaypoints.GoldPlaque(desc="This plaque confirms that the BRONZE HORSE INN has been designated an official CAVALIER CLUB by the PRO DUELIST ASSOCIATION."))
-        museum.contents.append(ghwaypoints.VadelModel(desc="For sixty years the Vadel has been Earth's foremost high end sports battroid. Designed and built right here in Wujung, this mecha combines unsurpassed speed with a versatile array of powerful weapons."))
-        museum.contents.append(ghwaypoints.HarpyModel(desc="The Harpy transatmospheric fighter is a hybrid aerobatroid used by the Solar Navy. This is one nasty piece of work. Its heavy missiles can take down an entire lance at once, then it swoops in and picks off the survivors with twin laser cannons. Avoid avoid avoid. Unless you're the one piloting it, in which case enjoy."))
-        museum.contents.append(ghwaypoints.ClaymoreModel(desc="The Claymore holds the distinction of being the oldest mecha design still in production. It may be heavy and slow, but it is also well armored and usually loaded with enough firepower to raze a small city."))
+                                       dident="INTERIOR")
+        museum.contents.append(ghwaypoints.BuruBuruModel(
+            desc="The BuruBuru is arguably the most popular mecha in the world. It is cheap, durable, and versatile. This may not be the most glamorous mecha you'll ever pilot, but at least it's better than having to ride an Ice Wind."))
+        museum.contents.append(ghwaypoints.KojedoModel(
+            desc="The Kojedo is a new mecha designed by Biocorp for the Terran Defense Force. It's not exactly a replacement for the Corsair, more of a companion. This mecha packs some heavy firepower and an electronic warfare system."))
+        museum.contents.append(ghwaypoints.GladiusModel(
+            desc="Since NT152, the Gladius mecha has been awarded to the winner of Snake Lake City's annual Robot Warriors competition. This makes it one of the rarest mecha in the world since only five of them have been constructed so far. The Gladius is based on a Savin frame, but has been heavily modified by the Ran Magnus workshop."))
+        museum.contents.append(ghwaypoints.GoldPlaque(
+            desc="This plaque confirms that the BRONZE HORSE INN has been designated an official CAVALIER CLUB by the PRO DUELIST ASSOCIATION."))
+        museum.contents.append(ghwaypoints.VadelModel(
+            desc="For sixty years the Vadel has been Earth's foremost high end sports battroid. Designed and built right here in Wujung, this mecha combines unsurpassed speed with a versatile array of powerful weapons."))
+        museum.contents.append(ghwaypoints.HarpyModel(
+            desc="The Harpy transatmospheric fighter is a hybrid aerobatroid used by the Solar Navy. This is one nasty piece of work. Its heavy missiles can take down an entire lance at once, then it swoops in and picks off the survivors with twin laser cannons. Avoid avoid avoid. Unless you're the one piloting it, in which case enjoy."))
+        museum.contents.append(ghwaypoints.ClaymoreModel(
+            desc="The Claymore holds the distinction of being the oldest mecha design still in production. It may be heavy and slow, but it is also well armored and usually loaded with enough firepower to raze a small city."))
         self.team3 = self.register_element("MUSEUM_TEAM", teams.Team(name="Museum Team"))
         museum.contents.append(self.team3)
 
@@ -557,12 +584,13 @@ class DZD_BronzeHorseInn(Plot):
                                                gears.stats.Dodge, gears.stats.CloseCombat, gears.stats.RangedCombat))
 
         self.mission_seed = missionbuilder.BuildAMissionSeed(
-            nart.camp,"Help Osmund's Friend",self.elements["METROSCENE"],self.elements["MISSION_GATE"],
-            objectives=(missionbuilder.BAMO_CAPTURE_THE_MINE,missionbuilder.BAMO_NEUTRALIZE_ALL_DRONES),cash_reward=500,
-            architecture = gharchitecture.MechaScaleSemiDeadzone(),
+            nart.camp, "Help Osmund's Friend", self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            objectives=(missionbuilder.BAMO_CAPTURE_THE_MINE, missionbuilder.BAMO_NEUTRALIZE_ALL_DRONES),
+            cash_reward=500,
+            architecture=gharchitecture.MechaScaleSemiDeadzone(),
             enemy_faction=plotutility.RandomBanditCircle(nart.camp),
-            win_message = "You have liberated the mining camp from the bandits who stole it.",
-            one_chance = False, on_win=self._win_mine_mission
+            win_message="You have liberated the mining camp from the bandits who stole it.",
+            one_chance=False, on_win=self._win_mine_mission
         )
 
         self.osmund_info = (
@@ -579,11 +607,12 @@ class DZD_BronzeHorseInn(Plot):
         )
 
         # Create the athlete.
-        self.register_element("TRAINER", gears.selector.random_character(35, camp=nart.camp, job=gears.jobs.ALL_JOBS["Athlete"]))
+        self.register_element("TRAINER",
+                              gears.selector.random_character(35, camp=nart.camp, job=gears.jobs.ALL_JOBS["Athlete"]))
 
         self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
         self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
-        #self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
+        # self.add_sub_plot(nart, "DZD_BHIRandomLancemate")
 
         return True
 
@@ -604,25 +633,28 @@ class DZD_BronzeHorseInn(Plot):
             mylist.append(Offer(
                 "[HELLO] I am the owner of the Bronze Horse Inn; our facilities were designed especially for cavaliers. If you need a place to stay or just want to pick up some lancemates you've come to the right place.",
                 context=ContextTag([context.HELLO]), effect=self._do_intro
-                ))
+            ))
         if not self.told_about_services:
-            mylist.append(Offer("While you rest in one of our suites, your mecha will be taken care of in our offsite hangar with full repair and customization services. We have a physical training room, a mecha museum, and a twenty four hour breakfast buffet. It's everything a cavalier could want.",
-                                context=ContextTag([context.INFO]), effect=self._tell_about_services,
-                                data={"subject": "your services"}, no_repeats=True,
-                                ))
+            mylist.append(Offer(
+                "While you rest in one of our suites, your mecha will be taken care of in our offsite hangar with full repair and customization services. We have a physical training room, a mecha museum, and a twenty four hour breakfast buffet. It's everything a cavalier could want.",
+                context=ContextTag([context.INFO]), effect=self._tell_about_services,
+                data={"subject": "your services"}, no_repeats=True,
+                ))
         if self.did_intro and not self.gave_mission and len(camp.get_lancemates()) >= 3:
-            mylist.append(Offer("[HELLO] You know, A friend of mine has a problem that you might be able to help with...",
-                                context=ContextTag([context.HELLO]),
-                                ))
             mylist.append(
-                Offer("A buddy of mine from back home set up a robotic mining operation just outside of Last Hope. Unfortunately, as soon as she started hitting the good stuff, a gang of bandits rolled in and took over the site for themselves. What I'd like you to do is go clear 'em out.",
-                      context=ContextTag([context.MISSION]),subject=self,subject_start=True
+                Offer("[HELLO] You know, A friend of mine has a problem that you might be able to help with...",
+                      context=ContextTag([context.HELLO]),
                       ))
+            mylist.append(
+                Offer(
+                    "A buddy of mine from back home set up a robotic mining operation just outside of Last Hope. Unfortunately, as soon as she started hitting the good stuff, a gang of bandits rolled in and took over the site for themselves. What I'd like you to do is go clear 'em out.",
+                    context=ContextTag([context.MISSION]), subject=self, subject_start=True
+                    ))
             mylist.append(
                 Offer(
                     "Fantastic. You can access the mission by heading to the West Gate of Wujung and following the nav coordinates I'm sending to you now. [GOODLUCK]",
                     context=ContextTag([context.ACCEPT]), subject=self, effect=self._accept_mission
-                    ))
+                ))
             mylist.append(
                 Offer(
                     "[UNDERSTOOD] You're going to want to keep your eyes open for mission offers, though, since they're the main way for cavaliers to earn money.",
@@ -633,20 +665,22 @@ class DZD_BronzeHorseInn(Plot):
                 mylist.append(inf.build_offer())
 
         if camp.campdata.get("CD_SPOKE_TO_RAN", None) and not self.opened_gym:
-        #if not self.opened_gym:
+            # if not self.opened_gym:
             mylist.append(
                 Offer(
-                    "Oh yeah, Ran and I go way back. We were lancemates back in the twenties. She's a good person to know if you're a cavalier.\n I'll tell you another good person to know- the hotel's personal trainer {TRAINER}. You can probably find {TRAINER.gender.object_pronoun} in the museum.".format(**self.elements),
-                    context=ContextTag([context.CUSTOM]), data={"reply": "You didn't tell us that the mission you gave was for Ran Magnus!"}, effect=self._open_gym
+                    "Oh yeah, Ran and I go way back. We were lancemates back in the twenties. She's a good person to know if you're a cavalier.\n I'll tell you another good person to know- the hotel's personal trainer {TRAINER}. You can probably find {TRAINER.gender.object_pronoun} in the museum.".format(
+                        **self.elements),
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "You didn't tell us that the mission you gave was for Ran Magnus!"},
+                    effect=self._open_gym
                 ))
 
-
-        #ghdialogue.TagBasedPartyReply(
+        # ghdialogue.TagBasedPartyReply(
         #    Offer(
         #        "Ran and I used to be in the same lance. Of course that was years before she set up her mecha factory, and I eventually set up this hotel...",
         #        context=ContextTag([context.INFO]),data={"subject": "Ran Magnus"}, no_repeats=True,
         #    ), camp, mylist, [gears.tags.Academic]
-        #)
+        # )
 
         return mylist
 
@@ -655,11 +689,11 @@ class DZD_BronzeHorseInn(Plot):
         my_scene: gears.GearHeadScene = self.elements["INTERIOR"]
         my_scene.deploy_team([self.elements["TRAINER"]], self.team3)
 
-    def _accept_mission(self,camp):
-        missionbuilder.NewMissionNotification(self.mission_seed.name,self.elements["MISSION_GATE"])
+    def _accept_mission(self, camp):
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
         self.gave_mission = True
 
-    def _deny_mission(self,camp):
+    def _deny_mission(self, camp):
         self.gave_mission = True
         self.mission_seed = None
 
@@ -711,7 +745,7 @@ class DZD_BHIRandomLancemate(Plot):
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["LOCALE"].attributes),
                                               combatant=True)
-        self.register_element("NPC", npc, dident=random.choice(("MUSEUM_TEAM","FOYER_TEAM")))
+        self.register_element("NPC", npc, dident=random.choice(("MUSEUM_TEAM", "FOYER_TEAM")))
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
 
@@ -743,11 +777,9 @@ class DZD_BHIScout(Plot):
                                               mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["LOCALE"].attributes),
                                               combatant=True)
-        self.register_element("NPC", npc, dident=random.choice(("MUSEUM_TEAM","FOYER_TEAM")))
+        self.register_element("NPC", npc, dident=random.choice(("MUSEUM_TEAM", "FOYER_TEAM")))
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
-
-
 
 
 class DZD_BlueFortressHQ(Plot):
@@ -763,18 +795,21 @@ class DZD_BlueFortressHQ(Plot):
         # Create a building within the town.
         dd = {
             "image_bottom": 'terrain_building_brick_b.png', "image_top": 'terrain_building_brick_u.png',
-             "blocks": (pbge.scenes.movement.Walking,gears.geffects.Skimming,gears.geffects.Rolling,pbge.scenes.movement.Flying),
-            "colors": (gears.color.SteelBlue, gears.color.DeepSeaBlue, gears.color.Straw, gears.color.Black, gears.color.Black)
+            "blocks": (
+            pbge.scenes.movement.Walking, gears.geffects.Skimming, gears.geffects.Rolling, pbge.scenes.movement.Flying),
+            "colors": (
+            gears.color.SteelBlue, gears.color.DeepSeaBlue, gears.color.Straw, gears.color.Black, gears.color.Black)
         }
         building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Blue Fortress")},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], duck_dict=dd), dident="LOCALE",)
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], duck_dict=dd), dident="LOCALE", )
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Blue Fortress", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_BASE),
+                                       attributes=(
+                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_BASE),
                                        scale=gears.scale.HumanScale, faction=factions.TerranDefenseForce)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.DefaultBuilding())
@@ -805,16 +840,16 @@ class DZD_BlueFortressHQ(Plot):
         self.next_mission_date = 0
         self.total_mission_wins = 0
         self.not_yet_told_no_missions_left = True
-        #self.register_adventure(nart.camp)
+        # self.register_adventure(nart.camp)
 
         room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(), dident="INTERIOR")
         team3 = teams.Team(name="Lounge Team")
         room2.contents.append(ghwaypoints.EarthMap())
-        for t in range(random.randint(3,7)):
+        for t in range(random.randint(3, 7)):
             room2.contents.append(ghwaypoints.Lockers())
 
         vikki = nart.camp.get_major_npc(gears.oldghloader.GH1Loader.NPC_VIKKI)
-        vikki.portrait='card_f_vikki_dzd.png'
+        vikki.portrait = 'card_f_vikki_dzd.png'
         self.register_element("VIKKI", vikki)
         vikki.place(intscene, team=team3)
         self.got_tutorial = False
@@ -840,7 +875,7 @@ class DZD_BlueFortressHQ(Plot):
                                                 enemy_faction=self.next_enemy_faction,
                                                 allied_faction=factions.TerranDefenseForce,
                                                 on_win=self._win_mission)
-        missionbuilder.NewMissionNotification(self.adventure_seed.name,self.elements["MISSION_GATE"])
+        missionbuilder.NewMissionNotification(self.adventure_seed.name, self.elements["MISSION_GATE"])
 
     def _win_mission(self, camp: gears.GearHeadCampaign):
         self.total_mission_wins += 1
@@ -876,7 +911,7 @@ class DZD_BlueFortressHQ(Plot):
                 Offer(
                     "The Defense Force is short handed at the moment, so there are almost always missions available. [MechaMissionVsEnemyFaction].",
                     context=ContextTag([context.MISSION, ]), subject=self, subject_start=True,
-                    data={"enemy_faction":self.next_enemy_faction.name}
+                    data={"enemy_faction": self.next_enemy_faction.name}
                 )
             )
 
@@ -884,7 +919,7 @@ class DZD_BlueFortressHQ(Plot):
                 Offer(
                     "[IWillSendMissionDetails]. You can start the mission by heading to the West Gate.",
                     context=ContextTag([context.ACCEPT, ]), subject=self, effect=self.register_adventure,
-                    data={"enemy_faction":self.next_enemy_faction.name}
+                    data={"enemy_faction": self.next_enemy_faction.name}
                 )
             )
 
@@ -892,7 +927,7 @@ class DZD_BlueFortressHQ(Plot):
                 Offer(
                     "[UNDERSTOOD] You can come back tomorrow for a different mission.",
                     context=ContextTag([context.DENY, ]), subject=self, effect=self.deny_adventure,
-                    data={"enemy_faction":self.next_enemy_faction.name}
+                    data={"enemy_faction": self.next_enemy_faction.name}
                 )
             )
 
@@ -904,44 +939,46 @@ class DZD_BlueFortressHQ(Plot):
         if not self.got_tutorial:
             mylist.append(Offer(
                 "Someone sent you to get the spiel, did they? Alrightie then, your mecha has two values which describe its combat performance: Armor and Mobility. Each of your weapons also has two performance values: Penetration and Accuracy. The thing you need to know is that penetration counteracts armor, whilc accuracy counteracts mobility.",
-                context=ContextTag([context.INFO,]), effect=self.get_tutorial,
+                context=ContextTag([context.INFO, ]), effect=self.get_tutorial,
                 data={"subject": "mecha combat"}, subject=self, subject_start=True, no_repeats=True,
             ))
         else:
             mylist.append(Offer(
                 "Alright, let's review what I told you the first time. Accuracy counteracts mobility, penetration counteracts armor. You need mental power to activate skills and special attacks. You need stamina to defend against enemy attacks. The Thorshammer is the best mecha unless you can afford an Ovaknight. Any questions?",
-                context=ContextTag([context.CUSTOM,]),
+                context=ContextTag([context.CUSTOM, ]),
                 data={"reply": "Could you tell me about mecha combat again?"}, no_repeats=True,
             ))
 
         mylist.append(Offer(
             "I guess that's not a bad summary... sounds like something they'd teach you at kiddie mecha camp. But this here is big mecha pants class. The main thing to remember is that you use high accuracy weapons against high mobility targets, and high penetration weapons against heavily armored ones. Do the opposite and you're just wasting ammo.",
-            context=ContextTag([context.CUSTOM,]),
-            data={"reply": "So accuracy makes a weapon more likely to hit, and penetration makes it more likely to cause damage. Got it."}, subject=self,
+            context=ContextTag([context.CUSTOM, ]),
+            data={
+                "reply": "So accuracy makes a weapon more likely to hit, and penetration makes it more likely to cause damage. Got it."},
+            subject=self,
         ))
 
         mylist.append(Offer(
             "A mecha is only as good as its pilot. I've seen lots of beginners think that as soon as they get a fancy ride they'll be aces right away, but it doesn't work like that. In addition to your piloting skills it's also important to keep your mind and body in top shape.",
-            context=ContextTag([context.CUSTOMREPLY,]),
+            context=ContextTag([context.CUSTOMREPLY, ]),
             data={"reply": "Anything else that I should know?"}, subject=self,
         ))
 
         mylist.append(Offer(
             "You need both mental power and stamina to pilot a mecha. Mental power is used to activate abilities and special attacks. Stamina is used when you defend yourself against enemy attacks. Run out of either and you'll have a bad time. Training your concentration and athletics skills can help.",
-            context=ContextTag([context.INFO,]),
+            context=ContextTag([context.INFO, ]),
             data={"subject": "mind and body"}, subject="keep your mind and body", no_repeats=True,
         ))
 
         mylist.append(Offer(
             "No worries. I love any chance I can get to play the teacher. With any luck most of the stuff I told you will even turn out to be right.",
-            context=ContextTag([context.CUSTOM,]),
+            context=ContextTag([context.CUSTOM, ]),
             data={"reply": "Thanks for the tips."}, subject="keep your mind and body",
         ))
 
-        #mylist.append(Offer(
+        # mylist.append(Offer(
         #    "This is a test of the skill training system.",
         #    context=ContextTag([context.OPEN_SCHOOL,]), effect=self.test_trainer
-        #))
+        # ))
 
         return mylist
 
@@ -962,7 +999,6 @@ class DZD_BlueFortressHQ(Plot):
         return mygram
 
 
-
 class DZD_AlliedArmor(Plot):
     LABEL = "DZDHB_AlliedArmor"
 
@@ -978,7 +1014,8 @@ class DZD_AlliedArmor(Plot):
         team2 = teams.Team(name="Civilian Team", allies=(team1,))
         intscene = gears.GearHeadScene(50, 40, "Allied Armor", player_team=team1, civilian_team=team2,
                                        attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP, gears.tags.SCENE_GARAGE),
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP,
+                                           gears.tags.SCENE_GARAGE),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
@@ -1008,29 +1045,32 @@ class DZD_AlliedArmor(Plot):
         team3.contents.append(npc2)
         custom_shop.contents.append(team3)
         custom_shop.contents.append(ghwaypoints.MechEngTerminal())
-        self.custom_shop = services.Shop(npc=npc2, ware_types=services.MECHA_PARTS_STORE,rank=75)
+        self.custom_shop = services.Shop(npc=npc2, ware_types=services.MECHA_PARTS_STORE, rank=75)
 
         self.asked_about_terminal = False
 
-        secretstairs = self.register_element("STAIRSDOWN",ghwaypoints.Bookshelf(name="Bookshelf",plot_locked=True))
+        secretstairs = self.register_element("STAIRSDOWN", ghwaypoints.Bookshelf(name="Bookshelf", plot_locked=True))
         foyer.contents.append(secretstairs)
 
         otherscene = gears.GearHeadScene(50, 40, "Secret Scene", player_team=team1,
-                                       scale=gears.scale.HumanScale)
+                                         scale=gears.scale.HumanScale)
 
-        intscenegen = pbge.randmaps.SceneGenerator(otherscene, game.content.gharchitecture.StoneBuilding(decorate=gharchitecture.MysteryDungeonDecor()))
+        intscenegen = pbge.randmaps.SceneGenerator(otherscene, game.content.gharchitecture.StoneBuilding(
+            decorate=gharchitecture.MysteryDungeonDecor()))
         self.register_scene(nart, otherscene, intscenegen, ident="OTHERSCENE", dident="INTERIOR")
         hiddenroom = pbge.randmaps.rooms.ClosedRoom()
         otherscene.contents.append(hiddenroom)
-        mystairs = self.register_element("STAIRSUP",ghwaypoints.StoneStairsUp(dest_wp=secretstairs))
+        mystairs = self.register_element("STAIRSUP", ghwaypoints.StoneStairsUp(dest_wp=secretstairs))
         hiddenroom.contents.append(mystairs)
 
-        cwnpc = self.register_element("CWORKER", gears.selector.random_character(combatant=False, job=gears.jobs.ALL_JOBS["Construction Worker"]))
+        cwnpc = self.register_element("CWORKER", gears.selector.random_character(combatant=False,
+                                                                                 job=gears.jobs.ALL_JOBS[
+                                                                                     "Construction Worker"]))
         hiddenroom.contents.append(cwnpc)
 
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["OTHERSCENE"], "Wujung Undercity", gharchitecture.StoneBuilding(), 10,
-            monster_tags = ("ANIMAL", "CITY", "VERMIN",),
+            monster_tags=("ANIMAL", "CITY", "VERMIN",),
             scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_RUINS, gears.tags.SCENE_SEMIPUBLIC),
             decor=gharchitecture.StoneUndercityDecor()
         )
@@ -1039,7 +1079,7 @@ class DZD_AlliedArmor(Plot):
 
         return True
 
-    def STAIRSDOWN_menu(self,camp,thingmenu):
+    def STAIRSDOWN_menu(self, camp, thingmenu):
         thingmenu.desc = "You stand before a bookshelf. Do you want to read a book?"
         thingmenu.add_item("Read black book", self._read_black_book)
         thingmenu.add_item("Read blue book", self._read_blue_book)
@@ -1048,27 +1088,32 @@ class DZD_AlliedArmor(Plot):
         thingmenu.add_item("Read red book", self._read_red_book)
         thingmenu.add_item("Read white book", self._use_bookshelf)
 
-    def _read_black_book(self,camp):
+    def _read_black_book(self, camp):
         # First sentence by me, the rest of the story written by TalkToTransformer.
-        pbge.alert("""The black battlemech looked utterly invincible. It struck out a slash from its chest, the mercenary's chest pierced through. The mercenary found that the black battlemech's combat speed and its lethal reflexes were far surpassing that of the robot. At the same time, the mercenary could feel how quick the black battlemech was on its movements.\n \n Vayu punched back, swinging his spear, a wooden sword, even though the axe came in seconds. The black battlemech didn't even show any reaction at all.\n \n This opponent was very tough.""")
+        pbge.alert(
+            """The black battlemech looked utterly invincible. It struck out a slash from its chest, the mercenary's chest pierced through. The mercenary found that the black battlemech's combat speed and its lethal reflexes were far surpassing that of the robot. At the same time, the mercenary could feel how quick the black battlemech was on its movements.\n \n Vayu punched back, swinging his spear, a wooden sword, even though the axe came in seconds. The black battlemech didn't even show any reaction at all.\n \n This opponent was very tough.""")
 
-    def _read_blue_book(self,camp):
+    def _read_blue_book(self, camp):
         # First sentence by me, the rest of the story written by TalkToTransformer.
-        pbge.alert("""All that stood between the space pirates and the treasure was a lone blue mecha. It seemed to be at the point of becoming an ordinary mecha.\n \n That was the one the pirates had called a new type of mecha, one that defeated enemy machines in a single blow. They were machines that changed shapes and could create weapons.\n \n These were ZEBES, what the space pirates had named this mecha.\n \n Thinking of ZEBES, Thomas muttered "All the metal on that one is metal. Looks like its ability is to take the energy".""")
+        pbge.alert(
+            """All that stood between the space pirates and the treasure was a lone blue mecha. It seemed to be at the point of becoming an ordinary mecha.\n \n That was the one the pirates had called a new type of mecha, one that defeated enemy machines in a single blow. They were machines that changed shapes and could create weapons.\n \n These were ZEBES, what the space pirates had named this mecha.\n \n Thinking of ZEBES, Thomas muttered "All the metal on that one is metal. Looks like its ability is to take the energy".""")
 
-    def _read_green_book(self,camp):
+    def _read_green_book(self, camp):
         # First sentence by me, the rest of the story written by TalkToTransformer.
-        pbge.alert("""A green mecha rolled into the dead zone. He was an Angel wearing a cape. A great horned helmet with a great ornate skull appeared on his head. He raised his arms, each joint jutting out sharply.\n \n Sasha ripped through space at speeds faster than bullets, but could only manage to keep up with one of the machines, and even then he only managed a glimpse of his face. The Angel helmet had received damage, and was covered in more scars. It made him look scarier.\n \n "Now, this will be fun!" the Angel said.""")
+        pbge.alert(
+            """A green mecha rolled into the dead zone. He was an Angel wearing a cape. A great horned helmet with a great ornate skull appeared on his head. He raised his arms, each joint jutting out sharply.\n \n Sasha ripped through space at speeds faster than bullets, but could only manage to keep up with one of the machines, and even then he only managed a glimpse of his face. The Angel helmet had received damage, and was covered in more scars. It made him look scarier.\n \n "Now, this will be fun!" the Angel said.""")
 
-    def _read_purple_book(self,camp):
+    def _read_purple_book(self, camp):
         # First sentence by me, the rest of the story written by TalkToTransformer.
-        pbge.alert("""Carolyn stepped out from the cockpit of her purple mecha. "So he's not being as good as before?"\n \n "Er... well, not in the way you might think," said the mechanic, lowering his shoulder visor and turning his sunglasses to face her.\n \n "Then why is he still so confident?" asked Carolyn. "It doesn't make any sense."\n \n "His taste for politics is legendary," said the mechanic, indicating the facade that had kept Kiri's consciousness isolated and that had been the victim of Kimberly's advances.""")
+        pbge.alert(
+            """Carolyn stepped out from the cockpit of her purple mecha. "So he's not being as good as before?"\n \n "Er... well, not in the way you might think," said the mechanic, lowering his shoulder visor and turning his sunglasses to face her.\n \n "Then why is he still so confident?" asked Carolyn. "It doesn't make any sense."\n \n "His taste for politics is legendary," said the mechanic, indicating the facade that had kept Kiri's consciousness isolated and that had been the victim of Kimberly's advances.""")
 
-    def _read_red_book(self,camp):
+    def _read_red_book(self, camp):
         # First sentence by me, the rest of the story written by TalkToTransformer.
-        pbge.alert("""The battle was going poorly for the defenders, when out of nowhere a red mecha appeared. In the hands of this mecha the industrial city was seemingly taken over by metal, lifting everything that was in the way of the construction project above the buildings. The clock tower and factory buildings were falling in on themselves.\n \n A smile spread on Jondal's face as he saw this. "By the Emperor's clock... this is a miracle of construction."\n \n Conde winced. "What's a miracle of construction? I was raised as an engineer, and our government has a contract that we need a certain percentage to receive." """)
+        pbge.alert(
+            """The battle was going poorly for the defenders, when out of nowhere a red mecha appeared. In the hands of this mecha the industrial city was seemingly taken over by metal, lifting everything that was in the way of the construction project above the buildings. The clock tower and factory buildings were falling in on themselves.\n \n A smile spread on Jondal's face as he saw this. "By the Emperor's clock... this is a miracle of construction."\n \n Conde winced. "What's a miracle of construction? I was raised as an engineer, and our government has a contract that we need a certain percentage to receive." """)
 
-    def _use_bookshelf(self,camp):
+    def _use_bookshelf(self, camp):
         pbge.alert("Moving the white book activates a hidden staircase!")
         camp.go(self.elements["STAIRSUP"])
 
@@ -1081,7 +1126,7 @@ class DZD_AlliedArmor(Plot):
         mylist.append(Offer(
             "[HELLO] While doing repair work we found this tunnel leading into the Wujung undercity. Nobody is supposed to go down there, but you look like you'd do alright.",
             context=ContextTag([context.HELLO]),
-            ))
+        ))
 
         return mylist
 
@@ -1091,7 +1136,7 @@ class DZD_AlliedArmor(Plot):
         mylist.append(Offer(
             "[HELLO] This is the Allied Armor custom shop; we sell all kinds of mecha upgrades and replacement parts.",
             context=ContextTag([context.HELLO]),
-            ))
+        ))
 
         mylist.append(Offer("[OPENSHOP]",
                             context=ContextTag([context.OPEN_SHOP]), effect=self.custom_shop,
@@ -1103,7 +1148,7 @@ class DZD_AlliedArmor(Plot):
                 "That's a mecha engineering terminal. You can find them at garages and shops all over the place. You can use it to add and remove parts from your mecha, if you have any spare parts laying around.",
                 context=ContextTag([context.INFO]), effect=self._ask_about_terminal,
                 data={"subject": "the terminal"}, no_repeats=True,
-                ))
+            ))
 
         return mylist
 
@@ -1139,7 +1184,8 @@ class DZD_WujungTires(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1,))
         intscene = gears.GearHeadScene(35, 35, "Wujung Tires", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+                                       attributes=(
+                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
@@ -1156,7 +1202,8 @@ class DZD_WujungTires(Plot):
 
         npc = self.register_element("SHOPKEEPER",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
-                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"], combatant=False))
+                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"],
+                                                                    combatant=False))
         npc.place(intscene, team=team2)
 
         self.shop = services.Shop(npc=npc, ware_types=services.TIRE_STORE)
@@ -1187,9 +1234,11 @@ class DZD_EliteEquipment(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("EXTERIOR", game.content.ghterrain.CommercialBuilding(
-            waypoints={"DOOR": ghwaypoints.GlassDoor(name="Elite Equipment"),"OTHER": ghwaypoints.GlassDoor(name="Allied Armor")},
-            door_sign=(game.content.ghterrain.CrossedSwordsTerrainEast, game.content.ghterrain.CrossedSwordsTerrainSouth),
-            other_sign=(game.content.ghterrain.AlliedArmorSignEast,game.content.ghterrain.AlliedArmorSignSouth),
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name="Elite Equipment"),
+                       "OTHER": ghwaypoints.GlassDoor(name="Allied Armor")},
+            door_sign=(
+            game.content.ghterrain.CrossedSwordsTerrainEast, game.content.ghterrain.CrossedSwordsTerrainSouth),
+            other_sign=(game.content.ghterrain.AlliedArmorSignEast, game.content.ghterrain.AlliedArmorSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
         tplot = self.add_sub_plot(nart, "DZDHB_AlliedArmor")
@@ -1198,7 +1247,8 @@ class DZD_EliteEquipment(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Elite Equipment", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+                                       attributes=(
+                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
@@ -1236,15 +1286,17 @@ class DZD_EliteEquipment(Plot):
 
         return mylist
 
+
 CD_BIOTECH_DISCOVERIES = "BIOTECH_DISCOVERIES"
 CD_BIOTECH_REPORTED = "BIOTECH_REPORTED"
+
 
 class BiotechDiscovery(object):
     def __init__(self, camp, reply, offer, cash_rank, on_sale_fun=None, activate=True):
         if activate:
             self.activate(camp)
         self.reply = reply
-        self.cash = gears.selector.calc_threat_points(cash_rank,50)
+        self.cash = gears.selector.calc_threat_points(cash_rank, 50)
         # Stick "{cash}" in the offer to say how much the PC earns.
         self.offer = offer.format(cash="${:,}".format(self.cash))
         self.on_sale_fun = on_sale_fun
@@ -1254,7 +1306,7 @@ class BiotechDiscovery(object):
 
     def get_offer(self):
         return Offer(self.offer, (context.CUSTOM,), effect=self, no_repeats=True,
-                     data={"reply":self.reply})
+                     data={"reply": self.reply})
 
     def __call__(self, camp: gears.GearHeadCampaign):
         camp.credits += self.cash
@@ -1279,9 +1331,10 @@ class DZD_WujungHospital(Plot):
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = self.register_element("CIV_TEAM",teams.Team(name="Civilian Team"))
+        team2 = self.register_element("CIV_TEAM", teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(35, 35, "Wujung Hospital", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
+                                       attributes=(
+                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
@@ -1296,8 +1349,9 @@ class DZD_WujungHospital(Plot):
                                                                  move_door1=False)
 
         doctor = self.register_element("DOCTOR",
-                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
-                                                                    job=gears.jobs.ALL_JOBS["Doctor"]))
+                                       gears.selector.random_character(50,
+                                                                       local_tags=self.elements["LOCALE"].attributes,
+                                                                       job=gears.jobs.ALL_JOBS["Doctor"]))
         doctor.place(intscene, team=team2)
 
         npc = self.register_element("NURSE",
@@ -1305,32 +1359,36 @@ class DZD_WujungHospital(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Nurse"]))
         npc.place(intscene, team=team2)
 
-        room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(),dident="INTERIOR")
+        room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(), dident="INTERIOR")
         room2.contents.append(ghwaypoints.RecoveryBed())
         room2.contents.append(ghwaypoints.RecoveryBed())
 
-        cybershop = services.Shop( npc = None
-                                 , rank = 50
-                                 , ware_types = services.CYBERWARE_STORE
-                                 )
-        room2.contents.append(ghwaypoints.CyberdocTerminal(shop = cybershop))
+        cybershop = services.Shop(npc=None
+                                  , rank=50
+                                  , ware_types=services.CYBERWARE_STORE
+                                  )
+        room2.contents.append(ghwaypoints.CyberdocTerminal(shop=cybershop))
 
-        team3 = teams.Team(name = "Cyberdoc Terminal Team", allies = (team1, team2))
+        team3 = teams.Team(name="Cyberdoc Terminal Team", allies=(team1, team2))
         cybertekno = self.register_element("CYBERTEKNO",
-                                           gears.selector.random_character(60, local_tags = self.elements["LOCALE"].attributes,
-                                                                           job = gears.jobs.ALL_JOBS["Tekno"]))
+                                           gears.selector.random_character(60, local_tags=self.elements[
+                                               "LOCALE"].attributes,
+                                                                           job=gears.jobs.ALL_JOBS["Tekno"]))
         team3.contents.append(cybertekno)
         room2.contents.append(team3)
         self.asked_about_cyberdoc = False
         self.asked_about_cyberware = False
 
-        room5 = self.register_element('_room5', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
+        room5 = self.register_element('_room5',
+                                      pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),
+                                      dident="INTERIOR")
 
         team5 = teams.Team(name="BioCorp Team")
         room5.contents.append(team5)
         npc = self.register_element("BIOCORPNPC",
                                     gears.selector.random_character(30, local_tags=self.elements["LOCALE"].attributes,
-                                                                    faction=gears.factions.BioCorp, job=gears.jobs.ALL_JOBS["Researcher"]))
+                                                                    faction=gears.factions.BioCorp,
+                                                                    job=gears.jobs.ALL_JOBS["Researcher"]))
         team5.contents.append(npc)
         self._asked_about_bc_mission = False
         self._asked_about_biomonsters = False
@@ -1338,10 +1396,12 @@ class DZD_WujungHospital(Plot):
         nart.camp.campdata[CD_BIOTECH_DISCOVERIES] = list()
         nart.camp.campdata[CD_BIOTECH_REPORTED] = 0
 
-        cage = self.register_element("_HAMSTER", ghwaypoints.HamsterCage(name="Hamster Cage",desc="You stand before a cage of cute, fluffy hamsters. Oddly, all of the hamsters appear to be walking on their back legs. Other than that they seem perfectly normal and content.",plot_locked=True))
+        cage = self.register_element("_HAMSTER", ghwaypoints.HamsterCage(name="Hamster Cage",
+                                                                         desc="You stand before a cage of cute, fluffy hamsters. Oddly, all of the hamsters appear to be walking on their back legs. Other than that they seem perfectly normal and content.",
+                                                                         plot_locked=True))
         room5.contents.append(cage)
 
-        self.add_sub_plot(nart,"DZD_WuHosMedicLancemate")
+        self.add_sub_plot(nart, "DZD_WuHosMedicLancemate")
 
         self.shop = services.Shop(services.PHARMACY, allow_misc=False, caption="Pharmacy", rank=50, npc=doctor)
 
@@ -1358,7 +1418,8 @@ class DZD_WujungHospital(Plot):
         if not self._asked_about_bc_mission:
             mylist.append(Offer(
                 "No mission exactly, but if you're heading into the dead zone there may be something you can do for me. BioCorp is offering cash rewards for lostech artifacts or any data regarding PreZero synthoid technology. If you find anything interesting during your travels I can pay you for the information.",
-                context=ContextTag([context.MISSION]), subject_start=True, subject=self, effect=self._tell_about_bc_mission
+                context=ContextTag([context.MISSION]), subject_start=True, subject=self,
+                effect=self._tell_about_bc_mission
             ))
         else:
             for btd in camp.campdata[CD_BIOTECH_DISCOVERIES]:
@@ -1387,7 +1448,6 @@ class DZD_WujungHospital(Plot):
                 data={"subject": "those hamsters"}, no_repeats=True,
             ))
 
-
         return mylist
 
     def _tell_about_hamsters(self, camp):
@@ -1396,7 +1456,7 @@ class DZD_WujungHospital(Plot):
     def _tell_about_biomonsters(self, camp):
         self._asked_about_biomonsters = True
 
-    def _tell_about_bc_mission(self,camp):
+    def _tell_about_bc_mission(self, camp):
         self._asked_about_bc_mission = True
 
     def _HAMSTER_BUMP(self, camp):
@@ -1407,7 +1467,7 @@ class DZD_WujungHospital(Plot):
         thingmenu.add_item("Pet the hamsters.", self._pet_hamster)
         thingmenu.add_item("Leave the hamsters alone.", None)
 
-    def _pet_hamster(self,camp):
+    def _pet_hamster(self, camp):
         pbge.alert("You play with the hamsters for a little while and make some new friends.")
 
     def DOCTOR_offers(self, camp):
@@ -1427,26 +1487,32 @@ class DZD_WujungHospital(Plot):
     def CYBERTEKNO_offers(self, camp):
         mylist = list()
 
-        mylist.append(Offer( "[HELLO] Wujung Hospital is proud of its automated Cyberdoc terminal for all your cyberware needs."
-                           , context = ContextTag([context.HELLO])
-                           ))
+        mylist.append(
+            Offer("[HELLO] Wujung Hospital is proud of its automated Cyberdoc terminal for all your cyberware needs."
+                  , context=ContextTag([context.HELLO])
+                  ))
 
         if not self.asked_about_cyberdoc:
-            mylist.append(Offer( "The Cyberdoc terminal has a stock of cyberware it can install into your body, directly improving your capabilities, or it can install cyberware you acquired elsewhere. It can even remove cyberware, by cloning a non-cyberware organ from your cells."
-                               , context = ContextTag([context.INFO]), effect = self._ask_about_cyberdoc
-                               , data = {"subject": "the Cyberdoc terminal"}, no_repeats = True
-                               ))
+            mylist.append(Offer(
+                "The Cyberdoc terminal has a stock of cyberware it can install into your body, directly improving your capabilities, or it can install cyberware you acquired elsewhere. It can even remove cyberware, by cloning a non-cyberware organ from your cells."
+                , context=ContextTag([context.INFO]), effect=self._ask_about_cyberdoc
+                , data={"subject": "the Cyberdoc terminal"}, no_repeats=True
+                ))
         if not self.asked_about_cyberware:
-            mylist.append(Offer( "Cyberware is installed into your body by the Cyberdoc terminal to give you new capabilities. Modern cyberware reduces stamina, an improvement over the 'cyberdisfunctions' of old; a general healthy constitution lets more cyberware be installed safely, as well as the patient's knowledge of cybertech."
-                               , context = ContextTag([context.INFO]), effect = self._ask_about_cyberware
-                               , data = {"subject": "cyberware"}, no_repeats = True
-                               ))
+            mylist.append(Offer(
+                "Cyberware is installed into your body by the Cyberdoc terminal to give you new capabilities. Modern cyberware reduces stamina, an improvement over the 'cyberdisfunctions' of old; a general healthy constitution lets more cyberware be installed safely, as well as the patient's knowledge of cybertech."
+                , context=ContextTag([context.INFO]), effect=self._ask_about_cyberware
+                , data={"subject": "cyberware"}, no_repeats=True
+                ))
 
         return mylist
+
     def _ask_about_cyberdoc(self, *ignored):
         self.asked_about_cyberdoc = True
+
     def _ask_about_cyberware(self, *ignored):
         self.asked_about_cyberware = True
+
 
 #   *********************************
 #   ***  DZD_WuHosMedicLancemate  ***
@@ -1456,7 +1522,8 @@ class DZD_WujungHospital(Plot):
 
 class DZD_WuHosMedicLancemate(Plot):
     LABEL = "DZD_WuHosMedicLancemate"
-    JOBS = ("Paramedic","Field Medic","Firefighter","Paramedic","Firefighter","Doctor","Nurse","Paramedic")
+    JOBS = ("Paramedic", "Field Medic", "Firefighter", "Paramedic", "Firefighter", "Doctor", "Nurse", "Paramedic")
+
     def custom_init(self, nart):
         npc = gears.selector.random_character(job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
                                               rank=random.randint(10, 50),
@@ -1466,7 +1533,6 @@ class DZD_WuHosMedicLancemate(Plot):
         self.register_element("NPC", npc, dident="CIV_TEAM")
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
-
 
 
 class DZD_LongRoadLogistics(Plot):
@@ -1483,18 +1549,20 @@ class DZD_LongRoadLogistics(Plot):
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = self.register_element("CIV_TEAM",teams.Team(name="Civilian Team"))
+        team2 = self.register_element("CIV_TEAM", teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(50, 50, "Long Road Logistics", player_team=team1, civilian_team=team2,
                                        attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE, gears.tags.SCENE_BUILDING, gears.tags.SCENE_TRANSPORT),
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE, gears.tags.SCENE_BUILDING,
+                                           gears.tags.SCENE_TRANSPORT),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.MostlyOpenRoom(12,15,anchor=pbge.randmaps.anchors.south, ),
+        foyer = self.register_element('_introom',
+                                      pbge.randmaps.rooms.MostlyOpenRoom(12, 15, anchor=pbge.randmaps.anchors.south, ),
                                       dident="INTERIOR")
         foyer.contents.append(team2)
-        for t in range(random.randint(5,12)):
+        for t in range(random.randint(5, 12)):
             foyer.contents.append(ghwaypoints.ShippingShelves())
 
         mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
@@ -1512,21 +1580,30 @@ class DZD_LongRoadLogistics(Plot):
                                                                     job=gears.jobs.ALL_JOBS["Trucker"]))
         npc.place(intscene, team=team2)
 
-        room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="INTERIOR")
-        room3 = self.register_element('_room3', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="INTERIOR")
-        room4 = self.register_element('regex_room', pbge.randmaps.rooms.MostlyOpenRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
-        room5 = self.register_element('kettel_room', pbge.randmaps.rooms.MostlyOpenRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="INTERIOR")
+        room2 = self.register_element('_room2',
+                                      pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),
+                                      dident="INTERIOR")
+        room3 = self.register_element('_room3',
+                                      pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),
+                                      dident="INTERIOR")
+        room4 = self.register_element('regex_room',
+                                      pbge.randmaps.rooms.MostlyOpenRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),
+                                      dident="INTERIOR")
+        room5 = self.register_element('kettel_room',
+                                      pbge.randmaps.rooms.MostlyOpenRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),
+                                      dident="INTERIOR")
 
         room4.contents.append(ghwaypoints.RegExLogo())
         team4 = teams.Team(name="RegEx Team")
         room4.contents.append(team4)
         npc = self.register_element("REGEXNPC",
                                     gears.selector.random_character(30, local_tags=self.elements["LOCALE"].attributes,
-                                                                    faction=gears.factions.RegExCorporation, job=gears.jobs.ALL_JOBS["Corporate Executive"]))
+                                                                    faction=gears.factions.RegExCorporation,
+                                                                    job=gears.jobs.ALL_JOBS["Corporate Executive"]))
         team4.contents.append(npc)
         self._asked_about_construction = False
 
-        self.add_sub_plot(nart,"DZD_LoRoTruckerLancemate")
+        self.add_sub_plot(nart, "DZD_LoRoTruckerLancemate")
 
         return True
 
@@ -1539,26 +1616,29 @@ class DZD_LongRoadLogistics(Plot):
                 context=ContextTag([context.HELLO]),
             ))
             mylist.append(Offer(
-                "I'd love to help, but road security to the dead zone isn't what it used to be. Building a power plant is going to involve lots of materials and heavy machinery. We're going to need a secure transit route from here to {} before we can even talk about starting.".format(self.elements["DZ_TOWN_NAME"]),
+                "I'd love to help, but road security to the dead zone isn't what it used to be. Building a power plant is going to involve lots of materials and heavy machinery. We're going to need a secure transit route from here to {} before we can even talk about starting.".format(
+                    self.elements["DZ_TOWN_NAME"]),
                 context=ContextTag([context.INFO]), subject=self, subject_start=True,
-                data={"subject": "building a new power plant for {}".format(self.elements["DZ_TOWN_NAME"])}, no_repeats=True,
+                data={"subject": "building a new power plant for {}".format(self.elements["DZ_TOWN_NAME"])},
+                no_repeats=True,
             ))
         else:
             mylist.append(Offer(
                 "[HELLO] Any update on the road situation leading to {}?".format(self.elements["DZ_TOWN_NAME"]),
                 context=ContextTag([context.HELLO]),
-                ))
+            ))
 
         mylist.append(Offer(
             "That would be great. More work will help us to rebuild our office faster, and I for one can't wait to get out of this building. It always smells like coffee and magnetic grease in here.",
-            context=ContextTag([context.CUSTOM]),subject=self,
+            context=ContextTag([context.CUSTOM]), subject=self,
             data={"reply": "I'll see what I can do about that."}, effect=self._tell_about_services
         ))
 
         return mylist
 
-    def _tell_about_services(self,camp):
-        self.memo = "You spoke to {REGEXNPC} of RegEx Construction about building a new power plant for {DZ_TOWN_NAME}. In order for {REGEXNPC.gender.object_pronoun} to do that, there must be a secure trade route between there an Wujung.".format(**self.elements)
+    def _tell_about_services(self, camp):
+        self.memo = "You spoke to {REGEXNPC} of RegEx Construction about building a new power plant for {DZ_TOWN_NAME}. In order for {REGEXNPC.gender.object_pronoun} to do that, there must be a secure trade route between there an Wujung.".format(
+            **self.elements)
         self._asked_about_construction = True
         camp.campdata["CONSTRUCTION_ARRANGED"] = True
 
@@ -1568,7 +1648,7 @@ class DZD_LongRoadLogistics(Plot):
         mylist.append(Offer(
             "[HELLO] This is Long Road Logistics. Our job is to keep goods moving from the Joseon green zone through the dead zone all the way to the Pan-Eurasian territories.",
             context=ContextTag([context.HELLO]),
-            ))
+        ))
 
         return mylist
 
@@ -1578,9 +1658,10 @@ class DZD_LongRoadLogistics(Plot):
         mylist.append(Offer(
             "[HELLO] I'm in charge of salvage operations here at Long Road Logistics.",
             context=ContextTag([context.HELLO]),
-            ))
+        ))
 
         return mylist
+
 
 #   **********************************
 #   ***  DZD_LoRoTruckerLancemate  ***
@@ -1590,7 +1671,8 @@ class DZD_LongRoadLogistics(Plot):
 
 class DZD_LoRoTruckerLancemate(Plot):
     LABEL = "DZD_LoRoTruckerLancemate"
-    JOBS = ("Trucker","Mechanic","Construction Worker","Trader","Trucker")
+    JOBS = ("Trucker", "Mechanic", "Construction Worker", "Trader", "Trucker")
+
     def custom_init(self, nart):
         npc = gears.selector.random_character(job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
                                               rank=random.randint(10, 50),
@@ -1600,6 +1682,74 @@ class DZD_LoRoTruckerLancemate(Plot):
         self.register_element("NPC", npc, dident="CIV_TEAM")
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
+
+#   ****************************
+#   ***  DZD_BLACK_ISLE_PUB  ***
+#   ****************************
+
+class DZD_BlackIslePub(Plot):
+    LABEL = "DZD_BLACK_ISLE_PUB"
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create the shopkeeper
+        npc1 = self.register_element("SHOPKEEPER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["METROSCENE"].attributes,
+            job=gears.jobs.ALL_JOBS["Bartender"]))
+
+        self.shopname = "Black Isle Pub"
+
+        # Create a building within the town.
+        dd = {
+            "image_bottom": 'terrain_building_brick_b.png', "image_top": 'terrain_building_brick_u.png',
+            "blocks": (
+            pbge.scenes.movement.Walking, gears.geffects.Skimming, gears.geffects.Rolling, pbge.scenes.movement.Flying),
+            "colors": (
+            gears.color.Ebony, gears.color.DeepGrey, gears.color.BattleshipGrey, gears.color.Black, gears.color.Black)
+        }
+        building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
+            waypoints={"DOOR": ghwaypoints.WoodenDoor(name="Black Isle Pub")},
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], duck_dict=dd), dident="LOCALE", )
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.shopname, player_team=team1, civilian_team=team2,
+            attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING, gears.tags.SCENE_CULTURE),
+            scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(
+            intscene, gharchitecture.StoneBuilding(floor_terrain=game.content.ghterrain.HardwoodFloor)
+        )
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(width=random.randint(20, 25),
+                                                                                 height=random.randint(11, 15),
+                                                                                 anchor=pbge.randmaps.anchors.south),
+                                      dident="INTERIOR")
+
+        mybar = ghrooms.BarArea(random.randint(5, 10), random.randint(2, 3), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mybar)
+
+        barteam = self.register_element("BAR_TEAM", teams.Team(name="Bar Team", allies=[team2]))
+        mybar.contents.append(barteam)
+        npc1.place(intscene, team=barteam)
+
+        mycon2 = plotutility.TownBuildingConnection(
+            nart, self, self.elements["LOCALE"], intscene, room1=building,
+            room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        return True
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Welcome to {}.".format(self.shopname),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        return mylist
 
 
 #   *******************************
@@ -1621,18 +1771,28 @@ class DZD_SkippysNightOut(Plot):
 
     VERB_SUS_CARDS = (
         {"name": "Carouse", "to_verb": "to carouse with Skippy", "verbed": "caroused all night with Skippy",
-         "did_not_verb": "didn't carouse with Skippy", "data":{}},
+         "did_not_verb": "didn't carouse with Skippy", "data": {"image_name": "mystery_verbs.png", "frame": 2}},
         {"name": "Make Out", "to_verb": "to make out with Skippy", "verbed": "made out with Skippy",
-         "did_not_verb": "didn't make out with Skippy", "data": {}},
-        {"name": "Play Shuggy", "to_verb": "to play shuggy with Skippy", "verbed": "played shuggy with Skippy",
-         "did_not_verb": "didn't play shuggy with Skippy", "data": {}},
-        {"name": "Venus Xozu", "to_verb": "to drink too much Vesuvian Xozu with Skippy", "verbed": "drank too much Vesuvian Xozu with Skippy",
-         "did_not_verb": "didn't go drinking with Skippy", "data": {}},
-        {"name": "Tattoos", "to_verb": "to get a matching tattoo with Skippy", "verbed": "got a matching tattoo with Skippy",
-         "did_not_verb": "didn't get tattoos with Skippy", "data": {}},
+         "did_not_verb": "didn't make out with Skippy", "data": {"image_name": "mystery_verbs.png", "frame": 1}},
+        {"name": "Gambling", "to_verb": "to gamble with Skippy", "verbed": "gambled with Skippy",
+         "did_not_verb": "didn't gamble with Skippy", "data": {"image_name": "mystery_verbs.png", "frame": 5}},
+        {"name": "Venus Xozu", "to_verb": "to drink too much Vesuvian Xozu with Skippy",
+         "verbed": "drank too much Vesuvian Xozu with Skippy",
+         "did_not_verb": "didn't go drinking with Skippy", "data": {"image_name": "mystery_verbs.png", "frame": 3}},
+        {"name": "Tattoos", "to_verb": "to get a matching tattoo with Skippy",
+         "verbed": "got a matching tattoo with Skippy",
+         "did_not_verb": "didn't get tattoos with Skippy", "data": {"image_name": "mystery_verbs.png", "frame": 4}},
     )
 
-    def custom_init( self, nart ):
+    SCENE_SUS_CARDS = {
+        "Bronze Horse Inn": {"name": "The Inn", "data": {"image_name": "mystery_places.png", "frame": 0}},
+        "Allied Armor": {"name": "Mecha Shop", "data": {"image_name": "mystery_places.png", "frame": 2}},
+        "Black Isle Pub": {"name": "The Pub", "data": {"image_name": "mystery_places.png", "frame": 1}},
+        "Long Road Logistics": {"name": "Truck Stop", "data": {"image_name": "mystery_places.png", "frame": 3}},
+        "Blue Fortress": {"name": "Barracks", "data": {"image_name": "mystery_places.png", "frame": 4}}
+    }
+
+    def custom_init(self, nart):
         self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
 
         skippy = nart.camp.get_major_npc(gears.oldghloader.GH1Loader.NPC_SKIPPY)
@@ -1642,7 +1802,14 @@ class DZD_SkippysNightOut(Plot):
         self.sus_elements.append(skippy)
         companion_cards = list()
         for t in range(5):
-            npc = self.seek_element(nart, "COMPANION{}".format(t), self._is_best_npc, scope=self.elements["METROSCENE"])
+            npc = self.seek_element(nart, "COMPANION{}".format(t), self._is_best_npc, scope=self.elements["METROSCENE"],
+                                    must_find=False)
+            if not npc:
+                nuscene = self.seek_element(nart, "NPC_SCENE_{}".format(t), self._is_best_scene,
+                                            scope=self.elements["METROSCENE"])
+                npc = self.register_element("COMPANION{}".format(t), gears.selector.random_character(
+                    camp=nart.camp, age=random.randint(20, 25), job=gears.jobs.ALL_JOBS["Mecha Pilot"]
+                ), dident="NPC_SCENE_{}".format(t))
             companion_cards.append(ghchallenges.NPCSusCard(npc))
             self.sus_elements.append(npc)
 
@@ -1655,13 +1822,17 @@ class DZD_SkippysNightOut(Plot):
         activity_susdeck = pbge.okapipuzzle.SusDeck("Activity", activity_cards)
 
         scene_cards = list()
-        for t in range(5):
-            scene = self.seek_element(nart, "SCENE{}".format(t), self._is_good_meeting_scene, scope=self.elements["METROSCENE"])
-            scene_cards.append(pbge.okapipuzzle.NounSusCard(str(scene), role=pbge.okapipuzzle.SUS_LOCATION))
+        for k,v in self.SCENE_SUS_CARDS.items():
+            self.scene_to_seek = k
+            scene = self.seek_element(nart, "_SCENE{}".format(len(scene_cards)), self._is_good_meeting_scene,
+                                      scope=self.elements["METROSCENE"])
+            scene_cards.append(pbge.okapipuzzle.NounSusCard(gameob=scene, role=pbge.okapipuzzle.SUS_LOCATION, **v))
             self.sus_elements.append(scene)
         scene_susdeck = pbge.okapipuzzle.SusDeck("Location", scene_cards)
 
-        mymystery = self.register_element("MYSTERY", pbge.okapipuzzle.OkapiPuzzle("Skippy's night out", (friend_susdeck, activity_susdeck, scene_susdeck)))
+        mymystery = self.register_element("MYSTERY", pbge.okapipuzzle.OkapiPuzzle(
+            "Skippy's night out", (friend_susdeck, activity_susdeck, scene_susdeck), "{a} {b.verbed} at {c}."
+        ))
 
         mychallenge = self.register_element("CHALLENGE", pbge.challenges.MysteryChallenge(
             "Skippy's Challenge", mymystery,
@@ -1670,15 +1841,15 @@ class DZD_SkippysNightOut(Plot):
                 pbge.challenges.AutoOffer(
                     dict(
                         msg="[I_KNOW_THINGS_ABOUT_STUFF] [LISTEN_TO_MY_INFO]",
-                        context=ContextTag([context.CUSTOM,]), effect=self._get_a_clue,
+                        context=ContextTag([context.CUSTOM, ]), effect=self._get_a_clue,
                         data={
                             "reply": "Do you know anything about what happened to Skippy last night?",
                             "stuff": "Skippy's misadventure"
                         }
                     ), active=True, uses=99,
                     involvement=ghchallenges.InvolvedIfCluesRemainAnd(
-                        mymystery, ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"],
-                                                                         exclude=(skippy,))),
+                        mymystery, ghchallenges.InvolvedMetroResidentNPCs(self.elements["METROSCENE"],
+                                                                          exclude=(skippy,))),
                     access_fun=ghchallenges.AccessSocialRoll(
                         gears.stats.Perception, gears.stats.Negotiation, self.rank, untrained_ok=True
                     )
@@ -1714,16 +1885,16 @@ class DZD_SkippysNightOut(Plot):
     def _get_a_clue(self, camp):
         self.elements["CHALLENGE"].advance(camp)
 
-    def _is_best_scene(self,nart,candidate):
-        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
-    def _is_best_npc(self,nart,candidate):
-        return (isinstance(candidate,gears.base.Character) and candidate.combatant and
+    def _is_best_npc(self, nart, candidate):
+        return (isinstance(candidate, gears.base.Character) and candidate.combatant and
+                18 < candidate.get_age(nart.camp) <= 30 and
                 nart.camp.is_not_lancemate(candidate) and candidate not in self.sus_elements)
 
-    def _is_good_meeting_scene(self,nart,candidate):
-        return (isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
-                gears.tags.SCENE_OUTDOORS not in candidate.attributes and candidate not in self.sus_elements)
+    def _is_good_meeting_scene(self, nart, candidate):
+        return (isinstance(candidate, gears.GearHeadScene) and candidate.name == self.scene_to_seek)
 
     def NPC_offers(self, camp):
         mylist = list()
@@ -1732,14 +1903,14 @@ class DZD_SkippysNightOut(Plot):
             if camp.pc.has_badge("Typhon Slayer"):
                 mylist.append(Offer(
                     "On the way from Wujung to Snake Lake, Typhon stopped by to wreck Ipshil. I was there with the city militia but we didn't stand a chance against that monster. My Vadel went critical and I got caught in the blast when I ejected. Losing your legs once is bad enough but losing my cyberlegs again last night was a whole new level of suck.",
-                    context=ContextTag([context.CUSTOM,]), effect=self._get_legs_story,
+                    context=ContextTag([context.CUSTOM, ]), effect=self._get_legs_story,
                     data={"reply": "What happened to your legs?"}
                 ))
 
             game.ghdialogue.TagBasedPartyReply(
                 Offer(
                     "Yeah, losing your legs will do that to you. Check out my arms though- I haven't been this buff since ever. When Typhon attacked Ipshil I was one of the defenders, but we didn't stand a chance. My engine went boom and I barely made it out in time... part of me didn't make it out in time. So now my doctor has me learning to use cyberlegs.",
-                    context=ContextTag([context.CUSTOM,]), effect=self._get_legs_story,
+                    context=ContextTag([context.CUSTOM, ]), effect=self._get_legs_story,
                     data={"reply": "You've lost some weight since the last time I saw you."}
                 ), camp, mylist, (gears.oldghloader.GH1Loader.NPC_VIKKI,)
             )
@@ -1747,8 +1918,8 @@ class DZD_SkippysNightOut(Plot):
         if not self.started_mission:
             mylist.append(Offer(
                 "So last night I was out partying with some friends. This morning I woke up, back at the hotel, but without my cyberlegs. No idea where I left them. No idea how I got back to the hotel without them. I don't suppose you could help me track them down and figure out what happened last night?",
-                context=ContextTag([context.INFO,]), effect=self._start_mission,
-                data={"subject": "your cyberlegs"}, subject="cyberlegs"
+                context=ContextTag([context.INFO, ]), effect=self._start_mission,
+                data={"subject": "your cyberlegs"}, subject="cyberlegs", no_repeats=True,
             ))
 
             if self.memo:
@@ -1760,19 +1931,17 @@ class DZD_SkippysNightOut(Plot):
 
         mylist.append(Offer(
             "That's the thing; I left this wheelchair at the hotel! Usually I prefer the chair for day-to-day getting around, but my legs are more convenient for clubbing. It's a real mystery, I'll tell you that.",
-            context=ContextTag([context.CUSTOM,]),
+            context=ContextTag([context.CUSTOM, ]),
             data={"reply": "Maybe you came back to the hotel in your wheelchair?"},
             subject="This morning I woke up, back at the hotel, but without my cyberlegs."
         ))
 
-
         if not self.got_mystery_tutorial:
             mylist.append(Offer(
                 "That's kind of my job, being a bounty hunter and all. The first thing you need to do is collect clues. Check the memo browser on your phone by pressing \"m\". When reading about the mystery you're working on, an extra button will appear marked \"Examine Clues\". Press that to review the clues you've found and to test different solutions.",
-                context=ContextTag([context.INFO,]),
+                context=ContextTag([context.INFO, ]), no_repeats=True,
                 data={"subject": "solving mysteries"}, subject="mystery", effect=self._give_mystery_tutorial
             ))
-
 
         return mylist
 
@@ -1782,10 +1951,10 @@ class DZD_SkippysNightOut(Plot):
     def _start_mission(self, camp):
         self.started_mission = True
         self.elements["CHALLENGE"].activate(camp)
+        self.memo = None
 
     def _get_legs_story(self, camp):
         self.got_legs_story = True
 
     def t_UPDATE(self, camp):
         pass
-

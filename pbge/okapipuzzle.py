@@ -210,11 +210,15 @@ class AIsSolutionClue:
 
 
 class OkapiPuzzle:
-    def __init__(self, name, decks, solution=None):
+    ALPHA_KEYS = "abcdefghijklmnopqrstuvwzxyz"
+    def __init__(self, name, decks, solution_form, solution=None):
         self.name = name
         self.decks = decks
-
+        self.solution_form = solution_form
         self.solution = solution or [random.choice(d.cards) for d in decks]
+
+        mydict = dict([(self.ALPHA_KEYS[n], card) for n,card in enumerate(self.solution)])
+        self.solution_text = solution_form.format(**mydict)
 
         self.unknown_clues = self.generate_all_clues()
         self.known_clues = list()
@@ -285,7 +289,7 @@ class OkapiPuzzle:
     def known_clues_match_solution(self, solution):
         return self.clues_match_solution(self.known_clues, solution)
 
-    def number_of_known_matches(self, solution):
+    def number_of_known_matches(self):
         return self.number_of_matches(self.known_clues)
 
     def __str__(self):
@@ -354,7 +358,7 @@ class HypothesisWidget(widgets.ColumnWidget):
     def on_select(self, choice):
         hypo = self.get_hypothesis()
         if self.mystery.known_clues_match_solution(hypo):
-            if self.mystery.number_of_known_matches(hypo) == 1:
+            if self.mystery.number_of_known_matches() == 1 and hypo == tuple(self.mystery.solution):
                 self.result_label.text = "Solved!"
                 self.result_label.color = INFO_HILIGHT
                 self.on_solution()

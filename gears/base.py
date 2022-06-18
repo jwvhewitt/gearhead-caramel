@@ -4093,9 +4093,12 @@ class Character(Being):
             rs += (pc_charm - npc_ego + 3) * 5
         return min(max(rs, -100), 100)
 
+    def get_age(self, camp):
+        return camp.year - self.birth_year
+
     def get_text_desc(self, camp):
         myitems = list()
-        myitems.append("{} year old".format(camp.year - self.birth_year))
+        myitems.append("{} year old".format(self.get_age(camp)))
         if self.gender:
             myitems.append(self.gender.adjective)
         if self.job:
