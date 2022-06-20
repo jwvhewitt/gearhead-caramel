@@ -1,3 +1,4 @@
+v0.830 June 21 2022
 * Added "Skippy's Night Out" mystery to Wujung in DeadZone Drifter
 * GH1 import now includes all NPCs that have a relationship with the PC
 * Gears can now be marked as stolen; only certain shops will buy those
@@ -28,7 +29,7 @@
 * Scenario variable types all have their own classes now
 * The map focus cannot leave the bounds of the map
 
-v0.821 March 31 2021
+v0.821 March 31 2022
 * Fixed the loverboy beard error
 * ScrollColumn widgets may force focus
 * ScrollColumn widgets act like menus when accessed by keyboard
@@ -36,7 +37,7 @@ v0.821 March 31 2021
 * Added mapcursor module; can be used to move & target invocations via the keyboard
 * Holding shift with tab will select the previous widget
 
-v0.820 March 13 2021
+v0.820 March 13 2022
 * Added the Ice Wind mecha family
 * Added more portrait bits
 * Update trigger automatically updates plots
