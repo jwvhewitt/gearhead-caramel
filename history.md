@@ -1,3 +1,6 @@
+* Added "Skippy's Night Out" mystery to Wujung in DeadZone Drifter
+* GH1 import now includes all NPCs that have a relationship with the PC
+* Gears can now be marked as stolen; only certain shops will buy those
 * GearHead Campaign now has method for loading major NPCs
 * Memo browser is now a widget, and memos can create custom widgets
 * Terrset now actually draws border

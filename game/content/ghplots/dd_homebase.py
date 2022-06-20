@@ -1740,6 +1740,8 @@ class DZD_BlackIslePub(Plot):
             nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
+        self.add_sub_plot(nart, "TAVERN_BONUS", necessary=False)
+
         return True
 
     def SHOPKEEPER_offers(self, camp):
@@ -1834,6 +1836,8 @@ class DZD_SkippysNightOut(Plot):
             "Skippy's night out", (friend_susdeck, activity_susdeck, scene_susdeck), "{a} {b.verbed} at {c}."
         ))
 
+        self.register_element("SOLUTION_NPC", mymystery.solution[0].gameob)
+
         mychallenge = self.register_element("CHALLENGE", pbge.challenges.MysteryChallenge(
             "Skippy's Challenge", mymystery,
             memo=pbge.challenges.MysteryMemo("Find out what happened to Skippy's legs."), active=False,
@@ -1845,7 +1849,7 @@ class DZD_SkippysNightOut(Plot):
                         data={
                             "reply": "Do you know anything about what happened to Skippy last night?",
                             "stuff": "Skippy's misadventure"
-                        }
+                        }, dead_end=True
                     ), active=True, uses=99,
                     involvement=ghchallenges.InvolvedIfCluesRemainAnd(
                         mymystery, ghchallenges.InvolvedMetroResidentNPCs(self.elements["METROSCENE"],
@@ -1861,7 +1865,7 @@ class DZD_SkippysNightOut(Plot):
                         data={
                             "reply": "Do you remember seeing Skippy last night?",
                             "stuff": "Skippy's misadventure"
-                        }
+                        }, dead_end=True
                     ), active=True, uses=99,
                     involvement=ghchallenges.InvolvedIfAssociatedCluesRemainAnd(mymystery, friend_susdeck),
                     npc_effect=self._get_associated_clue,
@@ -1872,6 +1876,16 @@ class DZD_SkippysNightOut(Plot):
         self.got_legs_story = False
         self.started_mission = False
         self.got_mystery_tutorial = False
+
+        self.returned_legs = False
+        self.heard_explanation = False
+
+        # Create the legs. They aren't stolen, exactly, but you'd have to be a pretty shady shopkeeper to buy them.
+        self.legs = self.register_element(
+            "_CYBERLEGS",
+            gears.base.Treasure(name="Cyberlegs", value=120000, weight=120, stolen=True,
+                                desc="A pair of cyberlegs, mysteriously abanadoned.")
+        )
 
         return True
 
@@ -1896,7 +1910,7 @@ class DZD_SkippysNightOut(Plot):
     def _is_good_meeting_scene(self, nart, candidate):
         return (isinstance(candidate, gears.GearHeadScene) and candidate.name == self.scene_to_seek)
 
-    def NPC_offers(self, camp):
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
 
         if not self.got_legs_story:
@@ -1917,23 +1931,23 @@ class DZD_SkippysNightOut(Plot):
 
         if not self.started_mission:
             mylist.append(Offer(
-                "So last night I was out partying with some friends. This morning I woke up, back at the hotel, but without my cyberlegs. No idea where I left them. No idea how I got back to the hotel without them. I don't suppose you could help me track them down and figure out what happened last night?",
+                "So last night I was out partying with some friends. This morning I woke up, back at the hotel, but without my prosthetic legs. No idea where I left them. No idea how I got back to the hotel without them. I don't suppose you could help me track them down and figure out what happened last night?",
                 context=ContextTag([context.INFO, ]), effect=self._start_mission,
                 data={"subject": "your cyberlegs"}, subject="cyberlegs", no_repeats=True,
             ))
 
             if self.memo:
                 mylist.append(Offer(
-                    "Wild?! That ain't the half of it. Y'see, I was out partying with some friends. This morning I woke up, back at the hotel, but without my cyberlegs. No idea where I left them. No idea how I got back to the hotel without them. I don't suppose you could help me track them down and figure out what happened last night?",
+                    "Wild?! That ain't the half of it. Y'see, I was out partying with some friends. This morning I woke up, back at the hotel, but without my prosthetic legs. No idea where I left them. No idea how I got back to the hotel without them. I don't suppose you could help me track them down and figure out what happened last night?",
                     context=ContextTag([context.CUSTOM, ]), effect=self._start_mission,
                     data={"reply": "I hear you had a wild time last night."},
                 ))
 
         mylist.append(Offer(
             "That's the thing; I left this wheelchair at the hotel! Usually I prefer the chair for day-to-day getting around, but my legs are more convenient for clubbing. It's a real mystery, I'll tell you that.",
-            context=ContextTag([context.CUSTOM, ]),
+            context=ContextTag([context.CUSTOMREPLY, ]),
             data={"reply": "Maybe you came back to the hotel in your wheelchair?"},
-            subject="This morning I woke up, back at the hotel, but without my cyberlegs."
+            subject="prosthetic legs"
         ))
 
         if not self.got_mystery_tutorial:
@@ -1943,7 +1957,86 @@ class DZD_SkippysNightOut(Plot):
                 data={"subject": "solving mysteries"}, subject="mystery", effect=self._give_mystery_tutorial
             ))
 
+        mylist.append(Offer(
+            "Thanks. Good luck out there.",
+            context=ContextTag([context.CUSTOMREPLY, ]), no_repeats=True, allow_generics=False,
+            data={"reply": "I'll get to work on it right away."}, subject="mystery"
+            ))
+
+        mychallenge: pbge.challenges.MysteryChallenge = self.elements["CHALLENGE"]
+        if mychallenge.active:
+            mylist.append(Offer(
+                "[HELLO] How's the search going for my cyberlegs?",
+                context=ContextTag([context.HELLO, ])
+            ))
+
+            if mychallenge.is_won():
+                mylist.append(Offer(
+                    "Good work! And have you found my cyberlegs?",
+                    context=ContextTag([context.CUSTOM, ]),
+                    data={"reply": "I have solved the mystery of your night out."}, subject=self, subject_start=True
+                ))
+                if camp.party_has_item(self.elements["_CYBERLEGS"]):
+                    mylist.append(Offer(
+                        "Fantastic! I can take these back to the hotel and plug them into the charger. Look, if you ever need help on one of your adventures, just come back here and ask. I'd be happy to join your lance.",
+                        context=ContextTag([context.CUSTOMREPLY, ]), data={"reply": "Yes, I have. Here they are."},
+                        subject=self, effect=self._return_legs
+                    ))
+
+                else:
+                    mylist.append(Offer(
+                        "Well, if you've already solved the mystery, it can't be too hard to figure out where I left my legs.",
+                        context=ContextTag([context.CUSTOMREPLY, ]), data={"reply": "Uh... [STILL_WORKING_ON_IT]"},
+                        subject=self
+                    ))
+
+            elif mychallenge.mystery.known_clues:
+                mylist.append(Offer(
+                    "Well, come back here when you have some results.",
+                    context=ContextTag([context.CUSTOM, ]), data={"reply": "[STILL_WORKING_ON_IT]"}
+                ))
+
         return mylist
+
+    EXPLANATIONS = (
+        "We went around to a bunch of different bars, and I don't remember exactly but at some point his legs just weren't there anymore.", # Carouse
+        "I'll be honest, things were getting a bit hot and heavy with us, and you know how sometimes your clothes just come off in that kind of situation? The same applies to cyberprosthetics.", # Make Out
+        "The two of us got involved in a card game. I think the jerk we were playing against was cheating, because things went pretty bad for Skippy and he threw his legs in the pot. He lost, but what is anyone gonna do with a pair of used cyberlegs?", #Gambling
+        "Not gonna lie. We got a bottle of Vesuvian Xozu, and it was good, but halfway through we had a mystical experience. Reality faded away and we were in astral space. A giant groundhog, who was a beautiful woman but also a groundhog, appeared and told Skippy to get on her back. As they were bouncing around the room his legs came off.", #Xozu
+        "At some point, [God] knows why, we decided to go get matching tattoos. The harness for Skippy's legs was getting in the way of... where he got the tattoo. So we took his legs off and I guess we just forgot about them." #Tattoos
+    )
+
+    def SOLUTION_NPC_offers(self, camp):
+        mylist = list()
+        mychallenge: pbge.challenges.MysteryChallenge = self.elements["CHALLENGE"]
+        if mychallenge.is_won() and not self.heard_explanation:
+            explanation = self.EXPLANATIONS[mychallenge.mystery.decks[1].cards.index(mychallenge.mystery.solution[1])]
+            mylist.append(Offer(
+                "{} I suggest you search at {}.".format(explanation, mychallenge.mystery.solution[2].gameob),
+                context=ContextTag([context.CUSTOM]), effect=self._hear_explanation,
+                data={"reply": "I know you were with Skippy last night. Why don't you tell me what happened to his legs?"}
+            ))
+
+        return mylist
+
+    def MYSTERY_SOLVED(self, camp):
+        if self.legs:
+            mydest = self.elements["MYSTERY"].solution[2].gameob
+            mydest.contents.append(self.legs)
+            self.legs = None
+
+    def _return_legs(self, camp: gears.GearHeadCampaign):
+        camp.take_item(self.elements["_CYBERLEGS"])
+        self.elements["NPC"].relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        self.elements["CHALLENGE"].deactivate(camp)
+        self.returned_legs = True
+        if self.heard_explanation:
+            self.end_plot(camp)
+
+    def _hear_explanation(self, camp):
+        self.heard_explanation = True
+        if self.returned_legs:
+            self.end_plot(camp)
 
     def _give_mystery_tutorial(self, camo):
         self.got_mystery_tutorial = True
@@ -1956,5 +2049,3 @@ class DZD_SkippysNightOut(Plot):
     def _get_legs_story(self, camp):
         self.got_legs_story = True
 
-    def t_UPDATE(self, camp):
-        pass

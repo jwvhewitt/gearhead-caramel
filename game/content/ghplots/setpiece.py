@@ -639,6 +639,8 @@ class MWM_StorageRoom(Plot):
 #   ***   TAVERN   ***
 #   ******************
 #
+# Note: This subplot is being deprecated; use SHOP_TAVERN instead.
+#
 #  LOCALE: The tavern
 #  METROSCENE: The city the building is in
 #  METRO: The scope of the city
@@ -880,7 +882,8 @@ class GuildMarket(Plot):
         self.shopname = "{}'s Shop".format(npc1)
 
         self.shop = services.Shop(npc=npc1, ware_types=services.BLACK_MARKET, rank=self.rank+random.randint(1,50),
-                                  shop_faction=self.elements.get("FACTION", gears.factions.TreasureHunters))
+                                  shop_faction=self.elements.get("FACTION", gears.factions.TreasureHunters),
+                                  buy_stolen_items=True)
 
         return True
 

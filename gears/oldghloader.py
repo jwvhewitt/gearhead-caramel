@@ -20,8 +20,8 @@ from . import materials
 TYPHON_SLAYER = meritbadges.UniversalReactionBadge("Typhon Slayer", "You led the team that defeated Typhon.", 10)
 CETUS_SLAYER = meritbadges.UniversalReactionBadge("Cetus Slayer", "You defeated the biomonster Cetus.", 3)
 LADON_SLAYER = meritbadges.UniversalReactionBadge("Ladon Slayer", "You defeated the biomonster Ladon.", 3)
-ELEMENTAL_ADEPT = meritbadges.TagReactionBadge("Elemental Adept", "You meditated at the elemental shrines, attaining illumination.",{tags.Faithworker: 20})
-ROBOT_WARRIOR = meritbadges.TagReactionBadge("Robot Warrior", "You ranked in the Robot Warriors mecha tournament.",{tags.Adventurer: 10,tags.Military: 5})
+ELEMENTAL_ADEPT = meritbadges.TagReactionBadge("Elemental Adept", "You meditated at the elemental shrines, attaining illumination.",{tags.Faithworker: 20}, tags=(tags.Adventurer, tags.Faithworker))
+ROBOT_WARRIOR = meritbadges.TagReactionBadge("Robot Warrior", "You ranked in the Robot Warriors mecha tournament.",{tags.Adventurer: 10,tags.Military: 5}, tags=(tags.Adventurer,))
 
 
 class RetroGear(object):
@@ -136,6 +136,8 @@ class GH1Loader(object):
     NAS_PRAGMATIC = -7
     NAS_GENDER = 0
     NAS_DAGE = 1
+    NAS_SENTIENCE = 4
+    NAV_SENTIENT = 0
 
     NAG_EXPERIENCE = 4
     NAS_TOTAL_XP = 0
@@ -680,14 +682,13 @@ class GH1Loader(object):
             self._load_list(f)
 
     def get_major_npcs(self):
-        # For now, we're just taking the current lancemates minus pets.
+        # Screw it, let's take everyone in the game world who has a nonzero relationship with the PC.
         npcs = list()
         for candidate in self.all_gears(self.gb_contents):
             if (
                     candidate.g == self.GG_CHARACTER and candidate.natt.get((self.NAG_RELATIONSHIP, 0),0) != 0 and
-                    candidate.natt.get((3, 4),0) == 0 and
-                    candidate.natt.get((self.NAG_PERSONAL, self.NAS_CHARACTERID), 0) != 0 and
-                    candidate.natt.get((self.NAG_LOCATION, self.NAS_TEAM)) == self.NAV_LANCEMATETEAM
+                    candidate.natt.get((self.NAG_CHARDESCRIPTION, self.NAS_SENTIENCE),0) == self.NAV_SENTIENT and
+                    candidate.natt.get((self.NAG_PERSONAL, self.NAS_CHARACTERID), 0) != 0
             ):
                 npcs.append(candidate)
                 #print(candidate.natt.get((self.NAG_RELATIONSHIP,0),0))
@@ -718,8 +719,8 @@ class GH1Loader(object):
 
     def get_relationships(self,rpc,egg):
         # Grab the NPC info
-        major_npcs = self.get_mnpcid_npcs()
-        for k,mynpc in major_npcs.items():
+        mnpcid_npcs = self.get_mnpcid_npcs()
+        for k,mynpc in mnpcid_npcs.items():
             # k is the NPC's major ident, v is the character ID from GH1.
             nu_relationship = relationships.Relationship(
                 reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,mynpc.natt.get((5,0))),0),
@@ -736,7 +737,7 @@ class GH1Loader(object):
                 egg.major_npc_records[k] = nu_relationship
 
         for mynpc in self.get_major_npcs():
-            if mynpc not in major_npcs.values():
+            if mynpc not in mnpcid_npcs.values():
                 nu_npc = self.convert_character(mynpc)
                 nu_relationship = relationships.Relationship(
                     reaction_mod=rpc.natt.get((self.NAG_REACTIONSCORE,mynpc.natt.get(self.NAG_PERSONAL,self.NAS_CHARACTERID)),0),

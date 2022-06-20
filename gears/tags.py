@@ -81,6 +81,9 @@ class Police(Singleton):
 class Politician(Singleton):
     name = "Politician"
 
+# Miscellaneous character types
+
+COMBATANT = "Combatant"
 
 
 # Scene Tags

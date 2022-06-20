@@ -37,6 +37,7 @@ SINGLETON_REVERSE = dict()
 ALL_CALIBRES = list()
 ALL_FACTIONS = list()
 
+
 def harvest(mod, subclass_of, dict_to_add_to, exclude_these, list_to_add_to=None):
     for name in dir(mod):
         o = getattr(mod, name)
@@ -52,14 +53,14 @@ harvest(base, base.BaseGear, GEAR_TYPES, (base.BaseGear, base.MovementSystem, ba
 harvest(scale, scale.MechaScale, SINGLETON_TYPES, ())
 harvest(base, base.ModuleForm, SINGLETON_TYPES, (base.ModuleForm,))
 harvest(materials, materials.Material, SINGLETON_TYPES, (materials.Material,))
-harvest(calibre, calibre.BaseCalibre, SINGLETON_TYPES, (calibre.BaseCalibre,),list_to_add_to=ALL_CALIBRES)
+harvest(calibre, calibre.BaseCalibre, SINGLETON_TYPES, (calibre.BaseCalibre,), list_to_add_to=ALL_CALIBRES)
 harvest(base, base.MT_Battroid, SINGLETON_TYPES, ())
 SINGLETON_TYPES['None'] = None
 harvest(stats, stats.Stat, SINGLETON_TYPES, (stats.Stat,))
 harvest(stats, stats.Skill, SINGLETON_TYPES, (stats.Skill,))
 harvest(geffects, pbge.scenes.animobs.AnimOb, SINGLETON_TYPES, ())
 harvest(attackattributes, pbge.Singleton, SINGLETON_TYPES, ())
-harvest(factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,factions.Faction),list_to_add_to=ALL_FACTIONS)
+harvest(factions, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton, factions.Faction), list_to_add_to=ALL_FACTIONS)
 harvest(tags, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(programs, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(personality, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
@@ -87,11 +88,12 @@ def harvest_color(dict_to_add_to):
                 METAL_COLORS.append(o)
     ALL_COLORS.sort(key=lambda c: c.family)
 
+
 from . import oldghloader
 from . import jobs
 
 harvest_color(SINGLETON_TYPES)
-#SINGLETON_TYPES.update(jobs.ALL_JOBS)
+# SINGLETON_TYPES.update(jobs.ALL_JOBS)
 jobs.SINGLETON_TYPES = SINGLETON_TYPES
 SINGLETON_TYPES["Female"] = genderobj.Gender.get_default_female()
 SINGLETON_TYPES["Male"] = genderobj.Gender.get_default_male()
@@ -100,13 +102,16 @@ SINGLETON_TYPES["Nonbinary"] = genderobj.Gender.get_default_nonbinary()
 from . import colorstyle
 from . import champions
 
+
 def harvest_styles(mod):
     for name in dir(mod):
         o = getattr(mod, name)
-        if isinstance(o,colorstyle.Style):
+        if isinstance(o, colorstyle.Style):
             colorstyle.ALL_STYLES.append(o)
 
+
 harvest_styles(colorstyle)
+
 
 class TimeOrNPCExpiration(object):
     def __init__(self, camp, time_limit=10, npcs=()):
@@ -132,7 +137,7 @@ class QualityOfLife(object):
     # Community: Cultural works and sense of togetherness.
     # Defense: Ability to resist external military threats.
     # Tags: Special city-wide status effects not covered by the above indicies.
-    def __init__(self,prosperity=0,stability=0,health=0,community=0,defense=0,tags=()):
+    def __init__(self, prosperity=0, stability=0, health=0, community=0, defense=0, tags=()):
         self.prosperity = prosperity
         self.stability = stability
         self.health = health
@@ -140,7 +145,7 @@ class QualityOfLife(object):
         self.defense = defense
         self.tags = list(tags)
 
-    def add(self,other):
+    def add(self, other):
         self.prosperity += other.prosperity
         self.stability += other.stability
         self.health += other.health
@@ -182,7 +187,7 @@ class MetroData(object):
     def get_quality_of_life(self):
         qol = QualityOfLife()
         for plot in self.scripts:
-            if plot.active and hasattr(plot,"QOL"):
+            if plot.active and hasattr(plot, "QOL"):
                 qol.add(plot.QOL)
         return qol
 
@@ -196,10 +201,10 @@ class MetroData(object):
 class GearHeadScene(pbge.scenes.Scene):
     def __init__(self, width=128, height=128, name="", player_team=None, civilian_team=None, faction=None,
                  scale=scale.MechaScale, environment=tags.GroundEnv, attributes=(), is_metro=False,
-                 exploration_music=None,combat_music=None,**kwargs):
+                 exploration_music=None, combat_music=None, **kwargs):
         # A metro scene is one which will contain plots and tarot cards local to it and its children.
         #   Generally it should be placed at root, as a direct child of the GHCampaign.
-        super().__init__(width, height, name, player_team,**kwargs)
+        super().__init__(width, height, name, player_team, **kwargs)
         self.civilian_team = civilian_team
         self.faction = faction
         self.scale = scale
@@ -275,7 +280,7 @@ class GearHeadScene(pbge.scenes.Scene):
             # mmecha = pbge.my_state.view.modelmap.get(pos)
             mmecha = self.get_main_actor(pos)
             if mmecha and (self.local_teams.get(mmecha) == self.player_team or not mmecha.hidden):
-                return info.get_status_display(model=mmecha,scene=self)
+                return info.get_status_display(model=mmecha, scene=self)
             elif pbge.my_state.view.waypointmap.get(pos):
                 wp = pbge.my_state.view.waypointmap.get(pos)
                 return info.ListDisplay(items=wp)
@@ -290,14 +295,14 @@ class GearHeadScene(pbge.scenes.Scene):
             actor.place(self, (x0, y0), team)
         actor.gear_up()
 
-    def purge_faction(self,camp,fac):
+    def purge_faction(self, camp, fac):
         # Move all the NPCs belonging to this faction to the storage scene.
         for npc in list(self.contents):
-            if hasattr(npc,"faction") and npc.faction is fac and npc not in camp.party:
+            if hasattr(npc, "faction") and npc.faction is fac and npc not in camp.party:
                 self.contents.remove(npc)
                 camp.storage.contents.append(npc)
         for subscene in self.sub_scenes:
-            subscene.purge_faction(camp,fac)
+            subscene.purge_faction(camp, fac)
 
     def remove_all_npcs(self, camp):
         # Remove all the NPCs in this scene, including subscenes.
@@ -307,26 +312,26 @@ class GearHeadScene(pbge.scenes.Scene):
         for subscene in self.sub_scenes:
             subscene.remove_all_npcs(camp)
 
-    def list_empty_spots( self, room=None ):
+    def list_empty_spots(self, room=None):
         good_spots = set()
         if not room:
             room = self.get_rect()
-        for x in range( room.x, room.x + room.width - 1 ):
-            for y in range( room.y, room.y + room.height-1 ):
-                if not self.tile_blocks_walking(x,y):
-                    good_spots.add( (x,y) )
+        for x in range(room.x, room.x + room.width - 1):
+            for y in range(room.y, room.y + room.height - 1):
+                if not self.tile_blocks_walking(x, y):
+                    good_spots.add((x, y))
         good_spots -= self.get_blocked_tiles()
         return good_spots
 
-    def tidy_enchantments(self,dispel_type):
+    def tidy_enchantments(self, dispel_type):
         for thing in self.contents:
             if hasattr(thing, "ench_list"):
                 thing.ench_list.tidy(dispel_type)
 
-    def tidy_at_start(self,camp):
+    def tidy_at_start(self, camp):
         for npc in self.contents:
-            if hasattr(npc,"pos"):
-                myteam = self.local_teams.get(npc,None)
+            if hasattr(npc, "pos"):
+                myteam = self.local_teams.get(npc, None)
                 if myteam:
                     home = myteam.home
                     if home and npc.pos and not home.collidepoint(npc.pos):
@@ -343,7 +348,7 @@ class GearHeadScene(pbge.scenes.Scene):
                     if good_spots:
                         npc.pos = random.choice(list(good_spots))
                     else:
-                        print("Warning: {} could not be placed in {}".format(npc,self))
+                        print("Warning: {} could not be placed in {}".format(npc, self))
 
     def deploy_team(self, members, team):
         if team.home:
@@ -363,7 +368,7 @@ class GearHeadScene(pbge.scenes.Scene):
     def deploy_actor(self, actor):
         myteam = self.local_teams.get(actor) or self.civilian_team
         if myteam:
-            self.deploy_team([actor,], myteam)
+            self.deploy_team([actor, ], myteam)
         else:
             good_spots = list(self.list_empty_spots())
             if good_spots:
@@ -375,7 +380,7 @@ class GearHeadScene(pbge.scenes.Scene):
     def get_keywords(self):
         mylist = list()
         for t in self.attributes:
-            if hasattr(t,"name"):
+            if hasattr(t, "name"):
                 mylist.append(t.name)
             else:
                 mylist.append(str(t))
@@ -400,7 +405,8 @@ class GearHeadScene(pbge.scenes.Scene):
 
 class GearHeadCampaign(pbge.campaign.Campaign):
 
-    def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3, faction_relations=factions.DEFAULT_FACTION_DICT_NT158, convoborder="dzd_convoborder.png"):
+    def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3,
+                 faction_relations=factions.DEFAULT_FACTION_DICT_NT158, convoborder="dzd_convoborder.png"):
         super(GearHeadCampaign, self).__init__(name, explo_class)
         self.year = year
         self.num_lancemates = num_lancemates
@@ -421,7 +427,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
         if egg:
             self.egg = egg
-            self.party = [egg.pc,]
+            self.party = [egg.pc, ]
             if egg.mecha:
                 self.party.append(egg.mecha)
                 egg.mecha.pilot = egg.pc
@@ -446,7 +452,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def all_plots(self):
         for ob in self.all_contents(self):
-            if hasattr(ob,"scripts"):
+            if hasattr(ob, "scripts"):
                 for p in ob.scripts:
                     yield p
             if hasattr(ob, "metrodat"):
@@ -455,10 +461,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def active_tarot_cards(self):
         for p in self.active_plots():
-            if hasattr(p,"tarot_position"):
+            if hasattr(p, "tarot_position"):
                 yield p
 
-    def get_tarot_card_by_position(self,pos):
+    def get_tarot_card_by_position(self, pos):
         for card in self.active_tarot_cards():
             if card.tarot_position == pos:
                 return card
@@ -468,7 +474,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         # both operational and on the map.
         flp = None
         for pc in self.party:
-            if pc.is_operational() and pc in self.scene.contents and hasattr(pc,"pos") and pc.pos and self.scene.on_the_map(*pc.pos):
+            if pc.is_operational() and pc in self.scene.contents and hasattr(pc,
+                                                                             "pos") and pc.pos and self.scene.on_the_map(
+                    *pc.pos):
                 flp = pc
                 break
         return flp
@@ -483,7 +491,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         return [pc for pc in self.scene.contents if pc in self.party and pc.is_operational()]
 
     def get_lancemates(self):
-        return [pc for pc in self.party if isinstance(pc,base.Character) and pc is not self.pc]
+        return [pc for pc in self.party if isinstance(pc, base.Character) and pc is not self.pc]
 
     def can_add_lancemate(self):
         lancemates = self.get_lancemates()
@@ -498,7 +506,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         return max([pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party()] + [0])
 
     def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False,
-                        no_random=False,include_pc=True, modifier=0):
+                        no_random=False, include_pc=True, modifier=0):
         # Make a skill roll against a given difficulty. If successful, return the lancemate
         # who made the roll.
         if untrained_ok:
@@ -511,44 +519,57 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     myparty.remove(ppc)
         if myparty:
             winners = list()
-            target = stats.get_skill_target(rank,difficulty)+modifier
+            target = stats.get_skill_target(rank, difficulty) + modifier
             for roller in myparty:
                 if no_random:
-                    roll = 55 + roller.get_skill_score(stat_id,skill_id)
+                    roll = 55 + roller.get_skill_score(stat_id, skill_id)
                 else:
-                    roll = random.randint(1,100) + roller.get_skill_score(stat_id,skill_id)
+                    roll = random.randint(1, 100) + roller.get_skill_score(stat_id, skill_id)
                 if roll >= target:
                     winners.append(roller)
             if winners:
                 pc = random.choice(winners)
-                pc.dole_experience(max(rank//3,5),skill_id)
+                pc.dole_experience(max(rank // 3, 5), skill_id)
                 return pc
 
     def social_skill_roll(self, npc: base.Character, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE,
-                          untrained_ok=False, no_random=False,include_pc=True):
-        modifier = -npc.get_reaction_score(self.pc, self)//4
+                          untrained_ok=False, no_random=False, include_pc=True):
+        modifier = -npc.get_reaction_score(self.pc, self) // 4
         return self.make_skill_roll(stat_id, skill_id, rank, difficulty, untrained_ok, no_random, include_pc, modifier)
 
-    def party_has_skill(self,skill_id):
+    def party_has_skill(self, skill_id):
         return any(pc for pc in self.get_active_party() if pc.has_skill(skill_id))
 
-    def party_has_personality(self,personality_trait):
+    def party_has_personality(self, personality_trait):
         return any(pc for pc in self.get_active_party() if personality_trait in pc.get_pilot().personality)
 
-    def get_pc_mecha(self,pc):
-        meklist = [mek for mek in self.party if isinstance(mek,base.Mecha) and mek.pilot is pc]
+    def party_has_item(self, item):
+        return any(pc for pc in self.party if any(item is part for part in pc.get_all_parts()))
+
+    def take_item(self, item):
+        # This method is for removing key items after they are used.
+        if item in self.party:
+            self.party.remove(item)
+        elif hasattr(item, "container"):
+            item.container.remove(item)
+
+    def party_has_tag(self, tag):
+        return any(pc for pc in self.get_active_party() if tag in pc.get_pilot().get_tags())
+
+    def get_pc_mecha(self, pc):
+        meklist = [mek for mek in self.party if isinstance(mek, base.Mecha) and mek.pilot is pc]
         if meklist:
             if len(meklist) > 1:
                 for mek in meklist[1:]:
                     mek.pilot = None
             return meklist[0]
 
-    def get_backup_mek(self,npc):
+    def get_backup_mek(self, npc):
         for mek in self.party:
-            if isinstance(mek,base.Mecha) and hasattr(mek,"owner") and mek.owner is npc:
+            if isinstance(mek, base.Mecha) and hasattr(mek, "owner") and mek.owner is npc:
                 return mek
 
-    def assign_pilot_to_mecha(self,pc,mek):
+    def assign_pilot_to_mecha(self, pc, mek):
         # either mek or pc can be None, to clear a mecha's assigned pilot.
         for m in self.party:
             if isinstance(m, base.Mecha) and m.pilot is pc:
@@ -562,7 +583,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def play(self):
         super(GearHeadCampaign, self).play()
         if self.pc in self.dead_party:
-            pbge.alert("Game Over",font=pbge.my_state.hugefont)
+            pbge.alert("Game Over", font=pbge.my_state.hugefont)
             self.delete_save_file()
 
     def eject(self):
@@ -589,14 +610,16 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.egg = None
         self.delete_save_file()
 
-    def get_usable_party(self,map_scale,solo_map=False,just_checking=False, enviro=tags.GroundEnv):
+    def get_usable_party(self, map_scale, solo_map=False, just_checking=False, enviro=tags.GroundEnv):
         usable_party = list()
         if not solo_map:
             party_candidates = self.party
         else:
-            party_candidates = [pc for pc in self.party if pc is self.pc or (hasattr(pc,"pilot") and pc.pilot is self.pc)]
+            party_candidates = [pc for pc in self.party if
+                                pc is self.pc or (hasattr(pc, "pilot") and pc.pilot is self.pc)]
         for pc in party_candidates:
-            if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc,(base.Character,base.Mecha)) and geffects.model_matches_environment(pc,enviro):
+            if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc, (
+            base.Character, base.Mecha)) and geffects.model_matches_environment(pc, enviro):
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational() and pc.check_design():
                         if not just_checking:
@@ -609,7 +632,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         return usable_party
 
     def has_mecha_party(self, solo_map=False, enviro=tags.GroundEnv):
-        party = self.get_usable_party(scale.MechaScale,solo_map=solo_map,just_checking=True, enviro=enviro)
+        party = self.get_usable_party(scale.MechaScale, solo_map=solo_map, just_checking=True, enviro=enviro)
         return len(party) > 0
 
     def choose_party(self):
@@ -621,7 +644,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             usable_party.append(mysquad)
             self.party.append(mysquad)
         else:
-            usable_party += self.get_usable_party(self.scene.scale,tags.SCENE_SOLO in self.scene.attributes)
+            usable_party += self.get_usable_party(self.scene.scale, tags.SCENE_SOLO in self.scene.attributes)
         return usable_party
 
     def place_party(self, entrance):
@@ -639,7 +662,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     pos = entrance.pos
                 pc.place(self.scene, pos, self.scene.player_team)
                 pc.gear_up()
-                #pbge.scenes.pfov.PCPointOfView(self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale))
+                # pbge.scenes.pfov.PCPointOfView(self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale))
         self.scene.update_party_position(self)
 
         # Also update NPC positions when placing the party.
@@ -649,15 +672,17 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         for pc in list(self.party):
             if pc.is_destroyed():
                 self.party.remove(pc)
-                skill = self.get_party_skill(stats.Knowledge,pc.material.repair_type) + 50 - pc.get_percent_damage_over_health()
+                skill = self.get_party_skill(stats.Knowledge,
+                                             pc.material.repair_type) + 50 - pc.get_percent_damage_over_health()
                 if pc is self.pc:
-                    if pbge.util.config.getboolean("DIFFICULTY","pc_can_die") and random.randint(1,100) > skill:
+                    if pbge.util.config.getboolean("DIFFICULTY", "pc_can_die") and random.randint(1, 100) > skill:
                         self.dead_party.append(pc)
                     else:
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
-                elif isinstance(pc,base.Being):
-                    if pbge.util.config.getboolean("DIFFICULTY","lancemates_can_die") and random.randint(1,100) > skill:
+                elif isinstance(pc, base.Being):
+                    if pbge.util.config.getboolean("DIFFICULTY", "lancemates_can_die") and random.randint(1,
+                                                                                                          100) > skill:
                         self.dead_party.append(pc)
                         if announce_character_state:
                             pbge.alert("{} has died.".format(pc))
@@ -665,14 +690,16 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
                         if hasattr(pc, "relationship") and pc.relationship:
-                            pc.relationship.reaction_mod -= random.randint(1,10)
+                            pc.relationship.reaction_mod -= random.randint(1, 10)
                         if announce_character_state:
                             pbge.alert("{} has been severely injured and is removed to a safe place.".format(pc))
-                elif random.randint(1,100) <= skill or not pbge.util.config.getboolean("DIFFICULTY","mecha_can_die") or pc not in self.scene.contents:
+                elif random.randint(1, 100) <= skill or not pbge.util.config.getboolean("DIFFICULTY",
+                                                                                        "mecha_can_die") or pc not in self.scene.contents:
                     self.party.append(pc)
                     lancemate = self.get_pc_mecha(pc)
-                    if lancemate and lancemate is not self.pc and hasattr(lancemate, "relationship") and lancemate.relationship:
-                        lancemate.relationship.reaction_mod -= random.randint(1,6)
+                    if lancemate and lancemate is not self.pc and hasattr(lancemate,
+                                                                          "relationship") and lancemate.relationship:
+                        lancemate.relationship.reaction_mod -= random.randint(1, 6)
                 elif announce_mecha_state:
                     pbge.alert("{} was wrecked beyond recovery.".format(pc.get_full_name()))
 
@@ -687,39 +714,39 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 self.scene.contents.remove(pc)
             if hasattr(pc, "free_pilots"):
                 pc.free_pilots()
-            if isinstance(pc,base.Squad):
+            if isinstance(pc, base.Squad):
                 self.party.remove(pc)
 
     # Gonna set up the credits as a property.
     def _get_credits(self):
         return self.egg.credits
 
-    def _set_credits(self,nuval):
-        self.egg.credits = max(nuval,0)
+    def _set_credits(self, nuval):
+        self.egg.credits = max(nuval, 0)
 
     def _del_credits(self):
         self.egg.credits = 0
 
-    credits = property(_get_credits,_set_credits,_del_credits)
+    credits = property(_get_credits, _set_credits, _del_credits)
 
     # Gonna set up the renown as a property.
     def _get_renown(self):
         return self.pc.renown
 
-    def _set_renown(self,nuval):
-        self.pc.renown = min(max(nuval,-100),100)
+    def _set_renown(self, nuval):
+        self.pc.renown = min(max(nuval, -100), 100)
         for pc in self.party:
-            if hasattr(pc,"renown") and pc is not self.pc:
+            if hasattr(pc, "renown") and pc is not self.pc:
                 pc.renown = min(max(nuval, -100, pc.renown), 100)
 
     def _del_renown(self):
         self.pc.renown = 0
 
-    renown = property(_get_renown,_set_renown,_del_renown)
+    renown = property(_get_renown, _set_renown, _del_renown)
 
-    def dole_xp(self,amount, type=base.Being.TOTAL_XP):
+    def dole_xp(self, amount, type=base.Being.TOTAL_XP):
         for pc in self.party:
-            if hasattr(pc,"experience"):
+            if hasattr(pc, "experience"):
                 pc.experience[type] += amount
 
     def totally_restore_party(self):
@@ -737,42 +764,45 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     # Faction Methods
     def get_faction(self, mything):
-        if isinstance(mything,factions.Circle):
+        if isinstance(mything, factions.Circle):
             return mything
-        elif inspect.isclass(mything) and issubclass(mything,factions.Faction):
+        elif inspect.isclass(mything) and issubclass(mything, factions.Faction):
             return mything
-        elif hasattr(mything,"faction"):
+        elif hasattr(mything, "faction"):
             return mything.faction
-        elif hasattr(mything,"get_tacit_faction"):
+        elif hasattr(mything, "get_tacit_faction"):
             return mything.get_tacit_faction(self)
 
-    def _get_faction_family(self,myfac):
-        facfam = [myfac,]
-        while hasattr(myfac,"parent_faction") and myfac.parent_faction:
+    def _get_faction_family(self, myfac):
+        facfam = [myfac, ]
+        while hasattr(myfac, "parent_faction") and myfac.parent_faction:
             facfam.append(myfac.parent_faction)
             myfac = myfac.parent_faction
         return facfam
 
-    def are_faction_allies(self,a,b):
-        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+    def are_faction_allies(self, a, b):
+        a_fac, b_fac = self.get_faction(a), self.get_faction(b)
         if a_fac and b_fac:
-            a_fam,b_fam = self._get_faction_family(a_fac),self._get_faction_family(b_fac)
+            a_fam, b_fam = self._get_faction_family(a_fac), self._get_faction_family(b_fac)
             for fac1 in a_fam:
                 for fac2 in b_fam:
-                    if fac1 is fac2 or (fac1 in self.faction_relations and fac2 in self.faction_relations[fac1].allies) or (fac2 in self.faction_relations and fac1 in self.faction_relations[fac2].allies):
+                    if fac1 is fac2 or (
+                            fac1 in self.faction_relations and fac2 in self.faction_relations[fac1].allies) or (
+                            fac2 in self.faction_relations and fac1 in self.faction_relations[fac2].allies):
                         return True
 
-    def are_faction_enemies(self,a,b):
-        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+    def are_faction_enemies(self, a, b):
+        a_fac, b_fac = self.get_faction(a), self.get_faction(b)
         if a_fac and b_fac:
-            a_fam,b_fam = self._get_faction_family(a_fac),self._get_faction_family(b_fac)
+            a_fam, b_fam = self._get_faction_family(a_fac), self._get_faction_family(b_fac)
             for fac1 in a_fam:
                 for fac2 in b_fam:
-                    if (fac1 in self.faction_relations and fac2 in self.faction_relations[fac1].enemies) or (fac2 in self.faction_relations and fac1 in self.faction_relations[fac2].enemies):
+                    if (fac1 in self.faction_relations and fac2 in self.faction_relations[fac1].enemies) or (
+                            fac2 in self.faction_relations and fac1 in self.faction_relations[fac2].enemies):
                         return True
 
     def set_faction_allies(self, a, b):
-        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+        a_fac, b_fac = self.get_faction(a), self.get_faction(b)
         if a_fac not in self.faction_relations:
             self.faction_relations[a_fac] = factions.FactionRelations()
         if b_fac not in self.faction_relations:
@@ -781,7 +811,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.faction_relations[b_fac].set_faction_ally(a_fac)
 
     def set_faction_enemies(self, a, b):
-        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+        a_fac, b_fac = self.get_faction(a), self.get_faction(b)
         if a_fac not in self.faction_relations:
             self.faction_relations[a_fac] = factions.FactionRelations()
         if b_fac not in self.faction_relations:
@@ -790,7 +820,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.faction_relations[b_fac].set_faction_enemy(a_fac)
 
     def set_faction_neutral(self, a, b):
-        a_fac,b_fac = self.get_faction(a),self.get_faction(b)
+        a_fac, b_fac = self.get_faction(a), self.get_faction(b)
         if a_fac not in self.faction_relations:
             self.faction_relations[a_fac] = factions.FactionRelations()
         if b_fac not in self.faction_relations:
@@ -840,9 +870,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             it = it or other_thing.relationship.is_unfavorable()
         return it
 
-    def freeze(self,thing):
+    def freeze(self, thing):
         # Move something, probably an NPC, into storage.
-        if hasattr(thing,"container") and thing.container:
+        if hasattr(thing, "container") and thing.container:
             thing.container.remove(thing)
         self.storage.contents.append(thing)
 
@@ -901,7 +931,6 @@ class GearHeadArchitecture(pbge.randmaps.architect.Architecture):
     ENV = tags.GroundEnv
 
 
-
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about C
 # Anyhow, I'm leaving this here as a comment to remind me of the dangers of
@@ -919,7 +948,7 @@ class ProtoGear(object):
         self.sub_com = list()
         self.inv_com = list()
 
-    def build(self,defaults=None):
+    def build(self, defaults=None):
         if not defaults:
             defaults = dict()
         for k, v in defaults.items():
@@ -934,6 +963,7 @@ class ProtoGear(object):
         my_invs = [pg.build(nudefaults) for pg in self.inv_com]
         return self.gclass(sub_com=my_subs, inv_com=my_invs, **self.gparam)
 
+
 class ProtoSTC(object):
     """Used by the loader to hold gear definitions before creating the actual gear."""
 
@@ -943,7 +973,7 @@ class ProtoSTC(object):
         self.sub_com = list()
         self.inv_com = list()
 
-    def build(self,defaults=None):
+    def build(self, defaults=None):
         if not defaults:
             defaults = dict()
         for k, v in defaults.items():
@@ -959,9 +989,9 @@ class ProtoSTC(object):
 
         mygear.sub_com += [pg.build(nudefaults) for pg in self.sub_com]
         mygear.inv_com += [pg.build(nudefaults) for pg in self.inv_com]
-        for k,v in self.gparam.items():
-            if hasattr(mygear,k):
-                setattr(mygear,k,v)
+        for k, v in self.gparam.items():
+            if hasattr(mygear, k):
+                setattr(mygear, k, v)
         return mygear
 
 
@@ -1134,7 +1164,7 @@ class Saver(object):
         # Given wotzit, return the string to be output to the file.
         if wotzit is None:
             return 'None'
-        elif isinstance(wotzit,(list,tuple)):
+        elif isinstance(wotzit, (list, tuple)):
             return "[{}]".format(", ".join([self.hashable_to_string(t) for t in wotzit]))
         elif wotzit in SINGLETON_REVERSE:
             return SINGLETON_REVERSE[wotzit]
@@ -1179,6 +1209,7 @@ class Saver(object):
     def save(self, glist):
         with open(self.fname, 'wt') as f:
             self.save_list(f, glist)
+
 
 def harvest_jobs():
     for jobname, job in jobs.ALL_JOBS.items():
@@ -1232,7 +1263,6 @@ def init_gears():
             selector.DESIGN_BY_NAME[d.get_full_name()] = d
         d.stc = True
 
-
     # Load all design files.
     design_files = glob.glob(os.path.join(pbge.util.game_dir('design'), '*.txt')) + glob.glob(
         os.path.join(pbge.util.user_dir('design'), '*.txt'))
@@ -1242,7 +1272,7 @@ def init_gears():
     selector.check_design_list()
 
     for d in selector.DESIGN_LIST:
-        if not hasattr(d,"stc"):
+        if not hasattr(d, "stc"):
             if d.get_full_name() in selector.DESIGN_BY_NAME:
                 print("Warning: Multiple designs named {}".format(d.get_full_name()))
             selector.DESIGN_BY_NAME[d.get_full_name()] = d
@@ -1251,7 +1281,6 @@ def init_gears():
 
     portraits.init_portraits()
 
-    #for d in selector.DESIGN_LIST:
+    # for d in selector.DESIGN_LIST:
     #    if isinstance(d, base.Mecha):
     #        print("{} {}".format(d, d.get_primary_attack().source))
-

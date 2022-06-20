@@ -320,6 +320,11 @@ class SellActionUndoRedo(UndoRedoBase):
                                 )
 
     def on_do(self):
+        # Will the shopkeeper buy it?
+        if self.ware.stolen and not self.shop.buy_stolen_items:
+            self.lists_manager.no_stolen_goods()
+            return False
+
         # Get it from the customer.
         if self.provenance == 'inv_com':
             self.customer.inv_com.remove(self.ware)

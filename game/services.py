@@ -25,7 +25,8 @@ class Shop(object):
     MENU_AREA = pbge.frects.Frect(50, -200, 300, 300)
 
     def __init__(self, ware_types=MECHA_STORE, allow_misc=True, caption="Shop", rank=25, shop_faction=None,
-                 num_items=10, turnover=1, npc=None, mecha_colors=None, sell_champion_equipment=False):
+                 num_items=10, turnover=1, npc=None, mecha_colors=None, sell_champion_equipment=False,
+                 buy_stolen_items=False):
         self.wares = list()
         self.ware_types = ware_types
         self.allow_misc = allow_misc
@@ -40,7 +41,7 @@ class Shop(object):
         self.mecha_colors = mecha_colors or gears.color.random_mecha_colors()
         self.customer = None
         self.sell_champion_equipment = sell_champion_equipment
-
+        self.buy_stolen_items = buy_stolen_items
 
     def item_matches_shop(self, item, camp):
         myfaction = self.shop_faction or camp.scene.get_metro_scene().faction
@@ -193,6 +194,13 @@ class Shop(object):
     def __call__(self, camp):
         self.update_shop(camp)
         self.enter_shop(camp)
+
+    def __setstate__(self, state):
+        # For saves from V0.821 or earlier, make sure there's a buy_stolen_items property.
+        self.__dict__.update(state)
+        if "buy_stolen_items" not in state:
+            self.buy_stolen_items = False
+
 
 class SkillButtonWidget(pbge.widgets.LabelWidget):
     def __init__(self, skill, clickfun, scolumn):

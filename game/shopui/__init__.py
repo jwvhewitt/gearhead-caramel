@@ -110,6 +110,9 @@ class ShopPanel(BuySellCounters):
     def set_cannot_afford(self):
         self.caption = "You can't afford it!"
 
+    def set_no_stolen_goods(self):
+        self.caption = "I don't buy stolen merchandise."
+
     @property
     def num_bought(self):
         return self._num_bought
@@ -247,6 +250,10 @@ class ShopListsManager(ListsManager):
 
     def cannot_afford(self):
         self.shop_panel.set_cannot_afford()
+
+    def no_stolen_goods(self):
+        self.shop_panel.set_no_stolen_goods()
+
 
 ###############################################################################
 

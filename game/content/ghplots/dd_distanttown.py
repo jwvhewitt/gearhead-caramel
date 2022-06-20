@@ -67,10 +67,10 @@ class DZD_TheTownYouStartedIn(Plot):
         tplot = self.add_sub_plot(nart, "DZRS_ORDER")
         tplot = self.add_sub_plot(nart, "DZRS_GARAGE")
         tplot = self.add_sub_plot(nart, "DZRS_HOSPITAL")
-        tplot = self.add_sub_plot(nart, "TAVERN")
+        tplot = self.add_sub_plot(nart, "SHOP_TAVERN", elements={"LOCALE": myscene})
 
         # Record the tavern scene
-        self.elements["TAVERN"] = tplot.elements["LOCALE"]
+        self.elements["TAVERN"] = tplot.elements["INTERIOR"]
 
         # Add the local tarot.
         #threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )

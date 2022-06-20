@@ -1197,6 +1197,86 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[God]": {
+        # Insert an appropriate deity name
+        Default: ["God", "Goddess"
+                  ],
+        tags.COMBATANT: [
+            "Atan", "Mighty Atan"
+        ],
+        tags.Adventurer: [
+            "Blessed Atan", "Atan"
+        ],
+        tags.Military: [
+            "Loyal Atan", "Atan"
+        ],
+        personality.Duty: [
+            "Lord"
+        ],
+        personality.Peace: [
+            "the Protector"
+        ],
+        personality.Justice: [
+            "the Heavenly Judge"
+        ],
+        personality.Fellowship: [
+            "the Universal Soul"
+        ],
+        personality.Cheerful: [
+            "Heaven"
+        ],
+        personality.Grim: [
+            "the devil"
+        ],
+        tags.Faithworker: [
+            "the Almighty", "the All-knowing", "the Creator", "the Teacher"
+        ],
+        "Robot": [
+            "the Maker"
+        ],
+        tags.Craftsperson: [
+            "the Maker"
+        ],
+        personality.DeadZone: [
+            "Kerberos", "Jore Mumbo", "Wise Trejhex", "Dread Abreldo", "Cursed Yatyzhar", 'Athogdoss',
+            "the Nameless One", "the Corpse King", "the Electric Whisper", "the Eye in the Ziggurat",
+            'Mother Zoklo', "the Core Demon"
+        ],
+        personality.GreenZone: [
+            "the Earthmother", "the Skyfather"
+        ],
+        personality.Luna: [
+            "Cesar", "Europa", "Artemis", "Diana", "Jovus"
+        ],
+        personality.L5Spinners: [
+            "Jovus", "the Omnifriend"
+        ],
+        personality.FelineMutation: [
+            "Bast"
+        ],
+        personality.DraconicMutation: [
+            "Bahamut"
+        ],
+        personality.GeneralMutation: [
+            "Eris"
+        ],
+        personality.L5DustyRing: [
+            "Jovus", "Eris", "the Omnifriend"
+        ],
+        gears.factions.ProDuelistAssociation: [
+            "Atan Almighty", "Atan"
+        ],
+        gears.factions.BladesOfCrihna: [
+            "the Ghosts of Crihna", "the Ghost of Space"
+        ],
+        gears.factions.AegisOverlord: [
+            "Aegis Incarnate", "Hecate"
+        ],
+        tags.Criminal: [
+            "the Trickster"
+        ]
+    },
+
     "[GOODBYE]": {
         Default: ["Goodbye."
                   ],
@@ -1212,6 +1292,9 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Bye.",
                           ],
+        tags.Faithworker: [
+            "[God] go with you."
+        ]
     },
 
     "[GOOD]": {
@@ -3754,7 +3837,8 @@ DEFAULT_GRAMMAR = {
     },
 
     "[SWEAR]": {
-        Default: ["Well [expletive] on that...", "Oh [expletive]!"
+        Default: ["Well [expletive] on that...", "Oh [expletive]!",
+                  "[God] smite it!"
                   ],
     },
 
@@ -3773,7 +3857,7 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Easygoing: ["Hey, you made it!",
                                 ],
-        personality.Passionate: ["Thank Atan that you're still alive!",
+        personality.Passionate: ["Thank [God] that you're still alive!",
                                  ],
         personality.Sociable: ["[audience]! They said that you were dead.",
                                ],

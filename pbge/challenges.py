@@ -363,6 +363,7 @@ class MysteryMemo(object):
         memob, camp = wid.data
         memob.active = False
         okapipuzzle.OkapiPuzzleWidget(self.challenge.mystery, camp, self.solve_mystery)()
+        memob.regen_memo()
         memob.active = True
 
     def solve_mystery(self):
@@ -382,6 +383,8 @@ class MysteryChallenge(Challenge):
             if self.mystery.unknown_clues:
                 if self.mystery.unknown_clues and not (clue and clue in self.mystery.unknown_clues):
                     clue = self.mystery.unknown_clues.pop()
+                if clue in self.mystery.unknown_clues:
+                    self.mystery.unknown_clues.remove(clue)
                 if clue:
                     self.mystery.known_clues.append(clue)
                     BasicNotification("You learned {}!".format(clue), count=120)

@@ -18,7 +18,7 @@ SUS_LOCATION = "LOCATION"
 SUS_VERB = "VERB"
 
 # Triggers
-MYSTERY_SOLVED = "MYSTERY_SOLVED"
+MYSTERY_SOLVED = "SOLVED"
 
 
 class NounSusCard:
@@ -75,19 +75,19 @@ class SusDeck:
 class ABTogetherClue:
     CLUE_FORMATS = {
         SUS_SUBJECT: {
-            SUS_SUBJECT: "{a.name} and {b.name} worked together.",
-            SUS_LOCATION: "{a.name} was seen at {b.name}.",
-            SUS_VERB: "{a.name} {b.verbed}."
+            SUS_SUBJECT: "{a.name} and {b.name} worked together",
+            SUS_LOCATION: "{a.name} was seen at {b.name}",
+            SUS_VERB: "{a.name} {b.verbed}"
         },
         SUS_LOCATION: {
-            SUS_SUBJECT: "Someone at {a.name} saw {b.name}.",
-            SUS_LOCATION: "{a.name} is connected to {b.name} somehow.",
-            SUS_VERB: "A person at {a.name} {b.verbed}."
+            SUS_SUBJECT: "Someone at {a.name} saw {b.name}",
+            SUS_LOCATION: "{a.name} is connected to {b.name} somehow",
+            SUS_VERB: "A person at {a.name} {b.verbed}"
         },
         SUS_VERB: {
-            SUS_SUBJECT: "{b.name} {a.verbed}.",
-            SUS_LOCATION: "Someone {a.verbed} at {b.name}.",
-            SUS_VERB: "The person who {a.verbed} also {b.verbed}."
+            SUS_SUBJECT: "{b.name} {a.verbed}",
+            SUS_LOCATION: "Someone {a.verbed} at {b.name}",
+            SUS_VERB: "The person who {a.verbed} also {b.verbed}"
         }
     }
 
@@ -100,7 +100,7 @@ class ABTogetherClue:
             self.text = self.CLUE_FORMATS[self.acard.role][self.bcard.role].format(a=self.acard, b=self.bcard,
                                                                                    mystery=mystery)
         except KeyError:
-            self.text = "{a} is involved with {b}.".format(a=self.acard, b=self.bcard, mystery=mystery)
+            self.text = "{a} is involved with {b}".format(a=self.acard, b=self.bcard, mystery=mystery)
 
     def matches(self, solution):
         if self.acard in solution or self.bcard in solution:
@@ -120,19 +120,19 @@ class ABTogetherClue:
 class ABNotTogetherClue:
     CLUE_FORMATS = {
         SUS_SUBJECT: {
-            SUS_SUBJECT: "{a.name} and {b.name} didn't work together.",
-            SUS_LOCATION: "{a.name} was not at {b.name}.",
-            SUS_VERB: "{a.name} {b.did_not_verb}."
+            SUS_SUBJECT: "{a.name} and {b.name} didn't work together",
+            SUS_LOCATION: "{a.name} was not at {b.name}",
+            SUS_VERB: "{a.name} {b.did_not_verb}"
         },
         SUS_LOCATION: {
-            SUS_SUBJECT: "{a.name} is not where {b.name} was.",
-            SUS_LOCATION: "{a.name} is not connected to {b.name}.",
-            SUS_VERB: "Nobody at {a.name} {b.verbed}."
+            SUS_SUBJECT: "{a.name} is not where {b.name} was",
+            SUS_LOCATION: "{a.name} is not connected to {b.name}",
+            SUS_VERB: "Nobody at {a.name} {b.verbed}"
         },
         SUS_VERB: {
-            SUS_SUBJECT: "{b.name} {a.did_not_verb}.",
-            SUS_LOCATION: "Nobody {a.verbed} at {b.name}.",
-            SUS_VERB: "The person who {a.verbed} {b.did_not_verb}."
+            SUS_SUBJECT: "{b.name} {a.did_not_verb}",
+            SUS_LOCATION: "Nobody {a.verbed} at {b.name}",
+            SUS_VERB: "The person who {a.verbed} {b.did_not_verb}"
         }
     }
 
@@ -145,7 +145,7 @@ class ABNotTogetherClue:
             self.text = self.CLUE_FORMATS[self.acard.role][self.bcard.role].format(a=self.acard, b=self.bcard,
                                                                                    mystery=mystery)
         except KeyError:
-            self.text = "{a} is not involved with {b}.".format(a=self.acard, b=self.bcard, mystery=mystery)
+            self.text = "{a} is not involved with {b}".format(a=self.acard, b=self.bcard, mystery=mystery)
 
     def matches(self, solution):
         return not (self.acard in solution and self.bcard in solution)
@@ -161,9 +161,9 @@ class ABNotTogetherClue:
 
 class ANotSolutionClue:
     CLUE_FORMATS = {
-        SUS_SUBJECT: "{a.name} is not involved in {mystery}.",
+        SUS_SUBJECT: "{a.name} is not involved in {mystery}",
         SUS_LOCATION: "{mystery} did not happen at {a}",
-        SUS_VERB: "Nobody {a.verbed}."
+        SUS_VERB: "Nobody {a.verbed}"
     }
 
     def __init__(self, acard, mystery):
@@ -171,7 +171,7 @@ class ANotSolutionClue:
         try:
             self.text = self.CLUE_FORMATS[self.acard.role].format(a=self.acard, mystery=mystery)
         except KeyError:
-            self.text = "{a} has nothing to do with {mystery}.".format(a=self.acard, mystery=mystery)
+            self.text = "{a} has nothing to do with {mystery}".format(a=self.acard, mystery=mystery)
 
     def matches(self, solution):
         return self.acard not in solution
@@ -186,9 +186,9 @@ class ANotSolutionClue:
 
 class AIsSolutionClue:
     CLUE_FORMATS = {
-        SUS_SUBJECT: "{a.name} is involved in {mystery}.",
-        SUS_LOCATION: "{mystery} happened at {a}.",
-        SUS_VERB: "Somebody {a.verbed}."
+        SUS_SUBJECT: "{a.name} is involved in {mystery}",
+        SUS_LOCATION: "{mystery} happened at {a}",
+        SUS_VERB: "Somebody {a.verbed}"
     }
 
     def __init__(self, acard, mystery):
@@ -196,7 +196,7 @@ class AIsSolutionClue:
         try:
             self.text = self.CLUE_FORMATS[self.acard.role].format(a=self.acard, mystery=mystery)
         except KeyError:
-            self.text = "{a} has something to do with {mystery}.".format(a=self.acard, mystery=mystery)
+            self.text = "{a} has something to do with {mystery}".format(a=self.acard, mystery=mystery)
 
     def matches(self, solution):
         return self.acard in solution
@@ -320,7 +320,8 @@ class ImageDeckWidget(widgets.ColumnWidget):
             elif "image_name" in card.data:
                 self.sprites[card] = image.Image(card.data["image_name"], 100, 100)
 
-    def on_select(self, card):
+    def on_select(self, *args):
+        card = self.my_dropdown.menu.get_current_value()
         if card:
             self.my_image.sprite = self.sprites.get(card, self.mystery_sprite)
             self.my_image.frame = card.data.get("frame", 0)

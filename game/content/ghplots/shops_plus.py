@@ -95,7 +95,7 @@ class BasicBlackMarket(Plot):
         npc1.place(intscene, team=team2)
 
         self.shop = services.Shop(npc=npc1, ware_types=services.BLACK_MARKET, rank=self.rank + 25,
-                                  shop_faction=self.elements.get("SHOP_FACTION"))
+                                  shop_faction=self.elements.get("SHOP_FACTION"), buy_stolen_items=True)
 
         return True
 
@@ -442,6 +442,8 @@ class BasicTavern(Plot):
         mycon2 = plotutility.TownBuildingConnection(
             nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        self.add_sub_plot(nart, "TAVERN_BONUS", necessary=False)
 
         return True
 

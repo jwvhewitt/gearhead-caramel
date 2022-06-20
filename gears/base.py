@@ -551,10 +551,10 @@ class BaseGear(scenes.PlaceableThing):
     DEFAULT_SLOT = tags.SLOT_ITEM
     SAVE_PARAMETERS = (
         'name', 'desig', 'scale', 'material', 'imagename', 'colors', 'uniqueid', 'shop_tags', 'desc', 'slot',
-        'faction_list')
+        'faction_list', 'stolen')
     REPORT_DESTRUCTION = False
 
-    def __init__(self, uniqueid=None, shop_tags=(), desc="", slot=None, faction_list=(None,), **keywords):
+    def __init__(self, uniqueid=None, shop_tags=(), desc="", slot=None, faction_list=(None,), stolen=False, **keywords):
         self.__base_gear_pos = None
         self.name = keywords.pop("name", self.DEFAULT_NAME)
         self.desig = keywords.pop("desig", None)
@@ -567,6 +567,7 @@ class BaseGear(scenes.PlaceableThing):
         self.desc = desc
         self.slot = slot or self.DEFAULT_SLOT
         self.faction_list = faction_list
+        self.stolen = stolen
 
         self.sub_com = SubComContainerList(owner=self)
         sc_to_add = keywords.pop("sub_com", [])
@@ -4043,11 +4044,15 @@ class Character(Being):
             if include_all:
                 mytags.add(self.job.name)
             mytags |= set(self.job.tags)
+        if self.combatant:
+            mytags.add(tags.COMBATANT)
         if self.faction:
             mytags.add(self.faction.get_faction_tag())
             mytags |= set(self.faction.factags)
         if self.mnpcid and include_all:
             mytags.add(self.mnpcid)
+        for badge in self.badges:
+            mytags |= badge.tags
         return mytags
 
     def get_reaction_score(self, pc, camp):
