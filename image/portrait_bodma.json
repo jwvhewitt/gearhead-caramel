@@ -92,7 +92,7 @@
     "children": [
       "Pants"
     ],
-    "style": ["Combatant","DeadZone"],
+    "style": ["Combatant","Dead Zone"],
     "form_tags": ["SC1974"]
   },
   {
@@ -230,7 +230,8 @@
       {"name":"Right Sleeve","fname":"avatar_sleeves_ma1.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":5,"frame_height":9,"y_offset":4},
       {"name":"Left Sleeve","fname":"avatar_sleeves_ma1.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":5,"frame_height":9,"y_offset":4}
     ],
-    "requires": ["BodMA"]
+    "requires": ["BodMA"],
+    "rejects": ["PauldronsOnly"]
   },
   {
     "name": "BodMA Sleeves 2",
@@ -243,7 +244,8 @@
       {"name":"Right Sleeve","fname":"avatar_sleeves_ma2.png","anchor":"avatar_right_shoulder","depth":2500,"frame_width":5,"frame_height":6,"y_offset":3},
       {"name":"Left Sleeve","fname":"avatar_sleeves_ma2.png","anchor":"avatar_left_shoulder","depth":2500,"frame":1,"frame_width":5,"frame_height":6,"y_offset":3}
     ],
-    "requires": ["BodMA"]
+    "requires": ["BodMA"],
+    "rejects": ["PauldronsOnly"]
   },
   {
     "name": "BodMA Sleeves 3 Armor",

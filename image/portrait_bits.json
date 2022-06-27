@@ -601,6 +601,23 @@
     "children": ["HairAccessories"]
   },
   {
+    "name": "Barbera Hair",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_barbera.png","anchor":"head","x_offset":-4, "y_offset":-7, "frame": 0, "depth":7500,
+        "frame_width": 129, "frame_height": 132
+      },
+      {"name":"Hair Back","fname":"por_hair_barbera.png","anchor":"head","x_offset":-4, "y_offset":-7, "frame": 1, "depth":500,
+        "frame_width": 129, "frame_height": 132
+      }
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_barbera.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-1}
+    ],
+    "style": ["Feminine"],
+    "children": ["HairAccessories"]
+  },
+  {
     "name": "Ear A",
     "btype": "Ears",
     "layers": [
@@ -642,7 +659,7 @@
     "name": "Feline Ear 1",
     "btype": "Ears",
     "layers": [
-      {"name":"Right Ear","fname":"por_ear_feline1.png","anchor":"ear","frame_width":35,"frame_height":97,"x_offset":-1,"y_offset":-20,"depth":7000},
+      {"name":"Right Ear","fname":"por_ear_feline1.png","anchor":"ear","frame_width":35,"frame_height":97,"x_offset":-1,"y_offset":-20,"depth":7600},
       {"name":"Left Ear","fname":"por_ear_feline1.png","anchor":"head","frame_width":35,"frame_height":97,"frame":1,"x_offset":45,"y_offset":-20,"depth":1000}
     ],
     "requires": ["Feline Mutation"]

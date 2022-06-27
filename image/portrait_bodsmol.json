@@ -61,7 +61,7 @@
       {"name":"Shirt","fname":"avatar_shirt_smol3.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
     ],
     "requires": ["BodSmol"],
-    "prefers": ["DeadZone","+Reflexes"],
+    "prefers": ["Dead Zone","+Reflexes"],
     "children": [
       "Sleeves","Pants"
     ]

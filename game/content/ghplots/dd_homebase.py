@@ -497,7 +497,7 @@ class TestCharMover(Plot):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, "{}'s Mission".format(self.elements["NPC"]),
             self.elements["METROSCENE"], self.elements["MISSION_GATE"],
-            self.elements.get("ENEMY_FACTION"), rank=self.rank,
+            self.elements.get("ENEMY_FACTION"), rank=self.rank, architecture=gharchitecture.MechaScaleGreenzone(),
             objectives=(missionbuilder.BAMO_DEFEAT_COMMANDER,),
         )
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
@@ -874,6 +874,7 @@ class DZD_BlueFortressHQ(Plot):
                                                 self.elements["LOCALE"], self.elements["MISSION_GATE"],
                                                 enemy_faction=self.next_enemy_faction,
                                                 allied_faction=factions.TerranDefenseForce,
+                                                architecture = gharchitecture.MechaScaleGreenzone(),
                                                 on_win=self._win_mission)
         missionbuilder.NewMissionNotification(self.adventure_seed.name, self.elements["MISSION_GATE"])
 
@@ -971,7 +972,7 @@ class DZD_BlueFortressHQ(Plot):
 
         mylist.append(Offer(
             "No worries. I love any chance I can get to play the teacher. With any luck most of the stuff I told you will even turn out to be right.",
-            context=ContextTag([context.CUSTOM, ]),
+            context=ContextTag([context.CUSTOM, ]), dead_end=True,
             data={"reply": "Thanks for the tips."}, subject="keep your mind and body",
         ))
 

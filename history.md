@@ -1,3 +1,5 @@
+* Fixed bug when selecting "None" after previously selecting clue in okapi puzzle widget
+
 v0.830 June 21 2022
 * Added "Skippy's Night Out" mystery to Wujung in DeadZone Drifter
 * GH1 import now includes all NPCs that have a relationship with the PC

@@ -23,41 +23,41 @@ class TitleScreenRedraw(object):
         self.rubble = pbge.image.Image("sys_dzd_ts_rubble.png")
         self.mecha = pbge.image.Image("sys_dzd_ts_dielancer.png")
         self.cameo = pbge.image.Image("sys_silhouette.png")
-        self.cameo_pos = (random.randint(-400,400),random.randint(-300,50))
+        self.cameo_pos = (random.randint(-400, 400), random.randint(-300, 50))
         self.mecha_x = 600
         self.sky_x = 0
         self.rubble_x = 0
 
-    def __call__(self):
+    def __call__(self, draw_title=True):
         pbge.my_state.screen.fill((0, 0, 0))
 
-        w,h = pbge.my_state.screen.get_size()
-        bigrect = pygame.Rect(0,(h-600)//2,w,600)
-        rubblerect = pygame.Rect(0,(h-600)//2+600-self.rubble.frame_height,w,self.rubble.frame_height)
+        w, h = pbge.my_state.screen.get_size()
+        bigrect = pygame.Rect(0, (h - 600) // 2, w, 600)
+        rubblerect = pygame.Rect(0, (h - 600) // 2 + 600 - self.rubble.frame_height, w, self.rubble.frame_height)
 
-        self.sky.tile(bigrect,x_offset=self.sky_x)
+        self.sky.tile(bigrect, x_offset=self.sky_x)
         self.sky_x += 1
         if self.sky_x >= self.sky.frame_width:
             self.sky_x = 0
 
-        self.cameo.render((w//2+self.cameo_pos[0],h//2+self.cameo_pos[1]))
+        self.cameo.render((w // 2 + self.cameo_pos[0], h // 2 + self.cameo_pos[1]))
 
         self.rubble.tile(rubblerect, x_offset=self.rubble_x)
         self.rubble_x += 2
         if self.rubble_x >= self.rubble.frame_width:
             self.rubble_x = 0
 
-        self.mecha.render((self.mecha_x,(h-600)//2))
+        self.mecha.render((self.mecha_x, (h - 600) // 2))
         self.mecha_x -= 1
         if self.mecha_x < -self.mecha.frame_width:
             self.mecha_x = w
 
+        if draw_title:
+            self.title.render(self.TITLE_DEST.get_rect())
 
-        self.title.render(self.TITLE_DEST.get_rect())
-
-        versid = pbge.render_text(pbge.my_state.medium_font, VERSION, 120, justify=1)
-        pbge.my_state.screen.blit(versid, versid.get_rect(
-            bottomright=(pbge.my_state.screen.get_width() - 8, pbge.my_state.screen.get_height() - 8)))
+            versid = pbge.render_text(pbge.my_state.medium_font, VERSION, 120, justify=1)
+            pbge.my_state.screen.blit(versid, versid.get_rect(
+                bottomright=(pbge.my_state.screen.get_width() - 8, pbge.my_state.screen.get_height() - 8)))
 
 
 TITLE_THEME = 'A wintertale.ogg'
@@ -86,11 +86,12 @@ def start_game(tsrd):
     mymenu.sort()
     egg = mymenu.query()
     if egg:
-        if not pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+        if not pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
             egg.backup()
             os.remove(pbge.util.user_dir("egg_{}.sav".format(egg.pc.name)))
 
         game.start_campaign(egg, tsrd)
+
 
 def load_game(tsrd):
     myfiles = glob.glob(pbge.util.user_dir("rpg_*.sav"))
@@ -101,11 +102,11 @@ def load_game(tsrd):
                                )
 
     for fname in myfiles:
-        #with open(fname, "rb") as f:
+        # with open(fname, "rb") as f:
         #    # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
         #    camp = copy.deepcopy(cPickle.load(f))
         start_index = fname.find("rpg_")
-        mymenu.add_item(fname[start_index+4:-4], fname)
+        mymenu.add_item(fname[start_index + 4:-4], fname)
 
     if not mymenu.items:
         mymenu.add_item('[No campaigns found]', None)
@@ -157,6 +158,16 @@ def open_chargen_menu(tsrd):
     game.chargen.CharacterGeneratorW.create_and_invoke(tsrd)
 
 
+def just_show_background(tsrd):
+    while True:
+        ev = pbge.wait_event()
+        if ev.type == pbge.TIMEREVENT:
+            tsrd(False)
+            pbge.my_state.do_flip()
+        elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
+            break
+
+
 def play_the_game():
     # Step one is to find our gamedir. The process is slightly different depending on whether we are running from
     # source, running from a PyInstaller build, or running from a cx_Freeze build.
@@ -175,21 +186,21 @@ def play_the_game():
     gears.init_gears()
     game.init_game()
 
-    #myfoo = game.content.ghplots.test.Foo()
-    #with open(pbge.util.user_dir('bar.p'), "wb") as f:
+    # myfoo = game.content.ghplots.test.Foo()
+    # with open(pbge.util.user_dir('bar.p'), "wb") as f:
     #    pickle.dump(myfoo, f, -1)
-    #with open(pbge.util.user_dir('bar.p'), "rb") as f:
+    # with open(pbge.util.user_dir('bar.p'), "rb") as f:
     #    foo2 = pickle.load(f)
 
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 
-    #fname = "mecha_vadel.png"
-    #mypic = pbge.image.Image(fname, color=(gears.color.GunRed, gears.color.Gold, gears.color.Aquamarine, gears.color.Cobalt, gears.color.Turquoise))
-    #mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
-    #mydest.fill((0, 0, 25))
-    #mypic.render((0,0),dest_surface=mydest)
-    #pygame.image.save(mydest, pbge.util.user_dir("out_"+fname))
+    # fname = "mecha_vadel.png"
+    # mypic = pbge.image.Image(fname, color=(gears.color.GunRed, gears.color.Gold, gears.color.Aquamarine, gears.color.Cobalt, gears.color.Turquoise))
+    # mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
+    # mydest.fill((0, 0, 25))
+    # mypic.render((0,0),dest_surface=mydest)
+    # pygame.image.save(mydest, pbge.util.user_dir("out_"+fname))
 
     # mypor = gears.portraits.Portrait()
     # mypor.bits = ["FBA NoBody","Haywire B3 Head"]
@@ -214,6 +225,7 @@ def play_the_game():
     if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
         mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
         mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
+        mymenu.add_item("Just Show Background", just_show_background)
     mymenu.add_item("Quit", None)
 
     action = True

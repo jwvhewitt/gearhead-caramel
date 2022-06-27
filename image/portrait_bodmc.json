@@ -76,7 +76,8 @@
       {"name":"Right Sleeve","fname":"avatar_bodmc_sleeves1.png","anchor":"center","depth":2500,"frame_width":9,"frame_height":16,"x_offset": -11,"y_offset":6},
       {"name":"Left Sleeve","fname":"avatar_bodmc_sleeves1.png","anchor":"center","depth":2500,"frame":1,"frame_width":9,"frame_height":16,"x_offset": 9,"y_offset":6}
     ],
-    "requires": ["BodMC"]
+    "requires": ["BodMC"],
+    "rejects": ["PauldronsOnly"]
   },
   {
     "name": "BodMC Wasteland Armor Sleeves",
@@ -90,7 +91,7 @@
       {"name":"Left Sleeve","fname":"avatar_sleeves_warmor.png","anchor":"center","depth":2500,"frame":1,"frame_width":9,"frame_height":16,"x_offset": 9,"y_offset":5}
     ],
     "requires": ["BodMC"],
-    "style": ["Combatant"]
+    "style": ["Combatant", "Dead Zone"]
   },
   {
     "name": "LordErin BodMC Pilot Jacket",

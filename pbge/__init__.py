@@ -284,6 +284,20 @@ class GameState(object):
         else:
             my_state.screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
 
+    def reset_screen(self):
+        if util.config.getboolean("GENERAL", "stretchy_screen"):
+            if util.config.getboolean("GENERAL", "fullscreen"):
+                my_state.physical_screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
+            else:
+                #my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
+                my_state.physical_screen = pygame.display.set_mode((1280, 720), WINDOWED_FLAGS)
+            my_state.resize()
+        else:
+            if util.config.getboolean("GENERAL", "fullscreen"):
+                my_state.screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
+            else:
+                my_state.screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
+
     def update_mouse_pos(self):
         if util.config.getboolean("GENERAL", "stretchy_screen"):
             x, y = pygame.mouse.get_pos()
@@ -648,18 +662,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         pygame.display.set_caption(winname, appname)
         pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
         # Set the screen size.
-        if util.config.getboolean("GENERAL", "stretchy_screen"):
-            if util.config.getboolean("GENERAL", "fullscreen"):
-                my_state.physical_screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
-            else:
-                my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
-                #my_state.physical_screen = pygame.display.set_mode((1280, 720), WINDOWED_FLAGS)
-            my_state.resize()
-        else:
-            if util.config.getboolean("GENERAL", "fullscreen"):
-                my_state.screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
-            else:
-                my_state.screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
+        my_state.reset_screen()
 
         global INPUT_CURSOR
         INPUT_CURSOR = image.Image("sys_textcursor.png", 8, 16)

@@ -74,7 +74,8 @@
       {"name":"Right Sleeve","fname":"avatar_sleeves_fc1.png","anchor":"center","depth":2500,"frame_width":9,"frame_height":15,"x_offset": -10,"y_offset":6},
       {"name":"Left Sleeve","fname":"avatar_sleeves_fc1.png","anchor":"center","depth":2500,"frame":1,"frame_width":9,"frame_height":15,"x_offset": 8,"y_offset":6}
     ],
-    "requires": ["BodFC"]
+    "requires": ["BodFC"],
+    "rejects": ["PauldronsOnly"]
   },
   {
     "name": "BodFC Wasteland Armor Sleeves",
@@ -88,6 +89,7 @@
       {"name":"Left Sleeve","fname":"avatar_sleeves_warmor.png","anchor":"center","depth":2500,"frame":1,"frame_width":9,"frame_height":16,"x_offset": 8,"y_offset":6}
     ],
     "requires": ["BodFC"],
+    "prefers": ["Dead Zone"],
     "style": ["Combatant"]
   },
         {

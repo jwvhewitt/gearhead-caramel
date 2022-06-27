@@ -327,6 +327,7 @@ class ImageDeckWidget(widgets.ColumnWidget):
             self.my_image.frame = card.data.get("frame", 0)
         else:
             self.my_image.sprite = self.mystery_sprite
+            self.my_image.frame = 0
         if self._on_select:
             self._on_select(card)
 
