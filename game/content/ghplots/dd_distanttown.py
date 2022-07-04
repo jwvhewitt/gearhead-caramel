@@ -31,6 +31,8 @@ class DZD_TheTownYouStartedIn(Plot):
                                       "DISTANT_TOWN"))
         myscene.exploration_music = 'Good Night.ogg'
 
+        self.register_element("CITY_COLORS", gears.color.random_building_colors())
+
         for t in range(random.randint(1,3)):
             npc = gears.selector.random_character(50, local_tags=myscene.attributes)
             npc.place(myscene, team=team2)
@@ -82,18 +84,6 @@ class DZD_TheTownYouStartedIn(Plot):
         self.add_sub_plot(nart, "CF_METROSCENE_RANDOM_PLOT_HANDLER", elements={"USE_PLOT_RANK": True})
 
         return True
-
-    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
-        # Upon entering this scene, deal with any dead or incapacitated party members.
-        # Also, deal with party members who have lost their mecha. This may include the PC.
-        camp.home_base = self.elements["MISSION_GATE"]
-        etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
-        if not etlr.did_recovery:
-            # We can maybe load a lancemate scene here. Yay!
-            if not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT):
-                nart = content.GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=content.PLOT_LIST)
-                if nart.story:
-                    nart.build()
 
     def _finish_first_quest(self,camp):
         pstate = PlotState(adv=Adventure("Conclusion")).based_on(self)

@@ -2,32 +2,37 @@ import random
 from . import dialogue
 from .memos import Memo
 
-class PlotError( Exception ):
+
+class PlotError(Exception):
     """Plot init will call this if initialization impossible."""
     pass
 
 
 class Adventure(object):
     """ An adventure links a group of plots together."""
-    def __init__( self, name="Generic Adventure", world = None ):
+
+    def __init__(self, name="Generic Adventure", world=None):
         self.name = name
         self.world = world
         self.ended = False
-    def end_adventure(self,camp):
+
+    def end_adventure(self, camp):
         # WARNING: Don't end the plot while the PC is standing in one of the temp scenes!
         # Ending an adventure is best done when the PC leaves the adventure.
         for p in list(camp.all_plots()):
             if p.adv is self:
-                p.end_plot(camp,total_removal=False)
+                p.end_plot(camp, total_removal=False)
         self.ended = True
         camp.check_trigger("UPDATE")
-        camp.check_trigger("END",self)
+        camp.check_trigger("END", self)
+
     def __str__(self):
         return self.name
 
 
-class PlotState( object ):
+class PlotState(object):
     """For passing state information to subplots."""
+
     def __init__(self, adv=None, rank=None, elements=None):
         self.adv = adv
         self.rank = rank
@@ -35,12 +40,13 @@ class PlotState( object ):
             self.elements = elements.copy()
         else:
             self.elements = dict()
-    def based_on( self, oplot, update_elements=None ):
+
+    def based_on(self, oplot, update_elements=None):
         self.adv = self.adv or oplot.adv
         self.rank = self.rank or oplot.rank
         # Only copy over the elements not marked as private.
-        for k,v in oplot.elements.items():
-            if isinstance( k, str ) and len(k)>0 and k[0]!="_":
+        for k, v in oplot.elements.items():
+            if isinstance(k, str) and len(k) > 0 and k[0] != "_":
                 if k not in self.elements:
                     self.elements[k] = v
         if update_elements:
@@ -60,35 +66,38 @@ class RumorMemoEffect(object):
         self.plot._rumor_memo_delivered = True
 
 
-class Rumor( object ):
+class Rumor(object):
     """A grammar item that comes with an info offer that can set a memo."""
+
     def __init__(self, rumor="", grammar_tag="[News]", offer_context=dialogue.INFO,
                  offer_msg="", offer_subject="{NPC}", offer_subject_data="{NPC}", memo="",
-                 memo_location="NPC_SCENE", prohibited_npcs=()):
+                 memo_location="NPC_SCENE", prohibited_npcs=(), offer_effect=None):
         self.rumor = rumor
         self.grammar_tag = grammar_tag
         self.offer_msg = offer_msg
-        self.offer_context = dialogue.ContextTag([offer_context,])
+        self.offer_context = dialogue.ContextTag([offer_context, ])
         self.offer_subject = offer_subject
         self.offer_subject_data = offer_subject_data
         self.memo = memo
         self.memo_location = memo_location
         self.prohibited_npcs = prohibited_npcs
+        self.offer_effect = offer_effect
 
     def get_rumor_grammar(self, npc, camp, plot):
         mygram = dict()
         if self.npc_is_ok(npc, plot) and not plot._rumor_memo_delivered:
-            mygram[self.grammar_tag] = [self.rumor.format(**plot.elements),]
+            mygram[self.grammar_tag] = [self.rumor.format(**plot.elements), ]
         return mygram
 
     def get_rumor_offers(self, npc, camp, plot):
         myoffers = list()
-        if self.npc_is_ok(npc,plot) and self.offer_msg and not plot._rumor_memo_delivered:
+        if self.npc_is_ok(npc, plot) and self.offer_msg and not plot._rumor_memo_delivered:
             myoffer = dialogue.Offer(
                 self.offer_msg.format(**plot.elements),
                 context=self.offer_context,
                 subject=self.offer_subject.format(**plot.elements), no_repeats=True,
-                data={"subject": self.offer_subject_data.format(**plot.elements)}
+                data={"subject": self.offer_subject_data.format(**plot.elements)},
+                effect=self.offer_effect
             )
             if self.memo:
                 myoffer.effect = RumorMemoEffect(
@@ -116,7 +125,7 @@ class TimeExpiration(object):
         return camp.day > self.time_limit
 
 
-class Plot( object ):
+class Plot(object):
     """The building block of the adventure."""
     LABEL = ""
     UNIQUE = False
@@ -144,7 +153,7 @@ class Plot( object ):
     # be ended.
     expiration = None
 
-    def __init__( self, nart, pstate ):
+    def __init__(self, nart, pstate):
         """Initialize + install this plot, or raise PlotError"""
         # nart = The Narrative object
         # pstate = The current plot state
@@ -178,7 +187,7 @@ class Plot( object ):
         self._rumor_memo_delivered = False
 
         # Do the custom initialization
-        allok = self.custom_init( nart )
+        allok = self.custom_init(nart)
 
         # If failure, delete currently added subplots + raise error.
         if not allok:
@@ -186,25 +195,25 @@ class Plot( object ):
         elif self.UNIQUE:
             nart.camp.uniques.add(self.__class__)
 
-    def fail( self, nart ):
-        self.remove( nart )
-        raise PlotError( str( self.__class__ ) )
+    def fail(self, nart):
+        self.remove(nart)
+        raise PlotError(str(self.__class__))
 
-    def get_element_idents( self, ele ):
+    def get_element_idents(self, ele):
         """Return list of element idents assigned to this object."""
-        return [key for key,value in list(self.elements.items()) + list(self.subplots.items()) if value is ele]
+        return [key for key, value in list(self.elements.items()) + list(self.subplots.items()) if value is ele]
 
-    def add_sub_plot( self, nart, splabel, spstate=None, ident=None, necessary=True, elements=None, indie=False):
+    def add_sub_plot(self, nart, splabel, spstate=None, ident=None, necessary=True, elements=None, indie=False):
         if not spstate:
             spstate = PlotState().based_on(self)
         if not ident:
-            ident = "_autoident_{0}".format( len( self.subplots ) )
+            ident = "_autoident_{0}".format(len(self.subplots))
         if elements:
             spstate.elements.update(elements)
-        sp = nart.generate_sub_plot( spstate, splabel )
+        sp = nart.generate_sub_plot(spstate, splabel)
         if necessary and not sp:
-            #print "Fail: {}".format(splabel)
-            self.fail( nart )
+            # print "Fail: {}".format(splabel)
+            self.fail(nart)
         elif sp:
             if indie:
                 self.indie_plots.append(sp)
@@ -212,31 +221,31 @@ class Plot( object ):
                 self.subplots[ident] = sp
         return sp
 
-    def add_first_locale_sub_plot( self, nart, locale_type="CITY_SCENE", ident=None ):
+    def add_first_locale_sub_plot(self, nart, locale_type="CITY_SCENE", ident=None):
         # Utility function for a frequently used special case.
-        sp = self.add_sub_plot( nart, locale_type, ident=ident )
+        sp = self.add_sub_plot(nart, locale_type, ident=ident)
         if sp:
-            self.register_element( "LOCALE", sp.elements.get( "LOCALE" ) )
-            nart.camp.go(sp.elements.get( "ENTRANCE" ))
+            self.register_element("LOCALE", sp.elements.get("LOCALE"))
+            nart.camp.go(sp.elements.get("ENTRANCE"))
         return sp
 
-    def place_element( self, ele, dest ):
+    def place_element(self, ele, dest):
         # Record when a plot places an element; if this plot is removed, the
         # element will be removed from its location as well.
-        if hasattr( ele, "container" ) and ele.container:
-            ele.container.remove( ele )
-        dest.contents.append( ele )
-        self.move_records.append( (ele,dest.contents) )
+        if hasattr(ele, "container") and ele.container:
+            ele.container.remove(ele)
+        dest.contents.append(ele)
+        self.move_records.append((ele, dest.contents))
 
-    def register_element( self, ident, ele, dident=None, lock=False ):
+    def register_element(self, ident, ele, dident=None, lock=False):
         # dident is an element itent for this element's destination.
         if not ident:
-            ident = "_autoelement_{0}_{1}".format( len( self.elements ), hash(ele) )
+            ident = "_autoelement_{0}_{1}".format(len(self.elements), hash(ele))
         self.elements[ident] = ele
         if dident:
             mydest = self.elements.get(dident)
             if mydest:
-                self.place_element( ele, mydest )
+                self.place_element(ele, mydest)
         if lock:
             self.locked_elements.add(ident)
         return ele
@@ -248,9 +257,9 @@ class Plot( object ):
             scope = nart.camp
         candidates = list()
         bu_candidates = list()
-        for e in nart.camp.all_contents( scope, check_subscenes ):
-            if seek_func( nart, e ):
-                candidates.append( e )
+        for e in nart.camp.all_contents(scope, check_subscenes):
+            if seek_func(nart, e):
+                candidates.append(e)
             elif backup_seek_func and backup_seek_func(nart, e):
                 bu_candidates.append(e)
         if lock and candidates:
@@ -261,29 +270,29 @@ class Plot( object ):
                 elif le and le in bu_candidates:
                     bu_candidates.remove(le)
         if candidates:
-            e = random.choice( candidates )
-            self.register_element( ident, e, lock=lock )
+            e = random.choice(candidates)
+            self.register_element(ident, e, lock=lock)
             return e
         elif bu_candidates:
-            e = random.choice( bu_candidates )
-            self.register_element( ident, e, lock=lock )
+            e = random.choice(bu_candidates)
+            self.register_element(ident, e, lock=lock)
             return e
         elif must_find:
-            self.fail( nart )
+            self.fail(nart)
 
     def get_locked_elements(self):
         mylist = list()
         for le in self.locked_elements:
-            mylist.append(self.elements.get(le,None))
+            mylist.append(self.elements.get(le, None))
         return mylist
 
-    def get_all_locked_elements(self,camp):
+    def get_all_locked_elements(self, camp):
         mylist = list()
         for p in camp.all_plots():
             mylist += p.get_locked_elements()
         return mylist
 
-    def register_scene( self, nart, myscene, mygen, ident=None, dident=None, rank=None, temporary=False ):
+    def register_scene(self, nart, myscene, mygen, ident=None, dident=None, rank=None, temporary=False):
         # temporary scenes will be deleted when this plot ends. Use this feature responsibly!
         # If you create a permanent waypoint door to a temporary scene, the door's link to the scene will
         # keep that scene alive even after deletion, but the scene's contents and scripts will be gone.
@@ -291,72 +300,72 @@ class Plot( object ):
         # disappear when this plot ends, such as a conversation option or a waypoint menu item.
         if not dident:
             if self.adv and self.adv.world:
-                self.adv.world.contents.append( myscene )
-                self.move_records.append( (myscene,self.adv.world.contents) )
+                self.adv.world.contents.append(myscene)
+                self.move_records.append((myscene, self.adv.world.contents))
             else:
-                nart.camp.contents.append( myscene )
-                self.move_records.append( (myscene,nart.camp.contents) )
-        self.register_element( ident, myscene, dident )
-        nart.generators.append( mygen )
-        self.move_records.append( (mygen,nart.generators) )
+                nart.camp.contents.append(myscene)
+                self.move_records.append((myscene, nart.camp.contents))
+        self.register_element(ident, myscene, dident)
+        nart.generators.append(mygen)
+        self.move_records.append((mygen, nart.generators))
         myscene.rank = rank or self.rank
         if temporary:
             self._temp_scenes.append(myscene)
         return myscene
 
-    def custom_init( self, nart ):
+    def custom_init(self, nart):
         """Return True if everything ok, or False otherwise."""
         return True
 
-    def remove( self, nart=None ):
+    def remove(self, nart=None):
         """Remove this plot, including subplots and new elements, from narrative request."""
         # First, remove all subplots.
         for sp in self.subplots.values():
-            sp.remove( nart )
+            sp.remove(nart)
         for sp in self.indie_plots:
-            sp.remove( nart )
+            sp.remove(nart)
         # Next, remove any elements created by this plot.
-        if hasattr( self, "move_records" ):
-            for e,d in self.move_records:
+        if hasattr(self, "move_records"):
+            for e, d in self.move_records:
                 if e in d:
-                    d.remove( e )
+                    d.remove(e)
 
         self.__class__._used += -1
 
         # Remove self from the adventure.
-        if hasattr( self, "container" ) and self.container:
-            self.container.remove( self )
+        if hasattr(self, "container") and self.container:
+            self.container.remove(self)
 
         # Remove self from the uniques set, if necessary.
         if nart and self.UNIQUE and self.__class__ in nart.camp.uniques:
-            nart.camp.uniques.remove( self.__class__ )
+            nart.camp.uniques.remove(self.__class__)
 
-    def install( self, nart ):
+    def install(self, nart):
         """Plot generation complete. Mesh plot with campaign."""
         for sp in self.subplots.values():
-            sp.install( nart )
+            sp.install(nart)
         for sp in self.indie_plots:
-            sp.install( nart )
+            sp.install(nart)
         del self.move_records
         del self.indie_plots
         if self.scope:
-            dest = self.elements.get( self.scope )
-            if dest and hasattr( dest, "scripts" ):
-                dest.scripts.append( self )
+            dest = self.elements.get(self.scope)
+            if dest and hasattr(dest, "scripts"):
+                dest.scripts.append(self)
             else:
-                nart.camp.scripts.append( self )
+                nart.camp.scripts.append(self)
 
     def get_all_plots(self):
         yield self
         for sp in self.subplots.values():
             yield sp.get_all_plots()
 
-    def display( self, lead="" ):
-        print(lead + str( self.__class__ ))
+    def display(self, lead=""):
+        print(lead + str(self.__class__))
         for sp in self.subplots.values():
-            sp.display(lead+" ")
+            sp.display(lead + " ")
 
-    def handle_trigger( self, camp, trigger, thing=None ):
+    def handle_trigger(self, camp, trigger, thing=None):
         """A trigger has been tripped; make this plot react if appropriate."""
         # The trigger handler will be a method of this plot. If a thing is
         # involved, and that thing is an element, the handler's id will be
@@ -366,45 +375,45 @@ class Plot( object ):
         # Trigger handler methods take the Exploration as a parameter.
         if thing:
             if thing is self:
-                handler = getattr( self, "SELF_{0}".format( trigger ), None )
+                handler = getattr(self, "SELF_{0}".format(trigger), None)
                 if handler:
-                    handler( camp )
-            idlist = self.get_element_idents( thing )
+                    handler(camp)
+            idlist = self.get_element_idents(thing)
             for label in idlist:
-                handler = getattr( self, "{0}_{1}".format( label, trigger ), None )
+                handler = getattr(self, "{0}_{1}".format(label, trigger), None)
                 if handler:
-                    handler( camp )
+                    handler(camp)
         else:
-            handler = getattr( self, "t_{0}".format( trigger ), None )
+            handler = getattr(self, "t_{0}".format(trigger), None)
             if handler:
-                handler( camp )
+                handler(camp)
 
-    def get_dialogue_offers( self, npc, camp ):
+    def get_dialogue_offers(self, npc, camp):
         """Get any dialogue offers this plot has for npc."""
         # Method [ELEMENTID]_offers will be called. This method should return a
         # list of offers to be built into the conversation.
-        ofrz = self._get_generic_offers( npc, camp )
-        npc_ids = self.get_element_idents( npc )
+        ofrz = self._get_generic_offers(npc, camp)
+        npc_ids = self.get_element_idents(npc)
         for i in npc_ids:
-            ogen = getattr( self, "{0}_offers".format(i), None )
+            ogen = getattr(self, "{0}_offers".format(i), None)
             if ogen:
-                ofrz += ogen( camp )
+                ofrz += ogen(camp)
         if self.RUMOR:
             ofrz += self.RUMOR.get_rumor_offers(npc, camp, self)
         return ofrz
 
-    def modify_puzzle_menu( self, camp, thing, thingmenu ):
+    def modify_puzzle_menu(self, camp, thing, thingmenu):
         """Modify the thingmenu based on this plot."""
         # Method [ELEMENTID]_menu will be called with the camp, menu as parameters.
         # This method should modify the menu as needed- typically by altering
         # the "desc" property (menu caption) and adding menu items.
-        thing_ids = self.get_element_idents( thing )
+        thing_ids = self.get_element_idents(thing)
         for i in thing_ids:
-            ogen = getattr( self, "{0}_menu".format(i), None )
+            ogen = getattr(self, "{0}_menu".format(i), None)
             if ogen:
-                ogen( camp, thingmenu )
+                ogen(camp, thingmenu)
 
-    def _get_generic_offers( self, npc, camp ):
+    def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""
         return list()
 
@@ -426,17 +435,17 @@ class Plot( object ):
         return None
 
     @classmethod
-    def matches( self, pstate ):
+    def matches(self, pstate):
         """Returns True if this plot matches the current plot state."""
         return True
 
-    def activate( self, camp ):
+    def activate(self, camp):
         self.active = True
-        camp.check_trigger( 'UPDATE' )
+        camp.check_trigger('UPDATE')
 
-    def deactivate( self, camp ):
+    def deactivate(self, camp):
         self.active = False
-        camp.check_trigger( 'UPDATE' )
+        camp.check_trigger('UPDATE')
 
     def end_plot(self, camp, total_removal=False):
         # WARNING: Don't end the plot while the PC is standing in one of the temp scenes!
@@ -446,11 +455,11 @@ class Plot( object ):
         self.active = False
         for sp in self.subplots.values():
             if total_removal or not sp.active:
-                sp.end_plot( camp, total_removal )
+                sp.end_plot(camp, total_removal)
 
         # Remove self from the adventure.
-        if hasattr( self, "container" ) and self.container:
-            self.container.remove( self )
+        if hasattr(self, "container") and self.container:
+            self.container.remove(self)
 
         # Remove any temporary scenes.
         for s in self._temp_scenes:
@@ -460,7 +469,7 @@ class Plot( object ):
         for coef in self.call_on_end:
             coef(camp)
 
-        camp.check_trigger( 'UPDATE' )
+        camp.check_trigger('UPDATE')
 
     def update(self, camp):
         if self.expiration and self.expiration(camp, self):
@@ -473,52 +482,53 @@ class Plot( object ):
             self._rumor_memo_delivered = False
 
 
-class NarrativeRequest( object ):
+class NarrativeRequest(object):
     """The builder class which constructs a story out of individual plots."""
-    def __init__( self, camp, pstate=None, adv_type="ADVENTURE_STUB", plot_list={} ):
+
+    def __init__(self, camp, pstate=None, adv_type="ADVENTURE_STUB", plot_list={}):
         self.camp = camp
         self.generators = list()
         self.errors = list()
         self.plot_list = plot_list
         # Add the seed plot.
         if pstate:
-            self.story = self.generate_sub_plot( pstate, adv_type )
+            self.story = self.generate_sub_plot(pstate, adv_type)
 
-    def random_choice_by_weight( self, candidates ):
+    def random_choice_by_weight(self, candidates):
         wcan = list()
         for sp in candidates:
             if sp.UNIQUE:
-                wcan.append( sp )
+                wcan.append(sp)
             elif sp.COMMON:
-                wcan += (sp,sp,sp,sp,sp,sp)
+                wcan += (sp, sp, sp, sp, sp, sp)
             else:
-                wcan += (sp,sp,sp)
-        return random.choice( wcan )
+                wcan += (sp, sp, sp)
+        return random.choice(wcan)
 
-    def generate_sub_plot( self, pstate, label ):
+    def generate_sub_plot(self, pstate, label):
         """Locate a plot which matches the request, init it, and return it."""
         # Create a list of potential plots.
         candidates = list()
         for sp in self.plot_list[label]:
-            if sp.matches( pstate ):
+            if sp.matches(pstate):
                 if not sp.UNIQUE or sp not in self.camp.uniques:
-                    candidates.append( sp )
+                    candidates.append(sp)
         if candidates:
             cp = None
             while candidates and not cp:
-                cpc = self.random_choice_by_weight( candidates )
-                candidates.remove( cpc )
+                cpc = self.random_choice_by_weight(candidates)
+                candidates.remove(cpc)
                 try:
-                    cp = cpc(self,pstate)
+                    cp = cpc(self, pstate)
                 except PlotError:
                     cp = None
             if not cp:
-                self.errors.append( "No plot accepted for {0}".format( label ) )
+                self.errors.append("No plot accepted for {0}".format(label))
             return cp
         else:
-            self.errors.append( "No plot found for {0}".format( label ) )
+            self.errors.append("No plot found for {0}".format(label))
 
-    def get_map_generator( self, gb ):
+    def get_map_generator(self, gb):
         # I thought that generators should be changed to a dict, but then I
         # noticed that the generator also gets recorded in a plot's move_records.
         # So, changing it to a dict would require a workaround for that.
@@ -530,13 +540,8 @@ class NarrativeRequest( object ):
                 break
         return mygen
 
-    def build( self ):
+    def build(self):
         """Build finished campaign from this narrative."""
         for g in self.generators:
             g.make()
-        self.story.install( self )
-
-
-
-
-
+        self.story.install(self)

@@ -114,6 +114,8 @@ class SceneView(object):
         return spr
 
     def get_terrain_sprite(self, fname, pos, transparent=False, colors=None):
+        if colors:
+            colors = tuple(colors)
         if self.scene.in_sight:
             if pos in self.scene.in_sight:
                 return self.get_named_sprite(fname, transparent=transparent, colors=colors)

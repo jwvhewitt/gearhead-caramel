@@ -1009,6 +1009,7 @@ class DoDamage( effects.NoEffect ):
     """ Whatever is in this tile is going to take damage.
     """
     DESTROY_TARGET_XP = 45
+    MAX_DESTROY_TARGET_XP = 100
     def __init__(self, damage_n, damage_d, children=(), anim=None, scale=None, hot_knife=False, scatter=False,
                  damage_bonus=0, is_brutal=False, can_be_divided=True, affected_by_armor=True):
         self.damage_n = damage_n
@@ -1056,10 +1057,10 @@ class DoDamage( effects.NoEffect ):
             # If the target is destroyed, give experience to the originator.
             if originator and hasattr(originator,"dole_experience") and camp.scene.are_hostile(originator,target):
                 if mydamage.operational_at_start and not target.is_operational():
-                    xp = min(max(self.DESTROY_TARGET_XP * target.battle_cost() * target.scale.XP_MULTIPLIER // originator.battle_cost(),10),500)
+                    xp = min(max(self.DESTROY_TARGET_XP * target.battle_cost() * target.scale.XP_MULTIPLIER // originator.battle_cost(),10),self.MAX_DESTROY_TARGET_XP)
                     originator.dole_experience(xp)
                 elif mydamage.damage_done > 0:
-                    originator.dole_experience(2)
+                    originator.dole_experience(5)
                 else:
                     originator.dole_experience(1)
             if camp.fight:

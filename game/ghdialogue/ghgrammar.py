@@ -1246,7 +1246,7 @@ DEFAULT_GRAMMAR = {
             "the Earthmother", "the Skyfather"
         ],
         personality.Luna: [
-            "Cesar", "Europa", "Artemis", "Diana", "Jovus"
+            "Great Cesar's Ghost", "Europa", "Artemis", "Diana", "Jovus"
         ],
         personality.L5Spinners: [
             "Jovus", "the Omnifriend"

@@ -746,7 +746,7 @@ class DZD_BHIRandomLancemate(Plot):
                                               local_tags=tuple(self.elements["LOCALE"].attributes),
                                               combatant=True)
         self.register_element("NPC", npc, dident=random.choice(("MUSEUM_TEAM", "FOYER_TEAM")))
-        self.add_sub_plot(nart, "RLM_Relationship")
+        self.add_sub_plot(nart, "RLM_Relationship", elements={"NPC_SCENE": self.elements["INTERIOR"]})
         return True
 
 
@@ -762,7 +762,7 @@ class DZD_BHIAdventurer(Plot):
                                               local_tags=tuple(self.elements["LOCALE"].attributes),
                                               combatant=True)
         self.register_element("NPC", npc, dident="FOYER_TEAM")
-        self.add_sub_plot(nart, "RLM_Relationship")
+        self.add_sub_plot(nart, "RLM_Relationship", elements={"NPC_SCENE": self.elements["INTERIOR"]})
         return True
 
 
@@ -778,7 +778,7 @@ class DZD_BHIScout(Plot):
                                               local_tags=tuple(self.elements["LOCALE"].attributes),
                                               combatant=True)
         self.register_element("NPC", npc, dident=random.choice(("MUSEUM_TEAM", "FOYER_TEAM")))
-        self.add_sub_plot(nart, "RLM_Relationship")
+        self.add_sub_plot(nart, "RLM_Relationship", elements={"NPC_SCENE": self.elements["INTERIOR"]})
         return True
 
 
@@ -1532,7 +1532,7 @@ class DZD_WuHosMedicLancemate(Plot):
                                               local_tags=tuple(self.elements["LOCALE"].attributes),
                                               combatant=True)
         self.register_element("NPC", npc, dident="CIV_TEAM")
-        self.add_sub_plot(nart, "RLM_Relationship")
+        self.add_sub_plot(nart, "RLM_Relationship", elements={"NPC_SCENE": self.elements["INTERIOR"]})
         return True
 
 
@@ -1681,7 +1681,7 @@ class DZD_LoRoTruckerLancemate(Plot):
                                               local_tags=tuple(self.elements["LOCALE"].attributes),
                                               combatant=True)
         self.register_element("NPC", npc, dident="CIV_TEAM")
-        self.add_sub_plot(nart, "RLM_Relationship")
+        self.add_sub_plot(nart, "RLM_Relationship", elements={"NPC_SCENE": self.elements["INTERIOR"]})
         return True
 
 #   ****************************

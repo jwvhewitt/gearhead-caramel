@@ -160,6 +160,24 @@
     ],
     "form_tags": ["Shirtless"]
   },
+  {
+    "name": "BodMA Gil Shirt",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_bodma_shirt_gil.png","anchor":"center","depth":3000,"frame_width": 320, "frame_height": 295, "frame": 0, "x_offset":-21,"y_offset":66},
+      {"name":"Right Sleeve","fname":"por_bodma_shirt_gil.png","anchor":"center","depth":5000,"frame_width": 320, "frame_height": 295, "frame": 2, "x_offset":-21,"y_offset":66},
+      {"name":"Left Sleeve","fname":"por_bodma_shirt_gil.png","anchor":"center","depth":1500,"frame_width": 320, "frame_height": 295, "frame":1, "x_offset":-21,"y_offset":66}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_bodma_shirt_gil.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
+    ],
+    "requires": ["BodMA"],
+    "style": ["Green Zone"],
+    "children": [
+      "Pants"
+    ]
+  },
+
     {
     "name": "BodMA Pants 1",
     "btype": "Pants",

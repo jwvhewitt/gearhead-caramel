@@ -1,4 +1,4 @@
-from pbge.plots import Plot
+from pbge.plots import Plot, Rumor
 from pbge.dialogue import Offer, ContextTag
 from game import teams, services, ghdialogue
 from game.ghdialogue import context
@@ -9,13 +9,11 @@ import random
 from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker
 from . import tarot_cards, missionbuilder, dd_homebase
 from pbge.memos import Memo
-
+from .shops_plus import get_building
 
 
 class DZD_DeadZoneTown(Plot):
     LABEL = "DZD_ROADSTOP"
-    active = True
-    scope = True
 
     def custom_init(self, nart):
         town_name = self._generate_town_name()
@@ -24,6 +22,8 @@ class DZD_DeadZoneTown(Plot):
         )
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1,), faction=town_fac)
+
+        self.register_element("CITY_COLORS", gears.color.random_building_colors())
 
         myscene = gears.GearHeadScene(50, 50, town_name, player_team=team1, civilian_team=team2,
                                       scale=gears.scale.HumanScale, is_metro=True,
@@ -101,8 +101,6 @@ class DZD_DeadZoneTown(Plot):
 
 class DZD_DeadZoneVillage(Plot):
     LABEL = "DZD_ROADSTOP"
-    active = True
-    scope = True
 
     def custom_init(self, nart):
         town_name = self._generate_town_name()
@@ -111,6 +109,8 @@ class DZD_DeadZoneVillage(Plot):
         )
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1,), faction=town_fac)
+
+        self.register_element("CITY_COLORS", gears.color.random_building_colors())
 
         myscene = gears.GearHeadScene(50, 50, town_name, player_team=team1, civilian_team=team2,
                                       scale=gears.scale.HumanScale, is_metro=True,
@@ -194,7 +194,7 @@ class DemocraticOrder(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.ResidentialBuilding(
+        building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ResidentialBuilding,
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
@@ -269,7 +269,7 @@ class MilitaryOrder(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
+        building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ScrapIronBuilding,
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
@@ -344,7 +344,7 @@ class TechnocraticOrder(Plot):
 
     def custom_init(self, nart):
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
+        building = self.register_element("_EXTERIOR", get_building(self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
@@ -498,7 +498,7 @@ class SomewhatOkayGarage(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         npc_name,garage_name = self.generate_npc_and_building_name()
-        building = self.register_element("_EXTERIOR", self.GarageBuilding(
+        building = self.register_element("_EXTERIOR", get_building(self, self.GarageBuilding,
             waypoints={"DOOR": self.GarageDoor(name=garage_name)},
             door_sign=self.door_sign,
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
@@ -573,6 +573,7 @@ class ScavengerGarage(SomewhatOkayGarage):
 
     NAME_PATTERNS = ("{npc}'s Salvage Shop", "{town} Recycling Center", "{npc}'s Spare Parts", "{town} Mecha Accessories")
     SHOPKEEPER_GREETING = "[HELLO]"
+    GarageBuilding = ghterrain.IndustrialBuilding
     shop_ware_types = services.MECHA_PARTS_STORE + services.TIRE_STORE + services.ARMOR_STORE + services.WEAPON_STORE
     shop_wares = "parts"
 
@@ -584,6 +585,7 @@ class DeadzoneMechaShop(SomewhatOkayGarage):
     NAME_PATTERNS = ("{npc}'s Chop Shop", "{town} Mecha Trading Post", "{npc}'s Redesigned Mecha", "{npc}'s Design Center")
     door_sign = (ghterrain.FixitShopSignEast, ghterrain.FixitShopSignSouth)
     SHOPKEEPER_GREETING = "[HELLO] Please be reminded, this is a mecha designer's workshop, not a salvage operation."
+    GarageBuilding = ghterrain.IndustrialBuilding
     additional_waypoints = (ghwaypoints.MechEngTerminal, ghwaypoints.MechaPoster, ghwaypoints.MechaModel, ghwaypoints.GoldPlaque)
     shop_faction = gears.factions.DeadzoneFederation
     shop_ware_types = services.MECHA_STORE
@@ -600,6 +602,7 @@ class GeneralStore(SomewhatOkayGarage):
     NAME_PATTERNS = ("Trader {npc}'s", "{town} Buy&Sell", "{town} Trading Post", "{town} Shopping Boulevard", "{town} Mall")
     SHOPKEEPER_GREETING = "[HELLO] Welcome to {}! Enjoy our newly refurbished Mecha Engineering Terminal! Hasn't exploded in the past year!"
     shop_ware_types = services.GENERAL_STORE
+    GarageBuilding = ghterrain.ConcreteBuilding
     shop_wares = "equipment"
     SHOPKEEPER_JOBS = ("Shopkeeper", "Trader")
     additional_waypoints = (ghwaypoints.MechEngTerminal, ghwaypoints.VendingMachine)
@@ -622,7 +625,7 @@ class DeadzoneClinic(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         self.myname = "{} Clinic".format(self.elements["LOCALE"])
-        building = self.register_element("_EXTERIOR", ghterrain.BrickBuilding(
+        building = self.register_element("_EXTERIOR", get_building(self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.WoodenDoor(name=self.myname)},
             door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
@@ -684,7 +687,7 @@ class AmateurCyberdoc(Plot):
 
         # Create a building within the town.
         self.myname = "{} Medical".format(npc)
-        building = self.register_element("_EXTERIOR", ghterrain.ScrapIronBuilding(
+        building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ScrapIronBuilding,
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.myname)},
             door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
@@ -786,7 +789,7 @@ class SynthCave(Plot):
 
     def custom_init(self, nart):
         # Create the cave dungeon.
-        self.area_name = '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
+        self.area_name = self.register_element("AREA_NAME", '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word()))
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["METROSCENE"], self.area_name,
             gharchitecture.StoneCave(), self.rank,
@@ -840,27 +843,18 @@ class SynthCave(Plot):
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
 
-    def _get_dialogue_grammar(self, npc, camp):
-        mygram = dict()
-        if not self.dungeon_unlocked:
-            mygram["[News]"] = ["{} is full of biomonsters and mutants".format(self.area_name,), ]
-        return mygram
-
-    def _get_generic_offers(self, npc, camp):
-        """Get any offers that could apply to non-element NPCs."""
-        goffs = list()
-        if not self.dungeon_unlocked:
-            goffs.append(Offer(
-                msg="Lots of people have gone there hoping to find PreZero treasure, but no, it just seems to be a big cave full of nasty stuff. You can try your luck if you want.".format(
-                    **self.elements),
-                context=ContextTag((context.INFO,)), effect=self._get_rumor,
-                subject=self.area_name, data={"subject": self.area_name}, no_repeats=True
-            ))
-        return goffs
-
     def _get_rumor(self, camp):
         self.dungeon_unlocked = True
         missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
+
+    RUMOR = Rumor(
+        "{AREA_NAME} is full of biomonsters and mutants",
+        offer_msg="Lots of people have gone there hoping to find PreZero treasure, but no, it just seems to be a big cave full of nasty stuff. You can try your luck if you want.",
+        offer_subject="{AREA_NAME}",
+        offer_subject_data="{AREA_NAME}",
+        memo="{AREA_NAME} is a dangerous area filled with biomonsters and mutants.",
+        memo_location="METROSCENE", offer_effect=_get_rumor
+    )
 
 
 class TreasureCave(Plot):
@@ -872,7 +866,7 @@ class TreasureCave(Plot):
 
     def custom_init(self, nart):
         # Create the cave dungeon.
-        self.area_name = '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
+        self.area_name = self.register_element("AREA_NAME", '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word()))
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["METROSCENE"], self.area_name,
             gharchitecture.EarthCave(), self.rank,
@@ -936,27 +930,18 @@ class TreasureCave(Plot):
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
 
-    def _get_dialogue_grammar(self, npc, camp):
-        mygram = dict()
-        if not self.dungeon_unlocked:
-            mygram["[News]"] = ["there is hidden bandit treasure in {}".format(self.area_name,), ]
-        return mygram
-
-    def _get_generic_offers(self, npc, camp):
-        """Get any offers that could apply to non-element NPCs."""
-        goffs = list()
-        if not self.dungeon_unlocked:
-            goffs.append(Offer(
-                msg="The way the story goes, years ago there was a bandit gang around here and they amassed a huge amount of treasure. They hid it in one of the nearby caves, but for whatever reason never came back to collect it. Maybe they forgot the password?".format(
-                    **self.elements),
-                context=ContextTag((context.INFO,)), effect=self._get_rumor,
-                subject=self.area_name, data={"subject": self.area_name}, no_repeats=True
-            ))
-        return goffs
-
     def _get_rumor(self, camp):
         self.dungeon_unlocked = True
         missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
+
+    RUMOR = Rumor(
+        "there is hidden bandit treasure in {AREA_NAME}",
+        offer_msg="The way the story goes, years ago there was a bandit gang around here and they amassed a huge amount of treasure. They hid it in one of the nearby caves, but for whatever reason never came back to collect it. Maybe they forgot the password?",
+        offer_subject="{AREA_NAME}",
+        offer_subject_data="{AREA_NAME}",
+        memo="{AREA_NAME} is rumored to contain a lost bandit treasure.",
+        memo_location="METROSCENE", offer_effect=_get_rumor
+    )
 
 
 class DZRS_LostForager(Plot):
@@ -965,6 +950,14 @@ class DZRS_LostForager(Plot):
     active = True
     scope = "METRO"
     UNIQUE = True
+
+    RUMOR = Rumor(
+        "{NPC} hasn't returned from {AREA_NAME}",
+        offer_msg="{NPC} is an explorer who goes foraging in the wastes; {MISSION_GIVER} at {LOCALE} is worried because {NPC.gender.subject_pronoun} has been gone for too long.",
+        memo="{MISSION_GIVER} has been worried about {NPC}.",
+        memo_location="LOCALE",
+        prohibited_npcs=("NPC","MISSION_GIVER")
+    )
 
     def custom_init(self, nart):
         # Create the NPC in town who will serve as the actual mission giver.
@@ -983,7 +976,7 @@ class DZRS_LostForager(Plot):
         myscene.contents.append(npc1)
 
         # Create the desert mountain dungeon.
-        self.area_name = plotutility.random_deadzone_spot_name()
+        self.area_name = self.register_element("AREA_NAME", plotutility.random_deadzone_spot_name())
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["METROSCENE"], self.area_name,
             gharchitecture.HumanScaleDeadzoneWilderness(), self.rank,
@@ -1037,30 +1030,6 @@ class DZRS_LostForager(Plot):
 
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
-
-    def _get_dialogue_grammar(self, npc, camp):
-        mygram = dict()
-        if npc not in self.npcs and not self.got_rumor and not self.dungeon_unlocked:
-            mygram["[News]"] = ["{} hasn't returned from {}".format(self.elements["NPC"], self.area_name),]
-        return mygram
-
-    def _get_generic_offers(self, npc, camp):
-        """Get any offers that could apply to non-element NPCs."""
-        goffs = list()
-        mynpc = self.elements["NPC"]
-        if npc not in self.npcs and not self.got_rumor and not self.dungeon_unlocked:
-            goffs.append(Offer(
-                msg="{NPC} is an explorer who goes foraging in the wastes; {MISSION_GIVER} at {LOCALE} is worried because {NPC.gender.subject_pronoun} has been gone for too long.".format(**self.elements),
-                context=ContextTag((context.INFO,)), effect=self._get_rumor,
-                subject=str(mynpc), data={"subject": str(mynpc)}, no_repeats=True
-            ))
-        return goffs
-
-    def _get_rumor(self,camp):
-        self.got_rumor = True
-        self.memo = Memo( "{MISSION_GIVER} has been worried about {NPC}.".format(**self.elements)
-                        , self.elements["LOCALE"]
-                        )
 
     def MISSION_GIVER_offers(self, camp):
         myoffs = list()
@@ -1141,7 +1110,7 @@ class DZRS_GeneralStore(Plot):
         self.shopname = self._generate_shop_name()
 
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.ConcreteBuilding(
+        building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ConcreteBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
             door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
@@ -1210,7 +1179,7 @@ class DZRS_WeaponArmorShop(Plot):
         self.shopname = self._generate_shop_name()
 
         # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.ConcreteBuilding(
+        building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ConcreteBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
             door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),

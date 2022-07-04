@@ -121,6 +121,7 @@
       {"name":"Pants","fname":"avatar_bodfa_pants_dzfurskirt.png","anchor":"midbottom","depth":2500,"x_offset":-1, "y_offset": -12}
     ],
     "requires": ["BodFA"],
+    "style": ["Dead Zone"],
     "children": ["Shoes"]
   },
     {

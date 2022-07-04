@@ -157,12 +157,17 @@ def open_cosplay_menu(tsrd):
 def open_chargen_menu(tsrd):
     game.chargen.CharacterGeneratorW.create_and_invoke(tsrd)
 
+def draw_border():
+    pbge.my_state.screen.fill((0, 0, 255))
+    myarea = pbge.frects.Frect(-250, 150, 500, 100)
+    pbge.default_border.render(myarea.get_rect())
 
 def just_show_background(tsrd):
     while True:
         ev = pbge.wait_event()
         if ev.type == pbge.TIMEREVENT:
-            tsrd(False)
+            #tsrd(False)
+            draw_border()
             pbge.my_state.do_flip()
         elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
             break

@@ -1,14 +1,14 @@
 import pbge.memos
-from pbge.plots import Plot, PlotState
+from pbge.plots import Plot, PlotState, Rumor
 import game.content.ghwaypoints
 import game.content.ghterrain
 import gears
 import pbge
-from game import teams,ghdialogue
+from game import teams, ghdialogue
 from game.content import gharchitecture
 from game.ghdialogue import context
 import random
-from pbge.dialogue import ContextTag,Offer
+from pbge.dialogue import ContextTag, Offer
 from game.content.ghplots import dd_main
 from game.content import plotutility
 import game.content.gharchitecture
@@ -16,6 +16,7 @@ from . import missionbuilder
 import collections
 
 Memo = pbge.memos.Memo
+
 
 #  **************************
 #  ***   ADD_BORING_NPC   ***
@@ -30,8 +31,9 @@ class BoringRandomNPC(Plot):
         self.register_element("NPC", npc, dident="LOCALE")
         return True
 
-    def _is_best_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
 
 #  *****************************
 #  ***   ADD_COMBATANT_NPC   ***
@@ -46,8 +48,8 @@ class FightingRandomNPC(Plot):
         self.register_element("NPC", npc, dident="LOCALE")
         return True
 
-    def _is_best_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
 #  *************************************
@@ -66,9 +68,9 @@ class BasicEggLancemate(Plot):
             plotutility.AutoJoiner(npc)(nart.camp)
         return True
 
-    def _is_good_npc(self,nart,candidate):
-        return isinstance(candidate, gears.base.Character) and candidate.relationship and gears.relationships.RT_LANCEMATE in candidate.relationship.tags
-
+    def _is_good_npc(self, nart, candidate):
+        return isinstance(candidate,
+                          gears.base.Character) and candidate.relationship and gears.relationships.RT_LANCEMATE in candidate.relationship.tags
 
 
 #  ********************************
@@ -87,8 +89,8 @@ class ThisIsAPersonInYourNeighborhood(Plot):
         self.register_element("NPC", npc, dident="LOCALE")
         return True
 
-    def _is_best_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
 #  *****************************
@@ -101,33 +103,37 @@ class ThisIsAPersonInYourNeighborhood(Plot):
 #
 #  FACTION: The Faction to add a remote office for
 
-class BoringRemoteOffice( Plot ):
+class BoringRemoteOffice(Plot):
     LABEL = "ADD_REMOTE_OFFICE"
     active = False
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "{} Base".format(self.elements["FACTION"]), player_team=team1,
-                                       civilian_team=team2, scale=gears.scale.HumanScale, faction=self.elements["FACTION"])
+                                       civilian_team=team2, scale=gears.scale.HumanScale,
+                                       faction=self.elements["FACTION"])
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR")
 
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
-                                    dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
+                                      dident="INTERIOR")
         foyer.contents.append(team2)
         # Add the NPCs.
-        if self.rank > 25 and random.randint(1,3) != 1:
+        if self.rank > 25 and random.randint(1, 3) != 1:
             job = self.elements["FACTION"].choose_job(gears.tags.Commander)
-        elif random.randint(1,3) == 1:
+        elif random.randint(1, 3) == 1:
             job = self.elements["FACTION"].choose_job(gears.tags.Support)
-        elif random.randint(1,20) != 17:
+        elif random.randint(1, 20) != 17:
             job = self.elements["FACTION"].choose_job(gears.tags.Trooper)
         else:
             job = random.choice(list(gears.jobs.ALL_JOBS.values()))
-        team2.contents.append(gears.selector.random_character(self.rank+10,job=job,combatant=True,faction=self.elements["FACTION"]))
+        team2.contents.append(
+            gears.selector.random_character(self.rank + 10, job=job, combatant=True, faction=self.elements["FACTION"]))
 
         return True
+
 
 #  ********************************
 #  ***   ADD_FROZEN_COMBATANT   ***
@@ -139,14 +145,14 @@ class BoringRemoteOffice( Plot ):
 #
 #  FACTION: The Faction to add a frozen member for. May be "None".
 
-class BasicFrozenMember( Plot ):
+class BasicFrozenMember(Plot):
     LABEL = "ADD_FROZEN_COMBATANT"
 
-    def custom_init( self, nart ):
+    def custom_init(self, nart):
         npc = None
 
         # Check the PC's egg for an appropriate NPC; returning allies and/or arch-enemies are cool.
-        if random.randint(1,6) != 5:
+        if random.randint(1, 6) != 5:
             npc = nart.camp.egg.seek_dramatis_person(nart.camp, self._is_good_npc, self)
             if npc and npc.job and self.rank > (npc.renown - 10):
                 npc.job.scale_skills(npc, self.rank + 10)
@@ -154,17 +160,18 @@ class BasicFrozenMember( Plot ):
         # Add the NPC.
         if not npc:
             if self.elements["FACTION"]:
-                if self.rank > 25 and random.randint(1,3) != 1:
+                if self.rank > 25 and random.randint(1, 3) != 1:
                     job = self.elements["FACTION"].choose_job(gears.tags.Commander)
-                elif random.randint(1,3) == 1:
+                elif random.randint(1, 3) == 1:
                     job = self.elements["FACTION"].choose_job(gears.tags.Support)
-                elif random.randint(1,20) != 17:
+                elif random.randint(1, 20) != 17:
                     job = self.elements["FACTION"].choose_job(gears.tags.Trooper)
                 else:
                     job = random.choice(list(gears.jobs.ALL_JOBS.values()))
             else:
                 job = random.choice(list(gears.jobs.ALL_JOBS.values()))
-            npc = gears.selector.random_character(self.rank+10,job=job,combatant=True,faction=self.elements["FACTION"])
+            npc = gears.selector.random_character(self.rank + 10, job=job, combatant=True,
+                                                  faction=self.elements["FACTION"])
         nart.camp.freeze(npc)
         return True
 
@@ -183,17 +190,18 @@ class BasicFrozenMember( Plot ):
 #  METRO: The METRO data block for the city
 #
 
-class EnsureJobHaver( Plot ):
+class EnsureJobHaver(Plot):
     LABEL = "ENSURE_JOB_REPRESENTATION"
     scope = "METRO"
     active = True
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         myscene = self.elements["METROSCENE"]
         myjob = self.elements["JOB"]
-        destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene )
-        mynpc = self.register_element("NPC",gears.selector.random_character(
+        destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene)
+        mynpc = self.register_element("NPC", gears.selector.random_character(
             rank=self.rank, local_tags=myscene.attributes, job=myjob,
-        ),dident="_DEST")
+        ), dident="_DEST")
         destscene.local_teams[mynpc] = destscene.civilian_team
         return True
 
@@ -204,18 +212,17 @@ class EnsureJobHaver( Plot ):
             myscene = self.elements["METROSCENE"]
             mydest = self.elements["_DEST"]
             mynpc = gears.selector.random_character(rank=random.randint(1, 50),
-                 job=self.elements["JOB"], local_tags=myscene.attributes)
-            mynpc.place(mydest,team=mydest.civilian_team)
+                                                    job=self.elements["JOB"], local_tags=myscene.attributes)
+            mynpc.place(mydest, team=mydest.civilian_team)
 
-    def member_is_present(self,camp):
+    def member_is_present(self, camp):
         scope = self.elements["METROSCENE"]
-        for e in camp.all_contents( scope, True ):
-            if isinstance(e,gears.base.Character) and str(self.elements["JOB"]) == str(e.job):
+        for e in camp.all_contents(scope, True):
+            if isinstance(e, gears.base.Character) and str(self.elements["JOB"]) == str(e.job):
                 return True
 
-    def _is_best_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
-
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
 #  ***************************************
@@ -229,18 +236,22 @@ class EnsureJobHaver( Plot ):
 #  METRO: The METRO data block for the city
 #
 
-class EnsureAMember( Plot ):
+class EnsureAMember(Plot):
     LABEL = "ENSURE_LOCAL_REPRESENTATION"
     scope = "METRO"
     active = True
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         myscene = self.elements["METROSCENE"]
         myfac = self.elements["FACTION"]
         destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene, must_find=False)
         if not destscene:
             destscene = self.seek_element(nart, "_DEST", self._is_good_scene, scope=myscene)
         myjob = myfac.choose_job(gears.tags.Commander)
-        mynpc = self.register_element("NPC",gears.selector.random_character(rank=random.randint(50,80),job=myjob,local_tags=myscene.attributes,combatant=True,faction=myfac),dident="_DEST")
+        mynpc = self.register_element("NPC", gears.selector.random_character(rank=random.randint(50, 80), job=myjob,
+                                                                             local_tags=myscene.attributes,
+                                                                             combatant=True, faction=myfac),
+                                      dident="_DEST")
         destscene.local_teams[mynpc] = destscene.civilian_team
         return True
 
@@ -251,22 +262,23 @@ class EnsureAMember( Plot ):
             myscene = self.elements["METROSCENE"]
             mydest = self.elements["_DEST"]
             mynpc = gears.selector.random_character(rank=random.randint(50, 80),
-                 local_tags=myscene.attributes, combatant=True, faction=self.elements["FACTION"])
-            mynpc.place(mydest,team=mydest.civilian_team)
+                                                    local_tags=myscene.attributes, combatant=True,
+                                                    faction=self.elements["FACTION"])
+            mynpc.place(mydest, team=mydest.civilian_team)
 
-    def member_is_present(self,camp):
+    def member_is_present(self, camp):
         scope = self.elements["METROSCENE"]
-        for e in camp.all_contents( scope, True ):
-            if isinstance(e,gears.base.Character) and e.faction is self.elements["FACTION"]:
+        for e in camp.all_contents(scope, True):
+            if isinstance(e, gears.base.Character) and e.faction is self.elements["FACTION"]:
                 return True
 
-    def _is_best_scene(self,nart,candidate):
-        return (isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
+    def _is_best_scene(self, nart, candidate):
+        return (isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
                 gears.tags.SCENE_BASE in candidate.attributes and
-                candidate.faction and nart.camp.are_faction_allies(candidate.faction,self.elements["FACTION"]))
+                candidate.faction and nart.camp.are_faction_allies(candidate.faction, self.elements["FACTION"]))
 
-    def _is_good_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+    def _is_good_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
 #  ***************************************
@@ -280,19 +292,20 @@ class EnsureAMember( Plot ):
 #  METRO: The METRO data block for the city
 #
 
-class EnsureOneTraitHaver( Plot ):
+class EnsureOneTraitHaver(Plot):
     LABEL = "ENSURE_TRAIT_REPRESENTATION"
     scope = "METRO"
     active = True
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         myscene = self.elements["METROSCENE"]
         mytrait = self.elements["TRAIT"]
-        destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene )
+        destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene)
         if not destscene:
             destscene = self.seek_element(nart, "_DEST", self._is_good_scene, scope=myscene)
-        mynpc = self.register_element("NPC",gears.selector.random_character(
+        mynpc = self.register_element("NPC", gears.selector.random_character(
             rank=self.rank, local_tags=myscene.attributes,
-        ),dident="_DEST")
+        ), dident="_DEST")
         mynpc.personality.add(mytrait)
         destscene.local_teams[mynpc] = destscene.civilian_team
         return True
@@ -304,18 +317,18 @@ class EnsureOneTraitHaver( Plot ):
             myscene = self.elements["METROSCENE"]
             mydest = self.elements["_DEST"]
             mynpc = gears.selector.random_character(rank=random.randint(1, 50),
-                 local_tags=myscene.attributes)
+                                                    local_tags=myscene.attributes)
             mynpc.personality.add(self.elements["TRAIT"])
-            mynpc.place(mydest,team=mydest.civilian_team)
+            mynpc.place(mydest, team=mydest.civilian_team)
 
-    def member_is_present(self,camp):
+    def member_is_present(self, camp):
         scope = self.elements["METROSCENE"]
-        for e in camp.all_contents( scope, True ):
-            if isinstance(e,gears.base.Character) and self.elements["TRAIT"] in e.personality:
+        for e in camp.all_contents(scope, True):
+            if isinstance(e, gears.base.Character) and self.elements["TRAIT"] in e.personality:
                 return True
 
-    def _is_best_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
 #  ************************
@@ -326,11 +339,12 @@ class EnsureOneTraitHaver( Plot ):
 #  NPC: The NPC to be frozen
 #  DAYS: The number of days to be frozen. Defaults to 5.
 
-class NPCVacationToTheFreezer( Plot ):
+class NPCVacationToTheFreezer(Plot):
     LABEL = "NPC_VACATION"
     active = False
     scope = "LOCALE"
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         npc = self.elements["NPC"]
         self.elements["LOCALE"] = npc.scene
         self.vacation_end = 0
@@ -350,49 +364,59 @@ class NPCVacationToTheFreezer( Plot ):
             npc.place(locale)
             self.end_plot(camp)
 
+
 #  ***************************************
 #  ***   PLACE_LOCAL_REPRESENTATIVES   ***
 #  ***************************************
 #
 #  FACTION: The faction to which the new NPCs will belong.
 
-class PlaceACommander( Plot ):
+class PlaceACommander(Plot):
     LABEL = "PLACE_LOCAL_REPRESENTATIVES"
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         myfac = self.elements["FACTION"]
         destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene,
                                       backup_seek_func=self._is_good_scene)
         myjob = myfac.choose_job(gears.tags.Commander)
-        mynpc = self.register_element("NPC",gears.selector.random_character(rank=random.randint(50,80),job=myjob,local_tags=myscene.attributes,combatant=True,faction=myfac),dident="_DEST")
+        mynpc = self.register_element("NPC", gears.selector.random_character(rank=random.randint(50, 80), job=myjob,
+                                                                             local_tags=myscene.attributes,
+                                                                             combatant=True, faction=myfac),
+                                      dident="_DEST")
         destscene.local_teams[mynpc] = destscene.civilian_team
         return True
-    def _is_best_scene(self,nart,candidate):
-        return (isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
+
+    def _is_best_scene(self, nart, candidate):
+        return (isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
                 gears.tags.SCENE_BASE in candidate.attributes and
-                candidate.faction and nart.camp.are_faction_allies(candidate.faction,self.elements["FACTION"]))
-    def _is_good_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+                candidate.faction and nart.camp.are_faction_allies(candidate.faction, self.elements["FACTION"]))
+
+    def _is_good_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
-class PlaceAMember( Plot ):
+class PlaceAMember(Plot):
     LABEL = "PLACE_LOCAL_REPRESENTATIVES"
-    def custom_init( self, nart ):
+
+    def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         myfac = self.elements["FACTION"]
         destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene,
                                       backup_seek_func=self._is_good_scene)
-        mynpc = self.register_element("NPC",gears.selector.random_character(
-            rank=random.randint(20,70),local_tags=myscene.attributes,combatant=True,faction=myfac),dident="_DEST"
+        mynpc = self.register_element("NPC", gears.selector.random_character(
+            rank=random.randint(20, 70), local_tags=myscene.attributes, combatant=True, faction=myfac), dident="_DEST"
                                       )
         destscene.local_teams[mynpc] = destscene.civilian_team
         return True
-    def _is_best_scene(self,nart,candidate):
-        return (isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
+
+    def _is_best_scene(self, nart, candidate):
+        return (isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
                 gears.tags.SCENE_BASE in candidate.attributes and
-                candidate.faction and nart.camp.are_faction_allies(candidate.faction,self.elements["FACTION"]))
-    def _is_good_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+                candidate.faction and nart.camp.are_faction_allies(candidate.faction, self.elements["FACTION"]))
+
+    def _is_good_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
 #  ************************
@@ -437,7 +461,6 @@ class QualityOfLifeReporter(Plot):
         return mygram
 
 
-
 #  ***************************
 #  ***   REVEAL_LOCATION   ***
 #  ***************************
@@ -446,11 +469,12 @@ class QualityOfLifeReporter(Plot):
 #  LOCALE: The location to be revealed.
 #  INTERESTING_POINT: A sentence describing what's interesting about the location.
 
-class EverybodyKnows( Plot ):
+class EverybodyKnows(Plot):
     # Everybody but you, that is.
     LABEL = "REVEAL_LOCATION"
     active = True
     scope = "METRO"
+
     def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
         mygram["[News]"] = ["there's something unusual at {LOCALE}".format(**self.elements)]
@@ -466,58 +490,45 @@ class EverybodyKnows( Plot ):
         ))
         return goffs
 
-    def _get_rumor(self,camp):
+    def _get_rumor(self, camp):
         camp.check_trigger("WIN", self)
-        missionbuilder.NewLocationNotification(self.elements["LOCALE"],self.elements["MISSION_GATE"])
+        missionbuilder.NewLocationNotification(self.elements["LOCALE"], self.elements["MISSION_GATE"])
         self.end_plot(camp)
 
 
-class TruckerKnowledge( Plot ):
+class TruckerKnowledge(Plot):
     LABEL = "REVEAL_LOCATION"
     active = True
     scope = "METRO"
-    def custom_init( self, nart ):
+
+    RUMOR = Rumor(
+        "{NPC} saw something unusual outside of town",
+        offer_msg="You can ask {NPC} about that; {NPC}'s usually at {_DEST}.",
+        memo="{NPC} saw something unusual outside of town.", memo_location="_DEST",
+        prohibited_npcs=("NPC",), offer_subject_data="what {NPC} saw"
+    )
+
+    def custom_init(self, nart):
         myscene = self.elements["METROSCENE"]
         destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene, must_find=False)
         if not destscene:
             destscene = self.seek_element(nart, "_DEST", self._is_good_scene, scope=myscene)
         mynpc = self.register_element(
-            "NPC",gears.selector.random_character(rank=random.randint(10,50),job=gears.jobs.ALL_JOBS["Trucker"],
-            local_tags=myscene.attributes), dident="_DEST"
+            "NPC", gears.selector.random_character(rank=random.randint(10, 50), job=gears.jobs.ALL_JOBS["Trucker"],
+                                                   local_tags=myscene.attributes), dident="_DEST"
         )
         destscene.local_teams[mynpc] = destscene.civilian_team
         self.got_rumor = False
         return True
-    def _is_best_scene(self,nart,candidate):
-        return (isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
+
+    def _is_best_scene(self, nart, candidate):
+        return (isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
                 gears.tags.SCENE_TRANSPORT in candidate.attributes)
-    def _is_good_scene(self,nart,candidate):
-        return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
-    def _get_dialogue_grammar(self, npc, camp):
-        mygram = dict()
-        if npc is not self.elements["NPC"] and not self.got_rumor:
-            mygram["[News]"] = ["{NPC} saw something unusual outside of town".format(**self.elements)]
-        return mygram
 
-    def _get_generic_offers(self, npc, camp):
-        """Get any offers that could apply to non-element NPCs."""
-        goffs = list()
-        if not self.got_rumor and npc is not self.elements["NPC"]:
-            mynpc = self.elements["NPC"]
-            goffs.append(Offer(
-                msg="You can ask {} about that; {}'s usually at {}.".format(mynpc,mynpc.gender.subject_pronoun,self.elements["_DEST"]),
-                context=ContextTag((context.INFO,)), effect=self._get_rumor,
-                subject=str(mynpc), data={"subject": "what {} saw".format(mynpc)}, no_repeats=True
-            ))
-        return goffs
+    def _is_good_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
-    def _get_rumor(self,camp):
-        self.got_rumor = True
-        self.memo = Memo( "{} saw something unusual outside of town.".format(self.elements["NPC"])
-                        , self.elements["_DEST"]
-                        )
-
-    def NPC_offers(self,camp):
+    def NPC_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
             msg="[HELLO] During my last trip into town I saw something really strange out there...",
@@ -531,7 +542,7 @@ class TruckerKnowledge( Plot ):
 
         return mylist
 
-    def _get_info(self,camp):
+    def _get_info(self, camp):
         camp.check_trigger("WIN", self)
-        missionbuilder.NewLocationNotification(self.elements["LOCALE"],self.elements["MISSION_GATE"])
+        missionbuilder.NewLocationNotification(self.elements["LOCALE"], self.elements["MISSION_GATE"])
         self.end_plot(camp)

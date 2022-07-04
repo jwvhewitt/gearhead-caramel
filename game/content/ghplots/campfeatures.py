@@ -80,13 +80,10 @@ class MetrosceneRecoveryHandler(Plot):
             camp.home_base = self.elements["MISSION_GATE"]
             etlr = plotutility.EnterTownLanceRecovery(camp, self.elements["METROSCENE"], self.elements["METRO"])
 
-            if camp.campdata.get(LANCE_HANDLER_ENABLED, False) and not etlr.did_recovery:
-                pass
-
             if camp.campdata.get(LANCEDEV_ENABLED, False) and random.randint(1, 3) == 2 and not etlr.did_recovery:
                 # We can maybe load a lancemate scene here. Yay!
                 if camp.campdata[LANCEDEV_ENABLED](camp):
-                    nart = GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="DZD_LANCEDEV", plot_list=PLOT_LIST)
+                    nart = GHNarrativeRequest(camp, pbge.plots.PlotState().based_on(self), adv_type="LANCEDEV", plot_list=PLOT_LIST)
                     if nart.story:
                         nart.build()
 

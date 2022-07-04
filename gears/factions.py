@@ -124,7 +124,7 @@ class TerranFederation(Faction):
     mecha_colors = (color.ArmyDrab, color.Olive, color.ElectricYellow, color.GullGrey, color.Terracotta)
     CAREERS = {
         tags.Trooper: ("Mecha Pilot", "Citizen"),
-        tags.Commander: ("Bureaucrat", "Commander",),
+        tags.Commander: ("Bureaucrat", "Commander", "Mayor"),
         tags.Support: ("Explorer", "Firefighter", "Paramedic", "Researcher"),
     }
     LOCATIONS = (personality.GreenZone,)
@@ -211,7 +211,7 @@ class DeadzoneFederation(Faction):
     mecha_colors = (color.DarkBrown, color.AeroBlue, color.GunRed, color.DeepSeaBlue, color.DesertYellow)
     CAREERS = {
         tags.Trooper: ("Mecha Pilot","Mercenary"),
-        tags.Commander: ("Commander","Aristo","Warlord"),
+        tags.Commander: ("Commander","Aristo","Warlord", "Mayor"),
         tags.Support: ("Recon Pilot","Scavenger", "Tekno"),
     }
     LOCATIONS = (personality.DeadZone,)
@@ -374,18 +374,18 @@ class FactionRelations(object):
 DEFAULT_FACTION_DICT_NT158 = {
     AegisOverlord: FactionRelations(
         allies = (),
-        enemies = (TerranFederation,BladesOfCrihna)
+        enemies = (TerranFederation, DeadzoneFederation, BladesOfCrihna)
     ),
     BladesOfCrihna: FactionRelations(
         allies = (),
-        enemies = (AegisOverlord,Guardians)
+        enemies = (AegisOverlord, Guardians)
     ),
     BoneDevils: FactionRelations(
         allies = (),
-        enemies = (TerranDefenseForce,Guardians)
+        enemies = (TerranDefenseForce, Guardians)
     ),
     TerranFederation: FactionRelations(
-        allies = (TerranDefenseForce,Guardians),
+        allies = (TerranDefenseForce, Guardians, TheSolarNavy),
         enemies= (AegisOverlord,)
     ),
     TerranDefenseForce: FactionRelations(

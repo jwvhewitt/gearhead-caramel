@@ -1,3 +1,9 @@
+* Maximum XP from destroying a target reduced to 100
+* Replaced manually constructed rumors with Rumor objects
+* Rumors may now have an effect for their info offer
+* Merged dd_lancedev.py into lancedev.py
+* Added some new Lancemate personality types
+* Villages in DeadZone Drifter get custom colors
 * Fixed bug when selecting "None" after previously selecting clue in okapi puzzle widget
 
 v0.830 June 21 2022

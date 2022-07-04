@@ -639,7 +639,7 @@ class MWM_StorageRoom(Plot):
 #   ***   TAVERN   ***
 #   ******************
 #
-# Note: This subplot is being deprecated; use SHOP_TAVERN instead.
+# Note: This subplot is being deprecated; use SHOP_TAVERN instead. v0.830
 #
 #  LOCALE: The tavern
 #  METROSCENE: The city the building is in

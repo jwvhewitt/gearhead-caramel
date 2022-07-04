@@ -31,6 +31,7 @@ A_OBSESSED = "Obsessed" # NPC is obsessed with the PC
 # Also a Proppian Ratchet.
 E_MERCENARY = "Mercenary"       # NPC is in it for the money
 E_IMPROVER = "Improver"         # NPC trying to lead a better life
+E_ADVENTURE = "Adventure"       # NPC seeks an end to boredom
 E_PROFESSIONAL = "Professional" # NPC aims to be the best
 E_RIVAL = "Rival"               # NPC just wants to beat the PC
 E_MECHANIAC = "Mechaniac"       # NPC wants bigger and better mecha

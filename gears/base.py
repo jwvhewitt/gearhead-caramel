@@ -3961,6 +3961,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
 class Monster(Being, MakesPower):
     SAVE_PARAMETERS = ('threat', 'type_tags', 'families', 'environment_list', 'frame', 'actions')
+    DEFAULT_MATERIAL = materials.Meat
 
     def __init__(self, threat=0, type_tags=(), families=(), frame=0, actions=2,
                  environment_list=(tags.GroundEnv, tags.UrbanEnv), **keywords):
@@ -3976,9 +3977,9 @@ class Monster(Being, MakesPower):
     def self_cost(self):
         # Cribbed from the Selector calc_threat_points, but will probably need to be adjusted for balance.
         if self.threat < 31:
-            it = max(self.threat,1) * 300
+            it = max(self.threat,1) * 150
         else:
-            it = 20 * self.threat * self.threat - 900 * self.threat + 19040
+            it = 10 * self.threat * self.threat - 450 * self.threat + 9520
         return it
 
     def matches(self, level, env, type_tags, scale):

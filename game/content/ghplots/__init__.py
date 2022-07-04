@@ -10,7 +10,6 @@ from . import dd_customobjectives
 from . import dd_distanttown
 from . import dd_homebase
 from . import dd_intro
-from . import dd_lancedev
 from . import dd_main
 from . import dd_misc
 from . import dd_roadedge
@@ -41,6 +40,7 @@ from . import tarot_cards
 from . import tarot_reveal
 from . import tarot_sockets
 from . import thingplacers
+from . import townhall
 from . import treasures
 from . import utility
 from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
@@ -68,7 +68,6 @@ harvest(dd_customobjectives)
 harvest(dd_distanttown)
 harvest(dd_homebase)
 harvest(dd_intro)
-harvest(dd_lancedev)
 harvest(dd_main)
 harvest(dd_misc)
 harvest(dd_roadedge)
@@ -99,6 +98,7 @@ harvest(tarot_cards)
 harvest(tarot_reveal)
 harvest(tarot_sockets)
 harvest(thingplacers)
+harvest(townhall)
 harvest(treasures)
 harvest(utility)
 

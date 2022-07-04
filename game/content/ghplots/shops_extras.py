@@ -30,7 +30,7 @@ class UtterlyRandomTavernLancemate(Plot):
         npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS + gears.stats.EXTRA_COMBAT_SKILLS)] += random.randint(1,6)
 
         self.register_element("NPC", npc, dident="INTERIOR")
-        self.add_sub_plot(nart, "RLM_Relationship", elements={"LOCALE": self.elements["INTERIOR"]})
+        self.add_sub_plot(nart, "RLM_Relationship", elements={"NPC_SCENE": self.elements["INTERIOR"]})
         return True
 
 

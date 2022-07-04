@@ -10,15 +10,15 @@ from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, gh
 
 
 # The plots in this unit all use the same interface for easy modding of cities.
-# - The calling plot must pass a LOCALE scene. This is where the business will be placed.
+# - The calling plot must pass a LOCALE scene and a METRO. This is where the business will be placed.
 # - The SHOP_* plot will include an INTERIOR scene and a SHOPKEEPER character.
 # There are some optional elements:
 # - An INTERIOR_TAGS element may be passed; this value defaults to (SCENE_PUBLIC,).
 # - NPC_NAME and SHOP_NAME may be passed, and will be used instead of the randomly generated ones.
 # - SHOP_FACTION may be passed to give the shop a faction. If None, it may be chosen randomly.
 # - A CITY_COLORS element may be passed; if it exists, a custom palette will be used for building exteriors.
-# If METROSCENE or MISSION_GATE might be needed, check for them in the matches class method. LOCALE is the only
-#  passed element you can depend on.
+# If METROSCENE or MISSION_GATE might be needed, check for them in the matches class method. LOCALE and METRO are the
+# only passed elements you can depend on.
 
 def get_building(plot: Plot, bclass, **kwargs):
     # Note: This function relies upon the building type being standard. Don't call this for a weird building type
