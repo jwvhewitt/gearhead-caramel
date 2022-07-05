@@ -642,6 +642,9 @@ class Explorer( object ):
                         if mymenu.query():
                             self.camp.eject()
 
+                    elif gdi.unicode == "O" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        self.camp.version = "v0.100"
+
                     elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for card in self.camp.active_tarot_cards():
                             print(card.__class__.__name__)

@@ -1,3 +1,4 @@
+* Warning shown if campaign save file is from an earlier major version
 * Load game menu now shows character portrait and adventure thumbnail
 * Character egg files will not be deleted if adventure selection cancelled
 * Unloadable campaign files will be placed in quarantine

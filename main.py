@@ -9,6 +9,7 @@ import sys
 import glob
 import pickle
 import copy
+import math
 
 VERSION = "v0.900"
 
@@ -105,6 +106,7 @@ class LoadGameMenu:
     PORTRAIT_AREA = pbge.frects.Frect(-400, -300, 400, 600)
     THUMB_AREA = pbge.frects.Frect(-375, -180, 480, 360)
     MENU_COLUMN = pbge.frects.Frect(130,-100,225,350)
+    WARNING_AREA = pbge.frects.Frect(-350, 0, 300, 60)
 
     def __init__(self, tsrd):
         check_rpg_saves()
@@ -114,6 +116,7 @@ class LoadGameMenu:
                                    )
         mymenu.descobj = self
         self.myportraits = dict()
+        self.current_version = self._string_to_major_version(VERSION)
 
         rc = pygame.image.load(pbge.util.image_dir("sys_roundedcorners.png"))
         rcdest = pygame.Rect(0,0,480,360)
@@ -138,6 +141,12 @@ class LoadGameMenu:
             camp = copy.deepcopy(camp)
             camp.play()
 
+    @staticmethod
+    def _string_to_major_version(version):
+        # If the first decimal place of the version number changes, there may be problems with loading older save
+        # files. Print a warning if this is the case.
+        return math.floor(float(version[1:])*10)
+
     def __call__(self, menu_item):
         if menu_item.desc:
             if menu_item.desc[2]:
@@ -145,6 +154,11 @@ class LoadGameMenu:
                 pbge.my_state.screen.blit(menu_item.desc[2], mydest)
             myimage = self.myportraits[menu_item.desc]
             myimage.render(self.PORTRAIT_AREA.get_rect())
+            save_version = self._string_to_major_version(menu_item.desc[0])
+            if save_version < self.current_version:
+                mydest = self.WARNING_AREA.get_rect()
+                pbge.default_border.render(mydest.inflate(8,8))
+                pbge.draw_text(pbge.MEDIUMFONT, "Warning: Save from {}.\nThis might cause problems in the current version, or it might not.".format(menu_item.desc[0]),mydest, justify=0)
 
 
 def import_arena_character(tsrd):
