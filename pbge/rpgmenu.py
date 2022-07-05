@@ -1,6 +1,5 @@
 import pygame
 import glob
-from . import util
 from .frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
 import random
 import collections
@@ -81,7 +80,7 @@ MENU_SELECT_COLOR = pygame.Color(128,250,230)
 
 class Menu( Frect ):
 
-    def __init__(self,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,menuitem=MENU_ITEM_COLOR,menuselect=MENU_SELECT_COLOR,border=default_border,predraw=None,font=None,padding=0,item_class=MenuItem):
+    def __init__(self,dx,dy,w=300,h=100,anchor=ANCHOR_CENTER,menuitem=MENU_ITEM_COLOR,menuselect=MENU_SELECT_COLOR,border=default_border,predraw=None,font=None,padding=0,item_class=MenuItem, no_escape=False):
         super(Menu, self).__init__(dx,dy,w,h,anchor)
         self.menuitem = menuitem
         self.menuselect = menuselect
@@ -94,7 +93,6 @@ class Menu( Frect ):
         self.items = []
         self.top_item = 0
         self.selected_item = 0
-        self.can_cancel = True
         self.descobj = None
         self.quick_keys = {}
 
@@ -104,6 +102,8 @@ class Menu( Frect ):
         # predraw is a function that
         # redraws/clears the screen before the menu is rendered.
         self.predraw = predraw
+
+        self.no_escape = no_escape
 
     def add_item(self,msg,value,desc=None):
         item = self.item_class( msg , value , desc, self )
@@ -222,7 +222,7 @@ class Menu( Frect ):
                 elif pc_input.key == pygame.K_SPACE or pc_input.key == pygame.K_RETURN:
                     choice = self.items[ self.selected_item ].value
                     no_choice_made = False
-                elif ( pc_input.key == pygame.K_ESCAPE or pc_input.key == pygame.K_BACKSPACE ) and self.can_cancel:
+                elif ( pc_input.key == pygame.K_ESCAPE or pc_input.key == pygame.K_BACKSPACE ) and not self.no_escape:
                     no_choice_made = False
                 elif pc_input.key >= 0 and pc_input.key < 256 and chr( pc_input.key ) in self.quick_keys:
                     choice = self.quick_keys[ chr(pc_input.key) ]
@@ -247,7 +247,7 @@ class Menu( Frect ):
                     if moi is self.selected_item:
                         choice = self.items[self.selected_item].value
                         no_choice_made = False
-                elif pc_input.button == 3 and self.can_cancel:
+                elif pc_input.button == 3 and not self.no_escape:
                     no_choice_made = False
 
             elif pc_input.type == pygame.MOUSEMOTION:
@@ -346,12 +346,15 @@ class AlertMenu( Menu ):
     FULL_RECT = Frect(-175,-125,350,250)
     TEXT_RECT = Frect(-175,-125,350,165)
 
-    def __init__(self, desc):
+    def __init__(self, desc, predraw=None):
         super().__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,border=None,predraw=self.pre)
+        self.predraw_zero = predraw
         self.desc = desc
 
     def pre( self ):
-        if my_state.view:
+        if self.predraw_zero:
+            self.predraw_zero()
+        elif my_state.view:
             my_state.view()
         default_border.render(self.FULL_RECT.get_rect())
         draw_text(my_state.medium_font, self.desc, self.TEXT_RECT.get_rect(), justify=0)

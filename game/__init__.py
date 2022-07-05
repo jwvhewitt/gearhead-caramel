@@ -15,6 +15,7 @@ from . import devstuff
 from . import scenariocreator
 from game.fieldhq import backpack
 import pbge
+import os
 
 
 class AdventureMenu(object):
@@ -62,7 +63,7 @@ class AdventureMenu(object):
         return mymenu.query()
 
 
-def start_campaign(pc_egg, redrawer):
+def start_campaign(pc_egg, redrawer, version):
     mymenu = AdventureMenu(pc_egg, redrawer)
     adv_type = mymenu()
 
@@ -70,8 +71,14 @@ def start_campaign(pc_egg, redrawer):
         pbge.please_stand_by()
         camp = content.narrative_convenience_function(pc_egg,adv_type=adv_type.LABEL)
         if camp:
+            camp.version = version
             camp._really_go()
             camp.save()
+
+            if not pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                pc_egg.backup()
+                os.remove(pbge.util.user_dir("egg_{}.sav".format(pc_egg.pc.name)))
+
             camp.play()
 
 

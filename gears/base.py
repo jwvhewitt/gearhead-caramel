@@ -3975,11 +3975,11 @@ class Monster(Being, MakesPower):
 
     @property
     def self_cost(self):
-        # Cribbed from the Selector calc_threat_points, but will probably need to be adjusted for balance.
+        # Adjusted downward, slightly.
         if self.threat < 31:
-            it = max(self.threat,1) * 150
+            it = max(self.threat,1) * 100
         else:
-            it = 10 * self.threat * self.threat - 450 * self.threat + 9520
+            it = 10 * self.threat * self.threat - 450 * self.threat + 8500
         return it
 
     def matches(self, level, env, type_tags, scale):

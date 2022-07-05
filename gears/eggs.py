@@ -1,7 +1,8 @@
-from pbge import container,util
+from pbge import container, util
 import pickle
 import collections
 import random
+
 
 # An Egg is a container for a player character and all of that player character's associated data:
 # - The PC object itself
@@ -10,7 +11,7 @@ import random
 # - Records regarding major GearHead NPCs
 
 class Egg(object):
-    def __init__(self,pc,mecha=None,stuff=(),dramatis_personae=(),major_npc_records = None,credits=0):
+    def __init__(self, pc, mecha=None, stuff=(), dramatis_personae=(), major_npc_records=None, credits=0):
         # The dramatis personae are in a regular list because I need to remember who they are, not necessarily
         #    where they are.
         # The stuff is in a containerlist because these are the possessions of the PC and we need to make sure
@@ -42,8 +43,8 @@ class Egg(object):
         if isinstance(self.dramatis_personae, list):
             self.dramatis_personae = set(self.dramatis_personae)
 
-    def _remove_container_for(self,thing,con_rec):
-        if hasattr(thing,"container") and thing.container:
+    def _remove_container_for(self, thing, con_rec):
+        if hasattr(thing, "container") and thing.container:
             con_rec[thing] = thing.container
             thing.container.remove(thing)
 
@@ -56,11 +57,11 @@ class Egg(object):
         for sc in thing.inv_com:
             self._remove_campdata_for(sc, cdat_rec)
 
-    def _reset_container_for(self,thing, con_rec):
+    def _reset_container_for(self, thing, con_rec):
         if thing in con_rec:
             con_rec[thing].append(thing)
 
-    def _reset_campdata_for(self,thing, cdat_rec):
+    def _reset_campdata_for(self, thing, cdat_rec):
         if thing in cdat_rec:
             thing.campdata = cdat_rec[thing]
         for sc in thing.sub_com:
@@ -68,7 +69,7 @@ class Egg(object):
         for sc in thing.inv_com:
             self._reset_campdata_for(sc, cdat_rec)
 
-    def save( self, sfpat = 'egg_{}.sav' ):
+    def write(self, f):
         # Save a record of all the containers.
         con_rec = dict()
         cdat_rec = dict()
@@ -81,8 +82,7 @@ class Egg(object):
             self._remove_campdata_for(npc, cdat_rec)
             if npc.is_destroyed():
                 self.dramatis_personae.remove(npc)
-        with open( util.user_dir( sfpat.format( self.pc.name ) ) , "wb" ) as f:
-            pickle.dump( self , f, -1 )
+        pickle.dump(self, f, -1)
         self._reset_container_for(self.pc, con_rec)
         self._reset_container_for(self.mecha, con_rec)
         self._reset_campdata_for(self.pc, cdat_rec)
@@ -91,7 +91,11 @@ class Egg(object):
             self._reset_container_for(npc, con_rec)
             self._reset_campdata_for(npc, cdat_rec)
 
-    def backup( self ):
+    def save(self, sfpat='egg_{}.sav'):
+        with open(util.user_dir(sfpat.format(self.pc.name)), "wb") as f:
+            self.write(f)
+
+    def backup(self):
         # Save a record of all the containers.
         self.save(sfpat='backup_{}.sav')
 
@@ -101,15 +105,15 @@ class Egg(object):
         # check_fun is a function with parameters (camp,candidate) that returns True if candidate is accepted
         # Return the selected candidate.
         if self.dramatis_personae:
-            candidates = [c for c in self.dramatis_personae if check_fun(camp,c) and c not in camp.uniques]
+            candidates = [c for c in self.dramatis_personae if check_fun(camp, c) and c not in camp.uniques]
             if candidates:
                 mynpc = random.choice(candidates)
                 camp.uniques.add(mynpc)
                 if myplot:
-                    myplot.move_records.append((mynpc,camp.uniques))
+                    myplot.move_records.append((mynpc, camp.uniques))
                 return mynpc
 
     def has_dramatis_person(self, camp, check_fun):
         # Kinda like the above, but just see if a candidate exists.
         if self.dramatis_personae:
-            return bool([c for c in self.dramatis_personae if check_fun(camp,c) and c not in camp.uniques])
+            return bool([c for c in self.dramatis_personae if check_fun(camp, c) and c not in camp.uniques])

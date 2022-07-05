@@ -10,7 +10,7 @@ import glob
 import pickle
 import copy
 
-VERSION = "v0.830"
+VERSION = "v0.900"
 
 
 class TitleScreenRedraw(object):
@@ -62,63 +62,89 @@ class TitleScreenRedraw(object):
 
 TITLE_THEME = 'A wintertale.ogg'
 
+class StartGameMenu:
+    PORTRAIT_AREA = pbge.frects.Frect(-400, -300, 400, 600)
+    MENU_COLUMN = pbge.frects.Frect(20,-100,280,350)
 
-def start_game(tsrd):
-    myfiles = glob.glob(pbge.util.user_dir("egg_*.sav"))
-    mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
-                               TitleScreenRedraw.MENU_DEST.dy,
-                               TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
-                               predraw=tsrd, font=pbge.my_state.huge_font
-                               )
+    def __init__(self, tsrd):
+        check_rpg_saves()
+        mymenu = pbge.rpgmenu.Menu(self.MENU_COLUMN.dx, self.MENU_COLUMN.dy,
+                                   self.MENU_COLUMN.w, self.MENU_COLUMN.h,
+                                   predraw=tsrd, font=pbge.my_state.huge_font,
+                                   )
+        mymenu.descobj = self
+        self.myportraits = dict()
 
-    for fname in myfiles:
-        with open(fname, "rb") as f:
-            # Why deepcopy the freshly loaded pickle? Because that will update any gears involved
-            # to the latest version, and at this point in time it'll hopefully keep save games working
-            # despite rapid early-development changes.
-            egg = copy.deepcopy(pickle.load(f))
+        myfiles = glob.glob(pbge.util.user_dir("egg_*.sav"))
+
+        for fname in myfiles:
+            with open(fname, "rb") as f:
+                # Why deepcopy the freshly loaded pickle? Because that will update any gears involved
+                # to the latest version, and at this point in time it'll hopefully keep save games working
+                # despite rapid early-development changes.
+                egg = copy.deepcopy(pickle.load(f))
+            if egg:
+                mymenu.add_item(str(egg.pc), egg)
+                self.myportraits[egg] = egg.pc.get_portrait()
+
+        if not mymenu.items:
+            mymenu.add_item('[No characters found]', None)
+
+        mymenu.sort()
+        egg = mymenu.query()
         if egg:
-            mymenu.add_item(str(egg.pc), egg)
+            game.start_campaign(egg, tsrd, VERSION)
 
-    if not mymenu.items:
-        mymenu.add_item('[No characters found]', None)
-
-    mymenu.sort()
-    egg = mymenu.query()
-    if egg:
-        if not pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-            egg.backup()
-            os.remove(pbge.util.user_dir("egg_{}.sav".format(egg.pc.name)))
-
-        game.start_campaign(egg, tsrd)
+    def __call__(self, menu_item):
+        if menu_item and menu_item.value:
+            myimage = self.myportraits[menu_item.value]
+            myimage.render(self.PORTRAIT_AREA.get_rect())
 
 
-def load_game(tsrd):
-    myfiles = glob.glob(pbge.util.user_dir("rpg_*.sav"))
-    mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
-                               TitleScreenRedraw.MENU_DEST.dy,
-                               TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
-                               predraw=tsrd, font=pbge.my_state.huge_font
-                               )
+class LoadGameMenu:
+    PORTRAIT_AREA = pbge.frects.Frect(-400, -300, 400, 600)
+    THUMB_AREA = pbge.frects.Frect(-375, -180, 480, 360)
+    MENU_COLUMN = pbge.frects.Frect(130,-100,225,350)
 
-    for fname in myfiles:
-        # with open(fname, "rb") as f:
-        #    # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
-        #    camp = copy.deepcopy(cPickle.load(f))
-        start_index = fname.find("rpg_")
-        mymenu.add_item(fname[start_index + 4:-4], fname)
+    def __init__(self, tsrd):
+        check_rpg_saves()
+        mymenu = pbge.rpgmenu.Menu(self.MENU_COLUMN.dx, self.MENU_COLUMN.dy,
+                                   self.MENU_COLUMN.w, self.MENU_COLUMN.h,
+                                   predraw=tsrd, font=pbge.my_state.huge_font,
+                                   )
+        mymenu.descobj = self
+        self.myportraits = dict()
 
-    if not mymenu.items:
-        mymenu.add_item('[No campaigns found]', None)
+        rc = pygame.image.load(pbge.util.image_dir("sys_roundedcorners.png"))
+        rcdest = pygame.Rect(0,0,480,360)
 
-    mymenu.sort()
-    fname = mymenu.query()
-    if fname:
-        pbge.please_stand_by()
-        with open(fname, "rb") as f:
+        for args in valid_saves:
+            mymenu.add_item(args[3].name, args[3], desc=args)
+            self.myportraits[args] = args[3].pc.get_portrait()
+            if args[2]:
+                args[2].blit(rc, rcdest)
+                args[2].convert_alpha()
+                args[2].set_colorkey((0,0,255))
+
+
+        if not mymenu.items:
+            mymenu.add_item('[No campaigns found]', None, desc=None)
+
+        mymenu.sort()
+        camp = mymenu.query()
+        if camp:
+            pbge.please_stand_by()
             # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
-            camp = copy.deepcopy(pickle.load(f))
-        camp.play()
+            camp = copy.deepcopy(camp)
+            camp.play()
+
+    def __call__(self, menu_item):
+        if menu_item.desc:
+            if menu_item.desc[2]:
+                mydest = self.THUMB_AREA.get_rect()
+                pbge.my_state.screen.blit(menu_item.desc[2], mydest)
+            myimage = self.myportraits[menu_item.desc]
+            myimage.render(self.PORTRAIT_AREA.get_rect())
 
 
 def import_arena_character(tsrd):
@@ -172,6 +198,29 @@ def just_show_background(tsrd):
         elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
             break
 
+valid_saves = list()
+quarantined_files = list()
+
+def check_rpg_saves():
+    quarantined_files.clear()
+    valid_saves.clear()
+    myfiles = glob.glob(pbge.util.user_dir("rpg_*.sav"))
+    for fname in myfiles:
+        try:
+            args = gears.GearHeadCampaign.load(fname)
+            valid_saves.append(args)
+        except Exception as err:
+            print(err)
+            quarantined_files.append(fname)
+
+def view_quarantine(tsrd):
+    mymenu = pbge.rpgmenu.AlertMenu("The following campaign files aren't loading properly, probably because they are from an out of date version or require DLC that is not installed. You should be able to restore the backup of your character from the 'ghcaramel' folder.", predraw=tsrd)
+
+    for f in quarantined_files:
+        mymenu.add_item(f, None)
+
+    mymenu.query()
+
 
 def play_the_game():
     # Step one is to find our gamedir. The process is slightly different depending on whether we are running from
@@ -190,6 +239,8 @@ def play_the_game():
     pbge.please_stand_by()
     gears.init_gears()
     game.init_game()
+
+    check_rpg_saves()
 
     # myfoo = game.content.ghplots.test.Foo()
     # with open(pbge.util.user_dir('bar.p'), "wb") as f:
@@ -213,28 +264,32 @@ def play_the_game():
     # pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
 
     tsrd = TitleScreenRedraw()
-    mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
-                               TitleScreenRedraw.MENU_DEST.dy,
-                               TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
-                               predraw=tsrd, font=pbge.my_state.huge_font
-                               )
-
-    mymenu.add_item("Load Campaign", load_game)
-    mymenu.add_item("Start Campaign", start_game)
-    mymenu.add_item("Create Character", open_chargen_menu)
-    mymenu.add_item("Import GH1 Character", import_arena_character)
-    mymenu.add_item("Config Options", open_config_menu)
-    mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
-    mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
-    mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
-    if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-        mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
-        mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
-        mymenu.add_item("Just Show Background", just_show_background)
-    mymenu.add_item("Quit", None)
 
     action = True
     while action:
+        mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
+                                   TitleScreenRedraw.MENU_DEST.dy,
+                                   TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
+                                   predraw=tsrd, font=pbge.my_state.huge_font,
+                                   no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
+                                   )
+
+        mymenu.add_item("Load Campaign", LoadGameMenu)
+        mymenu.add_item("Start Campaign", StartGameMenu)
+        mymenu.add_item("Create Character", open_chargen_menu)
+        mymenu.add_item("Import GH1 Character", import_arena_character)
+        mymenu.add_item("Config Options", open_config_menu)
+        mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
+        mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
+        mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
+        if quarantined_files:
+            mymenu.add_item("Quarantined Saves", view_quarantine)
+        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
+            mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
+            mymenu.add_item("Just Show Background", just_show_background)
+        mymenu.add_item("Quit", None)
+
         pbge.my_state.start_music(TITLE_THEME)
         action = mymenu.query()
         if action:

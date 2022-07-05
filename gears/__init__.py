@@ -1,6 +1,7 @@
 import pbge
 import random
 import copy
+import pygame
 
 from . import base
 from . import calibre
@@ -30,6 +31,8 @@ from .color import ALL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS, MECHA_
     random_character_colors, random_mecha_colors
 from . import eggs
 from . import relationships
+
+import pickle
 
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()
@@ -406,7 +409,8 @@ class GearHeadScene(pbge.scenes.Scene):
 class GearHeadCampaign(pbge.campaign.Campaign):
 
     def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3,
-                 faction_relations=factions.DEFAULT_FACTION_DICT_NT158, convoborder="dzd_convoborder.png"):
+                 faction_relations=factions.DEFAULT_FACTION_DICT_NT158, convoborder="dzd_convoborder.png",
+                 version="v0.900"):
         super(GearHeadCampaign, self).__init__(name, explo_class)
         self.year = year
         self.num_lancemates = num_lancemates
@@ -425,6 +429,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.storage = GearHeadScene(name="Storage")
         self.contents.append(self.storage)
 
+        self.version = version
+
         if egg:
             self.egg = egg
             self.party = [egg.pc, ]
@@ -435,6 +441,37 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 mek = egg.stuff.pop()
                 self.party.append(mek)
             self.pc: base.Character = egg.pc
+
+    def save(self):
+        with open(pbge.util.user_dir("rpg_" + self.name + ".sav"), "wb") as f:
+            pickle.dump(self.version, f, -1)
+            self.egg.write(f)
+            pickle.dump(self, f, -1)
+
+        # Also save a thumbnail.
+        mythumbarea: pygame.Rect = pbge.my_state.screen.get_rect()
+        mythumbarea.w = min(mythumbarea.h*4//3, mythumbarea.w)
+        mythumbarea.center = pbge.my_state.screen.get_rect().center
+        mythumb = pygame.transform.smoothscale(pbge.my_state.screen.subsurface(mythumbarea),(480,360))
+        pygame.image.save(mythumb, pbge.util.user_dir("rpg_" + self.name + ".jpg"))
+
+    @classmethod
+    def load(cls, fname):
+        with open(pbge.util.user_dir(fname), "rb") as f:
+            version = pickle.load(f)
+            rawegg = pickle.load(f)
+            camp = pickle.load(f)
+        if os.path.exists(pbge.util.user_dir(fname[:-4] + ".jpg")):
+            mythumb = pygame.image.load(pbge.util.user_dir(fname[:-4] + ".jpg"))
+        else:
+            mythumb = None
+        return version, rawegg, mythumb, camp
+
+    def delete_save_file( self, del_name=None ):
+        super().delete_save_file(del_name)
+        name = del_name or self.name
+        if os.path.exists(pbge.util.user_dir("rpg_{}.jpg".format(name))):
+            os.remove(pbge.util.user_dir("rpg_{}.jpg".format(name)))
 
     def get_dialogue_offers_and_grammar(self, npc: base.Character):
         doffs, grams = super().get_dialogue_offers_and_grammar(npc)
@@ -474,9 +511,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         # both operational and on the map.
         flp = None
         for pc in self.party:
-            if pc.is_operational() and pc in self.scene.contents and hasattr(pc,
-                                                                             "pos") and pc.pos and self.scene.on_the_map(
-                    *pc.pos):
+            if (pc.is_operational() and pc in self.scene.contents and
+                    hasattr(pc,"pos") and pc.pos and self.scene.on_the_map(*pc.pos)):
                 flp = pc
                 break
         return flp
@@ -581,7 +617,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         return self.pc.is_operational() and self.egg
 
     def play(self):
-        super(GearHeadCampaign, self).play()
+        super().play()
         if self.pc in self.dead_party:
             pbge.alert("Game Over", font=pbge.my_state.hugefont)
             self.delete_save_file()
@@ -619,7 +655,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                                 pc is self.pc or (hasattr(pc, "pilot") and pc.pilot is self.pc)]
         for pc in party_candidates:
             if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc, (
-            base.Character, base.Mecha)) and geffects.model_matches_environment(pc, enviro):
+                    base.Character, base.Mecha)) and geffects.model_matches_environment(pc, enviro):
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational() and pc.check_design():
                         if not just_checking:

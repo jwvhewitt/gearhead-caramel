@@ -1,3 +1,8 @@
+* Load game menu now shows character portrait and adventure thumbnail
+* Character egg files will not be deleted if adventure selection cancelled
+* Unloadable campaign files will be placed in quarantine
+* Added more options to the in-game configuration editor
+* Changed the Campaign save file specification
 * Maximum XP from destroying a target reduced to 100
 * Replaced manually constructed rumors with Rumor objects
 * Rumors may now have an effect for their info offer
