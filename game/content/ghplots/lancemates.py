@@ -228,7 +228,7 @@ class FormerLancemateReturns(Plot):
             for k in self.bs.results.keys():
                 mygram[k] = [self.bs.get_one(k), ]
         else:
-            mygram["[News]"] = ["{NPC} has been hanging out at {LOCALE}".format(**self.elements), ]
+            mygram["[News]"] = ["{NPC} has been hanging out at {NPC_SCENE}".format(**self.elements), ]
         return mygram
 
     def NPC_offers(self, camp):

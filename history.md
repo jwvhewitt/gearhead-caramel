@@ -1,3 +1,5 @@
+* Building TerrSets now record their footprint
+* Personal scale armor will now show armor rating and damage
 * Warning shown if campaign save file is from an earlier major version
 * Load game menu now shows character portrait and adventure thumbnail
 * Character egg files will not be deleted if adventure selection cancelled

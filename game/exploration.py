@@ -602,6 +602,9 @@ class Explorer( object ):
                                     if skill in gears.stats.ALL_SKILLS:
                                         pc.statline[skill] += 10
 
+                    elif gdi.key == pygame.K_F1 and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        pygame.image.save(pbge.my_state.screen, pbge.util.user_dir("screenshot.png"))
+
                     elif gdi.unicode == "@" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         for thing in self.scene.contents:
                             if hasattr(thing,"pos"):

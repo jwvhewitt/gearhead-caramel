@@ -132,7 +132,7 @@ class CityGridGenerator(SceneGenerator):
         x = random.randint(2, 4)
         while x < (self.width - self.road_thickness):
             # Draw a N-S road here.
-            self.fill(self.gb, pygame.Rect(x, 0, self.road_thickness, self.height), floor=self.road_terrain)
+            self.fill(self.gb, pygame.Rect(x, 0, self.road_thickness, self.height), floor=self.road_terrain, wall=None)
             room_width = random.randint(7, 12)
             if x + room_width + self.road_thickness < self.width:
                 column_info.append((x + self.road_thickness, room_width))
@@ -141,7 +141,7 @@ class CityGridGenerator(SceneGenerator):
         y = random.randint(2, 4)
         while y < (self.height - self.road_thickness - 7):
             # Draw a W-E road here.
-            self.fill(self.gb, pygame.Rect(0, y, self.width, self.road_thickness), floor=self.road_terrain)
+            self.fill(self.gb, pygame.Rect(0, y, self.width, self.road_thickness), floor=self.road_terrain, wall=None)
             room_height = random.randint(7, 12)
             # Add the rooms.
             for col_x, col_width in column_info:
@@ -193,6 +193,8 @@ class PartlyUrbanGenerator(SceneGenerator):
                 self.urban_area.area = pygame.Rect(0, 0, urban_area.width, urban_area.height)
                 self.urban_area.area.center = self.area.center
 
+        self.done_rooms = list()
+
     def arrange_contents(self, gb):
         # Step Two: Arrange subcomponents within this area.
         closed_area = list()
@@ -200,6 +202,7 @@ class PartlyUrbanGenerator(SceneGenerator):
         for r in self.contents:
             if hasattr(r, "area") and r.area:
                 closed_area.append(r.area)
+
         # Add rooms with defined anchors next
         for r in self.contents:
             if hasattr(r, "anchor") and r.anchor and hasattr(r, "area"):
@@ -221,17 +224,28 @@ class PartlyUrbanGenerator(SceneGenerator):
     def build(self, gb, archi):
         super().build(gb, archi)
         frontier = [r for r in self.all_rooms() if IS_CONNECTED_ROOM in r.tags]
-        done_rooms = list()
         if frontier:
             start_point = random.choice(frontier)
             frontier.remove(start_point)
-            done_rooms.append(start_point)
+            self.done_rooms.append(start_point)
             frontier.sort(key=lambda r: gb.distance(start_point.area.center, r.area.center))
             while frontier:
                 nuroom = frontier.pop(0)
-                connect_to = min(done_rooms, key=lambda r: gb.distance(nuroom.area.center, r.area.center))
+                connect_to = min(self.done_rooms, key=lambda r: gb.distance(nuroom.area.center, r.area.center))
                 self.draw_road(gb, nuroom.area.centerx, nuroom.area.centery, connect_to.area.centerx, connect_to.area.centery)
-                done_rooms.append(nuroom)
+                if nuroom.anchor:
+                    self.draw_road_segment(gb, nuroom.area.centerx, nuroom.area.centery, *nuroom.anchor(nuroom.area, None))
+                self.done_rooms.append(nuroom)
+
+    def step_five(self, gb, archi):
+        # Overriding this method because we can only draw the walking areas after the buildings have been built.
+        super().step_five(gb, archi)
+        for myroom in self.done_rooms:
+            self.draw_walking_area(myroom)
+
+    def draw_walking_area(self, myroom):
+        if hasattr(myroom, "footprint") and myroom.footprint:
+            self.fill(self.gb, myroom.footprint.inflate(2,2), floor=self.road_terrain)
 
     def draw_road_segment(self, gb, x1, y1, x2, y2):
         path = scenes.animobs.get_line(x1, y1, x2, y2)

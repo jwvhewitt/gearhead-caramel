@@ -2,7 +2,7 @@ import pbge
 import pygame
 
 from pbge.randmaps.decor import OmniDec
-from pbge.randmaps.rooms import FuzzyRoom, OpenRoom
+from pbge.randmaps.rooms import FuzzyRoom, OpenRoom, ClumpyRoom
 from . import ghterrain
 import random
 
@@ -17,20 +17,16 @@ class DragonToothDecor(OmniDec):
     FLOOR_FILL_FACTOR = 0.25
 
 
-class ForestRoom(FuzzyRoom):
-    def build( self, gb, archi ):
-        super().build(gb,archi)
+class ForestRoom(ClumpyRoom):
+    CLUMP_WALL = ghterrain.Forest
 
-        # Add some random forest blobs.
-        if self.area.width > 4 and self.area.height > 4:
-            for t in range(random.randint(3,10)):
-                x = random.randint(self.area.left+1,self.area.right-2)
-                y = random.randint(self.area.top+1,self.area.bottom-2)
-                gb.fill(pygame.Rect(x-1,y-1,3,3),wall=ghterrain.Forest)
-        else:
-            mydest = pygame.Rect(0,0,3,3)
-            mydest.center = self.area.center
-            gb.fill(mydest,wall=ghterrain.Forest)
+
+class BushesRoom(ClumpyRoom):
+    CLUMP_WALL = ghterrain.Bushes
+
+
+class GrassRoom(ClumpyRoom):
+    CLUMP_FLOOR = ghterrain.GreenZoneGrass
 
 
 class LakeRoom(FuzzyRoom):

@@ -65,10 +65,14 @@ class Flagstone(pbge.scenes.terrain.VariableTerrain):
 
 class DeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_dzground.png'
+    border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground.png')
+    border_priority = 50
 
 
 class SemiDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_dzground.png'
+    border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground.png')
+    border_priority = 50
 
 
 class Pavement(pbge.scenes.terrain.VariableTerrain):
@@ -77,6 +81,8 @@ class Pavement(pbge.scenes.terrain.VariableTerrain):
 
 class SmallDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_dzground2.png'
+    border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground2.png')
+    border_priority = 50
 
 
 class TechnoRubble(pbge.scenes.terrain.VariableTerrain):
@@ -102,6 +108,8 @@ class GrateFloor(pbge.scenes.terrain.VariableTerrain):
 
 class CrackedEarth(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_crackedearth.png'
+    border = pbge.scenes.terrain.FloorBorder('terrain_border_crackedearth.png')
+    border_priority = 50
 
 
 class WorldMapRoad(pbge.scenes.terrain.RoadTerrain):

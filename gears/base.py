@@ -1030,9 +1030,11 @@ class Armor(SizeClassedComponent, StandardDamageHandler):
         """Returns the armor protecting this gear."""
         return self
 
-    def get_armor_rating(self):
+    def get_armor_rating(self, count_damage=True):
         """Returns the penetration rating of this armor."""
-        arat = (self.size * 10) * (self.max_health - self.hp_damage) // self.max_health
+        arat = self.size * 10
+        if count_damage:
+            arat = arat * (self.max_health - self.hp_damage) // self.max_health
         myroot = self.get_root()
         if myroot and hasattr(myroot, "form") and hasattr(myroot.form, "modify_armor"):
             arat = myroot.form.modify_armor(arat)
@@ -1533,6 +1535,8 @@ class Weapon(Component, StandardDamageHandler):
     LEGAL_ATTRIBUTES = ()
     REPORT_DESTRUCTION = True
 
+    DAMAGE_EXPONENT = 2
+
     # Note that this class doesn't implement any MIN_*,MAX_* constants, so it
     # cannot be instantiated. Subclasses should do that.
     def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, attack_stat=stats.Reflexes, shot_anim=None,
@@ -1610,7 +1614,7 @@ class Weapon(Component, StandardDamageHandler):
             if hasattr(aa, 'COST_EFFECTIVE_REACH_MIN') and reach < aa.COST_EFFECTIVE_REACH_MIN:
                 reach = aa.COST_EFFECTIVE_REACH_MIN
         return int(
-            (self.COST_FACTOR * (self.damage ** 2) *
+            (self.COST_FACTOR * int(self.damage ** self.DAMAGE_EXPONENT) *
              (self.accuracy ** 2 // 10 + self.accuracy + 1) *
              (self.penetration ** 2 // 5 + self.penetration + 1) *
              self._get_reach_cost_factor(reach)) * mult
@@ -1716,6 +1720,7 @@ class MeleeWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 3
+    DAMAGE_EXPONENT = 2.5
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
@@ -1821,6 +1826,7 @@ class EnergyWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 12
+    DAMAGE_EXPONENT = 2.7
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize, attackattributes.BurnAttack,
                         attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,

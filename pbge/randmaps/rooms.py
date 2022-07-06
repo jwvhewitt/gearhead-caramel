@@ -104,6 +104,11 @@ class Room(object):
             elif count > 200 and myrect.collidelist(closed_area) == -1:
                 myroom.area = myrect
                 closed_area.append(myrect)
+            elif count > 500:
+                if random.randint(1, 3) == 3 and myrect.width > myroom.MIN_RANDOM_SIZE:
+                    myrect.width -= 1
+                if random.randint(1, 3) == 3 and myrect.height > myroom.MIN_RANDOM_SIZE:
+                    myrect.height -= 1
             count += 1
         if not myroom.area:
             raise RoomError("ROOM ERROR: {}:{} cannot place {}".format(str(self), str(self.__class__), str(myroom)))
@@ -589,3 +594,23 @@ class ClosedRoom(Room):
             if m.pos in mylist:
                 mylist.remove(m.pos)
         return mylist
+
+# The following rooms are not meant to be used directly; subclass them and change the constants.
+
+class ClumpyRoom(FuzzyRoom):
+    CLUMP_FLOOR = -1
+    CLUMP_WALL = -1
+    CLUMP_DECOR = -1
+    def build( self, gb, archi ):
+        super().build(gb,archi)
+
+        # Add some random forest blobs.
+        if self.area.width > 4 and self.area.height > 4:
+            for t in range(random.randint(3,10)):
+                x = random.randint(self.area.left+1,self.area.right-2)
+                y = random.randint(self.area.top+1,self.area.bottom-2)
+                gb.fill(pygame.Rect(x-1,y-1,random.randint(1,3),random.randint(1,3)),floor=self.CLUMP_FLOOR, wall=self.CLUMP_WALL, decor=self.CLUMP_DECOR)
+        else:
+            mydest = pygame.Rect(0,0,3,3)
+            mydest.center = self.area.center
+            gb.fill(mydest,wall=self.CLUMP_WALL)

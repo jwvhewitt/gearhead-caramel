@@ -65,6 +65,20 @@ MeleeWeapon
     faction_list = (DeadzoneFederation,ClanIronwind,BoneDevils,TerranFederation,TerranDefenseForce,RegExCorporation)
 
 MeleeWeapon
+    name="Pick"
+    desc = "A tool for digging. Also a passable weapon."
+    reach=1
+    damage=2
+    accuracy=1
+    penetration=4
+    scale = HumanScale
+    material = Metal
+    shop_tags= ("MELEE WEAPON", "ESSENTIAL")
+    faction_list = (DeadzoneFederation,ClanIronwind,TerranFederation)
+    attributes = (Accurate,FastAttack)
+
+
+MeleeWeapon
     name="Longsword"
     desc = "A ceramic blade. Not just an elegant weapon of a bygone age, this sword will come in handy should you need to defend yourself in close combat."
     reach=1
@@ -76,6 +90,20 @@ MeleeWeapon
     attributes = (Defender,)
     shop_tags= ("WEAPON","MELEE WEAPON","ESSENTIAL")
     faction_list = (None,)
+
+MeleeWeapon
+    name="Katana"
+    desc = "A long sword emphasising sharpness, based on the ancient PreZero Japanese design."
+    reach=1
+    damage=3
+    accuracy=4
+    penetration=2
+    scale = HumanScale
+    material = Metal
+    attributes = (Defender, Accurate)
+    shop_tags= ("MELEE WEAPON","ANTIQUE")
+    faction_list = (None,)
+
 
 MeleeWeapon
     name="Rapier"
@@ -102,6 +130,46 @@ MeleeWeapon
     attributes = (ChargeAttack,)
     shop_tags= ("WEAPON","MELEE WEAPON",)
     faction_list = (DeadzoneFederation,ClanIronwind,BoneDevils,TerranFederation,TerranDefenseForce,RegExCorporation)
+
+MeleeWeapon
+    name="War Hammer"
+    desc = "A big hammer weighted for combat."
+    reach=1
+    damage=3
+    accuracy=2
+    penetration=4
+    scale = HumanScale
+    material = Metal
+    attributes = (Brutal,)
+    shop_tags= ("WEAPON", MELEE WEAPON")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Pole Axe"
+    desc = "A primitive melee weapon. It features a wide cutting blade at the end."
+    reach=2
+    damage=4
+    accuracy=2
+    penetration=3
+    scale = HumanScale
+    material = Metal
+    attributes = (ChargeAttack,)
+    shop_tags= ("WEAPON","MELEE WEAPON",)
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Night Blade"
+    desc = "A longsword with an integrated venom dispenser. This weapon is favored by assassins, since even a grazing hit can be lethal."
+    reach=1
+    damage=3
+    accuracy=3
+    penetration=3
+    scale = HumanScale
+    material = Ceramic
+    attributes = (Defender, PoisonAttack)
+    shop_tags= ("CONTRABAND",)
+    faction_list = (None,)
+
 
 MeleeWeapon
     name="Monosword"
@@ -156,6 +224,19 @@ MeleeWeapon
     faction_list = (DeadzoneFederation,ClanIronwind,BoneDevils)
 
 MeleeWeapon
+    name="Immolator"
+    desc = "A flail whose heads disperse an incendiary gel on contact."
+    reach=1
+    damage=4
+    accuracy=2
+    penetration=2
+    scale = HumanScale
+    material = Advanced
+    attributes = (Brutal,Flail,Smash,BurnAttack)
+    shop_tags= ("CONTRABAND","MELEE WEAPON")
+    faction_list = (None,)
+
+MeleeWeapon
     name="Combat Axe"
     desc = "A large axe, balanced for combat. Though not the subtlest weapon it is great at hacking through thick armor."
     reach=1
@@ -206,6 +287,19 @@ MeleeWeapon
     attributes = (BurnAttack,ChargeAttack)
     shop_tags= ("WEAPON","MELEE WEAPON","ESSENTIAL")
     faction_list = (None,)
+
+MeleeWeapon
+    name="Monomolecular Whip"
+    desc = "An extremely thin cord of incredibly strong polymer, the monomolecular whip can cut through anything it comes in contact with."
+    reach=2
+    damage=4
+    accuracy=3
+    penetration=5
+    scale = HumanScale
+    material = Advanced
+    shop_tags= ("MELEE WEAPON","ODDITY","CONTRABAND")
+    faction_list = (None,)
+    attributes = (Flail,Agonize)
 
 
 

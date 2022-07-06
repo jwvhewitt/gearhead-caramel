@@ -4,9 +4,10 @@ from game import teams, services, ghdialogue
 from game.ghdialogue import context
 import gears
 import pbge
-from .dd_main import DZDRoadMapExit,RoadNode
+from .dd_main import DZDRoadMapExit, RoadNode
 import random
-from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker
+from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, mechtarot, dungeonmaker, \
+    ghrooms
 from . import tarot_cards, missionbuilder, dd_homebase
 from pbge.memos import Memo
 from .shops_plus import get_building
@@ -17,9 +18,11 @@ class DZD_DeadZoneTown(Plot):
 
     def custom_init(self, nart):
         town_name = self._generate_town_name()
-        town_fac = self.register_element( "METRO_FACTION",
-            gears.factions.Circle(nart.camp,parent_faction=gears.factions.DeadzoneFederation,name="the {} Council".format(town_name))
-        )
+        town_fac = self.register_element("METRO_FACTION",
+                                         gears.factions.Circle(nart.camp,
+                                                               parent_faction=gears.factions.DeadzoneFederation,
+                                                               name="the {} Council".format(town_name))
+                                         )
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1,), faction=town_fac)
 
@@ -29,38 +32,41 @@ class DZD_DeadZoneTown(Plot):
                                       scale=gears.scale.HumanScale, is_metro=True,
                                       faction=town_fac,
                                       attributes=(
-                                      gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC))
+                                          gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC))
         myscene.exploration_music = 'Komiku_-_06_-_Friendss_theme.ogg'
 
         npc = gears.selector.random_character(50, local_tags=myscene.attributes)
         npc.place(myscene, team=team2)
 
-        npc2 = gears.selector.random_character(50, local_tags=myscene.attributes,job=gears.jobs.choose_random_job((gears.tags.Laborer,),self.elements["LOCALE"].attributes))
+        npc2 = gears.selector.random_character(50, local_tags=myscene.attributes,
+                                               job=gears.jobs.choose_random_job((gears.tags.Laborer,),
+                                                                                self.elements["LOCALE"].attributes))
         npc2.place(myscene, team=team2)
 
         defender = self.register_element(
             "DEFENDER", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
-                job=gears.jobs.choose_random_job((gears.tags.Police,),self.elements["LOCALE"].attributes),
+                job=gears.jobs.choose_random_job((gears.tags.Police,), self.elements["LOCALE"].attributes),
                 faction=town_fac
-        ))
+            ))
         defender.place(myscene, team=team2)
 
-        myscenegen = pbge.randmaps.CityGridGenerator(myscene, gharchitecture.HumanScaleGreenzone(),
+        myscenegen = pbge.randmaps.CityGridGenerator(myscene, gharchitecture.HumanScaleSemiDeadzone(),
                                                      road_terrain=ghterrain.Flagstone)
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
 
-        mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]}))
+        mystory = self.register_element("BACKSTORY", backstory.Backstory(commands=("DZTOWN_FOUNDING",),
+                                                                         elements={"LOCALE": self.elements["LOCALE"]}))
 
         self.register_element("METRO", myscene.metrodat)
         self.register_element("METROSCENE", myscene)
-        self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_TOWN)
+        self.register_element("DZ_NODE_FRAME", RoadNode.FRAME_TOWN)
 
         myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.east),
                                         dident="LOCALE")
         towngate = self.register_element("ENTRANCE", DZDRoadMapExit(roadmap=self.elements["DZ_ROADMAP"],
-                                                                    node=self.elements["DZ_NODE"],name="The Highway",
+                                                                    node=self.elements["DZ_NODE"], name="The Highway",
                                                                     desc="The highway stretches far beyond the horizon, all the way back to the green zone.",
                                                                     anchor=pbge.randmaps.anchors.east,
                                                                     plot_locked=True), dident="_ROOM2")
@@ -73,10 +79,10 @@ class DZD_DeadZoneTown(Plot):
         # Add the services.
         tplot = self.add_sub_plot(nart, "DZRS_GARAGE")
         tplot = self.add_sub_plot(nart, "DZRS_HOSPITAL")
-        #tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
-        #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
-        #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
-        #tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
+        # tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
+        # tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
+        # tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
+        # tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
         self.add_sub_plot(nart, "RANDOM_LANCEMATE")
@@ -93,8 +99,9 @@ class DZD_DeadZoneTown(Plot):
 
         return True
 
-    TOWN_NAME_PATTERNS = ("Fort {}","{} Fortress","{} Oasis","Mount {}", "{}",
+    TOWN_NAME_PATTERNS = ("Fort {}", "{} Fortress", "{} Oasis", "Mount {}", "{}",
                           "Castle {}", "{} Ruins", "{} Spire", "{} Village", "{} Town")
+
     def _generate_town_name(self):
         return random.choice(self.TOWN_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
 
@@ -104,9 +111,11 @@ class DZD_DeadZoneVillage(Plot):
 
     def custom_init(self, nart):
         town_name = self._generate_town_name()
-        town_fac = self.register_element( "METRO_FACTION",
-            gears.factions.Circle(nart.camp,parent_faction=gears.factions.DeadzoneFederation,name="the {} Council".format(town_name))
-        )
+        town_fac = self.register_element("METRO_FACTION",
+                                         gears.factions.Circle(nart.camp,
+                                                               parent_faction=gears.factions.DeadzoneFederation,
+                                                               name="the {} Council".format(town_name))
+                                         )
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1,), faction=town_fac)
 
@@ -116,7 +125,7 @@ class DZD_DeadZoneVillage(Plot):
                                       scale=gears.scale.HumanScale, is_metro=True,
                                       faction=town_fac,
                                       attributes=(
-                                      gears.personality.DeadZone, gears.tags.Village, gears.tags.SCENE_PUBLIC))
+                                          gears.personality.DeadZone, gears.tags.Village, gears.tags.SCENE_PUBLIC))
         myscene.exploration_music = 'Komiku_-_06_-_Friendss_theme.ogg'
 
         npc = gears.selector.random_character(50, local_tags=myscene.attributes)
@@ -125,24 +134,30 @@ class DZD_DeadZoneVillage(Plot):
         defender = self.register_element(
             "DEFENDER", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
-                job=gears.jobs.choose_random_job((gears.tags.Police,),self.elements["LOCALE"].attributes),
+                job=gears.jobs.choose_random_job((gears.tags.Police,), self.elements["LOCALE"].attributes),
                 faction=town_fac
-        ))
+            ))
         defender.place(myscene, team=team2)
 
-        myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.HumanScaleDeadzone(),)
+        myscenegen = pbge.randmaps.PartlyUrbanGenerator(myscene, gharchitecture.HumanScaleDeadzone(),
+                                                        ghterrain.Flagstone,
+                                                        gapfill=pbge.randmaps.gapfiller.RoomFiller(ghrooms.BushesRoom,
+                                                                                                   ghrooms.GrassRoom,
+                                                                                                   ghrooms.WreckageRoom))
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
         self.register_element("METRO", myscene.metrodat)
         self.register_element("METROSCENE", myscene)
-        self.register_element("DZ_NODE_FRAME",RoadNode.FRAME_VILLAGE)
+        self.register_element("DZ_NODE_FRAME", RoadNode.FRAME_VILLAGE)
 
-        mystory = self.register_element("BACKSTORY",backstory.Backstory(commands=("DZTOWN_FOUNDING",),elements={"LOCALE":self.elements["LOCALE"]}))
+        mystory = self.register_element("BACKSTORY", backstory.Backstory(commands=("DZTOWN_FOUNDING",),
+                                                                         elements={"LOCALE": self.elements["LOCALE"]}))
 
-        myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.east),
+        myroom2 = self.register_element("_ROOM2", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.east,
+                                                                           tags=(pbge.randmaps.IS_CONNECTED_ROOM,)),
                                         dident="LOCALE")
         towngate = self.register_element("ENTRANCE", DZDRoadMapExit(roadmap=self.elements["DZ_ROADMAP"],
-                                                                    node=self.elements["DZ_NODE"],name="The Highway",
+                                                                    node=self.elements["DZ_NODE"], name="The Highway",
                                                                     desc="The highway stretches far beyond the horizon, all the way back to the green zone.",
                                                                     anchor=pbge.randmaps.anchors.east,
                                                                     plot_locked=True), dident="_ROOM2")
@@ -155,10 +170,10 @@ class DZD_DeadZoneVillage(Plot):
         # Add the services.
         tplot = self.add_sub_plot(nart, "DZRS_GARAGE")
         tplot = self.add_sub_plot(nart, "DZRS_HOSPITAL")
-        #tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
-        #tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
-        #tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
-        #tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
+        # tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
+        # tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
+        # tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
+        # tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
         self.add_sub_plot(nart, "RANDOM_LANCEMATE")
@@ -175,10 +190,10 @@ class DZD_DeadZoneVillage(Plot):
 
         return True
 
-    TOWN_NAME_PATTERNS = ("{} Village","{} Hamlet","Camp {}","Mount {}", "{}", "{} Ruins" )
+    TOWN_NAME_PATTERNS = ("{} Village", "{} Hamlet", "Camp {}", "Mount {}", "{}", "{} Ruins")
+
     def _generate_town_name(self):
         return random.choice(self.TOWN_NAME_PATTERNS).format(gears.selector.DEADZONE_TOWN_NAMES.gen_word())
-
 
 
 #   **********************
@@ -195,50 +210,53 @@ class DemocraticOrder(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ResidentialBuilding,
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                                                   waypoints={"DOOR": ghwaypoints.ScrapIronDoor(
+                                                                       name="Town Hall")},
+                                                                   tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                                                                         pbge.randmaps.IS_CITY_ROOM,
+                                                                         pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
+        team2 = teams.Team(name="Civilian Team", faction=self.elements["METRO_FACTION"])
         intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC,gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT),
+                                       attributes=(
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                           gears.tags.SCENE_GOVERNMENT),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
-                                    dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
+                                      dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
-
+                                                    room1=building,
+                                                    room2=foyer, door1=building.waypoints["DOOR"],
+                                                    move_door1=False)
 
         npc = self.register_element("LEADER",
                                     gears.selector.random_character(
                                         self.rank, local_tags=self.elements["LOCALE"].attributes,
                                         job=gears.jobs.ALL_JOBS["Mayor"],
-                                        faction = self.elements["METRO_FACTION"]
+                                        faction=self.elements["METRO_FACTION"]
                                     ))
         npc.place(intscene, team=intscene.civilian_team)
         self.elements["METRO"].city_leader = npc
-
 
         self.town_origin_ready = True
 
         bodyguard = self.register_element(
             "BODYGUARD", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
-                job=gears.jobs.choose_random_job((gears.tags.Military,),self.elements["LOCALE"].attributes),
-                faction = self.elements["METRO_FACTION"]
-        ))
+                job=gears.jobs.choose_random_job((gears.tags.Military,), self.elements["LOCALE"].attributes),
+                faction=self.elements["METRO_FACTION"]
+            ))
         bodyguard.place(intscene, team=team2)
 
         return True
 
-    def _tell_town_origin(self,camp):
+    def _tell_town_origin(self, camp):
         self.town_origin_ready = False
 
     def LEADER_offers(self, camp):
@@ -249,11 +267,12 @@ class DemocraticOrder(Plot):
 
         if self.town_origin_ready:
             mylist.append(Offer(" ".join(self.elements["BACKSTORY"].results["text"]),
-                                context=ContextTag([context.INFO]),effect=self._tell_town_origin,
-                                data={"subject":"this place"}, no_repeats=True
+                                context=ContextTag([context.INFO]), effect=self._tell_town_origin,
+                                data={"subject": "this place"}, no_repeats=True
                                 ))
 
         return mylist
+
 
 class MilitaryOrder(Plot):
     # This town is governed by a warlord.
@@ -270,32 +289,36 @@ class MilitaryOrder(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ScrapIronBuilding,
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                                                   waypoints={"DOOR": ghwaypoints.ScrapIronDoor(
+                                                                       name="Town Hall")},
+                                                                   tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                                                                         pbge.randmaps.IS_CITY_ROOM,
+                                                                         pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
+        team2 = teams.Team(name="Civilian Team", faction=self.elements["METRO_FACTION"])
         intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT),
+                                       attributes=(
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                           gears.tags.SCENE_GOVERNMENT),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.FortressBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
-                                    dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
+                                      dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
-
+                                                    room1=building,
+                                                    room2=foyer, door1=building.waypoints["DOOR"],
+                                                    move_door1=False)
 
         npc = self.register_element("LEADER",
                                     gears.selector.random_character(
                                         self.rank, local_tags=self.elements["LOCALE"].attributes,
                                         job=gears.jobs.ALL_JOBS["Warlord"],
-                                        faction = self.elements["METRO_FACTION"]
+                                        faction=self.elements["METRO_FACTION"]
                                     ))
         npc.place(intscene, team=team2)
         self.elements["METRO"].city_leader = npc
@@ -305,14 +328,14 @@ class MilitaryOrder(Plot):
         bodyguard = self.register_element(
             "BODYGUARD", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
-                job=gears.jobs.choose_random_job((gears.tags.Military,),self.elements["LOCALE"].attributes),
-                faction = self.elements["METRO_FACTION"]
-        ))
+                job=gears.jobs.choose_random_job((gears.tags.Military,), self.elements["LOCALE"].attributes),
+                faction=self.elements["METRO_FACTION"]
+            ))
         bodyguard.place(intscene, team=team2)
 
         return True
 
-    def _tell_town_origin(self,camp):
+    def _tell_town_origin(self, camp):
         self.town_origin_ready = False
 
     def LEADER_offers(self, camp):
@@ -323,8 +346,8 @@ class MilitaryOrder(Plot):
 
         if self.town_origin_ready:
             mylist.append(Offer(" ".join(self.elements["BACKSTORY"].results["text"]),
-                                context=ContextTag([context.INFO]),effect=self._tell_town_origin,
-                                data={"subject":"this place"}, no_repeats=True
+                                context=ContextTag([context.INFO]), effect=self._tell_town_origin,
+                                data={"subject": "this place"}, no_repeats=True
                                 ))
 
         return mylist
@@ -345,31 +368,37 @@ class TechnocraticOrder(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.BrickBuilding,
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Town Hall")},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                                                   waypoints={"DOOR": ghwaypoints.ScrapIronDoor(
+                                                                       name="Town Hall")},
+                                                                   tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                                                                         pbge.randmaps.IS_CITY_ROOM,
+                                                                         pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
+        team2 = teams.Team(name="Civilian Team", faction=self.elements["METRO_FACTION"])
         intscene = gears.GearHeadScene(35, 35, "Town Hall", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT),
+                                       attributes=(
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                           gears.tags.SCENE_GOVERNMENT),
                                        scale=gears.scale.HumanScale)
-        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding(floor_terrain=ghterrain.WhiteTileFloor))
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding(
+            floor_terrain=ghterrain.WhiteTileFloor))
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
-                                    dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
+                                      dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
+                                                    room1=building,
+                                                    room2=foyer, door1=building.waypoints["DOOR"],
+                                                    move_door1=False)
 
         npc = self.register_element("LEADER",
                                     gears.selector.random_character(
                                         self.rank, local_tags=self.elements["LOCALE"].attributes,
                                         job=gears.jobs.ALL_JOBS["Technocrat"],
-                                        faction = self.elements["METRO_FACTION"]
+                                        faction=self.elements["METRO_FACTION"]
                                     ))
         npc.place(intscene, team=team2)
         self.elements["METRO"].city_leader = npc
@@ -379,14 +408,14 @@ class TechnocraticOrder(Plot):
         bodyguard = self.register_element(
             "BODYGUARD", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
-                job=gears.jobs.choose_random_job((gears.tags.Adventurer,),self.elements["LOCALE"].attributes),
-                faction = self.elements["METRO_FACTION"]
-        ))
+                job=gears.jobs.choose_random_job((gears.tags.Adventurer,), self.elements["LOCALE"].attributes),
+                faction=self.elements["METRO_FACTION"]
+            ))
         bodyguard.place(intscene, team=team2)
 
         return True
 
-    def _tell_town_origin(self,camp):
+    def _tell_town_origin(self, camp):
         self.town_origin_ready = False
 
     def LEADER_offers(self, camp):
@@ -397,11 +426,12 @@ class TechnocraticOrder(Plot):
 
         if self.town_origin_ready:
             mylist.append(Offer(" ".join(self.elements["BACKSTORY"].results["text"]),
-                                context=ContextTag([context.INFO]),effect=self._tell_town_origin,
-                                data={"subject":"this place"}, no_repeats=True
+                                context=ContextTag([context.INFO]), effect=self._tell_town_origin,
+                                data={"subject": "this place"}, no_repeats=True
                                 ))
 
         return mylist
+
 
 class VaultOrder(Plot):
     LABEL = "DZRS_ORDER"
@@ -412,28 +442,37 @@ class VaultOrder(Plot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this town has a FALLOUT_SHELTER background."""
-        return pstate.elements["BACKSTORY"] and "FALLOUT_SHELTER" in pstate.elements["BACKSTORY"].generated_state.keywords
+        return pstate.elements["BACKSTORY"] and "FALLOUT_SHELTER" in pstate.elements[
+            "BACKSTORY"].generated_state.keywords
 
     def custom_init(self, nart):
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
-        team2 = teams.Team(name="Civilian Team",faction=self.elements["METRO_FACTION"])
+        team2 = teams.Team(name="Civilian Team", faction=self.elements["METRO_FACTION"])
         intscene = gears.GearHeadScene(35, 35, "Fallout Shelter", player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT, gears.tags.SCENE_RUINS),
+                                       attributes=(
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                           gears.tags.SCENE_GOVERNMENT,
+                                           gears.tags.SCENE_RUINS),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
-                                    dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
+                                      dident="INTERIOR")
 
-        mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
-                                                                 room2=foyer, door1=ghwaypoints.UndergroundEntrance(name="Fallout Shelter"))
+        entrance_room = self.register_element("_EXTERIOR", pbge.randmaps.rooms.FuzzyRoom(
+            tags=[pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                              dident="LOCALE")
+
+        plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene, room1=entrance_room,
+                                           room2=foyer,
+                                           door1=ghwaypoints.UndergroundEntrance(name="Fallout Shelter"))
 
         npc = self.register_element("LEADER",
                                     gears.selector.random_character(
-                                      self.rank, local_tags=self.elements["LOCALE"].attributes,
+                                        self.rank, local_tags=self.elements["LOCALE"].attributes,
                                         job=gears.jobs.ALL_JOBS["Mayor"],
-                                        faction = self.elements["METRO_FACTION"]
+                                        faction=self.elements["METRO_FACTION"]
                                     ))
         npc.place(intscene, team=team2)
         self.elements["METRO"].city_leader = npc
@@ -443,14 +482,14 @@ class VaultOrder(Plot):
         bodyguard = self.register_element(
             "BODYGUARD", gears.selector.random_character(
                 self.rank, local_tags=self.elements["LOCALE"].attributes,
-                job=gears.jobs.choose_random_job((gears.tags.Adventurer,),self.elements["LOCALE"].attributes),
-                faction = self.elements["METRO_FACTION"]
-        ))
+                job=gears.jobs.choose_random_job((gears.tags.Adventurer,), self.elements["LOCALE"].attributes),
+                faction=self.elements["METRO_FACTION"]
+            ))
         bodyguard.place(intscene, team=team2)
 
         return True
 
-    def _tell_town_origin(self,camp):
+    def _tell_town_origin(self, camp):
         self.town_origin_ready = False
 
     def LEADER_offers(self, camp):
@@ -461,8 +500,8 @@ class VaultOrder(Plot):
 
         if self.town_origin_ready:
             mylist.append(Offer(" ".join(self.elements["BACKSTORY"].results["text"]),
-                                context=ContextTag([context.INFO]),effect=self._tell_town_origin,
-                                data={"subject":"this place"}, no_repeats=True
+                                context=ContextTag([context.INFO]), effect=self._tell_town_origin,
+                                data={"subject": "this place"}, no_repeats=True
                                 ))
 
         return mylist
@@ -490,37 +529,44 @@ class SomewhatOkayGarage(Plot):
     shop_faction = None
     shop_ware_types = services.GENERAL_STORE_PLUS_MECHA
     shop_wares = "good stuff"
+
     @property
     def shop_rank(self):
         return self.rank // 2
-    NAME_PATTERNS = ("{npc}'s Service","{town} Garage", "{npc}'s Sales & Service", "{npc}'s Mechastop")
+
+    NAME_PATTERNS = ("{npc}'s Service", "{town} Garage", "{npc}'s Sales & Service", "{npc}'s Mechastop")
 
     def custom_init(self, nart):
         # Create a building within the town.
-        npc_name,garage_name = self.generate_npc_and_building_name()
+        npc_name, garage_name = self.generate_npc_and_building_name()
         building = self.register_element("_EXTERIOR", get_building(self, self.GarageBuilding,
-            waypoints={"DOOR": self.GarageDoor(name=garage_name)},
-            door_sign=self.door_sign,
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                                                   waypoints={
+                                                                       "DOOR": self.GarageDoor(name=garage_name)},
+                                                                   door_sign=self.door_sign,
+                                                                   tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                                                                         pbge.randmaps.IS_CITY_ROOM,
+                                                                         pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, garage_name, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP),
+                                       attributes=(
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE,
+                                           gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, self.GarageArchitecture())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
-                                    dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
+                                      dident="INTERIOR")
         for item in self.additional_waypoints:
             foyer.contents.append(item())
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
+                                                    room1=building,
+                                                    room2=foyer, door1=building.waypoints["DOOR"],
+                                                    move_door1=False)
 
         job = random.choice(self.SHOPKEEPER_JOBS)
         npc = self.register_element("SHOPKEEPER",
@@ -551,14 +597,14 @@ class SomewhatOkayGarage(Plot):
 
     def generate_npc_and_building_name(self):
         npc_name = gears.selector.EARTH_NAMES.gen_word()
-        building_name = random.choice(self.NAME_PATTERNS).format(npc=npc_name,town=str(self.elements["LOCALE"]))
-        return npc_name,building_name
+        building_name = random.choice(self.NAME_PATTERNS).format(npc=npc_name, town=str(self.elements["LOCALE"]))
+        return npc_name, building_name
 
 
 class FranklyBoringGarage(SomewhatOkayGarage):
     active = True
 
-    NAME_PATTERNS = ("{npc}'s Garage","{town} Garage","{town} Repairs", "{town} Service Center", "{town} Fixit Shop")
+    NAME_PATTERNS = ("{npc}'s Garage", "{town} Garage", "{town} Repairs", "{town} Service Center", "{town} Fixit Shop")
     SHOPKEEPER_GREETING = "[HELLO]"
     shop_ware_types = services.BARE_ESSENTIALS_STORE
     shop_wares = "essentials"
@@ -571,7 +617,8 @@ class FranklyBoringGarage(SomewhatOkayGarage):
 class ScavengerGarage(SomewhatOkayGarage):
     active = True
 
-    NAME_PATTERNS = ("{npc}'s Salvage Shop", "{town} Recycling Center", "{npc}'s Spare Parts", "{town} Mecha Accessories")
+    NAME_PATTERNS = (
+        "{npc}'s Salvage Shop", "{town} Recycling Center", "{npc}'s Spare Parts", "{town} Mecha Accessories")
     SHOPKEEPER_GREETING = "[HELLO]"
     GarageBuilding = ghterrain.IndustrialBuilding
     shop_ware_types = services.MECHA_PARTS_STORE + services.TIRE_STORE + services.ARMOR_STORE + services.WEAPON_STORE
@@ -582,11 +629,13 @@ class DeadzoneMechaShop(SomewhatOkayGarage):
     active = True
     UNIQUE = True
 
-    NAME_PATTERNS = ("{npc}'s Chop Shop", "{town} Mecha Trading Post", "{npc}'s Redesigned Mecha", "{npc}'s Design Center")
+    NAME_PATTERNS = (
+        "{npc}'s Chop Shop", "{town} Mecha Trading Post", "{npc}'s Redesigned Mecha", "{npc}'s Design Center")
     door_sign = (ghterrain.FixitShopSignEast, ghterrain.FixitShopSignSouth)
     SHOPKEEPER_GREETING = "[HELLO] Please be reminded, this is a mecha designer's workshop, not a salvage operation."
     GarageBuilding = ghterrain.IndustrialBuilding
-    additional_waypoints = (ghwaypoints.MechEngTerminal, ghwaypoints.MechaPoster, ghwaypoints.MechaModel, ghwaypoints.GoldPlaque)
+    additional_waypoints = (
+        ghwaypoints.MechEngTerminal, ghwaypoints.MechaPoster, ghwaypoints.MechaModel, ghwaypoints.GoldPlaque)
     shop_faction = gears.factions.DeadzoneFederation
     shop_ware_types = services.MECHA_STORE
     show_wares = "mecha"
@@ -599,7 +648,8 @@ class DeadzoneMechaShop(SomewhatOkayGarage):
 class GeneralStore(SomewhatOkayGarage):
     active = True
 
-    NAME_PATTERNS = ("Trader {npc}'s", "{town} Buy&Sell", "{town} Trading Post", "{town} Shopping Boulevard", "{town} Mall")
+    NAME_PATTERNS = (
+        "Trader {npc}'s", "{town} Buy&Sell", "{town} Trading Post", "{town} Shopping Boulevard", "{town} Mall")
     SHOPKEEPER_GREETING = "[HELLO] Welcome to {}! Enjoy our newly refurbished Mecha Engineering Terminal! Hasn't exploded in the past year!"
     shop_ware_types = services.GENERAL_STORE
     GarageBuilding = ghterrain.ConcreteBuilding
@@ -626,16 +676,22 @@ class DeadzoneClinic(Plot):
         # Create a building within the town.
         self.myname = "{} Clinic".format(self.elements["LOCALE"])
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.BrickBuilding,
-            waypoints={"DOOR": ghwaypoints.WoodenDoor(name=self.myname)},
-            door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                                                   waypoints={"DOOR": ghwaypoints.WoodenDoor(
+                                                                       name=self.myname)},
+                                                                   door_sign=(ghterrain.HospitalSignEast,
+                                                                              ghterrain.HospitalSignSouth),
+                                                                   tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                                                                         pbge.randmaps.IS_CITY_ROOM,
+                                                                         pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, self.myname, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
+                                       attributes=(
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                           gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.HospitalBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
@@ -645,9 +701,9 @@ class DeadzoneClinic(Plot):
         foyer.contents.append(ghwaypoints.RecoveryBed())
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
+                                                    room1=building,
+                                                    room2=foyer, door1=building.waypoints["DOOR"],
+                                                    move_door1=False)
 
         npc = self.register_element("DOCTOR",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
@@ -682,45 +738,55 @@ class AmateurCyberdoc(Plot):
 
     def custom_init(self, nart):
         npc = self.register_element("DOCTOR",
-                                    gears.selector.random_character(50, local_tags=self.elements["METROSCENE"].attributes,
+                                    gears.selector.random_character(50,
+                                                                    local_tags=self.elements["METROSCENE"].attributes,
                                                                     job=gears.jobs.ALL_JOBS["Tekno"]))
 
         # Create a building within the town.
         self.myname = "{} Medical".format(npc)
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ScrapIronBuilding,
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.myname)},
-            door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                                                   waypoints={"DOOR": ghwaypoints.ScrapIronDoor(
+                                                                       name=self.myname)},
+                                                                   door_sign=(ghterrain.HospitalSignEast,
+                                                                              ghterrain.HospitalSignSouth),
+                                                                   tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                                                                         pbge.randmaps.IS_CITY_ROOM,
+                                                                         pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, self.myname, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
+                                       attributes=(
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                           gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ScrapIronWorkshop())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(12,10,anchor=pbge.randmaps.anchors.south, ),
+        foyer = self.register_element('_introom',
+                                      pbge.randmaps.rooms.ClosedRoom(12, 10, anchor=pbge.randmaps.anchors.south, ),
                                       dident="INTERIOR")
 
         foyer.contents.append(ghwaypoints.RecoveryBed())
         foyer.contents.append(ghwaypoints.RecoveryBed())
-        foyer.contents.append(ghwaypoints.Biotank(name="Biotank",desc="You peer through the glass to see what's inside. This tank is being used as a storage bin for spare organs and second hand cyberware."))
-        foyer.contents.append(ghwaypoints.Bookshelf(name="Bookshelf", desc="The top shelf is full of PreZero medical texts. The second shelf is full of contemporary tech magazines. The lower shelves are crammed with spare mechanical components and comic books."))
-        foyer.contents.append(ghwaypoints.RetroComputer(name="Computer", desc="Someone has been playing 'Princess Wrestler Genesis'."))
+        foyer.contents.append(ghwaypoints.Biotank(name="Biotank",
+                                                  desc="You peer through the glass to see what's inside. This tank is being used as a storage bin for spare organs and second hand cyberware."))
+        foyer.contents.append(ghwaypoints.Bookshelf(name="Bookshelf",
+                                                    desc="The top shelf is full of PreZero medical texts. The second shelf is full of contemporary tech magazines. The lower shelves are crammed with spare mechanical components and comic books."))
+        foyer.contents.append(
+            ghwaypoints.RetroComputer(name="Computer", desc="Someone has been playing 'Princess Wrestler Genesis'."))
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
+                                                    room1=building,
+                                                    room2=foyer, door1=building.waypoints["DOOR"],
+                                                    move_door1=False)
 
-        cybershop = services.Shop( npc = None
-                                 , rank = 70, num_items=5
-                                 , ware_types = services.CYBERWARE_STORE
-                                 )
-        foyer.contents.append(ghwaypoints.CyberdocTerminal(shop = cybershop))
-
+        cybershop = services.Shop(npc=None
+                                  , rank=70, num_items=5
+                                  , ware_types=services.CYBERWARE_STORE
+                                  )
+        foyer.contents.append(ghwaypoints.CyberdocTerminal(shop=cybershop))
 
         npc.place(intscene, team=team2)
 
@@ -747,15 +813,17 @@ class AmateurCyberdoc(Plot):
                             ))
 
         if not self.asked_question:
-            mylist.append(Offer("Well, no, but I've read a lot of medical books, and I programmed tons of information into A-woo over there. Our village didn't have a doctor so I decided it'd be better to build one myself rather than do without.",
-                                context=ContextTag([context.CUSTOM]), effect=self._ask_question,
-                                data={"reply": "You're not actually a doctor, are you?"}
-                                ))
+            mylist.append(Offer(
+                "Well, no, but I've read a lot of medical books, and I programmed tons of information into A-woo over there. Our village didn't have a doctor so I decided it'd be better to build one myself rather than do without.",
+                context=ContextTag([context.CUSTOM]), effect=self._ask_question,
+                data={"reply": "You're not actually a doctor, are you?"}
+            ))
         elif not self.asked_other_question:
-            mylist.append(Offer("You're a curious person; I can respect that. Well, you know, it's no problem to get all kinds of organs in the dead zone if you know who to ask. The problem, usually, is getting the right ones for the job that needs doing.",
-                                context=ContextTag([context.CUSTOM]), effect=self._ask_other_question,
-                                data={"reply": "Where do you get all of these body parts?"}
-                                ))
+            mylist.append(Offer(
+                "You're a curious person; I can respect that. Well, you know, it's no problem to get all kinds of organs in the dead zone if you know who to ask. The problem, usually, is getting the right ones for the job that needs doing.",
+                context=ContextTag([context.CUSTOM]), effect=self._ask_other_question,
+                data={"reply": "Where do you get all of these body parts?"}
+            ))
 
         return mylist
 
@@ -787,9 +855,19 @@ class SynthCave(Plot):
     scope = "METRO"
     UNIQUE = True
 
+    RUMOR = Rumor(
+        "{AREA_NAME} is full of biomonsters and mutants",
+        offer_msg="Lots of people have gone there hoping to find PreZero treasure, but no, it just seems to be a big cave full of nasty stuff. You can try your luck if you want.",
+        offer_subject="{AREA_NAME}",
+        offer_subject_data="{AREA_NAME}",
+        memo="{AREA_NAME} is a dangerous area filled with biomonsters and mutants.",
+        memo_location="METROSCENE", offer_effect_name="get_rumor"
+    )
+
     def custom_init(self, nart):
         # Create the cave dungeon.
-        self.area_name = self.register_element("AREA_NAME", '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word()))
+        self.area_name = self.register_element("AREA_NAME",
+                                               '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word()))
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["METROSCENE"], self.area_name,
             gharchitecture.StoneCave(), self.rank,
@@ -802,7 +880,8 @@ class SynthCave(Plot):
 
         # Add the dungeon entry room.
         mymapgen = nart.get_map_generator(mydungeon.entry_level)
-        d_entrance_room = self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5, anchor=pbge.randmaps.anchors.south))
+        d_entrance_room = self.register_element("ENTRANCE_ROOM",
+                                                pbge.randmaps.rooms.OpenRoom(5, 5, anchor=pbge.randmaps.anchors.south))
         mydungeon.entry_level.contents.append(d_entrance_room)
 
         myent = self.register_element(
@@ -813,13 +892,16 @@ class SynthCave(Plot):
         # Add the treasure room.
         troom = self.register_element("TREASURE_ROOM", pbge.randmaps.rooms.OpenRoom(10, 10), dident="DGOAL")
         self.register_element("GOAL", ghwaypoints.BrokenBiotank(
-            name="Broken Biotank", desc="You stand before a broken biotank. Maybe this place was part of a laboratory long, long ago.", anchor=pbge.randmaps.anchors.middle
+            name="Broken Biotank",
+            desc="You stand before a broken biotank. Maybe this place was part of a laboratory long, long ago.",
+            anchor=pbge.randmaps.anchors.middle
         ), dident="TREASURE_ROOM")
         self.register_element("COMPY", ghwaypoints.OldTerminal(
-            name="Computer Terminal", desc="You stand before a broken computer terminal. It looks like it has already been ransacked for spare parts.",
+            name="Computer Terminal",
+            desc="You stand before a broken computer terminal. It looks like it has already been ransacked for spare parts.",
         ), dident="TREASURE_ROOM")
 
-        #print(self.elements["METROSCENE"])
+        # print(self.elements["METROSCENE"])
         self.dungeon_unlocked = False
         self.tech_found = False
         return True
@@ -843,18 +925,9 @@ class SynthCave(Plot):
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
 
-    def _get_rumor(self, camp):
+    def get_rumor(self, camp):
         self.dungeon_unlocked = True
         missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
-
-    RUMOR = Rumor(
-        "{AREA_NAME} is full of biomonsters and mutants",
-        offer_msg="Lots of people have gone there hoping to find PreZero treasure, but no, it just seems to be a big cave full of nasty stuff. You can try your luck if you want.",
-        offer_subject="{AREA_NAME}",
-        offer_subject_data="{AREA_NAME}",
-        memo="{AREA_NAME} is a dangerous area filled with biomonsters and mutants.",
-        memo_location="METROSCENE", offer_effect=_get_rumor
-    )
 
 
 class TreasureCave(Plot):
@@ -864,9 +937,19 @@ class TreasureCave(Plot):
     scope = "METRO"
     UNIQUE = True
 
+    RUMOR = Rumor(
+        "there is hidden bandit treasure in {AREA_NAME}",
+        offer_msg="The way the story goes, years ago there was a bandit gang around here and they amassed a huge amount of treasure. They hid it in one of the nearby caves, but for whatever reason never came back to collect it. Maybe they forgot the password?",
+        offer_subject="{AREA_NAME}",
+        offer_subject_data="{AREA_NAME}",
+        memo="{AREA_NAME} is rumored to contain a lost bandit treasure.",
+        memo_location="METROSCENE", offer_effect_name="get_rumor"
+    )
+
     def custom_init(self, nart):
         # Create the cave dungeon.
-        self.area_name = self.register_element("AREA_NAME", '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word()))
+        self.area_name = self.register_element("AREA_NAME",
+                                               '{} Caves'.format(gears.selector.DEADZONE_TOWN_NAMES.gen_word()))
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["METROSCENE"], self.area_name,
             gharchitecture.EarthCave(), self.rank,
@@ -879,7 +962,8 @@ class TreasureCave(Plot):
 
         # Add the dungeon entry room.
         mymapgen = nart.get_map_generator(mydungeon.entry_level)
-        d_entrance_room = self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5, anchor=pbge.randmaps.anchors.south))
+        d_entrance_room = self.register_element("ENTRANCE_ROOM",
+                                                pbge.randmaps.rooms.OpenRoom(5, 5, anchor=pbge.randmaps.anchors.south))
         mydungeon.entry_level.contents.append(d_entrance_room)
 
         myent = self.register_element(
@@ -889,21 +973,28 @@ class TreasureCave(Plot):
 
         # Add the treasure room.
         troom = self.register_element("TREASURE_ROOM", pbge.randmaps.rooms.OpenRoom(10, 10), dident="DGOAL")
-        mychest = self.register_element("GOAL", ghwaypoints.Crate(name="Crate", anchor=pbge.randmaps.anchors.middle), dident="TREASURE_ROOM")
-        mychest.contents += gears.selector.get_random_loot(self.rank+15,250,(gears.tags.ST_TREASURE, gears.tags.ST_LOSTECH, gears.tags.ST_WEAPON))
+        mychest = self.register_element("GOAL", ghwaypoints.Crate(name="Crate", anchor=pbge.randmaps.anchors.middle),
+                                        dident="TREASURE_ROOM")
+        mychest.contents += gears.selector.get_random_loot(self.rank + 15, 250, (
+            gears.tags.ST_TREASURE, gears.tags.ST_LOSTECH, gears.tags.ST_WEAPON))
 
-        myteam = self.register_element("_eteam", teams.Team(enemies=(mydungeon.goal_level.player_team,)), dident="TREASURE_ROOM")
-        myteam.contents += gears.selector.RandomMonsterUnit(self.rank+20, 200, mydungeon.goal_level.environment,
-                                                            ("ROBOT","SYNTH","GUARD"), mydungeon.goal_level.scale).contents
+        myteam = self.register_element("_eteam", teams.Team(enemies=(mydungeon.goal_level.player_team,)),
+                                       dident="TREASURE_ROOM")
+        myteam.contents += gears.selector.RandomMonsterUnit(self.rank + 20, 200, mydungeon.goal_level.environment,
+                                                            ("ROBOT", "SYNTH", "GUARD"),
+                                                            mydungeon.goal_level.scale).contents
 
         # Add the unlock computer.
         compyscene = self.register_element("COMPY_SCENE", random.choice(mydungeon.levels))
         compyroom = self.register_element("COMPY_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="COMPY_SCENE")
-        mycompy = self.register_element("COMPY", ghwaypoints.OldTerminal(name="Computer", plot_locked=True, anchor=pbge.randmaps.anchors.middle), dident="COMPY_ROOM")
+        mycompy = self.register_element("COMPY", ghwaypoints.OldTerminal(name="Computer", plot_locked=True,
+                                                                         anchor=pbge.randmaps.anchors.middle),
+                                        dident="COMPY_ROOM")
 
-        #print(self.elements["METROSCENE"])
+        # print(self.elements["METROSCENE"])
         self.dungeon_unlocked = False
         self.compy_hacked = False
+
         return True
 
     def COMPY_menu(self, camp, thingmenu):
@@ -930,18 +1021,9 @@ class TreasureCave(Plot):
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
 
-    def _get_rumor(self, camp):
+    def get_rumor(self, camp):
         self.dungeon_unlocked = True
         missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
-
-    RUMOR = Rumor(
-        "there is hidden bandit treasure in {AREA_NAME}",
-        offer_msg="The way the story goes, years ago there was a bandit gang around here and they amassed a huge amount of treasure. They hid it in one of the nearby caves, but for whatever reason never came back to collect it. Maybe they forgot the password?",
-        offer_subject="{AREA_NAME}",
-        offer_subject_data="{AREA_NAME}",
-        memo="{AREA_NAME} is rumored to contain a lost bandit treasure.",
-        memo_location="METROSCENE", offer_effect=_get_rumor
-    )
 
 
 class DZRS_LostForager(Plot):
@@ -956,23 +1038,24 @@ class DZRS_LostForager(Plot):
         offer_msg="{NPC} is an explorer who goes foraging in the wastes; {MISSION_GIVER} at {LOCALE} is worried because {NPC.gender.subject_pronoun} has been gone for too long.",
         memo="{MISSION_GIVER} has been worried about {NPC}.",
         memo_location="LOCALE",
-        prohibited_npcs=("NPC","MISSION_GIVER")
+        prohibited_npcs=("NPC", "MISSION_GIVER")
     )
 
     def custom_init(self, nart):
         # Create the NPC in town who will serve as the actual mission giver.
         npc1 = self.register_element("MISSION_GIVER",
-                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes))
+                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes))
 
         # Create the Explorer NPC that the PC can rescue.
         npc2 = self.register_element("NPC",
-                                    gears.selector.random_character(self.rank + random.randint(1,8), combatant=True,
-                                                                    local_tags=self.elements["LOCALE"].attributes,
-                                                                    job=gears.jobs.ALL_JOBS["Explorer"]))
-        self.npcs = (npc1,npc2)
+                                     gears.selector.random_character(self.rank + random.randint(1, 8), combatant=True,
+                                                                     local_tags=self.elements["LOCALE"].attributes,
+                                                                     job=gears.jobs.ALL_JOBS["Explorer"]))
+        self.npcs = (npc1, npc2)
 
         # Place the mission-giving NPC
-        myscene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"], backup_seek_func=self._is_good_scene)
+        myscene = self.seek_element(nart, "LOCALE", self._is_best_scene, scope=self.elements["METROSCENE"],
+                                    backup_seek_func=self._is_good_scene)
         myscene.contents.append(npc1)
 
         # Create the desert mountain dungeon.
@@ -980,7 +1063,7 @@ class DZRS_LostForager(Plot):
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["METROSCENE"], self.area_name,
             gharchitecture.HumanScaleDeadzoneWilderness(), self.rank,
-            monster_tags = ("ANIMAL", "DESERT", "MUTANT", "FIRE"),
+            monster_tags=("ANIMAL", "DESERT", "MUTANT", "FIRE"),
             scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_OUTDOORS,),
             decor=gharchitecture.DesertDecor(),
             connector=plotutility.NatureTrailConnection
@@ -1010,7 +1093,7 @@ class DZRS_LostForager(Plot):
         d_npc_room.contents.append(myteam)
         myteam.contents.append(npc2)
 
-        #print(self.elements["METROSCENE"])
+        # print(self.elements["METROSCENE"])
         self.dungeon_unlocked = False
         self.got_rumor = False
         self.npc_rescued = False
@@ -1018,11 +1101,12 @@ class DZRS_LostForager(Plot):
 
         return True
 
-    def _is_best_scene(self,nart,candidate):
-        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_HOSPITAL in candidate.attributes
+    def _is_best_scene(self, nart, candidate):
+        return isinstance(candidate,
+                          gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_HOSPITAL in candidate.attributes
 
-    def _is_good_scene(self,nart,candidate):
-        return isinstance(candidate,gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+    def _is_good_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.dungeon_unlocked:
@@ -1041,7 +1125,8 @@ class DZRS_LostForager(Plot):
             ))
 
             myoffs.append(Offer(
-                "{} went foraging for scrap metal in {}, but hasn't come back yet. I really hope that nothing bad has happened.".format(self.elements["NPC"], self.area_name),
+                "{} went foraging for scrap metal in {}, but hasn't come back yet. I really hope that nothing bad has happened.".format(
+                    self.elements["NPC"], self.area_name),
                 context=ContextTag((context.INFO,)), effect=self._unlock_dungeon,
                 data={"subject": str(self.elements["NPC"])}, no_repeats=True
             ))
@@ -1050,9 +1135,9 @@ class DZRS_LostForager(Plot):
 
     def _unlock_dungeon(self, camp):
         self.dungeon_unlocked = True
-        self.memo = Memo( "{} has not returned from foraging in {}.".format(self.elements["NPC"], self.area_name)
-                        , self.elements["METROSCENE"]
-                        )
+        self.memo = Memo("{} has not returned from foraging in {}.".format(self.elements["NPC"], self.area_name)
+                         , self.elements["METROSCENE"]
+                         )
         missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
 
     def NPC_offers(self, camp):
@@ -1061,7 +1146,8 @@ class DZRS_LostForager(Plot):
 
         if not self.npc_rescued:
             myoffs.append(Offer(
-                "[HELLO] I wandered out too far from {METROSCENE} and got a bit lost... I don't suppose you're heading back that way soon?".format(**self.elements),
+                "[HELLO] I wandered out too far from {METROSCENE} and got a bit lost... I don't suppose you're heading back that way soon?".format(
+                    **self.elements),
                 context=ContextTag((context.HELLO,)),
             ))
 
@@ -1072,7 +1158,8 @@ class DZRS_LostForager(Plot):
             ))
         elif not self.npc_lm:
             myoffs.append(Offer(
-                "[HELLO] Thanks for getting me back to {METROSCENE}; if you ever need the services of an experienced explorer, just let me know!".format(**self.elements),
+                "[HELLO] Thanks for getting me back to {METROSCENE}; if you ever need the services of an experienced explorer, just let me know!".format(
+                    **self.elements),
                 context=ContextTag((context.HELLO,)), effect=self._add_lancemate
             ))
 
@@ -1091,7 +1178,7 @@ class DZRS_LostForager(Plot):
         npc.relationship.history.append(gears.relationships.Memory(
             "you rescued me from {}".format(self.area_name),
             "I rescued you from {}".format(self.area_name),
-            10, [gears.relationships.MEM_AidedByPC,]
+            10, [gears.relationships.MEM_AidedByPC, ]
         ))
         self.npc_lm = True
 
@@ -1104,23 +1191,28 @@ class DZRS_GeneralStore(Plot):
 
     def custom_init(self, nart):
         npc1 = self.register_element("SHOPKEEPER",
-                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
-                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
 
         self.shopname = self._generate_shop_name()
 
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ConcreteBuilding,
-            waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
-            door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                                                   waypoints={"DOOR": ghwaypoints.GlassDoor(
+                                                                       name=self.shopname)},
+                                                                   door_sign=(ghterrain.CrossedSwordsTerrainEast,
+                                                                              ghterrain.CrossedSwordsTerrainSouth),
+                                                                   tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                                                                         pbge.randmaps.IS_CITY_ROOM,
+                                                                         pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="METROSCENE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, self.shopname, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+                                       attributes=(
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
@@ -1130,9 +1222,9 @@ class DZRS_GeneralStore(Plot):
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["METROSCENE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
+                                                    room1=building,
+                                                    room2=foyer, door1=building.waypoints["DOOR"],
+                                                    move_door1=False)
 
         npc1.place(intscene, team=team2)
 
@@ -1143,6 +1235,7 @@ class DZRS_GeneralStore(Plot):
     TITLE_PATTERNS = (
         "{METROSCENE} General Shop", "{SHOPKEEPER}'s Shop",
     )
+
     def _generate_shop_name(self):
         return random.choice(self.TITLE_PATTERNS).format(**self.elements)
 
@@ -1170,26 +1263,31 @@ class DZRS_WeaponArmorShop(Plot):
 
     def custom_init(self, nart):
         npc1 = self.register_element("WEAPONS_S",
-                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
-                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
         npc2 = self.register_element("ARMOR_S",
-                                    gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
-                                                                    job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
+                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
 
         self.shopname = self._generate_shop_name()
 
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ConcreteBuilding,
-            waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
-            door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                                                   waypoints={"DOOR": ghwaypoints.GlassDoor(
+                                                                       name=self.shopname)},
+                                                                   door_sign=(ghterrain.CrossedSwordsTerrainEast,
+                                                                              ghterrain.CrossedSwordsTerrainSouth),
+                                                                   tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                                                                         pbge.randmaps.IS_CITY_ROOM,
+                                                                         pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="METROSCENE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, self.shopname, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+                                       attributes=(
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
@@ -1199,9 +1297,9 @@ class DZRS_WeaponArmorShop(Plot):
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["METROSCENE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
+                                                    room1=building,
+                                                    room2=foyer, door1=building.waypoints["DOOR"],
+                                                    move_door1=False)
 
         npc1.place(intscene, team=team2)
         npc2.place(intscene, team=team2)
@@ -1215,6 +1313,7 @@ class DZRS_WeaponArmorShop(Plot):
         "{METROSCENE} Armory", "{WEAPONS_S} & {ARMOR_S}", "{WEAPONS_S} & Company", "{ARMOR_S} & Partner",
         "{METROSCENE} Combat Shop", "{METROSCENE} Outfitters", "{METROSCENE} Army Surplus"
     )
+
     def _generate_shop_name(self):
         return random.choice(self.TITLE_PATTERNS).format(**self.elements)
 

@@ -3,9 +3,13 @@ from .. import container,scenes
 import inspect
 import random
 import itertools
+import pygame
 
 class TerrSet( Room ):
-    # A Terrainset is a handler for TerrSetTerrain terrain.
+    # A Terrainset is a handler for TerrSetTerrain terrain. That tells you absolutely nothing.
+    # You know those buildings in GearHead that are made up of multiple tiles arranged to look like a building?
+    # That's a TerrSet. But, it doesn't have to be a building! Any large thing you want to show on the map can be
+    # modeled as a TerrSet- such as the fence gate in Winter Mocha.
     # Terrain Type is the TerrSetTerrain to be used.
     # TerrainMap is a tuple of tuples giving frame numbers for
     # the tiles. If a tile is to be left out, use None.
@@ -100,6 +104,9 @@ class BuildingSet( TerrSet ):
         self.WAYPOINT_POS = dict()
 
         super().__init__(tags,anchor,parent,archi,waypoints,border,dont_calc_dimensions=True, duck_dict=duck_dict)
+
+        # footprint describes the area occupied by the ground floor of this building. It may be useful to know.
+        self.footprint = None
 
     def design(self):
         # height = dimy + dimz - 1 + 2 * self.border
@@ -197,6 +204,7 @@ class BuildingSet( TerrSet ):
                 mydecor = random.choice(self.decor_options)
                 self.install_decor(mydecor)
 
+        self.footprint = pygame.Rect(self.area.right - dimx, self.area.bottom - dimy, dimx-1, dimy-1)
 
     def install_decor(self,decortype):
         possible_points = [p for p in self.decor_tiles if decortype.is_legal_point(self,p)]

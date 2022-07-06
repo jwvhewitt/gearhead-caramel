@@ -227,6 +227,20 @@
     "children": ["Shoes"]
   },
   {
+    "name": "BodMA Gil Pants",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_bodma_pants_gil.png","anchor":"midbottom","depth":2500,"x_offset":-16,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_bodma_pants_gil.png","anchor":"midbottom","depth":2500,"x_offset":-1}
+    ],
+    "requires": ["BodMA"],
+    "children": ["Shoes"],
+    "style": ["Combatant"]
+  },
+
+  {
     "name": "Raider Shorts",
     "btype": "Pants",
     "layers": [

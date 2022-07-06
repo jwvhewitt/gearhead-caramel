@@ -57,13 +57,16 @@ class PlotState(object):
 
 
 class RumorMemoEffect(object):
-    def __init__(self, memo, plot):
+    def __init__(self, memo, plot, extra_effect=None):
         self.memo = memo
         self.plot = plot
+        self.extra_effect = extra_effect
 
     def __call__(self, camp):
         self.plot.memo = self.memo
         self.plot._rumor_memo_delivered = True
+        if self.extra_effect:
+            self.extra_effect(camp)
 
 
 class Rumor(object):
@@ -71,7 +74,8 @@ class Rumor(object):
 
     def __init__(self, rumor="", grammar_tag="[News]", offer_context=dialogue.INFO,
                  offer_msg="", offer_subject="{NPC}", offer_subject_data="{NPC}", memo="",
-                 memo_location="NPC_SCENE", prohibited_npcs=(), offer_effect=None):
+                 memo_location="NPC_SCENE", prohibited_npcs=(), offer_effect_name=""):
+        # offer_effect_name is the name of a method from the calling plot.
         self.rumor = rumor
         self.grammar_tag = grammar_tag
         self.offer_msg = offer_msg
@@ -81,7 +85,7 @@ class Rumor(object):
         self.memo = memo
         self.memo_location = memo_location
         self.prohibited_npcs = prohibited_npcs
-        self.offer_effect = offer_effect
+        self.offer_effect_name = offer_effect_name
 
     def get_rumor_grammar(self, npc, camp, plot):
         mygram = dict()
@@ -91,17 +95,21 @@ class Rumor(object):
 
     def get_rumor_offers(self, npc, camp, plot):
         myoffers = list()
+        if self.offer_effect_name and hasattr(plot, self.offer_effect_name):
+            effect = getattr(plot, self.offer_effect_name)
+        else:
+            effect = None
         if self.npc_is_ok(npc, plot) and self.offer_msg and not plot._rumor_memo_delivered:
             myoffer = dialogue.Offer(
                 self.offer_msg.format(**plot.elements),
                 context=self.offer_context,
                 subject=self.offer_subject.format(**plot.elements), no_repeats=True,
                 data={"subject": self.offer_subject_data.format(**plot.elements)},
-                effect=self.offer_effect
+                effect=effect
             )
             if self.memo:
                 myoffer.effect = RumorMemoEffect(
-                    Memo(self.memo.format(**plot.elements), plot.elements.get(self.memo_location)), plot
+                    Memo(self.memo.format(**plot.elements), plot.elements.get(self.memo_location)), plot, effect
                 )
             myoffers.append(myoffer)
         return myoffers

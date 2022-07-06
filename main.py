@@ -68,7 +68,6 @@ class StartGameMenu:
     MENU_COLUMN = pbge.frects.Frect(20,-100,280,350)
 
     def __init__(self, tsrd):
-        check_rpg_saves()
         mymenu = pbge.rpgmenu.Menu(self.MENU_COLUMN.dx, self.MENU_COLUMN.dy,
                                    self.MENU_COLUMN.w, self.MENU_COLUMN.h,
                                    predraw=tsrd, font=pbge.my_state.huge_font,
@@ -106,7 +105,7 @@ class LoadGameMenu:
     PORTRAIT_AREA = pbge.frects.Frect(-400, -300, 400, 600)
     THUMB_AREA = pbge.frects.Frect(-375, -180, 480, 360)
     MENU_COLUMN = pbge.frects.Frect(130,-100,225,350)
-    WARNING_AREA = pbge.frects.Frect(-350, 0, 300, 60)
+    WARNING_AREA = pbge.frects.Frect(-350, 0, 300, 54)
 
     def __init__(self, tsrd):
         check_rpg_saves()
@@ -158,10 +157,11 @@ class LoadGameMenu:
             if save_version < self.current_version:
                 mydest = self.WARNING_AREA.get_rect()
                 pbge.default_border.render(mydest.inflate(8,8))
-                pbge.draw_text(pbge.MEDIUMFONT, "Warning: Save from {}.\nThis might cause problems in the current version, or it might not.".format(menu_item.desc[0]),mydest, justify=0)
+                pbge.draw_text(pbge.MEDIUMFONT, "Warning: Save from {}.\nThis might cause problems in the current version, or it might not. Good luck!".format(menu_item.desc[0]),mydest, justify=0)
 
 
 def import_arena_character(tsrd):
+    pbge.please_stand_by()
     myfiles = gears.oldghloader.GH1Loader.seek_gh1_files()
     mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
                                TitleScreenRedraw.MENU_DEST.dy,
@@ -216,6 +216,7 @@ valid_saves = list()
 quarantined_files = list()
 
 def check_rpg_saves():
+    pbge.please_stand_by()
     quarantined_files.clear()
     valid_saves.clear()
     myfiles = glob.glob(pbge.util.user_dir("rpg_*.sav"))
@@ -226,6 +227,7 @@ def check_rpg_saves():
         except Exception as err:
             print(err)
             quarantined_files.append(fname)
+
 
 def view_quarantine(tsrd):
     mymenu = pbge.rpgmenu.AlertMenu("The following campaign files aren't loading properly, probably because they are from an out of date version or require DLC that is not installed. You should be able to restore the backup of your character from the 'ghcaramel' folder.", predraw=tsrd)
