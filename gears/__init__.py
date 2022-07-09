@@ -3,6 +3,12 @@ import random
 import copy
 import pygame
 
+GEAR_TYPES = dict()
+SINGLETON_TYPES = dict()
+SINGLETON_REVERSE = dict()
+ALL_CALIBRES = list()
+ALL_FACTIONS = list()
+
 from . import base
 from . import calibre
 from . import damage
@@ -34,11 +40,6 @@ from . import relationships
 
 import pickle
 
-GEAR_TYPES = dict()
-SINGLETON_TYPES = dict()
-SINGLETON_REVERSE = dict()
-ALL_CALIBRES = list()
-ALL_FACTIONS = list()
 
 
 def harvest(mod, subclass_of, dict_to_add_to, exclude_these, list_to_add_to=None):

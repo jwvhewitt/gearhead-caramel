@@ -13,7 +13,7 @@ from . import attackattributes
 from . import tags
 from . import aitargeters
 from . import enchantments
-from . import portraits
+from . import portraits, SINGLETON_REVERSE
 import pygame
 from . import personality
 import uuid
@@ -567,6 +567,10 @@ class BaseGear(scenes.PlaceableThing):
         self.desc = desc
         self.slot = slot or self.DEFAULT_SLOT
         self.faction_list = faction_list
+        # Error check:
+        for fac in faction_list:
+            if fac and fac not in SINGLETON_REVERSE:
+                print("Warning: {} in {} doesn't seem to be a faction.".format(fac, self.name))
         self.stolen = stolen
 
         self.sub_com = SubComContainerList(owner=self)
@@ -795,6 +799,14 @@ class BaseGear(scenes.PlaceableThing):
         rgear = self.get_root()
         if rgear and hasattr(rgear, "container") and rgear.container:
             return rgear.container.owner
+
+    def is_sub_com(self):
+        parent = self.parent
+        return parent and hasattr(parent, "sub_com") and self in parent.sub_com
+
+    def is_inv_com(self):
+        parent = self.parent
+        return parent and hasattr(parent, "inv_com") and self in parent.inv_com
 
     @property
     def scene(self):
@@ -1939,6 +1951,10 @@ class EnergyWeapon(Weapon):
     def _get_reach_cost_factor(self, reach):
         return ((int(pow(reach,2.5)) - reach) // 2 + 1)
 
+    def is_legal_inv_com(self, part):
+        if not self.is_sub_com():
+            return isinstance(part, PowerSource)
+
     def __setstate__(self, state):
         # For saves from V0.810 or earlier, convert IgnitesAmmo to BurnAttack.
         if "attributes" in state and attackattributes.IgnitesAmmo in state["attributes"]:
@@ -2258,6 +2274,10 @@ class BeamWeapon(Weapon):
     def pay_for_intercept(self, defender, weapon_being_blocked):
         defender.spend_stamina(1)
         defender.consume_power(self.get_basic_power_cost())
+
+    def is_legal_inv_com(self, part):
+        if not self.is_sub_com():
+            return isinstance(part, PowerSource)
 
 
 class Missile(BaseGear, StandardDamageHandler, Restoreable):

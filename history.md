@@ -1,3 +1,4 @@
+* faction_list from design files now gets error checked
 * Building TerrSets now record their footprint
 * Personal scale armor will now show armor rating and damage
 * Warning shown if campaign save file is from an earlier major version

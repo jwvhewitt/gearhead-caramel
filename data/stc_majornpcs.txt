@@ -2,7 +2,7 @@ Character
     name="Vikki"
     mnpcid="Vikki Shingo"
     statline={Reflexes=15, Body=10, Speed=13, Perception=13, Knowledge=10, Craft=10, Ego=10, Charm=12}
-    personality=[Cheerful, Shy, Fellowship]
+    personality=[Cheerful, Shy, Fellowship, GreenZone]
     gender=Female
     portrait='card_f_wintervikki.png'
     colors=(ShiningWhite, LightSkin, NobleGold, HunterOrange, Olive)
@@ -18,7 +18,7 @@ Character
     name="Skippy"
     mnpcid="Skip Tracer"
     statline={Reflexes=13, Body=13, Speed=12, Perception=15, Knowledge=9, Craft=12, Ego=15, Charm=12, Cybertech=5}
-    personality=[Cheerful, Easygoing, Glory, Duty]
+    personality=[Cheerful, Easygoing, Glory, Duty, GreenZone]
     gender=Male
     colors=(CardinalRed, ForRami, Cobalt, Gold, Turquoise)
     mecha_colors=(GunRed, Gold, Aquamarine, Cobalt, Turquoise)
@@ -29,5 +29,67 @@ Character
     combatant=True
     mecha_pref="SAN-D1 Daum"
 
+Character
+    name="Onawa"
+    mnpcid="Onawa GH1"
+    statline={Reflexes=15, Body=14, Speed=14, Perception=15, Knowledge=12, Craft=15, Ego=12, Charm=11,
+              Wildcraft=7}
+    personality=[Grim, Shy, Easygoing, Peace, DeadZone]
+    gender=Female
+    portrait='card_f_onawa158.png'
+    colors=(GriffinGreen, TannedSkin, BlackRose, Aquamarine, Leather)
+    job=ReconPilot
+    renown=55
+    birth_year=129
+    combatant=True
+    faction=TerranDefenseForce
+    mecha_colors=(ArmyDrab, DeepSeaBlue, ElectricYellow, GullGrey, Terracotta)
+    mecha_pref="Onawa's Corsair"
+
+Character
+    name="Omega 1004"
+    mnpcid="Omega 1004"
+    statline={Reflexes=12, Body=19, Speed=12, Perception=13, Knowledge=25, Craft=12, Ego=12, Charm=14,
+              Science=7}
+    personality=[Sociable, Easygoing, Peace, Justice]
+    gender=Male
+    portrait='card_m_omega1004_158.png'
+    colors=(SteelBlue, GullGrey, Malachite, ShiningWhite, BattleshipGrey)
+    job=Explorer
+    renown=40
+    material=Metal
+    birth_year=102
+    combatant=True
+    mecha_colors=(SteelBlue, ForestGreen, Saffron, GullGrey, ShiningWhite)
+    mecha_pref="PL-912 Phoenix"
 
 
+Character
+    name="Hyolee"
+    mnpcid="Hyolee GH1"
+    statline={Reflexes=9, Body=8, Speed=10, Perception=13, Knowledge=18, Craft=11, Ego=15, Charm=16,
+              Science=10, Biotechnology=10, Medicine=7}
+    personality=[Cheerful, Peace, Fellowship, Idealist, GreenZone]
+    gender=Female
+    portrait = 'card_f_winterhyolee.png'
+    colors = (Viridian, Chocolate, Saffron, GunRed, RoyalPink)
+    job = Scientist
+    renown = 50
+    birth_year = 131
+    combatant = False
+
+Character
+    name="Carter"
+    mnpcid="Carter GH1"
+    statline={Reflexes=14, Body=16, Speed=12, Perception=15, Knowledge=14, Craft=11, Ego=13, Charm=9,
+              Computers=5, Scouting=5}
+    personality=[Shy, Easygoing, Justice, GreenZone]
+    gender=Male
+    portrait='card_m_wintercarter.png'
+    colors=(BugBlue, Burlywood, AceScarlet, SkyBlue, SlateGrey)
+    mecha_colors=(FreedomBlue, Gold, Aquamarine, BattleshipGrey, SlateGrey)
+    job = Trucker
+    renown = 40
+    birth_year = 121
+    combatant = True
+    mecha_pref="SDH-22 Corsair"

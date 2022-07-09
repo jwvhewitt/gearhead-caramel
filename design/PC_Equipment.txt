@@ -73,6 +73,7 @@ MeleeWeapon
     penetration=4
     scale = HumanScale
     material = Metal
+    attack_stat = Body
     shop_tags= ("MELEE WEAPON", "ESSENTIAL")
     faction_list = (DeadzoneFederation,ClanIronwind,TerranFederation)
     attributes = (Accurate,FastAttack)
@@ -220,6 +221,7 @@ MeleeWeapon
     scale = HumanScale
     material = Metal
     attributes = (Brutal,Flail,Smash)
+    attack_stat = Body
     shop_tags= ("WEAPON","MELEE WEAPON")
     faction_list = (DeadzoneFederation,ClanIronwind,BoneDevils)
 
@@ -233,6 +235,7 @@ MeleeWeapon
     scale = HumanScale
     material = Advanced
     attributes = (Brutal,Flail,Smash,BurnAttack)
+    attack_stat = Body
     shop_tags= ("CONTRABAND","MELEE WEAPON")
     faction_list = (None,)
 
@@ -302,6 +305,55 @@ MeleeWeapon
     attributes = (Flail,Agonize)
 
 
+EnergyWeapon
+    name = "Chainsaw"
+    desc = "An energy-cell powered cutting tool. Particularly suited for cutting through materials."
+    reach=1
+    damage=4
+    accuracy=1
+    penetration=2
+    attributes=(Brutal)
+    attack_stat = Body
+    shop_tags= ("MELEE WEAPON","ESSENTIAL","CONTRABAND")
+    faction_list = (TerranFederation,DeadzoneFederation,ClanIronwind,BoneDevils)
+    INV
+        PowerSource
+            size = 4
+    END
+
+EnergyWeapon
+    name = "Combat Chainsaw"
+    desc = "An energy-cell powered cutting tool. Particularly suited for cutting through materials and well-armored targets."
+    reach=1
+    damage=4
+    accuracy=2
+    penetration=4
+    attributes=(Brutal)
+    attack_stat = Body
+    shop_tags= ("MELEE WEAPON","CONTRABAND")
+    faction_list = (TerranFederation,DeadzoneFederation,ClanIronwind,BoneDevils)
+    INV
+        PowerSource
+            size = 4
+    END
+
+EnergyWeapon
+    name = "Chainsword"
+    desc = "A sword with a spinning chainsaw for a blade. A trigger on the hilt controls the chain itself."
+    reach=1
+    damage=3
+    accuracy=2
+    penetration=3
+    attributes=(Brutal, FastAttack, Defender)
+    attack_stat = Reflexes
+    shop_tags= ("MELEE WEAPON","WEAPON")
+    faction_list = (None)
+    material = Ceramic
+    INV
+        PowerSource
+            size = 4
+    END
+
 
 # Ammo Bang = Damage x Penetration
 
@@ -366,6 +418,26 @@ BallisticWeapon
     END
 
 BallisticWeapon
+    name = "Assault Rifle"
+    desig = "7-Z"
+    desc = "A rapid fire, high penetration assault rifle commonly used on Earth."
+    reach = 6
+    damage = 2
+    accuracy = 2
+    penetration = 3
+    ammo_type = Rifle_5mm
+    attributes = (BurstFire5)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
+    faction_list = (TerranFederation,TerranDefenseForce,TheSolarNavy,DeadzoneFederation,ClanIronwind,BoneDevils,KettelIndustries,RegExCorporation,BioCorp)
+    magazine = 120
+    SUB
+        Ammo
+            ammo_type=Rifle_5mm
+            quantity=120
+    END
+
+BallisticWeapon
     name = "Long Rifle"
     desig = "L60"
     desc = "The long rifled barrel of this firearm can increase the spin of its bullets, thus increasing its range without decreasing the gun's durability."
@@ -384,6 +456,48 @@ BallisticWeapon
             ammo_type=Rifle_5mm
             quantity=40
     END
+
+BallisticWeapon
+    name = "Shotgun"
+    desig = "RS-22"
+    desc = "A heavy firearm that fires shotgun shells."
+    reach = 4
+    damage = 4
+    accuracy = 1
+    penetration = 2
+    ammo_type = Cartridge_16mm
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+    magazine = 16
+    SUB
+        Ammo
+            ammo_type=Cartridge_16mm
+            quantity=16
+            attributes = (Scatter,)
+    END
+
+BallisticWeapon
+    name = "Combat Shotgun"
+    desig = "RS-25"
+    desc = "A derivative of the conventional shotgun, optimised for heavy combat situations."
+    reach = 5
+    damage = 4
+    accuracy = 2
+    penetration = 2
+    ammo_type = Cartridge_16mm
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+    magazine = 32
+    attributes=(VariableFire2,)
+    SUB
+        Ammo
+            ammo_type=Cartridge_16mm
+            quantity=32
+            attributes = (Scatter,)
+    END
+
 
 TorsoClothing
     name = "Flak Jacket"

@@ -724,23 +724,7 @@ class WinterMochaHyolee(Plot):
 
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
-
-        hyolee = gears.base.Character(
-            name="Hyolee", statline={gears.stats.Reflexes: 9,
-                                     gears.stats.Body: 8, gears.stats.Speed: 10,
-                                     gears.stats.Perception: 13,
-                                     gears.stats.Knowledge: 18, gears.stats.Craft: 11,
-                                     gears.stats.Ego: 15,
-                                     gears.stats.Charm: 16, gears.stats.Science: 10,
-                                     gears.stats.Biotechnology: 10,
-                                     gears.stats.Medicine: 7},
-            personality=[personality.Cheerful, personality.Peace, personality.Fellowship],
-            gender=gears.genderobj.Gender.get_default_female(), mnpcid=gears.oldghloader.GH1Loader.NPC_HYOLEE,
-        )
-        hyolee.imagename = 'cha_wm_hyolee.png'
-        hyolee.portrait = 'card_f_winterhyolee.png'
-        hyolee.colors = (
-        gears.color.Viridian, gears.color.Chocolate, gears.color.Saffron, gears.color.GunRed, gears.color.RoyalPink)
+        hyolee = nart.camp.get_major_npc("Hyolee GH1")
         hyolee.mmode = pbge.scenes.movement.Walking
         self.register_element("HYOLEE", hyolee, dident="ROOM")
         self.asked_join = False
@@ -783,22 +767,7 @@ class WinterMochaCarter(Plot):
 
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
-
-        carter = gears.base.Character(
-            name="Carter", statline={gears.stats.Reflexes: 14,
-                                     gears.stats.Body: 16, gears.stats.Speed: 12, gears.stats.Perception: 15,
-                                     gears.stats.Knowledge: 14, gears.stats.Craft: 11, gears.stats.Ego: 13,
-                                     gears.stats.Charm: 9, gears.stats.MechaGunnery: 6, gears.stats.MechaFighting: 6,
-                                     gears.stats.MechaPiloting: 7, gears.stats.Concentration: 6, gears.stats.Repair: 8},
-            personality=[personality.Shy, personality.Easygoing, personality.Justice],
-            gender=gears.genderobj.Gender.get_default_male(),
-            portrait='card_m_wintercarter.png',
-            colors=(gears.color.BugBlue, gears.color.Burlywood, gears.color.AceScarlet, gears.color.SkyBlue,
-                    gears.color.SlateGrey),
-            mecha_colors=(gears.color.FreedomBlue, gears.color.Gold, gears.color.Aquamarine, gears.color.BattleshipGrey,
-                          gears.color.SlateGrey),
-            mnpcid=gears.oldghloader.GH1Loader.NPC_CARTER,
-        )
+        carter = nart.camp.get_major_npc("Carter GH1")
         self.register_element("CARTER", carter, dident="FENCE_GATE_ROOM")
         return True
 

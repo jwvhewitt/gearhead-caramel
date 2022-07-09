@@ -125,3 +125,9 @@ class Pistol_6mm(BaseCalibre):
     bang = 4
     scale = scale.HumanScale
 
+class Cartridge_16mm(BaseCalibre):
+    bang = 8
+    scale = scale.HumanScale
+
+
+

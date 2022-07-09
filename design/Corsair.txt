@@ -89,3 +89,95 @@ Mecha
                     size = 6
             END
     END
+
+Mecha
+    name = "Corsair"
+    desig = "Onawa's"
+    imagename = "mav_corsair.png"
+    portrait = "mecha_corsair.png"
+    family = "Corsair"
+    desc = "The SDH-22 Corsair is the standard trooper mecha of the Terran Defense Force."
+    environment_list = (GroundEnv,UrbanEnv,)
+    faction_list = (ReallyNone)
+    role_list = (Trooper,)
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                Cockpit
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 850
+                Gyroscope
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+									name = "Heavy Rockets"
+									reach = 7
+									damage = 4
+									accuracy = 0
+									penetration = 2
+									quantity = 4
+									attributes = (Blast1)
+                            END
+                    END
+            END
+        Arm
+            name = "Right Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        STC Heavy Gauss Rifle
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+            END
+            INV
+				Shield
+					size = 3
+					bonus = 2
+			END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Wheels
+                    size = 6
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Wheels
+                    size = 6
+            END
+    END
