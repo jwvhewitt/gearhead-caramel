@@ -369,6 +369,7 @@ class NPCVacationToTheFreezer(Plot):
 #  ***   PLACE_LOCAL_REPRESENTATIVES   ***
 #  ***************************************
 #
+#  LOCALE: The city/neighborhood in which the commander will be placed
 #  FACTION: The faction to which the new NPCs will belong.
 
 class PlaceACommander(Plot):

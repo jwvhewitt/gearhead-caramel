@@ -957,6 +957,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         if not mynpc:
             mynpc = selector.MAJOR_NPCS.get(mnpcid, None)
 
+        if mynpc and mynpc.combatant:
+            selector.equip_combatant(mynpc)
+
         if mynpc not in self.uniques:
             if mynpc not in self.egg.dramatis_personae:
                 self.egg.dramatis_personae.add(mynpc)

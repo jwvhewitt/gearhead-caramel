@@ -4049,8 +4049,8 @@ class Character(Being):
         super().__init__(**keywords)
         if add_body:
             self.build_body()
-            if job and renown:
-                job.scale_skills(self, renown)
+        if job and renown:
+            job.scale_skills(self, renown)
 
     def get_tacit_faction(self, camp):
         # Get this character's effective faction. Normally this will be the faction this character belongs to, but

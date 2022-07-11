@@ -3,6 +3,8 @@ import inspect
 from . import actionscenes
 from . import campfeatures
 from . import challengeplots
+from . import challengestarters
+from . import challengeutils
 from . import consequences
 from . import dd_combatmission
 from . import dd_conclusion
@@ -21,6 +23,7 @@ from . import dungeons
 from . import encounters
 from . import lancedev
 from . import lancemates
+from . import localproblems
 from . import missionbuilder
 from . import mission_conversations
 from . import mission_stubs
@@ -61,6 +64,8 @@ def harvest( mod ):
 harvest(actionscenes)
 harvest(campfeatures)
 harvest(challengeplots)
+harvest(challengestarters)
+harvest(challengeutils)
 harvest(consequences)
 harvest(dd_combatmission)
 harvest(dd_conclusion)
@@ -79,6 +84,7 @@ harvest(dungeons)
 harvest(encounters)
 harvest(lancedev)
 harvest(lancemates)
+harvest(localproblems)
 harvest(missionbuilder)
 harvest(mission_conversations)
 harvest(mission_stubs)

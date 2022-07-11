@@ -1331,6 +1331,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[GOOD_JOB]": {
+        Default: ["[GOOD]", "Good job!"
+                  ],
+        personality.Cheerful: ["Good going, [audience]!",
+                               ],
+        personality.Grim: ["For a while I doubted you'd pull it off.",
+                           ],
+        personality.Easygoing: ["Nice; I hope it wasn't too much trouble.",
+                                ],
+        personality.Passionate: ["Fantastic work!",
+                                 ],
+        personality.Sociable: ["You've got a talent for this sort of thing, [audience].",
+                               ],
+        personality.Shy: ["Good work.",
+                          ],
+    },
+
     "[GOODLUCK]": {
         Default: ["Good luck.", "Good luck with that."
                   ],
@@ -2692,6 +2709,23 @@ DEFAULT_GRAMMAR = {
                   ],
         LIKE: ["Make sure you come back sometime to let me know how you're doing. [GOODBYE]",
                ]
+    },
+
+    "[LET_ME_KNOW_IF_YOU_HEAR_ANYTHING]": {
+        Default: ["Let me know if you hear anything about this.",
+                  ],
+        personality.Cheerful: ["I'd be thrilled if you could find out something about this.",
+                               ],
+        personality.Grim: ["It's a long shot, but let me know if you hear anything.",
+                           ],
+        personality.Easygoing: ["If you hear anything about this, could you let me know?",
+                                ],
+        personality.Passionate: ["I must know more about this!"
+                                 ],
+        personality.Sociable: ["Somebody has to know more about this; please tell me if you hear anything."
+                               ],
+        personality.Shy: ["Let me know if you hear anything.",
+                          ],
     },
 
     "[LETSFIGHT]": {

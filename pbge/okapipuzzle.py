@@ -16,6 +16,7 @@ SUS_LOCATION = "LOCATION"
 
 # Verb Roles
 SUS_VERB = "VERB"
+SUS_MOTIVE = "MOTIVE"
 
 # Triggers
 MYSTERY_SOLVED = "SOLVED"
@@ -77,17 +78,26 @@ class ABTogetherClue:
         SUS_SUBJECT: {
             SUS_SUBJECT: "{a.name} and {b.name} worked together",
             SUS_LOCATION: "{a.name} was seen at {b.name}",
-            SUS_VERB: "{a.name} {b.verbed}"
+            SUS_VERB: "{a.name} {b.verbed}",
+            SUS_MOTIVE: "{a.name} wanted {b.to_verb}"
         },
         SUS_LOCATION: {
             SUS_SUBJECT: "Someone at {a.name} saw {b.name}",
             SUS_LOCATION: "{a.name} is connected to {b.name} somehow",
-            SUS_VERB: "A person at {a.name} {b.verbed}"
+            SUS_VERB: "A person at {a.name} {b.verbed}",
+            SUS_MOTIVE: "Someone went to {a.name} {b.to_verb}"
         },
         SUS_VERB: {
             SUS_SUBJECT: "{b.name} {a.verbed}",
             SUS_LOCATION: "Someone {a.verbed} at {b.name}",
-            SUS_VERB: "The person who {a.verbed} also {b.verbed}"
+            SUS_VERB: "The person who {a.verbed} also {b.verbed}",
+            SUS_MOTIVE: "A person {a.verbed} {b.to_verb}"
+        },
+        SUS_MOTIVE: {
+            SUS_SUBJECT: "{b.name} desired {a.to_verb}",
+            SUS_LOCATION: "{b.name} is a good place {a.to_verb}",
+            SUS_VERB: "Somebody {b.verbed} in order {a.to_verb}",
+            SUS_MOTIVE: "The same person wanted {a.to_verb} and {b.to_verb}"
         }
     }
 
@@ -122,17 +132,26 @@ class ABNotTogetherClue:
         SUS_SUBJECT: {
             SUS_SUBJECT: "{a.name} and {b.name} didn't work together",
             SUS_LOCATION: "{a.name} was not at {b.name}",
-            SUS_VERB: "{a.name} {b.did_not_verb}"
+            SUS_VERB: "{a.name} {b.did_not_verb}",
+            SUS_MOTIVE: "{a.name} doesn't want {b.to_verb}"
         },
         SUS_LOCATION: {
             SUS_SUBJECT: "{a.name} is not where {b.name} was",
             SUS_LOCATION: "{a.name} is not connected to {b.name}",
-            SUS_VERB: "Nobody at {a.name} {b.verbed}"
+            SUS_VERB: "Nobody at {a.name} {b.verbed}",
+            SUS_MOTIVE: "Nobody at {a.name} wanted {b.to_verb}"
         },
         SUS_VERB: {
             SUS_SUBJECT: "{b.name} {a.did_not_verb}",
             SUS_LOCATION: "Nobody {a.verbed} at {b.name}",
-            SUS_VERB: "The person who {a.verbed} {b.did_not_verb}"
+            SUS_VERB: "The person who {a.verbed} {b.did_not_verb}",
+            SUS_MOTIVE: "Whoever {a.verbed} didn't want {b.to_verb}"
+        },
+        SUS_MOTIVE: {
+            SUS_SUBJECT: "{b.name} doesn't want {a.to_verb}",
+            SUS_LOCATION: "{b.name} is not a good place {a.to_verb}",
+            SUS_VERB: "Nobody {b.verbed} in order {a.to_verb}",
+            SUS_MOTIVE: "Nobody wants {a.to_verb} and {b.to_verb}"
         }
     }
 
@@ -163,7 +182,8 @@ class ANotSolutionClue:
     CLUE_FORMATS = {
         SUS_SUBJECT: "{a.name} is not involved in {mystery}",
         SUS_LOCATION: "{mystery} did not happen at {a}",
-        SUS_VERB: "Nobody {a.verbed}"
+        SUS_VERB: "Nobody {a.verbed}",
+        SUS_MOTIVE: "Nobody wanted {a.to_verb}"
     }
 
     def __init__(self, acard, mystery):
@@ -188,7 +208,8 @@ class AIsSolutionClue:
     CLUE_FORMATS = {
         SUS_SUBJECT: "{a.name} is involved in {mystery}",
         SUS_LOCATION: "{mystery} happened at {a}",
-        SUS_VERB: "Somebody {a.verbed}"
+        SUS_VERB: "Somebody {a.verbed}",
+        SUS_MOTIVE: "Somebody wants {a.to_verb}"
     }
 
     def __init__(self, acard, mystery):
@@ -220,22 +241,27 @@ class OkapiPuzzle:
         mydict = dict([(self.ALPHA_KEYS[n], card) for n,card in enumerate(self.solution)])
         self.solution_text = solution_form.format(**mydict)
 
-        self.unknown_clues = self.generate_all_clues()
-        self.known_clues = list()
-        all_solutions = self.generate_all_solutions()
+        tries = 0
 
-        t = len(self.decks) * 4
-        while t > 0 or len(self.unknown_clues) > 10:
-            i = 1
-            while i < len(self.unknown_clues) and self.number_of_matches(self.unknown_clues[:i], all_solutions) > 1:
-                i += 1
-            self.unknown_clues = self.unknown_clues[:i]
-            random.shuffle(self.unknown_clues)
-            if len(self.unknown_clues) < 6:
+        while tries < 10:
+            self.unknown_clues = self.generate_all_clues()
+            self.known_clues = list()
+            all_solutions = self.generate_all_solutions()
+            t = len(self.decks) * 4
+            while t > 0 or len(self.unknown_clues) > 10:
+                i = 1
+                while i < len(self.unknown_clues) and self.number_of_matches(self.unknown_clues[:i], all_solutions) > 1:
+                    i += 1
+                self.unknown_clues = self.unknown_clues[:i]
+                random.shuffle(self.unknown_clues)
+                if len(self.unknown_clues) < 6:
+                    break
+                t -= 1
+                if t < -10:
+                    break
+            if len(self.unknown_clues) <= min(tries+3, 10):
                 break
-            t -= 1
-            if t < -10:
-                break
+            tries += 1
 
         self.solved = False
 
@@ -315,10 +341,13 @@ class ImageDeckWidget(widgets.ColumnWidget):
         self.sprites = dict()
         for card in mydeck.cards:
             self.my_dropdown.add_item(card.name, card)
-            if "image_fun" in card.data:
-                self.sprites[card] = card.data["image_fun"]()
-            elif "image_name" in card.data:
-                self.sprites[card] = image.Image(card.data["image_name"], 100, 100)
+            try:
+                if "image_fun" in card.data:
+                    self.sprites[card] = card.data["image_fun"]()
+                elif "image_name" in card.data:
+                    self.sprites[card] = image.Image(card.data["image_name"], 100, 100)
+            except FileNotFoundError:
+                self.sprites[card] = self.mystery_sprite
 
     def on_select(self, *args):
         card = self.my_dropdown.menu.get_current_value()

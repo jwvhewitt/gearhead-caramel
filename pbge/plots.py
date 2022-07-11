@@ -140,7 +140,8 @@ class Plot(object):
     COMMON = False
     rank = 1
     # You are free to set active manually, but it's better to use the
-    # activate and deactivate functions, which trigger an UPDATE.
+    # activate and deactivate functions, which trigger an UPDATE. I would set this property to private but
+    # do you have any idea how much of a pain in the arse that would be? A big pain in the arse. That's how much.
     active = False
 
     _used = 0

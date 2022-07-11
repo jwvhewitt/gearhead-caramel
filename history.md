@@ -1,3 +1,4 @@
+* equip_combatant will now upgrade equipment as appropriate if an NPC has already been equipped
 * faction_list from design files now gets error checked
 * Building TerrSets now record their footprint
 * Personal scale armor will now show armor rating and damage

@@ -76,6 +76,13 @@ class NPCSusCard(pbge.okapipuzzle.NounSusCard):
         self.data["frame"] = 1
 
 
+class VerbSusCardFeaturingNPC(pbge.okapipuzzle.VerbSusCard):
+    def __init__(self, name, to_verb, verbed, did_not_verb, npc, role=pbge.okapipuzzle.SUS_VERB, data=None):
+        super().__init__(name, to_verb, verbed, did_not_verb, npc, role, data)
+        self.data["image_fun"] = npc.get_portrait
+        self.data["frame"] = 1
+
+
 class InvolvedIfCluesRemainAnd(object):
     # This Involvement returns True if there are unknown clue cards remaining and some other inolvement also returns
     # True.
@@ -104,6 +111,22 @@ class InvolvedIfAssociatedCluesRemainAnd(object):
                     any([c.gameob is ob for c in self.deck_to_check.cards]) and self.other_involvement(camp, ob))
         else:
             return (self.puzzle.unknown_clues and any([c.is_involved(ob) for c in self.puzzle.unknown_clues]) and
+                    any([c.gameob is ob for c in self.deck_to_check.cards]))
+
+class InvolvedIfUnassociatedCluesRemainAnd(object):
+    # This Involvement returns True if there are unknown clue cards remaining which DON'T involve ob and some other
+    # inolvement also returns True.
+    def __init__(self, puzzle, deck_to_check, other_involvement=None):
+        self.puzzle = puzzle
+        self.deck_to_check = deck_to_check
+        self.other_involvement = other_involvement
+
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        if self.other_involvement:
+            return (self.puzzle.unknown_clues and any([not c.is_involved(ob) for c in self.puzzle.unknown_clues]) and
+                    any([c.gameob is ob for c in self.deck_to_check.cards]) and self.other_involvement(camp, ob))
+        else:
+            return (self.puzzle.unknown_clues and any([not c.is_involved(ob) for c in self.puzzle.unknown_clues]) and
                     any([c.gameob is ob for c in self.deck_to_check.cards]))
 
 

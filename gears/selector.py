@@ -159,12 +159,20 @@ def random_pilot(rank=25, current_year=158, can_cyberize=None, **kwargs):
 def get_equipment_that_fits(holder: base.BaseGear, type_tag, price_limit):
     candidates = list()
     for part in DESIGN_LIST:
-        if type_tag in part.shop_tags and holder.can_equip(part) and part.cost <= price_limit:
+        if type_tag in part.shop_tags and holder.can_equip(part, check_slots=False) and part.cost <= price_limit:
             candidates.append(part)
     if candidates:
         candidates.sort(key=lambda p: abs(p.cost - price_limit))
         n = min(len(candidates)-1, 5)
         myitem = copy.deepcopy(candidates[random.randint(0, n)])
+        if not holder.can_equip(myitem):
+            existing_items = [i for i in holder.inv_com if i.slot == myitem.slot]
+            best_item = max(existing_items, key=lambda i: i.cost)
+            if best_item.cost < myitem.cost:
+                for ei in existing_items:
+                    holder.inv_com.remove(ei)
+            else:
+                return
         holder.inv_com.append(myitem)
 
 
@@ -180,7 +188,7 @@ def equip_combatant(npc: base.Character):
         if isinstance(part, base.Module):
             # Try and add some armor.
             get_equipment_that_fits(part, tags.ST_CLOTHING, spending_limit // 2)
-        elif isinstance(part, base.Hand) and weapon_types:
+        elif isinstance(part, (base.Hand, base.Mount)) and weapon_types:
             get_equipment_that_fits(part, weapon_types.pop(random.randint(0, len(weapon_types) - 1)), spending_limit)
 
 def get_random_loot(rank, amount, allowed_tags):
