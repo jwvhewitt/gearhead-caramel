@@ -1933,6 +1933,24 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[I_AM_STILL_STANDING]": {
+        # A person is injured or sick, but minimizing it.
+        Default: ["I'm still standing up.", "I'm still conscious."
+                  ],
+        personality.Cheerful: ["I'm sure if I were really hurt I would have fainted."
+                               ],
+        personality.Grim: ["I'm still breathing.", "I've been in worse shape before."
+                           ],
+        personality.Easygoing: ["I'm okay... just... dandy."
+                                ],
+        personality.Passionate: ["I'm fine, and I refuse to let my body tell me otherwise!",
+                                 ],
+        personality.Sociable: ["Someone would have told me if I were that badly off.",
+                               ],
+        personality.Shy: ["I'm okay.",
+                          ],
+    },
+
     "[ICANDOTHAT]": {
         # Speaker is responding in the affirmative to a request.
         Default: ["I can do that.",
@@ -1988,6 +2006,23 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I get the distinct impression that I'm not going to fit in here.",
                                ],
         personality.Shy: ["Let's get out of here.",
+                          ],
+    },
+
+    "[I_DONT_FEEL_WELL]": {
+        Default: ["I don't really feel well..."
+                  ],
+        personality.Cheerful: ["I don't want to worry anyone, but I feel sick."
+                               ],
+        personality.Grim: ["I am going to die, there is no point in denying it...",
+                           ],
+        personality.Easygoing: ["Well, I have been strangely [adjective] lately..."
+                                ],
+        personality.Passionate: ["There is a virus in my blood. It must be destroyed!",
+                                 ],
+        personality.Sociable: ["I'll be honest with you, I have been feeling a bit off.",
+                               ],
+        personality.Shy: ["I don't feel good.",
                           ],
     },
 
@@ -2064,6 +2099,23 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[I_FEEL_BETTER_NOW]": {
+        Default: ["I feel much better now."
+                  ],
+        personality.Cheerful: ["Wow, I feel great now!"
+                               ],
+        personality.Grim: ["I no longer feel like I am going to die. Not soon, anyhow.",
+                           ],
+        personality.Easygoing: ["Yeah, I feel a lot better now."
+                                ],
+        personality.Passionate: ["Yes, I feel my power returning!",
+                                 ],
+        personality.Sociable: ["I have to tell you. that really made me feel better.",
+                               ],
+        personality.Shy: ["I feel better.",
+                          ],
+    },
+
     "[I_FORGOT]": {
         # The PC has not even started their task yet. They may need a refresher.
         Default: ["I... what was I supposed to do, again?", "I forgot what I was supposed to do."
@@ -2119,6 +2171,24 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Duty: ["[LISTEN_UP] My scanners just picked up some [enemy_meks] approaching our position.",
                            ],
+    },
+
+    "[I_HAVE_HEARD_ENOUGH]": {
+        # End a conversation that has already gone on too long.
+        Default: ["I think I've heard enough about that."
+                  ],
+        personality.Cheerful: ["It's been fun talking, but I have to go."
+                               ],
+        personality.Grim: ["You are boring me. [GOODBYE]",
+                           ],
+        personality.Easygoing: ["Yeah, I don't think we have anything more to talk about.",
+                                ],
+        personality.Passionate: ["Stop; I have heard enough!",
+                                 ],
+        personality.Sociable: ["Yeah, I think I've heard enough about that for right now.",
+                               ],
+        personality.Shy: ["That's all the info I need.",
+                          ],
     },
 
     "[I_KNOW_THINGS_ABOUT_STUFF]": {
@@ -2238,6 +2308,23 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I think that I should proabably get some pactice.",
                                ],
         personality.Shy: ["I need to practice.",
+                          ],
+    },
+
+    "[INFO:GOODBYE]": {
+        Default: ["Well, that's enough talking for now.", "[GOODBYE]"
+                  ],
+        personality.Cheerful: ["That's fascinating. [GOODBYE]",
+                               ],
+        personality.Grim: ["Your chatter has started to bore me.",
+                           ],
+        personality.Easygoing: ["Y'know, I really better get going.",
+                                ],
+        personality.Passionate: ["Thanks for the info! [GOODBYE]",
+                                 ],
+        personality.Sociable: ["Well, I've enjoyed talking with you, but I really need to go now.",
+                               ],
+        personality.Shy: ["This is when I leave.",
                           ],
     },
 
@@ -2579,6 +2666,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I would personally appreciate your help in this matter.",
                                ],
         personality.Shy: ["Thanks.",
+                          ],
+    },
+
+    "[I_WOULD_HAVE_GOTTEN_AWAY]": {
+        Default: ["I would have gotten away with it too, if not for you damn cavaliers!"
+                  ],
+        personality.Cheerful: ["This is not making me happy!!!",
+                               "Alright, you caught me. Are you happy?"
+                               ],
+        personality.Grim: ["This is just my luck.",
+                           ],
+        personality.Easygoing: ["Oh well. It's a fair cop."
+                                ],
+        personality.Passionate: ["It's impossible, my plan was foolproof! How did you figure it out?"
+                                 ],
+        personality.Sociable: ["You may have caught me, but remember that I have powerful friends...",
+                               ],
+        personality.Shy: ["[SWEAR]",
                           ],
     },
 
@@ -2936,9 +3041,26 @@ DEFAULT_GRAMMAR = {
         personality.DeadZone: ["the moon", "the moon", "the moon", ],
     },
 
+    "[MAYBE_YOU_ARE_RIGHT]": {
+        Default: ["Maybe you're right."
+                  ],
+        personality.Cheerful: ["I'm glad to admit I could be wrong.",
+                               ],
+        personality.Grim: ["It appears that you may be right about this...",
+                           ],
+        personality.Easygoing: ["Yeah, probably.",
+                                ],
+        personality.Passionate: ["I am willing to admit you could be right!",
+                                 ],
+        personality.Sociable: ["I suppose it's possible that you're right about this.",
+                               ],
+        personality.Shy: ["Maybe.",
+                          ],
+    },
+
     "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION]": {
         # data block must include "opinion"
-        Default: ["Maybe you're right; {opinion}."
+        Default: ["Maybe you're right; {opinion}.", "[MAYBE_YOU_ARE_RIGHT]"
                   ],
         personality.Cheerful: ["So really {opinion}?",
                                ],

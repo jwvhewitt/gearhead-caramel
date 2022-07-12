@@ -257,6 +257,85 @@ class BasicDiplomaticChallenge(Plot):
 
         return mylist
 
+#   ****************************
+#   ***  EPIDEMIC_CHALLENGE  ***
+#   ****************************
+
+class ObviouslyIllPerson(Plot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        "{NPC} has been looking sick",
+        offer_msg="I don't know if it's {DISEASE} or something else, but {NPC} at {NPC_SCENE} has definitely been looking unwell.",
+        memo="{NPC} looks sick and may have {DISEASE}.",
+        prohibited_npcs=("NPC",)
+    )
+
+    @classmethod
+    def matches(cls, pstate: PlotState):
+        return "METROSCENE" in pstate.elements
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.EPIDEMIC_CHALLENGE]
+        if self.candidates:
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            self.elements["DISEASE"] = mychallenge.key[0]
+            self.register_element("NPC_SCENE", npc.scene)
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=25)
+            del self.candidates
+            self.add_sub_plot(nart, "NPC_VACATION", ident="VACATION")
+            return True
+
+    def _get_challenge_for_npc(self, nart, npc):
+        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
+        if candidates:
+            return random.choice(candidates)
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
+            self._get_challenge_for_npc(nart, candidate)
+        )
+
+    def _win_the_mission(self, camp):
+        self.elements["CHALLENGE"].advance(camp, 3)
+        self.end_plot(camp)
+
+    def _semi_win(self, camp):
+        self.subplots["VACATION"].freeze_now(camp)
+        self.elements["CHALLENGE"].advance(camp, 1)
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "No, but I can't have {DISEASE}... [I_AM_STILL_STANDING]".format(**self.elements),
+            ContextTag([context.CUSTOM]), subject=self, subject_start=True,
+            data={"reply": "You don't look well. Have you been tested for {DISEASE}?".format(**self.elements)}
+        ))
+
+        ghdialogue.SkillBasedPartyReply(
+            Offer(
+                "[I_FEEL_BETTER_NOW] [THANKS_FOR_HELP]",
+                ContextTag([context.CUSTOMREPLY,]), effect=self._win_the_mission,
+                data={"reply": "I'm a medic; let me treat you."}, subject=self
+            ), camp, mylist, gears.stats.Knowledge, gears.stats.Medicine, self.rank, gears.stats.DIFFICULTY_AVERAGE
+        )
+
+        mylist.append(Offer(
+            "[MAYBE_YOU_ARE_RIGHT] I better not take any chances.".format(**self.elements),
+            ContextTag([context.CUSTOMREPLY]), subject=self, effect=self._semi_win,
+            data={"reply": "At least you should go home and have a rest."}
+        ))
+
+        return mylist
+
+
+
 
 #   *************************
 #   ***  FIGHT_CHALLENGE  ***
@@ -362,6 +441,123 @@ class BasicFightChallenge(Plot):
             mylist.append(Offer(
                 "{}. [DOYOUACCEPTMISSION]".format(self.mission_desc),
                 ContextTag([context.MISSION]), data={"enemy_faction": self.elements["ENEMY_FACTION"]},
+                subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[IWillSendMissionDetails]; [GOODLUCK]",
+                ContextTag([context.ACCEPT]), effect=self.activate_mission,
+                subject=self
+            ))
+
+            mylist.append(Offer(
+                "[UNDERSTOOD] [GOODBYE]",
+                ContextTag([context.DENY]), effect=self.end_plot,
+                subject=self
+            ))
+
+        return mylist
+
+    def t_START(self,camp):
+        if self.LABEL == "DZRE_TEST" and not self.mission_active:
+            self.mission_active = True
+
+    def t_UPDATE(self,camp):
+        if self.mission_seed.ended:
+            self.end_plot(camp)
+
+    def activate_mission(self,camp):
+        self.mission_active = True
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed and self.mission_active:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+
+#   ************************
+#   ***  MAKE_CHALLENGE  ***
+#   ************************
+
+class RecoverTheSupplies(Plot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+    RUMOR = Rumor(
+        "{NPC} is looking for a pilot to recover stolen materials",
+        offer_msg="The materials are needed to make {THING}. You can speak to {NPC} at {NPC_SCENE} if you want the mission.",
+        memo="{NPC} is looking for a pilot to recover the materials needed for {THING}.",
+        prohibited_npcs=("NPC",)
+    )
+
+    @classmethod
+    def matches(cls, pstate: PlotState):
+        return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.MAKE_CHALLENGE]
+        if self.candidates:
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            self.register_element("NPC_SCENE", npc.scene)
+            self.register_element("THING", mychallenge.key[0])
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+
+            mgram = missionbuilder.MissionGrammar(
+                "recover the supplies needed for {THING}".format(**self.elements),
+                "keep my rightfully looted cargo",
+                "I recovered the supplies needed in {METROSCENE}".format(**self.elements),
+                "you stole the cargo that I had just stolen",
+                "you stole supplies that {METROSCENE} needed to make {THING}".format(**self.elements),
+                "I ransomed the cargo that {METROSCENE} needed to make {THING} back to them for a nice profit".format(**self.elements)
+            )
+
+            sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+            # Create the mission seed. Turn the defeat_trigger off because we'll be handling that manually.
+            self.mission_seed = missionbuilder.BuildAMissionSeed(
+                nart.camp, "{NPC}'s Mission".format(**self.elements),
+                self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+                allied_faction=npc.faction,
+                enemy_faction=plotutility.RandomBanditCircle(nart.camp), rank=self.rank,
+                objectives=[missionbuilder.BAMO_DEFEAT_THE_BANDITS, missionbuilder.BAMO_RECOVER_CARGO],
+                one_chance=True,
+                scenegen=sgen, architecture=archi, mission_grammar=mgram,
+                cash_reward=120,
+                on_win=self._win_the_mission, defeat_trigger_on=False
+            )
+
+            self.mission_active = False
+            del self.candidates
+            return True
+
+    def _get_challenge_for_npc(self, nart, npc):
+        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
+        if candidates:
+            return random.choice(candidates)
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
+            self._get_challenge_for_npc(nart, candidate)
+        )
+
+    def _win_the_mission(self, camp):
+        comp = self.mission_seed.get_completion(True)
+        self.elements["CHALLENGE"].advance(camp, max((comp-61)//15, 1))
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.mission_active:
+            mylist.append(Offer(
+                "[LOOKING_FOR_CAVALIER] Some bandits have captured the materials we need for {THING}.".format(**self.elements),
+                ContextTag([context.HELLO, context.MISSION])
+            ))
+
+            mylist.append(Offer(
+                "Your job will be to eliminate the bandits and recover the needed supplies. [DOYOUACCEPTMISSION]",
+                ContextTag([context.MISSION]),
                 subject=self, subject_start=True
             ))
 

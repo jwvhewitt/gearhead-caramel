@@ -33,11 +33,16 @@ class ChallengeStarterPlot(Plot):
         self.elements["CHALLENGE"].activate(camp)
 
     def CHALLENGE_WIN(self, camp):
+        pbge.BasicNotification("Challenge complete!", count=160)
         camp.check_trigger("WIN", self)
         self.end_plot(camp)
 
     def _advance_challenge(self, camp):
         self.elements["CHALLENGE"].advance(camp, self.DEFAULT_CHALLENGE_STEP)
+
+    def end_plot(self, camp, total_removal=False):
+        super().end_plot(camp, total_removal)
+        self.elements["CHALLENGE"].deactivate(camp)
 
 
 #   **************************************
@@ -147,6 +152,7 @@ class DethroneByPopularUprising(ChallengeStarterPlot):
         ))
 
         return True
+
 
 #   ********************************
 #   ***  DIPLOMACY_TO_DISCREDIT  ***
@@ -332,3 +338,124 @@ class DiplomacyToDiscredit(ChallengeStarterPlot):
         ))
 
         return True
+
+
+#   **************************
+#   ***  EPIDEMIC_STARTER  ***
+#   **************************
+#
+#   Just a starter for the Epidemic challenge.
+#
+# Needed Elements:
+#    METROSCENE, METRO, MISSION_GATE, DISEASE, THECURE
+
+class EpidemicStarter(ChallengeStarterPlot):
+    LABEL = "EPIDEMIC_STARTER"
+    scope = "METRO"
+    active = False
+
+    def custom_init(self, nart):
+        self.register_element("CHALLENGE", Challenge(
+            "Treat {DISEASE}".format(**self.elements),
+            ghchallenges.EPIDEMIC_CHALLENGE, [self.elements["DISEASE"], self.elements["THECURE"]],
+            involvement=ghchallenges.InvolvedMetroResidentNPCs(self.elements["METROSCENE"]), active=False,
+            oppoffers=(
+                AutoOffer(
+                    dict(
+                        msg="[I_DONT_FEEL_WELL] Could you check me out?".format(**self.elements),
+                        context=ContextTag([context.CUSTOM,]),
+                        data={
+                            "reply": "How are you feeling? You look like you might be coming down with {DISEASE}.".format(**self.elements)
+                        }, dead_end=True
+                    ), active=True, uses=99,
+                    # No access fun here because InvolvedIfInfected already checks the party's Medicine skill.
+                    involvement=ghchallenges.InvolvedIfInfected(self.elements["METROSCENE"]),
+                    npc_effect=self.attempt_treatment
+                ),
+            ), memo=pbge.challenges.ChallengeMemo(
+                "Many people in {METROSCENE} are infected with {DISEASE}.".format(**self.elements)
+            ), memo_active=True
+        ))
+
+        return True
+
+    def attempt_treatment(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
+        pbge.alert("You attempt to treat {} for {}...".format(npc, self.elements["DISEASE"]))
+        if camp.make_skill_roll(
+            gears.stats.Knowledge, gears.stats.Medicine, self.rank, difficulty=gears.stats.DIFFICULTY_HARD,
+        ):
+            pbge.alert("{} is cured!".format(npc))
+            camp.dole_xp(50)
+            npc.relationship.history.append(gears.relationships.Memory(
+                "you cured me of {DISEASE}".format(**self.elements),
+                "I cured you of {DISEASE}".format(**self.elements),
+                reaction_mod=15, memtags=(gears.relationships.MEM_AidedByPC,)
+            ))
+            self._advance_challenge(camp)
+        else:
+            pbge.alert("You fail. {} goes home to rest.".format(npc))
+            myvac = game.content.load_dynamic_plot(
+                camp, "NPC_VACATION", PlotState().based_on(self, update_elements={"NPC": npc})
+            )
+            myvac.freeze_now(camp)
+
+
+#   ****************************
+#   ***  MAKE_DRUGS_STARTER  ***
+#   ****************************
+#
+#   A starter for a MAKE challenge where the thing being made is drugs. Or medicine, I guess.
+#
+# Needed Elements:
+#    METROSCENE, METRO, MISSION_GATE, DISEASE, THECURE
+
+class MakeDrugsStarter(ChallengeStarterPlot):
+    LABEL = "MAKE_DRUGS_STARTER"
+    scope = "METRO"
+    active = False
+
+    def custom_init(self, nart):
+        self.register_element("CHALLENGE", Challenge(
+            "Make {THECURE}".format(**self.elements),
+            ghchallenges.MAKE_CHALLENGE, [self.elements["THECURE"],],
+            involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"]), active=False,
+            oppoffers=(
+                AutoOffer(
+                    dict(
+                        msg="[THANKS_FOR_HELP] We'll be able to defeat {DISEASE} soon.".format(**self.elements),
+                        context=ContextTag([context.CUSTOM,]),
+                        data={
+                            "reply": "I can help you to synthesize {THECURE}.".format(**self.elements)
+                        }, dead_end=True, effect=self._advance_challenge
+                    ), active=True, uses=99,
+                    access_fun=ghchallenges.AccessSkillRoll(gears.stats.Craft, gears.stats.Science, self.rank),
+                    involvement=ghchallenges.InvolvedMetroTaggedNPCs(self.elements["METROSCENE"], (gears.tags.Medic,))
+                ),
+            ), data={"why_make_it": "we need {THECURE} to treat {DISEASE}".format(**self.elements)},
+            memo=pbge.challenges.ChallengeMemo(
+                "Doctors in {METROSCENE} are working hard to synthesize {THECURE} to treat {DISEASE}.".format(**self.elements)
+            ), memo_active=True
+        ))
+
+        return True
+
+    def attempt_treatment(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
+        pbge.alert("You attempt to treat {} for {}...".format(npc, self.elements["DISEASE"]))
+        if camp.make_skill_roll(
+            gears.stats.Knowledge, gears.stats.Medicine, self.rank, difficulty=gears.stats.DIFFICULTY_HARD,
+        ):
+            pbge.alert("{} is cured!".format(npc))
+            camp.dole_xp(50)
+            npc.relationship.history.append(gears.relationships.Memory(
+                "you cured me of {DISEASE}".format(**self.elements),
+                "I cured you of {DISEASE}".format(**self.elements),
+                reaction_mod=15, memtags=(gears.relationships.MEM_AidedByPC,)
+            ))
+            self._advance_challenge(camp)
+        else:
+            pbge.alert("You fail. {} goes home to rest.".format(npc))
+            myvac = game.content.load_dynamic_plot(
+                camp, "NPC_VACATION", PlotState().based_on(self, update_elements={"NPC": npc})
+            )
+            myvac.freeze_now(camp)
+

@@ -243,7 +243,7 @@ class OkapiPuzzle:
 
         tries = 0
 
-        while tries < 10:
+        while tries < 20:
             self.unknown_clues = self.generate_all_clues()
             self.known_clues = list()
             all_solutions = self.generate_all_solutions()

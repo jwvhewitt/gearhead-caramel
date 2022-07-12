@@ -13,6 +13,91 @@ from game.content import adventureseed, GHNarrativeRequest
 from . import missionbuilder, rwme_objectives, campfeatures
 
 
+class CultOfPersonality(Plot):
+    # Elements:
+    #   METROSCENE, METRO
+    # The city leader has established dominance over the city through fanatical followers
+    LABEL = "CONSEQUENCE_CULTOFPERSONALITY"
+    active = True
+    scope = "METRO"
+
+    QOL = gears.QualityOfLife(
+        -2, -1, 0, -3, 0
+    )
+
+    def custom_init(self, nart):
+        npc = self.register_element("NPC", self.elements["METRO"].city_leader)
+        self.elements["ORIGINAL_FACTION"] = self.elements["METROSCENE"].faction
+        return True
+
+    def get_dialogue_grammar(self, npc: gears.base.Character, camp: gears.GearHeadCampaign):
+        mygram = dict()
+
+        if npc is not self.elements["NPC"]:
+            mygram["[CURRENT_EVENTS]"] = [
+                "Life is better now... {NPC} says so.".format(**self.elements),
+                "[THIS_IS_A_SECRET] I'm not sure {NPC} is such a good leader.".format(**self.elements)
+            ]
+
+        return mygram
+
+    def t_UPDATE(self, camp):
+        # This plot ends if the metroscene faction changes or the NPC is deposed.
+        if self.elements["METROSCENE"].faction is not self.elements["ORIGINAL_FACTION"]:
+            self.end_plot(camp, True)
+        elif self.elements["NPC"] and self.elements["METRO"].city_leader is not self.elements["NPC"]:
+            self.end_plot(camp, True)
+
+
+class Injustice(Plot):
+    # Elements:
+    #   METROSCENE, METRO
+    # An injustice stains this city.
+    LABEL = "CONSEQUENCE_INJUSTICE"
+    active = True
+    scope = "METRO"
+
+    QOL = gears.QualityOfLife(
+        stability=-3
+    )
+
+
+class Kleptocracy(Plot):
+    # Elements:
+    #   METROSCENE, METRO
+    # The city leader is looting the city for personal gain
+    LABEL = "CONSEQUENCE_KLEPTOCRACY"
+    active = True
+    scope = "METRO"
+
+    QOL = gears.QualityOfLife(
+        -3, -1, -2, -1, -2
+    )
+
+    def custom_init(self, nart):
+        npc = self.register_element("NPC", self.elements["METRO"].city_leader)
+        self.elements["ORIGINAL_FACTION"] = self.elements["METROSCENE"].faction
+        return True
+
+    def get_dialogue_grammar(self, npc: gears.base.Character, camp: gears.GearHeadCampaign):
+        mygram = dict()
+
+        if npc is not self.elements["NPC"]:
+            mygram["[CURRENT_EVENTS]"] = [
+                "{NPC} is a corrupt leader, but no-one dare oppose {NPC.gender.object_pronoun}.".format(**self.elements),
+                "[THIS_IS_A_SECRET] {NPC} has been robbing {METROSCENE} blind.".format(**self.elements)
+            ]
+
+        return mygram
+
+    def t_UPDATE(self, camp):
+        # This plot ends if the metroscene faction changes or the NPC is deposed.
+        if self.elements["METROSCENE"].faction is not self.elements["ORIGINAL_FACTION"]:
+            self.end_plot(camp, True)
+        elif self.elements["NPC"] and self.elements["METRO"].city_leader is not self.elements["NPC"]:
+            self.end_plot(camp, True)
+
+
 class MilitaryOccupation(Plot):
     # Elements:
     #   METROSCENE, METRO

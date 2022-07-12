@@ -1,3 +1,7 @@
+* Fixed a rare infinite recursion bug in end_plot
+* You can now say goodbye from an info offer
+* Added LOCAL_PROBLEM plots to replace the old Mechanical Tarot
+* Left mouse click will now escape from memo browser
 * equip_combatant will now upgrade equipment as appropriate if an NPC has already been equipped
 * faction_list from design files now gets error checked
 * Building TerrSets now record their footprint

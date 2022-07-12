@@ -83,9 +83,8 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")
 
-        # Add the local tarot.
-        self.add_sub_plot(nart, "TOWNHALL")
-        self.add_sub_plot(nart, "LOCAL_PROBLEM")
+        # Test a local problem.
+        self.add_sub_plot(nart, "TEST_LOCAL_PROBLEM", necessary=False)
 
         # Add the random world map encounter objective test.
         self.add_sub_plot(nart, "TEST_RWMO", necessary=False)

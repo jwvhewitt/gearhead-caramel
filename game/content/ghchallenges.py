@@ -1,5 +1,5 @@
 import gears
-
+import random
 
 #   ************************************
 #   ***  DETHRONE  CHALLENGE  STUFF  ***
@@ -33,11 +33,40 @@ DIPLOMACY_CHALLENGE = "DIPLOMACY_CHALLENGE"
 #
 
 
+#   *************************************
+#   ***  EPIDEMIC  CHALLENGE  STUFF  ***
+#   *************************************
+
+EPIDEMIC_CHALLENGE = "EPIDEMIC_CHALLENGE"
+
+
+# The involvement for a diplomacy challenge identifies the NPCs in the town with the epidemic.
+# The key for a diplomacy challenge is (Disease Name, Cure Name)
+# No particular data required beyond the key.
+#
+
+class InvolvedIfInfected(object):
+    # This Involvement is used for the epidemic autooffer. Returns True if this NPC's "secret number" matches.
+    def __init__(self, metroscene):
+        self.metroscene = metroscene
+        self.infectiousness = random.randint(3, 6)
+
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        return (isinstance(ob, gears.base.Character) and ob.scene.get_metro_scene() is self.metroscene and
+                camp.is_not_lancemate(ob) and self._is_infected(ob)) and camp.party_has_skill(gears.stats.Medicine)
+
+    def _is_infected(self, npc):
+        secret_number = sum([npc.statline[s] for s in gears.stats.PRIMARY_STATS]) + npc.birth_year + ord(npc.name[-1])
+        return secret_number % self.infectiousness == 0
+
+
 #   *********************************
 #   ***  FIGHT  CHALLENGE  STUFF  ***
 #   *********************************
 
 FIGHT_CHALLENGE = "FIGHT_CHALLENGE"
+
+
 # The involvement for a fight challenge lists the NPCs who might give the PC a combat mission
 # The key for a fight challenge is (Faction_to_be_fought,)
 # The data for a fight challenge should include:
@@ -52,9 +81,9 @@ class DescribedObjective(object):
     # objective is an objective from the missionbuilder.py unit or equivalent
     # mission_desc is a primary clause that might be used to describe this mission; may include {ENEMY_FACTION}
     def __init__(self, objective, mission_desc,
-                 objective_pp = "[defeat_you]", objective_ep = "[defeat_you]",
-                 win_pp = "I defeated you", win_ep = "you defeated me",
-                 lose_pp = "you defeated me", lose_ep = "I defeated you"):
+                 objective_pp="[defeat_you]", objective_ep="[defeat_you]",
+                 win_pp="I defeated you", win_ep="you defeated me",
+                 lose_pp="you defeated me", lose_ep="I defeated you"):
         self.objective = objective
         self.mission_desc = mission_desc
         self.objective_pp = objective_pp
@@ -63,6 +92,21 @@ class DescribedObjective(object):
         self.win_ep = win_ep
         self.lose_pp = lose_pp
         self.lose_ep = lose_ep
+
+
+#   ********************************
+#   ***  MAKE  CHALLENGE  STUFF  ***
+#   ********************************
+
+MAKE_CHALLENGE = "MAKE_CHALLENGE"
+
+
+# The involvement for a make challenge identifies the NPCs who want this thing made
+# The key for a make challenge is (thing_to_be_made)
+# The data for a make challenge should include:
+#   why_make_it: A string describing why the stuff is being made; independent clause
+#
+
 
 #   ***********************************
 #   ***  MYSTERY  CHALLENGE  STUFF  ***
@@ -113,6 +157,7 @@ class InvolvedIfAssociatedCluesRemainAnd(object):
             return (self.puzzle.unknown_clues and any([c.is_involved(ob) for c in self.puzzle.unknown_clues]) and
                     any([c.gameob is ob for c in self.deck_to_check.cards]))
 
+
 class InvolvedIfUnassociatedCluesRemainAnd(object):
     # This Involvement returns True if there are unknown clue cards remaining which DON'T involve ob and some other
     # inolvement also returns True.
@@ -135,13 +180,13 @@ class InvolvedIfUnassociatedCluesRemainAnd(object):
 #   ***************************************
 
 RAISE_ARMY_CHALLENGE = "RAISE_ARMY_CHALLENGE"
+
+
 # The involvement for a raise_army challenge identifies the NPCs who can potentially join the army
 # The key for a raise army challenge is (city_or_faction_that_needs_army,)
 # The data for a raise army challenge should include:
 #   threat: The faction or NPC that the army needs to be raised to oppose; may be None
 #
-
-
 
 #   **********************
 #   ***  INVOLVEMENTS  ***
@@ -172,6 +217,18 @@ class InvolvedMetroResidentNPCs(object):
                 camp.is_not_lancemate(ob) and ob not in self.exclude)
 
 
+class InvolvedMetroTaggedNPCs(object):
+    # Return True if ob is a non-lancemate NPC with the required tags in the provided Metro area.
+    def __init__(self, metroscene, tags=()):
+        self.metroscene = metroscene
+        self.tags = set()
+        self.tags.update(tags)
+
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        return (isinstance(ob, gears.base.Character) and ob.scene.get_metro_scene() is self.metroscene and
+                camp.is_not_lancemate(ob) and self.tags.intersection(ob.get_tags()))
+
+
 #   ***************************
 #   ***  ACCESS  FUNCTIONS  ***
 #   ***************************
@@ -179,7 +236,7 @@ class InvolvedMetroResidentNPCs(object):
 class AccessSocialRoll(object):
     # Return True if the party can pass a social skill roll.
     def __init__(self, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_AVERAGE,
-                          untrained_ok=False):
+                 untrained_ok=False):
         self.stat_id = stat_id
         self.skill_id = skill_id
         self.rank = rank
@@ -188,7 +245,20 @@ class AccessSocialRoll(object):
 
     def __call__(self, camp: gears.GearHeadCampaign, ob):
         return (isinstance(ob, gears.base.Character) and
-                camp.social_skill_roll(ob, self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok, no_random=True))
+                camp.social_skill_roll(ob, self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok,
+                                       no_random=True))
 
 
+class AccessSkillRoll(object):
+    # Return True if the party can pass a social skill roll.
+    def __init__(self, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_AVERAGE,
+                 untrained_ok=False):
+        self.stat_id = stat_id
+        self.skill_id = skill_id
+        self.rank = rank
+        self.difficulty = difficulty
+        self.untrained_ok = untrained_ok
 
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        return (camp.make_skill_roll(self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok,
+                                     no_random=True))

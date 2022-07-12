@@ -461,6 +461,7 @@ class Plot(object):
         # Ending an adventure is best done when the PC leaves the adventure.
         # NOTE: Depending on how the plot is ended, this method might be called several times.
         #  Better it be called too often than not to be called at all. Just keep it in mind.
+        was_active = self.active
         self.active = False
         for sp in self.subplots.values():
             if total_removal or not sp.active:
@@ -478,7 +479,8 @@ class Plot(object):
         for coef in self.call_on_end:
             coef(camp)
 
-        camp.check_trigger('UPDATE')
+        if was_active:
+            camp.check_trigger('UPDATE')
 
     def update(self, camp):
         if self.expiration and self.expiration(camp, self):

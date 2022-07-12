@@ -179,6 +179,10 @@ INFO_CUSTOMREPLY = Reply("{reply}",
                          destination=Cue(ContextTag([context.CUSTOMREPLY])),
                          context=ContextTag([context.INFO]))
 
+INFO_GOODBYE = Reply("[INFO:GOODBYE]",
+                  context=ContextTag([context.INFO]),
+                  destination=Cue(ContextTag([context.GOODBYE])))
+
 INFO_INFO = Reply("[INFO:INFO]",
                   context=ContextTag([context.INFO]),
                   destination=Cue(ContextTag([context.INFO])))

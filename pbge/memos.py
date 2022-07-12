@@ -87,6 +87,8 @@ class MemoBrowser(widgets.Widget):
                 self.next_memo()
             elif ev.key == pygame.K_ESCAPE:
                 self.keep_browsing = False
+        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 3:
+            self.keep_browsing = False
 
     def activate(self):
         my_state.widgets.append(self)
