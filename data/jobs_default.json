@@ -434,6 +434,11 @@
     "local_requirements": ["DeadZone"]
   },
   {
+    "name": "Architect",
+    "skills": ["Computers","Repair"],
+    "tags": ["Craftsperson"]
+  },
+  {
     "name": "Doctor",
     "skills": ["Medicine","Biotechnology"],
     "tags": ["Medic"]

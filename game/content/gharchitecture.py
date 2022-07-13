@@ -37,9 +37,9 @@ class RundownFactoryDecor(OmniDec):
 
 
 class TechDungeonDecor(OmniDec):
-    WALL_DECOR = (ghterrain.TekruinsWallDecor,ghterrain.SteelPipe)
-    WALL_FILL_FACTOR = 0.33
-    FLOOR_DECOR = (ghterrain.Bones,ghterrain.Tekdebris)
+    WALL_DECOR = (ghterrain.TekruinsWallDecor,ghterrain.SteelPipe, ghterrain.VentFanTerrain, ghterrain.TekruinsWallDecor)
+    WALL_FILL_FACTOR = 0.40
+    FLOOR_DECOR = (ghterrain.Bones, ghterrain.Tekdebris)
     FLOOR_FILL_FACTOR = 0.07
 
 

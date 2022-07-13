@@ -420,6 +420,47 @@ class PlaceAMember(Plot):
         return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
+#   **************************
+#   ***  POST_PLOT_REWARD  ***
+#   **************************
+#
+# Sometimes you want to end a plot but also you want to give the player a reward. This is an extra plot that will allow
+# the reward to be given.
+#
+# Needed Elements: NPC, PC_REPLY
+
+class PostPlotReward(Plot):
+    LABEL = "POST_PLOT_REWARD"
+    active = True
+    scope = True
+
+    def custom_init(self, nart):
+        self.reward = gears.selector.calc_mission_reward(self.rank, random.randint(100,300))
+        self.memo = Memo("You helped {NPC} at {NPC.scene}".format(**self.elements), self.elements["NPC"].scene)
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[THANKS_FOR_HELP] Here's a reward of ${:,} for your actions.".format(self.reward),
+            ContextTag([context.CUSTOM,]), data={"reply": self.elements["PC_REPLY"]},
+            effect=self.get_reward
+        ))
+
+        return mylist
+
+    def get_reward(self, camp: gears.GearHeadCampaign):
+        camp.credits += self.reward
+        self.elements["NPC"].relationship.reaction_mod += 10
+        self.end_plot(camp, True)
+
+    def t_UPDATE(self, camp):
+        # If this NPC dies, no reward. :(
+        if not self.elements["NPC"].is_operational():
+            self.end_plot(camp, True)
+
+
 #  ************************
 #  ***   QOL_REPORTER   ***
 #  ************************

@@ -400,6 +400,49 @@ class EpidemicStarter(ChallengeStarterPlot):
             myvac.freeze_now(camp)
 
 
+#   *******************************
+#   ***  MAKE_BUILDING_STARTER  ***
+#   *******************************
+#
+#   A starter for a MAKE challenge where the thing being made is a building or some type of infrastructure.
+#
+# Needed Elements:
+#    METROSCENE, METRO, MISSION_GATE, BUILDING_NAME, BUILDING_NEED
+# BUILDING_NAME is just what it sounds like.
+# BUILDING_NEED is a string describing why_make_it
+
+class MakeBuildingStarter(ChallengeStarterPlot):
+    LABEL = "MAKE_BUILDING_STARTER"
+    scope = "METRO"
+    active = False
+
+    def custom_init(self, nart):
+        self.register_element("CHALLENGE", Challenge(
+            "Make {BUILDING_NAME}".format(**self.elements),
+            ghchallenges.MAKE_CHALLENGE, [self.elements["BUILDING_NAME"],],
+            involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"]), active=False,
+            oppoffers=(
+                AutoOffer(
+                    dict(
+                        msg="[THANKS_FOR_HELP] We'll be able to finish {BUILDING_NAME} soon.".format(**self.elements),
+                        context=ContextTag([context.CUSTOM,]),
+                        data={
+                            "reply": "Do you need help building {BUILDING_NAME}?".format(**self.elements)
+                        }, dead_end=True, effect=self._advance_challenge
+                    ), active=True, uses=99,
+                    access_fun=ghchallenges.AccessSkillRoll(gears.stats.Body, gears.stats.Repair, self.rank, untrained_ok=True),
+                    involvement=ghchallenges.InvolvedMetroTaggedNPCs(self.elements["METROSCENE"], (gears.tags.Laborer, gears.tags.Craftsperson))
+                ),
+            ), data={"why_make_it": "{BUILDING_NEED}".format(**self.elements)},
+            memo=pbge.challenges.ChallengeMemo(
+                "{METROSCENE} has started constructing {BUILDING_NAME}; {BUILDING_NEED}.".format(**self.elements)
+            ), memo_active=True
+        ))
+
+        return True
+
+
+
 #   ****************************
 #   ***  MAKE_DRUGS_STARTER  ***
 #   ****************************
@@ -438,24 +481,4 @@ class MakeDrugsStarter(ChallengeStarterPlot):
         ))
 
         return True
-
-    def attempt_treatment(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
-        pbge.alert("You attempt to treat {} for {}...".format(npc, self.elements["DISEASE"]))
-        if camp.make_skill_roll(
-            gears.stats.Knowledge, gears.stats.Medicine, self.rank, difficulty=gears.stats.DIFFICULTY_HARD,
-        ):
-            pbge.alert("{} is cured!".format(npc))
-            camp.dole_xp(50)
-            npc.relationship.history.append(gears.relationships.Memory(
-                "you cured me of {DISEASE}".format(**self.elements),
-                "I cured you of {DISEASE}".format(**self.elements),
-                reaction_mod=15, memtags=(gears.relationships.MEM_AidedByPC,)
-            ))
-            self._advance_challenge(camp)
-        else:
-            pbge.alert("You fail. {} goes home to rest.".format(npc))
-            myvac = game.content.load_dynamic_plot(
-                camp, "NPC_VACATION", PlotState().based_on(self, update_elements={"NPC": npc})
-            )
-            myvac.freeze_now(camp)
 

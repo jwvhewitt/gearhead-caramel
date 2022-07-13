@@ -14,8 +14,6 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
 from pbge.memos import Memo
-from . import dd_customobjectives
-from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
 from . import missionbuilder, rwme_objectives
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
@@ -29,8 +27,119 @@ from .shops_plus import get_building
 #    METROSCENE, METRO, MISSION_GATE
 #
 
+
+class DeadzoneDefenseSpending(Plot):
+    LABEL = "LOCAL_PROBLEM"
+    scope = "METRO"
+    UNIQUE = True
+    QOL = gears.QualityOfLife(defense=-2)
+    active = True
+
+    RUMOR = Rumor(
+        "{NPC} has been designing {BUILDING_NAME}",
+        offer_msg="As you know, {METROSCENE}'s defenses aren't great. So {NPC} had the brilliant idea to build {BUILDING_NAME}. But work has been going slow so far; maybe you can talk to {NPC.gender.object_pronoun} about it at {NPC_SCENE}.",
+        memo="{NPC} is designing {BUILDING_NAME} for {METROSCENE}, but progress is slow.",
+        prohibited_npcs=("NPC",)
+    )
+
+    PROJECTS = (
+        {"BUILDING_NAME": "a new hangar", "BUILDING_NEED": "the town needs to expand its mecha force"},
+        {"BUILDING_NAME": "anti-mek artillery", "BUILDING_NEED": "this will help protect the town center"},
+        {"BUILDING_NAME": "long range sensors", "BUILDING_NEED": "right now the town can't detect incoming raiders"},
+        {"BUILDING_NAME": "a mecha workshop", "BUILDING_NEED": "this will keep the town militia well equipped"},
+        {"BUILDING_NAME": "a ginormous laser cannon", "BUILDING_NEED": "the town can use it to zap invaders"}
+    )
+
+    @classmethod
+    def matches(cls, pstate):
+        return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or \
+               cls.LABEL == "TEST_LOCAL_PROBLEM"
+
+    def custom_init(self, nart):
+        # Step one: Create the architect.
+        scene = self.seek_element(
+            nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"],
+            backup_seek_func=self._is_ok_scene
+        )
+
+        npc = self.register_element(
+            "NPC",
+            gears.selector.random_character(
+                rank=random.randint(self.rank, self.rank+10), job=gears.jobs.ALL_JOBS["Architect"],
+                mecha_colors=gears.color.random_mecha_colors(),
+                local_tags=tuple(self.elements["METROSCENE"].attributes),
+            ), dident="NPC_SCENE")
+
+        # Step two: Decide on a project.
+        project = random.choice(self.PROJECTS)
+        self.elements.update(project)
+
+        # Step three: Prepare the challenge starter.
+        self.add_sub_plot(nart, "MAKE_BUILDING_STARTER", ident="MAKE_BUILDING")
+
+        self.original_faction = self.elements["METROSCENE"].faction
+        self.started_building = False
+
+        return True
+
+    def t_UPDATE(self, camp):
+        # If this city gets taken over by some other faction, this building project gets cancelled. :(
+        if self.elements["METROSCENE"].faction is not self.original_faction:
+            self.end_plot(camp, True)
+
+    def _is_best_scene(self, nart, candidate):
+        return (isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+                and gears.tags.SCENE_GOVERNMENT in candidate.attributes)
+
+    def _is_ok_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.started_building:
+            mylist.append(Offer(
+                "[HELLO] I tell you, it's impossible to get people to cooperate in {METROSCENE}, no matter how important the project is.".format(**self.elements),
+                ContextTag([context.HELLO])
+            ))
+
+            mylist.append(Offer(
+                "I've been designing {BUILDING_NAME} to defend {METROSCENE}. Obviously, {BUILDING_NEED}. The plans are ready but work has barely begun.".format(**self.elements),
+                ContextTag([context.CUSTOM]), subject_start=True, subject=self,
+                data={"reply": "What are you working on?"}
+            ))
+
+            mylist.append(Offer(
+                "Please do so. I know we have enough laborers and craftspeople in {METROSCENE}; I'm just not sure we have all the required materials.".format(**self.elements),
+                ContextTag([context.CUSTOMREPLY]), subject=self, effect=self._start_mission,
+                data={"reply": "Maybe I could try to convince some people to hurry up."}
+            ))
+
+            mylist.append(Offer(
+                "[GOODBYE] Hopefully the job will get finished before the next time {METROSCENE} is invaded.".format(**self.elements),
+                ContextTag([context.CUSTOMREPLY]), subject=self, dead_end=True,
+                data={"reply": "Well, good luck on that."}
+            ))
+
+        return mylist
+
+    def _start_mission(self, camp):
+        self.subplots["MAKE_BUILDING"].activate(camp)
+        self.started_building = True
+        self.RUMOR = None
+        self.memo = None
+
+    def MAKE_BUILDING_WIN(self, camp):
+        pbge.alert("{METROSCENE} has finally completed work on {BUILDING_NAME}.".format(**self.elements))
+        self.end_plot(camp, True)
+        if self.elements["NPC"].is_operational():
+            content.load_dynamic_plot(camp, "POST_PLOT_REWARD", PlotState().based_on(
+                self, update_elements={"PC_REPLY":"{METROSCENE} has constructed {BUILDING_NAME}.".format(**self.elements)}
+            ))
+
+
 class SregorThrunet(Plot):
-    LABEL = "TEST_LOCAL_PROBLEM"
+    LABEL = "LOCAL_PROBLEM"
     scope = "METRO"
     UNIQUE = True
     QOL = gears.QualityOfLife(prosperity=-3)
@@ -75,7 +184,8 @@ class SregorThrunet(Plot):
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(
-            intscene, gharchitecture.ScrapIronWorkshop(decorate=gharchitecture.FactoryDecor())
+            intscene, gharchitecture.ScrapIronWorkshop(floor_terrain=ghterrain.GrateFloor,
+                                                       decorate=gharchitecture.FactoryDecor())
         )
         self.register_scene(nart, intscene, intscenegen, ident="NPC_SCENE", dident="METROSCENE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
@@ -96,12 +206,31 @@ class SregorThrunet(Plot):
 
         self.thrunet_broken = True
         self.npc_impressed = False
+        self.deserve_reward = True
 
+        # Generate the dungeon.
         my_dungeon = dungeonmaker.DungeonMaker(
             nart, self, intscene, "{METROSCENE} Undercity".format(**self.elements),
-            gharchitecture.StoneBuilding(decorate=gharchitecture.TechDungeonDecor()),
+            gharchitecture.DefaultBuilding(floor_terrain=ghterrain.GrateFloor, decorate=gharchitecture.TechDungeonDecor()),
             self.rank, monster_tags=("ROBOT", "FACTORY", "RUINS", "MUTANT", "EARTH"),
             decor=None
+        )
+        goal_level = self.register_element("_goal_level", my_dungeon.goal_level)
+        goal_room = self.register_element(
+            "_goal_room", pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.FactoryDecor()), dident="_goal_level"
+        )
+        bossteam = self.register_element("_eteam", teams.Team(enemies=(goal_level.player_team,)), dident="_goal_room")
+        bossteam.contents += gears.selector.RandomMonsterUnit(self.rank+20, 200, gears.tags.GroundEnv,
+                                                              ("ROBOT", "ZOMBOT"), gears.scale.HumanScale).contents
+        self.started_combat = False
+
+        main_server = self.register_element(
+            "SERVER",
+            ghwaypoints.OldMainframe(
+                plot_locked=True, anchor=pbge.randmaps.anchors.middle, name="Thrunet Server",
+                desc="You stand before an ancient ThruNet server, part of the shadow net that dates back to the Age of Superpowers."
+            ),
+            dident="_goal_room"
         )
 
         droom = self.register_element('DUNGEON_ROOM', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.DefiledFactoryDecor()),
@@ -124,7 +253,7 @@ class SregorThrunet(Plot):
         "{METROSCENE} Computing", "{METROSCENE} Electronics", "{NPC}'s Telecom", "{NPC}'s Lostech",
         "{adjective} Thrunet", "{METROSCENE} Data Center", "{adjective} Salvage",
         "{NPC}'s Data Mine", "{adjective} Bits", "Comm Center {METROSCENE}", "{adjective} Data Mine",
-        "{NPC}'s {adjective} Computers",
+        "{NPC}'s {adjective} Computers", "{adjective} Recycling", "{NPC}'s Upcycling"
     )
 
     def _generate_shop_name(self):
@@ -170,13 +299,62 @@ class SregorThrunet(Plot):
                             data={"shop_name": self.shopname, "wares": "salvage"},
                             ))
 
+        if self.deserve_reward and not self.thrunet_broken:
+            mylist.append(Offer(
+                "[THANKS_FOR_HELP] And I wouldn't call it a dungeon; it's more of a basement I can't enter because it might kill me. Here's a reward for your service.",
+                context=ContextTag([context.CUSTOM]), effect=self._get_reward,
+                data={"reply": "We've fixed the server at the bottom of your dungeon."}
+            ))
+
         return mylist
+
+    def _get_reward(self, camp: gears.GearHeadCampaign):
+        self.memo = None
+        self.deserve_reward = False
+        camp.credits += gears.selector.calc_mission_reward(self.rank, 250)
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship.history.append(gears.relationships.Memory(
+            "you fixed the PreZero server in my basement",
+            "I fixed the ancient computer in your dungeon",
+            20, (gears.relationships.MEM_AidedByPC,)
+        ))
 
     def _impress_npc(self, camp):
         if not self.npc_impressed:
             npc: gears.base.Character = self.elements["NPC"]
             npc.relationship.reaction_mod += 20
             self.npc_impressed = True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if not self.started_combat:
+            self.started_combat = True
+            pbge.alert("As you approach the control room, you see a procession of robots circling the main server, emitting bleeps in binaric code... almost as if they were worshipping it.")
+
+    def SERVER_menu(self, camp: gears.GearHeadCampaign, thingmenu):
+        if self.thrunet_broken:
+            thingmenu.desc += " From the blinking lights on the panel, you can tell that it is not working properly."
+
+            if camp.make_skill_roll(gears.stats.Craft, gears.stats.Computers, self.rank, no_random=True):
+                thingmenu.add_item("Reboot the server.", self._repair_server)
+
+            if camp.make_skill_roll(gears.stats.Craft, gears.stats.Science, self.rank, no_random=True,
+                                    difficulty=gears.stats.DIFFICULTY_HARD):
+                thingmenu.add_item("Attempt to update the code.", self._repair_server)
+
+            if camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Repair, self.rank, no_random=True,
+                                    difficulty=gears.stats.DIFFICULTY_HARD):
+                thingmenu.add_item("Try unplugging it and plugging it back in again.", self._repair_server)
+
+        thingmenu.add_item("Leave it alone.", None)
+
+    def _repair_server(self, camp: gears.GearHeadCampaign):
+        pbge.my_state.view.play_anims(gears.geffects.OverloadAnim(pos=self.elements["SERVER"].pos))
+        self.thrunet_broken = False
+        self.QOL = gears.QualityOfLife(prosperity=3)
+        self.RUMOR = None
+        self.memo = Memo("You fixed {NPC}'s Thrunet server.".format(**self.elements), self.elements["NPC_SCENE"])
+        pbge.alert("With a loud beep and a few more sparks than you're comfortable with, the Thrunet server roars back into action. It seems you have successfully repaired it.")
+        camp.dole_xp(100)
 
 
 class ClassicMurderMystery(Plot):
@@ -188,39 +366,39 @@ class ClassicMurderMystery(Plot):
 
     WEAPON_CARDS = (
         {"name": "Pistol", "to_verb": "to shoot {}", "verbed": "shot {}",
-         "did_not_verb": "didn't shoot {}", "data": {"image_name": "mystery_verbs.png", "frame": 2}},
+         "did_not_verb": "didn't shoot {}", "data": {"image_name": "mystery_weapons.png", "frame": 0}},
         {"name": "Axe", "to_verb": "to axe {}", "verbed": "hit {} with an axe",
-         "did_not_verb": "didn't have an axe", "data": {"image_name": "mystery_verbs.png", "frame": 1}},
+         "did_not_verb": "didn't have an axe", "data": {"image_name": "mystery_weapons.png", "frame": 1}},
         {"name": "Poison", "to_verb": "to poison {}", "verbed": "poisoned {}",
-         "did_not_verb": "didn't poison {}", "data": {"image_name": "mystery_verbs.png", "frame": 5}},
+         "did_not_verb": "didn't poison {}", "data": {"image_name": "mystery_weapons.png", "frame": 2}},
         {"name": "Hydrospanner", "to_verb": "to bludgeon {}",
          "verbed": "bludgeoned {} with a hydrospanner",
-         "did_not_verb": "didn't own a hydrospanner", "data": {"image_name": "mystery_verbs.png", "frame": 3}},
+         "did_not_verb": "didn't own a hydrospanner", "data": {"image_name": "mystery_weapons.png", "frame": 3}},
         {"name": "Workbot", "to_verb": "to send a workbot to kill {}",
          "verbed": "sent a workbot to kill {}",
-         "did_not_verb": "didn't use a workbot", "data": {"image_name": "mystery_verbs.png", "frame": 4}},
+         "did_not_verb": "didn't use a workbot", "data": {"image_name": "mystery_misc.png", "frame": 6}},
     )
 
     MOTIVE_CARDS = (
         {"name": "Revenge", "to_verb": "to get revenge on {}", "verbed": "got revenge on {}",
-         "did_not_verb": "didn't get revenge on {}", "data": {"image_name": "mystery_verbs.png", "frame": 2,
+         "did_not_verb": "didn't get revenge on {}", "data": {"image_name": "mystery_motives.png", "frame": 9,
                                                               "excuse": "{VICTIM} was rude to me in middle school..."},
          "role": pbge.okapipuzzle.SUS_MOTIVE},
         {"name": "Money", "to_verb": "to get {}'s money", "verbed": "took {}'s money'",
-         "did_not_verb": "didn't take {}'s money", "data": {"image_name": "mystery_verbs.png", "frame": 1,
+         "did_not_verb": "didn't take {}'s money", "data": {"image_name": "mystery_motives.png", "frame": 8,
                                                             "excuse": "{VICTIM} had tons of money, and I can share it..."},
          "role": pbge.okapipuzzle.SUS_MOTIVE},
         {"name": "Hatred", "to_verb": "to be rid of {}", "verbed": "hated {}",
-         "did_not_verb": "didn't hate {}", "data": {"image_name": "mystery_verbs.png", "frame": 5,
+         "did_not_verb": "didn't hate {}", "data": {"image_name": "mystery_motives.png", "frame": 0,
                                                     "excuse": "All I'll say is that {VICTIM} deserved it..."},
          "role": pbge.okapipuzzle.SUS_MOTIVE},
         {"name": "Secret", "to_verb": "to protect their secrets",
          "verbed": "was being blackmailed by {}",
-         "did_not_verb": "didn't have any secrets", "data": {"image_name": "mystery_verbs.png", "frame": 3,
+         "did_not_verb": "didn't have any secrets", "data": {"image_name": "mystery_motives.png", "frame": 1,
                                                              "excuse": "{VICTIM} had some dirty info on me..."}},
         {"name": "Jealousy", "to_verb": "to protect their status",
          "verbed": "was jealous of {}",
-         "did_not_verb": "wasn't jealous of {}", "data": {"image_name": "mystery_verbs.png", "frame": 4,
+         "did_not_verb": "wasn't jealous of {}", "data": {"image_name": "mystery_motives.png", "frame": 2,
                                                           "excuse": "Why should {VICTIM} be more successful than me?!"}},
     )
 
@@ -461,26 +639,26 @@ class RabbleRouser(Plot):
             ghchallenges.VerbSusCardFeaturingNPC("Bribery", "to bribe {}".format(guard), "bribed {}".format(guard),
                                                  "did not bribe {}".format(guard), guard),
             pbge.okapipuzzle.VerbSusCard("Spread Lies", "to spread lies", "spread lies", "didn't spread lies",
-                                         data={"image_name": "mystery_verbs.png", "frame": 2}),
+                                         data={"image_name": "mystery_verbs.png", "frame": 6}),
             pbge.okapipuzzle.VerbSusCard("Embezzled", "to embezzle", "embezzled government funds",
                                          "didn't embezzle anything",
-                                         data={"image_name": "mystery_verbs.png", "frame": 2}, gameob=npc),
+                                         data={"image_name": "mystery_verbs.png", "frame": 7}, gameob=npc),
             pbge.okapipuzzle.VerbSusCard("Sow Chaos", "to sow chaos in {}".format(self.elements["METROSCENE"]),
                                                  "sowed chaos in {}".format(self.elements["METROSCENE"]),
                                                  "did not cause chaos in {}".format(self.elements["METROSCENE"]),
-                                                 data={"image_name": "mystery_verbs.png", "frame": 2})
+                                                 data={"image_name": "mystery_verbs.png", "frame": 8})
         ]
         action_susdeck = pbge.okapipuzzle.SusDeck("Action", action_cards)
 
         motive_cards = [
             pbge.okapipuzzle.VerbSusCard(
                 "Keep Power", "to maintain power", "maintained control", "didn't try to maintain power",
-                data={"image_name": "mystery_motives.png", "frame": 2}, role=pbge.okapipuzzle.SUS_MOTIVE
+                data={"image_name": "mystery_motives.png", "frame": 6}, role=pbge.okapipuzzle.SUS_MOTIVE
             ),
             pbge.okapipuzzle.VerbSusCard(
                 "Take Over", "to usurp control of {}".format(self.elements["METROSCENE"]), "usurped control",
                 "didn't try to usurp power",
-                data={"image_name": "mystery_motives.png", "frame": 2}, role=pbge.okapipuzzle.SUS_MOTIVE
+                data={"image_name": "mystery_motives.png", "frame": 7}, role=pbge.okapipuzzle.SUS_MOTIVE
             ),
             pbge.okapipuzzle.VerbSusCard(
                 "Pay Debts", "to pay off gambling debts", "paid off gambling debts", "didn't have gambling debts",
@@ -493,7 +671,7 @@ class RabbleRouser(Plot):
             ),
             pbge.okapipuzzle.VerbSusCard(
                 "Become Rich", "to enrich themself", "enriched themself", "didn't get rich",
-                data={"image_name": "mystery_motives.png", "frame": 5}, role=pbge.okapipuzzle.SUS_MOTIVE
+                data={"image_name": "mystery_motives.png", "frame": 8}, role=pbge.okapipuzzle.SUS_MOTIVE
             )
         ]
         motive_susdeck = pbge.okapipuzzle.SusDeck("Motive", motive_cards)
