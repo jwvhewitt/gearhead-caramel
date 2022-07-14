@@ -205,6 +205,11 @@ class BigBoom( animobs.AnimOb ):
     DEFAULT_END_FRAME = 7
 
 
+class MiasmaAnim( animobs.AnimOb ):
+    DEFAULT_SPRITE_NAME = "anim_gervais_miasma.png"
+    DEFAULT_END_FRAME = 7
+
+
 class SuperBoom( animobs.AnimOb ):
     DEFAULT_SPRITE_NAME = "anim_frogatto_nuke.png"
     DEFAULT_END_FRAME = 9
@@ -405,6 +410,9 @@ class PlasmaBall( animobs.ShotAnim ):
 
 class FireBall( animobs.ShotAnim ):
     DEFAULT_SPRITE_NAME = "anim_shot_fire.png"
+
+class AcidSpray( animobs.ShotAnim ):
+    DEFAULT_SPRITE_NAME = "anim_gervais_s_acidspray.png"
 
 
 class Missile1( animobs.ShotAnim ):

@@ -137,7 +137,7 @@ class MovementUI( object ):
         for wp in self.camp.scene.contents:
             if hasattr(wp,"combat_bump") and hasattr(wp,"pos") and self.camp.scene.on_the_map(*wp.pos):
                 path = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.mover.pos, wp.pos, self.mover.mmode)
-                if path.results[-2] in self.nav.cost_to_tile:
+                if len(path.results) > 1 and path.results[-2] in self.nav.cost_to_tile:
                     self.reachable_waypoints[wp.pos] = (wp,path.results[-2])
 
     def click_left(self, player_turn):

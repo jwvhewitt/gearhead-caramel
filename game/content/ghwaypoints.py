@@ -148,6 +148,16 @@ class DZDConcreteBuilding( Exit ):
     TILE = pbge.scenes.Tile( None, ghterrain.DZDConcreteBuilding, None )
     desc = "You stand before a concrete building."
 
+class MechaScaleSmokingMineBuilding( Exit ):
+    name = 'Mine Entrance'
+    TILE = pbge.scenes.Tile(None, ghterrain.MechaScaleMineBuildingTerrain, ghterrain.Smoke)
+    desc = "You stand before a mine entrance."
+
+    def turn_off_smoke(self):
+        scene = self.scene
+        if scene and scene.on_the_map(*self.pos):
+            scene.set_decor(self.pos[0], self.pos[1], None)
+
 class MetalDoor( Waypoint ):
     name = "Door"
     TILE = pbge.scenes.Tile( None, ghterrain.MetalDoorClosed, None )

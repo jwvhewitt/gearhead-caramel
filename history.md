@@ -1,3 +1,4 @@
+* Fixed a rare pathfinding in combat bug
 * Fixed a rare infinite recursion bug in end_plot
 * You can now say goodbye from an info offer
 * Added LOCAL_PROBLEM plots to replace the old Mechanical Tarot

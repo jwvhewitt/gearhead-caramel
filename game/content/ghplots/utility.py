@@ -507,7 +507,7 @@ class QualityOfLifeReporter(Plot):
 #  ***   REVEAL_LOCATION   ***
 #  ***************************
 #
-#  METROSCENE: The city where the reveal will take place.
+#  METROSCENE, MISSION_GATE: The city where the reveal will take place.
 #  LOCALE: The location to be revealed.
 #  INTERESTING_POINT: A sentence describing what's interesting about the location.
 

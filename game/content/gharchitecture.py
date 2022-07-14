@@ -43,6 +43,15 @@ class TechDungeonDecor(OmniDec):
     FLOOR_FILL_FACTOR = 0.07
 
 
+class RundownChemPlantDecor(OmniDec):
+    WALL_DECOR = (ghterrain.TekruinsWallDecor,ghterrain.SteelPipe, ghterrain.SteelPipe, ghterrain.TekruinsWallDecor)
+    WALL_FILL_FACTOR = 0.40
+    FLOOR_DECOR = (ghterrain.Bones, ghterrain.Tekdebris)
+    FLOOR_FILL_FACTOR = 0.05
+    ALTERNATE_FLOOR = (ghterrain.ToxicSludge, )
+    ALT_FLOOR_FACTOR = 0.03
+
+
 class DefiledFactoryDecor(OmniDec):
     WALL_DECOR = (ghterrain.TekruinsWallDecor,ghterrain.Cybertendrils)
     WALL_FILL_FACTOR = 0.33
@@ -79,6 +88,15 @@ class CaveDecor(OmniDec):
     WALL_FILL_FACTOR = 0.10
     FLOOR_DECOR = (ghterrain.FloorStones,)
     FLOOR_FILL_FACTOR = 0.02
+
+
+class ToxicCaveDecor(OmniDec):
+    WALL_DECOR = (ghterrain.WallStones,)
+    WALL_FILL_FACTOR = 0.10
+    FLOOR_DECOR = (ghterrain.FloorStones, ghterrain.Bones)
+    FLOOR_FILL_FACTOR = 0.03
+    ALTERNATE_FLOOR = (ghterrain.ToxicSludge, )
+    ALT_FLOOR_FACTOR = 0.02
 
 
 class BunkerDecor(OmniDec):

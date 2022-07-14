@@ -196,7 +196,7 @@ class Room(object):
         good_spots = list()
         for x in range(self.area.x + 1, self.area.x + self.area.width - 1):
             for y in range(self.area.y + 1, self.area.y + self.area.height - 1):
-                if (((x + y) % 2) == 1) and not gb._map[x][y].blocks_walking():
+                if (((x + y) % 2) == 1) and not gb.tile_blocks_walking(x, y):
                     good_spots.append((x, y))
         return good_spots
 

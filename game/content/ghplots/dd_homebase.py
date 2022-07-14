@@ -31,7 +31,7 @@ class DZD_Wujung(Plot):
                                       faction=gears.factions.TerranFederation,
                                       attributes=(
                                           gears.personality.GreenZone, gears.tags.City, gears.tags.SCENE_PUBLIC,
-                                          gears.tags.SCENE_OUTDOORS),
+                                          gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_NOLEADERNEEDED),
                                       exploration_music='Heroic Adventure.ogg')
 
         for t in range(random.randint(2, 5)):

@@ -111,6 +111,9 @@ SCENE_SEMIPUBLIC = "SEMIPUBLIC"  # No-one is stopping you from going there. Usua
 SCENE_FACTORY = "FACTORY"
 SCENE_OUTDOORS = "OUTDOORS"
 SCENE_ARENARULES = "ARENARULES" # No death, no permanent loss of mecha possible.
+SCENE_NOLEADERNEEDED = "NO_LEADER_NEEDED" # This Metroscene doesn't need a leader, so don't replace the leader if None
+SCENE_MINE = "MINE"     # This scene is mine. Actually it's _a_ mine. But it's still mine.
+SCENE_CAVE = "CAVE"     # This scene is a semi-natural underground area
 
 # Shop Tags
 

@@ -15,6 +15,8 @@ class OmniDec( object ):
     WIN_DECOR = None
     FLOOR_DECOR = ()
     FLOOR_FILL_FACTOR = 0.007
+    ALTERNATE_FLOOR = ()
+    ALT_FLOOR_FACTOR = 0.1
     def __init__( self, win=True, wall_fill_factor=None, floor_fill_factor=None ):
         if win is not True:
             self.WIN_DECOR = win
@@ -43,8 +45,8 @@ class OmniDec( object ):
                 if room.is_basic_wall(gb,x,y) and room.is_good_spot_for_wall_decor(gb,pos):
                     good_wall_spots.append( pos )
                 elif x > 0 and y > 0 and \
-                  not gb._map[x][y].blocks_walking() and not gb._map[x][y].wall \
-                  and not gb._map[x][y].decor and gb.wall_wont_block(x,y):
+                  not gb.tile_blocks_walking(x,y) and not gb.get_wall(x,y) \
+                  and not gb.get_decor(x,y) and gb.wall_wont_block(x,y):
                     good_floor_spots.append( pos )
         for pos in room.get_west_north_wall_points(gb):
             if pos not in good_wall_spots:
@@ -56,10 +58,21 @@ class OmniDec( object ):
                 elif m.pos in good_floor_spots:
                     good_floor_spots.remove( m.pos )
 
+        random.shuffle(good_floor_spots)
+
+        if self.ALTERNATE_FLOOR:
+            for t in range(max(int(len(good_floor_spots) * self.ALT_FLOOR_FACTOR),random.randint(1,10))):
+                if good_floor_spots:
+                    x,y = good_floor_spots.pop()
+                    if gb.wall_wont_block(x,y):
+                        gb.set_floor(x, y, random.choice(self.ALTERNATE_FLOOR))
+                else:
+                    break
+
         if self.FLOOR_DECOR:
             for t in range(max(int(len(good_floor_spots) * self.FLOOR_FILL_FACTOR),random.randint(1,10))):
                 if good_floor_spots:
-                    x,y = random.choice( good_floor_spots )
+                    x,y = good_floor_spots.pop()
                     if gb.wall_wont_block(x,y):
                         self.draw_floor_decor(gb,x,y)
                 else:

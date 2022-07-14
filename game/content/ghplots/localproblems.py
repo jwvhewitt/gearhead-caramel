@@ -5,11 +5,12 @@
 
 import random
 
+import game.content.ghwaypoints
 from game import content, services, teams, ghdialogue
 import gears
 import pbge
 from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain, \
-    ghchallenges
+    ghchallenges, ghrooms
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
@@ -26,6 +27,155 @@ from .shops_plus import get_building
 # Needed Elements:
 #    METROSCENE, METRO, MISSION_GATE
 #
+
+class TheCursedSoil(Plot):
+    LABEL = "TEST_LOCAL_PROBLEM"
+    scope = "METRO"
+    UNIQUE = True
+    QOL = gears.QualityOfLife(health=-2, prosperity=-2)
+    active = True
+
+    RUMOR = Rumor(
+        "{METROSCENE} is built on cursed land",
+        offer_msg="It's obvious, isn't it? Our crops wither and die. Strange diseases afflict our people. And unlike other deadzone towns, the problems have only been getting worse instead of better.",
+        memo="The residents of {METROSCENE} believe their land is cursed; crops won't grow, and inexplicable diseases affect the populace.",
+        offer_subject_data="this curse", offer_subject="{METROSCENE} is built on cursed land"
+    )
+
+    @classmethod
+    def matches(cls, pstate):
+        return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or \
+               cls.LABEL == "TEST_LOCAL_PROBLEM"
+
+    def custom_init(self, nart):
+        # Create the mine exterior.
+        outside_scene = gears.GearHeadScene(
+            35, 35, plotutility.random_deadzone_spot_name(), player_team=teams.Team(name="Player Team"),
+            scale=gears.scale.MechaScale, exploration_music="Lines.ogg", combat_music="Late.ogg"
+        )
+        myscenegen = pbge.randmaps.SceneGenerator(outside_scene, gharchitecture.MechaScaleDeadzone())
+        self.register_scene(nart, outside_scene, myscenegen, ident="OUTSIDE", dident="METROSCENE")
+
+        mygoal = self.register_element("_mine_entrance_room", pbge.randmaps.rooms.FuzzyRoom(parent=outside_scene,
+                                                                                            anchor=pbge.randmaps.anchors.middle))
+        mineent = self.register_element(
+            "MINE_ENTRANCE",
+            game.content.ghwaypoints.MechaScaleSmokingMineBuilding(anchor=pbge.randmaps.anchors.middle),
+            dident="_mine_entrance_room"
+        )
+
+        self.register_element("ENTRANCE_ROOM",
+                              pbge.randmaps.rooms.OpenRoom(5, 5, anchor=random.choice(pbge.randmaps.anchors.EDGES)),
+                              dident="OUTSIDE")
+        myent = self.register_element(
+            "ENTRANCE",
+            game.content.ghwaypoints.Exit(dest_wp=self.elements["MISSION_GATE"], anchor=pbge.randmaps.anchors.middle),
+            dident="ENTRANCE_ROOM"
+        )
+
+        # Generate the in-between first level of the mine.
+        inside_scene = gears.GearHeadScene(
+            50, 50, "{OUTSIDE} Mine".format(**self.elements), player_team=teams.Team(name="Player Team"),
+            scale=gears.scale.HumanScale, exploration_music="Lines.ogg", combat_music="Late.ogg",
+            attributes=(gears.tags.SCENE_BUILDING, gears.tags.SCENE_MINE, gears.tags.SCENE_SEMIPUBLIC)
+        )
+        myscenegen2 = pbge.randmaps.SceneGenerator(inside_scene, gharchitecture.IndustrialBuilding(
+            decorate=gharchitecture.FactoryDecor()))
+        self.register_scene(nart, inside_scene, myscenegen2, ident="INSIDE", dident="OUTSIDE")
+
+        foyer = pbge.randmaps.rooms.ClosedRoom(parent=inside_scene, anchor=pbge.randmaps.anchors.south)
+        way_down = pbge.randmaps.rooms.ClosedRoom(parent=inside_scene)
+        surprise = pbge.randmaps.rooms.ClosedRoom(parent=inside_scene)
+        monteam = teams.Team(enemies=[inside_scene.player_team, ])
+        monteam.contents += gears.selector.RandomMonsterUnit(
+            self.rank, 100, gears.tags.GroundEnv, ("RUINS", "CAVE", "TOXIC", "MUTANT"), gears.scale.HumanScale
+        ).contents
+        surprise.contents.append(monteam)
+        equipment_room = pbge.randmaps.rooms.ClosedRoom(parent=inside_scene,
+                                                        decorate=gharchitecture.UlsaniteOfficeDecor())
+
+        # Generate the dungeon.
+        my_dungeon = dungeonmaker.DungeonMaker(
+            nart, self, self.elements["INSIDE"], "Toxic Caves".format(**self.elements),
+            gharchitecture.EarthCave(decorate=gharchitecture.ToxicCaveDecor(), gapfill=pbge.randmaps.gapfiller.RoomFiller(ghrooms.ToxicSludgeRoom, spacing=2)),
+            self.rank, monster_tags=("ANIMAL", "CAVE", "TOXIC", "MUTANT", "EARTH"),
+            decor=None, scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_MINE)
+        )
+        goal_level = self.register_element("_fake_goal_level", my_dungeon.goal_level)
+        p_goal_room = self.register_element(
+            "_pentultimate_goal_room", pbge.randmaps.rooms.OpenRoom(decorate=gharchitecture.FactoryDecor()),
+            dident="_fake_goal_level"
+        )
+        hatch = ghwaypoints.Trapdoor(name="The Hatch", anchor=pbge.randmaps.anchors.middle)
+        p_goal_room.contents.append(hatch)
+
+        final_level = gears.GearHeadScene(
+            50, 50, "PreZero Factory", player_team=teams.Team(name="Player Team"),
+            scale=gears.scale.HumanScale, exploration_music="Lines.ogg", combat_music="Late.ogg",
+            attributes=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_RUINS)
+        )
+        myscenegen3 = pbge.randmaps.SceneGenerator(
+            final_level, gharchitecture.ScrapIronWorkshop(decorate=gharchitecture.RundownChemPlantDecor())
+        )
+        self.register_scene(nart, final_level, myscenegen3, ident="FINAL_LEVEL", dident="_fake_goal_level")
+
+        bossroom = pbge.randmaps.rooms.ClosedRoom(16, 16, parent=final_level)
+        monteam2 = self.register_element("BOSSTEAM", teams.Team(enemies=[final_level.player_team, ]))
+        monteam2.contents += gears.selector.RandomMonsterUnit(
+            self.rank + 15, 100, gears.tags.GroundEnv, ("RUINS", "ROBOT", "SYNTH", "TOXIC", "MUTANT"),
+            gears.scale.HumanScale
+        ).contents
+        bossroom.contents.append(monteam2)
+        myboss = self.register_element("SMOGSPEWER", gears.selector.get_design_by_full_name("SMG-01 SmogSpewer"))
+        monteam2.contents.append(myboss)
+
+        # Connect everything.
+        mycon = plotutility.TownBuildingConnection(
+            nart, self, outside_scene, inside_scene, room1=mygoal, room2=foyer,
+            door1=mineent, move_door1=False)
+
+        mycon2 = plotutility.StairsDownToStairsUpConnector(
+            nart, self, inside_scene, my_dungeon.entry_level, room1=way_down
+        )
+
+        mycon3 = plotutility.StairsDownToStairsUpConnector(
+            nart, self, goal_level, final_level, room1=p_goal_room, door1=hatch, move_door1=False
+        )
+
+        self.add_sub_plot(nart, "REVEAL_LOCATION", ident="FINDMINE", elements={
+            "LOCALE": outside_scene,
+            "INTERESTING_POINT": "The old abandoned mine there was spewing toxic smoke. It didn't look safe."
+        })
+
+        self.found_mine = False
+        self.got_final_level_message = False
+        self.defeated_smogspewer = False
+
+        return True
+
+    def FINDMINE_WIN(self, camp):
+        self.RUMOR = None
+        self.memo = Memo("Toxic smoke is pouring out of an abandoned mine at {OUTSIDE}.".format(**self.elements),
+                         self.elements["OUTSIDE"])
+        self.found_mine = True
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.found_mine:
+            thingmenu.add_item("Go to {OUTSIDE}.".format(**self.elements), self._go_to_mine)
+
+    def FINAL_LEVEL_ENTER(self, camp):
+        if not self.got_final_level_message:
+            pbge.alert(
+                "You have discovered a PreZero ruin. The miners must have tunneled into here before the mine shut down.")
+            self.got_final_level_message = True
+
+    def _go_to_mine(self, camp):
+        camp.go(self.elements["ENTRANCE"])
+
+    def SMOGSPEWER_FAINT(self, camp):
+        pbge.alert("That should do it...")
+        self.elements["MINE_ENTRANCE"].turn_off_smoke()
+        self.QOL = gears.QualityOfLife(prosperity=1)
 
 
 class DeadzoneDefenseSpending(Plot):
@@ -65,7 +215,7 @@ class DeadzoneDefenseSpending(Plot):
         npc = self.register_element(
             "NPC",
             gears.selector.random_character(
-                rank=random.randint(self.rank, self.rank+10), job=gears.jobs.ALL_JOBS["Architect"],
+                rank=random.randint(self.rank, self.rank + 10), job=gears.jobs.ALL_JOBS["Architect"],
                 mecha_colors=gears.color.random_mecha_colors(),
                 local_tags=tuple(self.elements["METROSCENE"].attributes),
             ), dident="NPC_SCENE")
@@ -99,24 +249,28 @@ class DeadzoneDefenseSpending(Plot):
 
         if not self.started_building:
             mylist.append(Offer(
-                "[HELLO] I tell you, it's impossible to get people to cooperate in {METROSCENE}, no matter how important the project is.".format(**self.elements),
+                "[HELLO] I tell you, it's impossible to get people to cooperate in {METROSCENE}, no matter how important the project is.".format(
+                    **self.elements),
                 ContextTag([context.HELLO])
             ))
 
             mylist.append(Offer(
-                "I've been designing {BUILDING_NAME} to defend {METROSCENE}. Obviously, {BUILDING_NEED}. The plans are ready but work has barely begun.".format(**self.elements),
+                "I've been designing {BUILDING_NAME} to defend {METROSCENE}. Obviously, {BUILDING_NEED}. The plans are ready but work has barely begun.".format(
+                    **self.elements),
                 ContextTag([context.CUSTOM]), subject_start=True, subject=self,
                 data={"reply": "What are you working on?"}
             ))
 
             mylist.append(Offer(
-                "Please do so. I know we have enough laborers and craftspeople in {METROSCENE}; I'm just not sure we have all the required materials.".format(**self.elements),
+                "Please do so. I know we have enough laborers and craftspeople in {METROSCENE}; I'm just not sure we have all the required materials.".format(
+                    **self.elements),
                 ContextTag([context.CUSTOMREPLY]), subject=self, effect=self._start_mission,
                 data={"reply": "Maybe I could try to convince some people to hurry up."}
             ))
 
             mylist.append(Offer(
-                "[GOODBYE] Hopefully the job will get finished before the next time {METROSCENE} is invaded.".format(**self.elements),
+                "[GOODBYE] Hopefully the job will get finished before the next time {METROSCENE} is invaded.".format(
+                    **self.elements),
                 ContextTag([context.CUSTOMREPLY]), subject=self, dead_end=True,
                 data={"reply": "Well, good luck on that."}
             ))
@@ -134,7 +288,8 @@ class DeadzoneDefenseSpending(Plot):
         self.end_plot(camp, True)
         if self.elements["NPC"].is_operational():
             content.load_dynamic_plot(camp, "POST_PLOT_REWARD", PlotState().based_on(
-                self, update_elements={"PC_REPLY":"{METROSCENE} has constructed {BUILDING_NAME}.".format(**self.elements)}
+                self,
+                update_elements={"PC_REPLY": "{METROSCENE} has constructed {BUILDING_NAME}.".format(**self.elements)}
             ))
 
 
@@ -211,7 +366,8 @@ class SregorThrunet(Plot):
         # Generate the dungeon.
         my_dungeon = dungeonmaker.DungeonMaker(
             nart, self, intscene, "{METROSCENE} Undercity".format(**self.elements),
-            gharchitecture.DefaultBuilding(floor_terrain=ghterrain.GrateFloor, decorate=gharchitecture.TechDungeonDecor()),
+            gharchitecture.DefaultBuilding(floor_terrain=ghterrain.GrateFloor,
+                                           decorate=gharchitecture.TechDungeonDecor()),
             self.rank, monster_tags=("ROBOT", "FACTORY", "RUINS", "MUTANT", "EARTH"),
             decor=None
         )
@@ -220,7 +376,7 @@ class SregorThrunet(Plot):
             "_goal_room", pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.FactoryDecor()), dident="_goal_level"
         )
         bossteam = self.register_element("_eteam", teams.Team(enemies=(goal_level.player_team,)), dident="_goal_room")
-        bossteam.contents += gears.selector.RandomMonsterUnit(self.rank+20, 200, gears.tags.GroundEnv,
+        bossteam.contents += gears.selector.RandomMonsterUnit(self.rank + 20, 200, gears.tags.GroundEnv,
                                                               ("ROBOT", "ZOMBOT"), gears.scale.HumanScale).contents
         self.started_combat = False
 
@@ -233,17 +389,19 @@ class SregorThrunet(Plot):
             dident="_goal_room"
         )
 
-        droom = self.register_element('DUNGEON_ROOM', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.DefiledFactoryDecor()),
+        droom = self.register_element('DUNGEON_ROOM',
+                                      pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.DefiledFactoryDecor()),
                                       dident="NPC_SCENE")
 
         mycon2 = plotutility.StairsDownToStairsUpConnector(
             nart, self, intscene, my_dungeon.entry_level, room1=droom
         )
 
-        roboroom = self.register_element('ROBOT_ROOM', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),
-                                      dident="NPC_SCENE")
+        roboroom = self.register_element('ROBOT_ROOM',
+                                         pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),
+                                         dident="NPC_SCENE")
         roboteam = self.register_element("ROBOTEAM", teams.Team("RobotTeam"), dident="ROBOT_ROOM")
-        roboforce = gears.selector.RandomMonsterUnit(self.rank+30, 50, gears.tags.GroundEnv, ("ROBOT",),
+        roboforce = gears.selector.RandomMonsterUnit(self.rank + 30, 50, gears.tags.GroundEnv, ("ROBOT",),
                                                      gears.scale.HumanScale)
         roboteam.contents += roboforce.contents
 
@@ -265,9 +423,11 @@ class SregorThrunet(Plot):
         mylist = list()
 
         if self.thrunet_broken:
-            mylist.append(Offer("[HELLO] What do you want?! The Thrunet node for {METROSCENE} is down and everyone thinks I know how to fix it.".format(**self.elements),
-                                context=ContextTag([context.HELLO]),
-                                ))
+            mylist.append(Offer(
+                "[HELLO] What do you want?! The Thrunet node for {METROSCENE} is down and everyone thinks I know how to fix it.".format(
+                    **self.elements),
+                context=ContextTag([context.HELLO]),
+                ))
 
             if not self.npc_impressed:
                 mylist.append(Offer(
@@ -328,7 +488,8 @@ class SregorThrunet(Plot):
     def _eteam_ACTIVATETEAM(self, camp):
         if not self.started_combat:
             self.started_combat = True
-            pbge.alert("As you approach the control room, you see a procession of robots circling the main server, emitting bleeps in binaric code... almost as if they were worshipping it.")
+            pbge.alert(
+                "As you approach the control room, you see a procession of robots circling the main server, emitting bleeps in binaric code... almost as if they were worshipping it.")
 
     def SERVER_menu(self, camp: gears.GearHeadCampaign, thingmenu):
         if self.thrunet_broken:
@@ -353,7 +514,8 @@ class SregorThrunet(Plot):
         self.QOL = gears.QualityOfLife(prosperity=3)
         self.RUMOR = None
         self.memo = Memo("You fixed {NPC}'s Thrunet server.".format(**self.elements), self.elements["NPC_SCENE"])
-        pbge.alert("With a loud beep and a few more sparks than you're comfortable with, the Thrunet server roars back into action. It seems you have successfully repaired it.")
+        pbge.alert(
+            "With a loud beep and a few more sparks than you're comfortable with, the Thrunet server roars back into action. It seems you have successfully repaired it.")
         camp.dole_xp(100)
 
 
@@ -402,7 +564,6 @@ class ClassicMurderMystery(Plot):
                                                           "excuse": "Why should {VICTIM} be more successful than me?!"}},
     )
 
-
     def custom_init(self, nart):
         # Start by creating the mystery!
         metroscene = self.elements["METROSCENE"]
@@ -420,7 +581,7 @@ class ClassicMurderMystery(Plot):
         weapon_cards = list()
         weapon_source = random.sample(self.WEAPON_CARDS, 5)
         for wcd in weapon_source:
-            for k,v in wcd.items():
+            for k, v in wcd.items():
                 if isinstance(v, str):
                     wcd[k] = v.format(victim_name)
             weapon_cards.append(pbge.okapipuzzle.VerbSusCard(**wcd))
@@ -429,7 +590,7 @@ class ClassicMurderMystery(Plot):
         motive_cards = list()
         motive_source = random.sample(self.MOTIVE_CARDS, 5)
         for mcd in motive_source:
-            for k,v in mcd.items():
+            for k, v in mcd.items():
                 if isinstance(v, str):
                     mcd[k] = v.format(victim_name)
             motive_cards.append(pbge.okapipuzzle.VerbSusCard(**mcd))
@@ -466,7 +627,8 @@ class ClassicMurderMystery(Plot):
         bribe = gears.selector.calc_mission_reward(self.rank, 500)
         if self.mystery_solved:
             mylist.append(Offer(
-                "Don't go to the authorities yet. {} I'll offer ${:,} for you to let me go.".format(mystery.solution[2].data["excuse"].format(**self.elements), bribe),
+                "Don't go to the authorities yet. {} I'll offer ${:,} for you to let me go.".format(
+                    mystery.solution[2].data["excuse"].format(**self.elements), bribe),
                 ContextTag([context.CUSTOM]), data={"reply": "I know you {}.".format(mystery.solution[1].verbed)},
                 subject=self, subject_start=True
             ))
@@ -548,7 +710,7 @@ class ThePlague(Plot):
         mygram["[CURRENT_EVENTS]"] = [
             "Stand back... I don't want to catch {DISEASE}.".format(**self.elements),
             "There's been an outbreak of {DISEASE} in {METROSCENE}... If a cure isn't found, then we are doomed.".format(
-                        **self.elements),
+                **self.elements),
         ]
 
         return mygram
@@ -575,7 +737,8 @@ class RabbleRouser(Plot):
     def custom_init(self, nart):
         # Start by creating and placing the rabble-rouser.
         scene = self.seek_element(
-            nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"], backup_seek_func=self._is_ok_scene
+            nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"],
+            backup_seek_func=self._is_ok_scene
         )
 
         metroscene = self.elements["METROSCENE"]
@@ -644,9 +807,9 @@ class RabbleRouser(Plot):
                                          "didn't embezzle anything",
                                          data={"image_name": "mystery_verbs.png", "frame": 7}, gameob=npc),
             pbge.okapipuzzle.VerbSusCard("Sow Chaos", "to sow chaos in {}".format(self.elements["METROSCENE"]),
-                                                 "sowed chaos in {}".format(self.elements["METROSCENE"]),
-                                                 "did not cause chaos in {}".format(self.elements["METROSCENE"]),
-                                                 data={"image_name": "mystery_verbs.png", "frame": 8})
+                                         "sowed chaos in {}".format(self.elements["METROSCENE"]),
+                                         "did not cause chaos in {}".format(self.elements["METROSCENE"]),
+                                         data={"image_name": "mystery_verbs.png", "frame": 8})
         ]
         action_susdeck = pbge.okapipuzzle.SusDeck("Action", action_cards)
 
@@ -678,7 +841,7 @@ class RabbleRouser(Plot):
 
         # We are going to create the solution here because we need to error-check unreasonable cases.
         solution = [random.choice(suspect_cards), random.choice(action_cards), random.choice(motive_cards)]
-        if random.randint(1,2) == 1:
+        if random.randint(1, 2) == 1:
             # The guilty party is most likely going to be the leader or the rabblerouser.
             solution[0] = random.choice(suspect_cards[:2])
 
@@ -763,7 +926,6 @@ class RabbleRouser(Plot):
         elif not self.elements["LEADER"].is_operational():
             self.end_plot(camp, True)
 
-
     def MCHALLENGE_WIN(self, camp):
         self.solution_public = True
         self.memo = Memo(
@@ -788,20 +950,25 @@ class RabbleRouser(Plot):
         if not self.started_dethrone:
             mylist.append(Offer(
                 self.conspiracy.get("text"),
-                ContextTag([context.CUSTOM, ]), data={"reply": "I heard that you have some thoughts on current events?"},
+                ContextTag([context.CUSTOM, ]),
+                data={"reply": "I heard that you have some thoughts on current events?"},
                 subject=self.conspiracy, subject_start=True
             ))
 
             mylist.append(Offer(
-                "It is clearly {LEADER.job} {LEADER}, the leader of {METROSCENE}. Will you help me convince the populace to remove {NPC.gender.object_pronoun} from power?".format(**self.elements),
-                ContextTag([context.CUSTOMREPLY, ]), data={"reply": "And who do you think is responsible for all of that?"},
+                "It is clearly {LEADER.job} {LEADER}, the leader of {METROSCENE}. Will you help me convince the populace to remove {NPC.gender.object_pronoun} from power?".format(
+                    **self.elements),
+                ContextTag([context.CUSTOMREPLY, ]),
+                data={"reply": "And who do you think is responsible for all of that?"},
                 subject=self.conspiracy
             ))
 
             if not self.started_discredit:
                 mylist.append(Offer(
-                    "[THATS_GOOD] Speak to the people of {METROSCENE}... Make them see the truth!".format(**self.elements),
-                    ContextTag([context.CUSTOMGOODBYE, ]), data={"reply": "[IWILLDOMISSION]", "mission": "help spread your message"},
+                    "[THATS_GOOD] Speak to the people of {METROSCENE}... Make them see the truth!".format(
+                        **self.elements),
+                    ContextTag([context.CUSTOMGOODBYE, ]),
+                    data={"reply": "[IWILLDOMISSION]", "mission": "help spread your message"},
                     subject=self.conspiracy, dead_end=True, effect=self._start_dethrone
                 ))
 
@@ -819,14 +986,18 @@ class RabbleRouser(Plot):
         elif self.won_dethrone:
             if self.elements["NPC"] is self.elements["CULPRIT"]:
                 mylist.append(Offer(
-                    "[THANKS_FOR_HELP] Now I can assume my rightful position as leader of {METROSCENE}!".format(**self.elements),
-                    ContextTag([context.CUSTOM, ]), data={"reply": "I have turned the people of {METROSCENE} against {LEADER}.".format(**self.elements)},
+                    "[THANKS_FOR_HELP] Now I can assume my rightful position as leader of {METROSCENE}!".format(
+                        **self.elements),
+                    ContextTag([context.CUSTOM, ]), data={
+                        "reply": "I have turned the people of {METROSCENE} against {LEADER}.".format(**self.elements)},
                     effect=self._win_dethrone, dead_end=True
                 ))
             else:
                 mylist.append(Offer(
-                    "[THANKS_FOR_HELP] Now {METROSCENE} is free of {LEADER.gender.possessive_determiner} tyranny!".format(**self.elements),
-                    ContextTag([context.CUSTOM, ]), data={"reply": "I have turned the people of {METROSCENE} against {LEADER}.".format(**self.elements)},
+                    "[THANKS_FOR_HELP] Now {METROSCENE} is free of {LEADER.gender.possessive_determiner} tyranny!".format(
+                        **self.elements),
+                    ContextTag([context.CUSTOM, ]), data={
+                        "reply": "I have turned the people of {METROSCENE} against {LEADER}.".format(**self.elements)},
                     effect=self._win_dethrone, dead_end=True
                 ))
 
@@ -851,27 +1022,33 @@ class RabbleRouser(Plot):
             cityhall = self.elements["LEADER"].scene
             self.elements["NPC"].place(cityhall)
             content.load_dynamic_plot(camp, "CONSEQUENCE_CULTOFPERSONALITY", PlotState().based_on(self))
-            pbge.alert("With {LEADER} out of the picture, {NPC} becomes the new leader of {METROSCENE}.".format(**self.elements))
+            pbge.alert("With {LEADER} out of the picture, {NPC} becomes the new leader of {METROSCENE}.".format(
+                **self.elements))
         elif self.elements["LEADER"] is culprit:
             camp.freeze(self.elements["NPC"])
-            content.load_dynamic_plot(camp, "CONSEQUENCE_TOTALCRACKDOWN", PlotState().based_on(self, update_elements={"CRACKDOWN_REASON": "{LEADER} has eliminated all resistance to {LEADER.gender.possessive_determiner} absolute rule".format(**self.elements)}))
-            pbge.alert("With all resistance eliminated, {LEADER} becomes the absolute dictator of {METROSCENE}.".format(**self.elements))
+            content.load_dynamic_plot(camp, "CONSEQUENCE_TOTALCRACKDOWN", PlotState().based_on(self, update_elements={
+                "CRACKDOWN_REASON": "{LEADER} has eliminated all resistance to {LEADER.gender.possessive_determiner} absolute rule".format(
+                    **self.elements)}))
+            pbge.alert("With all resistance eliminated, {LEADER} becomes the absolute dictator of {METROSCENE}.".format(
+                **self.elements))
         else:
             self.elements["METRO"].city_leader = culprit
             cityhall = self.elements["LEADER"].scene
             camp.freeze(self.elements["LEADER"])
             culprit.place(cityhall)
             content.load_dynamic_plot(camp, "CONSEQUENCE_KLEPTOCRACY", PlotState().based_on(self))
-            pbge.alert("While {LEADER} was busy worrying about {NPC}, {CULPRIT} seized control of {METROSCENE}.".format(**self.elements))
-
+            pbge.alert("While {LEADER} was busy worrying about {NPC}, {CULPRIT} seized control of {METROSCENE}.".format(
+                **self.elements))
 
     def LEADER_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
         leader = self.elements["LEADER"]
         if self._rumor_memo_delivered and not self.started_discredit:
             mylist.append(Offer(
-                "It's true. {NPC} is a rabble-rouser who has been trying to set the people of {METROSCENE} against me. If you could help me deliver a more positive message, that would be greatly appreciated.".format(**self.elements),
-                ContextTag([context.CUSTOM, ]), data={"reply": "I heard that {NPC} is causing problems for you.".format(**self.elements)},
+                "It's true. {NPC} is a rabble-rouser who has been trying to set the people of {METROSCENE} against me. If you could help me deliver a more positive message, that would be greatly appreciated.".format(
+                    **self.elements),
+                ContextTag([context.CUSTOM, ]),
+                data={"reply": "I heard that {NPC} is causing problems for you.".format(**self.elements)},
                 subject=leader, subject_start=True
             ))
 
@@ -883,16 +1060,20 @@ class RabbleRouser(Plot):
 
             if not self.started_dethrone:
                 mylist.append(Offer(
-                    "[THANK_YOU] Just talk with some of the citizens and I'm sure you'll find them receptive to my message.".format(**self.elements),
-                    ContextTag([context.CUSTOMREPLY, ]), data={"reply": "[IWILLDOMISSION]", "mission": "help improve your image"},
-                    subject=leader, effect = self._start_discredit, dead_end=True
+                    "[THANK_YOU] Just talk with some of the citizens and I'm sure you'll find them receptive to my message.".format(
+                        **self.elements),
+                    ContextTag([context.CUSTOMREPLY, ]),
+                    data={"reply": "[IWILLDOMISSION]", "mission": "help improve your image"},
+                    subject=leader, effect=self._start_discredit, dead_end=True
                 ))
 
         if self.won_discredit:
             if leader is self.elements["CULPRIT"]:
                 mylist.append(Offer(
-                    "[THANKS_FOR_HELP] With all opposition extinguished, I can now rule {METROSCENE} as I please!".format(**self.elements),
-                    ContextTag([context.CUSTOM, ]), data={"reply": "I have turned the people of {METROSCENE} against {NPC}.".format(**self.elements)},
+                    "[THANKS_FOR_HELP] With all opposition extinguished, I can now rule {METROSCENE} as I please!".format(
+                        **self.elements),
+                    ContextTag([context.CUSTOM, ]),
+                    data={"reply": "I have turned the people of {METROSCENE} against {NPC}.".format(**self.elements)},
                     effect=self._win_discredit, dead_end=True
                 ))
             elif self.elements["CULPRIT"] is not self.elements["NPC"]:
@@ -905,11 +1086,12 @@ class RabbleRouser(Plot):
                 ))
             else:
                 mylist.append(Offer(
-                    "[THANKS_FOR_HELP] Now {METROSCENE} can once more be united as a true community!".format(**self.elements),
-                    ContextTag([context.CUSTOM, ]), data={"reply": "I have turned the people of {METROSCENE} against {NPC}.".format(**self.elements)},
+                    "[THANKS_FOR_HELP] Now {METROSCENE} can once more be united as a true community!".format(
+                        **self.elements),
+                    ContextTag([context.CUSTOM, ]),
+                    data={"reply": "I have turned the people of {METROSCENE} against {NPC}.".format(**self.elements)},
                     effect=self._win_discredit, dead_end=True
                 ))
-
 
         return mylist
 
@@ -930,14 +1112,16 @@ class RabbleRouser(Plot):
         bribe = gears.selector.calc_mission_reward(self.rank, 1000)
         if self.mystery_solved:
             mylist.append(Offer(
-                "Wait, we can come to a deal about this... I'll offer you ${:,} to forget you heard anything.".format(bribe),
+                "Wait, we can come to a deal about this... I'll offer you ${:,} to forget you heard anything.".format(
+                    bribe),
                 ContextTag([context.CUSTOM]), data={"reply": "I know you {}.".format(mystery.solution[1].verbed)},
                 subject=self, subject_start=True
             ))
             if self.solution_public:
                 mylist.append(Offer(
                     "[I_WOULD_HAVE_GOTTEN_AWAY]",
-                    ContextTag([context.CUSTOMREPLY]), data={"reply": "Too late. I've already released the information."},
+                    ContextTag([context.CUSTOMREPLY]),
+                    data={"reply": "Too late. I've already released the information."},
                     subject=self, effect=self._catch_culprit
                 ))
             else:
@@ -967,7 +1151,8 @@ class RabbleRouser(Plot):
         reward = gears.selector.calc_mission_reward(self.rank, 165)
 
         if camp.is_not_lancemate(npc):
-            if self.mystery_solved and camp.are_faction_allies(npc, self.elements["METROSCENE"]) and not any([c.gameob is npc for c in mystery.solution]):
+            if self.mystery_solved and camp.are_faction_allies(npc, self.elements["METROSCENE"]) and not any(
+                    [c.gameob is npc for c in mystery.solution]):
                 mylist.append(Offer(
                     "[THIS_CANNOT_BE_ALLOWED] Here is a reward of ${:,} for helping to stop this crime.".format(reward),
                     ContextTag([context.CUSTOM]), data={"reply": mystery.solution_text},
@@ -994,7 +1179,8 @@ class RabbleRouser(Plot):
         camp.freeze(self.elements["CULPRIT"])
         if self.elements["CULPRIT"] is self.elements["LEADER"]:
             self.elements["METRO"].city_leader = None
-        pbge.alert("With {CULPRIT} out of the way, life soon returns to normal in {METROSCENE}.".format(**self.elements))
+        pbge.alert(
+            "With {CULPRIT} out of the way, life soon returns to normal in {METROSCENE}.".format(**self.elements))
         self.end_plot(camp, True)
 
     def _release_culprit(self, camp: gears.GearHeadCampaign):

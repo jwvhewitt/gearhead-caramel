@@ -25,6 +25,53 @@ Prop
 	END
 
 Prop
+	name = "SmogSpewer"
+	desig = "SMG-01"
+	imagename = "prop_smogspewer.png"
+    colors = (WarmGrey,AeroBlue,Malachite,Aquamarine,SteelBlue)
+    frame = 0
+    destroyed_frame = 1
+	scale = HumanScale
+	statline = {
+		Reflexes = 10, Body=15, Speed=10, Perception=10, Craft=10, Knowledge=10, Ego=10, Charm = 10,
+		RangedCombat = 5, CloseCombat = 5,
+	}
+    action_points = 3
+	SUB
+        ChemThrower
+            name = "Toxin Spray"
+            reach = 7
+            damage = 3
+            accuracy = 1
+            penetration = 1
+            shot_anim = AcidSpray
+            attributes = (Scatter)
+            SUB
+                Chem
+                    name = "Toxin"
+                    quantity = 30
+                    attributes = (PoisonAttack, Brutal)
+            END
+        ChemThrower
+            name = "Miasma Belcher"
+            reach = 5
+            damage = 3
+            accuracy = 1
+            penetration = 1
+            area_anim = MiasmaAnim
+            attributes = (ConeAttack)
+            SUB
+                Chem
+                    name = "Smog"
+                    quantity = 60
+                    attributes = (PoisonAttack, Agonize)
+            END
+		Armor
+			size = 8
+	END
+
+
+Prop
 	name = "Artillery"
 	desig = "HAL-82"
 	imagename = "prop_artillery.png"

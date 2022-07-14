@@ -8,7 +8,7 @@ Monster
 	frame = 0
 	colors = (Aquamarine,BrightRed,GunRed,Terracotta,Black)
     threat = 5
-    type_tags = ("MUTANT", "CAVE",)
+    type_tags = ("MUTANT", "CAVE", "TOXIC")
     families = ("VERMIN",)
     environment_list = (GroundEnv,UrbanEnv)
 

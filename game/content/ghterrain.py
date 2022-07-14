@@ -26,6 +26,13 @@ class Water(pbge.scenes.terrain.AnimTerrain):
     border_priority = 1000
 
 
+class ToxicSludge(pbge.scenes.terrain.VariableTerrain):
+    image_bottom = 'terrain_floor_sludge.png'
+    blocks = (Walking, Rolling)
+    border = pbge.scenes.terrain.FloorBorder('terrain_border_sludge.png')
+    border_priority = 1200
+
+
 class MSWreckage(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_decor_mswreckage.png'
     frames = (0, 1)
@@ -373,6 +380,11 @@ class DZDWConcreteBuilding(pbge.scenes.terrain.Terrain):
 class DZDConcreteBuilding(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_mechaprops.png'
     frame = 1
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+class MechaScaleMineBuildingTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'prop_dzd_buildings.png'
+    frame = 0
     blocks = (Walking, Skimming, Rolling, Flying)
 
 

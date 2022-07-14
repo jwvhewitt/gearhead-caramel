@@ -29,6 +29,10 @@ class GrassRoom(ClumpyRoom):
     CLUMP_FLOOR = ghterrain.GreenZoneGrass
 
 
+class ToxicSludgeRoom(ClumpyRoom):
+    CLUMP_FLOOR = ghterrain.ToxicSludge
+
+
 class LakeRoom(FuzzyRoom):
     def build( self, gb, archi ):
         super().build(gb,archi)

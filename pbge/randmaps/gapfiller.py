@@ -35,6 +35,12 @@ class RoomFiller(object):
                     myroom.area = myrect
                     closed_area.append(myrect)
                 count += 1
+                if count > 50:
+                    if random.randint(1, 3) == 3 and myroom.width > myroom.MIN_RANDOM_SIZE:
+                        myroom.width -= 1
+                    if random.randint(1, 3) == 3 and myroom.height > myroom.MIN_RANDOM_SIZE:
+                        myroom.height -= 1
+
             if myroom.area:
                 room.contents.append(myroom)
             else:

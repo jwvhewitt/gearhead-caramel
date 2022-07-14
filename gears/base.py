@@ -562,6 +562,10 @@ class BaseGear(scenes.PlaceableThing):
         self.material = keywords.pop("material", self.DEFAULT_MATERIAL)
         self.imagename = keywords.pop("imagename", "iso_item.png")
         self.colors = keywords.pop("colors", None)
+        if self.colors:
+            for c in self.colors:
+                if isinstance(c, str):
+                    print("Warning: {} is not a color".format(c))
         self.uniqueid = uniqueid
         self.shop_tags = list(shop_tags)
         self.desc = desc
@@ -569,7 +573,7 @@ class BaseGear(scenes.PlaceableThing):
         self.faction_list = faction_list
         # Error check:
         for fac in faction_list:
-            if fac and fac not in SINGLETON_REVERSE:
+            if fac and fac not in SINGLETON_REVERSE and fac != "ReallyNone":
                 print("Warning: {} in {} doesn't seem to be a faction.".format(fac, self.name))
         self.stolen = stolen
 
@@ -2663,7 +2667,7 @@ class ChemThrower(Weapon):
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     DEFAULT_AREA_ANIM = geffects.Fireball
     LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.LineAttack,
-                        attackattributes.ConeAttack, attackattributes.LinkedFire
+                        attackattributes.ConeAttack, attackattributes.LinkedFire, attackattributes.Scatter
                         )
 
     def is_legal_sub_com(self, part):
