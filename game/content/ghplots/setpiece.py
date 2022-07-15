@@ -6,7 +6,7 @@ import gears
 import pbge
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
-from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot, dungeonmaker, ghrooms
+from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST, dungeonmaker, ghrooms
 from . import lancemates, shops_plus
 
 

@@ -29,7 +29,7 @@ from .shops_plus import get_building
 #
 
 class TheCursedSoil(Plot):
-    LABEL = "TEST_LOCAL_PROBLEM"
+    LABEL = "LOCAL_PROBLEM"
     scope = "METRO"
     UNIQUE = True
     QOL = gears.QualityOfLife(health=-2, prosperity=-2)
@@ -93,6 +93,11 @@ class TheCursedSoil(Plot):
         surprise.contents.append(monteam)
         equipment_room = pbge.randmaps.rooms.ClosedRoom(parent=inside_scene,
                                                         decorate=gharchitecture.UlsaniteOfficeDecor())
+        mychest = ghwaypoints.StorageBox()
+        equipment_room.contents.append(mychest)
+        for t in range(random.randint(1, 3)):
+            mychest.contents.append(gears.selector.get_design_by_full_name("Pick"))
+        mychest.contents.append(gears.selector.get_design_by_full_name("CTO Heavy Laser Cutter"))
 
         # Generate the dungeon.
         my_dungeon = dungeonmaker.DungeonMaker(
@@ -150,6 +155,7 @@ class TheCursedSoil(Plot):
         self.found_mine = False
         self.got_final_level_message = False
         self.defeated_smogspewer = False
+        self.got_ending_message = False
 
         return True
 
@@ -169,13 +175,22 @@ class TheCursedSoil(Plot):
                 "You have discovered a PreZero ruin. The miners must have tunneled into here before the mine shut down.")
             self.got_final_level_message = True
 
+    def METROSCENE_ENTER(self, camp):
+        if self.defeated_smogspewer and not self.got_ending_message:
+            pbge.alert("As you enter {METROSCENE}, the air seems fresher than before. Maybe the curse has finally been broken.".format(**self.elements))
+            self.elements["METRO"].local_reputation += 10
+            self.got_ending_message = True
+
     def _go_to_mine(self, camp):
         camp.go(self.elements["ENTRANCE"])
 
     def SMOGSPEWER_FAINT(self, camp):
-        pbge.alert("That should do it...")
+        pbge.alert("With the smog spewer destroyed, the haze begins to clear...")
         self.elements["MINE_ENTRANCE"].turn_off_smoke()
+        self.RUMOR = None
+        self.memo = None
         self.QOL = gears.QualityOfLife(prosperity=1)
+        self.defeated_smogspewer = True
 
 
 class DeadzoneDefenseSpending(Plot):

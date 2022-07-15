@@ -297,10 +297,10 @@ def play_the_game():
         mymenu.add_item("Config Options", open_config_menu)
         mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
         mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
-        mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
         if quarantined_files:
             mymenu.add_item("Quarantined Saves", view_quarantine)
         if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
             mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
             mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
             mymenu.add_item("Just Show Background", just_show_background)

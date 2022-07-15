@@ -39,26 +39,21 @@ from . import seekenemybase
 from . import setpiece
 from . import shops_extras
 from . import shops_plus
-from . import tarot_cards
-from . import tarot_reveal
-from . import tarot_sockets
 from . import thingplacers
 from . import townhall
 from . import treasures
 from . import utility
-from game.content import mechtarot, PLOT_LIST, UNSORTED_PLOT_LIST, CARDS_BY_NAME
+from game.content import PLOT_LIST, UNSORTED_PLOT_LIST
 from pbge.plots import Plot
 
 
 def harvest( mod ):
     for name in dir( mod ):
         o = getattr( mod, name )
-        if inspect.isclass( o ) and issubclass( o , Plot ) and o is not Plot and o is not mechtarot.TarotCard:
+        if inspect.isclass( o ) and issubclass( o , Plot ) and o is not Plot:
             PLOT_LIST[ o.LABEL ].append( o )
             UNSORTED_PLOT_LIST.append( o )
             # print o.__name__
-            if issubclass(o,mechtarot.TarotCard):
-                CARDS_BY_NAME[o.__name__] = o
 
 
 harvest(actionscenes)
@@ -100,9 +95,6 @@ harvest(seekenemybase)
 harvest(setpiece)
 harvest(shops_extras)
 harvest(shops_plus)
-harvest(tarot_cards)
-harvest(tarot_reveal)
-harvest(tarot_sockets)
 harvest(thingplacers)
 harvest(townhall)
 harvest(treasures)
@@ -145,12 +137,9 @@ def reload_plot_module(mod_name):
         mod = modict[mod_name]
         for name in dir(mod):
             o = getattr(mod, name)
-            if inspect.isclass(o) and issubclass(o, Plot) and o is not Plot and o is not mechtarot.TarotCard:
+            if inspect.isclass(o) and issubclass(o, Plot) and o is not Plot:
                 PLOT_LIST[o.LABEL].remove(o)
                 UNSORTED_PLOT_LIST.remove(o)
-                # print o.__name__
-                if issubclass(o, mechtarot.TarotCard):
-                    del CARDS_BY_NAME[o.__name__]
         del sys.modules[mod_name]
         del modict[mod_name]
 

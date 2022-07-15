@@ -73,13 +73,13 @@ class Flagstone(pbge.scenes.terrain.VariableTerrain):
 class DeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_dzground.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground.png')
-    border_priority = 50
+    border_priority = 80
 
 
 class SemiDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_dzground.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground.png')
-    border_priority = 50
+    border_priority = 75
 
 
 class Pavement(pbge.scenes.terrain.VariableTerrain):
@@ -89,7 +89,7 @@ class Pavement(pbge.scenes.terrain.VariableTerrain):
 class SmallDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_dzground2.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground2.png')
-    border_priority = 50
+    border_priority = 45
 
 
 class TechnoRubble(pbge.scenes.terrain.VariableTerrain):
@@ -299,8 +299,33 @@ class VictimTerrain(pbge.scenes.terrain.Terrain):
 
 
 class OldCrateTerrain(pbge.scenes.terrain.Terrain):
-    image_top = 'terrain_decor_default.png'
+    image_top = 'terrain_decor_containers.png'
+    frame = 0
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+class OpenOldCrateTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_containers.png'
     frame = 1
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+class AmmoBoxTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_containers.png'
+    frame = 2
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+class OpenAmmoBoxTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_containers.png'
+    frame = 3
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+class StorageBoxTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_containers.png'
+    frame = 4
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+class OpenStorageBoxTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_containers.png'
+    frame = 5
     blocks = (Walking, Skimming, Rolling, Flying)
 
 

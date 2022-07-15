@@ -74,10 +74,6 @@ class DZD_TheTownYouStartedIn(Plot):
         # Record the tavern scene
         self.elements["TAVERN"] = tplot.elements["INTERIOR"]
 
-        # Add the local tarot.
-        #threat_card = nart.add_tarot_card(self, (game.content.ghplots.dd_tarot.MT_THREAT,), )
-        #game.content.mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0], steps=3)
-
         # Add the features
         self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
         self.add_sub_plot(nart, "CF_METROSCENE_WME_DEFENSE_HANDLER")

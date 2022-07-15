@@ -234,6 +234,7 @@ class PartlyUrbanGenerator(SceneGenerator):
                 connect_to = min(self.done_rooms, key=lambda r: gb.distance(nuroom.area.center, r.area.center))
                 self.draw_road(gb, nuroom.area.centerx, nuroom.area.centery, connect_to.area.centerx, connect_to.area.centery)
                 if nuroom.anchor:
+                    #print("Anchoring...")
                     self.draw_road_segment(gb, nuroom.area.centerx, nuroom.area.centery, *nuroom.anchor(nuroom.area, None))
                 self.done_rooms.append(nuroom)
 

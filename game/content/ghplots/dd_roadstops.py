@@ -6,9 +6,9 @@ import gears
 import pbge
 from .dd_main import DZDRoadMapExit, RoadNode
 import random
-from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, mechtarot, dungeonmaker, \
+from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, dungeonmaker, \
     ghrooms
-from . import tarot_cards, missionbuilder, dd_homebase
+from . import missionbuilder, dd_homebase
 from pbge.memos import Memo
 from .shops_plus import get_building
 
@@ -51,7 +51,7 @@ class DZD_DeadZoneTown(Plot):
             ))
         defender.place(myscene, team=team2)
 
-        myscenegen = pbge.randmaps.CityGridGenerator(myscene, gharchitecture.HumanScaleSemiDeadzone(),
+        myscenegen = pbge.randmaps.CityGridGenerator(myscene, gharchitecture.HumanScaleUrbanDeadzone(),
                                                      road_terrain=ghterrain.Flagstone)
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
@@ -79,18 +79,13 @@ class DZD_DeadZoneTown(Plot):
         # Add the services.
         tplot = self.add_sub_plot(nart, "DZRS_GARAGE")
         tplot = self.add_sub_plot(nart, "DZRS_HOSPITAL")
-        # tplot = self.add_sub_plot(nart, "DZDHB_EliteEquipment")
-        # tplot = self.add_sub_plot(nart, "DZDHB_BlueFortress")
-        # tplot = self.add_sub_plot(nart, "DZDHB_BronzeHorseInn")
-        # tplot = self.add_sub_plot(nart, "DZDHB_LongRoadLogistics")
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
         self.add_sub_plot(nart, "RANDOM_LANCEMATE")
         self.add_sub_plot(nart, "DZRS_FEATURE")
 
-        # Add the local tarot.
-        threat_card = nart.add_tarot_card(self, (tarot_cards.MT_THREAT,))
-        mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0])
+        # Add the local problem.
+        self.add_sub_plot(nart, "LOCAL_PROBLEM")
 
         # Add the features
         self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")
@@ -179,9 +174,8 @@ class DZD_DeadZoneVillage(Plot):
         self.add_sub_plot(nart, "RANDOM_LANCEMATE")
         self.add_sub_plot(nart, "DZRS_FEATURE")
 
-        # Add the local tarot.
-        threat_card = nart.add_tarot_card(self, (tarot_cards.MT_THREAT,))
-        mechtarot.Constellation(nart, self, threat_card, threat_card.get_negations()[0])
+        # Add the local problem.
+        self.add_sub_plot(nart, "LOCAL_PROBLEM")
 
         # Add the features
         self.add_sub_plot(nart, "CF_METROSCENE_RECOVERY_HANDLER")

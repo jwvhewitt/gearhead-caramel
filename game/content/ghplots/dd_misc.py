@@ -6,8 +6,7 @@ import gears
 import pbge
 from .dd_main import DZDRoadMapExit,RoadNode
 import random
-from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST,mechtarot
-from . import tarot_cards
+from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST
 from gears import personality
 
 

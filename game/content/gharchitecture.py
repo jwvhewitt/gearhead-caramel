@@ -187,6 +187,11 @@ class HumanScaleSemiDeadzone(GearHeadArchitecture):
     DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.SemiDeadZoneGround, ghterrain.SemiDeadZoneGround, ghterrain.GreenZoneGrass, higround=0.65)
     DEFAULT_ROOM_CLASSES = (ghrooms.ForestRoom,ghrooms.LakeRoom,ghrooms.WreckageRoom,ghrooms.DragonToothRoom,ghrooms.MSRuinsRoom)
 
+class HumanScaleUrbanDeadzone(GearHeadArchitecture):
+    ENV = gears.tags.GroundEnv
+    DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
+    DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.CrackedEarth, ghterrain.SemiDeadZoneGround, ghterrain.GreenZoneGrass)
+    DEFAULT_ROOM_CLASSES = (ghrooms.BushesRoom,ghrooms.LakeRoom,ghrooms.WreckageRoom)
 
 class HumanScaleGreenzone(GearHeadArchitecture):
     ENV = gears.tags.GroundEnv

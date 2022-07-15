@@ -622,6 +622,123 @@ class RLM_RatherGeneric(Plot):
         self.end_plot(camp)
 
 
+class RLM_PersonForHire(Plot):
+    LABEL = "RLM_Relationship"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        rumor="{NPC} is a {NPC.job} for hire",
+        offer_msg="If you want a {NPC.jpb} on your team, you can find {NPC} at {NPC_SCENE}.",
+        memo="{NPC} is a {NPC.job} for hire.",
+        prohibited_npcs=("NPC",)
+    )
+
+    def custom_init(self, nart):
+        npc = self.elements["NPC"]
+        npc.relationship = gears.relationships.Relationship()
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        npc = self.elements["NPC"]
+        self.hire_cost = get_hire_cost(camp, npc)
+        if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
+            if camp.can_add_lancemate():
+                mylist.append(Offer("My signing rate is ${:,}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                                    context=ContextTag((context.PROPOSAL, context.JOIN)),
+                                    data={"subject": "joining my lance"},
+                                    subject=self, subject_start=True,
+                                    ))
+                mylist.append(Offer("[DENY_JOIN] [GOODBYE]",
+                                    context=ContextTag((context.DENY, context.JOIN)), subject=self
+                                    ))
+                if camp.credits >= self.hire_cost:
+                    mylist.append(Offer("[THANKS_FOR_CHOOSING_ME] [LETSGO]",
+                                        context=ContextTag((context.ACCEPT, context.JOIN)), subject=self,
+                                        effect=self._pay_to_join
+                                        ))
+                mylist.append(Offer(
+                    "[HELLO] [WAITINGFORMISSION]", context=ContextTag((context.HELLO,))
+                ))
+            mylist.append(LMSkillsSelfIntro(npc))
+
+        return mylist
+
+    def _pay_to_join(self, camp):
+        camp.credits -= self.hire_cost
+        self._join_lance(camp)
+
+    def _join_lance(self, camp):
+        npc = self.elements["NPC"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        effect = game.content.plotutility.AutoJoiner(npc)
+        effect(camp)
+        self.end_plot(camp)
+
+
+class RLM_StraightOutOfWork(Plot):
+    LABEL = "RLM_Relationship"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        rumor="{NPC} is an unemployed cavalier",
+        offer_msg="You can find {NPC} at {NPC_SCENE}. I'm sure {NPC.gender.subject_pronoun} would be happy to embark on a new adventure.",
+        memo="{NPC}  is an unemployed cavalier looking for a new lance to join.",
+        prohibited_npcs=("NPC",)
+    )
+
+    def custom_init(self, nart):
+        npc = self.elements["NPC"]
+        npc.relationship = gears.relationships.Relationship()
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        npc = self.elements["NPC"]
+        self.hire_cost = get_hire_cost(camp, npc)
+        if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
+            if camp.can_add_lancemate():
+                if npc.get_reaction_score(camp.pc, camp) > 20:
+                    mylist.append(Offer("[IWOULDLOVETO] [THANKS_FOR_CHOOSING_ME]",
+                                        context=ContextTag((context.PROPOSAL, context.JOIN)),
+                                        data={"subject": "joining my lance"},
+                                        effect=self._join_lance
+                                        ))
+                else:
+                    mylist.append(Offer("Normally I charge ${:,} up front. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                                        context=ContextTag((context.PROPOSAL, context.JOIN)),
+                                        data={"subject": "joining my lance"},
+                                        subject=self, subject_start=True,
+                                        ))
+                    mylist.append(Offer("[DENY_JOIN] [GOODBYE]",
+                                        context=ContextTag((context.DENY, context.JOIN)), subject=self
+                                        ))
+                    if camp.credits >= self.hire_cost:
+                        mylist.append(Offer("[THANKS_FOR_CHOOSING_ME] [LETSGO]",
+                                            context=ContextTag((context.ACCEPT, context.JOIN)), subject=self,
+                                            effect=self._pay_to_join
+                                            ))
+                mylist.append(Offer(
+                    "[HELLO] [WAITINGFORMISSION]", context=ContextTag((context.HELLO,))
+                ))
+            mylist.append(LMSkillsSelfIntro(npc))
+
+        return mylist
+
+    def _pay_to_join(self, camp):
+        camp.credits -= self.hire_cost
+        self._join_lance(camp)
+
+    def _join_lance(self, camp):
+        npc = self.elements["NPC"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        effect = game.content.plotutility.AutoJoiner(npc)
+        effect(camp)
+        self.end_plot(camp)
+
+
 class RLM_DamagedGoodsSale(Plot):
     LABEL = "RLM_Relationship"
     active = True

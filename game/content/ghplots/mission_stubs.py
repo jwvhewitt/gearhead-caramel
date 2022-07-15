@@ -7,10 +7,6 @@ from game.ghdialogue import context
 import random
 from pbge.dialogue import ContextTag,Offer
 from . import dd_main,dd_customobjectives
-from . import tarot_cards
-from .tarot_cards import ME_FACTION,ME_PERSON,ME_CRIME,ME_PUZZLEITEM,ME_ACTOR,ME_LIABILITY,CrimeObject,ME_POSITION, ME_PROBLEM, ME_BOOSTSOURCE
-from game.content import mechtarot
-from game.content.mechtarot import CONSEQUENCE_WIN,CONSEQUENCE_LOSE
 import game.content.plotutility
 import game.content.gharchitecture
 from . import dd_combatmission

@@ -1,3 +1,6 @@
+* Edit Scenario has been moved to Dev Mode only due to the fact that it needs some work
+* Containers now visibly open when you open them, so you can see what you've already looted
+* Mechanical Tarot has been completely replaced with Challenge/Resource system
 * Fixed a rare pathfinding in combat bug
 * Fixed a rare infinite recursion bug in end_plot
 * You can now say goodbye from an info offer

@@ -59,6 +59,7 @@ class Exit( Waypoint ):
 class Crate( Waypoint ):
     name = "Crate"
     TILE = pbge.scenes.Tile(None,None,ghterrain.OldCrateTerrain)
+    OPEN_TERRAIN = ghterrain.OpenOldCrateTerrain
     desc = "You see a large plastic crate."
     DEFAULT_TREASURE_TYPE = (gears.tags.ST_TREASURE,)
     def __init__( self, treasure_rank=0, treasure_amount=100, treasure_type=DEFAULT_TREASURE_TYPE, **kwargs ):
@@ -71,6 +72,31 @@ class Crate( Waypoint ):
     def unlocked_use( self, camp: gears.GearHeadCampaign ):
         # Perform this waypoint's special action.
         fieldhq.backpack.ItemExchangeWidget.create_and_invoke(camp, camp.first_active_pc(), self.contents)
+        if self.OPEN_TERRAIN:
+            scene = self.scene
+            if scene and scene.on_the_map(*self.pos):
+                scene.set_decor(self.pos[0], self.pos[1], self.OPEN_TERRAIN)
+
+
+class OldCrate(Crate):
+    name = 'Crate'
+    TILE = pbge.scenes.Tile(None,None,ghterrain.OldCrateTerrain)
+    desc = "You see an old plasteel crate."
+
+
+class AmmoBox(Crate):
+    name = 'Ammo Box'
+    TILE = pbge.scenes.Tile(None,None,ghterrain.AmmoBoxTerrain)
+    desc = "You see an ammo box."
+    OPEN_TERRAIN = ghterrain.OpenAmmoBoxTerrain
+    DEFAULT_TREASURE_TYPE = (gears.tags.ST_WEAPON,)
+
+
+class StorageBox(Crate):
+    name = 'Storage Box'
+    TILE = pbge.scenes.Tile(None, None, ghterrain.StorageBoxTerrain)
+    desc = "You see a large metal storage box."
+    OPEN_TERRAIN = ghterrain.OpenStorageBoxTerrain
 
 
 class DZDTown( Exit ):
@@ -94,12 +120,6 @@ class Victim(Waypoint):
     name = 'Victim'
     TILE = pbge.scenes.Tile(None,None,ghterrain.VictimTerrain)
     desc = "This person has seen better days."
-
-class OldCrate(Crate):
-    name = 'Crate'
-    TILE = pbge.scenes.Tile(None,None,ghterrain.OldCrateTerrain)
-    desc = "You see a large plastic crate."
-
 
 class RetroComputer(Waypoint):
     name = 'Computer Terminal'

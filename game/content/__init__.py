@@ -1,6 +1,5 @@
 
 import collections
-
 from pbge.plots import PlotError
 import pbge
 import gears
@@ -18,69 +17,15 @@ from . import ghchallenges
 # The list of plots will be stored as a dictionary based on label.
 PLOT_LIST = collections.defaultdict( list )
 UNSORTED_PLOT_LIST = list()
-CARDS_BY_NAME = dict()
-
 
 class GHNarrativeRequest(pbge.plots.NarrativeRequest):
     def __init__(self, camp: gears.GearHeadCampaign, *args, **kwargs):
         self.challenges = camp.get_active_challenges()
         super().__init__(camp, *args, **kwargs)
 
-    def init_tarot_card(self,myplot,card_class,pstate,ident=None):
-        cp = card_class(self,pstate)
-        if cp:
-            if not ident:
-                ident = "_autoident_{0}".format(len(myplot.subplots))
-            myplot.subplots[ident] = cp
-        return cp
-
-    def generate_tarot_card( self, pstate, tags, tarot_ident="TAROT" ):
-        """Locate a plot which matches the request, init it, and return it."""
-        # Create a list of potential plots.
-        candidates = list()
-        tagset = set(tags)
-        for sp in self.plot_list[tarot_ident]:
-            if tagset.issubset(sp.TAGS) and sp.matches( pstate ) and sp not in self.camp.uniques:
-                candidates.append( sp )
-        if candidates:
-            cp = None
-            while candidates and not cp:
-                cpc = self.random_choice_by_weight( candidates )
-                candidates.remove( cpc )
-                try:
-                    cp = cpc(self,pstate)
-                except PlotError:
-                    cp = None
-            if not cp:
-                self.errors.append( "No plot accepted for {0}".format( tags ) )
-            return cp
-        else:
-            self.errors.append( "No plot found for {0}".format( tags ) )
-
-    def add_tarot_card( self, myplot, tarot_tags, spstate=None, ident=None, necessary=True ):
-        if not spstate:
-            spstate = pbge.plots.PlotState().based_on(myplot)
-        if not ident:
-            ident = "_autoident_{0}".format( len( myplot.subplots ) )
-        sp = self.generate_tarot_card( spstate, tarot_tags )
-        if necessary and not sp:
-            #print "Fail: {}".format(splabel)
-            myplot.fail( self )
-        elif sp:
-            #print "Success: {}".format(splabel)
-            myplot.subplots[ident] = sp
-        return sp
-
-    def request_tarot_card_by_name(self,tarot_name,pstate):
-        cpc = CARDS_BY_NAME.get(tarot_name)
-        if cpc:
-            self.story = cpc(self,pstate)
-            return self.story
-
-from . import mechtarot
 from . import ghplots
 
-from game.content.ghplots import dd_combatmission, dd_homebase, dd_main, tarot_cards, tarot_reveal, mocha, harvest
+from game.content.ghplots import dd_combatmission, dd_homebase, dd_main, mocha, harvest
 from . import plotutility
 from . import dungeonmaker
 
