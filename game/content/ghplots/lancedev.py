@@ -1,4 +1,5 @@
 # Character development plots for lancemates.
+import game.content
 from pbge.plots import Plot, PlotState
 from pbge.dialogue import Offer, ContextTag
 from game import teams, services, ghdialogue
@@ -53,8 +54,10 @@ class LMMissionPlot(LMPlot):
     EXPERIENCE_REWARD = 150
     MISSION_NAME = "{NPC}'s Mission"
 
-    def prep_mission(self, camp: gears.GearHeadCampaign):
+    def prep_mission(self, camp: gears.GearHeadCampaign, custom_elements=None, sgen_override=None):
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(camp.scene.get_metro_scene())
+        if sgen_override:
+            sgen = sgen_override
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, self.MISSION_NAME.format(**self.elements),
             self.elements["METROSCENE"], self.elements["MISSION_GATE"],
@@ -62,7 +65,8 @@ class LMMissionPlot(LMPlot):
             rank=camp.renown, objectives=self.MISSION_OBJECTIVES,
             cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
             on_win=self.win_mission, on_loss=self.lose_mission,
-            scenegen=sgen, architecture=archi
+            scenegen=sgen, architecture=archi,
+            custom_elements=custom_elements
         )
 
     def MISSION_GATE_menu(self, camp, thingmenu):
@@ -77,6 +81,200 @@ class LMMissionPlot(LMPlot):
 
 
 # The actual plots...
+
+class Earth_GetInTheMekShimli(LMMissionPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+    MISSION_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS, missionbuilder.BAMO_DEFEAT_COMMANDER)
+    CASH_REWARD = 250
+    EXPERIENCE_REWARD = 150
+
+    @classmethod
+    def matches(self, pstate):
+        """Returns True if this plot matches the current plot state."""
+        return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
+                gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        defender = self.seek_element(
+            nart, "DEFENDER", self._is_good_defender, scope=self.elements["METROSCENE"], lock=True)
+
+        self.elements["ENEMY_FACTION"] = plotutility.RandomBanditCircle(nart.camp)
+
+        self.prep_mission(nart.camp, sgen_override=gharchitecture.DeadZoneHighwaySceneGen,
+                          custom_elements={"ENTRANCE_ANCHOR": pbge.randmaps.anchors.east})
+        self.mission_seed.make_enemies = False
+
+        self.started_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                candidate.relationship.expectation == gears.relationships.E_GREATERGOOD and
+                not candidate.relationship.role
+            )
+
+    def _is_good_defender(self, nart, candidate):
+        return (isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
+                nart.camp.are_faction_allies(self.elements["METROSCENE"], candidate))
+
+    def METROSCENE_ENTER(self,camp):
+        if not self.started_convo:
+            npc = self.elements["NPC"]
+            defender = self.elements["DEFENDER"]
+            pbge.alert("As you enter {METROSCENE}, {DEFENDER} rushes to you in a near-panic.".format(**self.elements))
+
+            ghcutscene.SimpleMonologueDisplay("[THIS_IS_AN_EMERGENCY] There's a convoy under attack just outside of town. It includes civilian transports. You're the only lance in the area that can possibly make it there in time to defend.", defender)(camp)
+            mymenu = ghcutscene.SimpleMonologueMenu("We'll do it. [LETS_START_MECHA_MISSION]", npc, camp)
+
+            mymenu.add_item("Absolutely right. Let's get to work.", self._start_mission)
+            mymenu.add_item("Wait a minute- Who do you think the boss of this lance is?", self._question_mission)
+
+            act = mymenu.query()
+            act(camp)
+
+    def _start_mission(self, camp):
+        pbge.alert("You rush to intercept the bandits before they can reach the convoy.")
+        npc = self.elements["NPC"]
+        npc.relationship.role = gears.relationships.R_COLLEAGUE
+        self.mission_seed(camp)
+
+    def _question_mission(self, camp):
+        npc = self.elements["NPC"]
+        mymenu = ghcutscene.SimpleMonologueMenu("Alright then, \"boss\", what do you say we do?", npc, camp)
+
+        mymenu.add_item("I guess we have no choice- we have to rescue the convoy.", self._grudgingly_start_mission)
+        mymenu.add_item("We reject the mission. There are other things we need to do right now.", self._deny_mission)
+
+        act = mymenu.query()
+        act(camp)
+
+    def _grudgingly_start_mission(self, camp):
+        pbge.alert("You go to intercept the bandits before they can reach the convoy. Hopefully you are not too late.")
+        npc = self.elements["NPC"]
+        npc.relationship.role = gears.relationships.R_CHAPERONE
+        self.mission_seed(camp)
+
+    def _deny_mission(self, camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "This is no time for your petty ego. I'm going to rescue that convoy; who else is with me?",
+            npc)(camp, False)
+        deserters = [lm for lm in camp.get_lancemates() if (lm is npc) or (lm.get_reaction_score(camp.pc, camp) < 30) or {gears.personality.Peace, gears.personality.Fellowship}.intersection(lm.personality)]
+        deserter_names = [str(d) for d in deserters]
+        npc.relationship.expectation = gears.relationships.E_AVENGER
+        if len(deserter_names) > 2:
+            mymsg = ", ".join(deserter_names[:-1]) + ", and " + deserter_names[-1] + " leave"
+        elif len(deserter_names) > 1:
+            mymsg = " and ".join(deserter_names) + " leave"
+        else:
+            mymsg = "{} leaves".format(npc)
+        pbge.alert("{} your lance to go rescue the convoy.".format(mymsg))
+        for lm in deserters:
+            plotutility.AutoLeaver(lm)(camp)
+            lm.relationship.reaction_mod -= random.randint(1, 20)
+            vplot = game.content.load_dynamic_plot(camp, "NPC_VACATION", PlotState().based_on(self, update_elements={"NPC": lm}))
+            vplot.freeze_now(camp)
+        self.proper_end_plot(camp, False)
+
+
+class HowDoYouSeeMe(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene)
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    gears.personality.Sociable in candidate.personality and
+                    gears.personality.Fellowship not in candidate.personality and
+                    not candidate.relationship.role
+            )
+
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        pbge.alert("As you enter {METROSCENE}, {NPC} calls you aside for a talk.".format(**self.elements))
+
+        mymenu = ghcutscene.SimpleMonologueMenu(
+            "I just wanted to have a chat, get to know you better. They say that Fellowship is one of the primary cavalier virtues. Of course, it means different things to different people. How do you envision our relationship as part of this lance?",
+            npc.get_root(), camp)
+
+        if gears.personality.Fellowship in camp.pc.personality:
+            mymenu.add_item("I would say that we are friends, adventuring companions. There's a special bond that only cavaliers know.", self.choose_friend)
+
+        mymenu.add_item("We are colleagues, coworkers. Professionals working together in a dangerous field.", self.choose_colleague)
+
+        if npc.relationship.attitude == gears.relationships.A_SENIOR or npc.renown > camp.renown:
+            mymenu.add_item("You are a senior pilot to me. I look up to you and try to learn from you. If anything, you are my mentor.", self.choose_mentor)
+
+        if gears.relationships.RT_FAMILY not in npc.relationship.tags:
+            mymenu.add_item("Honestly speaking, ever since you joined the team I've had a bit of a crush on you...", self.choose_crush)
+
+        mymenu.add_item("I don't know?! What is this, some kind of team building activity? We're just lancemates, alright?", self.choose_confusion)
+
+        npc.personality.add(gears.personality.Fellowship)
+
+        answer = mymenu.query()
+        if answer:
+            answer(npc, camp)
+
+        self.proper_end_plot(camp)
+
+    def choose_friend(self, npc, camp):
+        ghcutscene.SimpleMonologueDisplay(
+            "Yes, I would say that's the correct answer. Being a cavalier isn't like any other job... the bonds we form on the battlefield are special.", npc
+        )(camp, False)
+        npc.relationship.role = gears.relationships.R_FRIEND
+        npc.relationship.reaction_mod += 10
+
+    def choose_colleague(self, npc, camp):
+        ghcutscene.SimpleMonologueDisplay(
+            "That's a very professional answer. You didn't used to work for the corporations by any chance, did you?", npc
+        )(camp, False)
+        npc.relationship.role = gears.relationships.R_COLLEAGUE
+
+    def choose_mentor(self, npc, camp: gears.GearHeadCampaign):
+        ghcutscene.SimpleMonologueDisplay(
+            "I suppose I am a mentor to you. I'll do my best to pass on whatever knowledge I have to you and the rest of the lance.", npc
+        )(camp, False)
+        camp.dole_xp(100)
+        npc.relationship.role = gears.relationships.R_MENTOR
+
+    def choose_crush(self, npc: gears.base.Character, camp):
+        if npc.get_reaction_score(camp.pc, camp) > 20:
+            ghcutscene.SimpleMonologueDisplay(
+                "Well, that's a pleasant answer to hear. We'll have to talk more about this later.", npc
+            )(camp, False)
+            npc.relationship.reaction_mod += 10
+            npc.relationship.role = gears.relationships.R_CRUSH
+        else:
+            ghcutscene.SimpleMonologueDisplay(
+                "Slow down there, [audience]. I wasn't expecting this much information when I asked the question!", npc
+            )(camp, False)
+            npc.relationship.reaction_mod -= 10
+            npc.relationship.role = gears.relationships.R_COLLEAGUE
+
+    def choose_confusion(self, npc, camp):
+        if npc.get_reaction_score(camp.pc, camp) > 40:
+            ghcutscene.SimpleMonologueDisplay(
+                "Sorry, I didn't mean to confuddle you. I can assure you that we are, in fact, friends... even if that doesn't seem obvious to you right now.", npc
+            )(camp, False)
+            npc.relationship.role = gears.relationships.R_FRIEND
+        else:
+            ghcutscene.SimpleMonologueDisplay(
+                "Alright, yes, we are lancemates. That part at least everyone can agree on.", npc
+            )(camp, False)
+            npc.relationship.role = gears.relationships.R_COLLEAGUE
+
 
 class Earth_ProBonoMetalPanic(LMMissionPlot):
     LABEL = "LANCEDEV"

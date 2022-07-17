@@ -147,7 +147,78 @@ class ModuleStatusBlock(object):
         self.module_display.render(x + self.width // 2 - 30, y)
 
 
+class BeingStatusBlock(object):
+    DARK_HEALTH = pygame.Color(10, 50, 0)
+    BRIGHT_HEALTH = pygame.Color(30, 150, 0)
+    DARK_MENTAL = pygame.Color(0, 30, 50)
+    BRIGHT_MENTAL = pygame.Color(0, 90, 150)
+    DARK_STAMINA = pygame.Color(50, 0, 10)
+    BRIGHT_STAMINA = pygame.Color(150, 0, 30)
+
+    def __init__(self, model: base.Being, width=220, **kwargs):
+        self.width = width
+        self.model = model
+        self.height = max(pbge.SMALLFONT.get_linesize(), 12)
+        self.power_sprite = pbge.image.Image('sys_powerindicator.png', 32, 12)
+
+    def render(self, x, y):
+        field_width = (self.width - 47) // 3
+        text_width = max(pbge.SMALLFONT.size(a)[0] for a in ("H:", "M:", "S:"))
+        mydest = pygame.Rect(x, y, field_width, self.height)
+
+        pbge.draw_text(pbge.SMALLFONT, 'H:', mydest, justify=-1, color=pbge.INFO_GREEN)
+        maxi = self.model.max_health
+        mini = self.model.current_health
+        dark_rect = mydest.copy()
+        dark_rect.x += text_width
+        dark_rect.w -= text_width
+        pbge.my_state.screen.fill(self.DARK_HEALTH, dark_rect)
+        bright_rect = dark_rect.copy()
+        bright_rect.w = int((bright_rect.w * mini) / maxi)
+        pbge.my_state.screen.fill(self.BRIGHT_HEALTH, bright_rect)
+        pbge.draw_text(pbge.SMALLFONT, str(mini), dark_rect, justify=0, vjustify=0, color=pbge.WHITE)
+
+        mydest.x += field_width + 5
+        pbge.draw_text(pbge.SMALLFONT, 'M:', mydest, justify=-1, color=pbge.INFO_GREEN)
+        maxi = self.model.get_max_mental()
+        mini = self.model.get_current_mental()
+        dark_rect = mydest.copy()
+        dark_rect.x += text_width
+        dark_rect.w -= text_width
+        pbge.my_state.screen.fill(self.DARK_MENTAL, dark_rect)
+        bright_rect = dark_rect.copy()
+        bright_rect.w = int((bright_rect.w * mini) / maxi)
+        pbge.my_state.screen.fill(self.BRIGHT_MENTAL, bright_rect)
+        pbge.draw_text(pbge.SMALLFONT, str(mini), dark_rect, justify=0, vjustify=0, color=pbge.WHITE)
+
+        mydest.x += field_width + 5
+        pbge.draw_text(pbge.SMALLFONT, 'S:', mydest, justify=-1, color=pbge.INFO_GREEN)
+        maxi = self.model.get_max_stamina()
+        mini = self.model.get_current_stamina()
+        dark_rect = mydest.copy()
+        dark_rect.x += text_width
+        dark_rect.w -= text_width
+        pbge.my_state.screen.fill(self.DARK_STAMINA, dark_rect)
+        bright_rect = dark_rect.copy()
+        bright_rect.w = int((bright_rect.w * mini) / maxi)
+        pbge.my_state.screen.fill(self.BRIGHT_STAMINA, bright_rect)
+        pbge.draw_text(pbge.SMALLFONT, str(mini), dark_rect, justify=0, vjustify=0, color=pbge.WHITE)
+
+        cp, mp = self.model.get_current_and_max_power()
+        if mp > 0:
+            mydest = self.power_sprite.get_rect(0)
+            mydest.midright = (x + self.width, y + self.height // 2)
+            self.power_sprite.render(mydest, 10 - max(cp * 10 // mp, 1))
+
+
 class PilotStatusBlock(object):
+    DARK_HEALTH = pygame.Color(10, 50, 0)
+    BRIGHT_HEALTH = pygame.Color(40, 200, 0)
+    DARK_MENTAL = pygame.Color(0, 30, 50)
+    BRIGHT_MENTAL = pygame.Color(0, 120, 200)
+    DARK_STAMINA = pygame.Color(50, 0, 10)
+    BRIGHT_STAMINA = pygame.Color(200, 0, 40)
+
     # Holds details on the pilot.
     def __init__(self, model, width=220, **kwargs):
         if model:
@@ -162,12 +233,44 @@ class PilotStatusBlock(object):
     def render(self, x, y):
         pbge.draw_text(pbge.SMALLFONT, str(self.model), pygame.Rect(x, y, self.width, self.height), justify=-1)
         if self.model:
-            pbge.draw_text(pbge.SMALLFONT, 'H:{}'.format(self.model.current_health),
-                           pygame.Rect(x + 83, y, 35, self.height), justify=-1, color=pbge.INFO_GREEN)
-            pbge.draw_text(pbge.SMALLFONT, 'M:{}'.format(self.model.get_current_mental()),
-                           pygame.Rect(x + 118, y, 35, self.height), justify=0, color=pbge.INFO_GREEN)
-            pbge.draw_text(pbge.SMALLFONT, 'S:{}'.format(self.model.get_current_stamina()),
-                           pygame.Rect(x + 153, y, 35, self.height), justify=1, color=pbge.INFO_GREEN)
+            field_width = (self.width - 130) // 3
+            text_width = max(pbge.SMALLFONT.size(a)[0] for a in ("H:", "M:", "S:"))
+            mydest = pygame.Rect(x + 83, y, field_width, self.height)
+
+            pbge.draw_text(pbge.SMALLFONT, 'H:', mydest, justify=-1, color=pbge.INFO_GREEN)
+            maxi = self.model.max_health
+            mini = self.model.current_health
+            dark_rect = mydest.copy()
+            dark_rect.x += text_width
+            dark_rect.w -= text_width
+            pbge.my_state.screen.fill(self.DARK_HEALTH, dark_rect)
+            bright_rect = dark_rect.copy()
+            bright_rect.w = int((bright_rect.w * mini) / maxi)
+            pbge.my_state.screen.fill(self.BRIGHT_HEALTH, bright_rect)
+
+            mydest.x += field_width + 5
+            pbge.draw_text(pbge.SMALLFONT, 'M:', mydest, justify=-1, color=pbge.INFO_GREEN)
+            maxi = self.model.get_max_mental()
+            mini = self.model.get_current_mental()
+            dark_rect = mydest.copy()
+            dark_rect.x += text_width
+            dark_rect.w -= text_width
+            pbge.my_state.screen.fill(self.DARK_MENTAL, dark_rect)
+            bright_rect = dark_rect.copy()
+            bright_rect.w = int((bright_rect.w * mini) / maxi)
+            pbge.my_state.screen.fill(self.BRIGHT_MENTAL, bright_rect)
+
+            mydest.x += field_width + 5
+            pbge.draw_text(pbge.SMALLFONT, 'S:', mydest, justify=-1, color=pbge.INFO_GREEN)
+            maxi = self.model.get_max_stamina()
+            mini = self.model.get_current_stamina()
+            dark_rect = mydest.copy()
+            dark_rect.x += text_width
+            dark_rect.w -= text_width
+            pbge.my_state.screen.fill(self.DARK_STAMINA, dark_rect)
+            bright_rect = dark_rect.copy()
+            bright_rect.w = int((bright_rect.w * mini) / maxi)
+            pbge.my_state.screen.fill(self.BRIGHT_STAMINA, bright_rect)
 
             cp, mp = self.mover.get_current_and_max_power()
             if mp > 0:
@@ -238,7 +341,7 @@ class PrimaryStatsBlock(object):
         self.height = self.font.get_linesize() * len(stats.PRIMARY_STATS)
 
     STAT_RANKS = (
-    'Hopeless', 'Pathetic', 'Terrible', 'Poor', 'Average', 'Good', 'Great', 'Amazing', 'Incredible', 'Legendary')
+        'Hopeless', 'Pathetic', 'Terrible', 'Poor', 'Average', 'Good', 'Great', 'Amazing', 'Incredible', 'Legendary')
 
     def render(self, x, y):
         mydest = pygame.Rect(x, y, self.width, self.height)
@@ -774,6 +877,11 @@ class MechaStatusDisplay(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, HostilityStatusBlock, ModuleStatusBlock, PilotStatusBlock, EnchantmentBlock)
 
 
+class BeingStatusDisplay(InfoPanel):
+    # A floating status display, drawn wherever the mouse is pointing.
+    DEFAULT_BLOCKS = (FullNameBlock, HostilityStatusBlock, ModuleStatusBlock, BeingStatusBlock, EnchantmentBlock)
+
+
 class PropStatusDisplay(InfoPanel):
     # A floating status display, drawn wherever the mouse is pointing.
     DEFAULT_BLOCKS = (FullNameBlock, HostilityStatusBlock, PropStatusBlock, EnchantmentBlock)
@@ -794,14 +902,14 @@ class ItemIP(InfoPanel):
 
 class WeaponIP(InfoPanel):
     DEFAULT_BLOCKS = (
-    FullNameBlock, MassVolumeHPBlock, WeaponStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock,
-    DescBlock)
+        FullNameBlock, MassVolumeHPBlock, WeaponStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock,
+        DescBlock)
 
 
 class LauncherIP(InfoPanel):
     DEFAULT_BLOCKS = (
-    FullNameBlock, MassVolumeBlock, LauncherStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock,
-    DescBlock)
+        FullNameBlock, MassVolumeBlock, LauncherStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock,
+        DescBlock)
 
 
 class EWSystemIP(InfoPanel):
@@ -842,8 +950,10 @@ class ShortLauncherIP(InfoPanel):
 
 
 def get_status_display(model, **kwargs):
-    if isinstance(model, (base.Mecha, base.Being)):
+    if isinstance(model, base.Mecha):
         return MechaStatusDisplay(model=model, **kwargs)
+    elif isinstance(model, base.Being):
+        return BeingStatusDisplay(model=model, **kwargs)
     elif isinstance(model, base.Prop):
         return PropStatusDisplay(model=model, **kwargs)
     else:

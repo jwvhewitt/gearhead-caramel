@@ -181,6 +181,9 @@ class QualityOfLife(object):
             mylist.append("-defense")
         return mylist
 
+    def get_as_tuple(self):
+        return self.prosperity, self.stability, self.health, self.community, self.defense
+
 
 class MetroData(object):
     def __init__(self, city_leader=None):
@@ -194,6 +197,11 @@ class MetroData(object):
             if plot.active and hasattr(plot, "QOL"):
                 qol.add(plot.QOL)
         return qol
+
+    def get_quality_of_life_index(self):
+        qol = self.get_quality_of_life()
+        qolt = qol.get_as_tuple()
+        return sum(qolt) + sum([-1 for i in qolt if i < 0])
 
     def __setstate__(self, state):
         # For saves from V0.810 or earlier, make sure there's a city_leader.
@@ -596,13 +604,16 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if isinstance(mek, base.Mecha) and hasattr(mek, "owner") and mek.owner is npc:
                 return mek
 
-    def assign_pilot_to_mecha(self, pc, mek):
+    def assign_pilot_to_mecha(self, pc: base.Character, mek: base.Mecha):
         # either mek or pc can be None, to clear a mecha's assigned pilot.
         for m in self.party:
             if isinstance(m, base.Mecha) and m.pilot is pc:
                 m.pilot = None
         if mek:
             mek.pilot = pc
+            if pc and pc.mecha_colors and pbge.util.config.getboolean("GENERAL", "lancemates_repaint_mecha"):
+                mek.colors = pc.mecha_colors
+
 
     def keep_playing_campaign(self):
         return self.pc.is_operational() and self.egg

@@ -51,6 +51,7 @@ E_ILLUMINATED = "Illuminated"   # NPC has attained transcendence
 R_CREATION = "Creation"         # NPC was created by the PC; probably means they're a robot
 R_OPPONENT = "Opponent"         # NPC knows the PC somewhat, but from the enemy side.
 R_CHAPERONE = "Chaperone"       # NPC keeping tabs on the PC for whatever reason
+R_MENTOR = "Mentor"             # NPC is teaching the PC somehow
 R_COLLEAGUE = "Colleague"       # NPC knows the PC, but just in a bizness sense
 R_ADVERSARY = "Adversary"       # Relationship defined by conflict
 R_CRUSH = "Crush"               # NPC has possibly unrequited romantic feelings for PC
@@ -62,7 +63,7 @@ R_COMPANION = "Companion"       # Bonded at the highest level
 
 FAVORABLE_TAGS = (
     A_FRIENDLY, A_THANKFUL, A_HEARTFUL, A_FLIRTY, A_ADMIRE, R_CREATION, R_CHAPERONE, R_CRUSH, R_FRIEND, R_ROMANCE,
-    R_PARTNER, R_COMPANION
+    R_PARTNER, R_COMPANION, R_MENTOR
 )
 
 UNFAVORABLE_TAGS = (

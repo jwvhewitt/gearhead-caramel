@@ -1,4 +1,5 @@
 import pbge.memos
+import pbge.memos
 from pbge.plots import Plot, PlotState, Rumor
 import game.content.ghwaypoints
 import game.content.ghterrain

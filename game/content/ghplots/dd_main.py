@@ -65,8 +65,16 @@ class DeadzoneDrifterStub( Plot ):
 
         del self.subplots["INTRO"]
 
-    def t_START(self,camp):
+    def t_START(self, camp):
         camp.check_trigger("UPDATE")
+        if "INITIAL_QOL" not in camp.campdata:
+            total_qol = 0
+            mymap = self.elements["DZ_ROADMAP"]
+            for n in mymap.nodes:
+                if n.destination and hasattr(n.destination, "metrodat") and n.destination.metrodat:
+                    total_qol += n.destination.metrodat.get_quality_of_life_index()
+            camp.campdata["INITIAL_QOL"] = total_qol
+
 
 
 class RoadNode(object):

@@ -535,7 +535,7 @@ class DZD_ChangeTheWorld(Plot):
 
 
 #   *************************
-#   ***   DZDC_ALLIANCE   ***self.elements["TDF_CONTACT"]
+#   ***   DZDC_ALLIANCE   ***
 #   *************************
 #
 # Each of these plots provide the PC with an opportunity to form an alliance with a deadzone town.
@@ -742,6 +742,17 @@ class DZDCDoomVilMechaEncounter(Plot):
 #   ***   RESOLUTIONS   ***
 #   ***********************
 
+def get_current_qol_total(camp, mymap):
+    total_qol = 0
+    for n in mymap.nodes:
+        if n.destination and hasattr(n.destination, "metrodat") and n.destination.metrodat:
+            total_qol += n.destination.metrodat.get_quality_of_life_index()
+    return total_qol
+
+DISASTER_MAGNET = gears.meritbadges.UniversalReactionBadge(
+    "Disaster Magnet", "Everywhere you go, disaster seems to follow.", -5
+)
+
 class BadEnding(Plot):
     LABEL = "DZDCEND_BAD"
     active = True
@@ -751,6 +762,9 @@ class BadEnding(Plot):
         pbge.alert("With time running out, the Terran Defense Force launches an all-out attack using the Voice of Iijima. Saturation bombing is used in an attempt to kill Cetus before it can jet away.")
         pbge.alert("{} is utterly destroyed in the crossfire. Following the battle the Defense Force claims that Cetus has been eliminated, though no remains are ever recovered.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
         pbge.alert("Relations between the greenzone cities and the towns of the deadzone become more strained than they were before. For better or worse, your role in these events is mostly forgotten.")
+
+        camp.pc.add_badge(DISASTER_MAGNET)
+
         camp.eject()
 
 class DZAllianceEnding(Plot):
@@ -762,10 +776,14 @@ class DZAllianceEnding(Plot):
         pbge.alert("The communities of the dead zone celebrate your victory over Cetus. Many of the local leaders enter talks to expand trade and mutual defense pacts between their isolated settlements.")
         pbge.alert("Within the green zone the Terran Defense Force claims this outcome was a result of their deterrence strategy, though some of the commanders resent you for letting Cetus get away.")
         pbge.alert("Cetus does not return to trouble this part of the world again.")
-        camp.pc.add_badge(gears.meritbadges.TagReactionBadge(
-            "DeadZone Hero", "You united the deadzone to fight Cetus.",
-            {gears.personality.DeadZone: 10, gears.factions.TerranDefenseForce: -10}
-        ))
+        total_qol = get_current_qol_total(camp, self.elements["DZ_ROADMAP"])
+        if total_qol < camp.campdata["INITIAL_QOL"]:
+            camp.pc.add_badge(DISASTER_MAGNET)
+        else:
+            camp.pc.add_badge(gears.meritbadges.TagReactionBadge(
+                "DeadZone Hero", "You united the deadzone to fight Cetus.",
+                {gears.personality.DeadZone: 10, gears.factions.TerranDefenseForce: -10}
+            ))
         camp.eject()
 
 
@@ -778,6 +796,9 @@ class TDFMissilesEnding(Plot):
         pbge.alert("The bombardment from the Voice of Iijima leaves a crater a kilometer across. No remains of Cetus are ever found, and the biomonster is presumed eliminated.")
         pbge.alert("The meagre farmland around {} is polluted by the fallout. Though the Terran Federation provides food aid to the community, the trust between them has been lost.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
         pbge.alert("You are welcomed as a hero in the greenzone, though a part of you continues to wonder if this is truly over...")
+        total_qol = get_current_qol_total(camp, self.elements["DZ_ROADMAP"])
+        if total_qol < camp.campdata["INITIAL_QOL"]:
+            camp.pc.add_badge(DISASTER_MAGNET)
         camp.pc.add_badge(gears.meritbadges.TagReactionBadge(
             "GreenZone Hero", "You helped the Terran Defense Force to defeat Cetus before it could reach the green zone.",
             {gears.personality.DeadZone: -10, gears.personality.GreenZone: 10}

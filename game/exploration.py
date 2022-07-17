@@ -574,15 +574,29 @@ class Explorer( object ):
                     elif gdi.unicode == "c":
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus( pc.pos[0], pc.pos[1] )
+
                     elif gdi.unicode == "m":
                         memos.MemoBrowser(self.camp)()
+
+                    elif gdi.unicode == "H":
+                        fieldhq.FieldHQ.create_and_invoke(self.camp)
+
+                    elif gdi.unicode == "i":
+                        fieldhq.backpack.BackpackWidget.create_and_invoke(self.camp, self.camp.pc.get_root())
+
+                    elif gdi.key == pygame.K_ESCAPE:
+                        mymenu = configedit.PopupGameMenu()
+                        mymenu(self)
+
+                    elif gdi.key in pbge.my_state.get_keys_for("cursor_click"):
+                        self.click_left()
+
+
+
                     elif gdi.unicode == "R" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         print(self.camp.renown)
                     elif gdi.unicode == "A" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         self.record_count = 30
-
-                    elif gdi.key in pbge.my_state.get_keys_for("cursor_click"):
-                        self.click_left()
 
                     elif gdi.unicode == "J" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         # Experimenting with JSON serialization. It isn't going well.
@@ -648,11 +662,6 @@ class Explorer( object ):
                     elif gdi.unicode == "O" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         self.camp.version = "v0.100"
 
-                    elif gdi.unicode == "H":
-                        fieldhq.FieldHQ.create_and_invoke(self.camp)
-                    elif gdi.key == pygame.K_ESCAPE:
-                        mymenu = configedit.PopupGameMenu()
-                        mymenu(self)
 
                 elif gdi.type == pygame.QUIT:
                     #self.camp.save(self.screen)

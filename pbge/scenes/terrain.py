@@ -6,6 +6,7 @@
 """
 from .. import Singleton
 from .movement import Walking, Flying, Vision
+import random
 
 
 # Each terrain type can have up to four rendering actions:
@@ -115,6 +116,33 @@ class DuckTerrain(object):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def from_other_terrain(cls, terr, colors=None):
+        myduck = cls(terr.name, terr.image_bottom, terr.image_biddle, terr.image_middle, terr.image_top, terr.blocks,
+                     terr.frame, terr.altitude, colors, terr.transparent, terr.border, terr.border_priority,
+                     terr.movement_cost)
+        return myduck
+
+    @classmethod
+    def get_south_duck(cls, terr, colors=None):
+        # For "on the wall" terrain, take the/a south-facing frame.
+        myduck = cls.from_other_terrain(terr, colors)
+        if hasattr(terr, "SOUTH_FRAME"):
+            myduck.frame = terr.SOUTH_FRAME
+        elif hasattr(terr, "south_frames"):
+            myduck.frame = random.choice(terr.south_frames)
+        return myduck
+
+    @classmethod
+    def get_east_duck(cls, terr, colors=None):
+        # For "on the wall" terrain, take the/a south-facing frame.
+        myduck = cls.from_other_terrain(terr, colors)
+        if hasattr(terr, "EAST_FRAME"):
+            myduck.frame = terr.SOUTH_FRAME
+        elif hasattr(terr, "east_frames"):
+            myduck.frame = random.choice(terr.south_frames)
+        return myduck
 
 
 class Terrain(Singleton):

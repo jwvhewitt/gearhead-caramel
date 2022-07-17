@@ -284,19 +284,27 @@ class GameState(object):
         else:
             my_state.screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
 
+    def get_window_config(self):
+        myconfig = util.config.get("GENERAL", "window_size")
+        ws, hs = myconfig.split("x")
+        try:
+            return int(ws), int(hs)
+        except ValueError:
+            return 800,600
+
     def reset_screen(self):
         if util.config.getboolean("GENERAL", "stretchy_screen"):
             if util.config.getboolean("GENERAL", "fullscreen"):
                 my_state.physical_screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
             else:
                 #my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
-                my_state.physical_screen = pygame.display.set_mode((1280, 720), WINDOWED_FLAGS)
+                my_state.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
             my_state.resize()
         else:
             if util.config.getboolean("GENERAL", "fullscreen"):
                 my_state.screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
             else:
-                my_state.screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
+                my_state.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
 
     def update_mouse_pos(self):
         if util.config.getboolean("GENERAL", "stretchy_screen"):
@@ -409,7 +417,7 @@ def render_text(font, text, width, color=TEXT_COLOR, justify=-1, antialias=True)
     return s
 
 
-def draw_text(font, text, rect, color=TEXT_COLOR, justify=-1, antialias=True, dest_surface=None):
+def draw_text(font, text, rect, color=TEXT_COLOR, justify=-1, antialias=True, dest_surface=None, vjustify=-1):
     # Draw some text to the screen with the provided options.
     dest_surface = dest_surface or my_state.screen
     myimage = render_text(font, text, rect.width, color, justify, antialias)
@@ -419,6 +427,10 @@ def draw_text(font, text, rect, color=TEXT_COLOR, justify=-1, antialias=True, de
         myrect = myimage.get_rect(topleft=rect.topleft)
     else:
         myrect = rect
+    if vjustify == 0:
+        myrect.centery = rect.centery
+    elif vjustify > 0:
+        myrect.bottom = rect.bottom
     dest_surface.set_clip(rect)
     dest_surface.blit(myimage, myrect)
     dest_surface.set_clip(None)
@@ -634,13 +646,9 @@ from . import memos
 # PG2 Change
 # FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.SCALED
 # WINDOWED_FLAGS = pygame.RESIZABLE | pygame.SCALED
-# FULLSCREEN_RES = (800,600)
 FULLSCREEN_FLAGS = pygame.FULLSCREEN
 WINDOWED_FLAGS = pygame.RESIZABLE
-if sys.platform.startswith("linux"):
-    FULLSCREEN_RES = (800, 600)
-else:
-    FULLSCREEN_RES = (0, 0)
+FULLSCREEN_RES = (0, 0)
 
 
 def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_*.png",

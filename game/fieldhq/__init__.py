@@ -110,6 +110,11 @@ class CharacterInfoWidget(widgets.Widget):
 
         self.camp.assign_pilot_to_mecha(self.pc,mek)
         self.info.update()
+
+        if mek:
+            self.fhq.update_party()
+            pbge.my_state.view.regenerate_avatars([mek,])
+
         self.fhq.active = True
 
     def change_colors(self,wid,ev):
@@ -200,6 +205,10 @@ class MechaInfoWidget(widgets.Widget):
 
         self.camp.assign_pilot_to_mecha(pilot,self.pc)
         self.info.update()
+
+        self.fhq.update_party()
+        pbge.my_state.view.regenerate_avatars([self.pc,])
+
         self.fhq.active = True
 
     def open_backpack(self,wid,ev):
@@ -259,6 +268,9 @@ class MechaInfoWidget(widgets.Widget):
         self.fhq.update_party()
         self.fhq.active = True
         pbge.my_state.view.regenerate_avatars([self.pc,])
+
+        if isinstance(self.pc, gears.base.Mecha) and self.pc.pilot:
+            self.pc.pilot.mecha_colors = self.pc.colors
 
     def color_done(self, wid, ev):
         wid.data.finished = True

@@ -78,6 +78,8 @@ class AutoOffer(object):
     def _get_offer(self, npc):
         mydict = self.offer_dict.copy()
         mydict["effect"] = AutoOfferInvoker(self, npc)
+        if "no_repeats" not in mydict:
+            mydict["no_repeats"] = True
         return dialogue.Offer(**mydict)
 
     def __call__(self, my_challenge, camp, npc):

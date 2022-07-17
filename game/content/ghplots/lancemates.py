@@ -30,7 +30,6 @@ class UtterlyRandomLancemate(Plot):
 
     def custom_init(self, nart):
         npc = gears.selector.random_character(rank=min(random.randint(10, 50), random.randint(10, 50)),
-                                              mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True)
         scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
@@ -54,7 +53,6 @@ class UtterlyGenericLancemate(Plot):
     def custom_init(self, nart):
         npc = gears.selector.random_character(rank=min(random.randint(10, 50), random.randint(10, 50)),
                                               job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
-                                              mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True)
 
@@ -81,7 +79,6 @@ class GiftedNewbieLancemate(Plot):
         npc = gears.selector.random_character(statline=gears.base.Being.random_stats(random.randint(100, 110)),
                                               rank=random.randint(5, 15),
                                               job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
-                                              mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True, birth_year=nart.camp.year - random.randint(18, 23))
         if random.randint(1, 10) == 1:
@@ -102,7 +99,6 @@ class OlderMentorLancemate(Plot):
 
     def custom_init(self, nart):
         npc = gears.selector.random_character(rank=random.randint(41, 85),
-                                              mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True, birth_year=nart.camp.year - random.randint(32, 50))
         npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1, 4)
@@ -129,7 +125,6 @@ class DeadzonerInGreenZoneLancemate(Plot):
     def custom_init(self, nart):
         npc = gears.selector.random_character(rank=min(random.randint(20, 55), random.randint(20, 55)),
                                               job=gears.jobs.ALL_JOBS[random.choice(self.JOBS)],
-                                              mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=(gears.personality.DeadZone,),
                                               combatant=True)
         scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
@@ -155,7 +150,6 @@ class GladiatorLancemate(Plot):
         npc = gears.selector.random_character(rank=min(random.randint(25, 65), random.randint(25, 65)),
                                               can_cyberize=True,
                                               job=gears.jobs.ALL_JOBS["Gladiator"],
-                                              mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=(gears.personality.DeadZone,),
                                               combatant=True)
         scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
@@ -180,7 +174,6 @@ class MutantLancemate(Plot):
 
     def custom_init(self, nart):
         npc = gears.selector.random_character(rank=random.randint(20, 45),
-                                              mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True)
         scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
@@ -250,7 +243,6 @@ class BountyHunterLancemate(Plot):
     def custom_init(self, nart):
         npc = gears.selector.random_character(rank=min(random.randint(10, 50), random.randint(10, 50)),
                                               job=gears.jobs.ALL_JOBS["Bounty Hunter"],
-                                              mecha_colors=gears.color.random_mecha_colors(),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True)
 
@@ -629,7 +621,7 @@ class RLM_PersonForHire(Plot):
 
     RUMOR = Rumor(
         rumor="{NPC} is a {NPC.job} for hire",
-        offer_msg="If you want a {NPC.jpb} on your team, you can find {NPC} at {NPC_SCENE}.",
+        offer_msg="If you want a {NPC.job} on your team, you can find {NPC} at {NPC_SCENE}.",
         memo="{NPC} is a {NPC.job} for hire.",
         prohibited_npcs=("NPC",)
     )

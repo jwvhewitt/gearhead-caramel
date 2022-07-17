@@ -2039,11 +2039,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         if my_module and my_module.form is not MF_Storage and self.ammo_type.risk != calibre.RISK_INERT and self.quantity > self.spent:
             if self.ammo_type.risk == calibre.RISK_VOLATILE:
                 my_invo = pbge.effects.Invocation(
-                    fx=pbge.effects.NoEffect(
-                        anim=geffects.AmmoExplosionAnim,
-                        children=(
-                            geffects.DoDamage(3, max(self.ammo_type.bang//2,6), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
-                        )),
+                    fx=geffects.DoDamage(3, max(self.ammo_type.bang//2,6), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
                     area=pbge.scenes.targetarea.SelfCentered(radius=random.randint(1,max(self.ammo_type.bang//4,2)), delay_from=-1))
             else:
                 my_invo = pbge.effects.Invocation(
@@ -4075,7 +4071,7 @@ class Character(Being):
             if include_all:
                 mytags.add(self.job.name)
             mytags |= set(self.job.tags)
-        if self.combatant:
+        if self.combatant and include_all:
             mytags.add(tags.COMBATANT)
         if self.faction:
             mytags.add(self.faction.get_faction_tag())

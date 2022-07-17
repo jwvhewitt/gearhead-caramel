@@ -100,7 +100,7 @@ class SimpleMonologueMenu(pbge.rpgmenu.Menu):
             ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.dy,
             ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.w,
             ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.h,
-            font=pbge.my_state.medium_font, padding=5
+            font=pbge.my_state.medium_font, padding=5, no_escape=True
         )
         self.npc = npc
         self.myviz = ghdialogue.ghdview.ConvoVisualizer(self.npc,camp)

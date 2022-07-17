@@ -298,7 +298,7 @@ class Performance( Skill ):
 
 class Negotiation( Skill ):
     name = 'Negotiation'
-    desc = "This skill is used to verbally influence other characters, including encouraging lancemates, restoring mental points by spending your stamina."
+    desc = "This skill is used to verbally influence other characters."
     @classmethod
     def add_invocations(self, pc, invodict):
         encourage = pbge.effects.Invocation(

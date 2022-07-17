@@ -1,3 +1,9 @@
+* Lancemates can repaint new mecha assigned to them; may be turned off via config
+* Characters without assigned mecha colors get mecha colors when joining party
+* Default window size may be set in configuration file
+* PilotStatusBlock shows bars, not numbers, for HP, MP, SP
+* Added BeingStatusBlock for characters and monsters
+* You can go straight to inventory by pressing "i"
 * Edit Scenario has been moved to Dev Mode only due to the fact that it needs some work
 * Containers now visibly open when you open them, so you can see what you've already looted
 * Mechanical Tarot has been completely replaced with Challenge/Resource system

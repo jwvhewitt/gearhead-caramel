@@ -144,6 +144,7 @@ class BackpackWidget(widgets.Widget):
 
         self.children.append(self.inventory_column)
         self.children.append(PlayerCharacterSwitchPlusBPInfo(camp,pc,self.set_pc,draw_border=True))
+        self.finished = False
 
         self.update_selectors()
 
@@ -257,6 +258,31 @@ class BackpackWidget(widgets.Widget):
                 self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,width=INFO_COLUMN.w)
             mydest = INFO_COLUMN.get_rect()
             self.info_cache[self.active_item.item].render(mydest.x,mydest.y)
+
+    def finish(self, wid, ev):
+        self.finished = True
+
+    @classmethod
+    def create_and_invoke(cls, camp, pc):
+        myui = cls(camp, pc)
+        pbge.my_state.widgets.append(myui)
+        myui.finished = False
+        myui.children.append(
+            pbge.widgets.LabelWidget(150, 220, 80, 16, text="Done", justify=0, on_click=myui.finish,
+                                     draw_border=True, data=myui))
+
+        keepgoing = True
+        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+
+        pbge.my_state.widgets.remove(myui)
+        pygame.event.clear()
 
 
 class ItemExchangeWidget(widgets.Widget):

@@ -3,7 +3,7 @@ from . import ghwaypoints
 import random
 import pbge
 import gears
-from game.content import GHNarrativeRequest,PLOT_LIST
+from game.content import GHNarrativeRequest, PLOT_LIST
 from ..ghdialogue import context
 
 
@@ -89,6 +89,7 @@ class SceneConnection(object):
 
 class NatureTrailConnection(SceneConnection):
     DEFAULT_DOOR_1 = ghwaypoints.TrailSign
+
     def get_room1_anchor(self):
         scenegen = self.nart.get_map_generator(self.scene1)
         if scenegen and scenegen.edge_positions:
@@ -170,6 +171,7 @@ class WMDZTownConnection(SceneConnection):
     def get_door2(self):
         return self.DEFAULT_DOOR_2(anchor=self.r2anchor)
 
+
 class StairsDownToStairsUpConnector(SceneConnection):
     DEFAULT_DOOR_1 = ghwaypoints.StairsDown
     DEFAULT_DOOR_2 = ghwaypoints.StairsUp
@@ -179,6 +181,7 @@ class StairsDownToStairsUpConnector(SceneConnection):
 
     def get_room2_anchor(self):
         return pbge.randmaps.anchors.middle
+
 
 class TrapdoorToStairsUpConnector(SceneConnection):
     DEFAULT_DOOR_1 = ghwaypoints.Trapdoor
@@ -202,27 +205,30 @@ class RandomBanditCircle(gears.factions.Circle):
                "Merciless", "Nasty", "Pierced", "Rancid", "Razor", "Speed", "Savage", "Terrible", "Thunder", "Jugular",
                "Unbeatable", "Vicious", "Violent", "Red", "Bloody", "Wanton", "Xtreem", "Heavy Metal", "Blood Pact")
     CHART_B = (
-    "Warriors", "Bandits", "Pirates", "Demons", "Gang", "Hooligans", "Destroyers", "Raiders", "Droogs", "Modez",
-    "Breakers", "Bruisers", "Crashers", "Executors", "Frenz", "Grabberz", "Hammers", "Jokerz", "Killerz",
-    "Mob", "Ogres", "Queenz", "Kingz", "Raptors", "Slashers", "Titanz", "Vizigoths", "Freakz", "Junk Ratz",
-    "Rippers", "Gougers", "Horde")
+        "Warriors", "Bandits", "Pirates", "Demons", "Gang", "Hooligans", "Destroyers", "Raiders", "Droogs", "Modez",
+        "Breakers", "Bruisers", "Crashers", "Executors", "Frenz", "Grabberz", "Hammers", "Jokerz", "Killerz",
+        "Mob", "Ogres", "Queenz", "Kingz", "Raptors", "Slashers", "Titanz", "Vizigoths", "Freakz", "Junk Ratz",
+        "Rippers", "Gougers", "Horde")
 
-    def __init__(self,camp,**kwargs):
+    def __init__(self, camp, **kwargs):
         parent_faction = random.choice(
             [gears.factions.BoneDevils, gears.factions.BoneDevils, gears.factions.BladesOfCrihna, None])
-        if parent_faction and random.randint(1,3) != 1:
+        if parent_faction and random.randint(1, 3) != 1:
             name = parent_faction.get_circle_name()
         else:
             name = "the {} {}".format(random.choice(self.CHART_A), random.choice(self.CHART_B))
-        super().__init__(camp, name=name, parent_faction=parent_faction,**kwargs)
+        super().__init__(camp, name=name, parent_faction=parent_faction, **kwargs)
         if gears.tags.Criminal not in self.factags:
             self.factags.append(gears.tags.Criminal)
 
 
 class CargoContainer(gears.base.Prop):
-    DEFAULT_COLORS = (gears.color.White,gears.color.Aquamarine,gears.color.DeepGrey,gears.color.Black,gears.color.GullGrey)
-    def __init__(self,name="Shipping Container",size=1,colors=None,imagename="prop_shippingcontainer.png",**kwargs):
-        super(CargoContainer, self).__init__(name=name,size=size,imagename=imagename,**kwargs)
+    DEFAULT_COLORS = (
+    gears.color.White, gears.color.Aquamarine, gears.color.DeepGrey, gears.color.Black, gears.color.GullGrey)
+
+    def __init__(self, name="Shipping Container", size=1, colors=None, imagename="prop_shippingcontainer.png",
+                 **kwargs):
+        super(CargoContainer, self).__init__(name=name, size=size, imagename=imagename, **kwargs)
         self.colors = colors or self.DEFAULT_COLORS
 
     @staticmethod
@@ -232,24 +238,26 @@ class CargoContainer(gears.base.Prop):
                 random.choice(gears.color.METAL_COLORS),
                 gears.color.Black,
                 random.choice(gears.color.MECHA_COLORS)]
+
     @classmethod
-    def generate_cargo_fleet(cls,rank,colors=None):
+    def generate_cargo_fleet(cls, rank, colors=None):
         if not colors:
             colors = cls.random_fleet_colors()
-        myfleet = [cls(colors=colors) for t in range(random.randint(2,3)+max(0,rank//25))]
+        myfleet = [cls(colors=colors) for t in range(random.randint(2, 3) + max(0, rank // 25))]
         return myfleet
 
 
 class AutoJoiner(object):
     # A callable to handle lancemate join requests. The NPC will join the party,
     # bringing along any mecha and pets they may have.
-    def __init__(self,npc):
+    def __init__(self, npc: gears.base.Character):
         """
         Prepare to add the NPC to the party.
         :type npc: gears.base.Character
         """
         self.npc = npc
-    def __call__(self,camp):
+
+    def __call__(self, camp):
         """
         Add the NPC to the party, including any mecha or pets.
         :type camp: gears.GearHeadCampaign
@@ -258,11 +266,18 @@ class AutoJoiner(object):
             camp.party.append(self.npc)
             mek = self.get_mecha_for_character(self.npc)
             camp.party.append(mek)
-            camp.assign_pilot_to_mecha(self.npc,mek)
+            camp.assign_pilot_to_mecha(self.npc, mek)
             for part in mek.get_all_parts():
                 part.owner = self.npc
+
     @staticmethod
-    def get_mecha_for_character(npc,choose_new_one=False):
+    def get_mecha_for_character(npc, choose_new_one=False):
+        if not npc.mecha_colors:
+            npc.mecha_colors = gears.color.random_mecha_colors()
+            if random.randint(1,3) == 2:
+                npc.mecha_colors = (npc.colors[0], *npc.mecha_colors[1:])
+                if random.randint(1,2) == 2:
+                    npc.mecha_colors = (*npc.mecha_colors[:4], npc.colors[4])
         if npc.mecha_pref and npc.mecha_pref in gears.selector.DESIGN_BY_NAME and not choose_new_one:
             mek = gears.selector.get_design_by_full_name(npc.mecha_pref)
         else:
@@ -278,35 +293,38 @@ class AutoJoiner(object):
 
 class AutoLeaver(object):
     # A partner for the above- this NPC will leave the party, along with any mecha + pets.
-    def __init__(self,npc):
+    def __init__(self, npc):
         """
         Prepare to remove the NPC from the party. This object can be used as a dialogue effect.
         :type npc: gears.base.Character
         """
         self.npc = npc
-    def __call__(self,camp):
+
+    def __call__(self, camp):
         """
         Remove the NPC from the party, including any mecha or pets.
         :type camp: gears.GearHeadCampaign
         """
         if self.npc in camp.party:
-            camp.assign_pilot_to_mecha(self.npc,None)
+            camp.assign_pilot_to_mecha(self.npc, None)
             camp.party.remove(self.npc)
             for mek in list(camp.party):
-                if hasattr(mek,"owner") and mek.owner is self.npc:
+                if hasattr(mek, "owner") and mek.owner is self.npc:
                     camp.party.remove(mek)
-            #for mek in list(camp.incapacitated_party):
+            # for mek in list(camp.incapacitated_party):
             #    if hasattr(mek,"owner") and mek.owner is self.npc:
             #        camp.incapacitated_party.remove(mek)
 
+
 class CharacterMover(object):
-    def __init__(self, camp, plot,character: gears.base.Character,dest_scene,dest_team,allow_death=False, upgrade_mek=True):
+    def __init__(self, camp, plot, character: gears.base.Character, dest_scene, dest_team, allow_death=False,
+                 upgrade_mek=True):
         # Record the character's original location, move them to the new location.
         self.original_scene = character.scene
         if character not in plot.get_locked_elements():
-            print("Warning: Character {} should be locked by {} before moving!".format(character,plot))
-        if not (hasattr(character,"container") and character.container):
-            print("Warning: Character {} moved by {} has no original container!".format(character,plot))
+            print("Warning: Character {} should be locked by {} before moving!".format(character, plot))
+        if not (hasattr(character, "container") and character.container):
+            print("Warning: Character {} moved by {} has no original container!".format(character, plot))
             character.container = None
         elif not self.original_scene:
             print("Warning: Character {} moved by {} has no original scene!".format(character, plot))
@@ -333,30 +351,30 @@ class CharacterMover(object):
                 character = mek
 
         self.dest = dest_scene
-        character.place(dest_scene,team=dest_team)
+        character.place(dest_scene, team=dest_team)
 
         self.allow_death = allow_death
         plot.call_on_end.append(self)
-        plot.move_records.append((character,dest_scene.contents))
+        plot.move_records.append((character, dest_scene.contents))
         self.done = False
 
-        #print('Moving {} {}'.format(self.character,self.original_container))
+        # print('Moving {} {}'.format(self.character,self.original_container))
 
-    def __call__(self, camp:gears.GearHeadCampaign):
-        #print('Homing {} {}'.format(self.character,self.original_container))
+    def __call__(self, camp: gears.GearHeadCampaign):
+        # print('Homing {} {}'.format(self.character,self.original_container))
         if not self.done:
             if self.character.is_not_destroyed() or not self.allow_death:
-                #print("Checking...")
+                # print("Checking...")
                 self.character.restore_all()
                 if self.character.scene is self.dest or not self.character.scene:
                     if hasattr(self.character, "container") and self.character.container:
                         self.character.container.remove(self.character)
-                        #print("Removing")
+                        # print("Removing")
                     if self.original_scene is not None:
                         self.original_scene.deploy_actor(self.character)
                     elif self.original_container is not None:
                         self.original_container.append(self.character)
-                        #print("Appending")
+                        # print("Appending")
                     else:
                         camp.freeze(self.character)
                 if self.is_lancemate and camp.can_add_lancemate() and self.character.scene is camp.scene:
@@ -366,19 +384,20 @@ class CharacterMover(object):
 
 class EnterTownLanceRecovery(object):
     # When you enter a town, call this to restore the party and deal with dead/incapacitated members
-    def __init__(self,camp,metroscene,metro):
+    def __init__(self, camp, metroscene, metro):
         creds = camp.totally_restore_party()
         self.did_recovery = False
         if creds > 0:
             pbge.alert("Repair/Reload: ${}".format(creds))
             camp.credits -= creds
             camp.day += 1
-        if camp.incapacitated_party or camp.dead_party or any([pc for pc in camp.get_lancemates() if not camp.get_pc_mecha(pc)]):
+        if camp.incapacitated_party or camp.dead_party or any(
+                [pc for pc in camp.get_lancemates() if not camp.get_pc_mecha(pc)]):
             # Go through the injured/dead lists and see who needs help.
             if camp.pc not in camp.party:
                 # This is serious.
-                init = pbge.plots.PlotState(elements={"METRO":metro,"METROSCENE":metroscene})
-                nart = GHNarrativeRequest(camp,init,adv_type="RECOVER_PC",plot_list=PLOT_LIST)
+                init = pbge.plots.PlotState(elements={"METRO": metro, "METROSCENE": metroscene})
+                nart = GHNarrativeRequest(camp, init, adv_type="RECOVER_PC", plot_list=PLOT_LIST)
                 if nart.story:
                     nart.build()
                     nart.story.start_recovery(camp)
@@ -386,8 +405,8 @@ class EnterTownLanceRecovery(object):
                 else:
                     print(nart.errors)
             else:
-                init = pbge.plots.PlotState(elements={"METRO":metro,"METROSCENE":metroscene})
-                nart = GHNarrativeRequest(camp,init,adv_type="RECOVER_LANCE",plot_list=PLOT_LIST)
+                init = pbge.plots.PlotState(elements={"METRO": metro, "METROSCENE": metroscene})
+                nart = GHNarrativeRequest(camp, init, adv_type="RECOVER_LANCE", plot_list=PLOT_LIST)
                 if nart.story:
                     nart.build()
                     nart.story.start_recovery(camp)
@@ -395,22 +414,23 @@ class EnterTownLanceRecovery(object):
 
 
 DZSPOT_PART_ONE = (
-    "Deadly","Bone","Dead Man's","Toxic","Haunted","Forsaken","Whispering","Shivering","Thousand Rad","Janky"
+    "Deadly", "Bone", "Dead Man's", "Toxic", "Haunted", "Forsaken", "Whispering", "Shivering", "Thousand Rad", "Janky"
 )
 
 DZSPOT_PART_TWO = (
-    "Ruins","Quarry","Gulch","Valley","Mountain","Radzone","Necropolis","Brook","Lake","Dustbowl","Point","Miles",
-    "Hill","Crater"
+    "Ruins", "Quarry", "Gulch", "Valley", "Mountain", "Radzone", "Necropolis", "Brook", "Lake", "Dustbowl", "Point",
+    "Miles",
+    "Hill", "Crater"
 )
 
 
 def random_deadzone_spot_name():
-    if random.randint(1,4) != 1:
+    if random.randint(1, 4) != 1:
         A = random.choice(DZSPOT_PART_ONE)
     else:
         A = gears.selector.DEADZONE_TOWN_NAMES.gen_word()
     B = random.choice(DZSPOT_PART_TWO)
-    return "{} {}".format(A,B)
+    return "{} {}".format(A, B)
 
 
 DISEASE_PART_ONE = (
@@ -424,8 +444,10 @@ DISEASE_PART_TWO = (
     "Spinewrack", "Blight", "Decay", "Skintaker", "Earache", "Fleshmelt", "Infestation", "Ague", "Pox", "Ennui"
 )
 
+
 def random_disease_name():
     return "{} {}".format(random.choice(DISEASE_PART_ONE), random.choice(DISEASE_PART_TWO))
+
 
 DRUG_START = (
     "Ata", "Peace", "Neo", "Well", "Cura", "Hexa", "Sol", "Med", "Asp", "Bey", "Con", "De", "Ele", "Eu",
@@ -439,6 +461,7 @@ DRUG_LETTER = (
     "Alpha", "Beta", "Gamma", "Delta", "Omega", "Zeta", "Kappa"
 )
 
+
 def random_medicine_name():
     return "{}{} {}".format(random.choice(DRUG_START), random.choice(DRUG_END), random.choice(DRUG_LETTER))
 
@@ -450,7 +473,7 @@ class LMSkillsSelfIntro(Offer):
     def __init__(self, npc: gears.base.Character):
         items = list()
         data = dict()
-        rank = min(max((npc.renown-1)//20,0),4)
+        rank = min(max((npc.renown - 1) // 20, 0), 4)
         items.append(self.RANK_GRAM[rank])
 
         if not npc.mecha_pref:

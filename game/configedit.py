@@ -76,6 +76,9 @@ class ConfigEditor(object):
             mymenu.add_item(
                 "No Escape from Main Menu: {}".format(util.config.getboolean("GENERAL", "no_escape_from_title_screen")),
                 self.toggle_escape)
+            mymenu.add_item(
+                "Lancemates repaint their mecha: {}".format(util.config.getboolean("GENERAL", "lancemates_repaint_mecha")),
+                OptionToggler("GENERAL", "lancemates_repaint_mecha"))
 
             for op in util.config.options("DIFFICULTY"):
                 mymenu.add_item("{}: {}".format(op, util.config.getboolean("DIFFICULTY", op)),
