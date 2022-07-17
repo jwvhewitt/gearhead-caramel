@@ -74,7 +74,7 @@ MeleeWeapon
     scale = HumanScale
     material = Metal
     attack_stat = Body
-    shop_tags= ("MELEE WEAPON", "ESSENTIAL")
+    shop_tags= ("MELEE WEAPON", "ESSENTIAL", "TOOL")
     faction_list = (DeadzoneFederation,ClanIronwind,TerranFederation)
     attributes = (Accurate,FastAttack)
 
@@ -312,9 +312,10 @@ EnergyWeapon
     damage=4
     accuracy=1
     penetration=2
+    scale = HumanScale
     attributes=(Brutal)
     attack_stat = Body
-    shop_tags= ("MELEE WEAPON","ESSENTIAL","CONTRABAND")
+    shop_tags= ("MELEE WEAPON","ESSENTIAL","CONTRABAND", "TOOL")
     faction_list = (TerranFederation,DeadzoneFederation,ClanIronwind,BoneDevils)
     INV
         PowerSource
@@ -328,9 +329,10 @@ EnergyWeapon
     damage=4
     accuracy=2
     penetration=4
+    scale = HumanScale
     attributes=(Brutal)
     attack_stat = Body
-    shop_tags= ("MELEE WEAPON","CONTRABAND")
+    shop_tags= ("MELEE WEAPON","CONTRABAND", "TOOL")
     faction_list = (TerranFederation,DeadzoneFederation,ClanIronwind,BoneDevils)
     INV
         PowerSource
@@ -341,12 +343,13 @@ EnergyWeapon
     name = "Chainsword"
     desc = "A sword with a spinning chainsaw for a blade. A trigger on the hilt controls the chain itself."
     reach=1
-    damage=3
+    damage=4
     accuracy=2
     penetration=3
+    scale = HumanScale
     attributes=(Brutal, FastAttack, Defender)
     attack_stat = Reflexes
-    shop_tags= ("MELEE WEAPON","WEAPON")
+    shop_tags= ("MELEE WEAPON","WEAPON", "CONTRABAND")
     faction_list = (None)
     material = Ceramic
     INV

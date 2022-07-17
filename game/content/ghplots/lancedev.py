@@ -83,6 +83,9 @@ class LMMissionPlot(LMPlot):
 # The actual plots...
 
 class Earth_GetInTheMekShimli(LMMissionPlot):
+    # A Shimli Test is the kind of personality quiz you might find on Buzzfeed; I think it also refers to the kind of
+    # personality test a doctor might give you but such is the extent of my Korean language ability. Anyhow, this is
+    # a kind of personlaity test where the test is whether or not you get in the mek.
     LABEL = "LANCEDEV"
     active = True
     scope = True

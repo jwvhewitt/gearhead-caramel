@@ -1,3 +1,4 @@
+* Fixed crash bug when PC killed
 * Lancemates can repaint new mecha assigned to them; may be turned off via config
 * Characters without assigned mecha colors get mecha colors when joining party
 * Default window size may be set in configuration file

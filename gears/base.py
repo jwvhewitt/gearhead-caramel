@@ -2396,11 +2396,7 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
         my_module = self.get_module()
         if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
             my_invo = pbge.effects.Invocation(
-                fx=pbge.effects.NoEffect(
-                    anim=geffects.AmmoExplosionAnim,
-                    children=(
-                        geffects.DoDamage(min(self.quantity-self.spent,10), max(self.damage,3), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
-                    )),
+                fx=geffects.DoDamage(min(self.quantity-self.spent,10), max(self.damage,3), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
                 area=pbge.scenes.targetarea.SelfCentered(radius=min(random.randint(1,2),random.randint(1,2)))
             )
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
@@ -2640,11 +2636,7 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         my_module = self.get_module()
         if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
             my_invo = pbge.effects.Invocation(
-                fx=pbge.effects.NoEffect(
-                    anim=geffects.AmmoExplosionAnim,
-                    children=(
-                        geffects.DoDamage(2,8, anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
-                    )),
+                fx=geffects.DoDamage(2,8, anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
                 area=pbge.scenes.targetarea.SelfCentered(radius=min(3,random.randint(1,max((self.quantity-self.spent)//50,2))))
             )
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)

@@ -335,10 +335,15 @@ class Explorer( object ):
         pbge.please_stand_by()
         self.camp = camp
         self.scene: gears.GearHeadScene = camp.scene
-        pc: gears.base.Character = camp.get_active_party()[0]
-        self.view = scenes.viewer.SceneView( camp.scene, cursor=pbge.scenes.mapcursor.MapCursor(
-            pc.pos[0], pc.pos[1], pbge.image.Image('sys_mapcursor.png',64,64)
-        ))
+        party = camp.get_active_party()
+        if party and party[0].pos:
+            pc = party[0]
+            mycursor = pbge.scenes.mapcursor.MapCursor(
+                pc.pos[0], pc.pos[1], pbge.image.Image('sys_mapcursor.png',64,64)
+            )
+        else:
+            mycursor = pbge.scenes.mapcursor.MapCursor(0,0, pbge.image.Image('sys_mapcursor.png',64,64))
+        self.view = scenes.viewer.SceneView( camp.scene, cursor=mycursor)
         self.time = 0
 
         self.threat_tiles = set()
@@ -597,6 +602,11 @@ class Explorer( object ):
                         print(self.camp.renown)
                     elif gdi.unicode == "A" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         self.record_count = 30
+
+                    elif gdi.unicode == "K" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
+                        for lm in self.camp.get_active_party():
+                            pc: gears.base.Being = lm.get_pilot()
+                            pc.hp_damage += 99999999999999
 
                     elif gdi.unicode == "J" and pbge.util.config.getboolean( "GENERAL", "dev_mode_on" ):
                         # Experimenting with JSON serialization. It isn't going well.

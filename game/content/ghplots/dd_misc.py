@@ -4,11 +4,10 @@ from game import teams, services, ghdialogue
 from game.ghdialogue import context, OneShotInfoBlast
 import gears
 import pbge
-from .dd_main import DZDRoadMapExit,RoadNode
+from .dd_main import DZDRoadMapExit, RoadNode
 import random
-from game.content import gharchitecture,ghwaypoints,plotutility,ghterrain,backstory,GHNarrativeRequest,PLOT_LIST
+from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, GHNarrativeRequest, PLOT_LIST
 from gears import personality
-
 
 
 class RanMagnusMechaFactory(Plot):
@@ -22,10 +21,13 @@ class RanMagnusMechaFactory(Plot):
     def custom_init(self, nart):
         # Create a building within the town.
         garage_name = "Magnus Mecha Works"
-        building = self.register_element("_EXTERIOR", ghterrain.IndustrialBuilding(
-            waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
-            door_sign=(ghterrain.FixitShopSignEast, ghterrain.FixitShopSignSouth),
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="METROSCENE")
+        building = self.register_element(
+            "_EXTERIOR", ghterrain.IndustrialBuilding(
+                waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=garage_name)},
+                door_sign=(ghterrain.FixitShopSignEast, ghterrain.FixitShopSignSouth),
+                tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CONNECTED_ROOM]),
+            dident="METROSCENE"
+        )
 
         self.rank = 55
         tplot = self.add_sub_plot(nart, "MECHA_WORKSHOP", elements={"BUILDING_NAME": garage_name})
@@ -42,7 +44,8 @@ class RanMagnusMechaFactory(Plot):
                                         rank=75, local_tags=(gears.personality.GreenZone,),
                                         job=gears.jobs.ALL_JOBS["Mecha Designer"],
                                         birth_year=106, combatant=False, faction=gears.factions.ProDuelistAssociation,
-                                        personality=[personality.Passionate, personality.Sociable, personality.Fellowship],
+                                        personality=[personality.Passionate, personality.Sociable,
+                                                     personality.Fellowship],
                                         mnpcid="RAN_MAGNUS",
                                         gender=gears.genderobj.Gender.get_default_female(),
                                         portrait='card_f_ranmagnus.png',
@@ -67,10 +70,10 @@ class RanMagnusMechaFactory(Plot):
                              "It's important that a mecha know what its job is. There is no such thing as a perfect mecha, just fitness for a particular role. Install that which is useful, uninstall that which is not, and create that which is essentially your own."),
 
             OneShotInfoBlast("factory",
-                             "This is my first factory in Eurasia. We're trying to ramp up production; the possibility of a war with Luna has doubled the demand for our meks. It's way too cold in {} but the local food is delicious so that kind of evens out.".format(self.elements["METROSCENE"]),
+                             "This is my first factory in Eurasia. We're trying to ramp up production; the possibility of a war with Luna has doubled the demand for our meks. It's way too cold in {} but the local food is delicious so that kind of evens out.".format(
+                                 self.elements["METROSCENE"]),
                              subject_text="the factory"),
         )
-
 
         return True
 
@@ -78,13 +81,14 @@ class RanMagnusMechaFactory(Plot):
         mylist = list()
 
         if camp.campdata.get("MINE_MISSION_WON") and not self.got_reward:
-            mylist.append(Offer("[HELLO] Osmund told me that you liberated my mine from those bandits; that means you get to buy the good stuff.",
-                            context=ContextTag([context.HELLO]), effect=self._open_custom_shop
-                            ))
+            mylist.append(Offer(
+                "[HELLO] Osmund told me that you liberated my mine from those bandits; that means you get to buy the good stuff.",
+                context=ContextTag([context.HELLO]), effect=self._open_custom_shop
+                ))
         else:
             mylist.append(Offer("[HELLO] [_MAGNUS_SPIEL]",
-                            context=ContextTag([context.HELLO]),
-                            ))
+                                context=ContextTag([context.HELLO]),
+                                ))
 
         mylist.append(Offer("[OPENSHOP]",
                             context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
