@@ -1,3 +1,4 @@
+v0.900 July 18 2022
 * Fixed crash bug when PC killed
 * Lancemates can repaint new mecha assigned to them; may be turned off via config
 * Characters without assigned mecha colors get mecha colors when joining party
