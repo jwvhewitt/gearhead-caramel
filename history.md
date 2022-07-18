@@ -1,3 +1,7 @@
+v0.901 July 18 2022
+* Scenario Editor city components pass METROSCENE even if not strictly necessary
+* Changed pickle protocol from "latest" to "4" to preserve compatibility with SteamOS
+
 v0.900 July 18 2022
 * Fixed crash bug when PC killed
 * Lancemates can repaint new mecha assigned to them; may be turned off via config

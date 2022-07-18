@@ -230,7 +230,9 @@ for t in range({num_random_lancemates}):
     ]
 
 *SCRIPT scenario_build
-splot = self.add_sub_plot(nart, "SHOP_BLACKMARKET", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
+splot = self.add_sub_plot(
+    nart, "SHOP_BLACKMARKET", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name})
+)
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical ROOM splot.elements["FOYER"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
@@ -284,7 +286,7 @@ class BlackMarket_{unique_id}_{_uid}( Plot ):
     ]
 
 *SCRIPT scenario_build
-splot = self.add_sub_plot(nart, "SHOP_GENERALSTORE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
+splot = self.add_sub_plot(nart, "SHOP_GENERALSTORE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical ROOM splot.elements["FOYER"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
@@ -338,7 +340,7 @@ class GeneralStore_{unique_id}_{_uid}( Plot ):
     ]
 
 *SCRIPT scenario_build
-splot = self.add_sub_plot(nart, "SHOP_GARAGE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
+splot = self.add_sub_plot(nart, "SHOP_GARAGE", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
 +add_physical ROOM splot.elements["FOYER"]
@@ -392,7 +394,7 @@ class Garage_{unique_id}_{_uid}( Plot ):
     ]
 
 *SCRIPT scenario_build
-splot = self.add_sub_plot(nart, "SHOP_HOSPITAL", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
+splot = self.add_sub_plot(nart, "SHOP_HOSPITAL", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
 +add_physical ROOM splot.elements["FOYER"]
@@ -445,7 +447,7 @@ class Hospital_{unique_id}_{_uid}( Plot ):
     ]
 
 *SCRIPT scenario_build
-splot = self.add_sub_plot(nart, "SHOP_TAVERN", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={tavern_name}, NPC_NAME={npc_name}))
+splot = self.add_sub_plot(nart, "SHOP_TAVERN", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={tavern_name}, NPC_NAME={npc_name}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical NPC splot.elements["SHOPKEEPER"]
 +add_physical ROOM splot.elements["FOYER"]
@@ -500,7 +502,7 @@ class Tavern_{unique_id}_{_uid}( Plot ):
     "singular": true
 
 *SCRIPT scenario_build
-splot = self.add_sub_plot(nart, "TOWNHALL", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, LEADER_NAME={npc_name}, HALL_NAME={hall_name}, HALL_FACTION={hall_faction}))
+splot = self.add_sub_plot(nart, "TOWNHALL", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, LEADER_NAME={npc_name}, HALL_NAME={hall_name}, HALL_FACTION={hall_faction}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical ROOM splot.elements["FOYER"]
 +add_physical NPC splot.elements["LEADER"]

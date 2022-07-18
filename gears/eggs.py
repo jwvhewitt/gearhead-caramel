@@ -82,7 +82,7 @@ class Egg(object):
             self._remove_campdata_for(npc, cdat_rec)
             if npc.is_destroyed():
                 self.dramatis_personae.remove(npc)
-        pickle.dump(self, f, -1)
+        pickle.dump(self, f, 4)
         self._reset_container_for(self.pc, con_rec)
         self._reset_container_for(self.mecha, con_rec)
         self._reset_campdata_for(self.pc, cdat_rec)

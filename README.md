@@ -40,6 +40,12 @@ In the combat movement interface, click the movemode to change movemode.
 TROUBLESHOOTING
 ===============
 
+All of your user files are contained in a folder called "ghcaramel" that
+you should be able to find in your home directory. There's a text file there
+called "config.cfg" that contains many options for customizing the game.
+You can also delete or back up your save files from here, if you are the sort
+of person who would do such a thing.
+
 If you have trouble running ghcaramel on MacOS, you may need to set
 the executable permission on the file (chmod a+x ghcaramel) or configure
 MacOS gatekeeper to allow it to run.
@@ -58,6 +64,18 @@ or making a shortcut for it on your desktop/app menu.
 If the game crashes when you try to open the configuration menu, probably
 you have an old config file from a previous installation. Delete config.cfg
 from your user directory and reload ghcaramel.
+
+Campaign files prior to v0.900 will not load. You can load the file in a previous
+version of the game, enable dev mode, and eject the character by pressing "E" while
+in exploration mode. Then go back and turn dev mode off; that mode can mess up your
+game in 47,000 different ways. Character files prior to v0.900 should still work.
+
+If you are playing the game on Steam on Linux or a SteamOS device, it's possible that
+characters and campaigns started from a different GearHead Caramel install will not load.
+Open the config file and turn on dev mode. Then, from the main menu of the non-Steam install, 
+select the option "Steam My Eggs". This will convert all of the save files so they'll be
+compatible with Steam. Note that it still can't fix campaign files from before v0.900.
+After that turn off dev mode, since you don't need that kind of trouble in your life.
 
 If you have a different problem, you can file a bug report at https://github.com/jwvhewitt/gearhead-caramel/issues
 
@@ -89,7 +107,8 @@ this command instead:
 Once pbgerecolor has been built + installed you can run the main.py script
 directly. There is a cx_Freeze setup.py script in the root folder which may
 be used to build + install an executable version of GearHead Caramel; if you
-figure that out then more power to you.
+figure that out then more power to you. GearHead Caramel also works with
+pyInstaller, and there's a spec script as well.
 
   python main.py
 

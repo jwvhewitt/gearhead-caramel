@@ -11,7 +11,7 @@ import pickle
 import copy
 import math
 
-VERSION = "v0.900"
+VERSION = "v0.901"
 
 
 class TitleScreenRedraw(object):
@@ -99,6 +99,34 @@ class StartGameMenu:
         if menu_item and menu_item.value:
             myimage = self.myportraits[menu_item.value]
             myimage.render(self.PORTRAIT_AREA.get_rect())
+
+def prep_eggs_for_steam(tsrd):
+    if not pickle.HIGHEST_PROTOCOL > 4:
+        pbge.my_state.view = tsrd
+        pbge.alert("Can't prep eggs for Steam since the version of GearHead Caramel you're running appears to be the Steam version. You need to do this from a non-Steam build.")
+        return
+
+    pbge.please_stand_by()
+    myfiles = glob.glob(pbge.util.user_dir("egg_*.sav"))
+
+    for fname in myfiles:
+        try:
+            with open(fname, "rb") as f:
+                # Why deepcopy the freshly loaded pickle? Because that will update any gears involved
+                # to the latest version, and at this point in time it'll hopefully keep save games working
+                # despite rapid early-development changes.
+                egg = copy.deepcopy(pickle.load(f))
+            egg.save()
+        except Exception as err:
+            print(err)
+
+    myfiles = glob.glob(pbge.util.user_dir("rpg_*.sav"))
+    for fname in myfiles:
+        try:
+            args = gears.GearHeadCampaign.load(fname)
+            args[-1].save()
+        except Exception as err:
+            print(err)
 
 
 class LoadGameMenu:
@@ -267,8 +295,8 @@ def play_the_game():
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 
-    #fname = "card_m_omega1004_158.png"
-    #mypic = pbge.image.Image(fname, color=(gears.color.SteelBlue, gears.color.GullGrey, gears.color.Malachite, gears.color.ShiningWhite, gears.color.BattleshipGrey))
+    #fname = "jacket.png"
+    #mypic = pbge.image.Image(fname, color=gears.color.random_character_colors())
     #mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
     #mydest.fill((0, 0, 25))
     #mypic.render((0,0),dest_surface=mydest)
@@ -304,6 +332,7 @@ def play_the_game():
             mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
             mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
             mymenu.add_item("Just Show Background", just_show_background)
+            mymenu.add_item("Steam The Eggs", prep_eggs_for_steam)
         mymenu.add_item("Quit", None)
 
         pbge.my_state.start_music(TITLE_THEME)

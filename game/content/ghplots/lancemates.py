@@ -267,8 +267,9 @@ class BountyHunterLancemate(Plot):
 #  Elements:
 #   NPC: The NPC who needs a personality
 #   METRO: The scope of the current city
-#   METROSCENE: The city or whatever that the NPC calls home
 #   NPC_SCENE: The exact scene where the NPC is.
+#
+#   Note that METROSCENE is not strictly necessary for the Relationship plots; if you need it, check for it.
 #
 # These subplots contain a personality for a random (potential) lancemate.
 # Also include a means for the lancemate to gain the "RT_LANCEMATE" tag.
@@ -1051,7 +1052,7 @@ class RLM_FarmKid(Plot):
     @classmethod
     def matches(self, pstate):
         """Returns True if this plot matches the current plot state."""
-        return gears.tags.Village in pstate.elements["METROSCENE"].attributes
+        return "METROSCENE" in pstate.elements and gears.tags.Village in pstate.elements["METROSCENE"].attributes
 
     def custom_init(self, nart):
         npc = self.elements["NPC"]

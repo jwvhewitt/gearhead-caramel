@@ -453,9 +453,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def save(self):
         with open(pbge.util.user_dir("rpg_" + self.name + ".sav"), "wb") as f:
-            pickle.dump(self.version, f, -1)
+            pickle.dump(self.version, f, 4)
             self.egg.write(f)
-            pickle.dump(self, f, -1)
+            pickle.dump(self, f, 4)
 
         # Also save a thumbnail.
         mythumbarea: pygame.Rect = pbge.my_state.screen.get_rect()

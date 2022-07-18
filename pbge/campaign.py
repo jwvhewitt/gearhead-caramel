@@ -48,7 +48,7 @@ class Campaign( object ):
 
     def save( self ):
         with open( util.user_dir( "rpg_" + self.name + ".sav" ) , "wb" ) as f:
-            pickle.dump( self , f, -1 )
+            pickle.dump( self , f, 4 )
 
     def delete_save_file( self, del_name=None ):
         name = del_name or self.name
