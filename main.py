@@ -10,8 +10,9 @@ import glob
 import pickle
 import copy
 import math
+import logging
 
-VERSION = "v0.901"
+VERSION = "v0.902"
 
 
 class TitleScreenRedraw(object):
@@ -286,6 +287,8 @@ def play_the_game():
 
     check_rpg_saves()
 
+    logging.basicConfig(level=logging.DEBUG, filename=pbge.util.user_dir("errors.log"))
+
     # myfoo = game.content.ghplots.test.Foo()
     # with open(pbge.util.user_dir('bar.p'), "wb") as f:
     #    pickle.dump(myfoo, f, -1)
@@ -306,40 +309,44 @@ def play_the_game():
     # mypor.bits = ["FBA NoBody","Haywire B3 Head"]
     # mypic = mypor.build_portrait(None,False,True)
     # pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
+    try:
+        tsrd = TitleScreenRedraw()
 
-    tsrd = TitleScreenRedraw()
+        action = True
+        while action:
+            mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
+                                       TitleScreenRedraw.MENU_DEST.dy,
+                                       TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
+                                       predraw=tsrd, font=pbge.my_state.huge_font,
+                                       no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
+                                       )
 
-    action = True
-    while action:
-        mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
-                                   TitleScreenRedraw.MENU_DEST.dy,
-                                   TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
-                                   predraw=tsrd, font=pbge.my_state.huge_font,
-                                   no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
-                                   )
+            mymenu.add_item("Load Campaign", LoadGameMenu)
+            mymenu.add_item("Start Campaign", StartGameMenu)
+            mymenu.add_item("Create Character", open_chargen_menu)
+            mymenu.add_item("Import GH1 Character", import_arena_character)
+            mymenu.add_item("Config Options", open_config_menu)
+            mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
+            mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
+            if quarantined_files:
+                mymenu.add_item("Quarantined Saves", view_quarantine)
+            if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
+                mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
+                mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
+                mymenu.add_item("Just Show Background", just_show_background)
+                mymenu.add_item("Steam The Eggs", prep_eggs_for_steam)
+            mymenu.add_item("Quit", None)
 
-        mymenu.add_item("Load Campaign", LoadGameMenu)
-        mymenu.add_item("Start Campaign", StartGameMenu)
-        mymenu.add_item("Create Character", open_chargen_menu)
-        mymenu.add_item("Import GH1 Character", import_arena_character)
-        mymenu.add_item("Config Options", open_config_menu)
-        mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
-        mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
-        if quarantined_files:
-            mymenu.add_item("Quarantined Saves", view_quarantine)
-        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-            mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
-            mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
-            mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
-            mymenu.add_item("Just Show Background", just_show_background)
-            mymenu.add_item("Steam The Eggs", prep_eggs_for_steam)
-        mymenu.add_item("Quit", None)
-
-        pbge.my_state.start_music(TITLE_THEME)
-        action = mymenu.query()
-        if action:
-            action(tsrd)
-
+            pbge.my_state.start_music(TITLE_THEME)
+            action = mymenu.query()
+            if action:
+                action(tsrd)
+    except Exception as e:
+        print(e)
+        pbge.alert("Python Exception occurred- please send the error.log in your ghcaramel user folder to pyrrho12@yahoo.ca.\nK THX gonna crash now.")
+        logging.exception(e)
+        logging.critical("Please email this file to pyrrho12@yahoo.ca")
 
 if __name__ == "__main__":
     play_the_game()

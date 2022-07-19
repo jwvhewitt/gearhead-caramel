@@ -163,8 +163,11 @@ class TalkTo( MoveTo ):
             for pc in self.party:
                 if pc.is_operational() and exp.scene.on_the_map( *pc.pos ):
                     path = scenes.pathfinding.AStarPath(exp.scene,pc.pos,f_pos,pc.mmode)
-                    self.move_pc( exp, pc, path.results[1] )
-                    f_pos = pc.pos
+                    if len(path.results) > 1:
+                        self.move_pc( exp, pc, path.results[1] )
+                        f_pos = pc.pos
+                    else:
+                        return False
 
             # Now that all of the pcs have moved, check the tiles_in_sight for
             # hidden models.
@@ -197,8 +200,11 @@ class BumpTo( MoveTo ):
             for pc in self.party:
                 if pc.is_operational() and exp.scene.on_the_map( *pc.pos ):
                     path = scenes.pathfinding.AStarPath(exp.scene,pc.pos,f_pos,pc.mmode)
-                    self.move_pc( exp, pc, path.results[1] )
-                    f_pos = pc.pos
+                    if len(path.results) > 1:
+                        self.move_pc( exp, pc, path.results[1] )
+                        f_pos = pc.pos
+                    else:
+                        return False
 
             # Now that all of the pcs have moved, check the tiles_in_sight for
             # hidden models.

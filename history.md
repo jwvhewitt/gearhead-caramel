@@ -1,3 +1,7 @@
+v0.902 July 19 2022
+* Added error logging for all game-crashing exceptions
+* Fixed crash when player attempts to right-click use an inaccessible waypoint
+
 v0.901 July 18 2022
 * Scenario Editor city components pass METROSCENE even if not strictly necessary
 * Changed pickle protocol from "latest" to "4" to preserve compatibility with SteamOS
