@@ -50,7 +50,7 @@ Character
     name="Omega 1004"
     mnpcid="Omega 1004"
     statline={Reflexes=12, Body=19, Speed=12, Perception=13, Knowledge=25, Craft=12, Ego=12, Charm=14,
-              Science=7}
+              Science=7, Biotechnology=5}
     personality=[Sociable, Easygoing, Peace, Justice]
     gender=Male
     portrait='card_m_omega1004_158.png'

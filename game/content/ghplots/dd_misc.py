@@ -1,4 +1,4 @@
-from pbge.plots import Plot
+from pbge.plots import Plot, Rumor
 from pbge.dialogue import Offer, ContextTag
 from game import teams, services, ghdialogue
 from game.ghdialogue import context, OneShotInfoBlast
@@ -8,6 +8,105 @@ from .dd_main import DZDRoadMapExit, RoadNode
 import random
 from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, GHNarrativeRequest, PLOT_LIST
 from gears import personality
+
+
+class OmegaTalksTyphon(Plot):
+    LABEL = "DZD_OMEGA1004"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        "there's a robot hanging out at {NPC_SCENE}",
+        offer_msg = "He seems to be a nice guy... I just never met a robot that's a person before. But once you start talking you forget that he's made of metal.",
+        offer_subject="a robot hanging out", offer_subject_data="the robot",
+        memo="There's a robot hanging out at {NPC_SCENE}.",
+        prohibited_npcs=("NPC")
+    )
+
+    QOL = gears.QualityOfLife(community=1)
+
+    def custom_init(self, nart):
+        scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"], backup_seek_func=self._is_okay_scene)
+        npc = self.register_element("NPC", nart.camp.get_major_npc("Omega 1004"), dident="NPC_SCENE")
+        self._got_initial_story = False
+        self._got_typhon_story = False
+
+        self.infoblasts = (
+            OneShotInfoBlast(
+                "Snake Lake",
+                "I was presenting arguments in favor of Constitutional Amendment 79-MS, which granted full citizenship rights to all sentient beings no matter if they are organic, mechanical, or biomechanical. The news media called this 'The Omega Law' but it is not a law it is a constitutional amendment."
+            ),
+        )
+        self.shop = services.SkillTrainer([gears.stats.Biotechnology, gears.stats.Wildcraft, gears.stats.Science])
+
+        return True
+
+    def _is_best_scene(self, nart, candidate):
+        return (isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+                and gears.tags.SCENE_BUILDING in candidate.attributes)
+
+    def _is_okay_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        if not self._got_initial_story:
+            if camp.pc.has_badge("Typhon Slayer"):
+                mylist.append(Offer(
+                    "[THANKS] I replaced all of my rusted out body panels, had some chrome installed, and bought myself a genuine face. It's top quality synthetic polyvinyl chloride.",
+                    ContextTag([context.CUSTOM]), data={"reply": "Omega! You're looking good these days."},
+                    subject=self, subject_start=True
+                ))
+            else:
+                mylist.append(Offer(
+                    "Yes, your information is correct, though I am not certain I feel comfortable with that being my best known achievement. It is a pleasure to meet a fellow cavalier.",
+                    ContextTag([context.CUSTOM]), data={"reply": "Aren't you the robot that helped defeat Typhon?"},
+                    subject=self, subject_start=True
+                ))
+
+            mylist.append(Offer(
+                "I am happy to be back at my old task, cataloging neofauna in the trans-Eurasian dead zone. I spent far too much of the past year indoors at the parliament buildings in Snake Lake. I would be happy to discuss my research with you sometime.",
+                ContextTag([context.CUSTOMREPLY]), data={"reply": "What have you been doing lately?"},
+                subject=self, effect=self._do_introduction
+            ))
+        else:
+            mylist.append(Offer(
+                "Nothing would make me happier... other than possibly discovering a new type of feral synthoid.",
+                ContextTag([context.CUSTOM]), data={"reply": "I would like to discuss your research findings."},
+                dead_end=True, effect=self.shop
+            ))
+            if random.randint(1,2) == 1 and not self._got_typhon_story:
+                mylist.append(Offer(
+                    "I have been thinking about Typhon again, and how tragic its life was. Imagine being created solely as a weapon. A living, feeling tool of death. And think of Cetus, never truly born, but experimented upon and tortured for centuries. I run the scenarios again and again yet cannot find a happy ending.",
+                    ContextTag([context.CUSTOM]), data={"reply": "You look sort of down today... Is anything wrong?"},
+                    subject=self.shop, subject_start=True
+                ))
+
+            mylist.append(Offer(
+                "And that is what bothers me- unlike my human lancemates, it was not fear or will to survive that led me to kill Typhon. It was the cold equation that Typhon must die so many others could live. Even with the benefit of hindsight I see no other solutions.",
+                ContextTag([context.CUSTOMREPLY]), data={"reply": "You did the only thing you could do."},
+                subject=self.shop, effect=self._do_typhon_talk
+            ))
+
+            mylist.append(Offer(
+                "Yet as cavaliers we must always try to make things better. I know my actions that day were mathematically justified. It was the cold equation that Typhon must die so many others could live. Still, I mourn for the creature that was never given a chance to really exist.",
+                ContextTag([context.CUSTOMREPLY]), data={"reply": "Life isn't fair. In fact usually it sucks."},
+                subject=self.shop, effect=self._do_typhon_talk
+            ))
+
+        for ib in self.infoblasts:
+            if ib.active:
+                mylist.append(ib.build_offer())
+
+        return mylist
+
+    def _do_introduction(self, camp):
+        self._got_initial_story = True
+        self.RUMOR = False
+        self.memo = pbge.memos.Memo("Omega 1004 at {NPC_SCENE} offered to discuss his research with you.".format(**self.elements), location=self.elements["NPC_SCENE"])
+
+    def _do_typhon_talk(self, camp):
+        self._got_typhon_story = True
 
 
 class RanMagnusMechaFactory(Plot):

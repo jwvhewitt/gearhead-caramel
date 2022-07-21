@@ -1,3 +1,10 @@
+v0.903 July 21 2022
+- Fixed crash when trying to load corrupted egg file
+- Fixed font bug when PC dies permanently
+- Fixed bug with major NPCs sometimes not showing up
+- Added Omega 1004 to DeadZone Drifter
+- Fixed bug when game attempts to eject egg but PC has no mecha
+
 v0.902 July 19 2022
 * Added error logging for all game-crashing exceptions
 * Fixed crash when player attempts to right-click use an inaccessible waypoint

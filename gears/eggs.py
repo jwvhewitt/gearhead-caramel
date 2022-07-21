@@ -49,25 +49,27 @@ class Egg(object):
             thing.container.remove(thing)
 
     def _remove_campdata_for(self, thing, cdat_rec):
-        if hasattr(thing, "campdata"):
-            cdat_rec[thing] = thing.campdata
-            del thing.campdata
-        for sc in thing.sub_com:
-            self._remove_campdata_for(sc, cdat_rec)
-        for sc in thing.inv_com:
-            self._remove_campdata_for(sc, cdat_rec)
+        if thing:
+            if hasattr(thing, "campdata"):
+                cdat_rec[thing] = thing.campdata
+                del thing.campdata
+            for sc in thing.sub_com:
+                self._remove_campdata_for(sc, cdat_rec)
+            for sc in thing.inv_com:
+                self._remove_campdata_for(sc, cdat_rec)
 
     def _reset_container_for(self, thing, con_rec):
         if thing in con_rec:
             con_rec[thing].append(thing)
 
     def _reset_campdata_for(self, thing, cdat_rec):
-        if thing in cdat_rec:
-            thing.campdata = cdat_rec[thing]
-        for sc in thing.sub_com:
-            self._reset_campdata_for(sc, cdat_rec)
-        for sc in thing.inv_com:
-            self._reset_campdata_for(sc, cdat_rec)
+        if thing:
+            if thing in cdat_rec:
+                thing.campdata = cdat_rec[thing]
+            for sc in thing.sub_com:
+                self._reset_campdata_for(sc, cdat_rec)
+            for sc in thing.inv_com:
+                self._reset_campdata_for(sc, cdat_rec)
 
     def write(self, f):
         # Save a record of all the containers.

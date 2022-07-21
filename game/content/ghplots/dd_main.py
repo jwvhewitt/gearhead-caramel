@@ -265,10 +265,21 @@ class RoadMap(object):
                 else:
                     break
         if towns:
+            # Add the randomly-positioned content.
             towns.sort(key=lambda x: x.pos[0])
             mytown = towns[min(random.randint(1,len(towns)-2),random.randint(1,len(towns)-2))]
+            towns.remove(mytown)
             plot.add_sub_plot(nart, "DZD_MAGNUSMECHA",
                               elements={"METROSCENE": mytown.destination, "METRO": mytown.destination.metrodat})
+
+            random.shuffle(towns)
+            mytown = towns.pop()
+            print(mytown.destination)
+            plot.add_sub_plot(
+                nart, "DZD_OMEGA1004",
+                elements={"METROSCENE": mytown.destination, "METRO": mytown.destination.metrodat}
+            )
+
         return ok
 
     def expand_roadmap_menu(self, camp, mymenu):

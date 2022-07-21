@@ -296,11 +296,6 @@ class FrozenHotSpringCity(Plot):
         myroom.contents.append(myent)
 
         vikki = nart.camp.get_major_npc("Vikki Shingo")
-        # vikki.portrait = 'card_f_wintervikki.png'
-        # vikki.portrait_gen = gears.portraits.Portrait()
-        # vikki.colors = (gears.color.ShiningWhite,gears.color.LightSkin,gears.color.NobleGold,gears.color.HunterOrange,gears.color.Olive)
-        # vikki.colors = (gears.color.Black,gears.color.Burlywood,gears.color.BugBlue,gears.color.NobleGold,gears.color.CeramicColor)
-        # vikki.mmode = pbge.scenes.movement.Walking
         myroom.contents.append(vikki)
         self.register_element("VIKKI", vikki)
 

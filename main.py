@@ -11,8 +11,9 @@ import pickle
 import copy
 import math
 import logging
+import traceback
 
-VERSION = "v0.902"
+VERSION = "v0.903"
 
 
 class TitleScreenRedraw(object):
@@ -79,11 +80,15 @@ class StartGameMenu:
         myfiles = glob.glob(pbge.util.user_dir("egg_*.sav"))
 
         for fname in myfiles:
-            with open(fname, "rb") as f:
-                # Why deepcopy the freshly loaded pickle? Because that will update any gears involved
-                # to the latest version, and at this point in time it'll hopefully keep save games working
-                # despite rapid early-development changes.
-                egg = copy.deepcopy(pickle.load(f))
+            try:
+                with open(fname, "rb") as f:
+                    # Why deepcopy the freshly loaded pickle? Because that will update any gears involved
+                    # to the latest version, and at this point in time it'll hopefully keep save games working
+                    # despite rapid early-development changes.
+                    egg = copy.deepcopy(pickle.load(f))
+            except Exception as e:
+                print("Error in {}- {}".format(fname, e))
+                egg = None
             if egg:
                 mymenu.add_item(str(egg.pc), egg)
                 self.myportraits[egg] = egg.pc.get_portrait()
@@ -343,8 +348,8 @@ def play_the_game():
             if action:
                 action(tsrd)
     except Exception as e:
-        print(e)
-        pbge.alert("Python Exception occurred- please send the error.log in your ghcaramel user folder to pyrrho12@yahoo.ca.\nK THX gonna crash now.")
+        print(traceback.format_exc())
+        pbge.alert("Python Exception ({}) occurred- please send the error.log in your ghcaramel user folder to pyrrho12@yahoo.ca.\nK THX gonna crash now.".format(e))
         logging.exception(e)
         logging.critical("Please email this file to pyrrho12@yahoo.ca")
 

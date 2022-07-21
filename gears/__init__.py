@@ -621,7 +621,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def play(self):
         super().play()
         if self.pc in self.dead_party:
-            pbge.alert("Game Over", font=pbge.my_state.hugefont)
+            pbge.alert("Game Over", font=pbge.my_state.huge_font)
             self.delete_save_file()
 
     def eject(self):
@@ -962,6 +962,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             selector.equip_combatant(mynpc)
 
         if mynpc not in self.uniques:
+            mynpc.pos = None
             if mynpc not in self.egg.dramatis_personae:
                 self.egg.dramatis_personae.add(mynpc)
             self.uniques.add(mynpc)
