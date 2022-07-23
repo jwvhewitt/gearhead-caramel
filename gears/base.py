@@ -570,7 +570,7 @@ class BaseGear(scenes.PlaceableThing):
         self.shop_tags = list(shop_tags)
         self.desc = desc
         self.slot = slot or self.DEFAULT_SLOT
-        self.faction_list = faction_list
+        self.faction_list = list(faction_list)
         # Error check:
         for fac in faction_list:
             if fac and fac not in SINGLETON_REVERSE and fac != "ReallyNone":
@@ -3398,8 +3398,8 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         if name is None:
             keywords["name"] = form.name
         self.form = form
-        self.environment_list = environment_list
-        self.role_list = role_list
+        self.environment_list = list(environment_list)
+        self.role_list = list(role_list)
         self.family = family
         super(Mecha, self).__init__(**keywords)
         if tags.ST_MECHA not in self.shop_tags:

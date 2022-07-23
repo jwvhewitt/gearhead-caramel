@@ -1,3 +1,11 @@
+v0.904 July 23 2022
+- Added configuration option to announce start of player turn
+- Fixed bug in configuration menu
+- Added exception checking to gear loader
+- Fixed bug in EditMecha when adding/removing Environments & Roles to new mecha
+- Added AnimatedShotAnim
+- Error message will be displayed if GHC crashes from main menu
+
 v0.903 July 21 2022
 - Fixed crash when trying to load corrupted egg file
 - Fixed font bug when PC dies permanently

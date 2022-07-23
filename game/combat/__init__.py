@@ -288,6 +288,10 @@ class PlayerTurn( object ):
 
         self.active_ui = self.movement_ui
 
+        # Right before starting the player's turn, if announce_pc_turn_start is turned on, announce it.
+        if pbge.util.config.getboolean("GENERAL", "announce_pc_turn_start"):
+            pbge.alert("{}'s Turn".format(self.pc.get_pilot()), font=pbge.BIGFONT, justify=0)
+
         keep_going = True
         while self.camp.fight.still_fighting() and (self.pc in self.camp.scene.contents) and (self.camp.fight.cstat[self.pc].action_points > 0 or self.camp.fight.cstat[self.pc].mp_remaining > 0):
             # Get input and process it.

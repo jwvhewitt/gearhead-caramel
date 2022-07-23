@@ -108,8 +108,8 @@ class ShotAnim( AnimOb ):
     """An AnimOb which moves along a line."""
     def __init__( self, sprite_name=None, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=None,
                   set_frame_offset=True, x_off=0, y_off=0, delay=0, is_transparent=False ):
-        self.sprite = image.Image( sprite_name or self.DEFAULT_SPRITE_NAME, width, height,
-                                   transparent=self.DEFAULT_TRANSPARENCY or is_transparent )
+        super().__init__(sprite_name=sprite_name, width=width, height=height, pos=start_pos, is_transparent=is_transparent)
+
         if set_frame_offset:
             self.frame = frame + self.dir_frame_offset( self.isometric_pos(*start_pos), self.isometric_pos(*end_pos) )
         else:
@@ -170,8 +170,6 @@ class ShotAnim( AnimOb ):
             else:
                 return ( tmp + 4 ) % 8
 
-
-
     def update( self, view ):
         if self.delay > 0:
             self.delay += -1
@@ -182,6 +180,40 @@ class ShotAnim( AnimOb ):
                 self.needs_deletion = True
             else:
                 self.pos = self.itinerary[ self.counter ]
+
+class AnimatedShotAnim( ShotAnim ):
+    """An AnimOb which moves along a line."""
+    def __init__( self, sprite_name=None, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=None,
+                  set_frame_offset=False, x_off=0, y_off=0, delay=0, is_transparent=False ):
+        super().__init__(sprite_name=sprite_name, width=width, height=height, frame=frame, set_frame_offset=False, is_transparent=is_transparent)
+
+        self.counter = 0
+        self.x_off = x_off
+        self.y_off = y_off
+        self.needs_deletion = False
+        self.pos = start_pos
+        speed = speed or self.DEFAULT_SPEED
+        self.itinerary = get_fline( start_pos, end_pos, speed )
+        self.children = list()
+        self.delay = delay
+    DEFAULT_SPRITE_NAME = ''
+    DEFAULT_SPEED = 0.3
+    DEFAULT_TRANSPARENCY = False
+
+    def update( self, view ):
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            view.anims[view.pos_to_key(self.pos)].append(self)
+            self.counter += 1
+            self.frame += 1
+            if self.frame > self.end_frame:
+                self.frame = self.start_frame
+            if self.counter >= len( self.itinerary ):
+                self.needs_deletion = True
+            else:
+                self.pos = self.itinerary[ self.counter ]
+
 
 class Caption( AnimOb ):
     def __init__(self, txt=None, pos=(0,0), width=128, loop=16, color=None, delay=1, y_off=0 ):

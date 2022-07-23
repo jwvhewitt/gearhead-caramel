@@ -87,21 +87,15 @@ class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomethin
         if not self.ops_taken:
             return "None"
         elif len(self.ops_taken) == 1:
-            return self._get_name(self.ops_taken[0])
+            return str(self.ops_taken[0])
         else:
-            return ', '.join([self._get_name(p) for p in self.ops_taken])
-
-    def _get_name(self,op):
-        if hasattr(op,"name"):
-            return op.name
-        else:
-            return str(op)
+            return ', '.join([str(p) for p in self.ops_taken])
 
     def _delete_op(self,widg,ev):
         if self.ops_taken:
             mymenu = pbge.rpgmenu.PopUpMenu()
             for p in self.ops_taken:
-                mymenu.add_item(self._get_name(p),p)
+                mymenu.add_item(str(p),p)
             delete_this_one = mymenu.query()
             if delete_this_one in self.ops_taken:
                 self.ops_taken.remove(delete_this_one)
@@ -115,7 +109,7 @@ class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomethin
             mymenu = pbge.rpgmenu.PopUpMenu()
             for p in self.op_candidates:
                 if p not in self.ops_taken:
-                    mymenu.add_item(self._get_name(p),p)
+                    mymenu.add_item(str(p),p)
             add_this_one = mymenu.query()
             if add_this_one:
                 self.ops_taken.append(add_this_one)
@@ -123,6 +117,7 @@ class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomethin
                     self.ops_taken.remove(add_this_one)
             if self.on_change:
                 self.on_change()
+
 
 class LabeledDropdownWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
     # nameoptions is a list of (name,value) tuples for filling the menu.

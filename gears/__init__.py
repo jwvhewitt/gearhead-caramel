@@ -1187,9 +1187,13 @@ class Loader(object):
         return mylist
 
     def load(self):
-        with open(self.fname, 'rt') as f:
-            mylist = self.load_list(f)
-        return self.convert(mylist)
+        try:
+            with open(self.fname, 'rt') as f:
+                mylist = self.load_list(f)
+            return self.convert(mylist)
+        except Exception as e:
+            print(e)
+            return []
 
     @classmethod
     def load_design_file(cls, dfname):

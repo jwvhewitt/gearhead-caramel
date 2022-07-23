@@ -13,7 +13,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.903"
+VERSION = "v0.904"
 
 
 class TitleScreenRedraw(object):
@@ -204,10 +204,13 @@ def import_arena_character(tsrd):
                                )
 
     for f in myfiles:
-        mygears = gears.oldghloader.GH1Loader(f)
-        mygears.load()
-        egg = mygears.get_egg()
-        mymenu.add_item(str(egg.pc), egg)
+        try:
+            mygears = gears.oldghloader.GH1Loader(f)
+            mygears.load()
+            egg = mygears.get_egg()
+            mymenu.add_item(str(egg.pc), egg)
+        except Exception as e:
+            pbge.alert("Warning: File {} can't be parsed. {}".format(f,e))
     mymenu.sort()
 
     if not mymenu.items:
@@ -294,6 +297,8 @@ def play_the_game():
 
     logging.basicConfig(level=logging.DEBUG, filename=pbge.util.user_dir("errors.log"))
 
+    #print(os.getenv("APPDATA"))
+
     # myfoo = game.content.ghplots.test.Foo()
     # with open(pbge.util.user_dir('bar.p'), "wb") as f:
     #    pickle.dump(myfoo, f, -1)
@@ -316,6 +321,7 @@ def play_the_game():
     # pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
     try:
         tsrd = TitleScreenRedraw()
+        pbge.my_state.view = tsrd
 
         action = True
         while action:

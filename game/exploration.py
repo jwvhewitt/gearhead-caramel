@@ -494,6 +494,7 @@ class Explorer(object):
                 thing.ench_list.update(self.camp, thing)
 
     def get_item(self):
+        print("Getting item")
         pc = self.camp.pc.get_root()
         candidates = [i for i in self.scene.contents if
                       isinstance(i, gears.base.BaseGear) and i.pos == pc.pos and pc.can_equip(i)]

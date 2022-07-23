@@ -481,17 +481,20 @@ def anim_delay():
         pass
 
 
-def alert(text, font=None):
+def alert(text, font=None, justify=-1):
     if not font:
         font = my_state.medium_font
     # mydest = pygame.Rect( my_state.screen.get_width() // 2 - 200, my_state.screen.get_height()//2 - 100, 400, 200 )
-    mytext = render_text(font, text, 400)
+    mytext = render_text(font, text, 400, justify=justify)
     mydest = mytext.get_rect(center=(my_state.screen.get_width() // 2, my_state.screen.get_height() // 2))
+    initial_widget_state = my_state.widgets_active
+    my_state.widgets_active = False
 
     pygame.event.clear([TIMEREVENT, pygame.KEYDOWN])
     while True:
         ev = wait_event()
         if (ev.type == pygame.MOUSEBUTTONUP) or (ev.type == pygame.QUIT) or (ev.type == pygame.KEYDOWN):
+            my_state.widgets_active = initial_widget_state
             return ev
         elif ev.type == TIMEREVENT:
             if my_state.view:

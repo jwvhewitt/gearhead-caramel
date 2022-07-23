@@ -78,7 +78,11 @@ class ConfigEditor(object):
                 self.toggle_escape)
             mymenu.add_item(
                 "Lancemates repaint their mecha: {}".format(util.config.getboolean("GENERAL", "lancemates_repaint_mecha")),
-                OptionToggler("GENERAL", "lancemates_repaint_mecha"))
+                OptionToggler("lancemates_repaint_mecha"))
+            mymenu.add_item(
+                "Announce start of player turns: {}".format(util.config.getboolean("GENERAL", "announce_pc_turn_start")),
+                OptionToggler("announce_pc_turn_start"))
+
 
             for op in util.config.options("DIFFICULTY"):
                 mymenu.add_item("{}: {}".format(op, util.config.getboolean("DIFFICULTY", op)),

@@ -357,6 +357,19 @@ EnergyWeapon
             size = 4
     END
 
+MeleeWeapon
+    name = "Deathwing"
+    desc = "A bladed boomerang with an integrated poison dispenser. This weapon is favored by assassins, since even a grazing hit can be lethal."
+    reach = 3
+    damage = 2
+    accuracy = 4
+    penetration = 3
+    attributes = (PoisonAttack,)
+    shot_anim = ReturningDeathwing
+    scale = HumanScale
+    shop_tags= ("CONTRABAND", )
+    material = Advanced
+
 
 # Ammo Bang = Damage x Penetration
 
