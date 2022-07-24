@@ -16,7 +16,13 @@ ARTWORK
 
 ICONS - MOSTLY FROM "THE NOUN PROJECT"
 ======================================
-
+* Boat by Pham Duy Phuong Hung from NounProject.com CC-BY-3.0
+* Jump by Centis MENANT from NounProject.com CC-BY-3.0
+* Rocket by Gregor Cresnar from NounProject.com CC-BY-3.0
+* Flight by Shocho from NounProject.com CC-BY-3.0
+* Wind by Akriti Bhusal from NounProject.com CC-BY-3.0
+* Tire by Nociconist from NounProject.com CC-BY-3.0
+* Walk by Adrien Coquet from NounProject.com CC-BY-3.0
 * Movement icon by ProSymbols from the Noun Project CC-BY-3.0
 * Move by Mister Pixel from the Noun Project CC-BY-3.0
 * Attack icon Sword by uzeir syarief from the Noun Project CC-BY-3.0

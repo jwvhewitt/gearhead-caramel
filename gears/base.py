@@ -286,7 +286,7 @@ class Mover(KeyObject):
         thrust = self.count_thrust_points(geffects.Skimming)
 
         if thrust > (norm_mass * 20):
-            return self.apply_speed_bonus(thrust // norm_mass)
+            return thrust // norm_mass
         else:
             return 0
 
@@ -295,7 +295,16 @@ class Mover(KeyObject):
         thrust = self.count_thrust_points(geffects.Rolling)
 
         if thrust > (norm_mass * 20):
-            return self.apply_speed_bonus(thrust // norm_mass)
+            return thrust // norm_mass
+        else:
+            return 0
+
+    def calc_flight(self):
+        norm_mass = self.scale.unscale_mass(self.mass)
+        thrust = self.count_thrust_points(scenes.movement.Flying) + self.count_module_points(MF_Wing) * 2500
+
+        if thrust > (norm_mass * 50):
+            return thrust // norm_mass
         else:
             return 0
 
@@ -304,13 +313,16 @@ class Mover(KeyObject):
         # it costs 2MP to move along a cardinal direction or 3MP to move diagonally.
         # This cost will be adjusted for terrain and scale.
         if mmode is scenes.movement.Walking:
-            return self.calc_walking()
+            speed = self.calc_walking()
         elif mmode is geffects.Skimming:
-            return self.calc_skimming()
+            speed = self.calc_skimming()
         elif mmode is geffects.Rolling:
-            return self.calc_rolling()
+            speed = self.calc_rolling()
+        elif mmode is scenes.movement.Flying:
+            speed = self.calc_flight()
         else:
             return 0
+        return self.apply_speed_bonus(speed)
 
     def get_current_speed(self):
         return self.get_speed(self.mmode)
@@ -3319,6 +3331,8 @@ class MT_Battroid(Singleton):
     PROTOTYPE_IMAGENAME = "mav_buruburu.png"
     PROTOTYPE_PORTRAIT = "mecha_buruburu.png"
 
+    LEGAL_MOVE_MODES = (scenes.movement.Walking, geffects.Rolling, geffects.Skimming, geffects.SpaceFlight)
+
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
@@ -3338,6 +3352,8 @@ class MT_Arachnoid(MT_Battroid):
 
     PROTOTYPE_IMAGENAME = "mav_kojedo.png"
     PROTOTYPE_PORTRAIT = "mecha_kojedo.png"
+
+    LEGAL_MOVE_MODES = (scenes.movement.Walking,)
 
     @classmethod
     def is_legal_sub_com(self, part):
@@ -3362,20 +3378,14 @@ class MT_Groundhugger(MT_Battroid):
     PROTOTYPE_IMAGENAME = "mav_ultari.png"
     PROTOTYPE_PORTRAIT = "mecha_ultari.png"
 
+    LEGAL_MOVE_MODES = (geffects.Rolling, geffects.Skimming)
+
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
             return part.form not in (MF_Arm, MF_Wing, MF_Tail, MF_Leg)
         else:
             return False
-
-    @classmethod
-    def modify_speed(self, base_speed, move_mode):
-        # Return the modified speed.
-        if move_mode in {geffects.Rolling, geffects.Skimming}:
-            return base_speed
-        else:
-            return 0
 
     @classmethod
     def modify_mobility(cls, base_mobility):
@@ -3587,13 +3597,10 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             if thrust > norm_mass:
                 speed += thrust // norm_mass
 
-            # Add form bonus.
-            speed = self.form.modify_speed(speed, scenes.movement.Walking)
-
             # Don't drop below minimum speed.
             speed = max(speed, 20)
 
-            return Mover.apply_speed_bonus(self, speed)
+            return speed
         else:
             return 0
 
@@ -3601,7 +3608,22 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         engine_rating, has_gyro = self.get_engine_rating_and_gyro_status()
         # In order to skim, a mecha needs both an engine and a gyroscope.
         if (engine_rating > 0) and has_gyro:
-            return Mover.calc_skimming(self)
+            return super().calc_skimming()
+        else:
+            return 0
+
+    def calc_flight(self):
+        engine_rating, has_gyro = self.get_engine_rating_and_gyro_status()
+        # In order to skim, a mecha needs both an engine and a gyroscope.
+        if (engine_rating > 0) and has_gyro:
+            return super().calc_skimming()
+        else:
+            return 0
+
+    def get_speed(self, mmode):
+        if mmode in self.form.LEGAL_MOVE_MODES:
+            base_speed = super().get_speed(mmode)
+            return self.form.modify_speed(base_speed, mmode)
         else:
             return 0
 
