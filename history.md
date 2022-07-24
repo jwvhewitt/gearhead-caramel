@@ -1,3 +1,5 @@
+- Config menu will delete config options that should not be in config.cfg
+
 v0.905 July 23 2022
 * Missing mecha descriptions provided by Baiby
 * Configuration editor now validates configuration items
