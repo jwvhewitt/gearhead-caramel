@@ -22,8 +22,12 @@ class OptionToggler(object):
         try:
             current_val = util.config.getboolean(section, key)
         except ValueError:
-            current_val = default_config.getboolean(section, key)
-            util.config.set(section, key, str(current_val))
+            try:
+                current_val = default_config.getboolean(section, key)
+                util.config.set(section, key, str(current_val))
+            except configparser.NoOptionError:
+                util.config.remove_option(section, key)
+                return
 
         mymenu.add_item(
             "{}: {}".format(name, current_val),
