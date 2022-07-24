@@ -1,6 +1,7 @@
 Mecha
     name = "Joust"
     desig = "A7800"
+    desc="This mecha was designed specifically for arena combat. It is the first training mecha used by many pilots on account of it being simple and versatile, outfitted with a swarm missile launcher, a plasma lance, and a gunshield."
     imagename = "mav_joust.png"
     portrait = "mecha_joust.png"
     family = "Buru Buru"

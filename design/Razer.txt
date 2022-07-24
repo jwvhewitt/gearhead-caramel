@@ -4,7 +4,7 @@ Mecha
     form = MT_Arachnoid
     imagename = "mav_razer.png"
     portrait = "mecha_razer.png"
-    desc = ""
+    desc = "The Razer is a light bipedal walking tank that is equipped with a pair of machine guns that are suited to fighting light mecha and powered armor."
 
     environment_list = (GroundEnv,UrbanEnv)
     faction_list = (TerranFederation,TerranDefenseForce,BoneDevils,DeadzoneFederation,ClanIronwind)
@@ -109,7 +109,7 @@ Mecha
     form = MT_Arachnoid
     imagename = "mav_razer_hitman.png"
     portrait = "mecha_razer.png"
-    desc = ""
+    desc = "The Razer is a light bipedal walking tank. This variant trades the Razer's usual machine guns for a pair of heavy rocket launchers. It is designed to quickly engage and eliminate priority targets."
 
     environment_list = (GroundEnv,UrbanEnv)
     faction_list = (DeadzoneFederation,ClanIronwind)
@@ -208,7 +208,7 @@ Mecha
     form = MT_Arachnoid
     imagename = "mav_razer_xs.png"
     portrait = "mecha_razer.png"
-    desc = ""
+    desc = "The Razer is a light bipedal walking tank. The XS variant comes equipped with twin pulse laser cannons."
 
     environment_list = (GroundEnv,UrbanEnv)
     faction_list = (TerranFederation,)

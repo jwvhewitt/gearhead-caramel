@@ -5,9 +5,9 @@ Mecha
     portrait = "mecha_ultari.png"
     family = "Ultari"
     environment_list = (GroundEnv,UrbanEnv,)
-    faction_list = (BoneDevils,TerranFederation,TerranDefenseForce,RegExCorporation,DeadzoneFederation,ClanIronwind)
+    faction_list = (BoneDevils,TerranFederation,TerranDefenseForce,RegExCorporation,DeadzoneFederation,ClanIronwind,KettelIndustries)
     role_list = (Trooper,Commander)
-    desc = ""
+    desc = "Rugged and versatile, the Ultari is the most commonly used main battle tank on Earth. What it lacks in sophistication it makes up for in brute force."
     form = MT_Groundhugger
 
     SUB
@@ -101,7 +101,7 @@ Mecha
     portrait = "mecha_ultari.png"
     family = "Ultari"
     environment_list = (GroundEnv,UrbanEnv,)
-    faction_list = (BoneDevils,TerranFederation,TerranDefenseForce,RegExCorporation,DeadzoneFederation,ClanIronwind)
+    faction_list = (TerranFederation,TerranDefenseForce,ClanIronwind,KettelIndustries,BioCorp)
     role_list = (Commander,)
     desc = "An update on the aging Ultari medium tank, with weapons designed to take down mecha by disrupting their electronics."
     form = MT_Groundhugger

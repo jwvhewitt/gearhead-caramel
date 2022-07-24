@@ -1,16 +1,33 @@
 import pbge
 from pbge import util
 import pygame
+import configparser
 
+default_config = configparser.ConfigParser()
 
 class OptionToggler(object):
-    def __init__(self, key, section="GENERAL"):
+    def __init__(self, key, section="GENERAL", extra_fun=None):
         self.key = key
         self.section = section
+        self.extra_fun = extra_fun
 
     def __call__(self):
         mystate = not util.config.getboolean(self.section, self.key)
         util.config.set(self.section, self.key, str(mystate))
+        if self.extra_fun:
+            self.extra_fun()
+
+    @classmethod
+    def add_menu_toggle(cls, mymenu, name, key, section="GENERAL", extra_fun=None):
+        try:
+            current_val = util.config.getboolean(section, key)
+        except ValueError:
+            current_val = default_config.getboolean(section, key)
+            util.config.set(section, key, str(current_val))
+
+        mymenu.add_item(
+            "{}: {}".format(name, current_val),
+            cls(key, section, extra_fun=extra_fun))
 
 
 class ConfigEditor(object):
@@ -19,80 +36,46 @@ class ConfigEditor(object):
         self.predraw = predraw
 
     def toggle_fullscreen(self):
-        mystate = not util.config.getboolean("GENERAL", "fullscreen")
-        util.config.set("GENERAL", "fullscreen", str(mystate))
         # Actually toggle the fullscreen.
         pbge.my_state.reset_screen()
 
     def toggle_stretchyscreen(self):
-        mystate = not util.config.getboolean("GENERAL", "stretchy_screen")
-        util.config.set("GENERAL", "stretchy_screen", str(mystate))
         # Actually toggle the fullscreen.
         pbge.my_state.reset_screen()
 
     def toggle_music(self):
-        mystate = not util.config.getboolean("GENERAL", "music_on")
-        util.config.set("GENERAL", "music_on", str(mystate))
         # Actually turn off or on the music.
-        if mystate:
+        if util.config.getboolean("GENERAL", "music_on"):
             pbge.my_state.resume_music()
         else:
             pbge.my_state.stop_music()
 
-    def toggle_names(self):
-        mystate = not util.config.getboolean("GENERAL", "names_above_heads")
-        util.config.set("GENERAL", "names_above_heads", str(mystate))
-
-    def toggle_autosave(self):
-        mystate = not util.config.getboolean("GENERAL", "auto_save")
-        util.config.set("GENERAL", "auto_save", str(mystate))
-
-    def toggle_replay(self):
-        mystate = not util.config.getboolean("GENERAL", "can_replay_adventures")
-        util.config.set("GENERAL", "can_replay_adventures", str(mystate))
-
-    def toggle_escape(self):
-        mystate = not util.config.getboolean("GENERAL", "no_escape_from_title_screen")
-        util.config.set("GENERAL", "no_escape_from_title_screen", str(mystate))
-
     def __call__(self):
         action = True
+        pos = 0
         while action:
             # rebuild the menu.
             mymenu = pbge.rpgmenu.Menu(-250, self.dy, 500, 200,
                                        predraw=self.predraw, font=pbge.my_state.big_font)
-            mymenu.add_item("Fullscreen: {}".format(util.config.getboolean("GENERAL", "fullscreen")),
-                            self.toggle_fullscreen)
-            mymenu.add_item("Stretch Screen: {}".format(util.config.getboolean("GENERAL", "stretchy_screen")),
-                            self.toggle_stretchyscreen)
-            mymenu.add_item("Music On: {}".format(util.config.getboolean("GENERAL", "music_on")), self.toggle_music)
-            mymenu.add_item("Names Above Heads: {}".format(util.config.getboolean("GENERAL", "names_above_heads")),
-                            self.toggle_names)
-            mymenu.add_item("Auto Save on Scene Change: {}".format(util.config.getboolean("GENERAL", "auto_save")),
-                            self.toggle_autosave)
-            mymenu.add_item(
-                "Can Replay Adventures: {}".format(util.config.getboolean("GENERAL", "can_replay_adventures")),
-                self.toggle_replay)
-            mymenu.add_item(
-                "No Escape from Main Menu: {}".format(util.config.getboolean("GENERAL", "no_escape_from_title_screen")),
-                self.toggle_escape)
-            mymenu.add_item(
-                "Lancemates repaint their mecha: {}".format(util.config.getboolean("GENERAL", "lancemates_repaint_mecha")),
-                OptionToggler("lancemates_repaint_mecha"))
-            mymenu.add_item(
-                "Announce start of player turns: {}".format(util.config.getboolean("GENERAL", "announce_pc_turn_start")),
-                OptionToggler("announce_pc_turn_start"))
+            OptionToggler.add_menu_toggle(mymenu, "Fullscreen", "fullscreen", extra_fun=self.toggle_fullscreen)
+            OptionToggler.add_menu_toggle(mymenu, "Stretch Screen", "stretchy_screen", extra_fun=self.toggle_stretchyscreen)
+            OptionToggler.add_menu_toggle(mymenu, "Music On", "music_on", extra_fun=self.toggle_music)
+            OptionToggler.add_menu_toggle(mymenu, "Names Above Heads", "names_above_heads")
+            OptionToggler.add_menu_toggle(mymenu, "Auto Save on Scene Change", "auto_save")
+            OptionToggler.add_menu_toggle(mymenu, "Can Replay Adventures", "can_replay_adventures")
+            OptionToggler.add_menu_toggle(mymenu, "No Escape From Main Menu", "no_escape_from_title_screen")
 
+            OptionToggler.add_menu_toggle(mymenu, "Lancemates repaint their mecha", "lancemates_repaint_mecha")
+            OptionToggler.add_menu_toggle(mymenu, "Announce start of player turns", "announce_pc_turn_start")
 
             for op in util.config.options("DIFFICULTY"):
-                mymenu.add_item("{}: {}".format(op, util.config.getboolean("DIFFICULTY", op)),
-                                OptionToggler(op, "DIFFICULTY"))
+                OptionToggler.add_menu_toggle(mymenu, op, op, section="DIFFICULTY")
 
             mymenu.add_item("Save and Exit", False)
-            if action is not True:
-                mymenu.set_item_by_value(action)
+            mymenu.set_item_by_position(pos)
             action = mymenu.query()
             if action and action is not True:
+                pos = mymenu.selected_item
                 action()
 
         # Export the new config options.
@@ -119,3 +102,9 @@ class PopupGameMenu(object):
             action = mymenu.query()
             if action:
                 action(enc_or_com)
+
+
+def init_configedit():
+    global default_config
+    with open(util.data_dir("config_defaults.cfg")) as f:
+        default_config.read_file( f )

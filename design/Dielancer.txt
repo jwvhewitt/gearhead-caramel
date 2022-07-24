@@ -1,6 +1,7 @@
 Mecha
     name = "Dielancer"
     desig = "SDH-22C"
+    desc = "Often used by marauders from Clan Ironwind and the Bone Devils, the Dielancer is a refit of the SDH-22 Corsair. The heavy rockets have been replaced with a powerful heavy railgun, and the laser cannon with an ion lance."
     imagename = "mav_dielancer.png"
     portrait = "mecha_dielancer.png"
     family = "Corsair"
@@ -103,6 +104,7 @@ Mecha
 Mecha
     name = "Dielancer"
     desig = "SDH-22I Iron"
+    desc = "A variant on the Dielancer design. Completely foregoing ranged weaponry, this version doubles down on close-quarters combat, replacing its prior weaponry with a destructive iron spear, an ironbreaker longsword and a shield."
     imagename = "mav_dielancer_i.png"
     portrait = "mecha_dielancer.png"
     family = "Corsair"

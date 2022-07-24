@@ -1,6 +1,7 @@
 Mecha
     name = "Thorshammer"
     desig = "THD-35"
+    desc = "Well armed and well armored, the Thorshammer is the RegEx Corporation's most popular mecha design."
     imagename = "mav_thorshammer.png"
     portrait = "mecha_thorshammer.png"
 

@@ -1,6 +1,7 @@
 Mecha
     name = "Zerosaiko"
     desig = "Z45-60"
+    desc = "The Zerosaiko is widely regarded as one of the most advanced mecha in the solar system. Originally produced in NT112, its design emphasized speed and maneuverability over sheer firepower. This mecha is favored by pro duelists both for its capabilities and its appearance."
     imagename = "mav_zerosaiko.png"
     portrait = "mecha_zerosaiko.png"
 

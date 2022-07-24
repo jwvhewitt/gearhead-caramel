@@ -1,3 +1,6 @@
+v0.905 July 23 2022
+* Missing mecha descriptions provided by Baiby
+* Configuration editor now validates configuration items
 * Added BonusStrike attack attribute
 
 v0.904 July 23 2022

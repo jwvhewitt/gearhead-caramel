@@ -6,7 +6,7 @@ Mecha
     environment_list = (GroundEnv,UrbanEnv,)
     faction_list = (None,)
     role_list = (Trooper,Support)
-    desc = ""
+    desc = "The Musketeer is a light fire support battroid. Although equipped with an impressive array of long range weapons, it lacks the durability needed for close quarters fighting."
 
     SUB
         Head

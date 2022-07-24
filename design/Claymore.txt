@@ -1,6 +1,7 @@
 Mecha
     name = "Claymore"
     desig = "ITM-01"
+    desc = "The Claymore is one of the oldest battroid mecha designs, dating from the Age of Superpowers. Though obsolete now, new Claymores are still being produced in DeadZone workshops."
     imagename = "mav_claymore.png"
     portrait = "mecha_claymore.png"
 

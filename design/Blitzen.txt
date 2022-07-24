@@ -2,6 +2,7 @@ Mecha
     name = "Blitzen"
     desig = "WM Custom"
     imagename = "mav_blitzen.png"
+    desc="An apparently unique mecha of unknown origin. Festive yet ferocious."
     colors = (Cinnamon,Gold,BrightRed,SlateGrey,Cream)
     portrait = "mecha_blitzen.png"
     environment_list = (None,)

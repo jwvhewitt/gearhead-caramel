@@ -1,6 +1,7 @@
 Mecha
     name = "Gorilla"
     desig = "Crihna"
+    desc = "This is the main raiding mecha used by the Blades of Crihna. Its massive claws are useful for smashing through bulkheads and carrying away loot."
     imagename = "mav_gorilla.png"
     portrait = "mecha_gorilla.png"
     family = "Crihna"

@@ -1,6 +1,7 @@
 Mecha
     name = "Ice Wind"
     desig = "CBG-87"
+    desc = "A light, general purpose mecha used mostly by corporate security forces. While a completely serviceable mecha, it is highly stigmatized on account of its petite form and spartan design philosophy."
     imagename = "mav_icewind_87a.png"
     portrait = "mecha_icewind.png"
     family = "IceWind"
@@ -121,6 +122,7 @@ Mecha
 Mecha
     name = "Ice Wind"
     desig = "CBG-87b Command"
+    desc = "A variant on the Ice Wind design. Intended for use by commanders, the addition of a beam sabre and beam shield provides increased power and much greater survivability."
     imagename = "mav_icewind_87b.png"
     portrait = "mecha_icewind.png"
     family = "IceWind"
@@ -237,6 +239,7 @@ Mecha
 Mecha
     name = "Ice Wind"
     desig = "CBG-88d"
+    desc = "A variant on the Ice Wind design. Boasting more firepower than the others, this version was made to fulfil the role of both sniper and missile platform."
     imagename = "mav_icewind_88d.png"
     portrait = "mecha_icewind.png"
     family = "IceWind"

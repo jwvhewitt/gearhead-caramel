@@ -1,6 +1,7 @@
 Mecha
     name = "Chameleon"
     desig = "CHA-01"
+    desc = "The main battle mecha of Aegis Overlord. Because of Luna's shortage of metals, the Chameleon is made from advanced synthetic materials."
     imagename = "mav_chameleon1.png"
     portrait = "mecha_chameleon.png"
     family = "Chameleon"
@@ -135,6 +136,7 @@ Mecha
 Mecha
     name = "Chameleon"
     desig = "CHA-02b Sniper"
+    desc = "A variant on the Chameleon design. Equipped with a gauss cannon, this version is specialized for long-distance elimination."
     imagename = "mav_chameleon2.png"
     portrait = "mecha_chameleon.png"
     family = "Chameleon"
@@ -270,6 +272,7 @@ Mecha
 Mecha
     name = "Chameleon"
     desig = "CHA-03 Command"
+    desc = "A variant on the Chameleon design. Intended for use by commanders, this version boasts more versatility than the others, replacing the pulse rifle of the original model with a plasma rifle and sporting a rapier and shield for melee combat."
     imagename = "mav_chameleon3.png"
     portrait = "mecha_chameleon.png"
     family = "Chameleon"
