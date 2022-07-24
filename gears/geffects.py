@@ -723,8 +723,9 @@ class AttackRoll(effects.NoEffect):
 
 
 class MeleeAttackRoll(AttackRoll):
-    def __init__(self, att_stat, att_skill, **kwargs):
+    def __init__(self, att_stat, att_skill, bonus_strikes=0, **kwargs):
         super().__init__(att_stat, att_skill, **kwargs)
+        self.bonus_strikes = bonus_strikes
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
         if originator:
@@ -761,6 +762,10 @@ class MeleeAttackRoll(AttackRoll):
                     originator.dole_experience(3, self.att_skill)
 
                 num_hits = min(max((att_roll + att_bonus - hi_def_roll - 10) // 25, 0) + 1, max_attacks)
+
+                # Add bonus strikes.
+                if self.bonus_strikes > 0:
+                    num_hits += random.randint(0, self.bonus_strikes)
 
                 fx_record['number_of_hits'] = num_hits
                 if num_hits > 1:

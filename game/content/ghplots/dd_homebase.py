@@ -1058,6 +1058,7 @@ class DZD_AlliedArmor(Plot):
         otherscene.contents.append(hiddenroom)
         mystairs = self.register_element("STAIRSUP", ghwaypoints.StoneStairsUp(dest_wp=secretstairs))
         hiddenroom.contents.append(mystairs)
+        #hiddenroom.contents.append(gears.selector.get_design_by_full_name("Deathwing"))
 
         cwnpc = self.register_element("CWORKER", gears.selector.random_character(combatant=False,
                                                                                  job=gears.jobs.ALL_JOBS[

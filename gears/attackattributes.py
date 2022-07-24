@@ -73,6 +73,33 @@ class Blast2(Blast1):
     BLAST_RADIUS = 2
 
 
+class BonusStrike1(Singleton):
+    # Default attack action scores 1 to 2 hits by default.
+    name = "Bonus Strike 1"
+    MASS_MODIFIER = 1.3
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.0
+    POWER_MODIFIER = 1.2
+    STRIKE_NUMBER = 1
+
+    @classmethod
+    def replace_primary_attack( self, weapon ):
+        base = weapon.get_basic_attack(name='Bonus Strike +{}'.format(self.STRIKE_NUMBER),
+                                       attack_icon=9, bonus_strike=self.STRIKE_NUMBER)
+        base.data.thrill_power = int(base.data.thrill_power * (0.5 + self.STRIKE_NUMBER))
+        return [base,]
+
+
+class BonusStrike2(BonusStrike1):
+    # Default attack action scores 1 to 3 hits by default.
+    name = "Bonus Strike 2"
+    MASS_MODIFIER = 1.5
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 3.0
+    POWER_MODIFIER = 1.5
+    STRIKE_NUMBER = 2
+
+
 class BurnAttack(Singleton):
     name = "Burn"
     MASS_MODIFIER = 1.0

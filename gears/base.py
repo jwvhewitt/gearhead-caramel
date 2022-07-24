@@ -1737,7 +1737,8 @@ class MeleeWeapon(Weapon):
     MAX_PENETRATION = 5
     COST_FACTOR = 3
     DAMAGE_EXPONENT = 2.5
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize, attackattributes.Brutal,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize,
+                        attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.HaywireAttack,
@@ -1758,7 +1759,7 @@ class MeleeWeapon(Weapon):
         if hasattr(myroot, "get_melee_damage_bonus"):
             return myroot.get_melee_damage_bonus(self)
 
-    def get_basic_attack(self, name='Basic Attack', attack_icon=0, targets=1):
+    def get_basic_attack(self, name='Basic Attack', attack_icon=0, bonus_strike=0, targets=1):
         ba = geffects.AttackInvocation(
             name=name,
             fx=geffects.MeleeAttackRoll(
@@ -1766,7 +1767,7 @@ class MeleeWeapon(Weapon):
                 children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
-                modifiers=self.get_modifiers()
+                modifiers=self.get_modifiers(), bonus_strikes=bonus_strike
             ),
             area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
             used_in_combat=True, used_in_exploration=False,
@@ -1843,7 +1844,8 @@ class EnergyWeapon(Weapon):
     MAX_PENETRATION = 5
     COST_FACTOR = 12
     DAMAGE_EXPONENT = 2.7
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize, attackattributes.BurnAttack,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize,
+                        attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.BurnAttack,
                         attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.DrainsPower,
@@ -1868,7 +1870,7 @@ class EnergyWeapon(Weapon):
         if hasattr(myroot, "get_melee_damage_bonus"):
             return myroot.get_melee_damage_bonus(self)
 
-    def get_basic_attack(self, name='Basic Attack', attack_icon=0):
+    def get_basic_attack(self, name='Basic Attack', bonus_strike=0, attack_icon=0):
         ba = geffects.AttackInvocation(
             name=name,
             fx=geffects.MeleeAttackRoll(
@@ -1876,7 +1878,7 @@ class EnergyWeapon(Weapon):
                 children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale, hot_knife=True, damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
-                modifiers=self.get_modifiers()
+                modifiers=self.get_modifiers(), bonus_strikes=bonus_strike
             ),
             area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
             used_in_combat=True, used_in_exploration=False,

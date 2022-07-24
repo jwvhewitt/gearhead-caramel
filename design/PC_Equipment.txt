@@ -364,11 +364,11 @@ MeleeWeapon
     damage = 2
     accuracy = 4
     penetration = 3
-    attributes = (PoisonAttack,)
+    attributes = (PoisonAttack, BonusStrike2)
     shot_anim = ReturningDeathwing
     scale = HumanScale
     shop_tags= ("CONTRABAND", )
-    material = Advanced
+    material = Ceramic
 
 
 # Ammo Bang = Damage x Penetration
