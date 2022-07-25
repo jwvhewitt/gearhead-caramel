@@ -6,14 +6,14 @@ class MoveMode( Singleton ):
 
     @classmethod
     def get_short_name(cls):
-        return cls.NAME
+        return cls.name
 
 class Walking( MoveMode ):
-    NAME = 'walk'
+    name = 'walk'
 
 class Flying( MoveMode ):
     climb_penalty = 1.0
-    NAME = 'fly'
+    name = 'fly'
     altitude = 25
 
 class Vision( MoveMode ):

@@ -1,3 +1,4 @@
+import gears.tags
 from . import materials
 from . import scale
 from . import calibre
@@ -283,7 +284,7 @@ class Mover(KeyObject):
 
     def calc_skimming(self):
         norm_mass = self.scale.unscale_mass(self.mass)
-        thrust = self.count_thrust_points(geffects.Skimming)
+        thrust = self.count_thrust_points(gears.tags.Skimming)
 
         if thrust > (norm_mass * 20):
             return thrust // norm_mass
@@ -292,7 +293,7 @@ class Mover(KeyObject):
 
     def calc_rolling(self):
         norm_mass = self.scale.unscale_mass(self.mass)
-        thrust = self.count_thrust_points(geffects.Rolling)
+        thrust = self.count_thrust_points(gears.tags.Rolling)
 
         if thrust > (norm_mass * 20):
             return thrust // norm_mass
@@ -314,22 +315,24 @@ class Mover(KeyObject):
         # This cost will be adjusted for terrain and scale.
         if mmode is scenes.movement.Walking:
             speed = self.calc_walking()
-        elif mmode is geffects.Skimming:
+        elif mmode is gears.tags.Skimming:
             speed = self.calc_skimming()
-        elif mmode is geffects.Rolling:
+        elif mmode is gears.tags.Rolling:
             speed = self.calc_rolling()
         elif mmode is scenes.movement.Flying:
             speed = self.calc_flight()
         else:
             return 0
-        return self.apply_speed_bonus(speed)
+        speed = self.apply_speed_bonus(speed)
+        if speed > 40:
+            speed = min(speed, 40 + int(math.log(speed - 40, 1.1)))
+        return speed
 
     def get_current_speed(self):
         return self.get_speed(self.mmode)
 
     def get_max_speed(self):
-        return max(self.get_speed(scenes.movement.Walking), self.get_speed(geffects.Skimming),
-                   self.get_speed(geffects.Rolling))
+        return max([self.get_speed(mm) for mm in tags.MOVEMODE_LIST])
 
     def count_module_points(self, module_form):
         # Count the number of active module points, reducing rating for damage taken.
@@ -364,12 +367,9 @@ class Mover(KeyObject):
                 total += g.get_speed_bonus_percent()
         return total
 
-    MOVEMODE_LIST = (
-        scenes.movement.Walking, geffects.Rolling, geffects.Skimming, scenes.movement.Flying, geffects.SpaceFlight)
-
     def gear_up(self):
         #self.mmode = None
-        for mm in self.MOVEMODE_LIST:
+        for mm in tags.MOVEMODE_LIST:
             if self.get_speed(mm) > self.get_current_speed():
                 self.mmode = mm
         if not self.mmode:
@@ -1346,10 +1346,10 @@ class MovementSystem(SizeClassedComponent):
     def get_item_stats(self):
         stat = [('Thrust ({})'.format(mode.get_short_name()), str(self.get_thrust(mode)))
                 for mode in [scenes.movement.Walking
-                    , geffects.Rolling
-                    , geffects.Skimming
+                    , gears.tags.Rolling
+                    , gears.tags.Skimming
                     , scenes.movement.Flying
-                    , geffects.SpaceFlight
+                    , gears.tags.SpaceFlight
                              ]
                 if self.get_thrust(mode) > 0
                 ]
@@ -1368,12 +1368,30 @@ class HoverJets(MovementSystem, StandardDamageHandler):
         return self.size
 
     def get_thrust(self, move_mode):
-        if move_mode is geffects.Skimming:
+        if move_mode is gears.tags.Skimming:
             return (self.size * 4000 * self.current_health + self.max_health - 1) // self.max_health
-        elif move_mode is geffects.SpaceFlight:
+        elif move_mode is gears.tags.SpaceFlight:
             return (self.size * 3700 * self.current_health + self.max_health - 1) // self.max_health
         elif move_mode is scenes.movement.Flying:
             return (self.size * 500 * self.current_health + self.max_health - 1) // self.max_health
+        else:
+            return 0
+
+
+class FlightJets(MovementSystem, StandardDamageHandler):
+    DEFAULT_NAME = "Flight Jets"
+    MOVESYS_COST = 75
+
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
+
+    def get_thrust(self, move_mode):
+        if move_mode is scenes.movement.Flying:
+            return (self.size * 4800 * self.current_health + self.max_health - 1) // self.max_health
+        elif move_mode is gears.tags.SpaceFlight:
+            return (self.size * 4500 * self.current_health + self.max_health - 1) // self.max_health
         else:
             return 0
 
@@ -1388,7 +1406,7 @@ class Wheels(MovementSystem, StandardDamageHandler):
         return self.size
 
     def get_thrust(self, move_mode):
-        if move_mode is geffects.Rolling:
+        if move_mode is gears.tags.Rolling:
             return (self.size * 4000 * self.current_health + self.max_health - 1) // self.max_health
         else:
             return 0
@@ -1409,7 +1427,7 @@ class Tracks(MovementSystem, StandardDamageHandler):
         return self.size * 2
 
     def get_thrust(self, move_mode):
-        if move_mode is geffects.Rolling:
+        if move_mode is gears.tags.Rolling:
             return (self.size * 4000 * self.current_health + self.max_health - 1) // self.max_health
         else:
             return 0
@@ -2054,14 +2072,16 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
             if self.ammo_type.risk == calibre.RISK_VOLATILE:
                 my_invo = pbge.effects.Invocation(
                     fx=geffects.DoDamage(3, max(self.ammo_type.bang//2,6), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
-                    area=pbge.scenes.targetarea.SelfCentered(radius=random.randint(1,max(self.ammo_type.bang//4,2)), delay_from=-1))
+                    area=pbge.scenes.targetarea.SelfCentered(radius=random.randint(1,max(self.ammo_type.bang//4,2)), delay_from=-1),
+                    shot_anim=geffects.AmmoExplosionAnim
+                )
             else:
                 my_invo = pbge.effects.Invocation(
                     fx=pbge.effects.NoEffect(
-                        anim=geffects.AmmoExplosionAnim,
+                        anim=geffects.BigBoom,
                         children=(
                             geffects.DoDamage(2, max(self.ammo_type.bang//2,6), scale=self.scale, scatter=True, is_brutal=True),
-                        )),
+                        )), shot_anim=geffects.AmmoExplosionAnim,
                     area=pbge.scenes.targetarea.SingleTarget())
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
@@ -2411,7 +2431,8 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
         if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
             my_invo = pbge.effects.Invocation(
                 fx=geffects.DoDamage(min(self.quantity-self.spent,10), max(self.damage,3), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
-                area=pbge.scenes.targetarea.SelfCentered(radius=min(random.randint(1,2),random.randint(1,2)))
+                area=pbge.scenes.targetarea.SelfCentered(radius=min(random.randint(1,2),random.randint(1,2))),
+                shot_anim=geffects.AmmoExplosionAnim
             )
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
@@ -2651,7 +2672,8 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
             my_invo = pbge.effects.Invocation(
                 fx=geffects.DoDamage(2,8, anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
-                area=pbge.scenes.targetarea.SelfCentered(radius=min(3,random.randint(1,max((self.quantity-self.spent)//50,2))))
+                area=pbge.scenes.targetarea.SelfCentered(radius=min(3,random.randint(1,max((self.quantity-self.spent)//50,2)))),
+                shot_anim=geffects.AmmoExplosionAnim
             )
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
@@ -3331,7 +3353,7 @@ class MT_Battroid(Singleton):
     PROTOTYPE_IMAGENAME = "mav_buruburu.png"
     PROTOTYPE_PORTRAIT = "mecha_buruburu.png"
 
-    LEGAL_MOVE_MODES = (scenes.movement.Walking, geffects.Rolling, geffects.Skimming, geffects.SpaceFlight)
+    LEGAL_MOVE_MODES = (scenes.movement.Walking, gears.tags.Rolling, gears.tags.Skimming, gears.tags.SpaceFlight)
 
     @classmethod
     def is_legal_sub_com(self, part):
@@ -3378,7 +3400,7 @@ class MT_Groundhugger(MT_Battroid):
     PROTOTYPE_IMAGENAME = "mav_ultari.png"
     PROTOTYPE_PORTRAIT = "mecha_ultari.png"
 
-    LEGAL_MOVE_MODES = (geffects.Rolling, geffects.Skimming)
+    LEGAL_MOVE_MODES = (gears.tags.Rolling, gears.tags.Skimming)
 
     @classmethod
     def is_legal_sub_com(self, part):
@@ -3396,7 +3418,32 @@ class MT_Groundhugger(MT_Battroid):
         return int(base_armor * 1.25)
 
 
-MECHA_FORMS = (MT_Battroid, MT_Arachnoid, MT_Groundhugger)
+class MT_Aerofighter(MT_Battroid):
+    name = "Aerofighter"
+    desc = "+50% flight speed; no head, turret, arms, tails, or legs."
+
+    PROTOTYPE_IMAGENAME = "mav_wraith_106a.png"
+    PROTOTYPE_PORTRAIT = "mecha_wraith.png"
+
+    LEGAL_MOVE_MODES = (pbge.scenes.movement.Flying,)
+
+    @classmethod
+    def is_legal_sub_com(self, part):
+        if isinstance(part, Module):
+            return part.form not in (MF_Head, MF_Arm, MF_Tail, MF_Leg)
+        else:
+            return False
+
+    @classmethod
+    def modify_speed(self, base_speed, move_mode):
+        # Return the modified speed.
+        if move_mode == pbge.scenes.movement.Flying:
+            return int(base_speed * 1.5)
+        else:
+            return 0
+
+
+MECHA_FORMS = (MT_Battroid, MT_Arachnoid, MT_Groundhugger, MT_Aerofighter)
 
 
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
@@ -3616,7 +3663,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         engine_rating, has_gyro = self.get_engine_rating_and_gyro_status()
         # In order to skim, a mecha needs both an engine and a gyroscope.
         if (engine_rating > 0) and has_gyro:
-            return super().calc_skimming()
+            return super().calc_flight()
         else:
             return 0
 

@@ -1,24 +1,66 @@
 from pbge import Singleton
+from pbge.scenes import movement
+
+
+#  ***************************
+#  ***   Movement  Modes   ***
+#  ***************************
+
+class Skimming(movement.MoveMode):
+    name = 'skim'
+    altitude = 1
+
+
+class Rolling(movement.MoveMode):
+    name = 'roll'
+
+
+class SpaceFlight(movement.MoveMode):
+    name = 'space flight'
+
+    @classmethod
+    def get_short_name(cls):
+        return 'space'
+
+class Crashed(movement.MoveMode):
+    # Crash the the movemode you get set to when you crash.
+    name = 'crash'
+
+
+MOVEMODE_LIST = (movement.Walking, movement.Flying, Skimming, Rolling, SpaceFlight)
+
+
+def model_matches_environment(model, enviro):
+    for mm in enviro.LEGAL_MOVEMODES:
+        if model.get_speed(mm) > 0:
+            return True
 
 
 # Environments
 
+
 class GroundEnv(Singleton):
     name = "Ground"
+    LEGAL_MOVEMODES = (Rolling, Skimming, movement.Walking, movement.Flying)
 
 
 class UrbanEnv(Singleton):
     name = "Urban"
+    LEGAL_MOVEMODES = (Rolling, Skimming, movement.Walking)
 
 
 class SpaceEnv(Singleton):
     name = "Space"
+    LEGAL_MOVEMODES = (SpaceFlight,)
 
 
 class AquaticEnv(Singleton):
     name = "Aquatic"
+    LEGAL_MOVEMODES = (Skimming, movement.Flying)
 
-ALL_ENVIRONMENTS = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+
+ALL_ENVIRONMENTS = (GroundEnv, UrbanEnv, SpaceEnv, AquaticEnv)
+
 
 # Battlefield Roles
 
@@ -33,10 +75,13 @@ class Commander(Singleton):
 class Support(Singleton):
     name = "Support"
 
+
 class EWarSupport(Singleton):
     name = "EWar Support"
 
-ALL_ROLES = (Trooper,Commander,Support,EWarSupport)
+
+ALL_ROLES = (Trooper, Commander, Support, EWarSupport)
+
 
 # Job tags
 class Academic(Singleton):
@@ -45,6 +90,7 @@ class Academic(Singleton):
 
 class Adventurer(Singleton):
     name = "Adventurer"
+
 
 class CorporateWorker(Singleton):
     name = "Corporate Worker"
@@ -57,29 +103,38 @@ class Craftsperson(Singleton):
 class Criminal(Singleton):
     name = "Criminal"
 
+
 class Faithworker(Singleton):
     name = "Faithworker"
+
 
 class Laborer(Singleton):
     name = "Laborer"
 
+
 class Media(Singleton):
     name = "Media"
+
 
 class Medic(Singleton):
     name = "Medic"
 
+
 class Merchant(Singleton):
     name = "Merchant"
+
 
 class Military(Singleton):
     name = "Military"
 
+
 class Police(Singleton):
     name = "Police"
 
+
 class Politician(Singleton):
     name = "Politician"
+
 
 # Miscellaneous character types
 
@@ -90,8 +145,10 @@ COMBATANT = "Combatant"
 class Village(Singleton):
     name = "Village"
 
+
 class City(Singleton):
     name = "City"
+
 
 SCENE_BUILDING = "BUILDING"
 SCENE_PUBLIC = "PUBLIC"
@@ -100,20 +157,20 @@ SCENE_GARAGE = "GARAGE"
 SCENE_HOSPITAL = "HOSPITAL"
 SCENE_ARENA = "ARENA"
 SCENE_BASE = "BASE"
-SCENE_MEETING = "MEETING"   # A good place to meet other people.
-SCENE_CULTURE = "CULTURE"   # A place to enjoy cultural activities. Music, art, whatever.
-SCENE_TRANSPORT = "TRANSPORT"   # Someplace like a bus station or a spaceport
+SCENE_MEETING = "MEETING"  # A good place to meet other people.
+SCENE_CULTURE = "CULTURE"  # A place to enjoy cultural activities. Music, art, whatever.
+SCENE_TRANSPORT = "TRANSPORT"  # Someplace like a bus station or a spaceport
 SCENE_GOVERNMENT = "GOVERNMENT"
 SCENE_RUINS = "RUINS"
-SCENE_SOLO = "SOLO"     # Only the PC will be deployed here.
+SCENE_SOLO = "SOLO"  # Only the PC will be deployed here.
 SCENE_DUNGEON = "DUNGEON"
 SCENE_SEMIPUBLIC = "SEMIPUBLIC"  # No-one is stopping you from going there. Usually used for dungeons.
 SCENE_FACTORY = "FACTORY"
 SCENE_OUTDOORS = "OUTDOORS"
-SCENE_ARENARULES = "ARENARULES" # No death, no permanent loss of mecha possible.
-SCENE_NOLEADERNEEDED = "NO_LEADER_NEEDED" # This Metroscene doesn't need a leader, so don't replace the leader if None
-SCENE_MINE = "MINE"     # This scene is mine. Actually it's _a_ mine. But it's still mine.
-SCENE_CAVE = "CAVE"     # This scene is a semi-natural underground area
+SCENE_ARENARULES = "ARENARULES"  # No death, no permanent loss of mecha possible.
+SCENE_NOLEADERNEEDED = "NO_LEADER_NEEDED"  # This Metroscene doesn't need a leader, so don't replace the leader if None
+SCENE_MINE = "MINE"  # This scene is mine. Actually it's _a_ mine. But it's still mine.
+SCENE_CAVE = "CAVE"  # This scene is a semi-natural underground area
 
 # Shop Tags
 
@@ -142,4 +199,3 @@ ST_TOOL = "TOOL"
 # Multiple items can be equipped in the same place as long as none of them have the same slot.
 SLOT_ITEM = "ITEM"
 SLOT_SHIELD = "SHIELD"
-

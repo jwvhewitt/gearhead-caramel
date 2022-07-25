@@ -1,3 +1,4 @@
+import gears.tags
 import pbge
 import gears
 from gears import info
@@ -20,7 +21,7 @@ class MoveWidget( pbge.widgets.Widget ):
         if pilot is not mover:
             mecha_name = pbge.widgets.LabelWidget(26,37,212,14,str(mover),color=pbge.WHITE,parent=self,anchor=pbge.frects.ANCHOR_UPPERLEFT)
             self.children.append(mecha_name)
-        self.mm_label = pbge.widgets.LabelWidget(253,37,100,14,mover.mmode.NAME,color=pbge.WHITE,parent=self,justify=0,anchor=pbge.frects.ANCHOR_UPPERLEFT)
+        self.mm_label = pbge.widgets.LabelWidget(253,37,100,14,str(mover.mmode),color=pbge.WHITE,parent=self,justify=0,anchor=pbge.frects.ANCHOR_UPPERLEFT)
         self.children.append(self.mm_label)
 
     def open_dropdown_menu( self ):
@@ -113,18 +114,18 @@ class MovementUI( object ):
     def change_movemode( self, new_mm ):
         self.mover.mmode = new_mm
         self.camp.fight.cstat[self.mover].mp_remaining = 0
-        self.my_widget.mm_label.text = new_mm.NAME
+        self.my_widget.mm_label.text = str(new_mm)
         self.needs_tile_update = True
 
     def open_movemode_menu( self, button, ev ):
         original_mm = self.mover.mmode
         mymenu = self.my_widget.open_dropdown_menu()
-        for mm in gears.geffects.MOVEMODE_LIST:
+        for mm in gears.tags.MOVEMODE_LIST:
             if self.mover.get_speed(mm) > 0:
-                mymenu.add_item('{} ({}dpr)'.format(mm.NAME,self.mover.get_speed(mm)),mm)
+                mymenu.add_item('{} ({}dpr)'.format(str(mm),self.mover.get_speed(mm)),mm)
         mymenu.set_item_by_value(original_mm)
         new_mm = mymenu.query()
-        if new_mm in gears.geffects.MOVEMODE_LIST and new_mm != original_mm:
+        if new_mm in gears.tags.MOVEMODE_LIST and new_mm != original_mm:
             self.change_movemode( new_mm )
 
     def update_tiles( self ):

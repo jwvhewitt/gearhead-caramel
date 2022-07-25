@@ -1,3 +1,4 @@
+import gears.tags
 import pbge
 import random
 import copy
@@ -657,7 +658,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                                 pc is self.pc or (hasattr(pc, "pilot") and pc.pilot is self.pc)]
         for pc in party_candidates:
             if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc, (
-                    base.Character, base.Mecha)) and geffects.model_matches_environment(pc, enviro):
+                    base.Character, base.Mecha)) and gears.tags.model_matches_environment(pc, enviro):
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational() and pc.check_design():
                         if not just_checking:
@@ -972,6 +973,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 class GearHeadArchitecture(pbge.randmaps.architect.Architecture):
     ENV = tags.GroundEnv
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mmode = self.ENV.LEGAL_MOVEMODES[0]
 
 # Why did I create this complicated regular expression to parse lines of
 # the form "a = b"? I guess I didn't know about C

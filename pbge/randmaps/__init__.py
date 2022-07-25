@@ -74,12 +74,12 @@ class SceneGenerator(Room):
         self.archi.wall_converter(self)
         # self.gb.validate_terrain()
 
-        self.step_six(self.gb)  # Deploy for self, then children
+        self.step_six(self.gb, self.archi)  # Deploy for self, then children
 
         # Decorate for self, then children
         if self.archi and self.archi.decorate:
-            self.archi.decorate(self.gb, self)
-        self.step_seven(self.gb)
+            self.archi.decorate(self.gb, self, self.archi)
+        self.step_seven(self.gb, self.archi)
 
         self.clean_contents()
 

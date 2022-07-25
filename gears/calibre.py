@@ -109,6 +109,11 @@ class SelfPropelled_130mm( BaseCalibre ):
     scale = scale.MechaScale
     risk = RISK_VOLATILE
 
+class SelfPropelled_160mm( BaseCalibre ):
+    bang = 15
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
+
 
 class Ferrous_Frag( BaseCalibre ):
     bang = 8

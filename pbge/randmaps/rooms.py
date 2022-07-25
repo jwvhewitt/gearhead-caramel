@@ -59,7 +59,7 @@ class Room(object):
 
     def step_four(self, gb):
         if self.archi and self.archi.mutate:
-            self.archi.mutate(gb, self.area)
+            self.archi.mutate(gb, self.area, self.archi)
         # Prepare any child nodes in self.contents as needed.
         for r in self.contents:
             if isinstance(r, Room):
@@ -72,20 +72,20 @@ class Room(object):
             if isinstance(r, Room):
                 r.step_five(gb, archi)
 
-    def step_six(self, gb):
-        self.deploy(gb)
+    def step_six(self, gb, archi):
+        self.deploy(gb, archi)
         # Prepare any child nodes in self.contents as needed.
         for r in self.contents:
             if isinstance(r, Room):
-                r.step_six(gb)
+                r.step_six(gb, archi)
 
-    def step_seven(self, gb):
+    def step_seven(self, gb, archi):
         if self.DECORATE:
-            self.DECORATE(gb, self)
+            self.DECORATE(gb, self, archi)
         # Prepare any child nodes in self.contents as needed.
         for r in self.contents:
             if isinstance(r, Room):
-                r.step_seven(gb)
+                r.step_seven(gb, archi)
 
     def find_spot_for_room(self, closed_area, myroom):
         myrect = pygame.Rect(0, 0, myroom.width, myroom.height)
@@ -192,21 +192,21 @@ class Room(object):
         # Step Five: Actually draw the room, taking into account terrain already on map.
         pass
 
-    def list_good_deploy_spots(self, gb):
+    def list_good_deploy_spots(self, gb, archi):
         good_spots = list()
         for x in range(self.area.x + 1, self.area.x + self.area.width - 1):
             for y in range(self.area.y + 1, self.area.y + self.area.height - 1):
-                if (((x + y) % 2) == 1) and not gb.tile_blocks_walking(x, y):
+                if (((x + y) % 2) == 1) and not self.probably_blocks_movement(gb, x, y, archi):
                     good_spots.append((x, y))
         return good_spots
 
-    def deploy(self, gb):
+    def deploy(self, gb, archi):
         # Step Six: Move items and monsters onto the map.
         # Find a list of good spots for stuff that goes in the open.
-        good_spots = self.list_good_deploy_spots(gb)
+        good_spots = self.list_good_deploy_spots(gb, archi)
 
         # Find a list of good walls for stuff that must be mounted on a wall.
-        good_walls = [p for p in self.get_west_north_wall_points(gb) if self.is_good_spot_for_wall_decor(gb, p)]
+        good_walls = [p for p in self.get_west_north_wall_points(gb) if self.is_good_spot_for_wall_decor(gb, p, archi)]
 
         # First pass- execute any deploy methods in any contents.
         for i in list(self.contents):
@@ -251,7 +251,7 @@ class Room(object):
                     if decor != -1:
                         gb._map[x][y].decor = decor
 
-    def probably_blocks_movement(self, gb, x, y):
+    def probably_blocks_movement(self, gb, x, y, archi):
         if not gb.on_the_map(x, y):
             return True
         elif gb._map[x][y].wall is True:
@@ -259,7 +259,7 @@ class Room(object):
         elif inspect.isclass(gb.get_wall(x, y)) and issubclass(gb.get_wall(x, y), terrain.DoorTerrain):
             return False
         else:
-            return gb._map[x][y].blocks_walking()
+            return gb.tile_blocks_movement(x,y, archi.mmode)
 
     def draw_direct_connection(self, gb, x1, y1, x2, y2, archi):
         path = animobs.get_line(x1, y1, x2, y2)
@@ -287,7 +287,7 @@ class Room(object):
         elif wall is True:
             return True
 
-    def is_good_spot_for_wall_decor(self, gb, pos):
+    def is_good_spot_for_wall_decor(self, gb, pos, archi):
         # This is a good spot for wall decor if we have three basic walls in a
         # row, a space out front, and nothing else here.
         x, y = pos
@@ -300,11 +300,11 @@ class Room(object):
             return False
         elif (self.is_basic_wall(gb, x - 1, y) and
               self.is_basic_wall(gb, x + 1, y) and
-              not gb.tile_blocks_walking(x, y + 1)):
+              not gb.tile_blocks_movement(x, y + 1, archi.mmode)):
             return True
         elif (self.is_basic_wall(gb, x, y - 1) and
               self.is_basic_wall(gb, x, y + 1) and
-              not gb.tile_blocks_walking(x + 1, y)):
+              not gb.tile_blocks_movement(x + 1, y, archi.mmode)):
             return True
 
     def get_west_north_wall_points(self, gb):
@@ -430,14 +430,14 @@ class OldClosedRoom(Room):
                 break
         return not door_found
 
-    def probably_an_entrance(self, gb, p, vec):
-        return not self.probably_blocks_movement(gb, *p) and not self.probably_blocks_movement(gb, p[0] + vec[0],
-                                                                                               p[1] + vec[1])
+    def probably_an_entrance(self, gb, p, vec, archi):
+        return not self.probably_blocks_movement(gb, *p, archi) and not self.probably_blocks_movement(gb, p[0] + vec[0],
+                                                                                               p[1] + vec[1], archi)
 
     def draw_wall(self, gb, points, vec, archi):
         empties = list()
         for p in points:
-            if self.probably_an_entrance(gb, p, vec):
+            if self.probably_an_entrance(gb, p, vec, archi):
                 empties.append(p)
             else:
                 gb.set_wall(p[0], p[1], archi.wall_terrain)
@@ -474,11 +474,11 @@ class OldClosedRoom(Room):
                                             self.area.x + self.area.width - 1, self.area.y + self.area.height - 2),
                        (1, 0), archi)
 
-    def list_good_deploy_spots(self, gb):
+    def list_good_deploy_spots(self, gb, archi):
         good_spots = list()
         for x in range(self.area.x + 2, self.area.x + self.area.width - 2, 2):
             for y in range(self.area.y + 2, self.area.y + self.area.height - 2, 2):
-                if not gb._map[x][y].blocks_walking():
+                if not gb.tile_blocks_movement(x, y, archi.mmode):
                     good_spots.append((x, y))
         return good_spots
 
@@ -511,16 +511,16 @@ class ClosedRoom(Room):
                 break
         return not door_found
 
-    def probably_an_entrance(self, gb, p, vec):
-        return not self.probably_blocks_movement(gb, *p) and not self.probably_blocks_movement(gb, p[0] + vec[0],
-                                                                                               p[1] + vec[1])
+    def probably_an_entrance(self, gb, p, vec, archi):
+        return not self.probably_blocks_movement(gb, *p, archi) and not self.probably_blocks_movement(gb, p[0] + vec[0],
+                                                                                               p[1] + vec[1], archi)
 
     def draw_wall(self, gb, points, vec, archi):
         empties = list()
         for p in points:
             if not gb.on_the_map(p[0] + vec[0], p[1] + vec[1]):
                 gb.set_wall(p[0], p[1], archi.wall_terrain)
-            elif self.probably_an_entrance(gb, p, vec):
+            elif self.probably_an_entrance(gb, p, vec, archi):
                 empties.append(p)
             else:
                 gb.set_wall(p[0], p[1], archi.wall_terrain)
@@ -577,11 +577,11 @@ class ClosedRoom(Room):
                                                 self.area.x + self.area.width - 1, self.area.y + self.area.height - 1),
                            (0, 1), archi)
 
-    def list_good_deploy_spots(self, gb):
+    def list_good_deploy_spots(self, gb, archi):
         good_spots = list()
         for x in range(self.area.x + 2, self.area.x + self.area.width - 2, 2):
             for y in range(self.area.y + 2, self.area.y + self.area.height - 2, 2):
-                if not gb._map[x][y].blocks_walking():
+                if not gb.tile_blocks_movement(x, y, archi.mmode):
                     good_spots.append((x, y))
         return good_spots
 

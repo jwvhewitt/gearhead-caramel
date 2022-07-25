@@ -1,0 +1,117 @@
+Mecha
+    name = "Wraith"
+    desig = "WR-106A"
+    imagename = "mav_wraith_106a.png"
+    portrait = "mecha_wraith.png"
+    family = "Wraith"
+    environment_list = (GroundEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Trooper,Commander)
+    desc = "The Wraith is a general purpose aerofighter produced by RegEx Corporation."
+    form = MT_Aerofighter
+
+    SUB
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+
+                Sensor
+                    size = 2
+
+                Engine
+                    size = 650
+
+                STC Intercept Cannon
+
+                Gyroscope
+
+                Cockpit
+
+                Mount
+                    name = "Right Body Mount"
+                    INV
+                        BallisticWeapon
+                            name = "Gyro Cannon"
+                            reach = 8
+                            damage = 3
+                            accuracy = 2
+                            penetration = 4
+                            ammo_type = SelfPropelled_130mm
+                            attributes = (Accurate)
+                            magazine = 12
+                            SUB
+                                Ammo
+                                    ammo_type=SelfPropelled_130mm
+                                    quantity=12
+                            END
+                    END
+
+                Mount
+                    name = "Left Body Mount"
+                    INV
+                        Launcher
+                            size = 9
+                            SUB
+                                Missile
+                                    name = "Heavy Rockets"
+                                    reach = 5
+                                    damage = 3
+                                    accuracy = 3
+                                    penetration = 2
+                                    quantity = 12
+                            END
+                    END
+                FlightJets
+                    size = 2
+            END
+        Wing
+            name = "Right Wing"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Mount
+                    name = "Right Wing Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 1
+                                    quantity = 25
+                            END
+                    END
+                FlightJets
+                    size = 5
+            END
+        Wing
+            name = "Left Wing"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Mount
+                    name = "Left Wing Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 1
+                                    quantity = 25
+                            END
+                    END
+                FlightJets
+                    size = 5
+            END
+    END

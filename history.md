@@ -1,4 +1,11 @@
-- Config menu will delete config options that should not be in config.cfg
+* Fixed Ammo Explosion display bug
+* Extreme speeds will now be slightly reduced
+* Added Flight Jets
+* Added Aerofighter mecha form
+* Random maps check blocked tiles using movemode provided by architecture
+* Exploration movement uses movemode based on party's move modes
+* Removed redundant code between MoveTo and BumpTo actions
+* Config menu will delete config options that should not be in config.cfg
 
 v0.905 July 23 2022
 * Missing mecha descriptions provided by Baiby

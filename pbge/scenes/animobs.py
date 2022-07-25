@@ -181,6 +181,7 @@ class ShotAnim( AnimOb ):
             else:
                 self.pos = self.itinerary[ self.counter ]
 
+
 class AnimatedShotAnim( ShotAnim ):
     """An AnimOb which moves along a line."""
     def __init__( self, sprite_name=None, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=None,
@@ -241,6 +242,11 @@ class Caption( AnimOb ):
             view.tickers[view.pos_to_key(self.pos)].add(self.txt, self.dy_off)
             self.needs_deletion = True
 
+
+class ShotCaption( Caption ):
+    def __init__( self, txt=None, start_pos=(0,0), end_pos=(0,0), **kwargs):
+        super().__init__(txt, pos=start_pos, **kwargs)
+        self.end_pos = end_pos
 
 
 class MoveModel( object ):

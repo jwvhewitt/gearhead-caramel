@@ -4,6 +4,7 @@ from . import prep
 import random
 from . import decor
 from . import rooms
+from pbge import scenes
 
 # An Architecture defines a style for a random map. The same architecture can
 # be shared across several scenes, ensuring a consistent style throughout.
@@ -22,8 +23,10 @@ class Architecture( object ):
     DEFAULT_OPEN_DOOR_TERRAIN = None
     DEFAULT_DOOR_CLASS = None
     DEFAULT_ROOM_CLASSES = ()
+    DEFAULT_MOVE_MODE = scenes.movement.Walking
     def __init__(self, floor_terrain=None, wall_converter=None, prepare=None, biome=None, desctags=None, gapfill=None,
-                 mutate=None, decorate=None, wall_terrain=None, open_door_terrain=None, door_class=None, room_classes=None):
+                 mutate=None, decorate=None, wall_terrain=None, open_door_terrain=None, door_class=None,
+                 room_classes=None, mmode=None):
         self.biome = biome or self.DEFAULT_BIOME
         if not desctags:
             desctags = list()
@@ -42,6 +45,7 @@ class Architecture( object ):
         self.open_door_terrain = open_door_terrain or self.DEFAULT_OPEN_DOOR_TERRAIN
         self.door_class = door_class or self.DEFAULT_DOOR_CLASS
         self.room_classes = room_classes or self.DEFAULT_ROOM_CLASSES
+        self.mmode = mmode or self.DEFAULT_MOVE_MODE
 
     def draw_fuzzy_ground( self, gb, x, y ):
         # In general, just erase the wall to expose the floor underneath,

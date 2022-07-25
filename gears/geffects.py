@@ -1,3 +1,4 @@
+import gears
 import pbge
 from pbge import effects
 from pbge.scenes import animobs, movement, pfov
@@ -8,10 +9,14 @@ from .enchantments import Enchantment, END_COMBAT, ON_MOVE, ON_DISPEL_POSITIVE, 
 import math
 from . import base, tags
 
+# For backwards compatibility reasons, import Skimming and Rolling to here. You can delete this import at
+# version v1.000 when savefile compatibility breaks again.
+from .tags import Skimming, Rolling
 
 #  *************************
 #  ***   Utility  Junk   ***
 #  *************************
+
 
 class AttackInvocation(effects.Invocation):
     def invoke(self, camp, originator, target_points, anim_list, fx_record=None):
@@ -153,44 +158,6 @@ DODGE = 'DODGE'
 PARRY = 'PARRY'
 BLOCK = 'BLOCK'
 INTERCEPT = 'INTERCEPT'
-
-
-#  ***************************
-#  ***   Movement  Modes   ***
-#  ***************************
-
-class Skimming(movement.MoveMode):
-    NAME = 'skim'
-    altitude = 1
-
-
-class Rolling(movement.MoveMode):
-    NAME = 'roll'
-
-
-class SpaceFlight(movement.MoveMode):
-    NAME = 'space flight'
-
-    @classmethod
-    def get_short_name(cls):
-        return 'space'
-
-
-MOVEMODE_LIST = (movement.Walking, movement.Flying, Skimming, Rolling, SpaceFlight)
-
-LEGAL_MOVEMODES = {
-    tags.GroundEnv: (movement.Walking, movement.Flying, Skimming, Rolling),
-    tags.UrbanEnv: (movement.Walking, Skimming, Rolling),
-    tags.AquaticEnv: (movement.Flying, Skimming),
-    tags.SpaceEnv: (SpaceFlight,)
-}
-
-
-def model_matches_environment(model, enviro):
-    legal_mm = LEGAL_MOVEMODES.get(enviro, ())
-    for mm in legal_mm:
-        if model.get_speed(mm) > 0:
-            return True
 
 
 #  *******************
@@ -349,12 +316,15 @@ class InflictPoisonAnim(animobs.Caption):
     DEFAULT_TEXT = 'Poisoned!'
 
 
-class AmmoExplosionAnim(animobs.Caption):
+class AmmoExplosionAnim(animobs.ShotCaption):
     DEFAULT_TEXT = 'Ammo Explosion!'
 
 
 class AIAssistAnim(animobs.Caption):
     DEFAULT_TEXT = 'AI Assisted!'
+
+class AnnounceCrashAnim(animobs.Caption):
+    DEFAULT_TEXT = 'Crashed!'
 
 
 class MusicAnim(animobs.AnimOb):
@@ -635,10 +605,40 @@ class JawShot(animobs.ShotAnim):
                              start_pos=end_pos, end_pos=start_pos, set_frame_offset=False)
         )
 
+class CrashAnim( object ):
+    # The model will fall down. At the end of the anim, set the model's movemeode to Crashed
+    def __init__( self, model, delay=0, final_altitude=0 ):
+        self.model = model
+        self.delay = delay
+        self.step = 0
+        self.speed = 1
+        self.drop = 0
+        self.final_altitude = final_altitude
+        self.needs_deletion = False
+        self.children = list()
+    def model_altitude(self, view):
+        return view.scene.model_altitude(self.model, *self.model.pos) - self.drop
+    def update( self, view ):
+        # This one doesn't appear directly, but moves a model.
+        if self.delay > 0:
+            self.delay += -1
+        elif self.model_altitude(view) > self.final_altitude:
+            self.step += 1
+            self.drop += self.speed
+            #if self.step % 2 == 0:
+            self.speed += 1
+            if self.model_altitude(view) < self.final_altitude:
+                self.drop = abs(self.final_altitude - view.scene.model_altitude(self.model, *self.model.pos))
+            self.model.offset_pos = (0,self.drop)
+        else:
+            self.model.mmode = tags.Crashed
+            self.model.offset_pos = (0,0)
+            self.needs_deletion = True
+
 
 # A curated list for the gear editor.
 SHOT_ANIMS = (SmallBullet, BigBullet, HugeBullet, SmallBeam, GunBeam, Missile1, Missile2, Missile3, Missile4, Missile5,
-              ReturningHammer)
+              ReturningHammer, JawShot, FlyingDeathwing)
 AREA_ANIMS = (
 BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim)
 
@@ -1174,6 +1174,26 @@ class DoDamage(effects.NoEffect):
                     originator.dole_experience(1)
             if camp.fight:
                 camp.fight.activate_foe(target)
+        return self.children
+
+
+class DoCrash(effects.NoEffect):
+    """ Whatever is in this tile is going to fall down.
+    """
+    def __init__(self, children=()):
+        super().__init__(children)
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+        targets = camp.scene.get_operational_actors(pos)
+        for t in targets:
+            if hasattr(t, "mmode"):
+                anims.append(AnnounceCrashAnim(pos=pos, delay=delay))
+                final_altitude = camp.scene.tile_altitude(*t.pos)
+                anims.append(CrashAnim(t, delay, final_altitude))
+
+                if camp.fight:
+                    camp.fight.cstat[t].action_points -= 1
+
         return self.children
 
 

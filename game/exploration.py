@@ -55,7 +55,9 @@ current_explo = None
 class MoveTo(object):
     """A command for moving to a particular point."""
 
-    def __init__(self, explo, pos, party=None):
+    def __init__(self, explo, pos, party=None, dest_fun=None):
+        # dest_fun is a function that takes the exploration object as a parameter that is called when the party
+        # reaches its destination.
         """Move the party to pos."""
         self.dest = pos
         if not party:
@@ -64,8 +66,9 @@ class MoveTo(object):
         self.party = party
         pc = self.first_living_pc()
         # blocked_tiles = set( m.pos for m in explo.scene.contents )
-        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, pc.mmode)
+        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, self._get_party_mmode(explo))
         self.step = 0
+        self.dest_fun = dest_fun
 
     def _get_pc_party(self, explo):
         party = [pc for pc in explo.camp.party if pc in explo.scene.contents]
@@ -74,6 +77,21 @@ class MoveTo(object):
             party.remove(pc)
             party.insert(0, pc)
         return party
+
+    def _get_party_mmode(self, explo):
+        env = explo.scene.environment
+        pc_maxmms = []
+        for pc in self.party:
+            if pc.is_operational():
+                maxmm = 0
+                for n, lmm in enumerate(env.LEGAL_MOVEMODES):
+                    if pc.get_speed(lmm) > 0:
+                        maxmm = n
+                pc_maxmms.append(maxmm)
+        if pc_maxmms:
+            return env.LEGAL_MOVEMODES[min(pc_maxmms)]
+        else:
+            return env.LEGAL_MOVEMODES[0]
 
     def first_living_pc(self):
         first_pc = None
@@ -97,12 +115,15 @@ class MoveTo(object):
     def move_pc(self, exp, pc, dest, first=False):
         # Move the PC one step along the path.
         targets = exp.scene.get_actors(dest)
-        if exp.scene.tile_blocks_movement(dest[0], dest[1], pc.mmode):
+        if exp.scene.tile_blocks_movement(dest[0], dest[1], self._get_party_mmode(exp)):
             # There's an obstacle in the way.
             if first:
-                wp = exp.scene.get_bumpable(dest)
-                if wp:
-                    wp.bump(exp.camp, pc)
+                if self.dest_fun:
+                    self.dest_fun(exp)
+                else:
+                    wp = exp.scene.get_bumpable(dest)
+                    if wp:
+                        wp.bump(exp.camp, pc)
             return False
         else:
             move_ok = True
@@ -123,6 +144,8 @@ class MoveTo(object):
 
         if (not pc) or (self.dest == pc.pos) or (self.step >
                                                  len(self.path.results)) or not exp.scene.on_the_map(*self.dest):
+            if self.dest_fun:
+                self.dest_fun(exp)
             return False
         else:
             first = True
@@ -134,7 +157,7 @@ class MoveTo(object):
                         f_pos = pc.pos
                         first = False
                     else:
-                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, pc.mmode)
+                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp))
                         for t in range(min(3, len(path.results) - 1)):
                             self.move_pc(exp, pc, path.results[t + 1])
 
@@ -142,6 +165,8 @@ class MoveTo(object):
             # hidden models.
             exp.scene.update_party_position(exp.camp)
 
+            if self.dest_fun and not keep_going:
+                self.dest_fun(exp)
             return keep_going
 
 
@@ -170,7 +195,7 @@ class TalkTo(MoveTo):
             f_pos = self.npc.pos
             for pc in self.party:
                 if pc.is_operational() and exp.scene.on_the_map(*pc.pos):
-                    path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, pc.mmode)
+                    path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp))
                     if len(path.results) > 1:
                         self.move_pc(exp, pc, path.results[1])
                         f_pos = pc.pos
@@ -186,41 +211,14 @@ class TalkTo(MoveTo):
 
 class BumpTo(MoveTo):
     """A command for moving to a particular waypoint, then activating it."""
-
     def __init__(self, explo, wayp, party=None):
-        """Move the party to pos."""
+        super().__init__(explo, wayp.pos, party, dest_fun=self._bump_wayp)
         self.wayp = wayp
-        if not party:
-            # Always party.
-            party = self._get_pc_party(explo)
-        self.party = party
-        self.step = 0
 
-    def __call__(self, exp):
+    def _bump_wayp(self, explo):
         pc = self.first_living_pc()
-        self.step += 1
-
-        if (not pc) or self.step > 50:
-            return False
-        elif self.wayp.pos in scenes.pfov.PointOfView(exp.scene, pc.pos[0], pc.pos[1], 1).tiles:
-            self.wayp.bump(exp.camp, pc)
-            return False
-        else:
-            f_pos = self.wayp.pos
-            for pc in self.party:
-                if pc.is_operational() and exp.scene.on_the_map(*pc.pos):
-                    path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, pc.mmode)
-                    if len(path.results) > 1:
-                        self.move_pc(exp, pc, path.results[1])
-                        f_pos = pc.pos
-                    else:
-                        return False
-
-            # Now that all of the pcs have moved, check the tiles_in_sight for
-            # hidden models.
-            exp.scene.update_party_position(exp.camp)
-
-            return True
+        if self.wayp.pos in scenes.pfov.PointOfView(explo.scene, pc.pos[0], pc.pos[1], 1).tiles:
+            self.wayp.bump(explo.camp, pc)
 
 
 class DoInvocation(MoveTo):
@@ -230,7 +228,7 @@ class DoInvocation(MoveTo):
         """Move the pc to pos, then invoke the invocation."""
         self.party = [pc, ]
         self.pos = pos
-        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, pc.mmode)
+        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, self._get_party_mmode(explo))
         self.step = 0
         self.record = record
         self.invo = invo
@@ -257,7 +255,7 @@ class DoInvocation(MoveTo):
                         f_pos = pc.pos
                         first = False
                     else:
-                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, pc.mmode)
+                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp))
                         for t in range(min(3, len(path.results) - 1)):
                             self.move_pc(exp, pc, path.results[t + 1])
 
@@ -494,7 +492,6 @@ class Explorer(object):
                 thing.ench_list.update(self.camp, thing)
 
     def get_item(self):
-        print("Getting item")
         pc = self.camp.pc.get_root()
         candidates = [i for i in self.scene.contents if
                       isinstance(i, gears.base.BaseGear) and i.pos == pc.pos and pc.can_equip(i)]
@@ -641,6 +638,15 @@ class Explorer(object):
                         print(self.camp.renown)
                     elif gdi.unicode == "A" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         self.record_count = 30
+
+                    elif gdi.unicode == "X" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        pc = self.camp.first_active_pc()
+                        myinvo = pbge.effects.Invocation(
+                            fx=geffects.DoCrash(),
+                            area=pbge.scenes.targetarea.SingleTarget()
+                        )
+                        myinvo.invoke(self.camp, None, [pc.pos, ], pbge.my_state.view.anim_list)
+                        pbge.my_state.view.handle_anim_sequence()
 
                     elif gdi.unicode == "K" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for lm in self.camp.get_active_party():

@@ -1,3 +1,4 @@
+import gears.tags
 from pbge.plots import Plot
 from pbge.dialogue import Offer, ContextTag
 from game import teams, services
@@ -791,7 +792,7 @@ class DZD_BlueFortressHQ(Plot):
         dd = {
             "image_bottom": 'terrain_building_brick_b.png', "image_top": 'terrain_building_brick_u.png',
             "blocks": (
-            pbge.scenes.movement.Walking, gears.geffects.Skimming, gears.geffects.Rolling, pbge.scenes.movement.Flying),
+                pbge.scenes.movement.Walking, gears.tags.Skimming, gears.tags.Rolling, pbge.scenes.movement.Flying),
             "colors": (
             gears.color.SteelBlue, gears.color.DeepSeaBlue, gears.color.Straw, gears.color.Black, gears.color.Black)
         }
@@ -1701,7 +1702,7 @@ class DZD_BlackIslePub(Plot):
         dd = {
             "image_bottom": 'terrain_building_brick_b.png', "image_top": 'terrain_building_brick_u.png',
             "blocks": (
-            pbge.scenes.movement.Walking, gears.geffects.Skimming, gears.geffects.Rolling, pbge.scenes.movement.Flying),
+                pbge.scenes.movement.Walking, gears.tags.Skimming, gears.tags.Rolling, pbge.scenes.movement.Flying),
             "colors": (
             gears.color.Ebony, gears.color.DeepGrey, gears.color.BattleshipGrey, gears.color.Black, gears.color.Black)
         }

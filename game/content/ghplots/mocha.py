@@ -5,7 +5,7 @@ import pygame
 from game import teams, ghdialogue
 from game.ghdialogue import context
 from pbge.scenes.movement import Walking, Flying
-from gears.geffects import Skimming, Rolling
+from gears.tags import Skimming, Rolling
 import random
 from pbge.dialogue import Cue, ContextTag, Offer, Reply
 from gears import personality, color, stats

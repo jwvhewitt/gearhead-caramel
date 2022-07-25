@@ -278,9 +278,9 @@ class Scene(object):
         else:
             return repr(self)
 
-    def wall_wont_block(self, x, y):
+    def wall_wont_block(self, x, y, mmode=movement.Walking):
         """Return True if a wall placed here won't block movement."""
-        if self.tile_blocks_walking(x, y):
+        if self.tile_blocks_movement(x, y, mmode):
             # This is a wall now. Changing it from a wall to a wall really won't
             # change anything, as should be self-evident.
             return True
@@ -290,7 +290,7 @@ class Scene(object):
             was_a_space = not self.tile_blocks_walking(x - 1, y)
             n = 0
             for a in self.ANGDIR:
-                is_a_space = not self.tile_blocks_walking(x + a[0], y + a[1])
+                is_a_space = not self.tile_blocks_movement(x + a[0], y + a[1], mmode)
                 if is_a_space != was_a_space:
                     # We've gone from wall to space or vice versa.
                     was_a_space = is_a_space

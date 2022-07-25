@@ -1,13 +1,14 @@
+import gears.tags
 import pbge
 import gears
 from pbge.scenes.movement import Walking, Flying, Vision
-from gears.geffects import Skimming, Rolling
+from gears.tags import Skimming, Rolling
 
 
 class Forest(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_trees_fg.png'
     image_middle = 'terrain_trees_bg.png'
-    movement_cost = {pbge.scenes.movement.Walking: 2.0, gears.geffects.Skimming: 2.0, gears.geffects.Rolling: 2.0,
+    movement_cost = {pbge.scenes.movement.Walking: 2.0, gears.tags.Skimming: 2.0, gears.tags.Rolling: 2.0,
                      pbge.scenes.movement.Vision: 5}
 
 class Bushes(pbge.scenes.terrain.VariableTerrain):
@@ -21,7 +22,7 @@ class Water(pbge.scenes.terrain.AnimTerrain):
     image_bottom = 'terrain_water1.png'
     altitude = -24
     transparent = True
-    movement_cost = {pbge.scenes.movement.Walking: 3.0, gears.geffects.Rolling: 3.0}
+    movement_cost = {pbge.scenes.movement.Walking: 3.0, gears.tags.Rolling: 3.0}
     border = pbge.scenes.terrain.FloorBorder('terrain_border_beach.png')
     border_priority = 1000
 
