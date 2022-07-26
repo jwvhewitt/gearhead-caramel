@@ -22,12 +22,21 @@ class SpaceFlight(movement.MoveMode):
     def get_short_name(cls):
         return 'space'
 
+
+class Jumping(movement.MoveMode):
+    name = 'jump'
+
+
+class Cruising(movement.MoveMode):
+    name = 'cruise'
+
+
 class Crashed(movement.MoveMode):
     # Crash the the movemode you get set to when you crash.
     name = 'crash'
 
 
-MOVEMODE_LIST = (movement.Walking, movement.Flying, Skimming, Rolling, SpaceFlight)
+MOVEMODE_LIST = (movement.Walking, movement.Flying, Skimming, Rolling, SpaceFlight, Cruising)
 
 
 def model_matches_environment(model, enviro):
@@ -42,21 +51,29 @@ def model_matches_environment(model, enviro):
 class GroundEnv(Singleton):
     name = "Ground"
     LEGAL_MOVEMODES = (Rolling, Skimming, movement.Walking, movement.Flying)
+    HAS_CEILING = False
+    DEEP_SPACE = False
 
 
 class UrbanEnv(Singleton):
     name = "Urban"
     LEGAL_MOVEMODES = (Rolling, Skimming, movement.Walking)
+    HAS_CEILING = False
+    DEEP_SPACE = False
 
 
 class SpaceEnv(Singleton):
     name = "Space"
     LEGAL_MOVEMODES = (SpaceFlight,)
+    HAS_CEILING = False
+    DEEP_SPACE = True
 
 
 class AquaticEnv(Singleton):
     name = "Aquatic"
     LEGAL_MOVEMODES = (Skimming, movement.Flying)
+    HAS_CEILING = False
+    DEEP_SPACE = False
 
 
 ALL_ENVIRONMENTS = (GroundEnv, UrbanEnv, SpaceEnv, AquaticEnv)

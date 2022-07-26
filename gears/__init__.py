@@ -415,6 +415,20 @@ class GearHeadScene(pbge.scenes.Scene):
             pc.place(self, pos, team)
             pc.gear_up()
 
+    def can_use_movemode(self, mmode):
+        if self.environment.DEEP_SPACE:
+            return mmode is tags.SpaceFlight
+        elif self.environment.HAS_CEILING:
+            return mmode not in (tags.SpaceFlight, pbge.scenes.movement.Flying, tags.Jumping)
+        else:
+            return mmode is not tags.SpaceFlight
+
+    def can_use_movemode_here(self, mmode, x0, y0):
+        if self.can_use_movemode(mmode):
+            for dx,dy in self.ANGDIR:
+                if not self.tile_blocks_movement(x0+dx, y0+dy, mmode):
+                    return True
+
 
 class GearHeadCampaign(pbge.campaign.Campaign):
 

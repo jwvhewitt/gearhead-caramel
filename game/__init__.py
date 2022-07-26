@@ -13,6 +13,7 @@ from . import mechabrowser
 from . import geareditor
 from . import devstuff
 from . import scenariocreator
+from . import traildrawer
 from game.fieldhq import backpack
 import pbge
 import os

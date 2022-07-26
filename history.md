@@ -1,3 +1,4 @@
+* Reworked the combat movement UI
 * Fixed Ammo Explosion display bug
 * Extreme speeds will now be slightly reduced
 * Added Flight Jets

@@ -5,102 +5,231 @@ from gears import info
 from game import traildrawer
 import pygame
 
-class MoveWidget( pbge.widgets.Widget ):
-    def __init__( self, camp, mover, **kwargs ):
-        # buttons is a list of tuples of (on_frame,off_frame,on_click)
-        super(MoveWidget, self).__init__(-383,-5,383,57,anchor=pbge.frects.ANCHOR_UPPERRIGHT,**kwargs)
+
+class MovementWidget(pbge.widgets.Widget):
+    # This widget stores the movement icons and lets the player switch movemodes.
+    IMAGE_NAME = 'sys_invokerinterface_movement.png'
+    MENU_POS = (-380, 15, 200, 180)
+    DESC_POS = (-160, 15, 140, 180)
+
+    def __init__(
+            self, camp, pc, update_callback, start_source=None,
+            top_shelf_fun=None, bottom_shelf_fun=None, **kwargs
+    ):
+        # update_callback is a function that gets called when the move mode
+        #   is changed. It passes the new move mode as a parameter.
+        # top_shelf_fun and bottom_shelf_fun are functions called when the user
+        #   tries to scroll up or down. Unlike the invocation widgets, this widget only has one shelf,
+        #   so unless these functions are defined scrolling up and down does nothing. Nothing!
+        super().__init__(-383, -5, 383, 57, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
         self.camp = camp
-        self.mover = mover
+        self.pc = pc
 
-        self.sprite = pbge.image.Image('sys_tacticsinterface_movewidget.png',383,57)
-        self.counter_sprite = pbge.image.Image('sys_tacticsinterface_actioncounter.png',32,12)
+        self.update_callback = update_callback
+        self.top_shelf_fun = top_shelf_fun
+        self.bottom_shelf_fun = bottom_shelf_fun
+        self.active_button = 0
+        # The shelf_offset tells the index of the first movemode in the menu.
+        self.shelf_offset = 0
 
-        pilot = self.mover.get_pilot()
-        pilot_name = pbge.widgets.LabelWidget(12,15,208,21,str(pilot),font=pbge.BIGFONT,parent=self,anchor=pbge.frects.ANCHOR_UPPERLEFT)
-        self.children.append(pilot_name)
-        if pilot is not mover:
-            mecha_name = pbge.widgets.LabelWidget(26,37,212,14,str(mover),color=pbge.WHITE,parent=self,anchor=pbge.frects.ANCHOR_UPPERLEFT)
-            self.children.append(mecha_name)
-        self.mm_label = pbge.widgets.LabelWidget(253,37,100,14,str(mover.mmode),color=pbge.WHITE,parent=self,justify=0,anchor=pbge.frects.ANCHOR_UPPERLEFT)
-        self.children.append(self.mm_label)
+        self.selection = 0
+        self.mmodes = list()
 
-    def open_dropdown_menu( self ):
-        mymenu = pbge.rpgmenu.Menu(-130,32,100,200,anchor=pbge.frects.ANCHOR_UPPERRIGHT)
-        return mymenu
+        self.label = pbge.widgets.LabelWidget(12, 15, 208, 21, str(self.pc), font=pbge.BIGFONT, parent=self,
+                                              anchor=pbge.frects.ANCHOR_UPPERLEFT)
+        self.children.append(self.label)
+        if isinstance(self.pc, gears.base.Mecha):
+            self.children.append(pbge.widgets.LabelWidget(
+                26, 37, 212, 14, str(self.pc.get_pilot()), font=pbge.MEDIUMFONT, parent=self,
+                anchor=pbge.frects.ANCHOR_UPPERLEFT, color=pbge.WHITE
+            ))
+
+        self.buttons = list()
+        self.movemode_sprite = pbge.image.Image("sys_movemode_default.png", 32, 32)
+        ddx = 231
+        for t in range(4):
+            self.buttons.append(
+                pbge.widgets.ButtonWidget(ddx, 16, 32, 32, None, on_click=self.click_button, data=t, parent=self,
+                                          anchor=pbge.frects.ANCHOR_UPPERLEFT))
+            ddx += 34
+        self.children += self.buttons
+
+        self.sprite = pbge.image.Image(self.IMAGE_NAME, 383, 57)
+        self._update_move_modes()
+        if start_source:
+            self.select_requested_movemode(start_source)
+        else:
+            self.select_current_movemode()
+
+    def _builtin_responder(self, ev):
+        # Respond to keyboard and mouse scroll events.
+        if ev.type == pygame.MOUSEBUTTONDOWN:
+            if ev.button == 4:
+                self.prev_shelf()
+            elif ev.button == 5:
+                self.next_shelf()
+        elif ev.type == pygame.KEYDOWN:
+            if ev.key in pbge.my_state.get_keys_for("up"):
+                self.prev_shelf()
+            elif ev.key in pbge.my_state.get_keys_for("down"):
+                self.next_shelf()
+            elif ev.key in pbge.my_state.get_keys_for("left"):
+                self.prev_invo()
+            elif ev.key in pbge.my_state.get_keys_for("right"):
+                self.next_invo()
+
+    def _update_move_modes(self):
+        self.mmodes = list()
+        for mm in gears.tags.MOVEMODE_LIST:
+            if self.camp.scene.can_use_movemode(mm) and self.pc.get_speed(mm) > 0:
+                self.mmodes.append(mm)
+
+        if self.camp.scene.can_use_movemode(gears.tags.Jumping) and self.pc.get_speed(gears.tags.Jumping) > 0:
+            self.mmodes.append(gears.tags.Jumping)
+
+    def prev_invo(self):
+        if self.selection > 0:
+            self.set_selection(self.selection - 1)
+
+    def next_invo(self):
+        if self.selection < (len(self.mmodes) - 1):
+            self.set_selection(self.selection + 1)
+
+    def prev_shelf(self):
+        if self.top_shelf_fun:
+            self.top_shelf_fun()
+
+    def next_shelf(self):
+        if self.bottom_shelf_fun:
+            self.bottom_shelf_fun()
+
+    def click_button(self, button, ev):
+        target_mm = button.data + self.shelf_offset
+        if target_mm < len(self.mmodes):
+            self.set_selection(target_mm)
+
+    def set_selection(self, new_selection):
+        self.selection = new_selection
+        if self.selection > 3:
+            self.shelf_offset = self.selection - 3
+        else:
+            self.shelf_offset = 0
+        self.update_buttons()
+
+    def select_current_movemode(self):
+        self.selection = self.mmodes.index(self.pc.mmode)
+        self.update_buttons()
+
+    def select_requested_movemode(self, mmode):
+        self.update_buttons()
+
+    def _generate_tooltip(self, mmode):
+        return '{} ({})'.format(mmode, self.pc.get_speed(mmode))
 
     def render(self, flash=False):
-        if self.active:
-            self.sprite.render(self.get_rect(),0)
+        self.sprite.render(self.get_rect(), 0)
 
-            # Draw the action point counters
-            dest = self.get_rect()
-            dest.left += 231
-            dest.top += 18
-            num_ap = min( self.camp.fight.cstat[self.mover].action_points, 4)
-            for t in range( num_ap ):
-                self.counter_sprite.render(dest,0)
-                dest.left += 37
+    MOVEMODE_FRAMES = {
+        pbge.scenes.movement.Walking: 0,
+        pbge.scenes.movement.Flying: 9,
+        gears.tags.Skimming: 6,
+        gears.tags.Rolling: 3,
+        gears.tags.SpaceFlight: 12,
+        gears.tags.Jumping: 15,
+        gears.tags.Cruising: 18
+    }
 
-            if num_ap < 4 and self.camp.fight.cstat[self.mover].mp_remaining > 0:
-                self.counter_sprite.render(dest,1)
+    def update_buttons(self):
+        self._update_move_modes()
+
+        for butt in range(4):
+            if butt + self.shelf_offset < len(self.mmodes):
+                mmode = self.mmodes[butt + self.shelf_offset]
+                self.buttons[butt].sprite = self.movemode_sprite
+                if not self.camp.scene.can_use_movemode_here(mmode, *self.pc.pos) and mmode is not gears.tags.Jumping:
+                    self.buttons[butt].frame = self.MOVEMODE_FRAMES[mmode] + 2
+                elif butt + self.shelf_offset == self.selection:
+                    self.buttons[butt].frame = self.MOVEMODE_FRAMES[mmode]
+                else:
+                    self.buttons[butt].frame = self.MOVEMODE_FRAMES[mmode] + 1
+                self.buttons[butt].tooltip = self._generate_tooltip(mmode)
+            else:
+                self.buttons[butt].sprite = None
+                self.buttons[butt].tooltip = None
+        self.update_callback(self.get_move_mode())
+
+    def get_move_mode(self):
+        if self.selection < len(self.mmodes):
+            return self.mmodes[self.selection]
 
 
-class MovementUI( object ):
+class JumpNav(object):
+    def __init__(self, camp, pc):
+        self.camp = camp
+        self.pc = pc
+        self.cost_to_tile = dict()
+
+    def get_path(self, dest_pos):
+        pass
+
+
+class MovementUI(object):
     SC_ORIGIN = 4
     SC_AOE = 2
     SC_CURSOR = 3
     SC_VOIDCURSOR = 0
     SC_TRAILMARKER = 6
     SC_ZEROCURSOR = 7
+
     def __init__(self, camp, mover, top_shelf_fun=None, bottom_shelf_fun=None, name="movement"):
         self.camp = camp
         self.mover = mover
         self.origin = mover.pos
         self.needs_tile_update = True
-        self.top_shelf_fun = top_shelf_fun
-        self.bottom_shelf_fun = bottom_shelf_fun
         self.name = name
 
-        self.cursor_sprite = pbge.image.Image('sys_mapcursor.png',64,64)
-        self.my_widget = MoveWidget(camp,mover,on_click=self.open_movemode_menu)
+        self.cursor_sprite = pbge.image.Image('sys_mapcursor.png', 64, 64)
+        self.my_widget = MovementWidget(camp, mover, self.change_movemode, top_shelf_fun=top_shelf_fun,
+                                        bottom_shelf_fun=bottom_shelf_fun)
+        self.selected_mmode = mover.mmode
 
         self.reachable_waypoints = dict()
         pbge.my_state.widgets.append(self.my_widget)
 
-    def render( self ):
+    def render(self):
         pbge.my_state.view.overlays.clear()
-        pbge.my_state.view.overlays[ self.origin ] = (self.cursor_sprite,self.SC_ORIGIN)
+        pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, self.SC_ORIGIN)
 
         if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
-            pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (
-              self.cursor_sprite,self.SC_ZEROCURSOR+min(4,self.camp.fight.ap_needed(self.mover,self.nav,pbge.my_state.view.mouse_tile)))
+            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (
+                self.cursor_sprite, self.SC_TRAILMARKER)
             mypath = self.nav.get_path(pbge.my_state.view.mouse_tile)
 
             # Draw the trail, highlighting where one action point ends and the next begins.
-            traildrawer.draw_trail( self.cursor_sprite
-                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
-                                  , self.camp.scene, self.mover
-                                  , self.camp.fight.cstat[self.mover].mp_remaining
-                                  , mypath
-                                  )
+            traildrawer.draw_trail(self.cursor_sprite
+                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
+                                   , self.camp.scene, self.mover
+                                   , self.camp.fight.cstat[self.mover].mp_remaining
+                                   , mypath
+                                   )
         elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
-            wp,pos = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
-            pbge.my_state.view.overlays[ pos ] = (
-              self.cursor_sprite,self.SC_ZEROCURSOR+min(4,self.camp.fight.ap_needed(self.mover,self.nav,pos)))
-            pbge.my_state.view.overlays[ wp.pos ] = (
-              self.cursor_sprite,self.SC_CURSOR)
+            wp, pos = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
+            pbge.my_state.view.overlays[pos] = (
+                self.cursor_sprite, self.SC_CURSOR)
+            pbge.my_state.view.overlays[wp.pos] = (
+                self.cursor_sprite, self.SC_TRAILMARKER)
             mypath = self.nav.get_path(pos)
 
             # Draw the trail, highlighting where one action point ends and the next begins.
-            traildrawer.draw_trail( self.cursor_sprite
-                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
-                                  , self.camp.scene, self.mover
-                                  , self.camp.fight.cstat[self.mover].mp_remaining
-                                  , mypath
-                                  )
+            traildrawer.draw_trail(self.cursor_sprite
+                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
+                                   , self.camp.scene, self.mover
+                                   , self.camp.fight.cstat[self.mover].mp_remaining
+                                   , mypath
+                                   )
 
         else:
-            pbge.my_state.view.overlays[ pbge.my_state.view.mouse_tile ] = (self.cursor_sprite,self.SC_VOIDCURSOR)
+            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
 
         pbge.my_state.view()
 
@@ -111,35 +240,27 @@ class MovementUI( object ):
 
         pbge.my_state.do_flip()
 
-    def change_movemode( self, new_mm ):
-        self.mover.mmode = new_mm
-        self.camp.fight.cstat[self.mover].mp_remaining = 0
-        self.my_widget.mm_label.text = str(new_mm)
+    def change_movemode(self, new_mm):
+        self.selected_mmode = new_mm
+        if new_mm is not self.mover.mmode:
+            self.camp.fight.cstat[self.mover].reset_movement()
+        if new_mm is not gears.tags.Jumping:
+            self.mover.mmode = new_mm
         self.needs_tile_update = True
 
-    def open_movemode_menu( self, button, ev ):
-        original_mm = self.mover.mmode
-        mymenu = self.my_widget.open_dropdown_menu()
-        for mm in gears.tags.MOVEMODE_LIST:
-            if self.mover.get_speed(mm) > 0:
-                mymenu.add_item('{} ({}dpr)'.format(str(mm),self.mover.get_speed(mm)),mm)
-        mymenu.set_item_by_value(original_mm)
-        new_mm = mymenu.query()
-        if new_mm in gears.tags.MOVEMODE_LIST and new_mm != original_mm:
-            self.change_movemode( new_mm )
-
-    def update_tiles( self ):
+    def update_tiles(self):
         # Step one: figure out which tiles can be reached from here.
         self.origin = self.mover.pos
-        self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene,self.origin,self.camp.fight.cstat[self.mover].action_points*self.mover.get_current_speed()+self.camp.fight.cstat[self.mover].mp_remaining,self.mover.mmode,self.camp.scene.get_blocked_tiles())
+        self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.origin, self.camp.fight.cstat[
+            self.mover].total_mp_remaining, self.mover.mmode, self.camp.scene.get_blocked_tiles())
 
         # Calculate the paths for the waypoints.
         self.reachable_waypoints.clear()
         for wp in self.camp.scene.contents:
-            if hasattr(wp,"combat_bump") and hasattr(wp,"pos") and self.camp.scene.on_the_map(*wp.pos):
+            if hasattr(wp, "combat_bump") and hasattr(wp, "pos") and self.camp.scene.on_the_map(*wp.pos):
                 path = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.mover.pos, wp.pos, self.mover.mmode)
                 if len(path.results) > 1 and path.results[-2] in self.nav.cost_to_tile:
-                    self.reachable_waypoints[wp.pos] = (wp,path.results[-2])
+                    self.reachable_waypoints[wp.pos] = (wp, path.results[-2])
 
     def click_left(self, player_turn):
         if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
@@ -158,48 +279,36 @@ class MovementUI( object ):
             if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
                 player_turn.switch_attack()
 
-    def update( self, ev, player_turn ):
+    def update(self, ev, player_turn):
         # We just got an event. Deal with it.
         if self.needs_tile_update:
             self.update_tiles()
             self.needs_tile_update = False
 
-        if self.camp.fight.cstat[self.mover].action_points < 1 and self.camp.fight.cstat[self.mover].mp_remaining < self.nav.cheapest_move:
-            self.camp.fight.cstat[self.mover].mp_remaining = 0
+        if self.camp.fight.cstat[self.mover].action_points < 1 and self.camp.fight.cstat[
+            self.mover].mp_remaining < self.nav.cheapest_move:
+            self.camp.fight.cstat[self.mover].end_turn()
         elif ev.type == pbge.TIMEREVENT:
             self.render()
-        if ev.type == pygame.MOUSEBUTTONDOWN:
-            if ev.button == 4 and self.top_shelf_fun:
-                self.top_shelf_fun()
-            elif ev.button == 5 and self.bottom_shelf_fun:
-                self.bottom_shelf_fun()
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
             self.click_left(player_turn)
         elif ev.type == pygame.KEYDOWN:
-            if ev.key in pbge.my_state.get_keys_for("up") and self.top_shelf_fun:
-                self.top_shelf_fun()
-            elif ev.key in pbge.my_state.get_keys_for("down") and self.bottom_shelf_fun:
-                self.bottom_shelf_fun()
-            elif ev.key in pbge.my_state.get_keys_for("cursor_click") and not pbge.my_state.widget_clicked:
+            if ev.key in pbge.my_state.get_keys_for("cursor_click") and not pbge.my_state.widget_clicked:
                 self.click_left(player_turn)
 
             elif ev.unicode == "t":
                 mypos = pbge.my_state.view.mouse_tile
                 myscene = self.camp.scene
-                print ("Ground: {}\n Wall: {}\n Decor: {}".format(myscene.get_floor(*mypos),myscene.get_wall(*mypos),myscene.get_decor(*mypos)))
+                print("Ground: {}\n Wall: {}\n Decor: {}".format(myscene.get_floor(*mypos), myscene.get_wall(*mypos),
+                                                                 myscene.get_decor(*mypos)))
 
-
-    def dispose( self ):
+    def dispose(self):
         # Get rid of the widgets and shut down.
         pbge.my_state.widgets.remove(self.my_widget)
 
-    def activate( self ):
+    def activate(self):
         self.my_widget.active = True
         self.needs_tile_update = True
 
-    def deactivate( self ):
+    def deactivate(self):
         self.my_widget.active = False
-
-
-
-

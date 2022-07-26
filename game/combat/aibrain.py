@@ -227,7 +227,7 @@ class BasicAI( object ):
         #    - If no attacks possible, move closer
         if hasattr(self.npc,"get_current_speed") and self.npc.get_current_speed() > 10 and camp.fight.cstat[self.npc].action_points > 1:
             # Check for a better tile.
-            mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,self.npc.get_current_speed()+camp.fight.cstat[self.npc].mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
+            mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,camp.fight.cstat[self.npc].mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
             sample = random.sample(list(mynav.cost_to_tile.keys()),max(len(mynav.cost_to_tile)//2,min(5,len(mynav.cost_to_tile))))
             #sample = sample[:len(sample)//4]
             self.camp = camp
@@ -237,8 +237,7 @@ class BasicAI( object ):
                 best = max(sample,key=self._desirability)
                 if best is not self.npc.pos and self._desirability(best) > self._desirability(self.npc.pos):
                     self.move_to(camp,mynav,best)
-                elif self.npc.pos not in camp.scene.in_sight:
-                    camp.fight.active.remove(self.npc)
+
                 #elif self.npc.get_current_speed() > random.randint(40,70):
                 #    # Attempt evasive maneuvers
                 #    cutoff = self._desirability(self.npc.pos)
@@ -255,7 +254,7 @@ class BasicAI( object ):
                 #            self.move_to(camp, mynav, dest)
 
         # We are now either in a good position, or so far out of the loop it isn't funny.
-        if camp.fight.cstat[self.npc].action_points > 0:
+        if camp.fight.cstat[self.npc].can_act():
             my_attacks = self.npc.get_attack_library()
             
             # Attempt to attack the target, or failing that anyone
@@ -267,7 +266,7 @@ class BasicAI( object ):
                 camp.fight.cstat[self.npc].spend_ap(1)
             elif hasattr(self.npc,"get_current_speed") and self.npc.get_current_speed() > 10:
                 # Attempt to move closer to the target.
-                mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,self.npc.get_current_speed()+camp.fight.cstat[self.npc].mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
+                mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene,self.npc.pos,camp.fight.cstat[self.npc].total_mp_remaining,self.npc.mmode,camp.scene.get_blocked_tiles())
                 mypath = pbge.scenes.pathfinding.AStarPath(camp.scene,self.npc.pos,self.target.pos,self.npc.mmode,camp.scene.get_blocked_tiles()).get_path(self.target.pos)
                 mypath.reverse()
                 dest = None
@@ -275,7 +274,7 @@ class BasicAI( object ):
                     if p in mynav.cost_to_tile:
                         dest = p
                         break
-                if dest:
+                if dest and dest != self.npc.pos:
                     self.move_to(camp,mynav,dest)
                 else:
                     # Can't move towards this target.
@@ -316,7 +315,7 @@ class BasicAI( object ):
         # Attempt to use a skill first.
         if camp.fight.cstat[self.npc].action_points > 0 and random.randint(1,2) == 1:
             self.try_to_use_a_skill(camp)
-        while camp.fight.still_fighting() and camp.fight.cstat[self.npc].action_points > 0:
+        while camp.fight.still_fighting() and camp.fight.cstat[self.npc].can_act():
             # If targets exist, call attack.
             # Otherwise attempt skill use again.
             if not (self.target and self.target in camp.scene.contents and self.target.is_operational()):

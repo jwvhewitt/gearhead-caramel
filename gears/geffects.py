@@ -1192,7 +1192,7 @@ class DoCrash(effects.NoEffect):
                 anims.append(CrashAnim(t, delay, final_altitude))
 
                 if camp.fight:
-                    camp.fight.cstat[t].action_points -= 1
+                    camp.fight.cstat[t].spend_ap(1)
 
         return self.children
 
