@@ -19,6 +19,7 @@ from . import aihaywire
 import random
 import gears
 from .. import configedit, invoker
+from game.content import ghcutscene
 
 ALT_AIS = {
     "HaywireAI": aihaywire.HaywireTurn
@@ -108,8 +109,8 @@ class CombatStat(object):
                     mp_spent -= speed
                     ap_spent_on_movement += 1
 
-            else:
-                ap_spent_on_movement = 999999999
+            #else:
+                #ap_spent_on_movement = 999999999
 
             if ap_to_spend > 0 and mp_spent > (self.combatant.get_current_speed()//2):
                 ap_to_spend += 1
@@ -463,9 +464,20 @@ class PlayerTurn(object):
                 elif gdi.key == pygame.K_ESCAPE:
                     mymenu = configedit.PopupGameMenu()
                     mymenu(self.camp.fight)
-                elif gdi.unicode == ",":
+                elif gdi.unicode == "," and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                     print("Checking...")
                     print(self.camp.fight.cstat[self.pc]._ap_remaining,self.camp.fight.cstat[self.pc].action_points, -self.camp.fight.cstat[self.pc]._mp_spent, self.camp.fight.cstat[self.pc].mp_remaining, self.camp.fight.cstat[self.pc].total_mp_remaining)
+                elif gdi.unicode == "!" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                    myparty = self.camp.get_active_party()
+                    myparty.remove(self.pc)
+                    if myparty:
+                        victim = random.choice(myparty)
+                        pbge.alert("{} is immobilized!".format(victim))
+                        for part in victim.get_all_parts():
+                            if isinstance(part, gears.base.MovementSystem):
+                                part.hp_damage += part.max_health
+                            elif isinstance(part, gears.base.Module) and part.form is gears.base.MF_Leg:
+                                part.hp_damage += part.max_health
             elif gdi.type == pygame.MOUSEBUTTONUP:
                 if gdi.button == 3 and not pbge.my_state.widget_clicked:
                     self.pop_menu()
@@ -634,6 +646,38 @@ class Combat(object):
             self.cstat[chara].end_turn()
             self.cstat[chara].has_started_turn = False
 
+    def _try_to_fix_mkill(self, party, mkpc: gears.base.Mecha):
+        total = 0
+        if mkpc.material is gears.materials.Biotech:
+            used_skill = gears.stats.Biotechnology
+        else:
+            used_skill = gears.stats.Repair
+        for pc in party:
+            if pc.get_current_mental() > 0:
+                pc.spend_mental(random.randint(1,4)+random.randint(1,4))
+                total += max(pc.get_skill_score(gears.stats.Craft, used_skill), random.randint(1, 5))
+        my_invo = pbge.effects.Invocation(
+            name = 'Repair',
+            fx=gears.geffects.DoHealing(
+                1, max(total,5), repair_type=mkpc.material.repair_type,
+                anim = gears.geffects.RepairAnim,
+                ),
+            area=pbge.scenes.targetarea.SingleTarget(),
+            targets=1)
+        my_invo.invoke(self.camp, None, [mkpc.pos], pbge.my_state.view.anim_list)
+        pbge.my_state.view.handle_anim_sequence()
+
+        mkpc.gear_up(self.scene)
+        if mkpc.get_current_speed() > 0:
+            pbge.alert("The repairs are successful; {} is able to move again.".format(mkpc.get_pilot()))
+        else:
+            pbge.alert("The repairs failed. You are forced to leave {} behind.".format(mkpc.get_pilot()))
+            self.scene.contents.remove(mkpc)
+
+    def _abandon_mkill(self, party, mkpc: gears.base.Mecha):
+        pbge.alert("You leave {} behind.".format(mkpc.get_pilot()))
+        self.scene.contents.remove(mkpc)
+
     def go(self, explo):
         """Perform this combat."""
         pbge.my_state.view.overlays.clear()
@@ -674,6 +718,27 @@ class Combat(object):
                         n = m.get_pilot()
                         if n and m is not n and not n.is_operational():
                             self.camp.check_trigger("FAINT", n)
+
+            # Deal with m-kills now; if someone is immobilized and can't be repaired, they get left behind.
+            # I am well aware this might mean the entire party gets taken out of combat.
+            myparty = self.camp.get_active_party()
+            for pc in myparty:
+                if isinstance(pc, gears.base.Mecha) and (pc.get_current_speed() < 10 or not self.scene.can_use_movemode_here(pc.mmode, *pc.pos)):
+                    pc.gear_up(self.scene)
+                    if pc.get_current_speed() < 10:
+                        # Looks like we have a genuine Mobility Kill.
+                        if pc.get_pilot() is self.camp.pc:
+                            mymenu = pbge.rpgmenu.AlertMenu("Your {} has been immobilized. You can either try to repair the damage, or let the mission continue without you.".format(pc.get_full_name()))
+                        else:
+                            mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_BEEN_IMMOBILIZED] [HELP_WITH_MOBILITY_KILL]", pc, self.camp)
+                        if any([m.get_current_mental() > 0 for m in myparty]):
+                            mymenu.add_item("Attempt to repair the damage.", self._try_to_fix_mkill)
+                        mymenu.add_item("Leave {} behind.".format(pc), self._abandon_mkill)
+                        choice = mymenu.query()
+                        if choice:
+                            choice(myparty, pc)
+                        else:
+                            self._abandon_mkill(myparty, pc)
 
             self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)
 

@@ -424,7 +424,7 @@ class Explorer(object):
     def update_scene(self):
         for npc in self.scene.contents:
             if hasattr(npc, "gear_up"):
-                npc.gear_up()
+                npc.gear_up(self.scene)
 
     def keep_exploring(self):
         return self.camp.first_active_pc() and self.no_quit and not pbge.my_state.got_quit and self.camp.keep_playing_scene() and self.camp.egg

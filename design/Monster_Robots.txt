@@ -105,3 +105,174 @@ Monster
                     size = 5
             END
     END
+
+Monster
+    name = "Androbot"
+    statline = {Reflexes = 12, Body=19, Speed=12, Perception=13, Craft=12, Knowledge=12, Ego=12, Charm = 1,
+			CloseCombat = 5, RangedCombat = 5, Dodge = 3, Vitality = 5, Scouting = 5
+	}
+	scale = HumanScale
+	material = Metal
+	imagename = 'mon_robots.png'
+	frame = 2
+	colors = (GullGrey,FadedDenim,BrightRed,AeroBlue,BattleshipGrey)
+    threat = 60
+    type_tags = ("ROBOT", "GUARD", "FACTORY",)
+    families = ("ROBOT","GUARD")
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+	    Head
+	        size = 6
+	        SUB
+	            Armor
+	                size = 12
+	        END
+        Torso
+            size = 6
+            SUB
+                Armor
+                    size = 15
+            END
+        Arm
+            name = "Right Arm"
+            size = 6
+            SUB
+                Armor
+                    size = 12
+                    integral = True
+                Hand
+                    INV
+                    BallisticWeapon
+                        name = "Hand Cannon"
+                        desig = "Androbot"
+                        desc = "A heavy autopistol carried by the Androbot security droid."
+                        reach = 4
+                        damage = 2
+                        accuracy = 1
+                        penetration = 3
+                        ammo_type = Rifle_5mm
+                        attributes = (BurstFire2)
+                        scale = HumanScale
+                        magazine = 60
+                        SUB
+                            Ammo
+                                ammo_type=Rifle_5mm
+                                quantity=60
+                        END
+                    END
+            END
+
+        Arm
+            name = "Left Arm"
+            size = 6
+            SUB
+                Armor
+                    size = 12
+                    integral = True
+                Hand
+            END
+            INV
+                Shield
+				    name = "Androbot Shield"
+					size = 8
+					bonus = 3
+            END
+
+        Leg
+            size = 4
+            SUB
+                Armor
+                    size = 8
+            END
+        Leg
+            size = 4
+            SUB
+                Armor
+                    size = 8
+            END
+    END
+
+
+Monster
+    name = "Forgebot"
+    statline = {Reflexes = 8, Body=24, Speed=8, Perception=8, Craft=13, Knowledge=1, Ego=1, Charm = 1,
+			CloseCombat = 4, RangedCombat = 4, Dodge = 9, Vitality = 10, Athletics = 8, Concentration=5
+	}
+	scale = HumanScale
+	material = Metal
+	imagename = 'mon_robots.png'
+	frame = 3
+	colors = (ArmyDrab, BattleshipGrey, HunterOrange, AeroBlue, Charcoal)
+    threat = 78
+    type_tags = ("ROBOT", "FACTORY", "MINE",)
+    families = ("ROBOT",)
+    environment_list = (GroundEnv,UrbanEnv)
+
+	SUB
+        Torso
+            size = 8
+            SUB
+                Armor
+                    size = 7
+                    integral = True
+
+				MeleeWeapon
+					name="Manipulator"
+					reach=1
+					damage=2
+					accuracy=3
+					penetration=2
+					integral = True
+					attributes = (MultiWielded)
+
+				MeleeWeapon
+					name="Manipulator"
+					reach=1
+					damage=2
+					accuracy=3
+					penetration=2
+					integral = True
+					attributes = (MultiWielded)
+
+                ChemThrower
+                    name = "Magma Spew"
+                    reach = 3
+                    damage = 4
+                    accuracy = 3
+                    penetration = 3
+                    attack_stat = Craft
+                    shot_anim = FireBall
+                    SUB
+                        Chem
+                            name = "Magma"
+                            quantity = 50
+                            attributes = (Brutal, BurnAttack)
+                    END
+
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 7
+                Mount
+                    name = "Right Leg Mount"
+                HeavyActuators
+                    size = 3
+                    integral = True
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 7
+                Mount
+                    name = "Left Leg Mount"
+                HeavyActuators
+                    size = 3
+                    integral = True
+            END
+    END

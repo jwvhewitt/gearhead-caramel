@@ -15,11 +15,14 @@ class HaywireTurn(object):
             self.camp.fight.cstat[self.pc].spend_ap(1)
             return
         elif not self.pc.mmode:
-            self.pc.gear_up()
-        mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.pc.pos, self.pc.get_current_speed(),
-                                                        self.pc.mmode, self.camp.scene.get_blocked_tiles())
-        mydest = random.choice(list(mynav.cost_to_tile.keys()))
-        self.camp.fight.move_model_to(self.pc, mynav, mydest)
+            self.pc.gear_up(self.camp.scene)
+        if self.pc.get_current_speed() > 10:
+            mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.pc.pos, self.pc.get_current_speed(),
+                                                            self.pc.mmode, self.camp.scene.get_blocked_tiles())
+            mydest = random.choice(list(mynav.cost_to_tile.keys()))
+            self.camp.fight.move_model_to(self.pc, mynav, mydest)
+        else:
+            self.camp.fight.cstat[self.pc].spend_ap(1)
 
     def act(self):
         if random.randint(1,5) != 1:

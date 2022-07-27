@@ -309,7 +309,7 @@ class BasicAI( object ):
 
     def act(self,camp):
         if hasattr(self.npc, "gear_up"):
-            self.npc.gear_up()
+            self.npc.gear_up(camp.scene)
         self.minr,self.midr,self.maxr = self.get_min_mid_max_range()
 
         # Attempt to use a skill first.

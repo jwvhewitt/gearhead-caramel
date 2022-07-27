@@ -1,3 +1,10 @@
+* Added Androbot and Forgebot monsters
+* Immobilized lancemates get left behind if their mecha cannot be repaired
+* When placing gears on map, the environment is taken into account
+* gear_up method now chooses appropriate move mode for the terrain
+* Flying makes melee attacks more difficult for both parties
+* Flying mecha get reduced cover modifier
+* Multi-target invocations will now show a target counter beneath the invocation UI
 * Added combat action clock
 * Reworked the combat movement UI
 * Fixed Ammo Explosion display bug

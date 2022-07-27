@@ -299,14 +299,14 @@ class GearHeadScene(pbge.scenes.Scene):
                 return info.ListDisplay(items=wp)
 
     def place_actor(self, actor, x0, y0, team=None):
-        entry_points = pbge.scenes.pfov.WalkReach(self, x0, y0, 5, True).tiles
+        entry_points = pbge.scenes.pfov.MModeReach(self.environment.LEGAL_MOVEMODES[0], self, x0, y0, 5, True).tiles
         entry_points = entry_points.difference(self.get_blocked_tiles())
         entry_points = list(entry_points)
         if entry_points:
             actor.place(self, random.choice(entry_points), team)
         else:
             actor.place(self, (x0, y0), team)
-        actor.gear_up()
+        actor.gear_up(self)
 
     def purge_faction(self, camp, fac):
         # Move all the NPCs belonging to this faction to the storage scene.
@@ -331,7 +331,7 @@ class GearHeadScene(pbge.scenes.Scene):
             room = self.get_rect()
         for x in range(room.x, room.x + room.width - 1):
             for y in range(room.y, room.y + room.height - 1):
-                if not self.tile_blocks_walking(x, y):
+                if not self.tile_blocks_movement(x, y, self.environment.LEGAL_MOVEMODES[0]):
                     good_spots.add((x, y))
         good_spots -= self.get_blocked_tiles()
         return good_spots
@@ -400,10 +400,10 @@ class GearHeadScene(pbge.scenes.Scene):
         return mylist
 
     def place_gears_near_spot(self, x0, y0, team, *models):
-        entry_points = pbge.scenes.pfov.WalkReach(self, x0, y0, 1, True).tiles
+        entry_points = pbge.scenes.pfov.MModeReach(self.environment.LEGAL_MOVEMODES[0], self, x0, y0, 1, True).tiles
         entry_points = entry_points.difference(self.get_blocked_tiles())
         if not entry_points:
-            entry_points = pbge.scenes.pfov.WalkReach(self, x0, y0, 3, True).tiles
+            entry_points = pbge.scenes.pfov.MModeReach(self.environment.LEGAL_MOVEMODES[0], self, x0, y0, 3, True).tiles
             entry_points = entry_points.difference(self.get_blocked_tiles())
         entry_points = list(entry_points)
         for pc in models:
@@ -413,7 +413,7 @@ class GearHeadScene(pbge.scenes.Scene):
             else:
                 break
             pc.place(self, pos, team)
-            pc.gear_up()
+            pc.gear_up(self)
 
     def can_use_movemode(self, mmode):
         if self.environment.DEEP_SPACE:
@@ -703,7 +703,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def place_party(self, entrance):
         """Stick the party close to the waypoint."""
         x0, y0 = entrance.pos
-        entry_points = pbge.scenes.pfov.WalkReach(self.scene, x0, y0, 3, True).tiles
+        entry_points = pbge.scenes.pfov.MModeReach(self.scene.environment.LEGAL_MOVEMODES[0], self.scene, x0, y0, 3, True).tiles
         entry_points = entry_points.difference(self.scene.get_blocked_tiles())
         entry_points = list(entry_points)
         for pc in self.choose_party():
@@ -714,7 +714,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 else:
                     pos = entrance.pos
                 pc.place(self.scene, pos, self.scene.player_team)
-                pc.gear_up()
+                pc.gear_up(self.scene)
                 # pbge.scenes.pfov.PCPointOfView(self.scene, pos[0], pos[1], pc.get_sensor_range(self.scene.scale))
         self.scene.update_party_position(self)
 

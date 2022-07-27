@@ -117,7 +117,10 @@ class MovementWidget(pbge.widgets.Widget):
         self.update_buttons()
 
     def select_current_movemode(self):
-        self.selection = self.mmodes.index(self.pc.mmode)
+        try:
+            self.selection = self.mmodes.index(self.pc.mmode)
+        except ValueError:
+            self.selection = 0
         self.update_buttons()
 
     def select_requested_movemode(self, mmode):
@@ -202,7 +205,9 @@ class MovementUI(object):
         pbge.my_state.view.overlays.clear()
         pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, self.SC_ORIGIN)
 
-        if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
+        if self.mover.get_current_speed() <= 1:
+            self.clock.set_ap_mp_costs()
+        elif pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
             mypath = self.nav.get_path(pbge.my_state.view.mouse_tile)
 
             # Draw the trail, highlighting where one action point ends and the next begins.
@@ -249,6 +254,8 @@ class MovementUI(object):
 
     def update_tiles(self):
         # Step one: figure out which tiles can be reached from here.
+        if self.mover.get_current_speed() < 10:
+            self.mover.mmode = gears.tags.Crashed
         self.origin = self.mover.pos
         self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.origin, self.camp.fight.cstat[
             self.mover].total_mp_remaining, self.mover.mmode, self.camp.scene.get_blocked_tiles())

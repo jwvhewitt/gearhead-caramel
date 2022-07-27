@@ -367,10 +367,10 @@ class Mover(KeyObject):
                 total += g.get_speed_bonus_percent()
         return total
 
-    def gear_up(self):
-        #self.mmode = None
+    def gear_up(self, scene):
+        self.mmode = tags.Crashed
         for mm in tags.MOVEMODE_LIST:
-            if self.get_speed(mm) > self.get_current_speed():
+            if scene.can_use_movemode_here(mm, *self.pos) and self.get_speed(mm) > self.get_current_speed():
                 self.mmode = mm
         if not self.mmode:
             print("Warning: No movemode for {}".format(self))
@@ -931,10 +931,10 @@ class BaseGear(scenes.PlaceableThing):
             , geffects.SpeedModifier()
                 ]
 
-    def get_melee_modifiers(self):
+    def get_melee_modifiers(self, reach=1):
         ''' Modifiers that only affect melee weapons.
         '''
-        return [
+        return [geffects.MeleeFlyingModifier(reach),
         ]
 
     def restore_all(self):
@@ -1781,7 +1781,7 @@ class MeleeWeapon(Weapon):
 
     def get_modifiers(self):
         return (self.get_common_modifiers(self.get_module())
-                + self.get_melee_modifiers()
+                + self.get_melee_modifiers(self.reach)
                 )
 
     def get_damage_bonus(self):
@@ -1886,7 +1886,7 @@ class EnergyWeapon(Weapon):
 
     def get_modifiers(self):
         return (self.get_common_modifiers(self.get_module())
-                + self.get_melee_modifiers()
+                + self.get_melee_modifiers(self.reach)
                 )
 
     def get_basic_power_cost(self):
@@ -3032,7 +3032,8 @@ class MF_Arm(ModuleForm):
     name = "Arm"
     AIM_BONUS = 5
     CAN_ATTACK = True
-    ACCURACY = 1
+    ACCURACY = 2
+    PENETRATION = 1
 
     MULTIPLICITY_LIMITS = {
         ArmMusclesCyberware: 1, ArmBonesCyberware: 1,
@@ -3053,7 +3054,8 @@ class MF_Arm(ModuleForm):
 class MF_Leg(ModuleForm):
     name = "Leg"
     CAN_ATTACK = True
-    PENETRATION = 1
+    PENETRATION = 2
+    ACCURACY = 1
 
     MULTIPLICITY_LIMITS = {
         LegBonesCyberware: 1, LegMusclesCyberware: 1,
@@ -3088,8 +3090,8 @@ class MF_Tail(ModuleForm):
     name = "Tail"
     AIM_BONUS = 5
     CAN_ATTACK = True
-    ACCURACY = 1
-    PENETRATION = 1
+    ACCURACY = 2
+    PENETRATION = 2
 
     @classmethod
     def is_legal_sub_com(self, part):
@@ -3174,7 +3176,7 @@ class Module(BaseGear, StandardDamageHandler):
 
     def get_modifiers(self):
         return (self.get_common_modifiers(module=self)
-                + self.get_melee_modifiers()
+                + self.get_melee_modifiers(1)
                 )
 
     def get_damage_bonus(self):

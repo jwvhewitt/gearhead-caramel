@@ -13,6 +13,7 @@ from . import base, tags
 # version v1.000 when savefile compatibility breaks again.
 from .tags import Skimming, Rolling
 
+
 #  *************************
 #  ***   Utility  Junk   ***
 #  *************************
@@ -323,6 +324,7 @@ class AmmoExplosionAnim(animobs.ShotCaption):
 class AIAssistAnim(animobs.Caption):
     DEFAULT_TEXT = 'AI Assisted!'
 
+
 class AnnounceCrashAnim(animobs.Caption):
     DEFAULT_TEXT = 'Crashed!'
 
@@ -605,9 +607,10 @@ class JawShot(animobs.ShotAnim):
                              start_pos=end_pos, end_pos=start_pos, set_frame_offset=False)
         )
 
-class CrashAnim( object ):
+
+class CrashAnim(object):
     # The model will fall down. At the end of the anim, set the model's movemeode to Crashed
-    def __init__( self, model, delay=0, final_altitude=0 ):
+    def __init__(self, model, delay=0, final_altitude=0):
         self.model = model
         self.delay = delay
         self.step = 0
@@ -616,23 +619,25 @@ class CrashAnim( object ):
         self.final_altitude = final_altitude
         self.needs_deletion = False
         self.children = list()
+
     def model_altitude(self, view):
         return view.scene.model_altitude(self.model, *self.model.pos) - self.drop
-    def update( self, view ):
+
+    def update(self, view):
         # This one doesn't appear directly, but moves a model.
         if self.delay > 0:
             self.delay += -1
         elif self.model_altitude(view) > self.final_altitude:
             self.step += 1
             self.drop += self.speed
-            #if self.step % 2 == 0:
+            # if self.step % 2 == 0:
             self.speed += 1
             if self.model_altitude(view) < self.final_altitude:
                 self.drop = abs(self.final_altitude - view.scene.model_altitude(self.model, *self.model.pos))
-            self.model.offset_pos = (0,self.drop)
+            self.model.offset_pos = (0, self.drop)
         else:
             self.model.mmode = tags.Crashed
-            self.model.offset_pos = (0,0)
+            self.model.offset_pos = (0, 0)
             self.needs_deletion = True
 
 
@@ -640,7 +645,7 @@ class CrashAnim( object ):
 SHOT_ANIMS = (SmallBullet, BigBullet, HugeBullet, SmallBeam, GunBeam, Missile1, Missile2, Missile3, Missile4, Missile5,
               ReturningHammer, JawShot, FlyingDeathwing)
 AREA_ANIMS = (
-BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim)
+    BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim)
 
 
 #  *******************
@@ -1180,6 +1185,7 @@ class DoDamage(effects.NoEffect):
 class DoCrash(effects.NoEffect):
     """ Whatever is in this tile is going to fall down.
     """
+
     def __init__(self, children=()):
         super().__init__(children)
 
@@ -1548,7 +1554,38 @@ class CoverModifier(object):
 
     def calc_modifier(self, camp, attacker, pos):
         my_mod = -camp.scene.get_cover(attacker.pos[0], attacker.pos[1], pos[0], pos[1])
+        target = camp.scene.get_main_actor(pos)
+        attacker_flying = attacker and hasattr(attacker, "mmode") and attacker.mmode is pbge.scenes.movement.Flying
+        target_flying = target and hasattr(target, "mmode") and target.mmode is pbge.scenes.movement.Flying
+        if attacker_flying and target_flying:
+            my_mod = 0
+        elif attacker_flying or target_flying:
+            my_mod = my_mod // 2
         return my_mod
+
+
+class MeleeFlyingModifier(object):
+    name = 'Flying'
+
+    def __init__(self, weapon_reach=1):
+        self.weapon_reach = weapon_reach
+
+    def calc_modifier(self, camp, attacker, pos):
+        my_mod = min(-55 + self.weapon_reach * 15, -10)
+        target = camp.scene.get_main_actor(pos)
+        attacker_flying = attacker and hasattr(attacker, "mmode") and attacker.mmode is pbge.scenes.movement.Flying
+        attacker_jumping = attacker and hasattr(attacker, "get_speed") and attacker.get_speed(tags.Jumping) > 0
+
+        target_flying = target and hasattr(target, "mmode") and target.mmode is pbge.scenes.movement.Flying
+
+        if target_flying and attacker_jumping:
+            return -5
+        elif not (target_flying or attacker_flying):
+            return 0
+        elif attacker_flying and target_flying:
+            return -5
+        else:
+            return my_mod
 
 
 class SpeedModifier(object):
@@ -2285,8 +2322,8 @@ class AIAssisted(PositiveEnchantment):
         if not self.in_effect:
             return 0
         elif stat in (
-        stats.MechaFighting, stats.MechaGunnery, stats.MechaPiloting, stats.RangedCombat, stats.CloseCombat,
-        stats.Dodge):
+                stats.MechaFighting, stats.MechaGunnery, stats.MechaPiloting, stats.RangedCombat, stats.CloseCombat,
+                stats.Dodge):
             return 1
         else:
             return 0

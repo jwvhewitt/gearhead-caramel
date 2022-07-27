@@ -1878,6 +1878,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[HELP_WITH_MOBILITY_KILL]": {
+        Default: ["I'm going to need some help to get moving again."
+                  ],
+        personality.Cheerful: ["Would anybody like to help me fix this?"
+                               ],
+        personality.Grim: ["Just leave me behind; I'd only show you down...",
+                           ],
+        personality.Easygoing: ["I don't know if we can fix it now. I'll just stay here.",
+                                ],
+        personality.Passionate: ["We must repair this damage!",
+                                 ],
+        personality.Sociable: ["We could try to repair the movement systems, but if it doesn't work we've just wasted precious time and energy...",
+                               ],
+        personality.Shy: ["Could anybody help?",
+                          ],
+    },
+
     "[Hey]": {
         # An interjection to get someone's attention.
         Default: ["Hey...", "[audience]..."
@@ -2132,6 +2149,30 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["I forgot.",
                           ],
+    },
+
+    "[I_HAVE_BEEN_IMMOBILIZED]": {
+        # A lancemate has suffered a mobility kill.
+        Default: ["I have been immobilized!", "[SWEAR] I can't move this thing."
+                  ],
+        personality.Cheerful: ["Um, my mecha doesn't seem to be working right. I can't move.",
+                               "I hope it isn't a big problem, but my mecha can't move."
+                               ],
+        personality.Grim: ["I'm afraid I have taken a mobility kill...", "[SWEAR] My movement systems are destroyed."
+                           ],
+        personality.Easygoing: ["Hey, don't want to be a bummer, but I can't get this thing moving.",
+                                "I don't know if it's me doing something wrong or if it's all the damage I just took, but I can't move."
+                                ],
+        personality.Passionate: ["I can't move... my mecha is hurt!!!", "[SWEAR] My mecha is immobilized!"
+                                 ],
+        personality.Sociable: ["I don't want to alarm any of you, but my mecha can't move.",
+                               "[Hey] My movement systems are offline. I think this is what soldiers call a mobility kill."
+                               ],
+        personality.Shy: ["I'm immobilized.", "My mecha can't move."
+                          ],
+        tags.Military: [
+            "[SWEAR] I've just taken a mobility kill.",
+        ]
     },
 
     "[I_HAVE_DETECTED_ENEMIES]": {

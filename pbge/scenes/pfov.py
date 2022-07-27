@@ -410,6 +410,18 @@ class WalkReach( AttackReach ):
     def TileBlocked( self , x , y ):
         return self.scene.tile_blocks_walking(x,y)
 
+class MModeReach( PointOfView ):
+    # This class constructs a placement radius.
+    def __init__(self, mmode, *args, **kwargs):
+        self.mmode = mmode
+        super().__init__(*args, **kwargs)
+    def TileBlocked( self , x , y ):
+        return self.scene.tile_blocks_movement(x,y, self.mmode)
+    def VisitTile( self , x , y ):
+        if self.manhattan or ( self.radius == 1 ) or ( round( math.sqrt( ( x-self.x )**2 + ( y-self.y )**2 ) ) <= self.radius ):
+            if ( x != self.x or y != self.y ) and not self.scene.tile_blocks_movement(x,y, self.mmode):
+                self.tiles.add( ( x , y ) )
+
 
 class PCPointOfView( PointOfView ):
     # This class also constructs a field of vision, but automatically adds

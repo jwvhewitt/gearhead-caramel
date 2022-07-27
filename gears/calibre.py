@@ -125,6 +125,10 @@ class Rifle_5mm(BaseCalibre):
     bang = 6
     scale = scale.HumanScale
 
+class Rifle_6mm(BaseCalibre):
+    bang = 9
+    scale = scale.HumanScale
+
 
 class Pistol_6mm(BaseCalibre):
     bang = 4
