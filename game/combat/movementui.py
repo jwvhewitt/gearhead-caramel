@@ -178,10 +178,11 @@ class MovementUI(object):
     SC_AOE = 2
     SC_CURSOR = 3
     SC_VOIDCURSOR = 0
+    SC_ENDCURSOR = 5
     SC_TRAILMARKER = 6
     SC_ZEROCURSOR = 7
 
-    def __init__(self, camp, mover, top_shelf_fun=None, bottom_shelf_fun=None, name="movement"):
+    def __init__(self, camp, mover, top_shelf_fun=None, bottom_shelf_fun=None, name="movement", clock=None):
         self.camp = camp
         self.mover = mover
         self.origin = mover.pos
@@ -194,6 +195,7 @@ class MovementUI(object):
         self.selected_mmode = mover.mmode
 
         self.reachable_waypoints = dict()
+        self.clock = clock
         pbge.my_state.widgets.append(self.my_widget)
 
     def render(self):
@@ -201,35 +203,32 @@ class MovementUI(object):
         pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, self.SC_ORIGIN)
 
         if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
-            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (
-                self.cursor_sprite, self.SC_TRAILMARKER)
             mypath = self.nav.get_path(pbge.my_state.view.mouse_tile)
 
             # Draw the trail, highlighting where one action point ends and the next begins.
             traildrawer.draw_trail(self.cursor_sprite
-                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
+                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, self.SC_ENDCURSOR
                                    , self.camp.scene, self.mover
                                    , self.camp.fight.cstat[self.mover].mp_remaining
                                    , mypath
                                    )
+            self.clock.set_ap_mp_costs(mp_to_spend=self.nav.cost_to_tile[pbge.my_state.view.mouse_tile])
         elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
             wp, pos = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
-            pbge.my_state.view.overlays[pos] = (
-                self.cursor_sprite, self.SC_CURSOR)
-            pbge.my_state.view.overlays[wp.pos] = (
-                self.cursor_sprite, self.SC_TRAILMARKER)
             mypath = self.nav.get_path(pos)
 
             # Draw the trail, highlighting where one action point ends and the next begins.
             traildrawer.draw_trail(self.cursor_sprite
-                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
+                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, self.SC_ENDCURSOR
                                    , self.camp.scene, self.mover
                                    , self.camp.fight.cstat[self.mover].mp_remaining
                                    , mypath
                                    )
+            self.clock.set_ap_mp_costs(ap_to_spend=1, mp_to_spend=self.nav.cost_to_tile[mypath[-1]])
 
         else:
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
+            self.clock.set_ap_mp_costs()
 
         pbge.my_state.view()
 

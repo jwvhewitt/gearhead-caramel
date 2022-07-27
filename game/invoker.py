@@ -246,11 +246,12 @@ class InvocationUI(object):
     SC_AOE = 2
     SC_CURSOR = 3
     SC_VOIDCURSOR = 0
+    SC_ENDCURSOR = 5
     SC_TRAILMARKER = 6
     SC_ZEROCURSOR = 7
     LIBRARY_WIDGET = InvocationsWidget
 
-    def __init__(self, camp, pc, build_library_function, source=None, top_shelf_fun=None, bottom_shelf_fun=None, name="invocations" ):
+    def __init__(self, camp, pc, build_library_function, source=None, top_shelf_fun=None, bottom_shelf_fun=None, name="invocations", clock=None ):
         self.camp = camp
         self.pc = pc
         # self.change_invo(invo)
@@ -262,9 +263,19 @@ class InvocationUI(object):
         )
         self.name = name
         self.my_widget.active = False
+
+        self.targets_widget = pbge.widgets.LabelWidget(-300,68,200,0,font=pbge.MEDIUMFONT, justify=0, draw_border=True,
+                                                       border=pbge.default_border, text_fun=self._get_target_count,
+                                                       active=False, anchor=pbge.frects.ANCHOR_UPPERRIGHT)
+        self.my_widget.children.append(self.targets_widget)
+
         pbge.my_state.widgets.append(self.my_widget)
         self.record = False
         self.keep_exploring = True
+        self.clock = clock
+
+    def _get_target_count(self, *args):
+        return "{}/{} Targets".format(len(self.targets), self.num_targets)
 
     def change_invo(self, new_invo):
         self.invo = new_invo
@@ -296,6 +307,10 @@ class InvocationUI(object):
                 return True
 
     def render(self, flash=False):
+        if self.num_targets > 1:
+            self.targets_widget.active = True
+        else:
+            self.targets_widget.active = False
         pbge.my_state.view.overlays.clear()
         pbge.my_state.view.overlays[self.pc.pos] = (self.cursor_sprite, self.SC_ORIGIN)
         mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
@@ -312,21 +327,25 @@ class InvocationUI(object):
                     pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_CURSOR)
+            if self.clock:
+                self.clock.set_ap_mp_costs(ap_to_spend=1)
         elif mmecha and self.can_move_and_attack(mmecha[0].pos):
-            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_CURSOR)
-
             if self.camp.fight:
                 mp_remaining = self.camp.fight.cstat[self.pc].mp_remaining
+                if self.clock:
+                    self.clock.set_ap_mp_costs(ap_to_spend=1, mp_to_spend=self.nav.cost_to_tile[self.mypath[-1]])
             else:
                 mp_remaining = float('inf')
             traildrawer.draw_trail( self.cursor_sprite
-                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR
+                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, self.SC_ENDCURSOR
                                   , self.camp.scene, self.pc
                                   , mp_remaining
                                   , self.mypath + [pbge.my_state.view.mouse_tile]
                                   )
         else:
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
+            if self.clock:
+                self.clock.set_ap_mp_costs()
 
         pbge.my_state.view()
 

@@ -98,6 +98,31 @@ class CombatStat(object):
         else:
             return self.action_points, 0
 
+    def get_modified_actions_and_move_percent(self, ap_to_spend=0, mp_to_spend=0):
+        mp_spent = mp_to_spend + self._mp_spent
+        ap_spent_on_movement = 0
+        if hasattr(self.combatant, "get_current_speed"):
+            speed = self.combatant.get_current_speed()
+            if speed > 0:
+                while mp_spent >= speed:
+                    mp_spent -= speed
+                    ap_spent_on_movement += 1
+
+            else:
+                ap_spent_on_movement = 999999999
+
+            if ap_to_spend > 0 and mp_spent > (self.combatant.get_current_speed()//2):
+                ap_to_spend += 1
+
+        if ap_to_spend > 0 and mp_spent > 0:
+            mp_spent = 0
+        ap_to_spend += ap_spent_on_movement
+
+        if hasattr(self.combatant, "get_current_speed") and self.combatant.get_current_speed() > 0 and mp_spent > 0:
+            return max(self._ap_remaining - 1 - ap_to_spend, 0), (self.combatant.get_current_speed() - mp_spent)*100 // self.combatant.get_current_speed()
+        else:
+            return max(self.action_points - ap_to_spend, 0), 0
+
 
 class CombatDict(object):
     def __init__(self):
@@ -129,28 +154,39 @@ class ActionClockWidget(pbge.widgets.Widget):
         self.camp = camp
         self.bg_image = pbge.image.Image("sys_actionclock_bg.png")
         self.quarters = pbge.image.Image("sys_actionclock_quarters.png", 23, 23)
+        self.ap_to_spend = 0
+        self.mp_to_spend = 0
 
         super().__init__(-26, 2, 54, 54, anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining")
 
-    def render(self, flash=False):
-        mydest = self.get_rect()
-        self.bg_image.render(mydest)
-        actions, leftover = self.camp.fight.cstat[self.pc].get_actions_and_move_percent()
+    def set_ap_mp_costs(self, ap_to_spend=0, mp_to_spend=0):
+        self.ap_to_spend = ap_to_spend
+        self.mp_to_spend = mp_to_spend
+
+    def _draw_clock(self, actions, leftover, frame_offset=0):
         if actions > 4:
             actions = 4
             leftover = 0
         if actions > 0:
             for t in range(actions):
-                adest = mydest.copy()
+                adest = self.get_rect()
                 adest.x += self.ACTION_QUARTER_ANCHORS[t][0]
                 adest.y += self.ACTION_QUARTER_ANCHORS[t][1]
-                self.quarters.render(adest, t*32)
+                self.quarters.render(adest, t*32 + frame_offset)
         if leftover > 0:
-            adest = mydest.copy()
+            adest = self.get_rect()
             adest.x += self.ACTION_QUARTER_ANCHORS[actions][0]
             adest.y += self.ACTION_QUARTER_ANCHORS[actions][1]
-            frame = actions * 32 + min(max((16 * (100-leftover))//100, 0), 15)
+            frame = actions * 32 + min(max((16 * (100-leftover))//100, 0), 15) + frame_offset
             self.quarters.render(adest, frame)
+
+    def render(self, flash=False):
+        mydest = self.get_rect()
+        self.bg_image.render(mydest)
+        actions, leftover = self.camp.fight.cstat[self.pc].get_actions_and_move_percent()
+        self._draw_clock(actions, leftover, frame_offset=16)
+        actions, leftover = self.camp.fight.cstat[self.pc].get_modified_actions_and_move_percent(self.ap_to_spend, self.mp_to_spend)
+        self._draw_clock(actions, leftover)
 
 
 class PlayerTurn(object):
@@ -316,8 +352,10 @@ class PlayerTurn(object):
 
     def go(self):
         # Perform this character's turn.
-        # Start by making a hotmap centered on PC, to see how far can move.
-        # hm = hotmaps.MoveMap( self.scene, chara )
+        # Start by creating the movement clock, since we're gonna be passing this widget to a bunch of our UIs.
+
+        myclock = ActionClockWidget(self.pc, self.camp)
+        pbge.my_state.widgets.append(myclock)
 
         # How this is gonna work: There are several modes that can be switched
         #  between: movement, attack, use skill, etc. Each mode is gonna get
@@ -335,19 +373,19 @@ class PlayerTurn(object):
         ]
 
         self.movement_ui = movementui.MovementUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                                 bottom_shelf_fun=self.switch_bottom_shelf)
+                                                 bottom_shelf_fun=self.switch_bottom_shelf, clock=myclock)
         self.all_uis.append(self.movement_ui)
         self.all_funs[self.movement_ui] = self.switch_movement
 
         self.attack_ui = targetingui.TargetingUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                                 bottom_shelf_fun=self.switch_bottom_shelf, name="attacks")
+                                                 bottom_shelf_fun=self.switch_bottom_shelf, name="attacks", clock=myclock)
         self.all_uis.append(self.attack_ui)
         self.all_funs[self.attack_ui] = self.switch_attack
 
         has_skills = self.pc.get_skill_library(True)
         self.skill_ui = invoker.InvocationUI(self.camp, self.pc, self._get_skill_library,
                                              top_shelf_fun=self.switch_top_shelf, name="skills",
-                                             bottom_shelf_fun=self.switch_bottom_shelf)
+                                             bottom_shelf_fun=self.switch_bottom_shelf, clock=myclock)
         if has_skills:
             buttons_to_add.append(
                 dict(on_frame=8, off_frame=9, on_click=self.switch_skill, tooltip='Skills',
@@ -358,7 +396,7 @@ class PlayerTurn(object):
 
         has_programs = self.pc.get_program_library()
         self.program_ui = programsui.ProgramsUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                                bottom_shelf_fun=self.switch_bottom_shelf, name="programs")
+                                                bottom_shelf_fun=self.switch_bottom_shelf, name="programs", clock=myclock)
         if has_programs:
             buttons_to_add.append(
                 dict(on_frame=10, off_frame=11, on_click=self.switch_programs, tooltip='Programs',
@@ -369,7 +407,7 @@ class PlayerTurn(object):
 
         has_usables = self.pc.get_usable_library()
         self.usable_ui = usableui.UsablesUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                            bottom_shelf_fun=self.switch_bottom_shelf, name="usables")
+                                            bottom_shelf_fun=self.switch_bottom_shelf, name="usables", clock=myclock)
         if has_usables:
             buttons_to_add.append(
                 dict(on_frame=12, off_frame=13, on_click=self.switch_usables, tooltip='Usables',
@@ -398,9 +436,6 @@ class PlayerTurn(object):
                 self.bottom_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t + 1]]
 
         self.active_ui = self.movement_ui
-
-        myclock = ActionClockWidget(self.pc, self.camp)
-        pbge.my_state.widgets.append(myclock)
 
         # Right before starting the player's turn, if announce_pc_turn_start is turned on, announce it.
         if pbge.util.config.getboolean("GENERAL", "announce_pc_turn_start"):
@@ -596,6 +631,7 @@ class Combat(object):
 
     def end_round(self):
         for chara in self.active:
+            self.cstat[chara].end_turn()
             self.cstat[chara].has_started_turn = False
 
     def go(self, explo):
