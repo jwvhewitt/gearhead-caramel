@@ -1,4 +1,4 @@
-* Trying unstable compile
+* Fixed bug with highway scene generator
 * Widgets can now capture events, preventing other widgets from responding to same event
 * Fixed bug with combat interface scrolling
 * Mission will check environment, and warn PC if any lancemates cannot take part

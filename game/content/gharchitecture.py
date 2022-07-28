@@ -116,6 +116,8 @@ class UlsaniteOfficeDecor(OfficeDecor):
     WALL_DECOR = (ghterrain.UlsaniteBookshelfTerrain,ghterrain.UlsaniteFilingCabinetTerrain)
     #WALL_DECOR = (ghterrain.TekruinsWallDecor,)
 
+
+
 class WorldScaleDeadzone(GearHeadArchitecture):
     ENV = gears.tags.GroundEnv
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(ghterrain.DragonTeethWall)
@@ -306,7 +308,7 @@ class DeadZoneHighwaySceneGen( pbge.randmaps.SceneGenerator ):
     def build( self, gb, archi ):
         self.fill(gb,pygame.Rect(0,gb.height//2-2,gb.width,5),wall=None)
 
-    def DECORATE( self, gb, scenegen ):
+    def DECORATE( self, gb, scenegen, archi ):
         """
         :type gb: gears.GearHeadScene
         """
