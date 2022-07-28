@@ -90,7 +90,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg",
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None,
-                 make_enemies=True, defeat_trigger_on=True, **kwargs):
+                 make_enemies=True, defeat_trigger_on=True, scale=gears.scale.MechaScale, **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
         cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
         cms_pstate.elements["METROSCENE"] = metroscene
@@ -119,6 +119,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.mission_grammar = mission_grammar
         self.make_enemies = make_enemies
         self.defeat_trigger_on = defeat_trigger_on
+        self.scale = scale
 
         # Data is a dict of stuff that will get used by whatever plot created this adventure seed, or maybe it
         # can be used by some of the objectives. I dunno! It's just a dict of stuff! Do with it as you will.
@@ -158,10 +159,24 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         camp.day += 1
 
     def __call__(self, camp: gears.GearHeadCampaign):
-        if camp.has_mecha_party(self.solo_mission, enviro=self.environment):
-            super().__call__(camp)
+        # Start with the total party list for this map scale.
+        total_party = camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=None)
+        if total_party:
+            usable_party = camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=self.environment)
+            benchwarmers = [pc for pc in total_party if pc not in usable_party]
+            if benchwarmers:
+                mymenu = pbge.rpgmenu.AlertMenu("{} will be left behind. The environment for this mission is {} so all combatants must be able to {}.".format(pbge.dialogue.list_nouns(benchwarmers), self.environment, pbge.dialogue.list_nouns(self.environment.LEGAL_MOVEMODES, conjunction="or")))
+                mymenu.add_item("Do the mission without them.", True)
+                mymenu.add_item("Come back to the mission later", False)
+                if mymenu.query():
+                    super().__call__(camp)
+            else:
+                super().__call__(camp)
         else:
-            pbge.alert("You cannot proceed on this mission without a mecha.")
+            if self.scale is gears.scale.MechaScale:
+                pbge.alert("You cannot proceed on this mission without a mecha.")
+            else:
+                pbge.alert("You cannot proceed on this mission.")
 
     def is_good_enemy_npc(self, nart, candidate):
         # Utility function for doing an enemy search. If the enemy_faction is a base faction, this function
@@ -188,6 +203,9 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.__dict__.update(state)
         if "environment" not in state:
             self.environment = gears.tags.GroundEnv
+        # From v0.905 or earlier, make sure we have a scale.
+        if "scale" not in state:
+            self.scale = gears.scale.MechaScale
 
 
 class BuildAMissionPlot(Plot):
@@ -200,7 +218,7 @@ class BuildAMissionPlot(Plot):
         """An empty map that will add subplots for the mission's objectives."""
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(
-            50, 50, "Combat Zone", player_team=team1, scale=gears.scale.MechaScale,
+            50, 50, "Combat Zone", player_team=team1, scale=self.adv.scale,
             combat_music=self.elements["COMBAT_MUSIC"], exploration_music=self.elements["EXPLO_MUSIC"],
             environment=self.adv.environment
         )

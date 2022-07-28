@@ -76,19 +76,25 @@ class InvocationsWidget(pbge.widgets.Widget):
         if ev.type == pygame.MOUSEBUTTONDOWN:
             if ev.button == 4:
                 self.prev_shelf()
+                self.register_response()
             elif ev.button == 5:
                 self.next_shelf()
+                self.register_response()
             elif ev.button == 2:
                 self.pop_invo_menu()
         elif ev.type == pygame.KEYDOWN:
             if ev.key in pbge.my_state.get_keys_for("up"):
                 self.prev_shelf()
+                self.register_response()
             elif ev.key in pbge.my_state.get_keys_for("down"):
                 self.next_shelf()
+                self.register_response()
             elif ev.key in pbge.my_state.get_keys_for("left"):
                 self.prev_invo()
+                self.register_response()
             elif ev.key in pbge.my_state.get_keys_for("right"):
                 self.next_invo()
+                self.register_response()
 
     def prev_invo(self):
         usable_invos = [i for i in self.shelf.invo_list if
@@ -123,6 +129,18 @@ class InvocationsWidget(pbge.widgets.Widget):
             if new_i >= len(usable_shelves):
                 new_i = 0
             nu_shelf = usable_shelves[new_i]
+            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
+
+    def set_top_shelf(self):
+        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc)]
+        if usable_shelves:
+            nu_shelf = usable_shelves[0]
+            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
+
+    def set_bottom_shelf(self):
+        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc)]
+        if usable_shelves:
+            nu_shelf = usable_shelves[-1]
             self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
 
     def click_button(self, button, ev):
@@ -286,6 +304,12 @@ class InvocationUI(object):
             self.legal_tiles = set()
             self.num_targets = 0
         self.targets = list()
+
+    def set_top_shelf(self):
+        self.my_widget.set_top_shelf()
+
+    def set_bottom_shelf(self):
+        self.my_widget.set_bottom_shelf()
 
     def can_move_and_attack(self, target_pos):
         # Return True if model can move and invoke.

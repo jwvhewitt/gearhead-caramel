@@ -253,10 +253,14 @@ class PlayerTurn(object):
     def switch_top_shelf(self):
         if self.active_ui in self.top_shelf_funs:
             self.top_shelf_funs[self.active_ui]()
+            if hasattr(self.active_ui, "set_bottom_shelf"):
+                self.active_ui.set_bottom_shelf()
 
     def switch_bottom_shelf(self):
         if self.active_ui in self.bottom_shelf_funs:
             self.bottom_shelf_funs[self.active_ui]()
+            if hasattr(self.active_ui, "set_top_shelf"):
+                self.active_ui.set_top_shelf()
 
     def focus_on_pc(self):
         pbge.my_state.view.focus(self.pc.pos[0], self.pc.pos[1])

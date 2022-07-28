@@ -60,7 +60,13 @@ class Widget(frects.Frect):
                 if self.on_click and (ev.type == pygame.KEYDOWN) and (ev.key in my_state.get_keys_for("click_widget")):
                     self.on_click(self, ev)
                     my_state.widget_clicked = True
-            self._builtin_responder(ev)
+            if not my_state.widget_responded:
+                self._builtin_responder(ev)
+
+    def register_response(self):
+        # Call this method when _builtin_responder has responded to an event and you don't want other widgets to
+        # respond to the same event.
+        my_state.widget_responded = True
 
     def _builtin_responder(self, ev):
         pass

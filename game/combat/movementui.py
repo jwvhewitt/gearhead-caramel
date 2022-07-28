@@ -66,17 +66,23 @@ class MovementWidget(pbge.widgets.Widget):
         if ev.type == pygame.MOUSEBUTTONDOWN:
             if ev.button == 4:
                 self.prev_shelf()
+                self.register_response()
             elif ev.button == 5:
                 self.next_shelf()
+                self.register_response()
         elif ev.type == pygame.KEYDOWN:
             if ev.key in pbge.my_state.get_keys_for("up"):
                 self.prev_shelf()
+                self.register_response()
             elif ev.key in pbge.my_state.get_keys_for("down"):
                 self.next_shelf()
+                self.register_response()
             elif ev.key in pbge.my_state.get_keys_for("left"):
                 self.prev_invo()
+                self.register_response()
             elif ev.key in pbge.my_state.get_keys_for("right"):
                 self.next_invo()
+                self.register_response()
 
     def _update_move_modes(self):
         self.mmodes = list()

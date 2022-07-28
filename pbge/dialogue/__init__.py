@@ -290,5 +290,14 @@ class DynaConversation(object):
                 self.build(coff)
 
 
-
-
+def list_nouns(mylist, conjunction="and"):
+    # A utility function to turn a list of whatever into a grammatically correct phrase.
+    mywords = [str(thing) for thing in mylist]
+    if len(mywords) > 2:
+        return ", ".join(mywords[:-1]) + ", {} {}".format(conjunction, mywords[-1])
+    elif len(mywords) > 1:
+        return "{} {} {}".join(mywords[0], conjunction, mywords[1])
+    elif mywords:
+        return mywords[0]
+    else:
+        return "nothing"

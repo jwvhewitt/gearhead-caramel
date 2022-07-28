@@ -137,6 +137,7 @@ class GameState(object):
         self.active_widget_hilight = False
         self._active_widget = None
         self.widget_clicked = False
+        self.widget_responded = False
         self.audio_enabled = True
         self.music = None
         self.music_name = None
@@ -465,6 +466,7 @@ def wait_event():
 
     # Inform any interested widgets of the event.
     my_state.widget_clicked = False
+    my_state.widget_responded = False
     if my_state.widgets_active:
         for w in my_state.widgets:
             w.respond_event(ev)

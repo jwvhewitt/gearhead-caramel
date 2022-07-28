@@ -40,6 +40,8 @@ MOVEMODE_LIST = (movement.Walking, movement.Flying, Skimming, Rolling, SpaceFlig
 
 
 def model_matches_environment(model, enviro):
+    if not enviro:
+        return True
     for mm in enviro.LEGAL_MOVEMODES:
         if model.get_speed(mm) > 0:
             return True

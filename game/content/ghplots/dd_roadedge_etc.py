@@ -812,7 +812,7 @@ class WOTHCB_DoubleTheChallenge(Plot):
         self.city1_peace = False
         self.city2_peace = False
 
-        print(self.elements["CITY1"], self.elements["CITY2"])
+        #print(self.elements["CITY1"], self.elements["CITY2"])
 
         return True
 
