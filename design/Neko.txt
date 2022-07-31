@@ -1,0 +1,149 @@
+Mecha
+    name = "Neko"
+    desig = "MCI-74"
+    imagename = "mav_neko.png"
+    portrait = "mecha_neko.png"
+    desc = "Originally from Mars, the Neko is now a popular hybrid fighter throughout the solar system."
+
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (None,)
+    role_list = (Command, EWarSupport, Support)
+
+    material = Ceramic
+
+    SUB
+        Torso
+            size = 4
+            SUB
+                Sensor
+                    size = 4
+                    integral = True
+                Armor
+                    size = 3
+                    integral = True
+                Engine
+                    size = 1300
+                    integral = True
+                Gyroscope
+                    integral = True
+                Cockpit
+                    integral = True
+                EWSystem
+                    size = 3
+                    programs = (TargetAnalysis, Deflect, AIAssistant)
+                    integral = True
+                BeamWeapon
+                    desig = "Neko"
+                    name = "Anti-Missile Beamgun"
+                    reach = 2
+                    damage = 1
+                    accuracy = 3
+                    penetration = 1
+                    shot_anim = SmallBeam
+                    attributes = (Intercept, BurstFire2)
+            END
+        Arm
+            name = "Right Arm"
+            size = 2
+            SUB
+                Armor
+                    size = 2
+                Hand
+                    name = "Right Hand"
+                    INV
+                        STC PAR-6 Heavy Particle Cannon
+                    END
+                Mount
+                    name = "Right Arm Mount"
+            END
+        Arm
+            name = "Left Arm"
+            size = 2
+            SUB
+                Armor
+                    size = 2
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+            END
+            INV
+                Shield
+                    size = 3
+                    bonus = 1
+            END
+        Leg
+            name = "Right Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 3
+                ArcJets
+                    size = 3
+            END
+        Leg
+            name = "Left Leg"
+            size = 3
+            SUB
+                Armor
+                    size = 3
+                ArcJets
+                    size = 3
+            END
+        Wing
+            name = "Right Wing"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                ArcJets
+                    size = 4
+                    integral = True
+                Mount
+                    name = "Right Wing Mount"
+                    INV
+                        Launcher
+                            size = 7
+                            SUB
+                                Missile
+                                    name = "Incendiary Missiles"
+                                    reach = 6
+                                    damage = 2
+                                    accuracy = 2
+                                    penetration = 3
+                                    quantity = 12
+                                    attributes = (BurnAttack, Brutal)
+                                    area_anim = Fireball
+                            END
+
+                    END
+            END
+        Wing
+            name = "Left Wing"
+            size = 3
+            SUB
+                Armor
+                    size = 2
+                ArcJets
+                    size = 4
+                    integral = True
+                Mount
+                    name = "Left Wing Mount"
+                    INV
+                        Launcher
+                            size = 7
+                            SUB
+                                Missile
+                                    name = "Incendiary Missiles"
+                                    reach = 6
+                                    damage = 2
+                                    accuracy = 2
+                                    penetration = 3
+                                    quantity = 12
+                                    attributes = (BurnAttack, Brutal)
+                                    area_anim = Fireball
+                            END
+
+                    END
+            END
+    END

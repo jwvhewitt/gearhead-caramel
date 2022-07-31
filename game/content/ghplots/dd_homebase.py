@@ -669,14 +669,17 @@ class DZD_BronzeHorseInn(Plot):
                     context=ContextTag([context.CUSTOM]),
                     data={"reply": "You didn't tell us that the mission you gave was for Ran Magnus!"},
                     effect=self._open_gym
+            ))
+
+        if not camp.campdata.get("CONSTRUCTION_ARRANGED"):
+            mylist.append(
+                Offer(
+                    "You'll definitely be able to find someone at Long Haul Logistics. I'd ask at the RegEx Corporation construction office.".format(
+                        **self.elements),
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "Do you know where I could find someone to help rebuild a power station in a town way out in the dead zone?"}
                 ))
 
-        # ghdialogue.TagBasedPartyReply(
-        #    Offer(
-        #        "Ran and I used to be in the same lance. Of course that was years before she set up her mecha factory, and I eventually set up this hotel...",
-        #        context=ContextTag([context.INFO]),data={"subject": "Ran Magnus"}, no_repeats=True,
-        #    ), camp, mylist, [gears.tags.Academic]
-        # )
 
         return mylist
 

@@ -71,6 +71,7 @@ class ConfigEditor(object):
 
             OptionToggler.add_menu_toggle(mymenu, "Lancemates repaint their mecha", "lancemates_repaint_mecha")
             OptionToggler.add_menu_toggle(mymenu, "Announce start of player turns", "announce_pc_turn_start")
+            OptionToggler.add_menu_toggle(mymenu, "Scroll to start of action library", "scroll_to_start_of_action_library")
 
             for op in util.config.options("DIFFICULTY"):
                 OptionToggler.add_menu_toggle(mymenu, op, op, section="DIFFICULTY")

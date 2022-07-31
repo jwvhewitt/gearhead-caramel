@@ -18,7 +18,8 @@ Mecha
                     size = 4
 
                 Sensor
-                    size = 2
+                    size = 3
+                    integral = True
 
                 Engine
                     size = 650

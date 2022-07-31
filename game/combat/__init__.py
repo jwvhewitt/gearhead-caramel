@@ -253,7 +253,9 @@ class PlayerTurn(object):
     def switch_top_shelf(self):
         if self.active_ui in self.top_shelf_funs:
             self.top_shelf_funs[self.active_ui]()
-            if hasattr(self.active_ui, "set_bottom_shelf"):
+            if pbge.util.config.getboolean("GENERAL", "scroll_to_start_of_action_library") and hasattr(self.active_ui, "set_top_shelf"):
+                self.active_ui.set_top_shelf()
+            elif hasattr(self.active_ui, "set_bottom_shelf"):
                 self.active_ui.set_bottom_shelf()
 
     def switch_bottom_shelf(self):

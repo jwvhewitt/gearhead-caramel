@@ -39,7 +39,7 @@ class Advanced( Material ):
 class Ceramic( Material ):
     desig = "C"
     name = "Ceramic"
-    mass_scale = 0.8
+    mass_scale = 0.7
     damage_scale = 0.8
     cost_scale = 15
     repair_type = RT_REPAIR

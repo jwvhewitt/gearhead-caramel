@@ -358,6 +358,9 @@ class Mover(KeyObject):
         for g in self.sub_com.get_undestroyed():
             if (g.scale is self.scale) and hasattr(g, 'get_thrust'):
                 total += g.get_thrust(move_mode)
+                mymod = g.get_module()
+                if mymod.form.THRUST_BONUS:
+                    total = (total * (100 + mymod.form.THRUST_BONUS))//100
         return total
 
     def count_speed_bonus_percent(self):
@@ -1391,6 +1394,21 @@ class FlightJets(MovementSystem, StandardDamageHandler):
         if move_mode is scenes.movement.Flying:
             return (self.size * 4800 * self.current_health + self.max_health - 1) // self.max_health
         elif move_mode is gears.tags.SpaceFlight:
+            return (self.size * 4500 * self.current_health + self.max_health - 1) // self.max_health
+        else:
+            return 0
+
+class ArcJets(MovementSystem, StandardDamageHandler):
+    DEFAULT_NAME = "ARC Jets"
+    MOVESYS_COST = 125
+
+    @property
+    def base_health(self):
+        """Returns the unscaled maximum health of this gear."""
+        return self.size
+
+    def get_thrust(self, move_mode):
+        if move_mode in (scenes.movement.Flying,tags.Skimming, tags.SpaceFlight):
             return (self.size * 4500 * self.current_health + self.max_health - 1) // self.max_health
         else:
             return 0
@@ -2993,6 +3011,7 @@ class ModuleForm(Singleton):
     ACCURACY = 0
     PENETRATION = 0
     SENSOR_BONUS = 0
+    THRUST_BONUS = 0
 
 
 class MF_Head(ModuleForm):
@@ -3062,6 +3081,8 @@ class MF_Leg(ModuleForm):
         **ModuleForm.MULTIPLICITY_LIMITS
     }
 
+    THRUST_BONUS = 10
+
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part, (
@@ -3071,6 +3092,8 @@ class MF_Leg(ModuleForm):
 
 class MF_Wing(ModuleForm):
     name = "Wing"
+
+    THRUST_BONUS = 50
 
     @classmethod
     def is_legal_sub_com(self, part):
@@ -3445,7 +3468,32 @@ class MT_Aerofighter(MT_Battroid):
             return 0
 
 
-MECHA_FORMS = (MT_Battroid, MT_Arachnoid, MT_Groundhugger, MT_Aerofighter)
+class MT_Gerwalk(MT_Battroid):
+    name = "Gerwalk"
+    desc = "+10% flight speed; no turret or tail."
+
+    PROTOTYPE_IMAGENAME = "mav_neko.png"
+    PROTOTYPE_PORTRAIT = "mecha_neko.png"
+
+    LEGAL_MOVE_MODES = (pbge.scenes.movement.Flying, pbge.scenes.movement.Walking, tags.Skimming)
+
+    @classmethod
+    def is_legal_sub_com(self, part):
+        if isinstance(part, Module):
+            return part.form not in (MF_Tail,)
+        else:
+            return False
+
+    @classmethod
+    def modify_speed(self, base_speed, move_mode):
+        # Return the modified speed.
+        if move_mode == pbge.scenes.movement.Flying:
+            return int(base_speed * 1.1)
+        else:
+            return base_speed
+
+
+MECHA_FORMS = (MT_Battroid, MT_Arachnoid, MT_Groundhugger, MT_Aerofighter, MT_Gerwalk)
 
 
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
@@ -3703,7 +3751,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         it = 3
         for sens in self.sub_sub_coms():
             if hasattr(sens, 'get_sensor_rating') and sens.is_operational():
-                it = max((sens.get_sensor_rating() // map_scale.RANGE_FACTOR) * 5, it)
+                it = max((sens.get_sensor_rating() // map_scale.RANGE_FACTOR) * 4, it)
         return it
 
     def get_ewar_rating(self):

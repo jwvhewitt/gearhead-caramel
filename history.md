@@ -1,3 +1,8 @@
+v0.910 July 31 2022
+* Ceramic now has a mass factor of 0.7
+* Legs and wings give thrust bonus to movement systems mounted in them
+* Added Wraith, Neko mecha
+* Added option to always start at top of library when scrolling through combat actions
 * Fixed bug with highway scene generator
 * Widgets can now capture events, preventing other widgets from responding to same event
 * Fixed bug with combat interface scrolling
@@ -13,8 +18,8 @@
 * Reworked the combat movement UI
 * Fixed Ammo Explosion display bug
 * Extreme speeds will now be slightly reduced
-* Added Flight Jets
-* Added Aerofighter mecha form
+* Added Flight Jets, ARC Jets
+* Added Aerofighter, Gerwalk mecha forms
 * Random maps check blocked tiles using movemode provided by architecture
 * Exploration movement uses movemode based on party's move modes
 * Removed redundant code between MoveTo and BumpTo actions

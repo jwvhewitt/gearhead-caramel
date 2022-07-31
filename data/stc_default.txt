@@ -123,6 +123,7 @@ BeamWeapon
     reach = 7
     damage = 1
     accuracy = 3
+    penetration = 1
     shot_anim = SmallBeam
     attributes = (OverloadAttack)
 
@@ -133,6 +134,7 @@ BeamWeapon
     reach = 7
     damage = 2
     accuracy = 3
+    penetration = 2
     shot_anim = SmallBeam
     attributes = (OverloadAttack)
 
@@ -143,7 +145,7 @@ BeamWeapon
     reach = 7
     damage = 3
     accuracy = 3
-    penetration = 2
+    penetration = 3
     shot_anim = SmallBeam
     attack_stat = Perception
     attributes = (OverloadAttack)
