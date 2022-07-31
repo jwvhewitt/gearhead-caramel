@@ -13,7 +13,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.905"
+VERSION = "v0.910"
 
 
 class TitleScreenRedraw(object):
