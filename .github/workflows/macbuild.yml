@@ -5,7 +5,7 @@ name: Mac Build
 
 on:
   push:
-    branches: [ master, Flight2 ]
+    branches: [ master, testing ]
   pull_request:
     branches: [ master ]
 
