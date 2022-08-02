@@ -1,3 +1,5 @@
+- Jobs can now have scene string tags as local requirements
+
 v0.910 July 31 2022
 * Ceramic now has a mass factor of 0.7
 * Legs and wings give thrust bonus to movement systems mounted in them

@@ -1,6 +1,7 @@
 import inspect
 
 from . import actionscenes
+from . import bbmc_main
 from . import campfeatures
 from . import challengeplots
 from . import challengestarters
@@ -57,6 +58,7 @@ def harvest( mod ):
 
 
 harvest(actionscenes)
+harvest(bbmc_main)
 harvest(campfeatures)
 harvest(challengeplots)
 harvest(challengestarters)

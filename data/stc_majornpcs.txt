@@ -93,3 +93,19 @@ Character
     birth_year = 121
     combatant = True
     mecha_pref="SDH-22 Corsair"
+
+Character
+    name="Bear Bastard"
+    mnpcid="Bear Bastard"
+    statline={Reflexes=12, Body=20, Speed=15, Perception=13, Knowledge=10, Craft=9, Ego=17, Charm=14,
+              Negotiation=5, Performance=10}
+    personality=[Passionate, Glory, GreenZone]
+    portrait='card_m_bearbastard158.png'
+    gender=Male
+    colors=(Chocolate, ForRami, Ebony, Gold, Olive)
+    job=Swashbuckler
+    renown=45
+    birth_year=122
+    combatant=True
+    mecha_colors=(DarkBrown, SandyBrown, Gold, GhostGrey, Cream)
+    mecha_pref="SAN-D1 Daum"

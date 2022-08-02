@@ -155,6 +155,20 @@
     }
   },
   {
+    "name": "Swashbuckler",
+    "skills": [],
+    "tags": ["Adventurer","Criminal"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaFighting": 1,
+      "MechaGunnery": -1,
+      "CloseCombat": 1,
+      "RangedCombat": -1,
+      "Athletics": 1
+    },
+    "local_requirements": ["NAUTICAL"]
+  },
+  {
     "name": "Gladiator",
     "skills": ["Cybertech"],
     "tags": ["Adventurer"],

@@ -15,13 +15,13 @@ class Job(object):
             if sk in SINGLETON_TYPES:
                 self.skills.add(SINGLETON_TYPES[sk])
             else:
-                print("Unidentified symbol: {} in {}".format(sk,self.name))
+                print("Unidentified skill: {} in {}".format(sk,self.name))
         self.tags = set()
         for t in tags:
             if t in SINGLETON_TYPES:
                 self.tags.add(SINGLETON_TYPES[t])
             else:
-                print("Unidentified symbol: {} in {}".format(t,self.name))
+                print("Unidentified tag: {} in {}".format(sk, self.name))
         self.always_combatant = always_combatant
         self.skill_modifiers = dict()
         if skill_modifiers:
@@ -32,7 +32,11 @@ class Job(object):
             if t in SINGLETON_TYPES:
                 self.local_requirements.add(SINGLETON_TYPES[t])
             else:
-                print("Unidentified symbol: {} in {}".format(t,self.name))
+                # A city tag might be a string, so don't make a fuss if it isn't found in SINGLETON_TYPES. Unless dev
+                # mode is on; then you can print a warning.
+                if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                    print("Warning: {} in {} is not a singleton.".format(t, self.name))
+                self.tags.add(t)
         ALL_JOBS[name] = self
         #print "{} -> {}".format(name,[s.name for s in self.skills])
 
