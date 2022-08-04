@@ -177,6 +177,23 @@
       "Pants"
     ]
   },
+  {
+    "name": "BodMA RickS Shirt",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_bodma_shirt_ricks.png","anchor":"center","depth":3000,"frame_width": 266, "frame_height": 239, "frame": 0, "x_offset":-16,"y_offset":27},
+      {"name":"Right Sleeve","fname":"por_bodma_shirt_ricks.png","anchor":"center","depth":5000,"frame_width": 266, "frame_height": 239, "frame": 1, "x_offset":-16,"y_offset":27},
+      {"name":"Left Sleeve","fname":"por_bodma_shirt_ricks.png","anchor":"center","depth":1500,"frame_width": 266, "frame_height": 239, "frame":2, "x_offset":-16,"y_offset":27}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_bodma_shirt_ricks.png","anchor":"avatar_body","depth":3000,"x_offset":0,"y_offset":0}
+    ],
+    "requires": ["BodMA"],
+    "style": ["Dead Zone"],
+    "children": [
+      "Pants"
+    ]
+  },
 
     {
     "name": "BodMA Pants 1",
@@ -238,6 +255,19 @@
     "requires": ["BodMA"],
     "children": ["Shoes"],
     "style": ["Combatant"]
+  },
+    {
+    "name": "BodMA RickS Pants",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_bodma_pants_ricks.png","anchor":"midbottom","depth":2500,"x_offset":4,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_bodma_pants_ricks.png","anchor":"midbottom","depth":2500,"x_offset":-1}
+    ],
+    "requires": ["BodMA"],
+    "children": ["Shoes"],
+    "style": ["Dead Zone"]
   },
 
   {

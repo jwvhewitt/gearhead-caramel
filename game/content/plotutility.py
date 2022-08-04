@@ -8,7 +8,7 @@ from ..ghdialogue import context
 
 
 class AdventureModuleData(object):
-    def __init__(self, name, desc, date, title_card, character_check_fun=None):
+    def __init__(self, name, desc, date, title_card, character_check_fun=None, convoborder=None):
         # date is a tuple in (year, month, day) format. Day is optional. GH1 took place in 157, GH2 in 162.
         # character_check_fun is a function that takes the PC's Egg as a parameter and returns True if the PC can
         #    take part in this adventure.
@@ -17,6 +17,7 @@ class AdventureModuleData(object):
         self.date = date
         self.title_card = title_card
         self.character_check_fun = character_check_fun
+        self.convoborder = convoborder
 
     def can_play(self, egg: gears.eggs.Egg):
         base = pbge.util.config.getboolean("GENERAL", "can_replay_adventures") or self.name not in egg.past_adventures
@@ -32,6 +33,8 @@ class AdventureModuleData(object):
         if not isinstance(camp.egg.past_adventures, set):
             camp.egg.past_adventures = set()
         camp.egg.past_adventures.add(self.name)
+        if self.convoborder:
+            camp.convoborder = self.convoborder
 
 
 class SceneConnection(object):

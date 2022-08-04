@@ -6,6 +6,7 @@ Non-Element Triggers:
 "ENDCOMBAT"     When combat ends
 "COMBATLOOP"    Called during each iteration of the combat loop; guaranteed to be called before combat ends
 "COMBATROUND"   At the start of each combat round
+"HALFMINUTE"    Sent out every 30 seconds during exploration; not sent at all during combat
 "UPDATE"        When the status of any plot changes
 "END"           When the PC is about to leave a scene
 "PCMOVE"        When the party position is updated

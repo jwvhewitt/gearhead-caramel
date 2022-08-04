@@ -61,6 +61,8 @@ MUSIC
 * Let's Just Get Through Christmas by Doctor Turtle is licensed under a Attribution License. CC-BY-4.0
 * Lines and Late by Alexandr Zhelanov, https://soundcloud.com/alexandr-zhelanov CC-BY-3.0
 * Heroic Adventure from the Incompetech PD Music Collection, Public Domain
+* Jethro on the Run from the Incompetech PD Music Collection, Public Domain
+* Journey of Hope by Alexander Nakarada, Public Domain
 * The Stars Look Different (Ziggy Stardust Mix) by spinningmerkaba (c) copyright 2016 Licensed under a Creative Commons
  Attribution (3.0) license. http://dig.ccmixter.org/files/jlbrock44/52765 Ft: stefsax and Dimitri Artemenko
 * A Winter Tale by Johan Brodd, copyright 2016, GPL 3.0
@@ -81,5 +83,3 @@ MUSIC
 * This One is Tough by Komiku, Public Domain
 * Surfing by Komiku, Public Domain
 * Boss 2: Too Powerful For You by Komiku, Public Domain
-
-

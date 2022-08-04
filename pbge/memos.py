@@ -53,7 +53,7 @@ class MemoBrowser(widgets.Widget):
             self.memo_widget = self.memos[self._memo_n].get_widget(self, self.camp)
         else:
             self.memo_widget = widgets.LabelWidget(self.dx, self.dy, self.w, self.h, text=str(self.memos[self._memo_n]),
-                                                   justify=0)
+                                                   justify=0, font=my_state.medium_font)
         self.children.append(self.memo_widget)
 
     def regen_memo(self):

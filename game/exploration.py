@@ -598,11 +598,14 @@ class Explorer(object):
                     if pcpos.intersection(self.threat_tiles):
                         self.update_npcs()
 
-                if self.time % 50 == 0:
+                if self.time % 80 == 0:
                     self.update_npcs()
 
                 if self.time % 150 == 0:
                     self.update_enchantments()
+
+                if self.time > 0 and self.time % (pbge.util.config.getint("GENERAL", "frames_per_second") * 30) == 0:
+                    self.camp.check_trigger("HALFMINUTE")
 
             elif not self.order:
                 # Set the mouse cursor on the map.
@@ -630,7 +633,11 @@ class Explorer(object):
                         mymenu(self)
 
                     elif gdi.key in pbge.my_state.get_keys_for("cursor_click"):
-                        self.click_left()
+                        if gdi.mod & pygame.KMOD_SHIFT:
+                            pc = self.scene.get_main_actor(self.view.mouse_tile)
+                            ExploMenu(self, pc)
+                        else:
+                            self.click_left()
 
 
 

@@ -431,4 +431,10 @@ class AngelEgg(Waypoint):
 class SkullTownSign(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.SkullTownSignTerrain)
 
+class ParkStatueMan(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.ParkStatueManTerrain)
+
+class Shrine(Waypoint):
+    TILE = pbge.scenes.Tile(None, ghterrain.ShrineTerrain, None)
+
 

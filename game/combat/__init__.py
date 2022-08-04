@@ -729,6 +729,7 @@ class Combat(object):
             # I am well aware this might mean the entire party gets taken out of combat.
             myparty = self.camp.get_active_party()
             for pc in myparty:
+                pc.hidden = False
                 if isinstance(pc, gears.base.Mecha) and (pc.get_current_speed() < 10 or not self.scene.can_use_movemode_here(pc.mmode, *pc.pos)):
                     pc.gear_up(self.scene)
                     if pc.get_current_speed() < 10:

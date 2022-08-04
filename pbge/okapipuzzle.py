@@ -327,7 +327,7 @@ class ImageDeckWidget(widgets.ColumnWidget):
 
     def __init__(self, mydeck: SusDeck, on_select, **kwargs):
         super().__init__(0, 0, 100, self.DEFAULT_HEIGHT, **kwargs)
-        self.add_interior(widgets.LabelWidget(0, 0, self.w, 0, mydeck.name, justify=0))
+        self.add_interior(widgets.LabelWidget(0, 0, self.w, 0, mydeck.name, justify=0, font=my_state.medium_font))
         self._on_select = on_select
 
         self.mystery_sprite = image.Image("sys_mystery.png")

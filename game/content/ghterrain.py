@@ -1013,3 +1013,9 @@ class SkullTownSignTerrain(pbge.scenes.terrain.Terrain):
     frame = 0
     image_top = 'terrain_decor_skulltown.png'
     blocks = (Walking, Skimming, Rolling)
+
+
+class ShrineTerrain(pbge.scenes.terrain.Terrain):
+    frame = 3
+    image_top = 'terrain_decor_default.png'
+    blocks = (Walking, Skimming, Rolling)

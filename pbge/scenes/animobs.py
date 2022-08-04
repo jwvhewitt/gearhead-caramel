@@ -2,10 +2,11 @@ import pygame
 import math
 from .. import image, my_state
 
-def get_line( x1, y1, x2, y2):
+
+def get_line(x1, y1, x2, y2):
     # Bresenham's line drawing algorithm, as obtained from RogueBasin.
     points = []
-    issteep = abs(y2-y1) > abs(x2-x1)
+    issteep = abs(y2 - y1) > abs(x2 - x1)
     if issteep:
         x1, y1 = y1, x1
         x2, y2 = y2, x2
@@ -15,7 +16,7 @@ def get_line( x1, y1, x2, y2):
         y1, y2 = y2, y1
         rev = True
     deltax = x2 - x1
-    deltay = abs(y2-y1)
+    deltay = abs(y2 - y1)
     error = int(deltax / 2)
     y = y1
     ystep = None
@@ -37,26 +38,29 @@ def get_line( x1, y1, x2, y2):
         points.reverse()
     return points
 
-def get_fline( p1, p2, speed):
+
+def get_fline(p1, p2, speed):
     # Generate a line, but of floats, ending with the ints x2,y2.
     points = list()
-    rng = math.sqrt( ( p1[0]-p2[0] )**2 + ( p1[1]-p2[1] )**2 )
-    steps = int(rng/speed)
-    fsteps = float(rng/speed)
-    for t in range( 0, steps ):
+    rng = math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+    steps = int(rng / speed)
+    fsteps = float(rng / speed)
+    for t in range(0, steps):
         newpoint = list()
         for coord in range(len(p1)):
-            newpoint.append( p1[coord] + float( (p2[coord]-p1[coord]) * t )/fsteps)
+            newpoint.append(p1[coord] + float((p2[coord] - p1[coord]) * t) / fsteps)
         points.append(newpoint)
     points.append(p2)
     return points
 
-class AnimOb( object ):
+
+class AnimOb(object):
     """An animation for the map."""
-    def __init__( self, sprite_name=None, width=64, height=64, pos=(0,0), start_frame=0, end_frame=0, ticks_per_frame=0,
-                  loop=0, x_off=0, y_off=0, delay=1, is_transparent=False ):
-        self.sprite = image.Image( sprite_name or self.DEFAULT_SPRITE_NAME, width, height,
-                                   transparent=self.DEFAULT_TRANSPARENCY or is_transparent)
+
+    def __init__(self, sprite_name=None, width=64, height=64, pos=(0, 0), start_frame=0, end_frame=0, ticks_per_frame=0,
+                 loop=0, x_off=0, y_off=0, delay=1, is_transparent=False, children=()):
+        self.sprite = image.Image(sprite_name or self.DEFAULT_SPRITE_NAME, width, height,
+                                  transparent=self.DEFAULT_TRANSPARENCY or is_transparent)
         self.start_frame = start_frame
         self.frame = start_frame or self.DEFAULT_START_FRAME
         self.end_frame = end_frame or self.DEFAULT_END_FRAME
@@ -68,15 +72,16 @@ class AnimOb( object ):
         self.needs_deletion = False
         self.pos = pos
         self.delay = delay
-        self.children = list()
+        self.children = list(children)
+
     DEFAULT_SPRITE_NAME = ''
     DEFAULT_START_FRAME = 0
-    DEFAULT_END_FRAME= 0
+    DEFAULT_END_FRAME = 0
     DEFAULT_LOOP = 0
     DEFAULT_TICKS_PER_FRAME = 1
     DEFAULT_TRANSPARENCY = False
 
-    def update( self, view ):
+    def update(self, view):
         if self.delay > 0:
             self.delay += -1
         else:
@@ -95,23 +100,25 @@ class AnimOb( object ):
                     self.frame = self.start_frame
                     self.counter = 0
 
-
-    def render( self, foot_pos, view ):
+    def render(self, foot_pos, view):
         if not self.delay:
-            mydest = pygame.Rect(0,0,self.sprite.frame_width,self.sprite.frame_height)
+            mydest = pygame.Rect(0, 0, self.sprite.frame_width, self.sprite.frame_height)
             mydest.midbottom = foot_pos
             mydest.x += self.x_off
             mydest.y += self.y_off
-            self.sprite.render( mydest, self.frame )
+            self.sprite.render(mydest, self.frame)
 
-class ShotAnim( AnimOb ):
+
+class ShotAnim(AnimOb):
     """An AnimOb which moves along a line."""
-    def __init__( self, sprite_name=None, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=None,
-                  set_frame_offset=True, x_off=0, y_off=0, delay=0, is_transparent=False ):
-        super().__init__(sprite_name=sprite_name, width=width, height=height, pos=start_pos, is_transparent=is_transparent)
+
+    def __init__(self, sprite_name=None, width=64, height=64, start_pos=(0, 0), end_pos=(0, 0), frame=0, speed=None,
+                 set_frame_offset=True, x_off=0, y_off=0, delay=0, is_transparent=False):
+        super().__init__(sprite_name=sprite_name, width=width, height=height, pos=start_pos,
+                         is_transparent=is_transparent)
 
         if set_frame_offset:
-            self.frame = frame + self.dir_frame_offset( self.isometric_pos(*start_pos), self.isometric_pos(*end_pos) )
+            self.frame = frame + self.dir_frame_offset(self.isometric_pos(*start_pos), self.isometric_pos(*end_pos))
         else:
             self.frame = frame
         self.counter = 0
@@ -120,25 +127,26 @@ class ShotAnim( AnimOb ):
         self.needs_deletion = False
         self.pos = start_pos
         speed = speed or self.DEFAULT_SPEED
-        self.itinerary = get_fline( start_pos, end_pos, speed )
+        self.itinerary = get_fline(start_pos, end_pos, speed)
         self.children = list()
         self.delay = delay
+
     DEFAULT_SPRITE_NAME = ''
     DEFAULT_SPEED = 0.5
     DEFAULT_TRANSPARENCY = False
 
-    def relative_x( self, x, y ):
+    def relative_x(self, x, y):
         """Return the relative x position of this tile, ignoring offset."""
-        return ( x * 2 ) - ( y * 2 )
+        return (x * 2) - (y * 2)
 
-    def relative_y( self, x, y ):
+    def relative_y(self, x, y):
         """Return the relative y position of this tile, ignoring offset."""
         return y + x
 
-    def isometric_pos(self,x,y):
-        return self.relative_x(x,y),self.relative_y(x,y)
+    def isometric_pos(self, x, y):
+        return self.relative_x(x, y), self.relative_y(x, y)
 
-    def dir_frame_offset( self, start_pos, end_pos ):
+    def dir_frame_offset(self, start_pos, end_pos):
         # There are 8 sprites for each projectile type, one for each of 
         # the eight directions. Determine the direction which best suits 
         # this vector. 
@@ -154,7 +162,7 @@ class ShotAnim( AnimOb ):
             else:
                 return 6
         else:
-            slope = float(dy)/float(dx)
+            slope = float(dy) / float(dx)
             if slope > 1.73:
                 tmp = 2
             elif slope > 0.27:
@@ -168,25 +176,27 @@ class ShotAnim( AnimOb ):
             if dx > 0:
                 return tmp
             else:
-                return ( tmp + 4 ) % 8
+                return (tmp + 4) % 8
 
-    def update( self, view ):
+    def update(self, view):
         if self.delay > 0:
             self.delay += -1
         else:
             view.anims[view.pos_to_key(self.pos)].append(self)
             self.counter += 1
-            if self.counter >= len( self.itinerary ):
+            if self.counter >= len(self.itinerary):
                 self.needs_deletion = True
             else:
-                self.pos = self.itinerary[ self.counter ]
+                self.pos = self.itinerary[self.counter]
 
 
-class AnimatedShotAnim( ShotAnim ):
+class AnimatedShotAnim(ShotAnim):
     """An AnimOb which moves along a line."""
-    def __init__( self, sprite_name=None, width=64, height=64, start_pos=(0,0), end_pos=(0,0), frame=0, speed=None,
-                  set_frame_offset=False, x_off=0, y_off=0, delay=0, is_transparent=False ):
-        super().__init__(sprite_name=sprite_name, width=width, height=height, frame=frame, set_frame_offset=False, is_transparent=is_transparent)
+
+    def __init__(self, sprite_name=None, width=64, height=64, start_pos=(0, 0), end_pos=(0, 0), frame=0, speed=None,
+                 set_frame_offset=False, x_off=0, y_off=0, delay=0, is_transparent=False):
+        super().__init__(sprite_name=sprite_name, width=width, height=height, frame=frame, set_frame_offset=False,
+                         is_transparent=is_transparent)
 
         self.counter = 0
         self.x_off = x_off
@@ -194,14 +204,15 @@ class AnimatedShotAnim( ShotAnim ):
         self.needs_deletion = False
         self.pos = start_pos
         speed = speed or self.DEFAULT_SPEED
-        self.itinerary = get_fline( start_pos, end_pos, speed )
+        self.itinerary = get_fline(start_pos, end_pos, speed)
         self.children = list()
         self.delay = delay
+
     DEFAULT_SPRITE_NAME = ''
     DEFAULT_SPEED = 0.3
     DEFAULT_TRANSPARENCY = False
 
-    def update( self, view ):
+    def update(self, view):
         if self.delay > 0:
             self.delay += -1
         else:
@@ -210,18 +221,18 @@ class AnimatedShotAnim( ShotAnim ):
             self.frame += 1
             if self.frame > self.end_frame:
                 self.frame = self.start_frame
-            if self.counter >= len( self.itinerary ):
+            if self.counter >= len(self.itinerary):
                 self.needs_deletion = True
             else:
-                self.pos = self.itinerary[ self.counter ]
+                self.pos = self.itinerary[self.counter]
 
 
-class Caption( AnimOb ):
-    def __init__(self, txt=None, pos=(0,0), width=128, loop=16, color=None, delay=1, y_off=0 ):
+class Caption(AnimOb):
+    def __init__(self, txt=None, pos=(0, 0), width=128, loop=16, color=None, delay=1, y_off=0):
         txt = txt or self.DEFAULT_TEXT
         color = color or self.DEFAULT_COLOR
         self.txt = txt
-        self.sprite = image.TextImage( txt, width, color=color )
+        self.sprite = image.TextImage(txt, width, color=color)
         self.frame = 0
         self.counter = 0
         self.loop = loop
@@ -232,10 +243,11 @@ class Caption( AnimOb ):
         self.pos = pos
         self.delay = delay
         self.children = list()
-    DEFAULT_TEXT = '???'
-    DEFAULT_COLOR = (250,250,250)
 
-    def update( self, view ):
+    DEFAULT_TEXT = '???'
+    DEFAULT_COLOR = (250, 250, 250)
+
+    def update(self, view):
         if self.delay > 0:
             self.delay += -1
         else:
@@ -243,14 +255,14 @@ class Caption( AnimOb ):
             self.needs_deletion = True
 
 
-class ShotCaption( Caption ):
-    def __init__( self, txt=None, start_pos=(0,0), end_pos=(0,0), **kwargs):
+class ShotCaption(Caption):
+    def __init__(self, txt=None, start_pos=(0, 0), end_pos=(0, 0), **kwargs):
         super().__init__(txt, pos=start_pos, **kwargs)
         self.end_pos = end_pos
 
 
-class MoveModel( object ):
-    def __init__( self, model, start=None, dest=(0,0), speed=0.1, delay=0 ):
+class MoveModel(object):
+    def __init__(self, model, start=None, dest=(0, 0), speed=0.1, delay=0):
         self.model = model
         self.speed = speed
         self.dest = dest
@@ -260,9 +272,9 @@ class MoveModel( object ):
         self.children = list()
         if not start:
             start = model.pos
-        self.itinerary = get_fline(start,dest,speed)
+        self.itinerary = get_fline(start, dest, speed)
 
-    def update( self, view ):
+    def update(self, view):
         # This one doesn't appear directly, but moves a model.
         if self.delay > 0:
             self.delay += -1
@@ -273,20 +285,23 @@ class MoveModel( object ):
         else:
             self.needs_deletion = True
 
-class WatchMeWiggle( object ):
+
+class WatchMeWiggle(object):
     # Bear with me. When a model attacks, sometimes it's not clear which model is attacking. So,
     # what I'm gonna do is wiggle the model doing the action, so you can see who it is.
     # Tried to think of a clever name but "WatchMeWiggle" was the best I came up with. You see, the model
     # wiggles, because that's the model you're supposed to be watching right now.
-    def __init__( self, model, delay=0, duration = 5 ):
+    def __init__(self, model, delay=0, duration=5):
         self.model = model
         self.duration = duration
         self.delay = delay
         self.step = 0
         self.needs_deletion = False
         self.children = list()
-    WIGGLE_POS = ((0,1),(0,2),(0,1),(0,0),(0,-1),(0,-2),(0,-1),(0,0))
-    def update( self, view ):
+
+    WIGGLE_POS = ((0, 1), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (0, -1), (0, 0))
+
+    def update(self, view):
         # This one doesn't appear directly, but moves a model.
         if self.delay > 0:
             self.delay += -1
@@ -297,10 +312,11 @@ class WatchMeWiggle( object ):
             self.model.offset_pos = None
             self.needs_deletion = True
 
-class BlastOffAnim( object ):
+
+class BlastOffAnim(object):
     # The model will fly up, up, up for around 1000 pixels. It does not come down again so if you want that you better
     # do it manually.
-    def __init__( self, model, delay=0, duration = 50, speed=-1, acceleration=-1 ):
+    def __init__(self, model, delay=0, duration=50, speed=-1, acceleration=-1):
         self.model = model
         self.duration = duration
         self.height = 0
@@ -310,7 +326,8 @@ class BlastOffAnim( object ):
         self.step = 0
         self.needs_deletion = False
         self.children = list()
-    def update( self, view ):
+
+    def update(self, view):
         # This one doesn't appear directly, but moves a model.
         if self.delay > 0:
             self.delay += -1
@@ -318,34 +335,34 @@ class BlastOffAnim( object ):
             self.step += 1
             self.height += self.speed
             self.speed += self.acceleration
-            self.model.offset_pos = (0,self.height)
+            self.model.offset_pos = (0, self.height)
         else:
             self.needs_deletion = True
 
 
-class Dash( MoveModel ):
-    def __init__( self, model, start_pos=None, end_pos=(0,0), speed=0.5, delay=0 ):
+class Dash(MoveModel):
+    def __init__(self, model, start_pos=None, end_pos=(0, 0), speed=0.5, delay=0):
         self.model = model
         self.speed = speed
         if not start_pos:
             start_pos = model.pos
-        intline = get_line(start_pos[0],start_pos[1],end_pos[0],end_pos[1])
+        intline = get_line(start_pos[0], start_pos[1], end_pos[0], end_pos[1])
         self.dest = intline[-2]
         self.delay = delay
         self.step = 0
         self.needs_deletion = False
         self.children = list()
-        self.itinerary = get_fline(start_pos,self.dest,speed)
+        self.itinerary = get_fline(start_pos, self.dest, speed)
 
 
-class HideModel( object ):
-    def __init__( self, model, delay=0, children = [] ):
+class HideModel(object):
+    def __init__(self, model, delay=0, children=[]):
         self.model = model
         self.delay = delay
         self.needs_deletion = False
         self.children = list() + children
 
-    def update( self, view ):
+    def update(self, view):
         # This one doesn't appear directly, but hides a model.
         if self.delay > 0:
             self.delay += -1
@@ -353,19 +370,18 @@ class HideModel( object ):
             self.model.hidden = True
             self.needs_deletion = True
 
-class RevealModel( object ):
-    def __init__( self, model, delay=0, children = [] ):
+
+class RevealModel(object):
+    def __init__(self, model, delay=0, children=[]):
         self.model = model
         self.delay = delay
         self.needs_deletion = False
         self.children = list() + children
 
-    def update( self, view ):
+    def update(self, view):
         # This one doesn't appear directly, but reveals a model.
         if self.delay > 0:
             self.delay += -1
         else:
             self.model.hidden = False
             self.needs_deletion = True
-
-

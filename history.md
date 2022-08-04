@@ -1,4 +1,9 @@
-- Jobs can now have scene string tags as local requirements
+* PCs stop hiding at the end of battle
+* AdventureModuleData object now stores module's conversation border
+* HALFMINUTE trigger generated every 30 seconds of real time in exploration mode
+* Shift + enter now has same effect as right mouse click in exploration mode
+* Clumpy room now determines number of clumps by size of room
+* Jobs can now have scene string tags as local requirements
 
 v0.910 July 31 2022
 * Ceramic now has a mass factor of 0.7
