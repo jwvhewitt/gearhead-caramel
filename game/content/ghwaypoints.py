@@ -62,12 +62,13 @@ class Crate( Waypoint ):
     OPEN_TERRAIN = ghterrain.OpenOldCrateTerrain
     desc = "You see a large plastic crate."
     DEFAULT_TREASURE_TYPE = (gears.tags.ST_TREASURE,)
-    def __init__( self, treasure_rank=0, treasure_amount=100, treasure_type=DEFAULT_TREASURE_TYPE, **kwargs ):
+    def __init__( self, treasure_rank=0, treasure_amount=100, treasure_type=None, **kwargs ):
+        super().__init__(**kwargs)
         self.contents = pbge.container.ContainerList()
         if treasure_rank > 0:
+            treasure_type = treasure_type or self.DEFAULT_TREASURE_TYPE
             mytreasure = gears.selector.get_random_loot(treasure_rank, treasure_amount, treasure_type)
             self.contents += mytreasure
-        super().__init__(**kwargs)
 
     def unlocked_use( self, camp: gears.GearHeadCampaign ):
         # Perform this waypoint's special action.
@@ -89,7 +90,7 @@ class AmmoBox(Crate):
     TILE = pbge.scenes.Tile(None,None,ghterrain.AmmoBoxTerrain)
     desc = "You see an ammo box."
     OPEN_TERRAIN = ghterrain.OpenAmmoBoxTerrain
-    DEFAULT_TREASURE_TYPE = (gears.tags.ST_WEAPON,)
+    DEFAULT_TREASURE_TYPE = (gears.tags.ST_WEAPON, gears.tags.ST_CLOTHING)
 
 
 class StorageBox(Crate):

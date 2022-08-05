@@ -358,7 +358,8 @@ class CharacterMover(object):
 
         self.allow_death = allow_death
         plot.call_on_end.append(self)
-        plot.move_records.append((character, dest_scene.contents))
+        if hasattr(plot, "move_records"):
+            plot.move_records.append((character, dest_scene.contents))
         self.done = False
 
         # print('Moving {} {}'.format(self.character,self.original_container))
