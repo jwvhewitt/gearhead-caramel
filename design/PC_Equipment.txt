@@ -20,10 +20,11 @@ MeleeWeapon
     accuracy=3
     penetration=1
     scale = HumanScale
-    material = Metal
+    material = Advanced
     shop_tags= ("MELEE WEAPON","ODDITY","CONTRABAND")
     faction_list = (None,)
     attributes = (Flail,Agonize)
+    attack_stat = Speed
 
 MeleeWeapon
     name="Cutlass"
@@ -144,6 +145,8 @@ MeleeWeapon
     attributes = (Brutal,)
     shop_tags= ("WEAPON", MELEE WEAPON")
     faction_list = (None,)
+    attack_stat = Body
+
 
 MeleeWeapon
     name="Pole Axe"
@@ -303,6 +306,8 @@ MeleeWeapon
     shop_tags= ("MELEE WEAPON","ODDITY","CONTRABAND")
     faction_list = (None,)
     attributes = (Flail,Agonize)
+    attack_stat = Speed
+
 
 
 EnergyWeapon
@@ -530,6 +535,18 @@ BeamWeapon
     END
 
 
+TorsoClothing
+    name = "Leather Jacket"
+    desc = "This jacket might not offer a lot of protection against weapon fire, but at least it looks cool."
+    scale = HumanScale
+    material = Advanced
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 1
+    END
+
 
 TorsoClothing
     name = "Flak Jacket"
@@ -578,6 +595,21 @@ TorsoClothing
     SUB
         Armor
             size = 6
+    END
+
+HeadClothing
+    name = "Teddy Hat"
+    desc = "A fluffy hat that looks like a teddy bear's face. The ears are apparently solar panels."
+    scale = HumanScale
+    material = Advanced
+    shop_tags = ("CONTRABAND",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 2
+        PowerSource
+            size = 2
+            material = Ceramic
     END
 
 HeadClothing

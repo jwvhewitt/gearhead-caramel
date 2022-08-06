@@ -3480,7 +3480,7 @@ class MT_Gerwalk(MT_Battroid):
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return part.form not in (MF_Tail,)
+            return part.form not in (MF_Tail, MF_Turret)
         else:
             return False
 

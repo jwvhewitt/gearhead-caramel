@@ -321,11 +321,15 @@ class AutoLeaver(object):
 
 class CharacterMover(object):
     def __init__(self, camp, plot, character: gears.base.Character, dest_scene, dest_team, allow_death=False,
-                 upgrade_mek=True):
+                 upgrade_mek=True, suppress_warnings=False):
         # Record the character's original location, move them to the new location.
+        # Only set suppress_warnings to True if you know what you're doing, i.e. you are me. It only suppresses the
+        #   warning about characters not being locked; this is only a problem if you are in an adventure with random
+        #   plots or dynamic content. That would mean most adventures.
         self.original_scene = character.scene
-        if character not in plot.get_locked_elements():
-            print("Warning: Character {} should be locked by {} before moving!".format(character, plot))
+        if not suppress_warnings:
+            if character not in plot.get_locked_elements():
+                print("Warning: Character {} should be locked by {} before moving!".format(character, plot))
         if not (hasattr(character, "container") and character.container):
             print("Warning: Character {} moved by {} has no original container!".format(character, plot))
             character.container = None

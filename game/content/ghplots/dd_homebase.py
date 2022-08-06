@@ -1333,7 +1333,7 @@ class DZD_WujungHospital(Plot):
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
         team2 = self.register_element("CIV_TEAM", teams.Team(name="Civilian Team"))
-        intscene = gears.GearHeadScene(35, 35, "Wujung Hospital", player_team=team1, civilian_team=team2,
+        intscene = gears.GearHeadScene(50, 50, "Wujung Hospital", player_team=team1, civilian_team=team2,
                                        attributes=(
                                        gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)

@@ -1076,8 +1076,11 @@ DEFAULT_GRAMMAR = {
     },
 
     "[expletive]": {
-        Default: ["ashes", "blazes", "hell"
+        Default: ["ashes", "blazes", "hell",
                   ],
+        personality.Cheerful: [
+            "flipping fire penguins",
+        ]
     },
 
     "[FACTION_DEFEATED_ME]": {
@@ -4037,6 +4040,23 @@ DEFAULT_GRAMMAR = {
         Default: ["Well [expletive] on that...", "Oh [expletive]!",
                   "[God] smite it!"
                   ],
+    },
+
+    "[REALLY?]": {
+        Default: ["Really?", "Is that so?"
+                  ],
+        personality.Cheerful: ["[HAGOODONE]"
+                               ],
+        personality.Grim: ["You can't seriously believe that.",
+                           ],
+        personality.Easygoing: ["Are you being serious?",
+                                ],
+        personality.Passionate: ["I don't think so.",
+                                 ],
+        personality.Sociable: ["And, this is something you actually believe?",
+                               ],
+        personality.Shy: ["Huh.",
+                          ],
     },
 
     "[THANK_YOU]": {

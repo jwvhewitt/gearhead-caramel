@@ -583,6 +583,8 @@ class WinterMochaChaletForEnding(Plot):
         thingmenu.add_item('Stay here for a bit longer', None)
 
     def _end_the_game(self, camp: gears.GearHeadCampaign):
+        for pc in camp.party:
+            pc.restore()
         camp.eject()
 
     def start_victory(self, camp: gears.GearHeadCampaign):

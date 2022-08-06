@@ -420,6 +420,10 @@ class AcidSpray(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_gervais_s_acidspray.png"
 
 
+class LightningBolt(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_gervais_s_lightning.png"
+
+
 class Missile1(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_missile1.png"
     DEFAULT_SPEED = 0.3

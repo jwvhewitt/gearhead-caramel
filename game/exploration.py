@@ -340,6 +340,7 @@ class ExploMenu(object):
             if wayp.name:
                 mymenu.add_item('Use {}'.format(str(wayp)), BumpToCall(self.explo, wayp))
         # Add the standard options.
+        mymenu.add_item('Inventory', self.call_inventory)
         mymenu.add_item('Field HQ', FieldHQCall(self.explo.camp))
         mymenu.add_item('View Memos', memos.MemoBrowser(self.explo.camp))
         pc = self.explo.camp.first_active_pc()
@@ -348,6 +349,9 @@ class ExploMenu(object):
         mi = mymenu.query()
         if mi:
             mi()
+
+    def call_inventory(self):
+        fieldhq.backpack.BackpackWidget.create_and_invoke(self.explo.camp, self.pc or self.explo.camp.pc.get_root())
 
     def center(self):
         # Center on the PC.

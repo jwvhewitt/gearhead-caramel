@@ -1,3 +1,5 @@
+* Inventory can now be accessed from the exploration menu
+* Characters and mecha get restored at the end of Winter Mocha. Oops.
 * PCs stop hiding at the end of battle
 * AdventureModuleData object now stores module's conversation border
 * HALFMINUTE trigger generated every 30 seconds of real time in exploration mode

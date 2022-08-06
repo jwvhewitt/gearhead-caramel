@@ -170,3 +170,11 @@ class Relationship(object):
                 self.attitude in UNFAVORABLE_TAGS or self.role in UNFAVORABLE_TAGS or
                 self.expectation in UNFAVORABLE_TAGS
         )
+
+    def make_not_unfavorable(self):
+        if self.attitude in UNFAVORABLE_TAGS:
+            self.attitude = None
+        if self.role in UNFAVORABLE_TAGS:
+            self.role = None
+        if self.expectation in UNFAVORABLE_TAGS:
+            self.expectation = None

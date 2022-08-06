@@ -1,4 +1,60 @@
 Monster
+    name = "Mechanical Mouse"
+    statline = {Reflexes = 12, Body=5, Speed=10, Perception=8, Craft=12, Knowledge=2, Ego=6, Charm = 2,
+			CloseCombat = 5, Dodge = 1
+	}
+	scale = HumanScale
+	imagename = 'mon_robots.png'
+	frame = 4
+	colors = (AceScarlet,Gold,Turquoise,GhostGrey,Charcoal)
+    threat = 5
+    type_tags = ("ROBOT", "FACTORY", "CITY")
+    families = ("RATS","VERMIN")
+    environment_list = (GroundEnv,UrbanEnv)
+    material = Ceramic
+
+	SUB
+        Head
+            size = 2
+            SUB
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=1
+					accuracy=1
+					penetration=3
+					integral = True
+                    attributes = (FastAttack)
+                Armor
+                    size = 2
+            END
+        Torso
+            size = 2
+            SUB
+                Wheels
+                    size = 2
+                Armor
+                    size = 2
+            END
+        Tail
+            size = 3
+            SUB
+                MeleeWeapon
+					name="Tail Shock"
+					reach=3
+					damage=1
+					accuracy=3
+					penetration=1
+					integral = True
+                    attributes = (Agonize)
+                    shot_anim = LightningBolt
+                    integral = True
+                Armor
+                    size = 2
+            END
+    END
+
+Monster
     name = "Workbot"
     statline = {Reflexes = 9, Body=13, Speed=7, Perception=8, Craft=11, Knowledge=1, Ego=1, Charm = 1,
 			CloseCombat = 1,
