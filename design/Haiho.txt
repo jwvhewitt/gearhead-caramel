@@ -104,7 +104,7 @@ Mecha
                 Armor
                     size = 2
                     material = Metal
-                HoverJets
+                FlightJets
                     size = 4
                     material = Metal
             END
@@ -116,7 +116,7 @@ Mecha
                 Armor
                     size = 2
                     material = Metal
-                HoverJets
+                FlightJets
                     size = 4
                     material = Metal
             END

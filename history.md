@@ -1,8 +1,13 @@
+v0.920 August 8 2022
+* AI will now jump as appropriate
+* Changed jet types for mecha that previously have had flight or arc jets: Haiho, Phoenix, Trailblazer, Zerosaiko
+* Jumping now works
+* Added "Bear Bastard's Mecha Camp" tutorial
 * Inventory can now be accessed from the exploration menu
 * Characters and mecha get restored at the end of Winter Mocha. Oops.
 * PCs stop hiding at the end of battle
 * AdventureModuleData object now stores module's conversation border
-* HALFMINUTE trigger generated every 30 seconds of real time in exploration mode
+* HALFMINUTE trigger generated every 30 seconds real time in exploration mode
 * Shift + enter now has same effect as right mouse click in exploration mode
 * Clumpy room now determines number of clumps by size of room
 * Jobs can now have scene string tags as local requirements

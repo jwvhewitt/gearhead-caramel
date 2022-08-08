@@ -285,7 +285,6 @@ class MoveModel(object):
         else:
             self.needs_deletion = True
 
-
 class WatchMeWiggle(object):
     # Bear with me. When a model attacks, sometimes it's not clear which model is attacking. So,
     # what I'm gonna do is wiggle the model doing the action, so you can see who it is.

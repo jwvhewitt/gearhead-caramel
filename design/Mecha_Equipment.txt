@@ -499,3 +499,76 @@ Overchargers
     size = 5
     shop_tags = ("MMOBILITY", "MEXTRA")
     faction_list = (None,)
+
+ArcJets
+    desc = "Advanced Reaction Chamber thrusters which can power both skimming and flight."
+    size = 3
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+ArcJets
+    desc = "Advanced Reaction Chamber thrusters which can power both skimming and flight."
+    size = 4
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+ArcJets
+    desc = "Advanced Reaction Chamber thrusters which can power both skimming and flight."
+    size = 5
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+ArcJets
+    desc = "Advanced Reaction Chamber thrusters which can power both skimming and flight."
+    size = 6
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+ArcJets
+    desc = "Advanced Reaction Chamber thrusters which can power both skimming and flight."
+    size = 7
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+ArcJets
+    desc = "Advanced Reaction Chamber thrusters which can power both skimming and flight."
+    size = 8
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+FlightJets
+    desc = "Specialized thrusters which allow flying and jumping."
+    size = 3
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+FlightJets
+    desc = "Specialized thrusters which allow flying and jumping."
+    size = 4
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+FlightJets
+    desc = "Specialized thrusters which allow flying and jumping."
+    size = 5
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+FlightJets
+    desc = "Specialized thrusters which allow flying and jumping."
+    size = 6
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+FlightJets
+    desc = "Specialized thrusters which allow flying and jumping."
+    size = 7
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+
+FlightJets
+    desc = "Specialized thrusters which allow flying and jumping."
+    size = 8
+    shop_tags= ("MMOBILITY",)
+    faction_list = (None,)
+

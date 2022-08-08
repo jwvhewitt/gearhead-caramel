@@ -74,7 +74,7 @@ Mecha
                                     attributes = (HaywireAttack,)
                             END
                     END
-                HoverJets
+                FlightJets
                     size = 10
             END
         Arm
@@ -127,7 +127,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
+                FlightJets
                     size = 6
             END
         Leg
@@ -136,7 +136,7 @@ Mecha
             SUB
                 Armor
                     size = 4
-                HoverJets
+                FlightJets
                     size = 6
             END
     END

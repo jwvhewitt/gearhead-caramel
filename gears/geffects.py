@@ -645,9 +645,51 @@ class CrashAnim(object):
             self.needs_deletion = True
 
 
+class JumpModel(object):
+    def __init__(self, scene, model, start=None, dest=(0, 0), speed=0.4, delay=0, zenith=50):
+        self.model = model
+        self.speed = speed
+        self.dest = dest
+        self.delay = delay
+        self.step = 0.0
+        self.needs_deletion = False
+        self.children = list()
+        if not start:
+            start = model.pos
+        self.itinerary = pbge.scenes.animobs.get_fline(start, dest, speed)
+        self.num_steps = float(len(self.itinerary))
+        self.zenith = zenith
+
+        self.start_alt = scene.model_altitude(model, *model.pos)
+        self.final_alt = scene.model_altitude(model, *dest)
+
+    def update(self, view):
+        # This one doesn't appear directly, but moves a model.
+        if self.delay > 0:
+            self.delay += -1
+        elif self.itinerary:
+            self.step += 1.0
+            px = self.step/self.num_steps
+            py = -4*px*px + 4*px
+            if self.step < self.num_steps/2:
+                y_off = int((self.zenith - self.start_alt) * py)
+            else:
+                y_off = int((self.zenith - self.final_alt) * py) - self.start_alt
+            self.model.pos = self.itinerary.pop(0)
+            self.model.offset_pos = (0, -y_off)
+            if not self.itinerary:
+                self.needs_deletion = True
+                self.model.pos = self.dest
+                self.model.offset_pos = (0,0)
+        else:
+            self.needs_deletion = True
+            self.model.pos = self.dest
+            self.model.offset_pos = (0, 0)
+
+
 # A curated list for the gear editor.
 SHOT_ANIMS = (SmallBullet, BigBullet, HugeBullet, SmallBeam, GunBeam, Missile1, Missile2, Missile3, Missile4, Missile5,
-              ReturningHammer, JawShot, FlyingDeathwing)
+              ReturningHammer, JawShot, FlyingDeathwing, AcidSpray, LightningBolt, FireBall)
 AREA_ANIMS = (
     BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim)
 

@@ -317,6 +317,8 @@ class FinalBattle(Plot):
                 self._switch_teams(camp, defector)
                 camp.egg.dramatis_personae.add(defector)
 
+            camp.scene.update_party_position(camp)
+
             self.combat_intro_ready = False
 
     def t_ENDCOMBAT(self, camp: gears.GearHeadCampaign):

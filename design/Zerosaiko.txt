@@ -135,7 +135,7 @@ Mecha
             SUB
                 Armor
                     size = 6
-                HoverJets
+                ArcJets
                     size = 5
                     integral = True
             END
@@ -145,7 +145,7 @@ Mecha
             SUB
                 Armor
                     size = 6
-                HoverJets
+                ArcJets
                     size = 5
                     integral = True
             END

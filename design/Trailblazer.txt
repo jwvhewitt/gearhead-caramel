@@ -110,7 +110,7 @@ Mecha
                 Armor
                     size = 2
                     material = Advanced
-                HoverJets
+                FlightJets
                     size = 4
             END
         Leg
@@ -121,7 +121,7 @@ Mecha
                 Armor
                     size = 2
                     material = Advanced
-                HoverJets
+                FlightJets
                     size = 4
             END
     END

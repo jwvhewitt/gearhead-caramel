@@ -315,12 +315,14 @@ class Mover(KeyObject):
         # This cost will be adjusted for terrain and scale.
         if mmode is scenes.movement.Walking:
             speed = self.calc_walking()
-        elif mmode is gears.tags.Skimming:
+        elif mmode is tags.Skimming:
             speed = self.calc_skimming()
-        elif mmode is gears.tags.Rolling:
+        elif mmode is tags.Rolling:
             speed = self.calc_rolling()
         elif mmode is scenes.movement.Flying:
             speed = self.calc_flight()
+        elif mmode is tags.Jumping:
+            speed = (self.calc_flight() * 2) // 3
         else:
             return 0
         speed = self.apply_speed_bonus(speed)
@@ -3378,7 +3380,7 @@ class MT_Battroid(Singleton):
     PROTOTYPE_IMAGENAME = "mav_buruburu.png"
     PROTOTYPE_PORTRAIT = "mecha_buruburu.png"
 
-    LEGAL_MOVE_MODES = (scenes.movement.Walking, gears.tags.Rolling, gears.tags.Skimming, gears.tags.SpaceFlight)
+    LEGAL_MOVE_MODES = (scenes.movement.Walking, gears.tags.Rolling, gears.tags.Skimming, gears.tags.SpaceFlight, gears.tags.Jumping)
 
     @classmethod
     def is_legal_sub_com(self, part):

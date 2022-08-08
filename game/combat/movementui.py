@@ -4,6 +4,7 @@ import gears
 from gears import info
 from game import traildrawer
 import pygame
+from . import jumping
 
 
 class MovementWidget(pbge.widgets.Widget):
@@ -204,13 +205,11 @@ class MovementUI(object):
         self.selected_mmode = mover.mmode
 
         self.reachable_waypoints = dict()
+        self.jumpable_points = set()
         self.clock = clock
         pbge.my_state.widgets.append(self.my_widget)
 
-    def render(self):
-        pbge.my_state.view.overlays.clear()
-        pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, self.SC_ORIGIN)
-
+    def _render_normal_movemode(self):
         if self.mover.get_current_speed() <= 1:
             self.clock.set_ap_mp_costs()
         elif pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
@@ -241,6 +240,24 @@ class MovementUI(object):
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
             self.clock.set_ap_mp_costs()
 
+    def _render_jumping_movemode(self):
+        if pbge.my_state.view.mouse_tile in self.jumpable_points:
+            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_ENDCURSOR)
+            self.clock.set_ap_mp_costs(ap_to_spend=1)
+        else:
+            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
+            self.clock.set_ap_mp_costs()
+
+    def render(self):
+        pbge.my_state.view.overlays.clear()
+        pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, self.SC_ORIGIN)
+
+        # Drawing the path is different for jumping and everything else.
+        if self.selected_mmode is gears.tags.Jumping:
+            self._render_jumping_movemode()
+        else:
+            self._render_normal_movemode()
+
         pbge.my_state.view()
 
         # Display info for this tile.
@@ -252,29 +269,35 @@ class MovementUI(object):
 
     def change_movemode(self, new_mm):
         self.selected_mmode = new_mm
-        if new_mm is not self.mover.mmode:
-            self.camp.fight.cstat[self.mover].reset_movement()
         if new_mm is not gears.tags.Jumping:
+            if new_mm is not self.mover.mmode:
+                self.camp.fight.cstat[self.mover].reset_movement()
             self.mover.mmode = new_mm
         self.needs_tile_update = True
 
     def update_tiles(self):
-        # Step one: figure out which tiles can be reached from here.
-        if self.mover.get_current_speed() < 10:
-            self.mover.mmode = gears.tags.Crashed
-        self.origin = self.mover.pos
-        self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.origin, self.camp.fight.cstat[
-            self.mover].total_mp_remaining, self.mover.mmode, self.camp.scene.get_blocked_tiles())
+        if self.selected_mmode is gears.tags.Jumping:
+            self.origin = self.mover.pos
+            self.reachable_waypoints.clear()
+            self.jumpable_points = jumping.get_jump_points(self.camp, self.mover)
 
-        # Calculate the paths for the waypoints.
-        self.reachable_waypoints.clear()
-        for wp in self.camp.scene.contents:
-            if hasattr(wp, "combat_bump") and hasattr(wp, "pos") and self.camp.scene.on_the_map(*wp.pos):
-                path = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.mover.pos, wp.pos, self.mover.mmode)
-                if len(path.results) > 1 and path.results[-2] in self.nav.cost_to_tile:
-                    self.reachable_waypoints[wp.pos] = (wp, path.results[-2])
+        else:
+            # Step one: figure out which tiles can be reached from here.
+            if self.mover.get_current_speed() < 10:
+                self.mover.mmode = gears.tags.Crashed
+            self.origin = self.mover.pos
+            self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.origin, self.camp.fight.cstat[
+                self.mover].total_mp_remaining, self.mover.mmode, self.camp.scene.get_blocked_tiles())
 
-    def click_left(self, player_turn):
+            # Calculate the paths for the waypoints.
+            self.reachable_waypoints.clear()
+            for wp in self.camp.scene.contents:
+                if hasattr(wp, "combat_bump") and hasattr(wp, "pos") and self.camp.scene.on_the_map(*wp.pos):
+                    path = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.mover.pos, wp.pos, self.mover.mmode)
+                    if len(path.results) > 1 and path.results[-2] in self.nav.cost_to_tile:
+                        self.reachable_waypoints[wp.pos] = (wp, path.results[-2])
+
+    def _do_regular_movement(self, player_turn):
         if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
             # Move!
             dest = self.camp.fight.move_model_to(self.mover, self.nav, pbge.my_state.view.mouse_tile)
@@ -291,14 +314,33 @@ class MovementUI(object):
             if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
                 player_turn.switch_attack()
 
+    def _do_jump_movement(self, player_turn):
+        if pbge.my_state.view.mouse_tile in self.jumpable_points:
+            # Jump!
+            jumping.jump(self.camp, self.mover, pbge.my_state.view.mouse_tile)
+            self.needs_tile_update = True
+        else:
+            mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
+            if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
+                player_turn.switch_attack()
+
+    def click_left(self, player_turn):
+        if self.selected_mmode is gears.tags.Jumping:
+            self._do_jump_movement(player_turn)
+        else:
+            self._do_regular_movement(player_turn)
+
     def update(self, ev, player_turn):
         # We just got an event. Deal with it.
         if self.needs_tile_update:
             self.update_tiles()
             self.needs_tile_update = False
 
-        if self.camp.fight.cstat[self.mover].action_points < 1 and self.camp.fight.cstat[
-            self.mover].mp_remaining < self.nav.cheapest_move:
+        if (
+            self.camp.fight.cstat[self.mover].action_points < 1 and
+            self.selected_mmode is not gears.tags.Jumping and
+            self.camp.fight.cstat[self.mover].mp_remaining < self.nav.cheapest_move
+        ):
             self.camp.fight.cstat[self.mover].end_turn()
         elif ev.type == pbge.TIMEREVENT:
             self.render()
