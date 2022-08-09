@@ -21,6 +21,7 @@ from . import info
 from . import color
 from . import attackattributes
 from . import personality
+from . import pets
 from . import factions
 from . import tags
 from . import selector

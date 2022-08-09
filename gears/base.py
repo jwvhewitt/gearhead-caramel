@@ -4101,7 +4101,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
 
 class Monster(Being, MakesPower):
-    SAVE_PARAMETERS = ('threat', 'type_tags', 'families', 'environment_list', 'frame', 'actions')
+    SAVE_PARAMETERS = ('threat', 'type_tags', 'families', 'environment_list', 'frame', 'actions', 'pet_data')
     DEFAULT_MATERIAL = materials.Meat
 
     def __init__(self, threat=0, type_tags=(), families=(), frame=0, actions=2,
@@ -4113,6 +4113,7 @@ class Monster(Being, MakesPower):
         self.environment_list = set(environment_list)
         self.frame = frame
         self.actions = actions
+        self.pet_data = None
 
     @property
     def self_cost(self):

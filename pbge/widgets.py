@@ -566,6 +566,7 @@ class TextEntryWidget(Widget):
         self.on_left_at_zero = on_left_at_zero
         self.on_right_at_end = on_right_at_end
         self.on_backspace_at_zero = on_backspace_at_zero
+        self.text_input_on = False
 
     def get_text_rect(self, w, h, mydest):
         myrect = pygame.Rect(0,0,w,h)
@@ -594,6 +595,14 @@ class TextEntryWidget(Widget):
             if self.cursor_i > 0:
                 cursor_dest.left += self.font.size(self.text[:self.cursor_i])[0]
             self.input_cursor.render(cursor_dest, (my_state.anim_phase // 3) % 4)
+
+    def z_respond_event(self, ev):
+        if self.active and not self.text_input_on:
+            pygame.key.start_text_input()
+            pygame.key.set_text_input_rect(self.get_rect())
+        elif self.text_input_on and not self.active:
+            pygame.key.stop_text_input()
+        super().respond_event(ev)
 
     def _builtin_responder(self, ev):
         if my_state.active_widget is self:
