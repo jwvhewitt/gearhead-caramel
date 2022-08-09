@@ -57,7 +57,7 @@ class Widget(frects.Frect):
                     self.on_right_click(self, ev)
                     my_state.widget_clicked = True
             elif my_state.active_widget is self:
-                if self.on_click and (ev.type == pygame.KEYDOWN) and (ev.key in my_state.get_keys_for("click_widget")):
+                if self.on_click and (ev.type == pygame.KEYDOWN) and my_state.is_key_for_action(ev, "click_widget"):
                     self.on_click(self, ev)
                     my_state.widget_clicked = True
             if not my_state.widget_responded:
@@ -414,14 +414,14 @@ class ScrollColumnWidget(Widget):
             elif (ev.button == 5):
                 self.scroll_down()
         elif ((my_state.active_widget is self) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
-            if ev.key in my_state.get_keys_for("click_widget"):
+            if my_state.is_key_for_action(ev, "click_widget"):
                 if self.active_widget < len(self._interior_widgets):
                     mybutton = self._interior_widgets[self.active_widget]
                     mybutton.on_click(mybutton, ev)
                     my_state.widget_clicked = True
-            elif ev.key in my_state.get_keys_for("up") and self.active_widget > 0:
+            elif my_state.is_key_for_action(ev, "up") and self.active_widget > 0:
                 self.active_widget -= 1
-            elif ev.key in my_state.get_keys_for("down") and self.active_widget < (len(self._interior_widgets) - 1):
+            elif my_state.is_key_for_action(ev, "down") and self.active_widget < (len(self._interior_widgets) - 1):
                 self.active_widget += 1
 
     def render(self, flash=False):
@@ -598,7 +598,13 @@ class TextEntryWidget(Widget):
     def _builtin_responder(self, ev):
         if my_state.active_widget is self:
             if ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_BACKSPACE:
+                if (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
+                    self.char_list.insert(max(self.cursor_i, 0), ev.unicode)
+                    self.cursor_i += 1
+                    if self.on_change:
+                        self.on_change(self, ev)
+
+                elif my_state.is_key_for_action(ev, "backspace"):
                     if (len(self.char_list) > 0) and self.cursor_i > 0:
                         del self.char_list[self.cursor_i - 1]
                         self.cursor_i -= 1
@@ -606,17 +612,13 @@ class TextEntryWidget(Widget):
                             self.on_change(self, ev)
                     elif self.on_backspace_at_zero:
                         self.on_backspace_at_zero()
-                elif (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
-                    self.char_list.insert(max(self.cursor_i, 0), ev.unicode)
-                    self.cursor_i += 1
-                    if self.on_change:
-                        self.on_change(self, ev)
-                elif ev.key in my_state.get_keys_for("left"):
+
+                elif my_state.is_key_for_action(ev, "left"):
                     if self.cursor_i > 0:
                         self.cursor_i -= 1
                     elif self.on_left_at_zero:
                         self.on_left_at_zero()
-                elif ev.key in my_state.get_keys_for("right"):
+                elif my_state.is_key_for_action(ev, "right"):
                     if self.cursor_i < len(self.char_list):
                         self.cursor_i += 1
                     elif self.on_right_at_end:
@@ -781,13 +783,13 @@ class TextEditorPanel(ScrollColumnWidget):
             elif (ev.button == 5):
                 self.scroll_down()
         elif ((my_state.active_widget in self._interior_widgets) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
-            if ev.key in my_state.get_keys_for("up") and self.active_widget > 0:
+            if my_state.is_key_for_action(ev, "up") and self.active_widget > 0:
                 cursor_i = self._interior_widgets[self.active_widget].cursor_i
                 self.active_widget -= 1
                 self._interior_widgets[self.active_widget].cursor_i = min(cursor_i, len(
                     self._interior_widgets[self.active_widget].char_list))
                 my_state.active_widget = self._interior_widgets[self.active_widget]
-            elif ev.key in my_state.get_keys_for("down") and self.active_widget < (len(self._interior_widgets) - 1):
+            elif my_state.is_key_for_action(ev, "down") and self.active_widget < (len(self._interior_widgets) - 1):
                 cursor_i = self._interior_widgets[self.active_widget].cursor_i
                 self.active_widget += 1
                 self._interior_widgets[self.active_widget].cursor_i = min(cursor_i, len(

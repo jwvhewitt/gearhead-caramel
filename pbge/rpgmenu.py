@@ -207,22 +207,22 @@ class Menu( Frect ):
             elif pc_input.type == pygame.KEYDOWN:
                 # A key was pressed, oh happy day! See what key it was and act
                 # accordingly.
-                if pc_input.key == pygame.K_UP:
+                if my_state.is_key_for_action(pc_input, "up"):
                     self.selected_item -= 1
                     if self.selected_item < 0:
                         self.selected_item = len( self.items ) - 1
                     if self.selected_item not in self._item_rects:
                         self.top_item = min(self.selected_item,self._the_highest_top)
-                elif pc_input.key == pygame.K_DOWN:
+                elif my_state.is_key_for_action(pc_input, "down"):
                     self.selected_item += 1
                     if self.selected_item >= len( self.items ):
                         self.selected_item = 0
                     if self.selected_item not in self._item_rects:
                         self.top_item = min(self.selected_item,self._the_highest_top)
-                elif pc_input.key == pygame.K_SPACE or pc_input.key == pygame.K_RETURN:
+                elif my_state.is_key_for_action(pc_input, "select"):
                     choice = self.items[ self.selected_item ].value
                     no_choice_made = False
-                elif ( pc_input.key == pygame.K_ESCAPE or pc_input.key == pygame.K_BACKSPACE ) and not self.no_escape:
+                elif my_state.is_key_for_action(pc_input, "exit") and not self.no_escape:
                     no_choice_made = False
                 elif pc_input.key >= 0 and pc_input.key < 256 and chr( pc_input.key ) in self.quick_keys:
                     choice = self.quick_keys[ chr(pc_input.key) ]

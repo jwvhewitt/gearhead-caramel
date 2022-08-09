@@ -307,6 +307,10 @@ class PlayerTurn(object):
         pbge.util.config.set("HOTKEYS", mykey, option_string)
         pbge.BasicNotification("New hotkey set: {} = {}".format(mykey, option_string), count=200)
         # Export the new config options.
+        current_use = pbge.my_state.key_is_in_use(mykey)
+        if current_use:
+            pbge.alert("Warning: Key {} is currently in use by \"{}\". It can't be used as a hotkey unless you change your key configuration.".format(mykey, current_use))
+
         with open(pbge.util.user_dir("config.cfg"), "wt") as f:
             pbge.util.config.write(f)
 
@@ -460,7 +464,7 @@ class PlayerTurn(object):
                 if gdi.unicode.isalpha() and gdi.mod & pygame.KMOD_ALT:
                     # Record a hotkey.
                     self.record_hotkey(gdi.unicode)
-                elif gdi.unicode.isalpha() and pbge.util.config.has_option("HOTKEYS", gdi.unicode):
+                elif gdi.unicode.isalpha() and pbge.util.config.has_option("HOTKEYS", gdi.unicode) and not pbge.my_state.key_is_in_use(gdi.unicode):
                     self.find_this_option(pbge.util.config.get("HOTKEYS", gdi.unicode))
                 elif gdi.unicode == "Q":
                     keep_going = False

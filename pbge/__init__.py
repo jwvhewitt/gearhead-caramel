@@ -250,6 +250,28 @@ class GameState(object):
                     key_set.add(k)
         return key_set
 
+    def is_key_for_action(self, ev, action):
+        keys = util.config.get("KEYS", action)
+        for k in keys.split():
+            if k.startswith("K_"):
+                k = getattr(pygame, k, None)
+                if k and k == ev.key:
+                    return True
+            elif k == ev.unicode:
+                return True
+
+
+    def key_is_in_use(self, ukey):
+        for op in util.config.options("KEYS"):
+            keys = util.config.get("KEYS", op)
+            for k in keys.split():
+                if k.startswith("K_"):
+                    k = getattr(pygame, k, None)
+                    if k and pygame.key.name(k) == ukey:
+                        return op
+                elif k == ukey:
+                    return op
+
     def _get_all_kb_selectable_widgets(self, wlist):
         mylist = list()
         for w in wlist:
@@ -456,7 +478,7 @@ def wait_event():
     elif ev.type == pygame.KEYDOWN:
         if ev.key == pygame.K_PRINT:
             pygame.image.save(my_state.screen, util.user_dir("out.png"))
-        elif ev.key in my_state.get_keys_for("next_widget"):
+        elif my_state.is_key_for_action(ev, "next_widget"):
             my_state.active_widget_hilight = True
             my_state.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
     elif ev.type == pygame.VIDEORESIZE:

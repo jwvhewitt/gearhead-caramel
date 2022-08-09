@@ -226,6 +226,10 @@ class SceneView(object):
     def screen_coords(self, x, y):
         return (self.relative_x(x - 1, y - 1) + self.x_off, self.relative_y(x - 1, y - 1) + self.y_off)
 
+    def on_the_screen(self, x, y):
+        screen_area = my_state.screen.get_rect()
+        return screen_area.collidepoint(self.screen_coords(x,y))
+
     def map_x(self, sx, sy, x_off_override=None, y_off_override=None):
         x_off = x_off_override or self.x_off
         y_off = y_off_override or self.y_off

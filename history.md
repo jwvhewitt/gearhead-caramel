@@ -1,3 +1,7 @@
+v0.921 August 9 2022
+* Added auto_center_map_cursor config option
+* Combat hotkeys can't be used if the key has been assigned a system use
+
 v0.920 August 8 2022
 * AI will now jump as appropriate
 * Changed jet types for mecha that previously have had flight or arc jets: Haiho, Phoenix, Trailblazer, Zerosaiko

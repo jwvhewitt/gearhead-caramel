@@ -1,5 +1,5 @@
 import pygame
-from pbge import my_state
+from pbge import my_state, util
 
 class MapCursor(object):
     def __init__(self, x, y, image, frame=0, visible=True):
@@ -23,27 +23,35 @@ class MapCursor(object):
         elif ev.type == pygame.KEYDOWN:
             if ev.key in my_state.get_keys_for("cursor_up"):
                 self.set_position(view.scene, self.x-1, self.y-1)
-                view.focus(self.x, self.y)
+                if util.config.getboolean("GENERAL", "auto_center_map_cursor") or not view.on_the_screen(self.x,self.y):
+                    view.focus(self.x, self.y)
             elif ev.key in my_state.get_keys_for("cursor_upright"):
                 self.set_position(view.scene, self.x, self.y-1)
-                view.focus(self.x, self.y)
+                if util.config.getboolean("GENERAL", "auto_center_map_cursor") or not view.on_the_screen(self.x,self.y):
+                    view.focus(self.x, self.y)
             elif ev.key in my_state.get_keys_for("cursor_right"):
                 self.set_position(view.scene, self.x+1, self.y-1)
-                view.focus(self.x, self.y)
+                if util.config.getboolean("GENERAL", "auto_center_map_cursor") or not view.on_the_screen(self.x,self.y):
+                    view.focus(self.x, self.y)
             elif ev.key in my_state.get_keys_for("cursor_downright"):
                 self.set_position(view.scene, self.x+1, self.y)
-                view.focus(self.x, self.y)
+                if util.config.getboolean("GENERAL", "auto_center_map_cursor") or not view.on_the_screen(self.x,self.y):
+                    view.focus(self.x, self.y)
             elif ev.key in my_state.get_keys_for("cursor_down"):
                 self.set_position(view.scene, self.x+1, self.y+1)
-                view.focus(self.x, self.y)
+                if util.config.getboolean("GENERAL", "auto_center_map_cursor") or not view.on_the_screen(self.x,self.y):
+                    view.focus(self.x, self.y)
             elif ev.key in my_state.get_keys_for("cursor_downleft"):
                 self.set_position(view.scene, self.x, self.y+1)
-                view.focus(self.x, self.y)
+                if util.config.getboolean("GENERAL", "auto_center_map_cursor") or not view.on_the_screen(self.x,self.y):
+                    view.focus(self.x, self.y)
             elif ev.key in my_state.get_keys_for("cursor_left"):
                 self.set_position(view.scene, self.x-1, self.y+1)
-                view.focus(self.x, self.y)
+                if util.config.getboolean("GENERAL", "auto_center_map_cursor") or not view.on_the_screen(self.x,self.y):
+                    view.focus(self.x, self.y)
             elif ev.key in my_state.get_keys_for("cursor_upleft"):
                 self.set_position(view.scene, self.x-1, self.y)
-                view.focus(self.x, self.y)
+                if util.config.getboolean("GENERAL", "auto_center_map_cursor") or not view.on_the_screen(self.x,self.y):
+                    view.focus(self.x, self.y)
 
 

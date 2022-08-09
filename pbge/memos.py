@@ -81,11 +81,11 @@ class MemoBrowser(widgets.Widget):
     def _builtin_responder(self, ev):
         # gdi is a pygame event.
         if ev.type == pygame.KEYDOWN:
-            if ev.key in my_state.get_keys_for("left"):
+            if my_state.is_key_for_action(ev, "left"):
                 self.prev_memo()
-            elif ev.key in my_state.get_keys_for("right"):
+            elif my_state.is_key_for_action(ev, "right"):
                 self.next_memo()
-            elif ev.key == pygame.K_ESCAPE:
+            elif my_state.is_key_for_action(ev, "exit"):
                 self.keep_browsing = False
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 3:
             self.keep_browsing = False
