@@ -260,6 +260,9 @@ class AutoJoiner(object):
         """
         self.npc = npc
 
+    def _get_pet_from_campdata(self, camp: gears.GearHeadCampaign):
+        return camp.campdata.get(("PET", self.npc))
+
     def __call__(self, camp):
         """
         Add the NPC to the party, including any mecha or pets.
@@ -272,6 +275,11 @@ class AutoJoiner(object):
             camp.assign_pilot_to_mecha(self.npc, mek)
             for part in mek.get_all_parts():
                 part.owner = self.npc
+            pet = self._get_pet_from_campdata(camp)
+            if pet:
+                camp.party.append(pet)
+                if camp.scene and pet not in camp.scene.contents and pet.scale is camp.scene.scale and self.npc in camp.scene and self.npc.pos:
+                    camp.scene.place_gears_near_spot(*self.npc.pos, camp.scene.player_team, pet)
 
     @staticmethod
     def get_mecha_for_character(npc, choose_new_one=False):
@@ -303,6 +311,9 @@ class AutoLeaver(object):
         """
         self.npc = npc
 
+    def _save_pet_to_campdata(self, camp: gears.GearHeadCampaign, pet):
+        camp.campdata[("PET", self.npc)] = pet
+
     def __call__(self, camp):
         """
         Remove the NPC from the party, including any mecha or pets.
@@ -314,6 +325,12 @@ class AutoLeaver(object):
             for mek in list(camp.party):
                 if hasattr(mek, "owner") and mek.owner is self.npc:
                     camp.party.remove(mek)
+                elif isinstance(mek, gears.base.Monster) and mek.pet_data and mek.pet_data.trainer is self.npc:
+                    camp.party.remove(mek)
+                    self._save_pet_to_campdata(camp, mek)
+                    if mek in camp.scene:
+                        camp.scene.remove(mek)
+
             # for mek in list(camp.incapacitated_party):
             #    if hasattr(mek,"owner") and mek.owner is self.npc:
             #        camp.incapacitated_party.remove(mek)

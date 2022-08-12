@@ -220,16 +220,13 @@ class BoringDeathNotification( Plot ):
     active = False
     def start_recovery(self,camp):
         dead_names = [str(npc) for npc in camp.dead_party]
-        if len(camp.dead_party) > 2:
-            msg = ', '.join(dead_names[:-2]) + ', and ' + dead_names[-1]
-        elif len(camp.dead_party) > 1:
-            msg = ' and '.join(dead_names)
-        else:
-            msg = dead_names[0]
+        msg = pbge.dialogue.list_nouns(dead_names)
         pbge.alert('{} did not survive the last mission.'.format(msg))
         for npc in camp.dead_party:
             for pc in list(camp.party):
                 if hasattr(pc,"owner") and pc.owner is npc:
+                    camp.party.remove(pc)
+                elif hasattr(pc,"pet_data") and pc.pet_data and pc.pet_data.handler is npc:
                     camp.party.remove(pc)
                 if hasattr(pc,"pilot") and pc.pilot is npc:
                     pc.pilot = None

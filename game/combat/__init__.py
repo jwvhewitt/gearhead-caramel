@@ -639,7 +639,7 @@ class Combat(object):
                     current_ai = random.choice(alt_ais)
                     if current_ai in ALT_AIS:
                         ALT_AIS[current_ai](chara, self.camp)
-        if chara in self.camp.party and chara.is_operational():
+        if chara in self.camp.party and chara.is_operational() and not (isinstance(chara, gears.base.Monster) and not pbge.util.config.getboolean("DIFFICULTY", "directly_control_pets")):
             # Outsource the turn-taking.
             my_turn = PlayerTurn(chara, self.camp)
             my_turn.go()

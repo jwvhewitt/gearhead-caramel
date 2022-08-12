@@ -1,3 +1,9 @@
+* Pets will attempt to follow their trainer during exploration
+* Added pets_can_die, directly_control_pets config options
+* Changed restore to restore_all in Bear Bastard's Mecha Camp and Winter Mocha
+* Text input widget now uses TextInput event
+* Lancemates bring their pets with them when they join/leave the party
+
 v0.921 August 9 2022
 * Added auto_center_map_cursor config option
 * Combat hotkeys can't be used if the key has been assigned a system use

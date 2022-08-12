@@ -150,16 +150,25 @@ class MoveTo(object):
         else:
             first = True
             keep_going = True
+            f_pos = self.party[0].pos
             for pc in self.party:
                 if pc.is_operational() and exp.scene.on_the_map(*pc.pos):
                     if first:
                         keep_going = self.move_pc(exp, pc, self.path.results[self.step], True)
                         f_pos = pc.pos
                         first = False
-                    else:
+                    elif not isinstance(pc, gears.base.Monster):
                         path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp))
                         for t in range(min(3, len(path.results) - 1)):
                             self.move_pc(exp, pc, path.results[t + 1])
+
+            for pc in self.party:
+                if isinstance(pc, gears.base.Monster) and pc.pet_data and pc.pet_data.trainer in self.party:
+                    path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, pc.pet_data.trainer.pos,
+                                                        self._get_party_mmode(exp),
+                                                        blocked_tiles=exp.scene.get_blocked_tiles())
+                    for t in range(min(3, len(path.results) - 1)):
+                        self.move_pc(exp, pc, path.results[t + 1])
 
             # Now that all of the pcs have moved, check the tiles_in_sight for
             # hidden models.
@@ -694,6 +703,12 @@ class Explorer(object):
                         for thing in self.camp.all_contents(self.camp):
                             if isinstance(thing, gears.base.Character):
                                 print("{}: {}/{}".format(thing, thing.faction, thing.scene.get_root_scene()))
+
+                    elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        mypet = gears.selector.get_design_by_full_name("Icky Slime")
+                        mypet.pet_data = gears.pets.PetData(self.camp.pc)
+                        self.camp.party.append(mypet)
+                        self.scene.place_gears_near_spot(*self.camp.pc.pos, self.scene.player_team, mypet)
 
                     elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.active_plots():

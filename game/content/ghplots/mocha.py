@@ -584,7 +584,7 @@ class WinterMochaChaletForEnding(Plot):
 
     def _end_the_game(self, camp: gears.GearHeadCampaign):
         for pc in camp.party:
-            pc.restore()
+            pc.restore_all()
         camp.eject()
 
     def start_victory(self, camp: gears.GearHeadCampaign):

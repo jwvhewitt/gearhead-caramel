@@ -599,21 +599,21 @@ class TextEntryWidget(Widget):
     def z_respond_event(self, ev):
         if self.active and not self.text_input_on:
             pygame.key.start_text_input()
-            pygame.key.set_text_input_rect(self.get_rect())
+            #pygame.key.set_text_input_rect(self.get_rect())
         elif self.text_input_on and not self.active:
             pygame.key.stop_text_input()
         super().respond_event(ev)
 
     def _builtin_responder(self, ev):
         if my_state.active_widget is self:
-            if ev.type == pygame.KEYDOWN:
-                if (ev.unicode in self.ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
-                    self.char_list.insert(max(self.cursor_i, 0), ev.unicode)
-                    self.cursor_i += 1
+            if ev.type == pygame.TEXTINPUT:
+                if len(ev.text) > 0:
+                    self.char_list.insert(max(self.cursor_i, 0), ev.text)
+                    self.cursor_i += len(ev.text)
                     if self.on_change:
                         self.on_change(self, ev)
-
-                elif my_state.is_key_for_action(ev, "backspace"):
+            elif ev.type == pygame.KEYDOWN:
+                if my_state.is_key_for_action(ev, "backspace"):
                     if (len(self.char_list) > 0) and self.cursor_i > 0:
                         del self.char_list[self.cursor_i - 1]
                         self.cursor_i -= 1

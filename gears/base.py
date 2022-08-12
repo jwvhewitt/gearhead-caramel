@@ -4105,7 +4105,7 @@ class Monster(Being, MakesPower):
     DEFAULT_MATERIAL = materials.Meat
 
     def __init__(self, threat=0, type_tags=(), families=(), frame=0, actions=2,
-                 environment_list=(tags.GroundEnv, tags.UrbanEnv), **keywords):
+                 environment_list=(tags.GroundEnv, tags.UrbanEnv), pet_data=None, **keywords):
         super().__init__(**keywords)
         self.threat = threat
         self.type_tags = set(type_tags)
@@ -4113,7 +4113,7 @@ class Monster(Being, MakesPower):
         self.environment_list = set(environment_list)
         self.frame = frame
         self.actions = actions
-        self.pet_data = None
+        self.pet_data = pet_data
 
     @property
     def self_cost(self):

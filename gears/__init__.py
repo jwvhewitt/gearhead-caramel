@@ -656,6 +656,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 if isinstance(pc, base.Character):
                     if pc not in self.egg.dramatis_personae:
                         self.egg.dramatis_personae.add(pc)
+                elif isinstance(pc, base.Monster):
+                    if pc.pet_data and pc.pet_data.trainer is self.pc:
+                        self.egg.stuff.append(pc)
                 elif pc not in self.egg.stuff and not hasattr(pc, "owner"):
                     self.egg.stuff.append(pc)
                     if hasattr(pc, "pilot"):
@@ -673,7 +676,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                                 pc is self.pc or (hasattr(pc, "pilot") and pc.pilot is self.pc)]
         for pc in party_candidates:
             if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc, (
-                    base.Character, base.Mecha)) and gears.tags.model_matches_environment(pc, enviro):
+                    base.Character, base.Mecha, base.Monster)) and gears.tags.model_matches_environment(pc, enviro):
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational() and pc.check_design():
                         if not just_checking:
@@ -734,12 +737,29 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     else:
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
-                elif isinstance(pc, base.Being):
-                    if pbge.util.config.getboolean("DIFFICULTY", "lancemates_can_die") and random.randint(1,
-                                                                                                          100) > skill:
-                        self.dead_party.append(pc)
+
+                elif isinstance(pc, base.Monster):
+                    if pbge.util.config.getboolean("DIFFICULTY", "pets_can_die") and random.randint(1, 100) > skill:
                         if announce_character_state:
                             pbge.alert("{} has died.".format(pc))
+                    else:
+                        self.incapacitated_party.append(pc)
+                        pc.restore_all()
+                        if announce_character_state:
+                            pbge.alert("{} has been severely injured and is removed to a safe place.".format(pc))
+
+                elif isinstance(pc, base.Character):
+                    if pbge.util.config.getboolean("DIFFICULTY", "lancemates_can_die") and random.randint(1,
+                                                                                                          100) > skill:
+                        if pc.mnpcid:
+                            self.freeze(pc)
+                            pc.restore_all()
+                            if announce_character_state:
+                                pbge.alert("{} has been severely injured and will need a long time to recover.".format(pc))
+                        else:
+                            self.dead_party.append(pc)
+                            if announce_character_state:
+                                pbge.alert("{} has died.".format(pc))
                     else:
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
@@ -982,7 +1002,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if mynpc not in self.egg.dramatis_personae:
                 self.egg.dramatis_personae.add(mynpc)
             self.uniques.add(mynpc)
-            return mynpc
+        return mynpc
 
 
 class GearHeadArchitecture(pbge.randmaps.architect.Architecture):

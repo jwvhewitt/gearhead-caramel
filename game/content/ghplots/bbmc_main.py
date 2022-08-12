@@ -351,7 +351,7 @@ class FinalBattle(Plot):
             for mek in self.temp_mecha:
                 if mek in camp.party:
                     camp.party.remove(mek)
-            camp.pc.restore()
+            camp.pc.restore_all()
             camp.dole_xp(300)
 
             camp.check_trigger("WIN", self)
@@ -442,7 +442,7 @@ class TheCabinInTheDeadzone(Plot):
         return True
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
-        camp.pc.restore()
+        camp.pc.restore_all()
         if self.intro_ready:
             camp.scene.place_gears_near_spot(*self.elements["ENTRANCE"].pos, self.elements["LOCALE"].civilian_team,
                                              self.elements["BEARBASTARD"])
@@ -731,7 +731,7 @@ class BCamMouse(Plot):
             if len(myteam.get_members_in_play(camp)) < 1:
                 self.dealt_with_mouse = True
             elif not camp.pc.is_operational():
-                camp.pc.restore()
+                camp.pc.restore_all()
                 camp.check_trigger("LOSE", self)
 
 
@@ -1020,7 +1020,7 @@ class SceneTwo(Plot):
             self.mymover(camp)
             camp.assign_pilot_to_mecha(camp.pc, self.original_pc_mek)
             camp.party.remove(self.practice_mek)
-            camp.pc.restore()
+            camp.pc.restore_all()
             camp.dole_xp(200)
 
             camp.check_trigger("WIN", self)
