@@ -1,3 +1,6 @@
+v0.922 August 13 2022
+* Fixed a bug in one of the lancemate plots
+
 * WASD may now be used to scroll the map
 * Default combat hotkeys changed to 1,2,3,4,5
 * Refactored the map viewer to deal with tile-based focus and wrapping maps

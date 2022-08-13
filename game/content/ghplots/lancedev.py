@@ -1107,7 +1107,7 @@ class DDLD_ProfessionalColleague(LMMissionPlot):
         self.elements["ENEMY_FACTION"] = enemy_npc.faction
         self.prep_mission(nart.camp)
         self.started_convo = False
-        return nart.camp.are_faction_enemies()
+        return not nart.camp.are_faction_allies(enemy_npc, npc)
 
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
