@@ -1,3 +1,6 @@
+v0.922 August 13 2022
+* Fixed a bug in one of the lancemate plots
+
 v0.921 August 9 2022
 * Added auto_center_map_cursor config option
 * Combat hotkeys can't be used if the key has been assigned a system use
