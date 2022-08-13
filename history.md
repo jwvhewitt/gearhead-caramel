@@ -1,3 +1,6 @@
+* WASD may now be used to scroll the map
+* Default combat hotkeys changed to 1,2,3,4,5
+* Refactored the map viewer to deal with tile-based focus and wrapping maps
 * Pets will attempt to follow their trainer during exploration
 * Added pets_can_die, directly_control_pets config options
 * Changed restore to restore_all in Bear Bastard's Mecha Camp and Winter Mocha

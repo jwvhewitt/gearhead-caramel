@@ -245,22 +245,21 @@ class VisibleGear(pbge.scenes.PlaceableThing):
         if self.destroyed_pose and not self.never_show_die:
             self.render_destroyed(foot_pos, view)
         else:
-            self.render_shadow(foot_pos, view)
+            self.render_shadow(view)
             if not self.hidden:
                 self.render_visible(foot_pos, view)
 
-    def render_shadow(self, foot_pos, view):
+    def render_shadow(self, view: pbge.scenes.viewer.SceneView):
         spr = view.get_named_sprite('sys_shadow.png', transparent=50)
-        mydest = spr.get_rect(0)
-        x, y = self.pos
-        mydest.topleft = (view.relative_x(x, y) + view.x_off,
-                          view.relative_y(x, y) + view.y_off - view.scene.tile_altitude(x, y))
-        spr.render(mydest, 0)
+        shadow_pos = spr.get_rect(0)
+        shadow_pos.midbottom = view.foot_coords(*self.pos)
+        shadow_pos.y += 16 - view.scene.tile_altitude(*self.pos)
+        spr.render(shadow_pos, 0)
 
     def render_destroyed(self, foot_pos, view):
         spr = view.get_named_sprite('sys_destroyed.png')
         mydest = spr.get_rect(0)
-        mydest.midbottom = foot_pos
+        mydest.midbottom = foot_pos.midbottom
         mydest.top += 8
         spr.render(mydest, self.DESTROYED_FRAME)
 
@@ -4382,9 +4381,8 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
 
     def render(self, foot_pos, view):
         spr = view.get_sprite(self)
-        mydest = spr.get_rect(self.frame)
-        mydest.midbottom = foot_pos
-        mydest.top += view.HTH
+        mydest = foot_pos.copy()
+        mydest.y += view.HTH - 1
         if self.destroyed_pose:
             spr.render(mydest, self.destroyed_frame)
         else:

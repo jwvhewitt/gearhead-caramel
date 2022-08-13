@@ -5,6 +5,7 @@ from .. import util, image
 import pygame
 from . import waypoints, terrain
 import random
+import math
 
 OVERLAY_ITEM = 0
 OVERLAY_CURSOR = 1
@@ -35,11 +36,10 @@ class TextTicker(object):
 
     def tick(self, view, x, y):
         self.counter += 1
-        x += 32
-        y -= self.counter - self.dy_off - 32
+        y -= self.counter - self.dy_off + 48
         for img in self.text_images[:4]:
             if img:
-                mydest = img.get_rect(center=(x, y))
+                mydest = img.get_rect(midbottom=(x, y))
                 my_state.screen.blit(img, mydest)
             y += my_state.anim_font.get_linesize()
         if self.counter >= self.height:
@@ -74,8 +74,8 @@ class SceneView(object):
             self.randoms.append(random.randint(1, 10000))
 
         self.scene = scene
-        self.x_off = 600
-        self.y_off = -200
+        self._focus_x = 0
+        self._focus_y = 0
         self.phase = 0
 
         # _mouse_tile contains the actual tile the mouse is hovering over. However, in most cases what we really want
@@ -210,6 +210,7 @@ class SceneView(object):
                 break
         return found_space
 
+    TILE_HEIGHT = 64
     TILE_WIDTH = 64
     # Half tile width and half tile height
     HTW = 32
@@ -217,46 +218,77 @@ class SceneView(object):
 
     def relative_x(self, x, y):
         """Return the relative x position of this tile, ignoring offset."""
-        return (x * self.HTW) - (y * self.HTW)
+        return int((x * float(self.HTW)) - (y * float(self.HTW)))
 
     def relative_y(self, x, y):
         """Return the relative y position of this tile, ignoring offset."""
-        return (y * self.HTH) + (x * self.HTH)
+        return int(y * float(self.HTH) + x * float(self.HTH))
 
-    def screen_coords(self, x, y):
-        return (self.relative_x(x - 1, y - 1) + self.x_off, self.relative_y(x - 1, y - 1) + self.y_off)
+    def screen_coords(self, x, y, extra_x_offset=0, extra_y_offset=0):
+        # Should point to the upper (northwest) corner of an isometric tile.
+        x_off, y_off = self.screen_offset()
+        return (self.relative_x(x, y) + x_off + extra_x_offset,
+                self.relative_y(x, y) + y_off + extra_y_offset)
+
+    def foot_coords(self, x, y):
+        # Models get moved down by half tile height so they appear in the center of a tile.
+        return self.screen_coords(x, y, extra_y_offset=self.HTH)
 
     def on_the_screen(self, x, y):
         screen_area = my_state.screen.get_rect()
-        return screen_area.collidepoint(self.screen_coords(x,y))
+        return screen_area.collidepoint(self.screen_coords(x, y))
 
-    def map_x(self, sx, sy, x_off_override=None, y_off_override=None):
-        x_off = x_off_override or self.x_off
-        y_off = y_off_override or self.y_off
-        """Return the map x column for the given screen coordinates."""
-        return int(float(sx - x_off) / self.HTW + float(sy - y_off) / self.HTH - 1) // 2 - 1
+    def screen_offset(self):
+        return (my_state.screen.get_width() // 2 - self.relative_x(self._focus_x, self._focus_y),
+                my_state.screen.get_height() // 2 - self.relative_y(self._focus_x, self._focus_y) + self.HTH)
 
-    def map_y(self, sx, sy, x_off_override=None, y_off_override=None):
+    def map_x(self, sx, sy, return_int=True):
+        """Return the map x row for the given screen coordinates."""
+        x_off, y_off = self.screen_offset()
+
+        # We're going to use the relative coordinates of the tiles instead of the screen coordinates.
+        rx = sx - x_off
+        ry = sy - y_off
+
+        # Calculate the x position of map_x tile 0 at ry.
+        ox = float(-ry * self.HTW) / float(self.HTH)
+
+        # Now that we have that x origin, we can determine this screen position's x coordinate by dividing by the
+        # tile width. Fantastic.
+        if return_int:
+            # Because of the way Python handles division, we need to apply a little nudge right here.
+            if rx - ox < 0:
+                ox += self.HTW * 2
+            return int(math.floor((rx - ox) / (self.HTW * 2)))
+        else:
+            return (rx - ox) / (self.HTW * 2)
+
+    def map_y(self, sx, sy, return_int=True):
         """Return the map y row for the given screen coordinates."""
-        x_off = x_off_override or self.x_off
-        y_off = y_off_override or self.y_off
-        return int(float(sy - y_off) / self.HTH - float(sx - x_off) / self.HTW - 1) // 2
+        x_off, y_off = self.screen_offset()
+
+        # We're going to use the relative coordinates of the tiles instead of the screen coordinates.
+        rx = sx - x_off
+        ry = sy - y_off
+
+        oy = float(rx * self.HTH) / float(self.HTW)
+
+        # Now that we have that x origin, we can determine this screen position's x coordinate by dividing by the
+        # tile width. Fantastic.
+        if return_int:
+            # Because of the way Python handles division, we need to apply a little nudge right here.
+            if ry - oy < 0:
+                oy += self.HTH * 2
+            return int(math.floor((ry - oy) / (self.HTH * 2)))
+        else:
+            return (ry - oy) / (self.HTH * 2)
 
     def check_origin(self):
         """Make sure the offset point is within map boundaries."""
-        if -self.x_off < self.relative_x(0, self.scene.height - 1):
-            self.x_off = -self.relative_x(0, self.scene.height - 1)
-        elif -self.x_off > self.relative_x(self.scene.width - 1, 0):
-            self.x_off = -self.relative_x(self.scene.width - 1, 0)
-        if -self.y_off < self.relative_y(0, 0):
-            self.y_off = -self.relative_y(0, 0)
-        elif -self.y_off > self.relative_y(self.scene.width - 1, self.scene.height - 1):
-            self.y_off = -self.relative_y(self.scene.width - 1, self.scene.height - 1)
+        self._focus_x, self._focus_y = self.scene.clamp_pos((self._focus_x, self._focus_y))
 
     def focus(self, x, y):
-        self.x_off = my_state.screen.get_width() // 2 - self.relative_x(x, y)
-        self.y_off = my_state.screen.get_height() // 2 - self.relative_y(x, y)
-        self.check_origin()
+        self._focus_x, self._focus_y = self.scene.clamp_pos((x, y))
 
     def regenerate_avatars(self, models):
         """Regenerate the avatars for the listed models."""
@@ -269,20 +301,6 @@ class SceneView(object):
         myfill = pygame.Rect(mydest.x - 2, mydest.y - 1, mydest.width + 4, mydest.height + 2)
         my_state.screen.fill((36, 37, 36), myfill)
         my_state.screen.blit(myimage, mydest)
-
-    def next_tile(self, x0, y0, x, y, line, sx, sy, screen_area):
-        """Locate the next map tile, moving left to right across the screen. """
-        keep_going = True
-        if (sx + self.TILE_WIDTH) > (screen_area.x + screen_area.w):
-            if (sy + self.HTH) > (screen_area.y + screen_area.h):
-                keep_going = False
-            x = x0 + line // 2
-            y = y0 + (line + 1) // 2
-            line += 1
-        else:
-            x += 1
-            y -= 1
-        return x, y, line, keep_going
 
     def handle_anim_sequence(self, record_anim=False):
         # Disable widgets while animation playing.
@@ -346,28 +364,32 @@ class SceneView(object):
         my_state.screen.fill((0, 0, 0), namedest.inflate(2, 2))
         my_state.screen.blit(myname, namedest)
 
+    CAMERA_MOVES = (
+        (-0.5,0), (-0.25,-0.25), (0,-0.5),
+        (-0.25,0.25), (0,0), (0.25,-0.25),
+        (0,0.5), (0.25,0.25), (0.5,0)
+    )
+
+    SCROLL_AREA = 15
+
     def update_camera(self, screen_area, mouse_x, mouse_y):
         # Check for map scrolling, depending on mouse position.
-        if mouse_x < 20:
-            nu_x_off = self.x_off + SCROLL_STEP
-        elif mouse_x > (screen_area.right - 20):
-            nu_x_off = self.x_off - SCROLL_STEP
+        if mouse_x < self.SCROLL_AREA:
+            dx = 0
+        elif mouse_x > (screen_area.right - self.SCROLL_AREA):
+            dx = 2
         else:
-            nu_x_off = self.x_off
+            dx = 1
 
-        if mouse_y < 20:
-            nu_y_off = self.y_off + SCROLL_STEP
-        elif mouse_y > (screen_area.bottom - 20):
-            nu_y_off = self.y_off - SCROLL_STEP
+        if mouse_y < self.SCROLL_AREA:
+            dy = 0
+        elif mouse_y > (screen_area.bottom - self.SCROLL_AREA):
+            dy = 2
         else:
-            nu_y_off = self.y_off
+            dy = 1
 
-        mx = self.map_x(screen_area.w // 2 + self.HTW, screen_area.h // 2 + self.HTH*3, nu_x_off, nu_y_off)
-        my = self.map_y(screen_area.w // 2 + self.HTW, screen_area.h // 2 + self.HTH*3, nu_x_off, nu_y_off)
-
-        if self.scene.on_the_map(mx, my):
-            self.x_off = nu_x_off
-            self.y_off = nu_y_off
+        nux, nuy =  self.CAMERA_MOVES[dx + dy * 3]
+        self.focus(float(self._focus_x) + nux, float(self._focus_y) + nuy)
 
     def get_floor_borders(self, x0, y0, center_floor):
         # Return a list of floor terrain with borders to draw on this tile, in order of border_priority
@@ -379,11 +401,39 @@ class SceneView(object):
         my_bordered_floors.sort(key=lambda f: f.border_priority)
         return my_bordered_floors
 
+    def _get_horizontal_line(self, x0, y0, line_number, visible_area):
+        mylist = list()
+        x = x0 + line_number // 2
+        y = y0 + (line_number + 1) // 2
+
+        if self.screen_coords(x, y)[1] > visible_area.bottom:
+            return None
+
+        while self.screen_coords(x, y)[0] < visible_area.right:
+            if self.scene.on_the_map(x, y):
+                mylist.append((x, y))
+            x += 1
+            y -= 1
+        return mylist
+
+    def _get_visible_area(self):
+        # The visible area describes the region of the map we need to draw.
+        # It is bigger than the physical screen
+        # because we probably have to draw cells that are not fully on the map.
+        visible_area = my_state.screen.get_rect()
+
+        # - temp disabled inflate op. (web ctx issues)20
+        visible_area.inflate_ip(self.HTW * 2, self.HTH * 2)
+        visible_area.h += self.HTH * 2
+
+        return visible_area
+
     def __call__(self):
         """Draws this mapview to the provided screen."""
         screen_area = my_state.screen.get_rect()
         mouse_x, mouse_y = my_state.mouse_pos
         my_state.screen.fill((0, 0, 0))
+        visible_area = self._get_visible_area()
 
         # Check for map scrolling, depending on mouse position.
         self.update_camera(screen_area, mouse_x, mouse_y)
@@ -391,8 +441,7 @@ class SceneView(object):
         x, y = self.map_x(0, 0) - 2, self.map_y(0, 0) - 1
         x0, y0 = x, y
         keep_going = True
-        dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
-        line = 1
+        line_number = 1
 
         # Record all of the scene contents for display when their tile comes up.
         self.modelmap.clear()
@@ -415,6 +464,7 @@ class SceneView(object):
                 self.waypointmap[m.pos].append(m)
 
         show_names = util.config.getboolean("GENERAL", "names_above_heads")
+        line_cache = list()
 
         while keep_going:
             # In order to allow smooth sub-tile movement of stuff, we have
@@ -425,135 +475,109 @@ class SceneView(object):
             # and walls. It's completely nuts! But this is the kind of thing
             # you need to do if you don't have a Z-Buffer. Kinda makes me want
             # to reconsider that resolution to never again use OpenGL.
-            sx = self.relative_x(x, y) + self.x_off
-            sy = self.relative_y(x, y) + self.y_off
-            dest.topleft = (sx, sy)
+            nuline = self._get_horizontal_line(x0, y0, line_number, visible_area)
+            line_cache.append(nuline)
+            current_line = len(line_cache) - 1
 
-            if self.scene.on_the_map(x, y) and self.scene._map[x][y].visible:
-                self.scene._map[x][y].render_bottom(dest, self, x, y)
+            if line_cache[current_line]:
+                for x, y in line_cache[current_line]:
+                    if self.scene.get_visible(x, y):
+                        dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
+                        mpos = self.screen_coords(x, y)
+                        dest.center = mpos
 
-                mlist = self.undermap.get((x, y))
-                if mlist:
-                    if len(mlist) > 1:
-                        mlist.sort(key=self.model_depth)
-                    for m in mlist:
-                        mx, my = m.pos
-                        y_alt = self.scene.model_altitude(m, x, y)
-                        m.render((self.relative_x(mx, my) + self.x_off + self.HTW,
-                                  self.relative_y(mx, my) + self.y_off + self.TILE_WIDTH - self.HTH - y_alt), self)
-                        if show_names:
-                            self.show_model_name(
-                                m, self.relative_x(mx, my) + self.x_off + self.HTW,
-                                   self.relative_y(mx, my) + self.y_off + self.TILE_WIDTH - self.HTH - y_alt
-                            )
+                        self.scene._map[x][y].render_bottom(dest, self, x, y)
 
-                self.scene._map[x][y].render_biddle(dest, self, x, y)
+                        mlist = self.undermap.get((x, y))
+                        if mlist:
+                            if len(mlist) > 1:
+                                mlist.sort(key=self.model_depth)
+                            for m in mlist:
+                                mx, my = m.pos
+                                footpos = self.foot_coords(mx, my)
+                                y_alt = self.scene.model_altitude(m, x, y)
+                                mdest = pygame.Rect(0, 0, m.imagewidth, m.imageheight)
+                                mdest.midbottom = footpos
+                                mdest.y -= y_alt
+                                m.render(mdest, self)
+                                if show_names:
+                                    self.show_model_name(m, mdest.centerx, mdest.top)
 
-                # Draw any floor borders at this point.
-                myfloor = self.scene.get_floor(x, y)
-                if myfloor:
-                    borders = self.get_floor_borders(x, y, myfloor)
-                    for b in borders:
-                        b.border.render(dest, self, x, y)
+                        self.scene._map[x][y].render_biddle(dest, self, x, y)
 
-            # We don't print the model in this tile yet- we print the one in
-            # the tile above it.
-            if self.scene.on_the_map(x - 1, y - 1) and self.scene._map[x - 1][y - 1].visible:
-                dest.topleft = (self.relative_x(x - 1, y - 1) + self.x_off, self.relative_y(x - 1, y - 1) + self.y_off)
-                self.scene._map[x - 1][y - 1].render_middle(dest, self, x - 1, y - 1)
+                        self.scene._map[x][y].render_middle(dest, self, x, y)
 
-                if self.overlays.get((x - 1, y - 1), None):
-                    o_dest = dest.copy()
-                    if self.scene._map[x - 1][y - 1].altitude() > 0:
-                        o_dest.y -= self.scene._map[x - 1][y - 1].altitude()
-                    o_sprite, o_frame = self.overlays[(x - 1, y - 1)]
-                    o_sprite.render(o_dest, o_frame)
+                        # Draw any floor borders at this point.
+                        myfloor = self.scene.get_floor(x, y)
+                        if myfloor:
+                            borders = self.get_floor_borders(x, y, myfloor)
+                            for b in borders:
+                                b.border.render(dest, self, x, y)
 
-                if self.cursor and self.cursor.x == x - 1 and self.cursor.y == y - 1:
-                    c_dest = dest.copy()
-                    if self.scene._map[x - 1][y - 1].altitude() > 0:
-                        c_dest.y -= self.scene._map[x - 1][y - 1].altitude()
-                    self.cursor.render(c_dest)
+            if current_line > 1 and line_cache[current_line - 2]:
+                # After drawing the terrain last time, draw any objects in the previous cell.
+                for x, y in line_cache[current_line - 2]:
+                    if self.scene.get_visible(x,y):
+                        spos = self.screen_coords(x,y)
+                        dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
+                        dest.center = spos
+                        self.scene._map[x][y].render_top(dest, self, x, y)
 
-                mlist = self.uppermap.get((x - 1, y - 1))
-                if mlist:
-                    if len(mlist) > 1:
-                        mlist.sort(key=self.model_depth)
-                    for m in mlist:
-                        mx, my = m.pos
-                        y_alt = self.scene.model_altitude(m, x - 1, y - 1)
-                        m.render((self.relative_x(mx, my) + self.x_off + self.HTW,
-                                  self.relative_y(mx, my) + self.y_off + self.TILE_WIDTH - self.HTH - y_alt), self)
-                        if show_names:
-                            self.show_model_name(m, self.relative_x(mx, my) + self.x_off + self.HTW, self.relative_y(mx,
-                                                                                                                     my) + self.y_off + self.TILE_WIDTH - self.HTH - y_alt)
+            if current_line > 0 and line_cache[current_line - 1]:
+                # After drawing the terrain last time, draw any objects in the previous cell.
+                for x, y in line_cache[current_line - 1]:
+                    if self.scene.get_visible(x,y):
+                        spos = self.screen_coords(x,y)
+                        dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
+                        dest.center = spos
 
-                dest.topleft = (self.relative_x(x - 1, y - 1) + self.x_off, self.relative_y(x - 1, y - 1) + self.y_off)
-                self.scene._map[x - 1][y - 1].render_top(dest, self, x - 1, y - 1)
+                        if self.overlays.get((x, y), None):
+                            o_dest = dest.copy()
+                            if self.scene.tile_altitude(x,y) > 0:
+                                o_dest.y -= self.scene.tile_altitude(x,y)
+                            o_sprite, o_frame = self.overlays[(x, y)]
+                            o_sprite.render(o_dest, o_frame)
 
-                mlist = self.anims.get((x - 1, y - 1))
-                if mlist:
-                    if len(mlist) > 1:
-                        mlist.sort(key=self.model_depth)
-                    for m in mlist:
-                        mx, my = m.pos
-                        m.render((self.relative_x(mx, my) + self.x_off + self.HTW,
-                                  self.relative_y(mx, my) + self.y_off + self.TILE_WIDTH - self.HTH), self)
+                        if self.cursor and self.cursor.x == x and self.cursor.y == y:
+                            c_dest = dest.copy()
+                            if self.scene.tile_altitude(x,y) > 0:
+                                c_dest.y -= self.scene.tile_altitude(x,y)
+                            self.cursor.render(c_dest)
 
-            x, y, line, keep_going = self.next_tile(x0, y0, x, y, line, sx, sy, screen_area)
+                        mlist = self.uppermap.get((x, y))
+                        if mlist:
+                            if len(mlist) > 1:
+                                mlist.sort(key=self.model_depth)
+                            for m in mlist:
+                                mx, my = m.pos
+                                footpos = self.foot_coords(mx, my)
+                                y_alt = self.scene.model_altitude(m, x, y)
+                                mdest = pygame.Rect(0, 0, m.imagewidth, m.imageheight)
+                                mdest.midbottom = footpos
+                                mdest.y -= y_alt
+                                m.render(mdest, self)
+                                if show_names:
+                                    self.show_model_name(m, mdest.centerx, mdest.top)
 
-        the_limit = line + 1
-        while line < the_limit:
-            sx = self.relative_x(x, y) + self.x_off
-            sy = self.relative_y(x, y) + self.y_off
+                        self.scene._map[x][y].render_top(dest, self, x, y)
 
-            if self.scene.on_the_map(x - 1, y - 1) and self.scene._map[x - 1][y - 1].visible:
-                dest.topleft = (self.relative_x(x - 1, y - 1) + self.x_off, self.relative_y(x - 1, y - 1) + self.y_off)
-                self.scene._map[x - 1][y - 1].render_middle(dest, self, x - 1, y - 1)
+                        mlist = self.anims.get((x, y))
+                        if mlist:
+                            if len(mlist) > 1:
+                                mlist.sort(key=self.model_depth)
+                            for m in mlist:
+                                mx, my = m.pos
+                                sx, sy = self.screen_coords(*m.pos)
+                                m.render((sx, sy), self)
 
-                if self.overlays.get((x - 1, y - 1), None):
-                    o_dest = dest.copy()
-                    if self.scene._map[x - 1][y - 1].altitude() > 0:
-                        o_dest.y -= self.scene._map[x - 1][y - 1].altitude()
-                    o_sprite, o_frame = self.overlays[(x - 1, y - 1)]
 
-                    o_sprite.render(o_dest, o_frame)
+            elif len(line_cache) > 2 and line_cache[current_line-2] is None:
+                keep_going = False
 
-                if self.cursor and self.cursor.x == x - 1 and self.cursor.y == y - 1:
-                    c_dest = dest.copy()
-                    if self.scene._map[x - 1][y - 1].altitude() > 0:
-                        c_dest.y -= self.scene._map[x - 1][y - 1].altitude()
-                    self.cursor.render(c_dest)
-
-                mlist = self.uppermap.get((x - 1, y - 1))
-                if mlist:
-                    if len(mlist) > 1:
-                        mlist.sort(key=self.model_depth)
-                    for m in mlist:
-                        mx, my = m.pos
-                        y_alt = self.scene.model_altitude(m, x - 1, y - 1)
-                        m.render((self.relative_x(mx, my) + self.x_off + self.HTW,
-                                  self.relative_y(mx, my) + self.y_off + self.TILE_WIDTH - self.HTH - y_alt), self)
-                        if show_names:
-                            self.show_model_name(m, self.relative_x(mx, my) + self.x_off + self.HTW, self.relative_y(mx,
-                                                                                                                     my) + self.y_off + self.TILE_WIDTH - self.HTH - y_alt)
-
-                dest.topleft = (self.relative_x(x - 1, y - 1) + self.x_off, self.relative_y(x - 1, y - 1) + self.y_off)
-                self.scene._map[x - 1][y - 1].render_top(dest, self, x - 1, y - 1)
-
-                mlist = self.anims.get((x - 1, y - 1))
-                if mlist:
-                    if len(mlist) > 1:
-                        mlist.sort(key=self.model_depth)
-                    for m in mlist:
-                        mx, my = m.pos
-                        m.render((self.relative_x(mx, my) + self.x_off + self.HTW,
-                                  self.relative_y(mx, my) + self.y_off + self.TILE_WIDTH - self.HTH), self)
-
-            x, y, line, keep_going = self.next_tile(x0, y0, x, y, line, sx, sy, screen_area)
+            line_number += 1
 
         for k, v in list(self.tickers.items()):
-            x, y = self.screen_coords(*k)
+            x, y = self.foot_coords(*k)
             if v.needs_deletion():
                 del self.tickers[k]
             elif x >= 0 and x <= my_state.screen.get_width() and y >= 0 and y <= my_state.screen.get_height():
@@ -568,5 +592,15 @@ class SceneView(object):
             self.postfx()
 
     def check_event(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if my_state.is_key_for_action(ev, "scroll_map_north"):
+                self.focus(self._focus_x, self._focus_y-1)
+            elif my_state.is_key_for_action(ev, "scroll_map_west"):
+                self.focus(self._focus_x-1, self._focus_y)
+            elif my_state.is_key_for_action(ev, "scroll_map_south"):
+                self.focus(self._focus_x, self._focus_y+1)
+            elif my_state.is_key_for_action(ev, "scroll_map_east"):
+                self.focus(self._focus_x+1, self._focus_y)
+
         if self.cursor:
             self.cursor.update(self, ev)

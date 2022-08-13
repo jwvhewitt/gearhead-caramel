@@ -223,13 +223,6 @@ class PartlyUrbanGenerator(SceneGenerator):
 
     def build(self, gb, archi):
         super().build(gb, archi)
-
-    def step_five(self, gb, archi):
-        # Overriding this method because we can only draw the walking areas after the buildings have been built.
-        super().step_five(gb, archi)
-        for myroom in self.done_rooms:
-            self.draw_walking_area(myroom)
-
         frontier = [r for r in self.all_rooms() if IS_CONNECTED_ROOM in r.tags]
         if frontier:
             start_point = random.choice(frontier)
@@ -244,6 +237,13 @@ class PartlyUrbanGenerator(SceneGenerator):
                     #print("Anchoring...")
                     self.draw_road_segment(gb, nuroom.area.centerx, nuroom.area.centery, *nuroom.anchor(nuroom.area, None))
                 self.done_rooms.append(nuroom)
+
+    def step_five(self, gb, archi):
+        # Overriding this method because we can only draw the walking areas after the buildings have been built.
+        super().step_five(gb, archi)
+        for myroom in self.done_rooms:
+            self.draw_walking_area(myroom)
+
 
     def draw_walking_area(self, myroom):
         if hasattr(myroom, "footprint") and myroom.footprint:

@@ -270,6 +270,8 @@ class PlayerTurn(object):
     def quit_the_game(self):
         self.camp.fight.no_quit = False
 
+    ACCEPTABLE_HOTKEYS = "abcdefghijklmnopqrstuvwxyz1234567890"
+
     def pop_menu(self):
         # Pop Pop PopMenu Pop Pop PopMenu
         mymenu = pbge.rpgmenu.PopUpMenu()
@@ -316,10 +318,10 @@ class PlayerTurn(object):
 
     def gui_record_hotkey(self):
         myevent = pbge.alert(
-            "Press an alphabetic key to record a new macro for {}. You could also do this by holding Alt + key.".format(
+            "Press a letter or number key to record a new macro for {}. You could also do this by holding Alt + key.".format(
                 self.name_current_option()))
 
-        if myevent.type == pygame.KEYDOWN and myevent.unicode.isalpha():
+        if myevent.type == pygame.KEYDOWN and myevent.unicode in self.ACCEPTABLE_HOTKEYS:
             self.record_hotkey(myevent.unicode)
 
     def gui_view_hotkeys(self):
@@ -461,10 +463,10 @@ class PlayerTurn(object):
             self.active_ui.update(gdi, self)
 
             if gdi.type == pygame.KEYDOWN:
-                if gdi.unicode.isalpha() and gdi.mod & pygame.KMOD_ALT:
+                if gdi.unicode in self.ACCEPTABLE_HOTKEYS and gdi.mod & pygame.KMOD_ALT:
                     # Record a hotkey.
                     self.record_hotkey(gdi.unicode)
-                elif gdi.unicode.isalpha() and pbge.util.config.has_option("HOTKEYS", gdi.unicode) and not pbge.my_state.key_is_in_use(gdi.unicode):
+                elif gdi.unicode in self.ACCEPTABLE_HOTKEYS and pbge.util.config.has_option("HOTKEYS", gdi.unicode) and not pbge.my_state.key_is_in_use(gdi.unicode):
                     self.find_this_option(pbge.util.config.get("HOTKEYS", gdi.unicode))
                 elif gdi.unicode == "Q":
                     keep_going = False

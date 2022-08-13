@@ -132,7 +132,7 @@ class PlaceableThing(KeyObject):
     def render_visible(self, foot_pos, view):
         spr = view.get_sprite(self)
         mydest = spr.get_rect(self.frame)
-        mydest.midbottom = foot_pos
+        mydest.midbottom = foot_pos.midbottom
         if self.offset_pos:
             mydest.x += self.offset_pos[0]
             mydest.y += self.offset_pos[1]
@@ -175,7 +175,7 @@ class Scene(object):
     DELTA8 = ((-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1))
     ANGDIR = ((-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0))
 
-    def __init__(self, width=128, height=128, name="", player_team=None, exit_scene_wp=None):
+    def __init__(self, width=128, height=128, name="", player_team=None, exit_scene_wp=None, wrap_x=False, wrap_y=False):
         self.name = name
         self.width = width
         self.height = height
@@ -198,6 +198,9 @@ class Scene(object):
                      for x in range(width)]
 
         self.local_teams = dict()
+
+        self.wrap_x = wrap_x
+        self.wrap_y = wrap_y
 
     def on_the_map(self, x, y):
         # Returns true if on the map, false otherwise
@@ -407,3 +410,33 @@ class Scene(object):
 
     def get_rect(self):
         return pygame.Rect(0, 0, self.width, self.height)
+
+    def clamp_pos(self, pos):
+        nupos = list(pos)
+        if self.wrap_x:
+            f, i = math.modf(pos[0])
+            nupos[0] = int(i) % self.width + f
+        else:
+            if pos[0] < 0:
+                nupos[0] = 0
+            elif pos[0] >= self.width:
+                nupos[0] = self.width-1
+        if self.wrap_y:
+            f, i = math.modf(pos[1])
+            nupos[1] = int(i) % self.height + f
+        else:
+            if pos[1] < 0:
+                nupos[1] = 0
+            elif pos[1] >= self.height:
+                nupos[1] = self.height-1
+        return tuple(nupos)
+
+    def __setstate__(self, state):
+        # For saves from V0.921 or earlier, make sure there's wrap attributes.
+        if "wrap_x" not in state:
+            state["wrap_x"] = False
+        if "wrap_y" not in state:
+            state["wrap_y"] = False
+        self.__dict__.update(state)
+
+

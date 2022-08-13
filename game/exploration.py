@@ -590,7 +590,7 @@ class Explorer(object):
                 my_info = self.scene.get_tile_info(self.view.mouse_tile)
                 if my_info:
                     pos = self.view.screen_coords(*self.view.mouse_tile)
-                    my_info.popup((pos[0] + 32, pos[1] + 64))
+                    my_info.popup()
 
                 pbge.my_state.do_flip()
 

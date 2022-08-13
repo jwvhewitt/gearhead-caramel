@@ -15,7 +15,7 @@ class MapCursor(object):
 
     def set_position(self, scene, x, y, must_be_visible=True):
         if scene.on_the_map(x, y) and (scene.get_visible(x, y) or not must_be_visible):
-            self.x, self.y = x, y
+            self.x, self.y = scene.clamp_pos((x, y))
 
     def update(self, view, ev):
         if ev.type == pygame.MOUSEMOTION:

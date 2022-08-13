@@ -643,7 +643,7 @@ class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
 
 
 class BrickBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
-    image_bottom = 'terrain_building_brick_b.png'
+    image_middle = 'terrain_building_brick_b.png'
     image_top = 'terrain_building_brick.png'
     blocks = (Walking, Skimming, Rolling, Flying)
 
