@@ -288,16 +288,17 @@ class GearHeadScene(pbge.scenes.Scene):
                     first = False
         camp.check_trigger("PCMOVE")
 
-    def get_tile_info(self, pos):
+    def get_tile_info(self, view: pbge.scenes.viewer.SceneView):
         """Return an InfoPanel for the contents of this tile, if appropriate."""
+        pos = view.mouse_tile
         if self.get_visible(*pos) and pos in self.in_sight:
             # mmecha = pbge.my_state.view.modelmap.get(pos)
             mmecha = self.get_main_actor(pos)
             if mmecha and (self.local_teams.get(mmecha) == self.player_team or not mmecha.hidden):
-                return info.get_status_display(model=mmecha, scene=self)
+                return info.get_status_display(model=mmecha, scene=self, view=view, view_pos=pos)
             elif pbge.my_state.view.waypointmap.get(pos):
                 wp = pbge.my_state.view.waypointmap.get(pos)
-                return info.ListDisplay(items=wp)
+                return info.ListDisplay(items=wp, view=view, view_pos=pos)
 
     def place_actor(self, actor, x0, y0, team=None):
         entry_points = pbge.scenes.pfov.MModeReach(self.environment.LEGAL_MOVEMODES[0], self, x0, y0, 5, True).tiles
@@ -667,6 +668,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.egg = None
         self.delete_save_file()
 
+    def pc_suits_map(self, pc, map_scale, enviro=tags.GroundEnv):
+        return pc.is_not_destroyed() and pc.scale == map_scale and tags.model_matches_environment(pc, enviro)
+
     def get_usable_party(self, map_scale, solo_map=False, just_checking=False, enviro=tags.GroundEnv):
         usable_party = list()
         if not solo_map:
@@ -675,15 +679,15 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             party_candidates = [pc for pc in self.party if
                                 pc is self.pc or (hasattr(pc, "pilot") and pc.pilot is self.pc)]
         for pc in party_candidates:
-            if pc.is_not_destroyed() and pc.scale == map_scale and isinstance(pc, (
-                    base.Character, base.Mecha, base.Monster)) and gears.tags.model_matches_environment(pc, enviro):
+            if isinstance(pc, (base.Character, base.Mecha, base.Monster)) and self.pc_suits_map(pc, map_scale, enviro):
                 if hasattr(pc, "pilot"):
                     if pc.pilot and pc.pilot in self.party and pc.pilot.is_operational() and pc.check_design():
                         if not just_checking:
                             pc.load_pilot(pc.pilot)
                         usable_party.append(pc)
                 elif pc.is_operational():
-                    usable_party.append(pc)
+                    if not (isinstance(pc, base.Monster) and not pc.pet_data.active):
+                        usable_party.append(pc)
         if not usable_party and not just_checking:
             usable_party.append(self.pc)
         return usable_party
@@ -1003,6 +1007,40 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 self.egg.dramatis_personae.add(mynpc)
             self.uniques.add(mynpc)
         return mynpc
+
+    def deactivate_pet(self, pet: base.Monster):
+        pet.pet_data.active = False
+        if pet in self.scene.contents:
+            self.scene.contents.remove(pet)
+
+    def activate_pet(self, pet: base.Monster):
+        if pet.is_operational():
+            if not pet.pet_data.trainer.is_operational():
+                pbge.BasicNotification("Cannot activate {} because trainer {} is not active.".format(pet, pet.pet_data.trainer))
+            elif pet.pet_data.trainer.get_root() not in self.scene.contents:
+                pbge.BasicNotification(
+                    "Cannot activate {} because trainer {} is not on the map.".format(pet, pet.pet_data.trainer))
+            else:
+                for opet in self.party:
+                    if isinstance(opet, base.Monster) and opet.pet_data and opet.pet_data.trainer is pet.pet_data.trainer:
+                        self.deactivate_pet(opet)
+                pet.pet_data.active = True
+                if self.pc_suits_map(pet, self.scene.scale, self.scene.environment):
+                    self.scene.place_gears_near_spot(*pet.pet_data.trainer.get_root().pos, self.scene.player_team, pet)
+
+    def get_max_number_of_pets(self, pc):
+        if pc.get_pilot() is self.pc:
+            return 3
+        else:
+            return 2
+
+    def get_pets(self, pc):
+        pc = pc.get_pilot()
+        mypets = list
+        for pet in self.party + self.incapacitated_party:
+            if isinstance(pet, base.Monster) and pet.pet_data.trainer is pc:
+                mypets.append(pet)
+        return mypets
 
 
 class GearHeadArchitecture(pbge.randmaps.architect.Architecture):
@@ -1365,6 +1403,10 @@ def init_gears():
             selector.MONSTER_LIST.append(d)
 
     portraits.init_portraits()
+
+    # Gonna do a bit of monkey patching because geffects needs access to the monster list.
+    # This is bad and you should not do it but I only have half a CS degree so I'm an ignorant lout about such things.
+    geffects.MONSTER_LIST = selector.MONSTER_LIST
 
     # for d in selector.DESIGN_LIST:
     #    if isinstance(d, base.Mecha):

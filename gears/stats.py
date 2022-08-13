@@ -4,7 +4,7 @@ import pbge
 import random
 from . import materials
 from . import aitargeters
-from . import listentomysong, enchantments
+from . import listentomysong, enchantments, personality
 
 DIFFICULTY_TRIVIAL = -50
 DIFFICULTY_EASY = -25
@@ -234,27 +234,6 @@ class Stealth( Skill ):
             targets=1)
         invodict[self].append(ba)
 
-        take_cover_skill = self
-        take_cover_stat = Speed
-        take_cover_bonus = min(max(pc.get_skill_score(take_cover_stat, take_cover_skill) * 2 - 50, 25), 100)
-        take_cover = pbge.effects.Invocation(
-            name = 'Take Cover',
-            fx = geffects.AddEnchantment(geffects.TakingCover,
-                     enchant_params = { 'percent_bonus': take_cover_bonus },
-                     anim = geffects.TakeCoverAnim),
-            area = pbge.scenes.targetarea.SelfOnly(),
-            ai_tar = aitargeters.GenericTargeter(
-                         targetable_types=(pbge.scenes.PlaceableThing,),
-                         conditions=[
-                             aitargeters.TargetIsOperational(),
-                             aitargeters.TargetIsAlly(),
-                             aitargeters.TargetDoesNotHaveEnchantment(geffects.TakingCover)]),
-            used_in_combat = True, used_in_exploration = True,
-            shot_anim = None,
-            data = geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),3),
-            price = [geffects.MentalPrice(3),],
-            targets = 1)
-        invodict[self].append(take_cover)
 
 
 class Science( Skill ):
@@ -352,6 +331,70 @@ class Scouting( Skill ):
 class Wildcraft(Skill):
     name = 'Wildcraft'
     desc = "This skill is used for wilderness survival and to train animals."
+
+    @classmethod
+    def add_invocations(cls, pc, invodict):
+        take_cover_skill = cls
+        take_cover_stat = Speed
+        take_cover_bonus = min(max(pc.get_skill_score(take_cover_stat, take_cover_skill) * 2 - 50, 25), 100)
+        take_cover = pbge.effects.Invocation(
+            name='Take Cover',
+            fx=geffects.AddEnchantment(geffects.TakingCover,
+                                       enchant_params={'percent_bonus': take_cover_bonus},
+                                       anim=geffects.TakeCoverAnim),
+            area=pbge.scenes.targetarea.SelfOnly(),
+            ai_tar=aitargeters.GenericTargeter(
+                targetable_types=(pbge.scenes.PlaceableThing,),
+                conditions=[
+                    aitargeters.TargetIsOperational(),
+                    aitargeters.TargetIsAlly(),
+                    aitargeters.TargetDoesNotHaveEnchantment(geffects.TakingCover)]),
+            used_in_combat=True, used_in_exploration=True,
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 3),
+            price=[geffects.MentalPrice(3), ],
+            targets=1)
+        invodict[cls].append(take_cover)
+
+        call_animal_companion = pbge.effects.Invocation(
+            name="Call Animal Companion",
+            fx=geffects.CallAnimalCompanion(
+                Charm, cls, cls.get_pet_tags(pc)
+            ),
+            area=pbge.scenes.targetarea.SelfOnly(),
+            ai_tar=None,
+            used_in_combat=True, used_in_exploration=True,
+            shot_anim=None, data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 21),
+            price=[geffects.MentalPrice(5), geffects.StatValuePrice(cls, 5)]
+        )
+        invodict[cls].append(call_animal_companion)
+
+    @staticmethod
+    def get_pet_tags(pc):
+        mytags = ["ANIMAL"]
+        if personality.Cheerful in pc.personality:
+            mytags.append("BRIGHT")
+        if personality.Grim in pc.personality:
+            mytags.append("DARK")
+        if personality.Easygoing in pc.personality:
+            mytags.append("GREEN")
+        if personality.Passionate in pc.personality:
+            mytags.append("FIRE")
+        if personality.Sociable in pc.personality:
+            mytags.append("CITY")
+        if personality.Shy in pc.personality:
+            mytags.append("EXOTIC")
+        if personality.GreenZone in pc.personality:
+            mytags.append("FOREST")
+        if personality.DeadZone in pc.personality:
+            mytags.append("MUTANT")
+        if Science in pc.statline:
+            mytags.append("DINOSAUR")
+        if Biotechnology in pc.statline:
+            mytags.append("SYNTH")
+        if Stealth in pc.statline:
+            mytags.append("TOXIC")
+        return mytags
 
 class Cybertech(Skill):
     name = 'Cybertech'

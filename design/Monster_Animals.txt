@@ -11,6 +11,7 @@ Monster
     type_tags = ("ANIMAL", "CAVE", "EARTH", "SWAMP", "CITY", "VERMIN")
     families = ("RATS","VERMIN")
     environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
 
 	SUB
         Head
@@ -53,10 +54,11 @@ Monster
     type_tags = ("ANIMAL", "CAVE", "MUTANT", "DESERT", "EARTH", "CITY", "VERMIN")
     families = ("RATS","VERMIN")
     environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
 
 	SUB
         Head
-            size = 2
+            size = 3
             SUB
 				MeleeWeapon
 					name="Fangs"
@@ -68,17 +70,17 @@ Monster
                     attributes = (FastAttack)
             END
         Torso
-            size = 2
+            size = 3
         Leg
-            size = 2
+            size = 3
         Leg
-            size = 2
+            size = 3
         Leg
-            size = 2
+            size = 3
         Leg
-            size = 2
+            size = 3
         Tail
-            size = 2
+            size = 3
     END
 
 Monster
@@ -94,6 +96,7 @@ Monster
     type_tags = ("ANIMAL", "EXOTIC", "CAVE", "FIRE", "DESERT", "FOREST", "REPTILE")
     families = ("REPTILE",)
     environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
 
 	SUB
         Head
@@ -132,7 +135,7 @@ Monster
             END
     END
 
-
+Claws
 Monster
     name = "Giant Frog"
     statline = {Reflexes = 9, Body=13, Speed=10, Perception=9, Craft=2, Knowledge=2, Ego=2, Charm = 2,
@@ -146,6 +149,7 @@ Monster
     type_tags = ("ANIMAL", "WATER", "GREEN", "SWAMP", "FOREST",)
     families = ("FROGS",)
     environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
 
 	SUB
         Head
@@ -184,6 +188,7 @@ Monster
     type_tags = ("ANIMAL", "SWAMP", "EARTH", "MUTANT", "CAVE", "FIRE")
     families = ("FROGS",)
     environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
 
 	SUB
         Head
@@ -248,3 +253,188 @@ Monster
 					integral = True
             END
     END
+
+Monster
+    name = "Iron Monkey"
+    statline = {Reflexes = 7, Body=9, Speed=6, Perception=7, Craft=6, Knowledge=5, Ego=8, Charm = 8,
+			CloseCombat = 9, Dodge = 3, Vitality = 3
+	}
+	scale = HumanScale
+	imagename = 'mon_animals.png'
+	frame = 6
+    colors = (Beige, SteelBlue, Black, Cream, HotPink)
+    threat = 23
+    type_tags = ("ANIMAL","JUNGLE","DESERT","WASTELAND","EARTH", "MOUNTAIN", "BRIGHT")
+    families = ("MONKEY")
+    environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
+
+	SUB
+        Head
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+        Torso
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+        Arm
+            size = 2
+            SUB
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+
+                Armor
+                    size = 2
+            END
+        Arm
+            size = 2
+            SUB
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+        Tail
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+    END
+
+Monster
+    name = "Rock Lizard"
+    statline = {Reflexes = 12, Body=15, Speed=16, Perception=10, Craft=2, Knowledge=2, Ego=9, Charm = 2,
+			CloseCombat = 5, Dodge = 8, Vitality = 6, Stealth = 7
+	}
+	scale = HumanScale
+	imagename = 'mon_animals.png'
+	frame = 5
+    colors = (Sandstone, NobleGold, BrightRed, Gold, Cream)
+    threat = 72
+    type_tags = ("ANIMAL","EARTH","MOUNTAIN","DESERT","CAVE","REPTILE", "TOXIC")
+    families = ("REPTILE")
+    environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
+
+	SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Torso
+            size = 5
+            SUB
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=3
+					accuracy=2
+					penetration=3
+					integral = True
+                    attributes = (Agonize, PoisonAttack)
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 5
+            SUB
+				MeleeWeapon
+					name="Claws"
+					reach=1
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+
+                Armor
+                    size = 4
+            END
+        Tail
+            size = 4
+            SUB
+                Armor
+                    size = 4
+
+				MeleeWeapon
+					name="Thagomizer"
+					reach=2
+					damage=2
+					accuracy=3
+					penetration=2
+					integral = True
+					attributes = (BonusStrike1)
+            END
+    END
+

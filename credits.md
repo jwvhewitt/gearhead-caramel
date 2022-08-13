@@ -16,6 +16,7 @@ ARTWORK
 
 ICONS - MOSTLY FROM "THE NOUN PROJECT"
 ======================================
+* Wolf by Vectorstall from Noun Project CC-BY-3.0
 * Boat by Pham Duy Phuong Hung from NounProject.com CC-BY-3.0
 * Jump by Centis MENANT from NounProject.com CC-BY-3.0
 * Rocket by Gregor Cresnar from NounProject.com CC-BY-3.0

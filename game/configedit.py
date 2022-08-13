@@ -73,6 +73,7 @@ class ConfigEditor(object):
             OptionToggler.add_menu_toggle(mymenu, "Announce start of player turns", "announce_pc_turn_start")
             OptionToggler.add_menu_toggle(mymenu, "Scroll to start of action library", "scroll_to_start_of_action_library")
             OptionToggler.add_menu_toggle(mymenu, "Auto-center map cursor", "auto_center_map_cursor")
+            OptionToggler.add_menu_toggle(mymenu, "Mouse scroll at map edges", "mouse_scroll_at_map_edges")
 
             for op in util.config.options("DIFFICULTY"):
                 OptionToggler.add_menu_toggle(mymenu, op, op, section="DIFFICULTY")

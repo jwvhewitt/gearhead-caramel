@@ -83,16 +83,16 @@ class InvocationsWidget(pbge.widgets.Widget):
             elif ev.button == 2:
                 self.pop_invo_menu()
         elif ev.type == pygame.KEYDOWN:
-            if ev.key in pbge.my_state.get_keys_for("up"):
+            if pbge.my_state.is_key_for_action(ev, "up"):
                 self.prev_shelf()
                 self.register_response()
-            elif ev.key in pbge.my_state.get_keys_for("down"):
+            elif pbge.my_state.is_key_for_action(ev, "down"):
                 self.next_shelf()
                 self.register_response()
-            elif ev.key in pbge.my_state.get_keys_for("left"):
+            elif pbge.my_state.is_key_for_action(ev, "left"):
                 self.prev_invo()
                 self.register_response()
-            elif ev.key in pbge.my_state.get_keys_for("right"):
+            elif pbge.my_state.is_key_for_action(ev, "right"):
                 self.next_invo()
                 self.register_response()
 
@@ -374,12 +374,12 @@ class InvocationUI(object):
         pbge.my_state.view()
 
         # Display info for this tile.
-        my_info = self.camp.scene.get_tile_info(pbge.my_state.view.mouse_tile)
+        my_info = self.camp.scene.get_tile_info(pbge.my_state.view)
         if my_info:
             if self.invo and mmecha and hasattr(self.invo.fx, "get_odds"):
                 odds, modifiers = self.invo.fx.get_odds(self.camp, self.pc, mmecha[0])
                 my_info.info_blocks.append(info.OddsInfoBlock(odds, modifiers))
-            my_info.popup()
+            my_info.view_display()
 
     def launch(self):
         # This function is for use in combat. The explo_invoke class
@@ -446,7 +446,7 @@ class InvocationUI(object):
                 self.record = True
                 print("Recording")
 
-            elif ev.key in pbge.my_state.get_keys_for("cursor_click") and not pbge.my_state.widget_clicked:
+            elif pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_clicked:
                 self.click_left(player_turn)
 
             elif ev.key == pygame.K_ESCAPE:

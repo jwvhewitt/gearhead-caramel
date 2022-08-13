@@ -1,6 +1,8 @@
-v0.922 August 13 2022
-* Fixed a bug in one of the lancemate plots
-
+* Most keyboard actions now use is_key_for_action method, may be changed in config.cfg
+* Added a bunch more monsters
+* Characters with Wildcraft >= 5 can call animal companions
+* Added mouse_scroll_at_map_edges config option
+* Fixed a bug in the PartlyUrbanGenerator
 * WASD may now be used to scroll the map
 * Default combat hotkeys changed to 1,2,3,4,5
 * Refactored the map viewer to deal with tile-based focus and wrapping maps
@@ -9,6 +11,9 @@ v0.922 August 13 2022
 * Changed restore to restore_all in Bear Bastard's Mecha Camp and Winter Mocha
 * Text input widget now uses TextInput event
 * Lancemates bring their pets with them when they join/leave the party
+
+v0.922 August 13 2022
+* Fixed a bug in one of the lancemate plots
 
 v0.921 August 9 2022
 * Added auto_center_map_cursor config option

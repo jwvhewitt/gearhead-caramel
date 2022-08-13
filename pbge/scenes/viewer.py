@@ -436,7 +436,8 @@ class SceneView(object):
         visible_area = self._get_visible_area()
 
         # Check for map scrolling, depending on mouse position.
-        self.update_camera(screen_area, mouse_x, mouse_y)
+        if util.config.getboolean("GENERAL", "mouse_scroll_at_map_edges"):
+            self.update_camera(screen_area, mouse_x, mouse_y)
 
         x, y = self.map_x(0, 0) - 2, self.map_y(0, 0) - 1
         x0, y0 = x, y

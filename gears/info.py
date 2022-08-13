@@ -9,12 +9,14 @@ class InfoPanel(object):
     # Each InfoBlock needs a width, height, and render(x,y)
     DEFAULT_BLOCKS = list()
 
-    def __init__(self, padding=3, draw_border=True, **kwargs):
+    def __init__(self, padding=3, draw_border=True, view=None, view_pos=(0,0), **kwargs):
         self.padding = padding
         self.info_blocks = list()
         for b in self.DEFAULT_BLOCKS:
             self.info_blocks.append(b(**kwargs))
         self.draw_border = draw_border
+        self.view = view
+        self.view_pos = view_pos
 
     def get_dimensions(self):
         width = 0
@@ -51,6 +53,17 @@ class InfoPanel(object):
         myrect.clamp_ip(pbge.my_state.screen.get_rect())
         self.render(myrect.left, myrect.top)
 
+    def view_display(self):
+        if not self.view:
+            self.popup()
+        else:
+            w, h = self.get_dimensions()
+            x, y = self.view.foot_coords(*self.view_pos)
+            y -= 64
+            myrect = pygame.Rect(0, 0, w, h)
+            myrect.midbottom = (x,y)
+            myrect.clamp_ip(pbge.my_state.screen.get_rect())
+            self.render(myrect.left, myrect.top)
 
 class NameBlock(object):
     def __init__(self, model, width=220, **kwargs):
@@ -459,6 +472,14 @@ class NonComSkillBlock(LabeledItemsListBlock):
                 return sk.name
 
         return [annotate(sk) for sk in listed_skills]
+
+
+class PetSkillBlock(LabeledItemsListBlock):
+    LABEL = "Skills"
+
+    def get_sorted_items(self):
+        # First, generate the base skills and the effective skills.
+        return [str(sk) for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS] or ["None"]
 
 
 class MeritBadgesBlock(LabeledItemsListBlock):
@@ -937,6 +958,11 @@ class ClothingIP(InfoPanel):
     DEFAULT_BLOCKS = (FullNameBlock, MassVolumeBlock, ClothingArmorBlock, NonArmorSubComsBlock, DescBlock)
 
 
+class MonsterIP(InfoPanel):
+    DEFAULT_BLOCKS = (FullNameBlock, ModuleStatusBlock, ExperienceBlock,
+                      CharacterStatusBlock, PrimaryStatsBlock, PetSkillBlock)
+
+
 class ShortItemIP(InfoPanel):
     DEFAULT_BLOCKS = (DescBlock,)
 
@@ -977,6 +1003,8 @@ def get_longform_display(model, **kwargs):
         return CharacterIP(model=model, **kwargs)
     elif isinstance(model, base.Clothing):
         return ClothingIP(model=model, **kwargs)
+    elif isinstance(model, base.Monster):
+        return MonsterIP(model=model, **kwargs)
     else:
         return ItemIP(model=model, **kwargs)
 

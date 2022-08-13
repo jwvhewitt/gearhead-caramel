@@ -604,7 +604,7 @@ class ClumpyRoom(FuzzyRoom):
     def build( self, gb, archi ):
         super().build(gb,archi)
 
-        # Add some random forest blobs.
+        # Add some random blobs.
         if self.area.width > 4 and self.area.height > 4:
             max_clumps = (self.area.width * self.area.height)//2
             for t in range(random.randint(max_clumps//4,max_clumps)):
@@ -614,4 +614,4 @@ class ClumpyRoom(FuzzyRoom):
         else:
             mydest = pygame.Rect(0,0,3,3)
             mydest.center = self.area.center
-            gb.fill(mydest,wall=self.CLUMP_WALL)
+            gb.fill(mydest,floor=self.CLUMP_FLOOR, wall=self.CLUMP_WALL, decor=self.CLUMP_DECOR)

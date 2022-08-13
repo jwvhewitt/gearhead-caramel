@@ -468,10 +468,10 @@ class PlayerTurn(object):
                     self.record_hotkey(gdi.unicode)
                 elif gdi.unicode in self.ACCEPTABLE_HOTKEYS and pbge.util.config.has_option("HOTKEYS", gdi.unicode) and not pbge.my_state.key_is_in_use(gdi.unicode):
                     self.find_this_option(pbge.util.config.get("HOTKEYS", gdi.unicode))
-                elif gdi.unicode == "Q":
+                elif pbge.my_state.is_key_for_action(gdi, "quit_game"):
                     keep_going = False
                     self.camp.fight.no_quit = False
-                elif gdi.unicode == "c":
+                elif pbge.my_state.is_key_for_action(gdi, "center_on_pc"):
                     self.focus_on_pc()
                 elif gdi.key == pygame.K_ESCAPE:
                     mymenu = configedit.PopupGameMenu()

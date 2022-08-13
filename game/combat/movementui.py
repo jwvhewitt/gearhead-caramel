@@ -72,16 +72,16 @@ class MovementWidget(pbge.widgets.Widget):
                 self.next_shelf()
                 self.register_response()
         elif ev.type == pygame.KEYDOWN:
-            if ev.key in pbge.my_state.get_keys_for("up"):
+            if pbge.my_state.is_key_for_action(ev, "up"):
                 self.prev_shelf()
                 self.register_response()
-            elif ev.key in pbge.my_state.get_keys_for("down"):
+            elif pbge.my_state.is_key_for_action(ev, "down"):
                 self.next_shelf()
                 self.register_response()
-            elif ev.key in pbge.my_state.get_keys_for("left"):
+            elif pbge.my_state.is_key_for_action(ev, "left"):
                 self.prev_invo()
                 self.register_response()
-            elif ev.key in pbge.my_state.get_keys_for("right"):
+            elif pbge.my_state.is_key_for_action(ev, "right"):
                 self.next_invo()
                 self.register_response()
 
@@ -261,9 +261,9 @@ class MovementUI(object):
         pbge.my_state.view()
 
         # Display info for this tile.
-        my_info = self.camp.scene.get_tile_info(pbge.my_state.view.mouse_tile)
+        my_info = self.camp.scene.get_tile_info(pbge.my_state.view)
         if my_info:
-            my_info.popup()
+            my_info.view_display()
 
         pbge.my_state.do_flip()
 
@@ -347,7 +347,7 @@ class MovementUI(object):
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
             self.click_left(player_turn)
         elif ev.type == pygame.KEYDOWN:
-            if ev.key in pbge.my_state.get_keys_for("cursor_click") and not pbge.my_state.widget_clicked:
+            if pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_clicked:
                 self.click_left(player_turn)
 
             elif ev.unicode == "t":

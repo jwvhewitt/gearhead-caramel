@@ -1,0 +1,151 @@
+Monster
+    name = "Sun Scarab"
+    statline = {Reflexes = 16, Body=13, Speed=11, Perception=8, Craft=2, Knowledge=1, Ego=15, Charm = 5,
+			CloseCombat = 5, RangedCombat = 3, Dodge = 8
+	}
+	scale = HumanScale
+	imagename = 'mon_bugs.png'
+	frame = 0
+	colors = (Saffron,GunRed,SkyBlue,HunterOrange,BlackRose)
+    threat = 68
+    actions = 2
+    type_tags = ("BUG", "DESERT", "RUINS", "FIRE")
+    families = ("SCARABS",)
+    environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
+
+	SUB
+        Torso
+            size = 5
+            SUB
+				MeleeWeapon
+					name="Bite"
+					reach=1
+					damage=2
+					accuracy=3
+					penetration=2
+					integral = True
+                    attributes = (Brutal)
+
+                Armor
+                    size = 4
+
+                BeamWeapon
+                    name = "Sun Flame"
+                    reach = 5
+                    damage = 3
+                    accuracy = 2
+                    penetration = 3
+                    attributes = (Brutal, BurnAttack, Scatter)
+                    shot_anim = FireBall
+                    area_anim = Fireball
+
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 4
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 4
+            END
+    END
+
+Monster
+    name = "Black Scarab"
+    statline = {Reflexes = 10, Body=12, Speed=9, Perception=7, Craft=2, Knowledge=1, Ego=15, Charm = 2,
+			CloseCombat = 4, Dodge = 4
+	}
+	scale = HumanScale
+	imagename = 'mon_bugs.png'
+	frame = 0
+	colors = (Black, BugBlue, BrightRed, SteelBlue, Black)
+    threat = 35
+    actions = 2
+    type_tags = ("BUG", "DESERT", "RUINS", "EARTH")
+    families = ("SCARABS",)
+    environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
+
+	SUB
+        Torso
+            size = 2
+            SUB
+				MeleeWeapon
+					name="Bite"
+					reach=1
+					damage=2
+					accuracy=1
+					penetration=3
+					integral = True
+                    attributes = (Brutal)
+
+                Armor
+                    size = 3
+
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+        Leg
+            size = 2
+            SUB
+                Armor
+                    size = 2
+            END
+    END

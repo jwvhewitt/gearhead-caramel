@@ -69,14 +69,14 @@ class PlayerCharacterSwitch(widgets.RowWidget):
         self.update()
 
     def click_left(self,wid,ev):
-        party = self.camp.get_active_party()
+        party = [pc for pc in self.camp.get_active_party() if isinstance(pc, (gears.base.Character, gears.base.Mecha))]
         if self.pc in party:
             new_i = party.index(self.pc) - 1
             self.pc = party[new_i]
             self.update()
 
     def click_right(self,wid,ev):
-        party = self.camp.get_active_party()
+        party = [pc for pc in self.camp.get_active_party() if isinstance(pc, (gears.base.Character, gears.base.Mecha))]
         if self.pc in party:
             new_i = party.index(self.pc) + 1
             if new_i >= len(party):

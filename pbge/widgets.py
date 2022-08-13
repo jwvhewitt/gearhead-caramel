@@ -550,7 +550,7 @@ class TextEntryWidget(Widget):
         #   happen. Usually nothing happens, but when this text entry widget is part of a text entry panel (see below)
         #   we need some special behaviours.
         self.font = font or my_state.mono_font
-        h = h or font.get_linesize()
+        h = h or self.font.get_linesize()
         # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
         super(TextEntryWidget, self).__init__(dx, dy, w, h, **kwargs)
         if not text:

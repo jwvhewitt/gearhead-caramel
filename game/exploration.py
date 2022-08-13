@@ -587,10 +587,9 @@ class Explorer(object):
                 self.view()
 
                 # Display info for this tile.
-                my_info = self.scene.get_tile_info(self.view.mouse_tile)
+                my_info = self.scene.get_tile_info(self.view)
                 if my_info:
-                    pos = self.view.screen_coords(*self.view.mouse_tile)
-                    my_info.popup()
+                    my_info.view_display()
 
                 pbge.my_state.do_flip()
 
@@ -625,27 +624,27 @@ class Explorer(object):
                 # self.view.overlays[ self.view.mouse_tile ] = maps.OVERLAY_CURSOR
 
                 if gdi.type == pygame.KEYDOWN:
-                    if gdi.unicode == "Q":
+                    if pbge.my_state.is_key_for_action(gdi, "quit_game"):
                         # self.camp.save(self.screen)
                         self.no_quit = False
-                    elif gdi.unicode == "c":
+                    elif pbge.my_state.is_key_for_action(gdi, "center_on_pc"):
                         pc = self.camp.first_active_pc()
                         pbge.my_state.view.focus(pc.pos[0], pc.pos[1])
 
-                    elif gdi.unicode == "m":
+                    elif pbge.my_state.is_key_for_action(gdi, "memo_browser"):
                         memos.MemoBrowser(self.camp)()
 
-                    elif gdi.unicode == "H":
+                    elif pbge.my_state.is_key_for_action(gdi, "field_hq"):
                         fieldhq.FieldHQ.create_and_invoke(self.camp)
 
-                    elif gdi.unicode == "i":
+                    elif pbge.my_state.is_key_for_action(gdi, "inventory"):
                         fieldhq.backpack.BackpackWidget.create_and_invoke(self.camp, self.camp.pc.get_root())
 
                     elif gdi.key == pygame.K_ESCAPE:
                         mymenu = configedit.PopupGameMenu()
                         mymenu(self)
 
-                    elif gdi.key in pbge.my_state.get_keys_for("cursor_click"):
+                    elif pbge.my_state.is_key_for_action(gdi, "cursor_click"):
                         if gdi.mod & pygame.KMOD_SHIFT:
                             pc = self.scene.get_main_actor(self.view.mouse_tile)
                             ExploMenu(self, pc)
@@ -705,10 +704,7 @@ class Explorer(object):
                                 print("{}: {}/{}".format(thing, thing.faction, thing.scene.get_root_scene()))
 
                     elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        mypet = gears.selector.get_design_by_full_name("Icky Slime")
-                        mypet.pet_data = gears.pets.PetData(self.camp.pc)
-                        self.camp.party.append(mypet)
-                        self.scene.place_gears_near_spot(*self.camp.pc.pos, self.scene.player_team, mypet)
+                        self.camp.pc.statline[gears.stats.Wildcraft] += 5
 
                     elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.active_plots():
@@ -718,7 +714,7 @@ class Explorer(object):
                         print(myfac.enemies)
                     elif gdi.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for pc in self.camp.get_active_party():
-                            if hasattr(pc, "relationship") and pc.relationship:
+                            if hasattr(pc, "relationship") and pc.relationship and hasattr(pc, "renown"):
                                 print("{} {} {} OK:{}".format(pc, pc.renown, pc.relationship.hilights(),
                                                               pc.relationship.can_do_development()))
                     elif gdi.unicode == "V" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):

@@ -4,15 +4,17 @@ from pbge import effects
 from pbge.scenes import animobs, movement, pfov
 import random
 from . import materials
-from . import damage, stats
+from . import damage, stats, pets
 from .enchantments import Enchantment, END_COMBAT, ON_MOVE, ON_DISPEL_POSITIVE, ON_DISPEL_NEGATIVE, USE_ANTIDOTE
 import math
 from . import base, tags
+import copy
 
 # For backwards compatibility reasons, import Skimming and Rolling to here. You can delete this import at
 # version v1.000 when savefile compatibility breaks again.
 from .tags import Skimming, Rolling
 
+MONSTER_LIST = ()
 
 #  *************************
 #  ***   Utility  Junk   ***
@@ -1397,6 +1399,46 @@ class SetVisible(effects.NoEffect):
         for target in targets:
             myanim = animobs.RevealModel(target, delay=delay)
             anims.append(myanim)
+        return self.children
+
+
+class CallAnimalCompanion(effects.NoEffect):
+    """ Gonna do the ranger thing and summon a pet.
+    """
+
+    def __init__(self, fx_stat, fx_skill, monster_tags, children=(), anim=None):
+        self.fx_stat = fx_stat
+        self.fx_skill = fx_skill
+        self.monster_tags = monster_tags
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
+        self.anim = anim
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+        if originator:
+            threat_bonus = originator.get_skill_score(self.fx_stat, self.fx_skill) + 10
+        else:
+            originator = camp.pc
+            threat_bonus = random.randint(1, max(camp.pc.rank, 15))
+        threat_bonus += random.randint(1,20)
+        candidates = list()
+        for mon in MONSTER_LIST:
+            if mon.can_be_pet and camp.pc_suits_map(mon, camp.scene.scale, camp.scene.environment):
+                candidates += [mon,] * len(mon.type_tags.intersection(self.monster_tags))
+        if candidates:
+            if len(candidates) > 10:
+                candidates = random.sample(candidates, len(candidates)//2)
+            candidates.sort(key=lambda m: -m.threat)
+            n = min(5, len(candidates))
+            nupet = copy.deepcopy(random.choice(candidates[:n]))
+            nupet.pet_data = pets.PetData(originator)
+            camp.party.append(nupet)
+            camp.activate_pet(nupet)
+            anims.append(pbge.scenes.animobs.Caption(str(nupet), pos=nupet.pos, delay=delay))
+        else:
+            anims.append(pbge.scenes.animobs.Caption("Failed!", pos=pos, delay=delay))
         return self.children
 
 

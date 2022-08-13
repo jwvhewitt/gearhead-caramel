@@ -11,6 +11,7 @@ Monster
     type_tags = ("DINOSAUR", ""EXOTIC", "CAVE", "DESERT", "REPTILE",)
     families = ("DINOSAUR",)
     environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
 
 	SUB
         Head
@@ -81,6 +82,7 @@ Monster
     type_tags = ("DINOSAUR", ""EXOTIC", "CAVE", "DESERT", "REPTILE",)
     families = ("DINOSAUR",)
     environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
 
 	SUB
         Head
