@@ -1,3 +1,4 @@
+v0.923 August 15 2022
 * Added Puma and Luna II mecha
 * Most keyboard actions now use is_key_for_action method, may be changed in config.cfg
 * Added a bunch more monsters
