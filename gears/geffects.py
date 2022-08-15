@@ -16,6 +16,7 @@ from .tags import Skimming, Rolling
 
 MONSTER_LIST = ()
 
+
 #  *************************
 #  ***   Utility  Junk   ***
 #  *************************
@@ -525,10 +526,12 @@ class OriginSpotShotFactory(object):
 # A shot animation that also animates a return.
 class ReturnAnim(animobs.AnimOb):
     BASE_ANIM = SmallBullet
+    REVERSE_ON_RETURN = False
 
     def __init__(self, start_pos, end_pos, delay=0):
         self.going = self.BASE_ANIM(start_pos=start_pos, end_pos=end_pos, delay=0)
-        self.returning = self.BASE_ANIM(start_pos=end_pos, end_pos=start_pos, delay=0)
+        self.returning = self.BASE_ANIM(start_pos=end_pos, end_pos=start_pos, delay=0,
+                                        reverse_direction=self.REVERSE_ON_RETURN)
         self.children = list()
         self.delay = delay
         self.needs_deletion = False
@@ -602,6 +605,15 @@ class ReturningDeathwing(ReturnAnim):
     BASE_ANIM = FlyingDeathwing
 
 
+class ChainClawShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_chainclaw.png"
+
+
+class ReturningChainClaw(ReturnAnim):
+    BASE_ANIM = ChainClawShot
+    REVERSE_ON_RETURN = True
+
+
 class JawShot(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_jaws.png"
     DEFAULT_SPEED = 0.3
@@ -671,9 +683,9 @@ class JumpModel(object):
             self.delay += -1
         elif self.itinerary:
             self.step += 1.0
-            px = self.step/self.num_steps
-            py = -4*px*px + 4*px
-            if self.step < self.num_steps/2:
+            px = self.step / self.num_steps
+            py = -4 * px * px + 4 * px
+            if self.step < self.num_steps / 2:
                 y_off = int((self.zenith - self.start_alt) * py)
             else:
                 y_off = int((self.zenith - self.final_alt) * py) - self.start_alt
@@ -682,7 +694,7 @@ class JumpModel(object):
             if not self.itinerary:
                 self.needs_deletion = True
                 self.model.pos = self.dest
-                self.model.offset_pos = (0,0)
+                self.model.offset_pos = (0, 0)
         else:
             self.needs_deletion = True
             self.model.pos = self.dest
@@ -1422,14 +1434,14 @@ class CallAnimalCompanion(effects.NoEffect):
         else:
             originator = camp.pc
             threat_bonus = random.randint(1, max(camp.pc.rank, 15))
-        threat_bonus += random.randint(1,20)
+        threat_bonus += random.randint(1, 20)
         candidates = list()
         for mon in MONSTER_LIST:
             if mon.can_be_pet and camp.pc_suits_map(mon, camp.scene.scale, camp.scene.environment):
-                candidates += [mon,] * len(mon.type_tags.intersection(self.monster_tags))
+                candidates += [mon, ] * len(mon.type_tags.intersection(self.monster_tags))
         if candidates:
             if len(candidates) > 10:
-                candidates = random.sample(candidates, len(candidates)//2)
+                candidates = random.sample(candidates, len(candidates) // 2)
             candidates.sort(key=lambda m: -m.threat)
             n = min(5, len(candidates))
             nupet = copy.deepcopy(random.choice(candidates[:n]))

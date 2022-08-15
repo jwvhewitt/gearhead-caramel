@@ -1,0 +1,118 @@
+Mecha
+    name = "Puma"
+    desig = "LCA-1S"
+    imagename = "mav_puma.png"
+    portrait = "mecha_puma.png"
+    family = "Puma"
+    desc = "The LCA-1S Puma is the main trooper battroid used by the Solar Navy."
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv)
+    faction_list = (TheSolarNavy, TerranFederation, DeadzoneFederation, KettelIndustries)
+    role_list = (Trooper,)
+
+    SUB
+        Head
+            size = 3
+            SUB
+                Armor
+                    size = 3
+                    material = Ceramic
+                Sensor
+                    size = 3
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+                Cockpit
+                Engine
+                    size = 760
+                Gyroscope
+                Mount
+                    name = "Back Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+									name = "Claw Missiles"
+									reach = 7
+									damage = 1
+									accuracy = 1
+									penetration = 3
+									quantity = 24
+                            END
+                    END
+                FlightJets
+                    size = 3
+                 EWSystem
+                    size = 1
+                    programs = (Deflect)
+
+            END
+        Arm
+            name = "Right Arm"
+            size = 3
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+                Hand
+                    name = "Right Hand"
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        STC LAS-10 Laser Cannon
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 3
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+                Hand
+                    name = "Left Hand"
+                    INV
+                        BeamWeapon
+                            name = "Targeting Laser"
+                            desig = "Puma"
+                            reach = 6
+                            damage = 1
+                            accuracy = 3
+                            penetration = 1
+                            shot_anim = SmallBeam
+                            attributes = (Designator,)
+                    END
+                Mount
+                    name = "Left Arm Mount"
+            END
+            INV
+				BeamShield
+				    name = "Puma Shield"
+					size = 3
+					bonus = 1
+			END
+        Leg
+            name = "Right Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+                FlightJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+                FlightJets
+                    size = 4
+            END
+    END

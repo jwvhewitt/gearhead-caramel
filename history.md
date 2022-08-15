@@ -1,3 +1,4 @@
+* Added Puma and Luna II mecha
 * Most keyboard actions now use is_key_for_action method, may be changed in config.cfg
 * Added a bunch more monsters
 * Characters with Wildcraft >= 5 can call animal companions
@@ -11,6 +12,7 @@
 * Changed restore to restore_all in Bear Bastard's Mecha Camp and Winter Mocha
 * Text input widget now uses TextInput event
 * Lancemates bring their pets with them when they join/leave the party
+* Characters can have one pet
 
 v0.922 August 13 2022
 * Fixed a bug in one of the lancemate plots

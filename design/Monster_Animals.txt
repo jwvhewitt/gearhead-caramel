@@ -135,7 +135,7 @@ Monster
             END
     END
 
-Claws
+
 Monster
     name = "Giant Frog"
     statline = {Reflexes = 9, Body=13, Speed=10, Perception=9, Craft=2, Knowledge=2, Ego=2, Charm = 2,
@@ -435,6 +435,69 @@ Monster
 					penetration=2
 					integral = True
 					attributes = (BonusStrike1)
+            END
+    END
+
+Monster
+    name = "Snapping Turtle"
+    statline = {Reflexes = 9, Body=13, Speed=6, Perception=10, Craft=5, Knowledge=6, Ego=12, Charm = 2,
+			CloseCombat = 5, Dodge = 5
+	}
+	scale = HumanScale
+	imagename = 'mon_animals.png'
+	frame = 7
+	colors = (Olive,GrassGreen,Terracotta,DesertYellow,Olive)
+    threat = 40
+    actions = 2
+    type_tags = ("ANIMAL","WATER","SWAMP","CAVE","REPTILE")
+    families = ("SWAMP", "REPTILE")
+    environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
+
+	SUB
+        Head
+            size = 5
+            SUB
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=4
+					accuracy=1
+					penetration=4
+					attack_stat=Body
+					integral = True
+                Armor
+                    size = 4
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 10
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 5
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 5
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 5
+            END
+        Leg
+            size = 5
+            SUB
+                Armor
+                    size = 5
             END
     END
 

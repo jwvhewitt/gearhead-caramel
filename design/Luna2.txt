@@ -1,0 +1,138 @@
+Mecha
+    name = "Luna II"
+    desig = "AEF-1A"
+    imagename = "mav_luna2.png"
+    portrait = "mecha_luna2.png"
+    family = "Luna II"
+    desc = "This is Aegis Overlord's elite commando mecha."
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv)
+    faction_list = (AegisOverlord,)
+    role_list = (Trooper,)
+    material = Ceramic
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 4
+            END
+        Torso
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Cockpit
+                Engine
+                    size = 925
+                Gyroscope
+                Mount
+                    name = "Right Body Mount"
+                    INV
+                        Launcher
+                            size = 9
+                            SUB
+                                Missile
+                                    name = "Gajira Missiles"
+                                    reach = 9
+                                    damage = 5
+                                    accuracy = 1
+                                    penetration = 4
+                                    quantity = 4
+                            END
+                    END
+                Mount
+                    name = "Left Body Mount"
+                    INV
+                        Launcher
+                            size = 9
+                            SUB
+                                Missile
+                                    name = "Gajira Missiles"
+                                    reach = 9
+                                    damage = 5
+                                    accuracy = 1
+                                    penetration = 4
+                                    quantity = 4
+                            END
+                    END
+                ArcJets
+                    size = 3
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                Mount
+                    name = "Right Arm Mount"
+                    INV
+                        BeamWeapon
+                            name = "Starburst Rifle"
+                            reach = 7
+                            damage = 2
+                            accuracy = 3
+                            penetration = 2
+                            shot_anim = GunBeam
+                            attributes = (Accurate)
+                    END
+                MeleeWeapon
+                    name="Chain Claw"
+                    reach=3
+                    damage=2
+                    accuracy=2
+                    penetration=3
+                    attributes = (Brutal, BonusStrike2, MultiWielded)
+                    integral = True
+                    shot_anim = ReturningChainClaw
+                HeavyActuators
+                    size = 2
+                    integral = True
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                Mount
+                    name = "Left Arm Mount"
+                MeleeWeapon
+                    name="Chain Claw"
+                    reach=3
+                    damage=2
+                    accuracy=2
+                    penetration=3
+                    attributes = (Brutal, BonusStrike2, MultiWielded)
+                    integral = True
+                    shot_anim = ReturningChainClaw
+                HeavyActuators
+                    size = 2
+                    integral = True
+            END
+        Leg
+            name = "Right Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                ArcJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                ArcJets
+                    size = 4
+            END
+    END

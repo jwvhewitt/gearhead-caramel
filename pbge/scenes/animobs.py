@@ -113,12 +113,15 @@ class ShotAnim(AnimOb):
     """An AnimOb which moves along a line."""
 
     def __init__(self, sprite_name=None, width=64, height=64, start_pos=(0, 0), end_pos=(0, 0), frame=0, speed=None,
-                 set_frame_offset=True, x_off=0, y_off=0, delay=0, is_transparent=False):
+                 set_frame_offset=True, x_off=0, y_off=0, delay=0, is_transparent=False, reverse_direction=False):
         super().__init__(sprite_name=sprite_name, width=width, height=height, pos=start_pos,
                          is_transparent=is_transparent)
 
         if set_frame_offset:
-            self.frame = frame + self.dir_frame_offset(self.isometric_pos(*start_pos), self.isometric_pos(*end_pos))
+            frame_offset = self.dir_frame_offset(self.isometric_pos(*start_pos), self.isometric_pos(*end_pos))
+            if reverse_direction:
+                frame_offset = (frame_offset + 4) % 8
+            self.frame = frame + frame_offset
         else:
             self.frame = frame
         self.counter = 0

@@ -567,8 +567,8 @@ class SceneView(object):
                             if len(mlist) > 1:
                                 mlist.sort(key=self.model_depth)
                             for m in mlist:
-                                mx, my = m.pos
-                                sx, sy = self.screen_coords(*m.pos)
+                                #mx, my = m.pos
+                                sx, sy = self.foot_coords(*m.pos)
                                 m.render((sx, sy), self)
 
 
