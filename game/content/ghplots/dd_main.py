@@ -274,7 +274,6 @@ class RoadMap(object):
 
             random.shuffle(towns)
             mytown = towns.pop()
-            print(mytown.destination)
             plot.add_sub_plot(
                 nart, "DZD_OMEGA1004",
                 elements={"METROSCENE": mytown.destination, "METRO": mytown.destination.metrodat}

@@ -1,3 +1,7 @@
+v0.924 August 15 2022
+* Fixed error in Kerberos dungeon
+* Fixed error in Challenge.deactivate method
+
 v0.923 August 15 2022
 * Added Puma and Luna II mecha
 * Most keyboard actions now use is_key_for_action method, may be changed in config.cfg

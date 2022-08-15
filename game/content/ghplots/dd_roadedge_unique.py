@@ -189,7 +189,7 @@ class KerberosAttacks(Plot):
         myent = self.register_element(
             "ENTRANCE", game.content.ghwaypoints.StairsUp(
                 anchor=pbge.randmaps.anchors.middle,
-                dest_wp=self.elements["METROSCENE"]),
+                dest_wp=self.elements["MISSION_GATE"]),
             dident="ENTRANCE_ROOM"
         )
 
@@ -256,6 +256,9 @@ class KerberosAttacks(Plot):
         if self.intro_ready and camp.scene is self.elements["DUNGEON_ENTRANCE"]:
             pbge.alert("You are dropped into a deep underground chamber. You're not sure whether this is inside Kerberos or some adjoining complex.")
             self.intro_ready = False
+        if self.elements["ENTRANCE"].dest_wp is not self.elements["MISSION_GATE"]:
+            print("Fixing Kerberos dungeon...")
+            self.elements["ENTRANCE"].dest_wp = self.elements["MISSION_GATE"]
 
 
 KERBEROS_DEFEATED = "KERBEROS_DEFEATED"

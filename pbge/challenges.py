@@ -204,8 +204,10 @@ class Challenge(object):
         camp.check_trigger("UPDATE")
 
     def deactivate(self, camp):
+        was_active = self._active
         self._active = False
-        camp.check_trigger("UPDATE")
+        if was_active:
+            camp.check_trigger("UPDATE")
 
     @property
     def active(self):
