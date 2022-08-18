@@ -43,7 +43,7 @@ class HumanScale( MechaScale ):
     COST_FACTOR = 5.0
     RANGED_SKILL = stats.RangedCombat
     MELEE_SKILL = stats.CloseCombat
-    XP_MULTIPLIER = 10
+    XP_MULTIPLIER = 2
     @staticmethod
     def get_mass_string( mass ):
         return '{:.1f}kg'.format(mass / 10.0)

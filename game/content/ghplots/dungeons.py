@@ -30,6 +30,8 @@ class GenericDungeonLevel(Plot):
         for t in range(random.randint(3,5)):
             self.add_sub_plot(nart, "MONSTER_ENCOUNTER", elements={"TYPE_TAGS": self.elements[DG_MONSTER_TAGS]})
 
+        self.add_sub_plot(nart, "DUNGEON_EXTRA", necessary=False)
+
         return True
 
     def t_ENDCOMBAT(self, camp:gears.GearHeadCampaign):

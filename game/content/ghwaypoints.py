@@ -373,6 +373,17 @@ class RecoveryBed(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.BedTerrain)
     recovery_entrance = True
 
+class OccupiedBed(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.OccupiedBedTerrain)
+    recovery_entrance = False
+
+    def get_out_of_bed(self):
+        scene = self.scene
+        if scene and scene.on_the_map(*self.pos):
+            scene.set_decor(self.pos[0], self.pos[1], ghterrain.BedTerrain)
+            self.recovery_entrance = True
+
+
 class UndergroundEntrance(Exit):
     TILE = pbge.scenes.Tile(None, None, ghterrain.UndergroundEntranceTerrain)
 

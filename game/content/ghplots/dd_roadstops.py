@@ -206,6 +206,8 @@ class DemocraticOrder(Plot):
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ResidentialBuilding,
                                                                    waypoints={"DOOR": ghwaypoints.ScrapIronDoor(
                                                                        name="Town Hall")},
+                                                                   door_sign=(ghterrain.TownBannerEast,
+                                                                              ghterrain.TownBannerSouth),
                                                                    tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
                                                                          pbge.randmaps.IS_CITY_ROOM,
                                                                          pbge.randmaps.IS_CONNECTED_ROOM]),
@@ -275,6 +277,8 @@ class MilitaryOrder(Plot):
     active = True
     scope = "METRO"
 
+    QOL = gears.QualityOfLife(community=-1, defense=1)
+
     @classmethod
     def matches(cls, pstate):
         """Returns True if this town has a CONFLICT background."""
@@ -285,6 +289,8 @@ class MilitaryOrder(Plot):
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.ScrapIronBuilding,
                                                                    waypoints={"DOOR": ghwaypoints.ScrapIronDoor(
                                                                        name="Town Hall")},
+                                                                   door_sign=(ghterrain.MilitarySignEast,
+                                                                              ghterrain.MilitarySignSouth),
                                                                    tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
                                                                          pbge.randmaps.IS_CITY_ROOM,
                                                                          pbge.randmaps.IS_CONNECTED_ROOM]),
@@ -354,6 +360,8 @@ class TechnocraticOrder(Plot):
     active = True
     scope = "METRO"
 
+    QOL = gears.QualityOfLife(stability=1, defense=-1)
+
     @classmethod
     def matches(cls, pstate):
         """Returns True if this town has a SPACE background."""
@@ -364,6 +372,8 @@ class TechnocraticOrder(Plot):
         building = self.register_element("_EXTERIOR", get_building(self, ghterrain.BrickBuilding,
                                                                    waypoints={"DOOR": ghwaypoints.ScrapIronDoor(
                                                                        name="Town Hall")},
+                                                                   door_sign=(ghterrain.GoldTownHallSignEast,
+                                                                              ghterrain.GoldTownHallSignSouth),
                                                                    tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
                                                                          pbge.randmaps.IS_CITY_ROOM,
                                                                          pbge.randmaps.IS_CONNECTED_ROOM]),
@@ -432,6 +442,8 @@ class VaultOrder(Plot):
 
     active = True
     scope = "METRO"
+
+    QOL = gears.QualityOfLife(prosperity=-1, community=1)
 
     @classmethod
     def matches(cls, pstate):
@@ -656,6 +668,17 @@ class GeneralStore(SomewhatOkayGarage):
         return self.rank // 4
 
 
+class GenericGarage(Plot):
+    LABEL = "DZRS_GARAGE"
+
+    active = False
+    scope = None
+
+    def custom_init(self, nart):
+        self.add_sub_plot(nart, "SHOP_GARAGE", elements={"LOCALE": self.elements["METROSCENE"]})
+        return True
+
+
 #   *************************
 #   ***   DZRS_HOSPITAL   ***
 #   *************************
@@ -826,6 +849,17 @@ class AmateurCyberdoc(Plot):
 
     def _ask_other_question(self, camp):
         self.asked_other_question = True
+
+
+class GenericHospital(Plot):
+    LABEL = "DZRS_HOSPITAL"
+
+    active = False
+    scope = None
+
+    def custom_init(self, nart):
+        self.add_sub_plot(nart, "SHOP_HOSPITAL", elements={"LOCALE": self.elements["METROSCENE"]})
+        return True
 
 
 #   ************************

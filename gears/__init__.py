@@ -834,11 +834,15 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             repair_total += pc.restore_all()
         return repair_total
 
-    def get_relationship(self, npc):
+    def get_relationship(self, npc: base.Character):
         if npc.mnpcid:
-            return self.egg.major_npc_records.setdefault(npc.mnpcid, relationships.Relationship())
+            npc.relationship = self.egg.major_npc_records.setdefault(npc.mnpcid, relationships.Relationship())
+            return npc.relationship
+        elif npc.relationship:
+            return npc.relationship
         else:
-            return relationships.Relationship()
+            npc.relationship = relationships.Relationship()
+            return npc.relationship
 
     # Faction Methods
     def get_faction(self, mything):

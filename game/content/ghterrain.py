@@ -645,6 +645,21 @@ class GoldTownHallSignEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_goldtownhallsign.png'
     frame = 1
 
+
+class MilitarySign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_militarysign.png'
+
+
+class MilitarySignSouth(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_militarysign.png'
+    frame = 0
+
+
+class MilitarySignEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_militarysign.png'
+    frame = 1
+
+
 class GeneralStoreSign1(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_generalstoresign1.png'
 
@@ -988,6 +1003,12 @@ class StoneStairsUpTerrain(pbge.scenes.terrain.Terrain):
 
 class BedTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_bed.png'
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+
+class OccupiedBedTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_occupiedbed.png'
     blocks = (Walking, Skimming, Rolling)
     movement_cost = {pbge.scenes.movement.Vision: 5}
 

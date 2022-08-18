@@ -4168,6 +4168,17 @@ class Character(Being):
         if job and renown:
             job.scale_skills(self, renown)
 
+    def battle_cost(self):
+        # The battle_cost for a character is the max of either their equipment value or their effective monster threat,
+        # as based on their personal combat skills.
+        min_val = super().battle_cost()
+        max_personal_combat_skill = max([self.statline[t] for t in (stats.CloseCombat, stats.RangedCombat, stats.Dodge)]) * 12
+        if max_personal_combat_skill < 31:
+            it = max(max_personal_combat_skill,1) * 100
+        else:
+            it = 10 * max_personal_combat_skill ** 2 - 450 * max_personal_combat_skill + 8500
+        return max(min_val, it)
+
     def get_tacit_faction(self, camp):
         # Get this character's effective faction. Normally this will be the faction this character belongs to, but
         # if the character is factionless then it will be the faction of the team this character is a member of.

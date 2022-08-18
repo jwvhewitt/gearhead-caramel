@@ -21,6 +21,7 @@ from . import dd_roadedge_propp
 from . import dd_roadedge_unique
 from . import dd_roadstops
 from . import dungeons
+from . import dungeon_extras
 from . import encounters
 from . import lancedev
 from . import lancemates
@@ -78,6 +79,7 @@ harvest(dd_roadedge_propp)
 harvest(dd_roadedge_unique)
 harvest(dd_roadstops)
 harvest(dungeons)
+harvest(dungeon_extras)
 harvest(encounters)
 harvest(lancedev)
 harvest(lancemates)

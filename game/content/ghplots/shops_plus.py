@@ -153,7 +153,7 @@ class BasicGarage(Plot):
         building = self.register_element("_EXTERIOR", get_building(
             self, ghterrain.IndustrialBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
-            door_sign=(ghterrain.FixitShopSignEast, ghterrain.FixitShopSignSouth),
+            door_sign=self._generate_shop_sign(),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
@@ -195,6 +195,16 @@ class BasicGarage(Plot):
     def _generate_shop_name(self):
         return random.choice(self.TITLE_PATTERNS).format(
             adjective=random.choice(game.ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None]), **self.elements)
+
+    def _generate_shop_sign(self):
+        candidates = list()
+        mycity: gears.GearHeadScene = self.elements["LOCALE"]
+        candidates.append((ghterrain.FixitShopSignEast, ghterrain.FixitShopSignSouth))
+        if gears.personality.DeadZone in mycity.attributes:
+            candidates.append((ghterrain.RustyFixitShopSignEast, ghterrain.RustyFixitShopSignSouth))
+        if gears.tags.City in mycity.attributes:
+            candidates.append((ghterrain.MechaModelSignEast, ghterrain.MechaModelSignSouth))
+        return random.choice(candidates)
 
     def SHOPKEEPER_offers(self, camp):
         mylist = list()
@@ -363,6 +373,9 @@ class BasicHospital(Plot):
             cybershop = services.Shop(npc=None, rank=self.rank+random.randint(1,25),
                                       ware_types=services.CYBERWARE_STORE)
             room2.contents.append(ghwaypoints.CyberdocTerminal(shop=cybershop))
+
+        if random.randint(1,3) == 2:
+            self.add_sub_plot(nart, "HOSPITAL_BONUS")
 
         return True
 

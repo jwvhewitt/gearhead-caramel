@@ -1069,6 +1069,8 @@ class DZD_AlliedArmor(Plot):
                                                                                      "Construction Worker"]))
         hiddenroom.contents.append(cwnpc)
 
+        self.add_sub_plot(nart, "TEST_DUNGEON_EXTRA", elements={"DG_ARCHITECTURE": intscenegen.archi, "DG_MONSTER_TAGS": ("ANIMAL", "CITY", "VERMIN",), "LOCALE": otherscene}, necessary=False)
+
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["OTHERSCENE"], "Wujung Undercity", gharchitecture.StoneBuilding(), 10,
             monster_tags=("ANIMAL", "CITY", "VERMIN",),
@@ -1405,6 +1407,8 @@ class DZD_WujungHospital(Plot):
         self.add_sub_plot(nart, "DZD_WuHosMedicLancemate")
 
         self.shop = services.Shop(services.PHARMACY, allow_misc=False, caption="Pharmacy", rank=50, npc=doctor)
+
+        self.add_sub_plot(nart, "TEST_HOSPITAL_BONUS", necessary=False)
 
         return True
 

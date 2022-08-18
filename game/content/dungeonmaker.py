@@ -29,6 +29,7 @@ class ProtoDLevel(object):
         self.terminal = terminal
         self.parent = parent
         self.real_scene = None
+        self.level_plot = None
 
     BRANCH_IDENTIFIERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -74,6 +75,7 @@ class DungeonMaker(object):
                 DG_EXPLO_MUSIC: explo_music, DG_COMBAT_MUSIC: combat_music, DG_DECOR: decor
             }))
             proto.real_scene = sp.elements["LOCALE"]
+            proto.level_plot = sp
             self.levels.append(proto.real_scene)
             if proto.terminal:
                 sp.add_sub_plot(nart, "DUNGEON_GOAL")

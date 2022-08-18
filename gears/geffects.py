@@ -1234,7 +1234,7 @@ class DoDamage(effects.NoEffect):
                             10), self.MAX_DESTROY_TARGET_XP)
                     originator.dole_experience(xp)
                 elif mydamage.damage_done > 0:
-                    originator.dole_experience(5)
+                    originator.dole_experience(3)
                 else:
                     originator.dole_experience(1)
             if camp.fight:

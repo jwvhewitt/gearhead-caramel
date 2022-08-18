@@ -1,12 +1,212 @@
 import game.ghdialogue.ghgrammar
 from pbge.plots import Plot
 from pbge.dialogue import Offer, ContextTag
-from game import teams, services
+from game import teams, services, ghdialogue
 from game.ghdialogue import context
 import gears
 import pbge
 import random
-from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, ghrooms
+from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, ghrooms, ghcutscene
+from .lancemates import LMSkillsSelfIntro, get_hire_cost
+
+
+#   ************************
+#   ***  HOSPITAL_BONUS  ***
+#   ************************
+#
+# Some kind of extra content that can be found in a tavern.
+#
+# Elements: LOCALE, INTERIOR, SHOPKEEPER
+#
+
+class RecoveringCavalier(Plot):
+    LABEL = "HOSPITAL_BONUS"
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        npc = gears.selector.random_character(rank=min(random.randint(10, 40),random.randint(10, 40)),
+                                              mecha_colors=gears.color.random_mecha_colors(),
+                                              local_tags=tuple(self.elements["LOCALE"].attributes),
+                                              combatant=True, can_cyberize=True)
+
+        # This person gets a bonus to cyberware, vitality, or dodge.
+        npc.statline[random.choice([gears.stats.Cybertech, gears.stats.Vitality, gears.stats.Dodge])] += random.randint(1,6)
+
+        self.register_element("NPC", npc, dident="INTERIOR")
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        npc = self.elements["NPC"]
+        self.hire_cost = get_hire_cost(camp, npc)
+        if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
+            if camp.can_add_lancemate():
+                if npc.get_reaction_score(camp.pc, camp) > 60:
+                    mylist.append(Offer("[IWOULDLOVETO] [THANKS_FOR_CHOOSING_ME]",
+                                        context=ContextTag((context.PROPOSAL, context.JOIN)),
+                                        data={"subject": "joining my lance"},
+                                        effect=self._join_lance
+                                        ))
+                else:
+                    mylist.append(Offer("My regular signing rate is ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                                        context=ContextTag((context.PROPOSAL, context.JOIN)),
+                                        data={"subject": "joining my lance"},
+                                        subject=self, subject_start=True,
+                                        ))
+                    mylist.append(Offer("[DENY_JOIN] [GOODBYE]",
+                                        context=ContextTag((context.DENY, context.JOIN)), subject=self
+                                        ))
+                    if camp.credits >= self.hire_cost:
+                        mylist.append(Offer("[THANKS_FOR_CHOOSING_ME] [LETSGO]",
+                                            context=ContextTag((context.ACCEPT, context.JOIN)), subject=self,
+                                            effect=self._pay_to_join
+                                            ))
+                mylist.append(Offer(
+                    "[HELLO] I got pretty badly messed up on my last mission, so now I'm here.", context=ContextTag((context.HELLO,))
+                ))
+            else:
+                mylist.append(Offer(
+                    "[HELLO] Be careful out there... I wouldn't be in this hospital if I had been.",
+                    context=ContextTag((context.HELLO,))
+                ))
+            mylist.append(LMSkillsSelfIntro(npc))
+
+        return mylist
+
+    def _pay_to_join(self, camp):
+        camp.credits -= self.hire_cost
+        self._join_lance(camp)
+
+    def _join_lance(self, camp):
+        npc = self.elements["NPC"]
+        npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        effect = game.content.plotutility.AutoJoiner(npc)
+        effect(camp)
+        self.end_plot(camp)
+
+
+class HospitalHopelessCase(Plot):
+    LABEL = "HOSPITAL_BONUS"
+    active = True
+    scope = "INTERIOR"
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        patient_room = self.register_element('ROOM', pbge.randmaps.rooms.ClosedRoom(),
+                                      dident="INTERIOR")
+
+        patient = self.register_element("PATIENT", gears.selector.random_character(rank=self.rank, local_tags=self.elements["LOCALE"].attributes))
+
+        patient_bed = self.register_element('PATIENT_BED', ghwaypoints.OccupiedBed(name="{}'s Bed".format(patient), plot_locked=True, anchor=pbge.randmaps.anchors.middle), dident="ROOM")
+
+        nurse = self.register_element("NURSE", gears.selector.random_character(rank=self.rank, local_tags=self.elements["LOCALE"].attributes, job=gears.jobs.ALL_JOBS["Nurse"]), dident="ROOM")
+
+        self.cured_patient = False
+        self.party_doctor = None
+        self.register_element("DISEASE", plotutility.random_disease_name())
+        self.got_reward = False
+        return True
+
+    def PATIENT_BED_menu(self, camp: gears.GearHeadCampaign, thingmenu):
+        if not self.cured_patient:
+            thingmenu.desc = "{PATIENT} lies unconscious in this bed, a victim of {DISEASE}. It is unknown how much time {PATIENT.gender.subject_pronoun} has left.".format(**self.elements)
+            lm = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Medicine, gears.stats.DIFFICULTY_LEGENDARY, no_random=True)
+            if lm:
+                self.party_doctor = lm
+                if lm is camp.pc:
+                    thingmenu.add_item("You believe {PATIENT} can be saved. Offer the doctors a second opinion.".format(**self.elements), self._cure_disease)
+                else:
+                    thingmenu.items.append(
+                        ghdialogue.ghdview.LancemateConvoItem("This is the wrong treatment for {DISEASE}... Let's talk to the doctors, I can save {PATIENT.gender.object_pronoun}.".format(**self.elements), self._cure_disease, desc=None, menu=thingmenu, npc=lm))
+            thingmenu.add_item("Leave {PATIENT} in peace.".format(**self.elements), None)
+        else:
+            thingmenu.desc = "The bed is empty now. Maybe someone else will need it later."
+
+    def _cure_disease(self, camp: gears.GearHeadCampaign):
+        nurse = self.elements["NURSE"]
+        if nurse in camp.scene.contents:
+            ghcutscene.SimpleMonologueDisplay("We have tried all we can here. If you know of another treatment, then please do what you can.", nurse)(camp)
+        if self.party_doctor is camp.pc:
+            pbge.alert("You attempt emergency treatment for {PATIENT}'s {DISEASE}.".format(**self.elements))
+        else:
+            pbge.alert("{LM} attempts emergency treatment for {PATIENT}'s {DISEASE}.".format(LM=self.party_doctor, **self.elements))
+        pbge.alert("The treatment is successful!")
+        self.cured_patient = True
+        mybed = self.elements["PATIENT_BED"]
+        mybed.get_out_of_bed()
+        camp.scene.place_gears_near_spot(*mybed.pos, camp.scene.civilian_team, self.elements["PATIENT"])
+        camp.dole_xp(200)
+
+    def NURSE_offers(self, camp):
+        mylist = list()
+
+        if not self.cured_patient:
+            mylist.append(Offer("[HELLO] {PATIENT} is being treated for {DISEASE}, but the case seems hopeless.".format(**self.elements),
+                                context=ContextTag([context.HELLO]),
+                                ))
+            mylist.append(Offer("We've tried all the treatments we know here... maybe if you could find a medical expert with knowledge of this disease.".format(**self.elements),
+                                context=ContextTag([context.CUSTOM]), subject=str(self.elements["PATIENT"]),
+                                data={"reply": "Is there anything I could do to help?"}
+                                ))
+        elif not self.got_reward and self.elements["NURSE"].combatant and not self.elements["PATIENT"].combatant:
+            mylist.append(Offer("You did it- you saved {PATIENT}! I don't have much to do around here anymore, so if you ever need a nurse on your team just ask.".format(**self.elements),
+                                context=ContextTag([context.HELLO]), effect=self._nurse_joins
+                                ))
+        else:
+            mylist.append(Offer("[HELLO] Thank you so much for saving {PATIENT}!".format(**self.elements),
+                                context=ContextTag([context.HELLO])
+                                ))
+
+        return mylist
+
+    def _nurse_joins(self, camp: gears.GearHeadCampaign):
+        nurse = self.elements["NURSE"]
+        nurse_r = camp.get_relationship(nurse)
+        nurse_r.tags.add(gears.relationships.RT_LANCEMATE)
+        nurse_r.reaction_mod += 15
+        self.got_reward = True
+
+    def PATIENT_offers(self, camp):
+        mylist = list()
+        if not self.got_reward:
+            if self.elements["PATIENT"].combatant:
+                mylist.append(Offer("I heard that you're responsible for curing my {DISEASE}. After I'm feeling better, if you need a {PATIENT.job} on your lance, come back and ask.".format(**self.elements),
+                                    context=ContextTag([context.HELLO]), effect=self._patient_joins
+                                    ))
+
+            else:
+                mylist.append(Offer("I heard that you're responsible for curing my {DISEASE}. I'll let everyone know about the wonderful thing you did!".format(**self.elements),
+                                    context=ContextTag([context.HELLO]), effect=self._patient_thanks
+                                    ))
+
+        else:
+            mylist.append(Offer("[HELLO] I'll never forget what you did for me!".format(**self.elements),
+                                context=ContextTag([context.HELLO])
+                                ))
+
+        return mylist
+
+    def _patient_joins(self, camp: gears.GearHeadCampaign):
+        patient = self.elements["PATIENT"]
+        patient_r = camp.get_relationship(patient)
+        patient_r.tags.add(gears.relationships.RT_LANCEMATE)
+        patient_r.history.append(gears.relationships.Memory(
+            "you cured me of {DISEASE}".format(**self.elements),
+            "I cured you of {DISEASE}".format(**self.elements),
+            25, (gears.relationships.MEM_AidedByPC,)
+        ))
+        patient_r.attitude = gears.relationships.A_THANKFUL
+        camp.egg.dramatis_personae.add(patient)
+        self.got_reward = True
+
+    def _patient_thanks(self, camp: gears.GearHeadCampaign):
+        metro = camp.scene.get_metro_scene()
+        if metro and metro.metrodat:
+            metro.metrodat.local_reputation += 25
+        self.got_reward = True
+
+
 
 #   **********************
 #   ***  TAVERN_BONUS  ***

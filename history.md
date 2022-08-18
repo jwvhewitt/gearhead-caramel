@@ -1,3 +1,7 @@
+* Most dungeon encounters don't regenerate _every_ day
+* Added dungeon extras to dungeon levels
+* Added more signs for different businesses
+
 v0.924 August 15 2022
 * Fixed error in Kerberos dungeon
 * Fixed error in Challenge.deactivate method
