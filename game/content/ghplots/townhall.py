@@ -64,7 +64,7 @@ class BasicTownHall(Plot):
         building = self.register_element("_EXTERIOR", get_building(
             self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self._hallname)},
-            door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
+            door_sign=(ghterrain.GoldTownHallSignEast, ghterrain.GoldTownHallSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 

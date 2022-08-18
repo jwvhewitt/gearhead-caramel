@@ -618,6 +618,104 @@ class RegExLogoTerrainEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_logo_regex.png'
 
 
+class TownBanner(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_townbanner.png'
+
+
+class TownBannerSouth(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_townbanner.png'
+    frame = 0
+
+
+class TownBannerEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_townbanner.png'
+    frame = 1
+
+
+class GoldTownHallSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_goldtownhallsign.png'
+
+
+class GoldTownHallSignSouth(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_goldtownhallsign.png'
+    frame = 0
+
+
+class GoldTownHallSignEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_goldtownhallsign.png'
+    frame = 1
+
+class GeneralStoreSign1(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_generalstoresign1.png'
+
+
+class GeneralStoreSign1South(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_generalstoresign1.png'
+    frame = 0
+
+
+class GeneralStoreSign1East(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_generalstoresign1.png'
+    frame = 1
+
+
+class TavernSign1(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_tavernsign.png'
+
+
+class TavernSign1South(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_tavernsign.png'
+    frame = 0
+
+
+class TavernSign1East(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_tavernsign.png'
+    frame = 1
+
+class CafeSign1(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_cafesign.png'
+
+
+class CafeSign1South(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_cafesign.png'
+    frame = 0
+
+
+class CafeSign1East(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_cafesign.png'
+    frame = 1
+
+
+class MechaModelSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_kenney_mechasign.png'
+
+
+class MechaModelSignSouth(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_kenney_mechasign.png'
+    frame = 0
+
+
+class MechaModelSignEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_kenney_mechasign.png'
+    frame = 1
+
+
+class SkullWallSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_skulltown.png'
+    SOUTH_FRAME = 2
+    EAST_FRAME = 1
+
+
+class SkullWallSignSouth(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_kenney_mechasign.png'
+    frame = 1
+
+
+class SkullWallSignEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_kenney_mechasign.png'
+    frame = 2
+
+
 class HospitalSign(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_hospitalsign.png'
 

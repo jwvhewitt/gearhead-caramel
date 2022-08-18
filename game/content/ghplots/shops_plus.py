@@ -69,7 +69,7 @@ class BasicBlackMarket(Plot):
         building = self.register_element("_EXTERIOR", get_building(
             self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.shopname)},
-            door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
+            door_sign=(ghterrain.SkullWallSignEast, ghterrain.SkullWallSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
@@ -125,6 +125,9 @@ class BasicBlackMarket(Plot):
 #   *********************
 #   ***  SHOP_GARAGE  ***
 #   *********************
+#
+#   A garage is guaranteed to sell mecha and have a mecha engineering terminal. It may sell more, but that part at
+#   least is guaranteed.
 #
 #   Elements:
 #       LOCALE
@@ -212,6 +215,9 @@ class BasicGarage(Plot):
 #   ***  SHOP_GENERALSTORE  ***
 #   ***************************
 #
+#   A general store is guaranteed to sell everything you need for personal scale exploration. It may sell more, but
+#   that part at least is guaranteed.
+#
 #   Elements:
 #       LOCALE
 #   Optional:
@@ -236,7 +242,7 @@ class BasicGeneralStore(Plot):
         building = self.register_element("_EXTERIOR", get_building(
             self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
-            door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
+            door_sign=(ghterrain.GeneralStoreSign1East, ghterrain.GeneralStoreSign1South),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
@@ -294,6 +300,8 @@ class BasicGeneralStore(Plot):
 #   ***********************
 #   ***  SHOP_HOSPITAL  ***
 #   ***********************
+#
+#   A hospital is guaranteed to sell medicine. It may offer other services, but that much is guaranteed.
 #
 #   Elements:
 #       LOCALE
@@ -411,7 +419,7 @@ class BasicTavern(Plot):
         building = self.register_element(
             "_EXTERIOR", get_building(self, ghterrain.ResidentialBuilding,
                 waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
-                door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
+                door_sign=(ghterrain.TavernSign1East, ghterrain.TavernSign1South),
                 tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM,
                       pbge.randmaps.IS_CONNECTED_ROOM]),
             dident="LOCALE")

@@ -16,6 +16,9 @@ ARTWORK
 
 ICONS - MOSTLY FROM "THE NOUN PROJECT"
 ======================================
+* mug by Vectors Market from Noun Project
+* Beer by kamal az zahra 93 from Noun Project CC-BY-3.0
+* building by Doub.co from Noun Project CC-BY-3.0
 * Wolf by Vectorstall from Noun Project CC-BY-3.0
 * Boat by Pham Duy Phuong Hung from NounProject.com CC-BY-3.0
 * Jump by Centis MENANT from NounProject.com CC-BY-3.0
