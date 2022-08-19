@@ -1,3 +1,5 @@
+* Added tables and chairs to bars and coffee shops
+* Campaign method get_relationship will return existing relationship if it exists
 * Most dungeon encounters don't regenerate _every_ day
 * Added dungeon extras to dungeon levels
 * Added more signs for different businesses

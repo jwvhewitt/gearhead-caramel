@@ -19,6 +19,13 @@ class ResidentialDecor(OmniDec):
     WIN_DECOR = ghterrain.ScreenWindow
 
 
+class RestaurantDecor(OmniDec):
+    WALL_DECOR = (ghterrain.WoodenShelves,)
+    WALL_FILL_FACTOR = 0.33
+    FLOOR_DECOR = (ghterrain.TableAndChairsTerrain,)
+    FLOOR_FILL_FACTOR = 0.05
+
+
 class DungeonDecor(OmniDec):
     WALL_DECOR = (ghterrain.TorchTerrain,)
     WALL_FILL_FACTOR = 0.33

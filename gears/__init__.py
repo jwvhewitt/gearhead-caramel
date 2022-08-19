@@ -31,6 +31,7 @@ from . import portraits
 from . import genderobj
 from . import usables
 from . import meritbadges
+from . import treasuretype
 
 import inspect
 import os

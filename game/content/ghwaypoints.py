@@ -100,6 +100,14 @@ class StorageBox(Crate):
     OPEN_TERRAIN = ghterrain.OpenStorageBoxTerrain
 
 
+class Skeleton(Crate):
+    name = 'Skeleton'
+    TILE = pbge.scenes.Tile(None,None,ghterrain.SkeletonTerrain)
+    desc = "You stand before the skeleton of an unlucky adventurer."
+    OPEN_TERRAIN = ghterrain.SkeletonTerrain
+    DEFAULT_TREASURE_TYPE = (gears.tags.ST_WEAPON, gears.tags.ST_CLOTHING, gears.tags.ST_ESSENTIAL)
+
+
 class DZDTown( Exit ):
     name = 'Town'
     TILE = pbge.scenes.Tile( None, DZDTownTerrain, None )

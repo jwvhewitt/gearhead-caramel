@@ -19,6 +19,7 @@ import pygame
 from . import personality
 import uuid
 import math
+from . import treasuretype
 
 
 class Restoreable(object):
@@ -4100,11 +4101,12 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
 
 class Monster(Being, MakesPower):
-    SAVE_PARAMETERS = ('threat', 'type_tags', 'families', 'environment_list', 'frame', 'actions', 'pet_data', 'can_be_pet')
+    SAVE_PARAMETERS = ('threat', 'type_tags', 'families', 'environment_list', 'frame', 'actions', 'pet_data',
+                       'can_be_pet', 'treasure_type')
     DEFAULT_MATERIAL = materials.Meat
 
     def __init__(self, threat=0, type_tags=(), families=(), frame=0, actions=2, can_be_pet=False,
-                 environment_list=(tags.GroundEnv, tags.UrbanEnv), pet_data=None, **keywords):
+                 environment_list=(tags.GroundEnv, tags.UrbanEnv), pet_data=None, treasure_type=None, **keywords):
         super().__init__(**keywords)
         self.threat = threat
         self.type_tags = set(type_tags)
@@ -4114,6 +4116,10 @@ class Monster(Being, MakesPower):
         self.actions = actions
         self.pet_data = pet_data
         self.can_be_pet = can_be_pet
+        if treasure_type:
+            self.treasure_type = treasuretype.TreasureType(treasure_type)
+        else:
+            self.treasure_type = None
 
     @property
     def self_cost(self):
@@ -4134,6 +4140,11 @@ class Monster(Being, MakesPower):
 
     def get_action_points(self):
         return max(self.actions, 1)
+
+    def get_tags(self, include_all=True):
+        # Return the character's personality, job, and faction tags.
+        # If include_all is True, also include those tags the PC might not need to see.
+        return self.type_tags
 
 
 class Character(Being):

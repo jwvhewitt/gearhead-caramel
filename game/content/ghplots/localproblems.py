@@ -384,6 +384,8 @@ class SregorThrunet(Plot):
             gharchitecture.DefaultBuilding(floor_terrain=ghterrain.GrateFloor,
                                            decorate=gharchitecture.TechDungeonDecor()),
             self.rank, monster_tags=("ROBOT", "FACTORY", "RUINS", "MUTANT", "EARTH"),
+            scene_tags=(gears.tags.SCENE_DUNGEON, gears.tags.SCENE_SEMIPUBLIC, gears.tags.SCENE_RUINS,
+                        gears.tags.SCENE_LABORATORY),
             decor=None
         )
         goal_level = self.register_element("_goal_level", my_dungeon.goal_level)

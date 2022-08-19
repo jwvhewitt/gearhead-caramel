@@ -12,7 +12,7 @@ ARTWORK
 * The font Anita Semi-Square is by Gustavo Paz L., CC-BY-SA 4.0
 * The DejaVu fonts are released under a free license. https://dejavu-fonts.github.io/License.html
 * anim_frogatto_nuke.png from OpenGameArt user Jetrel, public domain
-* anim_gervais_*.png by David Gervais, CC-BY 3.0
+* anim_gervais_*.png, terrain_gervais_\*.png by David Gervais, CC-BY 3.0
 
 ICONS - MOSTLY FROM "THE NOUN PROJECT"
 ======================================

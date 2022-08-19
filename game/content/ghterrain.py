@@ -1138,3 +1138,22 @@ class ShrineTerrain(pbge.scenes.terrain.Terrain):
     frame = 3
     image_top = 'terrain_decor_default.png'
     blocks = (Walking, Skimming, Rolling)
+
+
+class SkeletonTerrain(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_gervais_decor.png'
+    blocks = (Walking, Skimming, Rolling)
+
+
+class PitTerrain(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_gervais_decor.png'
+    blocks = (Walking, Skimming, Rolling)
+
+
+class TableAndChairsTerrain(pbge.scenes.terrain.Terrain):
+    frame = 2
+    image_top = 'terrain_gervais_decor.png'
+    blocks = (Walking, Skimming, Rolling)
+

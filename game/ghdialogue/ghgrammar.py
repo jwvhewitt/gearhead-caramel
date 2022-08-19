@@ -1075,6 +1075,30 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[EULOGY]": {
+        # Press F to Pay Respects
+        Default: ["We pay our respects to this fallen comrade.",
+                  ],
+        personality.Cheerful: ["I'm not very good at this, but... it's sad this person died.",
+                               ],
+        personality.Grim: ["Everyone dies someday. May we all hope for such a glorious death.",
+                           ],
+        personality.Easygoing: ["This person died. That sucks. Better luck next life.",
+                                ],
+        personality.Passionate: ["Fly to [God], fallen warrior! Your mighty deeds will not be forgotten.",
+                                 ],
+        personality.Sociable: ["This could have been any one of us. May the life and deeds of the deceased live on forever in memory.",
+                               ],
+        personality.Shy: ["Rest in peace.",
+                          ],
+        tags.Military: [
+            "Salute! May the fallen be honored forever in our memory.",
+        ],
+        tags.Faithworker: [
+            "We commend this fallen soul unto [God] and pray for those left behind."
+        ]
+    },
+
     "[expletive]": {
         Default: ["ashes", "blazes", "hell",
                   ],
@@ -1895,6 +1919,25 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["We could try to repair the movement systems, but if it doesn't work we've just wasted precious time and energy...",
                                ],
         personality.Shy: ["Could anybody help?",
+                          ],
+    },
+
+    "[HERE_YOU_GO]": {
+        # Giving something to someone.
+        Default: ["Here you go.", "Here you are."
+                  ],
+        personality.Cheerful: ["You're going to like this."
+                               ],
+        personality.Grim: ["Hopefully this will meet your expectations.",
+                           ],
+        personality.Easygoing: ["Here ya go.",
+                                ],
+        personality.Passionate: ["This is especially for you!",
+                                 ],
+        personality.Sociable: [
+            "Here, this is for you.",
+            ],
+        personality.Shy: ["Here it is.",
                           ],
     },
 
@@ -3373,6 +3416,27 @@ DEFAULT_GRAMMAR = {
         Default: [
             "him", "her", "zem"
         ]
+    },
+
+    "[OF_COURSE]": {
+        Default: ["Of course.",
+                  ],
+        personality.Cheerful: ["Absolutely!",
+                               ],
+        personality.Grim: ["What do you think?",
+                           ],
+        personality.Easygoing: ["No problem."
+                                ],
+        personality.Passionate: ["That is a certainty!",
+                                 ],
+        personality.Sociable: ["But of course.",
+                               ],
+        personality.Shy: ["OK.",
+                          ],
+        DISLIKE: ["Yeah, I guess...",
+                  ],
+        LIKE: ["As you say.",
+               ]
     },
 
     "[OK]": {

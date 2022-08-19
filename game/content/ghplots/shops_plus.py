@@ -464,6 +464,9 @@ class BasicTavern(Plot):
             nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
+        myfloor = pbge.randmaps.rooms.Room(foyer.width-2, foyer.height-mybar.height-2, anchor=pbge.randmaps.anchors.south, decorate=gharchitecture.RestaurantDecor())
+        foyer.contents.append(myfloor)
+
         self.add_sub_plot(nart, "TAVERN_BONUS", necessary=False)
 
         return True
