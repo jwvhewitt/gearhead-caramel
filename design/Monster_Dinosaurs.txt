@@ -12,6 +12,7 @@ Monster
     families = ("DINOSAUR",)
     environment_list = (GroundEnv,UrbanEnv)
     can_be_pet = True
+    treasure_type = {skill=Wildcraft, treasures=("Meat", "Meat", "Meat", "Reptile Skin")}
 
 	SUB
         Head
@@ -83,6 +84,7 @@ Monster
     families = ("DINOSAUR",)
     environment_list = (GroundEnv,UrbanEnv)
     can_be_pet = True
+    treasure_type = {skill=Wildcraft, treasures=("Meat", "Reptile Skin")}
 
 	SUB
         Head

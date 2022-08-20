@@ -16,6 +16,7 @@ from . import targetingui
 from . import programsui
 from . import aibrain
 from . import aihaywire
+from game import fieldhq
 import random
 import gears
 from .. import configedit, invoker
@@ -723,6 +724,7 @@ class Combat(object):
             #    # Provide some end-of-combat first aid.
             #    #self.do_first_aid(explo)
             #    self.recover_fainted(explo)
+            treasure = pbge.container.ContainerList()
             for m in self.active:
                 if m in self.scene.contents and self.scene.is_an_actor(m):
                     if not m.is_operational():
@@ -730,6 +732,11 @@ class Combat(object):
                         n = m.get_pilot()
                         if n and m is not n and not n.is_operational():
                             self.camp.check_trigger("FAINT", n)
+                        mteam = self.scene.local_teams.get(m)
+                        if mteam and self.scene.player_team.is_enemy(mteam) and hasattr(m, "treasure_type") and m.treasure_type:
+                            maybe_treasure = m.treasure_type.generate_treasure(self.camp, m, gears.selector.get_design_by_full_name)
+                            if maybe_treasure:
+                                treasure.append(maybe_treasure)
 
             # Deal with m-kills now; if someone is immobilized and can't be repaired, they get left behind.
             # I am well aware this might mean the entire party gets taken out of combat.
@@ -752,6 +759,10 @@ class Combat(object):
                             choice(myparty, pc)
                         else:
                             self._abandon_mkill(myparty, pc)
+
+            if myparty and treasure:
+                pbge.alert("You acquired some valuables from the battle.")
+                fieldhq.backpack.ItemExchangeWidget.create_and_invoke(self.camp, self.camp.first_active_pc(), treasure)
 
             self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)
 

@@ -12,6 +12,7 @@ Monster
     families = ("RATS","VERMIN")
     environment_list = (GroundEnv,UrbanEnv)
     material = Ceramic
+    treasure_type = {skill=Science, treasures=(None, None, "Spare Parts")}
 
 	SUB
         Head
@@ -68,6 +69,7 @@ Monster
     type_tags = ("ROBOT", "FACTORY", "CITY",)
     families = ("ROBOT","FACTORY")
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Science, treasures=(None, "Spare Parts", "Chainsaw")}
 
 	SUB
         Torso
@@ -114,6 +116,7 @@ Monster
     type_tags = ("ROBOT", "FACTORY", "GUARD",)
     families = ("ROBOT","GUARD")
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Science, treasures=("Spare Parts")}
 
 	SUB
         Torso
@@ -176,6 +179,7 @@ Monster
     type_tags = ("ROBOT", "GUARD", "FACTORY",)
     families = ("ROBOT","GUARD")
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Science, treasures=("Spare Parts")}
 
 	SUB
 	    Head
@@ -264,6 +268,7 @@ Monster
     type_tags = ("ROBOT", "FACTORY", "MINE",)
     families = ("ROBOT",)
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Science, treasures=("Spare Parts", "Copper Ingot", "Silver Ingot", "Impervium Ingot", "Gold Ingot", "Platinum Ingot")}
 
 	SUB
         Torso

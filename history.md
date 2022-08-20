@@ -1,3 +1,7 @@
+* Added RestoreMP, RestoreSP effects
+* Fixed bug when gear loader tries to load list inside a dict
+* Added treasure types to monsters
+* Monsters without legs don't get their movement rate downgraded
 * Added tables and chairs to bars and coffee shops
 * Campaign method get_relationship will return existing relationship if it exists
 * Most dungeon encounters don't regenerate _every_ day

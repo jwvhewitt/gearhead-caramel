@@ -12,6 +12,7 @@ Monster
     families = ("RATS","VERMIN")
     environment_list = (GroundEnv,UrbanEnv)
     can_be_pet = True
+    treasure_type = {skill=Wildcraft, treasures=("Monster Pelt", "Meat")}
 
 	SUB
         Head
@@ -55,6 +56,7 @@ Monster
     families = ("RATS","VERMIN")
     environment_list = (GroundEnv,UrbanEnv)
     can_be_pet = True
+    treasure_type = {skill=Wildcraft, treasures=("Monster Pelt", "Meat", "Meat", "Monster Skull")}
 
 	SUB
         Head
@@ -97,6 +99,7 @@ Monster
     families = ("REPTILE",)
     environment_list = (GroundEnv,UrbanEnv)
     can_be_pet = True
+    treasure_type = {skill=Wildcraft, treasures=("Meat", "Reptile Skin")}
 
 	SUB
         Head
@@ -150,6 +153,7 @@ Monster
     families = ("FROGS",)
     environment_list = (GroundEnv,UrbanEnv)
     can_be_pet = True
+    treasure_type = {skill=Wildcraft, treasures=("Meat")}
 
 	SUB
         Head
@@ -189,6 +193,7 @@ Monster
     families = ("FROGS",)
     environment_list = (GroundEnv,UrbanEnv)
     can_be_pet = True
+    treasure_type = {skill=Wildcraft, treasures=("Meat")}
 
 	SUB
         Head
@@ -343,6 +348,7 @@ Monster
     families = ("REPTILE")
     environment_list = (GroundEnv,UrbanEnv)
     can_be_pet = True
+    treasure_type = {skill=Wildcraft, treasures=("Meat", "Reptile Skin", "Monster Skull")}
 
 	SUB
         Head
@@ -453,6 +459,7 @@ Monster
     families = ("SWAMP", "REPTILE")
     environment_list = (GroundEnv,UrbanEnv)
     can_be_pet = True
+    treasure_type = {skill=Wildcraft, treasures=("Meat", "Meat", "Tortoise Shield")}
 
 	SUB
         Head

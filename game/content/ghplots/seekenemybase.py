@@ -349,7 +349,7 @@ class SEBOSearchForBase( Plot ):
                 random.choice(candidates)(camp)
 
     def attempt_scouting(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Scouting,self.rank)
+        pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Scouting, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
                 mymenu = pbge.rpgmenu.AlertMenu("As you approach {ENEMY_FACTION}, you realize you could probably follow them back to their base.".format(**self.elements))
@@ -362,7 +362,7 @@ class SEBOSearchForBase( Plot ):
                 go(camp)
 
     def attempt_stealth(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Stealth,self.rank)
+        pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Stealth, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
                 mymenu = pbge.rpgmenu.AlertMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
@@ -375,7 +375,7 @@ class SEBOSearchForBase( Plot ):
                 go(camp)
 
     def attempt_wildcraft(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Wildcraft,self.rank)
+        pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Wildcraft, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
                 pbge.alert("After the battle, you find tracks leading directly back to {}.".format(self.elements["ENEMY_BASE_NAME"]))
@@ -384,7 +384,7 @@ class SEBOSearchForBase( Plot ):
             self.find_the_base(camp, True)
 
     def attempt_computers(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Computers,self.rank)
+        pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Computers, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
                 pbge.alert("After the battle, you hack into one of the enemy's navcomps and learn the location of {}.".format(self.elements["ENEMY_BASE_NAME"]))

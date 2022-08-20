@@ -575,7 +575,7 @@ class MechaGraveyardAdventure(Plot):
             "Join the battleforce of the future, today. Support development of the NC-1 Self Repair Module now and get early backer exclusive rewards.")
 
     def _search_l2(self, camp: gears.GearHeadCampaign):
-        pc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Computers, self.rank, difficulty=gears.stats.DIFFICULTY_EASY, no_random=True)
+        pc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Computers, self.rank, difficulty=gears.stats.DIFFICULTY_EASY, no_random=True)
         if pc:
             if pc is camp.pc:
                 pbge.alert("You easily hack into the ancient computer system.")
@@ -612,7 +612,7 @@ class MechaGraveyardAdventure(Plot):
             "\"So far, the spread of the bionites has been limited by their fragility when moved beyond range of the broadcast power system. Testing cannot resume until it's clear we're not risking another Onyx Jelly fiasco.\"")
 
     def _search_l1(self, camp: gears.GearHeadCampaign):
-        pc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Computers, self.rank, no_random=True)
+        pc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Computers, self.rank, no_random=True)
         if pc:
             if pc is camp.pc:
                 pbge.alert("You easily hack into the ancient computer system.")
@@ -1695,7 +1695,7 @@ class WOTHCBM_PeacefulPeople(Plot):
 
     def _train_soldier(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
         pbge.alert("You begin training {} in the ways of mecha warfare.".format(npc))
-        if camp.make_skill_roll(gears.stats.Knowledge, gears.stats.MechaPiloting, self.rank, gears.stats.DIFFICULTY_HARD):
+        if camp.do_skill_test(gears.stats.Knowledge, gears.stats.MechaPiloting, self.rank, gears.stats.DIFFICULTY_HARD):
             ghcutscene.SimpleMonologueDisplay("[I_LEARNED_SOMETHING] I'm all ready to take on {THAT_CITY}!".format(**self.elements), npc)(camp, False)
             self.elements["PEACE_CHALLENGE"].advance(camp, 1)
         else:

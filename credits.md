@@ -16,7 +16,8 @@ ARTWORK
 
 ICONS - MOSTLY FROM "THE NOUN PROJECT"
 ======================================
-* mug by Vectors Market from Noun Project
+* meat on a bone by Kevin from Noun Project CC-BY-3.0
+* mug by Vectors Market from Noun Project CC-BY-3.0
 * Beer by kamal az zahra 93 from Noun Project CC-BY-3.0
 * building by Doub.co from Noun Project CC-BY-3.0
 * Wolf by Vectorstall from Noun Project CC-BY-3.0

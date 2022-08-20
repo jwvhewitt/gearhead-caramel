@@ -364,3 +364,49 @@ Treasure
     weight = 2
 
 
+# Monster Treasure
+
+Treasure
+    name = "Monster Pelt"
+    desc = "Some monster fur that you can sell when you get back to town."
+    material = Meat
+    value = 4000
+    weight = 10
+
+Consumable
+    name = "Spare Parts"
+    effect = SpareParts
+    quantity = 5
+    desc = "Some old mechanical parts that can be used to repair your equipment."
+    shop_tags = ("LOSTECH",)
+    weight = 5
+
+Consumable
+    name = "Meat"
+    effect = MeatFX
+    quantity = 1
+    desc = "Preserved meat from some type of creature. Eating it can restore your stamina."
+    shop_tags = ("SURVIVAL")
+    weight = 3
+
+Treasure
+    name = "Reptile Skin"
+    desc = "Leather from a reptilian creature that you can sell when you get back to town."
+    material = Meat
+    value = 15000
+    weight = 12
+
+Treasure
+    name = "Monster Skull"
+    desc = "A trophy from your expedition that you can sell when you get back to town."
+    material = Meat
+    value = 55000
+    weight = 24
+
+Shield
+    name = "Tortoise Shield"
+    desc = "A shield made from the shell of a giant tortoise."
+    scale = HumanScale
+    material = Ceramic
+    size = 4
+    bonus = 2

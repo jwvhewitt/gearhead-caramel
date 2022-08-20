@@ -704,7 +704,7 @@ class Explorer(object):
                                 print("{}: {}/{}".format(thing, thing.faction, thing.scene.get_root_scene()))
 
                     elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        self.camp.party.append(gears.selector.get_design_by_full_name("AEF-1A Luna II"))
+                        self.camp.pc.inv_com.append(gears.selector.get_design_by_full_name("Meat"))
 
                     elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.active_plots():

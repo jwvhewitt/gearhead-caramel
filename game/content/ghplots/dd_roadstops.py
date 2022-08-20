@@ -1030,7 +1030,7 @@ class TreasureCave(Plot):
         if not self.compy_hacked:
             thingmenu.add_item("Leave it alone.", None)
 
-            mypc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Computers, self.rank, no_random=True)
+            mypc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Computers, self.rank, no_random=True)
             if mypc:
                 if mypc == camp.pc:
                     thingmenu.add_item("Disable the security protocols.", self._hack_compy)

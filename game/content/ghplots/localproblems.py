@@ -512,15 +512,15 @@ class SregorThrunet(Plot):
         if self.thrunet_broken:
             thingmenu.desc += " From the blinking lights on the panel, you can tell that it is not working properly."
 
-            if camp.make_skill_roll(gears.stats.Craft, gears.stats.Computers, self.rank, no_random=True):
+            if camp.do_skill_test(gears.stats.Craft, gears.stats.Computers, self.rank, no_random=True):
                 thingmenu.add_item("Reboot the server.", self._repair_server)
 
-            if camp.make_skill_roll(gears.stats.Craft, gears.stats.Science, self.rank, no_random=True,
-                                    difficulty=gears.stats.DIFFICULTY_HARD):
+            if camp.do_skill_test(gears.stats.Craft, gears.stats.Science, self.rank, no_random=True,
+                                  difficulty=gears.stats.DIFFICULTY_HARD):
                 thingmenu.add_item("Attempt to update the code.", self._repair_server)
 
-            if camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Repair, self.rank, no_random=True,
-                                    difficulty=gears.stats.DIFFICULTY_HARD):
+            if camp.do_skill_test(gears.stats.Knowledge, gears.stats.Repair, self.rank, no_random=True,
+                                  difficulty=gears.stats.DIFFICULTY_HARD):
                 thingmenu.add_item("Try unplugging it and plugging it back in again.", self._repair_server)
 
         thingmenu.add_item("Leave it alone.", None)

@@ -3986,10 +3986,11 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         # If the number of legs is less than half plus one,
         # the character can only crawl.
         total_legs, active_legs = self.count_modules(MF_Leg)
-        if active_legs < ((total_legs // 2) + 1):
-            speed = self.MIN_WALK_SPEED
-        elif active_legs < total_legs:
-            speed = max((speed * active_legs) // total_legs, self.MIN_WALK_SPEED)
+        if total_legs > 0:
+            if active_legs < ((total_legs // 2) + 1):
+                speed = self.MIN_WALK_SPEED
+            elif active_legs < total_legs:
+                speed = max((speed * active_legs) // total_legs, self.MIN_WALK_SPEED)
 
         return speed
 
@@ -4116,10 +4117,10 @@ class Monster(Being, MakesPower):
         self.actions = actions
         self.pet_data = pet_data
         self.can_be_pet = can_be_pet
-        if treasure_type:
-            self.treasure_type = treasuretype.TreasureType(treasure_type)
+        if isinstance(treasure_type, dict):
+            self.treasure_type = treasuretype.TreasureType(**treasure_type)
         else:
-            self.treasure_type = None
+            self.treasure_type = treasure_type
 
     @property
     def self_cost(self):

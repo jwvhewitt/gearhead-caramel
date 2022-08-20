@@ -128,7 +128,7 @@ def AddSkillBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp: 
     # Add an item to this menu where a lancemate suggests something. Designed to be used with the above
     # SimpleMonologueMenu, but really it can be used with any menu.
     # Returns the lancemate who makes the suggestion, or None if there is no applicable lancemate.
-    winner = camp.make_skill_roll(stat_id, skill_id, rank, difficulty, include_pc=bool(pc_msg), no_random=no_random)
+    winner = camp.do_skill_test(stat_id, skill_id, rank, difficulty, include_pc=bool(pc_msg), no_random=no_random)
     if winner:
         mylm = winner.get_pilot()
         if mylm is camp.pc and pc_msg:

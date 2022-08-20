@@ -92,7 +92,7 @@ class SkillBasedPartyReply(object):
         self.camp = camp
         self.offer = myoffer
         self.message_format = message_format
-        pc = camp.make_skill_roll(stat_id,skill_id,rank,no_random=no_random,difficulty=difficulty,**kwargs)
+        pc = camp.do_skill_test(stat_id, skill_id, rank, no_random=no_random, difficulty=difficulty, **kwargs)
         if pc:
             if pc.get_pilot() is camp.pc:
                 mylist.append(myoffer)

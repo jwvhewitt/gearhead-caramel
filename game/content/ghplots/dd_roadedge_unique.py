@@ -288,7 +288,7 @@ class KerberosBossFight(Plot):
 
     def HOLO_BUMP(self, camp: gears.GearHeadCampaign):
         if not self.holo_unlocked:
-            mypc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Biotechnology, self.rank, no_random=True)
+            mypc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Biotechnology, self.rank, no_random=True)
             if mypc:
                 if mypc == camp.pc:
                     pbge.alert("Your knowledge of PreZero technology allows you to recognize this machine as a PreZero computer interface. It shows this area as it existed before the Night of Fire, and traces Kerberos's route along what is now the highway.")
@@ -297,7 +297,7 @@ class KerberosBossFight(Plot):
                     SimpleMonologueDisplay("Except, there are no service tunnels anymore. This area is the highway, now. Maybe we could use this computer to send Kerberos on a different path, one far away from human beings.", mypc)(camp, False)
                 self.unlock_holo()
             else:
-                mypc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Wildcraft, self.rank, no_random=True)
+                mypc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Wildcraft, self.rank, no_random=True)
                 if mypc:
                     if mypc == camp.pc:
                         pbge.alert("You quickly recognize the shifting geometric forms of this holographic display as the geological features of this area. The top layer must be the city as it existed before the Night of Fire, and the red path can only be Kerberos's route along what is now the highway.")
@@ -306,7 +306,7 @@ class KerberosBossFight(Plot):
                         SimpleMonologueDisplay("I'd guess this line going through it is Kerberos's path. You see this valley? That's part of the highway now, and that's where we got attacked. Maybe we can use this to tell Kerberos where to go...", mypc)(camp, False)
                     self.unlock_holo()
                 else:
-                    mypc = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Scouting, self.rank, difficulty=gears.stats.DIFFICULTY_HARD, no_random=True)
+                    mypc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Scouting, self.rank, difficulty=gears.stats.DIFFICULTY_HARD, no_random=True)
                     if mypc:
                         if mypc == camp.pc:
                             pbge.alert("It takes a minute before you realize that the holographic display is a map of the surrounding area. Of course, it's not the area as you know it today- this is how things were before the Night of Fire. Maybe you can use this to send Kerberos away.")

@@ -290,7 +290,7 @@ class RWMO_GenericChallenger(Plot):
     def _choose_peace(self, camp: gears.GearHeadCampaign):
         self.peace_npc.relationship.reaction_mod += random.randint(1,10)
         npc = self.elements["_commander"]
-        if camp.make_skill_roll(gears.stats.Ego, gears.stats.Negotiation, npc.renown):
+        if camp.do_skill_test(gears.stats.Ego, gears.stats.Negotiation, npc.renown):
             ghcutscene.SimpleMonologueDisplay("[CHANGE_MIND_AND_RETREAT]", npc)
 
             pbge.alert("Your challengers flee the battlefield.")
@@ -711,7 +711,7 @@ class RWMO_SkilledAvoidance( Plot ):
                 random.choice(candidates)(camp)
 
     def attempt_scouting(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Scouting,self.rank)
+        pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Scouting, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
                 mymenu = pbge.rpgmenu.AlertMenu("You detect hostile mecha on the road ahead. They are still far enough away that you can avoid them if you want to.")
@@ -724,7 +724,7 @@ class RWMO_SkilledAvoidance( Plot ):
                 go(camp)
 
     def attempt_stealth(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Stealth,self.rank)
+        pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Stealth, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
                 mymenu = pbge.rpgmenu.AlertMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
@@ -737,7 +737,7 @@ class RWMO_SkilledAvoidance( Plot ):
                 go(camp)
 
     def attempt_wildcraft(self,camp):
-        pc = camp.make_skill_roll(gears.stats.Perception,gears.stats.Wildcraft,self.rank)
+        pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Wildcraft, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
                 mymenu = pbge.rpgmenu.AlertMenu("You find tracks belonging to enemy mecha. It would be a simple matter to find an alternate route around them.")

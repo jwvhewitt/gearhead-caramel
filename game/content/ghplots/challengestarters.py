@@ -381,7 +381,7 @@ class EpidemicStarter(ChallengeStarterPlot):
 
     def attempt_treatment(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
         pbge.alert("You attempt to treat {} for {}...".format(npc, self.elements["DISEASE"]))
-        if camp.make_skill_roll(
+        if camp.do_skill_test(
             gears.stats.Knowledge, gears.stats.Medicine, self.rank, difficulty=gears.stats.DIFFICULTY_HARD,
         ):
             pbge.alert("{} is cured!".format(npc))

@@ -111,7 +111,7 @@ class HospitalHopelessCase(Plot):
     def PATIENT_BED_menu(self, camp: gears.GearHeadCampaign, thingmenu):
         if not self.cured_patient:
             thingmenu.desc = "{PATIENT} lies unconscious in this bed, a victim of {DISEASE}. It is unknown how much time {PATIENT.gender.subject_pronoun} has left.".format(**self.elements)
-            lm = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Medicine, gears.stats.DIFFICULTY_LEGENDARY, no_random=True)
+            lm = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Medicine, gears.stats.DIFFICULTY_LEGENDARY, no_random=True)
             if lm:
                 self.party_doctor = lm
                 if lm is camp.pc:

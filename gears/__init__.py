@@ -558,8 +558,21 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def get_party_skill(self, stat_id, skill_id):
         return max([pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party()] + [0])
 
-    def make_skill_roll(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False,
-                        no_random=False, include_pc=True, modifier=0):
+    def make_skill_roll(self, stat_id, skill_id, untrained_ok=False):
+        if untrained_ok:
+            myparty = self.get_active_party()
+        else:
+            myparty = [pc for pc in self.get_active_party() if pc.has_skill(skill_id)]
+        if myparty:
+            rolls = list()
+            for roller in myparty:
+                rolls.append(random.randint(1, 100) + roller.get_skill_score(stat_id, skill_id))
+            return max(rolls)
+        else:
+            return 0
+
+    def do_skill_test(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False,
+                      no_random=False, include_pc=True, modifier=0):
         # Make a skill roll against a given difficulty. If successful, return the lancemate
         # who made the roll.
         if untrained_ok:
@@ -588,7 +601,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def social_skill_roll(self, npc: base.Character, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE,
                           untrained_ok=False, no_random=False, include_pc=True):
         modifier = -npc.get_reaction_score(self.pc, self) // 4
-        return self.make_skill_roll(stat_id, skill_id, rank, difficulty, untrained_ok, no_random, include_pc, modifier)
+        return self.do_skill_test(stat_id, skill_id, rank, difficulty, untrained_ok, no_random, include_pc, modifier)
 
     def party_has_skill(self, skill_id):
         return any(pc for pc in self.get_active_party() if pc.has_skill(skill_id))
@@ -1176,18 +1189,35 @@ class Loader(object):
                 truval = rawval
             return truval
 
+    def partition_dict_value(self, mystring):
+        brackets = 0
+        for pos, cha in enumerate(mystring):
+            if cha in "([{":
+                brackets += 1
+            elif cha in ")}]":
+                brackets -= 1
+            elif brackets == 0 and cha == ",":
+                return mystring[:pos], mystring[(pos+1):].strip()
+        return mystring, ""
+
     def process_dict(self, dict_desc):
         mydict = dict()
         # Is this really the best way to get rid of the brackets?
         # Probably not. Somebody Python this up, please.
         dict_desc = dict_desc.replace('{', '')
         dict_desc = dict_desc.replace('}', '')
-        for line in dict_desc.split(','):
-            a, b, c = line.partition('=')
+        while dict_desc:
+            a, b, c = dict_desc.partition('=')
+            # a should be the key.
             k = self.string_to_object(a)
-            v = self.string_to_object(c)
+
+            # c is gonna be the rest of the dict. figure out where the value ends.
+            vstr, dict_desc = self.partition_dict_value(c)
+            v = self.string_to_object(vstr)
             if k and v:
                 mydict[k] = v
+            else:
+                print("Warning: {} = {}".format(k,v))
         return mydict
 
     def load_list(self, g_file):

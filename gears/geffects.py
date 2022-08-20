@@ -200,6 +200,18 @@ class MiasmaAnim(animobs.AnimOb):
     DEFAULT_END_FRAME = 7
 
 
+class SparkleBlueAnim(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = "anim_gervais_sparkle_blue.png"
+    DEFAULT_END_FRAME = 7
+    DEFAULT_LOOP = 1
+
+
+class SparkleRedAnim(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = "anim_gervais_sparkle_blue.png"
+    DEFAULT_END_FRAME = 7
+    DEFAULT_LOOP = 1
+
+
 class SuperBoom(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_frogatto_nuke.png"
     DEFAULT_END_FRAME = 9
@@ -1305,6 +1317,64 @@ class DoHealing(effects.NoEffect):
 
             if hasattr(target, "ench_list"):
                 target.ench_list.tidy(self.repair_type)
+
+        return self.children
+
+
+class RestoreMP(effects.NoEffect):
+    """ Restore mental points to the target.
+    """
+    def __init__(self, roll_n, roll_d, children=(), anim=None):
+        self.roll_n = roll_n
+        self.roll_d = roll_d
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
+        self.anim = anim
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+        targets = camp.scene.get_operational_actors(pos)
+        for target in targets:
+            tpilot = target.get_pilot()
+            if hasattr(tpilot, "mp_spent"):
+                roll = sum(random.randint(1, self.roll_d) for n in range(self.roll_n))
+                tpilot.mp_spent = max(0, tpilot.mp_spent - roll)
+                myanim = animobs.Caption("+{}MP".format(roll)
+                                         , pos=target.pos
+                                         , delay=delay
+                                         , y_off=-camp.scene.model_altitude(target, *target.pos)
+                                         )
+                anims.append(myanim)
+
+        return self.children
+
+
+class RestoreSP(effects.NoEffect):
+    """ Restore stamina points to the target.
+    """
+    def __init__(self, roll_n, roll_d, children=(), anim=None):
+        self.roll_n = roll_n
+        self.roll_d = roll_d
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
+        self.anim = anim
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+        targets = camp.scene.get_operational_actors(pos)
+        for target in targets:
+            tpilot = target.get_pilot()
+            if hasattr(tpilot, "sp_spent"):
+                roll = sum(random.randint(1, self.roll_d) for n in range(self.roll_n))
+                tpilot.sp_spent = max(0, tpilot.sp_spent - roll)
+                myanim = animobs.Caption("+{}SP".format(roll)
+                                         , pos=target.pos
+                                         , delay=delay
+                                         , y_off=-camp.scene.model_altitude(target, *target.pos)
+                                         )
+                anims.append(myanim)
 
         return self.children
 

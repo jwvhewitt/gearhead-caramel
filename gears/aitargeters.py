@@ -62,6 +62,19 @@ class TargetIsLowMP(object):
         return False
 
 
+class TargetIsLowSP(object):
+    def __init__(self, threshold = 6):
+        self.threshold = threshold
+    def __call__(self, camp, pc, npc):
+        if not npc:
+            return False
+        if hasattr(npc, 'get_pilot'):
+            npc = npc.get_pilot()
+        if hasattr(npc, 'get_current_stamina'):
+            return npc.get_current_stamina() <= self.threshold
+        return False
+
+
 class TargetIsOriginator(object):
     def __call__(self, camp, pc, npc):
         return pc is npc

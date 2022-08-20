@@ -4,7 +4,8 @@ import pbge
 from game import teams, ghdialogue
 from game.content import ghwaypoints, gharchitecture, plotutility, dungeonmaker, ghrooms, ghterrain, ghcutscene
 import random
-from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
+from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, \
+    DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
 from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
 
@@ -33,7 +34,9 @@ class DeadAdventurer(Plot):
                                                            ("ANIMAL", "VERMIN"), myscene.scale).contents
         self.last_update = 0
 
-        mychest = self.register_element("GOAL", ghwaypoints.Skeleton(anchor=pbge.randmaps.anchors.middle, treasure_rank=self.rank+5, plot_locked=True), dident="ROOM")
+        mychest = self.register_element("GOAL", ghwaypoints.Skeleton(
+            anchor=pbge.randmaps.anchors.middle, treasure_rank=self.rank + 5, plot_locked=True
+        ), dident="ROOM")
         self.paid_respects = False
         return True
 
@@ -49,9 +52,10 @@ class DeadAdventurer(Plot):
         self.paid_respects = True
         candidates = list()
         for pc in camp.get_active_party():
-            if pc is not camp.pc and isinstance(pc, gears.base.Character) and pc.get_tags().intersection({gears.tags.Faithworker, gears.personality.Fellowship}):
+            if pc is not camp.pc and isinstance(pc, gears.base.Character) and pc.get_tags().intersection(
+                    {gears.tags.Faithworker, gears.personality.Fellowship}):
                 candidates.append(pc)
-                pc.relationship.reaction_mod += random.randint(3,8)
+                pc.relationship.reaction_mod += random.randint(3, 8)
         if candidates:
             speaker = random.choice(candidates)
         else:
@@ -65,7 +69,7 @@ class DeadAdventurer(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1,2) == 2:
+        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 2) == 2:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
@@ -83,8 +87,8 @@ class WildernessCoffeeShop(Plot):
     @classmethod
     def matches(cls, pstate):
         return (
-            gears.tags.SCENE_OUTDOORS in pstate.elements["LOCALE"].attributes or
-            cls.LABEL == "TEST_DUNGEON_EXTRA"
+                gears.tags.SCENE_OUTDOORS in pstate.elements["LOCALE"].attributes or
+                cls.LABEL == "TEST_DUNGEON_EXTRA"
         )
 
     def custom_init(self, nart):
@@ -115,8 +119,8 @@ class WildernessCoffeeShop(Plot):
         )
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(width=random.randint(20, 25),
-                                                                                 height=random.randint(11, 15),
-                                                                                 anchor=pbge.randmaps.anchors.south),
+                                                                              height=random.randint(11, 15),
+                                                                              anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
 
         mybar = ghrooms.BarArea(random.randint(5, 10), random.randint(2, 3), anchor=pbge.randmaps.anchors.north)
@@ -126,7 +130,9 @@ class WildernessCoffeeShop(Plot):
         mybar.contents.append(barteam)
         npc1.place(intscene, team=barteam)
 
-        myfloor = pbge.randmaps.rooms.Room(foyer.width-2, foyer.height-mybar.height-2, anchor=pbge.randmaps.anchors.south, decorate=gharchitecture.RestaurantDecor())
+        myfloor = pbge.randmaps.rooms.Room(foyer.width - 2, foyer.height - mybar.height - 2,
+                                           anchor=pbge.randmaps.anchors.south,
+                                           decorate=gharchitecture.RestaurantDecor())
         foyer.contents.append(myfloor)
 
         mycon2 = plotutility.TownBuildingConnection(
@@ -144,7 +150,8 @@ class WildernessCoffeeShop(Plot):
     )
 
     def _generate_shop_name(self):
-        return random.choice(self.TITLE_PATTERNS).format(adjective=random.choice(ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None]), **self.elements)
+        return random.choice(self.TITLE_PATTERNS).format(
+            adjective=random.choice(ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None]), **self.elements)
 
     EXPLANATIONS = (
         "Actually, I don't like working too hard, so I figured the easiest way to have an easy life would be to put my coffee shop in the middle of nowhere. It's worked well so far but the commute is a bit dangerous.",
@@ -214,7 +221,7 @@ class BigEncounter(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1,5) != 5:
+        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 5) != 5:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(100, 150), camp.scene.environment,
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
@@ -233,21 +240,23 @@ class EternalGuardians(Plot):
     @classmethod
     def matches(cls, pstate):
         return (
-            gears.tags.SCENE_RUINS in pstate.elements["LOCALE"].attributes or
-            cls.LABEL == "TEST_DUNGEON_EXTRA"
+                gears.tags.SCENE_RUINS in pstate.elements["LOCALE"].attributes or
+                cls.LABEL == "TEST_DUNGEON_EXTRA"
         )
 
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(), dident="LOCALE")
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
-        team2.contents += gears.selector.RandomMonsterUnit(self.rank+15, 75, myscene.environment,
+        team2.contents += gears.selector.RandomMonsterUnit(self.rank + 15, 75, myscene.environment,
                                                            ("ROBOT",), myscene.scale).contents
         self.last_update = 0
         self.robot_team = team2.contents
 
-        mychest = self.register_element("GOAL", ghwaypoints.StorageBox(name="Box", anchor=pbge.randmaps.anchors.middle), dident="ROOM")
-        mychest.contents += gears.selector.get_random_loot(self.rank,100,(gears.tags.ST_TREASURE,gears.tags.ST_LOSTECH, gears.tags.ST_ANTIQUE))
+        mychest = self.register_element("GOAL", ghwaypoints.StorageBox(name="Box", anchor=pbge.randmaps.anchors.middle),
+                                        dident="ROOM")
+        mychest.contents += gears.selector.get_random_loot(self.rank, 100, (
+        gears.tags.ST_TREASURE, gears.tags.ST_LOSTECH, gears.tags.ST_ANTIQUE))
 
         self.fight_counter = 0
 
@@ -272,7 +281,8 @@ class EternalGuardians(Plot):
         elif self.fight_counter == 3:
             pbge.alert(random.choice(self.GIVE_UP_ALERT))
         else:
-            pbge.alert("As you approach, the ancient robot looks at you wearily. \"RESTRICTED AREA. TERMINATION. YOU KNOW THE DEAL.\"")
+            pbge.alert(
+                "As you approach, the ancient robot looks at you wearily. \"RESTRICTED AREA. TERMINATION. YOU KNOW THE DEAL.\"")
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
@@ -293,8 +303,8 @@ class LevelGuide(Plot):
     @classmethod
     def matches(cls, pstate):
         return (
-            gears.tags.SCENE_RUINS in pstate.elements["LOCALE"].attributes or
-            cls.LABEL == "TEST_DUNGEON_EXTRA"
+                gears.tags.SCENE_RUINS in pstate.elements["LOCALE"].attributes or
+                cls.LABEL == "TEST_DUNGEON_EXTRA"
         )
 
     def custom_init(self, nart):
@@ -305,7 +315,10 @@ class LevelGuide(Plot):
                                                            ("ROBOT", "SYNTH"), myscene.scale).contents
         self.last_update = 0
 
-        self.register_element("GOAL", ghwaypoints.OldTerminal(name="Ancient Computer", desc="You stand before an ancient but still functioning computer terminal. They really used to build these things to last.", anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident="ROOM")
+        self.register_element("GOAL", ghwaypoints.OldTerminal(name="Ancient Computer",
+                                                              desc="You stand before an ancient but still functioning computer terminal. They really used to build these things to last.",
+                                                              anchor=pbge.randmaps.anchors.middle, plot_locked=True),
+                              dident="ROOM")
         self.viewed_map = False
         return True
 
@@ -325,7 +338,7 @@ class LevelGuide(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1,4) == 4:
+        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 4) == 4:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
@@ -343,12 +356,13 @@ class GuardedTreasure(Plot):
         myscene = self.elements["LOCALE"]
         self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(), dident="LOCALE")
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
-        team2.contents += gears.selector.RandomMonsterUnit(self.rank+5, 120, myscene.environment,
+        team2.contents += gears.selector.RandomMonsterUnit(self.rank + 5, 120, myscene.environment,
                                                            self.elements[DG_MONSTER_TAGS], myscene.scale).contents
         self.last_update = 0
 
-        mychest = self.register_element("GOAL", ghwaypoints.Crate(name="Crate", anchor=pbge.randmaps.anchors.middle), dident="ROOM")
-        mychest.contents += gears.selector.get_random_loot(self.rank,100,(gears.tags.ST_TREASURE,))
+        mychest = self.register_element("GOAL", ghwaypoints.Crate(name="Crate", anchor=pbge.randmaps.anchors.middle),
+                                        dident="ROOM")
+        mychest.contents += gears.selector.get_random_loot(self.rank, 50, (gears.tags.ST_TREASURE,))
 
         return True
 

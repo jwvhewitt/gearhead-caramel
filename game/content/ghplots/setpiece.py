@@ -359,16 +359,16 @@ class MWP_ComputerProblem(Plot):
     def _computer_menu(self, camp: gears.GearHeadCampaign, thingmenu):
         if not self.fixed_computer:
             thingmenu.desc = "{} It is locked up in a magenta screen of death.".format(thingmenu.desc)
-            pc1 = camp.make_skill_roll(gears.stats.Craft, gears.stats.Computers, self.rank, gears.stats.DIFFICULTY_AVERAGE,
-                                       untrained_ok=False, no_random=True)
+            pc1 = camp.do_skill_test(gears.stats.Craft, gears.stats.Computers, self.rank, gears.stats.DIFFICULTY_AVERAGE,
+                                     untrained_ok=False, no_random=True)
             if pc1:
                 if pc1 is camp.pc:
                     thingmenu.add_item("Reset the terminal.", self._fix_generator)
                 else:
                     thingmenu.add_item("Ask {} to fix the problem.".format(pc1), self._fix_generator)
 
-            pc2 = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Repair, self.rank, gears.stats.DIFFICULTY_HARD,
-                                       untrained_ok=True, no_random=True)
+            pc2 = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Repair, self.rank, gears.stats.DIFFICULTY_HARD,
+                                     untrained_ok=True, no_random=True)
             if pc2 and pc2 is not pc1:
                 if pc2 is camp.pc:
                     thingmenu.add_item("Activate the autodiagnostic.", self._fix_generator)
@@ -463,16 +463,16 @@ class MWP_OfflineGenerator(Plot):
     def _generator_menu(self, camp: gears.GearHeadCampaign, thingmenu):
         if not self.fixed_generator:
             thingmenu.desc = "{} The screen is blank and none of the lights are on.".format(thingmenu.desc)
-            pc1 = camp.make_skill_roll(gears.stats.Craft, gears.stats.Repair, self.rank, gears.stats.DIFFICULTY_EASY,
-                                       untrained_ok=False, no_random=True)
+            pc1 = camp.do_skill_test(gears.stats.Craft, gears.stats.Repair, self.rank, gears.stats.DIFFICULTY_EASY,
+                                     untrained_ok=False, no_random=True)
             if pc1:
                 if pc1 is camp.pc:
                     thingmenu.add_item("Repair the terminal.", self._fix_generator)
                 else:
                     thingmenu.add_item("Ask {} to repair the terminal.".format(pc1), self._fix_generator)
 
-            pc2 = camp.make_skill_roll(gears.stats.Craft, gears.stats.Science, self.rank, gears.stats.DIFFICULTY_HARD,
-                                       untrained_ok=True, no_random=True)
+            pc2 = camp.do_skill_test(gears.stats.Craft, gears.stats.Science, self.rank, gears.stats.DIFFICULTY_HARD,
+                                     untrained_ok=True, no_random=True)
             if pc2 and pc2 is not pc1:
                 if pc2 is camp.pc:
                     thingmenu.add_item("Jury rig a solution.", self._fix_generator)

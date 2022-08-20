@@ -260,5 +260,5 @@ class AccessSkillRoll(object):
         self.untrained_ok = untrained_ok
 
     def __call__(self, camp: gears.GearHeadCampaign, ob):
-        return (camp.make_skill_roll(self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok,
-                                     no_random=True))
+        return (camp.do_skill_test(self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok,
+                                   no_random=True))
