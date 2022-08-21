@@ -3,7 +3,7 @@ from . import geffects,stats
 import pbge
 
 class Accurate(Singleton):
-    # This weapon has an Aim action that gives +20 accuracy for 4MP.
+    # This weapon has an Aim action that gives +20 bonus to hit for 4MP.
     name = "Accurate"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.0

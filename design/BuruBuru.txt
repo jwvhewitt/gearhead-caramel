@@ -484,7 +484,7 @@ Mecha
 
 Mecha
     name = "Buru Buru"
-    desig = "SAN-X9cb Crossbone"
+    desig = "SAN-X8cb Crossbone"
     imagename = "mav_buruburu_x9cb.png"
     portrait = "mecha_buruburu.png"
     family = "Buru Buru"
@@ -728,7 +728,7 @@ Mecha
 
 Mecha
     name = "Buru Buru"
-    desig = "SAN-X9i iEA"
+    desig = "SAN-X10i iEA"
     imagename = "mav_buruburu_x9i.png"
     portrait = "mecha_buruburu.png"
     family = "Buru Buru"
