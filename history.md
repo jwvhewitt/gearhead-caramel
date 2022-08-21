@@ -1,3 +1,4 @@
+v0.925 August 22 2022
 * Added RestoreMP, RestoreSP effects
 * Fixed bug when gear loader tries to load list inside a dict
 * Added treasure types to monsters

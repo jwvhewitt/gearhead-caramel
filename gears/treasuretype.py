@@ -21,7 +21,9 @@ class TreasureType():
             skill_roll = camp.make_skill_roll(self.stat, self.skill) - (mon.threat + 85)
             if skill_roll > 0:
                 max_treasure = min(len(self.treasures), skill_roll//15+1)
-                return item_fun(random.choice(self.treasures[:max_treasure]))
+                treasure_name = random.choice(self.treasures[:max_treasure])
+                if treasure_name:
+                    return item_fun(treasure_name)
         else:
             return item_fun(random.choice(self.treasures))
 
