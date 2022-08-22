@@ -1,3 +1,5 @@
+* pbge gets initialized before other units are imported
+
 v0.925 August 22 2022
 * Added image templates to the source code repository
 * Added RestoreMP, RestoreSP effects

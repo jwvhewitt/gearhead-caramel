@@ -1,5 +1,4 @@
 import random
-
 import game.content
 import gears
 import pbge
@@ -9,8 +8,6 @@ from game import teams, ghdialogue
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor
-from . import dd_customobjectives
-from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
 from . import missionbuilder, rwme_objectives
 from pbge.challenges import Challenge, AutoOffer
 
@@ -122,7 +119,8 @@ class MurderMysteryBountyHunter(Plot):
 
         if not self.elements["CHALLENGE"].active:
             mylist.append(Offer(
-                "[HELLO] I've been investigating {MYSTERY}, but so far I've only found a few leads.".format(**self.elements),
+                "[HELLO] I've been investigating {MYSTERY}, but so far I've only found a few leads.".format(
+                    **self.elements),
                 ContextTag([context.HELLO, ]),
             ))
 
@@ -194,7 +192,7 @@ class InvestigativeReporter(Plot):
     scope = "METRO"
     UNIQUE = True
     active = True
-    
+
     RUMOR = Rumor(
         "{NPC} has been looking for {NPC.gender.possessive_determiner} next big story",
         offer_msg="{NPC} is a reporter; {NPC.gender.subject_pronoun} thinks there's some kind of scandal happening in {METROSCENE}. You can talk to {NPC.gender.object_pronoun} at {NPC_SCENE}.",
@@ -301,9 +299,8 @@ class InvestigativeReporter(Plot):
         if not self.elements["CHALLENGE"].active:
             mylist.append(Offer(
                 "[HELLO] Do you know anything about the {MYSTERY}?".format(**self.elements),
-                ContextTag([context.HELLO,]),
+                ContextTag([context.HELLO, ]),
             ))
-
 
             vv = self.elements.get("VIOLATED_VIRTUES")
             details = ["This could extend to the highest levels of government.",
@@ -312,27 +309,30 @@ class InvestigativeReporter(Plot):
                 details += self.VV_DETAILS.get(virt, [])
 
             mylist.append(Offer(
-                "There's something going wrong in {}. {} [LET_ME_KNOW_IF_YOU_HEAR_ANYTHING]".format(self.elements["METROSCENE"], random.choice(details)),
-                ContextTag([context.CUSTOM,]), subject=str(self.elements["MYSTERY"]),
+                "There's something going wrong in {}. {} [LET_ME_KNOW_IF_YOU_HEAR_ANYTHING]".format(
+                    self.elements["METROSCENE"], random.choice(details)),
+                ContextTag([context.CUSTOM, ]), subject=str(self.elements["MYSTERY"]),
                 data={"reply": "Not really; why don't you tell me about it?"},
                 effect=self._start_challenge
             ))
         else:
             mylist.append(Offer(
                 "[HELLO] Have you learned anything about the {MYSTERY}?".format(**self.elements),
-                ContextTag([context.HELLO,]),
+                ContextTag([context.HELLO, ]),
             ))
 
             if self.elements["CHALLENGE"].is_won():
                 mylist.append(Offer(
-                    "[GOOD_JOB] This information will be a big help to everyone in {METROSCENE}... I'll make sure it's on the landing page of every newsnet!".format(**self.elements),
+                    "[GOOD_JOB] This information will be a big help to everyone in {METROSCENE}... I'll make sure it's on the landing page of every newsnet!".format(
+                        **self.elements),
                     ContextTag([context.CUSTOM, ]),
-                    data={"reply": "I have. {MYSTERY.solution_text}".format(**self.elements)}, effect=self._win_challenge
+                    data={"reply": "I have. {MYSTERY.solution_text}".format(**self.elements)},
+                    effect=self._win_challenge
                 ))
 
             mylist.append(Offer(
                 "Great. Please let me know if you discover any leads.".format(**self.elements),
-                ContextTag([context.CUSTOM,]),
+                ContextTag([context.CUSTOM, ]),
                 data={"reply": "[STILL_WORKING_ON_IT]"}
             ))
 
@@ -351,4 +351,3 @@ class InvestigativeReporter(Plot):
         if not self.elements["NPC"].is_not_destroyed():
             camp.check_trigger("LOSE", self)
             self.end_plot(camp)
-

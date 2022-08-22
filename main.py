@@ -1,10 +1,26 @@
 import pbge
+import sys
+import os
+
+# Step one is to find our gamedir. The process is slightly different depending on whether we are running from
+# source, running from a PyInstaller build, or running from a cx_Freeze build.
+if getattr(sys, "_MEIPASS", False):
+    # PyInstaller build.
+    gamedir = sys._MEIPASS
+elif getattr(sys, "frozen", False):
+    # cx_Freeze build.
+    gamedir = os.path.dirname(sys.executable)
+else:
+    # The application is not frozen
+    gamedir = os.path.dirname(__file__)
+
+pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
+pbge.please_stand_by()
+
 import game
 import pygame
-import os
 import gears
 import random
-import sys
 # import timeit
 import glob
 import pickle
@@ -276,20 +292,6 @@ def view_quarantine(tsrd):
 
 
 def play_the_game():
-    # Step one is to find our gamedir. The process is slightly different depending on whether we are running from
-    # source, running from a PyInstaller build, or running from a cx_Freeze build.
-    if getattr(sys, "_MEIPASS", False):
-        # PyInstaller build.
-        gamedir = sys._MEIPASS
-    elif getattr(sys, "frozen", False):
-        # cx_Freeze build.
-        gamedir = os.path.dirname(sys.executable)
-    else:
-        # The application is not frozen
-        gamedir = os.path.dirname(__file__)
-
-    pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
-    pbge.please_stand_by()
     gears.init_gears()
     game.init_game()
 
