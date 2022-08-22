@@ -1,3 +1,4 @@
+* Faction reaction class can store faction leader
 * pbge gets initialized before other units are imported
 
 v0.925 August 22 2022
