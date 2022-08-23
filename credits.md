@@ -9,7 +9,7 @@ ARTWORK
 * eyecatch_nickyrodriguez_*.png screens by Nicky Rodriguez, https://www.artofnickyrodriguez.com/, CC-BY-4.0
 * eyecatch_noppy_*.png screens by Thomas Noppers, https://www.etsy.com/shop/ToppyNoppy, CC-BY-4.0
 * por_lorderin_*.png portrait bits by Lord Erin
-* The font Anita Semi-Square is by Gustavo Paz L., CC-BY-SA 4.0
+* The font Atan combines the Roman glyphs from Anita Semi Square by Gustavo Paz L. with the Korean glyphs from Gugi. SIL Open Font License.
 * The DejaVu fonts are released under a free license. https://dejavu-fonts.github.io/License.html
 * anim_frogatto_nuke.png from OpenGameArt user Jetrel, public domain
 * anim_gervais_*.png, terrain_gervais_\*.png by David Gervais, CC-BY 3.0

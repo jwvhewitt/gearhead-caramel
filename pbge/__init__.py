@@ -666,6 +666,7 @@ from . import cutscene
 from . import okapipuzzle
 from . import challenges
 from . import memos
+from . import internationalization
 
 
 
@@ -679,7 +680,7 @@ FULLSCREEN_RES = (0, 0)
 
 
 def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_*.png",
-         display_font="Anita semi square.ttf"):
+         display_font="Atan.ttf"):
     global INIT_DONE
     if not INIT_DONE:
         util.init(appname, gamedir)
@@ -732,7 +733,8 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
 
         my_state.huge_font = pygame.font.Font(util.image_dir(display_font), 24)
 
-        my_state.mono_font = pygame.font.Font(util.image_dir("DejaVuSansMono.ttf"), 16)
+        my_state.mono_font = pygame.font.Font(util.image_dir("SourceHanSans-Medium.ttc"), 16)
+        #my_state.mono_font.set_bold(True)
 
         global POSTERS
         POSTERS += glob.glob(util.image_dir(poster_pattern))
