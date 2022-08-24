@@ -92,7 +92,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.children.append(self.outer_column)
 
         self.style_on = True
-        self.style_button = pbge.widgets.LabelWidget(0,0,200,16,text="Style Rules: On",justify=0,on_click=self.toggle_style,draw_border=True)
+        self.style_button = pbge.widgets.LabelWidget(0,0,200,0,text="Style Rules: On",justify=0,on_click=self.toggle_style,draw_border=True)
         self.outer_column.add_interior(self.style_button)
 
         self.up_button = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
@@ -120,7 +120,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         form_tags = list(self.form_tags)
         for bname in self.por.bits:
             myrow = pbge.widgets.RowWidget(0,0,300,32)
-            myrow.add_center(pbge.widgets.LabelWidget(0,0,250,pbge.MEDIUMFONT.get_linesize()+4,bname,font=pbge.MEDIUMFONT,draw_border=True))
+            myrow.add_center(pbge.widgets.LabelWidget(0,0,250,0,bname,font=pbge.MEDIUMFONT,draw_border=True))
             mylist = sorted(gears.portraits.Portrait.get_list_of_type(gears.portraits.PORTRAIT_BITS[bname].btype,form_tags,False,use_style=self.style_on),key=lambda b: b.name)
             if len(mylist) > 1:
                 myrow.add_left(pbge.widgets.ButtonWidget(0,0,16,16,self.minus_plus_image,frame=0,data=(bname,mylist),on_click=self.prev_bit))
@@ -173,7 +173,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         # Copy and paste is my undoing again!
         myui = cls(cgen.pc, cgen.pc.portrait_gen, cgen.portrait, formtags)
         pbge.my_state.widgets.append(myui)
-        myui.children.append(pbge.widgets.LabelWidget(150,220,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
+        myui.children.append(pbge.widgets.LabelWidget(150,220,80,0,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
 
         keepgoing = True
         while keepgoing and not myui.finished and not pbge.my_state.got_quit:
@@ -195,7 +195,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         # Run the UI.
         myui = cls(pc, pc.portrait_gen, pc.get_portrait(), gears.portraits.Portrait.get_form_tags(pc))
         pbge.my_state.widgets.append(myui)
-        myui.children.append(pbge.widgets.LabelWidget(150,220,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
+        myui.children.append(pbge.widgets.LabelWidget(150,220,80,0,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
 
         keepgoing = True
         while keepgoing and not myui.finished and not pbge.my_state.got_quit:
@@ -217,7 +217,7 @@ class GenderCustomizationWidget(pbge.widgets.ColumnWidget):
                   "absolute_pronoun", "reflexive_pronoun")
     def __init__(self, pc: gears.base.Character, **kwargs):
         super().__init__(-200, -225, 400, 450, center_interior=True, padding=16, draw_border=True, **kwargs)
-        self.set_header(pbge.widgets.LabelWidget(0,0,200,24,"Custom Gender",color=pbge.WHITE, font=pbge.BIGFONT, justify=0, draw_border=True))
+        self.set_header(pbge.widgets.LabelWidget(0,0,200,0,"Custom Gender",color=pbge.WHITE, font=pbge.BIGFONT, justify=0, draw_border=True))
 
         self.pc = pc
         self.gender = copy.deepcopy(pc.gender)
@@ -314,7 +314,7 @@ class GenderCustomizationWidget(pbge.widgets.ColumnWidget):
 class CharacterGeneratorW(pbge.widgets.Widget):
     STAT_POINTS = 105
     C1_WIDTH = 260
-    C2_WIDTH = 220
+    C2_WIDTH = 230
     C3_WIDTH = 120
     MECHA_PRICE_LIMIT = 300000
     def __init__(self,year=158,**kwargs):
@@ -362,7 +362,6 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.reset_mecha_menu()
         self.column_one.add_interior(self.mecha_menu)
 
-        self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,16,"===========",justify=0))
         minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
         for s in gears.stats.PRIMARY_STATS:
             nu_row = pbge.widgets.RowWidget(0,0,self.C1_WIDTH,30)
@@ -371,13 +370,12 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             nu_row.add_right(pbge.widgets.LabelWidget(0,0,32,pbge.BIGFONT.get_linesize(),text_fun=self.stat_display,data=s,font=pbge.BIGFONT,justify=0))
             nu_row.add_right(pbge.widgets.ButtonWidget(0,0,16,16,sprite=minus_plus_image,frame=1,data=s,on_click=self.stat_plus))
             self.column_one.add_interior(nu_row)
-        self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,16,text_fun=self.stat_point_display,justify=0))
+        self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,0,text_fun=self.stat_point_display,justify=0))
         random_reset_row = pbge.widgets.RowWidget(0,0,self.C1_WIDTH,30)
         random_reset_row.add_left(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Random",font=pbge.SMALLFONT,on_click=self.stat_randomize,draw_border=True,justify=0))
         random_reset_row.add_right(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Reset",font=pbge.SMALLFONT,on_click=self.stat_reset,draw_border=True,justify=0))
         self.column_one.add_interior(random_reset_row)
 
-        self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,16,"===========",justify=0))
         self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,100,text_fun=self.skill_display))
 
         self.children.append(self.column_one)
@@ -392,15 +390,15 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.children.append(self.column_two)
 
         self.column_three = pbge.widgets.ColumnWidget(-375,100,self.C3_WIDTH,120,draw_border=False,padding=10)
-        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,16,text="Random Portait",justify=0,on_click=self.portrait_random,draw_border=True))
-        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,16,text="Edit Portait",justify=0,on_click=self.portrait_edit,draw_border=True))
-        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,16,text="Random Colors",justify=0,on_click=self.color_random,draw_border=True))
-        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,16,text="Edit Colors",justify=0,on_click=self.color_edit,draw_border=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Random Portait",justify=0,on_click=self.portrait_random,draw_border=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Edit Portait",justify=0,on_click=self.portrait_edit,draw_border=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Random Colors",justify=0,on_click=self.color_random,draw_border=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Edit Colors",justify=0,on_click=self.color_edit,draw_border=True))
 
         self.children.append(self.column_three)
 
-        self.children.append(pbge.widgets.LabelWidget(160,210,self.C2_WIDTH,20,text="Save Character",justify=0,on_click=self.save_egg,draw_border=True,font=pbge.BIGFONT))
-        self.children.append(pbge.widgets.LabelWidget(160,240,self.C2_WIDTH,20,text="Cancel",justify=0,on_click=self.cancel,draw_border=True,font=pbge.BIGFONT))
+        self.children.append(pbge.widgets.LabelWidget(160,210,self.C2_WIDTH,0,text="Save Character",justify=0,on_click=self.save_egg,draw_border=True,font=pbge.BIGFONT))
+        self.children.append(pbge.widgets.LabelWidget(160,240,self.C2_WIDTH,0,text="Cancel",justify=0,on_click=self.cancel,draw_border=True,font=pbge.BIGFONT))
 
         self.portrait = self.pc.portrait_gen.build_portrait(self.pc,form_tags=self.get_portrait_tags())
 
@@ -515,7 +513,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         myui = cosplay.ColorEditor(self.pc.portrait_gen.build_portrait(self.pc,add_color=False),0,channel_filters=self.pc.portrait_gen.color_channels,colors=self.pc.colors)
         pbge.my_state.widgets.append(myui)
         myui.finished = False
-        myui.children.append(pbge.widgets.LabelWidget(150,220,80,16,text="Done",justify=0,on_click=self.color_done,draw_border=True,data=myui))
+        myui.children.append(pbge.widgets.LabelWidget(150,220,80,0,text="Done",justify=0,on_click=self.color_done,draw_border=True,data=myui))
 
         keepgoing = True
         while keepgoing and not myui.finished and not pbge.my_state.got_quit:

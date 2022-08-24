@@ -268,7 +268,7 @@ class BackpackWidget(widgets.Widget):
         pbge.my_state.widgets.append(myui)
         myui.finished = False
         myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 16, text="Done", justify=0, on_click=myui.finish,
+            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=myui.finish,
                                      draw_border=True, data=myui))
 
         keepgoing = True
@@ -374,7 +374,7 @@ class ItemExchangeWidget(widgets.Widget):
         # was chosen, or None if the invocation was cancelled.
         myui = cls(camp, pc, conlist)
         pbge.my_state.widgets.append(myui)
-        myui.children.append(pbge.widgets.LabelWidget(230,230,80,16,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
+        myui.children.append(pbge.widgets.LabelWidget(230,230,80,0,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
 
         keepgoing = True
         while keepgoing and not myui.finished and not pbge.my_state.got_quit:

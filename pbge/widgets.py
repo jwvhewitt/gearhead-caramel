@@ -549,7 +549,7 @@ class TextEntryWidget(Widget):
         # on_left_at_zero, on_right_at_end, and on_backspace_at_zero are functions that get called when these events
         #   happen. Usually nothing happens, but when this text entry widget is part of a text entry panel (see below)
         #   we need some special behaviours.
-        self.font = font or my_state.mono_font
+        self.font = font or my_state.medium_font
         h = h or self.font.get_linesize()
         # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
         super(TextEntryWidget, self).__init__(dx, dy, w, h, **kwargs)
@@ -672,7 +672,7 @@ class TextEditorPanel(ScrollColumnWidget):
         if not text:
             text = ''
         self.color = color or TEXT_COLOR
-        self.font = font or my_state.mono_font
+        self.font = font or my_state.medium_font
         self.justify = justify
 
         self.update_text(text)

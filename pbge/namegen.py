@@ -24,6 +24,8 @@ import itertools
 import random
 import locale
 from . import util
+import collections
+import json
 
 class NameGen:
 	"""
@@ -142,6 +144,119 @@ def _load_sample(filename):
 			for c in sample])
 	
 	return sample
+
+class KoreanNameGen:
+	def __init__(self, language_file, forbidden_file = None, min_syl=2, max_syl=4):
+		with open(util.data_dir(language_file), 'rt') as f:
+			self.syllables = json.load(f)
+
+	NULL = 'null'
+	ALL_SYLLABLES = 'ALL_SYLLABLES'
+
+	def gen_word(self, no_repeat = True):
+		last_glyph = self.NULL
+		my_word = list()
+		while True:
+			candidates = list()
+			if last_glyph in self.syllables:
+				for k,v in self.syllables[last_glyph].items():
+					candidates += [k] * v
+			else:
+				print(last_glyph)
+				candidates = list(self.syllables.keys())
+				candidates.remove('null')
+			next_glyph = random.choice(candidates)
+			if next_glyph != self.NULL:
+				my_word.append(next_glyph)
+				if len(my_word) > random.randint(1,5):
+					break
+			else:
+				break
+		return "".join(my_word)
+
+	def gen_word2(self, no_repeat = True):
+		a = self.NULL
+		b = self.NULL
+		my_word = list()
+		while True:
+			candidates = list()
+			ab = a + b
+			if ab in self.syllables:
+				for k,v in self.syllables[ab].items():
+					candidates += [k] * v
+			else:
+				candidates = self.syllables[self.ALL_SYLLABLES]
+
+			next_glyph = random.choice(candidates)
+			if next_glyph != self.NULL:
+				my_word.append(next_glyph)
+				if len(my_word) > random.randint(1,5):
+					break
+			else:
+				break
+		return "".join(my_word)
+
+	@classmethod
+	def generate_library2(cls, training_file, output_file):
+		with open(training_file, "rt") as f:
+			mylines = f.readlines()
+
+		used_names = set()
+		syllables = dict()
+		syllables[cls.ALL_SYLLABLES] = list()
+		for line in mylines:
+			for word in line.split():
+				if len(word) > 1:
+					if word[0] == "(":
+						break
+					elif word not in used_names:
+						used_names.add(word)
+						a = cls.NULL
+						b = cls.NULL
+						for glyph in word:
+							ab = a + b
+							if ab not in syllables:
+								syllables[ab] = collections.defaultdict(int)
+							syllables[ab][glyph] += 1
+							a = b
+							b = glyph
+							syllables[cls.ALL_SYLLABLES].append(glyph)
+						ab = a + b
+						if ab not in syllables:
+							syllables[ab] = collections.defaultdict(int)
+						syllables[ab][cls.NULL] += 1
+
+		with open(output_file, "wt") as f:
+			json.dump(syllables, f)
+
+	@staticmethod
+	def generate_library(training_file, output_file):
+		with open(training_file, "rt") as f:
+			mylines = f.readlines()
+
+		used_names = set()
+		syllables = dict()
+		for line in mylines:
+			for word in line.split():
+				if len(word) > 1:
+					if word[0] == "(":
+						break
+					elif word not in used_names:
+						used_names.add(word)
+						last_glyph = None
+						for glyph in word:
+							if last_glyph not in syllables:
+								syllables[last_glyph] = collections.defaultdict(int)
+							syllables[last_glyph][glyph] += 1
+							last_glyph = glyph
+						if last_glyph not in syllables:
+							syllables[last_glyph] = collections.defaultdict(int)
+						syllables[last_glyph][None] += 1
+
+		with open(output_file, "wt") as f:
+			json.dump(syllables, f)
+
+
 
 def test_names( ng, trials ):
     tot1 = 0

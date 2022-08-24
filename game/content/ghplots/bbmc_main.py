@@ -987,7 +987,7 @@ class SceneTwo(Plot):
 
             if camp.party_has_skill(gears.stats.Performance) or camp.party_has_skill(gears.stats.Negotiation):
                 ghcutscene.SimpleMonologueDisplay(
-                    "Performance can be used to inspire your allied. Negotiation can be used to charge up an ally's MP at the cost of your stamina. Since you're fighting alone, neither of these skills will be useful right now.",
+                    "Performance can be used to inspire your allies. Negotiation can be used to charge up an ally's MP at the cost of your stamina. Since you're fighting alone, neither of these skills will be useful right now.",
                     self.elements["BEARBASTARD"]
                 )(camp, False)
 

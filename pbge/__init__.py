@@ -18,6 +18,8 @@ import random
 import weakref
 import sys
 import os
+#import steam
+#from steam.client import SteamClient
 
 # Import the android module. If we can't import it, set it to None - this
 # lets us test it, and check to see if we want android-specific behavior.
@@ -120,6 +122,7 @@ notex_border = Border(border_width=8, border_name="sys_defborder.png", padding=4
 TEXT_COLOR = (240, 240, 50)
 WHITE = (255, 255, 255)
 GREY = (160, 160, 160)
+BLACK = (0,0,0)
 
 INFO_GREEN = (50, 200, 0)
 INFO_HILIGHT = (100, 250, 0)
@@ -147,6 +150,9 @@ class GameState(object):
         self.notifications = list()
 
         self.mouse_pos = (0, 0)
+
+        #self.client = SteamClient()
+
 
     def render_widgets(self):
         if self.widgets:
@@ -678,6 +684,29 @@ FULLSCREEN_FLAGS = pygame.FULLSCREEN
 WINDOWED_FLAGS = pygame.RESIZABLE
 FULLSCREEN_RES = (0, 0)
 
+class LeadingFont(pygame.font.Font):
+    # Lead as in the metal, not as in leadership. Look it up on Wikipedia.
+    def __init__(self, filename, size, leading=0):
+        super().__init__(filename, size)
+        self._leading = leading
+
+    def render(self, text, antialias=True, color=TEXT_COLOR, background=None):
+        my_image = super().render(text, antialias, color, background).convert_alpha()
+        my_rect = my_image.get_rect()
+        my_rect.y -= self._leading
+        my_rect.h += self._leading
+        return my_image.subsurface(my_rect)
+
+    def size(self, text):
+        w, h = super().size(text)
+        return (w, h+self._leading)
+
+    def get_linesize(self):
+        return super().get_linesize()+self._leading
+
+    def get_height(self):
+        return super().get_height()+self._leading
+
 
 def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_*.png",
          display_font="Atan.ttf"):
@@ -704,37 +733,36 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         INPUT_CURSOR = image.Image("sys_textcursor.png", 8, 16)
 
         global SMALLFONT
-        SMALLFONT = pygame.font.Font(util.image_dir("DejaVuSansCondensed-Bold.ttf"), 12)
+        SMALLFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 12, -1)
         my_state.small_font = SMALLFONT
 
         global TINYFONT
-        TINYFONT = pygame.font.Font(util.image_dir("DejaVuSansCondensed-Bold.ttf"), 9)
+        TINYFONT = pygame.font.Font(util.image_dir("SourceHanSans-Heavy.ttc"), 10)
         my_state.tiny_font = TINYFONT
 
         global ANIMFONT
-        ANIMFONT = pygame.font.Font(util.image_dir("DejaVuSansCondensed-Bold.ttf"), 16)
+        ANIMFONT = LeadingFont(util.image_dir("SourceHanSans-Bold.ttc"), 16, -2)
         my_state.anim_font = ANIMFONT
 
         global MEDIUMFONT
-        MEDIUMFONT = pygame.font.Font(util.image_dir("DejaVuSansCondensed-Bold.ttf"), 14)
+        MEDIUMFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 14, -2)
         my_state.medium_font = MEDIUMFONT
 
         global ALTTEXTFONT
 
-        ALTTEXTFONT = pygame.font.Font(util.image_dir("DejaVuSansCondensed-BoldOblique.ttf"), 15)
+        ALTTEXTFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 14, -2)
+        ALTTEXTFONT.set_italic(True)
         my_state.alt_text_font = ALTTEXTFONT
 
         global ITALICFONT
-        ITALICFONT = pygame.font.Font(util.image_dir("DejaVuSansCondensed-BoldOblique.ttf"), 12)
+        ITALICFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 12, -1)
+        ITALICFONT.set_italic(True)
 
         global BIGFONT
-        BIGFONT = pygame.font.Font(util.image_dir(display_font), 16)
+        BIGFONT = pygame.font.Font(util.image_dir(display_font), 18)
         my_state.big_font = BIGFONT
 
         my_state.huge_font = pygame.font.Font(util.image_dir(display_font), 24)
-
-        my_state.mono_font = pygame.font.Font(util.image_dir("SourceHanSans-Medium.ttc"), 16)
-        #my_state.mono_font.set_bold(True)
 
         global POSTERS
         POSTERS += glob.glob(util.image_dir(poster_pattern))
@@ -748,7 +776,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
 
         # Set key repeat.
-        pygame.key.set_repeat(200, 75)
+        pygame.key.set_repeat(200, 100)
 
         INIT_DONE = True
 

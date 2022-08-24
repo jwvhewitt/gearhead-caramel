@@ -1,3 +1,5 @@
+* Added Korean Name Generator class
+* Changed the font family from "DejaVu" to "Source Han Sans" to provide Korean, Japanese, and Chinese support
 * Faction reaction class can store faction leader
 * pbge gets initialized before other units are imported
 

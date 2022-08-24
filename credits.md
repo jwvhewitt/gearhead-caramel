@@ -10,7 +10,7 @@ ARTWORK
 * eyecatch_noppy_*.png screens by Thomas Noppers, https://www.etsy.com/shop/ToppyNoppy, CC-BY-4.0
 * por_lorderin_*.png portrait bits by Lord Erin
 * The font Atan combines the Roman glyphs from Anita Semi Square by Gustavo Paz L. with the Korean glyphs from Gugi. SIL Open Font License.
-* The DejaVu fonts are released under a free license. https://dejavu-fonts.github.io/License.html
+* The Open Han Sans fonts are released under the SIL OPEN FONT LICENSE Version 1.1
 * anim_frogatto_nuke.png from OpenGameArt user Jetrel, public domain
 * anim_gervais_*.png, terrain_gervais_\*.png by David Gervais, CC-BY 3.0
 

@@ -299,6 +299,11 @@ def play_the_game():
 
     logging.basicConfig(level=logging.DEBUG, filename=pbge.util.user_dir("errors.log"))
 
+    #pbge.namegen.KoreanNameGen.generate_library2(pbge.util.data_dir("KoreanNames.txt"), pbge.util.data_dir("ng_korean2.json"))
+    #mynamegen = pbge.namegen.KoreanNameGen(pbge.util.data_dir("ng_korean2.json"))
+    #for t in range(200):
+    #    print(mynamegen.gen_word2())
+
     #print(os.getenv("APPDATA"))
 
     # myfoo = game.content.ghplots.test.Foo()

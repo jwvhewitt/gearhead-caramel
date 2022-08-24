@@ -53,16 +53,16 @@ class CharacterInfoWidget(widgets.Widget):
                                            fhqinfo.LEFT_COLUMN.h, padding=10)
         self.children.append(self.column)
         self.column.add_interior(
-            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Inventory", justify=0, draw_border=True,
+            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Inventory", justify=0, draw_border=True,
                                 on_click=self.open_backpack))
         self.column.add_interior(
-            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Do Training", justify=0, draw_border=True,
+            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Do Training", justify=0, draw_border=True,
                                 on_click=self.open_training))
         self.column.add_interior(
-            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Assign Mecha", justify=0, draw_border=True,
+            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Assign Mecha", justify=0, draw_border=True,
                                 on_click=self.assign_mecha))
         self.column.add_interior(
-            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Change Colors", justify=0, draw_border=True,
+            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Change Colors", justify=0, draw_border=True,
                                 on_click=self.change_colors))
         if pc.relationship and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
             self.column.add_interior(
@@ -70,7 +70,7 @@ class CharacterInfoWidget(widgets.Widget):
                                     draw_border=True, on_click=self.jump_plot))
         if pc is camp.pc:
             self.column.add_interior(
-                widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Edit Character", justify=0, draw_border=True,
+                widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Edit Character", justify=0, draw_border=True,
                                     on_click=self.edit_pc))
         self.fhq = fhq
         self.info = CharaFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, font=pbge.SMALLFONT, camp=camp)
@@ -98,7 +98,7 @@ class CharacterInfoWidget(widgets.Widget):
         pbge.my_state.widgets.append(myui)
         myui.finished = False
         myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 16, text="Done", justify=0, on_click=self.bp_done,
+            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=self.bp_done,
                                      draw_border=True, data=myui))
 
         keepgoing = True
@@ -152,7 +152,7 @@ class CharacterInfoWidget(widgets.Widget):
         pbge.my_state.widgets.append(myui)
         myui.finished = False
         myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 16, text="Done", justify=0, on_click=self.color_done,
+            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=self.color_done,
                                      draw_border=True, data=myui))
 
         keepgoing = True
@@ -203,13 +203,13 @@ class MechaInfoWidget(widgets.Widget):
         self.children.append(self.column)
         if not hasattr(pc, "owner") or not pc.owner:
             self.column.add_interior(
-                widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Inventory", justify=0, draw_border=True,
+                widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Inventory", justify=0, draw_border=True,
                                     on_click=self.open_backpack))
         self.column.add_interior(
-            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Assign Pilot", justify=0, draw_border=True,
+            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Assign Pilot", justify=0, draw_border=True,
                                 on_click=self.assign_pilot))
         self.column.add_interior(
-            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Change Colors", justify=0, draw_border=True,
+            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Change Colors", justify=0, draw_border=True,
                                 on_click=self.change_colors))
         self.fhq = fhq
 
@@ -251,7 +251,7 @@ class MechaInfoWidget(widgets.Widget):
         pbge.my_state.widgets.append(myui)
         myui.finished = False
         myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 16, text="Done", justify=0, on_click=self.bp_done,
+            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=self.bp_done,
                                      draw_border=True, data=myui))
 
         keepgoing = True
@@ -280,7 +280,7 @@ class MechaInfoWidget(widgets.Widget):
         pbge.my_state.widgets.append(myui)
         myui.finished = False
         myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 16, text="Done", justify=0, on_click=self.color_done,
+            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=self.color_done,
                                      draw_border=True, data=myui))
 
         keepgoing = True
@@ -320,18 +320,18 @@ class PetInfoWidget(widgets.Widget):
         self.children.append(self.column)
 
         self.column.add_interior(widgets.LabelWidget(
-            0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Change Name", justify=0, draw_border=True,
+            0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Change Name", justify=0, draw_border=True,
             on_click=self._change_name
         ))
 
         if self.pc.pet_data.active:
             self.column.add_interior(widgets.LabelWidget(
-                0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Send Home", justify=0, draw_border=True,
+                0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Send Home", justify=0, draw_border=True,
                 on_click=self.leave_behind
             ))
         elif gears.tags.SCENE_PUBLIC in self.camp.scene.attributes:
             self.column.add_interior(widgets.LabelWidget(
-                0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Bring Along", justify=0, draw_border=True,
+                0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Bring Along", justify=0, draw_border=True,
                 on_click=self.bring_along
             ))
 
@@ -418,7 +418,7 @@ class ItemInfoWidget(widgets.Widget):
                                            fhqinfo.LEFT_COLUMN.h, padding=10)
         self.children.append(self.column)
         self.column.add_interior(
-            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Give Item", justify=0, draw_border=True,
+            widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Give Item", justify=0, draw_border=True,
                                 on_click=self.give_item))
         self.fhq = fhq
 
@@ -552,7 +552,7 @@ class FieldHQ(widgets.Widget):
         myui = cls(camp)
         pbge.my_state.widgets.append(myui)
         myui.children.append(pbge.widgets.LabelWidget(fhqinfo.RIGHT_COLUMN.dx + 64,
-                                                      fhqinfo.RIGHT_COLUMN.dy + fhqinfo.RIGHT_COLUMN.h + 20, 80, 16,
+                                                      fhqinfo.RIGHT_COLUMN.dy + fhqinfo.RIGHT_COLUMN.h + 20, 80, 0,
                                                       text="Done", justify=0, on_click=myui.done_button,
                                                       draw_border=True))
 
