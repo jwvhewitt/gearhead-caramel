@@ -1203,6 +1203,69 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[Fortune_cookie]": {
+        # Need a nameless NPC to send a message via a lancemate or other intermediary? Here you go!
+        Default: [
+            "if you specialize in armed combat, you might want to think about getting a boomerang or a spear so you'll have a ranged attack which uses your best skill",
+            "the higher a shield's defense bonus, the harder it is to attack with that arm",
+            "puffins fly, penguins plummet",
+            "you don't have to do everything people tell you to do",
+            "the more difficult the fight, the more you'll learn from it",
+            "if you would be a great warrior, you must battle through the cave naked, armed only with a toothpick",
+            "an honest shopkeeper won't buy stolen goods",
+            "there are no mistakes, only happy accidents",
+            "only highly skilled foes can afford highly expensive mecha",
+            "having a scout on your team is very useful for avoiding unnecessary fights",
+            "survivalists know 101 uses for a dead monster",
+            "scientists love disassembling machines for the spare parts",
+            "the only defense against a big computer is an even bigger computer",
+            "the memo pad is the most useful feature of your phone",
+            "you should know what's going on before you pick a side in a fight",
+            "you can't believe what everyone tells you, not even this",
+            "accuracy counteracts mobility but doesn't help at all against targets with no mobility to speak of",
+            "penetration counteracts armor but won't do a thing if your target has no armor to begin with",
+            "the computers skill is much more useful if your mecha actually has a computer",
+            "technology is our friend but also sometimes our enemy",
+            "time is measured not in hours but in deeds",
+            "you should definitely try not to die",
+            "no cavalier is undefeatable, but some of them do a pretty good job pretending",
+            "the best tactic when you are outnumbered and outgunned is to run away",
+            "a wilderness guide can make long distance travel much easier",
+            "a sneaky lancemate can help keep you out of trouble, as well as get you into trouble",
+            "knowing the repair skill improves your odds of finding good salvage"
+        ],
+        personality.Cheerful: [
+            "everybody likes cookies"
+        ],
+        personality.Grim: [
+            "there actually is such a thing as a stupid question",
+        ],
+        personality.Glory: [
+            "if you keep trying to do better, eventually you'll get there",
+        ],
+        personality.Justice: [
+            "it's a cavalier's duty to make the world a better place instead of a worse one",
+        ],
+        personality.Duty: [
+            "once you've given your word there's no backing out",
+        ],
+        personality.Fellowship: [
+            "you should leave fighting behind you on the battlefield",
+        ],
+        personality.Peace: [
+            "every life is worth defending",
+        ],
+        tags.Criminal: [
+            "a dishonest shopkeeper can be a good person to know",
+        ],
+        tags.Academic: [
+            "this sentence is false",
+        ],
+        tags.Medic: [
+            "every team needs a medic",
+        ]
+    },
+
     "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]": {
         # Data block should include enemy_faction
         Default: ["Have you considered making peace with {enemy_faction}?"
@@ -4272,13 +4335,15 @@ DEFAULT_GRAMMAR = {
             "Neat.",
         ],
         personality.Passionate: [
-            "That's the best news!",
+            "That's the best news!", "Excelsior!"
         ],
         personality.Sociable: [
             "I'm glad to hear that.",
         ],
         personality.Shy: ["Good.",
                           ],
+        DISLIKE: ["Okay, I guess..."],
+        LIKE: ["Fantastic!"]
     },
 
     "[THATS_INTERESTING]": {
@@ -4305,7 +4370,7 @@ DEFAULT_GRAMMAR = {
     },
 
     "[THATSUCKS]": {
-        Default: ["Too bad."
+        Default: ["Too bad.", "[SWEAR]"
                   ],
         personality.Cheerful: [
             "Aww..."
@@ -4322,6 +4387,54 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Shy: ["Oh no.",
                           ],
+    },
+
+    "[THAT_WAS_INCREDIBLE]": {
+        # Praise incredible performance
+        Default: ["That was incredible!"
+                  ],
+        personality.Cheerful: [
+            "You were amazing!"
+        ],
+        personality.Grim: ["Can't complain about that!",
+                           ],
+        personality.Easygoing: ["You did pretty good, I think!",
+                                ],
+        personality.Passionate: [
+            "Yes! Yes! Ha ha ha!",
+        ],
+        personality.Sociable: [
+            "You really did a wonderful job with that.",
+        ],
+        personality.Shy: ["Incredible work.",
+                          ],
+    },
+
+    "[THAT_WAS_THE_WORST]": {
+        # Criticize bad performance
+        Default: ["That was the worst!"
+                  ],
+        personality.Cheerful: [
+            "You have made me sad."
+        ],
+        personality.Grim: ["That has to be one of the worst things I've ever seen.",
+                           ],
+        personality.Easygoing: ["I don't want to say you suck, but right now? You suck.",
+                                ],
+        personality.Passionate: [
+            "You have failed in the greatest possible sense of the word.",
+        ],
+        personality.Sociable: [
+            "When word of your failure gets around, it's going to destroy your rep.",
+        ],
+        personality.Shy: ["You did a bad thing.",
+                          ],
+        LIKE: [
+            "I know you tried your best, but that was not good."
+        ],
+        DISLIKE: [
+            "And as expected, you blew it."
+        ]
     },
 
     "[THERE_ARE_ENEMY_TRACKS]": {
@@ -5052,6 +5165,54 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["You're wrong.",
                           ],
+    },
+
+    "[You_have_the_needed_skills]": {
+        # The speaker wishes to express that the PC has the needed skills for a given mission or job
+        Default: ["you have the necessary skills for this job",
+                  ],
+        personality.Cheerful: ["this could be a great opportunity for you",
+                               ],
+        personality.Grim: ["you could do this if you want",
+                           ],
+        personality.Easygoing: ["it shouldn't be a problem for someone with your skills",
+                                ],
+        personality.Passionate: ["think of it as a specialist mission",
+                                 ],
+        personality.Sociable: ["I've heard that you have the skills needed to do this",
+                               ],
+        personality.Shy: ["you have the needed skills",
+                          ],
+        LIKE: [
+            "you would be absolutely perfect for this",
+        ],
+        DISLIKE: [
+            "unfortunately you're the best person I could find",
+        ],
+    },
+
+    "[You_heard_right]": {
+        # The speaker confirms a rumor.
+        Default: ["you heard right",
+                  ],
+        personality.Cheerful: ["it's a lucky thing that you heard about it",
+                               ],
+        personality.Grim: ["I can't deny it",
+                           ],
+        personality.Easygoing: ["you could say that",
+                                ],
+        personality.Passionate: ["destiny has led you to me today",
+                                 ],
+        personality.Sociable: ["the rumors you heard are correct",
+                               ],
+        personality.Shy: ["yes",
+                          ],
+        LIKE: [
+            "I'm glad you got the message",
+        ],
+        DISLIKE: [
+            "yeah, I hate admitting this to you but you heard right",
+        ],
     },
 
     "[YOUR_PLAN_IS_HOPELESS]": {

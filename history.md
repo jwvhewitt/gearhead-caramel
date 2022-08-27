@@ -1,3 +1,6 @@
+* Added many RANDOM_PLOT plots
+* Search range dropped to 6
+* The Neko is now properly a Gerwalk mecha
 * Added Korean Name Generator class; not highly effective yet
 * Changed the font family from "DejaVu" to "Source Han Sans" to provide Korean, Japanese, and Chinese support
 * Faction reaction class can store faction leader

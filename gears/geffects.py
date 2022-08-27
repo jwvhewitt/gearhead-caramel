@@ -353,6 +353,14 @@ class BadMusicAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_music_bad.png"
     DEFAULT_END_FRAME = 7
 
+class PerformanceAnim(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = "anim_music.png"
+    DEFAULT_END_FRAME = 15
+    DEFAULT_LOOP = 2
+
+    def render(self, foot_pos, view):
+        self.y_off -= 2
+        super().render(foot_pos, view)
 
 class HeckleAnim(animobs.Caption):
     HECKLES = ("BOO!"

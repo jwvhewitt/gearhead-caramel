@@ -4,7 +4,7 @@ Mecha
     imagename = "mav_neko.png"
     portrait = "mecha_neko.png"
     desc = "Originally from Mars, the Neko is now a popular hybrid fighter throughout the solar system."
-
+    form = MT_Gerwalk
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
     role_list = (Command, EWarSupport, Support)

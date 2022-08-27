@@ -18,8 +18,9 @@ import random
 import weakref
 import sys
 import os
-#import steam
-#from steam.client import SteamClient
+
+# import steam
+# from steam.client import SteamClient
 
 # Import the android module. If we can't import it, set it to None - this
 # lets us test it, and check to see if we want android-specific behavior.
@@ -44,9 +45,11 @@ class SingletonMeta(type):
     def __str__(cls):
         return cls.name
 
+
 class Singleton(object, metaclass=SingletonMeta):
     """For rules constants that don't need to be instanced."""
     name = "Singleton"
+
     def __init__(self):
         raise NotImplementedError("Singleton can't be instantiated.")
 
@@ -122,7 +125,7 @@ notex_border = Border(border_width=8, border_name="sys_defborder.png", padding=4
 TEXT_COLOR = (240, 240, 50)
 WHITE = (255, 255, 255)
 GREY = (160, 160, 160)
-BLACK = (0,0,0)
+BLACK = (0, 0, 0)
 
 INFO_GREEN = (50, 200, 0)
 INFO_HILIGHT = (100, 250, 0)
@@ -151,8 +154,7 @@ class GameState(object):
 
         self.mouse_pos = (0, 0)
 
-        #self.client = SteamClient()
-
+        # self.client = SteamClient()
 
     def render_widgets(self):
         if self.widgets:
@@ -202,7 +204,7 @@ class GameState(object):
             return self.music_library[mfname]
         elif mfname and self.audio_enabled:
             sound = pygame.mixer.Sound(util.music_dir(mfname))
-            sound.set_volume(util.config.getfloat("GENERAL","music_volume"))
+            sound.set_volume(util.config.getfloat("GENERAL", "music_volume"))
             self.music_library[mfname] = sound
             return sound
 
@@ -266,7 +268,6 @@ class GameState(object):
             elif k == ev.unicode:
                 return True
 
-
     def key_is_in_use(self, ukey):
         for op in util.config.options("KEYS"):
             keys = util.config.get("KEYS", op)
@@ -319,14 +320,14 @@ class GameState(object):
         try:
             return int(ws), int(hs)
         except ValueError:
-            return 800,600
+            return 800, 600
 
     def reset_screen(self):
         if util.config.getboolean("GENERAL", "stretchy_screen"):
             if util.config.getboolean("GENERAL", "fullscreen"):
                 my_state.physical_screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
             else:
-                #my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
+                # my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
                 my_state.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
             my_state.resize()
         else:
@@ -547,54 +548,6 @@ def alert_display(display_fun):
             my_state.do_flip()
 
 
-ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
-
-
-def input_string(font=None, redrawer=None, prompt="Enter text below", prompt_color=(255, 255, 255),
-                 input_color=TEXT_COLOR, border=default_border):
-    # Input a string from the user.
-    it = []
-    keep_going = True
-
-    if not font:
-        font = BIGFONT
-
-    myrect = pygame.Rect(my_state.screen.get_width() / 2 - 200, my_state.screen.get_height() / 2 - 32, 400, 64)
-    prompt_image = font.render(prompt, True, prompt_color)
-
-    while keep_going:
-        ev = wait_event()
-
-        if ev.type == TIMEREVENT:
-            if redrawer != None:
-                redrawer()
-            border.render(myrect)
-            mystring = "".join(it)
-            myimage = font.render(mystring, True, input_color)
-            my_state.screen.blit(prompt_image, (my_state.screen.get_width() / 2 - prompt_image.get_width() / 2,
-                                                my_state.screen.get_height() / 2 - prompt_image.get_height() - 2))
-            my_state.screen.set_clip(myrect)
-            my_state.screen.blit(myimage, (
-            my_state.screen.get_width() / 2 - myimage.get_width() / 2, my_state.screen.get_height() / 2))
-            INPUT_CURSOR.render(
-                (my_state.screen.get_width() / 2 + myimage.get_width() / 2 + 2, my_state.screen.get_height() / 2),
-                ( my_state.anim_phase // 3 ) % 4)
-            my_state.screen.set_clip(None)
-            my_state.do_flip(False)
-
-
-        elif ev.type == pygame.KEYDOWN:
-            if (ev.key == pygame.K_BACKSPACE) and (len(it) > 0):
-                del it[-1]
-            elif (ev.key == pygame.K_RETURN) or (ev.key == pygame.K_ESCAPE):
-                keep_going = False
-            elif (ev.unicode in ALLOWABLE_CHARACTERS) and (len(ev.unicode) > 0):
-                it.append(ev.unicode)
-        elif ev.type == pygame.QUIT:
-            keep_going = False
-    return "".join(it)
-
-
 def please_stand_by(caption=None):
     if not my_state.standing_by:
         img = pygame.image.load(random.choice(POSTERS)).convert()
@@ -609,7 +562,9 @@ def please_stand_by(caption=None):
         my_state.standing_by = True
         my_state.do_flip(False, reset_standing_by=False)
 
+
 from . import frects
+
 
 class BasicNotification(frects.Frect):
     IP_INFLATE = 0
@@ -674,15 +629,13 @@ from . import challenges
 from . import memos
 from . import internationalization
 
-
-
-
 # PG2 Change
 # FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.SCALED
 # WINDOWED_FLAGS = pygame.RESIZABLE | pygame.SCALED
 FULLSCREEN_FLAGS = pygame.FULLSCREEN
 WINDOWED_FLAGS = pygame.RESIZABLE
 FULLSCREEN_RES = (0, 0)
+
 
 class LeadingFont(pygame.font.Font):
     # Lead as in the metal, not as in leadership. Look it up on Wikipedia.
@@ -699,13 +652,13 @@ class LeadingFont(pygame.font.Font):
 
     def size(self, text):
         w, h = super().size(text)
-        return (w, h+self._leading)
+        return (w, h + self._leading)
 
     def get_linesize(self):
-        return super().get_linesize()+self._leading
+        return super().get_linesize() + self._leading
 
     def get_height(self):
-        return super().get_height()+self._leading
+        return super().get_height() + self._leading
 
 
 def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_*.png",
@@ -779,5 +732,3 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         pygame.key.set_repeat(200, 100)
 
         INIT_DONE = True
-
-

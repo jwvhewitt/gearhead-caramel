@@ -65,7 +65,6 @@ class DZDREBasicPlotWithEncounterStuff(Plot):
             rank=self.rank, encounter_chance=self.RANDOM_ENCOUNTER_CHANCE,
             scenegen=DeadZoneHighwaySceneGen,
             architecture=self.ENCOUNTER_ARCHITECTURE,
-            environment=gears.tags.GroundEnv,
             entrance_anchor=myanchor
         )
         return myadv

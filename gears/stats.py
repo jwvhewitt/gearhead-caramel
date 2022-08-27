@@ -50,7 +50,7 @@ class Perception( Stat ):
                     roll_mod=25, min_chance=25,
                     on_success=[geffects.SetVisible(anim=geffects.SmokePoof,)],
                 ),]),
-            area=pbge.scenes.targetarea.SelfCentered(radius=10,delay_from=-1),
+            area=pbge.scenes.targetarea.SelfCentered(radius=6,delay_from=-1),
             used_in_combat = True, used_in_exploration=True,
             ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsHidden()]),
             shot_anim=geffects.OriginSpotShotFactory(geffects.SearchTextAnim),
