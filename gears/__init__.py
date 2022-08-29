@@ -924,6 +924,15 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         self.faction_relations[a_fac].set_faction_neutral(b_fac)
         self.faction_relations[b_fac].set_faction_neutral(a_fac)
 
+    def get_enemy_faction(self, a):
+        a_fac = self.get_faction(a)
+        candidates = list()
+        for b in self.faction_relations.keys():
+            if self.are_faction_enemies(a_fac, b):
+                candidates.append(b)
+        if candidates:
+            return random.choice(candidates)
+
     def is_favorable_to_pc(self, other_thing):
         """ is the other_thing- an NPC, faction, scene, whatever- likely to want to aid the PC?
         """

@@ -4,7 +4,7 @@ import random
 import pbge
 import gears
 from game.content import GHNarrativeRequest, PLOT_LIST
-from ..ghdialogue import context
+from ..ghdialogue import context, ghgrammar
 
 
 class AdventureModuleData(object):
@@ -489,6 +489,16 @@ DRUG_LETTER = (
 
 def random_medicine_name():
     return "{}{} {}".format(random.choice(DRUG_START), random.choice(DRUG_END), random.choice(DRUG_LETTER))
+
+PLANT_TYPE = (
+    "Thistle", "Wort", "Flower", "Orchid", "Spinedew", "Wasabi", "Herb", "Weed", "Verbure", "Berry",
+    "Marigold", "Fern", "Fiddlehead", "Greens", "Reed", "Wood", "Leaf", "Bracken", "Plant", "Lichen",
+    "Grass", "Grain"
+)
+
+def random_plant_name():
+    adjective = random.choice(ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None])
+    return "{} {}".format(adjective, random.choice(PLANT_TYPE))
 
 
 class LMSkillsSelfIntro(Offer):

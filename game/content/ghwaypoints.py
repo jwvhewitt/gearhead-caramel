@@ -457,4 +457,6 @@ class ParkStatueMan(Waypoint):
 class Shrine(Waypoint):
     TILE = pbge.scenes.Tile(None, ghterrain.ShrineTerrain, None)
 
+class Herbs(Waypoint):
+    TILE = pbge.scenes.Tile(None, ghterrain.HerbsTerrain, None)
 

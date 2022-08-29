@@ -89,7 +89,7 @@ class WildernessCoffeeShop(Plot):
         return (
                 gears.tags.SCENE_OUTDOORS in pstate.elements["LOCALE"].attributes or
                 cls.LABEL == "TEST_DUNGEON_EXTRA"
-        )
+        ) and not pstate.elements.get(DG_TEMPORARY, False)
 
     def custom_init(self, nart):
         # Create the shopkeeper

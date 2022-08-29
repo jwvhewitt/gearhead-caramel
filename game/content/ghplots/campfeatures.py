@@ -213,12 +213,16 @@ class MetrosceneRandomPlotHandler(Plot):
 
     def t_START(self, camp):
         # Attempt to load at least one challenge plot, then load some more plots.
-        if self.should_load_plot(camp):
-            game.content.load_dynamic_plot(
+        tries = random.randint(1,4)
+        while self.should_load_plot(camp) and tries > 0:
+            myplot = game.content.load_dynamic_plot(
                 camp, self.CHALLENGE_LABEL, pstate=PlotState(
                     rank=self.calc_rank(camp)
                 ).based_on(self)
             )
+            tries -= 1
+            if not myplot:
+                break
         tries = 10
         while self.should_load_plot(camp) and tries > 0:
             myplot = game.content.load_dynamic_plot(

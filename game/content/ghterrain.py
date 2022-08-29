@@ -1157,3 +1157,7 @@ class TableAndChairsTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_gervais_decor.png'
     blocks = (Walking, Skimming, Rolling)
 
+class HerbsTerrain(pbge.scenes.terrain.Terrain):
+    frame = 3
+    image_top = 'terrain_gervais_decor.png'
+    blocks = (Walking, Skimming, Rolling)

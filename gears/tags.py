@@ -191,6 +191,7 @@ SCENE_NOLEADERNEEDED = "NO_LEADER_NEEDED"  # This Metroscene doesn't need a lead
 SCENE_MINE = "MINE"  # This scene is mine. Actually it's _a_ mine. But it's still mine.
 SCENE_CAVE = "CAVE"  # This scene is a semi-natural underground area
 SCENE_LABORATORY = "LABORATORY"     # A science lab of some type.
+SCENE_FOREST = "FOREST"
 
 CITY_NAUTICAL = "NAUTICAL" # A city by the sea
 

@@ -1,3 +1,4 @@
+v0.926 August 22 2022
 * Added many RANDOM_PLOT plots
 * Search range dropped to 6
 * The Neko is now properly a Gerwalk mecha

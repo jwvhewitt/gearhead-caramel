@@ -209,6 +209,13 @@ class HumanScaleGreenzone(GearHeadArchitecture):
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.GreenZoneGrass
 
+class HumanScaleForest(GearHeadArchitecture):
+    ENV = gears.tags.GroundEnv
+    DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
+    DEFAULT_WALL_TERRAIN = ghterrain.Bushes
+    DEFAULT_FLOOR_TERRAIN = ghterrain.GreenZoneGrass
+    DEFAULT_ROOM_CLASSES = (pbge.randmaps.rooms.FuzzyRoom,)
+
 
 class DefaultBuilding(GearHeadArchitecture):
     ENV = gears.tags.UrbanEnv
