@@ -174,6 +174,8 @@ class Cookies(Plot):
             ContextTag([context.HELLO]), effect=self.end_plot
         ))
 
+        return mylist
+
     def _get_dialogue_grammar(self, npc, camp):
         # The secret private function that returns custom grammar.
         if npc is not self.elements["NPC"]:
@@ -707,7 +709,7 @@ class OddJobsRepair(Plot):
 
         else:
             pbge.my_state.view.play_anims(gears.geffects.BigBoom(pos=npc.pos))
-            pbge.alert("Your attempts at repair destroy the [DEVICE] completely.".format(**self.elements))
+            pbge.alert("Your attempts at repair destroy the {DEVICE} completely.".format(**self.elements))
             ghcutscene.SimpleMonologueDisplay("[THATSUCKS] I guess I'm going to have to buy a new one...", npc)(camp)
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod -= random.randint(1, 4)

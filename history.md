@@ -1,5 +1,7 @@
+v0.927 August 22 2022
+* Fixed bug in Cookies random plot
+
 v0.926 August 22 2022
-* Tagged
 * Added many RANDOM_PLOT plots
 * Search range dropped to 6
 * The Neko is now properly a Gerwalk mecha
