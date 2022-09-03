@@ -1,6 +1,6 @@
 import gears
 import game
-from game.content import ghterrain
+from game.content import ghterrain, gharchitecture
 from game.ghdialogue import context
 import pbge
 
@@ -121,7 +121,13 @@ SCENE_TAGS = (
 
 SINGULAR_TYPES = {
     "scene_generator": (
-        pbge.randmaps.SceneGenerator.__name__, pbge.randmaps.CityGridGenerator.__name__
+        pbge.randmaps.SceneGenerator.__name__, pbge.randmaps.CityGridGenerator.__name__,
+        gharchitecture.DeadZoneHighwaySceneGen.__name__
+    ),
+    "architecture": (
+        gharchitecture.MechaScaleSemiDeadzone.__name__, gharchitecture.MechaScaleDeadzone.__name__,
+        gharchitecture.MechaScaleGreenzone.__name__, gharchitecture.MechaScaleRuins.__name__,
+        gharchitecture.MechaScaleSemiDeadzoneRuins.__name__
     )
 }
 
@@ -159,6 +165,16 @@ def find_elements(part, e_type):
     return mylist
 
 
+def find_world_maps(part):
+    mylist = list()
+    myroot = part.get_root()
+    for c in myroot.children:
+        if c.brick.name == "New World Map":
+            mylist.append((c.raw_vars["world_map_name"], "'WORLDMAP_{}'".format(c.uid)))
+    mylist.append(("==None==", None))
+    return mylist
+
+
 def get_possible_states(part, category: str):
     if category == "faction":
         return find_factions(part)
@@ -179,6 +195,8 @@ def get_possible_states(part, category: str):
         return [(a, a) for a in SINGULAR_TYPES[category]]
     elif category.startswith("terrain:") and category[8:] in TERRAIN_TYPES:
         return [(a.__name__, "ghterrain.{}".format(a.__name__)) for a in TERRAIN_TYPES[category[8:]]]
+    elif category == "world_map":
+        return find_world_maps(part)
     else:
         return find_elements(part, category)
 

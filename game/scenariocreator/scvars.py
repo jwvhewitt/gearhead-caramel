@@ -1,6 +1,7 @@
-from . import varwidgets, conditionals, statefinders
+from . import varwidgets, conditionals, statefinders, worldmapeditor
 import pbge
 import gears
+import copy
 
 
 class BaseVariableDefinition(object):
@@ -154,7 +155,8 @@ class PaletteVariable(BaseVariableDefinition):
 
     def __init__(self, default_val=0, var_type=None, must_be_defined=False, **kwargs):
         try:
-            if isinstance(default_val, list) and len(default_val) == 5 and all([issubclass(p, gears.color.GHGradient) for p in default_val]):
+            if isinstance(default_val, list) and len(default_val) == 5 and all(
+                    [issubclass(p, gears.color.GHGradient) for p in default_val]):
                 self._default_val = default_val
             else:
                 self._default_val = None
@@ -176,7 +178,7 @@ class PaletteVariable(BaseVariableDefinition):
         myerrors = list()
         myerrors += super().get_errors(part, key)
         mylist = part.raw_vars.get(key, "")
-        #mylist = part.get_ultra_vars().get(key, "")
+        # mylist = part.get_ultra_vars().get(key, "")
         if not isinstance(mylist, list):
             myerrors.append("Variable {} in {} is not a color list".format(key, part))
         elif len(mylist) < 5:
@@ -203,7 +205,7 @@ class ConditionalVariable(BaseVariableDefinition):
         # Return a list of widgets having to do with this variable.
         mylist = list()
 
-        mylist.append(pbge.widgets.LabelWidget(0,0,300,pbge.SMALLFONT.get_linesize(), key, font=pbge.SMALLFONT))
+        mylist.append(pbge.widgets.LabelWidget(0, 0, 300, pbge.SMALLFONT.get_linesize(), key, font=pbge.SMALLFONT))
 
         my_conditions = part.raw_vars.get(key, list())
         for t, item in enumerate(my_conditions):
@@ -308,6 +310,94 @@ class TextVariable(BaseVariableDefinition):
         return repr(value)
 
 
+class WorldMapDataVariable(BaseVariableDefinition):
+    DEFAULT_VAR_TYPE = "world_map_data"
+
+    def __init__(self, default_val, **kwargs):
+        if not self._check_value(None, default_val):
+            default_val = {"node": {"pos": [0, 0]}, "edges": []}
+        super().__init__(default_val, **kwargs)
+
+    def get_widgets(self, part, key, editor=None, **kwargs):
+        # Return a list of widgets having to do with this variable.
+        mylist = list()
+        if part.raw_vars.get("entrance_world_map"):
+            mylist.append(
+                pbge.widgets.LabelWidget(0, 0, 350, 0, "Open World Map Editor", font=pbge.MEDIUMFONT, draw_border=True,
+                                         on_click=self._open_world_map_editor, data=(part, key, editor))
+            )
+        return mylist
+
+    def _open_world_map_editor(self, wid, ev):
+        part, key, editor = wid.data
+        map_bp = None
+        for c in editor.mytree.children:
+            if c.brick.name == "New World Map" and worldmapeditor.world_map_id(c) == part.raw_vars["entrance_world_map"]:
+                map_bp = c
+                break
+        # We now have enough information to open up the world map editor.
+        worldmapeditor.WorldMapEditor.create_and_invoke(pbge.my_state.view, editor, map_bp)
+
+    def _node_parameters_ok(self, node_dict):
+        for k,v in node_dict.items():
+            if k == "pos":
+                if not(isinstance(v, list) and len(v) == 2 and all([isinstance(a, int) for a in v])):
+                    return False
+            elif k == "image_file":
+                my_names_and_states = statefinders.get_possible_states(None, v)
+                mystates = [a[1] for a in my_names_and_states]
+                if not(isinstance(v, str) and v.endswith(".png") and v in mystates):
+                    return False
+            elif k in ("visible", "discoverable"):
+                if not isinstance(v, bool):
+                    return False
+            elif k in ("on_frame", "off_frame"):
+                if not isinstance(v, int):
+                    return False
+            else:
+                return False
+        return True
+
+    def _edge_parameters_ok(self, edge_dict, all_connections):
+        if isinstance(edge_dict, dict):
+            for k, v in edge_dict.items():
+                if k == "end_node" and v not in all_connections:
+                    return False
+                elif k in ("visible", "discoverable"):
+                    if not isinstance(v, bool):
+                        return False
+                elif k == "scenegen" and v not in statefinders.SINGULAR_TYPES["scene_generator"]:
+                    return False
+                elif k == "architecture" and v not in statefinders.SINGULAR_TYPES["architecture"]:
+                    return False
+                elif k in ("style", "encounter_chance") and not isinstance(v, int):
+                    return False
+        return True
+
+    def _check_value(self, part, value):
+        if isinstance(value, dict) and "node" in value and isinstance(value["node"], dict) and "edges" in value and isinstance(value["edges"], list):
+            if self._node_parameters_ok(value["node"]):
+                if not value["edges"]:
+                    # Empty list is ok.
+                    return True
+                elif part:
+                    all_blueprints = part.get_branch(part.get_root())
+                    all_connections = worldmapeditor.get_all_connections(all_blueprints, part.raw_vars.get("world_map_entrance"))
+                    return all(self._edge_parameters_ok(ed, all_connections) for ed in value["edges"])
+                else:
+                    return True
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        if not self._check_value(part, part.raw_vars.get(key)):
+            myerrors.append("ERROR: world_map_data dict {} is not valid.".format(part.raw_vars.get(key)))
+        return myerrors
+
+    @staticmethod
+    def format_for_python(value):
+        return value
+
+
 def get_variable_definition(default_val=0, var_type="integer", **kwargs):
     if var_type == "text":
         return TextVariable(default_val, **kwargs)
@@ -317,7 +407,7 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return StringIdentifierVariable(default_val, **kwargs)
     elif var_type == "campaign_variable":
         return CampaignVariableVariable(default_val, **kwargs)
-    elif var_type in ("faction", "scene", "npc"):
+    elif var_type in ("faction", "scene", "npc", "world_map"):
         return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.LIST_TYPES:
         return FiniteStateListVariable(default_val, var_type, **kwargs)
@@ -347,6 +437,8 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return FiniteStateListVariable(default_val, var_type, **kwargs)
     elif var_type == "integer":
         return IntegerVariable(default_val, **kwargs)
+    elif var_type == "world_map_data":
+        return WorldMapDataVariable(default_val, **kwargs)
     else:
         if var_type != "string":
             print("Unknown variable type {}; defaulting to string.".format(var_type))

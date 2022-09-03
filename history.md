@@ -1,3 +1,5 @@
+* Music files are now cached, which should help avoid scene change disruptions
+
 v0.927 August 22 2022
 * Fixed bug in Cookies random plot
 

@@ -86,7 +86,7 @@ from game.content.plotutility import AdventureModuleData
 import game
 from game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain
 from pbge.memos import Memo
-from game.content.ghplots import missionbuilder
+from game.content.ghplots import missionbuilder, campfeatures
 #: includes
 
 THE_WORLD = "SCENARIO_ELEMENT_UIDS"
@@ -184,7 +184,7 @@ nart.camp.campdata[{var_name}] = {value}
 
 *NEW WORLD_FEATURE
 "name": "Standard Lancemate Handler",
-"desc": "Adds the regular Lancemate handling scripts: an NPC can join your party if they have the lancemate tag; you can ask lancemates to leave if you are in a public scene; you can have a number of lancemates defined by the campaign..",
+"desc": "Adds the regular Lancemate handling scripts: an NPC can join your party if they have the lancemate tag; you can ask lancemates to leave if you are in a public scene; you can have a number of lancemates defined by the campaign.",
 "vars": {
   "lancemate_slots": {"default_val": 3, "var_type": "integer"},
   "lancemate_development": {"default_val":  true, "var_type": "boolean"}
@@ -208,3 +208,17 @@ self.add_sub_plot(nart, "CF_STANDARD_LANCEMATE_HANDLER", elements=dict(LANCEDEV_
 
 *SCRIPT plot_init
 self.add_sub_plot(nart, \"ADD_FROZEN_COMBATANT\", elements=dict(FACTION={npc_faction}))
+
+
+
+*NEW WORLD_FEATURE
+"name": "New World Map",
+"desc": "Adds a world map. The entrances included with metro scenes can be attached to this world map.",
+"vars": {
+  "world_map_name": {"default_val":  "WORLD_MAP", "var_type": "string"},
+  "image_file": {"default_val": null, "var_type": "wm_map_*.png", "must_be_defined": true}
+},
+"sorting_rank": 150
+
+*SCRIPT plot_init
+self.add_sub_plot(nart, "CF_WORLD_MAP_HANDLER", elements=dict(WM_IMAGE_FILE={image_file}, WM_IDENTIFIER="WORLDMAP_{_uid}"))

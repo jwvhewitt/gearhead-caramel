@@ -4,7 +4,7 @@ import glob
 import game
 import pbge
 import json
-from . import scclasses, statefinders, scvars, varwidgets, conditionals
+from . import scclasses, statefinders, scvars, varwidgets, conditionals, worldmapeditor
 from .scclasses import ALL_BRICKS, BRICKS_BY_LABEL, BRICKS_BY_NAME, PlotBrick, BluePrint
 import pygame
 import os
@@ -334,7 +334,7 @@ class VarEditorPanel(pbge.widgets.ColumnWidget):
             my_blueprint, my_allowed_keys = self.editor.active_node.get_bp_and_var_keys()
             for k, v in my_blueprint.brick.vars.items():
                 if not my_allowed_keys or k in my_allowed_keys:
-                    mylist = v.get_widgets(my_blueprint, k, refresh_fun=self.refresh_var_widgets)
+                    mylist = v.get_widgets(my_blueprint, k, refresh_fun=self.refresh_var_widgets, editor=self.editor)
                     for mywidget in mylist:
                         self.scroll_column.add_interior(
                             mywidget
@@ -540,6 +540,14 @@ class ScenarioEditor(pbge.widgets.Widget):
         self.children.append(self.parts_widget)
         self.update_parts_widget()
 
+    def get_all_nodes(self, current_node=None):
+        if not current_node:
+            current_node = self.mytree
+        yield current_node
+        for c in current_node.children:
+            for cc in self.get_all_nodes(c):
+                yield cc
+
     @classmethod
     def create_and_invoke(cls, redraw, mytree):
         # Create the UI. Run the UI. Clean up after you leave.
@@ -553,7 +561,7 @@ class ScenarioEditor(pbge.widgets.Widget):
                 redraw()
                 pbge.my_state.do_flip()
             elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
+                if pbge.my_state.is_key_for_action(ev, "exit"):
                     keepgoing = False
 
         if myui.mytree.raw_vars["unique_id"]:
@@ -625,6 +633,7 @@ class PlotBrickCompiler(object):
 
         except json.decoder.JSONDecodeError as err:
             print("JSON decode error: {} in {}".format(err, self.current_file))
+            print(err.doc)
 
     def flush_buffer(self, current_brick, line_buffer: list):
         if not line_buffer:

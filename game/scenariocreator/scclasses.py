@@ -16,6 +16,9 @@ class ElementDefinition(object):
         self.etc = kwargs
         self.uid = uid
 
+    def __str__(self):
+        return self.name
+
 
 class PhysicalDefinition(object):
     def __init__(self, the_brick, element_key, parent=None, variable_keys=(), child_types=(), **kwargs):
@@ -384,6 +387,12 @@ class BluePrint(object):
             for p in self.container.owner.predecessors():
                 yield p
 
+    def get_branch(self, bp_to_check):
+        yield bp_to_check
+        for c in bp_to_check.children:
+            for cc in self.get_branch(c):
+                yield cc
+
     def _get_uid(self):
         if self._uid != 0:
             return self._uid
@@ -418,6 +427,8 @@ class BluePrint(object):
             uvars = self.get_ultra_vars()
         for k,v in self.brick.elements.items():
             elements[k] = ElementDefinition(v.name.format(**uvars), e_type=v.e_type, uid=uvars[self.get_element_uid_var_name(k)])
+            for alias in v.aliases:
+                elements[alias] = elements[k]
 
         return elements
 

@@ -9,6 +9,8 @@
       "city_attributes": {"default_val": ["OUTDOORS", "City", "GreenZone", "PUBLIC"], "var_type": "scene_tags"},
       "entrance_name": {"default_val": "Exit", "var_type": "string"},
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
+      "entrance_world_map": {"default_val": null, "var_type": "world_map"},
+      "entrance_world_map_data": {"default_val": null, "var_type": "world_map_data"},
       "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
       "combat_music": {"default_val":  "Late.ogg", "var_type": "music"},
       "city_palette": {"default_val":  ["Black","Black","Black","Black","Black"], "var_type": "palette"},
@@ -23,7 +25,7 @@
     },
     "physicals": [
         {"element_key": "LOCALE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain"], "child_types": null},
-        {"element_key": "MISSION_GATE", "parent": "LOCALE", "variable_keys": ["entrance_name", "entrance_desc"]}
+        {"element_key": "MISSION_GATE", "parent": "LOCALE", "variable_keys": ["entrance_name", "entrance_desc", "entrance_world_map", "entrance_world_map_data"]}
     ],
     "sorting_rank": 1000,
     "category": "LOCATIONS"
@@ -40,6 +42,8 @@ class City_{unique_id}_{_uid}( Plot ):
     def custom_init( self, nart ):
         +init_plot
         self.elements["METRO"] = self.elements["LOCALE"].metrodat
+        if {entrance_world_map}:
+            {entrance_world_map_data}
         #: plot_init
         #: plot_actions
         #: plot_subplots
@@ -85,6 +89,9 @@ mygate = self.register_element(
 
 the_world[{MISSION_GATE_UID}] = mygate
 
+if {entrance_world_map}:
+    nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)
+
 
 
 *NEW CITY
@@ -99,6 +106,8 @@ the_world[{MISSION_GATE_UID}] = mygate
       "room_name": {"default_val": "The Beach", "var_type": "string"},
       "entrance_name": {"default_val": "To The Docks", "var_type": "string"},
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
+      "entrance_world_map": {"default_val": null, "var_type": "world_map"},
+      "entrance_world_map_data": {"default_val": null, "var_type": "world_map_data"},
       "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
       "combat_music": {"default_val":  "Late.ogg", "var_type": "music"},
       "city_palette": {"default_val":  ["Black","Black","Black","Black","Black"], "var_type": "palette"},
@@ -117,7 +126,7 @@ the_world[{MISSION_GATE_UID}] = mygate
     "physicals": [
         {"element_key": "LOCALE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "city_terrain", "beach_terrain", "water_terrain", "road_terrain"], "child_types": null},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
-        {"element_key": "MISSION_GATE", "parent": "ROOM", "variable_keys": ["entrance_name", "entrance_desc"]}
+        {"element_key": "MISSION_GATE", "parent": "ROOM", "variable_keys": ["entrance_name", "entrance_desc", "entrance_world_map", "entrance_world_map_data"]}
     ],
     "sorting_rank": 1000,
     "category": "LOCATIONS"
@@ -134,6 +143,8 @@ class City_{unique_id}_{_uid}( Plot ):
     def custom_init( self, nart ):
         +init_plot
         self.elements["METRO"] = self.elements["LOCALE"].metrodat
+        if {entrance_world_map}:
+            {entrance_world_map_data}
         #: plot_init
         #: plot_actions
         #: plot_subplots
@@ -188,6 +199,9 @@ mygate = self.register_element(
 )
 
 the_world[{MISSION_GATE_UID}] = mygate
+
+if {entrance_world_map}:
+    nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)
 
 
 

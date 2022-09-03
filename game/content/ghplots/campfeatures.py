@@ -9,7 +9,7 @@ from game.content import gharchitecture
 from game.ghdialogue import context
 import random
 from pbge.dialogue import ContextTag, Offer
-from game.content import plotutility, GHNarrativeRequest, PLOT_LIST
+from game.content import plotutility, GHNarrativeRequest, PLOT_LIST, ghwaypoints
 import game.content.gharchitecture
 from . import missionbuilder
 import collections
@@ -159,8 +159,7 @@ class MetrosceneWMEDefenseHandler(Plot):
     active = True
     scope = True
 
-    def generate_world_map_encounter(self, camp: gears.GearHeadCampaign, metroscene, return_wp,
-                                     dest_scene: gears.GearHeadScene, dest_wp,
+    def generate_world_map_encounter(self, camp: gears.GearHeadCampaign, metroscene, return_wp, dest_scene, dest_wp,
                                      scenegen=gharchitecture.DeadZoneHighwaySceneGen,
                                      architecture=gharchitecture.MechaScaleSemiDeadzone,
                                      **kwargs):
@@ -213,7 +212,7 @@ class MetrosceneRandomPlotHandler(Plot):
 
     def t_START(self, camp):
         # Attempt to load at least one challenge plot, then load some more plots.
-        tries = random.randint(1,4)
+        tries = random.randint(1, 4)
         while self.should_load_plot(camp) and tries > 0:
             myplot = game.content.load_dynamic_plot(
                 camp, self.CHALLENGE_LABEL, pstate=PlotState(
@@ -281,12 +280,14 @@ class WorldMapEdge:
     STYLE_BLOCKED = 5
 
     def __init__(self, start_node=None, end_node=None, visible=False, discoverable=True,
+                 scenegen=gharchitecture.DeadZoneHighwaySceneGen,
                  architecture=gharchitecture.MechaScaleSemiDeadzone, style=1, encounter_chance=50):
         self.start_node = start_node
         self.end_node = end_node
         self.visible = visible
         self.discoverable = discoverable
         self.path = list()
+        self.scenegen = scenegen
         self.architecture = architecture
         self.style = style
         self.encounter_chance = encounter_chance
@@ -321,23 +322,37 @@ class WorldMapEdge:
         camp.go(self.start_node.entrance)
 
 
-class EdgeTravel():
+class EdgeTravel:
     def __init__(self, edge: WorldMapEdge, start_point: WorldMapNode):
         self.edge = edge
         self.start_point = start_point
 
     def __call__(self, camp: gears.GearHeadCampaign):
+        dest_node = self.edge.get_link(self.start_point)
         if self.edge.architecture and camp.has_mecha_party(enviro=self.edge.architecture.ENV):
-            dest_node = self.edge.get_link(self.start_point)
             wmehandler = camp.campdata.get(WORLD_MAP_ENCOUNTERS)
-
+            if wmehandler:
+                wme = wmehandler(
+                    camp, self.start_point.destination, self.start_point.entrance, self.edge.encounter_chance,
+                    dest_node.destination, dest_node.entrance, camp.renown,
+                    scenegen=self.edge.scenegen,
+                    architecture=self.edge.architecture,
+                )
+                if wme:
+                    wme(camp)
+                else:
+                    camp.go(dest_node.entrance)
+            else:
+                camp.go(dest_node.entrance)
         else:
-            pass
+            camp.go(dest_node.entrance)
+
 
 class WorldMap(object):
     def __init__(self, image_file):
         self.nodes = list()
         self.edges = list()
+        self.image_file = image_file
 
         myimage = pbge.image.Image(image_file)
         self.px_width = myimage.frame_width
@@ -365,36 +380,29 @@ class WorldMap(object):
             mydest.visible = True
             mymenu.add_item("Go to {}".format(mydest), e.get_menu_fun(camp, mydest), e)
 
+    def associate_gate_with_map(self, gate: ghwaypoints.Exit):
+        gate.MENU_CLASS = WorldMapMenu
+        gate.world_map = self
 
-class WorldMapMenu(pbge.rpgmenu.Menu):
-    WIDTH = 640
-    HEIGHT = 320
-    MAP_AREA = pbge.frects.Frect(-320, -210, 640, 320)
-    MENU_AREA = pbge.frects.Frect(-200, 130, 400, 80)
 
-    def __init__(self, camp, wp):
-        super().__init__(self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h, border=None,
-                         predraw=self.pre)
-        self.desc = wp.desc
-        self.waypoint = wp
-        self.map_sprite = pbge.image.Image("dzd_roadmap.png")
-        self.legend_sprite = pbge.image.Image("dzd_roadmap_legend.png", 20, 20)
+class WorldMapViewer:
+    def __init__(self, world: WorldMap):
+        self.world = world
+        self.map_sprite = pbge.image.Image(world.image_file)
         self.road_sprite = pbge.image.Image("dzd_roadmap_roads.png", 34, 34)
+        self.legend_sprites = dict()
         self.text_labels = dict()
+        for node in self.world.nodes:
+            self.legend_sprites[node] = pbge.image.Image(node.image_file, 20, 20)
+            self.text_labels[node] = pbge.SMALLFONT.render(str(node), True, (0, 0, 0))
+
+        self.map_area = pbge.frects.Frect(-world.px_width//2, -world.px_height//2-50, world.px_width, world.px_height)
 
     def _calc_map_x(self, x, map_rect):
         return x * 32 + 16 + map_rect.x
 
     def _calc_map_y(self, y, map_rect):
         return y * 32 + 16 + map_rect.y
-
-    def _get_text_label(self, mynode):
-        if mynode in self.text_labels:
-            return self.text_labels[mynode]
-        else:
-            mylabel = pbge.SMALLFONT.render(str(mynode), True, (0, 0, 0))
-            self.text_labels[mynode] = mylabel
-            return mylabel
 
     EDGEDIR = {
         (-1, -1): 0, (0, -1): 1, (1, -1): 2,
@@ -415,43 +423,74 @@ class WorldMapMenu(pbge.rpgmenu.Menu):
             self.road_sprite.render_c((center_x, center_y), frame)
             a = b
 
-    def pre(self):
-        if pbge.my_state.view:
-            pbge.my_state.view()
-        pbge.default_border.render(self.MENU_AREA.get_rect())
-        my_map_rect = self.MAP_AREA.get_rect()
+    def render(self, waypoint, active_item_edge):
+        my_map_rect = self.map_area.get_rect()
         self.map_sprite.render(my_map_rect, 0)
-        active_item_edge = self.get_current_item().desc
 
-        for myedge in self.waypoint.roadmap.edges:
+        for myedge in self.world.edges:
             if myedge.visible and myedge is not active_item_edge:
                 self._draw_edge(myedge, my_map_rect)
         if active_item_edge:
             self._draw_edge(active_item_edge, my_map_rect, True)
 
-        for mynode in self.waypoint.roadmap.nodes:
+        for mynode in self.world.nodes:
             dest = (self._calc_map_x(mynode.pos[0], my_map_rect), self._calc_map_y(mynode.pos[1], my_map_rect))
             if mynode.visible:
-                if (active_item_edge and active_item_edge.connects_to(mynode)) or (mynode.entrance is self.waypoint):
-                    self.legend_sprite.render_c(dest, mynode.frame)
+                if (active_item_edge and active_item_edge.connects_to(mynode)) or (mynode.entrance is waypoint):
+                    self.legend_sprites[mynode].render_c(dest, mynode.on_frame)
                 else:
-                    self.legend_sprite.render_c(dest, mynode.frame + 10)
-                mylabel = self._get_text_label(mynode)
+                    self.legend_sprites[mynode].render_c(dest, mynode.off_frame)
+                mylabel = self.text_labels[mynode]
                 texdest = mylabel.get_rect(center=(dest[0], dest[1] + 16))
                 pbge.my_state.screen.blit(mylabel, texdest.clamp(my_map_rect))
 
-        pbge.notex_border.render(self.MAP_AREA.get_rect())
+        pbge.notex_border.render(my_map_rect)
         # pbge.draw_text( pbge.my_state.medium_font, self.desc, self.TEXT_RECT.get_rect(), justify = 0 )
 
 
+class WorldMapMenu(pbge.rpgmenu.Menu):
+    WIDTH = 640
+    HEIGHT = 320
+    MENU_AREA = pbge.frects.Frect(-200, 130, 400, 80)
+
+    def __init__(self, camp, wp):
+        super().__init__(self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h, border=None,
+                         predraw=self.pre)
+        self.desc = wp.desc
+        self.waypoint = wp
+        self.map_viewer = WorldMapViewer(self.waypoint.world_map)
+
+    def pre(self):
+        if pbge.my_state.view:
+            pbge.my_state.view()
+        pbge.default_border.render(self.MENU_AREA.get_rect())
+        active_item_edge = self.get_current_item().desc
+
+        self.map_viewer.render(self.waypoint, active_item_edge)
+
+
 class WorldMapHandler(Plot):
+    # Elements:
+    #   WM_IMAGE_FILE:  The image file to be used for the world map.
+    #   WM_IDENTIFIER:  The identifier to be used for this world map in the camp.campdata dict
     LABEL = "CF_WORLD_MAP_HANDLER"
     active = True
     scope = True
 
     def custom_init(self, nart):
+        self.world_map = WorldMap(self.elements["WM_IMAGE_FILE"])
+        nart.camp.campdata[self.elements["WM_IDENTIFIER"]] = self.world_map
         return True
 
     def modify_puzzle_menu(self, camp, thing, thingmenu):
         """Modify the thingmenu based on this plot."""
         super().modify_puzzle_menu(camp, thing, thingmenu)
+        for node in self.world_map.nodes:
+            if node.entrance is thing:
+                my_edges = [e for e in self.world_map.edges if
+                            e.connects_to_node(node) and (e.visible or e.discoverable)]
+                for e in my_edges:
+                    mydest = e.get_link(node)
+                    e.visible = True
+                    mydest.visible = True
+                    thingmenu.add_item("Go to {}".format(mydest), EdgeTravel(e, node), e)

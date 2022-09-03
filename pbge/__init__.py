@@ -30,6 +30,7 @@ try:
 except ImportError:
     android = None
 
+import functools
 
 class KeyObject(object):
     """A catcher for multiple inheritence. Subclass this instead of object if
@@ -131,6 +132,9 @@ INFO_GREEN = (50, 200, 0)
 INFO_HILIGHT = (100, 250, 0)
 ENEMY_RED = (250, 50, 0)
 
+@functools.lru_cache(maxsize=23)
+def load_cached_sound(fname):
+    return pygame.mixer.Sound(fname)
 
 class GameState(object):
     def __init__(self, screen=None):
@@ -145,9 +149,9 @@ class GameState(object):
         self.widget_clicked = False
         self.widget_responded = False
         self.audio_enabled = True
+        self.music_list = list()
         self.music = None
         self.music_name = None
-        self.music_library = dict()
         self.anim_phase = 0
         self.standing_by = False
         self.notifications = list()
@@ -200,12 +204,9 @@ class GameState(object):
         pygame.display.flip()
 
     def locate_music(self, mfname):
-        if mfname in self.music_library:
-            return self.music_library[mfname]
-        elif mfname and self.audio_enabled:
-            sound = pygame.mixer.Sound(util.music_dir(mfname))
+        if mfname and mfname in self.music_list:
+            sound = load_cached_sound(util.music_dir(mfname))
             sound.set_volume(util.config.getfloat("GENERAL", "music_volume"))
-            self.music_library[mfname] = sound
             return sound
 
     def start_music(self, mfname, yafi=False):
@@ -214,10 +215,11 @@ class GameState(object):
                       util.config.getboolean("GENERAL", "music_on"))) and self.audio_enabled and
                 not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")):
             sound = self.locate_music(mfname)
-            if self.music:
-                self.music.fadeout(2000)
-            self.music = sound
-            sound.play(loops=-1, fade_ms=2000)
+            if sound:
+                if self.music:
+                    self.music.fadeout(2000)
+                self.music = sound
+                sound.play(loops=-1, fade_ms=2000)
         self.music_name = mfname
 
     def stop_music(self):
@@ -723,6 +725,8 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         global FPS
         FPS = util.config.getint("GENERAL", "frames_per_second")
         pygame.time.set_timer(TIMEREVENT, int(1000 / FPS))
+
+        my_state.music_list = my_state.get_music_list()
 
         if android:
             android.init()
