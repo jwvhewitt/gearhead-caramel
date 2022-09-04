@@ -65,6 +65,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
         # Attempt to load the test mission.
         mytest = self.add_sub_plot(nart,"DZRE_TEST",spstate=pbge.plots.PlotState(rank=1,elements={"METRO":myscene.metrodat,"MISSION_GATE":mychute,"FACTION":game.content.plotutility.RandomBanditCircle(nart.camp),"DZREPR_MISSION_WINS":0}).based_on(self),necessary=False)
+        self.add_sub_plot(nart, "ENEMY_CONVO_TESTER", necessary=False)
 
         if mytest:
             print("Loaded DZRE test!")
@@ -423,6 +424,118 @@ class DZDIntro_SoldierIntro(DZDIntro_GetInTheMekShimli):
                 ))
 
         return mylist
+
+
+class DZDIntro_PopStarIntro(DZDIntro_GetInTheMekShimli):
+    # Alternate intro for Pop Star reputation.
+    LABEL = "DZD_INTRO"
+    active = True
+    scope = True
+
+    MISSION_ELEMENTS = {"ENEMY_FACTION": gears.factions.BoneDevils}
+    DEBRIEFING_ELEMENTS = {
+        "DEBRIEFING_HELLO": "Well, they ransacked the powerplant. I guess that puts your concert on indefinite hold... not to mention shutting down everything else in town as well. There's no way we can repair it ourselves.",
+        "DEBRIEFING_MISSION": "We can get help from Wujung. I'd like for you to go there, find someone who can fix the powerplant, and hire some lancemates so we can drive the Bone Devils out of here for good."
+    }
+
+    @classmethod
+    def matches( self, pstate: pbge.plots.PlotState ):
+        """Returns True if this plot matches the current plot state."""
+        return pstate.adv.world.pc.has_badge("Pop Star")
+
+    def t_START(self,camp: gears.GearHeadCampaign):
+        if camp.scene is self.elements["LOCALE"] and not self.started_the_intro:
+            # Make sure the PC has a mecha.
+            mek = camp.get_pc_mecha(camp.pc)
+            if not mek:
+                mek = gears.selector.MechaShoppingList.generate_single_mecha(camp.pc.renown,gears.factions.TerranDefenseForce,env=gears.tags.GroundEnv)
+                camp.assign_pilot_to_mecha(camp.pc,mek)
+                camp.party.append(mek)
+
+            if camp.renown > 20:
+                pbge.alert("Your trans-Eurasian concert tour is cut short in the deadzone town of {DZ_TOWN_NAME}. Mere hours before your performance the town was attacked by a large force of raiders from the Bone Devil Gang.".format(**self.elements))
+            else:
+                pbge.alert("With the benefit of hindsight, you realize that booking your comeback tour in the middle of the Trans-Eurasian Deadzone probably wasn't the best idea. The day of your concert in {DZ_TOWN_NAME}, the town is attacked by members of the Bone Devil Gang.".format(**self.elements))
+            pbge.alert("Sheriff {SHERIFF} calls you to the mecha hangar to request your assistance in defending the town.".format(**self.elements))
+
+            npc = self.elements["SHERIFF"]
+            npc.relationship = gears.relationships.Relationship(random.randint(1,10))
+            npc.relationship.history.append(gears.relationships.Memory("you saved {} from the Bone Devils".format(self.elements["DZ_TOWN_NAME"]),
+                                                                       "I saved {} from the Bone Devils".format(self.elements["DZ_TOWN_NAME"]),
+                                                                       10, (gears.relationships.MEM_AidedByPC,)))
+
+            self._did_first_reply = False
+            ghdialogue.start_conversation(camp,camp.pc,npc)
+
+            self.started_the_intro = True
+
+    def SHERIFF_offers(self,camp):
+        mylist = list()
+
+        if camp.scene is self.elements["LOCALE"]:
+
+            mylist.append(Offer(
+                "Alright. When we get to the field, I'll give you a brief tutorial. You can get in your mecha by using the boarding chute over there.",
+                dead_end=True, effect=self._activate_tutorial,
+                context=ContextTag([context.CUSTOMREPLY]), subject="TUTORIAL",
+                data={"reply": "[YESPLEASE]"}
+            ))
+            mylist.append(Offer(
+                "Understood. You can get in your mecha by using the boarding chute over there.",
+                dead_end=True, effect=self._deactivate_tutorial,
+                context=ContextTag([context.CUSTOMREPLY]), subject="TUTORIAL",
+                data={"reply": "[NOTHANKYOU]"}
+            ))
+
+            if not self._did_first_reply:
+                mylist.append(Offer(
+                        "I just got a call from the power station- it's under attack. If our generator goes, {DZ_TOWN_NAME} will be in real trouble. Will you help me defend it?".format(**self.elements),
+                        context=ContextTag([context.HELLO]), allow_generics=False
+                ))
+
+                mylist.append(Offer(
+                    "[GOOD] I really appreciate your assitance. One more question: Do you want me to walk you through the new mecha control upgrade?".format(
+                        self.elements["DZ_TOWN_NAME"]),
+                    context=ContextTag([context.CUSTOM]), effect=self._choose_friendly_reply,
+                    data={"reply": "[IWOULDLOVETO]"},  subject="TUTORIAL", subject_start=True,
+                ))
+
+                mylist.append(Offer(
+                    "Sorry, but if the power station is destroyed, you won't be able to hold your concert anyhow. I know you have the skills to do this. Do you need me to explain the new mecha control upgrade?".format(**self.elements),
+                    context=ContextTag([context.CUSTOM]), effect=self._choose_professional_reply,
+                    data={"reply": "I don't want to pilot meks anymore... I'm a musician now."},
+                    subject="TUTORIAL", subject_start=True,
+                ))
+
+            else:
+                mylist.append(Offer(
+                    "Time to go defend the power station. Do you want me to walk you through the new mecha control upgrade when we get there?",
+                    context=ContextTag([context.HELLO]), allow_generics=False,
+                ))
+                mylist.append(Offer(
+                    "Alright. When we get to the field, I'll give you a brief tutorial. You can get in your mecha by using the boarding chute over there.",
+                    dead_end=True, effect=self._activate_tutorial,
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "[YESPLEASE]"}
+                ))
+                mylist.append(Offer(
+                    "Understood. You can get in your mecha by using the boarding chute over there.",
+                    dead_end=True, effect=self._deactivate_tutorial,
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "[NOTHANKYOU]"}
+                ))
+
+        return mylist
+
+    def _choose_professional_reply(self,camp: gears.GearHeadCampaign):
+        self._did_first_reply = True
+        npc = self.elements["SHERIFF"]
+        npc.relationship.role = gears.relationships.R_COLLEAGUE
+        npc.relationship.attitude = gears.relationships.A_DISTANT
+        npc.relationship.reaction_mod -= 10
+        camp.dole_xp(100, gears.stats.Performance)
+        missionbuilder.NewMissionNotification("Protect the Powerplant")
+
 
 
 class DZDIntro_NotSoSmoothCriminal(DZDIntro_GetInTheMekShimli):

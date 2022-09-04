@@ -337,8 +337,8 @@ class AutoLeaver(object):
 
 
 class CharacterMover(object):
-    def __init__(self, camp, plot, character: gears.base.Character, dest_scene, dest_team, allow_death=False,
-                 upgrade_mek=True, suppress_warnings=False):
+    def __init__(self, camp, plot: pbge.plots.Plot, character: gears.base.Character, dest_scene, dest_team,
+                 allow_death=False, upgrade_mek=True, suppress_warnings=False):
         # Record the character's original location, move them to the new location.
         # Only set suppress_warnings to True if you know what you're doing, i.e. you are me. It only suppresses the
         #   warning about characters not being locked; this is only a problem if you are in an adventure with random
@@ -364,6 +364,12 @@ class CharacterMover(object):
         self.is_lancemate = character in camp.party
         if self.is_lancemate:
             AutoLeaver(character)(camp)
+        elif plot.rank > character.renown:
+            # Level up this pilot a bit.
+            character.renown = min(character.renown + random.randint(1,6), plot.rank)
+            character.job.scale_skills(character, character.renown)
+            if random.randint(1,4) == 2:
+                character.mecha_pref = None
 
         # Check to see if the character can use a mecha in the destination scene.
         if character.combatant and dest_scene.scale is gears.scale.MechaScale:

@@ -40,6 +40,12 @@ BAMO_RESPOND_TO_DISTRESS_CALL = "BAMO_RespondToDistressCall"
 BAMO_STORM_THE_CASTLE = "BAMO_StormTheCastle"  # 4 points
 BAMO_SURVIVE_THE_AMBUSH = "BAMO_SurviveTheAmbush"
 
+# The following two elements can be passed to conversations. If truthy, don't allow retreat or mercy in the
+# conversations. Retreat here means when the PC drives the enemy team away and withdraw means when the enemy commander
+# allows the PC to run away.
+CONVO_CANT_RETREAT = "CONVO_CANT_RETREAT"
+CONVO_CANT_WITHDRAW = "CONVO_CANT_WITHDRAW"
+
 # Personal Scale Objectives
 BAMOP_FIND_HERBS = "BAMOP_FIND_HERBS"
 BAMOP_DUNGEONLIKE = "BAMOP_DUNGEONLIKE"
@@ -1584,7 +1590,7 @@ class BAM_StormTheCastle(Plot):
             plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
             myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
-            self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
+            self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc, CONVO_CANT_RETREAT: True})
         else:
             myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
             self.register_element("_commander", myunit.commander)

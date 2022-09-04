@@ -376,7 +376,7 @@ DEFAULT_GRAMMAR = {
     },
     "[BAD_NEWS]": {
         # NPC is about to announce_character_state something bad.
-        Default: ["Bad news...", "Oh no..."
+        Default: ["Bad news...", "Oh no...", "[SWEAR]"
                   ],
         personality.Cheerful: ["Well that's not good...",
                                ],
