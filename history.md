@@ -1,9 +1,15 @@
+v0.928 September 7 2022
+* Added world map editor to scenario editor (still only available in dev mode)
+* Added automatic tester for enemy conversation plots
+* Fixed bug with Haywire and Poison status effects
+* Added a lot more enemy character development conversations
+* Added a new intro to DeadZone Drifter for Pop Star characters
 * Music files are now cached, which should help avoid scene change disruptions
 
-v0.927 August 22 2022
+v0.927 August 29 2022
 * Fixed bug in Cookies random plot
 
-v0.926 August 22 2022
+v0.926 August 29 2022
 * Added many RANDOM_PLOT plots
 * Search range dropped to 6
 * The Neko is now properly a Gerwalk mecha

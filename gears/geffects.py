@@ -1555,9 +1555,11 @@ class AddEnchantment(effects.NoEffect):
     """ Apply an enchantment to the actor in this tile.
     """
 
-    def __init__(self, enchant_type, enchant_params={}, dur_n=None, dur_d=None, children=(), anim=None):
+    def __init__(self, enchant_type, enchant_params=None, dur_n=None, dur_d=None, children=(), anim=None):
         self.enchant_type = enchant_type
-        self.enchant_params = enchant_params
+        self.enchant_params = dict()
+        if enchant_params:
+            self.enchant_params.update(enchant_params)
         self.dur_n = dur_n
         self.dur_d = dur_d
         if children:
@@ -2354,7 +2356,7 @@ class HaywireStatus(NegativeEnchantment):
 
     @classmethod
     def can_affect(cls, target):
-        return target.material in (materials.Metal, materials.Ceramic, materials.Advanced)
+        return hasattr(target, "material") and target.material in (materials.Metal, materials.Ceramic, materials.Advanced)
 
 
 class OverloadStatus(NegativeEnchantment):
@@ -2399,7 +2401,7 @@ class Poisoned(NegativeEnchantment):
 
     @classmethod
     def can_affect(cls, target):
-        return target.material in (materials.Meat,)
+        return hasattr(target, "material") and target.material in (materials.Meat,)
 
 
 class Prescience(PositiveEnchantment):

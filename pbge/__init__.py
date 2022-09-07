@@ -363,7 +363,7 @@ my_state = GameState()
 FPS = 30
 
 # Use a timer to control FPS.
-TIMEREVENT = pygame.USEREVENT
+TIMEREVENT = pygame.event.custom_type()
 
 # Remember whether or not this unit has been initialized, since we don't need
 # to initialize it more than once.

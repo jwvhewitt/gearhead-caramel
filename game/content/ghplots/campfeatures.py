@@ -360,6 +360,9 @@ class WorldMap(object):
         self.width = myimage.frame_width // 32
         self.height = myimage.frame_height // 32
 
+    def on_the_world_map(self, pos):
+        return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
+
     def add_node(self, node_to_add, x, y):
         self.nodes.append(node_to_add)
         node_to_add.pos = (min(max(0, x), self.width - 1), min(max(0, y), self.height - 1))
@@ -370,6 +373,14 @@ class WorldMap(object):
         edge_to_use.end_node = end_node
         edge_to_use.path = pbge.scenes.animobs.get_line(start_node.pos[0], start_node.pos[1], end_node.pos[0],
                                                         end_node.pos[1])
+
+    def move_node(self, node, new_pos):
+        if node in self.nodes and self.on_the_world_map(new_pos):
+            node.pos = new_pos
+            for edge in self.edges:
+                if edge.connects_to_node(node):
+                    edge.path = pbge.scenes.animobs.get_line(edge.start_node.pos[0], edge.start_node.pos[1],
+                                                             edge.end_node.pos[0], edge.end_node.pos[1])
 
     def expand_roadmap_menu(self, camp, mymenu):
         # Determine which edges connect here.
@@ -384,6 +395,11 @@ class WorldMap(object):
         gate.MENU_CLASS = WorldMapMenu
         gate.world_map = self
 
+    def get_node_at_pos(self, pos):
+        for node in self.nodes:
+            if node.pos == pos:
+                return node
+
 
 class WorldMapViewer:
     def __init__(self, world: WorldMap):
@@ -392,9 +408,8 @@ class WorldMapViewer:
         self.road_sprite = pbge.image.Image("dzd_roadmap_roads.png", 34, 34)
         self.legend_sprites = dict()
         self.text_labels = dict()
-        for node in self.world.nodes:
-            self.legend_sprites[node] = pbge.image.Image(node.image_file, 20, 20)
-            self.text_labels[node] = pbge.SMALLFONT.render(str(node), True, (0, 0, 0))
+
+        self.refresh_node_images()
 
         self.map_area = pbge.frects.Frect(-world.px_width//2, -world.px_height//2-50, world.px_width, world.px_height)
 
@@ -423,6 +438,11 @@ class WorldMapViewer:
             self.road_sprite.render_c((center_x, center_y), frame)
             a = b
 
+    def refresh_node_images(self):
+        for node in self.world.nodes:
+            self.legend_sprites[node] = pbge.image.Image(node.image_file, 20, 20)
+            self.text_labels[node] = pbge.SMALLFONT.render(str(node), True, (0, 0, 0))
+
     def render(self, waypoint, active_item_edge):
         my_map_rect = self.map_area.get_rect()
         self.map_sprite.render(my_map_rect, 0)
@@ -436,7 +456,7 @@ class WorldMapViewer:
         for mynode in self.world.nodes:
             dest = (self._calc_map_x(mynode.pos[0], my_map_rect), self._calc_map_y(mynode.pos[1], my_map_rect))
             if mynode.visible:
-                if (active_item_edge and active_item_edge.connects_to(mynode)) or (mynode.entrance is waypoint):
+                if (active_item_edge and active_item_edge.connects_to_node(mynode)) or (mynode.entrance is waypoint):
                     self.legend_sprites[mynode].render_c(dest, mynode.on_frame)
                 else:
                     self.legend_sprites[mynode].render_c(dest, mynode.off_frame)

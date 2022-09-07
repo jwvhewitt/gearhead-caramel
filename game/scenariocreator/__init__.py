@@ -478,7 +478,7 @@ class ScenarioEditor(pbge.widgets.Widget):
     def _exit_editor(self, widj, ev):
         self.finished = True
 
-    def _save(self, widj, ev):
+    def _save(self, *args):
         fname = "PLOTCREATOR_{}.json".format(self.mytree.raw_vars["unique_id"])
         with open(pbge.util.user_dir("content", fname), 'wt') as fp:
             json.dump(self.mytree.get_save_dict(), fp, indent='\t')
@@ -560,9 +560,6 @@ class ScenarioEditor(pbge.widgets.Widget):
             if ev.type == pbge.TIMEREVENT:
                 redraw()
                 pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if pbge.my_state.is_key_for_action(ev, "exit"):
-                    keepgoing = False
 
         if myui.mytree.raw_vars["unique_id"]:
             myui._save(None, None)

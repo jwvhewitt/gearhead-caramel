@@ -16,6 +16,9 @@ ARTWORK
 
 ICONS - MOSTLY FROM "THE NOUN PROJECT"
 ======================================
+* temple by Marco Livolsi from Noun Project CC-BY-3.0
+* Factory by iconsphere from Noun Project CC-BY-3.0
+* Tower by JohnnyZi from Noun Project CC-BY-3.0
 * meat on a bone by Kevin from Noun Project CC-BY-3.0
 * mug by Vectors Market from Noun Project CC-BY-3.0
 * Beer by kamal az zahra 93 from Noun Project CC-BY-3.0

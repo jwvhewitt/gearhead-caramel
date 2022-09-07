@@ -344,9 +344,7 @@ class WorldMapDataVariable(BaseVariableDefinition):
                 if not(isinstance(v, list) and len(v) == 2 and all([isinstance(a, int) for a in v])):
                     return False
             elif k == "image_file":
-                my_names_and_states = statefinders.get_possible_states(None, v)
-                mystates = [a[1] for a in my_names_and_states]
-                if not(isinstance(v, str) and v.endswith(".png") and v in mystates):
+                if not(isinstance(v, str) and v.endswith(".png") and v in pbge.image.glob_images("wm_legend_*.png")):
                     return False
             elif k in ("visible", "discoverable"):
                 if not isinstance(v, bool):
@@ -381,8 +379,8 @@ class WorldMapDataVariable(BaseVariableDefinition):
                     # Empty list is ok.
                     return True
                 elif part:
-                    all_blueprints = part.get_branch(part.get_root())
-                    all_connections = worldmapeditor.get_all_connections(all_blueprints, part.raw_vars.get("world_map_entrance"))
+                    all_blueprints = list(part.get_branch(part.get_root()))
+                    all_connections = worldmapeditor.get_all_connections(all_blueprints, part.raw_vars.get("entrance_world_map"))
                     return all(self._edge_parameters_ok(ed, all_connections) for ed in value["edges"])
                 else:
                     return True
@@ -393,9 +391,13 @@ class WorldMapDataVariable(BaseVariableDefinition):
             myerrors.append("ERROR: world_map_data dict {} is not valid.".format(part.raw_vars.get(key)))
         return myerrors
 
-    @staticmethod
-    def format_for_python(value):
-        return value
+    class WorldMapDataDict(dict):
+        def __init__(self, rawdict):
+            super().__init__(rawdict)
+
+    @classmethod
+    def format_for_python(cls, value):
+        return cls.WorldMapDataDict(value)
 
 
 def get_variable_definition(default_val=0, var_type="integer", **kwargs):

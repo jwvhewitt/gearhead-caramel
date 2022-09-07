@@ -489,7 +489,7 @@ class RowWidget(Widget):
 
     def render(self, flash=False):
         if self.draw_border:
-            self.border.render(self.get_rect())
+            self.border.render(self.get_rect().inflate(10,10))
         if flash:
             self._default_flash()
 
