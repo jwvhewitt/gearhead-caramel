@@ -402,7 +402,7 @@ class MusicEditorWidget(pbge.widgets.ColumnWidget):
                                              font=pbge.MEDIUMFONT, on_select=self._do_change)
         myrow.add_left(mymenu)
         mymenu.menu.w += 200
-        self.legal_states = list(pbge.my_state.get_music_list())
+        self.legal_states = pbge.soundlib.glob_sounds("*.ogg")
         for name in self.legal_states:
             mymenu.add_item(name, name)
         mymenu.add_item("==None==", None)

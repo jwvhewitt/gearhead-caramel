@@ -197,6 +197,11 @@ class MusicVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "music"
     WIDGET_TYPE = varwidgets.MusicEditorWidget
 
+    @classmethod
+    def format_for_python(cls, value):
+        if value:
+            return repr(value)
+
 
 class ConditionalVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "conditional"
@@ -314,9 +319,15 @@ class WorldMapDataVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "world_map_data"
 
     def __init__(self, default_val, **kwargs):
-        if not self._check_value(None, default_val):
-            default_val = {"node": {"pos": [0, 0]}, "edges": []}
         super().__init__(default_val, **kwargs)
+
+    def get_default_val(self):
+        return {"node": {"pos": [0, 0]}, "edges": []}
+
+    def set_default_val(self, new_value):
+        pass
+
+    default_val = property(get_default_val, set_default_val)
 
     def get_widgets(self, part, key, editor=None, **kwargs):
         # Return a list of widgets having to do with this variable.
@@ -339,9 +350,11 @@ class WorldMapDataVariable(BaseVariableDefinition):
         worldmapeditor.WorldMapEditor.create_and_invoke(pbge.my_state.view, editor, map_bp)
 
     def _node_parameters_ok(self, node_dict):
+        if "pos" not in node_dict:
+            return False
         for k,v in node_dict.items():
             if k == "pos":
-                if not(isinstance(v, list) and len(v) == 2 and all([isinstance(a, int) for a in v])):
+                if not(isinstance(v, (list, tuple)) and len(v) == 2 and all([isinstance(a, int) for a in v])):
                     return False
             elif k == "image_file":
                 if not(isinstance(v, str) and v.endswith(".png") and v in pbge.image.glob_images("wm_legend_*.png")):
@@ -358,6 +371,8 @@ class WorldMapDataVariable(BaseVariableDefinition):
 
     def _edge_parameters_ok(self, edge_dict, all_connections):
         if isinstance(edge_dict, dict):
+            if "end_node" not in edge_dict:
+                return False
             for k, v in edge_dict.items():
                 if k == "end_node" and v not in all_connections:
                     return False
@@ -394,6 +409,37 @@ class WorldMapDataVariable(BaseVariableDefinition):
     class WorldMapDataDict(dict):
         def __init__(self, rawdict):
             super().__init__(rawdict)
+
+        @property
+        def node_params(self):
+            mylist = list()
+            mydict = self["node"]
+            for k, v in mydict.items():
+                if k == "image_file":
+                    mylist.append("image_file=\"{}\"".format(v))
+
+                elif k in ("visible", "discoverable", "on_frame", "off_frame"):
+                    mylist.append("{}={}".format(k, v))
+
+            return ", ".join(mylist)
+
+        @property
+        def node_pos(self):
+            return "{}, {}".format(*self["node"]["pos"])
+
+        @property
+        def edge_params(self):
+            edges_list = list()
+            for edge_dict in self["edges"]:
+                my_edge = list()
+                end_node_id = edge_dict["end_node"]
+                my_edge.append("end_entrance=nart.camp.campdata[THE_WORLD].get({})".format(end_node_id))
+                for k, v in edge_dict.items():
+                    if k in ("visible", "discoverable", "style", "encounter_chance", "scenegen", "architecture"):
+                        my_edge.append("{}={}".format(k, v))
+                edges_list.append("dict({})".format(", ".join(my_edge)))
+
+            return "[{}]".format(", ".join(edges_list))
 
     @classmethod
     def format_for_python(cls, value):

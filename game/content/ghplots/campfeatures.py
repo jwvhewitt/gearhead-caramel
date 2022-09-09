@@ -374,6 +374,17 @@ class WorldMap(object):
         edge_to_use.path = pbge.scenes.animobs.get_line(start_node.pos[0], start_node.pos[1], end_node.pos[0],
                                                         end_node.pos[1])
 
+    def get_node_with_entrance(self, entrance):
+        for n in self.nodes:
+            if n.entrance is entrance:
+                return n
+
+    def connect_entrance_to_entrance(self, start_entrance, end_entrance, **kwargs):
+        start_node = self.get_node_with_entrance(start_entrance)
+        end_node = self.get_node_with_entrance(end_entrance)
+        if start_node and end_node:
+            self.connect_nodes(start_node, end_node, WorldMapEdge(**kwargs))
+
     def move_node(self, node, new_pos):
         if node in self.nodes and self.on_the_world_map(new_pos):
             node.pos = new_pos
@@ -471,7 +482,7 @@ class WorldMapViewer:
 class WorldMapMenu(pbge.rpgmenu.Menu):
     WIDTH = 640
     HEIGHT = 320
-    MENU_AREA = pbge.frects.Frect(-200, 130, 400, 80)
+    MENU_AREA = pbge.frects.Frect(-200, 130, 400, 150)
 
     def __init__(self, camp, wp):
         super().__init__(self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h, border=None,

@@ -67,7 +67,9 @@
       },
       "adventure_cover": {"default_val": null, "var_type": "VHS_*.png"},
       "starting_point": {"default_val": null, "var_type": "physical:gate", "must_be_defined": true},
-      "start_with_lancemate": {"default_val": true, "var_type": "boolean"}
+      "start_with_lancemate": {"default_val": true, "var_type": "boolean"},
+      "default_mission_combat_music": {"default_val": null, "var_type": "music"},
+      "default_mission_exploration_music": {"default_val": null, "var_type": "music"}
 },
 "child_types": ["CITY", "WORLD_FEATURE"],
 "is_new_branch": true
@@ -107,6 +109,9 @@ class {unique_id}_Scenario( Plot ):
         self.ADVENTURE_MODULE_DATA.apply(nart.camp)
 
         self.elements[CUSTOM_FACTIONS] = dict()
+
+        nart.camp.campdata[gears.CAMPDATA_DEFAULT_MISSION_COMBAT_MUSIC] = {default_mission_combat_music}
+        nart.camp.campdata[gears.CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC] = {default_mission_exploration_music}
 
         if {adventure_threat} > 0:
             self.rank = {adventure_threat}

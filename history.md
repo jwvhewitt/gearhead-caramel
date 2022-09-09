@@ -1,3 +1,7 @@
+* You can set the default mission music for an entire campaign
+* Added search path for music; may be located in player folder
+* Fixed bugs in world map editor
+
 v0.928 September 7 2022
 * Added world map editor to scenario editor (still only available in dev mode)
 * Added automatic tester for enemy conversation plots

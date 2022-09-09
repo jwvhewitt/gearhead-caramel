@@ -43,7 +43,10 @@ class City_{unique_id}_{_uid}( Plot ):
         +init_plot
         self.elements["METRO"] = self.elements["LOCALE"].metrodat
         if {entrance_world_map}:
-            {entrance_world_map_data}
+            edge_params = {entrance_world_map_data.edge_params}
+            for e in edge_params:
+                nart.camp.campdata[{entrance_world_map}].connect_entrance_to_entrance(self.elements["MISSION_GATE"], **e)
+
         #: plot_init
         #: plot_actions
         #: plot_subplots
@@ -64,7 +67,7 @@ team2 = teams.Team(name="Civilian Team", allies=(team1,))
 myscene = gears.GearHeadScene(
     50, 50, "{city_name}", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,
     faction={city_faction}, attributes={city_attributes},
-    exploration_music="{exploration_music}", combat_music="{combat_music}"
+    exploration_music={exploration_music}, combat_music={combat_music}
 )
 
 # Create a scene generator
@@ -91,7 +94,8 @@ the_world[{MISSION_GATE_UID}] = mygate
 
 if {entrance_world_map}:
     nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)
-
+    mynode = campfeatures.WorldMapNode(destination=myscene, entrance=mygate, {entrance_world_map_data.node_params})
+    nart.camp.campdata[{entrance_world_map}].add_node(mynode, {entrance_world_map_data.node_pos})
 
 
 *NEW CITY
@@ -144,7 +148,9 @@ class City_{unique_id}_{_uid}( Plot ):
         +init_plot
         self.elements["METRO"] = self.elements["LOCALE"].metrodat
         if {entrance_world_map}:
-            {entrance_world_map_data}
+            edge_params = {entrance_world_map_data.edge_params}
+            for e in edge_params:
+                nart.camp.campdata[{entrance_world_map}].connect_entrance_to_entrance(self.elements["MISSION_GATE"], **e)
         #: plot_init
         #: plot_actions
         #: plot_subplots
@@ -165,7 +171,7 @@ team2 = teams.Team(name="Civilian Team", allies=(team1,))
 myscene = gears.GearHeadScene(
     50, 60, "{city_name}", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,
     faction={city_faction}, attributes={city_attributes},
-    exploration_music="{exploration_music}", combat_music="{combat_music}"
+    exploration_music={exploration_music}, combat_music={combat_music}
 )
 
 # Create a scene generator
@@ -202,6 +208,9 @@ the_world[{MISSION_GATE_UID}] = mygate
 
 if {entrance_world_map}:
     nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)
+    mynode = campfeatures.WorldMapNode(destination=myscene, entrance=mygate, {entrance_world_map_data.node_params})
+    nart.camp.campdata[{entrance_world_map}].add_node(mynode, {entrance_world_map_data.node_pos})
+
 
 
 

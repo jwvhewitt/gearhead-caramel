@@ -64,30 +64,42 @@ Slightly Smiling Face, Beaming Face with Smiling Eyes by Emily Jäger
 MUSIC
 =====
 
+* Adaptation (Instrumental) by Anthem of Rain, CC-BY-4.0
+* Ancient Heavy Tech Donjon by Komiku, Public Domain
+* Anxiety by HoliznaCC0, Public Domain
 * Apex by Alexander Nakarada, Public Domain
+* A Surprising Encounter by Kevin Macleod, Public Domain
+* A Winter Tale by Johan Brodd, copyright 2016, GPL 3.0
+* Battle Theme by Komiku, Public Domain
+* Bikini Bottom by HoliznaCC0, Public Domain
+* Boss 2: Too Powerful For You by Komiku, Public Domain
 * Chronos by Alexander Nakarada, Public Domain
+* Comic Game Loop - Mischief by Kevin Macleod, Public Domain
+* Crooked Townie by HoliznaCC0, Public Domain
+* Fight Run Breath Deeply by Komiku, Public Domain
+* Friend's Theme by Komiku, Public Domain
+* Good Night by Dub Alta Fidelidad (c) copyright 2020 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/dubaltafidelidad/61458
+* Grunge by HoliznaCC0, Public Domain
 * Let's Just Get Through Christmas by Doctor Turtle is licensed under a Attribution License. CC-BY-4.0
 * Lines and Late by Alexandr Zhelanov, https://soundcloud.com/alexandr-zhelanov CC-BY-3.0
+* Lost in Space by HoliznaCC0, Public Domain
 * Heroic Adventure from the Incompetech PD Music Collection, Public Domain
+* I Do Like To Be Beside The Seaside (1907, piano roll) by John H. Glover-Kind, Public Domain
 * Jethro on the Run from the Incompetech PD Music Collection, Public Domain
 * Journey of Hope by Alexander Nakarada, Public Domain
+* Kalte Ohren by Alex (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/AlexBeroza/59612 Ft: starfrosch & Jerry Spoon
+* Nothing Will Grow Here by Komiku, Public Domain
+* Oreilles froides(Kalte Ohren) remix Blue by Bluemillenium (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/Bluemillenium/59613 
+* Out of the East (1918, Rector Novelty Orchestra) by Joe Rosey, Public Domain
+* Poor Man’s Groove by Mr Smith, Public Domain
+* Punk by HoliznaCC0, Public Domain
+* reCreation by airtone (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/airtone/59721 
+* Run Against the Universe by Komiku, Public Domain
+* Run! That Boss Was a Bearing Wall! by Komiku, Public Domain
+* Somewhere in the Dark by HoliznaCC0, Public Domain
+* Surfing by Komiku, Public Domain
 * The Stars Look Different (Ziggy Stardust Mix) by spinningmerkaba (c) copyright 2016 Licensed under a Creative Commons
  Attribution (3.0) license. http://dig.ccmixter.org/files/jlbrock44/52765 Ft: stefsax and Dimitri Artemenko
-* A Winter Tale by Johan Brodd, copyright 2016, GPL 3.0
-* A Surprising Encounter by Kevin Macleod, Public Domain
-* Comic Game Loop - Mischief by Kevin Macleod, Public Domain
 * three stems remixt by Martin Cee (softmartin) (c) copyright 2020 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/softmartin/61013 Ft: canton
-* Good Night by Dub Alta Fidelidad (c) copyright 2020 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/dubaltafidelidad/61458 
-* reCreation by airtone (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/airtone/59721 
-* Kalte Ohren by Alex (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/AlexBeroza/59612 Ft: starfrosch & Jerry Spoon
-* Oreilles froides(Kalte Ohren) remix Blue by Bluemillenium (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/Bluemillenium/59613 
-* Run Against the Universe by Komiku, Public Domain
-* Battle Theme by Komiku, Public Domain
-* Run! That Boss Was a Bearing Wall! by Komiku, Public Domain
-* Nothing Will Grow Here by Komiku, Public Domain
-* Ancient Heavy Tech Donjon by Komiku, Public Domain
-* Friend's Theme by Komiku, Public Domain
-* Fight Run Breath Deeply by Komiku, Public Domain
 * This One is Tough by Komiku, Public Domain
-* Surfing by Komiku, Public Domain
-* Boss 2: Too Powerful For You by Komiku, Public Domain
+* Way Of The Samurai by HoliznaCC0, Public Domain

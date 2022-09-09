@@ -104,7 +104,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  adv_type="BAM_MISSION", custom_elements=None, auto_exit=False, solo_mission=False,
                  scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone(),
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
-                 combat_music="Komiku_-_03_-_Battle_Theme.ogg", exploration_music="Chronos.ogg",
+                 combat_music=None, exploration_music=None,
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None,
                  make_enemies=True, defeat_trigger_on=True, scale=gears.scale.MechaScale, **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
@@ -127,8 +127,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             cms_pstate.elements["WIN_MESSAGE"] = win_message
         if loss_message:
             cms_pstate.elements["LOSS_MESSAGE"] = loss_message
-        cms_pstate.elements["COMBAT_MUSIC"] = combat_music
-        cms_pstate.elements["EXPLO_MUSIC"] = exploration_music
+        cms_pstate.elements["COMBAT_MUSIC"] = combat_music or camp.campdata.get(gears.CAMPDATA_DEFAULT_MISSION_COMBAT_MUSIC) or "Komiku_-_03_-_Battle_Theme.ogg"
+        cms_pstate.elements["EXPLO_MUSIC"] = exploration_music or camp.campdata.get(gears.CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC) or "Chronos.ogg"
         self.solo_mission = solo_mission
         if not mission_grammar:
             mission_grammar = MissionGrammar()

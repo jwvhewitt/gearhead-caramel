@@ -356,6 +356,12 @@ class ScrollColumnWidget(Widget):
             self._interior_widgets.remove(w)
             self.children.remove(w)
 
+    def remove(self, other_widget):
+        if other_widget in self._interior_widgets:
+            self._interior_widgets.remove(other_widget)
+            self.children.remove(other_widget)
+            self._position_contents()
+
     def _position_contents(self):
         # Disable all interior widgets, except those currently visible.
         for w in self._interior_widgets:

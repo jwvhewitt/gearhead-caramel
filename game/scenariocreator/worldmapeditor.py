@@ -99,7 +99,7 @@ class WMNodeEditorWidget(pbge.widgets.RowWidget):
         my_image_menu.menu.set_item_by_value(node.image_file)
         self.add_left(my_image_menu)
 
-        self.add_left(CheckboxWidget(70, "Visible", self.wm_data["node"].get("visible", True), self._change_visibility))
+        self.add_left(CheckboxWidget(70, "Visible", self.wm_data["node"].get("visible", False), self._change_visibility))
         self.add_left(CheckboxWidget(105, "Discoverable", self.wm_data["node"].get("discoverable", True), self._change_discoverability))
 
         self.frames_locked = True
@@ -161,11 +161,11 @@ class WMNodeEditorWidget(pbge.widgets.RowWidget):
 class NodesEditor(pbge.widgets.Widget):
     def __init__(self, editor):
         super().__init__(0, 0, 0, 0)
-        up_arrow = pbge.widgets.ButtonWidget(197, 120, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+        up_arrow = pbge.widgets.ButtonWidget(197, 122, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
                                              on_frame=0, off_frame=1)
-        down_arrow = pbge.widgets.ButtonWidget(197, 270, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+        down_arrow = pbge.widgets.ButtonWidget(197, 280, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
                                                on_frame=2, off_frame=3)
-        self.scroll_column = pbge.widgets.ScrollColumnWidget(-380, 153, 760, 100, up_arrow, down_arrow, padding=20)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(-380, 151, 760, 117, up_arrow, down_arrow, padding=19)
         self.children.append(up_arrow)
         self.children.append(down_arrow)
         self.children.append(self.scroll_column)
@@ -191,9 +191,14 @@ class WMEdgeEditorWidget(pbge.widgets.RowWidget):
             print("Oops...")
         self.add_left(pbge.widgets.LabelWidget(0,0,300,20,"{} to {}".format(edge.start_node, edge.end_node),
                                                on_click=self._set_active_edge))
-        self.add_left(CheckboxWidget(70, "Visible", self.edge_data.get("visible", True), self._change_visibility))
+        self.add_left(CheckboxWidget(70, "Visible", self.edge_data.get("visible", False), self._change_visibility))
         self.add_left(CheckboxWidget(105, "Discoverable", self.edge_data.get("discoverable", True), self._change_discoverability))
+        self.add_left(pbge.widgets.LabelWidget(0,0,80,20,"Delete Edge", on_click=self._delete_edge))
 
+    def _delete_edge(self, *args):
+        self.wm_data["edges"].remove(self.edge_data)
+        self.world_map.edges.remove(self.edge)
+        self.editor.edges_editor.scroll_column.remove(self)
 
     def _set_active_edge(self, *args):
         self.editor.active_entrance_uid = None
@@ -216,11 +221,11 @@ class WMEdgeEditorWidget(pbge.widgets.RowWidget):
 class EdgesEditor(pbge.widgets.Widget):
     def __init__(self, editor):
         super().__init__(0, 0, 0, 0)
-        up_arrow = pbge.widgets.ButtonWidget(197, 120, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+        up_arrow = pbge.widgets.ButtonWidget(197, 122, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
                                              on_frame=0, off_frame=1)
-        down_arrow = pbge.widgets.ButtonWidget(197, 270, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+        down_arrow = pbge.widgets.ButtonWidget(197, 280, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
                                                on_frame=2, off_frame=3)
-        self.scroll_column = pbge.widgets.ScrollColumnWidget(-380, 153, 760, 100, up_arrow, down_arrow, padding=20)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(-380, 151, 760, 117, up_arrow, down_arrow, padding=19)
         self.children.append(up_arrow)
         self.children.append(down_arrow)
         self.children.append(self.scroll_column)
@@ -288,11 +293,12 @@ class WorldMapEditor(pbge.widgets.Widget):
         all_connections = get_all_connections(list(self.sc_editor.get_all_nodes()), world_map_id(wm_blueprint))
         for entrance_uid, blueprint in all_connections.items():
             # Check the errors now, so we can trust the values we're going to be sending to the node/edge constructors.
-            if blueprint.get_errors():
+            myerrors = blueprint.get_errors()
+            if myerrors:
                 print("Blueprint {} has errors".format(blueprint))
                 self.finished = True
                 node_vars = blueprint.get_ultra_vars()
-                print(node_vars["entrance_world_map_data"])
+                print(myerrors)
             else:
                 node_vars = blueprint.get_ultra_vars()
                 node_elements = blueprint.get_elements(node_vars)

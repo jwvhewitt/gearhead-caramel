@@ -1,6 +1,8 @@
 import collections
 import glob
 
+import yapf.yapflib.errors
+
 import game
 import pbge
 import json
@@ -497,7 +499,10 @@ class ScenarioEditor(pbge.widgets.Widget):
         myprog = self.mytree.compile()
         fname = "ADV_{}.py".format(self.mytree.raw_vars["unique_id"])
         if FormatCode:
-            fullprog, changed = FormatCode(myprog["main"])
+            try:
+                fullprog, changed = FormatCode(myprog["main"])
+            except yapf.yapflib.errors.YapfError:
+                fullprog = myprog["main"]
         else:
             fullprog = myprog["main"]
 

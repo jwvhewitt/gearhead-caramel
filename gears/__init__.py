@@ -433,6 +433,9 @@ class GearHeadScene(pbge.scenes.Scene):
                     return True
 
 
+CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC = "CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC"
+CAMPDATA_DEFAULT_MISSION_COMBAT_MUSIC = "CAMPDATA_DEFAULT_MISSION_COMBAT_MUSIC"
+
 class GearHeadCampaign(pbge.campaign.Campaign):
 
     def __init__(self, name="GHC Campaign", explo_class=None, year=158, egg=None, num_lancemates=3,
@@ -1402,9 +1405,12 @@ def init_gears():
         os.mkdir(pbge.util.user_dir('design'))
     if not os.path.exists(pbge.util.user_dir('image')):
         os.mkdir(pbge.util.user_dir('image'))
+    if not os.path.exists(pbge.util.user_dir('music')):
+        os.mkdir(pbge.util.user_dir('music'))
     if not os.path.exists(pbge.util.user_dir('content')):
         os.mkdir(pbge.util.user_dir('content'))
     pbge.image.search_path.append(pbge.util.user_dir('image'))
+    pbge.soundlib.search_path.append(pbge.util.user_dir('music'))
     pbge.POSTERS += glob.glob(os.path.join(pbge.util.user_dir('image'), "eyecatch_*.png"))
 
     # Initialize the jobs because these get used in the STL files.

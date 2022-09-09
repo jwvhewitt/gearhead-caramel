@@ -30,7 +30,8 @@ try:
 except ImportError:
     android = None
 
-import functools
+from . import soundlib
+
 
 class KeyObject(object):
     """A catcher for multiple inheritence. Subclass this instead of object if
@@ -132,9 +133,7 @@ INFO_GREEN = (50, 200, 0)
 INFO_HILIGHT = (100, 250, 0)
 ENEMY_RED = (250, 50, 0)
 
-@functools.lru_cache(maxsize=23)
-def load_cached_sound(fname):
-    return pygame.mixer.Sound(fname)
+
 
 class GameState(object):
     def __init__(self, screen=None):
@@ -149,7 +148,6 @@ class GameState(object):
         self.widget_clicked = False
         self.widget_responded = False
         self.audio_enabled = True
-        self.music_list = list()
         self.music = None
         self.music_name = None
         self.anim_phase = 0
@@ -204,8 +202,8 @@ class GameState(object):
         pygame.display.flip()
 
     def locate_music(self, mfname):
-        if mfname and mfname in self.music_list:
-            sound = load_cached_sound(util.music_dir(mfname))
+        if mfname:
+            sound = soundlib.load_cached_sound(mfname)
             sound.set_volume(util.config.getfloat("GENERAL", "music_volume"))
             return sound
 
@@ -230,10 +228,6 @@ class GameState(object):
         if self.music_name:
             mname, self.music_name = self.music_name, None
             self.start_music(mname)
-
-    def get_music_list(self):
-        mylist = glob.glob(util.music_dir("*.ogg"))
-        return [os.path.basename(m) for m in mylist]
 
     def _set_active_widget(self, widj):
         if widj:
@@ -670,6 +664,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         util.init(appname, gamedir)
         # Init image.py
         image.init_image(util.image_dir(""))
+        soundlib.init_sound(util.music_dir(""))
 
         pygame.init()
         my_state.audio_enabled = not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")
@@ -725,8 +720,6 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         global FPS
         FPS = util.config.getint("GENERAL", "frames_per_second")
         pygame.time.set_timer(TIMEREVENT, int(1000 / FPS))
-
-        my_state.music_list = my_state.get_music_list()
 
         if android:
             android.init()
