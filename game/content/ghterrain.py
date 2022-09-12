@@ -618,6 +618,39 @@ class RegExLogoTerrainEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_logo_regex.png'
 
 
+class SkullWallSignEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_pirateflag.png'
+    frame = 2
+
+
+class AegisLogoSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_aegislogo.png'
+
+
+class AegisLogoSignSouth(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_aegislogo.png'
+    frame = 0
+
+
+class AegisLogoSignEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_aegislogo.png'
+    frame = 1
+
+
+class SolarNavyLogoSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_solarnavylogo.png'
+
+
+class SolarNavyLogoSignSouth(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_solarnavylogo.png'
+    frame = 0
+
+
+class SolarNavyLogoSignEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_solarnavylogo.png'
+    frame = 1
+
+
 class TownBanner(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_townbanner.png'
 
@@ -727,8 +760,22 @@ class SkullWallSignSouth(pbge.scenes.terrain.Terrain):
 
 
 class SkullWallSignEast(pbge.scenes.terrain.Terrain):
-    image_top = 'terrain_decor_kenney_mechasign.png'
+    image_top = 'terrain_decor_pirateflag.png'
     frame = 2
+
+
+class JollyRogerSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_pirateflag.png'
+
+
+class JollyRogerSignSouth(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_pirateflag.png'
+    frame = 0
+
+
+class JollyRogerSignEast(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_decor_kenney_mechasign.png'
+    frame = 1
 
 
 class HospitalSign(pbge.scenes.terrain.OnTheWallTerrain):

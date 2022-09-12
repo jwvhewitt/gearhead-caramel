@@ -63,7 +63,7 @@ Slightly Smiling Face, Beaming Face with Smiling Eyes by Emily Jäger
 
 MUSIC
 =====
-
+* #47032 (7.5_8) by Techtheist, CC-BY-4.0
 * Adaptation (Instrumental) by Anthem of Rain, CC-BY-4.0
 * Ancient Heavy Tech Donjon by Komiku, Public Domain
 * Anxiety by HoliznaCC0, Public Domain
@@ -80,8 +80,10 @@ MUSIC
 * Friend's Theme by Komiku, Public Domain
 * Good Night by Dub Alta Fidelidad (c) copyright 2020 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/dubaltafidelidad/61458
 * Grunge by HoliznaCC0, Public Domain
+* Hopeless waltz by Alena Smirnova, CC-BY-4.0
+* Late by Alexandr Zhelanov, https://soundcloud.com/alexandr-zhelanov CC-BY-3.0
 * Let's Just Get Through Christmas by Doctor Turtle is licensed under a Attribution License. CC-BY-4.0
-* Lines and Late by Alexandr Zhelanov, https://soundcloud.com/alexandr-zhelanov CC-BY-3.0
+* Lines by Alexandr Zhelanov, https://soundcloud.com/alexandr-zhelanov CC-BY-3.0
 * Lost in Space by HoliznaCC0, Public Domain
 * Heroic Adventure from the Incompetech PD Music Collection, Public Domain
 * I Do Like To Be Beside The Seaside (1907, piano roll) by John H. Glover-Kind, Public Domain
@@ -97,9 +99,38 @@ MUSIC
 * Run Against the Universe by Komiku, Public Domain
 * Run! That Boss Was a Bearing Wall! by Komiku, Public Domain
 * Somewhere in the Dark by HoliznaCC0, Public Domain
+* Stop the Merry-Go-Round by TRG Banks, Public Domain
 * Surfing by Komiku, Public Domain
 * The Stars Look Different (Ziggy Stardust Mix) by spinningmerkaba (c) copyright 2016 Licensed under a Creative Commons
  Attribution (3.0) license. http://dig.ccmixter.org/files/jlbrock44/52765 Ft: stefsax and Dimitri Artemenko
 * three stems remixt by Martin Cee (softmartin) (c) copyright 2020 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/softmartin/61013 Ft: canton
 * This One is Tough by Komiku, Public Domain
 * Way Of The Samurai by HoliznaCC0, Public Domain
+
+NON-CC MUSIC
+============
+The following music has been licensed for use in GearHead Caramel, but not released through creative 
+commons.
+Therefore, these songs are not included in the open source version of the game.
+
+Special thanks go to Kelly Russell for providing much of the Newfoundland music, and more generally for
+his work preserving songs and recordings that would otherwise be lost. https://kellyrussell.bandcamp.com/
+
+* A Newfie's Farewell by Ray Johnson
+* Bees & Flowers by Rufus Guinchard
+* Cabot Tower Hill by Ray Johnson
+* French Reel by Ivan White
+* Granny's Waltz by Rufus Guinchard
+* Great Times, Let's Dance by Martin Sebastian Holm
+* Jim Rumboldt's Tune by Rufus Guinchard
+* Road to Lisdoonvarna by Gordon Quinton
+* RPG by Leon White
+* Sheehan's Reel, Sally Gardens by Gerry Formanger & Ed Doucette
+* Shetland Reels by The Broderick Family
+* Smokey Gulch by Trouser
+* Springhill Jig by Ray Johnson
+* The Holly and the Ivy by Kelly Russell
+* The Pride of the Wind by Ray Johnson
+* The Pub Party by Martin Sebastian Holm
+* The St. Anne's Waltz by Ray Johnson
+* We Thank You For Our Newfoundland by Jason R Martin

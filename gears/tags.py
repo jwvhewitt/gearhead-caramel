@@ -154,6 +154,8 @@ class Police(Singleton):
 class Politician(Singleton):
     name = "Politician"
 
+PROFESSIONS = (Academic, Adventurer, CorporateWorker, Craftsperson, Criminal, Faithworker, Laborer, Media, Medic,
+               Merchant, Military, Police, Politician)
 
 # Miscellaneous character types
 

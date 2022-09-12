@@ -2,7 +2,7 @@
   {
     "label": "SCENARIO",
     "scripts": {
-      "main": "import gears\nfrom pbge.plots import Plot, Adventure, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain\nfrom pbge.memos import Memo\nfrom game.content.ghplots import missionbuilder, campfeatures\n#: includes\n\nTHE_WORLD = \"SCENARIO_ELEMENT_UIDS\"\nCUSTOM_FACTIONS = \"CUSTOM_FACTIONS\"\n\nclass {unique_id}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{unique_id}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        {adventure_name},\n        {adventure_desc},\n        {adventure_date}, {adventure_cover},\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        self.elements[CUSTOM_FACTIONS] = dict()\n\n        nart.camp.campdata[gears.CAMPDATA_DEFAULT_MISSION_COMBAT_MUSIC] = {default_mission_combat_music}\n        nart.camp.campdata[gears.CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC] = {default_mission_exploration_music}\n\n        if {adventure_threat} > 0:\n            self.rank = {adventure_threat}\n        else:\n            self.rank = nart.camp.renown\n        +init_plot\n        #: plot_init\n        #:scenario_init\n\n        self.build_world(nart)\n\n        #: plot_actions\n\n        #: plot_subplots\n\n        # Handle the entry and lancemate stuff here.\n        entry_point = nart.camp.campdata[THE_WORLD].get({starting_point})\n        nart.camp.go(entry_point)\n        if {start_with_lancemate}:\n            self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n\n        return True\n\n    def build_world(self, nart):\n        # When adding physical things to the world, do that here instead of inside your individual plots. That way,\n        # all the physical objects in the world get defined before individual plots get loaded and the elements they\n        # define can be grabbed from THE_WORLD campaign variable.\n        the_world = dict()\n        nart.camp.campdata[THE_WORLD] = the_world\n\n        #:scenario_build\n\n    #: world_methods\n    #: plot_methods\n\n\n\n"
+      "main": "import gears\nfrom gears import personality, tags\nfrom pbge.plots import Plot, Adventure, PlotState\nimport pbge\nfrom pbge.dialogue import Offer, ContextTag\nfrom game import teams, ghdialogue, services\nfrom game.ghdialogue import context\nimport pygame\nimport random\nfrom game.content.ghwaypoints import Exit\nfrom game.content.plotutility import AdventureModuleData\nimport game\nfrom game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain\nfrom pbge.memos import Memo\nfrom game.content.ghplots import missionbuilder, campfeatures\n#: includes\n\nTHE_WORLD = \"SCENARIO_ELEMENT_UIDS\"\nCUSTOM_FACTIONS = \"CUSTOM_FACTIONS\"\n\nclass {unique_id}_Scenario( Plot ):\n    LABEL = \"SCENARIO_{unique_id}\"\n    active = True\n    scope = True\n\n    ADVENTURE_MODULE_DATA = AdventureModuleData(\n        {adventure_name},\n        {adventure_desc},\n        {adventure_date}, {adventure_cover},\n    )\n\n    def custom_init( self, nart ):\n        self.ADVENTURE_MODULE_DATA.apply(nart.camp)\n\n        self.elements[CUSTOM_FACTIONS] = dict()\n\n        nart.camp.campdata[gears.CAMPDATA_DEFAULT_MISSION_COMBAT_MUSIC] = {default_mission_combat_music}\n        nart.camp.campdata[gears.CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC] = {default_mission_exploration_music}\n\n        if {adventure_threat} > 0:\n            self.rank = {adventure_threat}\n        else:\n            self.rank = nart.camp.renown\n        +init_plot\n        #: plot_init\n        #:scenario_init\n\n        self.build_world(nart)\n\n        unique_id = \"{unique_id}\"\n\n        #: plot_actions\n\n        #: plot_subplots\n\n        # Handle the entry and lancemate stuff here.\n        {starting_point}\n        if {start_with_lancemate}:\n            self.add_sub_plot(nart, \"ADD_INSTANT_EGG_LANCEMATE\", necessary=False)\n\n        return True\n\n    def build_world(self, nart):\n        # When adding physical things to the world, do that here instead of inside your individual plots. That way,\n        # all the physical objects in the world get defined before individual plots get loaded and the elements they\n        # define can be grabbed from THE_WORLD campaign variable.\n        the_world = dict()\n        nart.camp.campdata[THE_WORLD] = the_world\n\n        #:scenario_build\n\n    #: world_methods\n    #: plot_methods\n\n\n\n"
     },
     "name": "Scenario",
     "display_name": "Scenario {adventure_name}",
@@ -35,8 +35,7 @@
       },
       "starting_point": {
         "default_val": null,
-        "var_type": "physical:gate",
-        "must_be_defined": true
+        "var_type": "starting_point"
       },
       "start_with_lancemate": {
         "default_val": true,
@@ -53,7 +52,8 @@
     },
     "child_types": [
       "CITY",
-      "WORLD_FEATURE"
+      "WORLD_FEATURE",
+      "STARTING_PLOT"
     ],
     "is_new_branch": true
   },
@@ -137,7 +137,7 @@
   {
     "label": "WORLD_FEATURE",
     "scripts": {
-      "plot_init": "self.add_sub_plot(nart, \"CF_WORLD_MAP_HANDLER\", elements=dict(WM_IMAGE_FILE={image_file}, WM_IDENTIFIER=\"WORLDMAP_{_uid}\"))\n"
+      "plot_init": "self.add_sub_plot(nart, \"CF_WORLD_MAP_HANDLER\", elements=dict(WM_IMAGE_FILE={image_file}, WM_IDENTIFIER=\"WORLDMAP_{_uid}\"))\n\n\n\n"
     },
     "name": "New World Map",
     "desc": "Adds a world map. The entrances included with metro scenes can be attached to this world map.",
@@ -153,5 +153,39 @@
       }
     },
     "sorting_rank": 150
+  },
+  {
+    "label": "STARTING_PLOT",
+    "scripts": {
+      "main": "class StartingPlot_{unique_id}_{_uid}( Plot ):\n    LABEL = \"START_PLOT_{unique_id}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        pc_tags = nart.camp.pc.get_tags()\n        if pc_tags.issuperset({needed_pc_tags}) and pc_tags.isdisjoint({forbidden_pc_tags}):\n            +init_plot\n            self.elements[\"ENTRANACE\"] = nart.camp.campdata[THE_WORLD].get({entrance})\n            self.elements[\"LOCALE\"] = self.elements[\"ENTRANACE\"].scene\n            nart.camp.go(self.elements[\"ENTRANACE\"])\n\n            self.did_cutscene = False\n\n            #: plot_init\n            #: plot_actions\n            #: plot_subplots\n\n            return True\n\n    #: plot_methods\n\n    def LOCALE_ENTER(self, camp):\n        if not self.did_cutscene:\n            #: effect\n            self.did_cutscene = True\n\n\n"
+    },
+    "name": "New Starting Plot",
+    "display_name": "Start: {plot_name}",
+    "desc": "Adds a new beginning to the adventure. Only used if the Scenario's 'starting_point' variable is set to 'Entry Scenario'. Events will be used to build the starting cutscene.",
+    "is_new_branch": true,
+    "vars": {
+      "plot_name": {
+        "default_val": "Starting Out",
+        "var_type": "string"
+      },
+      "entrance": {
+        "default_val": null,
+        "var_type": "physical:gate",
+        "must_be_defined": true
+      },
+      "needed_pc_tags": {
+        "default_val": [],
+        "var_type": "list:personal_tags"
+      },
+      "forbidden_pc_tags": {
+        "default_val": [],
+        "var_type": "list:personal_tags"
+      }
+    },
+    "child_types": [
+      "EFFECT"
+    ],
+    "category": "Starting Plots",
+    "sorting_rank": 1000
   }
 ]

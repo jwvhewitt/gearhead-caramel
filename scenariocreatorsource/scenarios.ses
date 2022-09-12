@@ -66,16 +66,17 @@
         "var_type": "integer"
       },
       "adventure_cover": {"default_val": null, "var_type": "VHS_*.png"},
-      "starting_point": {"default_val": null, "var_type": "physical:gate", "must_be_defined": true},
+      "starting_point": {"default_val": null, "var_type": "starting_point"},
       "start_with_lancemate": {"default_val": true, "var_type": "boolean"},
       "default_mission_combat_music": {"default_val": null, "var_type": "music"},
       "default_mission_exploration_music": {"default_val": null, "var_type": "music"}
 },
-"child_types": ["CITY", "WORLD_FEATURE"],
+"child_types": ["CITY", "WORLD_FEATURE", "STARTING_PLOT"],
 "is_new_branch": true
 
 *SCRIPT main
 import gears
+from gears import personality, tags
 from pbge.plots import Plot, Adventure, PlotState
 import pbge
 from pbge.dialogue import Offer, ContextTag
@@ -123,13 +124,14 @@ class {unique_id}_Scenario( Plot ):
 
         self.build_world(nart)
 
+        unique_id = "{unique_id}"
+
         #: plot_actions
 
         #: plot_subplots
 
         # Handle the entry and lancemate stuff here.
-        entry_point = nart.camp.campdata[THE_WORLD].get({starting_point})
-        nart.camp.go(entry_point)
+        {starting_point}
         if {start_with_lancemate}:
             self.add_sub_plot(nart, "ADD_INSTANT_EGG_LANCEMATE", necessary=False)
 
@@ -227,3 +229,51 @@ self.add_sub_plot(nart, \"ADD_FROZEN_COMBATANT\", elements=dict(FACTION={npc_fac
 
 *SCRIPT plot_init
 self.add_sub_plot(nart, "CF_WORLD_MAP_HANDLER", elements=dict(WM_IMAGE_FILE={image_file}, WM_IDENTIFIER="WORLDMAP_{_uid}"))
+
+
+
+*NEW STARTING_PLOT
+    "name": "New Starting Plot",
+    "display_name": "Start: {plot_name}",
+    "desc": "Adds a new beginning to the adventure. Only used if the Scenario's 'starting_point' variable is set to 'Entry Scenario'. Events will be used to build the starting cutscene.",
+    "is_new_branch": true,
+    "vars": {
+      "plot_name": {"default_val": "Starting Out", "var_type": "string"},
+      "entrance": {"default_val": null, "var_type": "physical:gate", "must_be_defined": true},
+      "needed_pc_tags": {"default_val": [], "var_type": "list:personal_tags"},
+      "forbidden_pc_tags": {"default_val": [], "var_type": "list:personal_tags"}
+    },
+    "child_types": ["EFFECT"],
+    "category": "Starting Plots",
+    "sorting_rank": 1000
+
+*SCRIPT main
+class StartingPlot_{unique_id}_{_uid}( Plot ):
+    LABEL = "START_PLOT_{unique_id}"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        pc_tags = nart.camp.pc.get_tags()
+        if pc_tags.issuperset({needed_pc_tags}) and pc_tags.isdisjoint({forbidden_pc_tags}):
+            +init_plot
+            self.elements["ENTRANACE"] = nart.camp.campdata[THE_WORLD].get({entrance})
+            self.elements["LOCALE"] = self.elements["ENTRANACE"].scene
+            nart.camp.go(self.elements["ENTRANACE"])
+
+            self.did_cutscene = False
+
+            #: plot_init
+            #: plot_actions
+            #: plot_subplots
+
+            return True
+
+    #: plot_methods
+
+    def LOCALE_ENTER(self, camp):
+        if not self.did_cutscene:
+            #: effect
+            self.did_cutscene = True
+
+

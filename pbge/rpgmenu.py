@@ -106,7 +106,7 @@ class Menu( Frect ):
         self.no_escape = no_escape
 
     def add_item(self,msg,value,desc=None):
-        item = self.item_class( msg , value , desc, self )
+        item = self.item_class( str(msg) , value , desc, self )
         self.items.append( item )
 
     def add_descbox(self,x,y,w=30,h=10,justify=-1,font=None, **kwargs):

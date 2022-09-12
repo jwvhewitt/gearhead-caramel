@@ -482,8 +482,9 @@ class ScenarioEditor(pbge.widgets.Widget):
 
     def _save(self, *args):
         fname = "PLOTCREATOR_{}.json".format(self.mytree.raw_vars["unique_id"])
+        mydata = json.dumps(self.mytree.get_save_dict(), indent='\t')
         with open(pbge.util.user_dir("content", fname), 'wt') as fp:
-            json.dump(self.mytree.get_save_dict(), fp, indent='\t')
+            fp.write(mydata)
 
     def _compile(self, widj, ev):
         fname = "ADV_{}.py".format(self.mytree.raw_vars["unique_id"])

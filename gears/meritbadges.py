@@ -20,11 +20,22 @@ class TagReactionBadge(object):
                     total += v
         return total
 
+    def get_effect_desc(self):
+        mylist = list()
+        for k,v in self.reaction_modifiers.items():
+            mylist.append("{:+} reaction from {} NPCs".format(v, k))
+        for t in self.tags:
+            mylist.append("+{} tag".format(t))
+        return ", ".join(mylist)
+
     def __setstate__(self, state):
         # For saves from V0.820 or earlier, add tags
         self.__dict__.update(state)
         if "tags" not in state:
             self.tags = set()
+
+    def __str__(self):
+        return self.name
 
 
 class UniversalReactionBadge(object):
@@ -43,6 +54,16 @@ class UniversalReactionBadge(object):
         if "tags" not in state:
             self.tags = set()
 
+    def get_effect_desc(self):
+        mylist = list()
+        mylist.append("{:+} reaction from all NPCs".format(self.reaction_modifier))
+        for t in self.tags:
+            mylist.append("+{} tag".format(t))
+        return ", ".join(mylist)
+
+    def __str__(self):
+        return self.name
+
 
 def add_badge(mylist,mybadge):
     for b in list(mylist):
@@ -60,4 +81,4 @@ BADGE_ACADEMIC = TagReactionBadge("Academic","You are familiar with the language
 BADGE_GEARHEAD = TagReactionBadge("Gearhead","You are obsessed with mecha and anything having to do with mecha.",remods={tags.Craftsperson:10}, tags=(tags.Craftsperson,))
 BADGE_POPSTAR = TagReactionBadge("Pop Star","You released a few songs and attained some notoriety as a pop star.",remods={tags.Media:10}, tags=(tags.Media,))
 BADGE_SOLDIER = TagReactionBadge("Soldier","Your time in the army taught you camraderie with all who serve.",remods={tags.Military:10}, tags=(tags.Military,))
-BADGE_CRIMINAL = TagReactionBadge("Criminal","",remods={tags.Police:-10,tags.Criminal:10}, tags=(tags.Criminal,))
+BADGE_CRIMINAL = TagReactionBadge("Criminal","You put some action in your life by breaking the law.",remods={tags.Police:-10,tags.Criminal:10}, tags=(tags.Criminal,))

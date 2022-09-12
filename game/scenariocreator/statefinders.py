@@ -1,4 +1,5 @@
 import gears
+from gears import personality, tags
 import game
 from game.content import ghterrain, gharchitecture
 from game.ghdialogue import context
@@ -83,7 +84,9 @@ CONTEXT_INFO = {
 LIST_TYPES = {
     "door_sign": (
         "AlliedArmorSign", "FixitShopSign", "RustyFixitShopSign", "CrossedSwordsTerrain", "KettelLogoTerrain",
-        "RegExLogoTerrain", "HospitalSign"
+        "RegExLogoTerrain", "HospitalSign", "TownBanner", "GoldTownHallSign", "MilitarySign", "GeneralStoreSign1",
+        "TavernSign1", "CafeSign1", "MechaModelSign", "SkullWallSign", "JollyRogerSign", "AegisLogoSign",
+        "SolarNavyLogoSign"
     ),
     "door_type": (
         "ScrapIronDoor", "GlassDoor", "ScreenDoor", "WoodenDoor"
@@ -121,13 +124,21 @@ SCENE_TAGS = (
 
 SINGULAR_TYPES = {
     "scene_generator": (
-        pbge.randmaps.SceneGenerator.__name__, pbge.randmaps.CityGridGenerator.__name__,
-        gharchitecture.DeadZoneHighwaySceneGen.__name__
+        "pbge.randmaps.SceneGenerator", "pbge.randmaps.CityGridGenerator",
+        "gharchitecture.DeadZoneHighwaySceneGen"
     ),
     "architecture": (
-        gharchitecture.MechaScaleSemiDeadzone.__name__, gharchitecture.MechaScaleDeadzone.__name__,
-        gharchitecture.MechaScaleGreenzone.__name__, gharchitecture.MechaScaleRuins.__name__,
-        gharchitecture.MechaScaleSemiDeadzoneRuins.__name__
+        "gharchitecture.MechaScaleSemiDeadzone", "gharchitecture.MechaScaleDeadzone",
+        "gharchitecture.MechaScaleGreenzone", "gharchitecture.MechaScaleRuins",
+        "gharchitecture.MechaScaleSemiDeadzoneRuins"
+    ),
+    "personal_tags": (
+        "personality.Cheerful", "personality.Grim", "personality.Easygoing", "personality.Passionate",
+        "personality.Sociable", "personality.Shy", "personality.Justice", "personality.Peace", "personality.Glory",
+        "personality.Duty", "personality.Fellowship", "personality.GreenZone", "personality.DeadZone",
+        "personality.L5Spinners", "personality.L5DustyRing", "personality.Luna", "personality.Mars", "tags.Academic",
+        "tags.Adventurer", "tags.CorporateWorker", "tags.Craftsperson", "tags.Criminal", "tags.Faithworker",
+        "tags.Laborer", "tags.Media", "tags.Medic", "tags.Merchant", "tags.Military", "tags.Police", "tags.Politician"
     )
 }
 
@@ -180,6 +191,8 @@ def get_possible_states(part, category: str):
         return find_factions(part)
     elif category.startswith("physical:"):
         return find_physicals(part.get_root(), category[9:])
+    elif category == "starting_point":
+        return find_physicals(part.get_root(), "gate") + [("Entry Scenario", None)]
     elif category == "dialogue_context":
         mylist = list()
         for k,v in CONTEXT_INFO.items():
@@ -192,7 +205,7 @@ def get_possible_states(part, category: str):
     elif category in LIST_TYPES:
         return [(a,a) for a in LIST_TYPES[category]]
     elif category in SINGULAR_TYPES:
-        return [(a, a) for a in SINGULAR_TYPES[category]]
+        return [(a.rpartition(".")[2], a) for a in SINGULAR_TYPES[category]]
     elif category.startswith("terrain:") and category[8:] in TERRAIN_TYPES:
         return [(a.__name__, "ghterrain.{}".format(a.__name__)) for a in TERRAIN_TYPES[category[8:]]]
     elif category == "world_map":

@@ -47,7 +47,7 @@ def get_building(plot: Plot, bclass, **kwargs):
 #   Elements:
 #       LOCALE
 #   Optional:
-#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION
+#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION, DOOR_SIGN
 #
 
 class BasicBlackMarket(Plot):
@@ -69,7 +69,7 @@ class BasicBlackMarket(Plot):
         building = self.register_element("_EXTERIOR", get_building(
             self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name=self.shopname)},
-            door_sign=(ghterrain.SkullWallSignEast, ghterrain.SkullWallSignSouth),
+            door_sign=self.elements.get("DOOR_SIGN") or (ghterrain.SkullWallSignEast, ghterrain.SkullWallSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
@@ -85,7 +85,7 @@ class BasicBlackMarket(Plot):
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.CheeseShopDecor()),
+                                                                              decorate=gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
@@ -132,7 +132,7 @@ class BasicBlackMarket(Plot):
 #   Elements:
 #       LOCALE
 #   Optional:
-#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION
+#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION, DOOR_SIGN (must be a tuple of (East, South).
 #
 
 class BasicGarage(Plot):
@@ -153,7 +153,7 @@ class BasicGarage(Plot):
         building = self.register_element("_EXTERIOR", get_building(
             self, ghterrain.IndustrialBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
-            door_sign=self._generate_shop_sign(),
+            door_sign=self.elements.get("DOOR_SIGN") or self._generate_shop_sign(),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
@@ -169,7 +169,7 @@ class BasicGarage(Plot):
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.FactoryDecor()),
+                                                                              decorate=gharchitecture.FactoryDecor()),
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
@@ -231,7 +231,7 @@ class BasicGarage(Plot):
 #   Elements:
 #       LOCALE
 #   Optional:
-#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION
+#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION, DOOR_SIGN
 #
 
 class BasicGeneralStore(Plot):
@@ -252,7 +252,7 @@ class BasicGeneralStore(Plot):
         building = self.register_element("_EXTERIOR", get_building(
             self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
-            door_sign=(ghterrain.GeneralStoreSign1East, ghterrain.GeneralStoreSign1South),
+            door_sign=self.elements.get("DOOR_SIGN") or (ghterrain.GeneralStoreSign1East, ghterrain.GeneralStoreSign1South),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
@@ -269,7 +269,7 @@ class BasicGeneralStore(Plot):
             wall_terrain=ghterrain.DefaultWall))
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=gharchitecture.CheeseShopDecor()),
+                                                                              decorate=gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
@@ -316,7 +316,7 @@ class BasicGeneralStore(Plot):
 #   Elements:
 #       LOCALE
 #   Optional:
-#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION
+#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION, DOOR_SIGN
 #
 
 class BasicHospital(Plot):
@@ -338,7 +338,7 @@ class BasicHospital(Plot):
         building = self.register_element("_EXTERIOR", get_building(
             self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
-            door_sign=(ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
+            door_sign=self.elements.get("DOOR_SIGN") or (ghterrain.HospitalSignEast, ghterrain.HospitalSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
@@ -353,7 +353,7 @@ class BasicHospital(Plot):
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.HospitalBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,),
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
@@ -365,16 +365,16 @@ class BasicHospital(Plot):
         self.shop = services.Shop(npc=npc1, ware_types=services.PHARMACY, rank=self.rank + random.randint(0, 15),
                                   shop_faction=self.elements.get("SHOP_FACTION"))
 
-        room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(),dident="INTERIOR")
+        room2 = self.register_element('_room2', pbge.randmaps.rooms.ClosedRoom(), dident="INTERIOR")
         room2.contents.append(ghwaypoints.RecoveryBed())
         room2.contents.append(ghwaypoints.RecoveryBed())
 
-        if random.randint(1,10) == 5:
-            cybershop = services.Shop(npc=None, rank=self.rank+random.randint(1,25),
+        if random.randint(1, 10) == 5:
+            cybershop = services.Shop(npc=None, rank=self.rank + random.randint(1, 25),
                                       ware_types=services.CYBERWARE_STORE)
             room2.contents.append(ghwaypoints.CyberdocTerminal(shop=cybershop))
 
-        if random.randint(1,3) == 2:
+        if random.randint(1, 3) == 2:
             self.add_sub_plot(nart, "HOSPITAL_BONUS")
 
         return True
@@ -411,7 +411,7 @@ class BasicHospital(Plot):
 #   Elements:
 #       LOCALE
 #   Optional:
-#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION
+#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION, DOOR_SIGN
 #
 
 class BasicTavern(Plot):
@@ -431,10 +431,11 @@ class BasicTavern(Plot):
         # Create a building within the town.
         building = self.register_element(
             "_EXTERIOR", get_building(self, ghterrain.ResidentialBuilding,
-                waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
-                door_sign=(ghterrain.TavernSign1East, ghterrain.TavernSign1South),
-                tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM,
-                      pbge.randmaps.IS_CONNECTED_ROOM]),
+                                      waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
+                                      door_sign=self.elements.get("DOOR_SIGN") or (
+                                      ghterrain.TavernSign1East, ghterrain.TavernSign1South),
+                                      tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM,
+                                            pbge.randmaps.IS_CONNECTED_ROOM]),
             dident="LOCALE")
 
         # Add the interior scene.
@@ -449,8 +450,8 @@ class BasicTavern(Plot):
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(width=random.randint(20, 25),
-                                                                                 height=random.randint(11, 15),
-                                                                                 anchor=pbge.randmaps.anchors.south),
+                                                                              height=random.randint(11, 15),
+                                                                              anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
 
         mybar = ghrooms.BarArea(random.randint(5, 10), random.randint(2, 3), anchor=pbge.randmaps.anchors.north)
@@ -464,7 +465,9 @@ class BasicTavern(Plot):
             nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
-        myfloor = pbge.randmaps.rooms.Room(foyer.width-2, foyer.height-mybar.height-2, anchor=pbge.randmaps.anchors.south, decorate=gharchitecture.RestaurantDecor())
+        myfloor = pbge.randmaps.rooms.Room(foyer.width - 2, foyer.height - mybar.height - 2,
+                                           anchor=pbge.randmaps.anchors.south,
+                                           decorate=gharchitecture.RestaurantDecor())
         foyer.contents.append(myfloor)
 
         self.add_sub_plot(nart, "TAVERN_BONUS", necessary=False)
@@ -478,7 +481,8 @@ class BasicTavern(Plot):
 
     def _generate_shop_name(self):
         monster1, monster2 = random.sample(gears.selector.MONSTER_LIST, 2)
-        return random.choice(self.TITLE_PATTERNS).format(monster1=monster1, monster2=monster2, adjective=random.choice(game.ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None]), **self.elements)
+        return random.choice(self.TITLE_PATTERNS).format(monster1=monster1, monster2=monster2, adjective=random.choice(
+            game.ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None]), **self.elements)
 
     def SHOPKEEPER_offers(self, camp):
         mylist = list()

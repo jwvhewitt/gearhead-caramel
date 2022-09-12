@@ -43,9 +43,111 @@ class AssignPilotDescObject(object):
             self.infoz[menu_item.value].render(mydest.x, mydest.y)
 
 
+class InfoDisplayWidget(widgets.Widget):
+    # Hand this widget an info panel, and it'll display it. That's all it does.
+    def __init__(self, info_display: gears.info.InfoPanel):
+        super().__init__(
+            fhqinfo.CENTER_COLUMN.dx, fhqinfo.CENTER_COLUMN.dy, fhqinfo.CENTER_COLUMN.w, fhqinfo.CENTER_COLUMN.h
+        )
+        self.info_display = info_display
+
+    def render(self, flash=False):
+        myrect = self.get_rect()
+        self.info_display.render(myrect.x, myrect.y)
+
+
+class MeritBadgeDisplayWidget(widgets.ColumnWidget):
+    def __init__(self, pc: gears.base.Character, **kwargs):
+        super().__init__(
+            fhqinfo.CENTER_COLUMN.dx, fhqinfo.CENTER_COLUMN.dy, fhqinfo.CENTER_COLUMN.w, fhqinfo.CENTER_COLUMN.h,
+            border=pbge.default_border, draw_border=True, center_interior=True, **kwargs
+        )
+        self.up_button = widgets.ButtonWidget(0, 0, 128, 16,
+                                              sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.down_button = widgets.ButtonWidget(0, 0, 128, 16,
+                                                sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2,
+                                                on_frame=2, off_frame=3)
+
+        self.display_area = widgets.ScrollColumnWidget(
+            0, 0, fhqinfo.CENTER_COLUMN.w, fhqinfo.CENTER_COLUMN.h - 42,
+            up_button=self.up_button, down_button=self.down_button
+        )
+        self.add_interior(self.up_button)
+        self.add_interior(self.display_area)
+        self.add_interior(self.down_button)
+
+        for badge in pc.badges:
+            self.display_area.add_interior(widgets.LabelWidget(
+                0,0,fhqinfo.CENTER_COLUMN.w,0,str(badge), color=pbge.TEXT_COLOR, font=pbge.BIGFONT
+            ))
+
+            self.display_area.add_interior(widgets.LabelWidget(
+                0,0,fhqinfo.CENTER_COLUMN.w,0,badge.desc, color=pbge.INFO_GREEN, font=pbge.MEDIUMFONT
+            ))
+
+            self.display_area.add_interior(widgets.LabelWidget(
+                0,0,fhqinfo.CENTER_COLUMN.w,0,badge.get_effect_desc(), color=pbge.INFO_GREEN, font=pbge.ITALICFONT
+            ))
+
+
+class CharacterCenterColumnWidget(widgets.RowWidget):
+    def __init__(self, camp, pc: gears.base.Character, **kwargs):
+        super().__init__(fhqinfo.CENTER_COLUMN.dx, fhqinfo.CENTER_COLUMN.dy - 35, fhqinfo.CENTER_COLUMN.w,
+                         20, padding=10, **kwargs)
+
+        self.panels = list()
+
+        self.stats_panel = InfoDisplayWidget(CharaFHQIP(
+            model=pc, width=fhqinfo.CENTER_COLUMN.w, font=pbge.SMALLFONT, camp=camp
+        ))
+        self.children.append(self.stats_panel)
+        self.panels.append(self.stats_panel)
+
+        if pc.bio or pc.badges:
+            self.add_center(widgets.LabelWidget(
+                0, 0, 50, 0, "Stats", draw_border=True, border=widgets.widget_border_on, data=self.stats_panel,
+                on_click=self._switch_panel, justify=0
+            ))
+
+        if pc.bio:
+            self.bio_panel = widgets.LabelWidget(
+                fhqinfo.CENTER_COLUMN.dx, fhqinfo.CENTER_COLUMN.dy, fhqinfo.CENTER_COLUMN.w, 0,
+                pc.bio, font=pbge.MEDIUMFONT, draw_border=True, border=pbge.default_border, active=False
+            )
+            self.children.append(self.bio_panel)
+            self.panels.append(self.bio_panel)
+
+            self.add_center(widgets.LabelWidget(
+                0, 0, 50, 0, "Bio", draw_border=True, border=widgets.widget_border_off, data=self.bio_panel,
+                on_click=self._switch_panel, justify=0
+            ))
+
+        if pc.badges:
+            self.badges_panel = MeritBadgeDisplayWidget(pc, active=False)
+            self.children.append(self.badges_panel)
+            self.panels.append(self.badges_panel)
+
+            self.add_center(widgets.LabelWidget(
+                0, 0, 50, 0, "Badges", draw_border=True, border=widgets.widget_border_off, data=self.badges_panel,
+                on_click=self._switch_panel, justify=0
+            ))
+
+    def _switch_panel(self, wid, ev):
+        for ccc in self.panels:
+            if ccc is wid.data:
+                ccc.active = True
+            else:
+                ccc.active = False
+        for butt in self._center_widgets:
+            if butt is wid:
+                butt.border = widgets.widget_border_on
+            else:
+                butt.border = widgets.widget_border_off
+
+
 class CharacterInfoWidget(widgets.Widget):
     def __init__(self, camp, pc, fhq, **kwargs):
-        super(CharacterInfoWidget, self).__init__(0, 0, 0, 0, **kwargs)
+        super().__init__(0, 0, 0, 0, **kwargs)
         self.camp = camp
         self.pc = pc
         self.portrait = pc.get_portrait()
@@ -73,7 +175,7 @@ class CharacterInfoWidget(widgets.Widget):
                 widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Edit Character", justify=0, draw_border=True,
                                     on_click=self.edit_pc))
         self.fhq = fhq
-        self.info = CharaFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, font=pbge.SMALLFONT, camp=camp)
+        self.children.append(CharacterCenterColumnWidget(camp, pc))
 
     def edit_pc(self, wid, ev):
         self.fhq.active = False
@@ -187,8 +289,6 @@ class CharacterInfoWidget(widgets.Widget):
 
     def render(self, flash=False):
         self.draw_portrait(False)
-        mydest = fhqinfo.CENTER_COLUMN.get_rect()
-        self.info.render(mydest.x, mydest.y)
 
 
 class MechaInfoWidget(widgets.Widget):
@@ -370,13 +470,13 @@ class PetInfoWidget(widgets.Widget):
 
     def _change_name(self, wid, ev):
         self.fhq.active = False
-        myui = widgets.ColumnWidget(-100,-70,200, 0, draw_border=True, center_interior=True, padding=16)
-        myui.add_interior(pbge.widgets.LabelWidget(0,0,0,0,"Change Name", font=pbge.BIGFONT))
+        myui = widgets.ColumnWidget(-100, -70, 200, 0, draw_border=True, center_interior=True, padding=16)
+        myui.add_interior(pbge.widgets.LabelWidget(0, 0, 0, 0, "Change Name", font=pbge.BIGFONT))
         myui.add_interior(pbge.widgets.TextEntryWidget(
-            0,0, 180, 24, text=self.pc.name, on_change=self._set_name
+            0, 0, 180, 24, text=self.pc.name, on_change=self._set_name
         ))
         myui.add_interior(pbge.widgets.LabelWidget(
-            0,0,0,0,"Done", justify=0, on_click=self._rename_done, draw_border=True
+            0, 0, 0, 0, "Done", justify=0, on_click=self._rename_done, draw_border=True
         ))
 
         pbge.my_state.widgets.append(myui)
@@ -404,8 +504,6 @@ class PetInfoWidget(widgets.Widget):
 
     def _rename_done(self, wid, ev):
         self.rename_finished = True
-
-
 
 
 class ItemInfoWidget(widgets.Widget):
@@ -538,7 +636,7 @@ class FieldHQ(widgets.Widget):
         self.active_info = return_to
 
     def click_member(self, wid, ev):
-        #self.active_pc = wid.pc
+        # self.active_pc = wid.pc
         self.active_info = wid.pc
 
     def done_button(self, wid, ev):

@@ -110,7 +110,7 @@ class CharaFHQIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (
     gears.info.FullNameBlock, gears.info.ModuleStatusBlock, PilotsMechaBlock, gears.info.ExperienceBlock,
     gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.InstalledCyberwaresBlock,
-    gears.info.NonComSkillBlock, gears.info.MeritBadgesBlock, gears.info.CharacterTagsBlock)
+    gears.info.NonComSkillBlock, gears.info.CharacterTagsBlock)
 
 
 class MechaFHQIP(gears.info.InfoPanel):

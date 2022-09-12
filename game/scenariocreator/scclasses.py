@@ -393,6 +393,10 @@ class BluePrint(object):
             for cc in self.get_branch(c):
                 yield cc
 
+    def get_all_blueprints(self):
+        my_root = self.get_root()
+        return list(self.get_branch(my_root))
+
     def _get_uid(self):
         if self._uid != 0:
             return self._uid

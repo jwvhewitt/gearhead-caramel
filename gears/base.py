@@ -4151,8 +4151,7 @@ class Monster(Being, MakesPower):
 class Character(Being):
     SAVE_PARAMETERS = (
         'personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship',
-        "mecha_colors",
-        "mecha_pref", 'mnpcid')
+        "mecha_colors", "mecha_pref", 'mnpcid')
     DEEP_COPY_PARAMS = {"add_body": False}
 
     def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="",

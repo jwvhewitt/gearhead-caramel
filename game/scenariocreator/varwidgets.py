@@ -478,7 +478,8 @@ class AddRemoveFSOptionsWidget(pbge.widgets.ColumnWidget):
             mytype = part.brick.vars[var_name].var_type[5:]
         else:
             mytype = part.brick.vars[var_name].var_type
-        self.op_candidates = tuple(a[0] for a in statefinders.get_possible_states(part, mytype))
+        self.op_candidates = statefinders.get_possible_states(part, mytype)
+        self.op_dict = dict((b,a) for a,b in self.op_candidates)
 
         mytitle = pbge.widgets.RowWidget(0, 0, self.w, max(pbge.SMALLFONT.get_linesize(), 16))
         minus_plus_image = pbge.image.Image("sys_minus_plus.png", 16, 16)
@@ -496,24 +497,24 @@ class AddRemoveFSOptionsWidget(pbge.widgets.ColumnWidget):
         if not self.ops_taken:
             return "None"
         elif len(self.ops_taken) == 1:
-            return str(self.ops_taken[0])
+            return str(self.op_dict.get(self.ops_taken[0], "Unknown"))
         else:
-            return ', '.join([str(p) for p in self.ops_taken])
+            return ', '.join([str(self.op_dict.get(p, "Unknown")) for p in self.ops_taken])
 
     def _delete_op(self, widg, ev):
         if self.ops_taken:
             mymenu = pbge.rpgmenu.PopUpMenu()
             for p in self.ops_taken:
-                mymenu.add_item(p, p)
+                mymenu.add_item(self.op_dict.get(p, "Unknown"), p)
             delete_this_one = mymenu.query()
             if delete_this_one in self.ops_taken:
                 self.ops_taken.remove(delete_this_one)
 
     def _add_op(self, widg, ev):
         mymenu = pbge.rpgmenu.PopUpMenu()
-        for p in self.op_candidates:
-            if p not in self.ops_taken:
-                mymenu.add_item(p, p)
+        for a,b in self.op_candidates:
+            if b not in self.ops_taken:
+                mymenu.add_item(a, b)
         add_this_one = mymenu.query()
         if add_this_one:
             self.ops_taken.append(add_this_one)

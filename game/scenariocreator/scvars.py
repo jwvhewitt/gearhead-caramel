@@ -108,6 +108,30 @@ class FiniteStateVariable(BaseVariableDefinition):
 
         return myerrors
 
+class DoorSignVariable(BaseVariableDefinition):
+    DEFAULT_VAR_TYPE = "door_sign"
+    WIDGET_TYPE = varwidgets.FiniteStateEditorWidget
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        my_names_and_states = statefinders.get_possible_states(part, part.brick.vars[key].var_type)
+        mystates = [a[1] for a in my_names_and_states]
+        mystates.append(None)
+        myval = part.get_ultra_vars().get(key, "")
+        if myval not in mystates:
+            myerrors.append("Variable {} in {} has unknown value {}".format(key, part, myval))
+
+        return myerrors
+
+    @staticmethod
+    def format_for_python(value):
+        if value:
+            return "(ghterrain.{}East, ghterrain.{}South)"
+        else:
+            return None
+
+
 
 class FiniteStateListVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "list"
@@ -116,7 +140,12 @@ class FiniteStateListVariable(BaseVariableDefinition):
     def get_errors(self, part, key):
         myerrors = list()
         myerrors += super().get_errors(part, key)
-        my_names_and_states = statefinders.get_possible_states(part, part.brick.vars[key].var_type)
+        if part.brick.vars[key].var_type.startswith("list:"):
+            mytype = part.brick.vars[key].var_type[5:]
+        else:
+            mytype = part.brick.vars[key].var_type
+
+        my_names_and_states = statefinders.get_possible_states(part, mytype)
         mystates = [a[1] for a in my_names_and_states]
         mystates.append(None)
         mylist = part.get_ultra_vars().get(key, "")
@@ -446,6 +475,34 @@ class WorldMapDataVariable(BaseVariableDefinition):
         return cls.WorldMapDataDict(value)
 
 
+class StartingPointVariable(BaseVariableDefinition):
+    DEFAULT_VAR_TYPE = "starting_point"
+    WIDGET_TYPE = varwidgets.FiniteStateEditorWidget
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        rawval = part.raw_vars.get(key)
+        myval = part.get_ultra_vars().get(key, None)
+        if rawval is None:
+            if not any(bp.brick.label == "STARTING_PLOT" for bp in part.get_all_blueprints()):
+                myerrors.append("No starting plots or starting point defined".format(key, part, myval))
+        else:
+            my_names_and_states = statefinders.get_possible_states(part, part.brick.vars[key].var_type)
+            mystates = [a[1] for a in my_names_and_states]
+            if myval not in mystates:
+                myerrors.append("Variable {} in {} has unknown value {}".format(key, part, myval))
+
+        return myerrors
+
+    def format_for_python(cls, value):
+        if value:
+            return "nart.camp.go(nart.camp.campdata[THE_WORLD].get({}))".format(value)
+        else:
+            return "self.add_sub_plot(nart, \"START_PLOT_{}\".format(unique_id))"
+
+
+
 def get_variable_definition(default_val=0, var_type="integer", **kwargs):
     if var_type == "text":
         return TextVariable(default_val, **kwargs)
@@ -461,6 +518,8 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return FiniteStateListVariable(default_val, var_type, **kwargs)
     elif var_type == "scene_tags":
         return SceneTagListVariable(default_val, var_type, **kwargs)
+    elif var_type == "door_sign":
+        return DoorSignVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.SINGULAR_TYPES:
         return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type.startswith("physical:"):
@@ -487,6 +546,8 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return IntegerVariable(default_val, **kwargs)
     elif var_type == "world_map_data":
         return WorldMapDataVariable(default_val, **kwargs)
+    elif var_type == "starting_point":
+        return StartingPointVariable(default_val, **kwargs)
     else:
         if var_type != "string":
             print("Unknown variable type {}; defaulting to string.".format(var_type))

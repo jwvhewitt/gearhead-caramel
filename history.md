@@ -1,3 +1,6 @@
+* Merit badges get their own tab in character display; show description and effects
+* You can view a character's biography, if it exists, from the FieldHQ
+* Fixed smudge on Trailblazer portrait
 * You can set the default mission music for an entire campaign
 * Added search path for music; may be located in player folder
 * Fixed bugs in world map editor
