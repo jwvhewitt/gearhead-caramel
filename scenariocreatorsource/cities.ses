@@ -6,11 +6,13 @@
     "vars": {
       "city_name": {"default_val": "Megacormack", "var_type": "string"},
       "city_faction": {"default_val": null, "var_type": "faction"},
-      "city_attributes": {"default_val": ["OUTDOORS", "City", "GreenZone", "PUBLIC"], "var_type": "scene_tags"},
+      "city_attributes": {"default_val": ["gears.tags.SCENE_OUTDOORS", "gears.tags.City", "personality.GreenZone", "gears.tags.SCENE_PUBLIC"], "var_type": "scene_tags"},
+      "scene_generator": {"default_val": "pbge.randmaps.CityGridGenerator", "var_type": "city_scene_generator"},
       "entrance_name": {"default_val": "Exit", "var_type": "string"},
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
       "entrance_world_map": {"default_val": null, "var_type": "world_map"},
       "entrance_world_map_data": {"default_val": null, "var_type": "world_map_data"},
+      "entrance_anchor": {"default_val": "pbge.randmaps.anchors.south", "var_type": "map_anchor"},
       "exploration_music": {"default_val":  "airtone_-_reCreation.ogg", "var_type": "music"},
       "combat_music": {"default_val":  "Late.ogg", "var_type": "music"},
       "city_palette": {"default_val":  ["Black","Black","Black","Black","Black"], "var_type": "palette"},
@@ -24,8 +26,8 @@
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
     "physicals": [
-        {"element_key": "LOCALE", "variable_keys": ["city_name", "city_faction", "city_attributes", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain"], "child_types": null},
-        {"element_key": "MISSION_GATE", "parent": "LOCALE", "variable_keys": ["entrance_name", "entrance_desc", "entrance_world_map", "entrance_world_map_data"]}
+        {"element_key": "LOCALE", "variable_keys": ["city_name", "city_faction", "city_attributes", "scene_generator", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain", "allow_random_plots"], "child_types": null},
+        {"element_key": "MISSION_GATE", "parent": "LOCALE", "variable_keys": ["entrance_name", "entrance_desc", "entrance_world_map", "entrance_world_map_data", "entrance_anchor"]}
     ],
     "sorting_rank": 1000,
     "category": "LOCATIONS"
@@ -71,7 +73,7 @@ myscene = gears.GearHeadScene(
 )
 
 # Create a scene generator
-myscenegen = pbge.randmaps.CityGridGenerator(
+myscenegen = {scene_generator}(
     myscene, game.content.gharchitecture.HumanScaleGreenzone(floor_terrain={floor_terrain}), road_terrain={road_terrain}
 )
 
@@ -81,7 +83,7 @@ the_world[{LOCALE_UID}] = myscene
 
 # Create the entry/exit point.
 myroom = self.register_element(
-    "_ENTRY_ROOM_{_uid}", pbge.randmaps.rooms.Room(3, 3, anchor=pbge.randmaps.anchors.south),
+    "_ENTRY_ROOM_{_uid}", pbge.randmaps.rooms.Room(3, 3, anchor={entrance_anchor}),
     dident="_CITY_{_uid}"
 )
 
@@ -98,6 +100,7 @@ if {entrance_world_map}:
     nart.camp.campdata[{entrance_world_map}].add_node(mynode, {entrance_world_map_data.node_pos})
 
 
+
 *NEW CITY
     "name": "New Beachfront Metro Scene",
     "display_name": "City: {city_name}",
@@ -106,7 +109,7 @@ if {entrance_world_map}:
     "vars": {
       "city_name": {"default_val": "Megabusan", "var_type": "string"},
       "city_faction": {"default_val": null, "var_type": "faction"},
-      "city_attributes": {"default_val": ["OUTDOORS", "City", "GreenZone", "PUBLIC"], "var_type": "scene_tags"},
+      "city_attributes": {"default_val": ["gears.tags.SCENE_OUTDOORS", "gears.tags.City", "personality.GreenZone", "gears.tags.SCENE_PUBLIC"], "var_type": "scene_tags"},
       "room_name": {"default_val": "The Beach", "var_type": "string"},
       "entrance_name": {"default_val": "To The Docks", "var_type": "string"},
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
@@ -248,7 +251,7 @@ for t in range({num_random_lancemates}):
       "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
         {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
@@ -305,7 +308,7 @@ class BlackMarket_{unique_id}_{_uid}( Plot ):
       "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
         {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
@@ -360,7 +363,7 @@ class GeneralStore_{unique_id}_{_uid}( Plot ):
       "NPC": {"e_type": "npc", "name": "Mechanic: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
         {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
@@ -415,7 +418,7 @@ class Garage_{unique_id}_{_uid}( Plot ):
       "NPC": {"e_type": "npc", "name": "Doctor: {npc_name}", "aliases": ["NPC"]}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
         {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
@@ -469,7 +472,7 @@ class Hospital_{unique_id}_{_uid}( Plot ):
       "NPC": {"e_type": "npc", "name": "Bartender: {npc_name}"}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["tavern_name"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["tavern_name","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
         {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ]
@@ -524,7 +527,7 @@ class Tavern_{unique_id}_{_uid}( Plot ):
       "NPC": {"e_type": "npc", "name": "Leader: {npc_name}"}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["hall_name", "hall_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["hall_name", "hall_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
         {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
     ],

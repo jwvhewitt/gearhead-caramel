@@ -36,9 +36,10 @@ def _check_part_for_physicals(part, e_type=None):
 
     return mylist
 
-def find_physicals(part, e_type=None):
+def find_physicals(part, e_type=None, add_none=True):
     mylist = _check_part_for_physicals(part, e_type)
-    mylist.append(("==None==", None))
+    if add_none:
+        mylist.append(("==None==", None))
     return mylist
 
 class DialogueContextDescription(object):
@@ -114,14 +115,6 @@ LIST_TYPES = {
     )
 }
 
-SCENE_TAGS = (
-    gears.tags.SCENE_BUILDING, gears.tags.SCENE_PUBLIC, gears.tags.SCENE_SHOP, gears.tags.SCENE_GARAGE,
-    gears.tags.SCENE_HOSPITAL, gears.tags.SCENE_ARENA, gears.tags.SCENE_BASE, gears.tags.SCENE_MEETING,
-    gears.tags.SCENE_CULTURE, gears.tags.SCENE_TRANSPORT, gears.tags.SCENE_GOVERNMENT, gears.tags.SCENE_RUINS,
-    gears.tags.SCENE_SOLO, gears.tags.SCENE_DUNGEON, gears.tags.SCENE_SEMIPUBLIC, gears.tags.SCENE_FACTORY,
-    gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_ARENARULES, gears.tags.City, gears.tags.Village,
-) + gears.personality.ORIGINS
-
 SINGULAR_TYPES = {
     "scene_generator": (
         "pbge.randmaps.SceneGenerator", "pbge.randmaps.CityGridGenerator",
@@ -139,6 +132,23 @@ SINGULAR_TYPES = {
         "personality.L5Spinners", "personality.L5DustyRing", "personality.Luna", "personality.Mars", "tags.Academic",
         "tags.Adventurer", "tags.CorporateWorker", "tags.Craftsperson", "tags.Criminal", "tags.Faithworker",
         "tags.Laborer", "tags.Media", "tags.Medic", "tags.Merchant", "tags.Military", "tags.Police", "tags.Politician"
+    ),
+    "map_anchor": (
+        "pbge.randmaps.anchors.north", "pbge.randmaps.anchors.northeast", "pbge.randmaps.anchors.east",
+        "pbge.randmaps.anchors.southeast", "pbge.randmaps.anchors.south", "pbge.randmaps.anchors.southwest",
+        "pbge.randmaps.anchors.west", "pbge.randmaps.anchors.northwest", "pbge.randmaps.anchors.middle"
+    ),
+    "scene_tags": (
+        "gears.tags.SCENE_BUILDING", "gears.tags.SCENE_PUBLIC", "gears.tags.SCENE_SHOP", "gears.tags.SCENE_GARAGE",
+        "gears.tags.SCENE_HOSPITAL", "gears.tags.SCENE_ARENA", "gears.tags.SCENE_BASE", "gears.tags.SCENE_MEETING",
+        "gears.tags.SCENE_CULTURE", "gears.tags.SCENE_TRANSPORT", "gears.tags.SCENE_GOVERNMENT",
+        "gears.tags.SCENE_RUINS", "personality.GreenZone", "personality.DeadZone",
+        "personality.L5Spinners", "personality.L5DustyRing", "personality.Luna", "personality.Mars",
+        "gears.tags.SCENE_SOLO", "gears.tags.SCENE_DUNGEON", "gears.tags.SCENE_SEMIPUBLIC", "gears.tags.SCENE_FACTORY",
+        "gears.tags.SCENE_OUTDOORS", "gears.tags.SCENE_ARENARULES", "gears.tags.City", "gears.tags.Village",
+    ),
+    "city_scene_generator": (
+        "pbge.randmaps.CityGridGenerator", "pbge.randmaps.PartlyUrbanGenerator"
     )
 }
 
@@ -155,16 +165,6 @@ TERRAIN_TYPES = {
         ghterrain.MSRuinedWall, ghterrain.StoneWall, ghterrain.EarthWall, ghterrain.OrganicWall,
     )
 }
-
-
-def get_scene_tags():
-    mylist = list()
-    for st in SCENE_TAGS:
-        if isinstance(st, str):
-            mylist.append((st,"gears.tags.{}".format(st)))
-        else:
-            mylist.append((st.__name__, "gears.SINGLETON_TYPES[\"{}\"]".format(st.__name__)))
-    return mylist
 
 
 def find_elements(part, e_type):
@@ -192,14 +192,12 @@ def get_possible_states(part, category: str):
     elif category.startswith("physical:"):
         return find_physicals(part.get_root(), category[9:])
     elif category == "starting_point":
-        return find_physicals(part.get_root(), "gate") + [("Entry Scenario", None)]
+        return find_physicals(part.get_root(), "gate", add_none=False) + [("Entry Scenario", None)]
     elif category == "dialogue_context":
         mylist = list()
         for k,v in CONTEXT_INFO.items():
             mylist.append((v.name, k))
         return mylist
-    elif category == "scene_tags":
-        return get_scene_tags()
     elif category.endswith(".png"):
         return [(a,'"{}"'.format(a)) for a in pbge.image.glob_images(category)] + [("None", None),]
     elif category in LIST_TYPES:

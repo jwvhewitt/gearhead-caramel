@@ -46,6 +46,7 @@ from . import thingplacers
 from . import townhall
 from . import treasures
 from . import utility
+from . import worldmapwar
 from game.content import PLOT_LIST, UNSORTED_PLOT_LIST
 from pbge.plots import Plot
 
@@ -105,6 +106,7 @@ harvest(thingplacers)
 harvest(townhall)
 harvest(treasures)
 harvest(utility)
+harvest(worldmapwar)
 
 # Load the DLC.
 import importlib.util

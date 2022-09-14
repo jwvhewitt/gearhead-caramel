@@ -18,6 +18,7 @@ class PC_HospitalRecovery( Plot ):
     LABEL = "RECOVER_PC"
     active = True
     scope = True
+    COMMON = True
     def custom_init( self, nart ):
         """Find a hospital, move the PC to there."""
         myscene = self.seek_element(nart,"HOSPITAL",self._is_good_scene,scope=self.elements["METROSCENE"], backup_seek_func=self._is_public_scene)
@@ -111,7 +112,9 @@ class LanceRecoveryStub( Plot ):
         for pc in list(nart.camp.incapacitated_party):
             nart.camp.incapacitated_party.remove(pc)
             nart.camp.party.append(pc)
-            self.plots_to_run.append(self.add_sub_plot(nart,"LANCEMATE_NEEDS_HOSPITAL",spstate=PlotState().based_on(self,{"NPC":pc})))
+            myplot = self.add_sub_plot(nart,"LANCEMATE_NEEDS_HOSPITAL", elements={"NPC":pc}, necessary=False)
+            if myplot:
+                self.plots_to_run.append(myplot)
 
         return True
 

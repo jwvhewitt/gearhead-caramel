@@ -515,6 +515,7 @@ class AddRemoveFSOptionsWidget(pbge.widgets.ColumnWidget):
         for a,b in self.op_candidates:
             if b not in self.ops_taken:
                 mymenu.add_item(a, b)
+        mymenu.sort()
         add_this_one = mymenu.query()
         if add_this_one:
             self.ops_taken.append(add_this_one)

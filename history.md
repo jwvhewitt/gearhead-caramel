@@ -1,3 +1,5 @@
+v0.929 September 14 2022
+* A lot of work has been done on the scenario editor (still only available in dev mode)
 * Merit badges get their own tab in character display; show description and effects
 * You can view a character's biography, if it exists, from the FieldHQ
 * Fixed smudge on Trailblazer portrait

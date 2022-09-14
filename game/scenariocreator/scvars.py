@@ -517,7 +517,7 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
     elif var_type in statefinders.LIST_TYPES:
         return FiniteStateListVariable(default_val, var_type, **kwargs)
     elif var_type == "scene_tags":
-        return SceneTagListVariable(default_val, var_type, **kwargs)
+        return FiniteStateListVariable(default_val, var_type, **kwargs)
     elif var_type == "door_sign":
         return DoorSignVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.SINGULAR_TYPES:

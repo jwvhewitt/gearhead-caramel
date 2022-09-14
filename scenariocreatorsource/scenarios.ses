@@ -137,6 +137,9 @@ class {unique_id}_Scenario( Plot ):
 
         return True
 
+    #: world_methods
+    #: plot_methods
+
     def build_world(self, nart):
         # When adding physical things to the world, do that here instead of inside your individual plots. That way,
         # all the physical objects in the world get defined before individual plots get loaded and the elements they
@@ -146,8 +149,6 @@ class {unique_id}_Scenario( Plot ):
 
         #:scenario_build
 
-    #: world_methods
-    #: plot_methods
 
 
 
