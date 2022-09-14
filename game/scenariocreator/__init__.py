@@ -14,7 +14,7 @@ import os
 try:
     from yapf.yapflib.yapf_api import FormatCode
 
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     FormatCode = None
 
 from .varwidgets import StringVarEditorWidget, CampaignVarNameWidget, TextVarEditorWidget, FiniteStateEditorWidget, \
