@@ -1,10 +1,8 @@
-import pbge.memos
 from pbge.plots import Plot, PlotState
 import game.content.ghwaypoints
 import game.content.ghterrain
 import gears
 import pbge
-from game import teams, ghdialogue
 from game.content import gharchitecture
 from game.ghdialogue import context
 import random
@@ -12,12 +10,9 @@ from pbge.dialogue import ContextTag, Offer
 from game.content import plotutility, GHNarrativeRequest, PLOT_LIST, ghwaypoints
 import game.content.gharchitecture
 from . import missionbuilder
-import collections
 from game.content.plotutility import LMSkillsSelfIntro
+import pygame
 
-from pbge import memos
-
-Memo = pbge.memos.Memo
 
 # This unit contains plots that handle standard features you may want to add to a campaign or a scene in that campaign.
 
@@ -286,7 +281,6 @@ class WorldMapEdge:
         self.end_node = end_node
         self.visible = visible
         self.discoverable = discoverable
-        self.path = list()
         self.scenegen = scenegen
         self.architecture = architecture
         self.style = style
@@ -371,8 +365,6 @@ class WorldMap(object):
         self.edges.append(edge_to_use)
         edge_to_use.start_node = start_node
         edge_to_use.end_node = end_node
-        edge_to_use.path = pbge.scenes.animobs.get_line(start_node.pos[0], start_node.pos[1], end_node.pos[0],
-                                                        end_node.pos[1])
 
     def get_node_with_entrance(self, entrance):
         for n in self.nodes:
@@ -388,10 +380,6 @@ class WorldMap(object):
     def move_node(self, node, new_pos):
         if node in self.nodes and self.on_the_world_map(new_pos):
             node.pos = new_pos
-            for edge in self.edges:
-                if edge.connects_to_node(node):
-                    edge.path = pbge.scenes.animobs.get_line(edge.start_node.pos[0], edge.start_node.pos[1],
-                                                             edge.end_node.pos[0], edge.end_node.pos[1])
 
     def expand_roadmap_menu(self, camp, mymenu):
         # Determine which edges connect here.
@@ -416,7 +404,6 @@ class WorldMapViewer:
     def __init__(self, world: WorldMap):
         self.world = world
         self.map_sprite = pbge.image.Image(world.image_file)
-        self.road_sprite = pbge.image.Image("dzd_roadmap_roads.png", 34, 34)
         self.legend_sprites = dict()
         self.text_labels = dict()
 
@@ -430,24 +417,16 @@ class WorldMapViewer:
     def _calc_map_y(self, y, map_rect):
         return y * 32 + 16 + map_rect.y
 
-    EDGEDIR = {
-        (-1, -1): 0, (0, -1): 1, (1, -1): 2,
-        (-1, 0): 3, (1, 0): 4,
-        (-1, 1): 5, (0, 1): 6, (1, 1): 7
-    }
-
-    def _draw_edge(self, myedge, map_rect, hilight=False):
-        a = myedge.path[0]
+    def _draw_edge(self, myedge: WorldMapEdge, map_rect, hilight=False):
+        start_x = self._calc_map_x(myedge.start_node.pos[0], map_rect)
+        start_y = self._calc_map_y(myedge.start_node.pos[1], map_rect)
+        end_x = self._calc_map_x(myedge.end_node.pos[0], map_rect)
+        end_y = self._calc_map_y(myedge.end_node.pos[1], map_rect)
         if hilight:
-            style = 0
+            color = pbge.TEXT_COLOR
         else:
-            style = myedge.style
-        for b in myedge.path[1:]:
-            center_x = (self._calc_map_x(a[0], map_rect) + self._calc_map_x(b[0], map_rect)) // 2
-            center_y = (self._calc_map_y(a[1], map_rect) + self._calc_map_y(b[1], map_rect)) // 2
-            frame = self.EDGEDIR.get((b[0] - a[0], b[1] - a[1]), 0) + style * 8
-            self.road_sprite.render_c((center_x, center_y), frame)
-            a = b
+            color = (128, 128, 128)
+        pygame.draw.line(pbge.my_state.screen, color, (start_x,start_y), (end_x, end_y), 5)
 
     def refresh_node_images(self):
         for node in self.world.nodes:
@@ -518,6 +497,7 @@ class WorldMapHandler(Plot):
         super().modify_puzzle_menu(camp, thing, thingmenu)
         for node in self.world_map.nodes:
             if node.entrance is thing:
+                node.visible = True
                 my_edges = [e for e in self.world_map.edges if
                             e.connects_to_node(node) and (e.visible or e.discoverable)]
                 for e in my_edges:

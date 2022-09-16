@@ -363,7 +363,8 @@
         "parent": "METROSCENE",
         "variable_keys": [
           "shop_name",
-          "shop_faction"
+          "shop_faction",
+          "door_sign"
         ],
         "child_types": [
           "SCENE_FEATURE"
@@ -446,7 +447,8 @@
         "parent": "METROSCENE",
         "variable_keys": [
           "shop_name",
-          "shop_faction"
+          "shop_faction",
+          "door_sign"
         ],
         "child_types": [
           "SCENE_FEATURE"
@@ -529,7 +531,8 @@
         "parent": "METROSCENE",
         "variable_keys": [
           "shop_name",
-          "shop_faction"
+          "shop_faction",
+          "door_sign"
         ],
         "child_types": [
           "SCENE_FEATURE"
@@ -612,7 +615,8 @@
         "parent": "METROSCENE",
         "variable_keys": [
           "shop_name",
-          "shop_faction"
+          "shop_faction",
+          "door_sign"
         ],
         "child_types": [
           "SCENE_FEATURE"
@@ -687,7 +691,8 @@
         "element_key": "LOCALE",
         "parent": "METROSCENE",
         "variable_keys": [
-          "tavern_name"
+          "tavern_name",
+          "door_sign"
         ],
         "child_types": [
           "SCENE_FEATURE"
@@ -767,7 +772,8 @@
         "parent": "METROSCENE",
         "variable_keys": [
           "hall_name",
-          "hall_faction"
+          "hall_faction",
+          "door_sign"
         ],
         "child_types": [
           "SCENE_FEATURE"

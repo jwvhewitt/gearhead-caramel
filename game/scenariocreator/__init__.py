@@ -1,8 +1,6 @@
 import collections
 import glob
 
-import yapf.yapflib.errors
-
 import game
 import pbge
 import json
@@ -13,6 +11,7 @@ import os
 
 try:
     from yapf.yapflib.yapf_api import FormatCode
+    import yapf.yapflib.errors
 
 except (ImportError, ModuleNotFoundError):
     FormatCode = None

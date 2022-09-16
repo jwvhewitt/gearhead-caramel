@@ -11,6 +11,7 @@ class Forest(pbge.scenes.terrain.VariableTerrain):
     movement_cost = {pbge.scenes.movement.Walking: 2.0, gears.tags.Skimming: 2.0, gears.tags.Rolling: 2.0,
                      pbge.scenes.movement.Vision: 5}
 
+
 class Bushes(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_bushes.png'
     movement_cost = {pbge.scenes.movement.Vision: 5}
@@ -304,25 +305,30 @@ class OldCrateTerrain(pbge.scenes.terrain.Terrain):
     frame = 0
     blocks = (Walking, Skimming, Rolling, Flying)
 
+
 class OpenOldCrateTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 1
     blocks = (Walking, Skimming, Rolling, Flying)
+
 
 class AmmoBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 2
     blocks = (Walking, Skimming, Rolling, Flying)
 
+
 class OpenAmmoBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 3
     blocks = (Walking, Skimming, Rolling, Flying)
 
+
 class StorageBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 4
     blocks = (Walking, Skimming, Rolling, Flying)
+
 
 class OpenStorageBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
@@ -407,6 +413,7 @@ class DZDConcreteBuilding(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_mechaprops.png'
     frame = 1
     blocks = (Walking, Skimming, Rolling, Flying)
+
 
 class MechaScaleMineBuildingTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'prop_dzd_buildings.png'
@@ -618,11 +625,6 @@ class RegExLogoTerrainEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_logo_regex.png'
 
 
-class SkullWallSignEast(pbge.scenes.terrain.Terrain):
-    image_top = 'terrain_decor_pirateflag.png'
-    frame = 2
-
-
 class AegisLogoSign(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_aegislogo.png'
 
@@ -720,6 +722,7 @@ class TavernSign1East(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_tavernsign.png'
     frame = 1
 
+
 class CafeSign1(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_cafesign.png'
 
@@ -755,12 +758,12 @@ class SkullWallSign(pbge.scenes.terrain.OnTheWallTerrain):
 
 
 class SkullWallSignSouth(pbge.scenes.terrain.Terrain):
-    image_top = 'terrain_decor_kenney_mechasign.png'
+    image_top = 'terrain_decor_skulltown.png'
     frame = 1
 
 
 class SkullWallSignEast(pbge.scenes.terrain.Terrain):
-    image_top = 'terrain_decor_pirateflag.png'
+    image_top = 'terrain_decor_skulltown.png'
     frame = 2
 
 
@@ -774,7 +777,7 @@ class JollyRogerSignSouth(pbge.scenes.terrain.Terrain):
 
 
 class JollyRogerSignEast(pbge.scenes.terrain.Terrain):
-    image_top = 'terrain_decor_kenney_mechasign.png'
+    image_top = 'terrain_decor_pirateflag.png'
     frame = 1
 
 
@@ -1204,7 +1207,35 @@ class TableAndChairsTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_gervais_decor.png'
     blocks = (Walking, Skimming, Rolling)
 
+
 class HerbsTerrain(pbge.scenes.terrain.Terrain):
     frame = 3
     image_top = 'terrain_gervais_decor.png'
     blocks = (Walking, Skimming, Rolling)
+
+
+class CorsairTDFTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_top = 'terrain_terrset_corsair_tdf.png'
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+
+class CorsairDuckDict(dict):
+    # Pass this to the Terrset if you want a Corsair in anything other than the Terran Defense Force colors.
+    def __init__(self, colors):
+        super().__init__(blocks=CorsairTDFTerrain.blocks, colors=colors, image_top='terrain_terrset_corsair.png')
+
+
+class CorsairTerrset(pbge.randmaps.terrset.TerrSet):
+    TERRAIN_TYPE = CorsairTDFTerrain
+    TERRAIN_MAP = (
+        (0, 1, 2, 3, 4),
+        (5, 6, 7, 8, 9, 10),
+        (None, 11, 12, 13, 14, 15, 16),
+        (None, None, 18, 19, 20, 21, 22, 23),
+        (None, None, 24, 25, 26, 27, 28, 29, 30),
+        (None, None, None, 31, 32, 33, 34, 35, 36),
+        (None, None, None, 37, 38, 39, 40, 41, 42, 43),
+        (None, None, None, None, 44, 45, 46, 47, 48, 49, 50),
+        (None, None, None, None, None, 51, 52, 53, 54, 55, 56),
+        # (None,None,None,None, 57,58,59)
+    )
