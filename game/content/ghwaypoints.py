@@ -56,6 +56,10 @@ class Exit( Waypoint ):
             self.combat_use( camp, pc )
 
 
+class InvisibleExit(Exit):
+    TILE = pbge.scenes.Tile( None, None, None )
+
+
 class Crate( Waypoint ):
     name = "Crate"
     TILE = pbge.scenes.Tile(None,None,ghterrain.OldCrateTerrain)
@@ -381,6 +385,12 @@ class RecoveryBed(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.BedTerrain)
     recovery_entrance = True
 
+
+class Bunk(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.KenneyBunk)
+    recovery_entrance = True
+
+
 class OccupiedBed(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.OccupiedBedTerrain)
     recovery_entrance = False
@@ -459,4 +469,13 @@ class Shrine(Waypoint):
 
 class Herbs(Waypoint):
     TILE = pbge.scenes.Tile(None, ghterrain.HerbsTerrain, None)
+
+
+class KenneyWoodenTableWP(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.KenneyWoodenTable)
+
+
+class KenneyCratesWP(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.KenneyCrates)
+
 

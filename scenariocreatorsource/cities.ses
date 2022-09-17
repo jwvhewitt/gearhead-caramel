@@ -7,7 +7,8 @@
       "city_name": {"default_val": "Megacormack", "var_type": "string"},
       "city_faction": {"default_val": null, "var_type": "faction"},
       "city_attributes": {"default_val": ["gears.tags.SCENE_OUTDOORS", "gears.tags.City", "personality.GreenZone", "gears.tags.SCENE_PUBLIC"], "var_type": "scene_tags"},
-      "scene_generator": {"default_val": "pbge.randmaps.CityGridGenerator", "var_type": "city_scene_generator"},
+      "scene_generator": {"default_val": "pbge.randmaps.CityGridGenerator", "var_type": "city_scene_generator", "must_be_defined": true},
+      "scene_architecture": {"default_val": "gharchitecture.HumanScaleGreenzone", "var_type": "personal_scale_architecture", "must_be_defined": true},
       "entrance_name": {"default_val": "Exit", "var_type": "string"},
       "entrance_desc": {"default_val": "Where do you want to go?", "var_type": "text"},
       "entrance_world_map": {"default_val": null, "var_type": "world_map"},
@@ -17,7 +18,7 @@
       "combat_music": {"default_val":  "Late.ogg", "var_type": "music"},
       "city_palette": {"default_val":  ["Black","Black","Black","Black","Black"], "var_type": "palette"},
       "floor_terrain": {"default_val": "ghterrain.GreenZoneGrass", "var_type": "terrain:floor"},
-      "road_terrain": {"default_val": "ghterrain.Pavement", "var_type": "terrain:floor"},
+      "road_terrain": {"default_val": "ghterrain.Pavement", "var_type": "terrain:floor", "tooltip": "Road terrain is not used by all scene generators"},
       "allow_random_plots": {"default_val": true, "var_type": "boolean"}
     },
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
@@ -26,7 +27,7 @@
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
     "physicals": [
-        {"element_key": "LOCALE", "variable_keys": ["city_name", "city_faction", "city_attributes", "scene_generator", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain", "allow_random_plots"], "child_types": null},
+        {"element_key": "LOCALE", "variable_keys": ["city_name", "city_faction", "city_attributes", "scene_generator", "scene_architecture", "exploration_music", "combat_music", "city_palette", "floor_terrain", "road_terrain", "allow_random_plots"], "child_types": null},
         {"element_key": "MISSION_GATE", "parent": "LOCALE", "variable_keys": ["entrance_name", "entrance_desc", "entrance_world_map", "entrance_world_map_data", "entrance_anchor"]}
     ],
     "sorting_rank": 1000,
@@ -74,7 +75,7 @@ myscene = gears.GearHeadScene(
 
 # Create a scene generator
 myscenegen = {scene_generator}(
-    myscene, game.content.gharchitecture.HumanScaleGreenzone(floor_terrain={floor_terrain}), road_terrain={road_terrain}
+    myscene, {scene_architecture}(floor_terrain={floor_terrain}), road_terrain={road_terrain}
 )
 
 # Register the city scene and the metro data
@@ -559,5 +560,91 @@ class TownHall_{unique_id}_{_uid}( Plot ):
         mylist = list()
         #: npc_offers
         return mylist
+
+    #: plot_methods
+
+
+
+*NEW CITY_FEATURE
+    "name": "Add Military Tent",
+    "display_name": "Tent: {tent_name}",
+    "desc": "Adds a military-style tent and an interior. Leave tent_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "tent_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "room_name": {"default_val": "Foyer", "var_type": "literal"},
+      "tent_faction": {"default_val":  null, "var_type": "faction"}
+   },
+  "child_types": ["SCENE_FEATURE"],
+   "elements": {
+      "LOCALE": {"e_type": "scene", "name": "Tent: {tent_name}"},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["tent_name", "tent_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]}
+    ]
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "MILITARY_TENT", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], TENT_NAME={tent_name}, TENT_FACTION={tent_faction}))
++add_physical LOCALE splot.elements["INTERIOR"]
++add_physical ROOM splot.elements["FOYER"]
+
+*SCRIPT plot_init
++subplot MILTENT_{unique_id}_{_uid}
+
+*SCRIPT main
+class MilitaryTent_{unique_id}_{_uid}( Plot ):
+    LABEL = "MILTENT_{unique_id}_{_uid}"
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    #: plot_methods
+
+
+
+*NEW CITY_FEATURE
+    "name": "Add Mobile HQ",
+    "display_name": "HQ: {hq_name}",
+    "desc": "Adds a mobile HQ and an interior. Leave hq_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "hq_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "room_name": {"default_val": "Foyer", "var_type": "literal"},
+      "hq_faction": {"default_val":  null, "var_type": "faction"}
+   },
+  "child_types": ["SCENE_FEATURE"],
+   "elements": {
+      "LOCALE": {"e_type": "scene", "name": "HQ: {hq_name}"},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["hq_name", "hq_faction"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]}
+    ]
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "MOBILE_HQ", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], HQ_NAME={hq_name}, HQ_FACTION={hq_faction}))
++add_physical LOCALE splot.elements["INTERIOR"]
++add_physical ROOM splot.elements["FOYER"]
+
+*SCRIPT plot_init
++subplot MOBILEHQ_{unique_id}_{_uid}
+
+*SCRIPT main
+class MobileHQ_{unique_id}_{_uid}( Plot ):
+    LABEL = "MOBILEHQ_{unique_id}_{_uid}"
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
 
     #: plot_methods

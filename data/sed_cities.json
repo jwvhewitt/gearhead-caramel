@@ -4,7 +4,7 @@
     "scripts": {
       "plot_subplots": "+subplot CITY_{unique_id}_{_uid}\n\n",
       "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"METRO\"] = self.elements[\"LOCALE\"].metrodat\n        if {entrance_world_map}:\n            edge_params = {entrance_world_map_data.edge_params}\n            for e in edge_params:\n                nart.camp.campdata[{entrance_world_map}].connect_entrance_to_entrance(self.elements[\"MISSION_GATE\"], **e)\n\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        +subplot CF_METROSCENE_RECOVERY_HANDLER\n        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER\n\n        if {allow_random_plots}:\n            +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER\n\n        return True\n\n    #: plot_methods\n\n",
-      "scenario_build": "# Build the city here, store it in the_world\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(\n    50, 50, \"{city_name}\", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,\n    faction={city_faction}, attributes={city_attributes},\n    exploration_music={exploration_music}, combat_music={combat_music}\n)\n\n# Create a scene generator\nmyscenegen = {scene_generator}(\n    myscene, game.content.gharchitecture.HumanScaleGreenzone(floor_terrain={floor_terrain}), road_terrain={road_terrain}\n)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"_CITY_{_uid}\")\nthe_world[{LOCALE_UID}] = myscene\n\n# Create the entry/exit point.\nmyroom = self.register_element(\n    \"_ENTRY_ROOM_{_uid}\", pbge.randmaps.rooms.Room(3, 3, anchor={entrance_anchor}),\n    dident=\"_CITY_{_uid}\"\n)\n\nmygate = self.register_element(\n    \"_MISSION_GATE_{_uid}\", Exit(name=\"{entrance_name}\", desc={entrance_desc},\n    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident=\"_ENTRY_ROOM_{_uid}\"\n)\n\nthe_world[{MISSION_GATE_UID}] = mygate\n\nif {entrance_world_map}:\n    nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)\n    mynode = campfeatures.WorldMapNode(destination=myscene, entrance=mygate, {entrance_world_map_data.node_params})\n    nart.camp.campdata[{entrance_world_map}].add_node(mynode, {entrance_world_map_data.node_pos})\n\n\n\n"
+      "scenario_build": "# Build the city here, store it in the_world\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(\n    50, 50, \"{city_name}\", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,\n    faction={city_faction}, attributes={city_attributes},\n    exploration_music={exploration_music}, combat_music={combat_music}\n)\n\n# Create a scene generator\nmyscenegen = {scene_generator}(\n    myscene, {scene_architecture}(floor_terrain={floor_terrain}), road_terrain={road_terrain}\n)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"_CITY_{_uid}\")\nthe_world[{LOCALE_UID}] = myscene\n\n# Create the entry/exit point.\nmyroom = self.register_element(\n    \"_ENTRY_ROOM_{_uid}\", pbge.randmaps.rooms.Room(3, 3, anchor={entrance_anchor}),\n    dident=\"_CITY_{_uid}\"\n)\n\nmygate = self.register_element(\n    \"_MISSION_GATE_{_uid}\", Exit(name=\"{entrance_name}\", desc={entrance_desc},\n    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident=\"_ENTRY_ROOM_{_uid}\"\n)\n\nthe_world[{MISSION_GATE_UID}] = mygate\n\nif {entrance_world_map}:\n    nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)\n    mynode = campfeatures.WorldMapNode(destination=myscene, entrance=mygate, {entrance_world_map_data.node_params})\n    nart.camp.campdata[{entrance_world_map}].add_node(mynode, {entrance_world_map_data.node_pos})\n\n\n\n"
     },
     "name": "New Metro Scene",
     "display_name": "City: {city_name}",
@@ -30,7 +30,13 @@
       },
       "scene_generator": {
         "default_val": "pbge.randmaps.CityGridGenerator",
-        "var_type": "city_scene_generator"
+        "var_type": "city_scene_generator",
+        "must_be_defined": true
+      },
+      "scene_architecture": {
+        "default_val": "gharchitecture.HumanScaleGreenzone",
+        "var_type": "personal_scale_architecture",
+        "must_be_defined": true
       },
       "entrance_name": {
         "default_val": "Exit",
@@ -76,7 +82,8 @@
       },
       "road_terrain": {
         "default_val": "ghterrain.Pavement",
-        "var_type": "terrain:floor"
+        "var_type": "terrain:floor",
+        "tooltip": "Road terrain is not used by all scene generators"
       },
       "allow_random_plots": {
         "default_val": true,
@@ -112,6 +119,7 @@
           "city_faction",
           "city_attributes",
           "scene_generator",
+          "scene_architecture",
           "exploration_music",
           "combat_music",
           "city_palette",
@@ -719,7 +727,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"TOWNHALL\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, LEADER_NAME={npc_name}, HALL_NAME={hall_name}, DOOR_SIGN={door_sign}, HALL_FACTION={hall_faction}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n+add_physical NPC splot.elements[\"LEADER\"]\n\n",
       "plot_init": "+subplot TOWNHALL_{unique_id}_{_uid}\n\n",
-      "main": "class TownHall_{unique_id}_{_uid}( Plot ):\n    LABEL = \"TOWNHALL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n"
+      "main": "class TownHall_{unique_id}_{_uid}( Plot ):\n    LABEL = \"TOWNHALL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Town Hall",
     "display_name": "Town Hall: {hall_name}",
@@ -795,5 +803,125 @@
       }
     ],
     "singular": true
+  },
+  {
+    "label": "CITY_FEATURE",
+    "scripts": {
+      "scenario_build": "splot = self.add_sub_plot(nart, \"MILITARY_TENT\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], TENT_NAME={tent_name}, TENT_FACTION={tent_faction}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
+      "plot_init": "+subplot MILTENT_{unique_id}_{_uid}\n\n",
+      "main": "class MilitaryTent_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MILTENT_{unique_id}_{_uid}\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
+    },
+    "name": "Add Military Tent",
+    "display_name": "Tent: {tent_name}",
+    "desc": "Adds a military-style tent and an interior. Leave tent_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "tent_name": {
+        "default_val": "",
+        "var_type": "literal",
+        "tooltip": "Leave blank for random name"
+      },
+      "room_name": {
+        "default_val": "Foyer",
+        "var_type": "literal"
+      },
+      "tent_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      }
+    },
+    "child_types": [
+      "SCENE_FEATURE"
+    ],
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "Tent: {tent_name}"
+      },
+      "ROOM": {
+        "e_type": "room",
+        "name": "Room: {room_name}"
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "METROSCENE",
+        "variable_keys": [
+          "tent_name",
+          "tent_faction"
+        ],
+        "child_types": [
+          "SCENE_FEATURE"
+        ]
+      },
+      {
+        "element_key": "ROOM",
+        "parent": "LOCALE",
+        "variable_keys": [
+          "room_name"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "CITY_FEATURE",
+    "scripts": {
+      "scenario_build": "splot = self.add_sub_plot(nart, \"MOBILE_HQ\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], HQ_NAME={hq_name}, HQ_FACTION={hq_faction}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
+      "plot_init": "+subplot MOBILEHQ_{unique_id}_{_uid}\n\n",
+      "main": "class MobileHQ_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MOBILEHQ_{unique_id}_{_uid}\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n"
+    },
+    "name": "Add Mobile HQ",
+    "display_name": "HQ: {hq_name}",
+    "desc": "Adds a mobile HQ and an interior. Leave hq_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "hq_name": {
+        "default_val": "",
+        "var_type": "literal",
+        "tooltip": "Leave blank for random name"
+      },
+      "room_name": {
+        "default_val": "Foyer",
+        "var_type": "literal"
+      },
+      "hq_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      }
+    },
+    "child_types": [
+      "SCENE_FEATURE"
+    ],
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "HQ: {hq_name}"
+      },
+      "ROOM": {
+        "e_type": "room",
+        "name": "Room: {room_name}"
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "METROSCENE",
+        "variable_keys": [
+          "hq_name",
+          "hq_faction"
+        ],
+        "child_types": [
+          "SCENE_FEATURE"
+        ]
+      },
+      {
+        "element_key": "ROOM",
+        "parent": "LOCALE",
+        "variable_keys": [
+          "room_name"
+        ]
+      }
+    ]
   }
 ]

@@ -21,8 +21,6 @@ LANCE_HANDLER_ENABLED = "LANCE_HANDLER_ENABLED"  # If True, the standard lancema
 LANCEDEV_ENABLED = "LANCEDEV_ENABLED"  # If this value exists, it will be a function with signature fun(camp)
 # that returns True if a lancemate development plot can be loaded now.
 WORLD_MAP_ENCOUNTERS = "WORLD_MAP_ENCOUNTERS"  # If exists, this will be a function that returns a MissionSeed.
-
-
 # See below for the signature; always send named parameters.
 # May return None.
 

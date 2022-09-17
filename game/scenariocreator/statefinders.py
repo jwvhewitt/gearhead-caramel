@@ -148,7 +148,16 @@ SINGULAR_TYPES = {
         "gears.tags.SCENE_OUTDOORS", "gears.tags.SCENE_ARENARULES", "gears.tags.City", "gears.tags.Village",
     ),
     "city_scene_generator": (
-        "pbge.randmaps.CityGridGenerator", "pbge.randmaps.PartlyUrbanGenerator"
+        "pbge.randmaps.CityGridGenerator", "pbge.randmaps.PartlyUrbanGenerator", "pbge.randmaps.SceneGenerator"
+    ),
+    "personal_scale_architecture": (
+        "gharchitecture.HumanScaleGreenzone", "gharchitecture.HumanScaleDeadzone",
+        "gharchitecture.HumanScaleSemiDeadzone",
+        "gharchitecture.HumanScaleDeadzoneWilderness", "gharchitecture.HumanScaleForest",
+        "gharchitecture.HumanScaleUrbanDeadzone"
+    ),
+    'terrain_set': (
+        "ghterrain.CorsairTerrset",
     )
 }
 
@@ -157,12 +166,14 @@ TERRAIN_TYPES = {
         ghterrain.GreenZoneGrass, ghterrain.Sand, ghterrain.Flagstone, ghterrain.DeadZoneGround,
         ghterrain.SemiDeadZoneGround, ghterrain.Pavement, ghterrain.SmallDeadZoneGround, ghterrain.TechnoRubble,
         ghterrain.OldTilesFloor, ghterrain.WhiteTileFloor, ghterrain.HardwoodFloor, ghterrain.GrateFloor,
-        ghterrain.CrackedEarth, ghterrain.Snow, ghterrain.SmallSnow, ghterrain.OrganicFloor, ghterrain.Water
+        ghterrain.CrackedEarth, ghterrain.Snow, ghterrain.SmallSnow, ghterrain.OrganicFloor, ghterrain.Water,
+        ghterrain.GreenTileFloor, ghterrain.GravelFloor
     ),
     "wall": (
         ghterrain.FortressWall, ghterrain.ScrapIronWall, ghterrain.DefaultWall, ghterrain.CommercialWall,
         ghterrain.ResidentialWall, ghterrain.WoodenWall, ghterrain.HospitalWall, ghterrain.IndustrialWall,
         ghterrain.MSRuinedWall, ghterrain.StoneWall, ghterrain.EarthWall, ghterrain.OrganicWall,
+        ghterrain.VehicleWall
     )
 }
 

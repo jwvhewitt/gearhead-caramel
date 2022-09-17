@@ -1,4 +1,3 @@
-import gears.tags
 import pbge
 import gears
 from pbge.scenes.movement import Walking, Flying, Vision
@@ -251,6 +250,16 @@ class EarthWall(pbge.scenes.terrain.WallTerrain):
     blocks = (Walking, Skimming, Rolling, Vision, Flying)
 
 
+class VehicleWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_vehicle.png'
+    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+
+
+class TentWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_tent.png'
+    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+
+
 class WallStones(pbge.scenes.terrain.OnTheWallVariableTerrain):
     image_top = 'terrain_decor_wallstones.png'
     south_frames = (8, 9, 10, 11, 12, 13, 14, 15)
@@ -268,6 +277,14 @@ class OrganicWall(pbge.scenes.terrain.WallTerrain):
 
 class OrganicFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_organic.png'
+
+
+class GreenTileFloor(pbge.scenes.terrain.Terrain):
+    image_bottom = 'terrain_floor_greentile.png'
+
+
+class GravelFloor(pbge.scenes.terrain.VariableTerrain):
+    image_bottom = 'terrain_floor_gravel.png'
 
 
 class OrganicTubeTerrain(pbge.scenes.terrain.Terrain):
@@ -1014,6 +1031,78 @@ class UlsaniteBookshelfTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     EAST_FRAME = 4
 
 
+class KenneyBunk(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_kenney_milcamp.png"
+    frame = 0
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+
+class KenneyChairWest(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_kenney_milcamp.png"
+    frame = 1
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class KenneyChairSouth(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_kenney_milcamp.png"
+    frame = 2
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class KenneyChairEast(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_kenney_milcamp.png"
+    frame = 3
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+class KenneyChairNorth(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_kenney_milcamp.png"
+    frame = 4
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+
+class KenneyCrates(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_kenney_milcamp.png"
+    frame = 5
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 10}
+
+
+class KenneyWoodenTable(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_kenney_milcamp.png"
+    frame = 6
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+
+class KenneyCommandTable(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_kenney_milcamp.png"
+    frame = 7
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 10}
+
+
+class Dashboard1(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_dashboard.png"
+    frame = 0
+
+
+class Dashboard2(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_dashboard.png"
+    frame = 1
+
+
+class Dashboard3(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_dashboard.png"
+    frame = 2
+
+
+class VehicleControlPanel(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = "terrain_decor_vehiclecontrolpanel.png"
+
+
 class HamsterCageTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_hamstercage.png'
 
@@ -1239,3 +1328,63 @@ class CorsairTerrset(pbge.randmaps.terrset.TerrSet):
         (None, None, None, None, None, 51, 52, 53, 54, 55, 56),
         # (None,None,None,None, 57,58,59)
     )
+
+class TentTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_top = 'terrain_terrset_tent.png'
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+
+class TentTerrset(pbge.randmaps.terrset.TerrSet):
+    TERRAIN_TYPE = TentTerrain
+    TERRAIN_MAP = (
+        (0,1,2),
+        (3,4,5),
+        (6,7,8,9),
+        (10,11,12,13)
+    )
+    WAYPOINT_POS = {
+        "DOOR": (1, 3)
+    }
+
+
+class MobileHQTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_top = 'terrain_terrset_mobilehq.png'
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+
+class MobileHQTerrset(pbge.randmaps.terrset.TerrSet):
+    TERRAIN_TYPE = MobileHQTerrain
+    TERRAIN_MAP = (
+        (1,2),
+        (4,5,6),
+        (8,9,10,11),
+        (13,14,15,16),
+        (17,18,19,20),
+        (None,22,23,24),
+        (None,25,26,27)
+    )
+    WAYPOINT_POS = {
+        "DOOR": (3, 5)
+    }
+
+
+class FieldHospitalTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_top = 'terrain_terrset_fieldhospital.png'
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+
+class FieldHospitalTerrset(pbge.randmaps.terrset.TerrSet):
+    TERRAIN_TYPE = FieldHospitalTerrain
+    TERRAIN_MAP = (
+        (0,1),
+        (2,3,4),
+        (5,6,7,8),
+        (9,10,11,12),
+        (13,14,15,16),
+        (17,18,19,20),
+        (21,22,23,24),
+        (None,25,26,27)
+    )
+    WAYPOINT_POS = {
+        "DOOR": (3, 5)
+    }

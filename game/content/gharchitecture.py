@@ -316,6 +316,22 @@ class StoneCave(GearHeadArchitecture):
     DEFAULT_ROOM_CLASSES = (pbge.randmaps.rooms.FuzzyRoom,)
 
 
+class TentArchitecture(GearHeadArchitecture):
+    ENV = gears.tags.UrbanEnv
+    DEFAULT_WALL_TERRAIN = ghterrain.TentWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.GravelFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+
+class VehicleArchitecture(GearHeadArchitecture):
+    ENV = gears.tags.UrbanEnv
+    DEFAULT_WALL_TERRAIN = ghterrain.VehicleWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.GreenTileFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+
 class DeadZoneHighwaySceneGen( pbge.randmaps.SceneGenerator ):
     ENV = gears.tags.GroundEnv
     DO_DIRECT_CONNECTIONS = True

@@ -180,7 +180,6 @@ class CharacterInfoWidget(widgets.Widget):
     def edit_pc(self, wid, ev):
         self.fhq.active = False
         pceditor.PCEditorWidget.create_and_invoke(self.camp, self.pc)
-        self.info.update()
         self.fhq.active = True
 
     def jump_plot(self, wid, ev):
@@ -191,7 +190,6 @@ class CharacterInfoWidget(widgets.Widget):
         self.fhq.active = False
         my_trainer = training.TrainingMenu(self.camp, self.pc)
         my_trainer()
-        self.info.update()
         self.fhq.active = True
 
     def open_backpack(self, wid, ev):
@@ -215,7 +213,6 @@ class CharacterInfoWidget(widgets.Widget):
 
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
-        self.info.update()
         self.fhq.update_party()
         self.fhq.active = True
 
@@ -235,7 +232,6 @@ class CharacterInfoWidget(widgets.Widget):
         mek = mymenu.query()
 
         self.camp.assign_pilot_to_mecha(self.pc, mek)
-        self.info.update()
 
         if mek:
             self.fhq.update_party()
@@ -274,7 +270,6 @@ class CharacterInfoWidget(widgets.Widget):
         pygame.event.clear()
         self.fhq.update_party()
         self.fhq.active = True
-        self.info.update()
         pbge.my_state.view.regenerate_avatars([self.pc, ])
 
     def color_done(self, wid, ev):

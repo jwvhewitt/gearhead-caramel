@@ -42,6 +42,8 @@ class TerrSet( Room ):
     def build( self, scene, archi):
         # x0,y0 is the NorthWest corner of the terrain.
         #x0,y0 = self.area.topleft
+        scene.fill(self.area, wall=None)
+
         x0 = self.area.x + self.border
         y0 = self.area.y + self.border
         y = y0
@@ -63,6 +65,7 @@ class TerrSet( Room ):
             x += x0
             y += y0
             v.place(scene,(x,y))
+
 
 
 class BuildingSet( TerrSet ):
