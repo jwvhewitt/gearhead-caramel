@@ -109,3 +109,84 @@ Character
     combatant=True
     mecha_colors=(DarkBrown, SandyBrown, Gold, GhostGrey, Cream)
     mecha_pref="SAN-D1 Daum"
+
+Character
+    name = "Admiral Charla"
+    mnpcid = "Admiral Charla"
+    statline = {Reflexes=15, Body=12, Speed=15, Perception=15, Knowledge=16, Craft=9, Ego=13, Charm=13,
+                }
+    colors = (DeepSeaBlue, Leather, Saffron, SlateGrey, GunRed)
+    personality=[Grim, Sociable, Duty, GreenZone, Idealist]
+    portrait='card_f_admiralcharla.png'
+    gender=Female
+    job=Commander
+    renown=65
+    birth_year=107
+    combatant=False
+    mecha_colors=(DeepSeaBlue, Jade, OrangeRed, GullGrey, GunRed)
+    mecha_pref="SAN-D1 Daum"
+
+Character
+    name = "General Pinsent"
+    mnpcid = "General Pinsent"
+    statline = {Reflexes=13, Body=14, Speed=12, Perception=18, Knowledge=13, Craft=12, Ego=15, Charm=12,
+                }
+    colors = (GriffinGreen, Burlywood, Chocolate, GhostGrey, Maize)
+    personality=[Easygoing, Shy, Peace, GreenZone]
+    portrait='card_m_generalpinsent.png'
+    gender=Male
+    job=Commander
+    renown=65
+    birth_year=114
+    combatant=False
+    mecha_colors=(ArmyDrab, Olive, ElectricYellow, GullGrey, Chocolate)
+    mecha_pref="SAN-D1 Daum"
+
+Character
+    name = "Kira"
+    mnpcid = "GH1 Kira"
+    statline = {Reflexes=12, Body=13, Speed=12, Perception=9, Knowledge=12, Craft=14, Ego=17, Charm=18,
+                Cybertech=9, Medicine=5}
+    colors = (BlackRose, SandyBrown, Cyan, Gold, PirateSunrise)
+    personality=[Passionate, Sociable, Fellowship, GreenZone]
+    portrait='card_f_kira.png'
+    gender=Female
+    job=Artist
+    renown=30
+    birth_year=127
+    combatant=True
+    mecha_colors=(BlackRose, HotPink, Malachite, Black, PirateSunrise)
+    mecha_pref="SAN-D1 Daum"
+
+Character
+    name = "Britaine"
+    mnpcid = "Britaine"
+    statline = {Reflexes=15, Body=17, Speed=13, Perception=13, Knowledge=10, Craft=11, Ego=16, Charm=8}
+    colors = (Black, Alabaster, Cinnamon, FadedDenim, FreedomBlue)
+    personality=[Passionate, Grim, Justice, GreenZone]
+    portrait='card_m_britaine.png'
+    gender=Male
+    job=Commander
+    renown=85
+    birth_year=93
+    combatant=True
+    mecha_colors=(BattleshipGrey, PrussianBlue, BrightRed, WarmGrey, Black)
+    mecha_pref="SAN-D1 Daum"
+
+Character
+    name = "Jjang Bogo"
+    mnpcid = "Jjang Bogo"
+    statline = {Reflexes=18, Body=14, Speed=17, Perception=17, Knowledge=13, Craft=10, Ego=16, Charm=11,
+                Scouting=8, Negotiation=14}
+    colors = (HeavyPurple, MediumSkin, Beige, Saffron, PirateSunrise)
+    personality=[Shy, Easygoing, Glory, GreenZone]
+    portrait='card_m_jjangbogo.png'
+    gender=Male
+    job=Crimelord
+    renown=90
+    birth_year=84
+    combatant=True
+    mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
+    mecha_pref="SAN-D1 Daum"
+
+

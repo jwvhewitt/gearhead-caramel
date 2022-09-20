@@ -1,3 +1,4 @@
+* Fixed bug with SHOPS_PLUS INTERIOR_TAGS element
 * Regular terrain sets now clear the area around them, including border
 * Fixed bug with new FieldHQ modifications
 

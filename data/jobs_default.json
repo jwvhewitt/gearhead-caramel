@@ -398,6 +398,13 @@
     }
   },
   {
+    "name": "Artist",
+    "tags": ["Media"],
+    "skill_modifiers": {
+      "Concentration": 2
+    }
+  },
+  {
     "name": "Reporter",
     "skills": ["Negotiation"],
     "tags": ["Media"]

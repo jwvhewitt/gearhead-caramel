@@ -78,7 +78,7 @@ class BasicBlackMarket(Plot):
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
-            attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,)) + (
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
             scale=gears.scale.HumanScale)
 
@@ -162,7 +162,7 @@ class BasicGarage(Plot):
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
-            attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,)) + (
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE),
             scale=gears.scale.HumanScale)
 
@@ -261,7 +261,7 @@ class BasicGeneralStore(Plot):
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
-            attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,)) + (
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
             scale=gears.scale.HumanScale)
 
@@ -347,7 +347,7 @@ class BasicHospital(Plot):
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
-            attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,)) + (
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
             scale=gears.scale.HumanScale)
 
@@ -443,7 +443,7 @@ class BasicTavern(Plot):
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
-            attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,)) + (
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING, gears.tags.SCENE_CULTURE),
             scale=gears.scale.HumanScale)
 

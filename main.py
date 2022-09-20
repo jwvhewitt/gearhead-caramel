@@ -315,8 +315,8 @@ def play_the_game():
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 
-    #fname = "terrain_terrset_corsair.png"
-    #mypic = pbge.image.Image(fname, color=gears.factions.Guardians.mecha_colors)
+    #fname = "WIP_JjangBogo.png"
+    #mypic = pbge.image.Image(fname, color=(gears.color.HeavyPurple, gears.color.MediumSkin, gears.color.Beige, gears.color.Saffron, gears.color.PirateSunrise))
     #mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
     #mydest.fill((0, 0, 255))
     #mypic.render((0,0),dest_surface=mydest)

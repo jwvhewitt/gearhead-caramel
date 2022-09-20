@@ -194,6 +194,7 @@ SCENE_MINE = "MINE"  # This scene is mine. Actually it's _a_ mine. But it's stil
 SCENE_CAVE = "CAVE"  # This scene is a semi-natural underground area
 SCENE_LABORATORY = "LABORATORY"     # A science lab of some type.
 SCENE_FOREST = "FOREST"
+SCENE_VEHICLE = "VEHICLE"
 
 CITY_NAUTICAL = "NAUTICAL" # A city by the sea
 

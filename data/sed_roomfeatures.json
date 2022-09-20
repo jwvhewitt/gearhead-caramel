@@ -1,0 +1,42 @@
+[
+  {
+    "label": "ROOM_FEATURE",
+    "scripts": {
+      "plot_subplots": "+subplot WAYPOINT_{unique_id}_{_uid}\n\n",
+      "main": "class Waypoint_{unique_id}_{_uid}( Plot ):\n    LABEL = \"WAYPOINT_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
+      "scenario_build": "the_world[{WAYPOINT_UID}] = {waypoint}(name={waypoint_name}, anchor={anchor})\nthe_world[{ROOM_UID}].contents.append(the_world[{WAYPOINT_UID}])\n\n"
+    },
+    "name": "New Waypoint",
+    "display_name": "{waypoint}: {waypoint_name}",
+    "desc": "Adds a waypoint to this room.",
+    "is_new_branch": true,
+    "vars": {
+      "waypoint": {
+        "default_val": "ghwaypoints.Bookshelf",
+        "var_type": "waypoint"
+      },
+      "waypoint_name": {
+        "default_val": "",
+        "var_type": "literal"
+      },
+      "anchor": {
+        "default_val": null,
+        "var_type": "map_anchor"
+      }
+    },
+    "elements": {
+      "WAYPOINT": {
+        "e_type": "waypoint",
+        "name": "{waypoint}: {waypoint_name}"
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "WAYPOINT",
+        "parent": "ROOM"
+      }
+    ],
+    "sorting_rank": 1000,
+    "category": "WAYPOINTS"
+  }
+]

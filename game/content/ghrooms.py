@@ -4,7 +4,7 @@ import pygame
 
 from pbge.randmaps.decor import OmniDec
 from pbge.randmaps.rooms import FuzzyRoom, OpenRoom, ClumpyRoom
-from . import ghterrain
+from . import ghterrain, ghwaypoints
 import random
 
 
@@ -102,7 +102,7 @@ class BarArea(OpenRoom):
 
 class LongVehicleRoom(pbge.randmaps.rooms.Room):
     MIN_RANDOM_SIZE = 12
-    # Suggested dimensions: 16x9 or longer. Keep the height odd if possible.
+    # Suggested dimensions: 16x8 or longer. Keep the height even if possible.
 
     def build(self, gb: gears.GearHeadScene, archi):
         # Call to super just to keep PyCharm happy.
@@ -115,6 +115,7 @@ class LongVehicleRoom(pbge.randmaps.rooms.Room):
 
         self.cabin1 = pygame.Rect(0, 0, 6, 3)
         self.cabin1.midleft = self.area.midleft
+        self.cabin1.y -= 1
         gb.fill(self.cabin1, floor=archi.floor_terrain, wall=None)
         self.cabin2 = pygame.Rect(self.cabin1.x + 1, self.cabin1.y - 1, 2, 5)
         gb.fill(self.cabin2, floor=archi.floor_terrain, wall=None)
@@ -143,15 +144,16 @@ class LongVehicleRoom(pbge.randmaps.rooms.Room):
                 x_off = 1 - x_off
                 gb.set_decor(self.cabin2.x + x_off, self.cabin2.bottom - 1, ghterrain.KenneyChairSouth)
 
-        self.body_area: pygame.Rect = self.area.inflate(-4, -2)
+        self.body_area: pygame.Rect = self.area.inflate(-4, 0)
         self.body_area.x += 2
+        self.body_area.h -= 1
         # body.width -= 4
         gb.fill(self.body_area, floor=archi.floor_terrain, wall=None)
 
 
 class MobileHQRoom(LongVehicleRoom):
     MIN_RANDOM_SIZE = 12
-    # Suggested dimensions: 16x9 or longer. Keep the height odd if possible.
+    # Suggested dimensions: 16x8 or longer. Keep the height even if possible.
 
     def build(self, gb: gears.GearHeadScene, archi):
         # Call to super for the basic vehicle details.
@@ -169,3 +171,30 @@ class MobileHQRoom(LongVehicleRoom):
                 gb.set_decor(self.body_area.x + x, self.body_area.y - 1, ghterrain.VehicleControlPanel)
 
 
+class FieldHospitalRoom(LongVehicleRoom):
+    MIN_RANDOM_SIZE = 12
+    # Suggested dimensions: 16x8 or longer. Keep the height even if possible.
+
+    POSSIBLE_TANKS = (ghterrain.BiotankTerrain, ghterrain.EmptyBiotankTerrain)
+
+    def build(self, gb: gears.GearHeadScene, archi):
+        # Call to super for the basic vehicle details.
+        super().build(gb, archi)
+
+        # Stick some flotation tanks in the middle and some control panels along the top wall. Done.
+        if random.randint(1,3) != 1:
+            gb.set_decor(self.body_area.centerx - self.body_area.w//4+1, self.body_area.centery, random.choice(self.POSSIBLE_TANKS))
+            gb.set_decor(self.body_area.centerx + self.body_area.w//4+1, self.body_area.centery, random.choice(self.POSSIBLE_TANKS))
+        elif random.randint(1,5) != 5:
+            gb.set_decor(self.body_area.centerx+2, self.body_area.centery, random.choice(self.POSSIBLE_TANKS))
+
+        half_width = (self.body_area.w - 2)//2
+        medical_sign = random.randint(1,half_width-1)
+        for x in range(half_width):
+            if x == medical_sign:
+                gb.set_decor(self.body_area.x + x, self.body_area.y - 1, ghterrain.HospitalSign)
+            elif random.randint(1,5) == 3:
+                gb.set_decor(self.body_area.x + x, self.body_area.y - 1, ghterrain.VehicleControlPanel)
+
+            if x % 2 == 0:
+                mybed = ghwaypoints.Bunk(gb, (self.body_area.centerx+x, self.body_area.y))

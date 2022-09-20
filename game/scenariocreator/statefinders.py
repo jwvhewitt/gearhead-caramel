@@ -1,7 +1,7 @@
 import gears
 from gears import personality, tags
 import game
-from game.content import ghterrain, gharchitecture
+from game.content import ghterrain, gharchitecture, ghwaypoints
 from game.ghdialogue import context
 import pbge
 
@@ -136,7 +136,8 @@ SINGULAR_TYPES = {
     "map_anchor": (
         "pbge.randmaps.anchors.north", "pbge.randmaps.anchors.northeast", "pbge.randmaps.anchors.east",
         "pbge.randmaps.anchors.southeast", "pbge.randmaps.anchors.south", "pbge.randmaps.anchors.southwest",
-        "pbge.randmaps.anchors.west", "pbge.randmaps.anchors.northwest", "pbge.randmaps.anchors.middle"
+        "pbge.randmaps.anchors.west", "pbge.randmaps.anchors.northwest", "pbge.randmaps.anchors.middle",
+        "None"
     ),
     "scene_tags": (
         "gears.tags.SCENE_BUILDING", "gears.tags.SCENE_PUBLIC", "gears.tags.SCENE_SHOP", "gears.tags.SCENE_GARAGE",
@@ -146,18 +147,30 @@ SINGULAR_TYPES = {
         "personality.L5Spinners", "personality.L5DustyRing", "personality.Luna", "personality.Mars",
         "gears.tags.SCENE_SOLO", "gears.tags.SCENE_DUNGEON", "gears.tags.SCENE_SEMIPUBLIC", "gears.tags.SCENE_FACTORY",
         "gears.tags.SCENE_OUTDOORS", "gears.tags.SCENE_ARENARULES", "gears.tags.City", "gears.tags.Village",
+        "gears.tags.SCENE_VEHICLE", "gears.tags.CITY_NAUTICAL"
     ),
     "city_scene_generator": (
         "pbge.randmaps.CityGridGenerator", "pbge.randmaps.PartlyUrbanGenerator", "pbge.randmaps.SceneGenerator"
     ),
     "personal_scale_architecture": (
         "gharchitecture.HumanScaleGreenzone", "gharchitecture.HumanScaleDeadzone",
-        "gharchitecture.HumanScaleSemiDeadzone",
-        "gharchitecture.HumanScaleDeadzoneWilderness", "gharchitecture.HumanScaleForest",
-        "gharchitecture.HumanScaleUrbanDeadzone"
+        "gharchitecture.HumanScaleSemiDeadzone", "gharchitecture.HumanScaleDeadzoneWilderness",
+        "gharchitecture.HumanScaleForest", "gharchitecture.HumanScaleUrbanDeadzone"
     ),
     'terrain_set': (
         "ghterrain.CorsairTerrset",
+    ),
+    'waypoint': (
+        "ghwaypoints.Bunk", "ghwaypoints.MechEngTerminal", "ghwaypoints.AmmoBox",
+        "ghwaypoints.Biotank", "ghwaypoints.BoardingChute", "ghwaypoints.Bookshelf", "ghwaypoints.BrokenBiotank",
+        "ghwaypoints.ClosedBoardingChute", "ghwaypoints.Crate", "ghwaypoints.EarthMap", "ghwaypoints.EmptyBiotank",
+        "ghwaypoints.GoldPlaque", "ghwaypoints.HamsterCage", "ghwaypoints.Herbs", "ghwaypoints.KenneyCratesWP",
+        "ghwaypoints.KenneyWoodenTableWP", "ghwaypoints.Lockers", "ghwaypoints.OccupiedBed", "ghwaypoints.OldCrate",
+        "ghwaypoints.OldTerminal", "ghwaypoints.OldMainframe", "ghwaypoints.OrganicTube", "ghwaypoints.ParkStatueMan",
+        "ghwaypoints.PZHolo", "ghwaypoints.RecoveryBed", "ghwaypoints.RetroComputer", "ghwaypoints.ShippingShelves",
+        "ghwaypoints.Shrine", "ghwaypoints.Skeleton", "ghwaypoints.SkullTownSign", "ghwaypoints.StorageBox",
+        "ghwaypoints.TrailSign", "ghwaypoints.Trapdoor", "ghwaypoints.UlsaniteFilingCabinet",
+        "ghwaypoints.VendingMachine", "ghwaypoints.Victim", "ghwaypoints.WallMap"
     )
 }
 

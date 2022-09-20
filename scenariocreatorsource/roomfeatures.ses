@@ -1,0 +1,41 @@
+*NEW ROOM_FEATURE
+    "name": "New Waypoint",
+    "display_name": "{waypoint}: {waypoint_name}",
+    "desc": "Adds a waypoint to this room.",
+    "is_new_branch": true,
+    "vars": {
+      "waypoint": {"default_val": "ghwaypoints.Bookshelf", "var_type": "waypoint"},
+      "waypoint_name": {"default_val": "", "var_type": "literal"},
+      "anchor": {"default_val": null, "var_type": "map_anchor"}
+    },
+    "elements": {
+      "WAYPOINT": {"e_type": "waypoint", "name": "{waypoint}: {waypoint_name}"}
+    },
+    "physicals": [
+        {"element_key": "WAYPOINT", "parent": "ROOM"}
+    ],
+    "sorting_rank": 1000,
+    "category": "WAYPOINTS"
+
+*SCRIPT plot_subplots
++subplot WAYPOINT_{unique_id}_{_uid}
+
+*SCRIPT main
+class Waypoint_{unique_id}_{_uid}( Plot ):
+    LABEL = "WAYPOINT_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    #: plot_methods
+
+*SCRIPT scenario_build
+the_world[{WAYPOINT_UID}] = {waypoint}(name={waypoint_name}, anchor={anchor})
+the_world[{ROOM_UID}].contents.append(the_world[{WAYPOINT_UID}])
+

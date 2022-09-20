@@ -279,6 +279,9 @@ class GH1Loader(object):
     NPC_EVAN = "Evan GH1"
     NPC_ONAWA = "Onawa GH1"
     NPC_FORAGER = "Forager GH1"
+    NPC_BRITAINE = "Britaine"
+    NPC_KIRA = "GH1 Kira"
+    NPC_JJANGBOGO = "Jjang Bogo"
     # NPCs with dynamic CIDs:
     NPC_BEARBASTARD = "Bear Bastard"
     NPC_ERISA = "Erisa Maven I"
@@ -288,7 +291,9 @@ class GH1Loader(object):
     # The G,S for the Character ID is 5,0
     MAJOR_NPCS = {
         NPC_VIKKI: 6, NPC_HYOLEE: 1, NPC_CARTER: 1103, NPC_TURING: 1609, NPC_EVAN: 1703, NPC_ONAWA: 3913,
-        NPC_ELISHAKETTEL: 32, NPC_SKIPPY: 1306, NPC_ASPIS: 1502, NPC_KAEMA: 1506, NPC_FORAGER: 5801,
+        NPC_ELISHAKETTEL: 32, NPC_SKIPPY: 1306, NPC_ASPIS: 1502, NPC_KAEMA: 1506, NPC_FORAGER: 5801, NPC_BRITAINE: 2502,
+        NPC_KIRA: 3801, NPC_JJANGBOGO: 3601
+
     }
 
     def _extract_value(self, myline):
