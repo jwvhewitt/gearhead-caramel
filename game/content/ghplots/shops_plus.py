@@ -40,6 +40,60 @@ def get_building(plot: Plot, bclass, **kwargs):
     return mybuilding
 
 
+#   ************************
+#   ***  EMPTY_BUILDING  ***
+#   ************************
+#
+#   Want to build your own shop or service? You can use this to start with. Generates an INTERIOR scene but not
+#   a SHOPKEEPER. The building is, alas, empty.
+#
+#   Elements:
+#       LOCALE
+#   Optional:
+#       INTERIOR_NAME, INTERIOR_TAGS, CITY_COLORS, INTERIOR_FACTION, DOOR_TYPE, DOOR_SIGN, EXTERIOR_TERRSET,
+#       INTERIOR_ARCHITECTURE, INTERIOR_DECOR
+#
+
+class BasicEmptyBuilding(Plot):
+    LABEL = "EMPTY_BUILDING"
+
+    def custom_init(self, nart):
+        self.interiorname = self.elements.get("INTERIOR_NAME", "") or "Building"
+
+        # Create a building within the town.
+        mydoor = self.elements.get("DOOR_TYPE") or ghwaypoints.GlassDoor
+        building = self.register_element("_EXTERIOR", get_building(
+            self, ghterrain.IndustrialBuilding,
+            waypoints={"DOOR": mydoor(name=self.interiorname)},
+            door_sign=self.elements.get("DOOR_SIGN"),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.interiorname, player_team=team1, civilian_team=team2, faction=self.elements.get("INTERIOR_FACTION"),
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
+                gears.tags.SCENE_BUILDING,),
+            scale=gears.scale.HumanScale)
+
+        myarchi = self.elements.get("INTERIOR_ARCHITECTURE") or gharchitecture.IndustrialBuilding
+        mydecor = self.elements.get("INTERIOR_DECOR")
+        if mydecor:
+            mydecor = mydecor()
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, myarchi(decorate=mydecor))
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(
+            nart, self, self.elements["LOCALE"], intscene, room1=building,
+            room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        return True
+
+
 #   **************************
 #   ***  SHOP_BLACKMARKET  ***
 #   **************************

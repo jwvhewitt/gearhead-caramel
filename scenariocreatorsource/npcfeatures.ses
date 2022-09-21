@@ -1,0 +1,34 @@
+*NEW NPC_FEATURE
+    "name": "Add Dialogue Offer",
+    "desc": "Adds something for the NPC to say during a conversation.",
+    "vars": {
+      "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
+      "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
+      "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "subject": {"default_val": "", "var_type": "literal"},
+      "subject_start": {"default_val":  true, "var_type":  "boolean"}
+    },
+    "child_types": ["DIALOGUE_EFFECT"],
+    "sorting_rank": 4100,
+    "category": "DIALOGUE"
+
+*SCRIPT npc_offers
+mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}
+    #: dialogue_effect
+))
+
+
+
+*NEW DIALOGUE_EFFECT
+    "name": "Add Dialogue Effect",
+    "desc": "Adds an effect to a dialogue line. Note that dialogue effects are executed after the dialogue offer is made, not before.",
+    "child_types": ["EFFECT"],
+    "needs_children": true
+
+*SCRIPT dialogue_effect
+effect = self._{uname}{_uid}_effect,
+
+*SCRIPT plot_methods
+def _{uname}{_uid}_effect(self, camp):
+    #: effect
+

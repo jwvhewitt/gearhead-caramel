@@ -245,7 +245,7 @@ for t in range({num_random_lancemates}):
       "shop_faction": {"default_val":  null, "var_type": "faction"},
       "door_sign": {"default_val": null, "var_type": "door_sign"}
    },
-   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
+   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Black Market: {shop_name}"},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
@@ -254,7 +254,7 @@ for t in range({num_random_lancemates}):
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"], "child_types": ["ROOM_FEATURE"]},
-        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"], "child_types": ["NPC_FEATURE"]}
     ]
 
 *SCRIPT scenario_build
@@ -302,7 +302,7 @@ class BlackMarket_{unique_id}_{_uid}( Plot ):
       "shop_faction": {"default_val":  null, "var_type": "faction"},
       "door_sign": {"default_val": null, "var_type": "door_sign"}
    },
-  "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
+  "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "General Store: {shop_name}"},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
@@ -311,7 +311,7 @@ class BlackMarket_{unique_id}_{_uid}( Plot ):
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"], "child_types": ["ROOM_FEATURE"]},
-        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"], "child_types": ["NPC_FEATURE"]}
     ]
 
 *SCRIPT scenario_build
@@ -357,7 +357,7 @@ class GeneralStore_{unique_id}_{_uid}( Plot ):
       "shop_faction": {"default_val":  null, "var_type": "faction"},
       "door_sign": {"default_val": null, "var_type": "door_sign"}
    },
-   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
+   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Garage: {shop_name}"},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
@@ -365,8 +365,8 @@ class GeneralStore_{unique_id}_{_uid}( Plot ):
     },
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
-        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
-        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"], "child_types": ["ROOM_FEATURE"]}
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"], "child_types": ["ROOM_FEATURE"]},
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"], "child_types": ["NPC_FEATURE"]}
     ]
 
 *SCRIPT scenario_build
@@ -412,7 +412,7 @@ class Garage_{unique_id}_{_uid}( Plot ):
       "shop_faction": {"default_val":  null, "var_type": "faction"},
       "door_sign": {"default_val": null, "var_type": "door_sign"}
    },
-   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
+   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Hospital: {shop_name}"},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
@@ -421,7 +421,7 @@ class Garage_{unique_id}_{_uid}( Plot ):
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"], "child_types": ["ROOM_FEATURE"]},
-        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"], "child_types": ["NPC_FEATURE"]}
     ]
 
 *SCRIPT scenario_build
@@ -466,7 +466,7 @@ class Hospital_{unique_id}_{_uid}( Plot ):
       "room_name": {"default_val": "Foyer", "var_type": "literal"},
       "door_sign": {"default_val": null, "var_type": "door_sign"}
    },
-   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
+   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Tavern: {tavern_name}"},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
@@ -475,7 +475,7 @@ class Hospital_{unique_id}_{_uid}( Plot ):
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["tavern_name","door_sign"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"], "child_types": ["ROOM_FEATURE"]},
-        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"], "child_types": ["NPC_FEATURE"]}
     ]
 
 *SCRIPT scenario_build
@@ -521,16 +521,16 @@ class Tavern_{unique_id}_{_uid}( Plot ):
       "hall_faction": {"default_val":  null, "var_type": "faction"},
       "door_sign": {"default_val": null, "var_type": "door_sign"}
    },
-  "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
+  "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "Town Hall: {hall_name}"},
-      "ROOM": {"e_type": "room", "name": "Room: {room_name}", "child_types": ["ROOM_FEATURE"]},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Leader: {npc_name}"}
     },
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["hall_name", "hall_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
-        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"]},
-        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"]}
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"], "child_types": ["ROOM_FEATURE"]},
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"], "child_types": ["NPC_FEATURE"]}
     ],
     "singular": true
 
@@ -560,6 +560,57 @@ class TownHall_{unique_id}_{_uid}( Plot ):
         mylist = list()
         #: npc_offers
         return mylist
+
+    #: plot_methods
+
+
+
+*NEW CITY_FEATURE
+    "name": "Add Empty Building",
+    "display_name": "Building: {interior_name}",
+    "desc": "Adds an empty building to the city.",
+    "is_new_branch": true,
+    "vars": {
+      "interior_name": {"default_val": "Building", "var_type": "literal", "must_be_defined": true},
+      "interior_tags": {"default_val": ["gears.tags.SCENE_PUBLIC"], "var_type": "scene_tags"},
+      "room_name": {"default_val": "Foyer", "var_type": "literal"},
+      "interior_faction": {"default_val":  null, "var_type": "faction"},
+      "door_sign": {"default_val": null, "var_type": "door_sign"},
+      "door_type": {"default_val": "ghwaypoints.ScrapIronDoor", "var_type": "door_type", "must_be_defined": true},
+      "exterior_terrset": {"default_val": "ghterrain.BrickBuilding", "var_type": "building_terrset", "must_be_defined": true},
+      "interior_architecture": {"default_val": "gharchitecture.DefaultBuilding", "var_type": "interior_architecture", "must_be_defined": true},
+      "interior_decor": {"default_val": null, "var_type": "interior_decor"}
+   },
+  "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
+   "elements": {
+      "LOCALE": {"e_type": "scene", "name": "Building: {interior_name}"},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["interior_name", "interior_tags", "interior_faction","door_sign", "door_type", "exterior_terrset", "interior_architecture", "interior_decor"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"], "child_types": ["ROOM_FEATURE"]}
+    ]
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "EMPTY_BUILDING", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, INTERIOR_NAME={interior_name}, INTERIOR_TAGS={interior_tags}, DOOR_SIGN={door_sign}, DOOR_TYPE={door_type}, INTERIOR_FACTION={interior_faction}, EXTERIOR_TERRSET={exterior_terrset}, INTERIOR_ARCHITECTURE={interior_architecture}, INTERIOR_DECOR={interior_decor}))
++add_physical LOCALE splot.elements["INTERIOR"]
++add_physical ROOM splot.elements["FOYER"]
+
+*SCRIPT plot_init
++subplot EMPTYBUILDING_{unique_id}_{_uid}
+
+*SCRIPT main
+class EmptyBuilding_{unique_id}_{_uid}( Plot ):
+    LABEL = "EMPTYBUILDING_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
 
     #: plot_methods
 
@@ -597,6 +648,8 @@ splot = self.add_sub_plot(nart, "MILITARY_TENT", elements=dict(LOCALE=the_world[
 *SCRIPT main
 class MilitaryTent_{unique_id}_{_uid}( Plot ):
     LABEL = "MILTENT_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
 
     def custom_init( self, nart ):
         +init_plot
@@ -640,6 +693,8 @@ splot = self.add_sub_plot(nart, "MOBILE_HQ", elements=dict(LOCALE=the_world[{MET
 *SCRIPT main
 class MobileHQ_{unique_id}_{_uid}( Plot ):
     LABEL = "MOBILEHQ_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
 
     def custom_init( self, nart ):
         +init_plot
@@ -663,11 +718,11 @@ class MobileHQ_{unique_id}_{_uid}( Plot ):
       "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
       "hq_faction": {"default_val":  null, "var_type": "faction"}
    },
-  "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
+  "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
       "LOCALE": {"e_type": "scene", "name": "FHospital: {hq_name}", "child_types": ["SCENE_FEATURE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}", "child_types": ["ROOM_FEATURE"]},
-      "NPC": {"e_type": "npc", "name": "Medic: {npc_name}"}
+      "NPC": {"e_type": "npc", "name": "Medic: {npc_name}", "child_types": ["NPC_FEATURE"]}
     },
     "physicals": [
         {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["hq_name", "hq_faction"], "child_types": ["SCENE_FEATURE"]},
@@ -687,6 +742,8 @@ splot = self.add_sub_plot(nart, "FIELD_HOSPITAL", elements=dict(LOCALE=the_world
 *SCRIPT main
 class MobileHQ_{unique_id}_{_uid}( Plot ):
     LABEL = "FIELDHOSPITAL_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
 
     def custom_init( self, nart ):
         +init_plot

@@ -512,7 +512,7 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return StringIdentifierVariable(default_val, **kwargs)
     elif var_type == "campaign_variable":
         return CampaignVariableVariable(default_val, **kwargs)
-    elif var_type in ("faction", "scene", "npc", "world_map"):
+    elif var_type in ("faction", "scene", "npc", "world_map", "job"):
         return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.LIST_TYPES:
         return FiniteStateListVariable(default_val, var_type, **kwargs)

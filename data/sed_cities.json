@@ -348,7 +348,8 @@
     },
     "child_types": [
       "SCENE_FEATURE",
-      "ROOM_FEATURE"
+      "ROOM_FEATURE",
+      "NPC_FEATURE"
     ],
     "elements": {
       "LOCALE": {
@@ -395,6 +396,9 @@
         "parent": "ROOM",
         "variable_keys": [
           "npc_name"
+        ],
+        "child_types": [
+          "NPC_FEATURE"
         ]
       }
     ]
@@ -436,7 +440,8 @@
     },
     "child_types": [
       "SCENE_FEATURE",
-      "ROOM_FEATURE"
+      "ROOM_FEATURE",
+      "NPC_FEATURE"
     ],
     "elements": {
       "LOCALE": {
@@ -483,6 +488,9 @@
         "parent": "ROOM",
         "variable_keys": [
           "npc_name"
+        ],
+        "child_types": [
+          "NPC_FEATURE"
         ]
       }
     ]
@@ -524,7 +532,8 @@
     },
     "child_types": [
       "SCENE_FEATURE",
-      "ROOM_FEATURE"
+      "ROOM_FEATURE",
+      "NPC_FEATURE"
     ],
     "elements": {
       "LOCALE": {
@@ -561,6 +570,9 @@
         "parent": "LOCALE",
         "variable_keys": [
           "room_name"
+        ],
+        "child_types": [
+          "ROOM_FEATURE"
         ]
       },
       {
@@ -570,7 +582,7 @@
           "npc_name"
         ],
         "child_types": [
-          "ROOM_FEATURE"
+          "NPC_FEATURE"
         ]
       }
     ]
@@ -612,7 +624,8 @@
     },
     "child_types": [
       "SCENE_FEATURE",
-      "ROOM_FEATURE"
+      "ROOM_FEATURE",
+      "NPC_FEATURE"
     ],
     "elements": {
       "LOCALE": {
@@ -659,6 +672,9 @@
         "parent": "ROOM",
         "variable_keys": [
           "npc_name"
+        ],
+        "child_types": [
+          "NPC_FEATURE"
         ]
       }
     ]
@@ -696,7 +712,8 @@
     },
     "child_types": [
       "SCENE_FEATURE",
-      "ROOM_FEATURE"
+      "ROOM_FEATURE",
+      "NPC_FEATURE"
     ],
     "elements": {
       "LOCALE": {
@@ -739,6 +756,9 @@
         "parent": "ROOM",
         "variable_keys": [
           "npc_name"
+        ],
+        "child_types": [
+          "NPC_FEATURE"
         ]
       }
     ]
@@ -780,7 +800,8 @@
     },
     "child_types": [
       "SCENE_FEATURE",
-      "ROOM_FEATURE"
+      "ROOM_FEATURE",
+      "NPC_FEATURE"
     ],
     "elements": {
       "LOCALE": {
@@ -789,10 +810,7 @@
       },
       "ROOM": {
         "e_type": "room",
-        "name": "Room: {room_name}",
-        "child_types": [
-          "ROOM_FEATURE"
-        ]
+        "name": "Room: {room_name}"
       },
       "NPC": {
         "e_type": "npc",
@@ -817,6 +835,9 @@
         "parent": "LOCALE",
         "variable_keys": [
           "room_name"
+        ],
+        "child_types": [
+          "ROOM_FEATURE"
         ]
       },
       {
@@ -824,6 +845,9 @@
         "parent": "ROOM",
         "variable_keys": [
           "npc_name"
+        ],
+        "child_types": [
+          "NPC_FEATURE"
         ]
       }
     ],
@@ -832,9 +856,108 @@
   {
     "label": "CITY_FEATURE",
     "scripts": {
+      "scenario_build": "splot = self.add_sub_plot(nart, \"EMPTY_BUILDING\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, INTERIOR_NAME={interior_name}, INTERIOR_TAGS={interior_tags}, DOOR_SIGN={door_sign}, DOOR_TYPE={door_type}, INTERIOR_FACTION={interior_faction}, EXTERIOR_TERRSET={exterior_terrset}, INTERIOR_ARCHITECTURE={interior_architecture}, INTERIOR_DECOR={interior_decor}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
+      "plot_init": "+subplot EMPTYBUILDING_{unique_id}_{_uid}\n\n",
+      "main": "class EmptyBuilding_{unique_id}_{_uid}( Plot ):\n    LABEL = \"EMPTYBUILDING_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
+    },
+    "name": "Add Empty Building",
+    "display_name": "Building: {interior_name}",
+    "desc": "Adds an empty building to the city.",
+    "is_new_branch": true,
+    "vars": {
+      "interior_name": {
+        "default_val": "Building",
+        "var_type": "literal",
+        "must_be_defined": true
+      },
+      "interior_tags": {
+        "default_val": [
+          "gears.tags.SCENE_PUBLIC"
+        ],
+        "var_type": "scene_tags"
+      },
+      "room_name": {
+        "default_val": "Foyer",
+        "var_type": "literal"
+      },
+      "interior_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      },
+      "door_sign": {
+        "default_val": null,
+        "var_type": "door_sign"
+      },
+      "door_type": {
+        "default_val": "ghwaypoints.ScrapIronDoor",
+        "var_type": "door_type",
+        "must_be_defined": true
+      },
+      "exterior_terrset": {
+        "default_val": "ghterrain.BrickBuilding",
+        "var_type": "building_terrset",
+        "must_be_defined": true
+      },
+      "interior_architecture": {
+        "default_val": "gharchitecture.DefaultBuilding",
+        "var_type": "interior_architecture",
+        "must_be_defined": true
+      },
+      "interior_decor": {
+        "default_val": null,
+        "var_type": "interior_decor"
+      }
+    },
+    "child_types": [
+      "SCENE_FEATURE",
+      "ROOM_FEATURE"
+    ],
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "Building: {interior_name}"
+      },
+      "ROOM": {
+        "e_type": "room",
+        "name": "Room: {room_name}"
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "METROSCENE",
+        "variable_keys": [
+          "interior_name",
+          "interior_tags",
+          "interior_faction",
+          "door_sign",
+          "door_type",
+          "exterior_terrset",
+          "interior_architecture",
+          "interior_decor"
+        ],
+        "child_types": [
+          "SCENE_FEATURE"
+        ]
+      },
+      {
+        "element_key": "ROOM",
+        "parent": "LOCALE",
+        "variable_keys": [
+          "room_name"
+        ],
+        "child_types": [
+          "ROOM_FEATURE"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "CITY_FEATURE",
+    "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"MILITARY_TENT\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], TENT_NAME={tent_name}, TENT_FACTION={tent_faction}, INTERIOR_TAGS={scene_attributes}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
       "plot_init": "+subplot MILTENT_{unique_id}_{_uid}\n\n",
-      "main": "class MilitaryTent_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MILTENT_{unique_id}_{_uid}\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
+      "main": "class MilitaryTent_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MILTENT_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Military Tent",
     "display_name": "Tent: {tent_name}",
@@ -905,7 +1028,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"MOBILE_HQ\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], HQ_NAME={hq_name}, HQ_FACTION={hq_faction}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
       "plot_init": "+subplot MOBILEHQ_{unique_id}_{_uid}\n\n",
-      "main": "class MobileHQ_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MOBILEHQ_{unique_id}_{_uid}\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
+      "main": "class MobileHQ_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MOBILEHQ_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Mobile HQ",
     "display_name": "HQ: {hq_name}",
@@ -969,7 +1092,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"FIELD_HOSPITAL\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], HQ_NAME={hq_name}, HQ_FACTION={hq_faction}, NPC_NAME={npc_name}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n+add_physical NPC splot.elements[\"MEDIC\"]\n\n",
       "plot_init": "+subplot FIELDHOSPITAL_{unique_id}_{_uid}\n\n",
-      "main": "class MobileHQ_{unique_id}_{_uid}( Plot ):\n    LABEL = \"FIELDHOSPITAL_{unique_id}_{_uid}\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n"
+      "main": "class MobileHQ_{unique_id}_{_uid}( Plot ):\n    LABEL = \"FIELDHOSPITAL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n"
     },
     "name": "Add Field Hospital",
     "display_name": "FHospital: {hq_name}",
@@ -997,7 +1120,8 @@
     },
     "child_types": [
       "SCENE_FEATURE",
-      "ROOM_FEATURE"
+      "ROOM_FEATURE",
+      "NPC_FEATURE"
     ],
     "elements": {
       "LOCALE": {
@@ -1016,7 +1140,10 @@
       },
       "NPC": {
         "e_type": "npc",
-        "name": "Medic: {npc_name}"
+        "name": "Medic: {npc_name}",
+        "child_types": [
+          "NPC_FEATURE"
+        ]
       }
     },
     "physicals": [

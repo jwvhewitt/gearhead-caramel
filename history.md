@@ -1,3 +1,5 @@
+v0.930 September 21 2022
+* Working on new scenario "Raid on Pirate's Point"
 * Fixed bug with SHOPS_PLUS INTERIOR_TAGS element
 * Regular terrain sets now clear the area around them, including border
 * Fixed bug with new FieldHQ modifications

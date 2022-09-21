@@ -89,9 +89,6 @@ LIST_TYPES = {
         "TavernSign1", "CafeSign1", "MechaModelSign", "SkullWallSign", "JollyRogerSign", "AegisLogoSign",
         "SolarNavyLogoSign"
     ),
-    "door_type": (
-        "ScrapIronDoor", "GlassDoor", "ScreenDoor", "WoodenDoor"
-    ),
     "objectives": (
         game.content.ghplots.missionbuilder.BAMO_AID_ALLIED_FORCES,
         game.content.ghplots.missionbuilder.BAMO_CAPTURE_THE_MINE,
@@ -133,6 +130,11 @@ SINGULAR_TYPES = {
         "tags.Adventurer", "tags.CorporateWorker", "tags.Craftsperson", "tags.Criminal", "tags.Faithworker",
         "tags.Laborer", "tags.Media", "tags.Medic", "tags.Merchant", "tags.Military", "tags.Police", "tags.Politician"
     ),
+    "personality_types": (
+        "personality.Cheerful", "personality.Grim", "personality.Easygoing", "personality.Passionate",
+        "personality.Sociable", "personality.Shy", "personality.Justice", "personality.Peace", "personality.Glory",
+        "personality.Duty", "personality.Fellowship"
+    ),
     "map_anchor": (
         "pbge.randmaps.anchors.north", "pbge.randmaps.anchors.northeast", "pbge.randmaps.anchors.east",
         "pbge.randmaps.anchors.southeast", "pbge.randmaps.anchors.south", "pbge.randmaps.anchors.southwest",
@@ -171,7 +173,31 @@ SINGULAR_TYPES = {
         "ghwaypoints.Shrine", "ghwaypoints.Skeleton", "ghwaypoints.SkullTownSign", "ghwaypoints.StorageBox",
         "ghwaypoints.TrailSign", "ghwaypoints.Trapdoor", "ghwaypoints.UlsaniteFilingCabinet",
         "ghwaypoints.VendingMachine", "ghwaypoints.Victim", "ghwaypoints.WallMap"
+    ),
+    "door_type": (
+        "ghwaypoints.ScrapIronDoor", "ghwaypoints.GlassDoor", "ghwaypoints.ScreenDoor", "ghwaypoints.WoodenDoor",
+    ),
+    "building_terrset": (
+        "ghterrain.BrickBuilding", "ghterrain.IndustrialBuilding", "ghterrain.CommercialBuilding",
+        "ghterrain.ConcreteBuilding", "ghterrain.ResidentialBuilding", "ghterrain.ScrapIronBuilding"
+    ),
+    "interior_architecture": (
+        "gharchitecture.IndustrialBuilding", "gharchitecture.CommercialBuilding", "gharchitecture.ResidentialBuilding",
+        "gharchitecture.HospitalBuilding", "gharchitecture.TentArchitecture", "gharchitecture.DefaultBuilding",
+        "gharchitecture.EarthCave", "gharchitecture.FactoryBuilding", "gharchitecture.FortressBuilding",
+        "gharchitecture.OrganicBuilding", "gharchitecture.ScrapIronWorkshop", "gharchitecture.StoneBuilding",
+        "gharchitecture.StoneCave", "gharchitecture.VehicleArchitecture"
+    ),
+    "interior_decor": (
+        "gharchitecture.DungeonDecor", "gharchitecture.FactoryDecor", "gharchitecture.DefiledFactoryDecor",
+        "gharchitecture.CheeseShopDecor", "gharchitecture.BunkerDecor", "gharchitecture.CaveDecor",
+        "gharchitecture.ColumnsDecor", "gharchitecture.MysteryDungeonDecor", "gharchitecture.OfficeDecor",
+        "gharchitecture.ResidentialDecor", "gharchitecture.OrganicStructureDecor", "gharchitecture.ResidentialDecor",
+        "gharchitecture.RundownChemPlantDecor", "gharchitecture.RundownFactoryDecor",
+        "gharchitecture.StorageRoomDecor", "gharchitecture.TechDungeonDecor", "gharchitecture.ToxicCaveDecor",
+        "gharchitecture.StoneUndercityDecor", "gharchitecture.UlsaniteOfficeDecor", "None"
     )
+
 }
 
 TERRAIN_TYPES = {
@@ -232,6 +258,8 @@ def get_possible_states(part, category: str):
         return [(a.__name__, "ghterrain.{}".format(a.__name__)) for a in TERRAIN_TYPES[category[8:]]]
     elif category == "world_map":
         return find_world_maps(part)
+    elif category == "job":
+        return list((k, "gears.jobs.ALL_JOBS['{}']".format(k)) for k in gears.jobs.ALL_JOBS.keys()) + [("None", None),]
     else:
         return find_elements(part, category)
 

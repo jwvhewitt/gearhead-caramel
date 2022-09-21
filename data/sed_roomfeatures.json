@@ -4,7 +4,7 @@
     "scripts": {
       "plot_subplots": "+subplot WAYPOINT_{unique_id}_{_uid}\n\n",
       "main": "class Waypoint_{unique_id}_{_uid}( Plot ):\n    LABEL = \"WAYPOINT_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
-      "scenario_build": "the_world[{WAYPOINT_UID}] = {waypoint}(name={waypoint_name}, anchor={anchor})\nthe_world[{ROOM_UID}].contents.append(the_world[{WAYPOINT_UID}])\n\n"
+      "scenario_build": "the_world[{WAYPOINT_UID}] = {waypoint}(name={waypoint_name}, anchor={anchor})\nthe_world[{ROOM_UID}].contents.append(the_world[{WAYPOINT_UID}])\n\n\n\n"
     },
     "name": "New Waypoint",
     "display_name": "{waypoint}: {waypoint_name}",
@@ -38,5 +38,50 @@
     ],
     "sorting_rank": 1000,
     "category": "WAYPOINTS"
+  },
+  {
+    "label": "ROOM_FEATURE",
+    "scripts": {
+      "plot_subplots": "+subplot NPC_{unique_id}_{_uid}\n\n",
+      "main": "class NonPlayerCharacter_{unique_id}_{_uid}( Plot ):\n    LABEL = \"NPC_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n",
+      "scenario_build": "the_world[{NPC_UID}] = gears.selector.random_character(self.rank, local_tags=the_world[{METROSCENE_UID}].attributes, camp=nart.camp, name={npc_name}, job={npc_job}, faction={npc_faction})\nthe_world[{ROOM_UID}].contents.append(the_world[{NPC_UID}])\n\n"
+    },
+    "name": "New NPC",
+    "display_name": "NPC: {npc_name}",
+    "desc": "Adds an NPC to this room.",
+    "is_new_branch": true,
+    "vars": {
+      "npc_name": {
+        "default_val": "",
+        "var_type": "literal",
+        "tooltip": "Leave blank for random name"
+      },
+      "npc_job": {
+        "default_val": null,
+        "var_type": "job",
+        "tooltip": "Set None for random job"
+      },
+      "npc_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      }
+    },
+    "elements": {
+      "NPC": {
+        "e_type": "npc",
+        "name": "NPC: {npc_name}"
+      }
+    },
+    "child_types": [
+      "NPC_FEATURE"
+    ],
+    "physicals": [
+      {
+        "element_key": "NPC",
+        "parent": "ROOM"
+      }
+    ],
+    "sorting_rank": 1000,
+    "category": "NPCS"
   }
 ]
