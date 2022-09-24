@@ -347,3 +347,90 @@ class PackedBuildingGenerator(SceneGenerator):
         path = scenes.animobs.get_line(x1, y1, x2, y2)
         for p in path:
             archi.draw_fuzzy_ground(gb, p[0], p[1])
+
+
+class HallwayBuildingGenerator(SceneGenerator):
+    def __init__(self, myscene, archi, hall_terrain, **kwargs):
+        super().__init__(myscene, archi, **kwargs)
+        self.hall_terrain = hall_terrain
+
+    def divide(self, myrect: pygame.Rect):
+        if myrect.w >= 19 and (random.randint(1,2) == 1 or myrect.h < 19):
+            # Divide horizontally.
+            x = random.randint(7, myrect.w-12)
+            self.gb.fill(pygame.Rect(myrect.x+1, myrect.y, 3, myrect.h), floor=self.hall_terrain, wall=None)
+            return self.divide(pygame.Rect(myrect.x, myrect.y, x, myrect.h)) + \
+                   self.divide(pygame.Rect(myrect.x+x+5, myrect.y, myrect.w-x-5, myrect.h))
+
+        elif myrect.h >= 19:
+            # Divide vertically.
+            y = random.randint(7, myrect.h-12)
+            self.gb.fill(pygame.Rect(myrect.x, myrect.y+y, myrect.w, 3), floor=self.hall_terrain, wall=None)
+            return self.divide(pygame.Rect(myrect.x, myrect.y, myrect.w, y)) + \
+                   self.divide(pygame.Rect(myrect.x, myrect.y+y+5, myrect.w, myrect.h-y-5))
+
+        else:
+            # No divisions possible.
+            return [myrect]
+
+    def connect_to_hallway(self, myrect: pygame.Rect):
+        possible_exits = list()
+        for x in range(myrect.left+1, myrect.right):
+            if self.gb.on_the_map(x, myrect.top-2) and not self.gb.get_wall(x, myrect.top-2):
+                possible_exits.append((x, myrect.top-1))
+            if self.gb.on_the_map(x, myrect.bottom+2) and not self.gb.get_wall(x, myrect.bottom+2):
+                possible_exits.append((x, myrect.bottom+1))
+        for y in range(myrect.top+1, myrect.bottom):
+            if self.gb.on_the_map(myrect.left-2, y) and not self.gb.get_wall(myrect.left-2, y):
+                possible_exits.append((myrect.left-1, y))
+            if self.gb.on_the_map(myrect.right+2, y) and not self.gb.get_wall(myrect.right+2, y):
+                possible_exits.append((myrect.right+1, y))
+        if possible_exits:
+            e = random.choice(possible_exits)
+            self.archi.place_a_door(self.gb, *e)
+            if random.randint(1,2) == 1:
+                e2 = random.choice(possible_exits)
+                if abs(e[0] - e2[0]) + abs(e[1] - e2[1]) > 3:
+                    self.archi.place_a_door(self.gb, *e2)
+        else:
+            print("ERROR: No possible exits found for a room!")
+
+    def arrange_contents(self, gb):
+        # Step Two: Arrange subcomponents within this area.
+        # Because this is a special map type, we're gonna play by our own rules.
+        closed_area = list()
+        # Pre-placed rooms? Don't exist.
+        for r in self.contents:
+            if hasattr(r, "area") and r.area:
+                r.area = None
+
+        # Step two- lay out the rooms first.
+        rooms = self.divide(self.area.inflate(-2,-2))
+
+        # Rooms with defined anchors? Do exist. Stick them in the closest room possible.
+        for r in self.contents:
+            if hasattr(r, "anchor") and r.anchor and hasattr(r, "area"):
+                myrect = pygame.Rect(0, 0, r.width, r.height)
+                r.anchor(self.area, myrect)
+                for rarea in rooms:
+                    if rarea.colliderect(myrect):
+                        r.area = rarea
+                        closed_area.append(rarea)
+                        rooms.remove(rarea)
+                        self.connect_to_hallway(rarea)
+                        break
+
+        # Assign areas for unplaced rooms.
+        for r in self.contents:
+            if hasattr(r, "area") and not r.area:
+                if rooms:
+                    myblock = random.choice(rooms)
+                    rooms.remove(myblock)
+                    r.area = myblock
+                    self.connect_to_hallway(myblock)
+                else:
+                    raise rooms.RoomError(
+                        "ROOM ERROR: {}:{} has no block for {}".format(str(self), str(self.__class__), str(r)))
+
+    def connect_contents(self, gb, archi):
+        pass

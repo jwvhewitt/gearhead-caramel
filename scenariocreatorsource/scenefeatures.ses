@@ -27,3 +27,49 @@ def LOCALE_ENTER(self, camp):
 self.elements["LOCALE"].contents.append({decor}())
 
 
+
+*NEW SCENE_FEATURE
+    "name": "New Room",
+    "display_name": "Room: {room_name}",
+    "desc": "Adds a room to this scene. Note that in GHC, a room can be any rectangular area of the map.",
+    "is_new_branch": true,
+    "vars": {
+      "room_name": {"default_val": "", "var_type": "literal"},
+      "room": {"default_val": "pbge.randmaps.rooms.FuzzyRoom", "var_type": "room"},
+      "anchor": {"default_val": "None", "var_type": "map_anchor"},
+      "decor": {"default_val": "None", "var_type": "interior_decor"}
+    },
+    "child_types": ["ROOM_FEATURE"],
+    "elements": {
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}", "child_types": ["ROOM_FEATURE"]}
+          },
+    "physicals": [
+        {"element_key": "ROOM", "parent": "LOCALE", "child_types": ["ROOM_FEATURE"]}
+    ],
+    "sorting_rank": 1000,
+    "category": "ROOMS"
+
+*SCRIPT plot_subplots
++subplot ROOM_{unique_id}_{_uid}
+
+*SCRIPT main
+class Room_{unique_id}_{_uid}( Plot ):
+    LABEL = "ROOM_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    #: plot_methods
+
+*SCRIPT scenario_build
+the_world[{ROOM_UID}] = {room}(name={room_name}, anchor={anchor}, decorate={decor})
+the_world[{LOCALE_UID}].contents.append(the_world[{ROOM_UID}])
+

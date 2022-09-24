@@ -37,6 +37,7 @@ from .shops_plus import get_building
 # - DEFENSE_FACTION may be passed if you want to set a specific defense faction.
 # - A CITY_COLORS element may be passed; if it exists, a custom palette will be used for building exteriors.
 # - NOT_METRO_LEADER = set this element to True if you don't want the Leader set as Metro leader
+# - DOOR_SIGN = set the door sign to this
 
 class BasicTownHall(Plot):
     LABEL = "TOWNHALL"
@@ -64,7 +65,7 @@ class BasicTownHall(Plot):
         building = self.register_element("_EXTERIOR", get_building(
             self, ghterrain.BrickBuilding,
             waypoints={"DOOR": ghwaypoints.GlassDoor(name=self._hallname)},
-            door_sign=(ghterrain.GoldTownHallSignEast, ghterrain.GoldTownHallSignSouth),
+            door_sign=self.elements.get("DOOR_SIGN") or (ghterrain.GoldTownHallSignEast, ghterrain.GoldTownHallSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
                                          dident="LOCALE")
 
@@ -106,6 +107,9 @@ class BasicTownHall(Plot):
                     myfac = random.choice(candidates)
             if hasattr(bossfac, "parent_faction"):
                 bossfac = bossfac.parent_faction
+                print(bossfac, bossfac.parent_faction)
+            else:
+                bossfac = None
         return myfac or hallfaction
 
     def _get_leader_job(self, hallfaction):

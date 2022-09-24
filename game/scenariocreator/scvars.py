@@ -108,6 +108,24 @@ class FiniteStateVariable(BaseVariableDefinition):
 
         return myerrors
 
+class MajorNPCIDVariable(FiniteStateVariable):
+    DEFAULT_VAR_TYPE = "major_npc_id"
+    WIDGET_TYPE = varwidgets.FiniteStateEditorWidget
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+
+        if not myerrors:
+            for bp in part.get_all_blueprints():
+                if bp is not part:
+                    for k,v in bp.brick.vars.items():
+                        if v.var_type == self.DEFAULT_VAR_TYPE and bp.raw_vars[k] == part.raw_vars[key]:
+                            myerrors.append("Error: Major NPC {} is used twice.".format(v))
+                            break
+        return myerrors
+
+
 class DoorSignVariable(BaseVariableDefinition):
     DEFAULT_VAR_TYPE = "door_sign"
     WIDGET_TYPE = varwidgets.FiniteStateEditorWidget
@@ -118,7 +136,7 @@ class DoorSignVariable(BaseVariableDefinition):
         my_names_and_states = statefinders.get_possible_states(part, part.brick.vars[key].var_type)
         mystates = [a[1] for a in my_names_and_states]
         mystates.append(None)
-        myval = part.get_ultra_vars().get(key, "")
+        myval = part.raw_vars.get(key, "")
         if myval not in mystates:
             myerrors.append("Variable {} in {} has unknown value {}".format(key, part, myval))
 
@@ -126,8 +144,8 @@ class DoorSignVariable(BaseVariableDefinition):
 
     @staticmethod
     def format_for_python(value):
-        if value:
-            return "(ghterrain.{}East, ghterrain.{}South)"
+        if value and value != "None":
+            return "(ghterrain.{0}East, ghterrain.{0}South)".format(value)
         else:
             return None
 
@@ -548,6 +566,8 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return WorldMapDataVariable(default_val, **kwargs)
     elif var_type == "starting_point":
         return StartingPointVariable(default_val, **kwargs)
+    elif var_type == "major_npc_id":
+        return MajorNPCIDVariable(default_val, **kwargs)
     else:
         if var_type != "string":
             print("Unknown variable type {}; defaulting to string.".format(var_type))

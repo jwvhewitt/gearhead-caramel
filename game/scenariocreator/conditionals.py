@@ -1,9 +1,36 @@
 # conditional format: [expression], boolop, [expression]...
+from . import statefinders
 
 
 CONDITIONAL_BOOL_OPS = ("and", "or", "and not", "or not")
 CONDITIONAL_EXPRESSION_OPS = ("<", "<=", "==", "!=", ">=", ">")
 CONDITIONAL_VALUE_TYPES = ("integer", "campaign variable")
+
+
+class CVFParam:
+    def __init__(self, pname, ptype="integer"):
+        self.pname = pname
+        self.ptype = ptype
+
+    def validate_value(self, part, value):
+        if self.ptype == "integer":
+            return isinstance(value, int)
+        else:
+            return statefinders.is_legal_state(part, self.ptype, value)
+
+
+class ConditionalValueFunction:
+    def __init__(self, fun_pattern, fun_params=()):
+        self.fun_pattern = fun_pattern
+        self.fun_params = tuple(fun_params)
+
+    def build(self, *args):
+        return self.fun_pattern.format(*args)
+
+
+CONDITIONAL_VALUE_FUNCTIONS = {
+    "credits": ConditionalValueFunction("camp.credits")
+}
 
 
 class ConditionalFunctionDefinition(object):
@@ -27,6 +54,8 @@ def get_conditional_value(vallist):
         return str(vallist[1])
     elif val_type == "campaign variable":
         return "camp.campdata.get({}, 0)".format(repr(vallist[1]))
+    elif val_type in CONDITIONAL_VALUE_FUNCTIONS:
+        return CONDITIONAL_VALUE_FUNCTIONS[val_type].build(*vallist)
 
 
 def build_conditional(rawlist):

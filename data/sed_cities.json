@@ -3,7 +3,7 @@
     "label": "CITY",
     "scripts": {
       "plot_subplots": "+subplot CITY_{unique_id}_{_uid}\n\n",
-      "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"METRO\"] = self.elements[\"LOCALE\"].metrodat\n        if {entrance_world_map}:\n            edge_params = {entrance_world_map_data.edge_params}\n            for e in edge_params:\n                nart.camp.campdata[{entrance_world_map}].connect_entrance_to_entrance(self.elements[\"MISSION_GATE\"], **e)\n\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        +subplot CF_METROSCENE_RECOVERY_HANDLER\n        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER\n\n        if {allow_random_plots}:\n            +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER\n\n        return True\n\n    #: plot_methods\n\n",
+      "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"METRO\"] = self.elements[\"LOCALE\"].metrodat\n        if {entrance_world_map}:\n            edge_params = {entrance_world_map_data.edge_params}\n            for e in edge_params:\n                nart.camp.campdata[{entrance_world_map}].connect_entrance_to_entrance(self.elements[\"MISSION_GATE\"], **e)\n\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        +subplot CF_METROSCENE_RECOVERY_HANDLER\n        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER\n\n        if {allow_random_plots}:\n            +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER\n\n        return True\n\n    #: plot_methods\n\n",
       "scenario_build": "# Build the city here, store it in the_world\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(\n    50, 50, \"{city_name}\", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,\n    faction={city_faction}, attributes={city_attributes},\n    exploration_music={exploration_music}, combat_music={combat_music}\n)\n\n# Create a scene generator\nmyscenegen = {scene_generator}(\n    myscene, {scene_architecture}(floor_terrain={floor_terrain}), road_terrain={road_terrain}\n)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"_CITY_{_uid}\")\nthe_world[{LOCALE_UID}] = myscene\n\n# Create the entry/exit point.\nmyroom = self.register_element(\n    \"_ENTRY_ROOM_{_uid}\", pbge.randmaps.rooms.Room(3, 3, anchor={entrance_anchor}),\n    dident=\"_CITY_{_uid}\"\n)\n\nmygate = self.register_element(\n    \"_MISSION_GATE_{_uid}\", Exit(name=\"{entrance_name}\", desc={entrance_desc},\n    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident=\"_ENTRY_ROOM_{_uid}\"\n)\n\nthe_world[{MISSION_GATE_UID}] = mygate\n\nif {entrance_world_map}:\n    nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)\n    mynode = campfeatures.WorldMapNode(destination=myscene, entrance=mygate, {entrance_world_map_data.node_params})\n    nart.camp.campdata[{entrance_world_map}].add_node(mynode, {entrance_world_map_data.node_pos})\n\n\n\n"
     },
     "name": "New Metro Scene",
@@ -148,7 +148,7 @@
     "label": "CITY",
     "scripts": {
       "plot_subplots": "+subplot CITY_{unique_id}_{_uid}\n\n",
-      "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"METRO\"] = self.elements[\"LOCALE\"].metrodat\n        if {entrance_world_map}:\n            edge_params = {entrance_world_map_data.edge_params}\n            for e in edge_params:\n                nart.camp.campdata[{entrance_world_map}].connect_entrance_to_entrance(self.elements[\"MISSION_GATE\"], **e)\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        +subplot CF_METROSCENE_RECOVERY_HANDLER\n        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER\n\n        if {allow_random_plots}:\n            +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER\n\n        return True\n\n    #: plot_methods\n\n",
+      "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"METRO\"] = self.elements[\"LOCALE\"].metrodat\n        if {entrance_world_map}:\n            edge_params = {entrance_world_map_data.edge_params}\n            for e in edge_params:\n                nart.camp.campdata[{entrance_world_map}].connect_entrance_to_entrance(self.elements[\"MISSION_GATE\"], **e)\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        +subplot CF_METROSCENE_RECOVERY_HANDLER\n        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER\n\n        if {allow_random_plots}:\n            +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER\n\n        return True\n\n    #: plot_methods\n\n",
       "scenario_build": "# Build the city here, store it in the_world\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(\n    50, 60, \"{city_name}\", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,\n    faction={city_faction}, attributes={city_attributes},\n    exploration_music={exploration_music}, combat_music={combat_music}\n)\n\n# Create a scene generator\nmyroom = pbge.randmaps.rooms.Room(40,25)\nmyroom.area = pygame.Rect(5,10,40,25)\nmyscenegen = pbge.randmaps.PartlyUrbanGenerator(\n    myscene, game.content.gharchitecture.HumanScaleGreenzone(prepare=pbge.randmaps.prep.GradientPrep([[{city_terrain},40],[{beach_terrain},15],[{water_terrain},5]]),\n                                                             mutate=pbge.randmaps.mutator.CellMutator(),\n                                                             wall_converter=pbge.randmaps.converter.WallOnlyOnFloorConverter(ghterrain.Bushes, {city_terrain})),\n    road_terrain={road_terrain},\n    urban_area=myroom\n)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"_CITY_{_uid}\")\n\nthe_world[{LOCALE_UID}] = myscene\n\n# Create the entry/exit point.\nmyroom = self.register_element(\n    \"_ENTRY_ROOM_{_uid}\", pbge.randmaps.rooms.Room(50, 10),\n    dident=\"_CITY_{_uid}\"\n)\nmyroom.area = pygame.Rect(0,40,50,10)\n\n+add_physical ROOM myroom\n\nmygate = self.register_element(\n    \"_MISSION_GATE_{_uid}\", Exit(name=\"{entrance_name}\", desc={entrance_desc},\n    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident=\"_ENTRY_ROOM_{_uid}\"\n)\n\nthe_world[{MISSION_GATE_UID}] = mygate\n\nif {entrance_world_map}:\n    nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)\n    mynode = campfeatures.WorldMapNode(destination=myscene, entrance=mygate, {entrance_world_map_data.node_params})\n    nart.camp.campdata[{entrance_world_map}].add_node(mynode, {entrance_world_map_data.node_pos})\n\n\n\n\n"
     },
     "name": "New Beachfront Metro Scene",
@@ -316,7 +316,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(\n    nart, \"SHOP_BLACKMARKET\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}, DOOR_SIGN={door_sign})\n)\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n+add_physical NPC splot.elements[\"SHOPKEEPER\"]\n\n",
       "plot_init": "+subplot BLACKMARKET_{unique_id}_{_uid}\n\n",
-      "main": "class BlackMarket_{unique_id}_{_uid}( Plot ):\n    LABEL = \"BLACKMARKET_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
+      "main": "class BlackMarket_{unique_id}_{_uid}( Plot ):\n    LABEL = \"BLACKMARKET_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Black Market",
     "display_name": "Black Market: {shop_name}",
@@ -342,7 +342,7 @@
         "var_type": "faction"
       },
       "door_sign": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "door_sign"
       }
     },
@@ -408,7 +408,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"SHOP_GENERALSTORE\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}, DOOR_SIGN={door_sign}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n+add_physical NPC splot.elements[\"SHOPKEEPER\"]\n\n",
       "plot_init": "+subplot GENERALSTORE_{unique_id}_{_uid}\n\n",
-      "main": "class GeneralStore_{unique_id}_{_uid}( Plot ):\n    LABEL = \"GENERALSTORE_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
+      "main": "class GeneralStore_{unique_id}_{_uid}( Plot ):\n    LABEL = \"GENERALSTORE_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add General Store",
     "display_name": "General Store: {shop_name}",
@@ -434,7 +434,7 @@
         "var_type": "faction"
       },
       "door_sign": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "door_sign"
       }
     },
@@ -498,9 +498,187 @@
   {
     "label": "CITY_FEATURE",
     "scripts": {
+      "scenario_build": "splot = self.add_sub_plot(nart, \"SHOP_WEAPONSTORE\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}, DOOR_SIGN={door_sign}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n+add_physical NPC splot.elements[\"SHOPKEEPER\"]\n\n",
+      "plot_init": "+subplot WEAPONSTORE_{unique_id}_{_uid}\n\n",
+      "main": "class WeaponStore_{unique_id}_{_uid}( Plot ):\n    LABEL = \"WEAPONSTORE_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
+    },
+    "name": "Add Weapon Store",
+    "display_name": "Weapon Store: {shop_name}",
+    "desc": "Adds a weapon store and a shopkeeper NPC to the city. Leave shop_name and/or npc_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "shop_name": {
+        "default_val": "",
+        "var_type": "literal",
+        "tooltip": "Leave blank for random name"
+      },
+      "npc_name": {
+        "default_val": "",
+        "var_type": "literal",
+        "tooltip": "Leave blank for random name"
+      },
+      "room_name": {
+        "default_val": "Foyer",
+        "var_type": "literal"
+      },
+      "shop_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      },
+      "door_sign": {
+        "default_val": "None",
+        "var_type": "door_sign"
+      }
+    },
+    "child_types": [
+      "SCENE_FEATURE",
+      "ROOM_FEATURE",
+      "NPC_FEATURE"
+    ],
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "Weapon Store: {shop_name}"
+      },
+      "ROOM": {
+        "e_type": "room",
+        "name": "Room: {room_name}"
+      },
+      "NPC": {
+        "e_type": "npc",
+        "name": "Shopkeeper: {npc_name}"
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "METROSCENE",
+        "variable_keys": [
+          "shop_name",
+          "shop_faction",
+          "door_sign"
+        ],
+        "child_types": [
+          "SCENE_FEATURE"
+        ]
+      },
+      {
+        "element_key": "ROOM",
+        "parent": "LOCALE",
+        "variable_keys": [
+          "room_name"
+        ],
+        "child_types": [
+          "ROOM_FEATURE"
+        ]
+      },
+      {
+        "element_key": "NPC",
+        "parent": "ROOM",
+        "variable_keys": [
+          "npc_name"
+        ],
+        "child_types": [
+          "NPC_FEATURE"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "CITY_FEATURE",
+    "scripts": {
+      "scenario_build": "splot = self.add_sub_plot(nart, \"SHOP_ARMORSTORE\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}, DOOR_SIGN={door_sign}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n+add_physical NPC splot.elements[\"SHOPKEEPER\"]\n\n",
+      "plot_init": "+subplot ARMORSTORE_{unique_id}_{_uid}\n\n",
+      "main": "class ArmorStore_{unique_id}_{_uid}( Plot ):\n    LABEL = \"ARMORSTORE_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
+    },
+    "name": "Add Armor Store",
+    "display_name": "Armor Store: {shop_name}",
+    "desc": "Adds an armor store and a shopkeeper NPC to the city. Leave shop_name and/or npc_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "shop_name": {
+        "default_val": "",
+        "var_type": "literal",
+        "tooltip": "Leave blank for random name"
+      },
+      "npc_name": {
+        "default_val": "",
+        "var_type": "literal",
+        "tooltip": "Leave blank for random name"
+      },
+      "room_name": {
+        "default_val": "Foyer",
+        "var_type": "literal"
+      },
+      "shop_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      },
+      "door_sign": {
+        "default_val": "None",
+        "var_type": "door_sign"
+      }
+    },
+    "child_types": [
+      "SCENE_FEATURE",
+      "ROOM_FEATURE",
+      "NPC_FEATURE"
+    ],
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "Armor Store: {shop_name}"
+      },
+      "ROOM": {
+        "e_type": "room",
+        "name": "Room: {room_name}"
+      },
+      "NPC": {
+        "e_type": "npc",
+        "name": "Shopkeeper: {npc_name}"
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "METROSCENE",
+        "variable_keys": [
+          "shop_name",
+          "shop_faction",
+          "door_sign"
+        ],
+        "child_types": [
+          "SCENE_FEATURE"
+        ]
+      },
+      {
+        "element_key": "ROOM",
+        "parent": "LOCALE",
+        "variable_keys": [
+          "room_name"
+        ],
+        "child_types": [
+          "ROOM_FEATURE"
+        ]
+      },
+      {
+        "element_key": "NPC",
+        "parent": "ROOM",
+        "variable_keys": [
+          "npc_name"
+        ],
+        "child_types": [
+          "NPC_FEATURE"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "CITY_FEATURE",
+    "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"SHOP_GARAGE\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}, DOOR_SIGN={door_sign}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical NPC splot.elements[\"SHOPKEEPER\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
       "plot_init": "+subplot GARAGE_{unique_id}_{_uid}\n\n",
-      "main": "class Garage_{unique_id}_{_uid}( Plot ):\n    LABEL = \"GARAGE_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
+      "main": "class Garage_{unique_id}_{_uid}( Plot ):\n    LABEL = \"GARAGE_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Garage",
     "display_name": "Garage: {shop_name}",
@@ -526,7 +704,7 @@
         "var_type": "faction"
       },
       "door_sign": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "door_sign"
       }
     },
@@ -592,7 +770,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"SHOP_HOSPITAL\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}, DOOR_SIGN={door_sign}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical NPC splot.elements[\"SHOPKEEPER\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
       "plot_init": "+subplot HOSPITAL_{unique_id}_{_uid}\n\n",
-      "main": "class Hospital_{unique_id}_{_uid}( Plot ):\n    LABEL = \"HOSPITAL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
+      "main": "class Hospital_{unique_id}_{_uid}( Plot ):\n    LABEL = \"HOSPITAL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Hospital",
     "display_name": "Hospital: {shop_name}",
@@ -618,7 +796,7 @@
         "var_type": "faction"
       },
       "door_sign": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "door_sign"
       }
     },
@@ -684,7 +862,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"SHOP_TAVERN\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={tavern_name}, NPC_NAME={npc_name}, DOOR_SIGN={door_sign}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical NPC splot.elements[\"SHOPKEEPER\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
       "plot_init": "+subplot TAVERN_{unique_id}_{_uid}\n\n",
-      "main": "class Tavern_{unique_id}_{_uid}( Plot ):\n    LABEL = \"TAVERN_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
+      "main": "class Tavern_{unique_id}_{_uid}( Plot ):\n    LABEL = \"TAVERN_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Tavern",
     "display_name": "Tavern: {tavern_name}",
@@ -706,7 +884,7 @@
         "var_type": "literal"
       },
       "door_sign": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "door_sign"
       }
     },
@@ -768,7 +946,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"TOWNHALL\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, LEADER_NAME={npc_name}, HALL_NAME={hall_name}, DOOR_SIGN={door_sign}, HALL_FACTION={hall_faction}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n+add_physical NPC splot.elements[\"LEADER\"]\n\n",
       "plot_init": "+subplot TOWNHALL_{unique_id}_{_uid}\n\n",
-      "main": "class TownHall_{unique_id}_{_uid}( Plot ):\n    LABEL = \"TOWNHALL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
+      "main": "class TownHall_{unique_id}_{_uid}( Plot ):\n    LABEL = \"TOWNHALL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Town Hall",
     "display_name": "Town Hall: {hall_name}",
@@ -794,7 +972,7 @@
         "var_type": "faction"
       },
       "door_sign": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "door_sign"
       }
     },
@@ -858,7 +1036,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"EMPTY_BUILDING\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, INTERIOR_NAME={interior_name}, INTERIOR_TAGS={interior_tags}, DOOR_SIGN={door_sign}, DOOR_TYPE={door_type}, INTERIOR_FACTION={interior_faction}, EXTERIOR_TERRSET={exterior_terrset}, INTERIOR_ARCHITECTURE={interior_architecture}, INTERIOR_DECOR={interior_decor}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
       "plot_init": "+subplot EMPTYBUILDING_{unique_id}_{_uid}\n\n",
-      "main": "class EmptyBuilding_{unique_id}_{_uid}( Plot ):\n    LABEL = \"EMPTYBUILDING_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
+      "main": "class EmptyBuilding_{unique_id}_{_uid}( Plot ):\n    LABEL = \"EMPTYBUILDING_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Empty Building",
     "display_name": "Building: {interior_name}",
@@ -885,7 +1063,7 @@
         "var_type": "faction"
       },
       "door_sign": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "door_sign"
       },
       "door_type": {
@@ -955,9 +1133,108 @@
   {
     "label": "CITY_FEATURE",
     "scripts": {
+      "scenario_build": "splot = self.add_sub_plot(nart, \"OFFICE_BUILDING\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, INTERIOR_NAME={interior_name}, INTERIOR_TAGS={interior_tags}, DOOR_SIGN={door_sign}, DOOR_TYPE={door_type}, INTERIOR_FACTION={interior_faction}, EXTERIOR_TERRSET={exterior_terrset}, INTERIOR_ARCHITECTURE={interior_architecture}, INTERIOR_DECOR={interior_decor}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
+      "plot_init": "+subplot OFFICEBUILDING_{unique_id}_{_uid}\n\n",
+      "main": "class OfficeBuilding_{unique_id}_{_uid}( Plot ):\n    LABEL = \"OFFICEBUILDING_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
+    },
+    "name": "Add Office Building",
+    "display_name": "Office: {interior_name}",
+    "desc": "Adds an empty office building to the city. Also useful for apartments!",
+    "is_new_branch": true,
+    "vars": {
+      "interior_name": {
+        "default_val": "Office",
+        "var_type": "literal",
+        "must_be_defined": true
+      },
+      "interior_tags": {
+        "default_val": [
+          "gears.tags.SCENE_PUBLIC"
+        ],
+        "var_type": "scene_tags"
+      },
+      "room_name": {
+        "default_val": "Foyer",
+        "var_type": "literal"
+      },
+      "interior_faction": {
+        "default_val": null,
+        "var_type": "faction"
+      },
+      "door_sign": {
+        "default_val": "None",
+        "var_type": "door_sign"
+      },
+      "door_type": {
+        "default_val": "ghwaypoints.ScrapIronDoor",
+        "var_type": "door_type",
+        "must_be_defined": true
+      },
+      "exterior_terrset": {
+        "default_val": "ghterrain.BrickBuilding",
+        "var_type": "building_terrset",
+        "must_be_defined": true
+      },
+      "interior_architecture": {
+        "default_val": "gharchitecture.DefaultBuilding",
+        "var_type": "interior_architecture",
+        "must_be_defined": true
+      },
+      "interior_decor": {
+        "default_val": null,
+        "var_type": "interior_decor"
+      }
+    },
+    "child_types": [
+      "SCENE_FEATURE",
+      "ROOM_FEATURE"
+    ],
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "Office: {interior_name}"
+      },
+      "ROOM": {
+        "e_type": "room",
+        "name": "Room: {room_name}"
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "METROSCENE",
+        "variable_keys": [
+          "interior_name",
+          "interior_tags",
+          "interior_faction",
+          "door_sign",
+          "door_type",
+          "exterior_terrset",
+          "interior_architecture",
+          "interior_decor"
+        ],
+        "child_types": [
+          "SCENE_FEATURE"
+        ]
+      },
+      {
+        "element_key": "ROOM",
+        "parent": "LOCALE",
+        "variable_keys": [
+          "room_name"
+        ],
+        "child_types": [
+          "ROOM_FEATURE"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "CITY_FEATURE",
+    "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"MILITARY_TENT\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], TENT_NAME={tent_name}, TENT_FACTION={tent_faction}, INTERIOR_TAGS={scene_attributes}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
       "plot_init": "+subplot MILTENT_{unique_id}_{_uid}\n\n",
-      "main": "class MilitaryTent_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MILTENT_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
+      "main": "class MilitaryTent_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MILTENT_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Military Tent",
     "display_name": "Tent: {tent_name}",
@@ -1028,7 +1305,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"MOBILE_HQ\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], HQ_NAME={hq_name}, HQ_FACTION={hq_faction}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n\n",
       "plot_init": "+subplot MOBILEHQ_{unique_id}_{_uid}\n\n",
-      "main": "class MobileHQ_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MOBILEHQ_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
+      "main": "class MobileHQ_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MOBILEHQ_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n\n\n"
     },
     "name": "Add Mobile HQ",
     "display_name": "HQ: {hq_name}",
@@ -1092,7 +1369,7 @@
     "scripts": {
       "scenario_build": "splot = self.add_sub_plot(nart, \"FIELD_HOSPITAL\", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], HQ_NAME={hq_name}, HQ_FACTION={hq_faction}, NPC_NAME={npc_name}))\n+add_physical LOCALE splot.elements[\"INTERIOR\"]\n+add_physical ROOM splot.elements[\"FOYER\"]\n+add_physical NPC splot.elements[\"MEDIC\"]\n\n",
       "plot_init": "+subplot FIELDHOSPITAL_{unique_id}_{_uid}\n\n",
-      "main": "class MobileHQ_{unique_id}_{_uid}( Plot ):\n    LABEL = \"FIELDHOSPITAL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n"
+      "main": "class MobileHQ_{unique_id}_{_uid}( Plot ):\n    LABEL = \"FIELDHOSPITAL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n"
     },
     "name": "Add Field Hospital",
     "display_name": "FHospital: {hq_name}",
@@ -1126,24 +1403,15 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "FHospital: {hq_name}",
-        "child_types": [
-          "SCENE_FEATURE"
-        ]
+        "name": "FHospital: {hq_name}"
       },
       "ROOM": {
         "e_type": "room",
-        "name": "Room: {room_name}",
-        "child_types": [
-          "ROOM_FEATURE"
-        ]
+        "name": "Room: {room_name}"
       },
       "NPC": {
         "e_type": "npc",
-        "name": "Medic: {npc_name}",
-        "child_types": [
-          "NPC_FEATURE"
-        ]
+        "name": "Medic: {npc_name}"
       }
     },
     "physicals": [
@@ -1163,6 +1431,9 @@
         "parent": "LOCALE",
         "variable_keys": [
           "room_name"
+        ],
+        "child_types": [
+          "ROOM_FEATURE"
         ]
       },
       {
@@ -1170,6 +1441,9 @@
         "parent": "ROOM",
         "variable_keys": [
           "npc_name"
+        ],
+        "child_types": [
+          "NPC_FEATURE"
         ]
       }
     ]

@@ -51,6 +51,7 @@ class AdventureSeed(Adventure):
                     print(e)
         if self.root_plot:
             self.root_plot.start_mission(camp)
+            return True
 
 
     def get_completion(self,include_optional=False):

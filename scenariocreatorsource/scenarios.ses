@@ -19,6 +19,7 @@
 #   and the circle of life continues.
 #
 # A new plot should include the following lines:
+#     #: plot_properties    Comes before the custom_init function; may be used to define constants etc
 #     +init_plot            A macro that must come before "#: plot_init" inside the custom_init function
 #     #: plot_init          Contains the initialization procedures, loading of elements, etc.
 #     #: plot_actions       Contains any extra work this plot needs to do.
@@ -68,6 +69,7 @@
       "adventure_cover": {"default_val": null, "var_type": "VHS_*.png"},
       "starting_point": {"default_val": null, "var_type": "starting_point"},
       "start_with_lancemate": {"default_val": true, "var_type": "boolean"},
+      "world_map_encounters": {"default_val": true, "var_type": "boolean"},
       "default_mission_combat_music": {"default_val": null, "var_type": "music"},
       "default_mission_exploration_music": {"default_val": null, "var_type": "music"}
 },
@@ -87,7 +89,8 @@ import random
 from game.content.ghwaypoints import Exit
 from game.content.plotutility import AdventureModuleData
 import game
-from game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain
+from game.scenariocreator import scutils
+from game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain, ghrooms
 from pbge.memos import Memo
 from game.content.ghplots import missionbuilder, campfeatures
 #: includes
@@ -99,6 +102,7 @@ class {unique_id}_Scenario( Plot ):
     LABEL = "SCENARIO_{unique_id}"
     active = True
     scope = True
+    #: plot_properties
 
     ADVENTURE_MODULE_DATA = AdventureModuleData(
         {adventure_name},
@@ -134,6 +138,8 @@ class {unique_id}_Scenario( Plot ):
         {starting_point}
         if {start_with_lancemate}:
             self.add_sub_plot(nart, "ADD_INSTANT_EGG_LANCEMATE", necessary=False)
+        if {world_map_encounters}:
+            self.add_sub_plot(nart, "CF_WORLD_MAP_ENCOUNTER_HANDLER")
 
         return True
 
@@ -253,6 +259,8 @@ class StartingPlot_{unique_id}_{_uid}( Plot ):
     LABEL = "START_PLOT_{unique_id}"
     active = True
     scope = "LOCALE"
+
+    #: plot_properties
 
     def custom_init( self, nart ):
         pc_tags = nart.camp.pc.get_tags()

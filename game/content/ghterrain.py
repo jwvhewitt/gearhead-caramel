@@ -204,6 +204,11 @@ class ResidentialWall(pbge.scenes.terrain.WallTerrain):
     blocks = (Walking, Skimming, Rolling, Vision, Flying)
 
 
+class DingyResidentialWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_residential_dingy.png'
+    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+
+
 class WoodenWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_wood.png'
     blocks = (Walking, Skimming, Rolling, Vision, Flying)
@@ -257,6 +262,16 @@ class VehicleWall(pbge.scenes.terrain.WallTerrain):
 
 class TentWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_tent.png'
+    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+
+
+class WarmColorsWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_warmcolors.png'
+    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+
+
+class CoolColorsWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_coolcolors.png'
     blocks = (Walking, Skimming, Rolling, Vision, Flying)
 
 
@@ -812,6 +827,76 @@ class HospitalSignEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_hospitalsign.png'
 
 
+class DragonSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_gervais_decor_dragonsign.png'
+
+
+class DragonSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_gervais_decor_dragonsign.png'
+
+
+class DragonSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_gervais_decor_dragonsign.png'
+
+
+class KirasTattoosSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_kirasign.png'
+
+
+class KirasTattoosSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_kirasign.png'
+
+
+class KirasTattoosSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_kirasign.png'
+
+
+class GunShopSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_gervais_decor_gunsign.png'
+
+
+class GunShopSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_gervais_decor_gunsign.png'
+
+
+class GunShopSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_gervais_decor_gunsign.png'
+
+
+class YeOldeShopSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_gervais_decor_yeoldesign.png'
+
+
+class YeOldeShopSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_gervais_decor_yeoldesign.png'
+
+
+class YeOldeShopSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_gervais_decor_yeoldesign.png'
+
+
+class ShieldSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_gervais_decor_shieldsign.png'
+
+
+class ShieldSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_gervais_decor_shieldsign.png'
+
+
+class ShieldSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_gervais_decor_shieldsign.png'
+
+
 class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = ScrapIronBuildingTerrain
     DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((JunkWindowSouth,), (JunkWindowEast,)),
@@ -1082,6 +1167,13 @@ class KenneyCommandTable(pbge.scenes.terrain.Terrain):
     frame = 7
     blocks = (Walking, Skimming, Rolling)
     movement_cost = {pbge.scenes.movement.Vision: 10}
+
+
+class TattooChairTerrain(pbge.scenes.terrain.Terrain):
+    image_top = "terrain_decor_tattoochair.png"
+    frame = 0
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 15}
 
 
 class Dashboard1(pbge.scenes.terrain.Terrain):

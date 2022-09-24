@@ -331,7 +331,8 @@ class EdgeTravel:
                     architecture=self.edge.architecture,
                 )
                 if wme:
-                    wme(camp)
+                    if not wme(camp):
+                        camp.go(dest_node.entrance)
                 else:
                     camp.go(dest_node.entrance)
             else:

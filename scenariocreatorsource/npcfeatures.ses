@@ -5,6 +5,7 @@
       "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
       "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
       "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "single_use": {"default_val": false, "var_type": "boolean"},
       "subject": {"default_val": "", "var_type": "literal"},
       "subject_start": {"default_val":  true, "var_type":  "boolean"}
     },
@@ -12,10 +13,166 @@
     "sorting_rank": 4100,
     "category": "DIALOGUE"
 
+*SCRIPT plot_init
+self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})
+
 *SCRIPT npc_offers
-mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}
-    #: dialogue_effect
-))
+if self._offer{_uid}.can_add_offer():
+    mylist.append(Offer({dialogue_text}, context=ContextTag(["{context}"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(
+        #: dialogue_effect
+    )))
+
+
+
+*NEW NPC_FEATURE
+    "name": "Add Dialogue If",
+    "desc": "Adds something for the NPC to say during a conversation, if a given condition is met.",
+    "vars": {
+      "conditions": {"default_val": [], "var_type": "conditional"},
+      "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
+      "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
+      "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "single_use": {"default_val": false, "var_type": "boolean"},
+      "subject": {"default_val": "", "var_type": "literal"},
+      "subject_start": {"default_val":  true, "var_type":  "boolean"}
+    },
+    "child_types": ["DIALOGUE_ALSO", "DIALOGUE_ELSE", "DIALOGUE_ELIF", "DIALOGUE_EFFECT"],
+    "sorting_rank": 4100,
+    "category": "DIALOGUE"
+
+*SCRIPT plot_init
+self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})
+
+*SCRIPT npc_offers
+if {conditions}:
+    if self._offer{_uid}.can_add_offer():
+        mylist.append(Offer({dialogue_text}, context=ContextTag(["{context}"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(
+            #: dialogue_effect
+        )))
+    #: dialogue_also
+#: dialogue_elif
+#: dialogue_else
+
+
+
+*NEW DIALOGUE_ALSO
+    "name": "Add Dialogue Also",
+    "desc": "Adds another dialogue line that requires the same conditions.",
+    "vars": {
+      "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
+      "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
+      "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "single_use": {"default_val": false, "var_type": "boolean"},
+      "subject": {"default_val": "", "var_type": "literal"},
+      "subject_start": {"default_val":  true, "var_type":  "boolean"}
+    },
+    "child_types": ["DIALOGUE_EFFECT"],
+    "sorting_rank": 4100,
+    "category": "DIALOGUE"
+
+*SCRIPT plot_init
+self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})
+
+*SCRIPT dialogue_also
+if self._offer{_uid}.can_add_offer():
+    mylist.append(Offer({dialogue_text}, context=ContextTag(["{context}"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(
+        #: dialogue_effect
+    )))
+
+
+
+*NEW DIALOGUE_ELIF
+    "name": "Add Dialogue Elif",
+    "desc": "Adds something for the NPC to say during a conversation, if the parent condition was false but the condition defined here is true.",
+    "vars": {
+      "conditions": {"default_val": [], "var_type": "conditional"},
+      "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
+      "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
+      "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "single_use": {"default_val": false, "var_type": "boolean"},
+      "subject": {"default_val": "", "var_type": "literal"},
+      "subject_start": {"default_val":  true, "var_type":  "boolean"}
+    },
+    "child_types": ["DIALOGUE_ALSO", "DIALOGUE_EFFECT"],
+    "sorting_rank": 4100,
+    "category": "DIALOGUE"
+
+*SCRIPT plot_init
+self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})
+
+*SCRIPT npc_offers
+elif {conditions}:
+    if self._offer{_uid}.can_add_offer():
+        mylist.append(Offer({dialogue_text}, context=ContextTag(["{context}"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(
+            #: dialogue_effect
+        )))
+    #: dialogue_also
+
+
+
+*NEW DIALOGUE_ELSE
+    "name": "Add Dialogue Else",
+    "desc": "Adds something for the NPC to say during a conversation if all the previous conditions were False.",
+    "vars": {
+      "context": {"default_val": "HELLO", "var_type": "dialogue_context"},
+      "dialogue_text": {"default_val": "[HELLO]", "var_type": "text"},
+      "dialogue_data": {"default_val": {}, "var_type": "dialogue_data"},
+      "single_use": {"default_val": false, "var_type": "boolean"},
+      "subject": {"default_val": "", "var_type": "literal"},
+      "subject_start": {"default_val":  true, "var_type":  "boolean"}
+    },
+    "child_types": ["DIALOGUE_EFFECT", "DIALOGUE_ALSO"],
+    "sorting_rank": 4100,
+    "category": "DIALOGUE",
+    "singular": true
+
+*SCRIPT plot_init
+self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})
+
+*SCRIPT npc_offers
+else:
+    if self._offer{_uid}.can_add_offer():
+        mylist.append(Offer({dialogue_text}, context=ContextTag(["{context}"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(
+            #: dialogue_effect
+        )))
+    #: dialogue_also
+
+
+
+*NEW NPC_FEATURE
+    "name": "Add Shop",
+    "desc": "Adds a shop for this NPC",
+    "vars": {
+      "shop_name": {"default_val": "", "var_type": "literal"},
+      "shop_type": {"default_val": "game.services.GENERAL_STORE", "var_type": "shop_type"},
+      "shop_offer": {"default_val": "[OPENSHOP]", "var_type": "text", "must_be_defined": true},
+      "shop_wares": {"default_val":  "wares", "var_type":  "literal", "must_be_defined": true},
+      "buy_stolen": {"default_val": false, "var_type": "boolean"}
+    },
+    "child_types": ["DIALOGUE_EFFECT"],
+    "sorting_rank": 4100,
+    "category": "DIALOGUE"
+
+*SCRIPT plot_actions
+if {shop_name}:
+    self.shop_name_{_uid} = {shop_name}
+else:
+    self.shop_name_{_uid} = str(self.elements["NPC"]) + "'s Shop"
+self.shop_{_uid} = services.Shop(npc=self.elements["NPC"], ware_types={shop_type}, rank=self.rank + random.randint(0, 15), shop_faction=self.elements["NPC"].faction, buy_stolen_items={buy_stolen})
+
+*SCRIPT npc_offers
+mylist.append(Offer("[OPENSHOP]", context=ContextTag([context.OPEN_SHOP]), data=dict(shop_name=self.shop_name_{_uid}, wares={shop_wares}), effect=self.shop_{_uid}))
+
+
+
+*NEW NPC_FEATURE
+    "name": "Make Possible Lancemate",
+    "desc": "Adds the dialogue options for this NPC to potentially become a lancemate.",
+    "sorting_rank": 4100,
+    "category": "DIALOGUE"
+
+*SCRIPT plot_subplots
++subplot RLM_Relationship
 
 
 

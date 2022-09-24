@@ -1,7 +1,7 @@
 import gears
 from gears import personality, tags
 import game
-from game.content import ghterrain, gharchitecture, ghwaypoints
+from game.content import ghterrain, gharchitecture, ghwaypoints, ghrooms
 from game.ghdialogue import context
 import pbge
 
@@ -83,12 +83,6 @@ CONTEXT_INFO = {
 }
 
 LIST_TYPES = {
-    "door_sign": (
-        "AlliedArmorSign", "FixitShopSign", "RustyFixitShopSign", "CrossedSwordsTerrain", "KettelLogoTerrain",
-        "RegExLogoTerrain", "HospitalSign", "TownBanner", "GoldTownHallSign", "MilitarySign", "GeneralStoreSign1",
-        "TavernSign1", "CafeSign1", "MechaModelSign", "SkullWallSign", "JollyRogerSign", "AegisLogoSign",
-        "SolarNavyLogoSign"
-    ),
     "objectives": (
         game.content.ghplots.missionbuilder.BAMO_AID_ALLIED_FORCES,
         game.content.ghplots.missionbuilder.BAMO_CAPTURE_THE_MINE,
@@ -172,7 +166,7 @@ SINGULAR_TYPES = {
         "ghwaypoints.PZHolo", "ghwaypoints.RecoveryBed", "ghwaypoints.RetroComputer", "ghwaypoints.ShippingShelves",
         "ghwaypoints.Shrine", "ghwaypoints.Skeleton", "ghwaypoints.SkullTownSign", "ghwaypoints.StorageBox",
         "ghwaypoints.TrailSign", "ghwaypoints.Trapdoor", "ghwaypoints.UlsaniteFilingCabinet",
-        "ghwaypoints.VendingMachine", "ghwaypoints.Victim", "ghwaypoints.WallMap"
+        "ghwaypoints.VendingMachine", "ghwaypoints.Victim", "ghwaypoints.WallMap", "ghwaypoints.TattooChair"
     ),
     "door_type": (
         "ghwaypoints.ScrapIronDoor", "ghwaypoints.GlassDoor", "ghwaypoints.ScreenDoor", "ghwaypoints.WoodenDoor",
@@ -186,7 +180,8 @@ SINGULAR_TYPES = {
         "gharchitecture.HospitalBuilding", "gharchitecture.TentArchitecture", "gharchitecture.DefaultBuilding",
         "gharchitecture.EarthCave", "gharchitecture.FactoryBuilding", "gharchitecture.FortressBuilding",
         "gharchitecture.OrganicBuilding", "gharchitecture.ScrapIronWorkshop", "gharchitecture.StoneBuilding",
-        "gharchitecture.StoneCave", "gharchitecture.VehicleArchitecture"
+        "gharchitecture.StoneCave", "gharchitecture.VehicleArchitecture", "gharchitecture.WarmColorsWallArchitecture",
+        "gharchitecture.CoolColorsWallArchitecture", "gharchitecture.DingyResidentialArchitecture"
     ),
     "interior_decor": (
         "gharchitecture.DungeonDecor", "gharchitecture.FactoryDecor", "gharchitecture.DefiledFactoryDecor",
@@ -196,6 +191,27 @@ SINGULAR_TYPES = {
         "gharchitecture.RundownChemPlantDecor", "gharchitecture.RundownFactoryDecor",
         "gharchitecture.StorageRoomDecor", "gharchitecture.TechDungeonDecor", "gharchitecture.ToxicCaveDecor",
         "gharchitecture.StoneUndercityDecor", "gharchitecture.UlsaniteOfficeDecor", "None"
+    ),
+    "door_sign": (
+        "AlliedArmorSign", "FixitShopSign", "RustyFixitShopSign", "CrossedSwordsTerrain", "KettelLogoTerrain",
+        "RegExLogoTerrain", "HospitalSign", "TownBanner", "GoldTownHallSign", "MilitarySign", "GeneralStoreSign1",
+        "TavernSign1", "CafeSign1", "MechaModelSign", "SkullWallSign", "JollyRogerSign", "AegisLogoSign",
+        "SolarNavyLogoSign", "DragonSign", "None", "KirasTattoosSign", "GunShopSign", "YeOldeShopSign", "ShieldSign",
+    ),
+    "shop_type": (
+        "game.services.GENERAL_STORE", "game.services.GENERAL_STORE_PLUS_MECHA", "game.services.MECHA_STORE",
+        "game.services.MECHA_PARTS_STORE", "game.services.MECHA_WEAPON_STORE", "game.services.TIRE_STORE",
+        "game.services.ARMOR_STORE", "game.services.BARE_ESSENTIALS_STORE", "services.BLACK_MARKET"
+    ),
+    "room": (
+        "pbge.randmaps.rooms.FuzzyRoom", "pbge.randmaps.rooms.OpenRoom", "pbge.randmaps.rooms.ClosedRoom",
+        "ghrooms.LakeRoom", "ghrooms.MSRuinsRoom", "ghrooms.WreckageRoom", "ghrooms.BarArea", "ghrooms.BushesRoom",
+        "ghrooms.DragonToothRoom", "ghrooms.ForestRoom", "ghrooms.GrassRoom", "ghrooms.ToxicSludgeRoom"
+    ),
+    "monster_tags": (
+        "AIR", "ANIMAL", "BRIGHT", "BUG", "CAVE", "CITY", "CREEPY", "DARK", "DESERT", "DEVO", "DINOSAUR", "EARTH",
+        "EXOTIC", "FACTORY", "FIRE", "FOREST", "GREEN", "GUARD", "HUNTER-X", "JUNGLE", "MINE", "MOUNTAIN", "MUTANT",
+        "REPTILE", "ROBOT, ""RUINS", "SWAMP", "SYNTH", "TOXIC", "VERMIN", "WASTELAND", "WATER", "ZOMBOT"
     )
 
 }
@@ -260,6 +276,16 @@ def get_possible_states(part, category: str):
         return find_world_maps(part)
     elif category == "job":
         return list((k, "gears.jobs.ALL_JOBS['{}']".format(k)) for k in gears.jobs.ALL_JOBS.keys()) + [("None", None),]
+    elif category == "major_npc_id":
+        return list([(npc.name, "'{}'".format(npc.mnpcid)) for npc in gears.selector.STC_LIST if isinstance(npc, gears.base.Character) and npc.mnpcid])
     else:
         return find_elements(part, category)
+
+
+def is_legal_state(part, state_type, state_value):
+    my_names_and_states = get_possible_states(part, state_type)
+    mystates = [a[1] for a in my_names_and_states]
+    mystates.append(None)
+    return state_value in state_type
+
 

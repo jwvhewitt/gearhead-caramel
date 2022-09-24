@@ -62,8 +62,9 @@ class BasicEmptyBuilding(Plot):
 
         # Create a building within the town.
         mydoor = self.elements.get("DOOR_TYPE") or ghwaypoints.GlassDoor
+        mybuilding = self.elements.get("EXTERIOR_TERRSET") or ghterrain.BrickBuilding
         building = self.register_element("_EXTERIOR", get_building(
-            self, ghterrain.IndustrialBuilding,
+            self, mybuilding,
             waypoints={"DOOR": mydoor(name=self.interiorname)},
             door_sign=self.elements.get("DOOR_SIGN"),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
@@ -84,7 +85,7 @@ class BasicEmptyBuilding(Plot):
             mydecor = mydecor()
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, myarchi(decorate=mydecor))
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
@@ -92,6 +93,130 @@ class BasicEmptyBuilding(Plot):
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
         return True
+
+
+class BasicOfficeBuilding(Plot):
+    LABEL = "OFFICE_BUILDING"
+
+    def custom_init(self, nart):
+        self.interiorname = self.elements.get("INTERIOR_NAME", "") or "Building"
+
+        # Create a building within the town.
+        mydoor = self.elements.get("DOOR_TYPE") or ghwaypoints.GlassDoor
+        mybuilding = self.elements.get("EXTERIOR_TERRSET") or ghterrain.BrickBuilding
+        building = self.register_element("_EXTERIOR", get_building(
+            self, mybuilding,
+            waypoints={"DOOR": mydoor(name=self.interiorname)},
+            door_sign=self.elements.get("DOOR_SIGN"),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.interiorname, player_team=team1, civilian_team=team2, faction=self.elements.get("INTERIOR_FACTION"),
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
+                gears.tags.SCENE_BUILDING,),
+            scale=gears.scale.HumanScale)
+
+        myarchi = self.elements.get("INTERIOR_ARCHITECTURE") or gharchitecture.IndustrialBuilding
+        mydecor = self.elements.get("INTERIOR_DECOR")
+        if mydecor:
+            mydecor = mydecor()
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, myarchi(decorate=mydecor))
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(
+            nart, self, self.elements["LOCALE"], intscene, room1=building,
+            room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        return True
+
+
+#   *************************
+#   ***  SHOP_ARMORSTORE  ***
+#   *************************
+#
+#   This shop sells armor. That's it.
+#
+#   Elements:
+#       LOCALE
+#   Optional:
+#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION, DOOR_SIGN
+#
+
+class BasicArmorStore(Plot):
+    LABEL = "SHOP_ARMORSTORE"
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create the shopkeeper
+        npc1 = self.register_element("SHOPKEEPER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+        npc1.name = self.elements.get("NPC_NAME", "") or npc1.name
+
+        self.shopname = self.elements.get("SHOP_NAME", "") or self._generate_shop_name()
+
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", get_building(
+            self, ghterrain.CommercialBuilding,
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
+            door_sign=self.elements.get("DOOR_SIGN") or (ghterrain.ShieldSignEast, ghterrain.ShieldSignSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
+                gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+            scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(
+            nart, self, self.elements["LOCALE"], intscene, room1=building,
+            room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        npc1.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc1, ware_types=services.ARMOR_STORE, rank=self.rank + random.randint(0, 15),
+                                  shop_faction=self.elements.get("SHOP_FACTION"))
+
+        return True
+
+    TITLE_PATTERNS = (
+        "{LOCALE} Armor", "{SHOPKEEPER}'s Armor", "{LOCALE} Clothing", "{SHOPKEEPER}'s Combat Fashion",
+        "{adjective} Armor", "{adjective} Clothing",
+    )
+
+    def _generate_shop_name(self):
+        return random.choice(self.TITLE_PATTERNS).format(
+            adjective=random.choice(game.ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None]), **self.elements)
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] This is {}; we have a good selection of armor.".format(self.shopname),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.shopname, "wares": "armor"},
+                            ))
+
+        return mylist
 
 
 #   **************************
@@ -138,7 +263,7 @@ class BasicBlackMarket(Plot):
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south,
                                                                               decorate=gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
@@ -222,7 +347,7 @@ class BasicGarage(Plot):
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south,
                                                                               decorate=gharchitecture.FactoryDecor()),
                                       dident="INTERIOR")
 
@@ -322,7 +447,7 @@ class BasicGeneralStore(Plot):
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding(
             wall_terrain=ghterrain.DefaultWall))
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south,
                                                                               decorate=gharchitecture.CheeseShopDecor()),
                                       dident="INTERIOR")
 
@@ -407,7 +532,7 @@ class BasicHospital(Plot):
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.HospitalBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south, ),
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
@@ -543,6 +668,88 @@ class BasicTavern(Plot):
 
         mylist.append(Offer("[HELLO] Welcome to {}.".format(self.shopname),
                             context=ContextTag([context.HELLO]),
+                            ))
+
+        return mylist
+
+#   ***************************
+#   ***  SHOP_WEAPONSTORE  ***
+#   ***************************
+#
+#   This shop sells weapons. That's it.
+#
+#   Elements:
+#       LOCALE
+#   Optional:
+#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION, DOOR_SIGN
+#
+
+class BasicWeaponStore(Plot):
+    LABEL = "SHOP_WEAPONSTORE"
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create the shopkeeper
+        npc1 = self.register_element("SHOPKEEPER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+        npc1.name = self.elements.get("NPC_NAME", "") or npc1.name
+
+        self.shopname = self.elements.get("SHOP_NAME", "") or self._generate_shop_name()
+
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", get_building(
+            self, ghterrain.CommercialBuilding,
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
+            door_sign=self.elements.get("DOOR_SIGN") or (ghterrain.GunShopSignEast, ghterrain.GunShopSignSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
+                gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+            scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(
+            nart, self, self.elements["LOCALE"], intscene, room1=building,
+            room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        npc1.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc1, ware_types=services.WEAPON_STORE, rank=self.rank + random.randint(0, 15),
+                                  shop_faction=self.elements.get("SHOP_FACTION"))
+
+        return True
+
+    TITLE_PATTERNS = (
+        "{LOCALE} Weapons", "{SHOPKEEPER}'s Shop", "{LOCALE} Weapons", "{SHOPKEEPER}'s Armaments",
+        "{adjective} Weapons", "{adjective} Arms",
+    )
+
+    def _generate_shop_name(self):
+        return random.choice(self.TITLE_PATTERNS).format(
+            adjective=random.choice(game.ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None]), **self.elements)
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] This is {}; we have a good selection of weapons.".format(self.shopname),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.shopname, "wares": "weapons"},
                             ))
 
         return mylist

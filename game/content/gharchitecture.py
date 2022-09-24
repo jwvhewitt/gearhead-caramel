@@ -231,6 +231,15 @@ class ResidentialBuilding(GearHeadArchitecture):
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
+
+class DingyResidentialArchitecture(GearHeadArchitecture):
+    ENV = gears.tags.UrbanEnv
+    DEFAULT_WALL_TERRAIN = ghterrain.DingyResidentialWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.HardwoodFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+
 class MakeScrapIronBuilding(GearHeadArchitecture):
     ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.ScrapIronWall
@@ -328,6 +337,22 @@ class VehicleArchitecture(GearHeadArchitecture):
     ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.VehicleWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.GreenTileFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+
+class WarmColorsWallArchitecture(GearHeadArchitecture):
+    ENV = gears.tags.UrbanEnv
+    DEFAULT_WALL_TERRAIN = ghterrain.WarmColorsWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+
+class CoolColorsWallArchitecture(GearHeadArchitecture):
+    ENV = gears.tags.UrbanEnv
+    DEFAULT_WALL_TERRAIN = ghterrain.CoolColorsWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 

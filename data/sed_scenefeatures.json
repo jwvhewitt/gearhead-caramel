@@ -18,7 +18,7 @@
   {
     "label": "SCENE_FEATURE",
     "scripts": {
-      "plot_init": "self.elements[\"LOCALE\"].contents.append({decor}())\n\n\n"
+      "plot_init": "self.elements[\"LOCALE\"].contents.append({decor}())\n\n\n\n"
     },
     "name": "Add Terrain Set Decor",
     "display_name": "TerrSet: {decor}",
@@ -30,5 +30,58 @@
         "var_type": "terrain_set"
       }
     }
+  },
+  {
+    "label": "SCENE_FEATURE",
+    "scripts": {
+      "plot_subplots": "+subplot ROOM_{unique_id}_{_uid}\n\n",
+      "main": "class Room_{unique_id}_{_uid}( Plot ):\n    LABEL = \"ROOM_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
+      "scenario_build": "the_world[{ROOM_UID}] = {room}(name={room_name}, anchor={anchor}, decorate={decor})\nthe_world[{LOCALE_UID}].contents.append(the_world[{ROOM_UID}])\n\n"
+    },
+    "name": "New Room",
+    "display_name": "Room: {room_name}",
+    "desc": "Adds a room to this scene. Note that in GHC, a room can be any rectangular area of the map.",
+    "is_new_branch": true,
+    "vars": {
+      "room_name": {
+        "default_val": "",
+        "var_type": "literal"
+      },
+      "room": {
+        "default_val": "pbge.randmaps.rooms.FuzzyRoom",
+        "var_type": "room"
+      },
+      "anchor": {
+        "default_val": null,
+        "var_type": "map_anchor"
+      },
+      "decor": {
+        "default_val": null,
+        "var_type": "interior_decor"
+      }
+    },
+    "child_types": [
+      "ROOM_FEATURE"
+    ],
+    "elements": {
+      "ROOM": {
+        "e_type": "room",
+        "name": "Room: {room_name}",
+        "child_types": [
+          "ROOM_FEATURE"
+        ]
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "ROOM",
+        "parent": "LOCALE",
+        "child_types": [
+          "ROOM_FEATURE"
+        ]
+      }
+    ],
+    "sorting_rank": 1000,
+    "category": "ROOMS"
   }
 ]

@@ -391,6 +391,11 @@ class Bunk(Waypoint):
     recovery_entrance = True
 
 
+class TattooChair(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.TattooChairTerrain)
+    recovery_entrance = True
+
+
 class OccupiedBed(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.OccupiedBedTerrain)
     recovery_entrance = False

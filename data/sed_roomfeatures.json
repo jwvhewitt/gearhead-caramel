@@ -3,8 +3,8 @@
     "label": "ROOM_FEATURE",
     "scripts": {
       "plot_subplots": "+subplot WAYPOINT_{unique_id}_{_uid}\n\n",
-      "main": "class Waypoint_{unique_id}_{_uid}( Plot ):\n    LABEL = \"WAYPOINT_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
-      "scenario_build": "the_world[{WAYPOINT_UID}] = {waypoint}(name={waypoint_name}, anchor={anchor})\nthe_world[{ROOM_UID}].contents.append(the_world[{WAYPOINT_UID}])\n\n\n\n"
+      "main": "class Waypoint_{unique_id}_{_uid}( Plot ):\n    LABEL = \"WAYPOINT_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
+      "scenario_build": "the_world[{WAYPOINT_UID}] = {waypoint}(name={waypoint_name}, desc={waypoint_desc}, anchor={anchor})\nthe_world[{ROOM_UID}].contents.append(the_world[{WAYPOINT_UID}])\n\n\n\n"
     },
     "name": "New Waypoint",
     "display_name": "{waypoint}: {waypoint_name}",
@@ -18,6 +18,10 @@
       "waypoint_name": {
         "default_val": "",
         "var_type": "literal"
+      },
+      "waypoint_desc": {
+        "default_val": "",
+        "var_type": "text"
       },
       "anchor": {
         "default_val": null,
@@ -42,13 +46,24 @@
   {
     "label": "ROOM_FEATURE",
     "scripts": {
-      "plot_subplots": "+subplot NPC_{unique_id}_{_uid}\n\n",
-      "main": "class NonPlayerCharacter_{unique_id}_{_uid}( Plot ):\n    LABEL = \"NPC_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n",
-      "scenario_build": "the_world[{NPC_UID}] = gears.selector.random_character(self.rank, local_tags=the_world[{METROSCENE_UID}].attributes, camp=nart.camp, name={npc_name}, job={npc_job}, faction={npc_faction})\nthe_world[{ROOM_UID}].contents.append(the_world[{NPC_UID}])\n\n"
+      "plot_init": "self.elements[\"ROOM\"].contents.append(ghwaypoints.CyberdocTerminal(shop=services.Shop(npc=None, rank=self.rank + random.randint(1, 25), ware_types=services.CYBERWARE_STORE)))\n\n\n\n"
     },
-    "name": "New NPC",
+    "name": "Cyberdoc Terminal",
+    "display_name": "Cyberdoc Terminal",
+    "desc": "Adds a cyberdoc terminal to this room.",
+    "sorting_rank": 1000,
+    "category": "WAYPOINTS"
+  },
+  {
+    "label": "ROOM_FEATURE",
+    "scripts": {
+      "plot_subplots": "+subplot NPC_{unique_id}_{_uid}\n\n",
+      "main": "class NonPlayerCharacter_{unique_id}_{_uid}( Plot ):\n    LABEL = \"NPC_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"NPC_SCENE\"] = self.elements[\"LOCALE\"]\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n",
+      "scenario_build": "the_world[{NPC_UID}] = gears.selector.random_character(self.rank, local_tags=the_world[{METROSCENE_UID}].attributes, camp=nart.camp, name={npc_name}, job={npc_job}, faction={npc_faction})\nthe_world[{ROOM_UID}].contents.append(the_world[{NPC_UID}])\n\n\n\n"
+    },
+    "name": "New Random NPC",
     "display_name": "NPC: {npc_name}",
-    "desc": "Adds an NPC to this room.",
+    "desc": "Adds an NPC to this room. You can select their name, job, and faction.",
     "is_new_branch": true,
     "vars": {
       "npc_name": {
@@ -78,10 +93,66 @@
     "physicals": [
       {
         "element_key": "NPC",
-        "parent": "ROOM"
+        "parent": "ROOM",
+        "child_types": [
+          "NPC_FEATURE"
+        ]
       }
     ],
     "sorting_rank": 1000,
     "category": "NPCS"
+  },
+  {
+    "label": "ROOM_FEATURE",
+    "scripts": {
+      "plot_subplots": "+subplot MNPC_{unique_id}_{_uid}\n\n",
+      "main": "class MajorNonPlayerCharacter_{unique_id}_{_uid}( Plot ):\n    LABEL = \"MNPC_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n    #: plot_properties\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"NPC_SCENE\"] = self.elements[\"LOCALE\"]\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n",
+      "scenario_build": "the_world[{NPC_UID}] = nart.camp.get_major_npc({npcid})\nthe_world[{ROOM_UID}].contents.append(the_world[{NPC_UID}])\n\n\n\n"
+    },
+    "name": "New Major NPC",
+    "display_name": "Major NPC: {npcid}",
+    "desc": "Adds a major NPC to this room. You can only add each major NPC once.",
+    "is_new_branch": true,
+    "vars": {
+      "npcid": {
+        "default_val": "Bear Bastard",
+        "var_type": "major_npc_id"
+      }
+    },
+    "elements": {
+      "NPC": {
+        "e_type": "npc",
+        "name": "MNPC: {npcid}"
+      }
+    },
+    "child_types": [
+      "NPC_FEATURE"
+    ],
+    "physicals": [
+      {
+        "element_key": "NPC",
+        "parent": "ROOM",
+        "child_types": [
+          "NPC_FEATURE"
+        ]
+      }
+    ],
+    "sorting_rank": 1000,
+    "category": "NPCS"
+  },
+  {
+    "label": "ROOM_FEATURE",
+    "scripts": {
+      "plot_subplots": "self.add_sub_plot(nart, \"MONSTER_ENCOUNTER\", elements=dict(TYPE_TAGS={monster_type}))\n\n"
+    },
+    "name": "Monster Encounter",
+    "desc": "Adds some monsters to this room.",
+    "vars": {
+      "monster_type": {
+        "default_val": [],
+        "var_type": "list:monster_tags"
+      }
+    },
+    "sorting_rank": 1000
   }
 ]
