@@ -11,6 +11,7 @@ class TagReactionBadge(object):
         if remods:
             self.reaction_modifiers.update(remods)
         self.tags = set(tags)
+
     def get_reaction_modifier(self,pc,npc,camp):
         total = 0
         npc_tags = npc.get_tags()

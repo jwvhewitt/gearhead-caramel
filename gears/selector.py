@@ -412,6 +412,22 @@ class RandomMonsterUnit(object):
             return max(delta + 25, 10)
 
 
+def generate_boss_monster(level, env, type_tags, scale):
+    shopping_list = list()
+    for mon in MONSTER_LIST:
+        if mon.matches(level, env, type_tags, scale):
+            shopping_list.append(mon)
+    if shopping_list:
+        bossmon = copy.deepcopy(random.choice(shopping_list))
+        upgrade = max(level - bossmon.threat + 10, 5)
+        bossmon.statline[stats.Vitality] += upgrade
+        bossmon.statline[stats.Athletics] += upgrade//4
+        bossmon.statline[stats.Concentration] += upgrade//5
+        for t in range(upgrade//4):
+            bossmon.statline[random.choice((stats.CloseCombat, stats.RangedCombat, stats.Dodge))] += 1
+        return bossmon
+
+
 def generate_ace(level, fac, env):
     mek = MechaShoppingList.generate_single_mecha(level, fac, env)
     ace = random_pilot(level + 10)

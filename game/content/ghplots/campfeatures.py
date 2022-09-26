@@ -205,8 +205,8 @@ class MetrosceneRandomPlotHandler(Plot):
 
     def t_START(self, camp):
         # Attempt to load at least one challenge plot, then load some more plots.
-        tries = random.randint(1, 4)
-        while self.should_load_plot(camp) and tries > 0:
+        tries = random.randint(2, 5)
+        while self.should_load_challenge(camp) and tries > 0:
             myplot = game.content.load_dynamic_plot(
                 camp, self.CHALLENGE_LABEL, pstate=PlotState(
                     rank=self.calc_rank(camp)
@@ -231,6 +231,11 @@ class MetrosceneRandomPlotHandler(Plot):
     def _resolve_unfound_plot(self, camp):
         # Do whatever needs to be done when a plot could not be found. Not used here, but might get used in subclasses.
         pass
+
+    def should_load_challenge(self, camp):
+        mymetro: gears.MetroData = self.elements["METRO"]
+        lp = len([p for p in mymetro.scripts if p.LABEL == self.CHALLENGE_LABEL])
+        return lp < self.MAX_PLOTS
 
     def should_load_plot(self, camp):
         mymetro: gears.MetroData = self.elements["METRO"]

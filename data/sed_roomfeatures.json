@@ -46,6 +46,50 @@
   {
     "label": "ROOM_FEATURE",
     "scripts": {
+      "plot_subplots": "+subplot WAYPOINT_{unique_id}_{_uid}\n\n",
+      "main": "class Waypoint_{unique_id}_{_uid}( Plot ):\n    LABEL = \"WAYPOINT_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
+      "scenario_build": "the_world[{WAYPOINT_UID}] = {waypoint}(desc={waypoint_desc}, anchor={anchor}, treasure_rank=self.rank+random.randint(-10,10), treasure_amount={treasure_amount})\nthe_world[{ROOM_UID}].contents.append(the_world[{WAYPOINT_UID}])\n\n\n\n"
+    },
+    "name": "New Treasure Container",
+    "display_name": "Container: {waypoint}",
+    "desc": "Adds a waypoint containing treasure to this room.",
+    "is_new_branch": true,
+    "vars": {
+      "waypoint": {
+        "default_val": "ghwaypoints.OldCrate",
+        "var_type": "container_waypoint"
+      },
+      "waypoint_desc": {
+        "default_val": "",
+        "var_type": "text"
+      },
+      "anchor": {
+        "default_val": null,
+        "var_type": "map_anchor"
+      },
+      "treasure_amount": {
+        "default_val": 100,
+        "var_type": "integer"
+      }
+    },
+    "elements": {
+      "WAYPOINT": {
+        "e_type": "waypoint",
+        "name": "{waypoint}"
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "WAYPOINT",
+        "parent": "ROOM"
+      }
+    ],
+    "sorting_rank": 1000,
+    "category": "WAYPOINTS"
+  },
+  {
+    "label": "ROOM_FEATURE",
+    "scripts": {
       "plot_init": "self.elements[\"ROOM\"].contents.append(ghwaypoints.CyberdocTerminal(shop=services.Shop(npc=None, rank=self.rank + random.randint(1, 25), ware_types=services.CYBERWARE_STORE)))\n\n\n\n"
     },
     "name": "Cyberdoc Terminal",
@@ -149,7 +193,9 @@
     "desc": "Adds some monsters to this room.",
     "vars": {
       "monster_type": {
-        "default_val": [],
+        "default_val": [
+          "ANIMAL"
+        ],
         "var_type": "list:monster_tags"
       }
     },

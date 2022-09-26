@@ -417,10 +417,15 @@ class MakeBuildingStarter(ChallengeStarterPlot):
     active = False
 
     def custom_init(self, nart):
+        myscene = self.elements["METROSCENE"]
+        if myscene.faction:
+            invo = ghchallenges.InvolvedMetroFactionNPCs(myscene)
+        else:
+            invo = ghchallenges.InvolvedMetroResidentNPCs(myscene)
         self.register_element("CHALLENGE", Challenge(
             "Make {BUILDING_NAME}".format(**self.elements),
             ghchallenges.MAKE_CHALLENGE, [self.elements["BUILDING_NAME"],],
-            involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"]), active=False,
+            involvement=invo, active=False,
             oppoffers=(
                 AutoOffer(
                     dict(

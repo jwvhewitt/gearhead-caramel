@@ -52,11 +52,11 @@
         "var_type": "room"
       },
       "anchor": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "map_anchor"
       },
       "decor": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "interior_decor"
       }
     },

@@ -193,6 +193,11 @@ class Entropy(Plot):
         self.expiration = TimeExpiration(nart.camp, time_limit=10)
         return True
 
+    def t_START(self, camp: gears.GearHeadCampaign):
+        # Get rid of the entropy if there's an active challenge about.
+        if random.randint(1,5) == 3 and camp.get_active_challenges():
+            self.end_plot(camp)
+
 
 class LoadChallengePlot(Plot):
     LABEL = "RANDOM_PLOT"

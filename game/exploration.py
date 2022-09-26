@@ -741,6 +741,8 @@ class Explorer(object):
                     elif gdi.unicode == "O" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         self.camp.version = "v0.100"
 
+                    elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        print(self.scene.attributes)
 
                 elif gdi.type == pygame.QUIT:
                     # self.camp.save(self.screen)

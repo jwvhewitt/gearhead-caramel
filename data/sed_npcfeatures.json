@@ -3,9 +3,10 @@
     "label": "NPC_FEATURE",
     "scripts": {
       "plot_init": "self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})\n\n",
-      "npc_offers": "if self._offer{_uid}.can_add_offer():\n    mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n        #: dialogue_effect\n    )))\n\n\n\n"
+      "npc_offers": "if self._offer{_uid}.can_add_offer():\n    mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n        #: dialogue_effect\n    ), no_repeats=True, dead_end={dead_end}))\n\n\n\n"
     },
     "name": "Add Dialogue Offer",
+    "display_name": "{dialogue_text}",
     "desc": "Adds something for the NPC to say during a conversation.",
     "vars": {
       "context": {
@@ -31,6 +32,10 @@
       "subject_start": {
         "default_val": true,
         "var_type": "boolean"
+      },
+      "dead_end": {
+        "default_val": false,
+        "var_type": "boolean"
       }
     },
     "child_types": [
@@ -43,9 +48,10 @@
     "label": "NPC_FEATURE",
     "scripts": {
       "plot_init": "self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})\n\n",
-      "npc_offers": "if {conditions}:\n    if self._offer{_uid}.can_add_offer():\n        mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n            #: dialogue_effect\n        )))\n    #: dialogue_also\n#: dialogue_elif\n#: dialogue_else\n\n\n\n"
+      "npc_offers": "if {conditions}:\n    if self._offer{_uid}.can_add_offer():\n        mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n            #: dialogue_effect\n        ), no_repeats=True, dead_end={dead_end}))\n    #: dialogue_also\n#: dialogue_elif\n#: dialogue_else\n\n\n\n"
     },
     "name": "Add Dialogue If",
+    "display_name": "If: {dialogue_text}",
     "desc": "Adds something for the NPC to say during a conversation, if a given condition is met.",
     "vars": {
       "conditions": {
@@ -75,6 +81,10 @@
       "subject_start": {
         "default_val": true,
         "var_type": "boolean"
+      },
+      "dead_end": {
+        "default_val": false,
+        "var_type": "boolean"
       }
     },
     "child_types": [
@@ -90,9 +100,10 @@
     "label": "DIALOGUE_ALSO",
     "scripts": {
       "plot_init": "self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})\n\n",
-      "dialogue_also": "if self._offer{_uid}.can_add_offer():\n    mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n        #: dialogue_effect\n    )))\n\n\n\n"
+      "dialogue_also": "if self._offer{_uid}.can_add_offer():\n    mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n        #: dialogue_effect\n    ), no_repeats=True, dead_end={dead_end}))\n\n\n\n"
     },
     "name": "Add Dialogue Also",
+    "display_name": "Also: {dialogue_text}",
     "desc": "Adds another dialogue line that requires the same conditions.",
     "vars": {
       "context": {
@@ -118,6 +129,10 @@
       "subject_start": {
         "default_val": true,
         "var_type": "boolean"
+      },
+      "dead_end": {
+        "default_val": false,
+        "var_type": "boolean"
       }
     },
     "child_types": [
@@ -130,9 +145,10 @@
     "label": "DIALOGUE_ELIF",
     "scripts": {
       "plot_init": "self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})\n\n",
-      "npc_offers": "elif {conditions}:\n    if self._offer{_uid}.can_add_offer():\n        mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n            #: dialogue_effect\n        )))\n    #: dialogue_also\n\n\n\n"
+      "npc_offers": "elif {conditions}:\n    if self._offer{_uid}.can_add_offer():\n        mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n            #: dialogue_effect\n        ), no_repeats=True, dead_end={dead_end}))\n    #: dialogue_also\n\n\n\n"
     },
     "name": "Add Dialogue Elif",
+    "display_name": "Elif: {dialogue_text}",
     "desc": "Adds something for the NPC to say during a conversation, if the parent condition was false but the condition defined here is true.",
     "vars": {
       "conditions": {
@@ -162,6 +178,10 @@
       "subject_start": {
         "default_val": true,
         "var_type": "boolean"
+      },
+      "dead_end": {
+        "default_val": false,
+        "var_type": "boolean"
       }
     },
     "child_types": [
@@ -175,9 +195,10 @@
     "label": "DIALOGUE_ELSE",
     "scripts": {
       "plot_init": "self._offer{_uid} = scutils.DialogueOfferHandler({_uid}, single_use={single_use})\n\n",
-      "npc_offers": "else:\n    if self._offer{_uid}.can_add_offer():\n        mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n            #: dialogue_effect\n        )))\n    #: dialogue_also\n\n\n\n"
+      "npc_offers": "else:\n    if self._offer{_uid}.can_add_offer():\n        mylist.append(Offer({dialogue_text}, context=ContextTag([\"{context}\"]), data={dialogue_data}, subject={subject}, subject_start={subject_start}, effect=self._offer{_uid}.get_effect(\n            #: dialogue_effect\n        ), no_repeats=True, dead_end={dead_end}))\n    #: dialogue_also\n\n\n\n"
     },
     "name": "Add Dialogue Else",
+    "display_name": "Else: {dialogue_text}",
     "desc": "Adds something for the NPC to say during a conversation if all the previous conditions were False.",
     "vars": {
       "context": {
@@ -202,6 +223,10 @@
       },
       "subject_start": {
         "default_val": true,
+        "var_type": "boolean"
+      },
+      "dead_end": {
+        "default_val": false,
         "var_type": "boolean"
       }
     },
@@ -264,8 +289,8 @@
   {
     "label": "DIALOGUE_EFFECT",
     "scripts": {
-      "dialogue_effect": "effect = self._{uname}{_uid}_effect,\n\n",
-      "plot_methods": "def _{uname}{_uid}_effect(self, camp):\n    #: effect\n\n"
+      "dialogue_effect": "effect = self._{unique_id}{_uid}_effect,\n\n",
+      "plot_methods": "def _{unique_id}{_uid}_effect(self, camp):\n    #: effect\n\n"
     },
     "name": "Add Dialogue Effect",
     "desc": "Adds an effect to a dialogue line. Note that dialogue effects are executed after the dialogue offer is made, not before.",

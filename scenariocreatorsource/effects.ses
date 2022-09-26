@@ -119,7 +119,7 @@ self.memo = None
 
 *NEW EFFECT
     "name": "Give XP to the Lance",
-    "display_name": "XP {+amount}",
+    "display_name": "XP {amount:+}",
     "vars": {
       "amount": {
         "default_val": "100",
@@ -132,7 +132,7 @@ camp.dole_xp({amount})
 
 
 
-NEW EFFECT
+*NEW EFFECT
     "name": "Set Campaign Variable",
     "display_name": "Set {var_name} = {value}",
     "vars": {
@@ -152,7 +152,7 @@ camp.campdata[{var_name}] = {value}
 
 
 
-NEW EFFECT
+*NEW EFFECT
     "name": "Add Campaign Variable",
     "display_name": "Add {var_name} + {value}",
     "vars": {
@@ -169,6 +169,56 @@ NEW EFFECT
 
 *SCRIPT effect
 camp.campdata[{var_name}] = camp.campdata.get({var_name},0) + {value}
+
+
+
+*NEW EFFECT
+    "name": "Add Credits",
+    "display_name": "Add {value:+,} credits",
+    "vars": {
+      "value": {
+        "default_val": 0,
+        "var_type": "integer"
+      }
+    },
+    "sorting_rank": 200
+
+*SCRIPT effect
+camp.credits += {value}
+
+
+
+*NEW EFFECT
+    "name": "Give Tag Merit Badge",
+    "display_name": "Give {badge_name}",
+    "desc": "Gives the PC a merit badge which affects how certain NPCs react to them, depending on personality tags.",
+    "vars": {
+      "badge_name": {"default_val": "Merit Badge", "var_type": "literal"},
+      "badge_desc": {"default_val": "", "var_type": "text"},
+      "badge_tagmods": {"default_val": [], "var_type": "tag_reaction"},
+      "badge_addtags": {"default_val": [], "var_type": "list:job_tags"}
+    },
+    "sorting_rank": 2000
+
+*SCRIPT effect
+camp.pc.add_badge(gears.meritbadges.TagReactionBadge({badge_name}, {badge_desc}, {badge_tagmods}, {badge_addtags}))
+
+
+
+*NEW EFFECT
+    "name": "Give Universal Merit Badge",
+    "display_name": "Give {badge_name}",
+    "desc": "Gives the PC a merit badge which affects how all NPCs react to them.",
+    "vars": {
+      "badge_name": {"default_val": "Merit Badge", "var_type": "literal"},
+      "badge_desc": {"default_val": "", "var_type": "text"},
+      "badge_modifier": {"default_val": 0, "var_type": "integer"},
+      "badge_addtags": {"default_val": [], "var_type": "list:job_tags"}
+    },
+    "sorting_rank": 2000
+
+*SCRIPT effect
+camp.pc.add_badge(gears.meritbadges.UniversalReactionBadge({badge_name}, {badge_desc}, {badge_modifier}, {badge_addtags}))
 
 
 

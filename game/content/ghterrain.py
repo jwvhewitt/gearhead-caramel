@@ -232,6 +232,15 @@ class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     movement_cost = {pbge.scenes.movement.Vision: 5}
 
 
+class JunkyardWall(pbge.scenes.terrain.VariableTerrain):
+    image_top = 'terrain_wall_junkyard.png'
+    bordername = None
+    altitude = 20
+    frames = tuple(range(16))
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+
 class SandDuneWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_dune.png'
     bordername = None

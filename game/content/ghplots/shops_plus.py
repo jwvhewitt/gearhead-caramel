@@ -74,7 +74,7 @@ class BasicEmptyBuilding(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(
-            35, 35, self.interiorname, player_team=team1, civilian_team=team2, faction=self.elements.get("INTERIOR_FACTION"),
+            60, 60, self.interiorname, player_team=team1, civilian_team=team2, faction=self.elements.get("INTERIOR_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING,),
             scale=gears.scale.HumanScale)
@@ -115,7 +115,7 @@ class BasicOfficeBuilding(Plot):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(
-            35, 35, self.interiorname, player_team=team1, civilian_team=team2, faction=self.elements.get("INTERIOR_FACTION"),
+            60, 60, self.interiorname, player_team=team1, civilian_team=team2, faction=self.elements.get("INTERIOR_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING,),
             scale=gears.scale.HumanScale)
@@ -357,7 +357,9 @@ class BasicGarage(Plot):
 
         npc1.place(intscene, team=team2)
 
-        self.shop = services.Shop(npc=npc1, ware_types=services.MECHA_STORE, rank=self.rank + random.randint(0, 15),
+        wares = random.choice((services.MECHA_STORE, services.MEXTRA_STORE, services.GENERAL_STORE_PLUS_MECHA,
+                               services.GENERAL_STORE_PLUS_MECHA, services.MEXTRA_STORE))
+        self.shop = services.Shop(npc=npc1, ware_types=wares, rank=self.rank + random.randint(0, 10),
                                   shop_faction=self.elements.get("SHOP_FACTION"))
 
         foyer.contents.append(ghwaypoints.MechEngTerminal())
@@ -367,7 +369,7 @@ class BasicGarage(Plot):
     TITLE_PATTERNS = (
         "{LOCALE} Garage", "{LOCALE} Service Center", "{SHOPKEEPER}'s Mecha", "{SHOPKEEPER}'s Garage",
         "{SHOPKEEPER}'s {adjective} Bots", "{LOCALE} Heavy Machinery", "{SHOPKEEPER} Robotics",
-        "{SHOPKEEPER}'s Combat Vehicles", "{LOCALE} Battlemovers", "{adjective} Mecha", "{adjective} Garage",
+        "{SHOPKEEPER}'s Combat Vehicles", "{LOCALE} Battlemovers", "{adjective} Service", "{adjective} Garage",
         "{SHOPKEEPER}'s {adjective} Machines",
     )
 
@@ -394,7 +396,7 @@ class BasicGarage(Plot):
 
         mylist.append(Offer("[OPENSHOP]",
                             context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
-                            data={"shop_name": self.shopname, "wares": "mecha"},
+                            data={"shop_name": self.shopname, "wares": "stuff"},
                             ))
 
         return mylist
@@ -578,6 +580,94 @@ class BasicHospital(Plot):
         mylist.append(Offer("[OPENSHOP]",
                             context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
                             data={"shop_name": self.shopname, "wares": "medicine"},
+                            ))
+
+        return mylist
+
+
+#   ********************
+#   ***  SHOP_MECHA  ***
+#   ********************
+#
+#   A mecha shop is basically a garage but they only sell mecha. No extras.
+#
+#   Elements:
+#       LOCALE
+#   Optional:
+#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION, DOOR_SIGN (must be a tuple of (East, South).
+#
+
+class BasicMechaShop(Plot):
+    LABEL = "SHOP_MECHA"
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create the shopkeeper
+        npc1 = self.register_element("SHOPKEEPER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Shopkeeper"]))
+        npc1.name = self.elements.get("NPC_NAME", "") or npc1.name
+
+        self.shopname = self.elements.get("SHOP_NAME", "") or self._generate_shop_name()
+
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", get_building(
+            self, ghterrain.IndustrialBuilding,
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
+            door_sign=self.elements.get("DOOR_SIGN") or (ghterrain.MechaModelSignEast, ghterrain.MechaModelSignSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
+                gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP),
+            scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south,
+                                                                              decorate=gharchitecture.FactoryDecor()),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(
+            nart, self, self.elements["LOCALE"], intscene, room1=building,
+            room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        npc1.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc1, ware_types=services.MECHA_STORE, rank=self.rank + random.randint(5, 20),
+                                  shop_faction=self.elements.get("SHOP_FACTION"))
+
+        foyer.contents.append(ghwaypoints.MechEngTerminal())
+
+        return True
+
+    TITLE_PATTERNS = (
+        "{LOCALE} Mecha", "{LOCALE} Meks", "{SHOPKEEPER}'s Mecha", "{SHOPKEEPER}'s Meks",
+        "{SHOPKEEPER}'s {adjective} Bots", "{LOCALE} Combat Machinery", "{SHOPKEEPER} Robotics",
+        "{SHOPKEEPER}'s Combat Vehicles", "{LOCALE} Battlemovers", "{adjective} Mecha", "{adjective} Meks",
+        "{SHOPKEEPER}'s {adjective} Mecha",
+    )
+
+    def _generate_shop_name(self):
+        return random.choice(self.TITLE_PATTERNS).format(
+            adjective=random.choice(game.ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None]), **self.elements)
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Here at {}, [shop_slogan]!".format(self.shopname),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.shopname, "wares": "mecha"},
                             ))
 
         return mylist

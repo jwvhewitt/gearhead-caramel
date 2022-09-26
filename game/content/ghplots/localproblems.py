@@ -24,9 +24,195 @@ from .shops_plus import get_building
 #   ***  LOCAL_PROBLEM  ***
 #   ***********************
 #
+#   Set the LABEL to TEST_LOCAL_PROBLEM and this problem will be loaded in Wujung in DeadZone Drifter.
+#
 # Needed Elements:
 #    METROSCENE, METRO, MISSION_GATE
 #
+
+class SocialSpending(Plot):
+    LABEL = "LOCAL_PROBLEM"
+    scope = "METRO"
+    UNIQUE = True
+    QOL = gears.QualityOfLife(community=-3)
+    active = True
+
+    RUMOR = Rumor(
+        "{NPC} has been gathering funds to build {BUILDING_NAME}",
+        offer_msg="{METROSCENE} has a number of social problems, so {NPC} began a project to construct {BUILDING_NAME}. Unfortunately, nothing is ever easy around here. Maybe you can talk to {NPC.gender.object_pronoun} at {NPC_SCENE} and offer your help.",
+        memo="{NPC} has been trying to construct {BUILDING_NAME} in {METROSCENE}, but needs help with it.",
+        prohibited_npcs=("NPC",)
+    )
+
+    PROJECTS = (
+        {"BUILDING_NAME": "an orphanage", "BUILDING_NEED": "there are many children whose parents have died or disappeared"},
+        {"BUILDING_NAME": "new housing", "BUILDING_NEED": "too many of our neighbors are homeless"},
+        {"BUILDING_NAME": "a new school", "BUILDING_NEED": "currently only the rich can get an education, while everyone else suffers"},
+        {"BUILDING_NAME": "a public library", "BUILDING_NEED": "this will allow everyone to access information and the Thrunet, regardless of their social status"},
+        {"BUILDING_NAME": "a community center", "BUILDING_NEED": "right now we don't have a place for community events and youth programs"}
+    )
+
+    @classmethod
+    def matches(cls, pstate):
+        return gears.personality.L5Spinners not in pstate.elements["METROSCENE"].attributes or \
+               cls.LABEL == "TEST_LOCAL_PROBLEM"
+
+    def custom_init(self, nart):
+        # Step one: Create the architect.
+        scene = self.seek_element(
+            nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"],
+            backup_seek_func=self._is_ok_scene
+        )
+
+        npc = self.register_element(
+            "NPC",
+            gears.selector.random_character(
+                rank=random.randint(self.rank, self.rank + 10),
+                local_tags=tuple(self.elements["METROSCENE"].attributes),
+            ), dident="NPC_SCENE")
+
+        # Step two: Decide on a project.
+        project = random.choice(self.PROJECTS)
+        self.elements.update(project)
+
+        # Step three: Prepare the challenge starter.
+        self.add_sub_plot(nart, "MAKE_BUILDING_STARTER", ident="MAKE_BUILDING")
+
+        self.started_building = False
+
+        return True
+
+    def _is_best_scene(self, nart, candidate):
+        return (isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+                and gears.tags.SCENE_GOVERNMENT in candidate.attributes)
+
+    def _is_ok_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.started_building:
+            mylist.append(Offer(
+                "[HELLO] Tell me, would you contribute to help {METROSCENE}?".format(
+                    **self.elements),
+                ContextTag([context.HELLO])
+            ))
+
+            mylist.append(Offer(
+                "I've been working on {BUILDING_NAME} to help {METROSCENE}; {BUILDING_NEED}. This will not solve all of our community's problems but it's a good start.".format(
+                    **self.elements),
+                ContextTag([context.CUSTOM]), subject_start=True, subject=self,
+                data={"reply": "What kind of project are you talking about?"}
+            ))
+
+            mylist.append(Offer(
+                "Thank you so much. {METROSCENE} needs all the help it can get.".format(
+                    **self.elements),
+                ContextTag([context.CUSTOMREPLY]), subject=self, effect=self._start_mission,
+                data={"reply": "I'll see what I can do about speeding up construction."}
+            ))
+
+            mylist.append(Offer(
+                "I suppose it isn't any of your problem. [GOODBYE]".format(
+                    **self.elements),
+                ContextTag([context.CUSTOMREPLY]), subject=self, dead_end=True,
+                data={"reply": "Well, good luck on that."}
+            ))
+
+        return mylist
+
+    def _start_mission(self, camp):
+        self.subplots["MAKE_BUILDING"].activate(camp)
+        self.started_building = True
+        self.RUMOR = None
+        self.memo = None
+
+    def MAKE_BUILDING_WIN(self, camp):
+        pbge.alert("{METROSCENE} has finally completed work on {BUILDING_NAME}.".format(**self.elements))
+        self.end_plot(camp, True)
+        if self.elements["NPC"].is_operational():
+            content.load_dynamic_plot(camp, "POST_PLOT_REWARD", PlotState().based_on(
+                self,
+                update_elements={"PC_REPLY": "{METROSCENE} has constructed {BUILDING_NAME}.".format(**self.elements)}
+            ))
+
+
+class TheNightStalker(Plot):
+    LABEL = "LOCAL_PROBLEM"
+    scope = "METRO"
+    UNIQUE = True
+    QOL = gears.QualityOfLife(health=-2, defense=-1)
+    active = True
+
+    RUMOR = Rumor(
+        "there is a monster stalking the people of {METROSCENE}",
+        offer_msg="Nobody has seen this monster and lived to tell the tale... It comes out at night, tears a person to shreds, then disappears without a trace. Frankly, people are starting to get nervous.",
+        memo="The residents of {METROSCENE} are being stalked by a monster that comes out on night.",
+        offer_subject_data="this monster", offer_subject="there is a monster stalking the people of {METROSCENE}"
+    )
+
+    @classmethod
+    def matches(cls, pstate):
+        return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or \
+               gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes or \
+               cls.LABEL == "TEST_LOCAL_PROBLEM"
+
+    def custom_init(self, nart):
+        # Create the undercity exterior.
+        myroom = self.register_element("_entry_room", pbge.randmaps.rooms.FuzzyRoom(), dident="METROSCENE")
+
+        # Generate the dungeon.
+        my_dungeon = dungeonmaker.DungeonMaker(
+            nart, self, self.elements["METROSCENE"], "{METROSCENE} Sewers".format(**self.elements),
+            gharchitecture.SewerArchitecture(decorate=gharchitecture.SewerDecor(),
+                                           gapfill=pbge.randmaps.gapfiller.RoomFiller(ghrooms.ToxicSludgeRoom, spacing=2)),
+            self.rank, monster_tags=("VERMIN", "CITY", "MUTANT", "WATER"),
+            decor=None, scene_tags=(gears.tags.SCENE_DUNGEON,)
+        )
+        goal_level = self.register_element("_goal_level", my_dungeon.goal_level)
+        goal_room = self.register_element(
+            "_goal_room", pbge.randmaps.rooms.OpenRoom(decorate=gharchitecture.DefiledFactoryDecor()),
+            dident="_goal_level"
+        )
+
+        monteam2 = self.register_element("BOSSTEAM", teams.Team(enemies=[goal_level.player_team, ]), dident="_goal_room")
+        mymonster = self.register_element("BOSS", gears.selector.generate_boss_monster(self.rank+15, gears.tags.UrbanEnv, ("SYNTH", "HUNTER-X"), gears.scale.HumanScale), dident="BOSSTEAM")
+        if mymonster:
+            goal_room.contents.append(ghwaypoints.BrokenBiotank(anchor=pbge.randmaps.anchors.middle))
+
+            # Connect everything.
+            mycon = plotutility.TrapdoorToStairsUpConnector(
+                nart, self, self.elements["METROSCENE"], my_dungeon.entry_level, room1=myroom
+            )
+            mycon.door1.name = "Manhole"
+
+            self.elements["REWARD"] = gears.selector.calc_mission_reward(self.rank, 300)
+
+            self.combat_entered = False
+            self.defeated_monster = False
+            self.got_ending_message = False
+
+            return True
+
+    def METROSCENE_ENTER(self, camp):
+        if self.defeated_monster and not self.got_ending_message:
+            pbge.alert("In thanks for defeating the night stalker, the people of {METROSCENE} present you with ${REWARD:,}.".format(**self.elements))
+            self.elements["METRO"].local_reputation += 5
+            self.got_ending_message = True
+            self.end_plot(camp)
+
+    def BOSSTEAM_ACTIVATETEAM(self, camp):
+        if not self.combat_entered:
+            pbge.alert("You seem to have found the night stalker of {METROSCENE}...".format(**self.elements))
+
+    def BOSS_FAINT(self, camp):
+        pbge.alert("The night stalker of {METROSCENE} has been defeated.".format(**self.elements))
+        self.RUMOR = None
+        self.memo = None
+        self.defeated_monster = True
+
+
 
 class TheCursedSoil(Plot):
     LABEL = "LOCAL_PROBLEM"

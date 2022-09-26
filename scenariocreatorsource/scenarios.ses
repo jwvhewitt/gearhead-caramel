@@ -77,6 +77,12 @@
 "is_new_branch": true
 
 *SCRIPT main
+# Module created by GearHead Caramel Scenario Creator
+# Do not look at this file to try and figure out how to program a GearHead adventure!
+# Look at the hand-coded adventures instead. The Scenario Creator does things in a
+# very particular way to make things easy to deal with in the editor. The code below
+# is not designed to be human-readable, just computer-writable. You can download the
+# source code of GearHead Caramel from GitHub; see www.gearheadrpg.com for details.
 import gears
 from gears import personality, tags
 from pbge.plots import Plot, Adventure, PlotState

@@ -69,7 +69,7 @@ class Crate( Waypoint ):
     def __init__( self, treasure_rank=0, treasure_amount=100, treasure_type=None, **kwargs ):
         super().__init__(**kwargs)
         self.contents = pbge.container.ContainerList()
-        if treasure_rank > 0:
+        if treasure_rank > 0 and treasure_amount > 0:
             treasure_type = treasure_type or self.DEFAULT_TREASURE_TYPE
             mytreasure = gears.selector.get_random_loot(treasure_rank, treasure_amount, treasure_type)
             self.contents += mytreasure

@@ -171,6 +171,44 @@ class DataDictItemEditorWidget(pbge.widgets.RowWidget):
         self.mydict[self.mykey] = widj.text
 
 
+class PersonalityTagValueEditorWidget(pbge.widgets.RowWidget):
+    def __init__(self, part, tag_value_list, refresh_fun=None, **kwargs):
+        super().__init__(0, 0, 350, 0, **kwargs)
+        self.tag_value_list = tag_value_list
+
+        my_states = statefinders.get_possible_states(part, "personal_tags")
+        mymenu = pbge.widgets.DropdownWidget(0, 0, 230, pbge.MEDIUMFONT.get_linesize() + 8, justify=-1,
+                                             font=pbge.MEDIUMFONT, on_select=self._change_tag)
+        self.add_left(mymenu)
+        self.legal_states = list()
+
+        self.refresh_fun = refresh_fun
+
+        for name, value in my_states:
+            mymenu.add_item(name, value)
+            self.legal_states.append(value)
+
+        mymenu.menu.sort()
+        mymenu.menu.set_item_by_value(tag_value_list[0])
+
+        self.add_right(pbge.widgets.TextEntryWidget(
+            0, 0, 100, pbge.MEDIUMFONT.get_linesize() + 8, str(tag_value_list[1]),
+            on_change=self._change_value, font=pbge.MEDIUMFONT)
+        )
+
+
+    def _change_tag(self, result):
+        print("Changing val!")
+        if result in self.legal_states:
+            self.tag_value_list[0] = result
+        if self.refresh_fun:
+            self.refresh_fun()
+
+    def _change_value(self, widj, ev):
+        self.tag_value_list[1] = widj.text
+
+
+
 class DialogueOfferDataWidget(pbge.widgets.ColumnWidget):
     def __init__(self, part, var_name, **kwargs):
         super().__init__(0, 0, 350, pbge.SMALLFONT.get_linesize() + pbge.MEDIUMFONT.get_linesize() + 8, **kwargs)
@@ -197,7 +235,7 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
         var_type = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_type)
         for vt in conditionals.CONDITIONAL_VALUE_TYPES:
             var_type.add_item(vt.capitalize(), vt)
-        for k,v in conditionals.CONDITIONAL_VALUE_FUNCTIONS.items():
+        for k, v in conditionals.CONDITIONAL_VALUE_FUNCTIONS.items():
             var_type.add_item(k.capitalize(), k)
         var_type.menu.set_item_by_value(val_list[0])
         val_list[0] = var_type.value
@@ -486,7 +524,7 @@ class AddRemoveFSOptionsWidget(pbge.widgets.ColumnWidget):
         else:
             mytype = part.brick.vars[var_name].var_type
         self.op_candidates = statefinders.get_possible_states(part, mytype)
-        self.op_dict = dict((b,a) for a,b in self.op_candidates)
+        self.op_dict = dict((b, a) for a, b in self.op_candidates)
 
         mytitle = pbge.widgets.RowWidget(0, 0, self.w, max(pbge.SMALLFONT.get_linesize(), 16))
         minus_plus_image = pbge.image.Image("sys_minus_plus.png", 16, 16)
@@ -519,7 +557,7 @@ class AddRemoveFSOptionsWidget(pbge.widgets.ColumnWidget):
 
     def _add_op(self, widg, ev):
         mymenu = pbge.rpgmenu.PopUpMenu()
-        for a,b in self.op_candidates:
+        for a, b in self.op_candidates:
             if b not in self.ops_taken:
                 mymenu.add_item(a, b)
         mymenu.sort()

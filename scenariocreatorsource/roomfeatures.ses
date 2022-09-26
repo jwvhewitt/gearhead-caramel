@@ -45,6 +45,52 @@ the_world[{ROOM_UID}].contents.append(the_world[{WAYPOINT_UID}])
 
 
 *NEW ROOM_FEATURE
+    "name": "New Treasure Container",
+    "display_name": "Container: {waypoint}",
+    "desc": "Adds a waypoint containing treasure to this room.",
+    "is_new_branch": true,
+    "vars": {
+      "waypoint": {"default_val": "ghwaypoints.OldCrate", "var_type": "container_waypoint"},
+      "waypoint_desc": {"default_val": "", "var_type": "text"},
+      "anchor": {"default_val": null, "var_type": "map_anchor"},
+      "treasure_amount": {"default_val": 100, "var_type": "integer"}
+    },
+    "elements": {
+      "WAYPOINT": {"e_type": "waypoint", "name": "{waypoint}"}
+    },
+    "physicals": [
+        {"element_key": "WAYPOINT", "parent": "ROOM"}
+    ],
+    "sorting_rank": 1000,
+    "category": "WAYPOINTS"
+
+*SCRIPT plot_subplots
++subplot WAYPOINT_{unique_id}_{_uid}
+
+*SCRIPT main
+class Waypoint_{unique_id}_{_uid}( Plot ):
+    LABEL = "WAYPOINT_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    #: plot_methods
+
+*SCRIPT scenario_build
+the_world[{WAYPOINT_UID}] = {waypoint}(desc={waypoint_desc}, anchor={anchor}, treasure_rank=self.rank+random.randint(-10,10), treasure_amount={treasure_amount})
+the_world[{ROOM_UID}].contents.append(the_world[{WAYPOINT_UID}])
+
+
+
+*NEW ROOM_FEATURE
     "name": "Cyberdoc Terminal",
     "display_name": "Cyberdoc Terminal",
     "desc": "Adds a cyberdoc terminal to this room.",

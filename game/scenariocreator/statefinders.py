@@ -129,6 +129,11 @@ SINGULAR_TYPES = {
         "personality.Sociable", "personality.Shy", "personality.Justice", "personality.Peace", "personality.Glory",
         "personality.Duty", "personality.Fellowship"
     ),
+    "job_tags": (
+        "tags.Academic",
+        "tags.Adventurer", "tags.CorporateWorker", "tags.Craftsperson", "tags.Criminal", "tags.Faithworker",
+        "tags.Laborer", "tags.Media", "tags.Medic", "tags.Merchant", "tags.Military", "tags.Police", "tags.Politician"
+    ),
     "map_anchor": (
         "pbge.randmaps.anchors.north", "pbge.randmaps.anchors.northeast", "pbge.randmaps.anchors.east",
         "pbge.randmaps.anchors.southeast", "pbge.randmaps.anchors.south", "pbge.randmaps.anchors.southwest",
@@ -151,7 +156,8 @@ SINGULAR_TYPES = {
     "personal_scale_architecture": (
         "gharchitecture.HumanScaleGreenzone", "gharchitecture.HumanScaleDeadzone",
         "gharchitecture.HumanScaleSemiDeadzone", "gharchitecture.HumanScaleDeadzoneWilderness",
-        "gharchitecture.HumanScaleForest", "gharchitecture.HumanScaleUrbanDeadzone"
+        "gharchitecture.HumanScaleForest", "gharchitecture.HumanScaleUrbanDeadzone",
+        "gharchitecture.HumanScaleJunkyard"
     ),
     'terrain_set': (
         "ghterrain.CorsairTerrset",
@@ -181,13 +187,14 @@ SINGULAR_TYPES = {
         "gharchitecture.EarthCave", "gharchitecture.FactoryBuilding", "gharchitecture.FortressBuilding",
         "gharchitecture.OrganicBuilding", "gharchitecture.ScrapIronWorkshop", "gharchitecture.StoneBuilding",
         "gharchitecture.StoneCave", "gharchitecture.VehicleArchitecture", "gharchitecture.WarmColorsWallArchitecture",
-        "gharchitecture.CoolColorsWallArchitecture", "gharchitecture.DingyResidentialArchitecture"
+        "gharchitecture.CoolColorsWallArchitecture", "gharchitecture.DingyResidentialArchitecture",
+        "gharchitecture.SewerArchitecture"
     ),
     "interior_decor": (
         "gharchitecture.DungeonDecor", "gharchitecture.FactoryDecor", "gharchitecture.DefiledFactoryDecor",
         "gharchitecture.CheeseShopDecor", "gharchitecture.BunkerDecor", "gharchitecture.CaveDecor",
         "gharchitecture.ColumnsDecor", "gharchitecture.MysteryDungeonDecor", "gharchitecture.OfficeDecor",
-        "gharchitecture.ResidentialDecor", "gharchitecture.OrganicStructureDecor", "gharchitecture.ResidentialDecor",
+        "gharchitecture.ResidentialDecor", "gharchitecture.OrganicStructureDecor", "gharchitecture.SewerDecor",
         "gharchitecture.RundownChemPlantDecor", "gharchitecture.RundownFactoryDecor",
         "gharchitecture.StorageRoomDecor", "gharchitecture.TechDungeonDecor", "gharchitecture.ToxicCaveDecor",
         "gharchitecture.StoneUndercityDecor", "gharchitecture.UlsaniteOfficeDecor", "None"
@@ -211,7 +218,10 @@ SINGULAR_TYPES = {
     "monster_tags": (
         "AIR", "ANIMAL", "BRIGHT", "BUG", "CAVE", "CITY", "CREEPY", "DARK", "DESERT", "DEVO", "DINOSAUR", "EARTH",
         "EXOTIC", "FACTORY", "FIRE", "FOREST", "GREEN", "GUARD", "HUNTER-X", "JUNGLE", "MINE", "MOUNTAIN", "MUTANT",
-        "REPTILE", "ROBOT, ""RUINS", "SWAMP", "SYNTH", "TOXIC", "VERMIN", "WASTELAND", "WATER", "ZOMBOT"
+        "REPTILE", "ROBOT", "RUINS", "SWAMP", "SYNTH", "TOXIC", "VERMIN", "WASTELAND", "WATER", "ZOMBOT"
+    ),
+    "container_waypoint": (
+        "ghwaypoints.OldCrate", "ghwaypoints.Skeleton", "ghwaypoints.StorageBox", "ghwaypoints.AmmoBox"
     )
 
 }

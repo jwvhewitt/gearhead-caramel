@@ -175,25 +175,24 @@ class FiniteStateListVariable(BaseVariableDefinition):
 
 
 class SceneTagListVariable(BaseVariableDefinition):
-    DEFAULT_VAR_TYPE = "list"
+    DEFAULT_VAR_TYPE = "scene_tags"
     WIDGET_TYPE = varwidgets.AddRemoveFSOptionsWidget
 
     def get_errors(self, part, key):
         myerrors = list()
         myerrors += super().get_errors(part, key)
-        my_names_and_states = statefinders.get_possible_states(part, part.brick.vars[key].var_type)
-        mynames = [a[1] for a in my_names_and_states]
-        mylist = part.get_ultra_vars().get(key, "")
+        my_names_and_states = statefinders.get_possible_states(part, self.DEFAULT_VAR_TYPE)
+        mystates = [a[1] for a in my_names_and_states]
+        mylist = part.raw_vars.get(key, [])
         for myval in mylist:
-            if myval not in mynames:
-                myerrors.append("Variable {} in {} has unknown name {}".format(key, part, myval))
+            if myval not in mystates:
+                myerrors.append("Variable {} in {} has unknown value {}".format(key, part, myval))
 
         return myerrors
 
     @staticmethod
     def format_for_python(value):
-        mydict = dict(statefinders.get_scene_tags())
-        return [mydict[v] for v in value]
+        return "[{}]".format(", ".join([str(v) for v in value]))
 
 
 class PaletteVariable(BaseVariableDefinition):
@@ -513,12 +512,78 @@ class StartingPointVariable(BaseVariableDefinition):
 
         return myerrors
 
-    def format_for_python(cls, value):
+    @staticmethod
+    def format_for_python(value):
         if value:
             return "nart.camp.go(nart.camp.campdata[THE_WORLD].get({}))".format(value)
         else:
             return "self.add_sub_plot(nart, \"START_PLOT_{}\".format(unique_id))"
 
+
+class TagReactionVariable(BaseVariableDefinition):
+    # The variable value will be a list of [tag, reaction_mod] lists.
+    DEFAULT_VAR_TYPE = "tag_reaction"
+
+    def get_widgets(self, part, key, editor=None, refresh_fun=None, **kwargs):
+        # Return a list of widgets having to do with this variable.
+        mylist = list()
+        mylist.append(pbge.widgets.LabelWidget(0,0,350,0,"Tag Reactions", justify=-1))
+
+        for trl in part.raw_vars.get(key,()):
+            mylist.append(varwidgets.PersonalityTagValueEditorWidget(part, trl, refresh_fun=refresh_fun, **kwargs))
+
+        myrow = pbge.widgets.RowWidget(0,0,350,0)
+        mylist.append(myrow)
+
+        myrow.add_left(pbge.widgets.LabelWidget(0,0,150,0,"Add Tag", draw_border=True, on_click=self._add_widget, data=(part.raw_vars[key], refresh_fun)))
+        myrow.add_right(pbge.widgets.LabelWidget(0,0,150,0,"Delete Tag", draw_border=True, on_click=self._delete_widget, data=(part.raw_vars[key], refresh_fun)))
+
+        return mylist
+
+    def _add_widget(self, wid, ev):
+        mylist, refresh_fun = wid.data
+        mylist.append(["tags.Adventurer", "0"])
+        refresh_fun()
+
+    def _delete_widget(self, wid, ev):
+        mylist, refresh_fun = wid.data
+        mymenu = pbge.rpgmenu.PopUpMenu()
+        for item in mylist:
+            mymenu.add_item(item[0], item)
+        mymenu.add_item("==None==", None)
+
+        item_to_delete = mymenu.query()
+        if item_to_delete:
+            mylist.remove(item_to_delete)
+            refresh_fun()
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        rawval = part.raw_vars.get(key)
+        if isinstance(rawval, list):
+            for i, tag_value in enumerate(rawval):
+                if isinstance(tag_value, list) and len(tag_value) == 2:
+                    if not tag_value[0] in statefinders.SINGULAR_TYPES["personal_tags"]:
+                        myerrors.append("Error: Tag {} in pair {} in {} in {} is not valid.".format(tag_value[0], i, key, part))
+                    else:
+                        try:
+                            n = int(tag_value[1])
+                        except ValueError:
+                            myerrors.append("Error: Value {} in pair {} in {} in {} is not an integer.".format(tag_value[1], i, key, part))
+                else:
+                    myerrors.append("Error: Tag/Value pair {} in {} in {} is malformed.".format(i, key, part))
+
+        else:
+            myerrors.append("Error: Variable {} in {} is not a list.".format(key,part))
+
+        return myerrors
+
+    @staticmethod
+    def format_for_python(value: list):
+        if value:
+            my_params = ["({}, {})".format(k,int(v)) for k,v in value]
+            return "dict([{}])".format(", ".join(my_params))
 
 
 def get_variable_definition(default_val=0, var_type="integer", **kwargs):
@@ -535,7 +600,7 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
     elif var_type in statefinders.LIST_TYPES:
         return FiniteStateListVariable(default_val, var_type, **kwargs)
     elif var_type == "scene_tags":
-        return FiniteStateListVariable(default_val, var_type, **kwargs)
+        return SceneTagListVariable(default_val, var_type, **kwargs)
     elif var_type == "door_sign":
         return DoorSignVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.SINGULAR_TYPES:
@@ -568,6 +633,8 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return StartingPointVariable(default_val, **kwargs)
     elif var_type == "major_npc_id":
         return MajorNPCIDVariable(default_val, **kwargs)
+    elif var_type == "tag_reaction":
+        return TagReactionVariable(default_val, **kwargs)
     else:
         if var_type != "string":
             print("Unknown variable type {}; defaulting to string.".format(var_type))
