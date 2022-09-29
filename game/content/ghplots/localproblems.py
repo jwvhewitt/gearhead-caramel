@@ -128,8 +128,9 @@ class SocialSpending(Plot):
         self.RUMOR = None
         self.memo = None
 
-    def MAKE_BUILDING_WIN(self, camp):
+    def MAKE_BUILDING_WIN(self, camp: gears.GearHeadCampaign):
         pbge.alert("{METROSCENE} has finally completed work on {BUILDING_NAME}.".format(**self.elements))
+        camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
         if self.elements["NPC"].is_operational():
             content.load_dynamic_plot(camp, "POST_PLOT_REWARD", PlotState().based_on(
@@ -211,7 +212,7 @@ class TheNightStalker(Plot):
         self.RUMOR = None
         self.memo = None
         self.defeated_monster = True
-
+        camp.check_trigger("WIN", self)
 
 
 class TheCursedSoil(Plot):
@@ -377,6 +378,7 @@ class TheCursedSoil(Plot):
         self.memo = None
         self.QOL = gears.QualityOfLife(prosperity=1)
         self.defeated_smogspewer = True
+        camp.check_trigger("WIN", self)
 
 
 class DeadzoneDefenseSpending(Plot):
@@ -486,6 +488,7 @@ class DeadzoneDefenseSpending(Plot):
 
     def MAKE_BUILDING_WIN(self, camp):
         pbge.alert("{METROSCENE} has finally completed work on {BUILDING_NAME}.".format(**self.elements))
+        camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
         if self.elements["NPC"].is_operational():
             content.load_dynamic_plot(camp, "POST_PLOT_REWARD", PlotState().based_on(
@@ -720,6 +723,7 @@ class SregorThrunet(Plot):
         pbge.alert(
             "With a loud beep and a few more sparks than you're comfortable with, the Thrunet server roars back into action. It seems you have successfully repaired it.")
         camp.dole_xp(100)
+        camp.check_trigger("WIN", self)
 
 
 class ClassicMurderMystery(Plot):
@@ -822,6 +826,7 @@ class ClassicMurderMystery(Plot):
 
     def MCHALLENGE_WIN(self, camp: gears.GearHeadCampaign):
         camp.freeze(self.elements["CULPRIT"])
+        camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
     def CULPRIT_offers(self, camp: gears.GearHeadCampaign):
@@ -864,6 +869,7 @@ class ClassicMurderMystery(Plot):
         pbge.alert(
             "For catching {}, you earn ${:,}.".format(self.elements["CULPRIT"], reward))
         self.end_plot(camp, True)
+        camp.check_trigger("WIN", self)
 
     def _release_culprit(self, camp: gears.GearHeadCampaign):
         camp.credits += gears.selector.calc_mission_reward(self.rank, 500)
@@ -901,10 +907,12 @@ class ThePlague(Plot):
 
     def EPIDEMIC_WIN(self, camp):
         pbge.alert("The epidemic appears to be under control now.")
+        camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
     def MAKE_DRUGS_WIN(self, camp):
         pbge.alert("{METROSCENE} now has enough {THECURE} to bring {DISEASE} under control.".format(**self.elements))
+        camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
     def _get_dialogue_grammar(self, npc: gears.base.Character, camp: gears.GearHeadCampaign):
@@ -1384,6 +1392,7 @@ class RabbleRouser(Plot):
             self.elements["METRO"].city_leader = None
         pbge.alert(
             "With {CULPRIT} out of the way, life soon returns to normal in {METROSCENE}.".format(**self.elements))
+        camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
     def _release_culprit(self, camp: gears.GearHeadCampaign):

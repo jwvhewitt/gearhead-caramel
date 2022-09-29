@@ -70,12 +70,15 @@ MUSIC
 * Apex by Alexander Nakarada, Public Domain
 * A Surprising Encounter by Kevin Macleod, Public Domain
 * A Winter Tale by Johan Brodd, copyright 2016, GPL 3.0
+* Bad Nostlagia (Instrumental) by Anthem of Rain, CC-BY-4.0
 * Battle Theme by Komiku, Public Domain
 * Bikini Bottom by HoliznaCC0, Public Domain
+* Boots & Pants (Instrumental Mix) by Monkey Warhol, CC-BY-4.0
 * Boss 2: Too Powerful For You by Komiku, Public Domain
 * Chronos by Alexander Nakarada, Public Domain
 * Comic Game Loop - Mischief by Kevin Macleod, Public Domain
 * Crooked Townie by HoliznaCC0, Public Domain
+* Disco High by UltraCat, CC-BY-4.0
 * Fight Run Breath Deeply by Komiku, Public Domain
 * Friend's Theme by Komiku, Public Domain
 * Good Night by Dub Alta Fidelidad (c) copyright 2020 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/dubaltafidelidad/61458
@@ -90,15 +93,18 @@ MUSIC
 * Jethro on the Run from the Incompetech PD Music Collection, Public Domain
 * Journey of Hope by Alexander Nakarada, Public Domain
 * Kalte Ohren by Alex (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/AlexBeroza/59612 Ft: starfrosch & Jerry Spoon
+* Leave the Country (Instrumental) by Anthem of Rain, CC-BY-4.0
 * Nothing Will Grow Here by Komiku, Public Domain
 * Oreilles froides(Kalte Ohren) remix Blue by Bluemillenium (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/Bluemillenium/59613 
 * Out of the East (1918, Rector Novelty Orchestra) by Joe Rosey, Public Domain
 * Poor Man’s Groove by Mr Smith, Public Domain
 * Punk by HoliznaCC0, Public Domain
 * reCreation by airtone (c) copyright 2019 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/airtone/59721 
+* Rock This House (Instrumental) by Anthem of Rain, CC-BY-4.0
 * Run Against the Universe by Komiku, Public Domain
 * Run! That Boss Was a Bearing Wall! by Komiku, Public Domain
 * Somewhere in the Dark by HoliznaCC0, Public Domain
+* So My Love (Instrumental) by Anthem of Rain, CC-BY-4.0
 * Stop the Merry-Go-Round by TRG Banks, Public Domain
 * Surfing by Komiku, Public Domain
 * The Stars Look Different (Ziggy Stardust Mix) by spinningmerkaba (c) copyright 2016 Licensed under a Creative Commons

@@ -77,12 +77,12 @@ class BasicEmptyBuilding(Plot):
             60, 60, self.interiorname, player_team=team1, civilian_team=team2, faction=self.elements.get("INTERIOR_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING,),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         myarchi = self.elements.get("INTERIOR_ARCHITECTURE") or gharchitecture.IndustrialBuilding
         mydecor = self.elements.get("INTERIOR_DECOR")
-        if mydecor:
-            mydecor = mydecor()
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, myarchi(decorate=mydecor))
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south),
@@ -118,12 +118,12 @@ class BasicOfficeBuilding(Plot):
             60, 60, self.interiorname, player_team=team1, civilian_team=team2, faction=self.elements.get("INTERIOR_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING,),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         myarchi = self.elements.get("INTERIOR_ARCHITECTURE") or gharchitecture.IndustrialBuilding
         mydecor = self.elements.get("INTERIOR_DECOR")
-        if mydecor:
-            mydecor = mydecor()
         intscenegen = pbge.randmaps.SceneGenerator(intscene, myarchi(decorate=mydecor))
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south),
@@ -177,6 +177,8 @@ class BasicArmorStore(Plot):
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
@@ -259,6 +261,8 @@ class BasicBlackMarket(Plot):
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
@@ -343,6 +347,8 @@ class BasicGarage(Plot):
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
@@ -444,6 +450,8 @@ class BasicGeneralStore(Plot):
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding(
@@ -530,6 +538,8 @@ class BasicHospital(Plot):
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.HospitalBuilding())
@@ -626,6 +636,8 @@ class BasicMechaShop(Plot):
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.IndustrialBuilding())
@@ -714,6 +726,8 @@ class BasicTavern(Plot):
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING, gears.tags.SCENE_CULTURE),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.ResidentialBuilding())
@@ -803,6 +817,8 @@ class BasicWeaponStore(Plot):
             35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())

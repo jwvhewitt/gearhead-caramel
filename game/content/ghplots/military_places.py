@@ -50,6 +50,8 @@ class BasicFieldHospital(Plot):
             35, 35, self.hqname, player_team=team1, civilian_team=team2, faction=self.elements.get("HQ_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_VEHICLE, gears.tags.SCENE_HOSPITAL),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.VehicleArchitecture())
@@ -127,6 +129,8 @@ class BasicTent(Plot):
             35, 35, self.tentname, player_team=team1, civilian_team=team2, faction=self.elements.get("TENT_FACTION"),
             attributes=self.elements.get("INTERIOR_TAGS", [gears.tags.SCENE_PUBLIC,]) + [
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_BASE],
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.TentArchitecture())
@@ -190,6 +194,8 @@ class BasicMobileHQ(Plot):
             35, 35, self.hqname, player_team=team1, civilian_team=team2, faction=self.elements.get("HQ_FACTION"),
             attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
                 gears.tags.SCENE_VEHICLE, gears.tags.SCENE_BASE),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.VehicleArchitecture())

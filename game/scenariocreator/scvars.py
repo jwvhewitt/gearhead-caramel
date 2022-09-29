@@ -108,6 +108,25 @@ class FiniteStateVariable(BaseVariableDefinition):
 
         return myerrors
 
+class InteriorDecorVariable(FiniteStateVariable):
+    DEFAULT_VAR_TYPE = "interior_decor"
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        myval = part.raw_vars.get(key, "")
+        if not statefinders.is_legal_state(part, self.DEFAULT_VAR_TYPE, myval):
+            myerrors.append("Variable {} in {} has unknown value {}".format(key, part, myval))
+
+        return myerrors
+
+    @staticmethod
+    def format_for_python(value):
+        if value and value != "None":
+            return "{}()".format(value)
+        else:
+            return "None"
+
+
 class MajorNPCIDVariable(FiniteStateVariable):
     DEFAULT_VAR_TYPE = "major_npc_id"
     WIDGET_TYPE = varwidgets.FiniteStateEditorWidget
@@ -592,7 +611,7 @@ class SceneConnectionVariable(BaseVariableDefinition):
     GATE_TYPES = ("Small Room", "Building", "Regular Room")
 
     DEFAULT_GATE_DEF = {"GATE_TYPE": 0, "ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
-                        "ANCHOR": "None", "DOOR_NAME": "Exit", "DOOR_CLASS": "ghwaypoints.Exit", "DOOR_SIGN": None}
+                        "ANCHOR": "None", "DOOR_NAME": "Exit", "DOOR_CLASS": "ghwaypoints.Exit", "DOOR_SIGN": "None"}
 
     class MenuEffectWithData:
         def __init__(self, data, data_fun):
@@ -619,7 +638,7 @@ class SceneConnectionVariable(BaseVariableDefinition):
             mylist.append(my_type_menu)
 
             my_room_menu = pbge.widgets.ColDropdownWidget(350, "Room Style", on_select=self.MenuEffectWithData(myval[gatenum], self._select_room_style))
-            if myval[0]["GATE_TYPE"] == 1:
+            if myval[gatenum]["GATE_TYPE"] == 1:
                 candidates = statefinders.get_possible_states(part, "building_terrset")
             else:
                 candidates = statefinders.get_possible_states(part, "room")
@@ -643,14 +662,15 @@ class SceneConnectionVariable(BaseVariableDefinition):
             my_door_menu.my_menu_widget.menu.set_item_by_value(myval[gatenum]["DOOR_CLASS"])
             mylist.append(my_door_menu)
 
-            if myval[0]["GATE_TYPE"] == 1:
+            if myval[gatenum]["GATE_TYPE"] == 1:
                 my_sign_menu = pbge.widgets.ColDropdownWidget(
-                    350, "Doorway", on_select=self.MenuEffectWithData(myval[gatenum], self._select_door_type)
+                    350, "Door Sign", on_select=self.MenuEffectWithData(myval[gatenum], self._select_sign)
                 )
                 for k, v in statefinders.get_possible_states(part, "door_sign"):
                     my_sign_menu.add_item(k, v)
-                my_sign_menu.add_item("==None==", None)
-                my_type_menu.my_menu_widget.menu.set_item_by_value(myval[gatenum]["DOOR_SIGN"])
+                #my_sign_menu.add_item("==None==", None)
+                my_sign_menu.my_menu_widget.menu.sort()
+                my_sign_menu.my_menu_widget.menu.set_item_by_value(myval[gatenum]["DOOR_SIGN"])
                 mylist.append(my_sign_menu)
 
         self.refresh_fun = refresh_fun
@@ -682,6 +702,7 @@ class SceneConnectionVariable(BaseVariableDefinition):
                 self.refresh_fun()
 
     def _select_sign(self, mydict, result):
+        print(result)
         mydict["DOOR_SIGN"] = result
         if self.refresh_fun:
             self.refresh_fun()
@@ -700,7 +721,7 @@ class SceneConnectionVariable(BaseVariableDefinition):
 
             if mydict["GATE_TYPE"] == 1 and not statefinders.is_legal_state(part, "building_terrset", mydict.get("ROOM_STYLE")):
                 myerrors.append("Error: Illegal building style {} for gate {} in {}.".format(mydict.get("ROOM_STYLE"), mygate, part))
-            elif not statefinders.is_legal_state(part, "room", mydict.get("ROOM_STYLE")):
+            elif mydict["GATE_TYPE"] != 1 and not statefinders.is_legal_state(part, "room", mydict.get("ROOM_STYLE")):
                 myerrors.append("Error: Illegal room style {} for gate {} in {}.".format(mydict.get("ROOM_STYLE"), mygate, part))
 
             if not statefinders.is_legal_state(part, "map_anchor", mydict.get("ANCHOR")):
@@ -759,6 +780,8 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return StringIdentifierVariable(default_val, **kwargs)
     elif var_type == "campaign_variable":
         return CampaignVariableVariable(default_val, **kwargs)
+    elif var_type == "interior_decor":
+        return InteriorDecorVariable(default_val, var_type, **kwargs)
     elif var_type in ("faction", "scene", "npc", "world_map", "job"):
         return FiniteStateVariable(default_val, var_type, **kwargs)
     elif var_type in statefinders.LIST_TYPES:

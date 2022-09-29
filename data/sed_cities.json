@@ -1587,7 +1587,8 @@
   {
     "label": "CITY_FEATURE",
     "scripts": {
-      "plot_init": "+subplot LOCAL_PROBLEM\n\n\n\n"
+      "plot_init": "+subplot LOCAL_PROBLEM PROBLEM{_uid}\n\n",
+      "plot_methods": "def PROBLEM{_uid}_WIN(self, camp):\n    camp.campdata[LOCAL_PROBLEMS_SOLVED] += 1\n\n\n\n"
     },
     "name": "Add Local Problem",
     "desc": "Adds a Local Problem plot to this location.",

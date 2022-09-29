@@ -314,8 +314,11 @@ class MercenaryPassingThrough(Plot):
     )
 
     def custom_init(self, nart):
-        npc = gears.selector.random_character(self.rank, camp=nart.camp, can_cyberize=True,
+        npc = gears.selector.random_character(max(self.rank + random.randint(-10,10), 10),
+                                              camp=nart.camp, can_cyberize=True,
                                               job=gears.jobs.ALL_JOBS["Mercenary"])
+        if random.randint(1,23) == 5:
+            npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1,5)
         self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"],
                           backup_seek_func=self._is_okay_scene)
         self.register_element("NPC", npc, dident="NPC_SCENE", lock=True)

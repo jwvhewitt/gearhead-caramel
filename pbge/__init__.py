@@ -149,7 +149,7 @@ class GameState(object):
         self.widget_responded = False
         self.audio_enabled = True
         self.music = None
-        self.music_name = None
+        self.music_name = ""
         self.anim_phase = 0
         self.standing_by = False
         self.notifications = list()
@@ -218,7 +218,8 @@ class GameState(object):
                     self.music.fadeout(2000)
                 self.music = sound
                 sound.play(loops=-1, fade_ms=2000)
-        self.music_name = mfname
+        if mfname:
+            self.music_name = mfname
 
     def stop_music(self):
         if self.music:

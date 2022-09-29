@@ -1,3 +1,4 @@
+* Fixed music skip when entering/leaving buildings
 * Fixed bug in Town Hall plot
 
 v0.930 September 21 2022

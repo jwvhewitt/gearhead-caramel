@@ -164,7 +164,7 @@ SINGULAR_TYPES = {
         "gharchitecture.OrganicBuilding", "gharchitecture.ScrapIronWorkshop", "gharchitecture.StoneBuilding",
         "gharchitecture.StoneCave", "gharchitecture.VehicleArchitecture", "gharchitecture.WarmColorsWallArchitecture",
         "gharchitecture.CoolColorsWallArchitecture", "gharchitecture.DingyResidentialArchitecture",
-        "gharchitecture.SewerArchitecture"
+        "gharchitecture.SewerArchitecture", "gharchitecture.DerelictArchitecture"
     ),
     'terrain_set': (
         "ghterrain.CorsairTerrset",
@@ -201,7 +201,7 @@ SINGULAR_TYPES = {
         "gharchitecture.OrganicBuilding", "gharchitecture.ScrapIronWorkshop", "gharchitecture.StoneBuilding",
         "gharchitecture.StoneCave", "gharchitecture.VehicleArchitecture", "gharchitecture.WarmColorsWallArchitecture",
         "gharchitecture.CoolColorsWallArchitecture", "gharchitecture.DingyResidentialArchitecture",
-        "gharchitecture.SewerArchitecture"
+        "gharchitecture.SewerArchitecture", "gharchitecture.DerelictArchitecture"
     ),
     "interior_decor": (
         "gharchitecture.DungeonDecor", "gharchitecture.FactoryDecor", "gharchitecture.DefiledFactoryDecor",

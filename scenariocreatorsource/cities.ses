@@ -994,7 +994,11 @@ class MobileHQ_{unique_id}_{_uid}( Plot ):
     "singular": true
 
 *SCRIPT plot_init
-+subplot LOCAL_PROBLEM
++subplot LOCAL_PROBLEM PROBLEM{_uid}
+
+*SCRIPT plot_methods
+def PROBLEM{_uid}_WIN(self, camp):
+    camp.campdata[LOCAL_PROBLEMS_SOLVED] += 1
 
 
 

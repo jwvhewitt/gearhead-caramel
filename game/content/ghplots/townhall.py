@@ -76,6 +76,8 @@ class BasicTownHall(Plot):
             35, 35, self._hallname, player_team=team1, civilian_team=team2, faction=self.elements.get("HALL_FACTION"),
             attributes=self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,)) + (
                 gears.tags.SCENE_BUILDING, gears.tags.SCENE_GOVERNMENT),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.DefaultBuilding(

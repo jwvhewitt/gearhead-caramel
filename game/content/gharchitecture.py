@@ -234,7 +234,7 @@ class HumanScaleJunkyard(GearHeadArchitecture):
     DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
     DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.CrackedEarth, ghterrain.SemiDeadZoneGround,
                                                          ghterrain.GreenZoneGrass, loground=0.30, higround=0.75)
-    DEFAULT_ROOM_CLASSES = (ghrooms.BushesRoom, ghrooms.DragonToothRoom)
+    DEFAULT_ROOM_CLASSES = (pbge.randmaps.rooms.FuzzyRoom,)
 
 
 class HumanScaleUrbanDeadzone(GearHeadArchitecture):
@@ -339,6 +339,14 @@ class FactoryBuilding(GearHeadArchitecture):
     ENV = gears.tags.UrbanEnv
     DEFAULT_WALL_TERRAIN = ghterrain.IndustrialWall
     DEFAULT_FLOOR_TERRAIN = ghterrain.GrateFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+
+class DerelictArchitecture(GearHeadArchitecture):
+    ENV = gears.tags.UrbanEnv
+    DEFAULT_WALL_TERRAIN = ghterrain.ScrapIronWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.OldTilesFloor
     DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 

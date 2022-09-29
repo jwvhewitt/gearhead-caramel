@@ -89,7 +89,7 @@
     "scripts": {
       "plot_subplots": "+subplot DUNGEONLEVEL_{unique_id}_{_uid}\n\n",
       "main": "class DungeonLevel_{unique_id}_{_uid}( Plot ):\n    LABEL = \"DUNGEONLEVEL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        # Do the connection here.\n        #scutils.SCSceneConnection(self.elements[\"PARENT_SCENE\"], self.elements[\"LOCALE\"], {scene_connection})\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
-      "scenario_build": "splot = self.add_sub_plot(nart, \"DUNGEON_GENERIC\", elements=dict(METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], DG_NAME={dg_name}, DG_ARCHITECTURE={dg_architecture}(), DG_SCENE_TAGS={dg_scene_tags}, DG_MONSTER_TAGS={dg_monster_tags}, DG_PARENT_SCENE=the_world[{PARENT_SCENE_UID}], DG_EXPLO_MUSIC={dg_explo_music}, DG_COMBAT_MUSIC={dg_combat_music}, DG_DECOR={dg_decor}))\n+add_physical LOCALE splot.elements[\"LOCALE\"]\nscutils.SCSceneConnection(the_world[{PARENT_SCENE_UID}], splot.elements[\"LOCALE\"], {scene_connection})\n"
+      "scenario_build": "splot = self.add_sub_plot(nart, \"DUNGEON_GENERIC\", elements=dict(METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], DG_NAME={dg_name}, DG_ARCHITECTURE={dg_architecture}(), DG_SCENE_TAGS={dg_scene_tags}, DG_MONSTER_TAGS={dg_monster_tags}, DG_PARENT_SCENE=the_world[{PARENT_SCENE_UID}], DG_EXPLO_MUSIC={dg_explo_music}, DG_COMBAT_MUSIC={dg_combat_music}, DG_DECOR={dg_decor}))\n+add_physical LOCALE splot.elements[\"LOCALE\"]\nscutils.SCSceneConnection(the_world[{PARENT_SCENE_UID}], splot.elements[\"LOCALE\"], {scene_connection})\n\n\n\n"
     },
     "name": "New Singular Dungeon Level",
     "display_name": "Level: {dg_name}",
@@ -126,7 +126,7 @@
         "var_type": "music"
       },
       "dg_decor": {
-        "default_val": null,
+        "default_val": "None",
         "var_type": "interior_decor"
       },
       "scene_connection": {
@@ -150,6 +150,153 @@
       {
         "element_key": "LOCALE",
         "parent": "PARENT_SCENE",
+        "child_types": [
+          "SCENE_FEATURE"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "SCENE_FEATURE",
+    "scripts": {
+      "plot_subplots": "+subplot DUNGEON_{unique_id}_{_uid}\n\n",
+      "main": "class Dungeon_{unique_id}_{_uid}( Plot ):\n    LABEL = \"DUNGEON_{unique_id}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
+      "scenario_build": "mydungeon = dungeonmaker.DungeonMaker(nart, self, name={dg_name}, architecture={dg_architecture}(), rank=self.rank, scene_tags={dg_scene_tags}, monster_tags={dg_monster_tags}, parent_scene=the_world[{PARENT_SCENE_UID}], explo_music={dg_explo_music}, combat_music={dg_combat_music}, decor={dg_decor})\n+add_physical DUNGEON mydungeon\nscutils.SCSceneConnection(the_world[{PARENT_SCENE_UID}], mydungeon.entry_level, {scene_connection})\n\n\n\n"
+    },
+    "name": "New Dungeon",
+    "display_name": "Dungeon: {dg_name}",
+    "desc": "Adds a complete dungeon.",
+    "is_new_branch": true,
+    "vars": {
+      "dg_name": {
+        "default_val": "",
+        "var_type": "literal"
+      },
+      "dg_architecture": {
+        "default_val": "gharchitecture.StoneCave",
+        "var_type": "personal_scale_architecture",
+        "must_be_defined": true
+      },
+      "dg_scene_tags": {
+        "default_val": [
+          "gears.tags.SCENE_DUNGEON"
+        ],
+        "var_type": "scene_tags"
+      },
+      "dg_monster_tags": {
+        "default_val": [
+          "ANIMAL"
+        ],
+        "var_type": "list:monster_tags"
+      },
+      "dg_explo_music": {
+        "default_val": "Good Night.ogg",
+        "var_type": "music"
+      },
+      "dg_combat_music": {
+        "default_val": "Apex.ogg",
+        "var_type": "music"
+      },
+      "dg_decor": {
+        "default_val": "None",
+        "var_type": "interior_decor"
+      },
+      "scene_connection": {
+        "default_val": null,
+        "var_type": "scene_connection"
+      }
+    },
+    "child_types": [
+      "DUNGEON_FEATURE"
+    ],
+    "elements": {
+      "DUNGEON": {
+        "e_type": "dungeon",
+        "name": "{dg_name}"
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "DUNGEON",
+        "parent": "PARENT_SCENE",
+        "variable_keys": [
+          "dg_name",
+          "dg_architecture",
+          "dg_scene_tags",
+          "dg_monster_tags",
+          "dg_explo_music",
+          "dg_combat_music",
+          "dg_decor",
+          "scene_connection"
+        ],
+        "child_types": [
+          "DUNGEON_FEATURE"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "DUNGEON_FEATURE",
+    "scripts": {
+      "plot_subplots": "+subplot DUNGEON_ENTRY_{unique_id}_{_uid}\n\n",
+      "main": "class DungeonEntry_{unique_id}_{_uid}( Plot ):\n    LABEL = \"DUNGEON_ENTRY_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
+      "scenario_build": "+add_physical LOCALE the_world[{DUNGEON_UID}].entry_level\n\n\n\n"
+    },
+    "name": "Add Entry Level Features",
+    "display_name": "Entry: {dg_name}",
+    "desc": "Allows you to add features to the entry level.",
+    "is_new_branch": true,
+    "child_types": [
+      "SCENE_FEATURE"
+    ],
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "Entry: {dg_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
+      }
+    },
+    "singular": true,
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "DUNGEON",
+        "child_types": [
+          "SCENE_FEATURE"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "DUNGEON_FEATURE",
+    "scripts": {
+      "plot_subplots": "+subplot DUNGEON_GOAL_{unique_id}_{_uid}\n\n",
+      "main": "class DungeonGoal_{unique_id}_{_uid}( Plot ):\n    LABEL = \"DUNGEON_GOAL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
+      "scenario_build": "+add_physical LOCALE the_world[{DUNGEON_UID}].goal_level\n"
+    },
+    "name": "Add Goal Level Features",
+    "display_name": "Goal: {dg_name}",
+    "desc": "Allows you to add features to the goal level.",
+    "is_new_branch": true,
+    "child_types": [
+      "SCENE_FEATURE"
+    ],
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "Goal: {dg_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
+      }
+    },
+    "singular": true,
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "DUNGEON",
         "child_types": [
           "SCENE_FEATURE"
         ]

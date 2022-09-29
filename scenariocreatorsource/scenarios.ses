@@ -26,9 +26,9 @@
 #     #: plot_subplots      Contains calls to load subplots.
 #     #: plot_methods       Following the custom_init method, this reserves space for extra plot methods
 #
-# "+subplot [subplot_label]" adds the named subplot and includes all public elements by all their aliases
-#     If your needs are more specialized, you can call add_sub_plot directly. Lines starting with "+" are macros
-#     that do repetitive stuff in the PlotBrick compiler.
+# "+subplot [subplot_label] [optional_ident]" adds the named subplot and includes all public elements by all their
+#     aliases. If your needs are more specialized, you can call add_sub_plot directly. Lines starting with "+" are
+#     macros that do repetitive stuff in the PlotBrick compiler.
 #
 # "+add_physical [element ID] [variable name]" is a macro that should be used in the #:scenario_build script. It
 #     sticks an object you just created (presumably a physical thing of some type) into the world and records its
@@ -47,6 +47,10 @@
 #
 # Similarly, "CUSTOM_FACTIONS" is a global element that is a dict of custom factions. Don't define a new element with
 #     this name.
+#
+# LOCAL_PROBLEMS_SOLVED is a campdata variable that keeps a running total of how many local problems the PC has
+#     helped with. Add 1 to it any time you think the PC's actions have made life better for the common folk. Or don't.
+#     It really depends on what kind of adventure you're making.
 #
 # Variable keys and element keys are string literals; they can't use {} format strings.
 #     This is different from the first version of the plot editor, where element keys could use {} format strings.
@@ -104,6 +108,7 @@ from game.content.ghplots import missionbuilder, campfeatures
 
 THE_WORLD = "SCENARIO_ELEMENT_UIDS"
 CUSTOM_FACTIONS = "CUSTOM_FACTIONS"
+LOCAL_PROBLEMS_SOLVED = "LOCAL_PROBLEMS_SOLVED"
 
 class {unique_id}_Scenario( Plot ):
     LABEL = "SCENARIO_{unique_id}"
@@ -124,6 +129,7 @@ class {unique_id}_Scenario( Plot ):
 
         nart.camp.campdata[gears.CAMPDATA_DEFAULT_MISSION_COMBAT_MUSIC] = {default_mission_combat_music}
         nart.camp.campdata[gears.CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC] = {default_mission_exploration_music}
+        nart.camp.campdata[LOCAL_PROBLEMS_SOLVED] = 0
 
         if {adventure_threat} > 0:
             self.rank = {adventure_threat}

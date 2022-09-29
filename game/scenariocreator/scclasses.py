@@ -277,12 +277,14 @@ class BluePrint(object):
                     elif script_line.strip().startswith("+subplot"):
                         n = script_line.find("+subplot")
                         prefix = " " * n
-                        subplot_name = script_line[n + 8:].strip()
+                        subplot_data = script_line[n + 8:].strip()
+                        subplot_name, subplot_spaces, subplot_ident = subplot_data.partition(" ")
                         if subplot_name:
                             nuscript.append(
-                                prefix + "self.add_sub_plot(nart, '{}', elements={})".format(
+                                prefix + "self.add_sub_plot(nart, '{}', elements={}, ident=\"{}\")".format(
                                     subplot_name,
-                                    "dict([(a, self.elements[b]) for a,b in element_alias_list])"
+                                    "dict([(a, self.elements[b]) for a,b in element_alias_list])",
+                                    subplot_ident
                                 )
                             )
                         else:
