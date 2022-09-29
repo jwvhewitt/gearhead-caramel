@@ -73,3 +73,54 @@ class Room_{unique_id}_{_uid}( Plot ):
 the_world[{ROOM_UID}] = {room}(name={room_name}, anchor={anchor}, decorate={decor})
 the_world[{LOCALE_UID}].contents.append(the_world[{ROOM_UID}])
 
+
+
+*NEW SCENE_FEATURE
+    "name": "New Singular Dungeon Level",
+    "display_name": "Level: {dg_name}",
+    "desc": "Adds a signular dungeon level.",
+    "is_new_branch": true,
+    "vars": {
+      "dg_name": {"default_val": "", "var_type": "literal"},
+      "dg_architecture": {"default_val": "gharchitecture.StoneCave", "var_type": "personal_scale_architecture", "must_be_defined": true},
+      "dg_scene_tags": {"default_val": ["gears.tags.SCENE_DUNGEON"], "var_type": "scene_tags"},
+      "dg_monster_tags": {"default_val": ["ANIMAL"], "var_type": "list:monster_tags"},
+      "dg_explo_music": {"default_val":  "Good Night.ogg", "var_type": "music"},
+      "dg_combat_music": {"default_val":  "Apex.ogg", "var_type": "music"},
+      "dg_decor": {"default_val": null, "var_type": "interior_decor"},
+      "scene_connection": {"default_val": null, "var_type": "scene_connection"}
+    },
+    "child_types": ["SCENE_FEATURE"],
+    "elements": {
+      "LOCALE": {"e_type": "scene", "name": "Level: {dg_name}", "aliases": ["PARENT_SCENE"]}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "PARENT_SCENE", "child_types": ["SCENE_FEATURE"]}
+    ]
+
+*SCRIPT plot_subplots
++subplot DUNGEONLEVEL_{unique_id}_{_uid}
+
+*SCRIPT main
+class DungeonLevel_{unique_id}_{_uid}( Plot ):
+    LABEL = "DUNGEONLEVEL_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+
+    def custom_init( self, nart ):
+        +init_plot
+        # Do the connection here.
+        #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], {scene_connection})
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    #: plot_methods
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "DUNGEON_GENERIC", elements=dict(METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], DG_NAME={dg_name}, DG_ARCHITECTURE={dg_architecture}(), DG_SCENE_TAGS={dg_scene_tags}, DG_MONSTER_TAGS={dg_monster_tags}, DG_PARENT_SCENE=the_world[{PARENT_SCENE_UID}], DG_EXPLO_MUSIC={dg_explo_music}, DG_COMBAT_MUSIC={dg_combat_music}, DG_DECOR={dg_decor}))
++add_physical LOCALE splot.elements["LOCALE"]
+scutils.SCSceneConnection(the_world[{PARENT_SCENE_UID}], splot.elements["LOCALE"], {scene_connection})

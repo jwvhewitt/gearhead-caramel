@@ -46,6 +46,8 @@ class GenericDungeonLevel(Plot):
             self.last_update = camp.day
 
 
+
+
 class TestDungeon(Plot):
     LABEL = "TEST_DUNGEON"
 

@@ -205,7 +205,7 @@ class PhysicalPartTree(object):
     def get_physical(self, blueprint):
         for phys in blueprint.brick.physicals:
             uvars = blueprint.get_ultra_vars()
-            my_elements = blueprint.get_elements()
+            my_elements = blueprint.get_elements(include_top_level_aliases=False)
 
             phys_id = my_elements[phys.element_key].uid
             variable_keys = list(phys.variable_keys)

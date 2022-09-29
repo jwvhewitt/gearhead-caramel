@@ -4,7 +4,7 @@
     "scripts": {
       "plot_subplots": "+subplot CITY_{unique_id}_{_uid}\n\n",
       "main": "class City_{unique_id}_{_uid}( Plot ):\n    LABEL = \"CITY_{unique_id}_{_uid}\"\n    active = True\n    scope = \"METRO\"\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"METRO\"] = self.elements[\"LOCALE\"].metrodat\n        if {entrance_world_map}:\n            edge_params = {entrance_world_map_data.edge_params}\n            for e in edge_params:\n                nart.camp.campdata[{entrance_world_map}].connect_entrance_to_entrance(self.elements[\"MISSION_GATE\"], **e)\n\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        +subplot CF_METROSCENE_RECOVERY_HANDLER\n        +subplot CF_METROSCENE_WME_DEFENSE_HANDLER\n\n        if {allow_random_plots}:\n            +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER\n\n        return True\n\n    #: plot_methods\n\n",
-      "scenario_build": "# Build the city here, store it in the_world\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(\n    50, 50, \"{city_name}\", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,\n    faction={city_faction}, attributes={city_attributes},\n    exploration_music={exploration_music}, combat_music={combat_music}\n)\n\n# Create a scene generator\nmyscenegen = {scene_generator}(\n    myscene, {scene_architecture}(floor_terrain={floor_terrain}), road_terrain={road_terrain}\n)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"_CITY_{_uid}\")\nthe_world[{LOCALE_UID}] = myscene\n\n# Create the entry/exit point.\nmyroom = self.register_element(\n    \"_ENTRY_ROOM_{_uid}\", pbge.randmaps.rooms.Room(3, 3, anchor={entrance_anchor}),\n    dident=\"_CITY_{_uid}\"\n)\n\nmygate = self.register_element(\n    \"_MISSION_GATE_{_uid}\", Exit(name=\"{entrance_name}\", desc={entrance_desc},\n    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident=\"_ENTRY_ROOM_{_uid}\"\n)\n\nthe_world[{MISSION_GATE_UID}] = mygate\n\nif {entrance_world_map}:\n    nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)\n    mynode = campfeatures.WorldMapNode(destination=myscene, entrance=mygate, {entrance_world_map_data.node_params})\n    nart.camp.campdata[{entrance_world_map}].add_node(mynode, {entrance_world_map_data.node_pos})\n\n\n\n"
+      "scenario_build": "# Build the city here, store it in the_world\nteam1 = teams.Team(name=\"Player Team\")\nteam2 = teams.Team(name=\"Civilian Team\", allies=(team1,))\nmyscene = gears.GearHeadScene(\n    50, 50, \"{city_name}\", player_team=team1, civilian_team=team2, scale=gears.scale.HumanScale, is_metro=True,\n    faction={city_faction}, attributes={city_attributes},\n    exploration_music={exploration_music}, combat_music={combat_music}\n)\n\n# Create a scene generator\nmyscenegen = {scene_generator}(\n    myscene, {scene_architecture}(floor_terrain={floor_terrain}), road_terrain={road_terrain}, road_thickness=3\n)\n\n# Register the city scene and the metro data\nself.register_scene(nart, myscene, myscenegen, ident=\"_CITY_{_uid}\")\nthe_world[{LOCALE_UID}] = myscene\n\n# Create the entry/exit point.\nmyroom = self.register_element(\n    \"_ENTRY_ROOM_{_uid}\", pbge.randmaps.rooms.Room(3, 3, anchor={entrance_anchor}, tags=[pbge.randmaps.IS_CONNECTED_ROOM]),\n    dident=\"_CITY_{_uid}\"\n)\n\nmygate = self.register_element(\n    \"_MISSION_GATE_{_uid}\", Exit(name=\"{entrance_name}\", desc={entrance_desc},\n    anchor=pbge.randmaps.anchors.middle, plot_locked=True), dident=\"_ENTRY_ROOM_{_uid}\"\n)\n\nthe_world[{MISSION_GATE_UID}] = mygate\n\nif {entrance_world_map}:\n    nart.camp.campdata[{entrance_world_map}].associate_gate_with_map(mygate)\n    mynode = campfeatures.WorldMapNode(destination=myscene, entrance=mygate, {entrance_world_map_data.node_params})\n    nart.camp.campdata[{entrance_world_map}].add_node(mynode, {entrance_world_map_data.node_pos})\n\n\n\n"
     },
     "name": "New Metro Scene",
     "display_name": "City: {city_name}",
@@ -100,7 +100,8 @@
         "name": "{city_name}",
         "aliases": [
           "METROSCENE",
-          "CITY"
+          "CITY",
+          "PARENT_SCENE"
         ]
       },
       "MISSION_GATE": {
@@ -243,7 +244,8 @@
         "name": "{city_name}",
         "aliases": [
           "METROSCENE",
-          "CITY"
+          "CITY",
+          "PARENT_SCENE"
         ]
       },
       "ROOM": {
@@ -354,7 +356,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Black Market: {shop_name}"
+        "name": "Black Market: {shop_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -446,7 +451,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "General Store: {shop_name}"
+        "name": "General Store: {shop_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -538,7 +546,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Weapon Store: {shop_name}"
+        "name": "Weapon Store: {shop_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -627,7 +638,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Armor Store: {shop_name}"
+        "name": "Armor Store: {shop_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -716,7 +730,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Garage: {shop_name}"
+        "name": "Garage: {shop_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -808,7 +825,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Hospital: {shop_name}"
+        "name": "Hospital: {shop_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -900,7 +920,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Mecha Shop: {shop_name}"
+        "name": "Mecha Shop: {shop_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -988,7 +1011,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Tavern: {tavern_name}"
+        "name": "Tavern: {tavern_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -1076,7 +1102,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Town Hall: {hall_name}"
+        "name": "Town Hall: {hall_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -1185,7 +1214,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Building: {interior_name}"
+        "name": "Building: {interior_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -1284,7 +1316,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Office: {interior_name}"
+        "name": "Office: {interior_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -1360,7 +1395,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "Tent: {tent_name}"
+        "name": "Tent: {tent_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -1425,7 +1463,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "HQ: {hq_name}"
+        "name": "HQ: {hq_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -1495,7 +1536,10 @@
     "elements": {
       "LOCALE": {
         "e_type": "scene",
-        "name": "FHospital: {hq_name}"
+        "name": "FHospital: {hq_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
       },
       "ROOM": {
         "e_type": "room",
@@ -1552,7 +1596,7 @@
   {
     "label": "CITY_FEATURE",
     "scripts": {
-      "plot_init": "for t in range({num_residents}):\n    +subplot ADD_BORING_NPC\n"
+      "plot_init": "for t in range({num_residents}):\n    +subplot ADD_BORING_NPC\n\n\n\n"
     },
     "name": "Add Random City Residents",
     "desc": "Adds a number of random city residents to this location.",

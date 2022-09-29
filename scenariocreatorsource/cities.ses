@@ -23,7 +23,7 @@
     },
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE"],
     "elements": {
-      "LOCALE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["METROSCENE","CITY"]},
+      "LOCALE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["METROSCENE", "CITY", "PARENT_SCENE"]},
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
     "physicals": [
@@ -76,7 +76,7 @@ myscene = gears.GearHeadScene(
 
 # Create a scene generator
 myscenegen = {scene_generator}(
-    myscene, {scene_architecture}(floor_terrain={floor_terrain}), road_terrain={road_terrain}
+    myscene, {scene_architecture}(floor_terrain={floor_terrain}), road_terrain={road_terrain}, road_thickness=3
 )
 
 # Register the city scene and the metro data
@@ -85,7 +85,7 @@ the_world[{LOCALE_UID}] = myscene
 
 # Create the entry/exit point.
 myroom = self.register_element(
-    "_ENTRY_ROOM_{_uid}", pbge.randmaps.rooms.Room(3, 3, anchor={entrance_anchor}),
+    "_ENTRY_ROOM_{_uid}", pbge.randmaps.rooms.Room(3, 3, anchor={entrance_anchor}, tags=[pbge.randmaps.IS_CONNECTED_ROOM]),
     dident="_CITY_{_uid}"
 )
 
@@ -128,7 +128,7 @@ if {entrance_world_map}:
     },
     "child_types": ["CITY_FEATURE", "SCENE_FEATURE", "ROOM_FEATURE"],
     "elements": {
-      "LOCALE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["METROSCENE","CITY"]},
+      "LOCALE": {"e_type": "scene", "name": "{city_name}", "aliases":  ["METROSCENE","CITY","PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "MISSION_GATE": {"e_type": "gate", "name": "{entrance_name}", "aliases": ["ENTRANCE"]}
     },
@@ -249,7 +249,7 @@ for t in range({num_random_lancemates}):
    },
    "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Black Market: {shop_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Black Market: {shop_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
     },
@@ -307,7 +307,7 @@ class BlackMarket_{unique_id}_{_uid}( Plot ):
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "General Store: {shop_name}"},
+      "LOCALE": {"e_type": "scene", "name": "General Store: {shop_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}", "aliases": ["NPC"]}
     },
@@ -363,7 +363,7 @@ class GeneralStore_{unique_id}_{_uid}( Plot ):
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Weapon Store: {shop_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Weapon Store: {shop_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}"}
     },
@@ -419,7 +419,7 @@ class WeaponStore_{unique_id}_{_uid}( Plot ):
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Armor Store: {shop_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Armor Store: {shop_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Shopkeeper: {npc_name}"}
     },
@@ -475,7 +475,7 @@ class ArmorStore_{unique_id}_{_uid}( Plot ):
    },
    "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Garage: {shop_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Garage: {shop_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Mechanic: {npc_name}", "aliases": ["NPC"]}
     },
@@ -531,7 +531,7 @@ class Garage_{unique_id}_{_uid}( Plot ):
    },
    "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Hospital: {shop_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Hospital: {shop_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Doctor: {npc_name}", "aliases": ["NPC"]}
     },
@@ -587,7 +587,7 @@ class Hospital_{unique_id}_{_uid}( Plot ):
    },
    "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Mecha Shop: {shop_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Mecha Shop: {shop_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Mechanic: {npc_name}", "aliases": ["NPC"]}
     },
@@ -642,7 +642,7 @@ class MechaShop_{unique_id}_{_uid}( Plot ):
    },
    "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Tavern: {tavern_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Tavern: {tavern_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Bartender: {npc_name}"}
     },
@@ -698,7 +698,7 @@ class Tavern_{unique_id}_{_uid}( Plot ):
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Town Hall: {hall_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Town Hall: {hall_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Leader: {npc_name}"}
     },
@@ -759,7 +759,7 @@ class TownHall_{unique_id}_{_uid}( Plot ):
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Building: {interior_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Building: {interior_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"}
     },
     "physicals": [
@@ -811,7 +811,7 @@ class EmptyBuilding_{unique_id}_{_uid}( Plot ):
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Office: {interior_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Office: {interior_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"}
     },
     "physicals": [
@@ -858,7 +858,7 @@ class OfficeBuilding_{unique_id}_{_uid}( Plot ):
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "Tent: {tent_name}"},
+      "LOCALE": {"e_type": "scene", "name": "Tent: {tent_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"}
     },
     "physicals": [
@@ -904,7 +904,7 @@ class MilitaryTent_{unique_id}_{_uid}( Plot ):
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "HQ: {hq_name}"},
+      "LOCALE": {"e_type": "scene", "name": "HQ: {hq_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"}
     },
     "physicals": [
@@ -951,7 +951,7 @@ class MobileHQ_{unique_id}_{_uid}( Plot ):
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
    "elements": {
-      "LOCALE": {"e_type": "scene", "name": "FHospital: {hq_name}"},
+      "LOCALE": {"e_type": "scene", "name": "FHospital: {hq_name}", "aliases": ["PARENT_SCENE"]},
       "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
       "NPC": {"e_type": "npc", "name": "Medic: {npc_name}"}
     },
@@ -1009,3 +1009,6 @@ class MobileHQ_{unique_id}_{_uid}( Plot ):
 *SCRIPT plot_init
 for t in range({num_residents}):
     +subplot ADD_BORING_NPC
+
+
+

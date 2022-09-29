@@ -36,7 +36,7 @@
     "scripts": {
       "plot_subplots": "+subplot ROOM_{unique_id}_{_uid}\n\n",
       "main": "class Room_{unique_id}_{_uid}( Plot ):\n    LABEL = \"ROOM_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
-      "scenario_build": "the_world[{ROOM_UID}] = {room}(name={room_name}, anchor={anchor}, decorate={decor})\nthe_world[{LOCALE_UID}].contents.append(the_world[{ROOM_UID}])\n\n"
+      "scenario_build": "the_world[{ROOM_UID}] = {room}(name={room_name}, anchor={anchor}, decorate={decor})\nthe_world[{LOCALE_UID}].contents.append(the_world[{ROOM_UID}])\n\n\n\n"
     },
     "name": "New Room",
     "display_name": "Room: {room_name}",
@@ -83,5 +83,77 @@
     ],
     "sorting_rank": 1000,
     "category": "ROOMS"
+  },
+  {
+    "label": "SCENE_FEATURE",
+    "scripts": {
+      "plot_subplots": "+subplot DUNGEONLEVEL_{unique_id}_{_uid}\n\n",
+      "main": "class DungeonLevel_{unique_id}_{_uid}( Plot ):\n    LABEL = \"DUNGEONLEVEL_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        # Do the connection here.\n        #scutils.SCSceneConnection(self.elements[\"PARENT_SCENE\"], self.elements[\"LOCALE\"], {scene_connection})\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n",
+      "scenario_build": "splot = self.add_sub_plot(nart, \"DUNGEON_GENERIC\", elements=dict(METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], DG_NAME={dg_name}, DG_ARCHITECTURE={dg_architecture}(), DG_SCENE_TAGS={dg_scene_tags}, DG_MONSTER_TAGS={dg_monster_tags}, DG_PARENT_SCENE=the_world[{PARENT_SCENE_UID}], DG_EXPLO_MUSIC={dg_explo_music}, DG_COMBAT_MUSIC={dg_combat_music}, DG_DECOR={dg_decor}))\n+add_physical LOCALE splot.elements[\"LOCALE\"]\nscutils.SCSceneConnection(the_world[{PARENT_SCENE_UID}], splot.elements[\"LOCALE\"], {scene_connection})\n"
+    },
+    "name": "New Singular Dungeon Level",
+    "display_name": "Level: {dg_name}",
+    "desc": "Adds a signular dungeon level.",
+    "is_new_branch": true,
+    "vars": {
+      "dg_name": {
+        "default_val": "",
+        "var_type": "literal"
+      },
+      "dg_architecture": {
+        "default_val": "gharchitecture.StoneCave",
+        "var_type": "personal_scale_architecture",
+        "must_be_defined": true
+      },
+      "dg_scene_tags": {
+        "default_val": [
+          "gears.tags.SCENE_DUNGEON"
+        ],
+        "var_type": "scene_tags"
+      },
+      "dg_monster_tags": {
+        "default_val": [
+          "ANIMAL"
+        ],
+        "var_type": "list:monster_tags"
+      },
+      "dg_explo_music": {
+        "default_val": "Good Night.ogg",
+        "var_type": "music"
+      },
+      "dg_combat_music": {
+        "default_val": "Apex.ogg",
+        "var_type": "music"
+      },
+      "dg_decor": {
+        "default_val": null,
+        "var_type": "interior_decor"
+      },
+      "scene_connection": {
+        "default_val": null,
+        "var_type": "scene_connection"
+      }
+    },
+    "child_types": [
+      "SCENE_FEATURE"
+    ],
+    "elements": {
+      "LOCALE": {
+        "e_type": "scene",
+        "name": "Level: {dg_name}",
+        "aliases": [
+          "PARENT_SCENE"
+        ]
+      }
+    },
+    "physicals": [
+      {
+        "element_key": "LOCALE",
+        "parent": "PARENT_SCENE",
+        "child_types": [
+          "SCENE_FEATURE"
+        ]
+      }
+    ]
   }
 ]

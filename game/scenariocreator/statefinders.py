@@ -157,7 +157,14 @@ SINGULAR_TYPES = {
         "gharchitecture.HumanScaleGreenzone", "gharchitecture.HumanScaleDeadzone",
         "gharchitecture.HumanScaleSemiDeadzone", "gharchitecture.HumanScaleDeadzoneWilderness",
         "gharchitecture.HumanScaleForest", "gharchitecture.HumanScaleUrbanDeadzone",
-        "gharchitecture.HumanScaleJunkyard"
+        "gharchitecture.HumanScaleJunkyard",
+        "gharchitecture.IndustrialBuilding", "gharchitecture.CommercialBuilding", "gharchitecture.ResidentialBuilding",
+        "gharchitecture.HospitalBuilding", "gharchitecture.TentArchitecture", "gharchitecture.DefaultBuilding",
+        "gharchitecture.EarthCave", "gharchitecture.FactoryBuilding", "gharchitecture.FortressBuilding",
+        "gharchitecture.OrganicBuilding", "gharchitecture.ScrapIronWorkshop", "gharchitecture.StoneBuilding",
+        "gharchitecture.StoneCave", "gharchitecture.VehicleArchitecture", "gharchitecture.WarmColorsWallArchitecture",
+        "gharchitecture.CoolColorsWallArchitecture", "gharchitecture.DingyResidentialArchitecture",
+        "gharchitecture.SewerArchitecture"
     ),
     'terrain_set': (
         "ghterrain.CorsairTerrset",
@@ -180,6 +187,12 @@ SINGULAR_TYPES = {
     "building_terrset": (
         "ghterrain.BrickBuilding", "ghterrain.IndustrialBuilding", "ghterrain.CommercialBuilding",
         "ghterrain.ConcreteBuilding", "ghterrain.ResidentialBuilding", "ghterrain.ScrapIronBuilding"
+    ),
+    "exterior_architecture": (
+        "gharchitecture.HumanScaleGreenzone", "gharchitecture.HumanScaleDeadzone",
+        "gharchitecture.HumanScaleSemiDeadzone", "gharchitecture.HumanScaleDeadzoneWilderness",
+        "gharchitecture.HumanScaleForest", "gharchitecture.HumanScaleUrbanDeadzone",
+        "gharchitecture.HumanScaleJunkyard",
     ),
     "interior_architecture": (
         "gharchitecture.IndustrialBuilding", "gharchitecture.CommercialBuilding", "gharchitecture.ResidentialBuilding",
@@ -222,6 +235,11 @@ SINGULAR_TYPES = {
     ),
     "container_waypoint": (
         "ghwaypoints.OldCrate", "ghwaypoints.Skeleton", "ghwaypoints.StorageBox", "ghwaypoints.AmmoBox"
+    ),
+    "exit_types": (
+        "ghwaypoints.Exit", "ghwaypoints.ScrapIronDoor", "ghwaypoints.GlassDoor", "ghwaypoints.ScreenDoor",
+        "ghwaypoints.WoodenDoor", "ghwaypoints.Trapdoor", "ghwaypoints.StairsUp", "ghwaypoints.StairsDown",
+        "ghwaypoints.StoneStairsUp", "ghwaypoints.UndergroundEntrance"
     )
 
 }
@@ -296,6 +314,6 @@ def is_legal_state(part, state_type, state_value):
     my_names_and_states = get_possible_states(part, state_type)
     mystates = [a[1] for a in my_names_and_states]
     mystates.append(None)
-    return state_value in state_type
+    return state_value in mystates
 
 

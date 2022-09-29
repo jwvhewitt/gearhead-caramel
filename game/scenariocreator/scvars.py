@@ -586,6 +586,170 @@ class TagReactionVariable(BaseVariableDefinition):
             return "dict([{}])".format(", ".join(my_params))
 
 
+class SceneConnectionVariable(BaseVariableDefinition):
+    # The variable value will be a list of [tag, reaction_mod] lists.
+    DEFAULT_VAR_TYPE = "scene_connection"
+    GATE_TYPES = ("Small Room", "Building", "Regular Room")
+
+    DEFAULT_GATE_DEF = {"GATE_TYPE": 0, "ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+                        "ANCHOR": "None", "DOOR_NAME": "Exit", "DOOR_CLASS": "ghwaypoints.Exit", "DOOR_SIGN": None}
+
+    class MenuEffectWithData:
+        def __init__(self, data, data_fun):
+            self.data = data
+            self.data_fun = data_fun
+        def __call__(self, result):
+            self.data_fun(self.data, result)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.default_val = [self.DEFAULT_GATE_DEF.copy(), self.DEFAULT_GATE_DEF.copy()]
+
+    def get_widgets(self, part, key, editor=None, refresh_fun=None, **kwargs):
+        # Return a list of widgets having to do with this variable.
+        mylist = list()
+        myval = part.raw_vars[key]
+        for gatenum in range(2):
+            mylist.append(pbge.widgets.LabelWidget(0,0,350,0,"Gate {}".format(gatenum+1), justify=-1))
+
+            my_type_menu = pbge.widgets.ColDropdownWidget(350, "Gate Type", on_select=self.MenuEffectWithData(myval[gatenum], self._select_gate_type))
+            for i, name in enumerate(self.GATE_TYPES):
+                my_type_menu.add_item(name, i)
+            my_type_menu.my_menu_widget.menu.set_item_by_value(myval[gatenum]["GATE_TYPE"])
+            mylist.append(my_type_menu)
+
+            my_room_menu = pbge.widgets.ColDropdownWidget(350, "Room Style", on_select=self.MenuEffectWithData(myval[gatenum], self._select_room_style))
+            if myval[0]["GATE_TYPE"] == 1:
+                candidates = statefinders.get_possible_states(part, "building_terrset")
+            else:
+                candidates = statefinders.get_possible_states(part, "room")
+            for k, v in candidates:
+                my_room_menu.add_item(k, v)
+            my_room_menu.my_menu_widget.menu.set_item_by_value(myval[gatenum]["ROOM_STYLE"])
+            mylist.append(my_room_menu)
+
+            my_anchor_menu = pbge.widgets.ColDropdownWidget(350, "Anchor", on_select=self.MenuEffectWithData(myval[gatenum], self._select_anchor))
+            for k, v in statefinders.get_possible_states(part, "map_anchor"):
+                my_anchor_menu.add_item(k, v)
+            my_anchor_menu.my_menu_widget.menu.sort()
+            my_anchor_menu.my_menu_widget.menu.set_item_by_value(myval[gatenum]["ANCHOR"])
+            mylist.append(my_anchor_menu)
+
+            mylist.append(pbge.widgets.ColTextEntryWidget(350, "Door Name", myval[gatenum].get("DOOR_NAME"), on_change=self._change_name, data=myval[gatenum]))
+
+            my_door_menu = pbge.widgets.ColDropdownWidget(350, "Door Class", on_select=self.MenuEffectWithData(myval[gatenum], self._select_door_type))
+            for k, v in statefinders.get_possible_states(part, "exit_types"):
+                my_door_menu.add_item(k, v)
+            my_door_menu.my_menu_widget.menu.set_item_by_value(myval[gatenum]["DOOR_CLASS"])
+            mylist.append(my_door_menu)
+
+            if myval[0]["GATE_TYPE"] == 1:
+                my_sign_menu = pbge.widgets.ColDropdownWidget(
+                    350, "Doorway", on_select=self.MenuEffectWithData(myval[gatenum], self._select_door_type)
+                )
+                for k, v in statefinders.get_possible_states(part, "door_sign"):
+                    my_sign_menu.add_item(k, v)
+                my_sign_menu.add_item("==None==", None)
+                my_type_menu.my_menu_widget.menu.set_item_by_value(myval[gatenum]["DOOR_SIGN"])
+                mylist.append(my_sign_menu)
+
+        self.refresh_fun = refresh_fun
+
+        return mylist
+
+    def _select_gate_type(self, mydict, result):
+        if isinstance(result, int) and 0 <= result < len(self.GATE_TYPES):
+            mydict["GATE_TYPE"] = result
+            if self.refresh_fun:
+                self.refresh_fun()
+
+    def _select_room_style(self, mydict, result):
+        if result:
+            mydict["ROOM_STYLE"] = result
+            if self.refresh_fun:
+                self.refresh_fun()
+
+    def _select_anchor(self, mydict, result):
+        if result:
+            mydict["ANCHOR"] = result
+            if self.refresh_fun:
+                self.refresh_fun()
+
+    def _select_door_type(self, mydict, result):
+        if result:
+            mydict["DOOR_CLASS"] = result
+            if self.refresh_fun:
+                self.refresh_fun()
+
+    def _select_sign(self, mydict, result):
+        mydict["DOOR_SIGN"] = result
+        if self.refresh_fun:
+            self.refresh_fun()
+
+    def _change_name(self, wid, ev):
+        wid.data["DOOR_NAME"] = wid.text
+
+    def get_errors(self, part, key):
+        myerrors = list()
+        myerrors += super().get_errors(part, key)
+        rawval = part.raw_vars.get(key)
+        for mygate, mydict in enumerate(rawval):
+            if not ("GATE_TYPE" in mydict and isinstance(mydict["GATE_TYPE"], int) and 0 <= mydict["GATE_TYPE"] < len(self.GATE_TYPES)):
+                myerrors.append("ERROR: Gate {} in {} has unknown type {}".format(mygate, part, mydict.get("GATE_TYPE")))
+                break
+
+            if mydict["GATE_TYPE"] == 1 and not statefinders.is_legal_state(part, "building_terrset", mydict.get("ROOM_STYLE")):
+                myerrors.append("Error: Illegal building style {} for gate {} in {}.".format(mydict.get("ROOM_STYLE"), mygate, part))
+            elif not statefinders.is_legal_state(part, "room", mydict.get("ROOM_STYLE")):
+                myerrors.append("Error: Illegal room style {} for gate {} in {}.".format(mydict.get("ROOM_STYLE"), mygate, part))
+
+            if not statefinders.is_legal_state(part, "map_anchor", mydict.get("ANCHOR")):
+                myerrors.append("Error: Illegal anchor {} for gate {} in {}.".format(mydict.get("ANCHOR"), mygate, part))
+
+            if not statefinders.is_legal_state(part, "exit_types", mydict.get("DOOR_CLASS")):
+                myerrors.append("Error: Illegal door class {} for gate {} in {}.".format(mydict.get("DOOR_CLASS"), mygate, part))
+
+            if mydict.get("DOOR_SIGN"):
+                if not statefinders.is_legal_state(part, "door_sign", mydict["DOOR_SIGN"]):
+                    myerrors.append(
+                        "Error: Illegal door sign {} for gate {} in {}.".format(mydict["DOOR_SIGN"], mygate, part)
+                    )
+            if not ("DOOR_NAME" in mydict and isinstance(mydict["DOOR_NAME"], str)):
+                myerrors.append(
+                    "Error: Illegal door name for gate {} in {}.".format(mygate, part)
+                )
+
+        return myerrors
+
+    @staticmethod
+    def format_for_python(value: list):
+        # Return the room and door parameters for SCSceneConnection. I mean why not, eh?
+        scsc_params = list()
+        for room_num, room_dict in enumerate(value):
+            room_params = list()
+            door_params = list()
+            if room_dict["GATE_TYPE"] == 0:
+                room_params.append("width=3")
+                room_params.append("height=3")
+            if room_dict["GATE_TYPE"] == 1:
+                room_params.append("tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]")
+                if room_dict.get("DOOR_SIGN"):
+                    room_params.append("door_sign={}".format(DoorSignVariable.format_for_python(room_dict.get("DOOR_SIGN"))))
+            anchor = room_dict.get("ANCHOR")
+            room_params.append("anchor={}".format(anchor))
+
+            door_params.append("name={}".format(repr(room_dict.get("DOOR_NAME", "EXIT"))))
+            if anchor and anchor != "None":
+                door_params.append("anchor={}".format(anchor))
+            else:
+                door_params.append("anchor=pbge.randmaps.anchors.middle")
+
+            scsc_params.append("room{}={}({})".format(room_num+1, room_dict["ROOM_STYLE"], ", ".join(room_params)))
+            scsc_params.append("door{}={}({})".format(room_num+1, room_dict["DOOR_CLASS"], ", ".join(door_params)))
+
+        return ", ".join(scsc_params)
+
+
 def get_variable_definition(default_val=0, var_type="integer", **kwargs):
     if var_type == "text":
         return TextVariable(default_val, **kwargs)
@@ -635,6 +799,8 @@ def get_variable_definition(default_val=0, var_type="integer", **kwargs):
         return MajorNPCIDVariable(default_val, **kwargs)
     elif var_type == "tag_reaction":
         return TagReactionVariable(default_val, **kwargs)
+    elif var_type == "scene_connection":
+        return SceneConnectionVariable(default_val, **kwargs)
     else:
         if var_type != "string":
             print("Unknown variable type {}; defaulting to string.".format(var_type))

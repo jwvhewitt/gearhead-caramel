@@ -112,7 +112,7 @@ class PlotBrick(object):
     def get_default_vars(self):
         myvars = dict()
         for k, v in self.vars.items():
-            myvars[k] = copy.copy(v.default_val)
+            myvars[k] = copy.deepcopy(v.default_val)
         return myvars
 
     def __str__(self):
@@ -411,7 +411,11 @@ class BluePrint(object):
 
     uid = property(_get_uid)
 
-    def get_elements(self, uvars=None):
+    def get_elements(self, uvars=None, include_top_level_aliases=True):
+        # TODO: Check usages to see if they need the top level aliases or not.
+        # include_top_level_aliases = Include the aliases used in this blueprint. Normally a blueprint won't have
+        #   access to its own aliases, and must refer to elements by the primary element ID. The aliases get passed
+        #   on to child nodes.
         # Return a dict of elements accessible from this block.
         # key = element_ID
         # value = ElementDefinition
@@ -431,8 +435,9 @@ class BluePrint(object):
             uvars = self.get_ultra_vars()
         for k,v in self.brick.elements.items():
             elements[k] = ElementDefinition(v.name.format(**uvars), e_type=v.e_type, uid=uvars[self.get_element_uid_var_name(k)])
-            for alias in v.aliases:
-                elements[alias] = elements[k]
+            if include_top_level_aliases:
+                for alias in v.aliases:
+                    elements[alias] = elements[k]
 
         return elements
 

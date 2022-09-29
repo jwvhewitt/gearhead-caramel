@@ -96,7 +96,8 @@ from game.content.ghwaypoints import Exit
 from game.content.plotutility import AdventureModuleData
 import game
 from game.scenariocreator import scutils
-from game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain, ghrooms
+from game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain, ghrooms, dungeonmaker
+from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
 from pbge.memos import Memo
 from game.content.ghplots import missionbuilder, campfeatures
 #: includes

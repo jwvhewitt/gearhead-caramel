@@ -233,8 +233,8 @@ class HumanScaleJunkyard(GearHeadArchitecture):
     DEFAULT_MUTATE = pbge.randmaps.mutator.CellMutator()
     DEFAULT_FLOOR_TERRAIN = ghterrain.SemiDeadZoneGround
     DEFAULT_PREPARE = pbge.randmaps.prep.HeightfieldPrep(ghterrain.CrackedEarth, ghterrain.SemiDeadZoneGround,
-                                                         ghterrain.GreenZoneGrass, higround=0.65)
-    DEFAULT_ROOM_CLASSES = (ghrooms.BushesRoom, ghrooms.LakeRoom, ghrooms.DragonToothRoom)
+                                                         ghterrain.GreenZoneGrass, loground=0.30, higround=0.75)
+    DEFAULT_ROOM_CLASSES = (ghrooms.BushesRoom, ghrooms.DragonToothRoom)
 
 
 class HumanScaleUrbanDeadzone(GearHeadArchitecture):

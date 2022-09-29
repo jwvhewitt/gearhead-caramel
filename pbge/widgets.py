@@ -135,7 +135,7 @@ class LabelWidget(Widget):
                 self.dx -= 8
         if h == 0:
             self.h = len(wrap_multi_line(text, self.font, self.w)) * self.font.get_linesize()
-            #if self.draw_border:
+            # if self.draw_border:
             #    self.h += 16
             #    self.dy -= 8
         self.justify = justify
@@ -495,7 +495,7 @@ class RowWidget(Widget):
 
     def render(self, flash=False):
         if self.draw_border:
-            self.border.render(self.get_rect().inflate(10,10))
+            self.border.render(self.get_rect().inflate(10, 10))
         if flash:
             self._default_flash()
 
@@ -575,13 +575,13 @@ class TextEntryWidget(Widget):
         self.text_input_on = False
 
     def get_text_rect(self, w, h, mydest):
-        myrect = pygame.Rect(0,0,w,h)
+        myrect = pygame.Rect(0, 0, w, h)
         if self.justify == -1:
-            myrect.midleft=mydest.midleft
+            myrect.midleft = mydest.midleft
         elif self.justify == 1:
-            myrect.midright=mydest.midright
+            myrect.midright = mydest.midright
         else:
-            myrect.center=mydest.center
+            myrect.center = mydest.center
         return myrect
 
     def render(self, flash=False):
@@ -605,7 +605,7 @@ class TextEntryWidget(Widget):
     def z_respond_event(self, ev):
         if self.active and not self.text_input_on:
             pygame.key.start_text_input()
-            #pygame.key.set_text_input_rect(self.get_rect())
+            # pygame.key.set_text_input_rect(self.get_rect())
         elif self.text_input_on and not self.active:
             pygame.key.stop_text_input()
         super().respond_event(ev)
@@ -735,7 +735,8 @@ class TextEditorPanel(ScrollColumnWidget):
     def _on_left_at_zero(self):
         if self.active_widget > 0:
             self.active_widget -= 1
-            self._interior_widgets[self.active_widget].cursor_i = len(self._interior_widgets[self.active_widget].char_list)
+            self._interior_widgets[self.active_widget].cursor_i = len(
+                self._interior_widgets[self.active_widget].char_list)
 
     def _on_right_at_end(self):
         if self.active_widget < (len(self._interior_widgets) - 1):
@@ -759,7 +760,7 @@ class TextEditorPanel(ScrollColumnWidget):
 
     def _set_active_widget(self, widindex):
         if 0 <= widindex < len(self._interior_widgets) and widindex != self._active_widget:
-            #self._active_widget = widindex
+            # self._active_widget = widindex
             wid = self._interior_widgets[widindex]
             my_state.active_widget = wid
             if not wid.active:
@@ -858,7 +859,7 @@ class ColTextEntryWidget(RowWidget):
         super().__init__(0, 0, width, mylabel.h + 8, **kwargs)
         self.add_left(mylabel)
         self.my_text_widget = TextEntryWidget(0, 0, width * 3 // 5, mylabel.h + 8, text, color, font, justify,
-                                              on_change=on_change, )
+                                              on_change=on_change, data=kwargs.get("data"))
         self.add_right(self.my_text_widget)
 
     def _get_text(self):
