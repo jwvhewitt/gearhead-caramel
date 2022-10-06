@@ -103,7 +103,7 @@
     "scripts": {
       "plot_subplots": "+subplot NPC_{unique_id}_{_uid}\n\n",
       "main": "class NonPlayerCharacter_{unique_id}_{_uid}( Plot ):\n    LABEL = \"NPC_{unique_id}_{_uid}\"\n    active = True\n    scope = \"LOCALE\"\n\n    #: plot_properties\n\n    def custom_init( self, nart ):\n        +init_plot\n        self.elements[\"NPC_SCENE\"] = self.elements[\"LOCALE\"]\n        #: plot_init\n        #: plot_actions\n        #: plot_subplots\n        return True\n\n    #: plot_methods\n\n    def NPC_offers(self, camp):\n        mylist = list()\n        #: npc_offers\n        return mylist\n\n",
-      "scenario_build": "the_world[{NPC_UID}] = gears.selector.random_character(self.rank, local_tags=the_world[{METROSCENE_UID}].attributes, camp=nart.camp, name={npc_name}, job={npc_job}, faction={npc_faction})\nthe_world[{ROOM_UID}].contents.append(the_world[{NPC_UID}])\n\n\n\n"
+      "scenario_build": "the_world[{NPC_UID}] = gears.selector.random_character(self.rank, local_tags=the_world[{METROSCENE_UID}].attributes, camp=nart.camp, name={npc_name}, job={npc_job}, faction={npc_faction}, combatant={npc_combatant})\nthe_world[{ROOM_UID}].contents.append(the_world[{NPC_UID}])\n\n\n\n"
     },
     "name": "New Random NPC",
     "display_name": "NPC: {npc_name}",
@@ -119,6 +119,11 @@
         "default_val": null,
         "var_type": "job",
         "tooltip": "Set None for random job"
+      },
+      "npc_combatant": {
+        "default_val": false,
+        "var_type": "boolean",
+        "tooltip": "If False, NPC may still become combatant depending on job"
       },
       "npc_faction": {
         "default_val": null,

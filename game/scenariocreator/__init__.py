@@ -457,7 +457,7 @@ class ScenarioEditor(pbge.widgets.Widget):
         mybrick = my_blueprint.brick
         for tlabel in child_types:
             for tbrick in BRICKS_BY_LABEL.get(tlabel, ()):
-                if not (tbrick.singular and any([t.name == tbrick.name for t in my_blueprint.children])):
+                if not (tbrick.singular and any([t.brick.name == tbrick.name for t in my_blueprint.children])):
                     mymenu.add_item(tbrick.name, tbrick, tbrick.desc)
         mymenu.sort()
         nubrick = mymenu.query()

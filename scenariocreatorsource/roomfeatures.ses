@@ -110,6 +110,7 @@ self.elements["ROOM"].contents.append(ghwaypoints.CyberdocTerminal(shop=services
     "vars": {
       "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
       "npc_job": {"default_val": null, "var_type": "job", "tooltip": "Set None for random job"},
+      "npc_combatant": {"default_val": false, "var_type": "boolean", "tooltip": "If False, NPC may still become combatant depending on job"},
       "npc_faction": {"default_val":  null, "var_type": "faction"}
     },
     "elements": {
@@ -149,7 +150,7 @@ class NonPlayerCharacter_{unique_id}_{_uid}( Plot ):
         return mylist
 
 *SCRIPT scenario_build
-the_world[{NPC_UID}] = gears.selector.random_character(self.rank, local_tags=the_world[{METROSCENE_UID}].attributes, camp=nart.camp, name={npc_name}, job={npc_job}, faction={npc_faction})
+the_world[{NPC_UID}] = gears.selector.random_character(self.rank, local_tags=the_world[{METROSCENE_UID}].attributes, camp=nart.camp, name={npc_name}, job={npc_job}, faction={npc_faction}, combatant={npc_combatant})
 the_world[{ROOM_UID}].contents.append(the_world[{NPC_UID}])
 
 

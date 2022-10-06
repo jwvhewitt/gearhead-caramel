@@ -305,6 +305,107 @@ class BasicBlackMarket(Plot):
         return mylist
 
 
+#   **************************
+#   ***  SHOP_CYBERCLINIC  ***
+#   **************************
+#
+#   A cyberclinic sells cyberware; it may offer other medical services.
+#
+#   Elements:
+#       LOCALE
+#   Optional:
+#       NPC_NAME, SHOP_NAME, INTERIOR_TAGS, CITY_COLORS, SHOP_FACTION, DOOR_SIGN
+#
+
+class BasicCyberclinic(Plot):
+    LABEL = "SHOP_CYBERCLINIC"
+    active = True
+    scope = "INTERIOR"
+
+    def custom_init(self, nart):
+        # Create the shopkeeper
+        npc1 = self.register_element("SHOPKEEPER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Cyberdoc"]))
+        npc1.name = self.elements.get("NPC_NAME", "") or npc1.name
+
+        self.shopname = self.elements.get("SHOP_NAME", "") or self._generate_shop_name()
+
+        # Create a building within the town.
+        building = self.register_element("_EXTERIOR", get_building(
+            self, ghterrain.CommercialBuilding,
+            waypoints={"DOOR": ghwaypoints.GlassDoor(name=self.shopname)},
+            door_sign=self.elements.get("DOOR_SIGN") or (ghterrain.CyberSignEast, ghterrain.CyberSignSouth),
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
+                                         dident="LOCALE")
+
+        # Add the interior scene.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team")
+        intscene = gears.GearHeadScene(
+            35, 35, self.shopname, player_team=team1, civilian_team=team2, faction=self.elements.get("SHOP_FACTION"),
+            attributes=tuple(self.elements.get("INTERIOR_TAGS", (gears.tags.SCENE_PUBLIC,))) + (
+                gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL, gears.tags.SCENE_SHOP),
+            exploration_music=self.elements["LOCALE"].exploration_music,
+            combat_music=self.elements["LOCALE"].combat_music,
+            scale=gears.scale.HumanScale)
+
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.CommercialBuilding(floor_terrain=ghterrain.WhiteTileFloor))
+        self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south, ),
+                                      dident="INTERIOR")
+
+        mycon2 = plotutility.TownBuildingConnection(
+            nart, self, self.elements["LOCALE"], intscene, room1=building,
+            room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
+
+        npc1.place(intscene, team=team2)
+
+        self.shop = services.Shop(npc=npc1, ware_types=services.PHARMACY, rank=self.rank + random.randint(0, 5),
+                                  shop_faction=self.elements.get("SHOP_FACTION"))
+
+        foyer.contents.append(ghwaypoints.Bunk())
+        if random.randint(1,5) == 3:
+            foyer.contents.append(ghwaypoints.EmptyBiotank())
+
+        cybershop = services.Shop(npc=None, rank=self.rank + random.randint(10, 30),
+                                  ware_types=services.CYBERWARE_STORE)
+        foyer.contents.append(ghwaypoints.CyberdocTerminal(shop=cybershop))
+
+        return True
+
+    TITLE_PATTERNS = (
+        "{LOCALE} {tech}", "{SHOPKEEPER}'s Cyberclinic", "{LOCALE} Cybershop", "{SHOPKEEPER}'s {tech}",
+        "{adjective} {tech}", "{LOCALE} {adjective} {tech}", "{adjective} Cyberdoc", "{LOCALE} Body Modification",
+        "{adjective} Cybershop"
+    )
+    TECH_WORDS = ("Cyberware", "Cybertech", "Molybdenum", "Bodymods", "Bodytech")
+
+    def _generate_shop_name(self):
+        return random.choice(self.TITLE_PATTERNS).format(
+            adjective=random.choice(game.ghdialogue.ghgrammar.DEFAULT_GRAMMAR["[Adjective]"][None]),
+            tech=random.choice(self.TECH_WORDS), **self.elements)
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer("[HELLO] Remember, at {INTERIOR} your [body_part] is in good hands.".format(**self.elements),
+                            context=ContextTag([context.HELLO]),
+                            ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": self.shopname, "wares": "drugs"},
+                            ))
+
+        mylist.append(Offer("You can use the cyberterminal over there to design your ideal body. Remember, all of our implants come with a lifetime guarantee.",
+                            context=ContextTag([context.INFO]),
+                            data={"subject": "cyberware"}, no_repeats=True
+                            ))
+
+        return mylist
+
+
 #   *********************
 #   ***  SHOP_GARAGE  ***
 #   *********************

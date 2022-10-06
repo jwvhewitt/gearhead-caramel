@@ -520,7 +520,7 @@ class Garage_{unique_id}_{_uid}( Plot ):
 *NEW CITY_FEATURE
     "name": "Add Hospital",
     "display_name": "Hospital: {shop_name}",
-    "desc": "Adds a garage and a mechanic NPC to the city. Leave shop_name and/or npc_name blank for random names.",
+    "desc": "Adds a hospital and a doctor NPC to the city. Leave shop_name and/or npc_name blank for random names.",
     "is_new_branch": true,
     "vars": {
       "shop_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
@@ -553,6 +553,62 @@ splot = self.add_sub_plot(nart, "SHOP_HOSPITAL", elements=dict(LOCALE=the_world[
 *SCRIPT main
 class Hospital_{unique_id}_{_uid}( Plot ):
     LABEL = "HOSPITAL_{unique_id}_{_uid}"
+    active = True
+    scope = "LOCALE"
+    #: plot_properties
+
+    def custom_init( self, nart ):
+        +init_plot
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        #: npc_offers
+        return mylist
+
+    #: plot_methods
+
+
+
+*NEW CITY_FEATURE
+    "name": "Add Cyberclinic",
+    "display_name": "Cyberclinic: {shop_name}",
+    "desc": "Adds a cybershop to the city. Leave shop_name and/or npc_name blank for random names.",
+    "is_new_branch": true,
+    "vars": {
+      "shop_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "npc_name": {"default_val": "", "var_type": "literal", "tooltip": "Leave blank for random name"},
+      "room_name": {"default_val": "Foyer", "var_type": "literal"},
+      "shop_faction": {"default_val":  null, "var_type": "faction"},
+      "door_sign": {"default_val": "None", "var_type": "door_sign"}
+   },
+   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
+   "elements": {
+      "LOCALE": {"e_type": "scene", "name": "Cyberclinic: {shop_name}", "aliases": ["PARENT_SCENE"]},
+      "ROOM": {"e_type": "room", "name": "Room: {room_name}"},
+      "NPC": {"e_type": "npc", "name": "Doctor: {npc_name}", "aliases": ["NPC"]}
+    },
+    "physicals": [
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["shop_name", "shop_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"], "child_types": ["ROOM_FEATURE"]},
+        {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name"], "child_types": ["NPC_FEATURE"]}
+    ]
+
+*SCRIPT scenario_build
+splot = self.add_sub_plot(nart, "SHOP_CYBERCLINIC", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, SHOP_NAME={shop_name}, NPC_NAME={npc_name}, DOOR_SIGN={door_sign}))
++add_physical LOCALE splot.elements["INTERIOR"]
++add_physical NPC splot.elements["SHOPKEEPER"]
++add_physical ROOM splot.elements["FOYER"]
+
+*SCRIPT plot_init
++subplot CYBERCLINIC_{unique_id}_{_uid}
+
+*SCRIPT main
+class Cyberclinic_{unique_id}_{_uid}( Plot ):
+    LABEL = "CYBERCLINIC_{unique_id}_{_uid}"
     active = True
     scope = "LOCALE"
     #: plot_properties

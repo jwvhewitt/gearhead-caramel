@@ -906,6 +906,20 @@ class ShieldSignEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_gervais_decor_shieldsign.png'
 
 
+class CyberSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_gervais_decor_cybersign.png'
+
+
+class CyberSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_gervais_decor_cybersign.png'
+
+
+class CyberSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_gervais_decor_cybersign.png'
+
+
 class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = ScrapIronBuildingTerrain
     DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((JunkWindowSouth,), (JunkWindowEast,)),

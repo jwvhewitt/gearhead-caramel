@@ -465,6 +465,11 @@
     "tags": ["Medic"]
   },
   {
+    "name": "Cyberdoc",
+    "skills": ["Medicine","Cybertech"],
+    "tags": ["Medic"]
+  },
+  {
     "name": "Nurse",
     "skills": ["Medicine"],
     "tags": ["Medic"]

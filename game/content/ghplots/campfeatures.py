@@ -375,6 +375,11 @@ class WorldMap(object):
             if n.entrance is entrance:
                 return n
 
+    def get_node_with_destination(self, destination):
+        for n in self.nodes:
+            if n.destination is destination:
+                return n
+
     def connect_entrance_to_entrance(self, start_entrance, end_entrance, **kwargs):
         start_node = self.get_node_with_entrance(start_entrance)
         end_node = self.get_node_with_entrance(end_entrance)
@@ -415,17 +420,17 @@ class WorldMapViewer:
 
         self.map_area = pbge.frects.Frect(-world.px_width//2, -world.px_height//2-50, world.px_width, world.px_height)
 
-    def _calc_map_x(self, x, map_rect):
+    def calc_map_x(self, x, map_rect):
         return x * 32 + 16 + map_rect.x
 
-    def _calc_map_y(self, y, map_rect):
+    def calc_map_y(self, y, map_rect):
         return y * 32 + 16 + map_rect.y
 
     def _draw_edge(self, myedge: WorldMapEdge, map_rect, hilight=False):
-        start_x = self._calc_map_x(myedge.start_node.pos[0], map_rect)
-        start_y = self._calc_map_y(myedge.start_node.pos[1], map_rect)
-        end_x = self._calc_map_x(myedge.end_node.pos[0], map_rect)
-        end_y = self._calc_map_y(myedge.end_node.pos[1], map_rect)
+        start_x = self.calc_map_x(myedge.start_node.pos[0], map_rect)
+        start_y = self.calc_map_y(myedge.start_node.pos[1], map_rect)
+        end_x = self.calc_map_x(myedge.end_node.pos[0], map_rect)
+        end_y = self.calc_map_y(myedge.end_node.pos[1], map_rect)
         if hilight:
             color = pbge.TEXT_COLOR
         else:
@@ -437,7 +442,7 @@ class WorldMapViewer:
             self.legend_sprites[node] = pbge.image.Image(node.image_file, 20, 20)
             self.text_labels[node] = pbge.SMALLFONT.render(str(node), True, (0, 0, 0))
 
-    def render(self, waypoint, active_item_edge):
+    def render(self, waypoint=None, active_item_edge=None):
         my_map_rect = self.map_area.get_rect()
         self.map_sprite.render(my_map_rect, 0)
 
@@ -448,7 +453,7 @@ class WorldMapViewer:
             self._draw_edge(active_item_edge, my_map_rect, True)
 
         for mynode in self.world.nodes:
-            dest = (self._calc_map_x(mynode.pos[0], my_map_rect), self._calc_map_y(mynode.pos[1], my_map_rect))
+            dest = (self.calc_map_x(mynode.pos[0], my_map_rect), self.calc_map_y(mynode.pos[1], my_map_rect))
             if mynode.visible:
                 if (active_item_edge and active_item_edge.connects_to_node(mynode)) or (mynode.entrance is waypoint):
                     self.legend_sprites[mynode].render_c(dest, mynode.on_frame)

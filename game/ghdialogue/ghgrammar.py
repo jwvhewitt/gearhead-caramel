@@ -504,7 +504,7 @@ DEFAULT_GRAMMAR = {
                   ],
     },
     "[body_part]": {
-        Default: ["eye", "nose", "face", "throat", "groin", "duodenum", "skull",
+        Default: ["eye", "nose", "face", "throat", "groin", "duodenum", "skull", "heart", "liver", "spine"
                   ],
     },
 

@@ -1,3 +1,4 @@
+* Added "battle damage" to module display to aid color blind players
 * Fixed music skip when entering/leaving buildings
 * Fixed bug in Town Hall plot
 
