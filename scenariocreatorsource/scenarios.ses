@@ -77,7 +77,7 @@
       "default_mission_combat_music": {"default_val": null, "var_type": "music"},
       "default_mission_exploration_music": {"default_val": null, "var_type": "music"}
 },
-"child_types": ["CITY", "WORLD_FEATURE", "STARTING_PLOT"],
+"child_types": ["CITY", "WORLD_FEATURE", "STARTING_PLOT", "PLOT_FEATURE"],
 "is_new_branch": true
 
 *SCRIPT main

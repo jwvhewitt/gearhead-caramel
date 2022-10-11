@@ -35,8 +35,8 @@ class StandardLancemateHandler(Plot):
         nart.camp.campdata[LANCEDEV_ENABLED] = self.can_load_lancedev_plot
         return True
 
-    def can_load_lancedev_plot(self, camp):
-        return not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT)
+    def can_load_lancedev_plot(self, camp: gears.GearHeadCampaign):
+        return not any(p for p in camp.all_plots() if hasattr(p, "LANCEDEV_PLOT") and p.LANCEDEV_PLOT) and not camp.has_a_destination()
 
     def _get_generic_offers(self, npc: gears.base.Character, camp: gears.GearHeadCampaign):
         """

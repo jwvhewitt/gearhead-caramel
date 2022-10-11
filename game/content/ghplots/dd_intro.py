@@ -704,10 +704,11 @@ class DZDPostMissionScene(Plot):
 
     def CHUTE_menu(self, camp, thingmenu):
         thingmenu.desc = "This boarding chute leads to\n your {}.".format(camp.get_pc_mecha(camp.pc).get_full_name())
-        thingmenu.add_item("Board mecha and go to Wujung",self._finish_mission)
+        thingmenu.add_item("Board mecha and go to Wujung", self._finish_mission)
 
-    def _finish_mission(self, camp):
+    def _finish_mission(self, camp: gears.GearHeadCampaign):
         camp.check_trigger("INTRO_END")
+        camp.campdata["next_adv_memo"] = 1
         self.adv.end_adventure(camp)
 
 

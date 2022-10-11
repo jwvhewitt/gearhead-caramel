@@ -135,6 +135,7 @@ class LanceRecoveryStub( Plot ):
 
 class BeBackAfterShopping( Plot ):
     LABEL = "LANCEMATE_NEEDS_MECHA"
+    COMMON = True
     def custom_init( self, nart ):
         myscene = self.seek_element(nart,"GARAGE",self._is_good_scene,scope=self.elements["METROSCENE"])
         return True
@@ -147,12 +148,26 @@ class BeBackAfterShopping( Plot ):
         garage = self.elements["GARAGE"]
         if npc.relationship:
             npc.relationship.reaction_mod -= random.randint(1,10)
-        SimpleMonologueDisplay("My mecha was destroyed... I'm going to go to {} and get a new one.".format(garage),npc)(camp)
+        SimpleMonologueDisplay("[MY_MECHA_WAS_DESTROYED] I'm going to go to {} and get a new one.".format(garage),npc)(camp)
         if random.randint(1,10) == 1:
             # Random chance that instead of getting the same mecha, they'll look for a new kind.
             npc.mecha_pref = None
         plotutility.AutoLeaver(npc)(camp)
         npc.place(garage)
+
+
+class UseTheBackupMek( Plot ):
+    LABEL = "LANCEMATE_NEEDS_MECHA"
+    def start_recovery(self,camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        npc.relationship = camp.get_relationship(npc)
+        npc.relationship.reaction_mod -= random.randint(5, 20)
+        npc.relationship.data["mecha_level_bonus"] = max(npc.relationship.data.get("mecha_level_bonus",0)-10, -25)
+        npc.mecha_pref = None
+        mek = plotutility.AutoJoiner.get_mecha_for_character(npc, True)
+        SimpleMonologueDisplay("[MY_MECHA_WAS_DESTROYED] I guess I'm going to have to get my old {} out of storage.".
+                               format(mek.get_full_name()), npc)(camp)
+        plotutility.AutoJoiner.add_lancemate_mecha_to_party(camp, npc, mek)
 
 
 class INeedAnUpgrade( Plot ):
@@ -194,6 +209,8 @@ class INeedAnUpgrade( Plot ):
 class GoToHospital( Plot ):
     # This plot just loads the plots that do the actual work.
     LABEL = "LANCEMATE_NEEDS_HOSPITAL"
+    COMMON = True
+
     def custom_init( self, nart ):
         myscene = self.seek_element(nart,"HOSPITAL",self._is_good_scene,scope=self.elements["METROSCENE"])
         return True

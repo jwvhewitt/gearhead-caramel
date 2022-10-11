@@ -436,7 +436,7 @@ class Explorer(object):
 
     def update_scene(self):
         for npc in self.scene.contents:
-            if hasattr(npc, "gear_up"):
+            if hasattr(npc, "gear_up") and npc.pos and self.scene.on_the_map(*npc.pos):
                 npc.gear_up(self.scene)
 
     def keep_exploring(self):
@@ -657,6 +657,10 @@ class Explorer(object):
                         print(self.camp.renown)
                     elif gdi.unicode == "A" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         self.record_count = 30
+                    elif gdi.unicode == "S" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        myimage = self.camp.pc.get_portrait()
+                        pygame.image.save(myimage.bitmap, pbge.util.user_dir("selfie_{}.png".format(self.camp.pc)))
+
 
                     elif gdi.unicode == "X" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         pc = self.camp.first_active_pc()
@@ -758,6 +762,6 @@ class Explorer(object):
         if not self.no_quit:
             self.camp.save()
         else:
-            self.camp.check_trigger("END")
+            self.camp.check_trigger("EXIT")
 
         current_explo = None

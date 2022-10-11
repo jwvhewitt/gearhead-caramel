@@ -99,7 +99,7 @@ class SkillBasedPartyReply(object):
             else:
                 mylist.append(myoffer)
                 myoffer.custom_menu_fun = self.custom_menu_fun
-                self.pc = pc
+                self.pc = pc.get_pilot()
 
     def format_text( self, text ):
         mygrammar = pbge.dialogue.grammar.Grammar()
@@ -134,7 +134,7 @@ class TagBasedPartyReply(SkillBasedPartyReply):
             else:
                 mylist.append(myoffer)
                 myoffer.custom_menu_fun = self.custom_menu_fun
-                self.pc = pc
+                self.pc = pc.get_pilot()
 
 class MatchingTagPartyReply(SkillBasedPartyReply):
     def __init__(self, myoffer, camp, mylist, npc, needed_tag, npc_tag=None, message_format = '{} says "{}"'):
@@ -153,7 +153,7 @@ class MatchingTagPartyReply(SkillBasedPartyReply):
             else:
                 mylist.append(myoffer)
                 myoffer.custom_menu_fun = self.custom_menu_fun
-                self.pc = pc
+                self.pc = pc.get_pilot()
 
 
 def start_conversation(camp: gears.GearHeadCampaign,pc,npc,cue=None):

@@ -55,6 +55,8 @@ class DeadzoneDrifterStub( Plot ):
         # This gets called last to prevent major NPCs who are used elsewhere in the plot from showing up here.
         self.add_sub_plot(nart, "ADD_INSTANT_EGG_LANCEMATE", necessary=False)
 
+        self.current_memo = 0
+
         return True
 
     def t_INTRO_END(self, camp):
@@ -65,6 +67,12 @@ class DeadzoneDrifterStub( Plot ):
 
         del self.subplots["INTRO"]
 
+    MEMO_MESSAGES = (
+        "You should go to Wujung, hire a team of lancemates, and find someone who can help rebuild the power station in {DZ_TOWN_NAME}. Osmund Eumann at the Bronze Horse Inn should be able to help.",
+        "According to Osmund Eumann, you should be able to find someone who can rebuild the power station at Long Haul Logistics.",
+        "RegEx Construction in Wujung has agreed to rebuild {DZ_TOWN_NAME}'s power station, but before they can do that you will need to clear a safe pathway through the dead zone."
+
+    )
     def t_START(self, camp):
         camp.check_trigger("UPDATE")
         if "INITIAL_QOL" not in camp.campdata:
@@ -75,6 +83,29 @@ class DeadzoneDrifterStub( Plot ):
                     total_qol += n.destination.metrodat.get_quality_of_life_index()
             camp.campdata["INITIAL_QOL"] = total_qol
 
+        if camp.campdata.get("next_adv_memo", 0) > self.current_memo:
+            self.current_memo = camp.campdata["next_adv_memo"]
+            if self.current_memo <= len(self.MEMO_MESSAGES):
+                self.memo = self.MEMO_MESSAGES[self.current_memo-1].format(**self.elements)
+            else:
+                # Memos are over.
+                self.memo = None
+
+    def t_UPDATE(self, camp):
+        if camp.campdata.get("next_adv_memo", 0) > self.current_memo:
+            self.current_memo = camp.campdata["next_adv_memo"]
+            if self.current_memo <= len(self.MEMO_MESSAGES):
+                self.memo = self.MEMO_MESSAGES[self.current_memo-1].format(**self.elements)
+            else:
+                # Memos are over.
+                self.memo = None
+
+    def __setstate__(self, state):
+        # For saves from V0.930 or earlier, make sure there's memo state info.
+        self.__dict__.update(state)
+        if "current_memo" not in state:
+            self.current_memo = 1
+            self.memo = self.MEMO_MESSAGES[0].format(**self.elements)
 
 
 class RoadNode(object):

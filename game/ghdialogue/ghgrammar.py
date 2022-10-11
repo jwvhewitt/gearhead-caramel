@@ -129,6 +129,40 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[AEGIS_PROPAGANDA]": {
+        # The NPC is going to say one of the foundational myths of Aegis Overlord.
+        Default: ["Aegis only seeks to unite the human species in prosperity."
+                  ],
+        personality.Cheerful: ["Luna is much better off under Aegis than all the other places in the solar system."
+                               ],
+        personality.Grim: [
+            "The only way to avoid human extinction lies in strength through unity; that strength is Aegis!",
+        ],
+        personality.Easygoing: ["If everyone submitted to Aegis, there'd be no more war."
+                                ],
+        personality.Passionate: ["The power of Aegis Overlord will overcome all!",
+                                 ],
+        personality.Sociable: ["The future of humanity lies in unity, not in senseless division.",
+                               ],
+        personality.Shy: ["Aegis will rule all.",
+                          ],
+        personality.Glory: [
+            "We are the inheritors of Pax Europa, and therefore the rightful rulers of human space!"
+        ],
+        personality.Duty: [
+            "You are fractured and divided, while we are duty-bound to Aegis; this is why you will lose."
+        ],
+        personality.Justice: [
+            "Aegis only seeks to bring order to this chaotic world."
+        ],
+        personality.Peace: [
+            "Aegis brought peace and unity to Luna; it can do the same for all of human space."
+        ],
+        personality.Fellowship: [
+            "What you call freedom is mere perversity; join Aegis and discover your true will!"
+        ]
+    },
+
     "[AGREE]": {
         Default: ["I agree with you."
                   ],
@@ -335,7 +369,7 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Easygoing: [
             "I mean, I'll [defeat_you] if you want, but you could save us all some time if you just run away now.",
-            ],
+        ],
         personality.Passionate: ["You dare to challenge me?! Turn back now, before I [defeat_you]!",
                                  ],
         personality.Sociable: ["If you insist on fighting, I don't mind showing everyone just how pitiful you are.",
@@ -556,7 +590,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "I've been waiting to talk with you about something. I was wondering if you'd mind answering my questions.",
-            ],
+        ],
         personality.Shy: ["[audience], I have something to ask.",
                           ],
     },
@@ -712,7 +746,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: [
             "I am in no condition to go with you right now... but ask me again tomorrow, if I'm still alive.",
-            ],
+        ],
         personality.Easygoing: ["Nope. Not right now. But come ask again tomorrow when I'm finished with this."
                                 ],
         personality.Passionate: ["Afraid I wouldn't be much help to you in my current condition... come back later."
@@ -892,7 +926,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "Look, I know you're busy, but are you sure this area is secure? I saw some suspicious people milling around.",
-            ],
+        ],
         personality.Shy: ["[LOOK_AT_THIS]",
                           ],
     },
@@ -900,12 +934,12 @@ DEFAULT_GRAMMAR = {
     "[DISTRESS_CALL]": {
         Default: [
             "I am under attack by [enemy_meks]... If there are any friendly units in the area, I could use some backup."
-            ],
+        ],
         personality.Cheerful: ["Hey, any cavaliers out there! Wanna come help me fight some [enemy_meks]?"
                                ],
         personality.Grim: [
             "The situation is dire. If there are any friendly units in the nearby area, I need backup immediately.",
-            ],
+        ],
         personality.Easygoing: ["Hey, if there's anyone listening to this, I could really use a bit of help right now."
                                 ],
         personality.Passionate: ["This is an emergency... I'm outgunned, outnumbered, and need aid immediately!",
@@ -1019,7 +1053,7 @@ DEFAULT_GRAMMAR = {
         personality.Cheerful: [
             "[BAD_NEWS] There's a group of [enemy_meks] just around the turn. The good news is, they haven't spotted us yet.",
             "[GOOD_NEWS] The [enemy_meks] that are lurking up ahead don't even know we're here."
-            ],
+        ],
         personality.Grim: ["[LISTEN_UP] There are enemies ahead; one more step and they'll spot the rest of you.",
                            "[HOLD_ON] There's a lance of enemy mecha nearby, and you almost gave away our position."
                            ],
@@ -1030,7 +1064,7 @@ DEFAULT_GRAMMAR = {
         personality.Passionate: [
             "They way ahead is choked with enemies. But, there is another way, if you follow me...",
             "[LISTEN_UP] Those [enemy_meks] must be asleep at the console. Follow me and I can sneak us all around them."
-            ],
+        ],
         personality.Sociable: [
             "[LISTEN_UP] If you don't want to fight those [enemy_meks], I can easily provide us with a way around them.",
             "Did you notice those [enemy_meks] over there? I've been keeping my eye on them, but I don't think they've noticed us yet."
@@ -1040,7 +1074,7 @@ DEFAULT_GRAMMAR = {
                           ],
         personality.Peace: [
             "[GOOD_NEWS] The mecha up ahead haven't seen us yet; with a bit of trickery, we can find a safe path around them.",
-            ],
+        ],
         personality.Justice: [
             "The [enemy_meks] over there haven't spotted us yet. It's your call whether we challenge them or just slip by.",
         ],
@@ -1049,7 +1083,7 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Fellowship: [
             "There's a group of mecha ahead; they appear to be hostile. They haven't spotted us yet.",
-            ],
+        ],
         personality.Duty: ["[HOLD_ON] The [enemy_meks] haven't seen us yet, so technically we could just sneak away.",
                            ],
     },
@@ -1087,8 +1121,9 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["Fly to [God], fallen warrior! Your mighty deeds will not be forgotten.",
                                  ],
-        personality.Sociable: ["This could have been any one of us. May the life and deeds of the deceased live on forever in memory.",
-                               ],
+        personality.Sociable: [
+            "This could have been any one of us. May the life and deeds of the deceased live on forever in memory.",
+            ],
         personality.Shy: ["Rest in peace.",
                           ],
         tags.Military: [
@@ -1121,7 +1156,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "I was running a routine mission against {faction}, but they've gotten far more powerful than I expected.",
-            ],
+        ],
         personality.Shy: ["{faction} defeated me.",
                           ],
         personality.Duty: ["I failed in my duty to defeat {faction}.",
@@ -1559,7 +1594,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "It seems to me that your conflict with {enemy_faction} requires talking, not more fighting.",
-            ],
+        ],
         personality.Shy: ["There might be a diplomatic solution to your conflict with {enemy_faction}.",
                           ],
     },
@@ -1963,7 +1998,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "Finally, some reinforcements have arrived... I'm under attack by [enemy_meks]. [HELP_ME]",
-            ],
+        ],
         personality.Shy: ["I am under attack. [HELP_ME]",
                           ],
     },
@@ -1979,8 +2014,9 @@ DEFAULT_GRAMMAR = {
                                 ],
         personality.Passionate: ["We must repair this damage!",
                                  ],
-        personality.Sociable: ["We could try to repair the movement systems, but if it doesn't work we've just wasted precious time and energy...",
-                               ],
+        personality.Sociable: [
+            "We could try to repair the movement systems, but if it doesn't work we've just wasted precious time and energy...",
+            ],
         personality.Shy: ["Could anybody help?",
                           ],
     },
@@ -1999,7 +2035,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "Here, this is for you.",
-            ],
+        ],
         personality.Shy: ["Here it is.",
                           ],
     },
@@ -2114,6 +2150,23 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I've heard about this kind of lock, and I know how to bypass it.",
                                ],
         personality.Shy: ["Let me unlock it.",
+                          ],
+    },
+
+    "[I_DONT_CARE]": {
+        Default: ["I don't care."
+                  ],
+        personality.Cheerful: ["[HAGOODONE]"
+                               ],
+        personality.Grim: ["Your words mean nothing to me."
+                           ],
+        personality.Easygoing: ["Whatever."
+                                ],
+        personality.Passionate: ["And why should I care what you think?!",
+                                 ],
+        personality.Sociable: ["Nobody cares.",
+                               ],
+        personality.Shy: ["Shut up.",
                           ],
     },
 
@@ -2298,14 +2351,14 @@ DEFAULT_GRAMMAR = {
         personality.Easygoing: [
             "I thought you'd all like to know that we're heading straight towards some [enemy_meks].",
             "Is anybody else picking up a big group of enemy meks ahead? Because I am picking up a big group of enemy meks ahead."
-            ],
+        ],
         personality.Passionate: ["[GOOD_NEWS] I have detected our enemies, and they are nearby!",
                                  "[HOLD_ON] According to my sensors, we are surrounded by enemy forces!"
                                  ],
         personality.Sociable: [
             "[HOLD_ON] We're not alone out here; I'm picking up a group of enemy mecha on my scanner.",
             "[LISTEN_UP] I just detected some [enemy_meks], and they're nearby."
-            ],
+        ],
         personality.Shy: ["[HOLD_ON] I'm reading enemy forces ahead.",
                           "There are [enemy_meks] nearby."
                           ],
@@ -2313,10 +2366,10 @@ DEFAULT_GRAMMAR = {
                             ],
         personality.Justice: [
             "[HOLD_ON] I just picked up some mecha ahead. I can't be sure what they want, but it probably isn't good.",
-            ],
+        ],
         personality.Glory: [
             "[GOOD_NEWS] If you were looking forward to getting in a fight today, I just detected [enemy_meks].",
-            ],
+        ],
         personality.Fellowship: ["[HOLD_ON] There's someone else out there; hostile mecha from the look of things.",
                                  ],
         personality.Duty: ["[LISTEN_UP] My scanners just picked up some [enemy_meks] approaching our position.",
@@ -2543,14 +2596,14 @@ DEFAULT_GRAMMAR = {
             "[IP_STATUS] Would you believe that [IP_GoodNews]? Also, [IP_Pleasure]!",
             "[IP_STATUS] [IP_NEWS] [IP_Worry], but [IP_Hope]!"
             "[IP_STATUS] I've been working hard; [IP_Business]. [IP_OPINION]"
-            ],
+        ],
         personality.Sociable: [
             "[IP_STATUS] [IP_Pleasure], while by day [IP_Business]. [IP_BadNews], but [IP_GoodNews].",
             "[IP_STATUS] The main thing I have to report is that [IP_Pleasure]. Also, [IP_GoodNews].",
             "[IP_STATUS] Did you hear that [IP_BadNews]? I'm afraid it's true. But at least [IP_Pleasure].",
             "[IP_STATUS] [IP_Worry], but also [IP_Hope].",
             "[IP_STATUS] You should know that [IP_NEWS] [IP_OPINION]",
-            ],
+        ],
         personality.Shy: ["[IP_STATUS] [IP_Business].", "[IP_STATUS] [IP_Business]. [IP_Pleasure].",
                           "[IP_STATUS] [IP_GoodNews], but [IP_BadNews].", "[IP_STATUS] [IP_NEWS]",
                           ],
@@ -2691,12 +2744,12 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Easygoing: [
             "Hey, I've been looking for someone to challenge to a duel, and you'll do. Standard Pro Duelist Association rules, of course.",
-            ],
+        ],
         personality.Passionate: ["[BATTLE_GREETING] Do you accept or deny my challenge to a one-on-one duel?",
                                  ],
         personality.Sociable: [
             "[HELLO] I wish to challenge you to a one-on-one duel; there are no stakes but your reputation.",
-            ],
+        ],
         personality.Shy: ["[HELLO] I challenge you to a duel.",
                           ],
         gears.factions.ProDuelistAssociation: [
@@ -3354,6 +3407,53 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[MY_MECHA_WAS_DESTROYED]": {
+        Default: ["My mecha was destroyed...", "I lost my mecha..."
+                  ],
+        personality.Cheerful: ["Saying goodbye to my old mek makes me sad...",
+                               ],
+        personality.Grim: ["All things eventually die, even meks."
+                           ],
+        personality.Easygoing: ["Guess my mecha isn't coming back from this one."
+                                ],
+        personality.Passionate: ["No!!! My mecha was demolished! This cannot be...",
+                                 ],
+        personality.Sociable: ["I guess everybody loses their mecha sometimes...",
+                               ],
+        personality.Shy: ["My mek is gone.",
+                          ],
+        tags.Military: [
+            "My mecha served me well; it rests in a place of honor."
+        ],
+        tags.Adventurer: [
+            "When my mecha was destroyed, it felt like part of me was too..."
+        ],
+        tags.Craftsperson: [
+            "I did my best to save my mecha, but sometimes there's nothing you can do."
+        ],
+        tags.Criminal: [
+            "Guess I should be happy that all the evidence on my mecha's compsys has been destroyed..."
+        ],
+        tags.Faithworker: [
+            "Let us pray for the machine spirit of my departed mecha."
+        ],
+        tags.Media: [
+            "I hope no-one got a video of my mecha getting blown up out there..."
+        ],
+        tags.Medic: [
+            "I know it was an unfeeling machine, but I mourn the death of my mecha."
+        ],
+        tags.Academic: [
+            "The data I gained from losing my mecha will hopefully help me to not lose my next one."
+        ],
+        personality.Duty: [
+            "I have no-one but myself to blame for the loss of my mecha."
+        ],
+        personality.Glory: [
+            "I need to improve my skills so next time I won't lose my mecha so easily."
+        ]
+    },
+
     "[News]": {
         Default: [
             "not much is going on",
@@ -3568,7 +3668,7 @@ DEFAULT_GRAMMAR = {
             "If you can't find what you're looking for today, remember that it might be here tomorrow.",
             "[BrowseWares]. Remember, {shop_name} is chock full of {wares}.",
             "Do you want {wares}? Because {shop_name} has got a ton of {wares}."
-            ],
+        ],
         personality.Passionate: ["I think you'll agree this shop has the best selection you've ever seen!",
                                  "Whatever kind of {wares} you're looking for, you can bet that {shop_name} has it!",
                                  "[BrowseWares]. If you love {wares} as much as I do, you will not be disappointed!",
@@ -3614,14 +3714,14 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: [
             "Do you really think {enemy_faction} is open to peace? I would agree, but I doubt that'll happen.",
-            ],
+        ],
         personality.Easygoing: ["Yeah, if {enemy_faction} accepted a peace deal, that'd make life easier for everyone.",
                                 ],
         personality.Passionate: ["You expect us to lay down our arms?! Only if {enemy_faction} agrees first!",
                                  ],
         personality.Sociable: [
             "We would be willing to consider peace with {enemy_faction}, if they were willing to accept."
-            ],
+        ],
         personality.Shy: ["I would accept a treaty with {enemy_faction}.",
                           ],
         personality.Peace: [
@@ -3651,7 +3751,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "May I just say what a pleasure it is to come to an agreement with a true professional like you.",
-            ],
+        ],
         personality.Shy: ["So it's agreed.",
                           ],
     },
@@ -3860,7 +3960,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: [
             "They say we need to tighten our belts, but how can you do that when you're already starving?",
-            ],
+        ],
         personality.Easygoing: ["Seems like everyone is either broke or unemployed these days."
                                 ],
         personality.Passionate: ["No money, no hope. Maybe I should move somewhere else.",
@@ -3978,7 +4078,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "You probably haven't heard about me before, because I don't have a lot of experience...",
-            ],
+        ],
         personality.Shy: ["I am a new pilot.",
                           ],
 
@@ -4449,7 +4549,7 @@ DEFAULT_GRAMMAR = {
         personality.Grim: [
             "[HOLD_ON] I've been picking up signs of enemy activity for a while now. We're almost on top of them.",
             "[LISTEN_UP] This area reeks of enemy activity. Fresh tracks are everywhere."
-            ],
+        ],
         personality.Easygoing: [
             "I don't want to alarm anyone, but this place has all the signs of recent enemy activity.",
             "[LOOK_AT_THIS] A clear impression of a mecha footprint. Fresh, too. Some people just don't know how to cover their tracks."
@@ -4479,7 +4579,7 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Duty: [
             "[LOOK_AT_THIS] I've been keeping an eye out for signs of enemy movement, and this is it. They must be close now.",
-            ],
+        ],
     },
 
     "[THEYAREAMYSTERY]": {
@@ -4657,7 +4757,7 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Grim: [
             "What I'm about to tell you is one of those things most people know better than to speak about.",
-            ],
+        ],
         personality.Easygoing: ["I don't think this is exactly a secret, but it isn't well known either...",
                                 ],
         personality.Passionate: ["You must swear that you will tell no-one you heard this from me.",
@@ -4797,17 +4897,17 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: [
             "The time spent waiting between missions is like a mini-vacation, when you think about it."
-            ],
+        ],
         personality.Grim: ["I'm just temporarily unemployed. I'll find another mission soon.",
                            ],
         personality.Easygoing: ["I should probably be out there looking for a new mission, but whatever...",
                                 ],
         personality.Passionate: [
             "I am currently between missions, but must remain ever vigilant. There could be an emergency at any time.",
-            ],
+        ],
         personality.Sociable: [
             "You wouldn't know of any mission openings, would you? I am between contracts at the moment.",
-            ],
+        ],
         personality.Shy: ["Just waiting for my next mission.",
                           ],
     },
@@ -5031,7 +5131,7 @@ DEFAULT_GRAMMAR = {
                                  ],
         personality.Sociable: [
             "This is an insult that must not go unpunished; will you take up the cause and avenge me?",
-            ],
+        ],
         personality.Shy: ["Please avenge me.",
                           ],
     },
@@ -5128,6 +5228,46 @@ DEFAULT_GRAMMAR = {
                           ],
         personality.Duty: [
             "I disagree with your decision, but will not fail in my duty."
+        ]
+    },
+
+    "[YOU_BELIEVE_THE_HYPE]": {
+        # The audience is accused of believing lies.
+        Default: ["Your beliefs are lies.", "[DISAGREE]", "You've been deceived."
+                  ],
+        personality.Cheerful: ["You really drank their bouncy bubbly beverage, didn't you?",
+                               ],
+        personality.Grim: [
+            "You are talking [expletive]. I've heard enough.",
+            "Why is it that the most ignorant people are always the most certain?"
+        ],
+        personality.Easygoing: [
+            "You don't really believe that, do you?",
+            "You really are a true believer, ain't ya?"
+        ],
+        personality.Passionate: ["Lies! My actions will show you the truth.",
+                                 ],
+        personality.Sociable: [
+            "As they say, don't believe the hype.",
+            "I don't know who told you that, but they were lying."
+        ],
+        personality.Shy: [
+            "You are wrong.",
+        ],
+        personality.Duty: [
+            "It's my duty to inform you that you've been misinformed."
+        ],
+        personality.Glory: [
+            "Oh come on. If that were true, I would have known about it before you."
+        ],
+        personality.Peace: [
+            "I don't want to hurt your feelings, but you're talking nonsense."
+        ],
+        personality.Justice: [
+            "I cannot allow you to speak these lies unchallenged."
+        ],
+        personality.Fellowship: [
+            "If you believe those obvious lies, you really need to get out more often."
         ]
     },
 
@@ -5271,6 +5411,31 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[YOU_SEEM_NICE_BUT_ENEMY]": {
+        # An expression of regret that we have to fight.
+        Default: ["You seem nice.", "You seem nice, but I have to [defeat_you]."
+                  ],
+        personality.Cheerful: ["It's sad that we're on opposite sides, but we are.",
+                               "You're nice. Too nice. That's going to get you killed."
+                               ],
+        personality.Grim: ["Don't expect any sympathy from me; feelings have nothing to do with this.",
+                           ],
+        personality.Easygoing: ["You seem okay, but...",
+                                ],
+        personality.Passionate: ["The hearts of two people cannot change the winds of fate!",
+                                 ],
+        personality.Sociable: ["I'm sure we could be friends if we weren't on different sides.",
+                               ],
+        personality.Shy: ["Why even bother talking when we're on opposite teams?",
+                          ],
+        LIKE: [
+            "I like you, but right now we both have a job to do.",
+        ],
+        DISLIKE: [
+            "[SWEAR] I'm sure you're a nice person, but I'm just here to [defeat_you].",
+        ],
+    },
+
     "[FORMAL_MECHA_DUEL]": {
         Default: ["May your armor break, may your cockpit shatter, may who deserves to win, be who destroys the other."
                   ],
@@ -5281,7 +5446,7 @@ DEFAULT_GRAMMAR = {
         personality.Peace: [
             "I stand here the champion of my people; I fight against you now, for peace to prevail tomorrow."
             , "I formally challenge you to a duel to destruction. May this be the final fight against you."
-            ],
+        ],
         personality.Justice: ["Well met on this day. Only the righteous shall stand after our fight."
             , "This duel is my trial. May my victory today show the righteousness I stand for."
             , "I formally challenge you to a duel to destruction. May my righteous stance shine through my mecha."
@@ -5295,7 +5460,7 @@ DEFAULT_GRAMMAR = {
             "I stand here in the stead of my friends, to fight alone against you, that they may live."
             ,
             "I formally challenge you to a duel to destruction. My friends shall live, win or lose: and I shall defeat you."
-            ]
+        ]
     },
     "[FORMAL_LETSFIGHT]": {
         Default: ["[GOOD] Our destiny awaits. [LETSFIGHT]"

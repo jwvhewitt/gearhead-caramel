@@ -533,12 +533,12 @@ def alert(text, font=None, justify=-1):
 
 
 def alert_display(display_fun):
-    pygame.event.clear([TIMEREVENT, pygame.KEYUP, pygame.MOUSEBUTTONUP])
+    pygame.event.clear()
     while True:
         ev = wait_event()
         if (ev.type == pygame.MOUSEBUTTONUP) or (ev.type == pygame.QUIT):
             break
-        elif ev.type == pygame.KEYUP and my_state.is_key_for_action(ev, "continue"):
+        elif ev.type == pygame.KEYDOWN and my_state.is_key_for_action(ev, "continue"):
             break
         elif ev.type == TIMEREVENT:
             if my_state.view:

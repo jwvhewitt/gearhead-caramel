@@ -676,12 +676,16 @@ class DZD_BronzeHorseInn(Plot):
                 Offer(
                     "You'll definitely be able to find someone at Long Haul Logistics. I'd ask at the RegEx Corporation construction office.".format(
                         **self.elements),
-                    context=ContextTag([context.CUSTOM]),
+                    context=ContextTag([context.CUSTOM]), effect=self._set_lhl_memo,
                     data={"reply": "Do you know where I could find someone to help rebuild a power station in a town way out in the dead zone?"}
                 ))
 
 
         return mylist
+
+    def _set_lhl_memo(self, camp):
+        camp.campdata["next_adv_memo"] = 2
+        camp.check_trigger("UPDATE")
 
     def _open_gym(self, camp):
         self.opened_gym = True
@@ -1641,9 +1645,9 @@ class DZD_LongRoadLogistics(Plot):
 
         return mylist
 
-    def _tell_about_services(self, camp):
-        self.memo = "You spoke to {REGEXNPC} of RegEx Construction about building a new power plant for {DZ_TOWN_NAME}. In order for {REGEXNPC.gender.object_pronoun} to do that, there must be a secure trade route between there an Wujung.".format(
-            **self.elements)
+    def _tell_about_services(self, camp: gears.GearHeadCampaign):
+        camp.campdata["next_adv_memo"] = 3
+        camp.check_trigger("UPDATE")
         self._asked_about_construction = True
         camp.campdata["CONSTRUCTION_ARRANGED"] = True
 

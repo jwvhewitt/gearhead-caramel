@@ -314,9 +314,8 @@ class GearHeadScene(pbge.scenes.Scene):
     def purge_faction(self, camp, fac):
         # Move all the NPCs belonging to this faction to the storage scene.
         for npc in list(self.contents):
-            if hasattr(npc, "faction") and npc.faction is fac and npc not in camp.party:
-                self.contents.remove(npc)
-                camp.storage.contents.append(npc)
+            if hasattr(npc, "faction") and npc.faction is fac and camp.is_not_lancemate(npc):
+                camp.freeze(npc)
         for subscene in self.sub_scenes:
             subscene.purge_faction(camp, fac)
 
@@ -540,7 +539,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def get_active_lancemates(self):
         # Return a list of lancemates currently on the map.
         return [pc for pc in self.scene.contents if
-                pc in self.party and pc.is_operational() and pc.get_pilot() is not self.pc]
+                pc in self.party and pc.is_operational() and pc.pos and self.scene.on_the_map(*pc.pos) and
+                pc.get_pilot() is not self.pc]
 
     def get_active_party(self):
         # Return a list of lancemates currently on the map.

@@ -183,6 +183,7 @@ SINGULAR_TYPES = {
     ),
     "door_type": (
         "ghwaypoints.ScrapIronDoor", "ghwaypoints.GlassDoor", "ghwaypoints.ScreenDoor", "ghwaypoints.WoodenDoor",
+        "ghwaypoints.ReinforcedDoor", "ghwaypoints.LockedReinforcedDoor"
     ),
     "building_terrset": (
         "ghterrain.BrickBuilding", "ghterrain.IndustrialBuilding", "ghterrain.CommercialBuilding",
@@ -221,7 +222,8 @@ SINGULAR_TYPES = {
     "shop_type": (
         "game.services.GENERAL_STORE", "game.services.GENERAL_STORE_PLUS_MECHA", "game.services.MECHA_STORE",
         "game.services.MECHA_PARTS_STORE", "game.services.MECHA_WEAPON_STORE", "game.services.TIRE_STORE",
-        "game.services.ARMOR_STORE", "game.services.BARE_ESSENTIALS_STORE", "services.BLACK_MARKET"
+        "game.services.ARMOR_STORE", "game.services.BARE_ESSENTIALS_STORE", "services.BLACK_MARKET",
+        "game.services.PHARMACY"
     ),
     "room": (
         "pbge.randmaps.rooms.FuzzyRoom", "pbge.randmaps.rooms.OpenRoom", "pbge.randmaps.rooms.ClosedRoom",
@@ -239,7 +241,8 @@ SINGULAR_TYPES = {
     "exit_types": (
         "ghwaypoints.Exit", "ghwaypoints.ScrapIronDoor", "ghwaypoints.GlassDoor", "ghwaypoints.ScreenDoor",
         "ghwaypoints.WoodenDoor", "ghwaypoints.Trapdoor", "ghwaypoints.StairsUp", "ghwaypoints.StairsDown",
-        "ghwaypoints.StoneStairsUp", "ghwaypoints.UndergroundEntrance"
+        "ghwaypoints.StoneStairsUp", "ghwaypoints.UndergroundEntrance", "ghwaypoints.ReinforcedDoor",
+        "ghwaypoints.LockedReinforcedDoor"
     )
 
 }

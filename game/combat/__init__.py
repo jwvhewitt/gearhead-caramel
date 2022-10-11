@@ -491,6 +491,7 @@ class PlayerTurn(object):
                                 part.hp_damage += part.max_health
                             elif isinstance(part, gears.base.Module) and part.form is gears.base.MF_Leg:
                                 part.hp_damage += part.max_health
+
             elif gdi.type == pygame.MOUSEBUTTONUP:
                 if gdi.button == 3 and not pbge.my_state.widget_clicked:
                     self.pop_menu()

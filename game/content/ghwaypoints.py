@@ -129,10 +129,12 @@ class DZDCommTower( Exit ):
     TILE = pbge.scenes.Tile( None, DZDCommTowerTerrain, None )
     desc = "You stand before a communications tower."
 
+
 class Victim(Waypoint):
     name = 'Victim'
     TILE = pbge.scenes.Tile(None,None,ghterrain.VictimTerrain)
     desc = "This person has seen better days."
+
 
 class RetroComputer(Waypoint):
     name = 'Computer Terminal'
@@ -140,11 +142,13 @@ class RetroComputer(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.RetroComputerTerrain)
     desc = "An obsolete but still functioning computer terminal."
 
+
 class UlsaniteFilingCabinet(Waypoint):
     name = 'Filing Cabinet'
     ATTACH_TO_WALL = True
     TILE = pbge.scenes.Tile(None,None,ghterrain.UlsaniteFilingCabinetTerrain)
     desc = "A filing cabinet."
+
 
 class ScrapIronDoor(Exit):
     name = 'Door'
@@ -152,11 +156,13 @@ class ScrapIronDoor(Exit):
     TILE = pbge.scenes.Tile(None,None,ghterrain.ScrapIronDoorTerrain)
     desc = "A door."
 
+
 class GlassDoor(Exit):
     name = 'Door'
     ATTACH_TO_WALL = True
     TILE = pbge.scenes.Tile(None,None,ghterrain.GlassDoorTerrain)
     desc = "A door."
+
 
 class ScreenDoor(Exit):
     name = 'Door'
@@ -164,11 +170,60 @@ class ScreenDoor(Exit):
     TILE = pbge.scenes.Tile(None,None,ghterrain.ScreenDoorTerrain)
     desc = "A door."
 
+
 class WoodenDoor(Exit):
     name = 'Door'
     ATTACH_TO_WALL = True
     TILE = pbge.scenes.Tile(None,None,ghterrain.WoodenDoorTerrain)
     desc = "A door."
+
+
+class ReinforcedDoor(Exit):
+    name = 'Door'
+    ATTACH_TO_WALL = True
+    TILE = pbge.scenes.Tile(None,None,ghterrain.ReinforcedDoorTerrain)
+    desc = "A door."
+
+
+class LockedReinforcedDoor(Exit):
+    name = 'Door'
+    ATTACH_TO_WALL = True
+    TILE = pbge.scenes.Tile(None,None,ghterrain.ReinforcedDoorTerrain)
+    desc = "A door."
+
+    def __init__(self, dest_wp=None, unlock_rank=0, **kwargs):
+        super().__init__(dest_wp, **kwargs)
+        self.unlock_rank = unlock_rank
+        self.unlocked = False
+
+    def unlocked_use( self, camp: gears.GearHeadCampaign ):
+        if self.unlocked:
+            super().unlocked_use(camp)
+        else:
+            if not self.unlock_rank:
+                self.unlock_rank = max(camp.renown + random.randint(1,10) - random.randint(1,10), 5)
+            rpm = self.MENU_CLASS(camp, self)
+            rpm.desc = "This door is locked, and it is too strong to break down. What do you want to do?"
+            rpm.add_item("Attempt to hack the lock.", True)
+            rpm.add_item("Leave it alone.", False)
+            fx = rpm.query()
+            if fx:
+                pc = camp.do_skill_test(gears.stats.Craft, gears.stats.Computers, self.unlock_rank, no_random=True)
+                if pc:
+                    if pc is camp.pc:
+                        pbge.alert("You hack the lock. The door can now be opened.")
+                    else:
+                        pbge.alert("{} hacks the lock. The door can now be opened.".format(pc))
+                    self.unlocked = True
+                else:
+                    pbge.alert("You are not skilled enough to hack this lock.")
+
+    def combat_use(self, camp, pc):
+        if self.unlocked:
+            super().combat_use(camp)
+        else:
+            pbge.alert("This door is locked!")
+
 
 class DZDWConcreteBuilding( Exit ):
     name = 'Concrete Building'

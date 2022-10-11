@@ -1,0 +1,15 @@
+*NEW PLOT_FEATURE
+"name": "Add Custom Subplot",
+"display_name": "Subplot {subplot_name}",
+"desc": "Adds a subplot from the content library to this plot. Caution: only use this if you're familiar with the content library!",
+"vars": {
+  "subplot_name": {
+    "var_type": "literal",
+    "default_val": ""
+  }
+},
+"sorting_rank": 2000,
+"category": "SUBPLOTS"
+
+*SCRIPT plot_subplots
+self.add_sub_plot(nart, {subplot_name})

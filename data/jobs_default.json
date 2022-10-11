@@ -347,6 +347,11 @@
     "tags": ["Politician"]
   },
   {
+    "name": "Diplomat",
+    "skills": ["Negotiation","Stealth"],
+    "tags": ["Politician"]
+  },
+  {
     "name": "Shopkeeper",
     "skills": ["Repair"],
     "tags": ["Merchant"]

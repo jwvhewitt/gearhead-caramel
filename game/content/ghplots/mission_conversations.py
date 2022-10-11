@@ -135,6 +135,97 @@ class BasicBattleConversation(Plot):
                 self._lose_adventure(camp)
 
 
+class AegisInferiorityIntroduction(BasicBattleConversation):
+    UNIQUE = True
+
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                   pstate.elements["NPC"].faction and
+                   pstate.elements["NPC"].faction.get_faction_tag() is gears.factions.AegisOverlord and
+                   pstate.elements["METROSCENE"].attributes.intersection({gears.personality.DeadZone, gears.personality.GreenZone}) and
+                   (not pstate.elements["NPC"].relationship or
+                    pstate.elements["NPC"].relationship.attitude in (None, relationships.A_DISTANT))
+               ) or cls.LABEL == "TEST_ENEMY_CONVO"
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer("I don't understand why the Terrans want to fight Aegis. Can't you see that we're only trying to help? [AEGIS_PROPAGANDA]",
+                            context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
+
+        mylist.append(Offer(
+            "I'd like to, but I heard that everyone here is a dangerous barbarian. [LETSFIGHT]",
+            context=ContextTag([context.COMBAT_CUSTOM, ]),
+            data={"reply": "Maybe if you tried talking to the people of Earth you'd find out."}
+        ))
+
+        if not self.elements.get(CONVO_CANT_RETREAT, False):
+            game.ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "It seems I have no chance of winning here today... [I_MUST_CONSIDER_MY_NEXT_STEP] [GOODBYE]",
+                    context=ContextTag([context.COMBAT_CUSTOM]), effect=self._enemies_retreat,
+                    data={"reply": "[YOU_SEEM_NICE_BUT_ENEMY] Why don't you go back to Luna where it's safe?"}
+                ), camp, mylist, gears.stats.Ego, gears.stats.Negotiation, self._effective_rank(),
+                difficulty=gears.stats.DIFFICULTY_AVERAGE, no_random=False
+            )
+
+        return mylist
+
+    def _start_conversation(self, camp: gears.GearHeadCampaign):
+        super()._start_conversation(camp)
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship = camp.get_relationship(npc)
+        npc.relationship.attitude = relationships.A_JUNIOR
+
+
+class AegisSuperiorityIntroduction(BasicBattleConversation):
+    UNIQUE = True
+
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                   pstate.elements["NPC"].faction and
+                   pstate.elements["NPC"].faction.get_faction_tag() is gears.factions.AegisOverlord and
+                   (not pstate.elements["NPC"].relationship or
+                    pstate.elements["NPC"].relationship.attitude in (None, relationships.A_DISTANT))
+               ) or cls.LABEL == "TEST_ENEMY_CONVO"
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer("Why do you resist Aegis? [AEGIS_PROPAGANDA]",
+                            context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
+
+        mylist.append(Offer(
+            "I could tell you are a {pc.gender.noun} of great intelligence, but still we must battle, because I am here to [objective_ep]!".format(pc=camp.pc),
+            context=ContextTag([context.COMBAT_CUSTOM, ]),
+            data={"reply": "[AGREE]"}, effect=self._agree
+        ))
+
+        mylist.append(Offer(
+            "Words are for the weak; truth is decided by those with the power to back it up! [LETSFIGHT]",
+            context=ContextTag([context.COMBAT_CUSTOM, ]),
+            data={"reply": "[YOU_BELIEVE_THE_HYPE]"}
+        ))
+
+        mylist.append(Offer(
+            "And that is why you will lose, because you don't even have a reason to fight. [THREATEN]",
+            context=ContextTag([context.COMBAT_CUSTOM, ]),
+            data={"reply": "[I_DONT_CARE] I'm just here to [objective_pp]."}
+        ))
+
+        return mylist
+
+    def _agree(self, camp: gears.GearHeadCampaign):
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship.reaction_mod += 20
+
+    def _start_conversation(self, camp: gears.GearHeadCampaign):
+        super()._start_conversation(camp)
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship = camp.get_relationship(npc)
+        npc.relationship.attitude = relationships.A_SENIOR
+
+
 class LoserBecomesImprover(BasicBattleConversation):
     UNIQUE = True
 

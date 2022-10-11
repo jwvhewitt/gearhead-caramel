@@ -57,7 +57,8 @@
     "child_types": [
       "CITY",
       "WORLD_FEATURE",
-      "STARTING_PLOT"
+      "STARTING_PLOT",
+      "PLOT_FEATURE"
     ],
     "is_new_branch": true
   },

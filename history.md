@@ -1,3 +1,7 @@
+* Fixed missing portrait/name when lancemate speaks during mecha combat
+* Fixed bug in missions not counting retreat as a loss
+* Changed the scene "END" trigger to "EXIT" to avoid conflict with the plot "END" trigger
+* Added memos to the main quest of DeadZone Drifter
 * Added "battle damage" to module display to aid color blind players
 * Fixed music skip when entering/leaving buildings
 * Fixed bug in Town Hall plot

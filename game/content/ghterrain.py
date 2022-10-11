@@ -494,6 +494,10 @@ class GlassDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_glassdoor.png'
 
 
+class ReinforcedDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_door_reinforced.png'
+
+
 class JunkWindowSouth(pbge.scenes.terrain.VariableTerrain):
     frames = (5, 6, 7)
     image_top = 'terrain_decor_junkwindows.png'

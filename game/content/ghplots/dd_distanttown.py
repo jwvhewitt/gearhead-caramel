@@ -82,6 +82,7 @@ class DZD_TheTownYouStartedIn(Plot):
         return True
 
     def _finish_first_quest(self,camp):
+        camp.campdata["next_adv_memo"] = 4
         pstate = PlotState(adv=Adventure("Conclusion")).based_on(self)
         content.load_dynamic_plot(camp, "DZD_CONCLUSION", pstate)
         self.first_quest_done = True

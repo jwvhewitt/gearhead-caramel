@@ -12,7 +12,7 @@ import random
 
 class Egg(object):
     def __init__(self, pc, mecha=None, stuff=(), dramatis_personae=(), major_npc_records=None, credits=0):
-        # The dramatis personae are in a regular list because I need to remember who they are, not necessarily
+        # The dramatis personae are in a set because I need to remember who they are, not necessarily
         #    where they are.
         # The stuff is in a containerlist because these are the possessions of the PC and we need to make sure
         #    there's only one copy of each.

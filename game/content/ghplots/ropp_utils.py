@@ -49,16 +49,42 @@ class ROPP_WarStarter(Plot):
 
         self.elements[worldmapwar.WORLD_MAP_TEAMS] = war_teams
         sp = self.add_sub_plot(nart, "WORLD_MAP_WAR", ident="ROPPWAR")
-        self.world_map_war = sp.world_map_war
+        self.world_map_war = self.register_element("WORLD_MAP_WAR", sp.world_map_war)
 
-        self.register_element("LOCALE", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000001'])
-        self.register_element("_ROOM", pbge.randmaps.rooms.FuzzyRoom(5,5), dident="LOCALE")
-        self.register_element("COMPY", ghwaypoints.OldTerminal(
-            plot_locked=True, anchor=pbge.randmaps.anchors.middle, name="War Simulator",
-            desc="This is a computer terminal to test the world map war system. Yay!"
-        ), dident="_ROOM")
+        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            self.register_element("LOCALE", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000001'])
+            self.register_element("_ROOM", pbge.randmaps.rooms.FuzzyRoom(5,5), dident="LOCALE")
+            self.register_element("COMPY", ghwaypoints.OldTerminal(
+                plot_locked=True, anchor=pbge.randmaps.anchors.middle, name="War Simulator",
+                desc="This is a computer terminal to test the world map war system. Yay!"
+            ), dident="_ROOM")
+
+        # Locate the major NPCs.
+        self.seek_element(nart, "NPC_CHARLA", self._seek_charla, lock=True)
+        self.seek_element(nart, "NPC_BRITAINE", self._seek_britaine, lock=True)
+        self.seek_element(nart, "NPC_PINSENT", self._seek_pinsent, lock=True)
+        self.seek_element(nart, "NPC_BOGO", self._seek_bogo, lock=True)
+        self.seek_element(nart, "NPC_AEGIS", self._seek_aegis, lock=True)
+
+        self.add_sub_plot(nart, "ROPP_SOLAR_NAVY_JOINER")
 
         return True
+
+    def _seek_charla(self, nart, candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.mnpcid == "Admiral Charla"
+
+    def _seek_britaine(self, nart, candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.mnpcid == "Britaine"
+
+    def _seek_pinsent(self, nart, candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.mnpcid == "General Pinsent"
+
+    def _seek_bogo(self, nart, candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.mnpcid == "Jjang Bogo"
+
+    def _seek_aegis(self, nart, candidate):
+        return (isinstance(candidate, gears.base.Character) and candidate.job.name == "Diplomat" and
+                candidate.faction is gears.factions.AegisOverlord)
 
     def COMPY_menu(self, camp, thingmenu):
         thingmenu.add_item("Start the next round", self.start_war_round)
@@ -67,3 +93,46 @@ class ROPP_WarStarter(Plot):
         myround = worldmapwar.WorldMapWarRound(self.world_map_war, camp)
         while myround.keep_going():
             result = myround.perform_turn()
+
+
+class SolarNavyJoinerPlot(Plot):
+    LABEL = "ROPP_SOLAR_NAVY_JOINER"
+    scope = True
+    active = True
+
+    RUMOR = Rumor(
+        "Admiral Charla is recruiting cavaliers for the Pirate Point operation",
+        offer_msg="The Solar Navy's goal is to remove the Aegis Consulate from Pirate's Point. Should be a lot of good missions in it for you. If you want the job, you can speak to her at the Field HQ.",
+        offer_subject="Admiral Charla is recruiting cavaliers",
+        offer_subject_data="the Pirate Point operation",
+        memo="Admiral Charla is recruiting cavaliers for the Pirate Point operation. You should speak to her if you want to aid the Solar Navy.",
+        prohibited_npcs=("NPC_CHARLA",),
+    )
+
+    def custom_init(self, nart):
+        # We have inherited all the NPCs and the war from the WarStarter. Just plug in some dialogue.
+        mymetroscene = self.register_element("METROSCENE", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000001'])
+        self.elements["METRO"] = mymetroscene.metrodat
+        self.elements["NPC_SCENE"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000018']
+
+        self.signing_bonus = gears.selector.calc_mission_reward(self.rank+10, 500)
+        self.got_starter_kit = False
+        return True
+
+    def NPC_CHARLA_offers(self, camp):
+        mylist = list()
+
+        if not self.elements["WORLD_MAP_WAR"].player_team:
+            mylist.append(Offer(
+                "[THATS_GOOD] Here is a signing bonus of ${:,}; you can use it to get some equipment from the supply depot. General Pinsent can fill you in on how the ground operations are proceeding.".format(self.signing_bonus),
+                ContextTag([context.CUSTOM]), effect=self._join_team,
+                data={"reply": "I want to help the Solar Navy."}
+            ))
+
+        return mylist
+
+    def _join_team(self, camp):
+        self.elements["WORLD_MAP_WAR"].player_team = gears.factions.TheSolarNavy
+        camp.credits += self.signing_bonus
+        pbge.BasicNotification("You receive ${:,}.".format(self.signing_bonus))
+

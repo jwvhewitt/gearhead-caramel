@@ -284,6 +284,10 @@ class BuildAMissionPlot(Plot):
         if not camp.first_active_pc():
             self.exit_the_mission(camp)
 
+    def t_EXIT(self, camp):
+        # If the player leaves the scene for whatever reason, end the mission.
+        self.exit_the_mission(camp)
+
     def t_UPDATE(self, camp):
         if self.adv.is_completed():
             if not self.gave_ending_message:

@@ -195,6 +195,7 @@ SCENE_CAVE = "CAVE"  # This scene is a semi-natural underground area
 SCENE_LABORATORY = "LABORATORY"     # A science lab of some type.
 SCENE_FOREST = "FOREST"
 SCENE_VEHICLE = "VEHICLE"
+SCENE_WAREHOUSE = "WAREHOUSE"
 
 CITY_NAUTICAL = "NAUTICAL" # A city by the sea
 

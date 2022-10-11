@@ -271,15 +271,19 @@ class AutoJoiner(object):
         if self.npc not in camp.party:
             camp.party.append(self.npc)
             mek = self.get_mecha_for_character(self.npc)
-            camp.party.append(mek)
-            camp.assign_pilot_to_mecha(self.npc, mek)
-            for part in mek.get_all_parts():
-                part.owner = self.npc
+            self.add_lancemate_mecha_to_party(camp, self.npc, mek)
             pet = self._get_pet_from_campdata(camp)
             if pet:
                 camp.party.append(pet)
                 if camp.scene and pet not in camp.scene.contents and pet.scale is camp.scene.scale and self.npc in camp.scene and self.npc.pos:
                     camp.scene.place_gears_near_spot(*self.npc.pos, camp.scene.player_team, pet)
+
+    @staticmethod
+    def add_lancemate_mecha_to_party(camp, npc, mek):
+        camp.party.append(mek)
+        camp.assign_pilot_to_mecha(npc, mek)
+        for part in mek.get_all_parts():
+            part.owner = npc
 
     @staticmethod
     def get_mecha_for_character(npc, choose_new_one=False):
