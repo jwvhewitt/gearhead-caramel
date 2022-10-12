@@ -38,6 +38,7 @@ from .shops_plus import get_building
 # - A CITY_COLORS element may be passed; if it exists, a custom palette will be used for building exteriors.
 # - NOT_METRO_LEADER = set this element to True if you don't want the Leader set as Metro leader
 # - DOOR_SIGN = set the door sign to this
+# - HALL_ARCHITECTURE may be passed to set a certain architecture
 
 class BasicTownHall(Plot):
     LABEL = "TOWNHALL"
@@ -80,11 +81,12 @@ class BasicTownHall(Plot):
             combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
-        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.DefaultBuilding(
-            wall_terrain=ghterrain.DefaultWall))
+        intscenegen = pbge.randmaps.PackedBuildingGenerator(
+            intscene, self.elements.get("HALL_ARCHITECTURE", gharchitecture.DefaultBuilding)()
+        )
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
 
-        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, decorate=gharchitecture.UlsaniteOfficeDecor()),
                                       dident="INTERIOR")
         team3 = self.register_element("FOYER_TEAM", teams.Team("Foyer Team", allies=(team2,)), dident="FOYER")
 
@@ -160,7 +162,7 @@ class DefaultDefender(Plot):
             job=self._get_defender_job(deffaction)))
         npc.name = self.elements.get("DEFENDER_NAME", "") or npc.name
 
-        defroom = self.register_element('DEFROOM', pbge.randmaps.rooms.ClosedRoom(), dident="INTERIOR")
+        defroom = self.register_element('DEFROOM', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.BunkerDecor()), dident="INTERIOR")
         team3 = self.register_element("DEFTEAM", teams.Team(name="Defroom Team", allies=[self.elements["LOCALE"].civilian_team]), dident="DEFROOM")
         team3.contents.append(npc)
 

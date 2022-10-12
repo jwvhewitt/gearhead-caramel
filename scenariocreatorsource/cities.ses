@@ -198,7 +198,7 @@ the_world[{LOCALE_UID}] = myscene
 
 # Create the entry/exit point.
 myroom = self.register_element(
-    "_ENTRY_ROOM_{_uid}", pbge.randmaps.rooms.Room(50, 10),
+    "_ENTRY_ROOM_{_uid}", pbge.randmaps.rooms.Room(50, 10, tags=[pbge.randmaps.IS_CONNECTED_ROOM]),
     dident="_CITY_{_uid}"
 )
 myroom.area = pygame.Rect(0,40,50,10)
@@ -760,6 +760,7 @@ class Tavern_{unique_id}_{_uid}( Plot ):
       "npc_job": {"default_val": null, "var_type": "job", "tooltip": "Set None for random job"},
       "room_name": {"default_val": "Foyer", "var_type": "literal"},
       "hall_faction": {"default_val":  null, "var_type": "faction"},
+      "hall_architecture": {"default_val": "gharchitecture.DefaultBuilding", "var_type": "interior_architecture", "must_be_defined": true},
       "door_sign": {"default_val": "None", "var_type": "door_sign"}
    },
   "child_types": ["SCENE_FEATURE", "ROOM_FEATURE", "NPC_FEATURE"],
@@ -769,14 +770,14 @@ class Tavern_{unique_id}_{_uid}( Plot ):
       "NPC": {"e_type": "npc", "name": "Leader: {npc_name}"}
     },
     "physicals": [
-        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["hall_name", "hall_faction","door_sign"], "child_types": ["SCENE_FEATURE"]},
+        {"element_key": "LOCALE", "parent": "METROSCENE", "variable_keys": ["hall_name", "hall_faction","door_sign", "hall_architecture"], "child_types": ["SCENE_FEATURE"]},
         {"element_key": "ROOM", "parent": "LOCALE", "variable_keys": ["room_name"], "child_types": ["ROOM_FEATURE"]},
         {"element_key": "NPC", "parent": "ROOM", "variable_keys": ["npc_name", "npc_job"], "child_types": ["NPC_FEATURE"]}
     ],
     "singular": true
 
 *SCRIPT scenario_build
-splot = self.add_sub_plot(nart, "TOWNHALL", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, LEADER_NAME={npc_name}, LEADER_JOB={npc_job}, HALL_NAME={hall_name}, DOOR_SIGN={door_sign}, HALL_FACTION={hall_faction}))
+splot = self.add_sub_plot(nart, "TOWNHALL", elements=dict(LOCALE=the_world[{METROSCENE_UID}], METROSCENE=the_world[{METROSCENE_UID}], METRO=the_world[{METROSCENE_UID}].metrodat, MISSION_GATE=the_world[{MISSION_GATE_UID}], CITY_COLORS={city_palette}, LEADER_NAME={npc_name}, LEADER_JOB={npc_job}, HALL_NAME={hall_name}, DOOR_SIGN={door_sign}, HALL_FACTION={hall_faction}, HALL_ARCHITECTURE={hall_architecture}))
 +add_physical LOCALE splot.elements["INTERIOR"]
 +add_physical ROOM splot.elements["FOYER"]
 +add_physical NPC splot.elements["LEADER"]

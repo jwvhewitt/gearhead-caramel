@@ -427,6 +427,14 @@ class CoolColorsWallArchitecture(GearHeadArchitecture):
     DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
 
 
+class AegisArchitecture(GearHeadArchitecture):
+    ENV = gears.tags.UrbanEnv
+    DEFAULT_WALL_TERRAIN = ghterrain.AegisWall
+    DEFAULT_FLOOR_TERRAIN = ghterrain.AegisFloor
+    DEFAULT_OPEN_DOOR_TERRAIN = ghterrain.MetalDoorOpen
+    DEFAULT_DOOR_CLASS = ghwaypoints.MetalDoor
+
+
 class DeadZoneHighwaySceneGen(pbge.randmaps.SceneGenerator):
     ENV = gears.tags.GroundEnv
     DO_DIRECT_CONNECTIONS = True

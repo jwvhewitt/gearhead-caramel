@@ -100,7 +100,7 @@ class AmmoBox(Crate):
 class StorageBox(Crate):
     name = 'Storage Box'
     TILE = pbge.scenes.Tile(None, None, ghterrain.StorageBoxTerrain)
-    desc = "You see a large metal storage box."
+    desc = "You see a metal storage box."
     OPEN_TERRAIN = ghterrain.OpenStorageBoxTerrain
 
 
@@ -110,6 +110,62 @@ class Skeleton(Crate):
     desc = "You stand before the skeleton of an unlucky adventurer."
     OPEN_TERRAIN = ghterrain.SkeletonTerrain
     DEFAULT_TREASURE_TYPE = (gears.tags.ST_WEAPON, gears.tags.ST_CLOTHING, gears.tags.ST_ESSENTIAL)
+
+
+class SteelBox(Crate):
+    name = 'Steel Box'
+    TILE = pbge.scenes.Tile(None, None, ghterrain.SteelBoxTerrain)
+    desc = "You see a large metal storage box."
+    OPEN_TERRAIN = ghterrain.OpenSteelBoxTerrain
+    DEFAULT_TREASURE_TYPE = (gears.tags.ST_ESSENTIAL, gears.tags.ST_TOOL, gears.tags.ST_MINERAL)
+
+
+class LockedSteelBox(Crate):
+    name = 'Steel Crate'
+    TILE = pbge.scenes.Tile(None, None, ghterrain.SteelBoxTerrain)
+    desc = "You see a large steel crate."
+    OPEN_TERRAIN = ghterrain.OpenSteelBoxTerrain
+    DEFAULT_TREASURE_TYPE = (gears.tags.ST_ESSENTIAL, gears.tags.ST_TOOL, gears.tags.ST_MINERAL)
+
+    def __init__( self, treasure_rank=0, *args, **kwargs ):
+        super().__init__(treasure_rank, *args, **kwargs)
+        self.unlock_rank = treasure_rank
+        self.unlocked = False
+
+    def unlocked_use( self, camp: gears.GearHeadCampaign ):
+        if self.unlocked:
+            super().unlocked_use(camp)
+        else:
+            if not self.unlock_rank:
+                self.unlock_rank = max(camp.renown + random.randint(1,10) - random.randint(1,10), 5)
+            rpm = self.MENU_CLASS(camp, self)
+            rpm.desc = "This crate is locked. What do you want to do?"
+            rpm.add_item("Attempt to hack the lock.", 1)
+            rpm.add_item("Break into the crate with brute force", 2)
+            rpm.add_item("Leave it alone.", False)
+            fx = rpm.query()
+            if fx == 1:
+                pc = camp.do_skill_test(gears.stats.Craft, gears.stats.Computers, self.unlock_rank, no_random=True)
+                if pc:
+                    if pc is camp.pc:
+                        pbge.alert("You hack the lock. The door can now be opened.")
+                    else:
+                        pbge.alert("{} hacks the lock. The door can now be opened.".format(pc))
+                    self.unlocked = True
+                else:
+                    pbge.alert("You are not skilled enough to hack this lock.")
+            elif fx == 2:
+                pc = camp.do_skill_test(gears.stats.Body, gears.stats.Athletics, self.unlock_rank,
+                                        difficulty=gears.stats.DIFFICULTY_HARD, no_random=True)
+                if pc:
+                    if pc is camp.pc:
+                        pbge.alert("You smash the lock. The crate can now be opened.")
+                    else:
+                        pbge.alert("{} smashes the lock. The crate can now be opened.".format(pc))
+                    self.unlocked = True
+                else:
+                    pbge.alert("You are not strong enough to smash this lock.")
+
 
 
 class DZDTown( Exit ):
@@ -508,24 +564,47 @@ class EmptyBiotank(Biotank):
 class BrokenBiotank(Biotank):
     TILE = pbge.scenes.Tile(None, None, ghterrain.BrokenBiotankTerrain)
 
+
 class OrganicTube(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.OrganicTubeTerrain)
+
 
 class PZHolo(Waypoint):
     # A PreZero hologram interface
     TILE = pbge.scenes.Tile(None, None, ghterrain.PZHoloTerrain)
 
+
 class AngelEgg(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.AngelEggTerrain)
+
 
 class SkullTownSign(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.SkullTownSignTerrain)
 
+
 class ParkStatueMan(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.ParkStatueManTerrain)
 
+
+class ParkStatueWoman(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.ParkStatueWomanTerrain)
+
+
+class ParkStatueSynth(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.ParkStatueSynthTerrain)
+
+
+class ParkStatueSerpent(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.ParkStatueSerpentTerrain)
+
+
+class ParkStatueMecha(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.ParkStatueMechaTerrain)
+
+
 class Shrine(Waypoint):
     TILE = pbge.scenes.Tile(None, ghterrain.ShrineTerrain, None)
+
 
 class Herbs(Waypoint):
     TILE = pbge.scenes.Tile(None, ghterrain.HerbsTerrain, None)

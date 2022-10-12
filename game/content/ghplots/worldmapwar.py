@@ -571,6 +571,12 @@ class WorldMapWarHandler(Plot):
         self.adventure_seed = None
         return True
 
+    def check_war_status(self, camp):
+        # If the war is won by the player team, send trigger and end plot.
+        # If the war is lost by the player team, send trigger and end plot.
+        # Otherwise, I guess we don't have anything to do here.
+        pass
+
     def handle_war_round(self, camp):
         if self.world_map_war.ready_for_next_round and not self.current_round:
             self.current_round = WorldMapWarRound(self.world_map_war, camp)

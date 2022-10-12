@@ -18,6 +18,82 @@ from game.ghdialogue import context
 #    LOCALE + all the dungeon elements imported above.
 #
 
+class WarehouseEncounter(Plot):
+    # Fight some random monsters. With shelving.
+    LABEL = "DUNGEON_EXTRA"
+    active = True
+    scope = "LOCALE"
+
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                       gears.tags.SCENE_WAREHOUSE in pstate.elements["LOCALE"].attributes or
+                       cls.LABEL == "TEST_DUNGEON_EXTRA"
+               ) and not pstate.elements.get(DG_TEMPORARY, False)
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(decorate=gharchitecture.StorageRoomDecor()),
+                              dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        team2.contents += gears.selector.RandomMonsterUnit(self.rank, 100, myscene.environment,
+                                                           self.elements[DG_MONSTER_TAGS], myscene.scale).contents
+        self.last_update = 0
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        self.last_update = camp.day
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        myteam: teams.Team = self.elements["_eteam"]
+        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 2) == 1:
+            camp.scene.deploy_team(
+                gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
+                                                 self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
+            )
+            self.last_update = camp.day
+
+
+class GuardedWarehouseStuff(Plot):
+    # Fight some random monsters. They have stuff.
+    LABEL = "TEST_DUNGEON_EXTRA"
+    active = True
+    scope = "LOCALE"
+
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                gears.tags.SCENE_WAREHOUSE in pstate.elements["LOCALE"].attributes or
+                cls.LABEL == "TEST_DUNGEON_EXTRA"
+        ) and not pstate.elements.get(DG_TEMPORARY, False)
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        team2.contents += gears.selector.RandomMonsterUnit(self.rank + 5, 120, myscene.environment,
+                                                           ("ROBOT", "GUARD"), myscene.scale).contents
+        self.last_update = 0
+
+        mychest = self.register_element("GOAL", ghwaypoints.SteelBox(name="Crate", anchor=pbge.randmaps.anchors.middle,
+                                                                     treasure_rank=self.rank),
+                                        dident="ROOM")
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        self.last_update = camp.day
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        myteam: teams.Team = self.elements["_eteam"]
+        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1,5) == 1:
+            camp.scene.deploy_team(
+                gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
+                                                 self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
+            )
+            self.last_update = camp.day
+
+
 class DeadAdventurer(Plot):
     # Find a dead adventurer.
     LABEL = "DUNGEON_EXTRA"

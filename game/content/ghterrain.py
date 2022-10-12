@@ -179,6 +179,16 @@ class ExitTerrain(pbge.scenes.terrain.AnimTerrain):
     anim_delay = 1
 
 
+class AegisWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_aegis.png'
+    blocks = (Walking, Skimming, Rolling, Vision)
+
+
+class AegisFloor(pbge.scenes.terrain.Terrain):
+    image_bottom = 'terrain_floor_aegis.png'
+
+
+
 class FortressWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_fortress.png'
     blocks = (Walking, Skimming, Rolling, Vision)
@@ -373,6 +383,18 @@ class StorageBoxTerrain(pbge.scenes.terrain.Terrain):
 
 class OpenStorageBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
+    frame = 5
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+
+class SteelBoxTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_gervais_decor.png'
+    frame = 4
+    blocks = (Walking, Skimming, Rolling, Flying)
+
+
+class OpenSteelBoxTerrain(pbge.scenes.terrain.Terrain):
+    image_top = 'terrain_gervais_decor.png'
     frame = 5
     blocks = (Walking, Skimming, Rolling, Flying)
 

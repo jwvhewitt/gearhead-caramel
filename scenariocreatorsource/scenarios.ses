@@ -75,7 +75,8 @@
       "start_with_lancemate": {"default_val": true, "var_type": "boolean"},
       "world_map_encounters": {"default_val": true, "var_type": "boolean"},
       "default_mission_combat_music": {"default_val": null, "var_type": "music"},
-      "default_mission_exploration_music": {"default_val": null, "var_type": "music"}
+      "default_mission_exploration_music": {"default_val": null, "var_type": "music"},
+      "conversation_border": {"default_val": "\"dzd_convoborder.png\"", "var_type": "*_convoborder.png"}
 },
 "child_types": ["CITY", "WORLD_FEATURE", "STARTING_PLOT", "PLOT_FEATURE"],
 "is_new_branch": true
@@ -120,6 +121,7 @@ class {unique_id}_Scenario( Plot ):
         {adventure_name},
         {adventure_desc},
         {adventure_date}, {adventure_cover},
+        convoborder={conversation_border}
     )
 
     def custom_init( self, nart ):

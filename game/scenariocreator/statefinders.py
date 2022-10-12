@@ -148,7 +148,7 @@ SINGULAR_TYPES = {
         "personality.L5Spinners", "personality.L5DustyRing", "personality.Luna", "personality.Mars",
         "gears.tags.SCENE_SOLO", "gears.tags.SCENE_DUNGEON", "gears.tags.SCENE_SEMIPUBLIC", "gears.tags.SCENE_FACTORY",
         "gears.tags.SCENE_OUTDOORS", "gears.tags.SCENE_ARENARULES", "gears.tags.City", "gears.tags.Village",
-        "gears.tags.SCENE_VEHICLE", "gears.tags.CITY_NAUTICAL"
+        "gears.tags.SCENE_VEHICLE", "gears.tags.CITY_NAUTICAL", "gears.tags.SCENE_WAREHOUSE"
     ),
     "city_scene_generator": (
         "pbge.randmaps.CityGridGenerator", "pbge.randmaps.PartlyUrbanGenerator", "pbge.randmaps.SceneGenerator"
@@ -164,7 +164,7 @@ SINGULAR_TYPES = {
         "gharchitecture.OrganicBuilding", "gharchitecture.ScrapIronWorkshop", "gharchitecture.StoneBuilding",
         "gharchitecture.StoneCave", "gharchitecture.VehicleArchitecture", "gharchitecture.WarmColorsWallArchitecture",
         "gharchitecture.CoolColorsWallArchitecture", "gharchitecture.DingyResidentialArchitecture",
-        "gharchitecture.SewerArchitecture", "gharchitecture.DerelictArchitecture"
+        "gharchitecture.SewerArchitecture", "gharchitecture.DerelictArchitecture", "gharchitecture.AegisArchitecture"
     ),
     'terrain_set': (
         "ghterrain.CorsairTerrset",
@@ -175,11 +175,15 @@ SINGULAR_TYPES = {
         "ghwaypoints.ClosedBoardingChute", "ghwaypoints.Crate", "ghwaypoints.EarthMap", "ghwaypoints.EmptyBiotank",
         "ghwaypoints.GoldPlaque", "ghwaypoints.HamsterCage", "ghwaypoints.Herbs", "ghwaypoints.KenneyCratesWP",
         "ghwaypoints.KenneyWoodenTableWP", "ghwaypoints.Lockers", "ghwaypoints.OccupiedBed", "ghwaypoints.OldCrate",
-        "ghwaypoints.OldTerminal", "ghwaypoints.OldMainframe", "ghwaypoints.OrganicTube", "ghwaypoints.ParkStatueMan",
+        "ghwaypoints.OldTerminal", "ghwaypoints.OldMainframe", "ghwaypoints.OrganicTube",
         "ghwaypoints.PZHolo", "ghwaypoints.RecoveryBed", "ghwaypoints.RetroComputer", "ghwaypoints.ShippingShelves",
         "ghwaypoints.Shrine", "ghwaypoints.Skeleton", "ghwaypoints.SkullTownSign", "ghwaypoints.StorageBox",
         "ghwaypoints.TrailSign", "ghwaypoints.Trapdoor", "ghwaypoints.UlsaniteFilingCabinet",
-        "ghwaypoints.VendingMachine", "ghwaypoints.Victim", "ghwaypoints.WallMap", "ghwaypoints.TattooChair"
+        "ghwaypoints.VendingMachine", "ghwaypoints.Victim", "ghwaypoints.WallMap", "ghwaypoints.TattooChair",
+        "ghwaypoints.HarpyModel", "ghwaypoints.VadelModel", "ghwaypoints.KojedoModel",
+        "ghwaypoints.GladiusModel", "ghwaypoints.BuruBuruModel", "ghwaypoints.ClaymoreModel",
+        "ghwaypoints.ParkStatueSynth", "ghwaypoints.ParkStatueSerpent", "ghwaypoints.ParkStatueMecha",
+        "ghwaypoints.ParkStatueWoman", "ghwaypoints.ParkStatueMan", "ghwaypoints.StatueF", "ghwaypoints.StatueM"
     ),
     "door_type": (
         "ghwaypoints.ScrapIronDoor", "ghwaypoints.GlassDoor", "ghwaypoints.ScreenDoor", "ghwaypoints.WoodenDoor",
@@ -202,7 +206,7 @@ SINGULAR_TYPES = {
         "gharchitecture.OrganicBuilding", "gharchitecture.ScrapIronWorkshop", "gharchitecture.StoneBuilding",
         "gharchitecture.StoneCave", "gharchitecture.VehicleArchitecture", "gharchitecture.WarmColorsWallArchitecture",
         "gharchitecture.CoolColorsWallArchitecture", "gharchitecture.DingyResidentialArchitecture",
-        "gharchitecture.SewerArchitecture", "gharchitecture.DerelictArchitecture"
+        "gharchitecture.SewerArchitecture", "gharchitecture.DerelictArchitecture", "gharchitecture.AegisArchitecture"
     ),
     "interior_decor": (
         "gharchitecture.DungeonDecor", "gharchitecture.FactoryDecor", "gharchitecture.DefiledFactoryDecor",
@@ -236,7 +240,8 @@ SINGULAR_TYPES = {
         "REPTILE", "ROBOT", "RUINS", "SWAMP", "SYNTH", "TOXIC", "VERMIN", "WASTELAND", "WATER", "ZOMBOT"
     ),
     "container_waypoint": (
-        "ghwaypoints.OldCrate", "ghwaypoints.Skeleton", "ghwaypoints.StorageBox", "ghwaypoints.AmmoBox"
+        "ghwaypoints.OldCrate", "ghwaypoints.Skeleton", "ghwaypoints.StorageBox", "ghwaypoints.AmmoBox",
+        "ghwaypoints.SteelBox", "ghwaypoints.LockedSteelBox"
     ),
     "exit_types": (
         "ghwaypoints.Exit", "ghwaypoints.ScrapIronDoor", "ghwaypoints.GlassDoor", "ghwaypoints.ScreenDoor",
