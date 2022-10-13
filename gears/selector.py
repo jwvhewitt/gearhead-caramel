@@ -224,6 +224,11 @@ def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, c
                            portrait_gen=portraits.Portrait(), job=job, combatant=combatant,
                            personality=random_personality(possible_origins), gender=genderobj.Gender.random_gender(),
                            birth_year=current_year - age, renown=rank)
+    # The always_combatant job property takes precedence over requesting "False" for combatant in kwargs.
+    # If you want a soldier who isn't a combatant, you're going to have to set that manually after the character
+    # is generated.
+    if "combatant" in kwargs and job.always_combatant:
+        kwargs["combatant"] = True
     if kwargs:
         creation_matrix.update(kwargs)
     pc = base.Character(**creation_matrix

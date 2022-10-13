@@ -278,7 +278,7 @@ class GearHeadScene(pbge.scenes.Scene):
         self.in_sight = set()
         first = True
         for pc in camp.party:
-            if pc.is_operational() and pc in self.contents:
+            if pc.is_operational() and pc in self.contents and pc.pos and self.on_the_map(*pc.pos):
                 self.in_sight |= pbge.scenes.pfov.PCPointOfView(self, pc.pos[0], pc.pos[1],
                                                                 pc.get_sensor_range(self.scale)).tiles
                 if first and self.script_rooms:

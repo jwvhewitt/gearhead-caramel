@@ -73,10 +73,14 @@ class ROPP_WarStarter(Plot):
         return True
 
     def ROPPWAR_WIN(self, camp: gears.GearHeadCampaign):
-        pass
+        pbge.alert("Congratulations, you have won the war! Thank you for playing the early access version of Raid on Pirate's Point.")
+        pbge.alert("Later on there will be different endings and more options, but for now I just want to get a new release out the door. Please let me know if you found any problems.")
+        camp.eject()
 
     def ROPPWAR_LOSE(self, camp: gears.GearHeadCampaign):
-        pass
+        pbge.alert("Your side in the war has been defeated. Thank you for playing the early access version of Raid on Pirate's Point.")
+        pbge.alert("Later on there will be different endings and more options, but for now I just want to get a new release out the door. Please let me know if you found any problems.")
+        camp.eject()
 
     def _seek_charla(self, nart, candidate):
         return isinstance(candidate, gears.base.Character) and candidate.mnpcid == "Admiral Charla"

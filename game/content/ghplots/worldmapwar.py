@@ -43,8 +43,8 @@ class NodeStats:
 
 
 class WarWorldMapLegend:
-    def __init__(self, image_name="wm_legend_war.png", num_icons=7, num_colors=8, hq_frames=(0,3), city_frames=(1,4),
-                 fortress_frames=(2,5), mecha_frame=6):
+    def __init__(self, image_name="wm_legend_war.png", num_icons=7, num_colors=8, hq_frames=(0, 3), city_frames=(1, 4),
+                 fortress_frames=(2, 5), mecha_frame=6):
         self.image_name = image_name
         self.num_icons = num_icons
         self.num_colors = num_colors
@@ -92,7 +92,7 @@ class AttackerWinsEffect:
 
     def __call__(self, camp: gears.GearHeadCampaign):
         self.world_map_war.capture(camp, self.attack_team, self.target_node)
-        self.world_map_war.war_teams[self.attack_team].strength -= self.attack_ante//2
+        self.world_map_war.war_teams[self.attack_team].strength -= self.attack_ante // 2
         self.world_map_war.war_teams[self.target_node.destination.faction].strength -= self.target_ante
         if self.attacker_is_pc:
             camp.go(self.target_node.entrance)
@@ -110,7 +110,7 @@ class DefenderWinsEffect:
 
     def __call__(self, camp):
         self.world_map_war.war_teams[self.attack_team].strength -= self.attack_ante
-        self.world_map_war.war_teams[self.target_node.destination.faction].strength -= self.target_ante//2
+        self.world_map_war.war_teams[self.target_node.destination.faction].strength -= self.target_ante // 2
 
 
 class WorldMapWar:
@@ -153,17 +153,17 @@ class WorldMapWar:
 
     def get_defense_strength(self, node):
         fac = node.destination.faction
-        d,m = self.get_faction_strength_divmod(fac)
+        d, m = self.get_faction_strength_divmod(fac)
         if fac and fac in self.war_teams and node.destination is self.war_teams[fac].home_base:
-            return min(d+m, 12)
+            return min(d + m, 12)
         elif self.node_stats[node].fortified:
-            return min(max(d*2, d+m), 10)
+            return min(max(d * 2, d + m), 10)
         else:
             return min(d, 5)
 
     def get_attack_strength(self, fac):
-        d,m = divmod(self.war_teams[fac].strength, self.get_number_of_territories(fac) + 1)
-        return min(d+m, 10)
+        d, m = divmod(self.war_teams[fac].strength, self.get_number_of_territories(fac) + 1)
+        return min(d + m, 10)
 
     def get_node_income(self, node):
         dest = node.destination
@@ -180,8 +180,25 @@ class WorldMapWar:
                 self.legend.set_color(node, 0)
         del self.war_teams[losing_fac]
 
+    WAR_WON = "WIN!"
+    WAR_LOST = "LOSE!"
+
+    def get_war_status(self, camp: gears.GearHeadCampaign):
+        # Returns WAR_WON, WAR_LOST, or None depending on whether the player team has been eliminated or all non allied
+        # teams have been eliminated.
+        if not self.player_team:
+            return None
+        elif self.player_team not in self.war_teams:
+            return self.WAR_LOST
+        else:
+            for fac in self.war_teams.keys():
+                if not (fac is self.player_team or camp.are_faction_allies(fac, self.player_team)):
+                    return None
+            return self.WAR_WON
+
     def capture(self, camp, attacking_fac, node):
-        node.destination.purge_faction(camp, node.destination.faction)
+        if node.destination.faction:
+            node.destination.purge_faction(camp, node.destination.faction)
         for fac in self.war_teams.keys():
             if self.war_teams[fac].home_base is node.destination:
                 # If your home base is captured, you are eliminated from the game.
@@ -205,7 +222,7 @@ class WorldMapWar:
             camp, "Capture {}".format(target_node), start_node.destination, start_node.entrance,
             target_node.destination.faction, attacking_team,
             max(self.rank + num_defenders * 3 - num_attackers * 3, self.rank),
-            #adv_type="BAM_ROAD_MISSION",
+            # adv_type="BAM_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": target_node.entrance, "DEST_SCENE": target_node.destination,
                              "ENTRANCE_ANCHOR": random.choice(pbge.randmaps.anchors.EDGES)},
             objectives=random.sample(self.ATTACK_OBJECTIVES, 2), scenegen=sgen, architecture=archi,
@@ -226,13 +243,12 @@ class WorldMapWar:
         return my_adv
 
 
-
-
 class WorldMapWarTurn:
-    DEFENDER_POSITIONS = [(-6,-16), (6,-16), (-12, -8), (-4, -8), (4, -8), (12, -8),
+    DEFENDER_POSITIONS = [(-6, -16), (6, -16), (-12, -8), (-4, -8), (4, -8), (12, -8),
                           (-12, 8), (-4, 8), (4, 8), (12, 8), (-6, 16), (6, 16)]
-    ATTACKER_POSITIONS = [(-8,-20),(8,-20),(15,-15),(20,-8),(20,8),(15,15),
-                          (8,20),(-8,20),(-15,15),(-20,8),(-20,-8),(-15,-15)]
+    ATTACKER_POSITIONS = [(-8, -20), (8, -20), (15, -15), (20, -8), (20, 8), (15, 15),
+                          (8, 20), (-8, 20), (-15, 15), (-20, 8), (-20, -8), (-15, -15)]
+
     def __init__(self, world_map_war: WorldMapWar, camp: gears.GearHeadCampaign, fac):
         self.world_map_war = world_map_war
         self.world_map = world_map_war.world_map
@@ -251,12 +267,13 @@ class WorldMapWarTurn:
         self.casulties = list()
         self.num_attackers = 0
         self.num_defenders = 0
-        self.kill_counter = 0   # A special counter used to show mecha being destroyed.
+        self.kill_counter = 0  # A special counter used to show mecha being destroyed.
 
     def show_turn_progress(self, msg):
         self.message = msg
         if self.world_map_war.war_teams[self.fac].home_base:
-            self.target_waypoint = self.world_map.get_node_with_destination(self.world_map_war.war_teams[self.fac].home_base).entrance
+            self.target_waypoint = self.world_map.get_node_with_destination(
+                self.world_map_war.war_teams[self.fac].home_base).entrance
         else:
             self.target_waypoint = None
         pbge.alert_display(self.render_alert)
@@ -274,7 +291,7 @@ class WorldMapWarTurn:
         self.target_waypoint = target_node.entrance
         pbge.alert_display(self.render_war_alert)
 
-    MECHA_WIGGLE = (-1,-1,0,0,0,1,1,0,0,0)
+    MECHA_WIGGLE = (-1, -1, 0, 0, 0, 1, 1, 0, 0, 0)
 
     def render_war_alert(self):
         pbge.my_state.view()
@@ -285,34 +302,39 @@ class WorldMapWarTurn:
         attack_frame = self.world_map_war.legend.get_mecha_frame(self.world_map_war.war_teams[self.fac].color)
         map_rect = self.visualizer.map_area.get_rect()
         for n in range(self.num_attackers):
-            x,y = self.attacker_positions[n]
-            self.mecha_sprite.render_c((self.visualizer.calc_map_x(self.target_node.pos[0], map_rect)+x + self.MECHA_WIGGLE[(pbge.my_state.anim_phase+n*3)%10],
-                                      self.visualizer.calc_map_y(self.target_node.pos[1], map_rect)+y), attack_frame)
+            x, y = self.attacker_positions[n]
+            self.mecha_sprite.render_c((self.visualizer.calc_map_x(self.target_node.pos[0], map_rect) + x +
+                                        self.MECHA_WIGGLE[(pbge.my_state.anim_phase + n * 3) % 10],
+                                        self.visualizer.calc_map_y(self.target_node.pos[1], map_rect) + y),
+                                       attack_frame)
 
         if self.target_node.destination.faction:
-            defence_frame = self.world_map_war.legend.get_mecha_frame(self.world_map_war.war_teams[self.target_node.destination.faction].color)
+            defence_frame = self.world_map_war.legend.get_mecha_frame(
+                self.world_map_war.war_teams[self.target_node.destination.faction].color)
         else:
             defence_frame = self.world_map_war.legend.get_mecha_frame(0)
 
         for n in range(self.num_defenders):
-            x,y = self.defender_positions[n]
-            self.mecha_sprite.render_c((self.visualizer.calc_map_x(self.target_node.pos[0], map_rect)+x + self.MECHA_WIGGLE[(pbge.my_state.anim_phase+n*3)%10],
-                                        self.visualizer.calc_map_y(self.target_node.pos[1], map_rect)+y), defence_frame)
+            x, y = self.defender_positions[n]
+            self.mecha_sprite.render_c((self.visualizer.calc_map_x(self.target_node.pos[0], map_rect) + x +
+                                        self.MECHA_WIGGLE[(pbge.my_state.anim_phase + n * 3) % 10],
+                                        self.visualizer.calc_map_y(self.target_node.pos[1], map_rect) + y),
+                                       defence_frame)
 
         if self.kill_counter != 0:
             if self.kill_counter < 0:
-                x, y = self.attacker_positions[self.num_attackers-1]
+                x, y = self.attacker_positions[self.num_attackers - 1]
                 self.small_boom_sprite.render_c((self.visualizer.calc_map_x(self.target_node.pos[0], map_rect) + x,
                                                  self.visualizer.calc_map_y(self.target_node.pos[1], map_rect) + y),
-                                                 8 + self.kill_counter)
+                                                8 + self.kill_counter)
                 self.kill_counter += 1
                 if self.kill_counter == 0:
                     self.num_attackers -= 1
             else:
-                x, y = self.defender_positions[self.num_defenders-1]
+                x, y = self.defender_positions[self.num_defenders - 1]
                 self.small_boom_sprite.render_c((self.visualizer.calc_map_x(self.target_node.pos[0], map_rect) + x,
                                                  self.visualizer.calc_map_y(self.target_node.pos[1], map_rect) + y),
-                                                 8 - self.kill_counter)
+                                                8 - self.kill_counter)
                 self.kill_counter -= 1
                 if self.kill_counter == 0:
                     self.num_defenders -= 1
@@ -364,8 +386,10 @@ class WorldMapWarTurn:
             self.fac, target_node.destination.faction,
             self.world_map_war.rank + self.num_attackers * 3 - self.num_defenders * 3,
             objectives=random.sample(self.DEFENCE_OBJECTIVES, 2), scenegen=sgen, architecture=archi,
-            on_win=DefenderWinsEffect(self.fac, target_node, self.num_attackers, self.num_defenders, self.world_map_war, False),
-            on_loss=AttackerWinsEffect(self.fac, target_node, self.num_attackers, self.num_defenders, self.world_map_war, False),
+            on_win=DefenderWinsEffect(self.fac, target_node, self.num_attackers, self.num_defenders, self.world_map_war,
+                                      False),
+            on_loss=AttackerWinsEffect(self.fac, target_node, self.num_attackers, self.num_defenders,
+                                       self.world_map_war, False),
             auto_exit=True,
             mission_grammar=missionbuilder.MissionGrammar(
                 "defend {} from {}".format(target_node, self.fac),
@@ -417,7 +441,7 @@ class WorldMapWarTurn:
             attacker_casulties = 0
             defender_casulties = 0
             while self.num_attackers - attacker_casulties > 0 and self.num_defenders - defender_casulties > 0:
-                if random.randint(1,2) == 1:
+                if random.randint(1, 2) == 1:
                     self.casulties.append(-1)
                     attacker_casulties += 1
                 else:
@@ -446,7 +470,7 @@ class WorldMapWarTurn:
             return None
         self.update()
         d, m = self.world_map_war.get_faction_strength_divmod(self.fac)
-        if d < random.randint(2,3) or self.fac is self.world_map_war.player_team:
+        if d < random.randint(2, 3) or self.fac is self.world_map_war.player_team:
             self.prepare_for_war()
             return None
 
@@ -472,17 +496,17 @@ class WorldMapWarTurn:
                             elif not far_node.destination.faction:
                                 attack_candidates.add(far_node)
                             elif (
-                                far_node.destination.faction is not self.fac and
-                                random.randint(1,100) > self.world_map_war.war_teams[self.fac].loyalty and
-                                (
-                                    far_node.destination.faction is not self.world_map_war.player_team or
-                                    self.world_map_war.war_teams[far_node.destination.faction].home_base is not
-                                    far_node.destination
-                                )
+                                    far_node.destination.faction is not self.fac and
+                                    random.randint(1, 100) > self.world_map_war.war_teams[self.fac].loyalty and
+                                    (
+                                            far_node.destination.faction is not self.world_map_war.player_team or
+                                            self.world_map_war.war_teams[far_node.destination.faction].home_base is not
+                                            far_node.destination
+                                    )
                             ):
                                 attack_candidates.add(far_node)
 
-        if random.randint(1,100) > self.world_map_war.war_teams[self.fac].aggression and d < random.randint(4,6):
+        if random.randint(1, 100) > self.world_map_war.war_teams[self.fac].aggression and d < random.randint(4, 6):
             self.prepare_for_war()
             return None
         elif not attack_candidates:
@@ -491,7 +515,7 @@ class WorldMapWarTurn:
         else:
             # Attack!
             attack_candidates = sorted(attack_candidates, key=self.attack_desirability)
-            i = min(random.randint(0,len(attack_candidates)-1), random.randint(0,len(attack_candidates)-1))
+            i = min(random.randint(0, len(attack_candidates) - 1), random.randint(0, len(attack_candidates) - 1))
             return self.got_to_war(attack_candidates[i])
 
 
@@ -544,7 +568,7 @@ class EdgeAttack:
 
     def __call__(self, camp: gears.GearHeadCampaign):
         dest_node = self.edge.get_link(self.start_point)
-        if self.edge.architecture and camp.has_mecha_party(enviro=self.edge.architecture.ENV):
+        if self.adv.can_do_mission(camp):
             if dest_node.destination.faction:
                 self.adv(camp)
             else:
@@ -571,29 +595,42 @@ class WorldMapWarHandler(Plot):
         self.adventure_seed = None
         return True
 
-    def check_war_status(self, camp):
+    def check_war_status(self, camp: gears.GearHeadCampaign):
         # If the war is won by the player team, send trigger and end plot.
         # If the war is lost by the player team, send trigger and end plot.
         # Otherwise, I guess we don't have anything to do here.
-        pass
+        result = self.world_map_war.get_war_status(camp)
+        if result == self.world_map_war.WAR_WON:
+            camp.check_trigger("WIN", self)
+            self.end_plot(camp)
+        elif result == self.world_map_war.WAR_LOST:
+            camp.check_trigger("LOSE", self)
+            self.end_plot(camp)
 
     def handle_war_round(self, camp):
         if self.world_map_war.ready_for_next_round and not self.current_round:
             self.current_round = WorldMapWarRound(self.world_map_war, camp)
             self.world_map_war.ready_for_next_round = False
         if self.current_round:
-            while self.current_round.keep_going():
+            while self.active and self.current_round.keep_going():
                 self.adventure_seed = self.current_round.perform_turn()
                 if self.adventure_seed:
-                    self.adventure_seed(camp)
-                    break
+                    if self.adventure_seed.can_do_mission(camp):
+                        self.adventure_seed(camp)
+                        break
+                    else:
+                        pbge.alert("Without working mecha, you are unable to take part in the battle.")
+                        self.adventure_seed.on_loss(camp)
+                        self.adventure_seed = None
+                self.check_war_status(camp)
             if not self.current_round.keep_going():
                 self.current_round = None
 
     def t_START(self, camp: gears.GearHeadCampaign):
         if self.adventure_seed and self.adventure_seed.is_completed():
             self.adventure_seed = None
-        if hasattr(camp.scene, "metrodat") and camp.scene.metrodat and not camp.has_a_destination():
+            self.check_war_status(camp)
+        if self.active and hasattr(camp.scene, "metrodat") and camp.scene.metrodat and not camp.has_a_destination():
             if not self.adventure_seed:
                 self.handle_war_round(camp)
 
@@ -620,4 +657,3 @@ class WorldMapWarHandler(Plot):
                                 EdgeAttack(camp, e, node, self.world_map_war), e
                             )
                     break
-

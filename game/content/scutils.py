@@ -1,6 +1,6 @@
 # Utilities that are useful for the scenario creator and not much else.
 import pbge
-from game.content import ghwaypoints, ghrooms
+from . import ghwaypoints, ghrooms
 
 
 class DialogueOfferHandler:

@@ -712,7 +712,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         ITALICFONT.set_italic(True)
 
         global BIGFONT
-        BIGFONT = pygame.font.Font(util.image_dir(display_font), 18)
+        BIGFONT = pygame.font.Font(util.image_dir(display_font), 17)
         my_state.big_font = BIGFONT
 
         my_state.huge_font = pygame.font.Font(util.image_dir(display_font), 24)

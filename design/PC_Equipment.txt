@@ -362,6 +362,42 @@ EnergyWeapon
             size = 4
     END
 
+EnergyWeapon
+    name = "Beam Knife"
+    desc = "A small plasma-beam projector, useful for cutting through tough materials."
+    reach=1
+    damage=2
+    accuracy=4
+    penetration=5
+    scale = HumanScale
+    attributes=(Accurate, FastAttack)
+    attack_stat = Reflexes
+    shop_tags= ("MELEE WEAPON","WEAPON")
+    faction_list = (None)
+    material = Advanced
+    INV
+        PowerSource
+            size = 2
+    END
+
+
+EnergyWeapon
+    name = "Laser Axe"
+    desc = "An axe with a fiber-optic head. When the blade makes contact, it immediately discharges a destructive flash of laser light."
+    reach=1
+    damage=4
+    accuracy=2
+    penetration=4
+    scale = HumanScale
+    attack_stat = Reflexes
+    shop_tags= ("MELEE WEAPON","WEAPON")
+    faction_list = (None)
+    INV
+        PowerSource
+            size = 4
+    END
+
+
 MeleeWeapon
     name = "Deathwing"
     desc = "A bladed boomerang with an integrated poison dispenser. This weapon is favored by assassins, since even a grazing hit can be lethal."
@@ -472,11 +508,73 @@ BallisticWeapon
     shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
     faction_list = (None,)
     magazine = 40
+    attack_stat = Perception
     SUB
         Ammo
             ammo_type=Rifle_5mm
             quantity=40
     END
+
+BallisticWeapon
+    name = "Snub Rifle"
+    desc = "A large caliber single-firing magnetic rifle."
+    reach = 8
+    damage = 4
+    accuracy = 3
+    penetration = 4
+    ammo_type = Snub_10mm
+    attributes = (Accurate,)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON")
+    faction_list = (None,)
+    magazine = 25
+    attack_stat = Perception
+    SUB
+        Ammo
+            ammo_type=Snub_10mm
+            quantity=25
+    END
+
+BallisticWeapon
+    name = "Headhunter Pistol"
+    desc = "A powerful magnetic pistol."
+    reach = 3
+    damage = 3
+    accuracy = 3
+    penetration = 5
+    ammo_type = Snub_10mm
+    attributes = (Accurate, VariableFire2)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON")
+    faction_list = (None,)
+    magazine = 20
+    material = Ceramic
+    SUB
+        Ammo
+            ammo_type=Snub_10mm
+            quantity=20
+    END
+
+BallisticWeapon
+    name = "Assault Cannon"
+    desig = "SH-989"
+    desc = "A heavy gatling-style magnetic cannon."
+    reach = 7
+    damage = 3
+    accuracy = 2
+    penetration = 3
+    ammo_type = Snub_7mm
+    attributes = (BurstFire5, Brutal)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON")
+    magazine = 80
+    attack_stat = Body
+    SUB
+        Ammo
+            ammo_type=Snub_7mm
+            quantity=80
+    END
+
 
 BallisticWeapon
     name = "Shotgun"

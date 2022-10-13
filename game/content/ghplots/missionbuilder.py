@@ -174,6 +174,9 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         super(BuildAMissionSeed, self).end_adventure(camp)
         camp.day += 1
 
+    def can_do_mission(self, camp: gears.GearHeadCampaign):
+        return bool(camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=self.environment))
+
     def __call__(self, camp: gears.GearHeadCampaign):
         # Start with the total party list for this map scale.
         total_party = camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=None)
@@ -1017,7 +1020,8 @@ class BAM_ExtractAllies(Plot):
             if not npc.relationship:
                 npc.relationship = camp.get_relationship(npc)
             npc.relationship.reaction_mod += 10
-        camp.scene.contents.remove(self.elements["SURVIVOR"])
+        if self.elements["SURVIVOR"] in camp.scene.contents:
+            camp.scene.contents.remove(self.elements["SURVIVOR"])
         self.pilot_fled = True
 
     def t_ENDCOMBAT(self, camp):

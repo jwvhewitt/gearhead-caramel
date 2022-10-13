@@ -129,6 +129,16 @@ class Rifle_6mm(BaseCalibre):
     bang = 9
     scale = scale.HumanScale
 
+class Snub_7mm(BaseCalibre):
+    bang = 10
+    scale = scale.HumanScale
+    risk = RISK_INERT
+
+class Snub_10mm(BaseCalibre):
+    bang = 16
+    scale = scale.HumanScale
+    risk = RISK_INERT
+
 
 class Pistol_6mm(BaseCalibre):
     bang = 4
