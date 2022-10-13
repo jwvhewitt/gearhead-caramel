@@ -1,4 +1,4 @@
-* v0.931 October 13, 2022
+v0.931 October 13, 2022
 * Added "Raid on Pirate's Point" scenario, early access version
 * Fixed missing portrait/name when lancemate speaks during mecha combat
 * Fixed bug in missions not counting retreat as a loss
