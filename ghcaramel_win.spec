@@ -5,7 +5,7 @@ block_cipher = None
 
 a = Analysis(['main.py'],
              binaries=[],
-             datas=[('data','data'),('design','design'),('image','image'),('music','music')],
+             datas=[('data','data'),('design','design'),('image','image'),('music','music'),('soundfx','soundfx')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],

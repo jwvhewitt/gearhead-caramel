@@ -1,3 +1,11 @@
+* You can now set music volume, sound fx volume, and window size from config editor
+* Changed configuration editor to a column widget rather than a menu
+* Fixed bug where combat music won't start after resuming saved game
+* Sound effect library preloaded at startup
+* AnimObs now have support for sound effects
+* Two audio channels are now reserved for music
+* Added show_numbers_in_pilot_info config option
+
 v0.931 October 13, 2022
 * Added "Raid on Pirate's Point" scenario, early access version
 * Fixed missing portrait/name when lancemate speaks during mecha combat

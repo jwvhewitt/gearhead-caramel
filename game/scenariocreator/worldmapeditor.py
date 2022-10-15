@@ -1,8 +1,7 @@
 import pygame
 import pbge
-import gears
 from game.content.ghplots import campfeatures
-from game.content import gharchitecture
+from pbge.widgets import CheckboxWidget
 from . import statefinders
 
 
@@ -21,26 +20,6 @@ def get_all_connections(all_blueprints, wmid):
             node_elements = blueprint.get_elements()
             node_dict[node_elements["ENTRANCE"].uid] = blueprint
     return node_dict
-
-
-class CheckboxWidget(pbge.widgets.RowWidget):
-    CHECK_FRAME = {True: 0, False: 1}
-    def __init__(self, w, caption, is_checked, on_change, **kwargs):
-        # on_change is a callback function that takes a bool value as its parameter.
-        super().__init__(0, 0, w, 20, padding=5, **kwargs)
-        self.state_indicator = pbge.widgets.ButtonWidget(0,0,20,20,pbge.image.Image("sys_checkbox.png", 20, 20),
-                                                         frame=self.CHECK_FRAME[bool(is_checked)],
-                                                         on_click=self._toggle_state)
-        self.add_left(self.state_indicator)
-        self.add_left(pbge.widgets.LabelWidget(0,0,w-25,0,caption, on_click=self._toggle_state))
-        self.is_checked = is_checked
-        self.on_change = on_change
-
-    def _toggle_state(self, wid, ev):
-        self.is_checked = not self.is_checked
-        self.state_indicator.frame = self.CHECK_FRAME[bool(self.is_checked)]
-        if self.on_change:
-            self.on_change(self.is_checked)
 
 
 class LegendWidget(pbge.widgets.RowWidget):
@@ -99,7 +78,8 @@ class WMNodeEditorWidget(pbge.widgets.RowWidget):
         my_image_menu.menu.set_item_by_value(node.image_file)
         self.add_left(my_image_menu)
 
-        self.add_left(CheckboxWidget(70, "Visible", self.wm_data["node"].get("visible", False), self._change_visibility))
+        self.add_left(
+            CheckboxWidget(70, "Visible", self.wm_data["node"].get("visible", False), self._change_visibility))
         self.add_left(CheckboxWidget(105, "Discoverable", self.wm_data["node"].get("discoverable", True), self._change_discoverability))
 
         self.frames_locked = True
@@ -192,7 +172,8 @@ class WMEdgeEditorWidget(pbge.widgets.RowWidget):
         self.add_left(pbge.widgets.LabelWidget(0,0,300,20,"{} to {}".format(edge.start_node, edge.end_node),
                                                on_click=self._set_active_edge))
         self.add_left(CheckboxWidget(70, "Visible", self.edge_data.get("visible", False), self._change_visibility))
-        self.add_left(CheckboxWidget(105, "Discoverable", self.edge_data.get("discoverable", True), self._change_discoverability))
+        self.add_left(
+            CheckboxWidget(105, "Discoverable", self.edge_data.get("discoverable", True), self._change_discoverability))
         self.add_left(pbge.widgets.LabelWidget(0,0,80,20,"Delete Edge", on_click=self._delete_edge))
 
     def _delete_edge(self, *args):

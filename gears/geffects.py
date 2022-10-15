@@ -172,6 +172,7 @@ INTERCEPT = 'INTERCEPT'
 class SmallBoom(animobs.AnimOb):
     SPRITE_NAME = 'anim_smallboom.png'
     SPRITE_OFF = ((0, 0), (-7, 0), (-3, 6), (3, 6), (7, 0), (3, -6), (-3, -6))
+    DEFAULT_SOUND_FX = "bum-94209.ogg"
 
     def __init__(self, sprite=0, pos=(0, 0), loop=0, delay=1, y_off=0):
         super(SmallBoom, self).__init__(sprite_name=self.SPRITE_NAME, pos=pos, start_frame=0, end_frame=7, loop=loop,
@@ -182,6 +183,7 @@ class SmallBoom(animobs.AnimOb):
 
 class NoDamageBoom(SmallBoom):
     SPRITE_NAME = 'anim_nodamage.png'
+    DEFAULT_SOUND_FX = "g_whiff_alt_2-81862.ogg"
 
 
 class PoisonDamageBoom(SmallBoom):
@@ -193,6 +195,7 @@ class PoisonDamageBoom(SmallBoom):
 class BigBoom(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_bigboom.png"
     DEFAULT_END_FRAME = 7
+    DEFAULT_SOUND_FX = "hq-explosion-6288.ogg"
 
 
 class MiasmaAnim(animobs.AnimOb):
@@ -353,6 +356,7 @@ class BadMusicAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_music_bad.png"
     DEFAULT_END_FRAME = 7
 
+
 class PerformanceAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_music.png"
     DEFAULT_END_FRAME = 15
@@ -361,6 +365,7 @@ class PerformanceAnim(animobs.AnimOb):
     def render(self, foot_pos, view):
         self.y_off -= 2
         super().render(foot_pos, view)
+
 
 class HeckleAnim(animobs.Caption):
     HECKLES = ("BOO!"
@@ -413,14 +418,17 @@ class TakeCoverAnim(SmokePoof):
 
 class SmallBullet(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_bullet.png"
+    DEFAULT_SOUND_FX = "22-caliber-with-ricochet-39679.ogg"
 
 
 class BigBullet(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_bigbullet.png"
+    DEFAULT_SOUND_FX = "desert-eagle-gunshot-14622.ogg"
 
 
 class HugeBullet(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_hugebullet.png"
+    DEFAULT_SOUND_FX = "cannon-shot-14799.ogg"
 
 
 class GunBeam(animobs.ShotAnim):
@@ -450,26 +458,31 @@ class LightningBolt(animobs.ShotAnim):
 class Missile1(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_missile1.png"
     DEFAULT_SPEED = 0.3
+    DEFAULT_SOUND_FX = "missile-blast-2-95177.ogg"
 
 
 class Missile2(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_missile2.png"
     DEFAULT_SPEED = 0.3
+    DEFAULT_SOUND_FX = "missile-blast-2-95177.ogg"
 
 
 class Missile3(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_missile3.png"
     DEFAULT_SPEED = 0.3
+    DEFAULT_SOUND_FX = "missile-blast-2-95177.ogg"
 
 
 class Missile4(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_missile4.png"
     DEFAULT_SPEED = 0.3
+    DEFAULT_SOUND_FX = "missile-blast-2-95177.ogg"
 
 
 class Missile5(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_missile5.png"
     DEFAULT_SPEED = 0.3
+    DEFAULT_SOUND_FX = "missile-blast-2-95177.ogg"
 
 
 class ClusterShot(animobs.ShotAnim):
@@ -499,7 +512,10 @@ class ClusterShot(animobs.ShotAnim):
             for cc in self.child_classes:
                 self.children.append(cc(start_pos=self.start_pos, end_pos=self.end_pos,
                                         x_off=self.x_off, y_off=self.y_off, delay=delay))
-                delay += 1
+                delay += 3
+            #self.children[0].sound_fx_loops = len(self.children)-1
+            #for cc in self.children[1:]:
+            #    cc.sound_fx = None
             self.children[0].children += original_children
 
 

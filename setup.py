@@ -6,7 +6,7 @@ import numpy
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {"packages": ["os", "numpy"],
-                     "include_files": ["data","design","image","music","credits.md","history.md","LICENSE","README.md"],
+                     "include_files": ["data","design","image","music","soundfx","credits.md","history.md","LICENSE","README.md"],
                      "include_msvcr": True,}
 
 # GUI applications require a different base on Windows (the default is for a

@@ -5,20 +5,21 @@ import configparser
 
 default_config = configparser.ConfigParser()
 
+CONFIG_EDITOR_WIDTH = 500
+
 class OptionToggler(object):
     def __init__(self, key, section="GENERAL", extra_fun=None):
         self.key = key
         self.section = section
         self.extra_fun = extra_fun
 
-    def __call__(self):
-        mystate = not util.config.getboolean(self.section, self.key)
-        util.config.set(self.section, self.key, str(mystate))
+    def __call__(self, new_value):
+        util.config.set(self.section, self.key, str(new_value))
         if self.extra_fun:
             self.extra_fun()
 
     @classmethod
-    def add_menu_toggle(cls, mymenu, name, key, section="GENERAL", extra_fun=None):
+    def add_menu_toggle(cls, my_scroll_column: pbge.widgets.ScrollColumnWidget, name, key, section="GENERAL", extra_fun=None):
         try:
             current_val = util.config.getboolean(section, key)
         except ValueError:
@@ -29,15 +30,16 @@ class OptionToggler(object):
                 util.config.remove_option(section, key)
                 return
 
-        mymenu.add_item(
-            "{}: {}".format(name, current_val),
-            cls(key, section, extra_fun=extra_fun))
+        my_scroll_column.add_interior(
+            pbge.widgets.CheckboxWidget(CONFIG_EDITOR_WIDTH, name, current_val, cls(key, section, extra_fun=extra_fun))
+        )
 
 
 class ConfigEditor(object):
-    def __init__(self, predraw, dy=-100):
+    def __init__(self, predraw, dy=-125):
         self.dy = dy
         self.predraw = predraw
+        self.finished = False
 
     def toggle_fullscreen(self):
         # Actually toggle the fullscreen.
@@ -47,6 +49,20 @@ class ConfigEditor(object):
         # Actually toggle the fullscreen.
         pbge.my_state.reset_screen()
 
+    def set_window_size(self, result):
+        if result:
+            util.config.set("GENERAL", "window_size", result)
+            pbge.my_state.reset_screen()
+
+    def set_music_volume(self, result):
+        if result:
+            util.config.set("GENERAL", "music_volume", result)
+            pbge.my_state.set_music_volume(float(result))
+
+    def set_sound_volume(self, result):
+        if result:
+            util.config.set("GENERAL", "sound_volume", result)
+
     def toggle_music(self):
         # Actually turn off or on the music.
         if util.config.getboolean("GENERAL", "music_on"):
@@ -54,36 +70,99 @@ class ConfigEditor(object):
         else:
             pbge.my_state.stop_music()
 
+    def save_and_quit(self, *args):
+        self.finished = True
+
+    WINDOW_SIZES = (
+        "800x600", "1280x720", "1600x900", "1600x1200", "1920x1080", "2560x1440"
+    )
+    VOLUME_LEVELS = (
+        ("100%", "1.0"), ("90%", "0.9"), ("80%", "0.8"), ("70%", "0.7"), ("60%", "0.6"),
+        ("50%", "0.5"), ("40%", "0.4"), ("30%", "0.3"), ("20%", "0.2"), ("10%", "0.1")
+    )
+
     def __call__(self):
         action = True
         pos = 0
-        while action:
-            # rebuild the menu.
-            mymenu = pbge.rpgmenu.Menu(-250, self.dy, 500, 200,
-                                       predraw=self.predraw, font=pbge.my_state.big_font)
-            OptionToggler.add_menu_toggle(mymenu, "Fullscreen", "fullscreen", extra_fun=self.toggle_fullscreen)
-            OptionToggler.add_menu_toggle(mymenu, "Stretch Screen", "stretchy_screen", extra_fun=self.toggle_stretchyscreen)
-            OptionToggler.add_menu_toggle(mymenu, "Music On", "music_on", extra_fun=self.toggle_music)
-            OptionToggler.add_menu_toggle(mymenu, "Names Above Heads", "names_above_heads")
-            OptionToggler.add_menu_toggle(mymenu, "Auto Save on Scene Change", "auto_save")
-            OptionToggler.add_menu_toggle(mymenu, "Can Replay Adventures", "can_replay_adventures")
-            OptionToggler.add_menu_toggle(mymenu, "No Escape From Main Menu", "no_escape_from_title_screen")
 
-            OptionToggler.add_menu_toggle(mymenu, "Lancemates repaint their mecha", "lancemates_repaint_mecha")
-            OptionToggler.add_menu_toggle(mymenu, "Announce start of player turns", "announce_pc_turn_start")
-            OptionToggler.add_menu_toggle(mymenu, "Scroll to start of action library", "scroll_to_start_of_action_library")
-            OptionToggler.add_menu_toggle(mymenu, "Auto-center map cursor", "auto_center_map_cursor")
-            OptionToggler.add_menu_toggle(mymenu, "Mouse scroll at map edges", "mouse_scroll_at_map_edges")
+        self.column = pbge.widgets.ColumnWidget(
+            -CONFIG_EDITOR_WIDTH//2, self.dy, CONFIG_EDITOR_WIDTH, 250, draw_border=True
+        )
+        up_arrow = pbge.widgets.ButtonWidget(0, 0, 128, 16,
+                                             sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+                                             on_frame=0, off_frame=1)
+        down_arrow = pbge.widgets.ButtonWidget(0, 0, 128, 16,
+                                               sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16),
+                                               on_frame=2, off_frame=3)
+        self.scroll_column = pbge.widgets.ScrollColumnWidget(
+            0, 0, CONFIG_EDITOR_WIDTH, 200 - 40, up_arrow, down_arrow, padding=5, focus_locked=True
+        )
+        self.column.add_interior(up_arrow)
+        self.column.add_interior(self.scroll_column)
+        self.column.add_interior(down_arrow)
 
-            for op in util.config.options("DIFFICULTY"):
-                OptionToggler.add_menu_toggle(mymenu, op, op, section="DIFFICULTY")
+        self.scroll_column.add_interior(pbge.widgets.LabelWidget(0,0,CONFIG_EDITOR_WIDTH,0,"General Options", font=pbge.BIGFONT))
 
-            mymenu.add_item("Save and Exit", False)
-            mymenu.set_item_by_position(pos)
-            action = mymenu.query()
-            if action and action is not True:
-                pos = mymenu.selected_item
-                action()
+        OptionToggler.add_menu_toggle(self.scroll_column, "Fullscreen", "fullscreen", extra_fun=self.toggle_fullscreen)
+        OptionToggler.add_menu_toggle(self.scroll_column, "Stretch Screen", "stretchy_screen", extra_fun=self.toggle_stretchyscreen)
+        OptionToggler.add_menu_toggle(self.scroll_column, "Music On", "music_on", extra_fun=self.toggle_music)
+        volume_menu = pbge.widgets.ColDropdownWidget(
+            CONFIG_EDITOR_WIDTH, "Music Volume", on_select=self.set_music_volume
+        )
+        for msg,val in self.VOLUME_LEVELS:
+            volume_menu.add_item(msg, val)
+        volume_menu.my_menu_widget.menu.set_item_by_value(util.config.get("GENERAL", "music_volume"))
+        self.scroll_column.add_interior(volume_menu)
+
+        OptionToggler.add_menu_toggle(self.scroll_column, "Sound FX On", "sound_on")
+        volume_menu = pbge.widgets.ColDropdownWidget(
+            CONFIG_EDITOR_WIDTH, "Sound FX Volume", on_select=self.set_sound_volume
+        )
+        for msg,val in self.VOLUME_LEVELS:
+            volume_menu.add_item(msg, val)
+        volume_menu.my_menu_widget.menu.set_item_by_value(util.config.get("GENERAL", "sound_volume"))
+        self.scroll_column.add_interior(volume_menu)
+
+        OptionToggler.add_menu_toggle(self.scroll_column, "Names Above Heads", "names_above_heads")
+        OptionToggler.add_menu_toggle(self.scroll_column, "Auto Save on Scene Change", "auto_save")
+        OptionToggler.add_menu_toggle(self.scroll_column, "Can Replay Adventures", "can_replay_adventures")
+        OptionToggler.add_menu_toggle(self.scroll_column, "No Escape From Main Menu", "no_escape_from_title_screen")
+        window_menu = pbge.widgets.ColDropdownWidget(
+            CONFIG_EDITOR_WIDTH, "Window Size", on_select=self.set_window_size
+        )
+        for res in self.WINDOW_SIZES:
+            window_menu.add_item(res, res)
+        window_menu.my_menu_widget.menu.set_item_by_value(util.config.get("GENERAL", "window_size"))
+        self.scroll_column.add_interior(window_menu)
+
+        OptionToggler.add_menu_toggle(self.scroll_column, "Lancemates repaint their mecha", "lancemates_repaint_mecha")
+        OptionToggler.add_menu_toggle(self.scroll_column, "Announce start of player turns", "announce_pc_turn_start")
+        OptionToggler.add_menu_toggle(self.scroll_column, "Scroll to start of action library", "scroll_to_start_of_action_library")
+        OptionToggler.add_menu_toggle(self.scroll_column, "Auto-center map cursor", "auto_center_map_cursor")
+        OptionToggler.add_menu_toggle(self.scroll_column, "Mouse scroll at map edges", "mouse_scroll_at_map_edges")
+        OptionToggler.add_menu_toggle(self.scroll_column, "Show numbers in pilot info", "show_numbers_in_pilot_info")
+
+        self.scroll_column.add_interior(pbge.widgets.LabelWidget(0,0,CONFIG_EDITOR_WIDTH,0,"\nDifficulty Options", font=pbge.BIGFONT))
+        for op in util.config.options("DIFFICULTY"):
+            OptionToggler.add_menu_toggle(self.scroll_column, op, op, section="DIFFICULTY")
+
+        self.scroll_column.add_interior(pbge.widgets.LabelWidget(0,0,CONFIG_EDITOR_WIDTH,0,"Save and Exit", on_click=self.save_and_quit))
+
+        pbge.my_state.widgets.append(self.column)
+        keepgoing = True
+        while keepgoing and not self.finished and not pbge.my_state.got_quit:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                if self.predraw:
+                    self.predraw()
+                else:
+                    pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if pbge.my_state.is_key_for_action(ev, "exit"):
+                    keepgoing = False
+
+        pbge.my_state.widgets.remove(self.column)
 
         # Export the new config options.
         with open(util.user_dir("config.cfg"), "wt") as f:
@@ -99,14 +178,14 @@ class PopupGameMenu(object):
         myconfigmenu()
 
     def __call__(self, enc_or_com):
-        mymenu = pbge.rpgmenu.Menu(-150, -100, 300, 200,
+        my_menu = pbge.rpgmenu.Menu(-150, -100, 300, 200,
                                    font=pbge.my_state.huge_font)
-        mymenu.add_item("Quit Game", self.do_quit)
-        mymenu.add_item("Config Options", self.do_config)
-        mymenu.add_item("Continue", False)
+        my_menu.add_item("Quit Game", self.do_quit)
+        my_menu.add_item("Config Options", self.do_config)
+        my_menu.add_item("Continue", False)
         action = True
         while action and enc_or_com.no_quit:
-            action = mymenu.query()
+            action = my_menu.query()
             if action:
                 action(enc_or_com)
 

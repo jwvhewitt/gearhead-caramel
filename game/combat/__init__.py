@@ -510,16 +510,13 @@ class PlayerTurn(object):
 class Combat(object):
     def __init__(self, camp: gears.GearHeadCampaign):
         self.active = []
-        self.scene = camp.scene
+        self.scene: gears.GearHeadScene = camp.scene
         self.camp = camp
         self.ap_spent = collections.defaultdict(int)
         self.cstat = CombatDict()
         self.ai_brains = dict()
         self.no_quit = True
         self.n = 0
-
-        if hasattr(camp.scene, "combat_music"):
-            pbge.my_state.start_music(camp.scene.combat_music)
 
     def roll_initiative(self):
         # Sort based on initiative roll.
@@ -695,6 +692,8 @@ class Combat(object):
     def go(self, explo):
         """Perform this combat."""
         pbge.my_state.view.overlays.clear()
+        if self.scene.combat_music:
+            pbge.my_state.start_music(self.scene.combat_music)
 
         while self.still_fighting():
             if self.n >= len(self.active):

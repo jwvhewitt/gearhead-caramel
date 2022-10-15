@@ -148,11 +148,14 @@ class GameState(object):
         self.widget_clicked = False
         self.widget_responded = False
         self.audio_enabled = True
-        self.music = None
+        #self.music = None
         self.music_name = ""
         self.anim_phase = 0
         self.standing_by = False
         self.notifications = list()
+
+        self.music_channels = list()
+        self.current_music_channel = 0
 
         self.mouse_pos = (0, 0)
 
@@ -204,7 +207,6 @@ class GameState(object):
     def locate_music(self, mfname):
         if mfname:
             sound = soundlib.load_cached_sound(mfname)
-            sound.set_volume(util.config.getfloat("GENERAL", "music_volume"))
             return sound
 
     def start_music(self, mfname, yafi=False):
@@ -214,16 +216,27 @@ class GameState(object):
                 not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")):
             sound = self.locate_music(mfname)
             if sound:
-                if self.music:
-                    self.music.fadeout(2000)
-                self.music = sound
-                sound.play(loops=-1, fade_ms=2000)
+                if self.music_channels[self.current_music_channel].get_busy():
+                    self.music_channels[self.current_music_channel].fadeout(2000)
+                self.current_music_channel = 1 - self.current_music_channel
+                self.music_channels[self.current_music_channel].play(sound, loops=-1, fade_ms=2000)
+                self.music_channels[self.current_music_channel].set_volume(util.config.getfloat("GENERAL", "music_volume"))
         if mfname:
             self.music_name = mfname
 
     def stop_music(self):
-        if self.music:
-            self.music.stop()
+        if self.music_channels[self.current_music_channel].get_busy():
+            self.music_channels[self.current_music_channel].stop()
+
+    def set_music_volume(self, nu_volume):
+        if self.music_channels[self.current_music_channel].get_busy():
+            self.music_channels[self.current_music_channel].set_volume(nu_volume)
+
+    def start_sound_effect(self, sound_fx_name, loops=0, allow_multiple_copies=False):
+        my_sound = soundlib.SOUND_FX_LIBRARY.get(sound_fx_name, None)
+        if my_sound and allow_multiple_copies or my_sound.get_num_channels() < 1:
+            my_sound.set_volume(util.config.getfloat("GENERAL", "sound_volume"))
+            return my_sound.play(loops=loops)
 
     def resume_music(self):
         if self.music_name:
@@ -667,7 +680,6 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         util.init(appname, gamedir)
         # Init image.py
         image.init_image(util.image_dir(""))
-        soundlib.init_sound(util.music_dir(""))
 
         pygame.init()
         my_state.audio_enabled = not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")
@@ -677,10 +689,16 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             except pygame.error:
                 my_state.audio_enabled = False
                 print("Error: pygame.mixer failed to load.")
+        soundlib.init_sound(gamedir, util.music_dir(""))
         pygame.display.set_caption(winname, appname)
         pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
         # Set the screen size.
         my_state.reset_screen()
+
+        if my_state.audio_enabled:
+            pygame.mixer.set_reserved(2)
+            my_state.music_channels.append(pygame.mixer.Channel(0))
+            my_state.music_channels.append(pygame.mixer.Channel(1))
 
         global INPUT_CURSOR
         INPUT_CURSOR = image.Image("sys_textcursor.png", 8, 16)

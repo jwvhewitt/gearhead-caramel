@@ -423,7 +423,8 @@ class ScrollColumnWidget(Widget):
             if my_state.is_key_for_action(ev, "click_widget"):
                 if self.active_widget < len(self._interior_widgets):
                     mybutton = self._interior_widgets[self.active_widget]
-                    mybutton.on_click(mybutton, ev)
+                    if mybutton.on_click:
+                        mybutton.on_click(mybutton, ev)
                     my_state.widget_clicked = True
             elif my_state.is_key_for_action(ev, "up") and self.active_widget > 0:
                 self.active_widget -= 1
@@ -513,7 +514,7 @@ class DropdownWidget(Widget):
         self.on_select = on_select
         self.on_click = self.open_menu
         self.menu = rpgmenu.Menu(dx, dy, w, self.MENU_HEIGHT, border=popup_menu_border, font=font,
-                                 anchor=frects.ANCHOR_UPPERLEFT)
+                                 anchor=frects.ANCHOR_UPPERLEFT,)
 
     def render(self, flash=False):
         mydest = self.get_rect()
@@ -883,6 +884,7 @@ class ColDropdownWidget(RowWidget):
         self.my_menu_widget = DropdownWidget(0, 0, width * 3 // 5, mylabel.h + 8, font=font, justify=justify,
                                              on_select=on_select)
         self.add_right(self.my_menu_widget)
+        self.on_click = self.my_menu_widget.open_menu
 
     def add_item(self, msg, value, desc=None):
         self.my_menu_widget.add_item(msg, value, desc)
@@ -890,3 +892,24 @@ class ColDropdownWidget(RowWidget):
     @property
     def value(self):
         return self.my_menu_widget.value
+
+
+class CheckboxWidget(RowWidget):
+    CHECK_FRAME = {True: 0, False: 1}
+    def __init__(self, w, caption, is_checked, on_change, **kwargs):
+        # on_change is a callback function that takes a bool value as its parameter.
+        super().__init__(0, 0, w, 20, padding=5, **kwargs)
+        self.state_indicator = ButtonWidget(0,0,20,20,image.Image("sys_checkbox.png", 20, 20),
+                                                         frame=self.CHECK_FRAME[bool(is_checked)],
+                                                         on_click=self._toggle_state)
+        self.add_left(self.state_indicator)
+        self.add_left(LabelWidget(0,0,w-25,0,caption, on_click=self._toggle_state))
+        self.is_checked = is_checked
+        self.on_click = self._toggle_state
+        self.on_change = on_change
+
+    def _toggle_state(self, wid, ev):
+        self.is_checked = not self.is_checked
+        self.state_indicator.frame = self.CHECK_FRAME[bool(self.is_checked)]
+        if self.on_change:
+            self.on_change(self.is_checked)

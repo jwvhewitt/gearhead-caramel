@@ -246,44 +246,54 @@ class PilotStatusBlock(object):
     def render(self, x, y):
         pbge.draw_text(pbge.SMALLFONT, str(self.model), pygame.Rect(x, y, self.width, self.height), justify=-1)
         if self.model:
+            show_numbers = pbge.util.config.getboolean("GENERAL", "show_numbers_in_pilot_info")
             field_width = (self.width - 130) // 3
             text_width = max(pbge.SMALLFONT.size(a)[0] for a in ("H:", "M:", "S:"))
             mydest = pygame.Rect(x + 83, y, field_width, self.height)
 
-            pbge.draw_text(pbge.SMALLFONT, 'H:', mydest, justify=-1, color=pbge.INFO_GREEN)
-            maxi = self.model.max_health
-            mini = self.model.current_health
-            dark_rect = mydest.copy()
-            dark_rect.x += text_width
-            dark_rect.w -= text_width
-            pbge.my_state.screen.fill(self.DARK_HEALTH, dark_rect)
-            bright_rect = dark_rect.copy()
-            bright_rect.w = int((bright_rect.w * mini) / maxi)
-            pbge.my_state.screen.fill(self.BRIGHT_HEALTH, bright_rect)
+            if show_numbers:
+                pbge.draw_text(pbge.SMALLFONT, 'H:{}'.format(self.model.current_health), mydest.inflate(8,0), justify=-1, color=pbge.INFO_GREEN)
+            else:
+                pbge.draw_text(pbge.SMALLFONT, 'H:', mydest, justify=-1, color=pbge.INFO_GREEN)
+                maxi = self.model.max_health
+                mini = self.model.current_health
+                dark_rect = mydest.copy()
+                dark_rect.x += text_width
+                dark_rect.w -= text_width
+                pbge.my_state.screen.fill(self.DARK_HEALTH, dark_rect)
+                bright_rect = dark_rect.copy()
+                bright_rect.w = int((bright_rect.w * mini) / maxi)
+                pbge.my_state.screen.fill(self.BRIGHT_HEALTH, bright_rect)
 
             mydest.x += field_width + 5
-            pbge.draw_text(pbge.SMALLFONT, 'M:', mydest, justify=-1, color=pbge.INFO_GREEN)
-            maxi = self.model.get_max_mental()
-            mini = self.model.get_current_mental()
-            dark_rect = mydest.copy()
-            dark_rect.x += text_width
-            dark_rect.w -= text_width
-            pbge.my_state.screen.fill(self.DARK_MENTAL, dark_rect)
-            bright_rect = dark_rect.copy()
-            bright_rect.w = int((bright_rect.w * mini) / maxi)
-            pbge.my_state.screen.fill(self.BRIGHT_MENTAL, bright_rect)
+            if show_numbers:
+                pbge.draw_text(pbge.SMALLFONT, 'M:{}'.format(self.model.get_current_mental()), mydest.inflate(8,0), justify=-1, color=pbge.INFO_GREEN)
+            else:
+                pbge.draw_text(pbge.SMALLFONT, 'M:', mydest, justify=-1, color=pbge.INFO_GREEN)
+                maxi = self.model.get_max_mental()
+                mini = self.model.get_current_mental()
+                dark_rect = mydest.copy()
+                dark_rect.x += text_width
+                dark_rect.w -= text_width
+                pbge.my_state.screen.fill(self.DARK_MENTAL, dark_rect)
+                bright_rect = dark_rect.copy()
+                bright_rect.w = int((bright_rect.w * mini) / maxi)
+                pbge.my_state.screen.fill(self.BRIGHT_MENTAL, bright_rect)
 
             mydest.x += field_width + 5
-            pbge.draw_text(pbge.SMALLFONT, 'S:', mydest, justify=-1, color=pbge.INFO_GREEN)
-            maxi = self.model.get_max_stamina()
-            mini = self.model.get_current_stamina()
-            dark_rect = mydest.copy()
-            dark_rect.x += text_width
-            dark_rect.w -= text_width
-            pbge.my_state.screen.fill(self.DARK_STAMINA, dark_rect)
-            bright_rect = dark_rect.copy()
-            bright_rect.w = int((bright_rect.w * mini) / maxi)
-            pbge.my_state.screen.fill(self.BRIGHT_STAMINA, bright_rect)
+            if show_numbers:
+                pbge.draw_text(pbge.SMALLFONT, 'S:{}'.format(self.model.get_current_stamina()), mydest.inflate(8,0), justify=-1, color=pbge.INFO_GREEN)
+            else:
+                pbge.draw_text(pbge.SMALLFONT, 'S:', mydest, justify=-1, color=pbge.INFO_GREEN)
+                maxi = self.model.get_max_stamina()
+                mini = self.model.get_current_stamina()
+                dark_rect = mydest.copy()
+                dark_rect.x += text_width
+                dark_rect.w -= text_width
+                pbge.my_state.screen.fill(self.DARK_STAMINA, dark_rect)
+                bright_rect = dark_rect.copy()
+                bright_rect.w = int((bright_rect.w * mini) / maxi)
+                pbge.my_state.screen.fill(self.BRIGHT_STAMINA, bright_rect)
 
             cp, mp = self.mover.get_current_and_max_power()
             if mp > 0:

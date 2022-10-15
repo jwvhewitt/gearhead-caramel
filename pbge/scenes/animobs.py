@@ -58,7 +58,7 @@ class AnimOb(object):
     """An animation for the map."""
 
     def __init__(self, sprite_name=None, width=64, height=64, pos=(0, 0), start_frame=0, end_frame=0, ticks_per_frame=0,
-                 loop=0, x_off=0, y_off=0, delay=1, is_transparent=False, children=()):
+                 loop=0, x_off=0, y_off=0, delay=1, is_transparent=False, children=(), sound_fx=None, sound_fx_loops=0):
         self.sprite = image.Image(sprite_name or self.DEFAULT_SPRITE_NAME, width, height,
                                   transparent=self.DEFAULT_TRANSPARENCY or is_transparent)
         self.start_frame = start_frame
@@ -73,6 +73,8 @@ class AnimOb(object):
         self.pos = pos
         self.delay = delay
         self.children = list(children)
+        self.sound_fx = sound_fx or self.DEFAULT_SOUND_FX
+        self.sound_fx_loops = sound_fx_loops
 
     DEFAULT_SPRITE_NAME = ''
     DEFAULT_START_FRAME = 0
@@ -80,12 +82,17 @@ class AnimOb(object):
     DEFAULT_LOOP = 0
     DEFAULT_TICKS_PER_FRAME = 1
     DEFAULT_TRANSPARENCY = False
+    DEFAULT_SOUND_FX = None
+    ALLOW_MULTIPLE_SOUND_FX = False
 
     def update(self, view):
         if self.delay > 0:
             self.delay += -1
         else:
             view.anims[view.pos_to_key(self.pos)].append(self)
+            if self.counter == 0 and self.sound_fx:
+                my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
+                                            allow_multiple_copies= self.ALLOW_MULTIPLE_SOUND_FX)
             self.counter += 1
             if self.counter >= self.ticks_per_frame:
                 self.frame += 1
@@ -113,9 +120,10 @@ class ShotAnim(AnimOb):
     """An AnimOb which moves along a line."""
 
     def __init__(self, sprite_name=None, width=64, height=64, start_pos=(0, 0), end_pos=(0, 0), frame=0, speed=None,
-                 set_frame_offset=True, x_off=0, y_off=0, delay=0, is_transparent=False, reverse_direction=False):
+                 set_frame_offset=True, x_off=0, y_off=0, delay=0, is_transparent=False, reverse_direction=False,
+                 **kwargs):
         super().__init__(sprite_name=sprite_name, width=width, height=height, pos=start_pos,
-                         is_transparent=is_transparent)
+                         is_transparent=is_transparent, **kwargs)
 
         if set_frame_offset:
             frame_offset = self.dir_frame_offset(self.isometric_pos(*start_pos), self.isometric_pos(*end_pos))
@@ -137,6 +145,7 @@ class ShotAnim(AnimOb):
     DEFAULT_SPRITE_NAME = ''
     DEFAULT_SPEED = 0.5
     DEFAULT_TRANSPARENCY = False
+    ALLOW_MULTIPLE_SOUND_FX = True
 
     def relative_x(self, x, y):
         """Return the relative x position of this tile, ignoring offset."""
@@ -186,6 +195,9 @@ class ShotAnim(AnimOb):
             self.delay += -1
         else:
             view.anims[view.pos_to_key(self.pos)].append(self)
+            if self.counter == 0 and self.sound_fx:
+                my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
+                                            allow_multiple_copies=self.ALLOW_MULTIPLE_SOUND_FX)
             self.counter += 1
             if self.counter >= len(self.itinerary):
                 self.needs_deletion = True
@@ -197,9 +209,9 @@ class AnimatedShotAnim(ShotAnim):
     """An AnimOb which moves along a line."""
 
     def __init__(self, sprite_name=None, width=64, height=64, start_pos=(0, 0), end_pos=(0, 0), frame=0, speed=None,
-                 set_frame_offset=False, x_off=0, y_off=0, delay=0, is_transparent=False):
+                 set_frame_offset=False, x_off=0, y_off=0, delay=0, is_transparent=False, **kwargs):
         super().__init__(sprite_name=sprite_name, width=width, height=height, frame=frame, set_frame_offset=False,
-                         is_transparent=is_transparent)
+                         is_transparent=is_transparent, **kwargs)
 
         self.counter = 0
         self.x_off = x_off
@@ -220,6 +232,9 @@ class AnimatedShotAnim(ShotAnim):
             self.delay += -1
         else:
             view.anims[view.pos_to_key(self.pos)].append(self)
+            if self.counter == 0 and self.sound_fx:
+                my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
+                                            allow_multiple_copies=self.ALLOW_MULTIPLE_SOUND_FX)
             self.counter += 1
             self.frame += 1
             if self.frame > self.end_frame:

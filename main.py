@@ -239,7 +239,7 @@ def import_arena_character(tsrd):
 
 
 def open_config_menu(tsrd):
-    myconfigmenu = game.configedit.ConfigEditor(tsrd, dy=0)
+    myconfigmenu = game.configedit.ConfigEditor(tsrd, dy=-25)
     myconfigmenu()
 
 

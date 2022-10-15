@@ -8,6 +8,8 @@ search_path = list()
 proprietary_search_path = list()    # Contains music files released under a non-free license; these are excluded from
                                     # the Scenario Creator sound selection menus.
 
+SOUND_FX_LIBRARY = dict()
+
 
 def glob_sounds(pattern, include_proprietary=False):
     mylist = list()
@@ -33,5 +35,14 @@ def load_cached_sound(fname):
     return pygame.mixer.Sound(fname)
 
 
-def init_sound(def_music_folder):
+def init_sound(game_dir, def_music_folder):
     search_path.append(def_music_folder)
+
+    # pre-load all sound effects.
+    myglob = glob.glob(os.path.join(game_dir, "soundfx", "*.ogg"))
+    for fname in myglob:
+        SOUND_FX_LIBRARY[os.path.basename(fname)] = pygame.mixer.Sound(fname)
+
+    pygame.mixer.set_num_channels(16)
+
+

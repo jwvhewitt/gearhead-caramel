@@ -90,6 +90,7 @@ Mecha
                         ammo_type = Shells_20mm
                         attributes = (BurstFire3)
                         integral = True
+                        shot_anim = SmallBullet
                         SUB
                             Ammo
                                 ammo_type=Shells_20mm

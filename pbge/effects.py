@@ -62,6 +62,10 @@ class Invocation( object ):
                 origin = tp
             if self.shot_anim:
                 opening_anim = self.shot_anim(start_pos=origin,end_pos=tp,delay=4*n+1)
+                #if n == 0:
+                #    opening_anim.sound_fx_loops = len(target_points)-1
+                #else:
+                #    opening_anim.sound_fx = None
                 anim_list.append( opening_anim )
                 anims = opening_anim.children
                 n += 1

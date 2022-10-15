@@ -35,6 +35,8 @@ def user_dir( *args):
     return os.path.join(USERDIR,*args)
 def music_dir(fname=""):
     return os.path.join(game_dir('music'),fname)
+def soundfx_dir(fname=""):
+    return os.path.join(game_dir('soundfx'),fname)
 
 # Load the configuration file.
 config = None
