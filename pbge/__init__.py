@@ -689,7 +689,6 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             except pygame.error:
                 my_state.audio_enabled = False
                 print("Error: pygame.mixer failed to load.")
-        soundlib.init_sound(gamedir, util.music_dir(""))
         pygame.display.set_caption(winname, appname)
         pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
         # Set the screen size.
@@ -699,6 +698,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             pygame.mixer.set_reserved(2)
             my_state.music_channels.append(pygame.mixer.Channel(0))
             my_state.music_channels.append(pygame.mixer.Channel(1))
+            soundlib.init_sound(gamedir, util.music_dir(""))
 
         global INPUT_CURSOR
         INPUT_CURSOR = image.Image("sys_textcursor.png", 8, 16)
