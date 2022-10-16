@@ -141,3 +141,9 @@ his work preserving songs and recordings that would otherwise be lost. https://k
 * The Pub Party by Martin Sebastian Holm
 * The St. Anne's Waltz by Ray Johnson
 * We Thank You For Our Newfoundland by Jason R Martin
+
+SOUND FX
+========
+
+Unless otherwise noted, the sound effects used in GearHead Caramel were obtained through
+pixabay.com and other CC0 sound effect collections.
