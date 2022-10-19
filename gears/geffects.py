@@ -173,6 +173,7 @@ class SmallBoom(animobs.AnimOb):
     SPRITE_NAME = 'anim_smallboom.png'
     SPRITE_OFF = ((0, 0), (-7, 0), (-3, 6), (3, 6), (7, 0), (3, -6), (-3, -6))
     DEFAULT_SOUND_FX = "bum-94209.ogg"
+    ALLOW_MULTIPLE_SOUND_FX = True
 
     def __init__(self, sprite=0, pos=(0, 0), loop=0, delay=1, y_off=0):
         super(SmallBoom, self).__init__(sprite_name=self.SPRITE_NAME, pos=pos, start_frame=0, end_frame=7, loop=loop,
@@ -184,12 +185,15 @@ class SmallBoom(animobs.AnimOb):
 class NoDamageBoom(SmallBoom):
     SPRITE_NAME = 'anim_nodamage.png'
     DEFAULT_SOUND_FX = "g_whiff_alt_2-81862.ogg"
+    ALLOW_MULTIPLE_SOUND_FX = False
 
 
 class PoisonDamageBoom(SmallBoom):
     SPRITE_NAME = 'anim_poisondamage.png'
     DEFAULT_TRANSPARENCY = True
     DEFAULT_END_FRAME = 15
+    DEFAULT_SOUND_FX = "magical_7.ogg"
+    ALLOW_MULTIPLE_SOUND_FX = False
 
 
 class BigBoom(animobs.AnimOb):
@@ -201,28 +205,33 @@ class BigBoom(animobs.AnimOb):
 class MiasmaAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_gervais_miasma.png"
     DEFAULT_END_FRAME = 7
+    DEFAULT_SOUND_FX = "weird_05.ogg"
 
 
 class SparkleBlueAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_gervais_sparkle_blue.png"
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 1
+    DEFAULT_SOUND_FX = "magical_1.ogg"
 
 
 class SparkleRedAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_gervais_sparkle_blue.png"
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 1
+    DEFAULT_SOUND_FX = "magical_1.ogg"
 
 
 class SuperBoom(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_frogatto_nuke.png"
     DEFAULT_END_FRAME = 9
+    DEFAULT_SOUND_FX = "rock_breaking.ogg"
 
 
 class SmokePoof(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_smokepoof.png"
     DEFAULT_END_FRAME = 7
+    DEFAULT_SOUND_FX = "poof_1.ogg"
 
 
 class DustCloud(animobs.AnimOb):
@@ -233,11 +242,13 @@ class DustCloud(animobs.AnimOb):
 class BurnAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_burning.png"
     DEFAULT_END_FRAME = 7
+    DEFAULT_SOUND_FX = "foom_0.ogg"
 
 
 class Fireball(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_fireball.png"
     DEFAULT_END_FRAME = 7
+    DEFAULT_SOUND_FX = "foom_0.ogg"
 
 
 class DisintegrationAnim(animobs.AnimOb):
@@ -257,29 +268,34 @@ class InvokeDeathWaveAnim(animobs.Caption):
 class HaywireAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_haywire.png"
     DEFAULT_END_FRAME = 19
+    DEFAULT_SOUND_FX = "qubodupElectricityDamage02.ogg"
 
 
 class OverloadAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_overload.png"
     DEFAULT_END_FRAME = 15
+    DEFAULT_SOUND_FX = "UI_Electric_00.ogg"
 
 
 class RepairAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_repair.png"
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 4
+    DEFAULT_SOUND_FX = "magical_1.ogg"
 
 
 class MedicineAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_medicine.png"
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 4
+    DEFAULT_SOUND_FX = "magical_1.ogg"
 
 
 class BiotechnologyAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_biotechnology.png"
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 4
+    DEFAULT_SOUND_FX = "magical_1.ogg"
 
 
 class SearchAnim(animobs.AnimOb):
@@ -433,26 +449,32 @@ class HugeBullet(animobs.ShotAnim):
 
 class GunBeam(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_gunbeam.png"
+    DEFAULT_SOUND_FX = "blaster-2-81267.ogg"
 
 
 class SmallBeam(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_smallbeam.png"
+    DEFAULT_SOUND_FX = "alienshoot1.ogg"
 
 
 class PlasmaBall(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_plasma.png"
+    DEFAULT_SOUND_FX = "Spell1.ogg"
 
 
 class FireBall(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_fire.png"
+    DEFAULT_SOUND_FX = "foom_0.ogg"
 
 
 class AcidSpray(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_gervais_s_acidspray.png"
+    DEFAULT_SOUND_FX = "lava.ogg"
 
 
 class LightningBolt(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_gervais_s_lightning.png"
+    DEFAULT_SOUND_FX = "hjm-tesla_sound_shot.ogg"
 
 
 class Missile1(animobs.ShotAnim):

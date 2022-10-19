@@ -5,19 +5,21 @@
 # is not designed to be human-readable, just computer-writable. You can download the
 # source code of GearHead Caramel from GitHub; see www.gearheadrpg.com for details.
 import gears
-from gears import personality
-from pbge.plots import Plot
+from gears import personality, tags
+from pbge.plots import Plot, Adventure, PlotState
 import pbge
 from pbge.dialogue import Offer, ContextTag
-from game import teams, services
+from game import teams, ghdialogue, services
 from game.ghdialogue import context
 import pygame
 import random
 from game.content.ghwaypoints import Exit
 from game.content.plotutility import AdventureModuleData
 import game
-from game.content import ghwaypoints, gharchitecture, ghterrain, ghrooms, dungeonmaker, scutils
-from game.content.ghplots import campfeatures
+from game.content import plotutility, ghwaypoints, gharchitecture, GHNarrativeRequest, ghterrain, ghrooms, dungeonmaker, scutils
+from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
+from pbge.memos import Memo
+from game.content.ghplots import missionbuilder, campfeatures
 #: includes
 THE_WORLD = "SCENARIO_ELEMENT_UIDS"
 CUSTOM_FACTIONS = "CUSTOM_FACTIONS"
@@ -2524,7 +2526,7 @@ class BlackMarket_ropp_154(Plot):
 class StartingPlot_ropp_4(Plot):
     LABEL = "START_PLOT_ropp"
     active = True
-    scope = "LOCALE"
+    scope = True
 
     #: plot_properties
     def custom_init(self, nart):
@@ -2534,7 +2536,6 @@ class StartingPlot_ropp_4(Plot):
 
             self.elements["ENTRANACE"] = nart.camp.campdata[THE_WORLD].get(
                 '00000002')
-            self.elements["LOCALE"] = self.elements["ENTRANACE"].scene
             nart.camp.go(self.elements["ENTRANACE"])
             self.did_cutscene = False
             #: plot_init
@@ -2543,16 +2544,19 @@ class StartingPlot_ropp_4(Plot):
             return True
 
     #: plot_methods
-    def LOCALE_ENTER(self, camp):
+    def t_START(self, camp):
         if not self.did_cutscene:
-            #: effect
+
+            pbge.alert(
+                "The Solar Navy has declared that it is going to remove the Aegis Consulate from Pirate's Point. You arrive at the military camp they have set up just north of the city. There should be plenty of opportunities to find good work here."
+            )
             self.did_cutscene = True
 
 
 class StartingPlot_ropp_5(Plot):
     LABEL = "START_PLOT_ropp"
     active = True
-    scope = "LOCALE"
+    scope = True
 
     #: plot_properties
     def custom_init(self, nart):
@@ -2562,7 +2566,6 @@ class StartingPlot_ropp_5(Plot):
 
             self.elements["ENTRANACE"] = nart.camp.campdata[THE_WORLD].get(
                 '00000004')
-            self.elements["LOCALE"] = self.elements["ENTRANACE"].scene
             nart.camp.go(self.elements["ENTRANACE"])
             self.did_cutscene = False
             #: plot_init
@@ -2571,9 +2574,15 @@ class StartingPlot_ropp_5(Plot):
             return True
 
     #: plot_methods
-    def LOCALE_ENTER(self, camp):
+    def t_START(self, camp):
         if not self.did_cutscene:
-            #: effect
+
+            pbge.alert(
+                "You are in Pirate's Point to do some shopping and visit some old friends when suddenly the air raid siren goes off. You quickly learn that the Solar Navy has attacked, intending to destroy the Aegis Consulate in the southern part of town."
+            )
+            pbge.alert(
+                "As a freelance mecha pilot, you're not sure whether to be glad about all the missions that are likely to be available or terrified because you are standing in the middle of a bona fide war zone."
+            )
             self.did_cutscene = True
 
 

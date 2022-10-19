@@ -2711,7 +2711,8 @@ class ChemThrower(Weapon):
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     DEFAULT_AREA_ANIM = geffects.Fireball
     LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.LineAttack,
-                        attackattributes.ConeAttack, attackattributes.LinkedFire, attackattributes.Scatter
+                        attackattributes.ConeAttack, attackattributes.LinkedFire, attackattributes.Scatter,
+                        attackattributes.SwarmFire2, attackattributes.SwarmFire3
                         )
 
     def is_legal_sub_com(self, part):

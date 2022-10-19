@@ -194,6 +194,22 @@
       "Pants"
     ]
   },
+  {
+    "name": "BodMA DeadZone Armor",
+    "btype": "Clothing",
+    "layers": [
+      {"name":"Shirt","fname":"por_bodma_shirt_dzarmor.png","anchor":"center","depth":3000, "frame": 0, "x_offset":1,"y_offset":16}
+    ],
+    "avatar_layers": [
+      {"name":"Shirt","fname":"avatar_bodma_shirt_dzarmor.png","anchor":"center","depth":3000,"x_offset":-1,"y_offset":4}
+    ],
+    "requires": ["BodMA"],
+    "style": ["Dead Zone"],
+    "children": [
+      "Sleeves","Pants"
+    ],
+    "form_tags": ["SleevesOptional", "PauldronsOnly"]
+  },
 
     {
     "name": "BodMA Pants 1",
@@ -215,6 +231,18 @@
     ],
     "avatar_layers": [
       {"name":"Pants","fname":"avatar_pants_a_magenta.png","anchor":"midbottom","depth":2500,"x_offset":-1}
+    ],
+    "requires": ["BodMA"],
+    "children": ["Shoes"]
+  },
+  {
+    "name": "BodMA Rock Pants",
+    "btype": "Pants",
+    "layers": [
+      {"name":"Pants","fname":"por_bodma_pants_rock.png","anchor":"midbottom","depth":2500,"x_offset":2,"y_offset":0}
+    ],
+    "avatar_layers": [
+      {"name":"Pants","fname":"avatar_bodma_pants_rock.png","anchor":"midbottom","depth":2500,"x_offset":-1, "y_offset": -2}
     ],
     "requires": ["BodMA"],
     "children": ["Shoes"]
@@ -322,6 +350,21 @@
     ],
     "requires": ["BodMA"],
     "style": ["Combatant"]
+  },
+  {
+    "name": "Furry Sleeves",
+    "btype": "Sleeves",
+    "layers": [
+      {"name":"Right Sleeve","fname":"por_bodma_sleeves_fur.png","anchor":"center","depth":5000,"frame_width":99,"frame_height":139,"x_offset":-81,"y_offset":-34},
+      {"name":"Left Sleeve","fname":"por_bodma_sleeves_fur.png","anchor":"center","depth":1500,"frame":1,"frame_width":99,"frame_height":139,"x_offset":69,"y_offset":-31}
+    ],
+    "avatar_layers": [
+      {"name":"Right Sleeve","fname":"avatar_bodma_sleeves_fur.png","anchor":"center","depth":2500,"frame_width":6,"frame_height":9,"x_offset":-8, "y_offset":3},
+      {"name":"Left Sleeve","fname":"avatar_bodma_sleeves_fur.png","anchor":"center","depth":2500,"frame":1,"frame_width":6,"frame_height":9,"x_offset":7, "y_offset":3}
+    ],
+    "requires": ["BodMA"],
+    "prefers": ["Combatant"],
+    "style": ["Dead Zone"]
   },
           {
     "name": "LordErin BodMA Pilot Jacket",

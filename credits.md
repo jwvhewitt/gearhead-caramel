@@ -147,3 +147,13 @@ SOUND FX
 
 Unless otherwise noted, the sound effects used in GearHead Caramel were obtained through
 pixabay.com and other CC0 sound effect collections.
+
+* alienshoot1.ogg by Robin Lamb, CC0
+* foom_0.ogg by Bart K, CC-BY-3.0
+* hjm-tesla_sound_shot.ogg by Varkalandar, CC-BY-4.0
+* lava.ogg by Michel Baradari, CC-BY-3.0
+* poof_1.ogg by dklon, CC-BY-3.0
+* qubodupElectricityDamage02.ogg by Iwan 'qubodup' Gabovitch http://qubodup.net and released under CC-BY 3.0
+* rock_breaking.ogg by Blender Foundation, CC-BY-3.0
+* Spell1.ogg by artisticdude, CC-BY-3.0
+* UI_Electric_00.ogg by Little Robot Sound Factory, CC-BY-3.0

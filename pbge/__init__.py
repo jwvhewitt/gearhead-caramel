@@ -218,9 +218,10 @@ class GameState(object):
             if sound:
                 if self.music_channels[self.current_music_channel].get_busy():
                     self.music_channels[self.current_music_channel].fadeout(2000)
-                self.current_music_channel = 1 - self.current_music_channel
+                    self.current_music_channel = 1 - self.current_music_channel
                 self.music_channels[self.current_music_channel].play(sound, loops=-1, fade_ms=2000)
-                self.music_channels[self.current_music_channel].set_volume(util.config.getfloat("GENERAL", "music_volume"))
+                sound.set_volume(util.config.getfloat("GENERAL", "music_volume"))
+                #self.music_channels[self.current_music_channel].set_volume(util.config.getfloat("GENERAL", "music_volume"))
         if mfname:
             self.music_name = mfname
 
@@ -230,7 +231,7 @@ class GameState(object):
 
     def set_music_volume(self, nu_volume):
         if self.music_channels[self.current_music_channel].get_busy():
-            self.music_channels[self.current_music_channel].set_volume(nu_volume)
+            self.music_channels[self.current_music_channel].get_sound().set_volume(nu_volume)
 
     def start_sound_effect(self, sound_fx_name, loops=0, allow_multiple_copies=False):
         my_sound = soundlib.SOUND_FX_LIBRARY.get(sound_fx_name, None)

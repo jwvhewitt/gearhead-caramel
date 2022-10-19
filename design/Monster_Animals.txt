@@ -508,3 +508,128 @@ Monster
             END
     END
 
+Monster
+    name = "Stinger"
+    statline = {Reflexes = 11, Body=7, Speed=10, Perception=3, Craft=1, Knowledge=1, Ego=1, Charm = 1,
+			CloseCombat = 6, RangedCombat=6, Dodge = 6, Vitality = 12
+	}
+	scale = HumanScale
+	imagename = 'mon_water.png'
+	frame = 2
+	colors = (Aquamarine,Twilight,Black,Black,Black)
+    threat = 64
+    actions = 2
+    type_tags = ("ANIMAL","WATER","SEA","MUTANT")
+    families = ("WATER", "MUTANT")
+    environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = False
+
+	SUB
+        Torso
+            size = 5
+            SUB
+                ChemThrower
+                    name = "Toxin Spray"
+                    reach = 4
+                    damage = 2
+                    accuracy = 2
+                    penetration = 3
+                    shot_anim = AcidSpray
+                    area_anim = MiasmaAnim
+                    attributes = (Scatter, SwarmFire3)
+                    SUB
+                        Chem
+                            name = "Toxin"
+                            quantity = 30
+                            attributes = (PoisonAttack)
+                    END
+            END
+        Tail
+            size = 5
+        Tail
+            size = 5
+        Tail
+            size = 5
+    END
+
+
+Monster
+    name = "Sea Dragon"
+    statline = {Reflexes = 17, Body=19, Speed=16, Perception=15, Craft=8, Knowledge=7, Ego=16, Charm = 9,
+			CloseCombat = 9, RangedCombat=4, Dodge = 10, Vitality = 5, Athletics=5, Concentration=5
+	}
+	scale = HumanScale
+	imagename = 'mon_water.png'
+	frame = 1
+	colors = (DeepSeaBlue,DesertYellow,Black,Black,Black)
+    threat = 90
+    actions = 3
+    type_tags = ("ANIMAL","EXOTIC","WATER","SEA","REPTILE")
+    families = ("WATER", "REPTILE")
+    environment_list = (GroundEnv,UrbanEnv)
+    can_be_pet = True
+
+	SUB
+        Torso
+            size = 8
+            SUB
+                Armor
+                    size = 8
+                ChemThrower
+                    name = "Flame Breath"
+                    reach = 3
+                    damage = 5
+                    accuracy = 2
+                    penetration = 2
+                    attributes = (ConeAttack)
+                    SUB
+                        Chem
+                            name = "Burn Juice"
+                            quantity = 50
+                            attributes = (BurnAttack, Brutal)
+                    END
+            END
+        Tail
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                MeleeWeapon
+                    integral = True
+                    name = "Hook"
+                    reach = 2
+                    damage = 3
+                    accuracy = 2
+                    penetration = 5
+                    attributes = (MultiWielded, PoisonAttack)
+            END
+        Tail
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                MeleeWeapon
+                    integral = True
+                    name = "Hook"
+                    reach = 2
+                    damage = 3
+                    accuracy = 2
+                    penetration = 5
+                    attributes = (MultiWielded, PoisonAttack)
+            END
+        Tail
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                MeleeWeapon
+                    integral = True
+                    name = "Hook"
+                    reach = 2
+                    damage = 3
+                    accuracy = 2
+                    penetration = 5
+                    attributes = (MultiWielded, PoisonAttack)
+            END
+    END
+

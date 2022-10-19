@@ -272,7 +272,7 @@ self.add_sub_plot(nart, "CF_WORLD_MAP_HANDLER", elements=dict(WM_IMAGE_FILE={ima
 class StartingPlot_{unique_id}_{_uid}( Plot ):
     LABEL = "START_PLOT_{unique_id}"
     active = True
-    scope = "LOCALE"
+    scope = True
 
     #: plot_properties
 
@@ -281,7 +281,6 @@ class StartingPlot_{unique_id}_{_uid}( Plot ):
         if pc_tags.issuperset({needed_pc_tags}) and pc_tags.isdisjoint({forbidden_pc_tags}):
             +init_plot
             self.elements["ENTRANACE"] = nart.camp.campdata[THE_WORLD].get({entrance})
-            self.elements["LOCALE"] = self.elements["ENTRANACE"].scene
             nart.camp.go(self.elements["ENTRANACE"])
 
             self.did_cutscene = False
@@ -294,7 +293,7 @@ class StartingPlot_{unique_id}_{_uid}( Plot ):
 
     #: plot_methods
 
-    def LOCALE_ENTER(self, camp):
+    def t_START(self, camp):
         if not self.did_cutscene:
             #: effect
             self.did_cutscene = True
