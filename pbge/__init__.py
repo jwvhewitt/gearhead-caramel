@@ -333,17 +333,29 @@ class GameState(object):
         except ValueError:
             return 800, 600
 
+    def default_to_windowed(self):
+        my_state.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
+        util.config.set("GENERAL", "fullscreen", "False")
+        with open(util.user_dir("config.cfg"), "wt") as f:
+            util.config.write(f)
+
     def reset_screen(self):
         if util.config.getboolean("GENERAL", "stretchy_screen"):
             if util.config.getboolean("GENERAL", "fullscreen"):
-                my_state.physical_screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
+                try:
+                    my_state.physical_screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
+                except:
+                    self.default_to_windowed()
             else:
                 # my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
                 my_state.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
             my_state.resize()
         else:
             if util.config.getboolean("GENERAL", "fullscreen"):
-                my_state.screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
+                try:
+                    my_state.screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
+                except:
+                    self.default_to_windowed()
             else:
                 my_state.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
 
@@ -682,6 +694,9 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         # Init image.py
         image.init_image(util.image_dir(""))
 
+        global POSTERS
+        POSTERS += glob.glob(util.image_dir(poster_pattern))
+
         pygame.init()
         my_state.audio_enabled = not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")
         if my_state.audio_enabled:
@@ -735,9 +750,6 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         my_state.big_font = BIGFONT
 
         my_state.huge_font = pygame.font.Font(util.image_dir(display_font), 24)
-
-        global POSTERS
-        POSTERS += glob.glob(util.image_dir(poster_pattern))
 
         global FPS
         FPS = util.config.getint("GENERAL", "frames_per_second")

@@ -46,6 +46,11 @@ that contains many options for customizing the game. You can also delete or
 back up your save files from here, if you are the sort of person who would 
 do such a thing.
 
+If you get a black screen and then the game crashes, set fullscreen to False
+in the configuration file. This is a known issue with PyGame on certain systems.
+Hopefully it will be fixed at some point in time but for now I have set the
+default configuration to run in windowed mode.
+
 If you have trouble running ghcaramel on MacOS, you may need to set
 the executable permission on the file (chmod a+x ghcaramel) or configure
 MacOS gatekeeper to allow it to run.
