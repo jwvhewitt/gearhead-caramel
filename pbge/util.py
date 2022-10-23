@@ -21,39 +21,63 @@
 # 
 import os
 import configparser
+import platform
+import shutil
 
 GAMEDIR = '.'
 USERDIR = '.'
 
+
 def game_dir(*args):
-    return os.path.join(GAMEDIR,*args)
+    return os.path.join(GAMEDIR, *args)
+
+
 def image_dir(fname=""):
-    return os.path.join(game_dir('image'),fname)
+    return os.path.join(game_dir('image'), fname)
+
+
 def data_dir(fname=""):
-    return os.path.join(game_dir('data'),fname)
-def user_dir( *args):
-    return os.path.join(USERDIR,*args)
+    return os.path.join(game_dir('data'), fname)
+
+
+def user_dir(*args):
+    return os.path.join(USERDIR, *args)
+
+
 def music_dir(fname=""):
-    return os.path.join(game_dir('music'),fname)
+    return os.path.join(game_dir('music'), fname)
+
+
 def soundfx_dir(fname=""):
-    return os.path.join(game_dir('soundfx'),fname)
+    return os.path.join(game_dir('soundfx'), fname)
+
 
 # Load the configuration file.
 config = None
 
-def init( appname,gamedir ):
+
+def init(appname, gamedir):
     global GAMEDIR
     GAMEDIR = gamedir
     global USERDIR
-    USERDIR = os.path.expanduser( os.path.join( '~' , appname ) )
-    if not os.path.exists( USERDIR ):
-        os.mkdir( USERDIR )
+    # for v0.940: Steam cloud save doesn't let you just stick your user dir in home on Windows. So,
+    if platform.system() == "Windows":
+        USERDIR = os.path.expanduser(os.path.join('~', 'My Documents', appname))
+        if not os.path.exists(USERDIR):
+            OLDUSERDIR = os.path.expanduser(os.path.join('~', appname))
+            if os.path.exists(OLDUSERDIR):
+                shutil.move(OLDUSERDIR, USERDIR)
+            else:
+                os.mkdir(USERDIR)
+    else:
+        USERDIR = os.path.expanduser(os.path.join('~', appname))
+        if not os.path.exists(USERDIR):
+            os.mkdir(USERDIR)
 
     global config
     config = configparser.ConfigParser()
     with open(data_dir("config_defaults.cfg")) as f:
-        config.read_file( f )
-    if not config.read( [user_dir( "config.cfg" )] ):
-        with open( user_dir( "config.cfg" ) , "wt" ) as f:
-            config.write( f )
-
+        config.read_file(f)
+    if not config.read([user_dir("config.cfg")]):
+        with open(user_dir("config.cfg"), "wt") as f:
+            config.write(f)

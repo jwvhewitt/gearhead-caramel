@@ -1,3 +1,7 @@
+* The manual has been updated
+* Steam cloud saves should now be working
+* Moved the user folder on Windows computers from Home to My Documents
+
 v0.932 October 19, 2022
 * Added starting messages to Raid on Pirate's Point, and fixed bug in STARTING_PLOT component
 * You can now set music volume, sound fx volume, and window size from config editor

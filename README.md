@@ -31,9 +31,8 @@ H: Open the Field HQ (Exploration mode only)
 m: Browse memos (Exploration mode only)
 
 In the attack/skill/EWar interface, click the name of your weapon/skill/program
-to change to a different one. You can
-scroll through weapons and attack options using the mouse wheel or the 
-arrow keys.
+to change to a different one. You can scroll through weapons and attack options
+using the mouse wheel or the arrow keys.
 
 In the combat movement interface, click the movemode to change movemode.
 
@@ -41,10 +40,11 @@ TROUBLESHOOTING
 ===============
 
 All of your user files are contained in a folder called "ghcaramel" that
-you should be able to find in your home directory. There's a text file there
-called "config.cfg" that contains many options for customizing the game.
-You can also delete or back up your save files from here, if you are the sort
-of person who would do such a thing.
+you should be able to find in "My Documents" (on Windows) or your home 
+directory (on every other OS). There's a text file there called "config.cfg" 
+that contains many options for customizing the game. You can also delete or 
+back up your save files from here, if you are the sort of person who would 
+do such a thing.
 
 If you have trouble running ghcaramel on MacOS, you may need to set
 the executable permission on the file (chmod a+x ghcaramel) or configure
@@ -113,6 +113,7 @@ pyInstaller, and there's a spec script as well.
   python main.py
 
 The first time it's run, the game will create a "ghcaramel" folder in your
-home directory and place a configuration file there. This is where all of your
-characters and saved games are stored, in case you want to delete them or
-make backups. The configuration file can be edited in any text editor.
+home directory (or "My Documents" on Windows) and place a configuration file 
+there. This is where all of your  characters and saved games are stored, in 
+case you want to delete them or make backups. The configuration file can be 
+edited in any text editor.
