@@ -39,9 +39,12 @@ In the combat movement interface, click the movemode to change movemode.
 TROUBLESHOOTING
 ===============
 
-All of your user files are contained in a folder called "ghcaramel" that
-you should be able to find in "My Documents" (on Windows) or your home 
-directory (on every other OS). There's a text file there called "config.cfg" 
+All of your user files are contained in a special folder.
+
+* On Windows, this folder is called "ghcaramel_user" and you can find it in the game install directory.
+* On every other OS, this folder is called "ghcaramel" and you can find it in your home directory.
+
+There's a text file there called "config.cfg" 
 that contains many options for customizing the game. You can also delete or 
 back up your save files from here, if you are the sort of person who would 
 do such a thing.

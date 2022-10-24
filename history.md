@@ -2,7 +2,7 @@
 * Switched fullscreen to False in the default configuration due to crashes on certain systems
 * The manual has been updated
 * Steam cloud saves should now be working
-* Moved the user folder on Windows computers from Home to My Documents
+* Moved the user folder on Windows computers from Home to the app folder/ghcaramel_user
 
 v0.932 October 19, 2022
 * Added starting messages to Raid on Pirate's Point, and fixed bug in STARTING_PLOT component
