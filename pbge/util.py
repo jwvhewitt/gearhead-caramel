@@ -62,9 +62,9 @@ def init(appname, gamedir):
     global USERDIR
     # for v0.940: Steam cloud save doesn't let you just stick your user dir in home on Windows. So,
     if platform.system() == "Windows":
-        USERDIR = os.path.expanduser(os.path.join('~', 'My Documents', appname))
+        USERDIR = os.path.expanduser(os.path.join('~', 'My Documents', "ghctesting"))
         if not os.path.exists(USERDIR):
-            OLDUSERDIR = os.path.expanduser(os.path.join('~', appname))
+            OLDUSERDIR = os.path.expanduser(os.path.join('~', "ghctesting"))
             if os.path.exists(OLDUSERDIR):
                 shutil.move(OLDUSERDIR, USERDIR)
             else:
