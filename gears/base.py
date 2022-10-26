@@ -692,6 +692,19 @@ class BaseGear(scenes.PlaceableThing):
             m = m + part.cost
         return m
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.05
+    def _this_part_shop_rank(self):
+        cost = float(self.base_cost * self.material.cost_scale)/10.0
+        return max(
+            round(self.__class__.SHOP_RANK_LOG_RESULT_MULTIPLIER *
+                  math.log(cost*self.__class__.SHOP_RANK_LOG_COST_MULTIPLIER)),
+            0
+        )
+
+    def shop_rank(self):
+        return max(p._this_part_shop_rank() for p in self.get_all_parts())
+
     def battle_cost(self):
         # Return the cost, ignoring treasure.
         m = self.self_cost
@@ -1033,6 +1046,9 @@ class Armor(SizeClassedComponent, StandardDamageHandler):
     # can be removed and installed elsewhere.
     INTEGRAL_COST_REDUCTION = 20.0
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 25
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.015
+
     def __init__(self, size=1, **keywords):
         # Check the range of all parameters before applying.
         if size < self.MIN_SIZE:
@@ -1095,6 +1111,9 @@ class Shield(BaseGear, StandardDamageHandler):
     MAX_SIZE = 10
     MIN_BONUS = 0
     MAX_BONUS = 5
+
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.015
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 20
 
     def __init__(self, size=3, bonus=0, **keywords):
         # Check the range of all parameters before applying.
@@ -1160,6 +1179,9 @@ class BeamShield(Shield):
     # Just like a shield, but beamier.
     DEFAULT_NAME = "Beam Shield"
 
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.010
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 20
+
     @property
     def base_mass(self):
         return 4 * self.size
@@ -1194,6 +1216,9 @@ class Engine(Component, StandardDamageHandler, MakesPower):
     # the engine directly to the mecha, so give cost and mass reduction.
     INTEGRAL_COST_REDUCTION = 25.0
     INTEGRAL_MASS_REDUCTION = 25.0
+
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0004
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 20
 
     def __init__(self, size=750, **keywords):
         # Check the range of all parameters before applying.
@@ -1287,6 +1312,9 @@ class Sensor(SizeClassedComponent, StandardDamageHandler):
     MIN_SIZE = 1
     MAX_SIZE = 5
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 20
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
+
     def __init__(self, size=1, **keywords):
         # Check the range of all parameters before applying.
         if size < self.MIN_SIZE:
@@ -1302,7 +1330,7 @@ class Sensor(SizeClassedComponent, StandardDamageHandler):
 
     @property
     def base_cost(self):
-        return self.size * self.size * 10
+        return self.size ** 4 * 10
 
     @property
     def base_volume(self):
@@ -1367,6 +1395,9 @@ class HoverJets(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "Hover Jets"
     MOVESYS_COST = 56
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 25
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
+
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
@@ -1387,6 +1418,9 @@ class FlightJets(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "Flight Jets"
     MOVESYS_COST = 75
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 25
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.007
+
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
@@ -1404,6 +1438,9 @@ class ArcJets(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "ARC Jets"
     MOVESYS_COST = 125
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 25
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.007
+
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
@@ -1419,6 +1456,9 @@ class ArcJets(MovementSystem, StandardDamageHandler):
 class Wheels(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "Wheels"
     MOVESYS_COST = 10
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.1
 
     @property
     def base_health(self):
@@ -1441,6 +1481,9 @@ class Tracks(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "Tracks"
     MOVESYS_COST = 10
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 16
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.1
+
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
@@ -1456,6 +1499,9 @@ class Tracks(MovementSystem, StandardDamageHandler):
 class HeavyActuators(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "Heavy Actuators"
     MOVESYS_COST = 100
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 25
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
 
     @property
     def base_health(self):
@@ -1475,6 +1521,9 @@ class HeavyActuators(MovementSystem, StandardDamageHandler):
 class Overchargers(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "Overchargers"
     MOVESYS_COST = 250
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 20
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
 
     @property
     def base_health(self):
@@ -1500,6 +1549,9 @@ class Overchargers(MovementSystem, StandardDamageHandler):
 class PowerSource(Component, StandardDamageHandler, MakesPower):
     DEFAULT_NAME = "Power Source"
     SAVE_PARAMETERS = ('size',)
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 20
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.02
 
     def __init__(self, size=1, **keywords):
         # Check the range of all parameters before applying.
@@ -1545,6 +1597,9 @@ class PowerSource(Component, StandardDamageHandler, MakesPower):
 class EWSystem(Component, StandardDamageHandler):
     DEFAULT_NAME = "EW System"
     SAVE_PARAMETERS = ('size', 'programs')
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 30
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
 
     def __init__(self, size=1, programs=(), **keywords):
         # Check the range of all parameters before applying.
@@ -1796,6 +1851,9 @@ class MeleeWeapon(Weapon):
                         attackattributes.DrainsPower,
                         attackattributes.MultiWielded)
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 12
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
+
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
 
@@ -1900,6 +1958,9 @@ class EnergyWeapon(Weapon):
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.DrainsPower,
                         attackattributes.MultiWielded)
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
@@ -2028,6 +2089,9 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
                         attackattributes.OverloadAttack, attackattributes.Scatter,
                         )
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.1
+
     def __init__(self, ammo_type=calibre.Shells_150mm, quantity=12, area_anim=None, attributes=(), **keywords):
         # Check the range of all parameters before applying.
         self.ammo_type = ammo_type
@@ -2124,6 +2188,8 @@ class BallisticWeapon(Weapon):
                         attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5,
                         attackattributes.Intercept, attackattributes.LinkedFire
                         )
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 35
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0003
 
     def __init__(self, ammo_type=None, magazine=None, **keywords):
         self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
@@ -2272,6 +2338,8 @@ class BeamWeapon(Weapon):
                         attackattributes.VariableFire5,
                         attackattributes.Intercept, attackattributes.SwarmFire2, attackattributes.SwarmFire3
                         )
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 40
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0003
 
     def get_weapon_desc(self):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}'.format(self,
@@ -2352,6 +2420,9 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
                         attackattributes.HaywireAttack, attackattributes.OverloadAttack, attackattributes.PoisonAttack,
                         attackattributes.Scatter,
                         )
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 35
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0003
 
     def __init__(self, reach=1, damage=1, accuracy=1, penetration=1, quantity=12, area_anim=None, attributes=(),
                  **keywords):
@@ -2462,6 +2533,9 @@ class Launcher(BaseGear, ContainerDamageHandler):
     SAVE_PARAMETERS = ('size', 'attack_stat')
     MIN_SIZE = 1
     MAX_SIZE = 20
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.03
 
     def __init__(self, size=5, attack_stat=stats.Perception, **keywords):
         # Check the range of all parameters before applying.
@@ -2636,6 +2710,8 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     SAVE_PARAMETERS = ('quantity', 'attributes', 'shot_anim', 'area_anim')
     LEGAL_ATTRIBUTES = (attackattributes.Agonize, attackattributes.Brutal, attackattributes.BurnAttack,
                         attackattributes.DisintegrateAttack, attackattributes.PoisonAttack)
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.1
 
     def __init__(self, quantity=20, shot_anim=None, area_anim=None, attributes=(), **keywords):
         # Check the range of all parameters before applying.
@@ -2714,6 +2790,8 @@ class ChemThrower(Weapon):
                         attackattributes.ConeAttack, attackattributes.LinkedFire, attackattributes.Scatter,
                         attackattributes.SwarmFire2, attackattributes.SwarmFire3
                         )
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 35
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0003
 
     def is_legal_sub_com(self, part):
         if isinstance(part, Weapon):
@@ -2864,6 +2942,9 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
     location = '???'
     base_trauma = 2
     cost_factor = 1.0
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 20
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.00005
 
     def __init__(self, statline=None, **keywords):
         self.statline = collections.defaultdict(int)
@@ -3324,6 +3405,9 @@ class Storage(Module):
 
 class Clothing(BaseGear, ContainerDamageHandler):
     SAVE_PARAMETERS = ('form',)
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.1
 
     def __init__(self, form=MF_Torso, **keywords):
         # Check the range of all parameters before applying.
@@ -3825,6 +3909,13 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             return mymod.size//2 + sum(scmods)
         else:
             return 0
+
+    def shop_rank(self):
+        cost = self.cost
+        if cost <= 300000:
+            return cost//30000
+        else:
+            return int(math.log(cost*0.000005)*27)
 
 
 class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Combatant, Restoreable):
@@ -4521,6 +4612,9 @@ class Treasure(BaseGear, StandardDamageHandler):
         'value','weight')
     DEFAULT_SCALE = scale.HumanScale
 
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0001
+
     def __init__(self, value=1000, weight=10, **keywords):
         self.value = value
         self.weight = weight
@@ -4549,6 +4643,9 @@ class Consumable(BaseGear, InvulnerableDamageHandler):
     SAVE_PARAMETERS = (
         'effect','weight', 'quantity')
     DEFAULT_SCALE = scale.HumanScale
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0005
 
     def __init__(self, effect=None, weight=0, quantity=10, **keywords):
         self.effect = effect

@@ -57,18 +57,19 @@ class Shop(object):
         candidates = [item for item in gears.selector.DESIGN_LIST if
                       itype in item.shop_tags and self.item_matches_shop(item, camp)]
         if candidates:
-            # Step one: Sort the candidates by cost.
+            # Step one: Sort the candidates by closeness to current shop rank.
             random.shuffle(candidates)
-            candidates.sort(key=lambda i: i.cost)
+            candidates.sort(key=lambda i: abs(rank - i.shop_rank()))
             # Step two: Determine this store's ideal index position.
-            ideal_index = len(candidates) * min(max(rank,0),100) / 100.0
-            # Step three: Create a new list sorted by distance from ideal_index.
-            sorted_candidates = candidates.copy()
-            sorted_candidates.sort(key=lambda i: abs(candidates.index(i) - ideal_index))
-            # Step four: Choose an item, the lower the better.
-            max_i = min(len(candidates)-1,max(5,len(candidates)//3))
-            i = min(random.randint(0,max_i),random.randint(0,max_i),random.randint(0,max_i))
-            it = copy.deepcopy(sorted_candidates[i])
+
+            # Step four: Choose an item, the lower the better. Usually. Sometimes a store will have an
+            # out-of-depth item just because.
+            if random.randint(1,23) == 5:
+                i = random.randint(0, len(candidates)-1)
+            else:
+                max_i = min(len(candidates)-1,max(5,len(candidates)//3))
+                i = min(random.randint(0,max_i),random.randint(0,max_i),random.randint(0,max_i))
+            it = copy.deepcopy(candidates[i])
             if isinstance(it, gears.base.Mecha):
                 it.colors = self.mecha_colors
             if self.sell_champion_equipment and random.randint(1,3) == 1:
@@ -91,7 +92,7 @@ class Shop(object):
         return it
 
 
-    def update_wares(self, camp):
+    def update_wares(self, camp: gears.GearHeadCampaign):
         # Once a day the wares get updated. Delete some items, make sure that
         # there's at least one item of every ware_type, and then fill up the
         # store to full capacity.
@@ -133,6 +134,8 @@ class Shop(object):
                 break
 
         rank = self.rank + prosperity * 10
+        if camp.renown > rank:
+            rank = (rank + camp.renown)//2
 
         tries = 0
         while len(self.wares) < num_items:

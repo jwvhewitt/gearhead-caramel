@@ -65,7 +65,7 @@ def init(appname, gamedir):
         USERDIR = os.path.join(gamedir, appname + "_user")
         if not os.path.exists(USERDIR):
             OLDUSERDIR = os.path.expanduser(os.path.join('~', appname))
-            if os.path.exists(OLDUSERDIR) and False:
+            if os.path.exists(OLDUSERDIR):
                 shutil.move(OLDUSERDIR, USERDIR)
             else:
                 os.mkdir(USERDIR)

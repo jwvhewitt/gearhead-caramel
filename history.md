@@ -1,5 +1,6 @@
-* Game will attempt to automatically recover if fullscreen causes it to crash
-* Switched fullscreen to False in the default configuration due to crashes on certain systems
+v0.940 October 26, 2022
+* Shop rank now calculated by item type
+* Game will try to automatically switch to windowed mode if fullscreen causes it to crash
 * The manual has been updated
 * Steam cloud saves should now be working
 * Moved the user folder on Windows computers from Home to the app folder/ghcaramel_user

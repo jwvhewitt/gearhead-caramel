@@ -29,7 +29,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.932"
+VERSION = "v0.940"
 
 
 class TitleScreenRedraw(object):
@@ -321,6 +321,20 @@ def play_the_game():
     #mydest.fill((0, 0, 255))
     #mypic.render((0,0),dest_surface=mydest)
     #pygame.image.save(mydest, pbge.util.user_dir("out_"+fname))
+
+    #a = gears.selector.get_design_by_full_name("Heavy Duty Duct Tape")
+    #b = gears.selector.get_design_by_full_name("10 Pack Antidote")
+    #c = gears.selector.get_design_by_full_name("5 Pack Quick Fix Pill")
+    #print(a, a.cost, a.shop_rank())
+    #print(b, b.cost, b.shop_rank())
+    #print(c, c.cost, c.shop_rank())
+
+    #a = gears.base.Treasure(value=1000)
+    #b = gears.base.Treasure(value=100000, material=gears.materials.Advanced)
+    #c = gears.base.Treasure(value=10000000)
+    #print(a, a.cost, a.shop_rank())
+    #print(b, b.cost, b.shop_rank())
+    #print(c, c.cost, c.shop_rank())
 
     # mypor = gears.portraits.Portrait()
     # mypor.bits = ["FBA NoBody","Haywire B3 Head"]
