@@ -50,6 +50,8 @@ CONVO_CANT_WITHDRAW = "CONVO_CANT_WITHDRAW"
 BAMOP_FIND_HERBS = "BAMOP_FIND_HERBS"
 BAMOP_DUNGEONLIKE = "BAMOP_DUNGEONLIKE"
 BAMEP_MONSTER_TYPE = "BAMEP_MONSTER_TYPE"
+BAMOP_RESCUE_VICTIM = "BAMOP_RESCUE_VICTIM"
+BAMEP_VICTIM_NAME = "BAMEP_VICTIM_NAME"
 
 MAIN_OBJECTIVE_VALUE = 100
 
@@ -1747,3 +1749,46 @@ class BAM_Dungeonlike(Plot):
             self.add_sub_plot(nart, "DUNGEON_EXTRA", necessary=False)
 
         return True
+
+
+class BAM_RescueVictim(Plot):
+    LABEL = BAMOP_RESCUE_VICTIM
+    active = True
+    scope = "LOCALE"
+
+    VICTIM_DESC = (
+        "{} is exhausted and dehydrated but otherwise in good condition.",
+        "{} is slightly injured but should make a complete recovery back in town.",
+        "You arrived just in time; {} is severely injured and immobilized.",
+        "At first you think you arrived too late, but soon realize that {} is still alive."
+    )
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        myroom = self.register_element("ROOM", roomtype(5, 5), dident="LOCALE")
+
+        name = self.elements.get(BAMEP_VICTIM_NAME, "") or gears.selector.GENERIC_NAMES.gen_word()
+        myvictim = self.register_element("VICTIM", ghwaypoints.Victim(
+            name=name, plot_locked=True, anchor=pbge.randmaps.anchors.middle,
+            desc=random.choice(self.VICTIM_DESC).format(name)
+        ), dident="ROOM")
+
+        self.obj = adventureseed.MissionObjective("Locate and rescue {}".format(name), MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        self.rescued_npc = False
+
+        return True
+
+    def VICTIM_menu(self, camp, thingmenu):
+        if not self.rescued_npc:
+            thingmenu.add_item("Rescue {VICTIM}".format(**self.elements), self._rescue_victim)
+
+    def _rescue_victim(self, camp: gears.GearHeadCampaign):
+        pbge.alert("You have rescued {VICTIM}.".format(**self.elements))
+        self.obj.win(camp, 100)
+        camp.dole_xp(100, gears.stats.Medicine)
+        self.rescued_npc = True
+        self.elements["VICTIM"].remove_victim()
+

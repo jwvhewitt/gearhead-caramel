@@ -542,5 +542,5 @@ class LMSkillsSelfIntro(Offer):
 
         super().__init__(
             " ".join(items),
-            context=ContextTag((context.SELFINTRO,)), data=data
+            context=ContextTag((context.SELFINTRO,)), data=data, is_generic=True
         )

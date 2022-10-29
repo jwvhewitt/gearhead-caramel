@@ -866,6 +866,13 @@ class GearEditor(pbge.widgets.Widget):
         mysaver = gears.Saver(pbge.util.user_dir("design","{}.txt".format(self.mygear.get_full_name())))
         mysaver.save([save_version,])
 
+        # Also save this mecha in the currently loaded design list.
+        for mek in list(gears.selector.DESIGN_LIST):
+            if mek.get_full_name() == save_version.get_full_name():
+                gears.selector.DESIGN_LIST.remove(mek)
+        gears.selector.DESIGN_LIST.append(save_version)
+        gears.selector.DESIGN_BY_NAME[save_version.get_full_name()] = save_version
+
     def _add_subcom(self,widj,ev):
         self.part_selector = PartAcceptCancelWidget(self.sources,self._check_can_install,self._return_add_subcom)
         pbge.my_state.widgets.append(self.part_selector)

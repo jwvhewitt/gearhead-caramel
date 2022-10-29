@@ -168,6 +168,8 @@ class DZREPR_BaseMission(Plot):
     WIN_MESSAGE = ""
     LOSS_MESSAGE = ""
     MISSION_GRAMMAR = None
+    NO_WITHDRAW = False
+    NO_RETREAT = False
 
     @classmethod
     def matches(cls, pstate):
@@ -195,7 +197,9 @@ class DZREPR_BaseMission(Plot):
             architecture=self.MISSION_ARCHITECTURE(), mission_grammar=mgram,
             win_message=self.WIN_MESSAGE.format(**self.elements),
             loss_message=self.LOSS_MESSAGE.format(**self.elements),
-            cash_reward=100 + self.elements[E_MISSION_WINS] ** 2 * 25
+            cash_reward=100 + self.elements[E_MISSION_WINS] ** 2 * 25,
+            custom_elements={missionbuilder.CONVO_CANT_WITHDRAW: self.NO_WITHDRAW,
+                             missionbuilder.CONVO_CANT_RETREAT: self.NO_RETREAT}
         )
 
     def t_START(self,camp):
@@ -294,6 +298,8 @@ class DZREPRC_ConclusionTemplate(Plot):
     REQUIRED_FACTAGS = set()
     SOLO_MISSION = False
     MISSION_GRAMMAR = None
+    NO_WITHDRAW = False
+    NO_RETREAT = False
 
     @classmethod
     def matches(cls, pstate):
@@ -323,7 +329,9 @@ class DZREPRC_ConclusionTemplate(Plot):
             win_message=self.WIN_MESSAGE.format(**self.elements),
             loss_message=self.LOSS_MESSAGE.format(**self.elements),
             cash_reward=200 + self.elements[E_MISSION_WINS] ** 2 * 25,
-            solo_mission=self.SOLO_MISSION
+            solo_mission=self.SOLO_MISSION,
+            custom_elements={missionbuilder.CONVO_CANT_WITHDRAW: self.NO_WITHDRAW,
+                             missionbuilder.CONVO_CANT_RETREAT: self.NO_RETREAT}
         )
 
     def t_UPDATE(self,camp):
@@ -1319,6 +1327,16 @@ class DZREPC_CallOutChampionFight(DZREPRC_ConclusionTemplate):
     WIN_MESSAGE = "With their champion defeated, {FACTION} scatters, no longer a danger to travelers in the dead zone."
     DEFAULT_MEMO = "You learned that {FACTION}'s champion is waiting just outside of {METROSCENE} to challenge you to a final duel."
     SOLO_MISSION = True
+    NO_RETREAT = True
+    NO_WITHDRAW = True
+    MISSION_GRAMMAR = missionbuilder.MissionGrammar(
+        "accept your challenge",
+        "defeat you once and for all",
+        "I defeated you in one on one combat",
+        "you defeated me in one on one combat",
+        "you defeated me in one on one combat",
+        "I defeated you in one on one combat"
+    )
 
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""
@@ -1358,6 +1376,8 @@ class DZREPRC_RazeTheFortress(DZREPRC_ConclusionTemplate):
         objective_pp="destroy your fortress", objective_ep="defend our fortress",
         win_pp="I destroyed your fortress", win_ep="you destroyed my fortress",
     )
+    NO_RETREAT = True
+    NO_WITHDRAW = True
 
     def custom_init(self, nart):
         super().custom_init(nart)

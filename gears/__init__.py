@@ -841,8 +841,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def dole_xp(self, amount, type=base.Being.TOTAL_XP):
         for pc in self.party:
-            if hasattr(pc, "experience"):
-                pc.experience[type] += amount
+            if hasattr(pc, "dole_experience"):
+                pc.dole_experience(amount, type)
 
     def totally_restore_party(self):
         # Restore the party to health, returning the cost of doing so.

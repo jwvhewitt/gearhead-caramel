@@ -4184,10 +4184,10 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
 
     def dole_experience(self, xp, xp_type=TOTAL_XP):
         self.experience[xp_type or self.TOTAL_XP] += xp
-        if xp_type in stats.ALL_SKILLS and xp_type in self.statline and xp_type.improvement_cost(self, self.statline[
-            xp_type]) <= self.experience[xp_type]:
-            self.experience[xp_type] -= xp_type.improvement_cost(self, self.statline[xp_type])
-            self.statline[xp_type] += 1
+        if xp_type in stats.ALL_SKILLS and xp_type in self.statline:
+            while xp_type.improvement_cost(self, self.statline[xp_type]) <= self.experience[xp_type]:
+                self.experience[xp_type] -= xp_type.improvement_cost(self, self.statline[xp_type])
+                self.statline[xp_type] += 1
 
     def get_melee_damage_bonus(self, weapon):
         return (self.get_stat(stats.Body) - 10) // 2

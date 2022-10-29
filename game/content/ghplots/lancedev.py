@@ -9,7 +9,7 @@ from gears import relationships
 import pbge
 import random
 from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, ghcutscene, dungeonmaker
-from . import missionbuilder, dd_customobjectives
+from . import missionbuilder, dd_customobjectives, lancedev_objectives
 
 
 #  Required elements: METRO, METROSCENE, MISSION_GATE
@@ -50,14 +50,17 @@ class LMMissionPlot(LMPlot):
     mission_active = False
     mission_seed = None
     MISSION_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_CAPTURE_BUILDINGS)
+    MISSION_SCALE = gears.scale.MechaScale
     CASH_REWARD = 150
     EXPERIENCE_REWARD = 150
     MISSION_NAME = "{NPC}'s Mission"
 
-    def prep_mission(self, camp: gears.GearHeadCampaign, custom_elements=None, sgen_override=None):
+    def prep_mission(self, camp: gears.GearHeadCampaign, custom_elements=None, sgen_override=None, archi_override=None):
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(camp.scene.get_metro_scene())
         if sgen_override:
             sgen = sgen_override
+        if archi_override:
+            archi = archi_override
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, self.MISSION_NAME.format(**self.elements),
             self.elements["METROSCENE"], self.elements["MISSION_GATE"],
@@ -66,7 +69,7 @@ class LMMissionPlot(LMPlot):
             cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
             on_win=self.win_mission, on_loss=self.lose_mission,
             scenegen=sgen, architecture=archi,
-            custom_elements=custom_elements
+            custom_elements=custom_elements, scale=self.MISSION_SCALE
         )
 
     def MISSION_GATE_menu(self, camp, thingmenu):
@@ -81,6 +84,83 @@ class LMMissionPlot(LMPlot):
 
 
 # The actual plots...
+
+class Earth_RescueAndBiotech(LMMissionPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+    MISSION_OBJECTIVES = (missionbuilder.BAMOP_DUNGEONLIKE, missionbuilder.BAMOP_RESCUE_VICTIM,
+                          lancedev_objectives.BAMOP_DISCOVER_BIOTECHNOLOGY)
+    CASH_REWARD = 100
+    EXPERIENCE_REWARD = 150
+    MISSION_SCALE = gears.scale.HumanScale
+
+    @classmethod
+    def matches(self, pstate):
+        """Returns True if this plot matches the current plot state."""
+        return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
+                gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+
+        self.add_sub_plot(nart, "NPC_VACATION", ident="FREEZER")
+        self.prep_mission(
+            nart.camp, custom_elements={lancedev_objectives.BAME_LANCEMATE: npc, missionbuilder.BAMEP_MONSTER_TYPE: ("SYNTH", "MUTANT", "ANIMAL")},
+            archi_override=gharchitecture.StoneCave(decorate=gharchitecture.CaveDecor())
+        )
+        self.had_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                gears.tags.Medic in candidate.get_tags() and
+                gears.stats.Biotechnology not in candidate.statline and
+                candidate.relationship.expectation in (None, gears.relationships.E_IMPROVER, gears.relationships.E_ADVENTURE)
+            )
+
+    def METROSCENE_ENTER(self,camp):
+        if not self.had_convo:
+            npc = self.elements["NPC"]
+            pbge.alert("As you enter {METROSCENE}, you notice {NPC} looking anxiously at {NPC.gender.possessive_determiner} phone.".format(**self.elements))
+
+            mymenu = ghcutscene.SimpleMonologueMenu(
+                "A hiker has gone missing in an area known to contain biomonsters... They're calling on all medics in the area to help with the search and rescue.",
+                npc, camp
+            )
+            mymenu.no_escape = True
+            mymenu.add_item("Let's go see if we can find find this hiker.", self._accept_offer)
+            mymenu.add_item("We're in no shape to face biomonsters.", self._reject_offer)
+            choice = mymenu.query()
+            if choice:
+                choice(camp)
+
+    def _accept_offer(self,camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "One more thing about this mission... the hiker was probably drawn to these caves because of the rumors of lost biotechnology inside. At the very least, we should keep our eyes open for useful discoveries.", npc)(camp, False)
+        self.elements["NPC"].relationship.expectation = relationships.E_DISCOVERY
+        self.had_convo = True
+        self.mission_active = True
+
+    def _reject_offer(self,camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship.history.append(gears.relationships.Memory(
+            "you refused to aid the search and rescue", "I didn't help you with the search and rescue", -25,
+            (gears.relationships.MEM_Ideological,)
+        ))
+        if npc.get_reaction_score(camp.pc, camp) < 1:
+            ghcutscene.SimpleMonologueDisplay("I will go join the search party by myself, then. Don't bother waiting for me as I have no interest in rejoining your lance.", npc)(camp, False)
+            plotutility.AutoLeaver(self.elements["NPC"])(camp)
+            self.subplots["FREEZER"].freeze_now(camp)
+            if relationships.RT_LANCEMATE in npc.relationship.tags:
+                npc.relationship.tags.remove(relationships.RT_LANCEMATE)
+        else:
+            ghcutscene.SimpleMonologueDisplay("You're probably right about that. I just wish there were something we could do.", npc)(camp, False)
+        self.proper_end_plot(camp,False)
+
 
 class Earth_GetInTheMekShimli(LMMissionPlot):
     # A Shimli Test is the kind of personality quiz you might find on Buzzfeed; I think it also refers to the kind of
@@ -323,7 +403,7 @@ class Earth_ProBonoMetalPanic(LMMissionPlot):
             mylist.append(Offer(
                 "I just saw this mission on CavNet; a cooperative close to {METROSCENE} is being attacked by bandits. They can't afford a reward, but we've got to go help them!".format(**self.elements),
                 (context.HELLO,context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[THANK_YOU] [LETS_START_MECHA_MISSION]".format(**self.elements),
@@ -419,7 +499,7 @@ class FriendInTroubleRightNow(LMMissionPlot):
             mylist.append(Offer(
                 "I have to leave right now; my friend {FRIEND} is in trouble and needs help.".format(**self.elements),
                 (context.HELLO,context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[THANK_YOU] We have to hurry... {FRIEND} is being attacked by {ENEMY_FACTION} as we speak!".format(**self.elements),
@@ -590,7 +670,7 @@ class BeFriendsRaidFactory(LMMissionPlot):
             mylist.append(Offer(
                 "There's a processing facility belonging to {} just outside of town, and today they'll be moving some valuable cargo. If we strike fast we can rob them blind.".format(self.elements["ENEMY_FACTION"].name),
                 (context.HELLO,context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[GOOD] We don't need to tell anyone else what kind of mission this is... They wouldn't understand.",
@@ -667,7 +747,7 @@ class PureBiznessRelationship(LMMissionPlot):
             mylist.append(Offer(
                 "I just got a hot tip from [foaf]; there's a mission available right now to fight {} for double standard pay. We could really use that money.".format(self.elements["ENEMY_FACTION"].name),
                 (context.HELLO,context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[GOOD] I'm receiving the data on my phone now... we can get started any time you want.",
@@ -806,7 +886,7 @@ class PrezeroMacguffin(LMPlot):
                 "There's a synth-infested ruin near {METROSCENE} that's supposed to be filled with PreZero artifacts. I've always wanted to go there and try my luck. In fact, I'd love to go there with you.".format(
                     **self.elements),
                 (context.HELLO, context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             if self.rank > camp.renown + 5:
                 mylist.append(Offer(
@@ -928,7 +1008,7 @@ class DeadZoneSortingDuel(LMPlot):
         if not self.accepted_duel:
             mylist.append(Offer(
                 "We've been traveling together for a while, but I still haven't figured out how you rank. [CAN_I_ASK_A_QUESTION]",
-                (context.HELLO, context.QUERY),
+                (context.HELLO, context.QUERY), allow_generics=False
             ))
             mylist.append(Offer(
                 "I'm curious about how your combat skills compare to mine. How would you like to go out into the dead zone, find a nice uninhabited place, and have a friendly little practice duel?",
@@ -996,7 +1076,7 @@ class ProfessionalGlory(LMMissionPlot):
                 "I just got a call from [foaf]; [subject_pronoun] needs a professional cavalier team for a high stakes mission. Are we going to accept?".format(
                     self.elements["ENEMY_FACTION"].name),
                 (context.HELLO, context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[GOOD] I've forwarded the mission data to everyone.",
@@ -1139,7 +1219,7 @@ class DDLD_ProfessionalColleague(LMMissionPlot):
                 "Look at this... {ENEMY_NPC.faction} {ENEMY_NPC} has been sighted in this area. There's a significant reward if we can capture {ENEMY_NPC.gender.object_pronoun}, plus it would be a huge boost to our reputation.".format(
                     **self.elements),
                 (context.HELLO, context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[GOOD] It shouldn't be that hard to locate {ENEMY_NPC}... {ENEMY_NPC.gender.possessive_determiner} lance has been cutting a path of destruction through the area around {METROSCENE}.".format(
@@ -1352,7 +1432,7 @@ class WangttaScent(LMPlot):
         if not self.accepted_duel:
             mylist.append(Offer(
                 "I've really enjoyed traveling with you, but sometimes I get the feeling that I'm sort of holding the lance back... [CAN_I_ASK_A_QUESTION]",
-                (context.HELLO, context.QUERY),
+                (context.HELLO, context.QUERY), allow_generics=False
             ))
             mylist.append(Offer(
                 "My mecha skills aren't really as good as the rest of the team. They say the best way to learn is to practice... would you like to go have a practice match with me outside of town? I've learned a lot just from watching you, but I think a real duel could be even better.",
@@ -1420,7 +1500,7 @@ class FinishingRegrets(LMMissionPlot):
                 "I just heard from [foaf]; there's a strike team from {} operating nearby. The same strike team that killed all of my previous lancemates. Let's destroy them and collect the reward.".format(
                     self.elements["ENEMY_FACTION"].name),
                 (context.HELLO, context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[GOOD] Sending you the data now... Let's get started as soon as possible.",
@@ -1505,13 +1585,13 @@ class LD_GladToBeHere(LMPlot):
             mylist.append(Offer(
                 "[Hey] I wanted to let you know how much I appreciate being a part of this team.",
                 (context.HELLO, context.INFO),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
         else:
             mylist.append(Offer(
                 "[Hey] I thought I should thank you for letting me be a part of this team.",
                 (context.HELLO, context.INFO),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
         mylist.append(Offer(
             "I will keep doing my best to be a good lancemate. [LETS_CONTINUE]",
@@ -1591,7 +1671,7 @@ class LD_MercenaryColleague(LMMissionPlot):
                 "I just got a surprise call from [foaf]. We've been offered a high priority mission to fight {}, and it comes with a 200% bonus.".format(
                     self.elements["ENEMY_FACTION"].name),
                 (context.HELLO, context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[GOOD] I'll forward the details to the rest of the lance.",
@@ -1672,7 +1752,7 @@ class LD_DutyColleagueMission(LMMissionPlot):
                 "I just got a message from my mentor, {MENTOR}; {MENTOR.gender.subject_pronoun} is in trouble and I need to go help immediately. Sorry for the short notice.".format(
                     **self.elements),
                 (context.HELLO, context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[THANK_YOU] [LETS_START_MECHA_MISSION]".format(**self.elements),
@@ -1752,7 +1832,7 @@ class LD_JuniorQuestions(LMPlot):
         mylist = list()
         mylist.append(Offer(
             "[CAN_I_ASK_A_QUESTION]",
-            (context.HELLO, context.QUERY),
+            (context.HELLO, context.QUERY), allow_generics=False
         ))
         mylist.append(Offer(
             "I'm pretty new at this cavalier business, and I don't have nearly as much sense for it as you do. What do I need to do to become a real cavalier?",
@@ -1964,7 +2044,7 @@ class LD_ThePurposeOfMoneyIsMecha(LMPlot):
                 "My favorite, I think, is the {}. I'm planning to buy that one.".format(
                     self.best_list[0].get_full_name()),
                 (context.HELLO, context.PROPOSAL),
-                subject=self, subject_start=True
+                subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "Yes, I definitely made a good call. I'll take it!".format(**self.elements),
@@ -2067,7 +2147,7 @@ class DDLD_LackingVirtue(LMPlot):
         mylist = list()
         mylist.append(Offer(
             "[CAN_I_ASK_A_QUESTION]",
-            (context.HELLO, context.QUERY),
+            (context.HELLO, context.QUERY), allow_generics=False
         ))
         mylist.append(Offer(
             "I haven't been in this lance long, so I want to understand how you run things. I've always thought that {} is the most important part of being a cavalier: {}. Do you agree?".format(

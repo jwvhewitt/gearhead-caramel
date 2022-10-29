@@ -90,13 +90,14 @@ class DDBAMO_ChampionDuel(Plot):
         npc = self.seek_element(nart, "_champion", self.adv.is_good_enemy_npc, must_find=False, lock=True)
         if npc:
             plotutility.CharacterMover(nart.camp, self, npc, myscene, team2)
-            self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":npc})
+            self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT", elements={"NPC":npc})
         else:
             mek = gears.selector.generate_ace(self.rank, fac, myscene.environment)
             npc = mek.get_pilot()
             self.register_element("_champion", npc)
             team2.contents.append(mek)
             champions.upgrade_to_champion(mek)
+            self.add_sub_plot(nart, "MC_DUEL_DEVELOPMENT", elements={"NPC": npc})
 
         self.obj = adventureseed.MissionObjective("Defeat the {}'s champion {}".format(fac, npc), missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
         self.adv.objectives.append(self.obj)
@@ -110,16 +111,6 @@ class DDBAMO_ChampionDuel(Plot):
             self.intro_ready = False
             npc = self.elements["_champion"]
             ghdialogue.start_conversation(camp,camp.pc,npc,cue=ghdialogue.ATTACK_STARTER)
-
-    def _champion_offers(self, camp):
-        mylist = list()
-        mylist.append(Offer( "[FORMAL_MECHA_DUEL]"
-                           , context = ContextTag([context.ATTACK])
-                           ))
-        mylist.append(Offer( "[FORMAL_LETSFIGHT]"
-                           , context = ContextTag([context.CHALLENGE])
-                           ))
-        return mylist
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]

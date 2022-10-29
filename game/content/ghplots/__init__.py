@@ -25,6 +25,7 @@ from . import dungeons
 from . import dungeon_extras
 from . import encounters
 from . import lancedev
+from . import lancedev_objectives
 from . import lancemates
 from . import localproblems
 from . import military_places
@@ -88,6 +89,7 @@ harvest(dungeons)
 harvest(dungeon_extras)
 harvest(encounters)
 harvest(lancedev)
+harvest(lancedev_objectives)
 harvest(lancemates)
 harvest(localproblems)
 harvest(military_places)

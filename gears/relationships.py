@@ -32,6 +32,7 @@ A_OBSESSED = "Obsessed" # NPC is obsessed with the PC
 E_MERCENARY = "Mercenary"       # NPC is in it for the money
 E_IMPROVER = "Improver"         # NPC trying to lead a better life
 E_ADVENTURE = "Adventure"       # NPC seeks an end to boredom
+E_DISCOVERY = "Discovery"       # NPC seeks to learn things about the world; explorer/scientist motivation
 E_PROFESSIONAL = "Professional" # NPC aims to be the best
 E_RIVAL = "Rival"               # NPC just wants to beat the PC
 E_MECHANIAC = "Mechaniac"       # NPC wants bigger and better mecha

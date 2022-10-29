@@ -191,6 +191,11 @@ class Victim(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.VictimTerrain)
     desc = "This person has seen better days."
 
+    def remove_victim(self):
+        scene = self.scene
+        if scene and scene.on_the_map(*self.pos):
+            scene.set_decor(self.pos[0], self.pos[1], None)
+
 
 class RetroComputer(Waypoint):
     name = 'Computer Terminal'

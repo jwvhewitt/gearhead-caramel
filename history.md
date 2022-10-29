@@ -1,3 +1,9 @@
+* Newly created mecha get added to the design list without needing to restart the game
+* Fixed dialogue bug in DZREPC_CallOutChampionFight
+* Lancemate development conversations should no longer have irrelevant convo options
+* When gaining skill XP, your skill level can improve by multiple steps
+* Fixed bug in GearHeadCampaign dole_xp method
+
 v0.940 October 26, 2022
 * Shop rank now calculated by item type
 * Game will try to automatically switch to windowed mode if fullscreen causes it to crash
