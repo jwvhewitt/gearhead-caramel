@@ -107,7 +107,8 @@
     "style": ["Combatant"],
     "children": [
       "Pants"
-    ]
+    ],
+    "form_tags": ["NoScarf", "NoBracers"]
   },
     {
     "name": "LordErin BodFC Pilot Pants",

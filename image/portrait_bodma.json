@@ -381,7 +381,8 @@
     "style": ["Combatant"],
     "children": [
       "Pants"
-    ]
+    ],
+    "form_tags": ["NoScarf", "NoBracers"]
   },
     {
     "name": "LordErin BodMA Pilot Pants",
@@ -407,7 +408,8 @@
       {"name":"Gloves","fname":"avatar_lorderin_bodma_gloves.png","anchor":"center","depth":2500,"x_offset":-1, "y_offset":  12}
     ],
     "requires": ["BodMA"],
-    "style": ["Combatant"]
+    "style": ["Combatant"],
+    "rejects": ["NoGloves"]
   }
 
 ]

@@ -363,6 +363,10 @@ class AnnounceCrashAnim(animobs.Caption):
     DEFAULT_TEXT = 'Crashed!'
 
 
+class AnnounceEjectAnim(animobs.Caption):
+    DEFAULT_TEXT = 'Ejected!'
+
+
 class MusicAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_music.png"
     DEFAULT_END_FRAME = 15
@@ -1759,7 +1763,7 @@ class RangeModifier(object):
         my_mod = ((my_range - 1) // self.range_step) * -10
         self.name = "Too Far"
         if my_range < (self.range_step - 3):
-            my_mod += (self.range_step - 3 - my_range) * -5
+            my_mod += (self.range_step - 3 - my_range) * -10
             self.name = "Too Close"
         return my_mod
 

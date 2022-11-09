@@ -9,7 +9,7 @@
       {"name":"Head","fname":"avatar_head_a.png","anchor":"avatar_head","depth":5000}
     ],
     "children": [
-      "Eyes","Nose","Mouth","Hair","Ears"
+      "Eyes","Nose","Mouth","Hair","Ears","FacialFeature"
     ],
     "anchors": {
       "right_eye": [-1,2], "left_eye": [32,2], "mouth": [18,38], "ear": [-39,14], "nose": [24,14]
@@ -25,7 +25,7 @@
       {"name":"Head","fname":"avatar_head_stony.png","anchor":"avatar_head","depth":5000}
     ],
     "children": [
-      "Eyes","Nose","Mouth","Hair","Ears"
+      "Eyes","Nose","Mouth","Hair","Ears","FacialFeature"
     ],
     "anchors": {
       "right_eye": [-1,-1], "left_eye": [32,-1], "mouth": [19,37], "ear": [-38,14], "nose": [23,12]
@@ -43,7 +43,7 @@
       {"name":"Head","fname":"avatar_head_hwb3.png","anchor":"avatar_head","depth":5000}
     ],
     "children": [
-      "Eyes","Nose","Mouth","Hair","Ears"
+      "Eyes","Nose","Mouth","Hair","Ears","FacialFeature"
     ],
     "anchors": {
       "right_eye": [0,1], "left_eye": [32,1], "mouth": [18,38], "ear": [-38,16], "nose": [21,14]
@@ -60,7 +60,7 @@
       {"name":"Head","fname":"avatar_head_chubby.png","anchor":"avatar_head","depth":5000}
     ],
     "children": [
-      "Eyes","Nose","Mouth","Hair","Ears"
+      "Eyes","Nose","Mouth","Hair","Ears","FacialFeature"
     ],
     "anchors": {
       "right_eye": [-4,2], "left_eye": [31,2], "mouth": [17,39], "ear": [-38,18], "nose": [22,14]
@@ -352,8 +352,7 @@
     ],
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_anime.png","anchor":"avatar_head","depth":5000,"x_offset":1,"y_offset":-3}
-    ],
-    "children": ["HairAccessories"]
+    ]
   },
   {
     "name": "Crew Cut Hair",
@@ -364,8 +363,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_crewcut.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "prefers": ["Duty","Military"],
-    "children": ["HairAccessories"]
+    "prefers": ["Duty","Military"]
   },
   {
     "name": "Pixie Hair",
@@ -376,8 +374,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_pixie.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "style": ["Feminine"],
-    "children": ["HairAccessories"]
+    "style": ["Feminine"]
   },
   {
     "name": "HWB3 Hair",
@@ -388,8 +385,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_hwb3.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "style": ["Feminine"],
-    "children": ["HairAccessories"]
+    "style": ["Feminine"]
   },
   {
     "name": "Battlefield Hair",
@@ -400,8 +396,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_battlefield.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-4}
     ],
-    "style": ["Feminine"],
-    "children": ["HairAccessories"]
+    "style": ["Feminine"]
   },
   {
     "name": "Emo Hair",
@@ -413,8 +408,7 @@
       {"name":"Hair","fname":"avatar_hair_emo.png","anchor":"avatar_head","depth":5000,"x_offset":1,"y_offset":-1}
     ],
     "style": ["Masculine"],
-    "prefers": ["Grim"],
-    "children": ["HairAccessories"]
+    "prefers": ["Grim"]
   },
   {
     "name": "Balding Hair",
@@ -427,8 +421,7 @@
     ],
     "style": ["Masculine"],
     "prefers": ["Old"],
-    "nostyle": ["Young"],
-    "children": ["HairAccessories"]
+    "nostyle": ["Young"]
   },
   {
     "name": "Windswept Hair",
@@ -439,8 +432,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_windswept.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "requires": ["BodMA"],
-    "children": ["HairAccessories"]
+    "requires": ["BodMA"]
   },
   {
     "name": "Brightperm Hair",
@@ -451,8 +443,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_brightperm.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
     ],
-    "style": ["Masculine"],
-    "children": ["HairAccessories"]
+    "style": ["Masculine"]
   },
   {
     "name": "Modern Quiff",
@@ -463,8 +454,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_modernquiff.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-5}
     ],
-    "style": ["Masculine"],
-    "children": ["HairAccessories"]
+    "style": ["Masculine"]
   },
   {
     "name": "Soft Spike",
@@ -475,8 +465,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_softspike.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "style": ["Passionate"],
-    "children": ["HairAccessories"]
+    "style": ["Passionate"]
   },
   {
     "name": "Slick Back",
@@ -487,8 +476,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_slickback.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "style": ["Masculine"],
-    "children": ["HairAccessories"]
+    "style": ["Masculine"]
   },
   {
     "name": "B70 Hair",
@@ -499,8 +487,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_b70.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "style": ["Masculine"],
-    "children": ["HairAccessories"]
+    "style": ["Masculine"]
   },
   {
     "name": "Natpo Hair",
@@ -519,8 +506,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_natpo.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-1}
     ],
-    "style": ["Feminine"],
-    "children": ["HairAccessories"]
+    "style": ["Feminine"]
   },
   {
     "name": "LB Hair",
@@ -536,8 +522,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_lb.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-1}
     ],
-    "style": ["Feminine"],
-    "children": ["HairAccessories"]
+    "style": ["Feminine"]
   },
   {
     "name": "Halftail Hair",
@@ -556,8 +541,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_halftail.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":1}
     ],
-    "style": ["Feminine"],
-    "children": ["HairAccessories"]
+    "style": ["Feminine"]
   },
   {
     "name": "KBW Hair",
@@ -573,8 +557,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_kbw1.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-1}
     ],
-    "style": ["Feminine"],
-    "children": ["HairAccessories"]
+    "style": ["Feminine"]
   },
   {
     "name": "Turban 1",
@@ -584,8 +567,7 @@
     ],
     "avatar_layers": [
       {"name":"Turban","fname":"avatar_headgear_turban1.png","anchor":"avatar_head","depth":7500,"x_offset":0,"y_offset":-4}
-    ],
-    "children": ["FacialHair"]
+    ]
   },
   {
     "name": "Turban 2",
@@ -595,8 +577,7 @@
     ],
     "avatar_layers": [
       {"name":"Turban","fname":"avatar_headgear_turban2.png","anchor":"avatar_head","depth":7500,"x_offset":0,"y_offset":-3}
-    ],
-    "children": ["FacialHair"]
+    ]
   },
   {
     "name": "Loverboy Hair",
@@ -608,8 +589,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_loverboy.png","anchor":"avatar_head","depth":7500,"x_offset":0,"y_offset":-3}
     ],
-    "style": ["Masculine"],
-    "children": ["HairAccessories"]
+    "style": ["Masculine"]
   },
   {
     "name": "Barbera Hair",
@@ -625,8 +605,7 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_barbera.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-1}
     ],
-    "style": ["Feminine"],
-    "children": ["HairAccessories"]
+    "style": ["Feminine"]
   },
     {
     "name": "Rock Hair",
@@ -642,8 +621,19 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_rock.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-2}
     ],
-    "style": ["Masculine"],
-    "children": ["HairAccessories"]
+    "style": ["Masculine"]
+  },
+    {
+    "name": "Crown Swirl",
+    "btype": "Hair",
+    "layers": [
+      {"name":"Hair","fname":"por_hair_crownswirl.png","anchor":"head","x_offset":-5, "y_offset":-15, "depth":5000
+      }
+    ],
+    "avatar_layers": [
+      {"name":"Hair","fname":"avatar_hair_crownswirl.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
+    ],
+    "style": ["Masculine"]
   },
 
   {
@@ -741,7 +731,7 @@
     "name": "Just Pants",
     "btype": "Overclothes",
     "children": [
-      "Pants", "ShirtAccessory"
+      "Pants"
     ]
   },
   {
@@ -754,30 +744,15 @@
     "name": "No Accessory",
     "btype": "Accessories"
   },
-    {
-    "name": "No Shirt Accessory",
-    "btype": "ShirtAccessory"
-  },
   {
-    "name": "No Hair Accessory",
-    "btype": "HairAccessories"
-  },
-  {
-    "name": "Facial Hair",
-    "btype": "HairAccessories",
-    "style": ["Masculine"],
-    "children": [
-      "FacialHair"
-    ]
-  },
-  {
-    "name": "No Facial Hair",
-    "btype": "FacialHair"
+    "name": "No Facial Feature",
+    "btype": "FacialFeature",
+    "prefers": ["Common"]
   },
 
   {
     "name": "Loverboy Beard",
-    "btype": "FacialHair",
+    "btype": "FacialFeature",
     "layers": [
       {"name":"Beard","fname":"por_facialhair_loverboy.png","anchor":"head","x_offset":11, "y_offset":44, "depth":5100}
     ],

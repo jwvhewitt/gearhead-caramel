@@ -94,7 +94,7 @@ class Egg(object):
             self._reset_campdata_for(npc, cdat_rec)
 
     def save(self, sfpat='egg_{}.sav'):
-        with open(util.user_dir(sfpat.format(self.pc.name)), "wb") as f:
+        with open(util.user_dir(util.sanitize_filename(sfpat.format(self.pc.name))), "wb") as f:
             self.write(f)
 
     def backup(self):

@@ -482,7 +482,7 @@ class ScenarioEditor(pbge.widgets.Widget):
     def _save(self, *args):
         fname = "PLOTCREATOR_{}.json".format(self.mytree.raw_vars["unique_id"])
         mydata = json.dumps(self.mytree.get_save_dict(), indent='\t')
-        with open(pbge.util.user_dir("content", fname), 'wt') as fp:
+        with open(pbge.util.user_dir("content", pbge.util.sanitize_filename(fname)), 'wt') as fp:
             fp.write(mydata)
 
     def _compile(self, widj, ev):
@@ -506,7 +506,7 @@ class ScenarioEditor(pbge.widgets.Widget):
         else:
             fullprog = myprog["main"]
 
-        with open(pbge.util.user_dir("content", fname), 'wt') as fp:
+        with open(pbge.util.user_dir("content", pbge.util.sanitize_filename(fname)), 'wt') as fp:
             fp.write(fullprog)
 
         pbge.BasicNotification("{} has been written. You can start the scenario from the main menu.".format(fname))

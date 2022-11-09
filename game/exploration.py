@@ -42,7 +42,7 @@ class GHEncoder(json.JSONEncoder):
 
     @classmethod
     def save_by_json(cls, camp):
-        with open(pbge.util.user_dir("rpg_" + camp.name + ".json"), "wt") as f:
+        with open(pbge.util.user_dir(pbge.util.sanitize_filename("rpg_" + camp.name + ".json")), "wt") as f:
             json.dump(camp, f, cls=cls)
 
 

@@ -472,7 +472,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             self.pc: base.Character = egg.pc
 
     def save(self):
-        with open(pbge.util.user_dir("rpg_" + self.name + ".sav"), "wb") as f:
+        with open(pbge.util.user_dir(pbge.util.sanitize_filename("rpg_" + self.name + ".sav")), "wb") as f:
             pickle.dump(self.version, f, 4)
             self.egg.write(f)
             pickle.dump(self, f, 4)
@@ -575,9 +575,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             return 0
 
     def do_skill_test(self, stat_id, skill_id, rank, difficulty=stats.DIFFICULTY_AVERAGE, untrained_ok=False,
-                      no_random=False, include_pc=True, modifier=0):
+                      no_random=False, include_pc=True, modifier=0, synergy_skill=None):
         # Make a skill roll against a given difficulty. If successful, return the lancemate
         # who made the roll.
+        # synergy_skill is a skill that will give an extra bonus to the roll.
         if untrained_ok:
             myparty = self.get_active_party()
         else:
@@ -594,6 +595,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     roll = 55 + roller.get_skill_score(stat_id, skill_id)
                 else:
                     roll = random.randint(1, 100) + roller.get_skill_score(stat_id, skill_id)
+                if synergy_skill:
+                    roll += roller.get_skill_score(None, synergy_skill)//2
                 if roll >= target:
                     winners.append(roller)
             if winners:

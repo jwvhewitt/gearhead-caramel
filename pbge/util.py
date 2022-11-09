@@ -28,6 +28,17 @@ GAMEDIR = '.'
 USERDIR = '.'
 
 
+def sanitize_filename(fname):
+    # Note: Only for use on filenames! Don't use this on a file path or it'll mess up.
+    mychars = list()
+    for c in fname:
+        if c not in " %:/,\\[]<>*?\n\t\"'|":
+            mychars.append(c)
+        else:
+            mychars.append("_")
+    return ''.join(mychars)
+
+
 def game_dir(*args):
     return os.path.join(GAMEDIR, *args)
 

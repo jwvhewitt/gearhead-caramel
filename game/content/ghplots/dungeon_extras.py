@@ -56,7 +56,7 @@ class WarehouseEncounter(Plot):
 
 class GuardedWarehouseStuff(Plot):
     # Fight some random monsters. They have stuff.
-    LABEL = "TEST_DUNGEON_EXTRA"
+    LABEL = "DUNGEON_EXTRA"
     active = True
     scope = "LOCALE"
 

@@ -78,10 +78,10 @@ class Portrait(object):
         if pc and not form_tags:
             form_tags = self.get_form_tags(pc)
         while frontier:
-            nu_part = self.get_bit_of_type(frontier.pop(), form_tags)
+            nu_part = self.get_bit_of_type(frontier.pop(0), form_tags)
             if nu_part:
                 self.bits.append(nu_part.name)
-                frontier += nu_part.children
+                frontier = nu_part.children + frontier
                 form_tags += nu_part.form_tags
 
     def verify(self, pc, form_tags):
@@ -91,8 +91,8 @@ class Portrait(object):
         bits_to_check = list(self.bits)
         self.bits = list()
         for bitname in bits_to_check:
-            bit = PORTRAIT_BITS[bitname]
-            if bit.btype in frontier:
+            bit = PORTRAIT_BITS.get(bitname)
+            if bit and bit.btype in frontier:
                 frontier.remove(bit.btype)
                 if bit.is_legal_bit(form_tags,style_on=False):
                     self.bits.append(bitname)
@@ -103,13 +103,14 @@ class Portrait(object):
                     nu_part = self.get_bit_of_type(bit.btype, form_tags)
                     if nu_part:
                         self.bits.append(nu_part.name)
-                        frontier += nu_part.children
+                        frontier = nu_part.children + frontier
                         form_tags += nu_part.form_tags
+
         while frontier:
-            nu_part = self.get_bit_of_type(frontier.pop(), form_tags)
+            nu_part = self.get_bit_of_type(frontier.pop(0), form_tags)
             if nu_part:
                 self.bits.append(nu_part.name)
-                frontier += nu_part.children
+                frontier = nu_part.children + frontier
                 form_tags += nu_part.form_tags
 
     def generate_random_colors(self,pc):
@@ -136,6 +137,8 @@ class Portrait(object):
         porimage = pbge.image.Image(frame_width=400, frame_height=700)
         porimage.custom_frames = FRAMES
 
+        self.verify(pc, self.get_form_tags(pc))
+
         # Check first to see if the portrait already exists.
         if add_color and (self,repr(pc.colors)) in pbge.image.pre_loaded_images and not force_rebuild:
             porimage.bitmap = pbge.image.pre_loaded_images[(self,repr(pc.colors))]
@@ -153,9 +156,10 @@ class Portrait(object):
         anchors = dict()
         for bitname in self.bits:
             bit = PORTRAIT_BITS.get(bitname)
-            layers += bit.layers
-            avatar_layers += bit.avatar_layers
-            anchors.update(bit.anchors)
+            if bit:
+                layers += bit.layers
+                avatar_layers += bit.avatar_layers
+                anchors.update(bit.anchors)
         layers.sort(key=lambda a: a.depth)
         avatar_layers.sort(key=lambda a: a.depth)
 

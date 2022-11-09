@@ -1045,6 +1045,95 @@ DEFAULT_GRAMMAR = {
 
     },
 
+    "[EJECT]": {
+        # This character is going to eject from their mecha.
+        Default: ["I'm getting out of here!",
+                  "This is enough damage for me...",
+                  "I'm not sticking around!"
+                  ],
+        personality.Cheerful: [
+            "I'd love to stick around some more, but I really must be going...",
+        ],
+        personality.Grim: [
+            "Like tears in the rain. Time to eject.",
+        ],
+        personality.Easygoing: [
+            "I don't like this mecha anymore. You can have it.",
+        ],
+        personality.Passionate: [
+            "I have seen the true meaning of power!",
+        ],
+        personality.Sociable: [
+            "Tell everyone I put up a good fight!",
+        ],
+        personality.Shy: [
+            "I'm ejecting.",
+        ],
+        personality.Fellowship: [
+            "There's nothing more I can do."
+        ],
+        personality.Peace: [
+            "Life is not something to be thrown away lightly."
+        ],
+        personality.Duty: [
+            "Discretion is the better part of valor..."
+        ],
+        personality.Justice: [
+            "I won't throw my life away in vain."
+        ],
+        personality.Glory: [
+            "I did my best; I have no regrets."
+        ],
+        tags.Faithworker: [
+            "Heaven can wait."
+        ],
+        tags.Media: [
+            "I'm too fabulous to die just yet...",
+        ]
+    },
+
+    "[EJECT_AFTER_INTIMIDATION]": {
+        # This character is going to eject from their mecha after being intimidated by a PC.
+        Default: ["Looks like I have no choice. [EJECT]",
+                  "[EJECT]", "First [MEM_LoseToPC], and now this... [EJECT]",
+                  "Before [MEM_DefeatPC], but this time you win. [EJECT]"
+                  ],
+        personality.Cheerful: [
+            "This is no fun anymore... [EJECT]",
+            "No fair! I got completely pummeled! [EJECT]"
+        ],
+        personality.Grim: [
+            "I'm not getting paid enough to die for this... [EJECT]",
+        ],
+        personality.Easygoing: [
+            "Well, maybe I'll do better next time. [EJECT]",
+            "I didn't really want to [objective_ep] anyhow. [EJECT]",
+        ],
+        personality.Passionate: [
+            "This isn't the last you've heard of [speaker]! [EJECT]",
+        ],
+        personality.Sociable: [
+            "You make some good points. [EJECT]",
+        ],
+        personality.Shy: ["You're right. [EJECT]",
+                          ],
+        personality.Fellowship: [
+            "Maybe we'll face each other again, someday... [EJECT]"
+        ],
+        personality.Peace: [
+            "Your mercy has been noted. [EJECT]"
+        ],
+        personality.Duty: [
+            "I hate to abandon my post, but... [EJECT]"
+        ],
+        personality.Justice: [
+            "Nothing would be accomplished by my death. [EJECT]"
+        ],
+        personality.Glory: [
+            "I will take what I've learned from this battle and come back stronger. [EJECT]"
+        ]
+    },
+
     "[ENEMIES_HAVE_NOT_DETECTED_US]": {
         # Enemies have been detected nearby. Generally used by a LM with Stealth when battle can be avoided.
         Default: ["[HOLD_ON] There are enemy mecha ahead, but they haven't detected us yet.",
@@ -2674,6 +2763,46 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Shy: ["Interesting.",
                           ],
+    },
+
+    "[INTIMIDATION_MECHA_COMBAT]": {
+        # A PC is about to intimidate an NPC into ejecting from their mecha.
+        Default: ["You have no chance of winning this battle; you might as well eject now.",
+                  "One more shot and you're going to be destroyed. [YOU_SHOULD_EJECT]",
+                  "Your [mecha] is in no state to keep fighting. [YOU_SHOULD_EJECT]"
+                  ],
+        personality.Cheerful: [
+            "As fun as it would be to blow you up, I thought I should give you one last chance to eject.",
+        ],
+        personality.Grim: [
+            "Your death approaches. [YOU_SHOULD_EJECT].",
+        ],
+        personality.Easygoing: [
+            "I'm pretty sure your [mecha] isn't going to make it through this battle. [YOU_SHOULD_EJECT]",
+        ],
+        personality.Passionate: [
+            "You have fallen before my superior skill! [YOU_SHOULD_EJECT]",
+        ],
+        personality.Sociable: [
+            "It's clear to everybody that you have already lost this battle. [YOU_SHOULD_EJECT]",
+        ],
+        personality.Shy: ["Hey. [YOU_SHOULD_EJECT]",
+                          ],
+        personality.Fellowship: [
+            "Hey, some friendly advice from a fellow cavalier: [YOU_SHOULD_EJECT]"
+        ],
+        personality.Peace: [
+            "Remember, your life is worth more than your [mecha]. [YOU_SHOULD_EJECT]"
+        ],
+        personality.Duty: [
+            "A warrior's first duty is to survive. [YOU_SHOULD_EJECT]"
+        ],
+        personality.Justice: [
+            "This might not seem fair, but you're in no condition to keep fighting. [YOU_SHOULD_EJECT]"
+        ],
+        personality.Glory: [
+            "There's no dishonor in being defeated by me. [YOU_SHOULD_EJECT]"
+        ]
     },
 
     "[IP_NEWS]": {
@@ -5434,6 +5563,45 @@ DEFAULT_GRAMMAR = {
         DISLIKE: [
             "[SWEAR] I'm sure you're a nice person, but I'm just here to [defeat_you].",
         ],
+    },
+
+    "[YOU_SHOULD_EJECT]": {
+        # A PC is about to intimidate an NPC into ejecting from their mecha.
+        Default: ["You should eject.",
+                  "I'll give you one last chance to eject."
+                  ],
+        personality.Cheerful: [
+            "Luckily, you still have time to get the [expletive] out of here.",
+        ],
+        personality.Grim: [
+            "One more hit and you'll be nothing but a memory.",
+        ],
+        personality.Easygoing: [
+            "If I were you, I'd seriously think about ejecting right now.",
+        ],
+        personality.Passionate: [
+            "You have no chance to survive; eject or die!",
+        ],
+        personality.Sociable: [
+            "I have to tell you, your situation is hopeless.",
+        ],
+        personality.Shy: ["Eject. Now.",
+                          ],
+        personality.Peace: [
+            "There's no reason for you to die senselessly."
+        ],
+        personality.Duty: [
+            "One way or the other, it's my job to finish you off."
+        ],
+        personality.Fellowship: [
+            "I'm giving you this chance to save your own life."
+        ],
+        personality.Justice: [
+            "What happens next is up to you; eject or be destroyed."
+        ],
+        personality.Glory: [
+            "I know it's embarrassing to eject, but it beats dying."
+        ]
     },
 
     "[FORMAL_MECHA_DUEL]": {

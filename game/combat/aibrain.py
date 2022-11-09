@@ -2,6 +2,7 @@ import random
 import pbge
 import gears
 from . import jumping
+from game.content import ghcutscene
 
 
 # Determine impulses
@@ -334,9 +335,35 @@ class BasicAI(object):
                                        camp.fight.can_move_and_invoke(self.npc, my_nav, invo, tar.pos))
             return True
 
-    def act(self, camp):
+    def act(self, camp: gears.GearHeadCampaign):
         if hasattr(self.npc, "gear_up"):
             self.npc.gear_up(camp.scene)
+
+        if isinstance(self.npc, gears.base.Mecha) and camp.scene.is_hostile_to_player(self.npc) and (self.npc.get_percent_damage_over_health() > 40 or self.npc.get_current_speed() < 10):
+            # Might be time to eject.
+            perseverence = self.npc.get_skill_score(gears.stats.Ego, gears.stats.MechaPiloting)
+            base_mod = 125
+            if self.npc.get_current_speed() < 10:
+                base_mod = 50
+            intimidating_pc = camp.do_skill_test(
+                gears.stats.Ego, gears.stats.Negotiation, self.npc.get_pilot().renown,
+                modifier=perseverence - self.npc.get_percent_damage_over_health() + base_mod,
+                synergy_skill=gears.stats.MechaPiloting, difficulty=gears.stats.DIFFICULTY_HARD
+            )
+            ejected = False
+            if intimidating_pc:
+                ghcutscene.SimpleMonologueDisplay("[INTIMIDATION_MECHA_COMBAT]", intimidating_pc)(camp)
+                ghcutscene.SimpleMonologueDisplay("[EJECT_AFTER_INTIMIDATION]", self.npc)(camp, False)
+                ejected = True
+            elif self.npc.get_current_speed() < 10 and perseverence + random.randint(-25,50) < self.npc.get_percent_damage_over_health():
+                ghcutscene.SimpleMonologueDisplay("[EJECT]", self.npc)(camp)
+                ejected = True
+
+            if ejected:
+                pbge.my_state.view.play_anims(gears.geffects.AnnounceEjectAnim(pos=self.npc.pos), gears.geffects.CrashAnim(self.npc))
+                self.npc.free_pilots()
+                return
+
         self.minr, self.midr, self.maxr = self.get_min_mid_max_range()
 
         # Attempt to use a skill first.

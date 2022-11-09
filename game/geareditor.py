@@ -863,7 +863,7 @@ class GearEditor(pbge.widgets.Widget):
     def _save_design(self,widj,ev):
         save_version = copy.deepcopy(self.mygear)
         save_version.colors = None
-        mysaver = gears.Saver(pbge.util.user_dir("design","{}.txt".format(self.mygear.get_full_name())))
+        mysaver = gears.Saver(pbge.util.user_dir("design",pbge.util.sanitize_filename("{}.txt".format(self.mygear.get_full_name()))))
         mysaver.save([save_version,])
 
         # Also save this mecha in the currently loaded design list.

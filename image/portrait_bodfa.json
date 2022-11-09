@@ -135,7 +135,7 @@
     ],
     "requires": ["BodFA"],
     "children": [
-      "Sleeves","Pants","ShirtAccessory"
+      "Sleeves","Pants"
     ]
   },
   {
@@ -149,7 +149,7 @@
     ],
     "requires": ["BodFA"],
     "children": [
-      "Sleeves","Pants","ShirtAccessory"
+      "Sleeves","Pants"
     ],
     "form_tags": ["NoScarf"]
   },
@@ -164,7 +164,7 @@
     ],
     "requires": ["BodFA"],
     "children": [
-      "Sleeves","Pants","ShirtAccessory"
+      "Sleeves","Pants"
     ],
     "form_tags": ["NoScarf"]
   },
@@ -179,7 +179,7 @@
     ],
     "requires": ["BodFA"],
     "children": [
-      "Sleeves","Pants","ShirtAccessory"
+      "Sleeves","Pants"
     ],
     "form_tags": ["SleevesOptional","NoScarf"]
   },
@@ -194,7 +194,7 @@
     ],
     "requires": ["BodFA"],
     "children": [
-      "Sleeves","Pants","ShirtAccessory"
+      "Sleeves","Pants"
     ],
     "style": ["Combatant"],
     "form_tags": ["SleevesOptional","NoScarf"]
@@ -210,7 +210,7 @@
     ],
     "requires": ["BodFA"],
     "children": [
-      "Pants","ShirtAccessory"
+      "Pants"
     ]
   },
       {
@@ -226,7 +226,7 @@
     ],
     "requires": ["BodFA"],
     "children": [
-      "Pants","ShirtAccessory"
+      "Pants"
     ]
   },
       {
@@ -241,7 +241,7 @@
     "requires": ["BodFA"],
     "style": ["Dead Zone"],
     "children": [
-      "Sleeves","Pants","ShirtAccessory"
+      "Sleeves","Pants"
     ],
     "form_tags": ["SleevesOptional", "PauldronsOnly"]
   },
@@ -330,9 +330,9 @@
     "requires": ["BodFA"],
     "style": ["Combatant"],
     "children": [
-      "Pants","ShirtAccessory"
+      "Pants"
     ],
-    "form_tags": ["NoScarf"]
+    "form_tags": ["NoScarf", "NoBracers"]
     },
     {
     "name": "LordErin BodFA Pilot Pants",
@@ -363,7 +363,7 @@
 
   {
     "name": "KBW Rose Ribbon",
-    "btype": "ShirtAccessory",
+    "btype": "Accessories",
     "layers": [
       {"name":"Ribbon","fname":"por_bodfa_accessories_kbwrose.png","anchor":"center","depth":5100,"x_offset": 0,"y_offset":-52}
     ],
@@ -377,7 +377,7 @@
 
   {
     "name": "PBLB Scarf",
-    "btype": "ShirtAccessory",
+    "btype": "Accessories",
     "layers": [
       {"name":"Scarf","fname":"por_bodfa_accessory_scarf.png","anchor":"center","depth":5100,"x_offset":0,"y_offset":-33}
     ],

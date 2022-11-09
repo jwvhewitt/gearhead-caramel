@@ -245,19 +245,36 @@ class AegisJoinerPlot(Plot):
         self.elements["NPC_SCENE"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['0000002F']
 
         self.did_cutscene = False
+        self.can_try_to_join = True
         return True
 
-    def NPC_AEGIS_offers(self, camp):
+    def NPC_AEGIS_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
 
-        if not self.elements["WORLD_MAP_WAR"].player_team:
-            mylist.append(Offer(
-                "[THATS_GOOD] Aegis Overlord will overcome all opposition! I will give your team a set of advanced Lunar mecha; these should be far superior to anything you can purchase on Earth.",
-                ContextTag([context.CUSTOM]), effect=self._join_team,
-                data={"reply": "I pledge my services to Aegis Overlord Luna."}
-            ))
+        if not self.elements["WORLD_MAP_WAR"].player_team and self.can_try_to_join:
+            if camp.pc.has_badge(gears.oldghloader.TYPHON_SLAYER.name):
+                mylist.append(Offer(
+                    "[HAGOODONE] I know exactly who you are, [audience]. You have a lot of nerve showing your face here. Unless you have official diplomatic business, I suggest you leave.",
+                    ContextTag([context.CUSTOM]), effect=self._reject_pc,
+                    data={"reply": "I pledge my services to Aegis Overlord Luna."}
+                ))
+            elif camp.pc.get_tags().intersection(gears.personality.MUTATIONS):
+                mylist.append(Offer(
+                    "I'm afraid the Aegis Expeditionary Force only accepts human pilots. Maybe the Solar Navy is desperate enough to hire a malformed deviant like you.",
+                    ContextTag([context.CUSTOM]), effect=self._reject_pc,
+                    data={"reply": "I pledge my services to Aegis Overlord Luna."}
+                ))
+            else:
+                mylist.append(Offer(
+                    "[THATS_GOOD] Aegis Overlord will overcome all opposition! I will give your team a set of advanced Lunar mecha; these should be far superior to anything you can purchase on Earth.",
+                    ContextTag([context.CUSTOM]), effect=self._join_team,
+                    data={"reply": "I pledge my services to Aegis Overlord Luna."}
+                ))
 
         return mylist
+
+    def _reject_pc(self, camp):
+        self.can_try_to_join = False
 
     def NPC_SCENE_ENTER(self, camp):
         if not self.did_cutscene:

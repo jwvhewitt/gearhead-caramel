@@ -1,3 +1,8 @@
+v0.941 November 9, 2022
+* Added filename sanitizer for user generated files; may not be perfect yet
+* Fixed bug where style tags would not be applied to portrait bits later in list
+* NPCs may eject if they are severely damaged and/or if they are intimidated by the PC's lance
+* Increased the penalty for firing long range weapons at too short a distance
 * Newly created mecha get added to the design list without needing to restart the game
 * Fixed dialogue bug in DZREPC_CallOutChampionFight
 * Lancemate development conversations should no longer have irrelevant convo options
@@ -8,7 +13,7 @@ v0.940 October 26, 2022
 * Shop rank now calculated by item type
 * Game will try to automatically switch to windowed mode if fullscreen causes it to crash
 * The manual has been updated
-* Steam cloud saves should now be working
+* ~~Steam cloud saves should now be working~~ Steam cloud saves have been postponed until I find a Python wrapper for the Steam API that deals with them correctly
 * Moved the user folder on Windows computers from Home to the app folder/ghcaramel_user
 
 v0.932 October 19, 2022

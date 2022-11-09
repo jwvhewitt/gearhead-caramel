@@ -12,15 +12,17 @@ import pickle
 import os
 from . import scenes, challenges
 
-ALL_CONTENTS_SEARCH_PATH = ["contents","sub_scenes"]
+ALL_CONTENTS_SEARCH_PATH = ["contents", "sub_scenes"]
 
-class Campaign( object ):
+
+class Campaign(object):
     """Barebones campaign featuring functionality used by other pbge units."""
-    def __init__( self, name = "BobDwarf19", explo_class=None, home_base=None ):
+
+    def __init__(self, name="BobDwarf19", explo_class=None, home_base=None):
         # home_base is a (scene,entrance) tuple to be used in case no scene is found.
         self.name = name
         self.party = list()
-        self.scene = None 
+        self.scene = None
         self._destination = None
         self.contents = container.ContainerList()
         self.scripts = container.ContainerList()
@@ -46,15 +48,15 @@ class Campaign( object ):
         self.scene, self._destination = dest_scene, None
         self.place_party(dest_wp)
 
-    def save( self ):
-        with open( util.user_dir( "rpg_" + self.name + ".sav" ) , "wb" ) as f:
-            pickle.dump( self , f, 4 )
+    def save(self):
+        with open(util.user_dir(util.sanitize_filename("rpg_" + self.name + ".sav")), "wb") as f:
+            pickle.dump(self, f, 4)
 
-    def delete_save_file( self, del_name=None ):
+    def delete_save_file(self, del_name=None):
         name = del_name or self.name
         os.remove(util.user_dir("rpg_{}.sav".format(name)))
 
-    def keep_playing_campaign( self ):
+    def keep_playing_campaign(self):
         # The default version of this method will keep playing forever.
         # You're probably gonna want to redefine this in your subclass.
         return True
@@ -77,7 +79,7 @@ class Campaign( object ):
         my_challenges = set()
         if self.scene:
             for p in self.active_plots():
-                for k,v in p.elements.items():
+                for k, v in p.elements.items():
                     if isinstance(v, challenges.Challenge) and v.active:
                         my_challenges.add(v)
         return my_challenges
@@ -85,7 +87,7 @@ class Campaign( object ):
     def get_active_resources(self):
         my_resources = set()
         for p in self.active_plots():
-            for k,v in p.elements.items():
+            for k, v in p.elements.items():
                 if isinstance(v, challenges.Resource) and v.active:
                     my_resources.add(v)
         return my_resources
@@ -111,23 +113,23 @@ class Campaign( object ):
 
     def all_plots(self):
         for ob in self.all_contents(self):
-            if hasattr(ob,"scripts"):
+            if hasattr(ob, "scripts"):
                 for p in ob.scripts:
                     yield p
 
-    def check_trigger( self, trigger, thing=None ):
+    def check_trigger(self, trigger, thing=None):
         # Something is happened that plots may need to react to.
         # Only check a trigger if the campaign has been constructed.
         if self.scene:
             if trigger == "UPDATE":
                 self._update_plots()
             for p in self.active_plots():
-                p.handle_trigger( self, trigger, thing )
+                p.handle_trigger(self, trigger, thing)
 
-    def expand_puzzle_menu( self, thing, thingmenu ):
+    def expand_puzzle_menu(self, thing, thingmenu):
         # Something is happened that plots may need to react to.
         for p in self.active_plots():
-            p.modify_puzzle_menu( self, thing, thingmenu )
+            p.modify_puzzle_menu(self, thing, thingmenu)
 
         my_challenges = self.get_active_challenges()
         for c in my_challenges:
@@ -136,30 +138,29 @@ class Campaign( object ):
         for r in self.get_active_resources():
             r.modify_puzzle_menu(self, thing, thingmenu, my_challenges)
 
-
         if not thingmenu.items:
-            thingmenu.add_item( "[Continue]", None )
+            thingmenu.add_item("[Continue]", None)
         else:
             thingmenu.sort()
             thingmenu.add_alpha_keys()
 
-    def place_party( self, entrance ):
+    def place_party(self, entrance):
         """Stick the party close to the waypoint."""
         raise NotImplementedError("Method place_party needs custom implementation.")
 
     def modify_puzzle_menu(self, camp, thing, thingmenu):
         pass
 
-    def remove_party_from_scene( self ):
+    def remove_party_from_scene(self):
         for pc in self.party:
             pc.pos = None
             if pc in self.scene.contents:
-                self.scene.contents.remove( pc )
+                self.scene.contents.remove(pc)
 
-    def play( self ):
+    def play(self):
         while self.keep_playing_campaign() and not my_state.got_quit:
             self._update_plots()
-            exp = self.explo_class( self )
+            exp = self.explo_class(self)
             exp.go()
             if self._destination:
                 self._really_go()
@@ -179,7 +180,7 @@ class Campaign( object ):
         for p in self.all_plots():
             p.update(self)
 
-    def dump_info( self ):
+    def dump_info(self):
         # Print info on all scenes in this world.
         for c in self.contents:
             c.dump_info()
@@ -189,8 +190,8 @@ class Campaign( object ):
         search_path = search_path or ALL_CONTENTS_SEARCH_PATH
         yield thing
         for cs in search_path:
-            if hasattr( thing, cs ):
-                for t in getattr(thing,cs):
+            if hasattr(thing, cs):
+                for t in getattr(thing, cs):
                     if check_subscenes or not isinstance(t, scenes.Scene):
                         for tt in self.all_contents(t, check_subscenes):
                             yield tt
@@ -203,5 +204,3 @@ class Campaign( object ):
                 mymemos.append(cmemo)
         mymemos.sort(key=lambda m: str(m))
         return mymemos
-
-

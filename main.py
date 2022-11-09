@@ -306,12 +306,6 @@ def play_the_game():
 
     #print(os.getenv("APPDATA"))
 
-    # myfoo = game.content.ghplots.test.Foo()
-    # with open(pbge.util.user_dir('bar.p'), "wb") as f:
-    #    pickle.dump(myfoo, f, -1)
-    # with open(pbge.util.user_dir('bar.p'), "rb") as f:
-    #    foo2 = pickle.load(f)
-
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 

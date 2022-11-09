@@ -23,6 +23,10 @@ from pbge.challenges import Challenge, AutoOffer
 # We are passed a situation, some details about it, and a list of possible outcomes. These plots will then construct
 # a set of challenges that fulfil the requirements.
 
+# - Describe start situation and information the PC should know
+# - Describe possible end states
+# - Construct a chain of challenges from the start state to each of the possible end states
+
 class SuppressRebellion(Plot):
     LABEL = "CD_SUPPRESS_REBELLION"
     scope = "METRO"
