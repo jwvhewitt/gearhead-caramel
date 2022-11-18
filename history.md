@@ -1,3 +1,9 @@
+* After combat, lance members will regroup so no-one is left in an inaccessible tile
+* Campaigns now save the waypoint the current scene was entered from
+* Fixed crash when sound player called while disable_audio_entirely is True 
+* Disabling sounds in the configuration now actually disables sounds. Oops.
+* Fixed lag in mecha exploration movement
+
 v0.941 November 9, 2022
 * Added filename sanitizer for user generated files; may not be perfect yet
 * Fixed bug where style tags would not be applied to portrait bits later in list

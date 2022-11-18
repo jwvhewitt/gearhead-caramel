@@ -11,39 +11,6 @@ from pbge import memos
 from . import fieldhq
 import random
 
-import json
-import inspect
-
-
-class GHEncoder(json.JSONEncoder):
-    def __init__(self, *args, **kwargs):
-        self.__uid_lookup__ = dict()
-        super().__init__(*args, **kwargs)
-
-    def default(self, obj):
-        if inspect.isclass(obj) and obj in gears.SINGLETON_REVERSE:
-            return True
-        if obj and not isinstance(obj, (str, int, float, bool)):
-            # Check the __uid_lookup__ dict.
-            if repr(obj) in self.__uid_lookup__:
-                return True
-            else:
-                self.__uid_lookup__[repr(obj)] = "bla"
-                mydict = dir(obj)
-                return mydict
-        if isinstance(obj, pbge.container.ContainerList):
-            return list(obj)
-        if isinstance(obj, pbge.container.ContainerDict):
-            return dict(obj)
-        if isinstance(obj, pbge.container.Container):
-            return None
-
-        return json.JSONEncoder.default(self, obj)
-
-    @classmethod
-    def save_by_json(cls, camp):
-        with open(pbge.util.user_dir(pbge.util.sanitize_filename("rpg_" + camp.name + ".json")), "wt") as f:
-            json.dump(camp, f, cls=cls)
 
 
 # Commands should be callable objects which take the explorer and return a value.
@@ -66,7 +33,8 @@ class MoveTo(object):
         self.party = party
         pc = self.first_living_pc()
         # blocked_tiles = set( m.pos for m in explo.scene.contents )
-        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, self._get_party_mmode(explo))
+        self.pmm = self._get_party_mmode(explo)
+        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, self.pmm)
         self.step = 0
         self.dest_fun = dest_fun
 
@@ -115,7 +83,7 @@ class MoveTo(object):
     def move_pc(self, exp, pc, dest, first=False):
         # Move the PC one step along the path.
         targets = exp.scene.get_actors(dest)
-        if exp.scene.tile_blocks_movement(dest[0], dest[1], self._get_party_mmode(exp)):
+        if exp.scene.tile_blocks_movement(dest[0], dest[1], self.pmm):
             # There's an obstacle in the way.
             if first:
                 if self.dest_fun:
@@ -158,14 +126,14 @@ class MoveTo(object):
                         f_pos = pc.pos
                         first = False
                     elif not isinstance(pc, gears.base.Monster):
-                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp))
+                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self.pmm)
                         for t in range(min(3, len(path.results) - 1)):
                             self.move_pc(exp, pc, path.results[t + 1])
 
             for pc in self.party:
                 if isinstance(pc, gears.base.Monster) and pc.pet_data and pc.pet_data.trainer in self.party:
                     path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, pc.pet_data.trainer.pos,
-                                                        self._get_party_mmode(exp),
+                                                        self.pmm,
                                                         blocked_tiles=exp.scene.get_blocked_tiles())
                     for t in range(min(3, len(path.results) - 1)):
                         self.move_pc(exp, pc, path.results[t + 1])
@@ -190,6 +158,7 @@ class TalkTo(MoveTo):
             party = self._get_pc_party(explo)
         self.party = party
         self.step = 0
+        self.pmm = self._get_party_mmode(explo)
 
     def __call__(self, exp):
         pc = self.first_living_pc()
@@ -204,7 +173,7 @@ class TalkTo(MoveTo):
             f_pos = self.npc.pos
             for pc in self.party:
                 if pc.is_operational() and exp.scene.on_the_map(*pc.pos):
-                    path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp))
+                    path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self.pmm)
                     if len(path.results) > 1:
                         self.move_pc(exp, pc, path.results[1])
                         f_pos = pc.pos
@@ -605,7 +574,6 @@ class Explorer(object):
                 if self.order:
                     if not self.order(self):
                         self.order = None
-                    # self.update_npcs()
                     pcpos = {pc.pos for pc in self.camp.get_active_party()}
                     if pcpos.intersection(self.threat_tiles):
                         self.update_npcs()
@@ -675,10 +643,6 @@ class Explorer(object):
                         for lm in self.camp.get_active_party():
                             pc: gears.base.Being = lm.get_pilot()
                             pc.hp_damage += 99999999999999
-
-                    elif gdi.unicode == "J" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        # Experimenting with JSON serialization. It isn't going well.
-                        GHEncoder.save_by_json(self.camp)
 
                     elif gdi.unicode == "&" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for x in range(self.scene.width):

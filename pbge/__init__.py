@@ -234,10 +234,11 @@ class GameState(object):
             self.music_channels[self.current_music_channel].get_sound().set_volume(nu_volume)
 
     def start_sound_effect(self, sound_fx_name, loops=0, allow_multiple_copies=False):
-        my_sound = soundlib.SOUND_FX_LIBRARY.get(sound_fx_name, None)
-        if my_sound and allow_multiple_copies or my_sound.get_num_channels() < 1:
-            my_sound.set_volume(util.config.getfloat("GENERAL", "sound_volume"))
-            return my_sound.play(loops=loops)
+        if (util.config.getboolean("GENERAL", "sound_on") and self.audio_enabled and not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")):
+            my_sound = soundlib.SOUND_FX_LIBRARY.get(sound_fx_name, None)
+            if my_sound and allow_multiple_copies or my_sound.get_num_channels() < 1:
+                my_sound.set_volume(util.config.getfloat("GENERAL", "sound_volume"))
+                return my_sound.play(loops=loops)
 
     def resume_music(self):
         if self.music_name:

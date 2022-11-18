@@ -33,6 +33,13 @@ class Campaign(object):
         # home_base is a scene where the party gets sent if they get utterly defeated in combat.
         # It must have scripts in place to restore the party or end the game.
         self.home_base = home_base
+        self.entered_via = None
+
+    def __setstate__(self, state):
+        # For saves from V0.941 or earlier, make sure there's an entered_via waypoint. Or not.
+        self.__dict__.update(state)
+        if "entered_via" not in state:
+            self.entered_via = None
 
     def go(self, dest_wp: scenes.waypoints.Waypoint):
         dest_scene = dest_wp.scene
@@ -47,6 +54,7 @@ class Campaign(object):
             self.remove_party_from_scene()
         self.scene, self._destination = dest_scene, None
         self.place_party(dest_wp)
+        self.entered_via = dest_wp
 
     def save(self):
         with open(util.user_dir(util.sanitize_filename("rpg_" + self.name + ".sav")), "wb") as f:

@@ -18,11 +18,11 @@ class PriorityQueue:
 
 
 class AStarPath(object):
-    def __init__(self, mymap, start, goal, movemode, blocked_tiles=set()):
+    def __init__(self, mymap, start, goal, movemode, blocked_tiles=()):
         self.start = start
         self.goal = goal
         self.movemode = movemode
-        self.blocked_tiles = blocked_tiles
+        self.blocked_tiles = set(blocked_tiles)
         self.mymap = mymap
         frontier = PriorityQueue()
         frontier.put(start, 0)
@@ -78,11 +78,11 @@ class AStarPath(object):
 
 class NavigationGuide(AStarPath):
     # Return a set of tiles that can be reached from the start tile.
-    def __init__(self, mymap, start, max_mp, movemode, blocked_tiles=set()):
+    def __init__(self, mymap, start, max_mp, movemode, blocked_tiles=()):
         # tiers is a list of movement
         self.start = start
         self.movemode = movemode
-        self.blocked_tiles = blocked_tiles
+        self.blocked_tiles = set(blocked_tiles)
         self.mymap = mymap
         frontier = set()
         frontier.add(start)

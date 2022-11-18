@@ -506,6 +506,31 @@ class PlayerTurn(object):
     def _get_skill_library(self):
         return self.pc.get_skill_library(True)
 
+class PostCombatCleanup:
+    def __init__(self, camp: gears.GearHeadCampaign):
+        # Make sure everyone in the party is standing somewhere appropriate.
+        party = list(camp.get_active_party())
+        if camp.entered_via and party:
+            strays = list()
+            self.guide = scenes.pathfinding.NavigationGuide(camp.scene, camp.entered_via.pos, 100000, camp.scene.environment.LEGAL_MOVEMODES[0], blocked_tiles=camp.scene.get_blocked_tiles())
+            cx = 0
+            cy = 0
+            for pc in party:
+                if pc.pos not in self.guide.cost_to_tile:
+                    strays.append(pc)
+                cx += pc.pos[0]
+                cy += pc.pos[1]
+            cx = cx/len(party)
+            cy = cy/len(party)
+
+            if strays:
+                candidates = list(self.guide.cost_to_tile.keys())
+                candidates.sort(key=lambda pos: camp.scene.distance((cx,cy), pos))
+                for pc in strays:
+                    dest = candidates.pop(0)
+                    pbge.my_state.view.anim_list.append(pbge.scenes.animobs.MoveModel(pc, pc.pos, dest, speed=0.5))
+                pbge.my_state.view.handle_anim_sequence()
+
 
 class Combat(object):
     def __init__(self, camp: gears.GearHeadCampaign):
@@ -764,6 +789,7 @@ class Combat(object):
                 pbge.alert("You acquired some valuables from the battle.")
                 fieldhq.backpack.ItemExchangeWidget.create_and_invoke(self.camp, self.camp.first_active_pc(), treasure)
 
+            PostCombatCleanup(self.camp)
             self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)
 
     def __setstate__(self, state):
