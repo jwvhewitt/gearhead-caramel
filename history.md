@@ -1,3 +1,6 @@
+* Fixed crash if campaign save file can't be found when the time comes to delete it
+* Added preload_all_music configuration option
+* Encourage can no longer be used on monsters (which caused it to crash)
 * After combat, lance members will regroup so no-one is left in an inaccessible tile
 * Campaigns now save the waypoint the current scene was entered from
 * Fixed crash when sound player called while disable_audio_entirely is True 

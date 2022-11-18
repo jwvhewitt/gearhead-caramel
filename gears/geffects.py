@@ -1441,25 +1441,9 @@ class DoEncourage(effects.NoEffect):
         self.stat = stat
         self.skill = skill
 
-    def _get_character(self, obj):
-        while True:
-            if isinstance(obj, base.Character):
-                return obj
-            elif hasattr(obj, 'get_pilot'):
-                # Who knows, maybe the character is a tiny alien
-                # riding a human-sized mecha that is itself the
-                # pilot of an 18-meter mecha...
-                nobj = obj.get_pilot()
-                if nobj is obj:
-                    # Some entitites may be self-piloted but are
-                    # not characters.
-                    return None
-                else:
-                    obj = nobj
-            else:
-                return None
-
     def _get_personality_compatibility(self, o_char, t_char):
+        if not isinstance(o_char, base.Character):
+            return 0
         compat = 0
         for p in o_char.personality:
             if p in t_char.personality:
@@ -1472,10 +1456,14 @@ class DoEncourage(effects.NoEffect):
         else:
             score = 0
 
-        o_char = self._get_character(originator)
+        o_char = originator.get_pilot()
 
         for target in camp.scene.get_operational_actors(pos):
             if not hasattr(target, 'partially_restore_mental'):
+                continue
+
+            t_char = target.get_pilot()
+            if not isinstance(t_char, base.Character):
                 continue
 
             if originator is target:
@@ -1494,7 +1482,7 @@ class DoEncourage(effects.NoEffect):
 
                 # Based on how compatible the originator and the
                 # target are, give bonus healing.
-                compat = self._get_personality_compatibility(o_char, self._get_character(target))
+                compat = self._get_personality_compatibility(o_char, t_char)
                 to_heal += random.randint(0, compat)
 
                 # cap to 5.

@@ -62,7 +62,8 @@ class Campaign(object):
 
     def delete_save_file(self, del_name=None):
         name = del_name or self.name
-        os.remove(util.user_dir("rpg_{}.sav".format(name)))
+        if os.path.exists(util.user_dir("rpg_{}.sav".format(name))):
+            os.remove(util.user_dir("rpg_{}.sav".format(name)))
 
     def keep_playing_campaign(self):
         # The default version of this method will keep playing forever.

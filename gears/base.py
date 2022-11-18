@@ -451,6 +451,11 @@ class Combatant(KeyObject):
     def get_action_points(self):
         return 3
 
+    def get_pilot(self):
+        """Return the combatant itself."""
+        return self
+
+
 
 class HasPower(KeyObject):
     # This is a gear that has, and can use, power sources.
@@ -4042,10 +4047,6 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         """Returns the unscaled maximum health of this character."""
         return max(self.get_stat(stats.Body) + self.get_stat(stats.Vitality), 3)
 
-    def get_pilot(self):
-        """Return the character itself."""
-        return self
-
     def get_mobility_penalty(self):
         inv_mass = self.scale.unscale_mass(self.get_inv_mass())
         ccap = self.get_stat(stats.Body) * 30
@@ -4431,10 +4432,6 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
     def base_health(self):
         """Returns the unscaled maximum health of this character."""
         return self.size * 10
-
-    def get_pilot(self):
-        """Return the prop itself."""
-        return self
 
     def calc_mobility(self):
         """Calculate the mobility ranking of this character.

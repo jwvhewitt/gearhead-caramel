@@ -512,7 +512,8 @@ class PostCombatCleanup:
         party = list(camp.get_active_party())
         if camp.entered_via and party:
             strays = list()
-            self.guide = scenes.pathfinding.NavigationGuide(camp.scene, camp.entered_via.pos, 100000, camp.scene.environment.LEGAL_MOVEMODES[0], blocked_tiles=camp.scene.get_blocked_tiles())
+
+            self.guide = scenes.pathfinding.NavigationGuide(camp.scene, camp.entered_via.pos, 100000, camp.scene.environment.LEGAL_MOVEMODES[0])
             cx = 0
             cy = 0
             for pc in party:
@@ -524,7 +525,7 @@ class PostCombatCleanup:
             cy = cy/len(party)
 
             if strays:
-                candidates = list(self.guide.cost_to_tile.keys())
+                candidates = list(self.guide.cost_to_tile.keys().difference(camp.scene.get_blocked_tiles()))
                 candidates.sort(key=lambda pos: camp.scene.distance((cx,cy), pos))
                 for pc in strays:
                     dest = candidates.pop(0)

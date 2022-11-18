@@ -1,4 +1,4 @@
-from . import geffects
+from . import geffects, base
 from pbge import effects
 import pbge
 import random
@@ -26,7 +26,7 @@ class Invocation( effects.Invocation ):
                         , area = pbge.scenes.targetarea.SelfCentered(radius = SONG_REACH)
                         , used_in_combat = True
                         , used_in_exploration = False
-                        , ai_tar = aitargeters.GenericTargeter( targetable_types = (pbge.scenes.PlaceableThing,)
+                        , ai_tar = aitargeters.GenericTargeter( targetable_types = (base.Combatant,)
                                                               , conditions = [ aitargeters.CasterIsSurrounded(reach = SONG_REACH) ]
                                                               )
                         , shot_anim = geffects.OriginSpotShotFactory(geffects.ListenToMySongAnim)

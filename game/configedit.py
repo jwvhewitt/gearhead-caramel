@@ -70,6 +70,14 @@ class ConfigEditor(object):
         else:
             pbge.my_state.stop_music()
 
+    def _preload_music(self):
+        if util.config.getboolean("GENERAL", "preload_all_music") and not pbge.soundlib.CACHED_MUSIC:
+            pbge.my_state.stop_music()
+            pbge.please_stand_by()
+            pbge.soundlib.preload_all_music()
+            if util.config.getboolean("GENERAL", "music_on"):
+                pbge.my_state.resume_music()
+
     def save_and_quit(self, *args):
         self.finished = True
 
@@ -141,6 +149,7 @@ class ConfigEditor(object):
         OptionToggler.add_menu_toggle(self.scroll_column, "Auto-center map cursor", "auto_center_map_cursor")
         OptionToggler.add_menu_toggle(self.scroll_column, "Mouse scroll at map edges", "mouse_scroll_at_map_edges")
         OptionToggler.add_menu_toggle(self.scroll_column, "Show numbers in pilot info", "show_numbers_in_pilot_info")
+        OptionToggler.add_menu_toggle(self.scroll_column, "Preload all music", "preload_all_music", extra_fun=self._preload_music)
 
         self.scroll_column.add_interior(pbge.widgets.LabelWidget(0,0,CONFIG_EDITOR_WIDTH,0,"\nDifficulty Options", font=pbge.BIGFONT))
         for op in util.config.options("DIFFICULTY"):
