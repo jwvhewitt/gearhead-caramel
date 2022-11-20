@@ -20,12 +20,13 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
+        architecture: x64
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install --upgrade setuptools
+        pip install --upgrade 'setuptools<45.0.0'
         pip install pygame
-        pip install numpy
+        pip install numpy==1.19.3
         pip install cython
         pip install cx-freeze
         pip install pyinstaller
@@ -37,7 +38,7 @@ jobs:
         cd ..
     - name: build with pyinstaller
       run: |
-        cxfreeze -c main.py --target-dir dist/ghcaramel --include-files=data,design,image,music,credits.md,history.md,LICENSE,README.md -s --target-name=ghcaramel --packages=pygame,numpy,pbgerecolor
+        python setup.py build
     - name: Upload the file
       uses: actions/upload-artifact@v1
       with:
