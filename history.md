@@ -1,3 +1,4 @@
+* Added a clamp to hopefully prevent a rare and frankly inexplicable MemoryError exception in aibrain
 * Fixed bug when pressing Esc key from stash/mecha parts selector
 * Fixed bug with mecha inventFiory menu
 * Fixed crash if campaign save file can't be found when the time comes to delete it

@@ -179,7 +179,7 @@ class BasicAI(object):
         for invo in candidate_invocations:
             if hasattr(invo.fx, "get_odds"):
                 odds, modz = invo.fx.get_odds(camp, self.npc, target)
-                candidates += [invo, ] * min(max(int((odds - 0.25) * 25), 1), 200)
+                candidates += [invo, ] * min(max(int((odds - 0.25) * 25), 1), 25)
             else:
                 candidates += [invo, ]
         return random.choice(candidates)
