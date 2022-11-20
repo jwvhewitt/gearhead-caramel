@@ -1,6 +1,7 @@
-* Added a clamp to hopefully prevent a rare and frankly inexplicable MemoryError exception in aibrain
+v0.942 November 20, 2022
+* Added a clamp to prevent a rare and frankly inexplicable MemoryError exception in aibrain
 * Fixed bug when pressing Esc key from stash/mecha parts selector
-* Fixed bug with mecha inventFiory menu
+* Fixed bug with mecha inventory menu
 * Fixed crash if campaign save file can't be found when the time comes to delete it
 * Added preload_all_music configuration option
 * Encourage can no longer be used on monsters (which caused it to crash)
