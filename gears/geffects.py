@@ -1442,7 +1442,7 @@ class DoEncourage(effects.NoEffect):
         self.skill = skill
 
     def _get_personality_compatibility(self, o_char, t_char):
-        if not isinstance(o_char, base.Character):
+        if not (isinstance(o_char, base.Character) and isinstance(t_char, base.Character)):
             return 0
         compat = 0
         for p in o_char.personality:

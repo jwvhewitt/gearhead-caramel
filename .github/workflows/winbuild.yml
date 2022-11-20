@@ -37,7 +37,7 @@ jobs:
         cd ..
     - name: build with pyinstaller
       run: |
-        python setup.py build
+        cxfreeze -c main.py --target-dir dist/ghcaramel --include-files=data,design,image,music,credits.md,history.md,LICENSE,README.md -s --target-name=ghcaramel --packages=pygame,numpy,pbgerecolor
     - name: Upload the file
       uses: actions/upload-artifact@v1
       with:

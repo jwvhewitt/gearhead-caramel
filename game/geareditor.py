@@ -677,6 +677,11 @@ class PartAcceptCancelWidget(PartSelectorWidget):
         self.active_part = False
         self.on_selection(None)
 
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
+            self.cancel(self, ev)
+            pbge.my_state.widget_responded = True
+
 #   ****************
 #   ***  HEADER  ***
 #   ****************
@@ -950,16 +955,17 @@ class GearEditor(pbge.widgets.Widget):
 
     def activate_and_run(self):
         pbge.my_state.widgets.append(self)
-        keepgoing = True
-        while keepgoing and not self.finished and not pbge.my_state.got_quit:
+        while not self.finished and not pbge.my_state.got_quit:
             ev = pbge.wait_event()
             if ev.type == pbge.TIMEREVENT:
                 pbge.my_state.view()
                 pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
         pbge.my_state.widgets.remove(self)
+
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
+            self.finished = True
+            pbge.my_state.widget_responded = True
 
     @classmethod
     def create_and_invoke(cls, redraw):
@@ -970,15 +976,11 @@ class GearEditor(pbge.widgets.Widget):
         myui = cls(mymek)
         pbge.my_state.widgets.append(myui)
         pbge.my_state.view = redraw
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
+        while not myui.finished and not pbge.my_state.got_quit:
             ev = pbge.wait_event()
             if ev.type == pbge.TIMEREVENT:
                 redraw()
                 pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
 
         pbge.my_state.widgets.remove(myui)
 
@@ -1016,7 +1018,7 @@ class LetsEditSomeMeks(object):
                                     , portrait=form.PROTOTYPE_PORTRAIT
                                     , colors = self.EDITOR_COLORS
                                     )
-            self.enter_the_editor(mymek);
+            self.enter_the_editor(mymek)
 
     def _select_mecha(self):
         mymenu = pbge.rpgmenu.Menu(-150,0,300,226,font=pbge.MEDIUMFONT)
@@ -1052,8 +1054,5 @@ class LetsEditSomeMeks(object):
             if ev.type == pbge.TIMEREVENT:
                 pbge.my_state.view()
                 pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
 
         pbge.my_state.widgets.remove(myui)

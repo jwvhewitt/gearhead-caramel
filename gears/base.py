@@ -3635,7 +3635,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         else:
             return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
-    def can_equip(self, part, check_volume=True):
+    def can_equip(self, part, check_slots=False):
         """Returns True if part can be legally equipped under current conditions"""
         return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
@@ -3968,7 +3968,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         else:
             return self.is_legal_sub_com(part) and part.scale is self.scale
 
-    def can_equip(self, part, check_volume=True):
+    def can_equip(self, part, check_slots=False):
         """Returns True if part can be legally equipped under current conditions"""
         return self.is_legal_inv_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
