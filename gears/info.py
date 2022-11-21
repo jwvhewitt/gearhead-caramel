@@ -337,7 +337,7 @@ class OddsInfoBlock(object):
         self.height = pbge.SMALLFONT.get_linesize() * 3
 
     def render(self, x, y):
-        pbge.draw_text(pbge.my_state.huge_font, '{}%'.format(int(self.odds * 100)), pygame.Rect(x, y, 75, 32),
+        pbge.draw_text(pbge.my_state.huge_font, '{}%'.format(max(min(int(self.odds * 100), 99), 1)), pygame.Rect(x, y, 75, 32),
                        justify=0, color=pbge.INFO_HILIGHT)
         pbge.draw_text(pbge.my_state.big_font, 'TO HIT',
                        pygame.Rect(x, y + pbge.my_state.huge_font.get_linesize(), 75, 32), justify=0,

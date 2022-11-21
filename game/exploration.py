@@ -211,6 +211,7 @@ class DoInvocation(MoveTo):
         self.record = record
         self.invo = invo
         self.target_list = target_list
+        self.pmm = self._get_party_mmode(explo)
 
     def __call__(self, exp):
         pc = self.party[0]

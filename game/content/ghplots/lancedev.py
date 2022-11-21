@@ -95,6 +95,7 @@ class Earth_RescueAndBiotech(LMMissionPlot):
     CASH_REWARD = 100
     EXPERIENCE_REWARD = 150
     MISSION_SCALE = gears.scale.HumanScale
+    COMMON = True
 
     @classmethod
     def matches(self, pstate):

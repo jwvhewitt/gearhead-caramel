@@ -1,3 +1,7 @@
+v0.943 November 21, 2022
+* Fixed crash when a lancemate uses a skill outside of combat
+* Combat display now shows 99% as max chance to hit because of rounding error showing 100% for 99.5%
+
 v0.942 November 20, 2022
 * Added a clamp to prevent a rare and frankly inexplicable MemoryError exception in aibrain
 * Fixed bug when pressing Esc key from stash/mecha parts selector
