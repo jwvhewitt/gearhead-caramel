@@ -525,7 +525,7 @@ class PostCombatCleanup:
             cy = cy/len(party)
 
             if strays:
-                candidates = list(self.guide.cost_to_tile.keys().difference(camp.scene.get_blocked_tiles()))
+                candidates = list(set(self.guide.cost_to_tile.keys()).difference(camp.scene.get_blocked_tiles()))
                 candidates.sort(key=lambda pos: camp.scene.distance((cx,cy), pos))
                 for pc in strays:
                     dest = candidates.pop(0)

@@ -1,3 +1,7 @@
+* 
+* Fixed bug in regroup at end of combat code
+* Murder mysteries should get the victim's name right from now on
+
 v0.944 November 22, 2022
 * Key errors in dialogue processor will now show the dialogue that caused the problem
 * You can no longer transfer inventory to pets or mecha owned by lancemates

@@ -682,9 +682,6 @@ class Explorer(object):
                     elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.active_plots():
                             print("{}".format(thing.__class__.__name__))
-                    elif gdi.unicode == "C" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        myfac = self.camp.faction_relations.get(self.scene.get_metro_scene().faction)
-                        print(myfac.enemies)
                     elif gdi.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for pc in self.camp.get_active_party():
                             if hasattr(pc, "relationship") and pc.relationship and hasattr(pc, "renown"):

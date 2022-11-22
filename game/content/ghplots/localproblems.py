@@ -18,6 +18,7 @@ from pbge.memos import Memo
 from . import missionbuilder, rwme_objectives
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
+import copy
 
 
 #   ***********************
@@ -786,7 +787,7 @@ class ClassicMurderMystery(Plot):
         suspect_susdeck = pbge.okapipuzzle.SusDeck("Suspect", suspect_cards)
 
         weapon_cards = list()
-        weapon_source = random.sample(self.WEAPON_CARDS, 5)
+        weapon_source = copy.deepcopy(random.sample(self.WEAPON_CARDS, 5))
         for wcd in weapon_source:
             for k, v in wcd.items():
                 if isinstance(v, str):
@@ -795,7 +796,7 @@ class ClassicMurderMystery(Plot):
         weapon_susdeck = pbge.okapipuzzle.SusDeck("Weapon", weapon_cards)
 
         motive_cards = list()
-        motive_source = random.sample(self.MOTIVE_CARDS, 5)
+        motive_source = copy.deepcopy(random.sample(self.MOTIVE_CARDS, 5))
         for mcd in motive_source:
             for k, v in mcd.items():
                 if isinstance(v, str):
