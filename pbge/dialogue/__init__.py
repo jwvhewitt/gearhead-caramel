@@ -100,11 +100,17 @@ class Offer(object):
 
     def format_text( self, mygrammar ):
         text = self.msg
-        if self.data:
-            text = text.format(**self.data)
+        try:
+            if self.data:
+                text = text.format(**self.data)
+        except KeyError as err:
+            raise RuntimeError("Text Key Missing: {}".format(text)) from err
         text = grammar.convert_tokens( text, mygrammar )
-        if self.data:
-            text = text.format(**self.data)
+        try:
+            if self.data:
+                text = text.format(**self.data)
+        except KeyError as err:
+            raise RuntimeError("Text Key Missing: {}".format(text)) from err
         return text
 
     def __str__(self):

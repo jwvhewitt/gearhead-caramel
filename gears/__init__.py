@@ -482,7 +482,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         mythumbarea.w = min(mythumbarea.h*4//3, mythumbarea.w)
         mythumbarea.center = pbge.my_state.screen.get_rect().center
         mythumb = pygame.transform.smoothscale(pbge.my_state.screen.subsurface(mythumbarea),(480,360))
-        pygame.image.save(mythumb, pbge.util.user_dir("rpg_" + self.name + ".jpg"))
+        pygame.image.save(mythumb, pbge.util.user_dir(pbge.util.sanitize_filename("rpg_" + self.name + ".jpg")))
 
     @classmethod
     def load(cls, fname):

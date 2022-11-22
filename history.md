@@ -1,3 +1,8 @@
+v0.944 November 22, 2022
+* Key errors in dialogue processor will now show the dialogue that caused the problem
+* You can no longer transfer inventory to pets or mecha owned by lancemates
+* The images for saved games have their filename sanitized as well
+
 v0.943 November 21, 2022
 * Fixed crash when a lancemate uses a skill outside of combat
 * Combat display now shows 99% as max chance to hit because of rounding error showing 100% for 99.5%

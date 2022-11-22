@@ -212,8 +212,9 @@ class BackpackWidget(widgets.Widget):
         mymenu = wid.get_menu()
         mypc = self.pc.get_root()
         for pc in self.camp.get_active_party():
-            if pc is not mypc:
+            if pc is not mypc and pc.can_equip(wid.item) and isinstance(pc, (gears.base.Mecha, gears.base.Character)) and (not hasattr(pc, "owner") or not pc.owner):
                 mymenu.add_item(str(pc),pc)
+        mymenu.add_item("[Cancel]", None)
         nupc = mymenu.query()
         if nupc:
             wid.item.parent.inv_com.remove(wid.item)
