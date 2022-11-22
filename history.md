@@ -1,4 +1,6 @@
-* 
+v0.945 November 22, 2022, but slightly later in the afternoon
+* Mecha scale monsters should never appear in human scale scenes, and vice versa
+* Linked Fire/Multi Wielded weapons will only pay activation cost of primary weapon once
 * Fixed bug in regroup at end of combat code
 * Murder mysteries should get the victim's name right from now on
 

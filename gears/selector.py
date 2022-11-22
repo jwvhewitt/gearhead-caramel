@@ -400,14 +400,15 @@ class RandomMonsterUnit(object):
             mylist = random.choice(list(self.shopping_lists.values()))
         else:
             print("ERROR: No monsters found for {} {} {} {}".format(level, env, type_tags, scale))
-            mylist = MONSTER_LIST
+            mylist = [mon for mon in MONSTER_LIST if mon.scale is scale and mon.type_tags]
 
-        while strength > 0:
-            numon = copy.deepcopy(random.choice(mylist))
-            cost = self.monster_cost(numon)
-            if random.randint(1, cost) <= strength or not self.contents:
-                self.contents.append(numon)
-            strength -= cost
+        if mylist:
+            while strength > 0:
+                numon = copy.deepcopy(random.choice(mylist))
+                cost = self.monster_cost(numon)
+                if random.randint(1, cost) <= strength or not self.contents:
+                    self.contents.append(numon)
+                strength -= cost
 
     def monster_cost(self, mon):
         delta = mon.threat - self.level

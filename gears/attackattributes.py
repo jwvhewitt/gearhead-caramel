@@ -400,7 +400,8 @@ class LinkedFire(Singleton):
             for i in invos:
                 if i.can_be_invoked(myroot,True):
                     myattack.targets += 1
-                    myattack.price += i.price
+                    if i.weapon is not weapon:
+                        myattack.price += i.price
             if myattack.targets > 1:
                 myattack.price.append(geffects.MentalPrice(myattack.targets+1))
                 myattack.name = "Link {} shots".format(myattack.targets)

@@ -1776,6 +1776,7 @@ class Weapon(Component, StandardDamageHandler):
 
     def get_basic_attack(self):
         ba = geffects.AttackInvocation(
+            self,
             name='Basic Attack',
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
@@ -1874,6 +1875,7 @@ class MeleeWeapon(Weapon):
 
     def get_basic_attack(self, name='Basic Attack', attack_icon=0, bonus_strike=0, targets=1):
         ba = geffects.AttackInvocation(
+            self,
             name=name,
             fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
@@ -1988,6 +1990,7 @@ class EnergyWeapon(Weapon):
 
     def get_basic_attack(self, name='Basic Attack', bonus_strike=0, attack_icon=0):
         ba = geffects.AttackInvocation(
+            self,
             name=name,
             fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
@@ -2243,6 +2246,7 @@ class BallisticWeapon(Weapon):
             penetration -= (self.damage * max(self.penetration, 1) - my_ammo.ammo_type.bang) * 15
 
         ba = geffects.AttackInvocation(
+            self,
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
@@ -2359,6 +2363,7 @@ class BeamWeapon(Weapon):
     def get_basic_attack(self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
         # Check the ammunition. If it doesn't have enough bang, downgrade the attack.
         ba = geffects.AttackInvocation(
+            self,
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
@@ -2601,6 +2606,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
         ammo = self.get_ammo()
         if ammo:
             ba = geffects.AttackInvocation(
+                self,
                 name='Single Shot',
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL,
@@ -2632,6 +2638,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
         ammo = self.get_ammo()
         if ammo:
             ba = geffects.AttackInvocation(
+                self,
                 name='Fire x{}'.format(num_missiles),
                 fx=geffects.MultiAttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL, num_attacks=num_missiles,
@@ -2834,6 +2841,7 @@ class ChemThrower(Weapon):
         my_ammo = self.get_ammo()
 
         ba = geffects.AttackInvocation(
+            self,
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
@@ -3301,6 +3309,7 @@ class Module(BaseGear, StandardDamageHandler):
         my_invos = list()
         if self.form.CAN_ATTACK:
             ba = geffects.AttackInvocation(
+                self,
                 name='Basic Attack',
                 fx=geffects.MeleeAttackRoll(
                     stats.Body, self.scale.MELEE_SKILL,

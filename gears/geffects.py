@@ -23,6 +23,10 @@ MONSTER_LIST = ()
 
 
 class AttackInvocation(effects.Invocation):
+    def __init__(self, weapon, *args, **kwargs):
+        self.weapon = weapon
+        super().__init__(*args, **kwargs)
+
     def invoke(self, camp, originator, target_points, anim_list, fx_record=None):
         if originator:
             anim_list.append(animobs.WatchMeWiggle(originator))
