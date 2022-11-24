@@ -465,7 +465,8 @@
     "avatar_layers": [
       {"name":"Hair","fname":"avatar_hair_softspike.png","anchor":"avatar_head","depth":5000,"x_offset":0,"y_offset":-3}
     ],
-    "style": ["Passionate"]
+    "style": ["Passionate"],
+    "form_tags": ["NoHairAccessories"]
   },
   {
     "name": "Slick Back",
@@ -567,7 +568,8 @@
     ],
     "avatar_layers": [
       {"name":"Turban","fname":"avatar_headgear_turban1.png","anchor":"avatar_head","depth":7500,"x_offset":0,"y_offset":-4}
-    ]
+    ],
+    "form_tags": ["NoHairAccessories"]
   },
   {
     "name": "Turban 2",
@@ -577,7 +579,8 @@
     ],
     "avatar_layers": [
       {"name":"Turban","fname":"avatar_headgear_turban2.png","anchor":"avatar_head","depth":7500,"x_offset":0,"y_offset":-3}
-    ]
+    ],
+    "form_tags": ["NoHairAccessories"]
   },
   {
     "name": "Loverboy Hair",
@@ -744,6 +747,19 @@
     "name": "No Accessory",
     "btype": "Accessories"
   },
+    {
+    "name": "Ribbon Hair Bow",
+    "btype": "Accessories",
+    "layers": [
+      {"name":"Ribbon","fname":"por_accessories_hairbow.png","anchor":"head","depth":12000,"x_offset": -35,"y_offset":-32}
+    ],
+    "avatar_layers": [
+      {"name":"Ribbon","fname":"avatar_accessories_hairbow.png","anchor":"avatar_head","depth":12000,"x_offset":-4, "y_offset": -1}
+    ],
+    "rejects": ["NoHairAccessories"],
+    "style": ["Feminine"]
+  },
+
   {
     "name": "No Facial Feature",
     "btype": "FacialFeature",

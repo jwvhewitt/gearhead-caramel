@@ -175,7 +175,8 @@
     "style": ["Green Zone"],
     "children": [
       "Pants"
-    ]
+    ],
+    "form_tags": ["NoBracers"]
   },
   {
     "name": "BodMA RickS Shirt",
@@ -410,6 +411,27 @@
     "requires": ["BodMA"],
     "style": ["Combatant"],
     "rejects": ["NoGloves"]
+  },
+      {
+    "name": "BodMA Metal Bracers",
+    "btype": "Accessories",
+    "layers": [
+      {"name":"Right Bracer","fname":"por_bodma_mbracers.png","anchor":"center","depth":5100,"x_offset":-125,"y_offset":127,
+        "frame": 0,
+        "frame_width": 88,
+        "frame_height": 100
+      },
+      {"name":"Left Bracer","fname":"por_bodma_mbracers.png","anchor":"center","depth":1600,"x_offset":101,"y_offset":173,
+        "frame": 1,
+        "frame_width": 88,
+        "frame_height": 100}
+    ],
+    "avatar_layers": [
+      {"name":"Bracers","fname":"avatar_bodma_mbracers.png","anchor":"center","depth":2500,"x_offset":-1, "y_offset":  10}
+    ],
+    "requires": ["BodMA"],
+    "style": ["Combatant"],
+    "rejects": ["NoBracers"]
   }
 
 ]

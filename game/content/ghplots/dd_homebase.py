@@ -8,7 +8,7 @@ from gears import factions, personality
 import game.content.gharchitecture
 import pbge
 import game.content.plotutility
-from game.content import ghwaypoints, gharchitecture, plotutility, ghrooms, dungeonmaker, ghchallenges
+from game.content import ghwaypoints, gharchitecture, plotutility, ghrooms, dungeonmaker, ghchallenges, ghcutscene
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
@@ -121,6 +121,13 @@ class DZD_Wujung(Plot):
         # Upon entering this scene, deal with any dead or incapacitated party members.
         # Also, deal with party members who have lost their mecha. This may include the PC.
         if self.intro_ready:
+            my_cutscene = ghcutscene.CutscenePlan("city_intro", {"METROSCENE": camp.scene})
+            my_cutscene.info_blocks.append(
+                ghcutscene.InfoBlock(
+
+                )
+            )
+
             # Give a different entry message depending on the nature of the PC.
             if camp.pc.has_badge("Typhon Slayer"):
                 pbge.alert(

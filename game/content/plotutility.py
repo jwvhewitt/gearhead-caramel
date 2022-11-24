@@ -332,8 +332,8 @@ class AutoLeaver(object):
                 elif isinstance(mek, gears.base.Monster) and mek.pet_data and mek.pet_data.trainer is self.npc:
                     camp.party.remove(mek)
                     self._save_pet_to_campdata(camp, mek)
-                    if mek in camp.scene:
-                        camp.scene.remove(mek)
+                    if mek in camp.scene.contents:
+                        camp.scene.contents.remove(mek)
 
             # for mek in list(camp.incapacitated_party):
             #    if hasattr(mek,"owner") and mek.owner is self.npc:

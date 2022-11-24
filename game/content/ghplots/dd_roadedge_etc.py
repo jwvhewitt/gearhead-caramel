@@ -111,7 +111,7 @@ class BlackMarketBluesMain(Plot):
         thingmenu.add_item("[CONTINUE]", self._read_the_sign)
 
     def _read_the_sign(self, camp: gears.GearHeadCampaign):
-        mybh = [bh for bh in camp.get_active_party() if bh.job and bh.job.name == "Bounty Hunter"]
+        mybh = [bh for bh in camp.get_active_party() if isinstance(bh, gears.base.Character) and bh.job and bh.job.name == "Bounty Hunter"]
         if mybh:
             npc = random.choice(mybh)
             ghcutscene.SimpleMonologueDisplay("[I_DONT_FEEL_WELCOME]", npc)(camp)

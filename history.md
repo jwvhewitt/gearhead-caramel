@@ -1,3 +1,6 @@
+* Fixed bug when lancemate with pet quits party
+* Fixed bug when reading black market sign with a pet in your party
+
 v0.945 November 22, 2022, but slightly later in the afternoon
 * Mecha scale monsters should never appear in human scale scenes, and vice versa
 * Linked Fire/Multi Wielded weapons will only pay activation cost of primary weapon once

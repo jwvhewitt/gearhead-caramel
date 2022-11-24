@@ -4,6 +4,72 @@ import random
 import pbge
 import gears
 
+
+class CutsceneScript:
+    def __init__(self, elements=None):
+        self.presentation_nodes = list()
+        self.elements = dict()
+        if elements:
+            self.elements.update(elements)
+
+
+class CutscenePlan:
+    def __init__(self, topic, elements=None, beats=(), info_blocks=()):
+        self.topic = topic
+        self.elements = dict()
+        if elements:
+            self.elements.update(elements)
+        self.beats = list(beats)
+        self.info_blocks = list(info_blocks)
+
+    def build(self, camp: gears.GearHeadCampaign):
+        pass
+
+    def play(self, camp: gears.GearHeadCampaign):
+        self.build(camp)
+        pass
+
+
+class InfoBlock:
+    # Contains info that may need to be expressed during the cutscene.
+    def __init__(self, sequence=-1, beat=None, requirements=(), grammar=None, moods=()):
+        # sequence tells what order this InfoBlock can appear in; if -1, it can appear anywhere in the cutscene.
+        # beat is an optional string describing this InfoBlock's role. Certain cutscenes may require certain beats to
+        #   be met.
+        # requirements is a list of callables, all of which must return True in order for this InfoBlock to be
+        #   considered for inclusion in the cutscene.
+        # grammar is a list of grammar items giving text associated with this info block.
+        # moods is a list of tags describing the mood set by this infoblock.
+        self.sequence = sequence
+        self.beat = beat
+        self.requirements = list(requirements)
+        self.grammar = dict()
+        if grammar:
+            self.grammar.update(grammar)
+        self.moods = moods
+
+
+class PresentationNode(object):
+    # The abstract type from which other Presentation Nodes inherit. Communicates some information from the InfoBlocks
+    # to the player. Uses the grammar from the attached info blocks to generate text.
+    def __init__(self, node_type, requirements=()):
+        self.node_type = node_type
+        self.requirements = requirements
+
+    @classmethod
+    def get_all_subclasses_as_dict(cls, class_i_wanna_know_about=None):
+        if not class_i_wanna_know_about:
+            class_i_wanna_know_about = cls
+        all_subclasses = dict()
+
+        for subclass in class_i_wanna_know_about.__subclasses__():
+            all_subclasses[subclass.__name__] = subclass
+            all_subclasses.update(cls.get_all_subclasses_as_dict(subclass))
+
+        return all_subclasses
+
+
+
 class LancematePrep( object ):
     def __init__(self,id_tag,personality_traits=(),stats=(),exclude=()):
         # Choose a lancemate with the requested personality traits

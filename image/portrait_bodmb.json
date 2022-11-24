@@ -145,6 +145,28 @@
     ],
     "requires": ["BodMB"],
     "style": ["Combatant"]
+  },
+        {
+    "name": "BodMB Metal Bracers",
+    "btype": "Accessories",
+    "layers": [
+      {"name":"Right Bracer","fname":"por_bodmb_mbracers.png","anchor":"center","depth":5100,"x_offset":-123,"y_offset":157,
+        "frame": 0,
+        "frame_width": 100,
+        "frame_height": 105
+      },
+      {"name":"Left Bracer","fname":"por_bodmb_mbracers.png","anchor":"center","depth":1600,"x_offset":120,"y_offset":160,
+        "frame": 1,
+        "frame_width": 100,
+        "frame_height": 105}
+    ],
+    "avatar_layers": [
+      {"name":"Bracers","fname":"avatar_bodma_mbracers.png","anchor":"center","depth":2500,"x_offset":-1, "y_offset":  12}
+    ],
+    "requires": ["BodMB"],
+    "style": ["Combatant"],
+    "rejects": ["NoBracers"]
   }
+
 
 ]
