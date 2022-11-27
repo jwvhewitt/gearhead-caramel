@@ -504,17 +504,21 @@ class RowWidget(Widget):
 class DropdownWidget(Widget):
     MENU_HEIGHT = 150
 
-    def __init__(self, dx, dy, w, h, color=None, font=None, justify=-1, on_select=None, **kwargs):
+    def __init__(self, dx, dy, w, h, color=None, font=None, justify=-1, on_select=None, add_desc=False, **kwargs):
         # on_select is a callable that takes the menu query result as its argument
         self.font = font or my_state.small_font
         if h == 0:
             h = self.font.get_linesize() + 16
-        super(DropdownWidget, self).__init__(dx, dy, w, h, **kwargs)
+        super().__init__(dx, dy, w, h, **kwargs)
         self.color = color or TEXT_COLOR
         self.on_select = on_select
         self.on_click = self.open_menu
         self.menu = rpgmenu.Menu(dx, dy, w, self.MENU_HEIGHT, border=popup_menu_border, font=font,
                                  anchor=frects.ANCHOR_UPPERLEFT,)
+        if add_desc:
+            self.menu.add_descbox(dx-w-16, dy, w, self.MENU_HEIGHT)
+            self.menu.descobj.anchor = frects.ANCHOR_UPPERLEFT
+            self.menu.descobj.parent = self.menu
 
     def render(self, flash=False):
         mydest = self.get_rect()
@@ -537,7 +541,8 @@ class DropdownWidget(Widget):
         mydest = self.get_rect()
         mydest.h = self.menu.h
         mydest.w = self.menu.w
-        mydest.clamp_ip(my_state.screen.get_rect())
+        my_screen_rect = my_state.screen.get_rect()
+        mydest.clamp_ip(my_screen_rect)
         self.menu.dx, self.menu.dy = mydest.x, mydest.y
         result = self.menu.query()
         if self.on_select:
@@ -877,12 +882,12 @@ class ColTextEntryWidget(RowWidget):
 
 
 class ColDropdownWidget(RowWidget):
-    def __init__(self, width, prompt="Choose Option", font=None, justify=-1, on_select=None, **kwargs):
+    def __init__(self, width, prompt="Choose Option", font=None, justify=-1, on_select=None, add_desc=False, **kwargs):
         mylabel = LabelWidget(0, 0, width * 2 // 5 - 10, 0, prompt, font=font)
         super().__init__(0, 0, width, mylabel.h + 8, **kwargs)
         self.add_left(mylabel)
         self.my_menu_widget = DropdownWidget(0, 0, width * 3 // 5, mylabel.h + 8, font=font, justify=justify,
-                                             on_select=on_select)
+                                             on_select=on_select, add_desc=add_desc)
         self.add_right(self.my_menu_widget)
         self.on_click = self.my_menu_widget.open_menu
 

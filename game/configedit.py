@@ -72,10 +72,23 @@ class ConfigEditor(object):
 
     def _preload_music(self):
         if util.config.getboolean("GENERAL", "preload_all_music") and not pbge.soundlib.CACHED_MUSIC:
+            #current_music = pbge.my_state.music_name
             pbge.my_state.stop_music()
             pbge.please_stand_by()
             pbge.soundlib.preload_all_music()
             if util.config.getboolean("GENERAL", "music_on"):
+                #pbge.my_state.start_music(current_music)
+                pbge.my_state.resume_music()
+
+    def set_music_mode(self, result):
+        if result:
+            util.config.set("GENERAL", "music_mode", result)
+            if result == pbge.MUSIC_MODE_PRELOAD:
+                self._preload_music()
+            elif util.config.getboolean("GENERAL", "music_on"):
+                #current_music = pbge.my_state.music_name
+                pbge.my_state.stop_music()
+                #pbge.my_state.start_music(current_music)
                 pbge.my_state.resume_music()
 
     def save_and_quit(self, *args):
@@ -121,6 +134,14 @@ class ConfigEditor(object):
             volume_menu.add_item(msg, val)
         volume_menu.my_menu_widget.menu.set_item_by_value(util.config.get("GENERAL", "music_volume"))
         self.scroll_column.add_interior(volume_menu)
+        music_mode_menu = pbge.widgets.ColDropdownWidget(
+            CONFIG_EDITOR_WIDTH, "Music Mode", on_select=self.set_music_mode, add_desc=True
+        )
+        music_mode_menu.add_item(pbge.MUSIC_MODE_PRELOAD, pbge.MUSIC_MODE_PRELOAD, "Preload all music files. This option takes the most memory and increases load time, but provides flawless playback.")
+        music_mode_menu.add_item(pbge.MUSIC_MODE_CACHED, pbge.MUSIC_MODE_CACHED, "Cache the most recently used music files. This option uses a medium amount of memory, but reduces interruptions when new music is loaded.")
+        music_mode_menu.add_item(pbge.MUSIC_MODE_STREAM, pbge.MUSIC_MODE_STREAM, "Stream music directly from disk. This option uses the least amount of memory, but causes a slight delay when the music stream is changed.")
+        music_mode_menu.my_menu_widget.menu.set_item_by_value(util.config.get("GENERAL", "music_mode"))
+        self.scroll_column.add_interior(music_mode_menu)
 
         OptionToggler.add_menu_toggle(self.scroll_column, "Sound FX On", "sound_on")
         volume_menu = pbge.widgets.ColDropdownWidget(
@@ -149,7 +170,6 @@ class ConfigEditor(object):
         OptionToggler.add_menu_toggle(self.scroll_column, "Auto-center map cursor", "auto_center_map_cursor")
         OptionToggler.add_menu_toggle(self.scroll_column, "Mouse scroll at map edges", "mouse_scroll_at_map_edges")
         OptionToggler.add_menu_toggle(self.scroll_column, "Show numbers in pilot info", "show_numbers_in_pilot_info")
-        OptionToggler.add_menu_toggle(self.scroll_column, "Preload all music", "preload_all_music", extra_fun=self._preload_music)
 
         self.scroll_column.add_interior(pbge.widgets.LabelWidget(0,0,CONFIG_EDITOR_WIDTH,0,"\nDifficulty Options", font=pbge.BIGFONT))
         for op in util.config.options("DIFFICULTY"):

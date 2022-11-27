@@ -32,6 +32,10 @@ except ImportError:
 
 from . import soundlib
 
+MUSIC_MODE_STREAM = "Stream"
+MUSIC_MODE_CACHED = "Cached"
+MUSIC_MODE_PRELOAD = "Preload"
+
 
 class KeyObject(object):
     """A catcher for multiple inheritence. Subclass this instead of object if
@@ -205,12 +209,11 @@ class GameState(object):
         pygame.display.flip()
 
     def locate_music(self, mfname):
-        if mfname:
+        if mfname and util.config.get("GENERAL", "music_mode").casefold() != MUSIC_MODE_STREAM.casefold():
             sound = soundlib.load_cached_sound(mfname)
             return sound
 
-    def start_music(self, mfname, yafi=False):
-        # yafi = You Asked For It
+    def _start_cached_music(self, mfname, yafi=False):
         if ((yafi or (mfname and mfname != self.music_name and
                       util.config.getboolean("GENERAL", "music_on"))) and self.audio_enabled and
                 not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")):
@@ -222,16 +225,40 @@ class GameState(object):
                 self.music_channels[self.current_music_channel].play(sound, loops=-1, fade_ms=2000)
                 sound.set_volume(util.config.getfloat("GENERAL", "music_volume"))
                 #self.music_channels[self.current_music_channel].set_volume(util.config.getfloat("GENERAL", "music_volume"))
+
+    def _start_streaming_music(self, mfname, yafi):
+        if ((yafi or (mfname and mfname != self.music_name and
+                      util.config.getboolean("GENERAL", "music_on"))) and self.audio_enabled and
+                not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")):
+            if pygame.mixer.music.get_busy():
+                pygame.mixer.music.fadeout(500)
+                pygame.mixer.music.unload()
+            pygame.mixer.music.load(soundlib.find_music_file(mfname))
+            pygame.mixer.music.play(-1, fade_ms=2000)
+            pygame.mixer.music.set_volume(util.config.getfloat("GENERAL", "music_volume"))
+
+    def start_music(self, mfname, yafi=False):
+        # yafi = You Asked For It
+        if util.config.get("GENERAL", "music_mode").casefold() != MUSIC_MODE_STREAM.casefold():
+            self._start_cached_music(mfname, yafi)
+        else:
+            self._start_streaming_music(mfname, yafi)
         if mfname:
             self.music_name = mfname
 
     def stop_music(self):
         if self.music_channels[self.current_music_channel].get_busy():
             self.music_channels[self.current_music_channel].stop()
+        if pygame.mixer.music.get_busy():
+            pygame.mixer.music.unload()
+        #self.music_name = ""
 
     def set_music_volume(self, nu_volume):
-        if self.music_channels[self.current_music_channel].get_busy():
-            self.music_channels[self.current_music_channel].get_sound().set_volume(nu_volume)
+        if util.config.get("GENERAL", "music_mode").casefold() != MUSIC_MODE_STREAM.casefold():
+            if self.music_channels[self.current_music_channel].get_busy():
+                self.music_channels[self.current_music_channel].get_sound().set_volume(nu_volume)
+        else:
+            pygame.mixer.music.set_volume(nu_volume)
 
     def start_sound_effect(self, sound_fx_name, loops=0, allow_multiple_copies=False):
         if (util.config.getboolean("GENERAL", "sound_on") and self.audio_enabled and not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")):

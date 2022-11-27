@@ -10,6 +10,7 @@ from . import invoker
 from pbge import memos
 from . import fieldhq
 import random
+import gc
 
 
 
@@ -505,6 +506,8 @@ class Explorer(object):
     def go(self):
         self.no_quit = True
         self.order = None
+        #pbge.image.flush_images()
+        #gc.collect(2)
 
         global current_explo
         current_explo = self

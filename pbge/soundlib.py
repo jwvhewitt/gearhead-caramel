@@ -18,11 +18,20 @@ def glob_sounds(pattern, include_proprietary=False):
     if include_proprietary:
         mypaths += proprietary_search_path
     for p in mypaths:
-        myglob = glob.glob(os.path.join(p,pattern))
+        myglob = glob.glob(os.path.join(p, pattern))
         for fname in myglob:
             mylist.append(os.path.basename(fname))
     mylist.sort()
     return mylist
+
+
+def find_music_file(fname):
+    if not os.path.exists(fname):
+        for p in search_path + proprietary_search_path:
+            if os.path.exists(os.path.join(p, fname)):
+                fname = os.path.join(p, fname)
+                break
+    return fname
 
 
 @functools.lru_cache(maxsize=23)
@@ -30,11 +39,7 @@ def load_cached_sound(fname):
     if fname in CACHED_MUSIC:
         return CACHED_MUSIC[fname]
 
-    if not os.path.exists(fname):
-        for p in search_path + proprietary_search_path:
-            if os.path.exists(os.path.join(p, fname)):
-                fname = os.path.join(p, fname)
-                break
+    fname = find_music_file(fname)
 
     return pygame.mixer.Sound(fname)
 
@@ -55,8 +60,4 @@ def preload_all_music():
         myglob = glob.glob(os.path.join(folder, "*.ogg"))
         for fname in myglob:
             CACHED_MUSIC[os.path.basename(fname)] = pygame.mixer.Sound(fname)
-
-
-
-
 

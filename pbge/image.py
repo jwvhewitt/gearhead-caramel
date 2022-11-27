@@ -44,7 +44,7 @@ class Image(object):
                 self.bitmap.set_colorkey((0, 0, 255), flags)
                 if color:
                     self.recolor(color)
-                    self.record_pre_loaded(fname, color, self.bitmap, transparent)
+                self.record_pre_loaded(fname, color, self.bitmap, transparent)
         else:
             self.bitmap = pygame.Surface((frame_width, frame_height))
             self.bitmap.fill((0, 0, 255))
@@ -178,6 +178,9 @@ class TextImage(Image):
         # Rather than trying to save the bitmap image, just save the filename.
         return TextImage, (self.txt, self.frame_width, self.frame_height)
 
+
+def flush_images():
+    pre_loaded_images.clear()
 
 def init_image(def_image_folder):
     search_path.append(def_image_folder)

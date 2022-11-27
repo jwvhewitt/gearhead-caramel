@@ -1416,7 +1416,7 @@ def init_gears():
     pbge.soundlib.search_path.append(pbge.util.user_dir('music'))
     pbge.POSTERS += glob.glob(os.path.join(pbge.util.user_dir('image'), "eyecatch_*.png"))
 
-    if pbge.util.config.getboolean("GENERAL", "preload_all_music"):
+    if pbge.util.config.get("GENERAL", "music_mode").casefold() == pbge.MUSIC_MODE_PRELOAD.casefold():
         pbge.soundlib.preload_all_music()
 
     # Initialize the jobs because these get used in the STL files.
