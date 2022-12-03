@@ -118,8 +118,6 @@ class DZD_Wujung(Plot):
         pass
 
     def METROSCENE_ENTER(self, camp):
-        # Upon entering this scene, deal with any dead or incapacitated party members.
-        # Also, deal with party members who have lost their mecha. This may include the PC.
         if self.intro_ready:
             my_cutscene = ghcutscene.CutscenePlan("city_intro", {"METROSCENE": camp.scene})
             my_cutscene.info_blocks.append(

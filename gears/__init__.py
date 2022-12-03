@@ -1148,8 +1148,9 @@ class ProtoSTC(object):
 
 
 class Loader(object):
-    def __init__(self, fname):
+    def __init__(self, fname, debug=False):
         self.fname = fname
+        self.debug = debug
 
     def process_list(self, string):
         # This string describes a list. There may be additional lists in
@@ -1199,6 +1200,10 @@ class Loader(object):
             elif rawval in SINGLETON_TYPES:
                 # This is a named constant of some type.
                 truval = SINGLETON_TYPES[rawval]
+            elif rawval in ("True", "true"):
+                truval = True
+            elif rawval in ("False", "false"):
+                truval = False
             else:
                 # This is a string. Leave it alone.
                 truval = rawval
@@ -1309,6 +1314,8 @@ class Loader(object):
         # Convert the provided list to gears.
         mylist = list()
         for pg in protolist:
+            if self.debug and isinstance(pg, ProtoGear):
+                print(pg.gclass, pg.gparam)
             mygear = pg.build()
             mylist.append(mygear)
         return mylist

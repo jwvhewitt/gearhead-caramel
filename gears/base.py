@@ -362,7 +362,7 @@ class Mover(KeyObject):
                 total += g.get_thrust(move_mode)
                 mymod = g.get_module()
                 if mymod.form.THRUST_BONUS:
-                    total = (total * (100 + mymod.form.THRUST_BONUS))//100
+                    total = (total * (100 + mymod.form.THRUST_BONUS)) // 100
         return total
 
     def count_speed_bonus_percent(self):
@@ -454,7 +454,6 @@ class Combatant(KeyObject):
     def get_pilot(self):
         """Return the combatant itself."""
         return self
-
 
 
 class HasPower(KeyObject):
@@ -699,11 +698,12 @@ class BaseGear(scenes.PlaceableThing):
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.05
+
     def _this_part_shop_rank(self):
-        cost = float(self.base_cost * self.material.cost_scale)/10.0
+        cost = float(self.base_cost * self.material.cost_scale) / 10.0
         return max(
             round(self.__class__.SHOP_RANK_LOG_RESULT_MULTIPLIER *
-                  math.log(cost*self.__class__.SHOP_RANK_LOG_COST_MULTIPLIER)),
+                  math.log(cost * self.__class__.SHOP_RANK_LOG_COST_MULTIPLIER)),
             0
         )
 
@@ -714,10 +714,10 @@ class BaseGear(scenes.PlaceableThing):
         # Return the cost, ignoring treasure.
         m = self.self_cost
         for part in self.sub_com:
-            if not isinstance(part,Treasure):
+            if not isinstance(part, Treasure):
                 m = m + part.cost
         for part in self.inv_com:
-            if not isinstance(part,Treasure):
+            if not isinstance(part, Treasure):
                 m = m + part.cost
         return m
 
@@ -924,6 +924,11 @@ class BaseGear(scenes.PlaceableThing):
         initdict["sub_com"] = dcsubcom
         initdict["inv_com"] = dcinvcom
 
+        if "stolen" in initdict and initdict["stolen"]:
+            print("{} stolen: {}".format(self.name, initdict["stolen"]))
+            print("Original: {}".format(self.stolen))
+            print(type(self.stolen))
+
         newgear = type(self)(**initdict)
         newgear.__dict__.update(afterdict)
         memo[id(self)] = newgear
@@ -958,7 +963,7 @@ class BaseGear(scenes.PlaceableThing):
         ''' Modifiers that only affect melee weapons.
         '''
         return [geffects.MeleeFlyingModifier(reach),
-        ]
+                ]
 
     def restore_all(self):
         total = 0
@@ -1104,7 +1109,7 @@ class Armor(SizeClassedComponent, StandardDamageHandler):
             absorb_amount = random.randint(max_absorb // 4, max_absorb)
         if absorb_amount > 0:
             self.hp_damage = min(self.hp_damage + min(absorb_amount, dmg), self.max_health)
-            dmg -= absorb_amount//2
+            dmg -= absorb_amount // 2
         return dmg
 
 
@@ -1377,9 +1382,9 @@ class MovementSystem(SizeClassedComponent):
 
     @property
     def base_cost(self):
-        return ( self.size * self.MOVESYS_COST
-               + self.size * (self.size - 1) * self.MOVESYS_COST // 10
-               )
+        return (self.size * self.MOVESYS_COST
+                + self.size * (self.size - 1) * self.MOVESYS_COST // 10
+                )
 
     def get_item_stats(self):
         stat = [('Thrust ({})'.format(mode.get_short_name()), str(self.get_thrust(mode)))
@@ -1439,6 +1444,7 @@ class FlightJets(MovementSystem, StandardDamageHandler):
         else:
             return 0
 
+
 class ArcJets(MovementSystem, StandardDamageHandler):
     DEFAULT_NAME = "ARC Jets"
     MOVESYS_COST = 125
@@ -1452,7 +1458,7 @@ class ArcJets(MovementSystem, StandardDamageHandler):
         return self.size
 
     def get_thrust(self, move_mode):
-        if move_mode in (scenes.movement.Flying,tags.Skimming, tags.SpaceFlight):
+        if move_mode in (scenes.movement.Flying, tags.Skimming, tags.SpaceFlight):
             return (self.size * 4500 * self.current_health + self.max_health - 1) // self.max_health
         else:
             return 0
@@ -1520,7 +1526,7 @@ class HeavyActuators(MovementSystem, StandardDamageHandler):
             return 0
 
     def get_melee_damage_bonus(self):
-        return max(self.size//2, 1)
+        return max(self.size // 2, 1)
 
 
 class Overchargers(MovementSystem, StandardDamageHandler):
@@ -1780,7 +1786,7 @@ class Weapon(Component, StandardDamageHandler):
             name='Basic Attack',
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale),),
+                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -1879,7 +1885,8 @@ class MeleeWeapon(Weapon):
             name=name,
             fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
+                children=(
+                geffects.DoDamage(2 * self.damage, 4, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers(), bonus_strikes=bonus_strike
@@ -1936,7 +1943,7 @@ class MeleeWeapon(Weapon):
         return rstr
 
     def _get_reach_cost_factor(self, reach):
-        return ((int(pow(reach,2.5)) - reach) // 2 + 1)
+        return ((int(pow(reach, 2.5)) - reach) // 2 + 1)
 
     def __setstate__(self, state):
         # For saves from V0.810 or earlier, convert IgnitesAmmo to BurnAttack.
@@ -1994,7 +2001,8 @@ class EnergyWeapon(Weapon):
             name=name,
             fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale, hot_knife=True, damage_bonus=self.get_damage_bonus()),),
+                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale, hot_knife=True,
+                                            damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers(), bonus_strikes=bonus_strike
@@ -2074,7 +2082,7 @@ class EnergyWeapon(Weapon):
         return rstr
 
     def _get_reach_cost_factor(self, reach):
-        return ((int(pow(reach,2.5)) - reach) // 2 + 1)
+        return ((int(pow(reach, 2.5)) - reach) // 2 + 1)
 
     def is_legal_inv_com(self, part):
         if not self.is_sub_com():
@@ -2163,8 +2171,10 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         if my_module and my_module.form is not MF_Storage and self.ammo_type.risk != calibre.RISK_INERT and self.quantity > self.spent:
             if self.ammo_type.risk == calibre.RISK_VOLATILE:
                 my_invo = pbge.effects.Invocation(
-                    fx=geffects.DoDamage(3, max(self.ammo_type.bang//2,6), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
-                    area=pbge.scenes.targetarea.SelfCentered(radius=random.randint(1,max(self.ammo_type.bang//4,2)), delay_from=-1),
+                    fx=geffects.DoDamage(3, max(self.ammo_type.bang // 2, 6), anim=geffects.BigBoom, scale=self.scale,
+                                         scatter=True, is_brutal=True),
+                    area=pbge.scenes.targetarea.SelfCentered(radius=random.randint(1, max(self.ammo_type.bang // 4, 2)),
+                                                             delay_from=-1),
                     shot_anim=geffects.AmmoExplosionAnim
                 )
             else:
@@ -2172,7 +2182,8 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
                     fx=pbge.effects.NoEffect(
                         anim=geffects.BigBoom,
                         children=(
-                            geffects.DoDamage(2, max(self.ammo_type.bang//2,6), scale=self.scale, scatter=True, is_brutal=True),
+                            geffects.DoDamage(2, max(self.ammo_type.bang // 2, 6), scale=self.scale, scatter=True,
+                                              is_brutal=True),
                         )), shot_anim=geffects.AmmoExplosionAnim,
                     area=pbge.scenes.targetarea.SingleTarget())
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
@@ -2250,7 +2261,7 @@ class BallisticWeapon(Weapon):
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale),),
+                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=penetration,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -2260,7 +2271,7 @@ class BallisticWeapon(Weapon):
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=((self.damage * 2 + self.penetration)* (targets+1))//2),
+                                     thrill_power=((self.damage * 2 + self.penetration) * (targets + 1)) // 2),
             price=[geffects.AmmoPrice(my_ammo, ammo_cost), geffects.RevealPositionPrice(self.damage)],
             targets=targets)
 
@@ -2367,7 +2378,7 @@ class BeamWeapon(Weapon):
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale),),
+                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -2377,7 +2388,7 @@ class BeamWeapon(Weapon):
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=((self.damage * 2 + self.penetration)* (targets+1))//2),
+                                     thrill_power=((self.damage * 2 + self.penetration) * (targets + 1)) // 2),
             price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost),
                    geffects.RevealPositionPrice(self.damage)],
             targets=targets)
@@ -2531,8 +2542,9 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
         my_module = self.get_module()
         if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
             my_invo = pbge.effects.Invocation(
-                fx=geffects.DoDamage(min(self.quantity-self.spent,10), max(self.damage,3), anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
-                area=pbge.scenes.targetarea.SelfCentered(radius=min(random.randint(1,2),random.randint(1,2))),
+                fx=geffects.DoDamage(min(self.quantity - self.spent, 10), max(self.damage, 3), anim=geffects.BigBoom,
+                                     scale=self.scale, scatter=True, is_brutal=True),
+                area=pbge.scenes.targetarea.SelfCentered(radius=min(random.randint(1, 2), random.randint(1, 2))),
                 shot_anim=geffects.AmmoExplosionAnim
             )
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
@@ -2610,7 +2622,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 name='Single Shot',
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL,
-                    children=(geffects.DoDamage(2*ammo.damage, 4, scale=ammo.scale),),
+                    children=(geffects.DoDamage(2 * ammo.damage, 4, scale=ammo.scale),),
                     accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo)
@@ -2629,8 +2641,8 @@ class Launcher(BaseGear, ContainerDamageHandler):
             return ba
 
     def get_overwhelm_score(self, num_missiles):
-        it = num_missiles//5
-        if random.randint(1,5) <= num_missiles%5:
+        it = num_missiles // 5
+        if random.randint(1, 5) <= num_missiles % 5:
             it += 1
         return it
 
@@ -2642,7 +2654,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 name='Fire x{}'.format(num_missiles),
                 fx=geffects.MultiAttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL, num_attacks=num_missiles,
-                    children=(geffects.DoDamage(2*ammo.damage, 4, scale=ammo.scale),),
+                    children=(geffects.DoDamage(2 * ammo.damage, 4, scale=ammo.scale),),
                     accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo),
@@ -2779,8 +2791,9 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         my_module = self.get_module()
         if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
             my_invo = pbge.effects.Invocation(
-                fx=geffects.DoDamage(2,8, anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
-                area=pbge.scenes.targetarea.SelfCentered(radius=min(3,random.randint(1,max((self.quantity-self.spent)//50,2)))),
+                fx=geffects.DoDamage(2, 8, anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
+                area=pbge.scenes.targetarea.SelfCentered(
+                    radius=min(3, random.randint(1, max((self.quantity - self.spent) // 50, 2)))),
                 shot_anim=geffects.AmmoExplosionAnim
             )
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
@@ -2845,7 +2858,7 @@ class ChemThrower(Weapon):
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2*self.damage, 4, scale=self.scale, scatter=True),),
+                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale, scatter=True),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -2855,7 +2868,7 @@ class ChemThrower(Weapon):
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.get_shot_anim(),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0,
-                                     thrill_power=((self.damage * 2 + self.penetration)* (targets+1))//2),
+                                     thrill_power=((self.damage * 2 + self.penetration) * (targets + 1)) // 2),
             price=[geffects.AmmoPrice(my_ammo, ammo_cost * self.get_chem_cost()),
                    geffects.RevealPositionPrice(self.damage)],
             targets=targets)
@@ -3313,7 +3326,9 @@ class Module(BaseGear, StandardDamageHandler):
                 name='Basic Attack',
                 fx=geffects.MeleeAttackRoll(
                     stats.Body, self.scale.MELEE_SKILL,
-                    children=(geffects.DoDamage(2, self.size + 1, scale=self.scale, damage_bonus=self.get_damage_bonus(), is_brutal=True),),
+                    children=(
+                    geffects.DoDamage(2, self.size + 1, scale=self.scale, damage_bonus=self.get_damage_bonus(),
+                                      is_brutal=True),),
                     accuracy=self.form.ACCURACY * 10, penetration=self.form.PENETRATION * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers()
@@ -3479,7 +3494,8 @@ class MT_Battroid(Singleton):
     PROTOTYPE_IMAGENAME = "mav_buruburu.png"
     PROTOTYPE_PORTRAIT = "mecha_buruburu.png"
 
-    LEGAL_MOVE_MODES = (scenes.movement.Walking, gears.tags.Rolling, gears.tags.Skimming, gears.tags.SpaceFlight, gears.tags.Jumping)
+    LEGAL_MOVE_MODES = (
+    scenes.movement.Walking, gears.tags.Rolling, gears.tags.Skimming, gears.tags.SpaceFlight, gears.tags.Jumping)
 
     @classmethod
     def is_legal_sub_com(self, part):
@@ -3919,17 +3935,18 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def get_melee_damage_bonus(self, weapon):
         mymod = weapon.get_module()
         if mymod:
-            scmods = [sc.get_melee_damage_bonus() for sc in mymod.sub_com if sc.is_not_destroyed() and hasattr(sc,"get_melee_damage_bonus")] + [0,]
-            return mymod.size//2 + sum(scmods)
+            scmods = [sc.get_melee_damage_bonus() for sc in mymod.sub_com if
+                      sc.is_not_destroyed() and hasattr(sc, "get_melee_damage_bonus")] + [0, ]
+            return mymod.size // 2 + sum(scmods)
         else:
             return 0
 
     def shop_rank(self):
         cost = self.cost
         if cost <= 300000:
-            return cost//30000
+            return cost // 30000
         else:
-            return int(math.log(cost*0.000005)*27)
+            return int(math.log(cost * 0.000005) * 27)
 
 
 class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Combatant, Restoreable):
@@ -4228,7 +4245,7 @@ class Monster(Being, MakesPower):
     def self_cost(self):
         # Adjusted downward, slightly.
         if self.threat < 31:
-            it = max(self.threat,1) * 100
+            it = max(self.threat, 1) * 100
         else:
             it = 10 * self.threat * self.threat - 450 * self.threat + 8500
         return it
@@ -4285,9 +4302,10 @@ class Character(Being):
         # The battle_cost for a character is the max of either their equipment value or their effective monster threat,
         # as based on their personal combat skills.
         min_val = super().battle_cost()
-        max_personal_combat_skill = max([self.statline[t] for t in (stats.CloseCombat, stats.RangedCombat, stats.Dodge)]) * 12
+        max_personal_combat_skill = max(
+            [self.statline[t] for t in (stats.CloseCombat, stats.RangedCombat, stats.Dodge)]) * 12
         if max_personal_combat_skill < 31:
-            it = max(max_personal_combat_skill,1) * 100
+            it = max(max_personal_combat_skill, 1) * 100
         else:
             it = 10 * max_personal_combat_skill ** 2 - 450 * max_personal_combat_skill + 8500
         return max(min_val, it)
@@ -4615,7 +4633,7 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
 class Treasure(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "Treasure"
     SAVE_PARAMETERS = (
-        'value','weight')
+        'value', 'weight')
     DEFAULT_SCALE = scale.HumanScale
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
@@ -4647,7 +4665,7 @@ class Treasure(BaseGear, StandardDamageHandler):
 class Consumable(BaseGear, InvulnerableDamageHandler):
     DEFAULT_NAME = "Consumable"
     SAVE_PARAMETERS = (
-        'effect','weight', 'quantity')
+        'effect', 'weight', 'quantity')
     DEFAULT_SCALE = scale.HumanScale
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
@@ -4687,4 +4705,4 @@ class Consumable(BaseGear, InvulnerableDamageHandler):
         return True
 
     def get_item_stats(self):
-        return (("Quantity",str(self.quantity-self.spent)),)
+        return (("Quantity", str(self.quantity - self.spent)),)

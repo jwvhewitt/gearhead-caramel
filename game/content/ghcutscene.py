@@ -1,3 +1,5 @@
+import collections
+
 from pbge import cutscene
 from .. import ghdialogue
 import random
@@ -5,21 +7,31 @@ import pbge
 import gears
 
 
-class CutsceneScript:
-    def __init__(self, elements=None):
-        self.presentation_nodes = list()
+class CutsceneState:
+    def __init__(self, elements=None, prev_node=None, tags=(), ordered_beats=(), unordered_beats=(), info_blocks=()):
         self.elements = dict()
         if elements:
             self.elements.update(elements)
+        self.prev_node = prev_node
+        self.tags = set(tags)
+        self.ordered_beats = list(ordered_beats)
+        self.unordered_beats = list(unordered_beats)
+        self.info_blocks = list(info_blocks)
 
 
 class CutscenePlan:
-    def __init__(self, topic, elements=None, beats=(), info_blocks=()):
+    def __init__(self, topic, elements=None, ordered_beats=(), unordered_beats=(), info_blocks=()):
+        # topic is a string describing the overall function of this cutscene
+        # elements is a list of named things that might get used by Presentation Nodes or to format text.
+        # ordered_beats is a list of beats that must be included in the cutscene; they must appear in the order given
+        # unordered_beats must also appear in the cutscene; these can appear in any order
+        # info_blocks is a list of InfoBlock objects from which the cutscene will be created.
         self.topic = topic
         self.elements = dict()
         if elements:
             self.elements.update(elements)
-        self.beats = list(beats)
+        self.ordered_beats = list(ordered_beats)
+        self.unordered_ordered = list(unordered_beats)
         self.info_blocks = list(info_blocks)
 
     def build(self, camp: gears.GearHeadCampaign):
@@ -30,31 +42,39 @@ class CutscenePlan:
         pass
 
 
-class InfoBlock:
+class InfoBlock(dict):
     # Contains info that may need to be expressed during the cutscene.
-    def __init__(self, sequence=-1, beat=None, requirements=(), grammar=None, moods=()):
-        # sequence tells what order this InfoBlock can appear in; if -1, it can appear anywhere in the cutscene.
+    def __init__(self, beat=None, requirements=(), tags=(), **kwargs):
         # beat is an optional string describing this InfoBlock's role. Certain cutscenes may require certain beats to
         #   be met.
         # requirements is a list of callables, all of which must return True in order for this InfoBlock to be
         #   considered for inclusion in the cutscene.
         # grammar is a list of grammar items giving text associated with this info block.
-        # moods is a list of tags describing the mood set by this infoblock.
-        self.sequence = sequence
+        # tags is a list of tags describing the mood set and/or function provided by this infoblock.
+        # **kwargs are passed to the super method and should contain the representations of this info.
+        #   The keys are the labels looked for by presentation templates. The values are usually strings.
+        super().__init__(**kwargs)
         self.beat = beat
         self.requirements = list(requirements)
-        self.grammar = dict()
-        if grammar:
-            self.grammar.update(grammar)
-        self.moods = moods
+        self.tags = set(tags)
 
 
-class PresentationNode(object):
+class PresentationNode:
+    def __init__(self, template):
+        self.template = template
+        self.info_blocks = list()
+
+
+class PresentationTemplate(object):
     # The abstract type from which other Presentation Nodes inherit. Communicates some information from the InfoBlocks
     # to the player. Uses the grammar from the attached info blocks to generate text.
-    def __init__(self, node_type, requirements=()):
+    # node_type is a string describing the type of this node.
+    # requirements is a list of callables(camp), all of which must return True for this template to be selectable now.
+    # strings is a list of strings used by the presentation.
+    def __init__(self, node_type="Abstract", requirements=(), strings=()):
         self.node_type = node_type
         self.requirements = requirements
+        self.strings = strings
 
     @classmethod
     def get_all_subclasses_as_dict(cls, class_i_wanna_know_about=None):
@@ -68,6 +88,30 @@ class PresentationNode(object):
 
         return all_subclasses
 
+    def get_needed_info(self):
+        # Search through the strings. Find all the needed info components.
+        my_info = collections.defaultdict(list)
+        for my_string in self.strings:
+            cursor_pos = 0
+            while cursor_pos < len(my_string):
+                open_bracket = my_string.find("{", cursor_pos)
+                if open_bracket > -1:
+                    closed_bracket = my_string.find("}", open_bracket+1)
+                    if closed_bracket != -1:
+                        my_tag = my_string[open_bracket+1:closed_bracket]
+                        # This tag could be needed info from an InfoBlock, or it could be an element passed to this
+                        # presentation node. Info block strings will start with InfoBlockX_, where "X" is the ident
+                        # of the info block (usually a number, right now I'm not sure it matters).
+                        if my_tag.startswith("InfoBlock"):
+                            a, b, c = my_tag.partition("_")
+                            if c:
+                                my_info[a].append(c)
+                        cursor_pos = closed_bracket + 1
+                    else:
+                        break
+                else:
+                    break
+        return my_info
 
 
 class LancematePrep( object ):
@@ -128,12 +172,13 @@ class ExplosionDisplay(object):
 
 
 class SkillRollCutscene(cutscene.Cutscene):
-    def __init__( self,stat_id,skill_id,target,library=dict(),on_success=(),on_failure=()):
+    def __init__( self,stat_id,skill_id,target,library=None,on_success=(),on_failure=()):
         self.stat_id = stat_id
         self.skill_id = skill_id
         self.target = target
         self.library = dict()
-        self.library.update(library)
+        if library:
+            self.library.update(library)
         self.on_success = list(on_success)
         self.on_failure = list(on_failure)
         
