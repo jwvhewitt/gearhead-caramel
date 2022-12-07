@@ -1,3 +1,4 @@
+* Fixed bug where lancemates removed to a safe place don't get removed
 * Fixed a bug in the gear loader where everything is True, even False things are True
 * Added Stream music mode
 * Fixed bug when lancemate with pet quits party

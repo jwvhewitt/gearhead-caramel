@@ -7,6 +7,25 @@ import pbge
 import gears
 
 
+PRESENTATION_TEMPLATES = list()
+
+class InfoBlock(dict):
+    # Contains info that may need to be expressed during the cutscene.
+    def __init__(self, beat=None, requirements=(), tags=(), **kwargs):
+        # beat is an optional string describing this InfoBlock's role. Certain cutscenes may require certain beats to
+        #   be met.
+        # requirements is a list of callables(camp, state), all of which must return True in order for this InfoBlock
+        #   to be considered for inclusion in the cutscene.
+        # grammar is a list of grammar items giving text associated with this info block.
+        # tags is a list of tags describing the mood set and/or function provided by this infoblock.
+        # **kwargs are passed to the super method and should contain the representations of this info.
+        #   The keys are the labels looked for by presentation templates. The values are usually strings.
+        super().__init__(**kwargs)
+        self.beat = beat
+        self.requirements = list(requirements)
+        self.tags = set(tags)
+
+
 class CutsceneState:
     def __init__(self, elements=None, prev_node=None, tags=(), ordered_beats=(), unordered_beats=(), info_blocks=()):
         self.elements = dict()
@@ -17,6 +36,46 @@ class CutsceneState:
         self.ordered_beats = list(ordered_beats)
         self.unordered_beats = list(unordered_beats)
         self.info_blocks = list(info_blocks)
+
+    def get_priority_and_optional_info_blocks(self, camp: gears.GearHeadCampaign):
+        # This function returns two lists: One of info blocks which have priority (they satisfy one of the beats
+        # needed by the cutscene state) and one for other info blocks which can be used now but are optional.
+        # I am still recovering from Covid 19 and programming is hard, folks. I don't know if it is brain fog,
+        # tiredness, or just all the drugs I'm taking but it is more difficult to complete intensive verbal/language
+        # tasks now than usual, which is pretty bad considering that all of my jobs are language-intensive.
+        # Anyhow, this comment is left here as a time capsule from December 2022. Also so if there are any really
+        # stupid bugs in the following code at least you know I was stoned on codeine when I wrote it.
+        candidates = [ib for ib in self.info_blocks if all([req(camp, self) for req in ib.requirements])]
+        priority_info = list()
+        optional_info = list()
+        for can in candidates:
+            if can.beat:
+                if can.beat in self.ordered_beats:
+                    if can.beat == self.ordered_beats[0]:
+                        priority_info.append(can)
+                elif can.beat in self.unordered_beats:
+                    priority_info.append(can)
+                else:
+                    optional_info.append(can)
+            else:
+                optional_info.append(can)
+        return priority_info, optional_info
+
+    def apply_info(self, ib: InfoBlock):
+        if ib in self.info_blocks:
+            self.info_blocks.remove(ib)
+        if ib.beat:
+            if ib.beat in self.ordered_beats:
+                self.ordered_beats.remove(ib.beat)
+            elif ib.beat in self.unordered_beats:
+                self.unordered_beats.remove(ib.beat)
+        self.tags.update(ib.tags)
+
+    def clone(self, current_node=None):
+        return self.__class__(
+            elements=self.elements, prev_node=current_node or self.prev_node, tags=self.tags,
+            ordered_beats=self.ordered_beats, unordered_beats=self.unordered_beats, info_blocks=self.info_blocks
+        )
 
 
 class CutscenePlan:
@@ -31,50 +90,43 @@ class CutscenePlan:
         if elements:
             self.elements.update(elements)
         self.ordered_beats = list(ordered_beats)
-        self.unordered_ordered = list(unordered_beats)
+        self.unordered_beats = list(unordered_beats)
         self.info_blocks = list(info_blocks)
 
+    def _get_next_nodes(self, camp: gears.GearHeadCampaign, previous_state: CutsceneState, presentation: list, previous_node=None):
+        current_state = previous_state.clone(previous_node)
+        candidate_nodes = [pt for pt in PRESENTATION_TEMPLATES if pt.is_candidate_for_situation(current_state)]
+
     def build(self, camp: gears.GearHeadCampaign):
-        pass
+        current_state = CutsceneState(elements=self.elements, ordered_beats=self.ordered_beats,
+                                      unordered_beats=self.unordered_beats, info_blocks=self.info_blocks)
+        presentation = list()
+        presentation += self._get_next_nodes(camp, current_state, presentation)
 
     def play(self, camp: gears.GearHeadCampaign):
         self.build(camp)
         pass
 
 
-class InfoBlock(dict):
-    # Contains info that may need to be expressed during the cutscene.
-    def __init__(self, beat=None, requirements=(), tags=(), **kwargs):
-        # beat is an optional string describing this InfoBlock's role. Certain cutscenes may require certain beats to
-        #   be met.
-        # requirements is a list of callables, all of which must return True in order for this InfoBlock to be
-        #   considered for inclusion in the cutscene.
-        # grammar is a list of grammar items giving text associated with this info block.
-        # tags is a list of tags describing the mood set and/or function provided by this infoblock.
-        # **kwargs are passed to the super method and should contain the representations of this info.
-        #   The keys are the labels looked for by presentation templates. The values are usually strings.
-        super().__init__(**kwargs)
-        self.beat = beat
-        self.requirements = list(requirements)
-        self.tags = set(tags)
-
-
 class PresentationNode:
     def __init__(self, template):
         self.template = template
-        self.info_blocks = list()
+        self.info_blocks = dict()
+        self.premium = False
+        self.final_state = None
 
 
 class PresentationTemplate(object):
     # The abstract type from which other Presentation Nodes inherit. Communicates some information from the InfoBlocks
     # to the player. Uses the grammar from the attached info blocks to generate text.
     # node_type is a string describing the type of this node.
-    # requirements is a list of callables(camp), all of which must return True for this template to be selectable now.
+    # requirements is a list of callables(camp, current_status), all of which must return True for this template to be selectable now.
     # strings is a list of strings used by the presentation.
     def __init__(self, node_type="Abstract", requirements=(), strings=()):
         self.node_type = node_type
         self.requirements = requirements
         self.strings = strings
+        PRESENTATION_TEMPLATES.append(self)
 
     @classmethod
     def get_all_subclasses_as_dict(cls, class_i_wanna_know_about=None):
@@ -90,6 +142,8 @@ class PresentationTemplate(object):
 
     def get_needed_info(self):
         # Search through the strings. Find all the needed info components.
+        # Keys = infoblock identifiers
+        # Values = string labels needed
         my_info = collections.defaultdict(list)
         for my_string in self.strings:
             cursor_pos = 0
@@ -112,6 +166,29 @@ class PresentationTemplate(object):
                 else:
                     break
         return my_info
+
+    def create_candidate_for_situation(self, camp: gears.GearHeadCampaign, current_state: CutsceneState):
+        # Attempt to create a presentation node for this situation.
+        if all([req(camp, current_state) for req in self.requirements]):
+            can_node = PresentationNode(self)
+            needed_info = self.get_needed_info()
+            cloned_state = current_state.clone()
+            for k,v in needed_info.items():
+                priority_blocks, optional_blocks = cloned_state.get_priority_and_optional_info_blocks(camp)
+                candidates = [ib for ib in priority_blocks if all([tag in ib for tag in v])]
+                if candidates:
+                    can_node.premium = True
+                else:
+                    candidates = [ib for ib in optional_blocks if all([tag in ib for tag in v])]
+                if candidates:
+                    new_ib = random.choice(candidates)
+                    cloned_state.apply_info(new_ib)
+                    can_node.info_blocks[k] = new_ib
+                else:
+                    return None
+            # If we are here, we have a candidate node with info blocks selected.
+            can_node.final_state = cloned_state
+            return can_node
 
 
 class LancematePrep( object ):

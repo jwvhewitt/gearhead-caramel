@@ -761,6 +761,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     else:
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
+                        if pc in self.scene.contents:
+                            self.scene.contents.remove(pc)
 
                 elif isinstance(pc, base.Monster):
                     if pbge.util.config.getboolean("DIFFICULTY", "pets_can_die") and random.randint(1, 100) > skill:
@@ -771,6 +773,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                         pc.restore_all()
                         if announce_character_state:
                             pbge.alert("{} has been severely injured and is removed to a safe place.".format(pc))
+                            if pc in self.scene.contents:
+                                self.scene.contents.remove(pc)
 
                 elif isinstance(pc, base.Character):
                     if pbge.util.config.getboolean("DIFFICULTY", "lancemates_can_die") and random.randint(1,
@@ -791,6 +795,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                             pc.relationship.reaction_mod -= random.randint(1, 10)
                         if announce_character_state:
                             pbge.alert("{} has been severely injured and is removed to a safe place.".format(pc))
+                            if pc in self.scene.contents:
+                                self.scene.contents.remove(pc)
+
                 elif random.randint(1, 100) <= skill or not pbge.util.config.getboolean("DIFFICULTY",
                                                                                         "mecha_can_die") or pc not in self.scene.contents:
                     self.party.append(pc)
