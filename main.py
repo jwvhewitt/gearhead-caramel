@@ -294,6 +294,7 @@ def view_quarantine(tsrd):
 def play_the_game():
     gears.init_gears()
     game.init_game()
+    pbge.cutscene.init_cutscenes(pbge.util.data_dir("cspt_*.json"))
 
     check_rpg_saves()
 

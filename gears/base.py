@@ -924,11 +924,6 @@ class BaseGear(scenes.PlaceableThing):
         initdict["sub_com"] = dcsubcom
         initdict["inv_com"] = dcinvcom
 
-        if "stolen" in initdict and initdict["stolen"]:
-            print("{} stolen: {}".format(self.name, initdict["stolen"]))
-            print("Original: {}".format(self.stolen))
-            print(type(self.stolen))
-
         newgear = type(self)(**initdict)
         newgear.__dict__.update(afterdict)
         memo[id(self)] = newgear
@@ -4338,6 +4333,16 @@ class Character(Being):
             mytags.add(self.mnpcid)
         for badge in self.badges:
             mytags |= badge.tags
+            if include_all:
+                mytags.add(badge.name)
+        if include_all and self.relationship:
+            mytags |= self.relationship.tags
+            if self.relationship.attitude:
+                mytags.add(self.relationship.attitude)
+            if self.relationship.expectation:
+                mytags.add(self.relationship.expectation)
+            if self.relationship.role:
+                mytags.add(self.relationship.role)
         return mytags
 
     def get_reaction_score(self, pc, camp):

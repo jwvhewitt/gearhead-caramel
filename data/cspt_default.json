@@ -1,3 +1,40 @@
 [
+  {
+    "name": "City Introduction",
+    "type": "AlertPresentation",
+    "node_type": "Alert",
+    "strings": [
+      "You enter {METROSCENE}, {INFOBLOCK1_CITY_EPITHET}. {INFOBLOCK2_ALERT_PHYSICALDESC}"
+    ],
+    "requirements": [
+      {"type": "TopicRequirement", "topic": "city_intro"},
+      {"type": "MustBeFirstNode"}
+    ]
+  },
+    {
+    "name": "City First Impression",
+    "type": "AlertPresentation",
+    "node_type": "Alert",
+    "strings": [
+      "You arrive in {METROSCENE}. {INFOBLOCK1_ALERT_PHYSICALDESC} {INFOBLOCK2_ALERT_OPINION}"
+    ],
+    "requirements": [
+      {"type": "TopicRequirement", "topic": "city_intro"},
+      {"type": "MustBeFirstNode"}
+    ]
+  },
+      {
+    "name": "City Details",
+    "type": "AlertPresentation",
+    "node_type": "Alert",
+    "strings": [
+      "{INFOBLOCK1_ALERT_PHYSICALDESC} {INFOBLOCK2_ALERT_OPINION}"
+    ],
+    "requirements": [
+      {"type": "TopicRequirement", "topic": "city_intro"},
+      {"type": "MustNotBeFirstNode"}
+    ]
+  }
+
 
 ]

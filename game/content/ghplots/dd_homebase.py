@@ -119,15 +119,86 @@ class DZD_Wujung(Plot):
 
     def METROSCENE_ENTER(self, camp):
         if self.intro_ready:
-            my_cutscene = ghcutscene.CutscenePlan("city_intro", {"METROSCENE": camp.scene})
-            my_cutscene.info_blocks.append(
-                ghcutscene.InfoBlock(
-
-                )
+            my_cutscene = pbge.cutscene.CutscenePlan(
+                "city_intro", {"METROSCENE": camp.scene}, start_beats=("first_impression", "typhon_attack"),
+                final_beats=("mission_reminder",)
             )
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="first_impression",
+                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.DeadZone,)),),
+                tags=(gears.personality.Cheerful,),
+                ALERT_PHYSICALDESC="The air here is clean and crisp; the grass is soft beneath your feet. Majestic buildings reach skyward like a picture of the PreZero age.",
+                ALERT_OPINION="The city is bigger than you thought it would be; bustling with activity; waiting to be explored."
+            ))
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="first_impression",
+                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.GreenZone,)),),
+                tags=(gears.personality.Easygoing,),
+                ALERT_PHYSICALDESC="The massive walls of the city date back to PreZero times, and provide a stark divide between the Dead Zone behind you and the Green Zone before you.",
+                ALERT_OPINION="It feels good to be back in the Green Zone. The air smells fresh. The flowers are starting to bloom."
+            ))
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="first_impression",
+                ALERT_PHYSICALDESC="The harsh wasteland outside the wall quickly gives way to lush grass and busy streets. This section of the city is where traders and merchants operate.",
+                ALERT_OPINION="As you pass through the massive city gates, it feels as though you have enetered a new world. Life is thriving here."
+            ))
+
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="typhon_attack",
+                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.GreenZone,)),),
+                tags=(gears.personality.Grim,),
+                ALERT_PHYSICALDESC="You notice a lot of construction work to repair the damage from Typhon's attack last year.",
+                ALERT_OPINION="Once this city was considered unassailable. Now, the scars left by the biomonster Typhon provide a permanent reminder that no place on Earth is truly safe."
+            ))
+
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="typhon_attack",
+                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.DeadZone,)),),
+                tags=(gears.personality.Easygoing,),
+                ALERT_PHYSICALDESC="From the stories you heard about the biomonster Typhon, you were expecting this city to be half in ruins.",
+                ALERT_OPINION="Last year this city was attacked by the biomonster Typhon, but it has recovered spectacularly."
+            ))
+
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="typhon_attack",
+                tags=(gears.personality.Grim,),
+                ALERT_PHYSICALDESC="The attack by the biomonster Typhon last year is still apparent from the damaged buildings and ongoing construction work.",
+                ALERT_OPINION="It's clear that the city has not fully recovered from Typhon's attack last year, but life must go on regardless."
+            ))
+
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="mission_reminder",
+                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.DeadZone,)),),
+                tags=(gears.personality.Cheerful,),
+                ALERT_PHYSICALDESC="The Bronze Horse Inn is somewhere in this labyrinth of buildings. Might as well start looking.",
+                ALERT_OPINION="You are not sure what the Bronze Horse Inn looks like or where it might be, but are confident you can find it."
+            ))
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="mission_reminder",
+                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.GreenZone,)),),
+                tags=(gears.personality.Easygoing,),
+                ALERT_PHYSICALDESC="The city has changed a lot since the last time you were here- probably because of the reconstruction. You're not sure where to find the Bronze Horse Inn.",
+                ALERT_OPINION="The Bronze Horse Inn is a new addition to the city. Might as well take a look around and see if you can find it."
+            ))
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="mission_reminder",
+                ALERT_PHYSICALDESC="You begin looking for the Bronze Horse Inn.",
+                ALERT_OPINION="According to its thrupage, the Bronze Horse Inn is somewhere in this neighborhood. You can check out some of these other buildings while trying to find it."
+            ))
+
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                CITY_EPITHET="the gateway to the Dead Zone"
+            ))
+
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                requirements=(ghcutscene.PCTagRequirement(tags=(gears.tags.Military,)),),
+                CITY_EPITHET="home base of the Terran Defense Force"
+            ))
+
+            my_cutscene.play(camp)
 
             # Give a different entry message depending on the nature of the PC.
-            if camp.pc.has_badge("Typhon Slayer"):
+            """if camp.pc.has_badge("Typhon Slayer"):
                 pbge.alert(
                     "You enter Wujung. Your battle with Typhon nearly ended before it began in this very spot. It feels like that happened years ago and a lifetime away... Yet here you are.")
                 pbge.alert(
@@ -147,6 +218,7 @@ class DZD_Wujung(Plot):
                     "You enter Wujung, the gateway to the Dead Zone. The harsh wasteland outside the wall quickly gives way to lush grass and busy streets. This section of the city is where traders and merchants operate.")
                 pbge.alert(
                     "According to its thrupage, the Bronze Horse Inn is somewhere in this neighborhood. You can check out some of these other buildings while trying to find it.")
+            """
             self.intro_ready = False
 
     def _get_generic_offers(self, npc, camp):

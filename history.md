@@ -1,3 +1,5 @@
+* Added procedural cutscene generator
+* get_tags include_all now returns merit badge names and relationship info
 * Fixed bug where lancemates removed to a safe place don't get removed
 * Fixed a bug in the gear loader where everything is True, even False things are True
 * Added Stream music mode
