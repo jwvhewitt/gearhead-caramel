@@ -95,7 +95,6 @@ class Earth_RescueAndBiotech(LMMissionPlot):
     CASH_REWARD = 100
     EXPERIENCE_REWARD = 150
     MISSION_SCALE = gears.scale.HumanScale
-    COMMON = True
 
     @classmethod
     def matches(self, pstate):
@@ -342,7 +341,7 @@ class HowDoYouSeeMe(LMPlot):
             npc.relationship.role = gears.relationships.R_CRUSH
         else:
             ghcutscene.SimpleMonologueDisplay(
-                "Slow down there, [audience]. I wasn't expecting this much information when I asked the question!", npc
+                "Slow down there, [PC]. I wasn't expecting this much information when I asked the question!", npc
             )(camp, False)
             npc.relationship.reaction_mod -= 10
             npc.relationship.role = gears.relationships.R_COLLEAGUE
@@ -544,7 +543,7 @@ class FriendInTroubleRightNow(LMMissionPlot):
         npc: gears.base.Character = self.elements["NPC"]
         if npc in camp.party and not npc.is_destroyed():
             ghcutscene.SimpleMonologueDisplay(
-                "Thanks for coming along, [audience]. Seems like I did need your help after all.",
+                "Thanks for coming along, [PC]. Seems like I did need your help after all.",
                 npc.get_root())(camp)
             npc.statline[gears.stats.MechaPiloting] += 1
 
@@ -891,7 +890,7 @@ class PrezeroMacguffin(LMPlot):
             ))
             if self.rank > camp.renown + 5:
                 mylist.append(Offer(
-                    "Well, I'm not sure you're ready for that yet, [audience]. It's a dangerous place and I don't want to be the one responsible for getting you killed. But maybe later, we can come back and go treasure hunting.",
+                    "Well, I'm not sure you're ready for that yet, [PC]. It's a dangerous place and I don't want to be the one responsible for getting you killed. But maybe later, we can come back and go treasure hunting.",
                     (context.CUSTOM,), subject=self, data={"reply": "I'd like that too, [audience]."},
                     effect=self._accept_offer
                 ))
@@ -2310,7 +2309,7 @@ class LMD_GotMyEyeOnYou(LMPlot):
         ))
 
         mylist.append(Offer(
-            "Fine. I'll see you around, [audience].",
+            "Fine. I'll see you around, [PC].",
             (context.CUSTOMREPLY,), subject="for a while so I can keep an eye on you",
             data={"reply": "No, seriously, you should quit the lance."},
             effect=self._quit_lance

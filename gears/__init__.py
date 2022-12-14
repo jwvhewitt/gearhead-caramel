@@ -1406,6 +1406,15 @@ def harvest_jobs():
         SINGLETON_REVERSE[job] = jobname
 
 
+def string_tags_to_singletons(tag_list):
+    tags = set()
+    for t in tag_list:
+        if t in gears.SINGLETON_TYPES:
+            tags.add(gears.SINGLETON_TYPES[t])
+        else:
+            tags.add(t)
+    return tags
+
 #  ******************************
 #  ***   UTILITY  FUNCTIONS   ***
 #  ******************************

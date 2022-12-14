@@ -26,19 +26,65 @@ class MonologuePresentation(cutscene.PresentationTemplate):
         else:
             print("Error: No NPC found for monologue presentation {}".format(self.name))
 
+class AlertThenMonologuePresentation(MonologuePresentation):
+    def play(self, camp, info_blocks, node_state: cutscene.CutsceneState):
+        pbge.alert(self.strings[0].format(**self.get_info_strings(info_blocks, node_state)))
+        msg = self.strings[1].format(**self.get_info_strings(info_blocks, node_state))
+        npc = node_state.elements.get(self.speaker_id, None)
+        if npc:
+            SimpleMonologueDisplay(msg, npc)(camp, self.SPEAKING_HAS_OCCURRED not in node_state.prev_state_tags)
+        else:
+            print("Error: No NPC found for monologue presentation {}".format(self.name))
+
+
+class LMSpeakerRequirement(cutscene.CutsceneRequirement):
+    # Find a lancemate to speak the monologue. Store the lancemate, if found, as "_SPEAKER" in current_state.elements
+    def __init__(self, speaker_id="_SPEAKER", needed_tags=(), forbidden_tags=()):
+        self.speaker_id = speaker_id
+        self.needed_tags = gears.string_tags_to_singletons(needed_tags)
+        self.forbidden_tags = gears.string_tags_to_singletons(forbidden_tags)
+
+    def __call__(self, camp: gears.GearHeadCampaign, current_state: cutscene.CutsceneState):
+        candidates = list()
+        for base_lm in camp.get_active_lancemates():
+            true_lm = base_lm.get_pilot()
+            if isinstance(true_lm, gears.base.Character):
+                npc_tags = true_lm.get_tags(True)
+                if self.needed_tags.issubset(npc_tags) and not self.forbidden_tags.intersection(npc_tags):
+                    candidates.append(base_lm)
+        if candidates:
+            lm = random.choice(candidates)
+            current_state.elements[self.speaker_id] = lm
+            return True
+
 
 class PCTagRequirement(cutscene.CutsceneRequirement):
-    def __init__(self, tags=()):
-        self.tags = set()
-        for t in tags:
-            if t in gears.SINGLETON_TYPES:
-                self.tags.add(gears.SINGLETON_TYPES[t])
-            else:
-                self.tags.add(t)
+    def __init__(self, needed_tags=(), forbidden_tags=()):
+        self.needed_tags = gears.string_tags_to_singletons(needed_tags)
+        self.forbidden_tags = gears.string_tags_to_singletons(forbidden_tags)
 
     def __call__(self, camp: gears.GearHeadCampaign, current_state):
-        return self.tags.issubset(camp.pc.get_tags(True))
+        pc_tags = camp.pc.get_tags(True)
+        return self.needed_tags.issubset(pc_tags) and not self.forbidden_tags.intersection(pc_tags)
 
+
+class StatusTagRequirement(PCTagRequirement):
+    def __call__(self, camp: gears.GearHeadCampaign, current_state: cutscene.CutsceneState):
+        return self.needed_tags.issubset(current_state.tags) and not \
+            self.forbidden_tags.intersection(current_state.tags)
+
+
+class SpeakerTagRequirement(PCTagRequirement):
+    def __call__(self, camp: gears.GearHeadCampaign, current_state):
+        npc = current_state.elements.get("_SPEAKER", None)
+        if npc:
+            npc = npc.get_pilot()
+            if isinstance(npc, gears.base.Character):
+                npc_tags = npc.get_tags(True)
+                return self.needed_tags.issubset(npc_tags) and not self.forbidden_tags.intersection(npc_tags)
+        else:
+            pc_tags = camp.pc.get_tags(True)
+            return self.needed_tags.issubset(pc_tags) and not self.forbidden_tags.intersection(pc_tags)
 
 
 class LancematePrep( object ):

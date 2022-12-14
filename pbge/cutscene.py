@@ -12,6 +12,7 @@ import json
 PRESENTATION_TEMPLATES = list()
 PRESENTATION_SUBCLASSES = dict()
 REQUIREMENT_SUBCLASSES = dict()
+OPPOSITE_TAGS = dict()
 
 
 class InfoBlock(dict):
@@ -80,6 +81,10 @@ class CutsceneState:
                 self.mid_beats.remove(ib.beat)
             elif ib.beat in self.final_beats:
                 self.final_beats.remove(ib.beat)
+        if ib.tags:
+            for k,v in OPPOSITE_TAGS.items():
+                if k in ib.tags and v in self.tags:
+                    self.tags.remove(v)
         self.tags.update(ib.tags)
 
     def clone(self, current_node=None):
@@ -233,10 +238,10 @@ class PresentationTemplate(object):
 
     def create_candidate_for_situation(self, camp, start_state: CutsceneState):
         # Attempt to create a presentation node for this situation.
-        if all([req(camp, start_state) for req in self.requirements]):
+        cloned_state = self._generate_current_state(start_state)
+        if all([req(camp, cloned_state) for req in self.requirements]):
             can_node = PresentationNode(self)
             needed_info = self.get_needed_info()
-            cloned_state = self._generate_current_state(start_state)
             for k,v in needed_info.items():
                 priority_blocks, optional_blocks = cloned_state.get_priority_and_optional_info_blocks(camp)
                 candidates = [ib for ib in priority_blocks if all([tag in ib for tag in v])]

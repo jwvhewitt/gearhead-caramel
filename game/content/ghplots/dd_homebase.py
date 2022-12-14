@@ -125,17 +125,20 @@ class DZD_Wujung(Plot):
             )
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
                 beat="first_impression",
-                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.DeadZone,)),),
+                requirements=(ghcutscene.SpeakerTagRequirement(needed_tags=(gears.personality.DeadZone,)),
+                              ghcutscene.StatusTagRequirement(forbidden_tags=(gears.personality.Grim,))),
                 tags=(gears.personality.Cheerful,),
-                ALERT_PHYSICALDESC="The air here is clean and crisp; the grass is soft beneath your feet. Majestic buildings reach skyward like a picture of the PreZero age.",
-                ALERT_OPINION="The city is bigger than you thought it would be; bustling with activity; waiting to be explored."
+                ALERT_PHYSICALDESC="The air here is clean and crisp; the grass is soft beneath your800438176635 feet. Majestic buildings reach skyward like a picture of the PreZero age.",
+                ALERT_OPINION="The city is bigger than you thought it would be; bustling with activity; waiting to be explored.",
+                SPEAK_OPINION="I can see now why they call this the green zone. Everything is so... green."
             ))
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
                 beat="first_impression",
-                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.GreenZone,)),),
+                requirements=(ghcutscene.SpeakerTagRequirement(needed_tags=(gears.personality.GreenZone,)),),
                 tags=(gears.personality.Easygoing,),
                 ALERT_PHYSICALDESC="The massive walls of the city date back to PreZero times, and provide a stark divide between the Dead Zone behind you and the Green Zone before you.",
-                ALERT_OPINION="It feels good to be back in the Green Zone. The air smells fresh. The flowers are starting to bloom."
+                ALERT_OPINION="It feels good to be back in the Green Zone. The air smells fresh. The flowers are starting to bloom.",
+                SPEAK_OPINION="I'm glad to be back in the green zone. Life's a lot different on this side of the wall."
             ))
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
                 beat="first_impression",
@@ -145,45 +148,66 @@ class DZD_Wujung(Plot):
 
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
                 beat="typhon_attack",
-                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.GreenZone,)),),
+                requirements=(ghcutscene.SpeakerTagRequirement(needed_tags=(gears.personality.GreenZone,)),
+                              ghcutscene.StatusTagRequirement(forbidden_tags=(gears.personality.Cheerful,))),
                 tags=(gears.personality.Grim,),
                 ALERT_PHYSICALDESC="You notice a lot of construction work to repair the damage from Typhon's attack last year.",
-                ALERT_OPINION="Once this city was considered unassailable. Now, the scars left by the biomonster Typhon provide a permanent reminder that no place on Earth is truly safe."
+                ALERT_OPINION="Once this city was considered unassailable. Now, the scars left by the biomonster Typhon provide a permanent reminder that no place on Earth is truly safe.",
+                SPEAK_OPINION="I always thought of Wujung as this indestructible fortress separating Joseon from the Dead Zone. But now, seeing the damage Typhon caused..."
             ))
 
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
                 beat="typhon_attack",
-                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.DeadZone,)),),
+                requirements=(ghcutscene.PCTagRequirement(needed_tags=(gears.personality.DeadZone,)),),
                 tags=(gears.personality.Easygoing,),
                 ALERT_PHYSICALDESC="From the stories you heard about the biomonster Typhon, you were expecting this city to be half in ruins.",
-                ALERT_OPINION="Last year this city was attacked by the biomonster Typhon, but it has recovered spectacularly."
+                ALERT_OPINION="Last year this city was attacked by the biomonster Typhon, but it has recovered spectacularly.",
+                SPEAK_OPINION="I was expecting this place to be completely wrecked from Typhon's attack last year, but they've fixed it up pretty good."
             ))
 
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
                 beat="typhon_attack",
                 tags=(gears.personality.Grim,),
+                requirements=(ghcutscene.StatusTagRequirement(forbidden_tags=(gears.personality.Cheerful,)),),
                 ALERT_PHYSICALDESC="The attack by the biomonster Typhon last year is still apparent from the damaged buildings and ongoing construction work.",
-                ALERT_OPINION="It's clear that the city has not fully recovered from Typhon's attack last year, but life must go on regardless."
+                ALERT_OPINION="It's clear that the city has not fully recovered from Typhon's attack last year, but life must go on regardless.",
+                SPEAK_OPINION="Typhon messed this city up bad, didn't he?",
+                SPEAK_CHEERFUL="Wujung has survived a lot worse than Typhon's attack last year."
             ))
 
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
                 beat="mission_reminder",
-                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.DeadZone,)),),
+                requirements=(ghcutscene.SpeakerTagRequirement(needed_tags=(gears.personality.DeadZone,)),
+                              ghcutscene.StatusTagRequirement(forbidden_tags=(gears.personality.Grim,))),
                 tags=(gears.personality.Cheerful,),
                 ALERT_PHYSICALDESC="The Bronze Horse Inn is somewhere in this labyrinth of buildings. Might as well start looking.",
-                ALERT_OPINION="You are not sure what the Bronze Horse Inn looks like or where it might be, but are confident you can find it."
+                ALERT_OPINION="You are not sure what the Bronze Horse Inn looks like or where it might be, but are confident you can find it.",
+                SPEAK_MISSION="After we find the Bronze Horse Inn, can we do a bit of shopping? We might need new gear to complete the mission."
             ))
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
                 beat="mission_reminder",
-                requirements=(ghcutscene.PCTagRequirement(tags=(gears.personality.GreenZone,)),),
+                requirements=(ghcutscene.SpeakerTagRequirement(needed_tags=(gears.personality.GreenZone,)),),
                 tags=(gears.personality.Easygoing,),
                 ALERT_PHYSICALDESC="The city has changed a lot since the last time you were here- probably because of the reconstruction. You're not sure where to find the Bronze Horse Inn.",
-                ALERT_OPINION="The Bronze Horse Inn is a new addition to the city. Might as well take a look around and see if you can find it."
+                ALERT_OPINION="The Bronze Horse Inn is a new addition to the city. Might as well take a look around and see if you can find it.",
+                SPEAK_MISSION = "Looks like there are a lot of new buildings around here; I guess the Bronze Horse Inn must be one of them.",
+                SPEAK_CHEERFUL="Just look at how they've fixed up Wujung! The Bronze Horse Inn must be one of these new buildings."
             ))
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
                 beat="mission_reminder",
+                ALERT_MISSION="The Bronze Horse Inn is located in this shopping district. It shouldn't be too hard to find.",
                 ALERT_PHYSICALDESC="You begin looking for the Bronze Horse Inn.",
-                ALERT_OPINION="According to its thrupage, the Bronze Horse Inn is somewhere in this neighborhood. You can check out some of these other buildings while trying to find it."
+                ALERT_OPINION="According to its thrupage, the Bronze Horse Inn is somewhere in this neighborhood. You can check out some of these other buildings while trying to find it.",
+                SPEAK_MISSION="I'm sure it'll be no problem to find the Bronze Horse Inn; my dataslate says it's around here. Osmund will help us get the power plant fixed.",
+                SPEAK_OPINION="It shouldn't be too hard to find the Bronze Horse Inn. After that we can see about getting the power plant fixed.",
+                SPEAK_CHEERFUL="We are standing in the biggest shopping district of one of the greatest cities on Earth. Let's have some fun finding the Bronze Horse Inn."
+            ))
+
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                beat="mission_reminder",
+                ALERT_MISSION="Your mission now is to find the Bronze Horse Inn and speak to Osmund Eumann. He should be able to help you get the power plant fixed.",
+                SPEAK_MISSION="All we have to do is find the Bronze Horse Inn, hire some more lancemates, figure out how to fix the power station...",
+                SPEAK_CHEERFUL="Now that we're in Wujung, all we have to do is find this Osmund guy at the Bronze Horse Inn. He'll get everything sorted out."
             ))
 
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
@@ -191,7 +215,12 @@ class DZD_Wujung(Plot):
             ))
 
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
-                requirements=(ghcutscene.PCTagRequirement(tags=(gears.tags.Military,)),),
+                requirements=(ghcutscene.SpeakerTagRequirement(needed_tags=(gears.personality.DeadZone,)),),
+                CITY_EPITHET="the gateway to the Green Zone"
+            ))
+
+            my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
+                requirements=(ghcutscene.SpeakerTagRequirement(needed_tags=(gears.tags.Military,)),),
                 CITY_EPITHET="home base of the Terran Defense Force"
             ))
 

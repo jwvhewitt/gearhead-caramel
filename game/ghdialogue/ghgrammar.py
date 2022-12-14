@@ -1,5 +1,5 @@
 import gears.factions
-from gears import personality, tags
+from gears import personality, relationships, tags
 
 #
 #   GearHead Grammar
@@ -3858,6 +3858,27 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[pc]": {
+        relationships.A_JUNIOR: [
+            "Boss"
+        ],
+        relationships.R_CREATION: [
+            "Creator",
+        ],
+        relationships.RT_FAMILY: [
+            "Cuz"
+        ],
+        relationships.R_ADVERSARY: [
+            "[blockhead]",
+        ],
+        relationships.R_NEMESIS: [
+            "[blockhead]", "my arch-enemy"
+        ],
+        relationships.A_DISRESPECT: [
+            "[blockhead]",
+        ]
+    },
+
     "[person]": {
         Default: [
             "person", "man", "woman",
@@ -5481,6 +5502,27 @@ DEFAULT_GRAMMAR = {
         ],
         DISLIKE: [
             "yeah, I hate admitting this to you but you heard right",
+        ],
+    },
+
+    "[You_look_grim]": {
+        # Often used in cutscenes when a lancemate notices the PC having grim thoughts.
+        Default: ["you look grim",
+                  ],
+        personality.Cheerful: ["you don't look happy",
+                               ],
+        personality.Grim: ["I recognize that look",
+                           ],
+        personality.Easygoing: ["it seems like something's bothering you",
+                                ],
+        personality.Passionate: ["you seem depressed",
+                                 ],
+        personality.Sociable: ["you're being unusually quiet",
+                               ],
+        personality.Shy: ["you look sad",
+                          ],
+        LIKE: [
+            "I can tell you're having painful thoughts",
         ],
     },
 

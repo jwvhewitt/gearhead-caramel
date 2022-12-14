@@ -82,7 +82,7 @@ class BasicBattleConversation(Plot):
         if not self.elements.get(CONVO_CANT_RETREAT, False):
             game.ghdialogue.SkillBasedPartyReply(
                 Offer(
-                    "[CHANGE_MIND_AND_RETREAT] Until we meet again, [audience].",
+                    "[CHANGE_MIND_AND_RETREAT] Until we meet again, [PC].",
                     context=ContextTag([context.RETREAT]), effect=self._enemies_retreat,
                 ), camp, mylist, gears.stats.Ego, gears.stats.Negotiation, self._effective_rank(),
                 difficulty=gears.stats.DIFFICULTY_LEGENDARY, no_random=False
@@ -281,14 +281,14 @@ class JuniorImproverToFriendlyOrRival(BasicBattleConversation):
         mylist = list()
         myclash = self.elements["NPC"].relationship.get_recent_memory([relationships.MEM_LoseToPC])
         if myclash:
-            mylist.append(Offer("[BAD_NEWS] It's [audience] again... The last time we met, {}. [WE_ARE_DOOMED]".format(
+            mylist.append(Offer("[BAD_NEWS] It's [PC] again... The last time we met, {}. [WE_ARE_DOOMED]".format(
                 myclash.npc_perspective),
                 context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
         else:
             mylist.append(Offer("[BAD_NEWS] I wasn't counting on you showing up today... [WE_ARE_DOOMED]",
                                 context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
 
-        mylist.append(Offer("Thanks for the encouragement, [audience]... I'll do my best! [LETSFIGHT]",
+        mylist.append(Offer("Thanks for the encouragement, [PC]... I'll do my best! [LETSFIGHT]",
                             context=ContextTag([context.COMBAT_CUSTOM, ]), effect=self._encourage_npc,
                             data={"reply": "Don't give up hope so easily. You might beat me this time!"}))
 
@@ -337,7 +337,7 @@ class FriendlyAdventurer(BasicBattleConversation):
                 context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
         else:
             mylist.append(Offer(
-                "I've been dying to fight you, [audience]. I can't wait to see what kind of a challenge you put up.",
+                "I've been dying to fight you, [PC]. I can't wait to see what kind of a challenge you put up.",
                 context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
 
         mylist.append(Offer("I wouldn't be doing this except for the adventure, the challenge... [LETSFIGHT]",
@@ -688,7 +688,7 @@ class FriendlyNothingToColleagueBattleBC(BasicBattleConversation):
     def NPC_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[WE_MEET_AGAIN] Another day hard at work, eh [audience]?",
+            "[WE_MEET_AGAIN] Another day hard at work, eh [PC]?",
             context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
         mylist.append(
             Offer("I try to [objective_ep], you do whatever you're doing, and at the end of the day we both get paid!",

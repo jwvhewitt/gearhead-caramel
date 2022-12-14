@@ -295,6 +295,14 @@ def play_the_game():
     gears.init_gears()
     game.init_game()
     pbge.cutscene.init_cutscenes(pbge.util.data_dir("cspt_*.json"))
+    pbge.cutscene.OPPOSITE_TAGS.update({
+        gears.personality.Sociable: gears.personality.Shy,
+        gears.personality.Shy: gears.personality.Sociable,
+        gears.personality.Cheerful: gears.personality.Grim,
+        gears.personality.Grim: gears.personality.Cheerful,
+        gears.personality.Easygoing: gears.personality.Passionate,
+        gears.personality.Passionate: gears.personality.Easygoing
+    })
 
     check_rpg_saves()
 

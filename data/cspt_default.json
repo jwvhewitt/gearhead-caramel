@@ -34,7 +34,83 @@
       {"type": "TopicRequirement", "topic": "city_intro"},
       {"type": "MustNotBeFirstNode"}
     ]
+  },
+
+        {
+    "name": "Just the Mission Details, Please",
+    "type": "AlertPresentation",
+    "node_type": "Alert",
+    "strings": [
+      "{INFOBLOCK1_ALERT_MISSION}"
+    ]
+  },
+
+  {
+    "name": "Don't forget our mission",
+    "type": "MonologuePresentation",
+    "node_type": "Monologue",
+    "strings": [
+      "[pc]... {INFOBLOCK1_SPEAK_MISSION} [LETS_CONTINUE]"
+    ],
+    "requirements": [
+      {"type": "LMSpeakerRequirement"},
+      {"type": "MustNotBeFirstNode"}
+    ]
+  },
+
+    {
+    "name": "Opinion Then Mission",
+    "type": "MonologuePresentation",
+    "node_type": "Monologue",
+    "strings": [
+      "{INFOBLOCK1_SPEAK_OPINION} {INFOBLOCK2_SPEAK_MISSION}"
+    ],
+    "requirements": [
+      {"type": "LMSpeakerRequirement"},
+      {"type": "MustNotBeFirstNode"}
+    ]
+  },
+
+      {
+    "name": "Talking About Town",
+    "type": "MonologuePresentation",
+    "node_type": "Monologue",
+    "strings": [
+      "So this is {METROSCENE}, {INFOBLOCK1_CITY_EPITHET}. {INFOBLOCK2_SPEAK_OPINION}"
+    ],
+    "requirements": [
+      {"type": "TopicRequirement", "topic": "city_intro"},
+      {"type": "LMSpeakerRequirement"},
+      {"type": "MustNotBeFirstNode"}
+    ]
+  },
+
+        {
+    "name": "Cheer Up",
+    "type": "MonologuePresentation",
+    "node_type": "Monologue",
+    "strings": [
+      "[pc], [You_look_grim]. {SPEAK_CHEERFUL} [LETS_CONTINUE]"
+    ],
+    "requirements": [
+      {"type": "LMSpeakerRequirement"},
+      {"type": "StatusTagRequirement", "needed_tags": ["Grim"]},
+      {"type": "MustNotBeFirstNode"}
+    ]
+  },
+
+        {
+    "name": "Lancemate City Intro",
+    "type": "AlertThenMonologuePresentation",
+    "node_type": "AlertThenMonologue",
+    "strings": [
+      "As you enter {METROSCENE}, {_SPEAKER} turns to you.",
+      "Here we are in {METROSCENE}, [pc]; {INFOBLOCK1_CITY_EPITHET}. {INFOBLOCK2_SPEAK_OPINION}"
+    ],
+    "requirements": [
+      {"type": "TopicRequirement", "topic": "city_intro"},
+      {"type": "LMSpeakerRequirement"},
+      {"type": "MustBeFirstNode"}
+    ]
   }
-
-
 ]
