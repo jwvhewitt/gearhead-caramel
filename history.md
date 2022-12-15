@@ -1,3 +1,5 @@
+v0.946 December 15, 2022
+* Fixed incorrect use of AutoOfferInvoker; added EffectCallPlusNPC
 * Added procedural cutscene generator
 * get_tags include_all now returns merit badge names and relationship info
 * Fixed bug where lancemates removed to a safe place don't get removed

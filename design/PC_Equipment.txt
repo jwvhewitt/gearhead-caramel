@@ -423,7 +423,7 @@ BallisticWeapon
     accuracy = 2
     penetration = 1
     ammo_type = Pistol_6mm
-    attributes = (VariableFire2,)
+    attributes = (VariableFire2, LinkedFire)
     scale = HumanScale
     shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
     faction_list = (None,)
@@ -543,7 +543,7 @@ BallisticWeapon
     accuracy = 3
     penetration = 5
     ammo_type = Snub_10mm
-    attributes = (Accurate, VariableFire2)
+    attributes = (Accurate, VariableFire2, LinkedFire)
     scale = HumanScale
     shop_tags= ("WEAPON","MISSILE WEAPON")
     faction_list = (None,)

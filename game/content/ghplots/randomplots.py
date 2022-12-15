@@ -573,7 +573,7 @@ class OddJobsPerformance(Plot):
         if self._rumor_memo_delivered and gears.stats.Performance in npc.statline and npc is not self.elements["NPC"]:
             mylist.append(Offer(
                 "Thanks for letting me know; I could really use the job.".format(**self.elements),
-                ContextTag([context.CUSTOM]), effect=pbge.challenges.AutoOfferInvoker(self._suggest_job_to_npc, npc),
+                ContextTag([context.CUSTOM]), effect=plotutility.EffectCallPlusNPC(self._suggest_job_to_npc, npc),
                 data={"reply": "{NPC} is looking for someone to play a gig at {NPC_SCENE}.".format(**self.elements)}
             ))
 

@@ -544,3 +544,15 @@ class LMSkillsSelfIntro(Offer):
             " ".join(items),
             context=ContextTag((context.SELFINTRO,)), data=data, is_generic=True
         )
+
+
+class EffectCallPlusNPC:
+    # Normally an effect call from dialogue or using a waypoint calls a function with signature (camp).
+    # This turns that into a function with signature (camp, npc).
+    def __init__(self, fun, npc):
+        self.fun = fun
+        self.npc = npc
+
+    def __call__(self, camp):
+        self.fun(camp, self.npc)
+
