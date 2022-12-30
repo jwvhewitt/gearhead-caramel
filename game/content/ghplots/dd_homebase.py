@@ -457,7 +457,7 @@ class WujungGarrison(Plot):
         qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
         if qol.stability > 0:
             mylist.append(Offer(
-                "Crime is at an all-time low, which is good because it means I get to hang around here all time instead of going out there and getting shot at.",
+                "Crime is at an all-time low, which is good because it means I get to hang around here all day instead of going out there and getting shot at.",
                 context=ContextTag([context.INFO, ]),
                 no_repeats=True, data={"subject": "crime in Wujung"}
             ))
