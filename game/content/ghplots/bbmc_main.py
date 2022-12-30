@@ -447,7 +447,7 @@ class TheCabinInTheDeadzone(Plot):
             camp.scene.place_gears_near_spot(*self.elements["ENTRANCE"].pos, self.elements["LOCALE"].civilian_team,
                                              self.elements["BEARBASTARD"])
             ghcutscene.SimpleMonologueDisplay(
-                "That's nearly it for the first time. One thing left to do before going to sleep- over there in front of your bed is a foot locker with all kinds of goodies. Don't worry, no fireworks this time... I'm renting this cabin.",
+                "That's nearly it for the first day. One thing left to do before going to sleep- over there in front of your bed is a foot locker with all kinds of goodies. Don't worry, no fireworks this time... I'm renting this cabin.",
                 self.elements["BEARBASTARD"]
             )(camp)
             ghcutscene.SimpleMonologueDisplay(
@@ -754,7 +754,7 @@ class ACamGracious(Plot):
         mylist = list()
         if self.had_convo:
             mylist.append(Offer(
-                "I'm going to go to bed soon. Tomorrow's another exciting time!",
+                "I'm going to go to bed soon. Tomorrow's another exciting day!",
                 ContextTag([context.HELLO]), allow_generics=False
             ))
         elif camp.campdata.get(WIN_FIGHT_ONE):
@@ -820,7 +820,7 @@ class ACamResentful(Plot):
         mylist = list()
         if self.had_convo:
             mylist.append(Offer(
-                "I'm going to go to bed... Today was a rough time.",
+                "I'm going to go to bed... Today was a rough day.",
                 ContextTag([context.HELLO]), allow_generics=False
             ))
         elif camp.campdata.get(WIN_FIGHT_ONE):
@@ -1148,7 +1148,7 @@ class SceneOne(Plot):
     def LOCALE_ENTER(self, camp):
         if self.intro_ready:
             pbge.alert(
-                "You enter Last Hope Memorial Park, eager for the first time of mecha camp. Today is the time you learn how to be a proper cavalier!")
+                "You enter Last Hope Memorial Park, eager for the first day of mecha camp. Today is the day you learn how to be a proper cavalier!")
             if camp.pc.has_badge("Typhon Slayer"):
                 pbge.alert(
                     "Not that you aren't already a highly accomplished cavalier. But it never hurts to get a refresher every once in a while.")
