@@ -2062,7 +2062,7 @@ class DZD_SkippysNightOut(Plot):
                 ))
 
         mylist.append(Offer(
-            "That's the thing; I left this wheelchair at the hotel! Usually I prefer the chair for time-to-time getting around, but my legs are more convenient for clubbing. It's a real mystery, I'll tell you that.",
+            "That's the thing; I left this wheelchair at the hotel! Usually I prefer the chair for day-to-day getting around, but my legs are more convenient for clubbing. It's a real mystery, I'll tell you that.",
             context=ContextTag([context.CUSTOMREPLY, ]),
             data={"reply": "Maybe you came back to the hotel in your wheelchair?"},
             subject="prosthetic legs"
