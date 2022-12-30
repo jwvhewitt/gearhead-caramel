@@ -129,7 +129,7 @@ CHOOSE_DUTY = LifePathOption("Duty", "You know no life other than being a cavali
                              biogram={
                                  "[LPE_INTRO]": {
                                      Default: [
-                                         "You strive every time to fulfil your duty as a cavalier.",
+                                         "You strive every day to fulfil your duty as a cavalier.",
                                          "Life so far has taught you the importance of responsibility. You accept your duty with steely resolve."
                                      ]
                                  }
