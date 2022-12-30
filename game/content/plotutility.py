@@ -9,7 +9,7 @@ from ..ghdialogue import context, ghgrammar
 
 class AdventureModuleData(object):
     def __init__(self, name, desc, date, title_card, character_check_fun=None, convoborder=None):
-        # date is a tuple in (year, month, time) format. Day is optional. GH1 took place in 157, GH2 in 162.
+        # date is a tuple in (year, month, day) format. Day is optional. GH1 took place in 157, GH2 in 162.
         # character_check_fun is a function that takes the PC's Egg as a parameter and returns True if the PC can
         #    take part in this adventure.
         self.name = name
