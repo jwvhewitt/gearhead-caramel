@@ -142,7 +142,7 @@ class SolarNavyJoinerPlot(Plot):
             ghcutscene.SimpleMonologueDisplay("As an added bonus, we can get rid of the pirates who've been infesting this area. Two birds with one stone if you ask me.", britaine)(camp, False)
             ghcutscene.SimpleMonologueDisplay("I agree with you that Aegis needs to go, but invading a soverign city-state is going to cause more problems long-term. If you strike carelessly at every percieved threat, all you end up doing is making more enemies.", pinsent)(camp, False)
             ghcutscene.SimpleMonologueDisplay("You are thinking like a turtle, Pinsent, whereas I think like a hawk. The enemy must be defeated now before they become a threat again. Your defensive strategy didn't save us from Typhon, did it?", charla)(camp, False)
-            ghcutscene.SimpleMonologueDisplay("No, and I live with the consequences of that every day... You are the one in charge of this operation and I will follow your lead. But I will not be silent when I think you're making a mistake.", pinsent)(camp, False)
+            ghcutscene.SimpleMonologueDisplay("No, and I live with the consequences of that every time... You are the one in charge of this operation and I will follow your lead. But I will not be silent when I think you're making a mistake.", pinsent)(camp, False)
             ghcutscene.SimpleMonologueDisplay("Ha-haw! Personally, I can't wait to get into battle!", britaine)(camp, False)
             pbge.alert("The three leaders stop talking when they notice that you have entered the vehicle.")
             self.did_cutscene = True

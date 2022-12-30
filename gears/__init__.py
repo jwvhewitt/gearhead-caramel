@@ -122,7 +122,7 @@ harvest_styles(colorstyle)
 
 class TimeOrNPCExpiration(object):
     def __init__(self, camp, time_limit=10, npcs=()):
-        self.time_limit = camp.day + time_limit
+        self.time_limit = camp.time + time_limit
         self.npcs = npcs
 
     def __call__(self, camp, plot):
@@ -132,7 +132,7 @@ class TimeOrNPCExpiration(object):
             if not npc or npc.is_destroyed():
                 allok = False
                 break
-        return allok and camp.day > self.time_limit
+        return allok and camp.time > self.time_limit
 
 
 class QualityOfLife(object):

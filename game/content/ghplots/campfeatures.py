@@ -51,7 +51,7 @@ class StandardLancemateHandler(Plot):
                     # A lancemate who is currently upset with the PC will not join the party.
                     mylist.append(Offer("[JOIN_REFUSAL]", is_generic=True,
                                         context=ContextTag([context.JOIN])))
-                elif npc.relationship.data.get("LANCEMATE_TIME_OFF", 0) <= camp.day:
+                elif npc.relationship.data.get("LANCEMATE_TIME_OFF", 0) <= camp.time:
                     mylist.append(Offer("[JOIN]", is_generic=True,
                                         context=ContextTag([context.JOIN]),
                                         effect=game.content.plotutility.AutoJoiner(npc)))

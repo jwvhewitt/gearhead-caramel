@@ -129,7 +129,7 @@ CHOOSE_DUTY = LifePathOption("Duty", "You know no life other than being a cavali
                              biogram={
                                  "[LPE_INTRO]": {
                                      Default: [
-                                         "You strive every day to fulfil your duty as a cavalier.",
+                                         "You strive every time to fulfil your duty as a cavalier.",
                                          "Life so far has taught you the importance of responsibility. You accept your duty with steely resolve."
                                      ]
                                  }
@@ -211,7 +211,7 @@ BETR_LABMATE = LifePathOption("Revenge","I will get strong enough to defeat them
                                   "[LPD_BETR]": {
                                       Default: [
                                           "You swore to train until you are strong enough to enact revenge.",
-                                          "You promised that one day you will defeat them."
+                                          "You promised that one time you will defeat them."
                                       ]
                                   }
                               })
@@ -272,7 +272,7 @@ D_DESTINY = LifePathNode(
             "[LPD_INTRO]": {
                 Default: [
                     "You always felt that you were destined for greater things.",
-                    "One day, you left all of that to go fulfil your destiny."
+                    "One time, you left all of that to go fulfil your destiny."
                 ]
             }
         })

@@ -22,12 +22,12 @@ RANDOM_PLOT_RECHARGE = "RANDOM_PLOT_RECHARGE"
 def npc_is_ready_for_plot(npc, camp: gears.GearHeadCampaign):
     if isinstance(npc, gears.base.Character) and npc not in camp.party:
         mydata = camp.get_campdata(npc)
-        return mydata.get(RANDOM_PLOT_RECHARGE, 0) <= camp.day
+        return mydata.get(RANDOM_PLOT_RECHARGE, 0) <= camp.time
 
 
 def set_npc_recharge(npc, camp, time=10):
     mydata = camp.get_campdata(npc)
-    mydata[RANDOM_PLOT_RECHARGE] = camp.day + time
+    mydata[RANDOM_PLOT_RECHARGE] = camp.time + time
 
 
 class CollectMedicinalHerbs(Plot):

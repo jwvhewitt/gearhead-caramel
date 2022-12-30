@@ -391,7 +391,7 @@ class MWP_ComputerProblem(Plot):
     def ENGINEER_offers(self, camp):
         mylist = list()
 
-        mylist.append(Offer("[HELLO] I'm having an easy day today because my computer is on the blink.",
+        mylist.append(Offer("[HELLO] I'm having an easy time today because my computer is on the blink.",
                         context=ContextTag([context.HELLO]),
                         ))
 

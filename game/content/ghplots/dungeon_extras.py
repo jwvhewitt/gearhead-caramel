@@ -42,16 +42,16 @@ class WarehouseEncounter(Plot):
         return True
 
     def _eteam_ACTIVATETEAM(self, camp):
-        self.last_update = camp.day
+        self.last_update = camp.time
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 2) == 1:
+        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 2) == 1:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
             )
-            self.last_update = camp.day
+            self.last_update = camp.time
 
 
 class GuardedWarehouseStuff(Plot):
@@ -82,16 +82,16 @@ class GuardedWarehouseStuff(Plot):
         return True
 
     def _eteam_ACTIVATETEAM(self, camp):
-        self.last_update = camp.day
+        self.last_update = camp.time
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1,5) == 1:
+        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 5) == 1:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
             )
-            self.last_update = camp.day
+            self.last_update = camp.time
 
 
 class DeadAdventurer(Plot):
@@ -117,7 +117,7 @@ class DeadAdventurer(Plot):
         return True
 
     def _eteam_ACTIVATETEAM(self, camp):
-        self.last_update = camp.day
+        self.last_update = camp.time
 
     def GOAL_menu(self, camp, thingmenu):
         if self.elements["GOAL"].plot_locked and not self.paid_respects:
@@ -145,12 +145,12 @@ class DeadAdventurer(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 2) == 2:
+        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 2) == 2:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
             )
-            self.last_update = camp.day
+            self.last_update = camp.time
 
 
 class WildernessCoffeeShop(Plot):
@@ -232,7 +232,7 @@ class WildernessCoffeeShop(Plot):
     EXPLANATIONS = (
         "Actually, I don't like working too hard, so I figured the easiest way to have an easy life would be to put my coffee shop in the middle of nowhere. It's worked well so far but the commute is a bit dangerous.",
         "You would not believe how many cavaliers we have trekking through this wilderness. I don't know what they're looking for, but they can always afford top dollar for premium coffee. Whatever you're looking for out here, I hope you find it.",
-        "This coffee shop has been passed down in my family since PreZero times. I've always hoped that a village would spring up nearby, but until that day, I must continue my family tradition.",
+        "This coffee shop has been passed down in my family since PreZero times. I've always hoped that a village would spring up nearby, but until that time, I must continue my family tradition.",
         "Have you checked out real estate prices lately? It was either put the coffee shop here or sublet a disused sewer tunnel. The monsters outside are a bit of a bother but at least we have fresh air."
     )
 
@@ -293,16 +293,16 @@ class BigEncounter(Plot):
         return True
 
     def _eteam_ACTIVATETEAM(self, camp):
-        self.last_update = camp.day
+        self.last_update = camp.time
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 5) != 5:
+        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 5) != 5:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(100, 150), camp.scene.environment,
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
             )
-            self.last_update = camp.day
+            self.last_update = camp.time
 
 
 class EternalGuardians(Plot):
@@ -351,7 +351,7 @@ class EternalGuardians(Plot):
     )
 
     def _eteam_ACTIVATETEAM(self, camp):
-        self.last_update = camp.day
+        self.last_update = camp.time
         if self.fight_counter < 3:
             pbge.alert(self.INITIAL_ALERTS[self.fight_counter])
         elif self.fight_counter == 3:
@@ -362,11 +362,11 @@ class EternalGuardians(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1:
+        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1:
             for r in self.robot_team:
                 r.restore_all()
             camp.scene.deploy_team(self.robot_team, myteam)
-            self.last_update = camp.day
+            self.last_update = camp.time
             self.fight_counter += 1
 
 
@@ -410,16 +410,16 @@ class LevelGuide(Plot):
         self.viewed_map = True
 
     def _eteam_ACTIVATETEAM(self, camp):
-        self.last_update = camp.day
+        self.last_update = camp.time
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 4) == 4:
+        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 4) == 4:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
             )
-            self.last_update = camp.day
+            self.last_update = camp.time
 
 
 class GuardedTreasure(Plot):
@@ -443,13 +443,13 @@ class GuardedTreasure(Plot):
         return True
 
     def _eteam_ACTIVATETEAM(self, camp):
-        self.last_update = camp.day
+        self.last_update = camp.time
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1:
+        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
             )
-            self.last_update = camp.day
+            self.last_update = camp.time

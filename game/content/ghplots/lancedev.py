@@ -1847,7 +1847,7 @@ class LD_JuniorQuestions(LMPlot):
         mylist.append(Offer(
             "[THANKS_FOR_ADVICE] To be a cavalier is a journey, not a destination. I promise that I will keep doing my best!",
             (context.ANSWER,), subject=self, data={
-                "reply": "Keep practicing, keep striving, and each day you move closer to the best pilot you can be."},
+                "reply": "Keep practicing, keep striving, and each time you move closer to the best pilot you can be."},
             effect=self._pro_answer
         ))
         mylist.append(Offer(

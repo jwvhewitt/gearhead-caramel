@@ -455,7 +455,7 @@ class DZDIntro_PopStarIntro(DZDIntro_GetInTheMekShimli):
             if camp.renown > 20:
                 pbge.alert("Your trans-Eurasian concert tour is cut short in the deadzone town of {DZ_TOWN_NAME}. Mere hours before your performance the town was attacked by a large force of raiders from the Bone Devil Gang.".format(**self.elements))
             else:
-                pbge.alert("With the benefit of hindsight, you realize that booking your comeback tour in the middle of the Trans-Eurasian Deadzone probably wasn't the best idea. The day of your concert in {DZ_TOWN_NAME}, the town is attacked by members of the Bone Devil Gang.".format(**self.elements))
+                pbge.alert("With the benefit of hindsight, you realize that booking your comeback tour in the middle of the Trans-Eurasian Deadzone probably wasn't the best idea. The time of your concert in {DZ_TOWN_NAME}, the town is attacked by members of the Bone Devil Gang.".format(**self.elements))
             pbge.alert("Sheriff {SHERIFF} calls you to the mecha hangar to request your assistance in defending the town.".format(**self.elements))
 
             npc = self.elements["SHERIFF"]

@@ -355,11 +355,11 @@ class NPCVacationToTheFreezer(Plot):
     def freeze_now(self, camp: gears.GearHeadCampaign):
         camp.freeze(self.elements["NPC"])
         self.frozen = True
-        self.vacation_end = camp.day + self.elements.get("DAYS", 5)
+        self.vacation_end = camp.time + self.elements.get("DAYS", 5)
         self.activate(camp)
 
     def t_START(self, camp: gears.GearHeadCampaign):
-        if self.frozen and camp.day >= self.vacation_end:
+        if self.frozen and camp.time >= self.vacation_end:
             npc = self.elements["NPC"]
             locale = self.elements["LOCALE"]
             npc.place(locale)

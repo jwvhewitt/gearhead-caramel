@@ -623,7 +623,7 @@ class EasygoingSortingBattleBC(BasicBattleConversation):
         return mylist
 
     WIN_MEMORIES = (
-        "you showed me some wicked moves", "I got to take the day off early"
+        "you showed me some wicked moves", "I got to take the time off early"
     )
 
     def _win_adventure(self, camp):
@@ -663,7 +663,7 @@ class JuniorToImproverBC(BasicBattleConversation):
     def NPC_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[BATTLE_GREETING] I've been practicing every day, and sometime I hope to be as good a pilot as you!",
+            "[BATTLE_GREETING] I've been practicing every time, and sometime I hope to be as good a pilot as you!",
             context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
         mylist.append(Offer("Time to see if my training has paid off...",
                             context=ContextTag([context.CHALLENGE, ])))
@@ -688,10 +688,10 @@ class FriendlyNothingToColleagueBattleBC(BasicBattleConversation):
     def NPC_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[WE_MEET_AGAIN] Another day hard at work, eh [PC]?",
+            "[WE_MEET_AGAIN] Another time hard at work, eh [PC]?",
             context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
         mylist.append(
-            Offer("I try to [objective_ep], you do whatever you're doing, and at the end of the day we both get paid!",
+            Offer("I try to [objective_ep], you do whatever you're doing, and at the end of the time we both get paid!",
                   context=ContextTag([context.CHALLENGE, ])))
         return mylist
 
@@ -712,7 +712,7 @@ class ResentNothingToOpponentBattleBC(BasicBattleConversation):
     def NPC_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[WE_MEET_AGAIN] Why do you always show up to ruin my day?",
+            "[WE_MEET_AGAIN] Why do you always show up to ruin my time?",
             context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
         mylist.append(Offer("This time it's personal!",
                             context=ContextTag([context.CHALLENGE, ])))

@@ -1,4 +1,3 @@
-import gears.tags
 from . import materials
 from . import scale
 from . import calibre
@@ -284,7 +283,7 @@ class Mover(KeyObject):
 
     def calc_skimming(self):
         norm_mass = self.scale.unscale_mass(self.mass)
-        thrust = self.count_thrust_points(gears.tags.Skimming)
+        thrust = self.count_thrust_points(tags.Skimming)
 
         if thrust > (norm_mass * 20):
             return thrust // norm_mass
@@ -293,7 +292,7 @@ class Mover(KeyObject):
 
     def calc_rolling(self):
         norm_mass = self.scale.unscale_mass(self.mass)
-        thrust = self.count_thrust_points(gears.tags.Rolling)
+        thrust = self.count_thrust_points(tags.Rolling)
 
         if thrust > (norm_mass * 20):
             return thrust // norm_mass
@@ -1384,10 +1383,10 @@ class MovementSystem(SizeClassedComponent):
     def get_item_stats(self):
         stat = [('Thrust ({})'.format(mode.get_short_name()), str(self.get_thrust(mode)))
                 for mode in [scenes.movement.Walking
-                    , gears.tags.Rolling
-                    , gears.tags.Skimming
+                    , tags.Rolling
+                    , tags.Skimming
                     , scenes.movement.Flying
-                    , gears.tags.SpaceFlight
+                    , tags.SpaceFlight
                              ]
                 if self.get_thrust(mode) > 0
                 ]
@@ -1409,9 +1408,9 @@ class HoverJets(MovementSystem, StandardDamageHandler):
         return self.size
 
     def get_thrust(self, move_mode):
-        if move_mode is gears.tags.Skimming:
+        if move_mode is tags.Skimming:
             return (self.size * 4000 * self.current_health + self.max_health - 1) // self.max_health
-        elif move_mode is gears.tags.SpaceFlight:
+        elif move_mode is tags.SpaceFlight:
             return (self.size * 3700 * self.current_health + self.max_health - 1) // self.max_health
         elif move_mode is scenes.movement.Flying:
             return (self.size * 500 * self.current_health + self.max_health - 1) // self.max_health
@@ -1434,7 +1433,7 @@ class FlightJets(MovementSystem, StandardDamageHandler):
     def get_thrust(self, move_mode):
         if move_mode is scenes.movement.Flying:
             return (self.size * 4800 * self.current_health + self.max_health - 1) // self.max_health
-        elif move_mode is gears.tags.SpaceFlight:
+        elif move_mode is tags.SpaceFlight:
             return (self.size * 4500 * self.current_health + self.max_health - 1) // self.max_health
         else:
             return 0
@@ -1472,7 +1471,7 @@ class Wheels(MovementSystem, StandardDamageHandler):
         return self.size
 
     def get_thrust(self, move_mode):
-        if move_mode is gears.tags.Rolling:
+        if move_mode is tags.Rolling:
             return (self.size * 4000 * self.current_health + self.max_health - 1) // self.max_health
         else:
             return 0
@@ -1496,7 +1495,7 @@ class Tracks(MovementSystem, StandardDamageHandler):
         return self.size * 2
 
     def get_thrust(self, move_mode):
-        if move_mode is gears.tags.Rolling:
+        if move_mode is tags.Rolling:
             return (self.size * 4000 * self.current_health + self.max_health - 1) // self.max_health
         else:
             return 0
@@ -3488,9 +3487,10 @@ class MT_Battroid(Singleton):
 
     PROTOTYPE_IMAGENAME = "mav_buruburu.png"
     PROTOTYPE_PORTRAIT = "mecha_buruburu.png"
+    MELEE_DAMAGE_BONUS = 0
 
     LEGAL_MOVE_MODES = (
-    scenes.movement.Walking, gears.tags.Rolling, gears.tags.Skimming, gears.tags.SpaceFlight, gears.tags.Jumping)
+    scenes.movement.Walking, tags.Rolling, tags.Skimming, tags.SpaceFlight, tags.Jumping)
 
     @classmethod
     def is_legal_sub_com(self, part):
@@ -3537,7 +3537,7 @@ class MT_Groundhugger(MT_Battroid):
     PROTOTYPE_IMAGENAME = "mav_ultari.png"
     PROTOTYPE_PORTRAIT = "mecha_ultari.png"
 
-    LEGAL_MOVE_MODES = (gears.tags.Rolling, gears.tags.Skimming)
+    LEGAL_MOVE_MODES = (tags.Rolling, tags.Skimming)
 
     @classmethod
     def is_legal_sub_com(self, part):
@@ -3604,8 +3604,113 @@ class MT_Gerwalk(MT_Battroid):
         else:
             return base_speed
 
+class MT_Ornithoid(MT_Battroid):
+    name = "Ornithoid"
+    desc = "+25% flight speed. No arms or turrets."
 
-MECHA_FORMS = (MT_Battroid, MT_Arachnoid, MT_Groundhugger, MT_Aerofighter, MT_Gerwalk)
+    PROTOTYPE_IMAGENAME = "mav_kojedo.png"
+    PROTOTYPE_PORTRAIT = "mecha_kojedo.png"
+
+    LEGAL_MOVE_MODES = (scenes.movement.Walking, scenes.movement.Flying, tags.SpaceFlight)
+
+    @classmethod
+    def is_legal_sub_com(self, part):
+        if isinstance(part, Module):
+            return part.form not in (MF_Arm, MF_Turret)
+        else:
+            return False
+
+    @classmethod
+    def modify_speed(self, base_speed, move_mode):
+        # Return the modified speed.
+        if move_mode == pbge.scenes.movement.Flying:
+            return int(base_speed * 1.25)
+        else:
+            return base_speed
+
+
+class MT_Zoanoid(MT_Battroid):
+    name = "Zoanoid"
+    desc = "+20 walk speed, bonus to melee damage. Can jump but not fly or skim. No arms or turrets."
+
+    PROTOTYPE_IMAGENAME = "mav_kojedo.png"
+    PROTOTYPE_PORTRAIT = "mecha_kojedo.png"
+    MELEE_DAMAGE_BONUS = 5
+
+    LEGAL_MOVE_MODES = (scenes.movement.Walking, tags.Jumping, tags.SpaceFlight)
+
+    @classmethod
+    def is_legal_sub_com(self, part):
+        if isinstance(part, Module):
+            return part.form not in (MF_Arm, MF_Turret)
+        else:
+            return False
+
+    @classmethod
+    def modify_speed(self, base_speed, move_mode):
+        # Return the modified speed.
+        if move_mode == pbge.scenes.movement.Walking:
+            return base_speed + 20
+        else:
+            return base_speed
+
+class MT_Hoverfighter(MT_Battroid):
+    name = "Hoverfighter"
+    desc = "+10% flight speed; can have turret but no head, arms, tails, or legs."
+
+    PROTOTYPE_IMAGENAME = "mav_wraith_106a.png"
+    PROTOTYPE_PORTRAIT = "mecha_wraith.png"
+
+    LEGAL_MOVE_MODES = (pbge.scenes.movement.Flying, tags.Skimming)
+
+    @classmethod
+    def is_legal_sub_com(self, part):
+        if isinstance(part, Module):
+            return part.form not in (MF_Head, MF_Arm, MF_Tail, MF_Leg)
+        else:
+            return False
+
+    @classmethod
+    def modify_speed(self, base_speed, move_mode):
+        # Return the modified speed.
+        if move_mode == pbge.scenes.movement.Flying:
+            return int(base_speed * 1.1)
+        else:
+            return base_speed
+
+
+class MT_Groundcar(MT_Battroid):
+    name = "Groundcar"
+    desc = "+25% rolling speed. Can have turrets, but no arms, wings, tails, heads, or legs."
+
+    PROTOTYPE_IMAGENAME = "mav_ultari.png"
+    PROTOTYPE_PORTRAIT = "mecha_ultari.png"
+
+    LEGAL_MOVE_MODES = (tags.Rolling, tags.Skimming)
+
+    @classmethod
+    def is_legal_sub_com(self, part):
+        if isinstance(part, Module):
+            return part.form not in (MF_Arm, MF_Wing, MF_Tail, MF_Leg, MF_Head)
+        else:
+            return False
+
+    @classmethod
+    def modify_speed(self, base_speed, move_mode):
+        # Return the modified speed.
+        if move_mode == tags.Rolling:
+            return int(base_speed * 1.25)
+        else:
+            return 0
+
+
+
+
+
+MECHA_FORMS = (
+    MT_Battroid, MT_Arachnoid, MT_Groundhugger, MT_Aerofighter, MT_Gerwalk, MT_Ornithoid, MT_Zoanoid, MT_Hoverfighter,
+    MT_Groundcar
+)
 
 
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
@@ -3932,7 +4037,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         if mymod:
             scmods = [sc.get_melee_damage_bonus() for sc in mymod.sub_com if
                       sc.is_not_destroyed() and hasattr(sc, "get_melee_damage_bonus")] + [0, ]
-            return mymod.size // 2 + sum(scmods)
+            return mymod.size // 2 + sum(scmods) + self.form.MELEE_DAMAGE_BONUS
         else:
             return 0
 

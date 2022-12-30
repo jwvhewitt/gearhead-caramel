@@ -174,7 +174,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             if self.make_enemies:
                 camp.set_faction_as_pc_enemy(self.enemy_faction)
         super(BuildAMissionSeed, self).end_adventure(camp)
-        camp.day += 1
+        camp.time += 1
 
     def can_do_mission(self, camp: gears.GearHeadCampaign):
         return bool(camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=self.environment))

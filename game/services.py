@@ -93,7 +93,7 @@ class Shop(object):
 
 
     def update_wares(self, camp: gears.GearHeadCampaign):
-        # Once a day the wares get updated. Delete some items, make sure that
+        # Once a time the wares get updated. Delete some items, make sure that
         # there's at least one item of every ware_type, and then fill up the
         # store to full capacity.
 
@@ -125,7 +125,7 @@ class Shop(object):
         while len(self.wares) > num_items:
             it = random.choice(self.wares)
             self.wares.remove(it)
-        days = camp.day - self.last_updated
+        days = camp.time - self.last_updated
         for n in range(max(3, (random.randint(1, 6) + days) * self.turnover)):
             if self.wares:
                 it = random.choice(self.wares)
@@ -190,9 +190,9 @@ class Shop(object):
         ui.activate_and_run()
 
     def update_shop(self, camp):
-        if camp.day > self.last_updated:
+        if camp.time > self.last_updated:
             self.update_wares(camp)
-            self.last_updated = camp.day
+            self.last_updated = camp.time
 
     def __call__(self, camp):
         self.update_shop(camp)

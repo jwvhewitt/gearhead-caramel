@@ -1,3 +1,6 @@
+* Finished adding all of the mecha forms from previous games
+* Renamed campaign property "day" to "time"
+
 v0.946 December 15, 2022
 * Fixed incorrect use of AutoOfferInvoker; added EffectCallPlusNPC
 * Added procedural cutscene generator

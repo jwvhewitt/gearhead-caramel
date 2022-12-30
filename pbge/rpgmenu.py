@@ -205,7 +205,7 @@ class Menu( Frect ):
                 my_state.do_flip(show_widgets=False)
 
             elif pc_input.type == pygame.KEYDOWN:
-                # A key was pressed, oh happy day! See what key it was and act
+                # A key was pressed, oh happy time! See what key it was and act
                 # accordingly.
                 if my_state.is_key_for_action(pc_input, "up"):
                     self.selected_item -= 1

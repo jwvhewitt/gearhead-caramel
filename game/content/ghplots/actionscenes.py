@@ -63,12 +63,12 @@ class STC_FenixCastle( Plot ):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: game.teams.Team = self.elements["_eteam"]
-        if self.encounters_on and camp.day > self.next_update and len(myteam.get_members_in_play(camp)) < 1:
+        if self.encounters_on and camp.time > self.next_update and len(myteam.get_members_in_play(camp)) < 1:
             camp.scene.deploy_team(
                 gears.selector.RandomMechaUnit(level=self.rank,strength=150,fac=self.elements["ENEMY_FACTION"],
                                                env=self.elements["LOCALE"].environment).mecha_list, myteam
             )
-            self.next_update = camp.day + 5
+            self.next_update = camp.time + 5
             self.rank += random.randint(1,6)
         else:
             dungeonmaker.dungeon_cleaner(self.elements["LOCALE"])

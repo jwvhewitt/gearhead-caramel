@@ -28,7 +28,7 @@ class Campaign(object):
         self.scripts = container.ContainerList()
         self.uniques = set()
         self.explo_class = explo_class
-        self.day = 1
+        self.time = 1
         self.campdata = dict()
         # home_base is a scene where the party gets sent if they get utterly defeated in combat.
         # It must have scripts in place to restore the party or end the game.
@@ -36,6 +36,10 @@ class Campaign(object):
         self.entered_via = None
 
     def __setstate__(self, state):
+        # For saves from v0.946 or earlier, rename day to time.
+        if "day" in state:
+            state["time"] = state["day"]
+            del state["day"]
         # For saves from V0.941 or earlier, make sure there's an entered_via waypoint. Or not.
         self.__dict__.update(state)
         if "entered_via" not in state:

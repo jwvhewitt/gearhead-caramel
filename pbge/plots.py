@@ -127,10 +127,10 @@ class Rumor(object):
 
 class TimeExpiration(object):
     def __init__(self, camp, time_limit=10):
-        self.time_limit = camp.day + time_limit
+        self.time_limit = camp.time + time_limit
 
     def __call__(self, camp, plot):
-        return camp.day > self.time_limit
+        return camp.time > self.time_limit
 
 
 class Plot(object):

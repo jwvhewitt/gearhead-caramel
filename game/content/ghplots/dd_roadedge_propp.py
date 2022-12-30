@@ -978,7 +978,7 @@ class DZREPR_InspireTheMilitia(DZREPR_NPCMission):
     DEFAULT_INFO = "You can go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about it. Maybe with your help it wouldn't be so hopeless?"
     DEFAULT_MEMO = "{NPC} at {NPC_SCENE} is coordinating defense against {FACTION}."
     CUSTOM_REPLY = "[HELLO:MISSION]"
-    CUSTOM_OFFER = "It's clear that {FACTION} are closing in on us. The militia has lost too many good pilots already. With your help maybe we can hold them back for just one more day... or maybe not."
+    CUSTOM_OFFER = "It's clear that {FACTION} are closing in on us. The militia has lost too many good pilots already. With your help maybe we can hold them back for just one more time... or maybe not."
     WIN_MESSAGE = "With {FACTION} driven back, the people of {METROSCENE} regain their will to fight."
     MISSION_GRAMMAR = missionbuilder.MissionGrammar(
         objective_pp="banish you", objective_ep="take over {METROSCENE}",
@@ -1057,7 +1057,7 @@ class DZREPR_FearOfTheInvaders(DZREPR_NPCMission):
     DEFAULT_INFO = "You can go to {NPC_SCENE} and ask {NPC.gender.object_pronoun} about it. Maybe with your help it wouldn't be so hopeless?"
     DEFAULT_MEMO = "{NPC} at {NPC_SCENE} is coordinating defense against {FACTION}."
     CUSTOM_REPLY = "[HELLO:MISSION]"
-    CUSTOM_OFFER = "It's clear that {FACTION} are closing in on us. The militia has lost too many good pilots already. With your help maybe we can hold them back for just one more day... or maybe not."
+    CUSTOM_OFFER = "It's clear that {FACTION} are closing in on us. The militia has lost too many good pilots already. With your help maybe we can hold them back for just one more time... or maybe not."
     WIN_MESSAGE = "With {FACTION} driven back, the people of {METROSCENE} regain their will to fight."
     MISSION_GRAMMAR = missionbuilder.MissionGrammar(
         objective_pp="support the {METROSCENE} militia", objective_ep="destroy the {METROSCENE} militia",

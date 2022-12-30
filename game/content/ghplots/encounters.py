@@ -110,13 +110,13 @@ class RandoMonsterEncounter(Plot):
         return True
 
     def _eteam_ACTIVATETEAM(self, camp):
-        self.last_update = camp.day
+        self.last_update = camp.time
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: game.teams.Team = self.elements["_eteam"]
-        if camp.day > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1,3) != 2:
+        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 3) != 2:
             camp.scene.deploy_team(
                 gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
                                                  self.elements["TYPE_TAGS"], camp.scene.scale).contents, myteam
             )
-            self.last_update = camp.day
+            self.last_update = camp.time

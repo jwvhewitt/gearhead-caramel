@@ -41,9 +41,9 @@ class GenericDungeonLevel(Plot):
             camp.go(camp.home_base)
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
-        if camp.day > self.last_update:
+        if camp.time > self.last_update:
             dungeonmaker.dungeon_cleaner(camp.scene)
-            self.last_update = camp.day
+            self.last_update = camp.time
 
 
 

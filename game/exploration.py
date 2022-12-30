@@ -628,7 +628,7 @@ class Explorer(object):
                     elif gdi.unicode == "R" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         print(self.camp.renown)
                     elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        self.camp.day += 1
+                        self.camp.time += 1
                         self.camp.credits += 300000
                     elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         self.camp.pc.statline[gears.stats.Performance] += 5

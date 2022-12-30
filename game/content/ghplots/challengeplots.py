@@ -16,10 +16,10 @@ from . import missionbuilder, rwme_objectives, campfeatures
 class TimeAndChallengeExpiration(object):
     def __init__(self, camp, chal, time_limit=10):
         self.chal = chal
-        self.time_limit = camp.day + time_limit
+        self.time_limit = camp.time + time_limit
 
     def __call__(self, camp, plot):
-        return camp.day > self.time_limit or not self.chal.active
+        return camp.time > self.time_limit or not self.chal.active
 
 #   ****************************
 #   ***  DETHRONE_CHALLENGE  ***

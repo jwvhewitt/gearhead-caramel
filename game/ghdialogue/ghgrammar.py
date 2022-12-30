@@ -188,7 +188,7 @@ DEFAULT_GRAMMAR = {
                   ],
         personality.Cheerful: ["I'm happy to see you today, so I can [fight_you]!"
                                ],
-        personality.Grim: ["Today's the day that I will [defeat_you].",
+        personality.Grim: ["Today's the time that I will [defeat_you].",
                            ],
         personality.Easygoing: ["Don't think I've given up on [defeating_you].",
                                 "Why did [MEM_LoseToPC]? Now I have to [fight_you]."
@@ -251,7 +251,7 @@ DEFAULT_GRAMMAR = {
         personality.Grim: ["I'm afraid it's time for you to die... I'll try to make it painless. [LETSFIGHT]",
                            "Those who oppose me end up dead. [LETSFIGHT]"
                            ],
-        personality.Easygoing: ["And here I thought this was going to be an easy day. [LETSFIGHT]",
+        personality.Easygoing: ["And here I thought this was going to be an easy time. [LETSFIGHT]",
                                 "I don't mean to be unfriendly, but you've ended up in the wrong place at the wrong time. [LETSFIGHT]"
                                 ],
         personality.Passionate: ["A challenger approaches... do you think you can defeat me? [LETSFIGHT]",
@@ -336,7 +336,7 @@ DEFAULT_GRAMMAR = {
     "[ATTACK:MERCY]": {
         Default: ["Get out of here.",
                   ],
-        personality.Cheerful: ["It's your lucky day, you can go.",
+        personality.Cheerful: ["It's your lucky time, you can go.",
                                ],
         personality.Grim: ["Get lost before I change my mind.",
                            ],
@@ -515,7 +515,7 @@ DEFAULT_GRAMMAR = {
     "[BeCarefulOfSubject]": {
         Default: ["Be careful of {subject}",
                   ],
-        personality.Cheerful: ["Maybe {subject} could really ruin your day",
+        personality.Cheerful: ["Maybe {subject} could really ruin your time",
                                ],
         personality.Grim: ["You should know that {subject} is dangerous", "Keep your eyes on {subject}"
                            ],
@@ -634,7 +634,7 @@ DEFAULT_GRAMMAR = {
     "[CHANGE_MIND_AND_RETREAT]": {
         Default: ["[OnSecondThought], I don't really want to fight today...",
                   ],
-        personality.Cheerful: ["[OnSecondThought], why ruin a beautiful day with a senseless battle?",
+        personality.Cheerful: ["[OnSecondThought], why ruin a beautiful time with a senseless battle?",
                                ],
         personality.Grim: ["[OnSecondThought]... I think I would prefer to live.",
                            ],
@@ -980,7 +980,7 @@ DEFAULT_GRAMMAR = {
     "[DOYOUACCEPTMYOFFER]": {
         Default: ["Do you accept my offer?",
                   ],
-        personality.Cheerful: ["It's your lucky day.",
+        personality.Cheerful: ["It's your lucky time.",
                                ],
         personality.Grim: ["You won't find a better offer.",
                            ],
@@ -1751,7 +1751,7 @@ DEFAULT_GRAMMAR = {
     "[HELLO_UNFAV]": {
         Default: ["Get lost.", "Go away."
                   ],
-        personality.Cheerful: ["Are you trying to ruin my day?",
+        personality.Cheerful: ["Are you trying to ruin my time?",
                                ],
         personality.Grim: ["Drop dead.",
                            ],
@@ -1857,7 +1857,7 @@ DEFAULT_GRAMMAR = {
         Default: ["Do you have any missions available?",
                   "I'm looking for a mission."
                   ],
-        personality.Cheerful: ["Hey, are you looking for a pilot? It's your lucky day.",
+        personality.Cheerful: ["Hey, are you looking for a pilot? It's your lucky time.",
                                ],
         personality.Grim: ["I don't suppose you'd have a mission available?",
                            ],
@@ -2687,7 +2687,7 @@ DEFAULT_GRAMMAR = {
             "[IP_STATUS] I've been working hard; [IP_Business]. [IP_OPINION]"
         ],
         personality.Sociable: [
-            "[IP_STATUS] [IP_Pleasure], while by day [IP_Business]. [IP_BadNews], but [IP_GoodNews].",
+            "[IP_STATUS] [IP_Pleasure], while by time [IP_Business]. [IP_BadNews], but [IP_GoodNews].",
             "[IP_STATUS] The main thing I have to report is that [IP_Pleasure]. Also, [IP_GoodNews].",
             "[IP_STATUS] Did you hear that [IP_BadNews]? I'm afraid it's true. But at least [IP_Pleasure].",
             "[IP_STATUS] [IP_Worry], but also [IP_Hope].",
@@ -2849,7 +2849,7 @@ DEFAULT_GRAMMAR = {
         # Speaker is challenging the opponent to battle; there's an implied option to decline.
         Default: ["[BATTLE_GREETING] I challenge you to a fight!",
                   ],
-        personality.Cheerful: ["[BATTLE_GREETING] It's a good day for a friendly battle, don't you think?",
+        personality.Cheerful: ["[BATTLE_GREETING] It's a good time for a friendly battle, don't you think?",
                                ],
         personality.Grim: ["If you have the courage, I challenge you to battle! [LETSFIGHT]",
                            ],
@@ -3176,7 +3176,7 @@ DEFAULT_GRAMMAR = {
                            ],
         personality.Easygoing: ["We might as well start the fight.", "Ready to go?",
                                 "I'm gonna try [defeating_you], okay?", "I don't think this battle will last too long.",
-                                "Might as well get this over with.", "The highlight of my day will be [defeating_you].",
+                                "Might as well get this over with.", "The highlight of my time will be [defeating_you].",
                                 "I think I have to [fight_you]."
                                 ],
         personality.Passionate: ["Let the battle begin!", "I'll show you my true power!",
@@ -3353,7 +3353,7 @@ DEFAULT_GRAMMAR = {
         # The NPC has a mission for a cavalier.
         Default: ["I need a cavalier for an upcoming mission.",
                   ],
-        personality.Cheerful: ["This could be your lucky day; I'm looking to hire a cavalier...",
+        personality.Cheerful: ["This could be your lucky time; I'm looking to hire a cavalier...",
                                ],
         personality.Grim: ["I need to find a cavalier for this mission, since the last one I hired died...",
                            ],
@@ -3839,7 +3839,7 @@ DEFAULT_GRAMMAR = {
         # Data block should include enemy_faction
         Default: ["I am open to peace with {enemy_faction}."
                   ],
-        personality.Cheerful: ["It would be a happy day if {enemy_faction} agreed to a peace deal.",
+        personality.Cheerful: ["It would be a happy time if {enemy_faction} agreed to a peace deal.",
                                ],
         personality.Grim: [
             "Do you really think {enemy_faction} is open to peace? I would agree, but I doubt that'll happen.",
@@ -4054,13 +4054,13 @@ DEFAULT_GRAMMAR = {
     "[QOL_HEALTH_UP]": {
         Default: ["Health care in [metroscene] is pretty good.",
                   ],
-        personality.Cheerful: ["Every day I'm thankful for my good health.",
+        personality.Cheerful: ["Every time I'm thankful for my good health.",
                                ],
         personality.Grim: ["At least we have our health in [metroscene].",
                            ],
         personality.Easygoing: ["Do you work out? What kind of program do you use?"
                                 ],
-        personality.Passionate: ["Are you ready to seize the day? I'm gonna live while I'm alive!",
+        personality.Passionate: ["Are you ready to seize the time? I'm gonna live while I'm alive!",
                                  ],
         personality.Sociable: ["Remember that mental stimulation is as important as physical fitness for longevity.",
                                ],
@@ -4399,7 +4399,7 @@ DEFAULT_GRAMMAR = {
         Default: ["Surrender to {faction} at once!",
                   "Your only hope is to surrender to {faction}."
                   ],
-        personality.Cheerful: ["It's your lucky day; {faction} is willing to let you surrender."
+        personality.Cheerful: ["It's your lucky time; {faction} is willing to let you surrender."
                                ],
         personality.Grim: ["You have just one chance to survive, and that is to surrender to {faction}.",
                            ],
@@ -4983,7 +4983,7 @@ DEFAULT_GRAMMAR = {
                   "demonstrate my fighting power", "show you how strong I am",
                   "fight like a demon", "show no mercy", "fight dirty",
                   "hold back nothing", "call upon my warrior spirit",
-                  "boot your head", "snap you like a twig", "ruin your day",
+                  "boot your head", "snap you like a twig", "ruin your time",
                   "shred you", "send you to oblivion", "send you up the bomb",
                   ],
     },
@@ -4998,7 +4998,7 @@ DEFAULT_GRAMMAR = {
         Default: ["I think it's about time for me to upgrade my [mecha]."
                   ],
         personality.Cheerful: [
-            "Guess what? It's new [mecha] day!"
+            "Guess what? It's new [mecha] time!"
         ],
         personality.Grim: ["My current [mecha] is horribly outdated.",
                            ],
@@ -5657,7 +5657,7 @@ DEFAULT_GRAMMAR = {
             "I stand here the champion of my people; I fight against you now, for peace to prevail tomorrow."
             , "I formally challenge you to a duel to destruction. May this be the final fight against you."
         ],
-        personality.Justice: ["Well met on this day. Only the righteous shall stand after our fight."
+        personality.Justice: ["Well met on this time. Only the righteous shall stand after our fight."
             , "This duel is my trial. May my victory today show the righteousness I stand for."
             , "I formally challenge you to a duel to destruction. May my righteous stance shine through my mecha."
                               ],

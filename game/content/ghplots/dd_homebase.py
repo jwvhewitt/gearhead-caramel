@@ -457,7 +457,7 @@ class WujungGarrison(Plot):
         qol: gears.QualityOfLife = self.elements["METRO"].get_quality_of_life()
         if qol.stability > 0:
             mylist.append(Offer(
-                "Crime is at an all-time low, which is good because it means I get to hang around here all day instead of going out there and getting shot at.",
+                "Crime is at an all-time low, which is good because it means I get to hang around here all time instead of going out there and getting shot at.",
                 context=ContextTag([context.INFO, ]),
                 no_repeats=True, data={"subject": "crime in Wujung"}
             ))
@@ -995,7 +995,7 @@ class DZD_BlueFortressHQ(Plot):
 
     def deny_adventure(self, camp: gears.GearHeadCampaign):
         self.adventure_seed = None
-        self.next_mission_date = camp.day + 1
+        self.next_mission_date = camp.time + 1
         self.next_enemy_faction = self.generate_enemy_faction()
 
     def t_UPDATE(self, camp):
@@ -1016,7 +1016,7 @@ class DZD_BlueFortressHQ(Plot):
                     )
                 )
 
-        elif camp.day >= self.next_mission_date and not self.adventure_seed:
+        elif camp.time >= self.next_mission_date and not self.adventure_seed:
             mylist.append(
                 Offer(
                     "The Defense Force is short handed at the moment, so there are almost always missions available. [MechaMissionVsEnemyFaction].",
@@ -2062,7 +2062,7 @@ class DZD_SkippysNightOut(Plot):
                 ))
 
         mylist.append(Offer(
-            "That's the thing; I left this wheelchair at the hotel! Usually I prefer the chair for day-to-day getting around, but my legs are more convenient for clubbing. It's a real mystery, I'll tell you that.",
+            "That's the thing; I left this wheelchair at the hotel! Usually I prefer the chair for time-to-time getting around, but my legs are more convenient for clubbing. It's a real mystery, I'll tell you that.",
             context=ContextTag([context.CUSTOMREPLY, ]),
             data={"reply": "Maybe you came back to the hotel in your wheelchair?"},
             subject="prosthetic legs"

@@ -309,7 +309,7 @@ class RLM_Beginner(Plot):
                                     effect=self._join_lance
                                     ))
             mylist.append(Offer(
-                "[HELLO] Some day I want to become a cavalier like you.", context=ContextTag((context.HELLO,))
+                "[HELLO] Some time I want to become a cavalier like you.", context=ContextTag((context.HELLO,))
             ))
         mylist.append(LMSkillsSelfIntro(npc))
         return mylist

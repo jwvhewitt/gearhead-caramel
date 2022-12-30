@@ -89,7 +89,7 @@ class OmegaTalksTyphon(Plot):
             ))
 
             mylist.append(Offer(
-                "Yet as cavaliers we must always try to make things better. I know my actions that day were mathematically justified. It was the cold equation that Typhon must die so many others could live. Still, I mourn for the creature that was never given a chance to really exist.",
+                "Yet as cavaliers we must always try to make things better. I know my actions that time were mathematically justified. It was the cold equation that Typhon must die so many others could live. Still, I mourn for the creature that was never given a chance to really exist.",
                 ContextTag([context.CUSTOMREPLY]), data={"reply": "Life isn't fair. In fact usually it sucks."},
                 subject=self.shop, effect=self._do_typhon_talk
             ))
