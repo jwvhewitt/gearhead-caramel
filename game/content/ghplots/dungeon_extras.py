@@ -232,7 +232,7 @@ class WildernessCoffeeShop(Plot):
     EXPLANATIONS = (
         "Actually, I don't like working too hard, so I figured the easiest way to have an easy life would be to put my coffee shop in the middle of nowhere. It's worked well so far but the commute is a bit dangerous.",
         "You would not believe how many cavaliers we have trekking through this wilderness. I don't know what they're looking for, but they can always afford top dollar for premium coffee. Whatever you're looking for out here, I hope you find it.",
-        "This coffee shop has been passed down in my family since PreZero times. I've always hoped that a village would spring up nearby, but until that time, I must continue my family tradition.",
+        "This coffee shop has been passed down in my family since PreZero times. I've always hoped that a village would spring up nearby, but until that day, I must continue my family tradition.",
         "Have you checked out real estate prices lately? It was either put the coffee shop here or sublet a disused sewer tunnel. The monsters outside are a bit of a bother but at least we have fresh air."
     )
 
