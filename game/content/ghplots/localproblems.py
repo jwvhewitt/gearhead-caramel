@@ -638,7 +638,7 @@ class SregorThrunet(Plot):
 
             if not self.npc_impressed:
                 mylist.append(Offer(
-                    "[LISTEN_UP] I work with broken machines every time, I can strip every piece of usable gear out of a salvaged wreck. Everyone comes to the dead zone hoping to find lostech and strike it rich, but do you know what the biggest and most important piece of lostech is?",
+                    "[LISTEN_UP] I work with broken machines every day, I can strip every piece of usable gear out of a salvaged wreck. Everyone comes to the dead zone hoping to find lostech and strike it rich, but do you know what the biggest and most important piece of lostech is?",
                     context=ContextTag([context.CUSTOM]), subject=self, subject_start=True,
                     data={"reply": "I would like to talk about the Thrunet, actually."}
                 ))
