@@ -670,7 +670,7 @@ from . import container
 from . import namegen
 from . import randmaps
 from . import scenes
-from . import plots
+from . import plots, stories
 from . import image
 from . import effects
 from . import campaign

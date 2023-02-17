@@ -556,3 +556,17 @@ class EffectCallPlusNPC:
     def __call__(self, camp):
         self.fun(camp, self.npc)
 
+
+#  ***********************************
+#  ***   PLOT  EXPIRATION  TYPES   ***
+#  ***********************************
+
+class RulingFactionExpiration:
+    # This plot will expire if the ruling faction of a location changes.
+    def __init__(self, location, ruling_faction):
+        self.location = location
+        self.ruling_faction = ruling_faction
+
+    def __call__(self, camp, plot):
+        return self.location.faction is not self.ruling_faction
+

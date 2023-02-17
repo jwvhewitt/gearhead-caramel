@@ -3,7 +3,6 @@ import inspect
 from . import actionscenes
 from . import bbmc_main
 from . import campfeatures
-from . import challengedesigners
 from . import challengeplots
 from . import challengestarters
 from . import challengeutils
@@ -24,6 +23,7 @@ from . import dd_roadstops
 from . import dungeons
 from . import dungeon_extras
 from . import encounters
+from . import ghstories
 from . import lancedev
 from . import lancedev_objectives
 from . import lancemates
@@ -51,24 +51,23 @@ from . import townhall
 from . import treasures
 from . import utility
 from . import worldmapwar
-from . import worldmapwar_occupation
+from . import warplots
 from game.content import PLOT_LIST, UNSORTED_PLOT_LIST
 from pbge.plots import Plot
 
 
-def harvest( mod ):
-    for name in dir( mod ):
-        o = getattr( mod, name )
-        if inspect.isclass( o ) and issubclass( o , Plot ) and o is not Plot:
-            PLOT_LIST[ o.LABEL ].append( o )
-            UNSORTED_PLOT_LIST.append( o )
+def harvest(mod):
+    for name in dir(mod):
+        o = getattr(mod, name)
+        if inspect.isclass(o) and issubclass(o, Plot) and o is not Plot:
+            PLOT_LIST[o.LABEL].append(o)
+            UNSORTED_PLOT_LIST.append(o)
             # print o.__name__
 
 
 harvest(actionscenes)
 harvest(bbmc_main)
 harvest(campfeatures)
-harvest(challengedesigners)
 harvest(challengeplots)
 harvest(challengestarters)
 harvest(challengeutils)
@@ -89,6 +88,7 @@ harvest(dd_roadstops)
 harvest(dungeons)
 harvest(dungeon_extras)
 harvest(encounters)
+harvest(ghstories)
 harvest(lancedev)
 harvest(lancedev_objectives)
 harvest(lancemates)
@@ -116,7 +116,7 @@ harvest(townhall)
 harvest(treasures)
 harvest(utility)
 harvest(worldmapwar)
-harvest(worldmapwar_occupation)
+harvest(warplots)
 
 # Load the DLC.
 import importlib.util
@@ -127,7 +127,7 @@ import os.path
 
 
 def init_plots():
-    dlcs = glob.glob(pbge.util.user_dir('content','*.py'))
+    dlcs = glob.glob(pbge.util.user_dir('content', '*.py'))
     modict = globals()
 
     for dlcpath in dlcs:
@@ -163,7 +163,7 @@ def reload_plot_module(mod_name):
 
     # Step two: reload the module.
     try:
-        spec = importlib.util.spec_from_file_location(mod_name, pbge.util.user_dir('content','{}.py'.format(mod_name)))
+        spec = importlib.util.spec_from_file_location(mod_name, pbge.util.user_dir('content', '{}.py'.format(mod_name)))
         module = importlib.util.module_from_spec(spec)
         sys.modules[mod_name] = module
         spec.loader.exec_module(module)
@@ -171,8 +171,6 @@ def reload_plot_module(mod_name):
         harvest(module)
     except (IndentationError, SyntaxError, ImportError) as err:
         print(
-            "ERROR: {} could not be loaded due to error: {}".format(pbge.util.user_dir('content','{}.py'.format(
+            "ERROR: {} could not be loaded due to error: {}".format(pbge.util.user_dir('content', '{}.py'.format(
                 mod_name)), err)
         )
-
-
