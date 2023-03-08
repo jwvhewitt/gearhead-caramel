@@ -444,7 +444,7 @@ class Plot(object):
         return None
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return True
 

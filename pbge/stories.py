@@ -1,27 +1,80 @@
 # After years of building 'em manually, I have decided to create a standard interface for stories built using Propp's
 # Ratchet. This is a random story technique that has been used since GearHead 1.
 import collections
+import random
+from . import util
 
+# Not a grapg0- use algebra. Find ending states (as current) and then select a beginning state. Add components which
+# purposefully move story state closer to desired outcome- or which branch to other outcone. Loss is an issue but I think
+# it will work. Make propp states tell their own stories. Or at least provide grammar to describe their contribution to
+# overall story. Algebra- remember each state is a number that only goes up. Make numbers go up. Maybe add standard
+# roles to propp state- I rejected that idea before, but may be useful. Not as simple as enemy/ally. Or maybe just
+# enemy/ally.
+# MAYBE_NOT = "MAYBE_NOT"     # Faction/character can be convinced to oppose this outcome
 from . import plots
 
-VERB_DEFEAT = "DEFEAT"
+
+STORY_ELEMENT = "STORY"
 
 DEFAULT_STORY_PLOT = "STORY_PLOT"
 DEFAULT_STORY_CONCLUSION = "STORY_CONCLUSION"
 
 
+class ProppNarrateme:
+    def __init__(self, name, tags=(), grammar=None):
+        self.name = name
+        self.tags = set(tags)
+        self.grammar = dict()
+        if grammar:
+            self.grammar.update(grammar)
+
+    def __str__(self):
+        return self.name
+
+    def __eq__(self, other):
+        if isinstance(other, ProppNarrateme):
+            return self.name == other.name and self.tags == other.tags
+
+    def __hash__(self):
+        return hash((self.name, self.tags))
+
+
 class ProppKey:
-    def __init__(self, name, narratemes=(), takes_params=False):
+    def __init__(self, name, narratemes=(), max_starting_state=0):
         self.name = name
         self.narratemes = tuple(narratemes)
-        self.takes_element = takes_params
+        # Store CONSTs for all the narrateme values.
+#        for numb, narr in enumerate(self.narratemes):
+#            setattr(self, self._name_to_identifier(narr.name), numb)
+        self.max_starting_state = max_starting_state
+
+    def _name_to_identifier(self, name: str):
+        mychars = list()
+        name = name or "A"
+        for c in name:
+            if c.isalpha():
+                mychars.append(c.upper())
+            elif c.isdigit() and mychars:
+                mychars.append(c)
+            elif c.isspace() and mychars:
+                mychars.append("_")
+        myident = "".join(mychars)
+        n = 1
+        while hasattr(self, myident):
+            # This is less efficient than caching the base name and then adding the number to the end. WGAFBF? If
+            # the key is set up correctly, you shouldn't have two narratemes with the same name anyhow. Even if all
+            # the narratemes have the same name the amount of time taken up by this loop will be tiny. So I'm not
+            # going to worry about it. Also: Covid brain fog seems to be lifting.
+            myident = "".join(mychars) + str(n)
+            n += 1
+        return myident
 
     def __eq__(self, other):
         if isinstance(other, ProppKey):
-            return self.name == other.name and self.narratemes == other.narratemes and self.takes_element == other.takes_element
+            return self.name == other.name and self.narratemes == other.narratemes
 
     def __hash__(self):
-        return hash((self.name, self.narratemes, self.takes_element))
+        return hash((self.name, self.narratemes))
 
 
 class ProppValue:
@@ -31,11 +84,19 @@ class ProppValue:
 
 
 class ProppState:
-    def __init__(self, values=None):
-        # Values is a dict in which the keys are ProppKey objects and the values are ProppValue objects
-        self.values = collections.defaultdict(ProppValue)
-        if values:
-            self.values.update(values)
+    def __init__(self, channels=None):
+        # Channels is a dict in which the keys are ProppKey objects and the values are ProppValue objects
+        self.channels = collections.defaultdict(ProppValue)
+        if channels:
+            self.channels.update(channels)
+
+
+class ProppControl:
+    def __init__(self, entry_state: ProppState, exit_states=None):
+        self.entry_state = entry_state
+        self.exit_states = dict()
+        if exit_states:
+            self.exit_states.update(exit_states)
 
 
 class Story:
@@ -48,94 +109,6 @@ class Story:
             self.elements.update(elements)
 
 
-class OutcomeAttitude:
-    WANT = "WANT"               # Faction/character in favor of this outcome
-    DO_NOT_WANT = "DO_NOT_WANT" # Faction/character opposed to this outcome
-    MAYBE = "MAYBE"             # Faction/character can be convinced to back this outcome
-    MAYBE_NOT = "MAYBE_NOT"     # Faction/character can be convinced to oppose this outcome
-
-    def __init__(self, attitude=WANT, cooperative=True):
-        self.attitude = attitude
-        self.cooperative = cooperative
-
-
-class ISOutcome:
-    def __init__(self, verb=VERB_DEFEAT, target=None, participants=None, effect=None):
-        # verb is what's gonna happen in this outcome.
-        # target is the Story Element ID of the object of the verb. Except you can't say object in Python because that
-        #   word has a different meaning here than it does in English grammar.
-        # participants is a dict where key = faction/character Story Element ID and value = OutcomeAttitude
-        # effect is a callable of form "effect(camp)" which is called if/when this outcome comes to pass
-        self.verb = verb
-        self.target = target
-        self.participants = dict()
-        if participants:
-            self.participants.update(participants)
-        self.effect = effect
-
-    def __str__(self):
-        return "{}: {}".format(self.verb, self.target)
-
-
-class InstantStory(Story):
-    # An instant story gets built all at once. All the story components are subplots of the plot that called for the
-    # story to be built. Components self-activate when the story state matches their requirements, and deactivate when
-    # the story state no longer matches their requirements.
-    # In GH1 and GH2, this is what would have been referred to as a "quest".
-    # The constructor is passed a list of possible outcomes. It will then attempt to construct a web of plots with
-    # the provided maximum chain length which connects all the outcomes to a single beginning state.
-    def __init__(self, outcomes, conclusion_type=DEFAULT_STORY_CONCLUSION, num_keys=3, chain_length=3, **kwargs):
-        super().__init__(**kwargs)
-        self.outcomes = list(outcomes)
-        self.conclusion_type = conclusion_type
-        self.num_keys = num_keys
-        self.chain_length = chain_length
-
-    def _get_conclusion_combo(self, plot_candidates, current_outcome, remaining_outcomes, cumulative_keys=None):
-        # For a
-        combos = list()
-        if not cumulative_keys:
-            cumulative_keys = set()
-        for nuplot, nustate in plot_candidates[current_outcome].items():
-            nu_keys = cumulative_keys | set(nustate.values.keys())
-            if len(nu_keys) <= self.num_keys:
-                # nuplot doesn't add enough keys to go over the key limit. Continue checking for combos.
-                if not remaining_outcomes:
-                    # This is the last plot needed. Add it to the list, embedded in a list.
-                    combos.append([nuplot])
-                else:
-                    # Check the remaining outcomes.
-                    for rops in self._get_conclusion_combo(plot_candidates, remaining_outcomes[0], remaining_outcomes[1:], nu_keys):
-                        # rops stands for "remaining outcomes plot sequences".
-                        combos.append([nuplot] + rops)
-        return combos
-
-    def build(self, nart: plots.NarrativeRequest, parent_plot=None):
-        # Find a pool of candidates for each of the outcomes.
-        candidates = collections.defaultdict(dict)
-        for outc in self.outcomes:
-            for sp in nart.plot_list[self.conclusion_type]:
-                req_state = sp.get_conclusion_context(nart, outc)
-                if req_state:
-                    candidates[outc][sp] = req_state
-            if not candidates[outc]:
-                print("Plot Error: No conclusion found for outcome {} in {}".format(outc, self))
-                raise plots.PlotError("Plot Error: No conclusion found for outcome {} in {}".format(outc, self))
-
-        # Find sets of candidate conclusions that share three ProppValues.
-        combos = self._get_conclusion_combo(candidates, self.outcomes[0], self.outcomes[1:])
-        print(combos)
-
-#        keep_going = True
-#        while keep_going:
-#            pass
-
-        # Choose a set at random, and attempt to navigate to a starting point.
-        # - For each conclusion, figure out every plot state it can reach within the required number of links.
-        # - See if there are initial plot states that satisfy all conclusions.
-        #   - If so, build the plot web based on the initial plot state/pathfinding. Make sure to spackle loose ends.
-
-
 class OngoingStory(Story):
     # An ongoing story is a story that happens one episode at a time. The story may be called to generate a new
     # chapter whenever appropriate.
@@ -143,13 +116,8 @@ class OngoingStory(Story):
         pass
 
 
-class StoryConclusionPlot(plots.Plot):
-    LABEL = DEFAULT_STORY_CONCLUSION
-    scope = "METRO"
+class StoryPlot(plots.Plot):
+    LABEL = DEFAULT_STORY_PLOT
+    PROPP_CONTROL = ProppControl(ProppState())
 
-    @classmethod
-    def get_conclusion_context(cls, nart, outcome: ISOutcome):
-        # If this conclusion can be used for the provided outcome, return the ProppState describing the conditions
-        # of this conclusion. If it can't be used, return None.
-        return None
 

@@ -7,10 +7,9 @@ from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints,
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
-from pbge import stories
-from pbge.stories import OutcomeAttitude
+from pbge import stories, quests
 from pbge.memos import Memo
-from . import missionbuilder, rwme_objectives, campfeatures, ghstories
+from . import missionbuilder, rwme_objectives, campfeatures, ghquests
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
@@ -44,7 +43,7 @@ WMWO_IRON_FIST = "WMWO_IRON_FIST"       # The faction will impose totalitarian r
 
 class OccupationCrushDissent(Plot):
     LABEL = WMWO_IRON_FIST
-    scope = "METRO"
+    scope = True
     active = True
 
     def custom_init(self, nart):
@@ -53,31 +52,27 @@ class OccupationCrushDissent(Plot):
         outcomes = list()
         self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
         if RESISTANCE_FACTION not in self.elements:
-            self.elements[RESISTANCE_FACTION] = gears.factions.Circle(nart.camp, parent_faction=self.elements.get(ORIGINAL_FACTION))
+            self.elements[RESISTANCE_FACTION] = gears.factions.Circle(
+                nart.camp, parent_faction=self.elements.get(ORIGINAL_FACTION)
+            )
 
-
-        oc1 = stories.ISOutcome(
-            ghstories.VERB_REPRESS, target=self.elements[RESISTANCE_FACTION],
-            participants={
-                OCCUPIER: OutcomeAttitude(OutcomeAttitude.WANT),
-                RESISTANCE_FACTION: OutcomeAttitude(OutcomeAttitude.DO_NOT_WANT)
-            },
+        oc1 = quests.QuestOutcome(
+            ghquests.VERB_REPRESS, target=self.elements[RESISTANCE_FACTION],
+            participants=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
             effect=self._occupier_wins
         )
 
-        oc2 = stories.ISOutcome(
-            ghstories.VERB_EXPEL, target=self.elements[OCCUPIER],
-            participants={
-                RESISTANCE_FACTION: OutcomeAttitude(OutcomeAttitude.WANT),
-                OCCUPIER: OutcomeAttitude(OutcomeAttitude.DO_NOT_WANT)
-            },
+        oc2 = quests.QuestOutcome(
+            ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
+            participants=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
+                                                                         self.elements["OCCUPIER"]),
             effect=self._resistance_wins
         )
 
-        mystory = self.register_element("STORY", stories.InstantStory(
-            outcomes=(oc1, oc2), elements=self.elements
+        myquest = self.register_element(quests.DEFAULT_QUEST_ELEMENT_ID, quests.Quest(
+            outcomes=(oc1, oc2)
         ))
-        mystory.build(nart, self)
+        myquest.build(nart, self)
 
         return True
 

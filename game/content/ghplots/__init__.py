@@ -23,6 +23,7 @@ from . import dd_roadstops
 from . import dungeons
 from . import dungeon_extras
 from . import encounters
+from . import ghquests
 from . import ghstories
 from . import lancedev
 from . import lancedev_objectives
@@ -88,6 +89,7 @@ harvest(dd_roadstops)
 harvest(dungeons)
 harvest(dungeon_extras)
 harvest(encounters)
+harvest(ghquests)
 harvest(ghstories)
 harvest(lancedev)
 harvest(lancedev_objectives)
