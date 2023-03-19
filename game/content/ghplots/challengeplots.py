@@ -475,6 +475,134 @@ class BasicFightChallenge(Plot):
             thingmenu.add_item(self.mission_seed.name, self.mission_seed)
 
 
+#   *************************************
+#   ***  LOCATE_ENEMY_BASE_CHALLENGE  ***
+#   *************************************
+
+class ReconMissionToFindBase(Plot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+    RUMOR = Rumor(
+        "{NPC} is looking for a pilot to fight {ENEMY_FACTION}",
+        offer_msg="You can find {NPC} at {NPC_SCENE} if you want the mission.",
+        memo="{NPC} is looking for a pilot to fight {ENEMY_FACTION}.",
+        prohibited_npcs=("NPC",), npc_is_prohibited_fun=plotutility.ProhibitFactionMembers("ENEMY_FACTION")
+    )
+
+    EXTRA_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL)
+
+    @classmethod
+    def matches(cls, pstate: PlotState):
+        return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE]
+        if self.candidates:
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            self.register_element("NPC_SCENE", npc.scene)
+            self.register_element("ENEMY_FACTION", mychallenge.key[0])
+            self.register_element("BASE_NAME", mychallenge.data["base_name"])
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+
+            sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+            self.mission_seed = missionbuilder.BuildAMissionSeed(
+                nart.camp, "{NPC}'s Mission".format(**self.elements),
+                self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+                allied_faction=npc.faction,
+                enemy_faction=self.elements["ENEMY_FACTION"], rank=self.rank,
+                objectives=[missionbuilder.BAMO_LOCATE_ENEMY_FORCES,] + [random.choice(self.EXTRA_OBJECTIVES)],
+                one_chance=True,
+                scenegen=sgen, architecture=archi,
+                cash_reward=120,
+                on_win=self._win_the_mission
+            )
+
+            self.mission_active = False
+            del self.candidates
+            return True
+
+    def _get_challenge_for_npc(self, nart, npc):
+        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
+        if candidates:
+            return random.choice(candidates)
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
+            self._get_challenge_for_npc(nart, candidate)
+        )
+
+    def _win_the_mission(self, camp: gears.GearHeadCampaign):
+        comp = self.mission_seed.get_completion(True)
+        pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Scouting, self.rank)
+        if pc:
+            if pc.get_pilot() is camp.pc:
+                pbge.alert("You trace the path taken by the enemy mecha, and find their base.")
+            else:
+                ghcutscene.SimpleMonologueDisplay("[I_HAVE_TRACKED_ENEMY_MECHA] We know where their {BASE_NAME} is.".format(**self.elements), pc)(camp)
+            self.elements["CHALLENGE"].advance(camp, self.elements["CHALLENGE"].points_target)
+        else:
+            self.elements["CHALLENGE"].advance(camp, 1)
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.mission_active:
+            mylist.append(Offer(
+                "[LOOKING_FOR_CAVALIER] {ENEMY_FACTION} has been operating near {METROSCENE}, and this has to stop.".format(**self.elements),
+                ContextTag([context.HELLO, context.MISSION])
+            ))
+
+            mylist.append(Offer(
+                "Your job will be to find the {ENEMY_FACTION} forces and eliminate them. [DOYOUACCEPTMISSION]".format(**self.elements),
+                ContextTag([context.MISSION]),
+                subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[IWillSendMissionDetails]; [GOODLUCK]",
+                ContextTag([context.ACCEPT]), effect=self.activate_mission,
+                subject=self
+            ))
+
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "If you can do that, you could end their threat for good; [GOODLUCK]",
+                    ContextTag([context.CUSTOMREPLY]), effect=self.activate_mission, subject=self,
+                    data={"reply": "This could help us to locate {ENEMY_FACTION}'s {BASE_NAME}.".format(**self.elements)}
+                ),
+                camp, mylist, gears.stats.Knowledge, gears.stats.Scouting, self.rank, gears.stats.DIFFICULTY_AVERAGE,
+                no_random=False
+            )
+
+            mylist.append(Offer(
+                "[UNDERSTOOD] [GOODBYE]",
+                ContextTag([context.DENY]), effect=self.end_plot,
+                subject=self
+            ))
+
+        return mylist
+
+    def t_START(self,camp):
+        if self.LABEL == "DZRE_TEST" and not self.mission_active:
+            self.mission_active = True
+
+    def t_UPDATE(self,camp):
+        if self.mission_seed.ended:
+            self.end_plot(camp)
+
+    def activate_mission(self,camp):
+        self.mission_active = True
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed and self.mission_active:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+
 #   ************************
 #   ***  MAKE_CHALLENGE  ***
 #   ************************

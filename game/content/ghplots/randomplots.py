@@ -235,7 +235,7 @@ class MechaMissionForCity(Plot):
             self.expiration = TimeExpiration(nart.camp)
 
             sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
-            # Create the mission seed. Turn the defeat_trigger off because we'll be handling that manually.
+            # Create the mission seed.
             self.mission_seed = missionbuilder.BuildAMissionSeed(
                 nart.camp, "{NPC}'s Mission".format(**self.elements),
                 self.elements["METROSCENE"], self.elements["MISSION_GATE"],

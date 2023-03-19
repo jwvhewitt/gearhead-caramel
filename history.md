@@ -1,3 +1,6 @@
+* Challenges now deactivate on win by default
+* Fixed error in list_nouns when two nouns provided
+* Fixed text formatting error in WOTHCBM_HomeDespot plot
 * Finished adding all of the mecha forms from previous games
 * Renamed campaign property "day" to "time"
 

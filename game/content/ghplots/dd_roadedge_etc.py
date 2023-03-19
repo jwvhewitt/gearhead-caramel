@@ -683,7 +683,7 @@ class WarOnTheHighwayMain(Plot):
                 ]
             }, memo=pbge.challenges.ChallengeMemo(
                 "{CITY1} is fighting {CITY2}.".format(**self.elements)
-            )
+            ), deactivate_on_win=False
         ))
 
         self.register_element("C2_WAR", Challenge(
@@ -713,7 +713,7 @@ class WarOnTheHighwayMain(Plot):
                 ]
             }, memo=pbge.challenges.ChallengeMemo(
                 "{CITY2} is fighting {CITY1}.".format(**self.elements)
-            )
+            ), deactivate_on_win=False
         ))
 
         self.add_sub_plot(nart, "DZRE_WOTH_CASUSBELLI", ident="CASUSBELLI")
@@ -938,7 +938,7 @@ class WOTHCB_BothSidesSame(Plot):
                 )
             ), memo=pbge.challenges.ChallengeMemo(
                 "You may be able to get {CITY1} to agree to peace with {CITY2}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
 
         ))
 
@@ -996,7 +996,7 @@ class WOTHCB_BothSidesSame(Plot):
                 )
             ), memo=pbge.challenges.ChallengeMemo(
                 "You may be able to get {CITY2} to agree to peace with {CITY1}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
         ))
 
         self.has_activated_negotiations = False
@@ -1190,7 +1190,7 @@ class WOTHCBM_HomeDespot(Plot):
                 )
             ), memo=pbge.challenges.ChallengeMemo(
                 "You may be able to get {THIS_CITY} to agree to peace with {THAT_CITY}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
         ))
 
         # There is also a dethrone challenge which might possibly be unlocked.
@@ -1239,7 +1239,7 @@ class WOTHCBM_HomeDespot(Plot):
                 )
             ), memo=pbge.challenges.ChallengeMemo(
                 "If {NPC} were removed from power, {THIS_CITY} might agree to peace with {THAT_CITY}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
 
         ))
         return True
@@ -1330,7 +1330,7 @@ class WOTHCBM_HomeDespot(Plot):
 
                 ghdialogue.MatchingTagPartyReply(
                     Offer(
-                        "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION] It will take a rebellion of the common people to remove {NPC.gender.object_pronoun} from power, and for that I am going to need more support.",
+                        "[MAYBE_YOU_ARE_RIGHT_ABOUT_OPINION] It will take a rebellion of the common people to remove {NPC.gender.object_pronoun} from power, and for that I am going to need more support.".format(**self.elements),
                         ContextTag([context.CUSTOM, ]),
                         data={
                             "reply": "You know {NPC} has been abusing the people of of {THIS_CITY}.".format(**self.elements),
@@ -1501,7 +1501,7 @@ class WOTHCBM_AspiringConqueror(Plot):
                 )
             ), memo=pbge.challenges.ChallengeMemo(
                 "If {NPC} were removed from power, {THIS_CITY} might agree to peace with {THAT_CITY}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
 
         ))
         return True
@@ -1689,7 +1689,7 @@ class WOTHCBM_PeacefulPeople(Plot):
                 ),
             ), memo=pbge.challenges.ChallengeMemo(
                 "In order to defend itself from {THAT_CITY}, {THIS_CITY} needs to improve its defenses.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
         ))
         return True
 

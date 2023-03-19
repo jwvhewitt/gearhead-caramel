@@ -94,6 +94,18 @@ class DescribedObjective(object):
         self.lose_ep = lose_ep
 
 
+#   ************************************
+#   ***  LOCATE  ENEMY  BASE  STUFF  ***
+#   ************************************
+# The involvement for a LEB challenge lists the NPCs who might give the PC a combat mission against the base
+# The key for a LEB challenge is (Faction_to_be_fought,)
+# The data for a locate enemy base challenge should include:
+#   base_name = Is it a base? A fortress? A factory? Defaults to base.
+#
+
+LOCATE_ENEMY_BASE_CHALLENGE = "LOCATE_ENEMY_BASE_CHALLENGE"
+
+
 #   ********************************
 #   ***  MAKE  CHALLENGE  STUFF  ***
 #   ********************************

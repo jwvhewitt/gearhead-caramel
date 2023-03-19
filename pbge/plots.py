@@ -74,8 +74,11 @@ class Rumor(object):
 
     def __init__(self, rumor="", grammar_tag="[News]", offer_context=dialogue.INFO,
                  offer_msg="", offer_subject="{NPC}", offer_subject_data="{NPC}", memo="",
-                 memo_location="NPC_SCENE", prohibited_npcs=(), offer_effect_name=""):
+                 memo_location="NPC_SCENE", prohibited_npcs=(), offer_effect_name="",
+                 npc_is_prohibited_fun=None):
         # offer_effect_name is the name of a method from the calling plot.
+        # npc_is_prohibited_fun is an optional function that will prohibit certain npcs from sharing this rumor
+        #  if it returns True. The function signature is (plot, npc).
         self.rumor = rumor
         self.grammar_tag = grammar_tag
         self.offer_msg = offer_msg
@@ -86,6 +89,7 @@ class Rumor(object):
         self.memo_location = memo_location
         self.prohibited_npcs = prohibited_npcs
         self.offer_effect_name = offer_effect_name
+        self.npc_is_prohibited_fun = npc_is_prohibited_fun
 
     def get_rumor_grammar(self, npc, camp, plot):
         mygram = dict()
@@ -119,6 +123,8 @@ class Rumor(object):
         for ename in self.prohibited_npcs:
             if plot.elements.get(ename, None) is npc:
                 return False
+        if self.npc_is_prohibited_fun and self.npc_is_prohibited_fun(plot, npc):
+            return False
         return True
 
     def disable_rumor(self, plot):
@@ -444,17 +450,21 @@ class Plot(object):
         return None
 
     @classmethod
-    def matches(cls, pstate):
+    def matches(cls, pstate: PlotState):
         """Returns True if this plot matches the current plot state."""
         return True
 
     def activate(self, camp):
+        was_active = self.active
         self.active = True
-        camp.check_trigger('UPDATE')
+        if not was_active:
+            camp.check_trigger('UPDATE')
 
     def deactivate(self, camp):
+        was_active = self.active
         self.active = False
-        camp.check_trigger('UPDATE')
+        if was_active:
+            camp.check_trigger('UPDATE')
 
     def end_plot(self, camp, total_removal=False):
         # WARNING: Don't end the plot while the PC is standing in one of the temp scenes!

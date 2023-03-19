@@ -2483,6 +2483,31 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[I_HAVE_TRACKED_ENEMY_MECHA]": {
+        # The enemy mecha's path has been discovered.
+        Default: ["[HOLD_ON] I'm picking up the path these mecha took.",
+                  "[LOOK_AT_THIS] These mecha didn't do a good job at covering their tracks."
+                  ],
+        personality.Cheerful: [
+            "[GOOD_NEWS] I've got a sensor lock on the path these mecha took!",
+        ],
+        personality.Grim: [
+            "[HOLD_ON] I'm getting strong readings from that direction...",
+        ],
+        personality.Easygoing: [
+            "[LOOK_AT_THIS] I think I've found the direction these mecha came from.",
+        ],
+        personality.Passionate: [
+            "[INTERESTING_NEWS] The [enemy_meks] left an obvious trail...",
+        ],
+        personality.Sociable: [
+            "[HOLD_ON] I'm pretty sure I can track where these [enemy_meks] came from.",
+        ],
+        personality.Shy: [
+            "[LISTEN_UP] The [enemy_meks] came from that direction."
+        ]
+    },
+
     "[I_KNOW_THINGS_ABOUT_STUFF]": {
         # Data must include "stuff"
         Default: [

@@ -688,6 +688,9 @@ class Explorer(object):
                     elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.active_plots():
                             print("{}".format(thing.__class__.__name__))
+                    elif gdi.unicode == "O" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        for thing in self.camp.all_plots():
+                            print("{}".format(thing.__class__.__name__))
                     elif gdi.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for pc in self.camp.get_active_party():
                             if hasattr(pc, "relationship") and pc.relationship and hasattr(pc, "renown"):

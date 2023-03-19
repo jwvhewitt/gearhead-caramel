@@ -195,6 +195,10 @@ MISSION_DENY = Reply("[MISSION:DENY]",
                      context=ContextTag([context.MISSION]),
                      destination=Cue(ContextTag([context.DENY])))
 
+MISSION_CUSTOMREPLY = Reply("{reply}",
+                         destination=Cue(ContextTag([context.CUSTOMREPLY])),
+                         context=ContextTag([context.MISSION]))
+
 MISSIONPROBLEM_JOIN = Reply("[MISSION_PROBLEM:JOIN]",
                             context=ContextTag([context.MISSION, context.PROBLEM]),
                             destination=Cue(ContextTag([context.JOIN])))

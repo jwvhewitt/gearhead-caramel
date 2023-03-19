@@ -557,6 +557,18 @@ class EffectCallPlusNPC:
         self.fun(camp, self.npc)
 
 
+#  *****************************************
+#  ***   RUMOR  PROHIBITION  CALLABLES   ***
+#  *****************************************
+
+class ProhibitFactionMembers:
+    def __init__(self, faction_element_id):
+        self.faction_element_id = faction_element_id
+
+    def __call__(self, plot, npc):
+        return npc.faction is plot.elements.get(self.faction_element_id)
+
+
 #  ***********************************
 #  ***   PLOT  EXPIRATION  TYPES   ***
 #  ***********************************

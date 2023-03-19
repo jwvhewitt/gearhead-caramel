@@ -15,9 +15,10 @@ DEFAULT_OUTCOME_ELEMENT_ID = "QUEST_OUTCOME"
 
 
 class QuestPlot(plots.Plot):
+    active = False
     QUEST_DATA = None
     quest_record = None
-    
+
     def t_UPDATE(self, camp):
         if not self.quest_record.started:
             if not self.active:
@@ -25,7 +26,11 @@ class QuestPlot(plots.Plot):
                     self.activate(camp)
                     self.start_quest_task(camp)
                     self.quest_record.started = True
-                    
+            else:
+                self.activate(camp)
+                self.start_quest_task(camp)
+                self.quest_record.started = True
+
     def start_quest_task(self, camp):
         pass
 
@@ -89,6 +94,7 @@ class Quest:
         random.shuffle(self.outcomes)
         for numb, outc in enumerate(self.outcomes):
             frontier = dict()
+            all_plots = list()
             if self.conclusion_type.isidentifier():
                 ident = "{}_{}".format(self.conclusion_type, str(numb))
             else:
@@ -97,6 +103,7 @@ class Quest:
                 nart, self.conclusion_type, elements={self.outcome_element_id: outc}, ident=ident
             )
             self.outcome_plots[outc] = nuplot
+            all_plots.append(nuplot)
             setattr(root_plot, "{}_WIN".format(ident), QuestConclusionMethodWrapper(root_plot, outc.effect, True))
             setattr(root_plot, "{}_LOSE".format(ident), QuestConclusionMethodWrapper(root_plot, outc.loss_effect,
                                                                                      self.end_on_loss))
@@ -117,6 +124,11 @@ class Quest:
                     t -= 1
                     frontier[new_task] = list(nuplot.QUEST_DATA.potential_tasks)
                     random.shuffle(frontier[new_task])
+                    all_plots.append(new_task)
+
+            for oc_plot in all_plots:
+                if oc_plot.quest_record.should_be_active():
+                    oc_plot.active = True
 
     def extend(self, nart, current_plot: QuestPlot, splabel):
         nuplot = current_plot.add_sub_plot(nart, splabel, necessary=False)

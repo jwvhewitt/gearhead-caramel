@@ -43,13 +43,12 @@ WMWO_IRON_FIST = "WMWO_IRON_FIST"       # The faction will impose totalitarian r
 
 class OccupationCrushDissent(Plot):
     LABEL = WMWO_IRON_FIST
-    scope = True
+    scope = "METRO"
     active = True
 
     def custom_init(self, nart):
         # The invading faction is going to try and crush dissent in this region. The locals are going to try to resist
         # this as well as they can.
-        outcomes = list()
         self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
         if RESISTANCE_FACTION not in self.elements:
             self.elements[RESISTANCE_FACTION] = gears.factions.Circle(

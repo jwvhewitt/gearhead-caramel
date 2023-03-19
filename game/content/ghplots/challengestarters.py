@@ -42,7 +42,10 @@ class ChallengeStarterPlot(Plot):
 
     def end_plot(self, camp, total_removal=False):
         super().end_plot(camp, total_removal)
-        self.elements["CHALLENGE"].deactivate(camp)
+        try:
+            self.elements["CHALLENGE"].deactivate(camp)
+        except KeyError:
+            print("Key Error: CHALLENGE not found in {}".format(self))
 
 
 #   **************************************
@@ -147,7 +150,7 @@ class DethroneByPopularUprising(ChallengeStarterPlot):
                 ),
             ), memo=pbge.challenges.ChallengeMemo(
                 "You have agreed to help remove {NPC} from power in {METROSCENE}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
 
         ))
 
@@ -333,7 +336,7 @@ class DiplomacyToDiscredit(ChallengeStarterPlot):
                 ),
             ), memo=pbge.challenges.ChallengeMemo(
                 "You have agreed to help discredit {NPC}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
 
         ))
 
@@ -374,7 +377,7 @@ class EpidemicStarter(ChallengeStarterPlot):
                 ),
             ), memo=pbge.challenges.ChallengeMemo(
                 "Many people in {METROSCENE} are infected with {DISEASE}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
         ))
 
         return True
@@ -441,7 +444,7 @@ class MakeBuildingStarter(ChallengeStarterPlot):
             ), data={"why_make_it": "{BUILDING_NEED}".format(**self.elements)},
             memo=pbge.challenges.ChallengeMemo(
                 "{METROSCENE} has started constructing {BUILDING_NAME}; {BUILDING_NEED}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
         ))
 
         return True
@@ -482,7 +485,7 @@ class MakeDrugsStarter(ChallengeStarterPlot):
             ), data={"why_make_it": "we need {THECURE} to treat {DISEASE}".format(**self.elements)},
             memo=pbge.challenges.ChallengeMemo(
                 "Doctors in {METROSCENE} are working hard to synthesize {THECURE} to treat {DISEASE}.".format(**self.elements)
-            ), memo_active=True
+            ), memo_active=True, deactivate_on_win=False
         ))
 
         return True

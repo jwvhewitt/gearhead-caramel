@@ -164,7 +164,7 @@ class Challenge(object):
     # oppuses = A list of AutoUsages used by this challenge
     # data = A dict of challenge-specific data that may be used by scenario generators. Just keeping my options open.
     def __init__(self, name, chaltype, key=(), involvement=None, active=True, grammar=None, oppoffers=(), oppuses=(),
-                 data=None, points_target=10, memo=None, memo_active=False):
+                 data=None, points_target=10, memo=None, memo_active=False, deactivate_on_win=True):
         self.name = name
         self.points_earned = 0
         self._active = active
@@ -184,6 +184,7 @@ class Challenge(object):
         if self.memo:
             self.memo.challenge = self
         self.memo_active = memo_active
+        self.deactivate_on_win = deactivate_on_win
 
     def advance(self, camp, delta):
         if self._active:
@@ -192,6 +193,8 @@ class Challenge(object):
                 camp.check_trigger(ADVANCE_CHALLENGE, self)
                 if self.points_earned >= self.points_target:
                     camp.check_trigger("WIN", self)
+                    if self.deactivate_on_win:
+                        self.deactivate(camp)
             elif delta < 0:
                 camp.check_trigger(SETBACK_CHALLENGE, self)
             self.memo_active = True
