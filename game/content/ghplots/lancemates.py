@@ -283,6 +283,7 @@ class RLM_Beginner(Plot):
     RUMOR = Rumor(
         rumor="{NPC} has dreams of someday becoming a cavalier",
         offer_msg="As far as I know {NPC} usually hangs out at {NPC_SCENE}.",
+        offer_subject="{NPC} has dreams of someday becoming a cavalier", offer_subject_data="{NPC}",
         memo="{NPC} dreams of becoming a cavalier.",
         prohibited_npcs=("NPC",)
     )
@@ -331,6 +332,7 @@ class RLM_Friendly(Plot):
     RUMOR = Rumor(
         rumor="{NPC} is looking for a lance to join",
         offer_msg="You can usually find {NPC} at {NPC_SCENE}, if you're planning to invite {NPC.gender.object_pronoun} to join your lance.",
+        offer_subject="{NPC} is looking for a lance to join", offer_subject_data="{NPC}",
         memo="{NPC} is looking for a lance to join.",
         prohibited_npcs=("NPC",)
     )
@@ -374,6 +376,7 @@ class RLM_Medic(Plot):
     RUMOR = Rumor(
         rumor="{NPC} wants to leave {NPC.scene} so {NPC.gender.subject_pronoun} can make a positive difference in the world",
         offer_msg="{NPC} is a {NPC.job}; {NPC.gender.subject_pronoun} has been working at {NPC_SCENE} but is hoping to get back behind the seat of a mech.",
+        offer_subject="{NPC} wants to leave {NPC.scene} so", offer_subject_data="{NPC}",
         memo="{NPC} is a {NPC.job} who wants to join a lance.",
         prohibited_npcs=("NPC",)
     )
@@ -436,6 +439,7 @@ class RLM_Mercenary(Plot):
     RUMOR = Rumor(
         rumor="{NPC} is hoping to make some quick cash",
         offer_msg="As far as I know {NPC} can usually be found at {NPC_SCENE}.",
+        offer_subject="{NPC} is hoping to make some quick cash", offer_subject_data="{NPC}",
         memo="{NPC} is a mercenary pilot looking for a job.",
         prohibited_npcs=("NPC",)
     )
@@ -497,7 +501,8 @@ class RLM_Professional(Plot):
     RUMOR = Rumor(
         rumor="{NPC} is an experienced pilot looking for work",
         offer_msg="You can usually find {NPC} at {NPC_SCENE}. Bring cash if you're planning to hire {NPC.gender.object_pronoun}.",
-        memo="{NPC}  is an experienced pilot looking for work.",
+        offer_subject="{NPC} is an experienced pilot looking for work", offer_subject_data="{NPC}",
+        memo="{NPC} is an experienced pilot looking for work.",
         prohibited_npcs=("NPC",)
     )
 
@@ -556,6 +561,7 @@ class RLM_RatherGeneric(Plot):
     RUMOR = Rumor(
         rumor="{NPC} is looking for a new lance to join",
         offer_msg="You can find {NPC} at {NPC_SCENE}.",
+        offer_subject="{NPC} is looking for a new lance to join", offer_subject_data="{NPC}",
         memo="{NPC} is looking for a new lance.",
         prohibited_npcs=("NPC",)
     )
@@ -678,7 +684,8 @@ class RLM_StraightOutOfWork(Plot):
     RUMOR = Rumor(
         rumor="{NPC} is an unemployed cavalier",
         offer_msg="You can find {NPC} at {NPC_SCENE}. I'm sure {NPC.gender.subject_pronoun} would be happy to embark on a new adventure.",
-        memo="{NPC}  is an unemployed cavalier looking for a new lance to join.",
+        offer_subject="{NPC} is an unemployed cavalier", offer_subject_data="{NPC}",
+        memo="{NPC} is an unemployed cavalier looking for a new lance to join.",
         prohibited_npcs=("NPC",)
     )
 
@@ -741,6 +748,7 @@ class RLM_DamagedGoodsSale(Plot):
     RUMOR = Rumor(
         rumor="{NPC} is a down on {NPC.gender.possessive_determiner} luck cavalier looking for another chance",
         offer_msg="You can find {NPC} at {NPC_SCENE}. Don't say that you weren't warned.",
+        offer_subject="{NPC} is a down on {NPC.gender.possessive_determiner} luck cavalier", offer_subject_data="{NPC}",
         memo="{NPC} is an out of work pilot with a questionable past.",
         prohibited_npcs=("NPC",)
     )
@@ -814,6 +822,7 @@ class RLM_HauntedByTyphon(Plot):
     RUMOR = Rumor(
         rumor="{NPC} is one of the pilots who fought against Typhon, and lost",
         offer_msg="{NPC.gender.subject_pronoun} hasn't piloted a mek since {NPC.gender.possessive_determiner} defeat. You can usually find {NPC} at {NPC_SCENE}; maybe speaking to another cavalier will improve {NPC.gender.possessive_determiner} mood.",
+        offer_subject="{NPC} is one of the pilots who fought against Typhon, and lost", offer_subject_data="{NPC}",
         memo="{NPC} is a cavalier who was defeated by Typhon and hasn't piloted a mek since.",
         prohibited_npcs=("NPC",)
     )
@@ -916,6 +925,7 @@ class RLM_MechaOtaku(Plot):
     RUMOR = Rumor(
         rumor="{NPC} is obsessed with mecha; maybe someday {NPC.gender.subject_pronoun} will become a cavalier",
         offer_msg="{NPC} usually hangs out at {NPC_SCENE}. Since you're a mecha pilot yourself, I'm sure {NPC.gender.subject_pronoun}'d be thrilled to talk with you.",
+        offer_subject="{NPC} is obsessed with mecha; maybe", offer_subject_data="{NPC}",
         memo="{NPC} is obsessed with mecha.",
         prohibited_npcs=("NPC",)
     )
@@ -1045,6 +1055,7 @@ class RLM_FarmKid(Plot):
     RUMOR = Rumor(
         rumor="{NPC} wants to get out of {METROSCENE}",
         offer_msg="I think {NPC.gender.subject_pronoun} is just tired of small town life. You should be able to find {NPC} at {NPC_SCENE}.",
+        offer_subject="{NPC} wants to get out of {METROSCENE}", offer_subject_data="{NPC}",
         memo="{NPC} is bored with small town life and wants to get out of {METROSCENE}.",
         prohibited_npcs=("NPC",)
     )

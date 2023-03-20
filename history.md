@@ -1,3 +1,4 @@
+* Added copy method to BuildAMissionSeed
 * Challenges now deactivate on win by default
 * Fixed error in list_nouns when two nouns provided
 * Fixed text formatting error in WOTHCBM_HomeDespot plot

@@ -486,6 +486,7 @@ class ReconMissionToFindBase(Plot):
     RUMOR = Rumor(
         "{NPC} is looking for a pilot to fight {ENEMY_FACTION}",
         offer_msg="You can find {NPC} at {NPC_SCENE} if you want the mission.",
+        offer_subject="{NPC} is looking for a pilot to fight {ENEMY_FACTION}", offer_subject_data="{NPC}'s mission",
         memo="{NPC} is looking for a pilot to fight {ENEMY_FACTION}.",
         prohibited_npcs=("NPC",), npc_is_prohibited_fun=plotutility.ProhibitFactionMembers("ENEMY_FACTION")
     )

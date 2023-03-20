@@ -21,15 +21,8 @@ class QuestPlot(plots.Plot):
 
     def t_UPDATE(self, camp):
         if not self.quest_record.started:
-            if not self.active:
-                if self.quest_record.should_be_active:
-                    self.activate(camp)
-                    self.start_quest_task(camp)
-                    self.quest_record.started = True
-            else:
-                self.activate(camp)
-                self.start_quest_task(camp)
-                self.quest_record.started = True
+            self.start_quest_task(camp)
+            self.quest_record.started = True
 
     def start_quest_task(self, camp):
         pass
@@ -86,6 +79,7 @@ class Quest:
         self.conclusion_type = conclusion_type
         self.course_length = course_length
         self.outcome_plots = dict()
+        self.all_plots = list()
         self.end_on_loss = end_on_loss
 
     def build(self, nart, root_plot: plots.Plot):
@@ -94,7 +88,6 @@ class Quest:
         random.shuffle(self.outcomes)
         for numb, outc in enumerate(self.outcomes):
             frontier = dict()
-            all_plots = list()
             if self.conclusion_type.isidentifier():
                 ident = "{}_{}".format(self.conclusion_type, str(numb))
             else:
@@ -103,7 +96,7 @@ class Quest:
                 nart, self.conclusion_type, elements={self.outcome_element_id: outc}, ident=ident
             )
             self.outcome_plots[outc] = nuplot
-            all_plots.append(nuplot)
+            self.all_plots.append(nuplot)
             setattr(root_plot, "{}_WIN".format(ident), QuestConclusionMethodWrapper(root_plot, outc.effect, True))
             setattr(root_plot, "{}_LOSE".format(ident), QuestConclusionMethodWrapper(root_plot, outc.loss_effect,
                                                                                      self.end_on_loss))
@@ -122,13 +115,19 @@ class Quest:
                 new_task = self.extend(nart, mykey, sub_plot_ident)
                 if new_task:
                     t -= 1
-                    frontier[new_task] = list(nuplot.QUEST_DATA.potential_tasks)
-                    random.shuffle(frontier[new_task])
-                    all_plots.append(new_task)
+                    if new_task.QUEST_DATA.potential_tasks:
+                        frontier[new_task] = list(new_task.QUEST_DATA.potential_tasks)
+                        random.shuffle(frontier[new_task])
+                    self.all_plots.append(new_task)
 
-            for oc_plot in all_plots:
-                if oc_plot.quest_record.should_be_active():
-                    oc_plot.active = True
+        self.check_quest_plot_activation()
+
+    def check_quest_plot_activation(self, camp=None):
+        for oc_plot in self.all_plots:
+            if oc_plot.quest_record.should_be_active():
+                oc_plot.active = True
+        if camp:
+            camp.check_trigger('UPDATE')
 
     def extend(self, nart, current_plot: QuestPlot, splabel):
         nuplot = current_plot.add_sub_plot(nart, splabel, necessary=False)
@@ -172,20 +171,24 @@ class QuestRecord:
             task.deactivate(camp)
             task.quest_record.deactivate_children(camp)
 
-    def win_obstacle(self, myplot: QuestPlot, camp):
+    def win_task(self, myplot: QuestPlot, camp):
         self.completion = self.WIN
         self.deactivate_children(camp)
         myplot.end_quest_task(camp)
         myplot.deactivate(camp)
+        self.quest.check_quest_plot_activation(camp)
 
-    def lose_obstacle(self, myplot: QuestPlot, camp):
+    def lose_task(self, myplot: QuestPlot, camp):
         self.completion = self.LOSS
         self.deactivate_children(camp)
         myplot.end_quest_task(camp)
         myplot.deactivate(camp)
+        self.quest.check_quest_plot_activation(camp)
 
     def should_be_active(self):
+        if self.started and self.completion != self.IN_PROGRESS:
+            return False
         for sq in self.tasks:
-            if sq.QUEST_DATA.blocks_progress and sq.quest_record.completion == self.IN_PROGRESS:
+            if sq.QUEST_DATA.blocks_progress and sq.quest_record.completion != self.WIN:
                 return False
         return True

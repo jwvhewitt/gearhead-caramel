@@ -13,6 +13,7 @@ from game.content import adventureseed, ghcutscene
 from gears import champions
 from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, \
     DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
+import copy
 
 # Mecha Objectives
 BAMO_AID_ALLIED_FORCES = "BAMO_AidAlliedForces"
@@ -160,6 +161,15 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.rewards.append(adventureseed.RenownReward())
 
         self.environment = architecture.ENV
+
+    def copy(self):
+        mycopy: BuildAMissionSeed = copy.copy(self)
+        mycopy.pstate = pbge.plots.PlotState(adv=mycopy, rank=self.rank)
+        mycopy.pstate.elements.update(self.pstate.elements)
+        mycopy.objectives = copy.deepcopy(self.objectives)
+        mycopy.results = list()
+        mycopy.data = dict()
+        mycopy.data.update(self.data)
 
     def end_adventure(self, camp: gears.GearHeadCampaign):
         # Update before ending, and again after.

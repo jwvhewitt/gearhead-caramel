@@ -49,6 +49,9 @@ class TheyHaveAFortress(quests.QuestPlot):
         self.elements[QE_BASE_NAME] = "Fortress"
         return True
 
+    def t_START(self, camp):
+        print("TheyHaveAFortress is active.")
+
 
 #  ***********************
 #  ***   QUEST  TASKS  ***
@@ -80,4 +83,10 @@ class FindEnemyBaseTask(quests.QuestPlot):
 
         ))
         return True
+
+    def CHALLENGE_WIN(self, camp):
+        pbge.alert("A winner is you!")
+        self.quest_record.win_task(self, camp)
+
+
 
