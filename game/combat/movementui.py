@@ -22,7 +22,7 @@ class MovementWidget(pbge.widgets.Widget):
         # top_shelf_fun and bottom_shelf_fun are functions called when the user
         #   tries to scroll up or down. Unlike the invocation widgets, this widget only has one shelf,
         #   so unless these functions are defined scrolling up and down does nothing. Nothing!
-        super().__init__(-383, -5, 383, 57, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
+        super().__init__(-383, -5, 383, 65, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
         self.camp = camp
         self.pc = pc
 
@@ -36,13 +36,13 @@ class MovementWidget(pbge.widgets.Widget):
         self.selection = 0
         self.mmodes = list()
 
-        self.label = pbge.widgets.LabelWidget(12, 15, 208, 21, str(self.pc), font=pbge.BIGFONT, parent=self,
+        self.label = pbge.widgets.LabelWidget(12, 15, 198, 30, str(self.pc), font=pbge.BIGFONT, parent=self,
                                               anchor=pbge.frects.ANCHOR_UPPERLEFT)
         self.children.append(self.label)
         if isinstance(self.pc, gears.base.Mecha):
             self.children.append(pbge.widgets.LabelWidget(
-                26, 37, 212, 14, str(self.pc.get_pilot()), font=pbge.MEDIUMFONT, parent=self,
-                anchor=pbge.frects.ANCHOR_UPPERLEFT, color=pbge.WHITE
+                26, self.label.dy + self.label.h, 212, 14, str(self.pc.get_pilot()), font=pbge.my_state.small_font,
+                parent=self, anchor=pbge.frects.ANCHOR_UPPERLEFT, color=pbge.WHITE
             ))
 
         self.buttons = list()
@@ -55,7 +55,7 @@ class MovementWidget(pbge.widgets.Widget):
             ddx += 34
         self.children += self.buttons
 
-        self.sprite = pbge.image.Image(self.IMAGE_NAME, 383, 57)
+        self.sprite = pbge.image.Image(self.IMAGE_NAME, 383, 65)
         self._update_move_modes()
         if start_source:
             self.select_requested_movemode(start_source)
@@ -185,12 +185,14 @@ class JumpNav(object):
 
 class MovementUI(object):
     SC_ORIGIN = 4
+    SC_GOCURSOR = 1
     SC_AOE = 2
     SC_CURSOR = 3
     SC_VOIDCURSOR = 0
     SC_ENDCURSOR = 5
     SC_TRAILMARKER = 6
     SC_ZEROCURSOR = 7
+    SC_ENEMYCURSOR = 12
 
     def __init__(self, camp, mover, top_shelf_fun=None, bottom_shelf_fun=None, name="movement", clock=None):
         self.camp = camp
@@ -212,41 +214,53 @@ class MovementUI(object):
     def _render_normal_movemode(self):
         if self.mover.get_current_speed() <= 1:
             self.clock.set_ap_mp_costs()
+            pbge.my_state.view.cursor.frame = self.get_blocked_cursor()
         elif pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
             mypath = self.nav.get_path(pbge.my_state.view.mouse_tile)
 
             # Draw the trail, highlighting where one action point ends and the next begins.
             traildrawer.draw_trail(self.cursor_sprite
-                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, self.SC_ENDCURSOR
+                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, None
                                    , self.camp.scene, self.mover
                                    , self.camp.fight.cstat[self.mover].mp_remaining
                                    , mypath
                                    )
             self.clock.set_ap_mp_costs(mp_to_spend=self.nav.cost_to_tile[pbge.my_state.view.mouse_tile])
+            pbge.my_state.view.cursor.frame = self.SC_GOCURSOR
         elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
             wp, pos = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
             mypath = self.nav.get_path(pos)
 
             # Draw the trail, highlighting where one action point ends and the next begins.
             traildrawer.draw_trail(self.cursor_sprite
-                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, self.SC_ENDCURSOR
+                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, None
                                    , self.camp.scene, self.mover
                                    , self.camp.fight.cstat[self.mover].mp_remaining
                                    , mypath
                                    )
             self.clock.set_ap_mp_costs(ap_to_spend=1, mp_to_spend=self.nav.cost_to_tile[mypath[-1]])
+            pbge.my_state.view.cursor.frame = self.SC_CURSOR
 
         else:
-            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
+            #pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
             self.clock.set_ap_mp_costs()
+            pbge.my_state.view.cursor.frame = self.get_blocked_cursor()
 
     def _render_jumping_movemode(self):
         if pbge.my_state.view.mouse_tile in self.jumpable_points:
-            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_ENDCURSOR)
+            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_GOCURSOR)
             self.clock.set_ap_mp_costs(ap_to_spend=1)
         else:
-            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
+            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.get_blocked_cursor())
             self.clock.set_ap_mp_costs()
+
+    def get_blocked_cursor(self):
+        # Movement to this tile is blocked. Still, if there's an enemy in the tile, we want to display that visually.
+        mmecha = [m for m in pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile, ()) if m.is_operational()]
+        if mmecha and self.camp.scene.is_hostile_to_player(mmecha[0]):
+            return self.SC_ENEMYCURSOR
+        else:
+            return self.SC_VOIDCURSOR
 
     def render(self):
         pbge.my_state.view.overlays.clear()

@@ -23,4 +23,5 @@ def draw_trail( sprite
         mp_remaining -= cost
         if i != 0:
             pbge.my_state.view.overlays[p] = (sprite, marker)
-    pbge.my_state.view.overlays[path[-1]] = (sprite, endcursor)
+    if endcursor:
+        pbge.my_state.view.overlays[path[-1]] = (sprite, endcursor)

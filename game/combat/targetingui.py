@@ -24,7 +24,9 @@ class AttackWidget(invoker.InvocationsWidget):
     DESC_POS = (-200, 15, 180, 180)
     def __init__(self, camp, pc, build_library_function, update_callback, start_source=None, **kwargs):
         super().__init__(camp, pc, build_library_function, update_callback, start_source, **kwargs)
-        self.ammo_label = pbge.widgets.LabelWidget(26,37,212,14,text_fun=self._get_ammo_str,color=pbge.WHITE,
+        self.ammo_label = pbge.widgets.LabelWidget(26, self.label.dy+self.label.h, 212, 14,
+                                                   font=pbge.my_state.small_font,
+                                                   text_fun=self._get_ammo_str,color=pbge.WHITE,
                                                    parent=self,anchor=pbge.frects.ANCHOR_UPPERLEFT,
                                                    justify=0, on_click=self.pop_invo_menu)
         self.children.append(self.ammo_label)

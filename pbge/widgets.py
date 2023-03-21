@@ -121,7 +121,7 @@ class ButtonWidget(Widget):
 
 class LabelWidget(Widget):
     def __init__(self, dx, dy, w=0, h=0, text='***', color=None, font=None, justify=-1, draw_border=False,
-                 border=widget_border_off, text_fun=None, **kwargs):
+                 border=widget_border_off, text_fun=None, alt_smaller_fonts=(), **kwargs):
         # text_fun is a function that takes this widget as a parameter. It returns the text to display.
         super().__init__(dx, dy, w, h, **kwargs)
         self.text = text
@@ -141,13 +141,22 @@ class LabelWidget(Widget):
         self.justify = justify
         self.border = border
         self.text_fun = text_fun
+        self.alt_smaller_fonts = alt_smaller_fonts
 
     def render(self, flash=False):
         if self.draw_border:
             self.border.render(self.get_rect())
         if self.text_fun:
             self.text = self.text_fun(self)
-        draw_text(self.font, self.text, self.get_rect(), self.color, self.justify)
+        if self.alt_smaller_fonts and len(wrap_multi_line(self.text, self.font, self.w)) * self.font.get_linesize() > self.h:
+            myfont = self.alt_smaller_fonts[-1]
+            for f in self.alt_smaller_fonts[:-1]:
+                if len(wrap_multi_line(self.text, f, self.w)) * f.get_linesize() <= self.h:
+                    myfont = f
+                    break
+        else:
+            myfont = self.font
+        draw_text(myfont, self.text, self.get_rect(), self.color, self.justify)
         if flash:
             self._default_flash()
 

@@ -557,6 +557,7 @@ class Explorer(object):
             elif gdi.type == pbge.TIMEREVENT:
                 self.view.overlays.clear()
                 self.threat_viewer.update(self.view, self.threat_tiles)
+                pbge.my_state.view.cursor.frame = 0
                 self.view()
 
                 # Display info for this tile.

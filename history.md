@@ -1,3 +1,4 @@
+* Label widgets can take a list of alternate smaller fonts to make text fit in specified area
 * Added copy method to BuildAMissionSeed
 * Challenges now deactivate on win by default
 * Fixed error in list_nouns when two nouns provided

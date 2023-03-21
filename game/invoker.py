@@ -1,4 +1,5 @@
 # The invocation selection and targeting UI.
+import gears
 import pbge
 from game import traildrawer
 from gears import info
@@ -39,7 +40,7 @@ class InvocationsWidget(pbge.widgets.Widget):
         # top_shelf_fun and bottom_shelf_fun are functions called when the user
         #   tries to scroll above the top item or below the bottom item. If None,
         #   this widget will just loop around to the other end of the list.
-        super(InvocationsWidget, self).__init__(-383, -5, 383, 57, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
+        super(InvocationsWidget, self).__init__(-383, -5, 383, 65, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
         self.camp = camp
         self.pc = pc
         self.build_library = build_library_function
@@ -52,8 +53,9 @@ class InvocationsWidget(pbge.widgets.Widget):
         # The shelf_offset tells the index of the first invocation in the menu.
         self.shelf_offset = 0
 
-        self.label = pbge.widgets.LabelWidget(12, 15, 208, 21, "", font=pbge.BIGFONT, parent=self,
-                                              anchor=pbge.frects.ANCHOR_UPPERLEFT, on_click=self.pop_invo_menu)
+        self.label = pbge.widgets.LabelWidget(12, 15, 198, 30, "", font=pbge.BIGFONT, parent=self,
+                                              anchor=pbge.frects.ANCHOR_UPPERLEFT, on_click=self.pop_invo_menu,
+                                              alt_smaller_fonts=(pbge.MEDIUM_DISPLAY_FONT, pbge.MEDIUMFONT, pbge.SMALLFONT, pbge.TINYFONT,))
         self.children.append(self.label)
 
         self.buttons = list()
@@ -65,7 +67,7 @@ class InvocationsWidget(pbge.widgets.Widget):
             ddx += 34
         self.children += self.buttons
 
-        self.sprite = pbge.image.Image(self.IMAGE_NAME, 383, 57)
+        self.sprite = pbge.image.Image(self.IMAGE_NAME, 383, 65)
         if start_source:
             self.select_shelf_with_this_source(start_source)
         else:
@@ -267,9 +269,13 @@ class InvocationUI(object):
     SC_ENDCURSOR = 5
     SC_TRAILMARKER = 6
     SC_ZEROCURSOR = 7
+    SC_ENEMYCURSOR = 12
+    SC_GOODTARGET = 13
+    SC_VOIDENEMYCURSOR = 14
+    SC_VOIDGOODTARGET = 15
     LIBRARY_WIDGET = InvocationsWidget
 
-    def __init__(self, camp, pc, build_library_function, source=None, top_shelf_fun=None, bottom_shelf_fun=None, name="invocations", clock=None ):
+    def __init__(self, camp: gears.GearHeadCampaign, pc, build_library_function, source=None, top_shelf_fun=None, bottom_shelf_fun=None, name="invocations", clock=None ):
         self.camp = camp
         self.pc = pc
         # self.change_invo(invo)
@@ -336,21 +342,30 @@ class InvocationUI(object):
         else:
             self.targets_widget.active = False
         pbge.my_state.view.overlays.clear()
+
+        # Find out what mecha are in the targeted tile.
+        mmecha = [m for m in pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile, ()) if m.is_operational()]
+        if mmecha and self.camp.scene.is_hostile_to_player(mmecha[0]):
+            pbge.my_state.view.cursor.frame = self.SC_ENEMYCURSOR
+        elif mmecha and self.invo and self.invo.ai_tar and self.invo.ai_tar.is_potential_target(self.camp, self.pc, mmecha[0]):
+            pbge.my_state.view.cursor.frame = self.SC_GOODTARGET
+        else:
+            pbge.my_state.view.cursor.frame = self.SC_CURSOR
+
         pbge.my_state.view.overlays[self.pc.pos] = (self.cursor_sprite, self.SC_ORIGIN)
-        mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
-        if mmecha:
-            mmecha = [m for m in mmecha if m.is_operational()]
+
         if self.invo and pbge.my_state.view.mouse_tile in self.legal_tiles:
             aoe = self.invo.area.get_area(self.camp, self.pc.pos, pbge.my_state.view.mouse_tile)
             for p in aoe:
                 pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
+            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = None
         if self.invo and self.targets:
             for t in self.targets:
                 aoe = self.invo.area.get_area(self.camp, self.pc.pos, t)
                 for p in aoe:
                     pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
+            #pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = None
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
-            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_CURSOR)
             if self.clock:
                 self.clock.set_ap_mp_costs(ap_to_spend=1)
         elif mmecha and self.can_move_and_attack(mmecha[0].pos):
@@ -361,13 +376,19 @@ class InvocationUI(object):
             else:
                 mp_remaining = float('inf')
             traildrawer.draw_trail( self.cursor_sprite
-                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, self.SC_ENDCURSOR
+                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, None
                                   , self.camp.scene, self.pc
                                   , mp_remaining
                                   , self.mypath + [pbge.my_state.view.mouse_tile]
                                   )
         else:
-            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
+            if mmecha and self.camp.scene.is_hostile_to_player(mmecha[0]):
+                pbge.my_state.view.cursor.frame = self.SC_VOIDENEMYCURSOR
+            elif mmecha and self.invo and self.invo.ai_tar and self.invo.ai_tar.is_potential_target(self.camp, self.pc,
+                                                                                                    mmecha[0]):
+                pbge.my_state.view.cursor.frame = self.SC_VOIDGOODTARGET
+            else:
+                pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
             if self.clock:
                 self.clock.set_ap_mp_costs()
 
@@ -455,6 +476,7 @@ class InvocationUI(object):
     def dispose(self):
         # Get rid of the widgets and shut down.
         pbge.my_state.widgets.remove(self.my_widget)
+        pbge.my_state.view.cursor.frame = self.SC_CURSOR
 
     def activate(self):
         self.my_widget.active = True

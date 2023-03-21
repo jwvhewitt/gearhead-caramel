@@ -401,7 +401,9 @@ INPUT_CURSOR = None
 SMALLFONT = None
 TINYFONT = None
 ITALICFONT = None
+MEDIUM_DISPLAY_FONT = None
 BIGFONT = None
+HUGEFONT = None
 ANIMFONT = None
 MEDIUMFONT = None
 ALTTEXTFONT = None  # Use this instead of MEDIUMFONT when you want to shake things up a bit.
@@ -773,11 +775,16 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         ITALICFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 12, -1)
         ITALICFONT.set_italic(True)
 
+        global MEDIUM_DISPLAY_FONT
+        MEDIUM_DISPLAY_FONT = pygame.font.Font(util.image_dir(display_font), 14)
+
         global BIGFONT
         BIGFONT = pygame.font.Font(util.image_dir(display_font), 17)
         my_state.big_font = BIGFONT
 
+        global HUGEFONT
         my_state.huge_font = pygame.font.Font(util.image_dir(display_font), 24)
+        HUGEFONT = my_state.huge_font
 
         global FPS
         FPS = util.config.getint("GENERAL", "frames_per_second")
