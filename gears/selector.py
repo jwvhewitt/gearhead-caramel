@@ -191,6 +191,7 @@ def equip_combatant(npc: base.Character):
         elif isinstance(part, (base.Hand, base.Mount)) and weapon_types:
             get_equipment_that_fits(part, weapon_types.pop(random.randint(0, len(weapon_types) - 1)), spending_limit)
 
+
 def get_random_loot(rank, amount, allowed_tags):
     myloot = list()
     allowed_tags = set(allowed_tags)
@@ -206,6 +207,7 @@ def get_random_loot(rank, amount, allowed_tags):
         else:
             break
     return myloot
+
 
 def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, can_cyberize=None, camp=None, age=None, **kwargs):
     # Build the creation matrix, aka the dict.

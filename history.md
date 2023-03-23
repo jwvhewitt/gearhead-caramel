@@ -1,3 +1,8 @@
+* Enemy units get a different info panel border
+* Mission objectives can now be reviewed from the memo browser
+* The end-of-mission gate menu options have clearer wording
+* Savegame validation should be much faster
+* The map cursor changes to indicate enemy units + appropriate targets for abilities
 * Label widgets can take a list of alternate smaller fonts to make text fit in specified area
 * Added copy method to BuildAMissionSeed
 * Challenges now deactivate on win by default

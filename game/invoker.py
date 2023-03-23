@@ -487,6 +487,7 @@ class InvocationUI(object):
     def deactivate(self):
         # Used during combat only!
         self.my_widget.active = False
+        pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
 
     def get_firing_pos(self):
         if self.targets[0] in self.legal_tiles:

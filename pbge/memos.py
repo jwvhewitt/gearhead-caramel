@@ -22,8 +22,14 @@ class Memo(object):
 
 
 class MemoBrowser(widgets.Widget):
+    # Memos are held as the memo property of active Plots.
+    # A memo can be any of the following:
+    # - A string of text
+    # - An object that has a defined str() value
+    # - An object that has a get_widget(MemoBrowser, campaign) method which returns a widget
+    DEFAULT_WIDTH = 400
     def __init__(self, camp):
-        super().__init__(-200, -200, 400, 200)
+        super().__init__(-200, -200, self.DEFAULT_WIDTH, 200)
         self.camp = camp
         self.memos = camp.get_memos()
         if not self.memos:

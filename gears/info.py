@@ -7,14 +7,18 @@ from . import stats
 class InfoPanel(object):
     # An InfoPanel contains a bunch of InfoBlocks which get arranged vertically.
     # Each InfoBlock needs a width, height, and render(x,y)
+    # An InfoPanel should not be stored in the campaign structure because it may contain pygame Surfaces, which
+    #   can't be pickled! Instead create the info panel anew as needed.
     DEFAULT_BLOCKS = list()
 
-    def __init__(self, padding=3, draw_border=True, view=None, view_pos=(0,0), **kwargs):
+    def __init__(self, padding=3, draw_border=True, view=None, view_pos=(0,0), border_style=pbge.default_border,
+                 **kwargs):
         self.padding = padding
         self.info_blocks = list()
         for b in self.DEFAULT_BLOCKS:
             self.info_blocks.append(b(**kwargs))
         self.draw_border = draw_border
+        self.border_style = border_style
         self.view = view
         self.view_pos = view_pos
 
@@ -29,7 +33,7 @@ class InfoPanel(object):
     def render(self, x, y):
         w, h = self.get_dimensions()
         if self.draw_border:
-            pbge.default_border.render(pygame.Rect(x, y, w, h))
+            self.border_style.render(pygame.Rect(x, y, w, h))
         for block in self.info_blocks:
             block.render(x, y)
             y += block.height + self.padding
@@ -1026,3 +1030,23 @@ def get_shortform_display(model, **kwargs):
         return ShortLauncherIP(model=model, **kwargs)
     else:
         return ShortItemIP(model=model, **kwargs)
+
+
+ENEMY_BORDER = pbge.Border(
+    border_width=8, tex_width=16, border_name="sys_enemyborder.png",
+    tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2
+)
+
+class InfoWidget(pbge.widgets.Widget):
+    # A widget that holds an info panel. Works just like a normal widget. Provide your own info panel and make sure
+    # that the dimensions are compatible,
+    def __init__(self, dx, dy, w, h, info_panel: InfoPanel, **kwargs):
+        super().__init__(dx, dy, w, h, **kwargs)
+        self.info_panel = info_panel
+
+    def render(self, flash=False):
+        mydest = self.get_rect()
+        pbge.my_state.screen.set_clip(mydest)
+        self.info_panel.render(mydest.x, mydest.y)
+        pbge.my_state.screen.set_clip(None)
+

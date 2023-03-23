@@ -296,7 +296,10 @@ class GearHeadScene(pbge.scenes.Scene):
             # mmecha = pbge.my_state.view.modelmap.get(pos)
             mmecha = self.get_main_actor(pos)
             if mmecha and (self.local_teams.get(mmecha) == self.player_team or not mmecha.hidden):
-                return info.get_status_display(model=mmecha, scene=self, view=view, view_pos=pos)
+                ip = info.get_status_display(model=mmecha, scene=self, view=view, view_pos=pos)
+                if self.is_hostile_to_player(mmecha):
+                    ip.border_style = info.ENEMY_BORDER
+                return ip
             elif pbge.my_state.view.waypointmap.get(pos):
                 wp = pbge.my_state.view.waypointmap.get(pos)
                 return info.ListDisplay(items=wp, view=view, view_pos=pos)
@@ -495,6 +498,17 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         else:
             mythumb = None
         return version, rawegg, mythumb, camp
+
+    @classmethod
+    def load_minimal(cls, fname):
+        with open(pbge.util.user_dir(fname), "rb") as f:
+            version = pickle.load(f)
+            rawegg = pickle.load(f)
+        if os.path.exists(pbge.util.user_dir(fname[:-4] + ".jpg")):
+            mythumb = pygame.image.load(pbge.util.user_dir(fname[:-4] + ".jpg"))
+        else:
+            mythumb = None
+        return version, rawegg, mythumb
 
     def delete_save_file( self, del_name=None ):
         super().delete_save_file(del_name)

@@ -170,9 +170,9 @@ class LoadGameMenu:
         rc = pygame.image.load(pbge.util.image_dir("sys_roundedcorners.png"))
         rcdest = pygame.Rect(0,0,480,360)
 
-        for args in valid_saves:
-            mymenu.add_item(args[3].name, args[3], desc=args)
-            self.myportraits[args] = args[3].pc.get_portrait()
+        for fname, args in minimal_saves.items():
+            mymenu.add_item(args[1].pc.name, fname, desc=args)
+            self.myportraits[args] = args[1].pc.get_portrait()
             if args[2]:
                 args[2].blit(rc, rcdest)
                 args[2].convert_alpha()
@@ -183,12 +183,26 @@ class LoadGameMenu:
             mymenu.add_item('[No campaigns found]', None, desc=None)
 
         mymenu.sort()
-        camp = mymenu.query()
-        if camp:
+        fname = mymenu.query()
+        if fname:
             pbge.please_stand_by()
             # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
-            camp = copy.deepcopy(camp)
-            camp.play()
+            try:
+                camp = copy.deepcopy(gears.GearHeadCampaign.load(fname)[3])
+                camp.play()
+            except Exception as err:
+                print(err)
+                self.deal_with_bad_file(fname, err)
+
+    def deal_with_bad_file(self, fname, err):
+        mymenu = pbge.rpgmenu.AlertMenu("File \"{}\" cannot be loaded due to exception \"{}\". Do you want to eject the character so you can start a new campaign?".format(fname, err))
+        mymenu.add_item("Eject the character and delete the broken campaign file.", True)
+        mymenu.add_item("Leave it alone for now.", False)
+        if mymenu.query():
+            minimal_saves[fname][1].save()
+            if os.path.exists(fname):
+                os.remove(fname)
+            check_rpg_saves()
 
     @staticmethod
     def _string_to_major_version(version):
@@ -265,18 +279,18 @@ def just_show_background(tsrd):
         elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
             break
 
-valid_saves = list()
+minimal_saves = dict()
 quarantined_files = list()
 
 def check_rpg_saves():
     pbge.please_stand_by()
     quarantined_files.clear()
-    valid_saves.clear()
+    minimal_saves.clear()
     myfiles = glob.glob(pbge.util.user_dir("rpg_*.sav"))
     for fname in myfiles:
         try:
-            args = gears.GearHeadCampaign.load(fname)
-            valid_saves.append(args)
+            args = gears.GearHeadCampaign.load_minimal(fname)
+            minimal_saves[fname] = args
         except Exception as err:
             print(err)
             quarantined_files.append(fname)

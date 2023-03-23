@@ -380,3 +380,5 @@ class MovementUI(object):
 
     def deactivate(self):
         self.my_widget.active = False
+        pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
+

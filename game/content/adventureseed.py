@@ -184,6 +184,7 @@ class ObjectivesInfo(object):
             return pbge.INFO_GREEN
         else:
             return pbge.TEXT_COLOR
+
     def render(self,x,y):
         mydest = pygame.Rect(x, y, self.width, self.height)
         for obj,img in list(self.images.items()):
@@ -210,6 +211,25 @@ class CombatMissionDisplay(gears.info.InfoPanel):
         w,h = self.get_dimensions()
         mydest = pbge.frects.Frect(-w//2,-h//2,w,h).get_rect()
         self.render(mydest.x,mydest.y)
+
+
+class CombatMissionMemo:
+    def __init__(self, adv):
+        self.adv = adv
+
+    def get_widget(self, memo_browser: pbge.memos.MemoBrowser, camp: gears.GearHeadCampaign):
+        ip = CombatMissionDisplay(
+            title=self.adv.name, mission_seed=self.adv, width=memo_browser.w, draw_border=False
+        )
+        return gears.info.InfoWidget(
+            0, 0, memo_browser.w, memo_browser.h, ip, parent=memo_browser, anchor=pbge.frects.ANCHOR_UPPERLEFT
+        )
+
+    def __str__(self):
+        # This is a nonsense string that should, at the very least, put this memo at the first position when the
+        # list is sorted. Unless some other memo starts with six spaces. Don't do that.
+        return "     .....0000000000CombatMissionDisplay: {}".format(self.adv.name)
+
 
 class CombatResultsDisplay(CombatMissionDisplay):
     DEFAULT_BLOCKS = (gears.info.TitleBlock,ObjectivesInfo,ResultsInfo)

@@ -279,6 +279,8 @@ class BuildAMissionPlot(Plot):
         self.gave_ending_message = False
         self.exited_mission = False
 
+        self.memo = adventureseed.CombatMissionMemo(self.adv)
+
         return True
 
     def start_mission(self, camp):
@@ -319,13 +321,15 @@ class BuildAMissionPlot(Plot):
 
     def _ENTRANCE_menu(self, camp, thingmenu):
         if self.adv.is_completed():
-            thingmenu.desc = "Are you ready to return to {}?".format(self.elements["METROSCENE"])
+            thingmenu.desc = "Your mission is finished. Are you ready to return to {}?".format(self.elements["METROSCENE"])
+            thingmenu.add_item("End Mission", self.exit_the_mission)
+            thingmenu.add_item("Stay Here Longer", None)
         else:
             thingmenu.desc = "Do you want to abort this mission and return to {}?".format(
                 self.elements["METROSCENE"])
+            thingmenu.add_item("Cancel Mission", self.exit_the_mission)
+            thingmenu.add_item("Continue Mission", None)
 
-        thingmenu.add_item("End Mission", self.exit_the_mission)
-        thingmenu.add_item("Continue Mission", None)
 
     def exit_the_mission(self, camp: gears.GearHeadCampaign):
         camp.go(self.elements["ADVENTURE_RETURN"])
