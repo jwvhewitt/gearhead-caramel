@@ -1735,9 +1735,14 @@ class DZD_LongRoadLogistics(Plot):
             mylist.append(Offer(
                 "I'd love to help, but road security to the dead zone isn't what it used to be. Building a power plant is going to involve lots of materials and heavy machinery. We're going to need a secure transit route from here to {} before we can even talk about starting.".format(
                     self.elements["DZ_TOWN_NAME"]),
-                context=ContextTag([context.INFO]), subject=self, subject_start=True,
-                data={"subject": "building a new power plant for {}".format(self.elements["DZ_TOWN_NAME"])},
+                context=ContextTag([context.CUSTOM]), subject=self, subject_start=True,
+                data={"reply": "Could you build a new power plant for {}?".format(self.elements["DZ_TOWN_NAME"])},
                 no_repeats=True,
+            ))
+        elif self.elements["DZ_ROADMAP"].connection_is_made():
+            mylist.append(Offer(
+                "[HELLO] Our construction team is on the way to {}.".format(self.elements["DZ_TOWN_NAME"]),
+                context=ContextTag([context.HELLO]),
             ))
         else:
             mylist.append(Offer(
@@ -1747,7 +1752,7 @@ class DZD_LongRoadLogistics(Plot):
 
         mylist.append(Offer(
             "That would be great. More work will help us to rebuild our office faster, and I for one can't wait to get out of this building. It always smells like coffee and magnetic grease in here.",
-            context=ContextTag([context.CUSTOM]), subject=self,
+            context=ContextTag([context.CUSTOMREPLY]), subject=self,
             data={"reply": "I'll see what I can do about that."}, effect=self._tell_about_services
         ))
 
