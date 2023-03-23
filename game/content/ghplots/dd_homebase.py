@@ -87,6 +87,7 @@ class DZD_Wujung(Plot):
         # Test a local problem.
         #self.add_sub_plot(nart, "TOWNHALL")
         self.add_sub_plot(nart, "TEST_LOCAL_PROBLEM", necessary=False)
+        self.add_sub_plot(nart, "TEST_FEATURE", necessary=False)
 
         # Add the random world map encounter objective test.
         self.add_sub_plot(nart, "TEST_RWMO", necessary=False)

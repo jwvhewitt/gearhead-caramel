@@ -68,9 +68,9 @@ class DeadzoneDrifterStub( Plot ):
         del self.subplots["INTRO"]
 
     MEMO_MESSAGES = (
-        "You should go to Wujung, hire a team of lancemates, and find someone who can help rebuild the power station in {DZ_TOWN_NAME}. Osmund Eumann at the Bronze Horse Inn should be able to help.",
-        "According to Osmund Eumann, you should be able to find someone who can rebuild the power station at Long Haul Logistics.",
-        "RegEx Construction in Wujung has agreed to rebuild {DZ_TOWN_NAME}'s power station, but before they can do that you will need to clear a safe pathway through the dead zone."
+        "{DZ_CONTACT} sent you to Wujung to hire a team of lancemates and find someone who can help rebuild the power station in {DZ_TOWN_NAME}. Osmund Eumann at the Bronze Horse Inn should be able to help.",
+        "According to Osmund Eumann, you should be able to find someone who can rebuild the power station at Long Haul Logistics in Wujung.",
+        "{DZ_CONTACT} sent you to find someone to rebuild {DZ_TOWN_NAME}'s power station. RegEx Construction in Wujung has agreed, but before they can do so you will need to clear a safe pathway through the dead zone."
 
     )
     def t_START(self, camp):

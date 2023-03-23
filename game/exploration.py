@@ -563,7 +563,7 @@ class Explorer(object):
                 # Display info for this tile.
                 my_info = self.scene.get_tile_info(self.view)
                 if my_info:
-                    my_info.view_display()
+                    my_info.view_display(self.camp)
 
                 pbge.my_state.do_flip()
 

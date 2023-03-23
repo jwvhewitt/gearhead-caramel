@@ -1193,12 +1193,22 @@ class DZRS_LostForager(Plot):
 
         return myoffs
 
+    def NPC_FAINT(self, camp: gears.GearHeadCampaign):
+        # If the NPC dies, the player has succeeded at getting them out of the wasteland, from a certain point of view.
+        if not self.npc_rescued:
+            self.npc_rescued = True
+            self.memo = None
+            npc = self.elements["NPC"]
+            if npc in camp.scene.contents:
+                camp.scene.contents.remove(npc)
+
     def _rescue_npc(self, camp: gears.GearHeadCampaign):
         self.npc_rescued = True
         npc = self.elements["NPC"]
         npc.place(self.elements["METROSCENE"], team=self.elements["METROSCENE"].civilian_team)
         camp.go(self.elements["MISSION_GATE"])
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        self.memo = None
         camp.dole_xp(200)
 
     def _add_lancemate(self, camp):
@@ -1208,6 +1218,7 @@ class DZRS_LostForager(Plot):
             "I rescued you from {}".format(self.area_name),
             10, [gears.relationships.MEM_AidedByPC, ]
         ))
+        self.memo = None
         self.npc_lm = True
 
 

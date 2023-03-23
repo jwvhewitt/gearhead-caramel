@@ -277,7 +277,7 @@ class MovementUI(object):
         # Display info for this tile.
         my_info = self.camp.scene.get_tile_info(pbge.my_state.view)
         if my_info:
-            my_info.view_display()
+            my_info.view_display(self.camp)
 
         pbge.my_state.do_flip()
 

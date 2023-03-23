@@ -96,7 +96,11 @@ class CombatStat(object):
 
     def get_actions_and_move_percent(self):
         if hasattr(self.combatant, "get_current_speed") and self.combatant.get_current_speed() > 0 and self._mp_spent > 0:
-            return self._ap_remaining - 1, (self.combatant.get_current_speed() - self._mp_spent)*100 // self.combatant.get_current_speed()
+            speed = self.combatant.get_current_speed()
+            percent = (speed - self._mp_spent)*100 // self.combatant.get_current_speed()
+            if self._mp_spent > (speed//2):
+                percent = min(percent, 49)
+            return self._ap_remaining - 1, percent
         else:
             return self.action_points, 0
 
@@ -115,13 +119,18 @@ class CombatStat(object):
 
             if ap_to_spend > 0 and mp_spent > (self.combatant.get_current_speed()//2):
                 ap_to_spend += 1
+        else:
+            speed = 0
 
         if ap_to_spend > 0 and mp_spent > 0:
             mp_spent = 0
         ap_to_spend += ap_spent_on_movement
 
-        if hasattr(self.combatant, "get_current_speed") and self.combatant.get_current_speed() > 0 and mp_spent > 0:
-            return max(self._ap_remaining - 1 - ap_to_spend, 0), (self.combatant.get_current_speed() - mp_spent)*100 // self.combatant.get_current_speed()
+        if speed > 0 and mp_spent > 0:
+            percent = (speed - mp_spent)*100 // speed
+            if mp_spent > (speed//2):
+                percent = min(percent, 49)
+            return max(self._ap_remaining - 1 - ap_to_spend, 0), percent
         else:
             return max(self.action_points - ap_to_spend, 0), 0
 
@@ -180,6 +189,10 @@ class ActionClockWidget(pbge.widgets.Widget):
             adest.x += self.ACTION_QUARTER_ANCHORS[actions][0]
             adest.y += self.ACTION_QUARTER_ANCHORS[actions][1]
             frame = actions * 32 + min(max((16 * (100-leftover))//100, 0), 15) + frame_offset
+            if leftover < 50:
+                frame = max(frame, actions * 32 + 9 + frame_offset)
+            else:
+                frame = min(frame, actions * 32 + 8 + frame_offset)
             self.quarters.render(adest, frame)
 
     def render(self, flash=False):

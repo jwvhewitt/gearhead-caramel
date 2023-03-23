@@ -1,3 +1,5 @@
+* You can dock the tile info panel in the upper left corner via the config menu
+* Combat clock troll bug fixed. Real ones will know.
 * Enemy units get a different info panel border
 * Mission objectives can now be reviewed from the memo browser
 * The end-of-mission gate menu options have clearer wording

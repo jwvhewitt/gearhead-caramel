@@ -57,16 +57,22 @@ class InfoPanel(object):
         myrect.clamp_ip(pbge.my_state.screen.get_rect())
         self.render(myrect.left, myrect.top)
 
-    def view_display(self):
+    def view_display(self, camp):
         if not self.view:
             self.popup()
         else:
             w, h = self.get_dimensions()
-            x, y = self.view.foot_coords(*self.view_pos)
-            y -= 64
             myrect = pygame.Rect(0, 0, w, h)
-            myrect.midbottom = (x,y)
-            myrect.clamp_ip(pbge.my_state.screen.get_rect())
+            if pbge.util.config.getboolean("GENERAL", "dock_tile_info_panel"):
+                myrect.x = 16
+                myrect.y = 16
+                if camp.fight:
+                    myrect.top += 64
+            else:
+                x, y = self.view.foot_coords(*self.view_pos)
+                y -= 64
+                myrect.midbottom = (x,y)
+                myrect.clamp_ip(pbge.my_state.screen.get_rect())
             self.render(myrect.left, myrect.top)
 
 class NameBlock(object):

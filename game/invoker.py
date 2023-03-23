@@ -400,7 +400,7 @@ class InvocationUI(object):
             if self.invo and mmecha and hasattr(self.invo.fx, "get_odds"):
                 odds, modifiers = self.invo.fx.get_odds(self.camp, self.pc, mmecha[0])
                 my_info.info_blocks.append(info.OddsInfoBlock(odds, modifiers))
-            my_info.view_display()
+            my_info.view_display(self.camp)
 
     def launch(self):
         # This function is for use in combat. The explo_invoke class
