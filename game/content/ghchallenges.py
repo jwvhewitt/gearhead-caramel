@@ -261,7 +261,7 @@ class InvolvedMetroTaggedNPCs(object):
 #   ***************************
 
 class AccessSocialRoll(object):
-    # Return True if the party can pass a social skill roll.
+    # Return truthy if the party can pass a social skill roll.
     def __init__(self, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_AVERAGE,
                  untrained_ok=False):
         self.stat_id = stat_id
@@ -270,14 +270,22 @@ class AccessSocialRoll(object):
         self.difficulty = difficulty
         self.untrained_ok = untrained_ok
 
-    def __call__(self, camp: gears.GearHeadCampaign, ob):
-        return (isinstance(ob, gears.base.Character) and
-                camp.social_skill_roll(ob, self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok,
-                                       no_random=True))
+    def __call__(self, camp: gears.GearHeadCampaign, ob, offer_dict: dict = None):
+        if isinstance(ob, gears.base.Character):
+            pc = camp.social_skill_roll(
+                ob, self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok, no_random=True
+            )
+            if pc:
+                if offer_dict:
+                    nudict = offer_dict.copy()
+                    nudict["skill_info"] = " [{} + {}]".format(self.skill_id, self.stat_id)
+                    return nudict
+                else:
+                    return True
 
 
 class AccessSkillRoll(object):
-    # Return True if the party can pass a social skill roll.
+    # Return truthy if the party can pass a social skill roll.
     def __init__(self, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_AVERAGE,
                  untrained_ok=False):
         self.stat_id = stat_id
@@ -286,6 +294,14 @@ class AccessSkillRoll(object):
         self.difficulty = difficulty
         self.untrained_ok = untrained_ok
 
-    def __call__(self, camp: gears.GearHeadCampaign, ob):
-        return (camp.do_skill_test(self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok,
-                                   no_random=True))
+    def __call__(self, camp: gears.GearHeadCampaign, ob, offer_dict: dict = None):
+        pc = camp.do_skill_test(
+            self.stat_id, self.skill_id, self.rank, self.difficulty, self.untrained_ok, no_random=True
+        )
+        if pc:
+            if offer_dict:
+                nudict = offer_dict.copy()
+                nudict["skill_info"] = " [{} + {}]".format(self.skill_id, self.stat_id)
+                return nudict
+            else:
+                return True

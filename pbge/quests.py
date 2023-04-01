@@ -9,6 +9,7 @@ VERB_DEFEAT = "DEFEAT"
 
 DEFAULT_QUEST_CONCLUSION = "QUEST_CONCLUSION"
 DEFAULT_QUEST_TASK = "QUEST_TASK"
+DEFAULT_QUEST_INTRO = "QUEST_INTRO"
 
 DEFAULT_QUEST_ELEMENT_ID = "QUEST"
 DEFAULT_OUTCOME_ELEMENT_ID = "QUEST_OUTCOME"
@@ -29,6 +30,11 @@ class QuestPlot(plots.Plot):
 
     def end_quest_task(self, camp):
         pass
+
+
+class QuestIntroPlot(QuestPlot):
+    LABEL = DEFAULT_QUEST_INTRO
+    active = True
 
 
 class QuestOutcome:
@@ -70,13 +76,15 @@ class Quest:
     # The quest plots need to call the extend function.
     def __init__(
         self, outcomes, quest_element_id=DEFAULT_QUEST_ELEMENT_ID, outcome_element_id=DEFAULT_OUTCOME_ELEMENT_ID,
-        task_type=DEFAULT_QUEST_TASK, conclusion_type=DEFAULT_QUEST_CONCLUSION, course_length=3, end_on_loss=True
+        task_type=DEFAULT_QUEST_TASK, conclusion_type=DEFAULT_QUEST_CONCLUSION, intro_type=DEFAULT_QUEST_INTRO,
+        course_length=3, end_on_loss=True
     ):
         self.outcomes = list(outcomes)
         self.quest_element_id = quest_element_id
         self.outcome_element_id = outcome_element_id
         self.task_type = task_type
         self.conclusion_type = conclusion_type
+        self.intro_type = intro_type
         self.course_length = course_length
         self.outcome_plots = dict()
         self.all_plots = list()
@@ -120,7 +128,20 @@ class Quest:
                         random.shuffle(frontier[new_task])
                     self.all_plots.append(new_task)
 
-        self.check_quest_plot_activation()
+        self.check_quest_plot_intros(nart)
+
+    def check_quest_plot_intros(self, nart):
+        plots_needing_intros = list()
+        for oc_plot in self.all_plots:
+            if oc_plot.quest_record.should_be_active():
+                plots_needing_intros.append(oc_plot)
+        for pni in plots_needing_intros:
+            nuplot = pni.add_sub_plot(nart, self.intro_type, necessary=False)
+            if nuplot:
+                self._prep_quest_plot(nuplot)
+                pni.quest_record.tasks.append(nuplot)
+            else:
+                pni.active = True
 
     def check_quest_plot_activation(self, camp=None):
         for oc_plot in self.all_plots:

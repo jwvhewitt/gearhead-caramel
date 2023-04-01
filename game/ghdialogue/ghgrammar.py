@@ -3931,6 +3931,33 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[PRETEXT_FOR_GOING_THERE]": {
+        # When the PC or someone else needs an excuse for going somewhere.
+        Default: ["I am supposed to deliver a package there."
+                  ],
+        personality.Cheerful: ["Someone ordered a pizza, and I'll get in trouble if it doesn't arrive in 30 minutes.",
+                               ],
+        personality.Grim: ["I have important business there; you don't want to be the one responsible for making me late."
+                           ],
+        personality.Easygoing: ["We're having a Pony Pusher card game tournament. You're welcome to join us."
+                                ],
+        personality.Passionate: ["I have legitimate reasons for going there!!!",
+                                 ],
+        personality.Sociable: ["I've been invited by the commander for some highly delicate negotiations.",
+                               ],
+        personality.Shy: ["I have business there.",
+                          ],
+        tags.Craftsperson: [
+            "Apparently the toilets aren't working and I've been hired to repair them.",
+        ],
+        tags.Laborer: [
+            "I've been hired to fix some cracks in the wall. Whoever did the original work didn't know what they were doing.",
+        ],
+        tags.Faithworker: [
+            "I will be holding a 3AM service for the faithful. You are more than welcome to attend."
+        ],
+    },
+
     "[PROPOSAL:ACCEPT]": {
         Default: ["I accept your offer.", "Alright, I'll do it."
                   ],

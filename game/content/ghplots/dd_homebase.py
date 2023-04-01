@@ -1751,7 +1751,7 @@ class DZD_LongRoadLogistics(Plot):
             ))
 
         mylist.append(Offer(
-            "That would be great. More work will help us to rebuild our office faster, and I for one can't wait to get out of this building. It always smells like coffee and magnetic grease in here.",
+            "That would be great. More work will help us to rebuild our office faster, and I for one can't wait to get out of this building. It alway`s smells like coffee and magnetic grease in here.",
             context=ContextTag([context.CUSTOMREPLY]), subject=self,
             data={"reply": "I'll see what I can do about that."}, effect=self._tell_about_services
         ))

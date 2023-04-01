@@ -1,7 +1,7 @@
 
 import copy
 from . import grammar
-from .. import my_state,default_border,frects,draw_text,rpgmenu
+from .. import my_state,default_border,frects,draw_text,rpgmenu, util
 import random
 
 # Basic context tags.
@@ -56,14 +56,16 @@ class Offer(object):
     # "subject_start" marks this offer as the entry point for a subject; it can be branched to from a different subject
     # "no_repeats" means this offer can't be replied by an offer with the same context + subject
     # "dead_end" means this offer will have no automatically generated replies
-    # "custom_menu_fun" is a function that takes (reply,menu,pcgrammar) and alters the menu.
+    # "custom_menu_fun" is a function that takes (reply,menu,pcgrammar) and alters the menu, returning the item added.
     # "is_generic" tells whether or not this is a generic offer
     # "allow_generics" allows generic offers to link from this one
+    # "skill_info" is a string describing what skills or whatever were used to access this message (or which will be
+    #   tested if this message is chosen). Printed as a suffix to the reply.
 
     # "data" is a dict holding strings that may be requested by format.
     def __init__(
             self, msg, context=(), effect = None, replies = None, subject=None, subject_start=False, no_repeats=False,
-            dead_end=False, data=None, custom_menu_fun=None, is_generic=False, allow_generics=True
+            dead_end=False, data=None, custom_menu_fun=None, is_generic=False, allow_generics=True, skill_info=None
     ):
         self.msg = msg
         self.context = ContextTag(context)
@@ -76,6 +78,7 @@ class Offer(object):
         self.custom_menu_fun = custom_menu_fun
         self.is_generic = is_generic
         self.allow_generics = allow_generics
+        self.skill_info = skill_info
 
         if not replies:
             self.replies = list()
@@ -115,13 +118,14 @@ class Offer(object):
 
     def __str__(self):
         return self.msg
+
     def __repr__(self):
         return self.msg
 
 
 class Reply(object):
     # A Reply is a single line spoken by the PC, leading to a new offer
-    def __init__(self, msg, destination=None, context=() ):
+    def __init__(self, msg, destination: Offer = None, context=() ):
         self.msg = msg
         self.destination = destination
         self.context = ContextTag(context)
@@ -145,9 +149,11 @@ class Reply(object):
 
     def apply_to_menu(self,mymenu,pcgrammar):
         if self.destination and self.destination.custom_menu_fun:
-            self.destination.custom_menu_fun(self,mymenu,pcgrammar)
+            myitem = self.destination.custom_menu_fun(self,mymenu,pcgrammar)
         else:
-            mymenu.add_item(self.format_text(pcgrammar), self.destination)
+            myitem = mymenu.add_item(self.format_text(pcgrammar), self.destination)
+        if myitem and self.destination.skill_info and util.config.getboolean("GENERAL", "show_convo_skills") and hasattr(myitem, "msg"):
+            myitem.msg = myitem.msg + self.destination.skill_info
 
 
 class SimpleVisualizer(object):

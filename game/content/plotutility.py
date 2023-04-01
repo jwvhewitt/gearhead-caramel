@@ -565,8 +565,18 @@ class ProhibitFactionMembers:
     def __init__(self, faction_element_id):
         self.faction_element_id = faction_element_id
 
-    def __call__(self, plot, npc):
+    def __call__(self, plot, camp, npc):
         return npc.faction is plot.elements.get(self.faction_element_id)
+
+
+class ProhibitFactionAndPCIfAllied:
+    # Faction members won't give this rumor. The PC won't be told this rumor if the PC is allied with the faction.
+    def __init__(self, faction_element_id):
+        self.faction_element_id = faction_element_id
+
+    def __call__(self, plot, camp: gears.GearHeadCampaign, npc):
+        fac = plot.elements.get(self.faction_element_id)
+        return fac and ((npc.faction is fac) or camp.is_favorable_to_pc(fac))
 
 
 #  ***********************************

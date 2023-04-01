@@ -47,8 +47,8 @@ class AutoOffer(object):
     #   A callable that takes (Challenge, Campaign, NPC) and may return an Offer.
     #  offer_dict = A dictionary holding the parameters for the Offer creation
     #  involvement = An involvement checker. If None, use the involvement checker of the challenge.
-    #  access_fun = Basically another involvement checker; a callable that takes (camp,npc) and returns True if this offer
-    #   can be added. May be used to add skill rolls or whatnot.
+    #  access_fun = Basically another involvement checker; a callable that takes (camp,npc,offer_dict) and returns a
+    #   modified (or just copied) offer dict if this offer can be added. May be used to add skill rolls or whatnot.
     #  npc_effect = A function that is called when this offer is selected that has signature (camp, npc)
     def __init__(self, offer_dict, active=True, uses=1, involvement=None, access_fun=None, once_per_npc=True,
                  npc_effect=None):
@@ -75,23 +75,23 @@ class AutoOffer(object):
         if self.once_per_npc:
             self.used_on.add(npc)
 
-    def _get_offer(self, npc):
-        mydict = self.offer_dict.copy()
+    def _get_offer(self, npc, mydict):
         mydict["effect"] = AutoOfferInvoker(self, npc)
         if "no_repeats" not in mydict:
             mydict["no_repeats"] = True
         return dialogue.Offer(**mydict)
 
     def __call__(self, my_challenge, camp, npc):
-        if self.active and (not self.access_fun or self.access_fun(camp, npc)) and npc not in self.used_on:
+        access_dict = not self.access_fun or self.access_fun(camp, npc, self.offer_dict)
+        if self.active and access_dict and npc not in self.used_on:
             if self.involvement:
                 if self.involvement(camp, npc):
-                    return self._get_offer(npc)
+                    return self._get_offer(npc, access_dict)
             elif my_challenge.involvement:
                 if my_challenge.involvement(camp, npc):
-                    return self._get_offer(npc)
+                    return self._get_offer(npc, access_dict)
             else:
-                return self._get_offer(npc)
+                return self._get_offer(npc, access_dict)
 
 
 # AutoUsage

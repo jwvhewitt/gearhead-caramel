@@ -85,7 +85,7 @@ ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 
 class SkillBasedPartyReply(object):
     def __init__(
-            self, myoffer, camp, mylist, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_EASY,
+            self, myoffer: Offer, camp, mylist, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_EASY,
             no_random=True,
             message_format='{} says "{}"', **kwargs
     ):
@@ -95,6 +95,9 @@ class SkillBasedPartyReply(object):
         self.camp = camp
         self.offer = myoffer
         self.message_format = message_format
+        self.skill_id = skill_id
+        self.stat_id = stat_id
+        self.offer.skill_info = self.get_dialogue_info_text()
         pc = camp.do_skill_test(stat_id, skill_id, rank, no_random=no_random, difficulty=difficulty, **kwargs)
         if pc:
             if pc.get_pilot() is camp.pc:
@@ -103,6 +106,15 @@ class SkillBasedPartyReply(object):
                 mylist.append(myoffer)
                 myoffer.custom_menu_fun = self.custom_menu_fun
                 self.pc = pc.get_pilot()
+
+    def get_dialogue_info_text(self):
+        my_statz = list()
+        if self.skill_id:
+            my_statz.append(str(self.skill_id))
+        if self.stat_id:
+            my_statz.append(str(self.stat_id))
+        if my_statz:
+            return " [{}]".format(" + ".join(my_statz))
 
     def format_text(self, text):
         mygrammar = pbge.dialogue.grammar.Grammar()
@@ -114,10 +126,12 @@ class SkillBasedPartyReply(object):
             text = text.format(**self.offer.data)
         return text
 
-    def custom_menu_fun(self, reply, mymenu, pcgrammar):
-        mymenu.items.append(ghdview.LancemateConvoItem(
+    def custom_menu_fun(self, reply, mymenu: pbge.rpgmenu.Menu, pcgrammar):
+        myitem = ghdview.LancemateConvoItem(
             self.format_text(reply.msg), self.offer, None, mymenu, self.pc, msg_form=self.message_format
-        ))
+        )
+        mymenu.items.append(myitem)
+        return myitem
 
 
 class TagBasedPartyReply(SkillBasedPartyReply):
@@ -128,8 +142,9 @@ class TagBasedPartyReply(SkillBasedPartyReply):
         self.camp = camp
         self.offer = myoffer
         self.message_format = message_format
-        needed_tags = set(needed_tags)
-        winners = [pc for pc in camp.get_active_party() if needed_tags.issubset(pc.get_pilot().get_tags())]
+        self.needed_tags = set(needed_tags)
+        self.offer.skill_info = self.get_dialogue_info_text()
+        winners = [pc for pc in camp.get_active_party() if self.needed_tags.issubset(pc.get_pilot().get_tags())]
         if winners:
             pc = random.choice(winners)
             if pc.get_pilot() is camp.pc:
@@ -138,6 +153,10 @@ class TagBasedPartyReply(SkillBasedPartyReply):
                 mylist.append(myoffer)
                 myoffer.custom_menu_fun = self.custom_menu_fun
                 self.pc = pc.get_pilot()
+
+    def get_dialogue_info_text(self):
+        if self.needed_tags:
+            return " [{}]".format(", ".join([str(t) for t in self.needed_tags]))
 
 
 class MatchingTagPartyReply(SkillBasedPartyReply):
@@ -148,6 +167,10 @@ class MatchingTagPartyReply(SkillBasedPartyReply):
         self.camp = camp
         self.offer = myoffer
         self.message_format = message_format
+        self.needed_tag = needed_tag
+        self.npc_tag = npc_tag or needed_tag
+        self.info_text = self.get_dialogue_info_text()
+        self.offer.skill_info = self.get_dialogue_info_text()
         winners = [pc for pc in camp.get_active_party() if needed_tag in pc.get_pilot().get_tags()]
         needed_npc_tag = npc_tag or needed_tag
         if winners and needed_npc_tag in npc.get_pilot().get_tags():
@@ -158,6 +181,10 @@ class MatchingTagPartyReply(SkillBasedPartyReply):
                 mylist.append(myoffer)
                 myoffer.custom_menu_fun = self.custom_menu_fun
                 self.pc = pc.get_pilot()
+
+    def get_dialogue_info_text(self):
+        if self.needed_tag:
+            return " [{} + NPC: ]".format(self.needed_tag, self.npc_tag)
 
 
 def start_conversation(camp: gears.GearHeadCampaign, pc, npc, cue=None):

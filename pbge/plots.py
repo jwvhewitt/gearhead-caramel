@@ -76,9 +76,10 @@ class Rumor(object):
                  offer_msg="", offer_subject="{NPC}", offer_subject_data="{NPC}", memo="",
                  memo_location="NPC_SCENE", prohibited_npcs=(), offer_effect_name="",
                  npc_is_prohibited_fun=None):
-        # offer_effect_name is the name of a method from the calling plot.
+        # offer_effect_name is the name of a method from the calling plot with signature (camp). Use a regular method
+        #  and that signature will be (self, camp).
         # npc_is_prohibited_fun is an optional function that will prohibit certain npcs from sharing this rumor
-        #  if it returns True. The function signature is (plot, npc).
+        #  if it returns True. The function signature is (plot, camp, npc).
         self.rumor = rumor
         self.grammar_tag = grammar_tag
         self.offer_msg = offer_msg
@@ -103,7 +104,7 @@ class Rumor(object):
             effect = getattr(plot, self.offer_effect_name)
         else:
             effect = None
-        if self.npc_is_ok(npc, plot) and self.offer_msg and not plot._rumor_memo_delivered:
+        if self.npc_is_ok(npc, camp, plot) and self.offer_msg and not plot._rumor_memo_delivered:
             myoffer = dialogue.Offer(
                 self.offer_msg.format(**plot.elements),
                 context=self.offer_context,
@@ -118,12 +119,12 @@ class Rumor(object):
             myoffers.append(myoffer)
         return myoffers
 
-    def npc_is_ok(self, npc, plot):
+    def npc_is_ok(self, npc, camp, plot):
         # Return True if this NPC can tell this rumor.
         for ename in self.prohibited_npcs:
             if plot.elements.get(ename, None) is npc:
                 return False
-        if self.npc_is_prohibited_fun and self.npc_is_prohibited_fun(plot, npc):
+        if self.npc_is_prohibited_fun and self.npc_is_prohibited_fun(plot, camp, npc):
             return False
         return True
 

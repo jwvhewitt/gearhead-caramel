@@ -1,3 +1,5 @@
+* There is a config option to turn off display of skill+stat in conversations
+* Skill and tag based dialogue options will now show what skill+stat they're based on
 * You can dock the tile info panel in the upper left corner via the config menu
 * Combat clock troll bug fixed. Real ones will know.
 * Enemy units get a different info panel border

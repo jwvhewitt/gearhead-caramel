@@ -108,6 +108,7 @@ class Menu( Frect ):
     def add_item(self,msg,value,desc=None):
         item = self.item_class( str(msg) , value , desc, self )
         self.items.append( item )
+        return item
 
     def add_descbox(self,x,y,w=30,h=10,justify=-1,font=None, **kwargs):
         self.descobj = DescBox( self, x , y , w , h, border=self.border, justify=justify, font=font or self.font, **kwargs)
