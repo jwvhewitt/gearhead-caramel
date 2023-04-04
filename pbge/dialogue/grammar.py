@@ -48,6 +48,7 @@ def maybe_expand_token( token_block, gramdb ):
     if token in gramdb:
         possibilities = list( gramdb[token] )
         random.shuffle( possibilities )
+        all_words = None
         while possibilities:
             all_ok = True
             all_words = list()

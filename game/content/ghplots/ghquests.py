@@ -77,14 +77,24 @@ class FindEnemyBaseTask(quests.QuestPlot):
     #   QE_BASE_NAME
 
     QUEST_DATA = quests.QuestData(
-        (), blocks_progress=True
+        (), blocks_progress=True, grammar={
+            quests.GRAM_TASK_INFO: (
+                "[OUTCOME_TARGET] has a hidden {QE_BASE_NAME} near {METROSCENE}",
+            ),
+            quests.GRAM_TASK_REASON: (
+                "[OUTCOME_TARGET] has been operating in this area",
+            ),
+            quests.GRAM_TASK_TOPIC: (
+                "[OUTCOME_TARGET]'s' hidden {QE_BASE_NAME}",
+            )
+        }
     )
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
         base_name = self.elements.get(QE_BASE_NAME, "Base")
         mychallenge: Challenge = self.register_element(
-            "CHALLENGE", Challenge(
+            "_CHALLENGE", Challenge(
                 "Locate {}'s {}".format(my_outcome.target, base_name), ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE,
                 key=(my_outcome.target,), involvement=my_outcome.participants,
                 data={"base_name": base_name},
@@ -104,7 +114,7 @@ class FindEnemyBaseTask(quests.QuestPlot):
                         involvement=ghchallenges.InvolvedMetroFactionNPCs(
                             self.elements["METROSCENE"], my_outcome.target
                         )
-                    )
+                    ),
                 ), memo_active=True
             )
         )
@@ -120,7 +130,7 @@ class FindEnemyBaseTask(quests.QuestPlot):
     def _advance_fully(self, camp):
         self.elements["CHALLENGE"].advance(camp, 100)
 
-    def CHALLENGE_WIN(self, camp):
+    def _CHALLENGE_WIN(self, camp):
         my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
         base_name = self.elements.get(QE_BASE_NAME, "Base")
         pbge.BasicNotification("You have discovered the location of {}'s {}.".format(my_outcome.target, base_name),
@@ -147,14 +157,18 @@ class IntroDaWar(quests.QuestIntroPlot):
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
         self.elements["ENEMY_FACTION"] = my_outcome.target
+        return True
+
+    def start_quest_task(self, camp):
+        super().start_quest_task(camp)
+        a, b, c = self.get_rumor_offer_subject()
         self.RUMOR = Rumor(
-            "",
-            offer_msg="",
-            offer_subject="", offer_subject_data="",
-            memo="", offer_effect_name="rumor_offer_effect",
+            a,
+            offer_msg=b,
+            offer_subject=a, offer_subject_data=c,
+            offer_effect_name="rumor_offer_effect",
             npc_is_prohibited_fun=plotutility.ProhibitFactionAndPCIfAllied("ENEMY_FACTION")
         )
-        return True
 
     def rumor_offer_effect(self, camp):
         self.quest_record.win_task(self, camp)

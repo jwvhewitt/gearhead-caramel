@@ -94,7 +94,7 @@ class Rumor(object):
 
     def get_rumor_grammar(self, npc, camp, plot):
         mygram = dict()
-        if self.npc_is_ok(npc, plot) and not plot._rumor_memo_delivered:
+        if self.npc_is_ok(npc, camp, plot) and not plot._rumor_memo_delivered:
             mygram[self.grammar_tag] = [self.rumor.format(**plot.elements), ]
         return mygram
 

@@ -49,7 +49,7 @@ class OccupationCrushDissent(Plot):
     def custom_init(self, nart):
         # The invading faction is going to try and crush dissent in this region. The locals are going to try to resist
         # this as well as they can.
-        self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
+        #self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
         if RESISTANCE_FACTION not in self.elements:
             self.elements[RESISTANCE_FACTION] = gears.factions.Circle(
                 nart.camp, parent_faction=self.elements.get(ORIGINAL_FACTION)
@@ -58,18 +58,45 @@ class OccupationCrushDissent(Plot):
         oc1 = quests.QuestOutcome(
             ghquests.VERB_REPRESS, target=self.elements[RESISTANCE_FACTION],
             participants=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
-            effect=self._occupier_wins
+            effect=self._occupier_wins, grammar={
+                quests.GRAM_OUTCOME_INFO: [
+                    "{OCCUPIER} seeks to crush {RESISTANCE_FACTION}".format(**self.elements),
+                ],
+                quests.GRAM_OUTCOME_REASON: [
+                    "{OCCUPIER} wants to cement their control over {METROSCENE}".format(**self.elements),
+                ],
+                quests.GRAM_TASK_TOPIC: (
+                    "the resistance against {OCCUPIER}".format(**self.elements),
+                )
+            }
         )
 
         oc2 = quests.QuestOutcome(
             ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
             participants=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
                                                                          self.elements["OCCUPIER"]),
-            effect=self._resistance_wins
+            effect=self._resistance_wins, grammar={
+                quests.GRAM_OUTCOME_INFO: [
+                    "there's an organized resistance against {OCCUPIER}'s occupation".format(**self.elements),
+                ],
+                quests.GRAM_OUTCOME_REASON: [
+                    "living under {OCCUPIER} has been unbearable".format(**self.elements),
+                ],
+                quests.GRAM_TASK_TOPIC: (
+                    "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
+                )
+            }
         )
 
         myquest = self.register_element(quests.DEFAULT_QUEST_ELEMENT_ID, quests.Quest(
-            outcomes=(oc1, oc2)
+            outcomes=(oc1, oc2), grammar={
+                quests.GRAM_QUEST_DETAIL: [
+                    "{OCCUPIER} does not tolerate dissent".format(**self.elements),
+                ],
+                quests.GRAM_QUEST_INFO: [
+                    "{OCCUPIER} is ruling {METROSCENE} with an iron fist".format(**self.elements),
+                ]
+            }
         ))
         myquest.build(nart, self)
 
