@@ -232,6 +232,7 @@ class AIsSolutionClue:
 
 class OkapiPuzzle:
     ALPHA_KEYS = "abcdefghijklmnopqrstuvwzxyz"
+
     def __init__(self, name, decks, solution_form, solution=None):
         self.name = name
         self.decks = decks
@@ -348,6 +349,7 @@ class ImageDeckWidget(widgets.ColumnWidget):
                     self.sprites[card] = image.Image(card.data["image_name"], 100, 100)
             except FileNotFoundError:
                 self.sprites[card] = self.mystery_sprite
+        self.my_dropdown.menu.sort()
 
     def on_select(self, *args):
         card = self.my_dropdown.menu.get_current_value()

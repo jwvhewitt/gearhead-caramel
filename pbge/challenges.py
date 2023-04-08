@@ -76,6 +76,17 @@ class AutoOffer(object):
             self.used_on.add(npc)
 
     def _get_offer(self, npc, mydict):
+        # Okay, let me explain what's going on here for anyone who might not have seen this function since I got Covid
+        # brain fog. Which might include me. There's no guarantee I will remember any of this. The access function for
+        # an autooffer now takes the offer dictionary as a parameter and returns a potentially altered copy of the
+        # offer dictionary if the offer can be included in this conversation. However, it will also return True if no
+        # offer dict is passed, since the access functions are used not just for conversations but also for object use.
+        # If there is no access function, i.e. this AutoOffer can show up in any conversation, then the access_dict is
+        # set to True. Which is not the best behaviour to be honest. But it is what it is, and now I have to check to
+        # make sure that the parameters this function has been given make sense. But it helped me to identify a separate
+        # bug in the error tracker so that's nice. I guess.
+        if not isinstance(mydict, dict):
+            mydict = self.offer_dict.copy()
         mydict["effect"] = AutoOfferInvoker(self, npc)
         if "no_repeats" not in mydict:
             mydict["no_repeats"] = True

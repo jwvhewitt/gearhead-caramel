@@ -29,7 +29,8 @@ GRAM_OUTCOME_TARGET = "[OUTCOME_TARGET]"    # The target of the challenge. Will 
 DEFAULT_QUEST_INTRO_GRAMMAR = {
     "[RUMOR]": (
         "[QUEST_INFO]; [OUTCOME_INFO]",
-        "[OUTCOME_REASON]; [TASK_REASON]"
+        "[OUTCOME_REASON]; [TASK_REASON]",
+        "[OUTCOME_INFO]; [TASK_REASON]",
         "[TASK_REASON]", "[OUTCOME_REASON]",
         "[OUTCOME_INFO]", "[QUEST_INFO]; [OUTCOME_REASON]"
     ),
@@ -37,10 +38,11 @@ DEFAULT_QUEST_INTRO_GRAMMAR = {
         "[TASK_TOPIC]",
     ),
     "[OFFER]": (
-        "[TASK_INFO]", "[TASK_REASON]- [TASK_INFO]",
-        "[OUTCOME_REASON]; [TASK_INFO]", "[QUEST_DETAIL]; [TASK_INFO]"
+        "[TASK_INFO].", "[TASK_REASON]- [TASK_INFO].",
+        "[OUTCOME_REASON]; [TASK_INFO].", "[QUEST_DETAIL]; [TASK_INFO]."
     )
 }
+
 
 
 class QuestPlot(plots.Plot):
@@ -50,8 +52,8 @@ class QuestPlot(plots.Plot):
 
     def t_UPDATE(self, camp):
         if not self.quest_record.started:
-            self.start_quest_task(camp)
             self.quest_record.started = True
+            self.start_quest_task(camp)
 
     def start_quest_task(self, camp):
         pass
@@ -59,10 +61,16 @@ class QuestPlot(plots.Plot):
     def end_quest_task(self, camp):
         pass
 
+    def get_quest_intro_priority(self):
+        it = self.QUEST_DATA.priority
+        if self.quest_record.leads_to and self.QUEST_DATA.blocks_progress:
+            it += self.quest_record.leads_to.get_quest_intro_priority()
+        return it
+
+
 
 class QuestIntroPlot(QuestPlot):
     LABEL = DEFAULT_QUEST_INTRO
-    active = True
 
     def get_rumor_offer_subject(self, starting_grammar=None):
         my_quest: Quest = self.quest_record.quest
@@ -81,9 +89,9 @@ class QuestIntroPlot(QuestPlot):
         mygram.absorb(my_data.grammar)
         mygram.absorb(my_task.grammar)
 
-        rumor = dialogue.grammar.convert_tokens("[RUMOR]", mygram).format(**self.elements)
+        rumor = dialogue.grammar.convert_tokens("[RUMOR]", mygram, start_on_capital=False).format(**self.elements)
         offer = dialogue.grammar.convert_tokens("[OFFER]", mygram).format(**self.elements)
-        subject = dialogue.grammar.convert_tokens("[SUBJECT]", mygram).format(**self.elements)
+        subject = dialogue.grammar.convert_tokens("[SUBJECT]", mygram, start_on_capital=False).format(**self.elements)
 
         return rumor, offer, subject
 
@@ -154,6 +162,7 @@ class Quest:
         random.shuffle(self.outcomes)
         for numb, outc in enumerate(self.outcomes):
             frontier = dict()
+            used_tasks = set()
             if self.conclusion_type.isidentifier():
                 ident = "{}_{}".format(self.conclusion_type, str(numb))
             else:
@@ -162,7 +171,6 @@ class Quest:
                 nart, self.conclusion_type, elements={self.outcome_element_id: outc}, ident=ident
             )
             self.outcome_plots[outc] = nuplot
-            self.all_plots.append(nuplot)
             setattr(root_plot, "{}_WIN".format(ident), QuestConclusionMethodWrapper(root_plot, outc.effect, True))
             setattr(root_plot, "{}_LOSE".format(ident), QuestConclusionMethodWrapper(root_plot, outc.loss_effect,
                                                                                      self.end_on_loss))
@@ -172,34 +180,53 @@ class Quest:
                 random.shuffle(frontier[nuplot])
 
             # Add some tasks to this conclusion.
+            # Don't repeat the same task for the same outcome.
             t = self.course_length
             while t > 0 and frontier:
                 mykey = random.choice(list(frontier.keys()))
                 sub_plot_ident = frontier[mykey].pop()
                 if not frontier[mykey]:
                     del frontier[mykey]
-                new_task = self.extend(nart, mykey, sub_plot_ident)
-                if new_task:
-                    t -= 1
-                    if new_task.QUEST_DATA.potential_tasks:
-                        frontier[new_task] = list(new_task.QUEST_DATA.potential_tasks)
-                        random.shuffle(frontier[new_task])
-                    self.all_plots.append(new_task)
+                if sub_plot_ident not in used_tasks:
+                    used_tasks.add(sub_plot_ident)
+                    new_task = self.extend(nart, mykey, sub_plot_ident)
+                    if new_task:
+                        t -= 1
+                        if new_task.QUEST_DATA.potential_tasks:
+                            frontier[new_task] = list(new_task.QUEST_DATA.potential_tasks)
+                            random.shuffle(frontier[new_task])
 
         self.check_quest_plot_intros(nart)
 
     def check_quest_plot_intros(self, nart):
         plots_needing_intros = list()
+        plots_by_outcome = collections.defaultdict(list)
+        intro_by_plot = dict()
         for oc_plot in self.all_plots:
             if oc_plot.quest_record.should_be_active():
                 plots_needing_intros.append(oc_plot)
+                plots_by_outcome[oc_plot.elements[self.outcome_element_id]].append(oc_plot)
         for pni in plots_needing_intros:
             nuplot = self.extend(nart, pni, self.intro_type)
             if not nuplot:
-                print(pni)
+                # If no intro is available, automatically activate the task. I mean what else are you supposed to do
+                # in this situation?
                 pni.active = True
             else:
-                print(nuplot)
+                intro_by_plot[pni] = nuplot
+        # Finally- some intros might get a higher priority than others. For example, if your enemy has a secret that
+        # turns out to be a hidden fortress, it would be kind of useful to know that before you learn that the
+        # fortress is protected by a giant monster. So, lower priority intros get the highest priority intro as a
+        # required task.
+        for plot_list in plots_by_outcome.values():
+            plot_list.sort(key=lambda a: a.get_quest_intro_priority())
+            max_priority = plot_list[-1].get_quest_intro_priority()
+            for pni in plot_list[:-1]:
+                if pni.get_quest_intro_priority() < max_priority:
+                    pni.quest_record.tasks.append(plot_list[:-1])
+
+        # Finally, check and activate the plots that should be active.
+        self.check_quest_plot_activation()
 
     def check_quest_plot_activation(self, camp=None):
         for oc_plot in self.all_plots:
@@ -219,20 +246,26 @@ class Quest:
     def _prep_quest_plot(self, current_plot, nuplot: QuestPlot):
         if not (hasattr(nuplot, "QUEST_DATA") and nuplot.QUEST_DATA):
             nuplot.QUEST_DATA = QuestData()
+        if not isinstance(current_plot, QuestPlot):
+            current_plot = None
         nuplot.quest_record = QuestRecord(self, current_plot)
+        self.all_plots.append(nuplot)
 
 
 class QuestData:
-    def __init__(self, potential_tasks=(), blocks_progress=True, grammar=None):
+    def __init__(self, potential_tasks=(), blocks_progress=True, grammar=None, priority=0, theme=None):
         # Every quest plot should define this data structure as QUEST_DATA property. It gets used by the quest
         # builder.
         # potential_tasks are tasks that may be added to this task or conclusion.
         # blocks_progress means this subquest must be completed before its parent will be activated.
+        # If theme is defined, no other siblings of this quest task can have the same theme.
         self.potential_tasks = tuple(potential_tasks)
         self.blocks_progress = blocks_progress
         self.grammar = dict()
         if grammar:
             self.grammar.update(grammar)
+        self.priority = priority
+        self.theme = theme
 
 
 class QuestRecord:

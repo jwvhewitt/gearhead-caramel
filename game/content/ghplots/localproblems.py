@@ -754,7 +754,7 @@ class ClassicMurderMystery(Plot):
          "did_not_verb": "didn't get revenge on {}", "data": {"image_name": "mystery_motives.png", "frame": 9,
                                                               "excuse": "{VICTIM} was rude to me in middle school..."},
          "role": pbge.okapipuzzle.SUS_MOTIVE},
-        {"name": "Money", "to_verb": "to get {}'s money", "verbed": "took {}'s money'",
+        {"name": "Money", "to_verb": "to get {}'s money", "verbed": "took {}'s money",
          "did_not_verb": "didn't take {}'s money", "data": {"image_name": "mystery_motives.png", "frame": 8,
                                                             "excuse": "{VICTIM} had tons of money, and I can share it..."},
          "role": pbge.okapipuzzle.SUS_MOTIVE},

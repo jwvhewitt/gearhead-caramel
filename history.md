@@ -1,3 +1,4 @@
+* Okapi puzzle clue menus are now sorted
 * There is a config option to turn off display of skill+stat in conversations
 * Skill and tag based dialogue options will now show what skill+stat they're based on
 * You can dock the tile info panel in the upper left corner via the config menu

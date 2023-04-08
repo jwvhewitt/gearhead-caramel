@@ -189,10 +189,10 @@ class LoadGameMenu:
             # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
             try:
                 camp = copy.deepcopy(gears.GearHeadCampaign.load(fname)[3])
-                camp.play()
             except Exception as err:
                 print(err)
                 self.deal_with_bad_file(fname, err)
+            camp.play()
 
     def deal_with_bad_file(self, fname, err):
         mymenu = pbge.rpgmenu.AlertMenu("File \"{}\" cannot be loaded due to exception \"{}\". Do you want to eject the character so you can start a new campaign?".format(fname, err))
