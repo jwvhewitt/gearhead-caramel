@@ -32,11 +32,13 @@ RESISTANCE_FACTION = "RESISTANCE_FACTION"
 # During a world map war, different factions may have different effects on the territories they conquer. This may give
 # special opportunities to the player character, depending on which side of the conflict the PC is working for (if any).
 
-WMWO_DEFENDER = "WMWO_DEFENDER"         # The faction will attempt to defend this location.
+WMWO_DEFENDER = "WMWO_DEFENDER"  # The faction will attempt to defend this location.
 # Plots may involve shoring up defenses, evacuating civilians, and repairing damage done during the attack.
 # This plot type will usually be associated with the original owner of a given territory, but not necessarily.
 
-WMWO_IRON_FIST = "WMWO_IRON_FIST"       # The faction will impose totalitarian rule on this location.
+WMWO_IRON_FIST = "WMWO_IRON_FIST"  # The faction will impose totalitarian rule on this location.
+
+
 # Plots may involve forced labor, rounding up dissidents, and propaganda campaigns. This plot type will usually be
 # associated with an invading dictatorship, but not necessarily.
 
@@ -49,7 +51,7 @@ class OccupationCrushDissent(Plot):
     def custom_init(self, nart):
         # The invading faction is going to try and crush dissent in this region. The locals are going to try to resist
         # this as well as they can.
-        #self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
+        # self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
         if RESISTANCE_FACTION not in self.elements:
             self.elements[RESISTANCE_FACTION] = gears.factions.Circle(
                 nart.camp, parent_faction=self.elements.get(ORIGINAL_FACTION)
@@ -57,46 +59,30 @@ class OccupationCrushDissent(Plot):
 
         oc1 = quests.QuestOutcome(
             ghquests.VERB_REPRESS, target=self.elements[RESISTANCE_FACTION],
-            participants=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
-            effect=self._occupier_wins, grammar={
-                quests.GRAM_OUTCOME_INFO: [
-                    "{OCCUPIER} seeks to crush {RESISTANCE_FACTION}".format(**self.elements),
-                ],
-                quests.GRAM_OUTCOME_REASON: [
-                    "{OCCUPIER} wants to cement their control over {METROSCENE}".format(**self.elements),
-                ],
-                quests.GRAM_TASK_TOPIC: (
-                    "the resistance against {OCCUPIER}".format(**self.elements),
-                )
-            }
+            involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
+            effect=self._occupier_wins
         )
 
         oc2 = quests.QuestOutcome(
             ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
-            participants=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
-                                                                         self.elements["OCCUPIER"]),
-            effect=self._resistance_wins, grammar={
-                quests.GRAM_OUTCOME_INFO: [
-                    "there's an organized resistance against {OCCUPIER}'s occupation".format(**self.elements),
-                ],
-                quests.GRAM_OUTCOME_REASON: [
-                    "living under {OCCUPIER} has been unbearable".format(**self.elements),
-                ],
-                quests.GRAM_TASK_TOPIC: (
-                    "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
+            involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
+                                                                        self.elements["OCCUPIER"]),
+            effect=self._resistance_wins, lore=[
+                quests.QuestLore(
+                    ghquests.LORECAT_OUTCOME, texts={
+                        quests.TEXT_LORE_HINT: "life under {OCCUPIER} has been unbearable".format(**self.elements),
+                        quests.TEXT_LORE_INFO: "a resistance has formed to get rid of {OCCUPIER}".format(**self.elements),
+                        quests.TEXT_LORE_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that there is a resistance dedicated to ousting {OCCUPIER} from {METROSCENE}.".format(**self.elements)
+                    }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
+                        self.elements["METROSCENE"], self.elements["OCCUPIER"]
+                    )
                 )
-            }
+            ]
         )
 
-        myquest = self.register_element(quests.DEFAULT_QUEST_ELEMENT_ID, quests.Quest(
-            outcomes=(oc1, oc2), grammar={
-                quests.GRAM_QUEST_DETAIL: [
-                    "{OCCUPIER} does not tolerate dissent".format(**self.elements),
-                ],
-                quests.GRAM_QUEST_INFO: [
-                    "{OCCUPIER} is ruling {METROSCENE} with an iron fist".format(**self.elements),
-                ]
-            }
+        myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
+            outcomes=(oc1, oc2),
         ))
         myquest.build(nart, self)
 
@@ -109,8 +95,7 @@ class OccupationCrushDissent(Plot):
         pass
 
 
-WMWO_MARTIAL_LAW = "WMWO_MARTIAL_LAW"   # The faction will attempt to impose law and order on the territory.
+WMWO_MARTIAL_LAW = "WMWO_MARTIAL_LAW"  # The faction will attempt to impose law and order on the territory.
 # Plots may involve capturing fugitives, enforcing curfew, and dispersing riots. This plot will usually be associated
 # with either an invading force or a totalitarian force reasserting control over areas lost to rebellion or outside
 # influence.
-

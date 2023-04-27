@@ -836,7 +836,13 @@ class BaseGear(scenes.PlaceableThing):
         # Return the scene this gear is in, if it can be found. None otherwise.
         rgear = self.get_root()
         if rgear and hasattr(rgear, "container") and rgear.container:
-            return rgear.container.owner
+            cont = rgear.container.owner
+            while cont and not isinstance(cont, pbge.scenes.Scene):
+                if hasattr(cont, "container"):
+                    cont = cont.container.owner
+                else:
+                    cont = None
+            return cont
 
     def is_sub_com(self):
         parent = self.parent

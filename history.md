@@ -1,3 +1,5 @@
+* Team contents now stored as a ContainerList
+* The get_scene method should return the correct scene even if called during adventure construction
 * Okapi puzzle clue menus are now sorted
 * There is a config option to turn off display of skill+stat in conversations
 * Skill and tag based dialogue options will now show what skill+stat they're based on

@@ -3285,6 +3285,23 @@ DEFAULT_GRAMMAR = {
                ]
     },
 
+    "[LETS_KEEP_THIS_A_SECRET]": {
+        Default: ["Let's keep this a secret between you and me...",
+                  ],
+        personality.Cheerful: ["I'd be happiest if you didn't mention this to anyone else.",
+                               ],
+        personality.Grim: ["These are grave words; it would be best to keep them between you and I.",
+                           ],
+        personality.Easygoing: ["Yeah, I'd rather for people to not know about that.",
+                                ],
+        personality.Passionate: ["That is a secret and must remain so!",
+                                 ],
+        personality.Sociable: ["I think it would be best for everyone if this remained a secret between you and I.",
+                               ],
+        personality.Shy: ["Let's not mention this to anyone else.",
+                          ],
+    },
+
     "[LETS_START_MECHA_MISSION]": {
         Default: ["I'm ready to start the mission.",
                   ],
@@ -4656,7 +4673,7 @@ DEFAULT_GRAMMAR = {
         personality.Cheerful: [
             "Oh, cool!",
         ],
-        personality.Grim: ["Fascinating.",
+        personality.Grim: ["Fascinating.", "Important news, if true."
                            ],
         personality.Easygoing: [
             "Neat.",
@@ -5010,6 +5027,27 @@ DEFAULT_GRAMMAR = {
                                  ],
         LIKE: ["[THANKS_FOR_BAD_NEWS]",
                ],
+    },
+
+    "[THIS_WILL_BE_DEALT_WITH]": {
+        # The NPC will deal with a problem.
+        Default: ["This will have to be dealt with."
+                  ],
+        personality.Cheerful: [
+            "I'll make sure this problem gets dealt with."
+        ],
+        personality.Grim: ["I will deal with this; you no longer have to concern yourself.",
+                           ],
+        personality.Easygoing: ["I guess I should get somebody to do something about that.",
+                                ],
+        personality.Passionate: [
+            "This problem will be dealt with immediately!",
+        ],
+        personality.Sociable: [
+            "I know some people who can deal with this problem for us.",
+        ],
+        personality.Shy: ["It will be dealt with.",
+                          ],
     },
 
     "[threat]": {

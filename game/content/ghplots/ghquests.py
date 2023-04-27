@@ -1,3 +1,5 @@
+import collections
+
 import pbge
 import gears
 import copy
@@ -13,11 +15,20 @@ from . import missionbuilder
 VERB_EXPEL = "EXPEL"  # Like DEFEAT, but the enemy is an outside power of some type
 VERB_REPRESS = "REPRESS"  # Like DEFEAT, but the enemy has to be located first
 
+LORECAT_OUTCOME = "OUTCOME"
+
+LORECAT_LOCATION = "LOCATION"
+
+
 AGGRESSIVE_VERBS = (
     quests.VERB_DEFEAT, VERB_EXPEL, VERB_REPRESS
 )
 
+QE_LORE_TO_LOCK = "QE_LORE_TO_LOCK"
+
 QUEST_TASK_FINDENEMYBASE = "QUEST_TASK_FINDENEMYBASE"
+# If given a lore to lock, that lore should be the existence of the base.
+# This task will lock that lore and reveal it when activated.
 QE_BASE_NAME = "QE_BASE_NAME"
 
 
@@ -44,13 +55,6 @@ QE_BASE_NAME = "QE_BASE_NAME"
 # may be optional, allowing the player to attempt the next challenge with a penalty. It is the responsibility of the
 # parent plot to check penalties from incomplete/lost challenges!
 
-#
-# Priority Values:
-#   - 2500 for the conclusion
-#   - 1500 for a task that reveals information you need to know to understand what's going on in the quest
-#   - 500 for a task that reveals information that's kinda useful, but not necessarily vital
-#   - 0 for a regular task
-
 #  ******************************
 #  ***   QUEST  CONCLUSIONS   ***
 #  ******************************
@@ -62,7 +66,6 @@ class StrikeTheLeader(quests.QuestPlot):
 
     QUEST_DATA = quests.QuestData(
         (),
-        priority=2500
     )
 
     @classmethod
@@ -77,7 +80,6 @@ class TheyHaveAFortress(quests.QuestPlot):
 
     QUEST_DATA = quests.QuestData(
         (QUEST_TASK_FINDENEMYBASE,),
-        priority=2500
     )
 
     @classmethod
@@ -94,6 +96,17 @@ class TheyHaveAFortress(quests.QuestPlot):
             "You know the location of {_ENEMY_FACTION}'s {QE_BASE_NAME} and can attack at any time.".format(**self.elements),
             self.elements["METROSCENE"]
         )
+
+        base_lore = quests.QuestLore(
+            LORECAT_LOCATION, texts={
+                quests.TEXT_LORE_HINT: "{_ENEMY_FACTION} has been working on a large project near {METROSCENE}".format(**self.elements),
+                quests.TEXT_LORE_INFO: "they've built a {QE_BASE_NAME}".format(**self.elements),
+                quests.TEXT_LORE_TOPIC: "{_ENEMY_FACTION}'s project".format(**self.elements),
+                quests.TEXT_LORE_SELFDISCOVERY: "You have learned about {_ENEMY_FACTION}'s {QE_BASE_NAME}.".format(**self.elements)
+            }, involvement=my_outcome.involvement, outcome=my_outcome
+        )
+        self.quest_record.needed_lore.add(base_lore)
+        self.elements[QE_LORE_TO_LOCK] = base_lore
         return True
 
     def _get_mission(self, camp):
@@ -131,35 +144,24 @@ class TheyHaveAFortress(quests.QuestPlot):
 class FindEnemyBaseTask(quests.QuestPlot):
     # Recommended Elements:
     #    QE_BASE_NAME
-    LABEL = QUEST_TASK_FINDENEMYBASE + "Z"
+    LABEL = QUEST_TASK_FINDENEMYBASE
     scope = "METRO"
 
     # Required/Suggested Elements:
     #   QE_BASE_NAME
 
     QUEST_DATA = quests.QuestData(
-        (), blocks_progress=True, grammar={
-            quests.GRAM_TASK_INFO: (
-                "[OUTCOME_TARGET] has a hidden {QE_BASE_NAME} near {METROSCENE}",
-            ),
-            quests.GRAM_TASK_REASON: (
-                "[OUTCOME_TARGET] has been operating in this area",
-                "[OUTCOME_TARGET] must have a base nearby",
-            ),
-            quests.GRAM_TASK_TOPIC: (
-                "[OUTCOME_TARGET]'s presence here",
-            )
-        },
-        priority=1500
+        (), blocks_progress=True,
     )
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
+        self.elements["_ENEMY_FACTION"] = my_outcome.target
         base_name = self.elements.get(QE_BASE_NAME, "Base")
         mychallenge: Challenge = self.register_element(
             "_CHALLENGE", Challenge(
                 "Locate {}'s {}".format(my_outcome.target, base_name), ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE,
-                key=(my_outcome.target,), involvement=my_outcome.participants,
+                key=(my_outcome.target,), involvement=my_outcome.involvement,
                 data={"base_name": base_name},
                 oppoffers=(
                     AutoOffer(
@@ -194,14 +196,29 @@ class FindEnemyBaseTask(quests.QuestPlot):
                             self.elements["METROSCENE"], my_outcome.target
                         )
                     ),
+                ), memo=ChallengeMemo(
+                    "{} have a hidden {} near {}.".format(my_outcome.target, base_name, self.elements["METROSCENE"])
                 ), memo_active=True
             )
         )
-        mychallenge.memo = ChallengeMemo(
-            "{} have a hidden {} near {}.".format(my_outcome.target, base_name, self.elements["METROSCENE"]),
-            mychallenge)
+
+        base_lore = quests.QuestLore(
+            LORECAT_LOCATION, texts={
+                quests.TEXT_LORE_HINT: "{_ENEMY_FACTION} has been working on a large project near {METROSCENE}".format(**self.elements),
+                quests.TEXT_LORE_INFO: "{_ENEMY_FACTION} has constructed a secret {QE_BASE_NAME} in this area".format(**self.elements),
+                quests.TEXT_LORE_TOPIC: "{_ENEMY_FACTION}'s presence here".format(**self.elements),
+                quests.TEXT_LORE_SELFDISCOVERY: "{_ENEMY_FACTION} must have a {QE_BASE_NAME} nearby, but where?".format(**self.elements)
+            }, involvement=my_outcome.involvement, outcome=my_outcome
+        )
+        self.quest_record.needed_lore.add(base_lore)
+        if QE_LORE_TO_LOCK in self.elements:
+            self.quest_record.quest.lock_lore(self, self.elements[QE_LORE_TO_LOCK])
 
         return True
+
+    def start_quest_task(self, camp):
+        if QE_LORE_TO_LOCK in self.elements:
+            self.quest_record.quest.reveal_lore(camp, self.elements[QE_LORE_TO_LOCK])
 
     def _advance_challenge(self, camp):
         self.elements["CHALLENGE"].advance(camp, 2)
@@ -224,19 +241,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
     scope = "METRO"
 
     QUEST_DATA = quests.QuestData(
-        (), blocks_progress=True, grammar={
-            quests.GRAM_TASK_INFO: (
-                "[OUTCOME_TARGET] has a secret {QE_BASE_NAME} known only to their collaborator",
-            ),
-            quests.GRAM_TASK_REASON: (
-                "[OUTCOME_TARGET] has a collaborator in {METROSCENE}",
-                "[OUTCOME_TARGET] must have a base nearby",
-            ),
-            quests.GRAM_TASK_TOPIC: (
-                "[OUTCOME_TARGET]'s presence here",
-            )
-        },
-        priority=1500
+        (), blocks_progress=True,
     )
 
     LOCATION_CARDS = (
@@ -286,6 +291,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
         base_name = self.elements.get(QE_BASE_NAME, "Base")
+        self.elements["_ENEMY_FACTION"] = my_outcome.target
 
         suspect_cards = list()
         solution = list()
@@ -332,8 +338,10 @@ class BaseKnownByCollaborator(quests.QuestPlot):
             solution=solution
         ))
 
-        # Store the culprit.
+        # Store and lock the culprit.
         self.elements["CULPRIT"] = mymystery.solution[0].gameob
+        self.elements["CULPRIT_SCENE"] = mymystery.solution[0].gameob.scene
+        self.locked_elements.add(mymystery.solution[0].gameob)
 
         involved_set = set()
         for d in mymystery.decks:
@@ -382,17 +390,32 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         ))
 
         self.mystery_solved = False
+        self.vigilante_action = False
+
+        base_lore = quests.QuestLore(
+            LORECAT_LOCATION, texts={
+                quests.TEXT_LORE_HINT: "{_ENEMY_FACTION} has a collaborator in {METROSCENE}".format(**self.elements),
+                quests.TEXT_LORE_INFO: "only the collaborator knows the location of {_ENEMY_FACTION}'s {QE_BASE_NAME}".format(**self.elements),
+                quests.TEXT_LORE_TOPIC: "the collaborator".format(**self.elements),
+                quests.TEXT_LORE_SELFDISCOVERY: "{_ENEMY_FACTION} must have a {QE_BASE_NAME} nearby, but where?".format(**self.elements)
+            }, involvement=my_outcome.involvement, outcome=my_outcome
+        )
+        self.quest_record.needed_lore.add(base_lore)
+        if QE_LORE_TO_LOCK in self.elements:
+            self.quest_record.quest.lock_lore(self, self.elements[QE_LORE_TO_LOCK])
 
         return True
 
     def _is_good_npc(self, nart, candidate):
-        if nart.camp.is_not_lancemate(candidate):
+        if isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate):
             faction_ok = candidate.faction and not nart.camp.are_faction_allies(candidate, self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID].target)
-            scene_ok = gears.tags.SCENE_PUBLIC in candidate.scene.attributes
+            scene_ok = candidate.scene and gears.tags.SCENE_PUBLIC in candidate.scene.attributes
             return faction_ok and scene_ok and candidate not in self.suspects
 
     def start_quest_task(self, camp):
         self.elements["_CHALLENGE"].activate(camp)
+        if QE_LORE_TO_LOCK in self.elements:
+            self.quest_record.quest.reveal_lore(camp, self.elements[QE_LORE_TO_LOCK])
 
     def _get_unassociated_clue(self, camp, npc):
         candidates = [c for c in self.elements["MYSTERY"].unknown_clues if not c.is_involved(npc)]
@@ -406,7 +429,17 @@ class BaseKnownByCollaborator(quests.QuestPlot):
 
     def MYSTERY_SOLVED(self, camp):
         self.mystery_solved = True
-
+        my_npc = self.elements["CULPRIT"]
+        my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
+        base_name = self.elements.get(QE_BASE_NAME, "Base")
+        pbge.BasicNotification(
+            "You have learned that {} knows where {}'s {} is.".format(my_npc, my_outcome.target, base_name),
+            count=150
+        )
+        self.memo = plots.Memo(
+            "You have learned that {} knows where {}'s {} is.".format(my_npc, my_outcome.target, base_name),
+            location=my_npc.scene
+        )
 
     def win_da_task(self, camp):
         my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
@@ -418,42 +451,139 @@ class BaseKnownByCollaborator(quests.QuestPlot):
     def CULPRIT_offers(self, camp):
         mylist = list()
         if self.mystery_solved:
-            pass
+            my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
+            base_name = "{}'s {}".format(my_outcome.target, self.elements[QE_BASE_NAME])
+
+            mylist.append(Offer(
+                "[LETS_KEEP_THIS_A_SECRET] I will tell you the location of {}!".format(base_name),
+                ContextTag([context.CUSTOM,]), effect=self.win_da_task,
+                data={"reply": "I know that you've been collaborating with {}.".format(my_outcome.target)}
+            ))
 
         return mylist
 
-#  *************************
-#  ***   QUEST  INTROS   ***
-#  *************************
+    def CULPRIT_SCENE_ENTER(self, camp):
+        if self.mystery_solved:
+            my_npc: gears.base.Character = self.elements["CULPRIT"]
+            my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
+            base_name = "{}'s {}".format(my_outcome.target, self.elements[QE_BASE_NAME])
+            if self.vigilante_action or my_npc.is_destroyed():
+                pbge.alert("As you enter {CULPRIT_SCENE}, you notice the conspicuous absense of {CULPRIT}.".format(**self.elements))
+                pbge.alert("A dataslate has been left behind with a set of map coordinates. Could this be the location of {}?".format(base_name))
+                self.win_da_task(camp)
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        culprit = self.elements["CULPRIT"]
+        my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
+
+        if not self.vigilante_action:
+            if self.mystery_solved and my_outcome.is_involved(camp, npc) and npc is not culprit:
+                goffs.append(Offer(
+                    "[THATS_INTERESTING] [THIS_WILL_BE_DEALT_WITH]",
+                    ContextTag([context.CUSTOM,]), effect=self._do_vigilante_action,
+                    data={"reply": "I have proof that {} has been collaborating with {}.".format(culprit,
+                                                                                                 my_outcome.target)}
+                ))
+
+        return goffs
+
+    def _do_vigilante_action(self, camp: gears.GearHeadCampaign):
+        self.vigilante_action = True
+        npc: gears.base.Character = self.elements["CULPRIT"]
+        my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
+        camp.freeze(npc)
+        myfac = camp.get_faction(my_outcome.target)
+        if npc.combatant and myfac and myfac.get_faction_tag():
+            npc.relationship = camp.get_relationship(npc)
+            npc.relationship.role = gears.relationships.R_ADVERSARY
+            npc.relationship.history.append(
+                gears.relationships.Memory(
+                    "you revealed that I was working for {}".format(my_outcome.target),
+                    "I discovered you were working for {}".format(my_outcome.target),
+                    -5, memtags=(gears.relationships.MEM_Clash, gears.relationships.MEM_Ideological)
+                )
+            )
+            npc.faction = myfac.get_faction_tag()
+            camp.egg.dramatis_personae.add(npc)
+
+
+#  ********************************
+#  ***   QUEST  LORE  HANDLER   ***
+#  ********************************
 #
 # A Quest Intro introduces a quest task. Typically only the first task in line needs an intro; subsequent tasks will
 # be introduced by the task progression itself.
 #
 
-class IntroDaWar(quests.QuestIntroPlot):
-    # I dunno if this is a war, but it's definitely a fight.
+class GearHeadLoreHandler(plots.Plot):
+    # Simple for now, expand later.
+    LABEL = quests.DEFAULT_QUEST_LORE_HANDLER
     scope = "METRO"
-
-    @classmethod
-    def matches(cls, pstate):
-        outc = pstate.elements.get(quests.DEFAULT_OUTCOME_ELEMENT_ID)
-        return outc and outc.verb in AGGRESSIVE_VERBS
+    active = True
 
     def custom_init(self, nart):
-        my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
-        self.elements["ENEMY_FACTION"] = my_outcome.target
         return True
 
-    def start_quest_task(self, camp):
-        super().start_quest_task(camp)
-        a, b, c = self.get_rumor_offer_subject()
-        self.RUMOR = Rumor(
-            a,
-            offer_msg=b,
-            offer_subject=a, offer_subject_data=c,
-            offer_effect_name="rumor_offer_effect",
-            npc_is_prohibited_fun=plotutility.ProhibitFactionAndPCIfAllied("ENEMY_FACTION")
+    def t_UPDATE(self, camp):
+        if not self.elements[quests.LORE_SET_ELEMENT_ID]:
+            self.end_plot(camp)
+
+    def _can_reveal_lore(self, camp: gears.GearHeadCampaign, lore: quests.QuestLore, npc: gears.base.Character):
+        # The Outcome lore for a quest line won't be revealed to the PC if it's an aggressive verb and the PC is allied
+        # with the target. But what if you want to offer the PC the choice to betray their current faction? Then don't
+        # give this lore the LORECAT_OUTCOME category, and all will be well.
+        if lore.category == LORECAT_OUTCOME and lore.outcome and lore.outcome.target and lore.outcome.verb in AGGRESSIVE_VERBS and camp.is_favorable_to_pc(lore.outcome.target):
+            return False
+        return lore.is_involved(camp, npc)
+
+    def _get_dialogue_grammar(self, npc, camp):
+        # The secret private function that returns custom grammar.
+        mygram = collections.defaultdict(list)
+        for lore in self.elements[quests.LORE_SET_ELEMENT_ID]:
+            if lore.is_involved(camp, npc):
+                mygram["[News]"].append(lore.texts[quests.TEXT_LORE_HINT])
+        return mygram
+
+    DOUBLE_LORE_PATTERNS = (
+        "[LISTEN_TO_MY_INFO] {}; {}.",
+        "{}... {}.", "[LISTEN_UP] {}. {}.",
+        "{}; [as_far_as_I_know] {}."
+    )
+
+    SINGLE_LORE_PATTERNS = (
+        "[LISTEN_TO_MY_INFO] {}.",
+        "{}.", "[THIS_IS_A_SECRET] {}.",
+        "[as_far_as_I_know] {}."
+    )
+
+    def _create_lore_revealer(self, npc, camp, lore):
+        extra_lore_candidates = [l2 for l2 in self.elements[quests.LORE_SET_ELEMENT_ID] if l2 is not lore and l2.outcome
+                                 and l2.outcome is lore.outcome]
+        if extra_lore_candidates:
+            lore2 = random.choice(extra_lore_candidates)
+            msg = random.choice(self.DOUBLE_LORE_PATTERNS).format(lore.texts[quests.TEXT_LORE_INFO],
+                                                                  lore2.texts[quests.TEXT_LORE_INFO])
+            lorelist = (lore, lore2)
+        else:
+            msg = random.choice(self.SINGLE_LORE_PATTERNS).format(lore.texts[quests.TEXT_LORE_INFO])
+            lorelist = (lore,)
+
+        return Offer(
+            msg, context=ContextTag([context.INFO,]),
+            effect=quests.LoreRevealer(
+                lorelist, self.elements[quests.QUEST_ELEMENT_ID], self.elements[quests.LORE_SET_ELEMENT_ID]
+            ), subject=lore.texts[quests.TEXT_LORE_HINT], no_repeats=True,
+            data={"subject": lore.texts[quests.TEXT_LORE_TOPIC]}
         )
 
-    def rumor_offer_effect(self, camp):
-        self.quest_record.win_task(self, camp)
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        myoffs = list()
+        for lore in self.elements[quests.LORE_SET_ELEMENT_ID]:
+            if self._can_reveal_lore(camp, lore, npc):
+                myoffs.append(self._create_lore_revealer(npc, camp, lore))
+        return myoffs
+
+
