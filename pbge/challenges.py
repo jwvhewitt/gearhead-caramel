@@ -175,7 +175,8 @@ class Challenge(object):
     # oppuses = A list of AutoUsages used by this challenge
     # data = A dict of challenge-specific data that may be used by scenario generators. Just keeping my options open.
     def __init__(self, name, chaltype, key=(), involvement=None, active=True, grammar=None, oppoffers=(), oppuses=(),
-                 data=None, points_target=10, memo=None, memo_active=False, deactivate_on_win=True):
+                 data=None, points_target=10, memo=None, memo_active=False, deactivate_on_win=True,
+                 num_simultaneous_plots=3):
         self.name = name
         self.points_earned = 0
         self._active = active
@@ -196,6 +197,7 @@ class Challenge(object):
             self.memo.challenge = self
         self.memo_active = memo_active
         self.deactivate_on_win = deactivate_on_win
+        self.num_simultaneous_plots = num_simultaneous_plots
 
     def advance(self, camp, delta):
         if self._active:
@@ -259,6 +261,12 @@ class Challenge(object):
     def get_memo(self):
         if self.memo and self.memo_active and self.active:
             return self.memo
+
+    def __setstate__(self, state):
+        # For saves from V0.946 or earlier, make sure there's a num_simultaneous_plots
+        self.__dict__.update(state)
+        if "num_simultaneous_plots" not in state:
+            self.num_simultaneous_plots = 3
 
 
 class ResourceSpender(object):

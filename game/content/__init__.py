@@ -20,7 +20,7 @@ UNSORTED_PLOT_LIST = list()
 
 class GHNarrativeRequest(pbge.plots.NarrativeRequest):
     def __init__(self, camp: gears.GearHeadCampaign, *args, **kwargs):
-        self.challenges = camp.get_active_challenges()
+        self.challenges = camp.get_challenges_needing_plots()
         super().__init__(camp, *args, **kwargs)
 
 from . import ghplots

@@ -1096,6 +1096,22 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 mypets.append(pet)
         return mypets
 
+    def get_challenges_needing_plots(self):
+        my_challenges = set()
+        if self.scene:
+            for p in self.active_plots():
+                for k, v in p.elements.items():
+                    if isinstance(v, pbge.challenges.Challenge) and v.active:
+                        scope = p.elements.get(p.scope, self)
+                        n = 0
+                        for oplot in scope.scripts:
+                            if oplot.LABEL == "CHALLENGE_PLOT" and oplot.elements.get("CHALLENGE") is v:
+                                n += 1
+                        if n < v.num_simultaneous_plots:
+                            my_challenges.add(v)
+        return my_challenges
+
+
 
 class GearHeadArchitecture(pbge.randmaps.architect.Architecture):
     ENV = tags.GroundEnv

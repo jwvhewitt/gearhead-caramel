@@ -92,7 +92,7 @@ def convert_tokens( in_text, gramdb, allow_maybe=True, auto_format = True, start
             if capitalize and word and word[0] != "{":
                 word = word.capitalize()
                 capitalize = False
-            if word[-1] in ".\n":
+            if word[-1] in ".!?\n":
                 capitalize = True
             all_words.append(word)
     return " ".join( all_words )

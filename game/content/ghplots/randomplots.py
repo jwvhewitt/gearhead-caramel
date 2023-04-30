@@ -216,7 +216,7 @@ class MechaMissionForCity(Plot):
     scope = "METRO"
     RUMOR = Rumor(
         "{NPC} is looking for a pilot to fight {ENEMY_FACTION} for {METROSCENE}",
-        offer_msg="If you're interested in taking the mission, speak to {NPC} at {NPC_SCENE}.",
+        offer_msg="{NPC} at {NPC_SCENE} can give you more details. [IF_YOU_WANT_MISSION_GO_ASK_ABOUT_IT]",
         memo="{NPC} is looking for a pilot to fight {ENEMY_FACTION}.",
         prohibited_npcs=("NPC",)
     )

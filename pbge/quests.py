@@ -18,11 +18,17 @@ _QD_LEADS_TO_ELEMENT_ID = "_QUEST_LEADS_TO"  # Private use for this module; if w
 DEFAULT_OUTCOME_ELEMENT_ID = "QUEST_OUTCOME"
 LORE_SET_ELEMENT_ID = "QUEST_LORE_SET"
 
+# Mandatory Lore
 TEXT_LORE_HINT = "[QUEST_LORE_HINT]"    # May be used as a rumor for learning this lore; independent clause
 TEXT_LORE_INFO = "[QUEST_LORE_INFO]"    # The lore is revealed to the PC; independent clause
 TEXT_LORE_TOPIC = "[QUEST_LORE_TOPIC]"  # The topic for the PC's inquiry into the lore; noun phrase
 TEXT_LORE_SELFDISCOVERY = "[QUEST_LORE_SELFDISCOVERY]"  # A sentence for when the PC discovers the info themselves
 
+# Optional Lore
+TEXT_LORE_TARGET_TOPIC = "[QUEST_LORE_TARGET_TOPIC]"    # Why are the lore keys formatted like grammar tokens?
+    # Because originally I was going to use the grammar system, but there were problems and so I decided to just
+    # use strings. Anyhow this text contains a single noun phrase having to do with the target of this quest's
+    # activities.
 
 
 
@@ -74,6 +80,7 @@ class QuestLore:
 
 
 class LoreRevealer:
+    # An object that can be used as the "effect" for a waypoint or dialogue offer that will reveal the provided lore.
     def __init__(self, lores, quest, loreset=None):
         self.lores = lores
         self.quest = quest
@@ -97,7 +104,8 @@ class QuestOutcome:
         # loss_effect is a callable of form "loss_effect(camp)" which is called if/when this outcome fails
         # lore is a list of lore that will be inherited by the conclusion leading to this outcome. Note that if any
         #   lore has "None" as its outcome, it will automatically be set to this outcome. So if you want some lore
-        #   with no outcome set the outcome to "False" instead. It ain't pretty but it should work.
+        #   with no outcome set the outcome to "False" instead. It ain't pretty but it should work. Addendum: I don't
+        #   know why you would want to define a lore without its outcome.
         self.verb = verb
         self.target = target
         self.involvement = involvement
@@ -119,16 +127,18 @@ class QuestOutcome:
 
 
 class QuestConclusionMethodWrapper:
+    # An object that automatically gets added to the root plot to listen for conclusions being concluded.
     def __init__(self, root_plot: plots.Plot, outcome_fun, end_plot=True):
         self.root_plot = root_plot
         self.outcome_fun = outcome_fun
         self.end_plot = end_plot
 
     def __call__(self, camp):
+        print("Invoking...")
         if self.outcome_fun:
             self.outcome_fun(camp)
         if self.end_plot:
-            self.root_plot.end_plot(camp)
+            self.root_plot.end_plot(camp, True)
 
 
 class Quest:
@@ -241,16 +251,20 @@ class Quest:
         # locked it will not be revealed normally; instead, the task that requested the lock needs to reveal the lore
         # manually. THIS POINT IS VERY IMPORTANT.
         # Anyhow, the rules to prevent loreblock are as follows:
-        #  - Lore may not be locked if it was inherited from a parent plot and any other lore requirements of this plot
-        #    are already locked.
+        #  - Lore may not be locked if it was inherited from a parent plot and any other inherited lore requirements
+        #    of this plot are already locked.
         #  - Eat lots of fibre.
         # This algorithm will result in a lot of false positives- cases where there is no loreblock, but get disallowed
         # anyways. But it shouldn't produce any false negatives, which could be game-breaking bugs, and my covid brain
         # fog is back something fierce. Which you might be able to tell by this lengthy rambling comment.
         # If the lore lock fails, a PlotError is thrown so this plot will not be loaded.
         if myplot.quest_record.leads_to and mylore in myplot.quest_record.leads_to.quest_record.needed_lore:
-            if any([lore in self._locked_lore for lore in myplot.quest_record.needed_lore]):
+            # I think this may be the ugliest list comprehension I've ever seen in Python. Show me your own worst
+            # examples! Just not in the form of pull requests, please...
+            if any([lore in self._locked_lore for lore in myplot.quest_record.needed_lore if lore in myplot.quest_record.leads_to.quest_record.needed_lore]):
                 raise plots.PlotError("Lore {} cannot be locked by {}.".format(mylore, myplot))
+        elif mylore in self._locked_lore:
+            raise plots.PlotError("Lore {} is already locked and so can't be locked by {}.".format(mylore, myplot))
         self._locked_lore.add(mylore)
         if mylore in myplot.quest_record.needed_lore:
             myplot.quest_record.needed_lore.remove(mylore)
@@ -263,13 +277,19 @@ class Quest:
         self.all_plots.append(nuplot)
 
     def reveal_lore(self, camp, lore: QuestLore):
-        self._revealed_lore.add(lore)
-        if lore.effect:
-            lore.effect(camp)
-        self.check_quest_plot_activation(camp)
+        if lore not in self._revealed_lore:
+            self._revealed_lore.add(lore)
+            if lore.effect:
+                lore.effect(camp)
+            self.check_quest_plot_activation(camp)
 
     def lore_is_revealed(self, lore):
         return lore in self._revealed_lore
+
+    @property
+    # People might want to look at the revealed lore set, but no touching.
+    def revealed_lore(self):
+        return tuple(self._revealed_lore)
 
 
 class QuestData:
@@ -307,6 +327,8 @@ class QuestRecord:
             task.quest_record.deactivate_children(camp)
 
     def win_task(self, myplot: QuestPlot, camp):
+        if self.completion != self.WIN:
+            camp.check_trigger("WIN", myplot)
         self.completion = self.WIN
         self.deactivate_children(camp)
         myplot.end_quest_task(camp)
@@ -314,6 +336,8 @@ class QuestRecord:
         self.quest.check_quest_plot_activation(camp)
 
     def lose_task(self, myplot: QuestPlot, camp):
+        if self.completion != self.LOSS:
+            camp.check_trigger("LOSE", myplot)
         self.completion = self.LOSS
         self.deactivate_children(camp)
         myplot.end_quest_task(camp)
@@ -331,3 +355,8 @@ class QuestRecord:
                 return False
         return True
 
+    def get_task(self, task_label):
+        # Return an active task if one is found with the label. There should only ever be one task with the same label.
+        for t in self.tasks:
+            if t.LABEL == task_label and t.quest_record.completion != self.WIN:
+                return t

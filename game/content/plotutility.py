@@ -566,7 +566,8 @@ class ProhibitFactionMembers:
         self.faction_element_id = faction_element_id
 
     def __call__(self, plot, camp, npc):
-        return npc.faction is plot.elements.get(self.faction_element_id)
+        fac = plot.elements.get(self.faction_element_id)
+        return fac and npc.faction is fac
 
 
 class ProhibitFactionAndPCIfAllied:

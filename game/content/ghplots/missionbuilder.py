@@ -33,6 +33,7 @@ BAMO_FIGHT_MONSTERS = "BAMO_FightMonsters"
 BAME_MONSTER_TAGS = "BAME_MONSTER_TAGS"
 BAMO_LOCATE_ENEMY_FORCES = "BAMO_LocateEnemyForces"
 BAMO_NEUTRALIZE_ALL_DRONES = "BAMO_NeutralizeAllDrones"
+BAMO_PROTECT_BUILDINGS = "BAMO_ProtectBuildings"
 BAMO_PROTECT_BUILDINGS_FROM_DINOSAURS = "BAMO_ProtectBuildingsFromDinosaurs"
 BAMO_RECOVER_CARGO = "BAMO_RecoverCargo"
 BAMO_RESCUE_NPC = "BAMO_RescueNPC"
@@ -109,7 +110,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  combat_music=None, exploration_music=None,
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None,
-                 make_enemies=True, defeat_trigger_on=True, scale=gears.scale.MechaScale, **kwargs):
+                 make_enemies=True, defeat_trigger_on=True, scale=gears.scale.MechaScale, desc="",
+                 **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
         cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
         cms_pstate.elements["METROSCENE"] = metroscene
@@ -161,6 +163,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.rewards.append(adventureseed.RenownReward())
 
         self.environment = architecture.ENV
+
+        self.desc = desc
 
     def copy(self):
         mycopy: BuildAMissionSeed = copy.copy(self)
@@ -1287,6 +1291,53 @@ class BAM_NeutralizeAllDrones(Plot):
 
         if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
+
+
+class BAM_ProtectBuildings(Plot):
+    LABEL = BAMO_PROTECT_BUILDINGS
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        myroom = self.register_element("ROOM", roomtype(15, 15), dident="LOCALE")
+        eroom = self.register_element("EROOM", pbge.randmaps.rooms.Room(6,6), dident="ROOM")
+        b_room = self.register_element("BROOM", pbge.randmaps.rooms.FuzzyRoom(4,4), dident="ROOM")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="EROOM")
+        myfac = self.elements.get("ENEMY_FACTION")
+
+        myunit = gears.selector.RandomMechaUnit(self.rank, 100, myfac, myscene.environment, add_commander=True)
+        team2.contents += myunit.mecha_list
+
+        team3 = self.register_element("_propteam", teams.Team(enemies=(team2,), ), dident="BROOM")
+        for t in range(random.randint(2, 3 + self.rank // 25)):
+            team3.contents.append(gears.selector.get_design_by_full_name("Concrete Building"))
+        # Oh yeah, when using PyCharm, why not use ludicrously long variable names?
+        self.starting_number_of_props = len(team3.contents)
+
+        self.obj = adventureseed.MissionObjective("Protect the buildings", MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+        self.combat_entered = False
+        self.combat_finished = False
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if not self.combat_entered:
+            self.combat_entered = True
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+        propteam = self.elements["_propteam"]
+        if len(propteam.get_members_in_play(camp)) < 1:
+            self.obj.failed = True
+        elif len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
+                                     propteam.get_members_in_play(camp)])) // self.starting_number_of_props)
+            if not self.combat_finished:
+                pbge.alert("The buildings have been secured.")
+                self.combat_finished = True
 
 
 class BAM_ProtectBuildingsFromDinos(Plot):

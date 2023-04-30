@@ -121,6 +121,29 @@ MAKE_CHALLENGE = "MAKE_CHALLENGE"
 
 
 #   ***********************************
+#   ***  MISSION  CHALLENGE  STUFF  ***
+#   ***********************************
+
+MISSION_CHALLENGE = "MISSION_CHALLENGE"
+
+
+# Hold on, sez you, didn't we just have a fight challenge a few challenges ago? Well yes we did. The mission challenge
+# is a more flexible version of the fight challenge in that mission creation is controlled directly by whoever made
+# the challenge. Also, only one mission-giver will be giving the mission at a time.
+# The involvement for a mission challenge lists the NPCs who might give the PC a combat mission
+# The key for a mission challenge is (Faction_to_be_fought,)
+# The data for a mission challenge should include:
+#   challenge_objectives = A list of objectives that can be given by the challenge-givers; infinitive verb phrase
+#   challenge_rumors = A list of rumors going around town about the mission; primary clause
+#   challenge_summaries = A list of descriptions of what this challenge is about; infinitive verb phrase
+#       Used for memos and general talking about the challenge.
+#   challenge_subject = A list of subjects to be used when asking about the rumor; noun phrase
+#   mission_intros = A list of rough descriptions of mission for mission-giver to give; primary clause
+#   mission_builder = A function with signature (camp, npc) that builds the mission
+#
+
+
+#   ***********************************
 #   ***  MYSTERY  CHALLENGE  STUFF  ***
 #   ***********************************
 

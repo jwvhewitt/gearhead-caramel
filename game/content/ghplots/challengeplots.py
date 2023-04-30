@@ -21,6 +21,10 @@ class TimeAndChallengeExpiration(object):
     def __call__(self, camp, plot):
         return camp.time > self.time_limit or not self.chal.active
 
+
+# All CHALLENGE_PLOTs should store their Challenge as element "CHALLENGE"!!! At least, they should if they want to use
+# the no_plots_for_this_challenge function above.
+
 #   ****************************
 #   ***  DETHRONE_CHALLENGE  ***
 #   ****************************
@@ -715,6 +719,105 @@ class RecoverTheSupplies(Plot):
     def activate_mission(self,camp):
         self.mission_active = True
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed and self.mission_active:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+
+#   ***************************
+#   ***  MISSION_CHALLENGE  ***
+#   ***************************
+
+class BasicMissionChallenge(Plot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+
+    @classmethod
+    def matches(cls, pstate: PlotState):
+        return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.MISSION_CHALLENGE]
+        if self.candidates:
+            #mychallenge = self.register_element("CHALLENGE", random.choice(self.candidates))
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            self.elements["NPC_SCENE"] = npc.scene
+            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            self.register_element("NPC_SCENE", npc.scene)
+            self.register_element("ENEMY_FACTION", mychallenge.key[0])
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+
+            rumor_text = random.choice(mychallenge.data["challenge_rumors"])
+            self.RUMOR = Rumor(
+                rumor_text,
+                offer_msg="{NPC} at {NPC_SCENE} is looking for someone to " + random.choice(mychallenge.data["challenge_summaries"])+". [IF_YOU_WANT_MISSION_GO_ASK_ABOUT_IT]",
+                offer_subject=rumor_text,
+                offer_subject_data=random.choice(mychallenge.data["challenge_subject"]),
+                memo="{NPC} at {NPC_SCENE} is looking for someone to " + random.choice(mychallenge.data["challenge_summaries"])+".",
+                prohibited_npcs=("NPC",),
+                npc_is_prohibited_fun=plotutility.ProhibitFactionAndPCIfAllied("ENEMY_FACTION")
+            )
+
+            # Create the mission seed.
+            self.mission_seed = mychallenge.data["mission_builder"](nart.camp, npc)
+
+            self.mission_active = False
+            del self.candidates
+            return True
+
+    def _get_challenge_for_npc(self, nart, npc):
+        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
+        if candidates:
+            return random.choice(candidates)
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and candidate not in nart.camp.party and
+            (not candidate.relationship or gears.relationships.RT_LANCEMATE not in candidate.relationship.tags) and
+            self._get_challenge_for_npc(nart, candidate)
+        )
+
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
+        mylist = list()
+
+        if not self.mission_active:
+            mychallenge = self.elements["CHALLENGE"]
+            mylist.append(Offer(
+                "[LOOKING_FOR_CAVALIER] {}".format(random.choice(mychallenge.data["mission_intros"])),
+                ContextTag([context.HELLO, context.MISSION])
+            ))
+
+            mylist.append(Offer(
+                "[i_want_you_to] {}. [DOYOUACCEPTMISSION]".format(random.choice(mychallenge.data["challenge_objectives"])),
+                ContextTag([context.MISSION]),
+                subject=self, subject_start=True
+            ))
+
+            if not (mychallenge.key[0] and camp.is_favorable_to_pc(mychallenge.key[0])):
+                mylist.append(Offer(
+                    "[IWillSendMissionDetails]; [GOODLUCK]",
+                    ContextTag([context.ACCEPT]), effect=self.activate_mission,
+                    subject=self
+                ))
+
+            mylist.append(Offer(
+                "[UNDERSTOOD] [GOODBYE]",
+                ContextTag([context.DENY]), effect=self.end_plot,
+                subject=self
+            ))
+
+        return mylist
+
+    def t_UPDATE(self,camp):
+        if self.mission_seed.ended:
+            self.end_plot(camp)
+
+    def activate_mission(self,camp):
+        self.mission_active = True
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+        self.elements["CHALLENGE"].memo_active = True
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:

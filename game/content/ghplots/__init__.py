@@ -24,6 +24,7 @@ from . import dungeons
 from . import dungeon_extras
 from . import encounters
 from . import ghquests
+from . import ghquest_objectives
 from . import ghstories
 from . import lancedev
 from . import lancedev_objectives
@@ -90,6 +91,7 @@ harvest(dungeons)
 harvest(dungeon_extras)
 harvest(encounters)
 harvest(ghquests)
+harvest(ghquest_objectives)
 harvest(ghstories)
 harvest(lancedev)
 harvest(lancedev_objectives)

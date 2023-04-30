@@ -2402,6 +2402,34 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[IF_YOU_WANT_MISSION_GO_ASK_ABOUT_IT]": {
+        # A generic suggestion for the PC to go apply for a mission. Remember, you will never win a mission that you
+        # don't apply for. And if you never try anything, you will never fail!
+        Default: ["If you're interested in the mission you should go ask about it."
+                  ],
+        personality.Cheerful: ["This could be a good opportunity for you if you go ask about it in time.",
+                               "If you want the mission, go ask about it."
+                               ],
+        personality.Grim: ["Try a mission and you might fail. Don't try and you will definitely fail.",
+                           "Go apply for the mission; you have nothing to lose but your life."
+                           ],
+        personality.Easygoing: ["Remember, you only fail the missions that you try.",
+                                ],
+        personality.Passionate: ["Head over there and get that mission!",
+                                 "This could be the start of a thrilling adventure!"
+                                 ],
+        personality.Sociable: ["If I were you, I'd go ask if the mission is still available. It could be a good opportunity.",
+                               ],
+        personality.Shy: ["You can go ask about it if you want.",
+                          ],
+        DISLIKE: [
+            "This mission is probably beyond your abilities but you can try if you like.",
+        ],
+        HATE: [
+            "This mission may very well kill you. I say you should apply for it.",
+        ],
+    },
+
     "[I_HAVE_BEEN_IMMOBILIZED]": {
         # A lancemate has suffered a mobility kill.
         Default: ["I have been immobilized!", "[SWEAR] I can't move this thing."
@@ -2625,6 +2653,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I think that I should proabably get some pactice.",
                                ],
         personality.Shy: ["I need to practice.",
+                          ],
+    },
+
+    "[i_want_you_to]": {
+        # Sentence lead-in for a request or a mission description; followed by an infinitive verb phrase
+        Default: ["I want you to",
+                  ],
+        personality.Cheerful: ["I'd be delighted if you could"
+                               ],
+        personality.Grim: ["I need you to",
+                           ],
+        personality.Easygoing: ["It'd be great if you could"
+                                ],
+        personality.Passionate: ["You must",
+                                 ],
+        personality.Sociable: ["I'd like to ask you to",
+                               ],
+        personality.Shy: ["You should",
                           ],
     },
 

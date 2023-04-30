@@ -1,3 +1,4 @@
+* Text formatter will now capitalize after "!" and "?"
 * Team contents now stored as a ContainerList
 * The get_scene method should return the correct scene even if called during adventure construction
 * Okapi puzzle clue menus are now sorted
