@@ -48,7 +48,7 @@ class OccupationCrushDissent(Plot):
     def custom_init(self, nart):
         # The invading faction is going to try and crush dissent in this region. The locals are going to try to resist
         # this as well as they can.
-        # self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
+        self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
         if RESISTANCE_FACTION not in self.elements:
             self.elements[RESISTANCE_FACTION] = gears.factions.Circle(
                 nart.camp, parent_faction=self.elements.get(ORIGINAL_FACTION)
@@ -68,7 +68,7 @@ class OccupationCrushDissent(Plot):
                         quests.TEXT_LORE_TARGET_TOPIC: "{RESISTANCE_FACTION}'s rebellion".format(**self.elements),
                     }, involvement = ghchallenges.InvolvedMetroFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
-                    ),
+                    ), priority=True
                 )
             ]
         )
@@ -87,13 +87,13 @@ class OccupationCrushDissent(Plot):
                         quests.TEXT_LORE_TARGET_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
                     }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
-                    )
+                    ), priority=True
                 )
             ]
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
-            outcomes=(oc1, oc2),
+            outcomes=(oc1, oc2), end_on_loss=True
         ))
         myquest.build(nart, self)
 

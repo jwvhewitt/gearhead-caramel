@@ -17,6 +17,7 @@ VERB_REPRESS = "REPRESS"  # Like DEFEAT, but the enemy has to be located first
 
 LORECAT_OUTCOME = "OUTCOME"
 
+LORECAT_KNOWLEDGE = "KNOWLEDGE"
 LORECAT_LOCATION = "LOCATION"
 
 
@@ -25,6 +26,7 @@ AGGRESSIVE_VERBS = (
 )
 
 QE_LORE_TO_LOCK = "QE_LORE_TO_LOCK"
+QE_TASK_NPC = "QE_TASK_NPC"     # If there is an NPC associated with this task
 
 QUEST_TASK_ACE_DEFENSE = "QUEST_TASK_ACE_DEFENSE"
 # The parent task has some kind of protection. This task ***MUST*** provide a get_ace_mission_mod function with
@@ -34,6 +36,11 @@ QUEST_TASK_FINDENEMYBASE = "QUEST_TASK_FINDENEMYBASE"
 # If given a lore to lock, that lore should be the existence of the base.
 # This task will lock that lore and reveal it when activated.
 QE_BASE_NAME = "QE_BASE_NAME"
+
+QUEST_TASK_HIDDEN_IDENTITY = "QUEST_TASK_HIDDEN_IDENTITY"
+# Someone is in hiding. The QE_TASK_NPC element can be used to send the NPC, QE_LORE_TO_LOCK can be used for lore
+# linked to that NPC, and QE_NPC_ALIAS can be used for the NPC's alias if their identity is unknown.
+QE_NPC_ALIAS = "QE_NPC_ALIAS"
 
 QUEST_TASK_IMMEDIATE_ACTION = "QUEST_TASK_IMMEDIATE_ACTION"
 # The enemy faction is doing something that requires immediate attention. This task may lock the LORECAT_OUTCOME lore,
@@ -77,13 +84,82 @@ class StrikeTheLeader(quests.QuestPlot):
     scope = "METRO"
 
     QUEST_DATA = quests.QuestData(
-        (),
+        (QUEST_TASK_ACE_DEFENSE, QUEST_TASK_HIDDEN_IDENTITY, QUEST_TASK_IMMEDIATE_ACTION,),
     )
 
     @classmethod
     def matches(cls, pstate):
         outc = pstate.elements.get(quests.DEFAULT_OUTCOME_ELEMENT_ID)
         return outc and outc.verb in (quests.VERB_DEFEAT, VERB_REPRESS)
+
+    def custom_init(self, nart):
+        my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
+        self.elements["_ENEMY_FACTION"] = my_outcome.target
+        npc = self.register_element(QE_TASK_NPC, gears.selector.random_character(self.rank+10, camp=nart.camp,
+                                                                                 combatant=True,
+                                                                           faction=my_outcome.target), lock=True)
+        self.elements[QE_NPC_ALIAS] = "{}'s leader".format(my_outcome.target)
+        self.mission_name = "Defeat {QE_TASK_NPC} of {_ENEMY_FACTION}".format(**self.elements)
+        self.memo = plots.Memo(
+            "You have identified {QE_TASK_NPC} and the local head of {_ENEMY_FACTION} and can challenge {QE_TASK_NPC.gender.object_pronoun} at any time.".format(**self.elements),
+            self.elements["METROSCENE"]
+        )
+
+        task_lore = quests.QuestLore(
+            LORECAT_LOCATION, texts={
+                quests.TEXT_LORE_HINT: "the leader of {_ENEMY_FACTION} in {METROSCENE} has big plans".format(**self.elements),
+                quests.TEXT_LORE_INFO: "{QE_TASK_NPC} is their leader".format(**self.elements),
+                quests.TEXT_LORE_TOPIC: "{_ENEMY_FACTION}'s leader".format(**self.elements),
+                quests.TEXT_LORE_SELFDISCOVERY: "You have learned that the leader of {_ENEMY_FACTION} in {METROSCENE} is {QE_TASK_NPC}.".format(**self.elements),
+                quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s leader".format(**self.elements),
+            }, involvement=my_outcome.involvement, outcome=my_outcome
+        )
+        self.quest_record.needed_lore.add(task_lore)
+        self.elements[QE_LORE_TO_LOCK] = task_lore
+
+        return True
+
+    SECONDARY_OBJECTIVES = (
+        missionbuilder.BAMO_CAPTURE_BUILDINGS, missionbuilder.BAMO_CAPTURE_THE_MINE,
+        missionbuilder.BAMO_RECOVER_CARGO, missionbuilder.BAMO_DESTROY_ARTILLERY
+    )
+
+    def _get_mission(self, camp):
+        # Return a mission seed for the current state of this mission. The state may be altered by unfinished tasks-
+        # For instance, if the fortress is defended by artillery, that gets added into the mission.
+        objectives = [missionbuilder.BAMO_DEFEAT_NPC,] + [random.choice(self.SECONDARY_OBJECTIVES)]
+        rank = self.rank
+
+        ace_task = self.quest_record.get_task(QUEST_TASK_ACE_DEFENSE)
+        if ace_task:
+            drank, dobjs = ace_task.get_ace_mission_mods(camp)
+            rank += drank
+            objectives += dobjs
+
+        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+
+        el_seed = missionbuilder.BuildAMissionSeed(
+            camp, self.mission_name,
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            enemy_faction=self.elements["_ENEMY_FACTION"], rank=rank,
+            custom_elements={missionbuilder.BAME_NPC: self.elements[QE_TASK_NPC]},
+            objectives=objectives,
+            one_chance=True,
+            scenegen=sgen, architecture=archi,
+            cash_reward=100, on_win=self._win_outcome, on_loss=self._lose_outcome
+        )
+
+        return el_seed
+
+    def _win_outcome(self, camp):
+        self.quest_record.win_task(self, camp)
+
+    def _lose_outcome(self, camp):
+        self.quest_record.lose_task(self, camp)
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        thingmenu.add_item(self.mission_name, self._get_mission(camp))
+
 
 
 class TheyHaveAFortress(quests.QuestPlot):
@@ -226,7 +302,14 @@ class ProtectedByArtillery(quests.QuestPlot):
                 objectives=objectives,
                 one_chance=True,
                 scenegen=sgen, architecture=archi,
-                cash_reward=100, on_win=self._win_task
+                cash_reward=100, on_win=self._win_task,
+                mission_grammar=missionbuilder.MissionGrammar(
+                    "destroy your {QE_BASE_NAME}".format(**self.elements),
+                    "defend our secret {QE_BASE_NAME}".format(**self.elements),
+                    "I destroyed your {QE_BASE_NAME}".format(**self.elements),
+                    "you destroyed our {QE_BASE_NAME}".format(**self.elements),
+                    lose_ep="I defended our {QE_BASE_NAME} from you".format(**self.elements),
+                )
             )
 
         return el_seed
@@ -617,6 +700,93 @@ class BaseKnownByCollaborator(quests.QuestPlot):
             npc.faction = myfac.get_faction_tag()
             camp.egg.dramatis_personae.add(npc)
 
+#  ************************************
+#  ***  QUEST_TASK_HIDDEN_IDENTITY  ***
+#  ************************************
+# The Quest NPC is unknown or in hiding.
+# QE_NPC_ALIAS = An alias to call the NPC, if their identity is locked.
+
+
+class DiscoverHiddenIdentity(quests.QuestPlot):
+    LABEL = QUEST_TASK_HIDDEN_IDENTITY
+    scope = "METRO"
+
+    QUEST_DATA = quests.QuestData(
+        (QUEST_TASK_INVESTIGATE_ENEMY, ), blocks_progress=True,
+    )
+
+    CLUES = (
+        "{QE_NPC_ALIAS} is known to be [adjective]",
+        "{QE_NPC_ALIAS} has a [noun]",
+        "{QE_NPC_ALIAS} is a {QE_TASK_NPC.gender.noun}",
+        "{QE_NPC_ALIAS} is known to be [adjective]",
+        "{QE_NPC_ALIAS} is known to be [adjective]",
+        "{QE_NPC_ALIAS} is known to be [adjective]",
+        "{QE_NPC_ALIAS} is known to be [adjective]",
+        "{QE_NPC_ALIAS} is known to be [adjective]",
+        "{QE_NPC_ALIAS} is known to be [adjective]",
+        "{QE_NPC_ALIAS} is known to be [adjective]",
+    )
+
+    def custom_init(self, nart):
+        my_outcome: quests.QuestOutcome = self.elements.get(quests.DEFAULT_OUTCOME_ELEMENT_ID)
+        if my_outcome and my_outcome.target and my_outcome.verb in AGGRESSIVE_VERBS:
+            self.elements["_ENEMY_FACTION"] = my_outcome.target
+            involvement = ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], my_outcome.target)
+        elif my_outcome:
+            involvement = my_outcome.involvement
+        else:
+            involvement = None
+
+        if QE_LORE_TO_LOCK in self.elements:
+            self.locked_lore = self.elements[QE_LORE_TO_LOCK]
+            self.quest_record.quest.lock_lore(self, self.locked_lore)
+            conclusion_told = self.locked_lore.texts[quests.TEXT_LORE_INFO]
+            conclusion_discovered = self.locked_lore.texts[quests.TEXT_LORE_SELFDISCOVERY]
+        else:
+            conclusion_told = "{QE_NPC_ALIAS} is {QE_TASK_NPC}".format(**self.elements)
+            conclusion_discovered = "You have discovered that {QE_TASK_NPC} is {QE_NPC_ALIAS}.".format(**self.elements)
+            self.locked_lore = None
+
+        clues = [a.format(**self.elements) for a in self.CLUES]
+        random.shuffle(clues)
+        mychallenge: Challenge = self.register_element(
+            "_CHALLENGE", Challenge(
+                "Investigate {}".format(self.elements[QE_TASK_NPC]),
+                ghchallenges.GATHER_INTEL_CHALLENGE,
+                key=(self.elements[QE_NPC_ALIAS],), involvement=involvement,
+                data={
+                    "clues": clues,
+                    "conclusion_told": conclusion_told,
+                    "conclusion_discovered": conclusion_discovered,
+                    "enemy_faction": self.elements.get("_ENEMY_FACTION")
+                },
+                memo=ChallengeMemo(
+                    "You are trying to discover the identity of {QE_NPC_ALIAS}.".format(**self.elements)
+                ), memo_active=True, points_target=min(3 + self.rank//25, 7), num_simultaneous_plots=1
+            )
+        )
+
+        task_lore = quests.QuestLore(
+            LORECAT_KNOWLEDGE, texts={
+                quests.TEXT_LORE_HINT: "{QE_NPC_ALIAS} is very mysterious".format(**self.elements),
+                quests.TEXT_LORE_INFO: "nobody knows who {QE_NPC_ALIAS} is".format(**self.elements),
+                quests.TEXT_LORE_TOPIC: "{QE_NPC_ALIAS}".format(**self.elements),
+                quests.TEXT_LORE_SELFDISCOVERY: "You realize that you have have no idea who {QE_NPC_ALIAS} is.".format(**self.elements),
+                quests.TEXT_LORE_TARGET_TOPIC: "{QE_NPC_ALIAS}".format(**self.elements),
+            }, involvement=my_outcome.involvement, outcome=my_outcome
+        )
+        self.quest_record.needed_lore.add(task_lore)
+        self.elements[QE_LORE_TO_LOCK] = task_lore
+
+        return True
+
+    def _CHALLENGE_WIN(self, camp):
+        if self.locked_lore:
+            self.quest_record.quest.reveal_lore(camp, self.locked_lore)
+
+        self.quest_record.win_task(self, camp)
+
 
 #  *************************************
 #  ***  QUEST_TASK_IMMEDIATE_ACTION  ***
@@ -889,6 +1059,8 @@ class GearHeadLoreHandler(plots.Plot):
         for lore in self.elements[quests.LORE_SET_ELEMENT_ID]:
             if lore.is_involved(camp, npc):
                 mygram["[News]"].append(lore.texts[quests.TEXT_LORE_HINT])
+                if lore.priority:
+                    mygram["[CURRENT_EVENTS]"].append("[chat_lead_in] {}!".format(lore.texts[quests.TEXT_LORE_HINT]))
         return mygram
 
     DOUBLE_LORE_PATTERNS = (
@@ -923,12 +1095,19 @@ class GearHeadLoreHandler(plots.Plot):
             data={"subject": lore.texts[quests.TEXT_LORE_TOPIC]}
         )
 
-    def _get_generic_offers(self, npc, camp):
+    def _get_generic_offers(self, npc, camp: gears.GearHeadCampaign):
         """Get any offers that could apply to non-element NPCs."""
         myoffs = list()
-        for lore in self.elements[quests.LORE_SET_ELEMENT_ID]:
-            if self._can_reveal_lore(camp, lore, npc):
-                myoffs.append(self._create_lore_revealer(npc, camp, lore))
+        if camp.is_not_lancemate(npc):
+            for lore in self.elements[quests.LORE_SET_ELEMENT_ID]:
+                if self._can_reveal_lore(camp, lore, npc):
+                    myoffs.append(self._create_lore_revealer(npc, camp, lore))
+                if lore.is_involved(camp, npc) and lore.priority:
+                    myoffs.append(Offer(
+                        "[HELLO] [chat_lead_in] {}.".format(lore.texts[quests.TEXT_LORE_HINT]),
+                        ContextTag([context.HELLO,]),
+                    ))
+
         return myoffs
 
 

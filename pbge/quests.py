@@ -58,12 +58,13 @@ class QuestPlot(plots.Plot):
 
 class QuestLore:
     # Lore is information about a quest that is used to unlock quest tasks and different branches of a quest.
-    def __init__(self, category, outcome=None, texts=None, involvement=None, effect=None):
+    def __init__(self, category, outcome=None, texts=None, involvement=None, effect=None, priority=False):
         # category is used for sorting lore bits into different lore revelation routines, maybe.
         # outcome is the outcome of the questline that this lore refers to, if appropriate.
         # texts is a dict of strings that contains text about the lore
         # involvement is a challenge involvement checker
         # effect is a callable with signature (camp) that gets called when this lore is revealed
+        # priority is True if extra effort should be made to get this lore to the PC
         self.category = category
         self.outcome = outcome
         self.texts = dict()
@@ -71,6 +72,7 @@ class QuestLore:
             self.texts.update(texts)
         self.involvement = involvement
         self.effect = effect
+        self.priority = priority
 
     def is_involved(self, camp, npc):
         if not self.involvement:

@@ -94,12 +94,20 @@ class Egg(object):
             self._reset_campdata_for(npc, cdat_rec)
 
     def save(self, sfpat='egg_{}.sav'):
+        self._validate_dramatis_personae()
         with open(util.user_dir(util.sanitize_filename(sfpat.format(self.pc.name))), "wb") as f:
             self.write(f)
 
     def backup(self):
         # Save a record of all the containers.
         self.save(sfpat='backup_{}.sav')
+
+    def _validate_dramatis_personae(self):
+        # Circles are bound to a given adventure and shouldn't carry through; instead, set character factions to the
+        # parent faction.
+        for dp in self.dramatis_personae:
+            if dp.faction:
+                dp.faction = dp.faction.get_faction_tag()
 
     def seek_dramatis_person(self, camp, check_fun, myplot=None):
         # Characters who get "checked out" from an egg are stored in the campaign's uniques set, to make sure

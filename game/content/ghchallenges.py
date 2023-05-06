@@ -66,7 +66,6 @@ class InvolvedIfInfected(object):
 
 FIGHT_CHALLENGE = "FIGHT_CHALLENGE"
 
-
 # The involvement for a fight challenge lists the NPCs who might give the PC a combat mission
 # The key for a fight challenge is (Faction_to_be_fought,)
 # The data for a fight challenge should include:
@@ -92,6 +91,22 @@ class DescribedObjective(object):
         self.win_ep = win_ep
         self.lose_pp = lose_pp
         self.lose_ep = lose_ep
+
+
+#   *****************************************
+#   ***  GATHER  INTEL  CHALLENGE  STUFF  ***
+#   *****************************************
+
+GATHER_INTEL_CHALLENGE = "GATHER_INTEL_CHALLENGE"
+
+# The PC needs to gather intelligence about a faction, character, scene, or whatever. This is different from a mystery
+# in that the PC will mostly just be talking to people. And maybe doing a few mecha missions.
+# The key for an intel challenge is (String_to_ask_people_about (noun phrase),)
+# The data for a gather intel challenge should include:
+#  clues: An ordered list to clues. Should be as long as the # of points needed.
+#  conclusion_told: The final conclusion reached, as told to the PC by an NPC.
+#  conclusion_discovered: The final conclusion as discovered by the PC on their own.
+#  enemy_faction (optional): If not None, you may be offered intel missions regarding the given faction.
 
 
 #   ************************************

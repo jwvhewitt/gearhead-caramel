@@ -1335,7 +1335,7 @@ DEFAULT_GRAMMAR = {
             "puffins fly, penguins plummet",
             "you don't have to do everything people tell you to do",
             "the more difficult the fight, the more you'll learn from it",
-            "if you would be a great warrior, you must battle through the cave naked, armed only with a toothpick",
+            "if you would be a great warrior, you must battle through the cave naked, armed only with a fondue fork",
             "an honest shopkeeper won't buy stolen goods",
             "there are no mistakes, only happy accidents",
             "only highly skilled foes can afford highly expensive mecha",
@@ -1356,7 +1356,8 @@ DEFAULT_GRAMMAR = {
             "the best tactic when you are outnumbered and outgunned is to run away",
             "a wilderness guide can make long distance travel much easier",
             "a sneaky lancemate can help keep you out of trouble, as well as get you into trouble",
-            "knowing the repair skill improves your odds of finding good salvage"
+            "knowing the repair skill improves your odds of finding good salvage",
+            "the first job of a cavalier is to survive"
         ],
         personality.Cheerful: [
             "everybody likes cookies"
@@ -1387,7 +1388,10 @@ DEFAULT_GRAMMAR = {
         ],
         tags.Medic: [
             "every team needs a medic",
-        ]
+        ],
+        tags.Craftsperson: [
+            "every team needs a repairperson",
+        ],
     },
 
     "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]": {

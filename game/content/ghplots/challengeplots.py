@@ -10,7 +10,7 @@ from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed, GHNarrativeRequest
-from . import missionbuilder, rwme_objectives, campfeatures
+from . import missionbuilder, rwme_objectives, campfeatures, randomplots
 
 
 class TimeAndChallengeExpiration(object):
@@ -477,6 +477,81 @@ class BasicFightChallenge(Plot):
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
             thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+
+#   ********************************
+#   ***  GATHER_INTEL_CHALLENGE  ***
+#   ********************************
+
+class GatherIntelByConversation(Plot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        "{NPC} knows something about {TOPIC}",
+        offer_msg="if you want to know more, you should go talk to {NPC.gender.object_pronoun} at {NPC_SCENE}.",
+        memo="{NPC} knows something about {TOPIC}.", memo_location="{NPC_SCENE}",
+        offer_subject="{NPC} knows something about {TOPIC}",
+        offer_subject_data="{NPC} and {TOPIC}",
+        prohibited_npcs=("NPC",)
+    )
+
+    @classmethod
+    def matches(cls, pstate: PlotState):
+        return "METROSCENE" in pstate.elements
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.GATHER_INTEL_CHALLENGE]
+        if self.candidates:
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            self.elements["NPC_SCENE"] = npc.scene
+            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            self.register_element("NPC_SCENE", npc.scene)
+            self.elements["TOPIC"] = mychallenge.key[0]
+
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+            del self.candidates
+
+            return True
+
+    def _get_challenge_for_npc(self, nart, npc):
+        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
+        if candidates:
+            return random.choice(candidates)
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate)
+            and randomplots.npc_is_ready_for_plot(candidate, nart.camp)
+            and self._get_challenge_for_npc(nart, candidate)
+        )
+
+    def _win_the_mission(self, camp):
+        self.elements["CHALLENGE"].advance(camp, 1)
+        randomplots.set_npc_recharge(self.elements["NPC"], camp)
+        mychallenge: pbge.challenges.Challenge = self.elements["CHALLENGE"]
+        if mychallenge.data.get("clues"):
+            mychallenge.data.get("clues").pop(0)
+        self.elements["CHALLENGE"].memo_active = True
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        mychallenge: pbge.challenges.Challenge = self.elements["CHALLENGE"]
+        if mychallenge.points_earned == mychallenge.points_target - 1:
+            info = mychallenge.data.get("conclusion_told")
+        else:
+            info = mychallenge.data.get("clues", ("something",))[0]
+
+        mylist.append(Offer(
+            "[I_KNOW_THINGS_ABOUT_STUFF] [chat_lead_in] {}.".format(info),
+            ContextTag([context.INFO,]), data={"subject": self.elements["TOPIC"], "stuff": self.elements["TOPIC"]},
+            effect=self._win_the_mission, no_repeats=True
+        ))
+
+        return mylist
+
 
 
 #   *************************************
