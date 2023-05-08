@@ -199,14 +199,18 @@ class WorldMapWar:
     def capture(self, camp, attacking_fac, node):
         if node.destination.faction:
             node.destination.purge_faction(camp, node.destination.faction)
+        node.destination.faction = attacking_fac
         for fac in self.war_teams.keys():
             if self.war_teams[fac].home_base is node.destination:
                 # If your home base is captured, you are eliminated from the game.
                 self.remove_team(camp, fac)
                 node.on_frame, node.off_frame = self.legend.city_frames
                 break
-        self.legend.set_color(node, self.war_teams[attacking_fac].color)
-        node.destination.faction = attacking_fac
+        if attacking_fac in self.war_teams:
+            self.legend.set_color(node, self.war_teams[attacking_fac].color)
+        else:
+            self.legend.set_color(node, 0)
+
 
     ATTACK_OBJECTIVES = (
         missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_AID_ALLIED_FORCES,

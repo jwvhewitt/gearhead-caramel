@@ -19,7 +19,7 @@ import collections
 #  *****************************
 
 # Required Elements:
-# METRO, METROSCENE
+# METRO, METROSCENE, WORLD_MAP_WAR
 # OCCUPIER: The faction that has occupied this metro area.
 # RIVAL_FACTIONS: A list of other factions that also want this metro area. Optional.
 # ORIGINAL_FACTION: The faction that originally controlled this area. Optional.
@@ -100,7 +100,7 @@ class OccupationCrushDissent(Plot):
         return True
 
     def _occupier_wins(self, camp: gears.GearHeadCampaign):
-        pass
+        pbge.alert("The occupier wins!")
 
     def _resistance_wins(self, camp: gears.GearHeadCampaign):
         pbge.alert("The resistance wins!")

@@ -1111,6 +1111,48 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                             my_challenges.add(v)
         return my_challenges
 
+    def cast_a_combatant(self, fac, rank=50, allow_allies=False, opposed_faction=None, create_if_not_found=True, myplot=None):
+        candidates = list()
+        bu_candidates = list()
+        for npc in [
+            e for e in self.all_contents(self, True) if isinstance(e, base.Character) and self.is_not_lancemate(e) and
+                                                        e.combatant and e.renown <= rank+20
+        ] + self.egg.available_dramatis_personae(self):
+            if npc.faction is fac:
+                candidates.append(npc)
+            elif npc.faction and fac and npc.faction.get_faction_tag() is fac.get_faction_tag() and not (opposed_faction and self.are_faction_allies(npc.faction, opposed_faction)):
+                bu_candidates.append(npc)
+            elif allow_allies and self.are_faction_allies(npc.faction, fac) and not (opposed_faction and self.are_faction_allies(npc.faction, opposed_faction)):
+                bu_candidates.append(npc)
+
+        if candidates or bu_candidates:
+            mylocked = self.get_all_locked_elements()
+            for le in mylocked:
+                if le and le in candidates:
+                    candidates.remove(le)
+                elif le and le in bu_candidates:
+                    bu_candidates.remove(le)
+
+        if candidates:
+            e = random.choice(candidates)
+            if e in self.egg.dramatis_personae and e not in self.uniques:
+                self.uniques.add(e)
+                self.storage.contents.append(e)
+                if myplot:
+                    myplot.move_records.append((e, self.uniques))
+            return e
+        elif bu_candidates:
+            e = random.choice(bu_candidates)
+            if e in self.egg.dramatis_personae and e not in self.uniques:
+                self.uniques.add(e)
+                self.storage.contents.append(e)
+                if myplot:
+                    myplot.move_records.append((e, self.uniques))
+            return e
+        elif create_if_not_found:
+            return selector.random_character(rank + random.randint(1,10), camp=self, faction=fac, combatant=True)
+
+
 
 
 class GearHeadArchitecture(pbge.randmaps.architect.Architecture):

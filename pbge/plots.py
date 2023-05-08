@@ -278,8 +278,8 @@ class Plot(object):
                 candidates.append(e)
             elif backup_seek_func and backup_seek_func(nart, e):
                 bu_candidates.append(e)
-        if lock and candidates:
-            mylocked = self.get_all_locked_elements(nart.camp)
+        if lock and (candidates or bu_candidates):
+            mylocked = nart.camp.get_all_locked_elements()
             for le in mylocked:
                 if le and le in candidates:
                     candidates.remove(le)
@@ -300,12 +300,6 @@ class Plot(object):
         mylist = list()
         for le in self.locked_elements:
             mylist.append(self.elements.get(le, None))
-        return mylist
-
-    def get_all_locked_elements(self, camp):
-        mylist = list()
-        for p in camp.all_plots():
-            mylist += p.get_locked_elements()
         return mylist
 
     def register_scene(self, nart, myscene, mygen, ident=None, dident=None, rank=None, temporary=False):

@@ -225,7 +225,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                 (candidate.faction == self.enemy_faction or
                  (candidate.faction and candidate.faction.get_faction_tag() == self.enemy_faction)) and
                 (not nart.camp.are_faction_allies(candidate, self.allied_faction)) and
-                candidate not in nart.camp.party and candidate.renown <= (self.rank + 25)
+                nart.camp.is_not_lancemate(candidate) and candidate.renown <= (self.rank + 25)
         )
 
     def is_good_backup_enemy(self, nart, candidate):

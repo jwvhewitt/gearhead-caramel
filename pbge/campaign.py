@@ -217,3 +217,10 @@ class Campaign(object):
                 mymemos.append(cmemo)
         mymemos.sort(key=lambda m: str(m))
         return mymemos
+
+    def get_all_locked_elements(self):
+        mylist = list()
+        for p in self.all_plots():
+            mylist += p.get_locked_elements()
+        return mylist
+

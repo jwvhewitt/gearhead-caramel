@@ -127,3 +127,6 @@ class Egg(object):
         # Kinda like the above, but just see if a candidate exists.
         if self.dramatis_personae:
             return bool([c for c in self.dramatis_personae if check_fun(camp, c) and c not in camp.uniques])
+
+    def available_dramatis_personae(self, camp):
+        return [npc for npc in self.dramatis_personae if npc not in camp.uniques]

@@ -95,9 +95,7 @@ class StrikeTheLeader(quests.QuestPlot):
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.DEFAULT_OUTCOME_ELEMENT_ID]
         self.elements["_ENEMY_FACTION"] = my_outcome.target
-        npc = self.register_element(QE_TASK_NPC, gears.selector.random_character(self.rank+10, camp=nart.camp,
-                                                                                 combatant=True,
-                                                                           faction=my_outcome.target), lock=True)
+        npc = self.register_element(QE_TASK_NPC, nart.camp.cast_a_combatant(my_outcome.target, rank=self.rank+5, myplot=self), lock=True)
         self.elements[QE_NPC_ALIAS] = "{}'s leader".format(my_outcome.target)
         self.mission_name = "Defeat {QE_TASK_NPC} of {_ENEMY_FACTION}".format(**self.elements)
         self.memo = plots.Memo(
