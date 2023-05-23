@@ -1559,6 +1559,6 @@ def init_gears():
     # This is bad and you should not do it but I only have half a CS degree so I'm an ignorant lout about such things.
     geffects.MONSTER_LIST = selector.MONSTER_LIST
 
-    # for d in selector.DESIGN_LIST:
-    #    if isinstance(d, base.Mecha):
-    #        print("{} {}".format(d, d.get_primary_attack().source))
+    #for d in selector.DESIGN_LIST:
+    #   if isinstance(d, base.Mecha):
+    #       print("{} {}".format(d, d.get_primary_attack().source))

@@ -1797,7 +1797,7 @@ class Weapon(Component, StandardDamageHandler):
             shot_anim=self.shot_anim,
             price=[geffects.RevealPositionPrice(self.damage)],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0,
-                                     thrill_power=self.damage * 2 + self.penetration),
+                                     thrill_power=self.shop_rank()),
             targets=1)
         for aa in self.get_attributes():
             if hasattr(aa, 'modify_basic_attack'):
@@ -2353,7 +2353,8 @@ class BeamWeapon(Weapon):
                         attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
                         attackattributes.Designator,
-                        attackattributes.OverloadAttack, attackattributes.LinkedFire, attackattributes.LineAttack,
+                        attackattributes.OverloadAttack, attackattributes.Plasma,
+                        attackattributes.LinkedFire, attackattributes.LineAttack,
                         attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4,
                         attackattributes.VariableFire5,
                         attackattributes.Intercept, attackattributes.SwarmFire2, attackattributes.SwarmFire3

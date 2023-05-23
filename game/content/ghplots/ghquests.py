@@ -13,6 +13,7 @@ from pbge.challenges import Challenge, AutoOffer, ChallengeMemo
 from . import missionbuilder, ghquest_objectives
 
 VERB_EXPEL = "EXPEL"  # Like DEFEAT, but the enemy is an outside power of some type
+VERB_FORTIFY = "FORTIFY"    # The involved NPCs will try to improve their defenses against the target faction
 VERB_REPRESS = "REPRESS"  # Like DEFEAT, but the enemy has to be located first
 
 LORECAT_OUTCOME = "OUTCOME"
@@ -22,7 +23,7 @@ LORECAT_LOCATION = "LOCATION"
 
 
 AGGRESSIVE_VERBS = (
-    quests.VERB_DEFEAT, VERB_EXPEL, VERB_REPRESS
+    quests.VERB_DEFEAT, VERB_EXPEL, VERB_FORTIFY, VERB_REPRESS
 )
 
 QE_LORE_TO_LOCK = "QE_LORE_TO_LOCK"
@@ -717,7 +718,7 @@ class DiscoverHiddenIdentity(quests.QuestPlot):
         "{QE_NPC_ALIAS} is known to be [adjective]",
         "{QE_NPC_ALIAS} has a [noun]",
         "{QE_NPC_ALIAS} is a {QE_TASK_NPC.gender.noun}",
-        "{QE_NPC_ALIAS} is known to be [adjective]",
+        "{QE_NPC_ALIAS} is a {QE_TASK_NPC.job}]",
         "{QE_NPC_ALIAS} is known to be [adjective]",
         "{QE_NPC_ALIAS} is known to be [adjective]",
         "{QE_NPC_ALIAS} is known to be [adjective]",

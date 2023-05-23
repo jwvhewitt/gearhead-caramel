@@ -1,7 +1,7 @@
 Mecha
     name = "Dielancer"
     desig = "SDH-22C"
-    desc = "Often used by marauders from Clan Ironwind and the Bone Devils, the Dielancer is a refit of the SDH-22 Corsair. The heavy rockets have been replaced with a powerful heavy railgun, and the laser cannon with an ion lance."
+    desc = "Often used by marauders from Clan Ironwind and the Bone Devils, the Dielancer is a refit of the SDH-22 Corsair. The heavy rockets have been replaced with a powerful railgun, and the laser cannon with an ion lance."
     imagename = "mav_dielancer.png"
     portrait = "mecha_dielancer.png"
     family = "Corsair"
@@ -35,13 +35,13 @@ Mecha
                     name = "Collar Mount"
                     INV
                         BallisticWeapon
-                            name = "Heavy Railgun"
+                            name = "Killa Railgun"
                             reach = 5
                             damage = 3
                             accuracy = 2
                             penetration = 2
                             ammo_type = Ferrous_50mm
-                            attributes = (VariableFire4)
+                            attributes = (BurstFire2)
                             SUB
                                 Ammo
                                     ammo_type=Ferrous_50mm
@@ -63,7 +63,8 @@ Mecha
                             name="Ion Lance"
                             reach=2
                             damage=3
-                            penetration=1
+                            accuracy = 2
+                            penetration=4
                             attributes=(HaywireAttack,DrainsPower,ChargeAttack)
                     END
             END
@@ -153,7 +154,7 @@ Mecha
                             desc = "A simple yet powerfully effective spike of iron."
                             reach = 1
                             damage = 5
-                            accuracy = 0
+                            accuracy = 1
                             penetration = 5
                             attributes=(ChargeAttack,)
                     END

@@ -106,9 +106,40 @@ class TrainerBlock(object):
         pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
+class RenownBlock(object):
+    def __init__(self, model: gears.base.Character, camp, font=None, width=220, **kwargs):
+        self.model = model
+        self.camp = camp
+        self.width = width
+        self.font = font or pbge.MEDIUMFONT
+        self.update()
+        self.height = self.image.get_height()
+
+    def update(self):
+        renown = self.model.renown
+        if renown > 80:
+            title = "Ace"
+        elif renown > 60:
+            title = "Elite"
+        elif renown > 40:
+            title = "Veteran"
+        elif renown > 20:
+            title = "Regular"
+        elif renown >= 0:
+            title = "Green"
+        else:
+            title = "Wangtta"
+        msg = "Renown: {} ({})".format(title, renown)
+        self.image = pbge.render_text(self.font, msg, self.width, justify=0, color=pbge.INFO_GREEN)
+
+    def render(self, x, y):
+        self.update()
+        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+
+
 class CharaFHQIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (
-    gears.info.FullNameBlock, gears.info.ModuleStatusBlock, PilotsMechaBlock, gears.info.ExperienceBlock,
+    gears.info.FullNameBlock, gears.info.ModuleStatusBlock, PilotsMechaBlock, RenownBlock, gears.info.ExperienceBlock,
     gears.info.CharacterStatusBlock, gears.info.PrimaryStatsBlock, gears.info.InstalledCyberwaresBlock,
     gears.info.NonComSkillBlock, gears.info.CharacterTagsBlock)
 

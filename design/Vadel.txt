@@ -66,7 +66,7 @@ Mecha
                             damage = 3
                             accuracy = 1
                             penetration = 2
-                            attributes = (Scatter,Brutal)
+                            attributes = (Plasma,Brutal)
                             shot_anim = PlasmaBall
                     END
                 Launcher

@@ -334,8 +334,8 @@ Mecha
                             damage = 3
                             accuracy = 0
                             penetration = 2
-                            attributes = (Scatter)
-                            shot_anim = GunBeam
+                            attributes = (Plasma)
+                            shot_anim = PlasmaBeam
                     END
                 Mount
                     name = "Right Arm Mount"

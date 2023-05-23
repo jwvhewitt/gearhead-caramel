@@ -1,3 +1,5 @@
+* Single firing weapons can now cause critical hits, as in previous GearHead games
+* Renown is now displayed for characters in the FieldHQ
 * Added Quest procedural narrative generator
 * Text formatter will now capitalize after "!" and "?"
 * Team contents now stored as a ContainerList

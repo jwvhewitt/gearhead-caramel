@@ -16,6 +16,9 @@ from .tags import Skimming, Rolling
 
 MONSTER_LIST = ()
 
+FX_CRITICAL_HIT = "FX_CRITICAL_HIT"
+FX_DAMAGE_BONUS = "FX_DAMAGE_BONUS"
+FX_PENETRATION = "FX_PENETRATION"
 
 #  *************************
 #  ***   Utility  Junk   ***
@@ -470,6 +473,11 @@ class PlasmaBall(animobs.ShotAnim):
     DEFAULT_SOUND_FX = "Spell1.ogg"
 
 
+class PlasmaBeam(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_plasmabeam.png"
+    DEFAULT_SOUND_FX = "SpellShort.ogg"
+
+
 class FireBall(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_fire.png"
     DEFAULT_SOUND_FX = "foom_0.ogg"
@@ -787,7 +795,7 @@ class AttackRoll(effects.NoEffect):
     """
 
     def __init__(self, att_stat, att_skill, children=(), anim=None, accuracy=0, penetration=0, modifiers=(),
-                 defenses=()):
+                 defenses=(), can_crit=True):
         self.att_stat = att_stat
         self.att_skill = att_skill
         if children:
@@ -799,6 +807,7 @@ class AttackRoll(effects.NoEffect):
         self.penetration = penetration
         self.modifiers = modifiers
         self.defenses = defenses
+        self.can_crit = can_crit
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
         if originator:
@@ -823,10 +832,20 @@ class AttackRoll(effects.NoEffect):
             penetration = att_roll + att_bonus + self.penetration - hi_def_roll
             if hasattr(target, 'ench_list'):
                 penetration += target.ench_list.get_funval(target, 'get_penetration_bonus')
-            fx_record['penetration'] = penetration
+            fx_record[FX_PENETRATION] = penetration
 
             if camp.fight:
                 camp.fight.cstat[target].attacks_this_round += 1
+
+            if originator and not next_fx and self.can_crit:
+                critval = min(att_roll + att_bonus - hi_def_roll - 25, 50)
+                if critval > 0:
+                    max_crit = min(max((originator.get_stat(self.att_skill)-4) * 3, 5), 30)
+                    dmg = max((max_crit * critval)//50, 1)
+                    fx_record[FX_DAMAGE_BONUS] = dmg
+                    if dmg > 3:
+                        fx_record[FX_CRITICAL_HIT] = True
+
 
         if not next_fx and originator and hasattr(originator, "dole_experience"):
             originator.dole_experience(3, self.att_skill)
@@ -886,7 +905,7 @@ class MeleeAttackRoll(AttackRoll):
             penetration = att_roll + att_bonus + self.penetration - hi_def_roll
             if hasattr(target, 'ench_list'):
                 penetration += target.ench_list.get_funval(target, 'get_penetration_bonus')
-            fx_record['penetration'] = penetration
+            fx_record[FX_PENETRATION] = penetration
 
             if not failed:
                 if originator and hasattr(originator, "dole_experience"):
@@ -968,7 +987,7 @@ class MultiAttackRoll(effects.NoEffect):
                 penetration -= self.get_multi_bonus()
             if hasattr(target, 'ench_list'):
                 penetration += target.ench_list.get_funval(target, 'get_penetration_bonus')
-            fx_record['penetration'] = penetration
+            fx_record[FX_PENETRATION] = penetration
 
             if failed:
                 if self.overwhelm > 0:
@@ -1265,7 +1284,7 @@ class DoDamage(effects.NoEffect):
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
         targets = camp.scene.get_operational_actors(pos)
-        penetration = fx_record.get("penetration", random.randint(1, 100))
+        penetration = fx_record.get(FX_PENETRATION, random.randint(1, 100))
         damage_percent = fx_record.get("damage_percent", 100)
         number_of_hits = fx_record.get("number_of_hits", 1)
         for target in targets:
@@ -1273,7 +1292,8 @@ class DoDamage(effects.NoEffect):
 
             if self.scatter:
                 raw_damage = sum(
-                    [max(sum(random.randint(1, self.damage_d) for n in range(self.damage_n)) + self.damage_bonus, 1) for
+                    [max(sum(random.randint(1, self.damage_d) for n in range(self.damage_n)) + self.damage_bonus +
+                         fx_record.get(FX_DAMAGE_BONUS, 0), 1) for
                      t in range(number_of_hits)])
                 hits = list()
                 while raw_damage > 0:
@@ -1282,11 +1302,14 @@ class DoDamage(effects.NoEffect):
                     hits.append(max(scale.scale_health(myhit, materials.DamageMat) * damage_percent // 100, 1))
             else:
                 hits = [max(int(scale.scale_health(
-                    max(sum(random.randint(1, self.damage_d) for n in range(self.damage_n)) + self.damage_bonus, 1),
+                    max(sum(random.randint(1, self.damage_d) for n in range(self.damage_n)) + self.damage_bonus +
+                        fx_record.get(FX_DAMAGE_BONUS, 0), 1),
                     materials.DamageMat) * damage_percent // 100), 1) for t in range(number_of_hits)]
             mydamage = damage.Damage(
-                camp, hits, penetration, target, anims, hot_knife=self.hot_knife, is_brutal=self.is_brutal,
-                can_be_divided=self.can_be_divided, affected_by_armor=self.affected_by_armor
+                camp, hits, penetration, target, anims, hot_knife=self.hot_knife,
+                is_brutal=self.is_brutal,
+                can_be_divided=self.can_be_divided, affected_by_armor=self.affected_by_armor,
+                critical_hit=fx_record.get(FX_CRITICAL_HIT, False)
             )
             # Hidden targets struck by an attack get revealed.
             myanim = animobs.RevealModel(target, delay=delay)

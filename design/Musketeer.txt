@@ -56,7 +56,7 @@ Mecha
                     damage = 3
                     accuracy = 2
                     penetration = 2
-                    attributes = (Scatter,LinkedFire,Brutal)
+                    attributes = (Plasma,LinkedFire,Brutal)
                     shot_anim = PlasmaBall
             END
         Arm
@@ -71,7 +71,7 @@ Mecha
                     damage = 3
                     accuracy = 2
                     penetration = 2
-                    attributes = (Scatter,LinkedFire,Brutal)
+                    attributes = (Plasma,LinkedFire,Brutal)
                     shot_anim = PlasmaBall
             END
         Leg

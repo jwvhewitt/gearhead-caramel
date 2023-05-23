@@ -11,7 +11,7 @@ class Damage(object):
     BOOM_SPRITES = list(range(7))
 
     def __init__(self, camp, hit_list, penetration, target, animlist, hot_knife=False, is_brutal=False,
-                 can_be_divided=True, affected_by_armor=True):
+                 can_be_divided=True, affected_by_armor=True, critical_hit=False):
         self.camp = camp
         self.hit_list = hit_list
         self.penetration = penetration
@@ -22,6 +22,7 @@ class Damage(object):
         self.is_brutal = is_brutal
         self.can_be_divided = can_be_divided
         self.affected_by_armor = affected_by_armor
+        self.critical_hit = critical_hit
         self.destroyed_parts = list()
         self.target_root = target.get_root()
         self.operational_at_start = self.target_root.is_operational()
@@ -171,6 +172,12 @@ class Damage(object):
                                             y_off=-self.camp.scene.model_altitude(self.target_root,
                                                                                   *self.target_root.pos))
                 self.animlist.append(myanim)
+            if self.critical_hit:
+                self.animlist.append(animobs.Caption(
+                    "Critical!", pos=self.target_root.pos,
+                    y_off=-self.camp.scene.model_altitude(self.target_root, *self.target_root.pos),
+                    color=pbge.TEXT_COLOR
+                ))
             myanim = animobs.Caption(str(self.damage_done),
                                      pos=self.target_root.pos,
                                      y_off=-self.camp.scene.model_altitude(self.target_root, *self.target_root.pos))
