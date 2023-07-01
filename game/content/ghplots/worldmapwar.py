@@ -21,20 +21,24 @@ WORLD_MAP_WAR = "WORLD_MAP_WAR"
 
 
 class WarStats:
-    def __init__(self, home_base=None, strength=5, resources=0, aggression=50, loyalty=90, color=0, unpopular=False):
+    def __init__(self, home_base=None, aggression=75, loyalty=95, color=0, unpopular=False):
         # home_base is the city where this team's HQ is located. Capture it, and that team is eliminated.
-        # strength reflects the number/quality of troops present; it's divided among all territories.
-        # resources is basically cash. May be spent to get more strength or to build fortifications.
         # aggression is how likely they are to attack instead of turtle
         # loyalty is the % chance this faction will honor a peace treaty. Lower loyalty = more backstabbing.
         # unpopular marks a faction that you can organize insurrection against.
         self.home_base = home_base
-        self.strength = strength
-        self.resources = resources
         self.aggression = aggression
         self.loyalty = loyalty
         self.color = color
         self.unpopular = unpopular
+
+    def __setstate__(self, state):
+        # For v0.946 and earlier: get rid of obsolete properties.
+        if "strength" in state:
+            del state["strength"]
+        if "resources" in state:
+            del state["resources"]
+        self.__dict__.update(state)
 
 
 class NodeStats:
@@ -81,36 +85,29 @@ class WarWorldMapLegend:
 
 
 class AttackerWinsEffect:
-    def __init__(self, attack_team, target_node, attack_ante, target_ante, world_map_war, attacker_is_pc):
+    def __init__(self, attack_team, target_node, world_map_war, attacker_is_pc):
         # attack_ante and target_ante are the number of troops committed by both sides.
         self.attack_team = attack_team
         self.target_node = target_node
-        self.attack_ante = attack_ante
-        self.target_ante = target_ante
         self.world_map_war = world_map_war
         self.attacker_is_pc = attacker_is_pc
 
     def __call__(self, camp: gears.GearHeadCampaign):
         self.world_map_war.capture(camp, self.attack_team, self.target_node)
-        self.world_map_war.war_teams[self.attack_team].strength -= self.attack_ante // 2
-        self.world_map_war.war_teams[self.target_node.destination.faction].strength -= self.target_ante
         if self.attacker_is_pc:
             camp.go(self.target_node.entrance)
 
 
 class DefenderWinsEffect:
-    def __init__(self, attack_team, target_node, attack_ante, target_ante, world_map_war, attacker_is_pc):
+    def __init__(self, attack_team, target_node, world_map_war, attacker_is_pc):
         # attack_ante and target_ante are the number of troops committed by both sides.
         self.attack_team = attack_team
         self.target_node = target_node
-        self.attack_ante = attack_ante
-        self.target_ante = target_ante
         self.world_map_war = world_map_war
         self.attacker_is_pc = attacker_is_pc
 
     def __call__(self, camp):
-        self.world_map_war.war_teams[self.attack_team].strength -= self.attack_ante
-        self.world_map_war.war_teams[self.target_node.destination.faction].strength -= self.target_ante // 2
+        pass
 
 
 class WorldMapWar:
@@ -144,31 +141,41 @@ class WorldMapWar:
                 n += 1
         return n
 
-    def get_faction_strength_divmod(self, fac):
-        # Return the average strength for each territory, plus the remainder.
-        if fac in self.war_teams:
-            return divmod(self.war_teams[fac].strength, self.get_number_of_territories(fac))
-        else:
-            return (0, 0)
+    def get_total_defense(self, fac):
+        n = 0
+        for node in self.world_map.nodes:
+            if node.destination.faction is fac:
+                n += node.destination.metrodat.get_quality_of_life().defense
+        return n
 
     def get_defense_strength(self, node):
         fac = node.destination.faction
-        d, m = self.get_faction_strength_divmod(fac)
+        str = 5
+        dfn = self.get_total_defense(fac)
+        if dfn > 0:
+            str += 1
+        elif dfn < 0:
+            str -= 1
         if fac and fac in self.war_teams and node.destination is self.war_teams[fac].home_base:
-            return min(d + m, 12)
+            return str + 4
         elif self.node_stats[node].fortified:
-            return min(max(d * 2, d + m), 10)
+            return str + 2
         else:
-            return min(d, 5)
+            return str
 
     def get_attack_strength(self, fac):
-        d, m = divmod(self.war_teams[fac].strength, self.get_number_of_territories(fac) + 1)
-        return min(d + m, 10)
+        str = 5
+        dfn = self.get_total_defense(fac)
+        if dfn > 0:
+            str += 1
+        elif dfn < 0:
+            str -= 1
+        return str
 
     def get_node_income(self, node):
         dest = node.destination
         if hasattr(dest, "metro") and dest.metro:
-            return max(dest.metro.get_quality_of_life_index().prosperity + 2, 1)
+            return max( + 2, 1)
         else:
             return 3
 
@@ -230,8 +237,8 @@ class WorldMapWar:
             custom_elements={"ADVENTURE_GOAL": target_node.entrance, "DEST_SCENE": target_node.destination,
                              "ENTRANCE_ANCHOR": random.choice(pbge.randmaps.anchors.EDGES)},
             objectives=random.sample(self.ATTACK_OBJECTIVES, 2), scenegen=sgen, architecture=archi,
-            on_win=AttackerWinsEffect(attacking_team, target_node, num_attackers, num_defenders, self, True),
-            on_loss=DefenderWinsEffect(attacking_team, target_node, num_attackers, num_defenders, self, True),
+            on_win=AttackerWinsEffect(attacking_team, target_node, self, True),
+            on_loss=DefenderWinsEffect(attacking_team, target_node, self, True),
             auto_exit=True,
             mission_grammar=missionbuilder.MissionGrammar(
                 "capture {} for {}".format(target_node, attacking_team),
@@ -347,25 +354,10 @@ class WorldMapWarTurn:
             self.kill_counter = self.casulties.pop(0) * 8
 
     def update(self):
-        income = 2
-        for node in self.world_map.nodes:
-            if node.destination.faction is self.fac:
-                income += self.world_map_war.get_node_income(node)
-        self.world_map_war.war_teams[self.fac].resources += income
-        self.show_turn_progress("{} collects {} resources.".format(self.fac, income))
-
-    def _mecha_cost(self):
-        # The player doesn't need as much help as the NPC teams.
-        if self.fac is self.world_map_war.player_team:
-            return 12
-        else:
-            return 5
+        pass
 
     def prepare_for_war(self):
-        self.show_turn_progress("{} prepares for war.".format(self.fac))
-        meks, change = divmod(self.world_map_war.war_teams[self.fac].resources, self._mecha_cost())
-        self.world_map_war.war_teams[self.fac].strength += meks
-        self.world_map_war.war_teams[self.fac].resources = change
+        pass
 
     def attack_desirability(self, target_node: campfeatures.WorldMapNode):
         fac = target_node.destination.faction
@@ -390,9 +382,9 @@ class WorldMapWarTurn:
             self.fac, target_node.destination.faction,
             self.world_map_war.rank + self.num_attackers * 3 - self.num_defenders * 3,
             objectives=random.sample(self.DEFENCE_OBJECTIVES, 2), scenegen=sgen, architecture=archi,
-            on_win=DefenderWinsEffect(self.fac, target_node, self.num_attackers, self.num_defenders, self.world_map_war,
+            on_win=DefenderWinsEffect(self.fac, target_node, self.world_map_war,
                                       False),
-            on_loss=AttackerWinsEffect(self.fac, target_node, self.num_attackers, self.num_defenders,
+            on_loss=AttackerWinsEffect(self.fac, target_node,
                                        self.world_map_war, False),
             auto_exit=True,
             mission_grammar=missionbuilder.MissionGrammar(
@@ -408,7 +400,7 @@ class WorldMapWarTurn:
         )
         return my_adv
 
-    def got_to_war(self, target_node):
+    def go_to_war(self, target_node):
         # Perform a war action. If the war is targeting the metroscene that the PC is in, the PC might take part
         # in the defense. This is the function that potentially returns the adventure seed.
         self.num_attackers = self.world_map_war.get_attack_strength(self.fac)
@@ -416,6 +408,7 @@ class WorldMapWarTurn:
 
         if not target_node.destination.faction:
             msg = "{} occupies {}.".format(self.fac, target_node)
+            self.num_defenders = 0
         elif self.camp.are_faction_enemies(self.fac, target_node.destination):
             msg = "{} attacks {}.".format(self.fac, target_node)
         else:
@@ -453,9 +446,6 @@ class WorldMapWarTurn:
                     defender_casulties += 1
             attacker_won = self.num_attackers - attacker_casulties > 0
             self.show_war_progress("The fighting begins...", target_node)
-            self.world_map_war.war_teams[self.fac].strength -= attacker_casulties
-            if target_node.destination.faction and target_node.destination.faction in self.world_map_war.war_teams:
-                self.world_map_war.war_teams[target_node.destination.faction].strength -= defender_casulties
         else:
             attacker_won = True
 
@@ -473,9 +463,7 @@ class WorldMapWarTurn:
             # Error check- if this team has already been defeated, they don't get a turn.
             return None
         self.update()
-        d, m = self.world_map_war.get_faction_strength_divmod(self.fac)
-        if d < random.randint(2, 3) or self.fac is self.world_map_war.player_team:
-            self.prepare_for_war()
+        if self.fac is self.world_map_war.player_team:
             return None
 
         # Step Two: check to see if the hqnode is in mortal danger.
@@ -510,7 +498,7 @@ class WorldMapWarTurn:
                             ):
                                 attack_candidates.add(far_node)
 
-        if random.randint(1, 100) > self.world_map_war.war_teams[self.fac].aggression and d < random.randint(4, 6):
+        if random.randint(1, 100) > self.world_map_war.war_teams[self.fac].aggression:
             self.prepare_for_war()
             return None
         elif not attack_candidates:
@@ -520,7 +508,7 @@ class WorldMapWarTurn:
             # Attack!
             attack_candidates = sorted(attack_candidates, key=self.attack_desirability)
             i = min(random.randint(0, len(attack_candidates) - 1), random.randint(0, len(attack_candidates) - 1))
-            return self.got_to_war(attack_candidates[i])
+            return self.go_to_war(attack_candidates[i])
 
 
 class RoundAnnouncer:

@@ -1,3 +1,5 @@
+* NPCs will give useful rumors first, then random chat
+* Added pre-fx to conversation offers
 * Single firing weapons can now cause critical hits, as in previous GearHead games
 * Renown is now displayed for characters in the FieldHQ
 * Added Quest procedural narrative generator

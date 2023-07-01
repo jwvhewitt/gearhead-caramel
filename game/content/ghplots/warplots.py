@@ -43,11 +43,16 @@ class OccupationFortify(Plot):
 
     def custom_init(self, nart):
         # The invading faction is going to fortify their position.
+        candidates = self.elements.get(RIVAL_FACTIONS)
+        if candidates:
+            rival = random.choice(candidates)
+        else:
+            rival = None
 
         oc1 = quests.QuestOutcome(
-            ghquests.VERB_REPRESS, target=self.elements[RESISTANCE_FACTION],
+            ghquests.VERB_FORTIFY, target=rival,
             involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
-            effect=self._occupier_wins, loss_effect=self._resistance_wins,
+            effect=self._occupier_wins, loss_effect=self._occupier_loses,
             lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
@@ -67,7 +72,7 @@ class OccupationFortify(Plot):
             ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
             involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
                                                                         self.elements["OCCUPIER"]),
-            effect=self._resistance_wins, loss_effect=self._occupier_wins, lore=[
+            effect=self._occupier_loses, loss_effect=self._occupier_wins, lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
                         quests.TEXT_LORE_HINT: "life under {OCCUPIER} has been unbearable".format(**self.elements),
@@ -92,7 +97,7 @@ class OccupationFortify(Plot):
     def _occupier_wins(self, camp: gears.GearHeadCampaign):
         pbge.alert("The occupier wins!")
 
-    def _resistance_wins(self, camp: gears.GearHeadCampaign):
+    def _occupier_loses(self, camp: gears.GearHeadCampaign):
         pbge.alert("The resistance wins!")
 
 
