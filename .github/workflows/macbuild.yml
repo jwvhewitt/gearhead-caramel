@@ -32,7 +32,7 @@ jobs:
     - name: build caramel-recolor-cython
       run: |
         cd caramel-recolor-cython
-        cythonize pbgerecolor.pyx
+        cythonize -b pbgerecolor.pyx
         cd ..
     - name: build with cx-freeze
       run: |
