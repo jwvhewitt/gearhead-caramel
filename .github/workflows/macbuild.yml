@@ -32,7 +32,8 @@ jobs:
     - name: build caramel-recolor-cython
       run: |
         cd caramel-recolor-cython
-        python setup.py install
+        cythonize pbgerecolor.pyx
+        cp pbgerecolor.so ../
         cd ..
     - name: build with cx-freeze
       run: |
