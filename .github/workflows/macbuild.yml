@@ -32,7 +32,7 @@ jobs:
     - name: build caramel-recolor-cython
       run: |
         cd caramel-recolor-cython
-        python -m build .
+        python setup.py install
         cd ..
     - name: build with cx-freeze
       run: |
