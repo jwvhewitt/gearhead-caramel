@@ -208,7 +208,7 @@ class GearHeadConversation(pbge.dialogue.DynaConversation):
                 react = self.npc.get_reaction_score(self.pc, self.camp)
                 self.chat_limit = max(react//10 + random.randint(-2,2), 1)
                 if all_rumors and (rumor_expiration < self.camp.time or not current_rumors):
-                    num_rumors = max(react//5 + random.randint(0, 5) - random.randint(0, 5), random.randint(1, 5))
+                    num_rumors = min(max(react//5 + random.randint(0, 5) - random.randint(0, 5), random.randint(1, 5)), len(all_rumors))
                     current_rumors = random.sample(all_rumors, num_rumors)
                     cdata[self.CDATA_TODAYS_RUMORS] = current_rumors
                     cdata[self.CDATA_RUMOR_EXPIRATION] = self.camp.time

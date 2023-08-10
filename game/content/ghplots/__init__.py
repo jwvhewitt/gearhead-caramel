@@ -54,6 +54,7 @@ from . import treasures
 from . import utility
 from . import worldmapwar
 from . import warplots
+from . import wmw_battles
 from game.content import PLOT_LIST, UNSORTED_PLOT_LIST
 from pbge.plots import Plot
 
@@ -121,6 +122,7 @@ harvest(treasures)
 harvest(utility)
 harvest(worldmapwar)
 harvest(warplots)
+harvest(wmw_battles)
 
 # Load the DLC.
 import importlib.util

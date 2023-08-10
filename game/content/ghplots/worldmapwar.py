@@ -31,6 +31,7 @@ class WarStats:
         self.loyalty = loyalty
         self.color = color
         self.unpopular = unpopular
+        self.boosted = False
 
     def __setstate__(self, state):
         # For v0.946 and earlier: get rid of obsolete properties.
@@ -38,6 +39,8 @@ class WarStats:
             del state["strength"]
         if "resources" in state:
             del state["resources"]
+        if "boosted" not in state:
+            state["boosted"] = False
         self.__dict__.update(state)
 
 
@@ -96,6 +99,7 @@ class AttackerWinsEffect:
         self.world_map_war.capture(camp, self.attack_team, self.target_node)
         if self.attacker_is_pc:
             camp.go(self.target_node.entrance)
+            self.world_map_war.just_captured = self.target_node.destination
 
 
 class DefenderWinsEffect:
@@ -133,6 +137,7 @@ class WorldMapWar:
             legend.auto_apply(world_map, self)
         self.legend = legend
         self.ready_for_next_round = False
+        self.just_captured = None
 
     def get_number_of_territories(self, fac):
         n = 0
@@ -150,11 +155,15 @@ class WorldMapWar:
 
     def get_defense_strength(self, node):
         fac = node.destination.faction
-        str = 5
+        str = 4
         dfn = self.get_total_defense(fac)
         if dfn > 0:
             str += 1
         elif dfn < 0:
+            str -= 1
+        if fac in self.war_teams and self.war_teams[fac].boosted:
+            str += 1
+        if self.get_number_of_territories(fac) < 3:
             str -= 1
         if fac and fac in self.war_teams and node.destination is self.war_teams[fac].home_base:
             return str + 4
@@ -164,11 +173,15 @@ class WorldMapWar:
             return str
 
     def get_attack_strength(self, fac):
-        str = 5
+        str = 4
         dfn = self.get_total_defense(fac)
         if dfn > 0:
             str += 1
         elif dfn < 0:
+            str -= 1
+        if fac in self.war_teams and self.war_teams[fac].boosted:
+            str += 1
+        if self.get_number_of_territories(fac) < 3:
             str -= 1
         return str
 
@@ -226,32 +239,29 @@ class WorldMapWar:
     )
 
     def get_attack_missionseed(self, camp, attacking_team, start_node, target_node: campfeatures.WorldMapNode):
-        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(target_node.destination)
-        num_attackers = self.get_attack_strength(attacking_team)
-        num_defenders = self.get_defense_strength(target_node)
-        my_adv = missionbuilder.BuildAMissionSeed(
-            camp, "Capture {}".format(target_node), start_node.destination, start_node.entrance,
-            target_node.destination.faction, attacking_team,
-            max(self.rank + num_defenders * 3 - num_attackers * 3, self.rank),
-            # adv_type="BAM_ROAD_MISSION",
-            custom_elements={"ADVENTURE_GOAL": target_node.entrance, "DEST_SCENE": target_node.destination,
-                             "ENTRANCE_ANCHOR": random.choice(pbge.randmaps.anchors.EDGES)},
-            objectives=random.sample(self.ATTACK_OBJECTIVES, 2), scenegen=sgen, architecture=archi,
-            on_win=AttackerWinsEffect(attacking_team, target_node, self, True),
-            on_loss=DefenderWinsEffect(attacking_team, target_node, self, True),
-            auto_exit=True,
-            mission_grammar=missionbuilder.MissionGrammar(
-                "capture {} for {}".format(target_node, attacking_team),
-                "defend {} from {}".format(target_node, attacking_team),
-                "I captured {} from you.".format(target_node),
-                "you defeated me in {}".format(target_node),
-                "I captured {}".format(target_node),
-                "you captured {} from me".format(target_node)
-            ),
-            win_message="{} has been captured by {}!".format(target_node, attacking_team),
-            loss_message="{} has been defeated!".format(attacking_team)
+        mission_grammar = missionbuilder.MissionGrammar(
+            "capture {} for {}".format(target_node, attacking_team),
+            "defend {} from {}".format(target_node, attacking_team),
+            "I captured {} from you.".format(target_node),
+            "you defeated me in {}".format(target_node),
+            "I captured {}".format(target_node),
+            "you captured {} from me".format(target_node)
         )
-        return my_adv
+
+        mybattle = content.load_dynamic_plot(
+            camp, "WMW_MISSION", PlotState(
+                rank=self.rank, elements={
+                    "METROSCENE": start_node.destination, "MISSION_GATE": start_node.entrance,
+                    "WIN_FUN": AttackerWinsEffect(attacking_team, target_node, self, True),
+                    "LOSS_FUN": DefenderWinsEffect(attacking_team, target_node, self, True),
+                    "TARGET_GATE": target_node.entrance, "TARGET_SCENE": target_node.destination,
+                    "ENEMY_FACTION": target_node.destination.faction, "ALLIED_FACTION": attacking_team,
+                    "NUM_STAGES": 2,
+                    "MISSION_GRAMMAR": mission_grammar
+                })
+        )
+
+        return mybattle
 
 
 class WorldMapWarTurn:
@@ -354,10 +364,13 @@ class WorldMapWarTurn:
             self.kill_counter = self.casulties.pop(0) * 8
 
     def update(self):
+        # This method used to prepare teams for the upcoming turn. However, the preparation steps have been cut out.
+        # So now it exists as a "I might need this in the future" method.
         pass
 
     def prepare_for_war(self):
-        pass
+        self.show_turn_progress("{} prepares for war.".format(self.fac))
+        self.world_map_war.war_teams[self.fac].boosted = True
 
     def attack_desirability(self, target_node: campfeatures.WorldMapNode):
         fac = target_node.destination.faction
@@ -405,10 +418,12 @@ class WorldMapWarTurn:
         # in the defense. This is the function that potentially returns the adventure seed.
         self.num_attackers = self.world_map_war.get_attack_strength(self.fac)
         self.num_defenders = self.world_map_war.get_defense_strength(target_node)
+        spend_boost = True
 
         if not target_node.destination.faction:
             msg = "{} occupies {}.".format(self.fac, target_node)
             self.num_defenders = 0
+            spend_boost = False
         elif self.camp.are_faction_enemies(self.fac, target_node.destination):
             msg = "{} attacks {}.".format(self.fac, target_node)
         else:
@@ -455,6 +470,9 @@ class WorldMapWarTurn:
         else:
             self.show_war_progress("{} have been defeated.".format(self.fac), target_node)
 
+        if spend_boost:
+            self.world_map_war.war_teams[self.fac].boosted = False
+
     def __call__(self):
         # Return a mission seed if the player is going to have to fight, or nothing otherwise.
         # Step One: See if the faction is severely depleted. If it is, prepare for war. Also, the player team always
@@ -483,7 +501,7 @@ class WorldMapWarTurn:
                     for edge in self.world_map.edges:
                         if edge.connects_to_node(node):
                             far_node = edge.get_link(node)
-                            if self.camp.are_faction_enemies(self.fac, far_node.destination):
+                            if self.camp.are_faction_enemies(self.fac, far_node.destination) and far_node.destination is not self.world_map_war.just_captured:
                                 attack_candidates.add(far_node)
                             elif not far_node.destination.faction:
                                 attack_candidates.add(far_node)
@@ -498,7 +516,7 @@ class WorldMapWarTurn:
                             ):
                                 attack_candidates.add(far_node)
 
-        if random.randint(1, 100) > self.world_map_war.war_teams[self.fac].aggression:
+        if random.randint(1, 100) > self.world_map_war.war_teams[self.fac].aggression and not self.world_map_war.war_teams[self.fac].boosted:
             self.prepare_for_war()
             return None
         elif not attack_candidates:
@@ -552,13 +570,15 @@ class WorldMapWarRound:
 
 class EdgeAttack:
     def __init__(self, camp, edge: campfeatures.WorldMapEdge, start_point: campfeatures.WorldMapNode, war: WorldMapWar):
+        self.camp = camp
         self.edge = edge
         self.start_point = start_point
         self.war = war
-        self.adv = war.get_attack_missionseed(camp, war.player_team, start_point,
-                                              self.edge.get_link(self.start_point))
 
     def __call__(self, camp: gears.GearHeadCampaign):
+        self.adv = self.war.get_attack_missionseed(camp, self.war.player_team, self.start_point,
+                                              self.edge.get_link(self.start_point))
+
         dest_node = self.edge.get_link(self.start_point)
         if self.adv.can_do_mission(camp):
             if dest_node.destination.faction:
@@ -567,9 +587,11 @@ class EdgeAttack:
                 pbge.alert("You move into {} unopposed.".format(dest_node))
                 self.war.capture(camp, self.war.player_team, dest_node)
                 camp.go(dest_node.entrance)
+                self.adv.end_plot(camp, True)
             self.war.ready_for_next_round = True
         else:
             pbge.alert("You are not equipped with mecha that can attack {}.".format(dest_node))
+            self.adv.end_plot(camp, True)
 
 
 class WorldMapWarHandler(Plot):
@@ -617,6 +639,7 @@ class WorldMapWarHandler(Plot):
                 self.check_war_status(camp)
             if not self.current_round.keep_going():
                 self.current_round = None
+                self.world_map_war.just_captured = None
 
     def t_START(self, camp: gears.GearHeadCampaign):
         if self.adventure_seed and self.adventure_seed.is_completed():

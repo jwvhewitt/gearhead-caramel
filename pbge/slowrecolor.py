@@ -26,9 +26,6 @@
 
 import pygame
 
-import numpy as np
-
-
 
 def generate_value(vmax, vmin, level):
     return vmin + ((vmax - vmin) * level // 215)
@@ -46,31 +43,32 @@ class Gradient(object):
         r = generate_value(self.color_range[0], self.color_range[3], color_level)
         g = generate_value(self.color_range[1], self.color_range[4], color_level)
         b = generate_value(self.color_range[2], self.color_range[5], color_level)
-        return (r << 16) | (g << 8) | b
+        return r, g, b
 
 
-def recolor( par,color_channels):
+def recolor(surf: pygame.Surface, color_channels):
     red_channel, yellow_channel, green_channel, cyan_channel, magenta_channel = color_channels
 
-    height = par.shape[1]
-    width = par.shape[0]
+    width, height = surf.get_size()
+    pixarray = pygame.surfarray.pixels3d(surf)
 
     for y in range(height):
         for x in range(width):
 
-            r = 0xFF & ( par[x, y] >> 16)
-            g = 0xFF & ( par[x, y] >> 8)
-            b = 0xFF &  par[x, y]
-
+            r = pixarray[x,y,0]
+            g = pixarray[x,y,1]
+            b = pixarray[x,y,2]
 
             if (r > 0) and (g == 0) and (b == 0):
-                par[x, y] = red_channel.generate_color(r)
+                pixarray[x,y,0], pixarray[x,y,1], pixarray[x,y,2] = red_channel.generate_color(r)
                 # par[x,y] = cls.generate_color(red_channel,c.r)
             elif (r > 0) and (g > 0) and (b == 0):
-                par[x, y] = yellow_channel.generate_color(r)
+                pixarray[x,y,0], pixarray[x,y,1], pixarray[x,y,2] = yellow_channel.generate_color(r)
             elif (r > 0) and (g == 0) and (b > 0):
-                par[x, y] = magenta_channel.generate_color(r)
+                pixarray[x,y,0], pixarray[x,y,1], pixarray[x,y,2] = magenta_channel.generate_color(r)
             elif (r == 0) and (g > 0) and (b == 0):
-                par[x, y] = green_channel.generate_color(g)
+                pixarray[x,y,0], pixarray[x,y,1], pixarray[x,y,2] = green_channel.generate_color(g)
             elif (r == 0) and (g > 0) and (b > 0):
-                par[x, y] = cyan_channel.generate_color(g)
+                pixarray[x,y,0], pixarray[x,y,1], pixarray[x,y,2] = cyan_channel.generate_color(g)
+
+    del pixarray

@@ -60,6 +60,8 @@ Slightly Smiling Face, Beaming Face with Smiling Eyes by Emily Jäger
 * Folder by Ines Simoes from the Noun Project
 * Medicine by Braja Omar Justico from NounProject.com
 * Vaccine by Anconer Design from NounProject.com
+* Star by Adrien Coquet from Noun Project (CC BY 3.0)
+* Skull by Brian Oppenlander from Noun Project (CC BY 3.0
 
 MUSIC
 =====

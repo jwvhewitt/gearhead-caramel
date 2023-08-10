@@ -111,6 +111,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                  combat_music=None, exploration_music=None,
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None,
                  make_enemies=True, defeat_trigger_on=True, scale=gears.scale.MechaScale, desc="",
+                 call_win_loss_funs_after_card=False,
                  **kwargs):
         self.rank = rank or max(camp.pc.renown + 1, 10)
         cms_pstate = pbge.plots.PlotState(adv=self, rank=self.rank)
@@ -165,6 +166,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.environment = architecture.ENV
 
         self.desc = desc
+        self.call_win_loss_funs_after_card = call_win_loss_funs_after_card
 
     def copy(self):
         mycopy: BuildAMissionSeed = copy.copy(self)
@@ -178,16 +180,22 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
     def end_adventure(self, camp: gears.GearHeadCampaign):
         # Update before ending, and again after.
         camp.check_trigger("UPDATE")
-        if self.on_win and self.is_won():
-            self.on_win(camp)
-        elif self.on_loss and not self.is_won():
-            self.on_loss(camp)
+        if not self.call_win_loss_funs_after_card:
+            if self.on_win and self.is_won():
+                self.on_win(camp)
+            elif self.on_loss and not self.is_won():
+                self.on_loss(camp)
         if self.is_won() and self.enemy_faction:
             if self.defeat_trigger_on:
                 camp.check_trigger("DEFEAT", self.enemy_faction)
             if self.make_enemies:
                 camp.set_faction_as_pc_enemy(self.enemy_faction)
         super(BuildAMissionSeed, self).end_adventure(camp)
+        if self.call_win_loss_funs_after_card:
+            if self.on_win and self.is_won():
+                self.on_win(camp)
+            elif self.on_loss and not self.is_won():
+                self.on_loss(camp)
         camp.time += 1
 
     def can_do_mission(self, camp: gears.GearHeadCampaign):
