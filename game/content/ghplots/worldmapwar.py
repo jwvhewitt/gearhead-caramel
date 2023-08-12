@@ -256,12 +256,19 @@ class WorldMapWar:
                     "LOSS_FUN": DefenderWinsEffect(attacking_team, target_node, self, True),
                     "TARGET_GATE": target_node.entrance, "TARGET_SCENE": target_node.destination,
                     "ENEMY_FACTION": target_node.destination.faction, "ALLIED_FACTION": attacking_team,
-                    "NUM_STAGES": 2,
+                    "NUM_STAGES": min(max(self.get_defense_strength(target_node)//2 + 1, 2), 5),
                     "MISSION_GRAMMAR": mission_grammar
                 })
         )
 
         return mybattle
+
+    def __setstate__(self, state):
+        # For saves from V0.946 or earlier, make sure there's a just_captured property.
+        self.__dict__.update(state)
+        if "just_captured" not in state:
+            self.just_captured = None
+
 
 
 class WorldMapWarTurn:

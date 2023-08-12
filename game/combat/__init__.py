@@ -598,6 +598,15 @@ class Combat(object):
         pbge.my_state.view.handle_anim_sequence()
         self.roll_initiative()
 
+    def check_party_activation(self):
+        # Add party members who became party members after combat already started. They might be active and they might
+        # not be.
+        for m in self.scene.contents:
+            if m not in self.active and self.scene.local_teams.get(m) is self.scene.player_team and isinstance(m,
+                                                                                               gears.base.Combatant):
+                self.camp.check_trigger('ACTIVATE', m)
+                self.active.append(m)
+
     def num_enemies(self):
         """Return the number of active, hostile characters."""
         n = 0

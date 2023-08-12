@@ -1,3 +1,5 @@
+* Updated Bear Bastard's Mecha Camp scenario
+* Added check_party_activation method to combat
 * NPCs will give useful rumors first, then random chat
 * Added pre-fx to conversation offers
 * Single firing weapons can now cause critical hits, as in previous GearHead games

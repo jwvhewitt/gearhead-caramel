@@ -518,8 +518,7 @@ class LMSkillsSelfIntro(Offer):
     def __init__(self, npc: gears.base.Character):
         items = list()
         data = dict()
-        rank = min(max((npc.renown - 1) // 20, 0), 4)
-        items.append(self.RANK_GRAM[rank])
+        items.append(self.get_rank_gram(npc))
 
         if not npc.mecha_pref:
             AutoJoiner.get_mecha_for_character(npc)
@@ -544,6 +543,28 @@ class LMSkillsSelfIntro(Offer):
             " ".join(items),
             context=ContextTag((context.SELFINTRO,)), data=data, is_generic=True
         )
+
+    @classmethod
+    def get_rank_gram(cls, npc):
+        rank = min(max((npc.renown - 1) // 20, 0), 4)
+        return cls.RANK_GRAM[rank]
+
+
+class SkillExperienceEffect:
+    # An effect for conversations which will boost skill XP. Only works once. May include a secondary function to
+    # call.
+    def __init__(self, skill, xp_amount, other_fun=None):
+        self.ready = True
+        self.skill = skill
+        self.xp_amount = xp_amount
+        self.other_fun = other_fun
+
+    def __call__(self, camp: gears.GearHeadCampaign):
+        if self.ready:
+            self.ready = False
+            camp.dole_xp(self.xp_amount, self.skill)
+            if self.other_fun:
+                self.other_fun(camp)
 
 
 class EffectCallPlusNPC:

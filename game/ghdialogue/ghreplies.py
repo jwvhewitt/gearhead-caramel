@@ -235,6 +235,10 @@ QUERY_ANSWER = Reply("{reply}",
                      destination=Cue(ContextTag([context.ANSWER])),
                      context=ContextTag([context.QUERY]))
 
+SELFINTRO_CUSTOM = Reply("{reply}",
+                    destination=Cue(ContextTag([context.CUSTOM])),
+                    context=ContextTag([context.SELFINTRO]))
+
 SELFINTRO_GOODBYE = Reply("[SELFINTRO:GOODBYE]",
                           context=ContextTag([context.SELFINTRO]),
                           destination=Cue(ContextTag([context.GOODBYE])))

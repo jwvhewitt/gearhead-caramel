@@ -267,6 +267,7 @@ class FinalBattle(Plot):
         camp.scene.local_teams[npc.get_root()] = camp.scene.player_team
         camp.party.append(npc)
         camp.party.append(npc.get_root())
+        camp.egg.dramatis_personae.add(npc)
         self.temp_mecha.append(npc.get_root())
 
     def TEAM2_ACTIVATETEAM(self, camp: gears.GearHeadCampaign):
@@ -315,8 +316,8 @@ class FinalBattle(Plot):
                     defector.get_root()
                 )(camp, False)
                 self._switch_teams(camp, defector)
-                camp.egg.dramatis_personae.add(defector)
 
+            camp.fight.check_party_activation()
             camp.scene.update_party_position(camp)
 
             self.combat_intro_ready = False
@@ -516,6 +517,7 @@ class CCamAirCon(Plot):
         self.learned_of_problem = False
         self.solved_problem = False
         self.told_solution = False
+        self.add_sub_plot(nart, "BBMC_CONVO", elements={"NPC": self.elements["CCAM"]})
         return True
 
     def CCAM_offers(self, camp: gears.GearHeadCampaign):
@@ -575,6 +577,7 @@ class CCamMonoPuffs(Plot):
             "MONOPUFF", gears.base.Treasure(name="Mono Puffs", desc="A shrinkwrapped package of snack cakes.", value=10,
                                             weight=2), dident="LOCALE"
         )
+        self.add_sub_plot(nart, "BBMC_CONVO", elements={"NPC": self.elements["CCAM"]})
         return True
 
     def CCAM_offers(self, camp: gears.GearHeadCampaign):
@@ -652,6 +655,8 @@ class BCamMouse(Plot):
         self.did_mouse_intro = False
         self.told_about_mouse = False
         self.got_reward = False
+
+        self.add_sub_plot(nart, "BBMC_CONVO", elements={"NPC": self.elements["BCAM"]})
         return True
 
     def BCAM_offers(self, camp):
@@ -748,6 +753,7 @@ class ACamGracious(Plot):
 
     def custom_init(self, nart):
         self.had_convo = False
+        self.add_sub_plot(nart, "BBMC_CONVO", elements={"NPC": self.elements["ACAM"]})
         return True
 
     def ACAM_offers(self, camp):
@@ -760,37 +766,37 @@ class ACamGracious(Plot):
         elif camp.campdata.get(WIN_FIGHT_ONE):
             mylist.append(Offer(
                 "Congratulations on your win, [audience]. I did my best but you came out on top.",
-                ContextTag([context.HELLO]), allow_generics=False
+                ContextTag([context.HELLO]), allow_generics=False, subject_start=True, subject=self
             ))
 
             mylist.append(Offer(
                 "[THANK_YOU] Maybe we'll get a chance to fight on the same team, someday.",
                 ContextTag([context.CUSTOM]), allow_generics=False, effect=self._make_friend,
-                data={"reply": "Thanks. You fought well."}
+                data={"reply": "Thanks. You fought well."}, subject=self
             ))
 
             mylist.append(Offer(
                 "[REALLY?] Well, maybe we'll get a chance to face each other in combat again someday.",
                 ContextTag([context.CUSTOM]), allow_generics=False, effect=self._make_enemy,
-                data={"reply": "You better remember it, because I'm the best pilot!"}
+                data={"reply": "You better remember it, because I'm the best pilot!"}, subject=self
             ))
 
         else:
             mylist.append(Offer(
                 "You put up a good fight, [audience]. Well done out there.",
-                ContextTag([context.HELLO]), allow_generics=False
+                ContextTag([context.HELLO]), allow_generics=False, subject_start=True, subject=self
             ))
 
             mylist.append(Offer(
                 "[THANK_YOU] Hopefully someday we'll be able to fight on the same team.",
                 ContextTag([context.CUSTOM]), allow_generics=False, effect=self._make_friend,
-                data={"reply": "Congratulations on defeating me."}
+                data={"reply": "Congratulations on defeating me."}, subject=self
             ))
 
             mylist.append(Offer(
                 "[REALLY?] I look forward to our next battle, then.",
                 ContextTag([context.CUSTOM]), allow_generics=False, effect=self._make_enemy,
-                data={"reply": "You just got lucky; next time I'll [threat]!"}
+                data={"reply": "You just got lucky; next time I'll [threat]!"}, subject=self
             ))
 
         return mylist
@@ -804,6 +810,11 @@ class ACamGracious(Plot):
     def _make_enemy(self, camp):
         self.had_convo = True
         self.elements["ACAM"].relationship.expectation = gears.relationships.E_RIVAL
+        self.elements["ACAM"].relationship.history.append(gears.relationships.Memory(
+            "you were a total jerk at mecha camp",
+            "I might have said some inappropriate things",
+            reaction_mod=-5, memtags=(gears.relationships.MEM_Ideological,)
+        ))
         camp.egg.dramatis_personae.add(self.elements["ACAM"])
 
 
@@ -814,11 +825,15 @@ class ACamResentful(Plot):
 
     def custom_init(self, nart):
         self.had_convo = False
+        self.add_sub_plot(nart, "BBMC_CONVO", elements={"NPC": self.elements["ACAM"]})
         return True
 
     def ACAM_offers(self, camp):
         mylist = list()
-        if self.had_convo:
+        npc = self.elements["ACAM"]
+        relationship = camp.get_relationship(npc)
+
+        if self.had_convo or gears.relationships.RT_LANCEMATE in relationship.tags:
             mylist.append(Offer(
                 "I'm going to go to bed... Today was a rough day.",
                 ContextTag([context.HELLO]), allow_generics=False
@@ -826,37 +841,38 @@ class ACamResentful(Plot):
         elif camp.campdata.get(WIN_FIGHT_ONE):
             mylist.append(Offer(
                 "Don't think you're so great just because you beat me...  You wouldn't even be at this camp if you weren't a nobody like the rest of us.",
-                ContextTag([context.HELLO]), allow_generics=False
+                ContextTag([context.HELLO]), allow_generics=False, subject=self, subject_start=True
             ))
 
             mylist.append(Offer(
                 "[YOU_COULD_BE_RIGHT] Sorry for taking things so personal... Maybe next time we can fight on the same team, ok?",
                 ContextTag([context.CUSTOM]), allow_generics=False, effect=self._make_friend,
-                data={"reply": "Winning and losing is all part of being a cavalier. You put up a good fight out there."}
+                data={"reply": "Winning and losing is all part of being a cavalier. You put up a good fight out there."},
+                subject=self
             ))
 
             mylist.append(Offer(
                 "[SWEAR] Someday we're gonna fight again, and next time I'm gonna [threat]!",
                 ContextTag([context.CUSTOM]), allow_generics=False, effect=self._make_enemy,
-                data={"reply": "You're the only nobody I see in this room."}
+                data={"reply": "You're the only nobody I see in this room."}, subject=self
             ))
 
         else:
             mylist.append(Offer(
                 "How does it feel to be a loser, [audience]? I kicked your arse out there.",
-                ContextTag([context.HELLO]), allow_generics=False
+                ContextTag([context.HELLO]), allow_generics=False, subject=self, subject_start=True
             ))
 
             mylist.append(Offer(
                 "[SWEAR] Why'd you have to be gracious in defeat like that? Now I feel like an arsehole! The next time we meet in battle, I'm going to [threat]!",
                 ContextTag([context.CUSTOM]), allow_generics=False, effect=self._make_enemy,
-                data={"reply": "Yes, and I congratulate you on your victory."}
+                data={"reply": "Rude. I was gonna compliment you on your victory, muskbrain."}, subject=self
             ))
 
             mylist.append(Offer(
                 "[REALLY?] Then I guess the next time we're in battle, we better be on the same team. I like your attitude, [audience].",
                 ContextTag([context.CUSTOM]), allow_generics=False, effect=self._make_friend,
-                data={"reply": "Don't overestimate yourself. Next time I'll [threat]."}
+                data={"reply": "This time, maybe. Next time I'll [threat]!"}, subject=self
             ))
 
         return mylist
@@ -870,7 +886,183 @@ class ACamResentful(Plot):
     def _make_enemy(self, camp):
         self.had_convo = True
         self.elements["ACAM"].relationship.attitude = gears.relationships.A_RESENT
+        self.elements["ACAM"].relationship.history.append(gears.relationships.Memory(
+            "you were rude to me at mecha camp",
+            "I may have upset you somewhat",
+            reaction_mod=-5, memtags=(gears.relationships.MEM_Ideological,)
+        ))
         camp.egg.dramatis_personae.add(self.elements["ACAM"])
+
+
+class StudentConvoGoal(Plot):
+    LABEL = "BBMC_CONVO"
+    active = True
+    scope = "LOCALE"
+    UNIQUE = True
+
+    had_convo = False
+
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        relationship = camp.get_relationship(npc)
+        mylist = list()
+        if gears.relationships.RT_LANCEMATE not in relationship.tags and not self.had_convo:
+            mylist.append(Offer(
+                plotutility.LMSkillsSelfIntro.get_rank_gram(npc) + " How about you? What's your goal with this cavalier thing?",
+                context=ContextTag((context.SELFINTRO,)), subject=self, subject_start=True
+            ))
+            if gears.stats.Biotechnology in camp.pc.statline:
+                mylist.append(Offer(
+                    "[THATS_INTERESTING] Moderately terrifying, but interesting...",
+                    context=ContextTag((context.CUSTOM,)), subject=self,
+                    data={"reply": "I want to learn forbidden secrets and master the dark arts of the previous age."},
+                    effect=plotutility.SkillExperienceEffect(gears.stats.Biotechnology, 300, self._no_more_convo)
+                ))
+            if gears.stats.MechaPiloting in camp.pc.statline:
+                mylist.append(Offer(
+                    "[THATS_INTERESTING] Of course, the better you are as a pilot, the more rivals you're going to attract.",
+                    context=ContextTag((context.CUSTOM,)), subject=self,
+                    data={"reply": "My goal is to be the best mecha pilot in the solar system. I'll keep working until I'm there."},
+                    effect=plotutility.SkillExperienceEffect(gears.stats.MechaPiloting, 300, self._no_more_convo)
+                ))
+            if gears.stats.Vitality in camp.pc.statline:
+                mylist.append(Offer(
+                    "[AGREE] It's very hard to find missions when you're no longer breathing!",
+                    context=ContextTag((context.CUSTOM,)), subject=self,
+                    data={"reply": "Right now my number one goal is to not die."},
+                    effect=plotutility.SkillExperienceEffect(gears.stats.Vitality, 300, self._no_more_convo)
+                ))
+            if gears.stats.Negotiation in camp.pc.statline:
+                mylist.append(Offer(
+                    "[YOU_SEEM_CONNECTED] What's it like being popular?",
+                    context=ContextTag((context.CUSTOM,)), subject=self,
+                    data={"reply": "I just enjoy traveling around and meeting new people."},
+                    effect=plotutility.SkillExperienceEffect(gears.stats.Negotiation, 300, self._no_more_convo)
+                ))
+            if gears.tags.Criminal in camp.pc.get_tags():
+                mylist.append(Offer(
+                    "[THIS_IS_A_SECRET] I think our teacher may have been a bandit once?",
+                    context=ContextTag((context.CUSTOM,)), subject=self,
+                    data={"reply": "I'm training to be the greatest bandit, so I can steal anything I want."},
+                    effect=plotutility.SkillExperienceEffect(gears.stats.Stealth, 300, self._no_more_convo)
+                ))
+            if gears.stats.Performance in camp.pc.get_tags():
+                mylist.append(Offer(
+                    "[GOODLUCK] The music industry might be the one business that's even more cut-throat than being a cavalier.",
+                    context=ContextTag((context.CUSTOM,)), subject=self,
+                    data={"reply": "Honestly, I'm trying to write a hit song so I can become a famous pop star."},
+                    effect=plotutility.SkillExperienceEffect(gears.stats.Performance, 300, self._no_more_convo)
+                ))
+            if gears.stats.Wildcraft in camp.pc.get_tags():
+                mylist.append(Offer(
+                    "[THATS_INTERESTING] I guess living in the wilds appeals to some folks.",
+                    context=ContextTag((context.CUSTOM,)), subject=self,
+                    data={"reply": "My dream is to explore the dead zone... maybe set up a little cabin with a radioactive pet."},
+                    effect=plotutility.SkillExperienceEffect(gears.stats.Wildcraft, 300, self._no_more_convo)
+                ))
+
+        return mylist
+
+    def _no_more_convo(self, camp):
+        self.had_convo = True
+
+
+class StudentConvoStudy(Plot):
+    LABEL = "BBMC_CONVO"
+    active = True
+    scope = "LOCALE"
+    UNIQUE = True
+
+    had_convo = False
+
+    def NPC_offers(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        mylist = list()
+        if not self.had_convo:
+            mylist.append(Offer(
+                "It was weird. First he got me to walk around a bunch of statues at the park. Then he gave me this book, \"Kroper's Guide to Mecha Battle\", and threw me straight into the arena before I even had a chance to read it.",
+                context=ContextTag((context.CUSTOM,)), subject=self, subject_start=True,
+                data={"reply": "So what did you study with Bear Bastard today?"}
+            ))
+
+            mylist.append(Offer(
+                "[GOOD_IDEA] Close combat fighting is generally more dangerous than ranged combat; when a mecha unleashes its entire strength on a foe, combat can be over quickly.",
+                context=ContextTag((context.CUSTOMREPLY,)), subject=self,
+                data={"reply": "How would you like to study fighting together?"},
+                effect=plotutility.SkillExperienceEffect(gears.stats.MechaFighting, 200, self._no_more_convo)
+            ))
+
+            mylist.append(Offer(
+                "[GOOD_IDEA] Ranged combat allows flexibility; you can set the terms of combat by how and where you position yourself. Or, if there's no cover available, you can always gun and run.",
+                context=ContextTag((context.CUSTOMREPLY,)), subject=self,
+                data={"reply": "How would you like to study gunnery together?"},
+                effect=plotutility.SkillExperienceEffect(gears.stats.MechaGunnery, 200, self._no_more_convo)
+            ))
+
+            ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "[THANK_YOU] This all makes perfect sense now! Hopefully I'll get a chance to use these skills in the morning.",
+                    context=ContextTag((context.CUSTOMREPLY,)), subject=self,
+                    data={"reply": "I can teach you more about mecha than that ratty old book."},
+                    effect=self._teach_piloting
+                ), camp, mylist, gears.stats.Knowledge, gears.stats.MechaPiloting, 20, gears.stats.DIFFICULTY_AVERAGE,
+            )
+
+            if npc.get_reaction_score(camp.pc, camp) >= 20:
+                mylist.append(Offer(
+                    "You're right... we should be out exploring this creepy cabin or searching for wherever Bear Bastard hid the liquor. Maybe tomorrow, though. Tonight I'm too exhausted.",
+                    context=ContextTag((context.CUSTOMREPLY,)), subject=self,
+                    data={"reply": "Why waste time studying when we're at camp?"},
+                    effect=self._make_friend
+                ))
+            else:
+                mylist.append(Offer(
+                    "Because... we paid to come here and study mecha piloting? You seem like a fun person, {audience}. But I have no idea what you're thinking.",
+                    context=ContextTag((context.CUSTOMREPLY,)), subject=self,
+                    data={"reply": "Why waste time studying when we're at camp?"},
+                    effect=self._make_hesitant_lancemate
+                ))
+
+        return mylist
+
+    def _make_hesitant_lancemate(self, camp):
+        self.had_convo = True
+        npc = self.elements["NPC"]
+        relationship = camp.get_relationship(npc)
+        relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        relationship.reaction_mod -= 10
+        camp.egg.dramatis_personae.add(npc)
+        relationship.attitude = gears.relationships.A_SENIOR
+
+    def _make_friend(self, camp):
+        self.had_convo = True
+        npc = self.elements["NPC"]
+        relationship = camp.get_relationship(npc)
+        relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        relationship.reaction_mod += 10
+        camp.egg.dramatis_personae.add(npc)
+        relationship.role = gears.relationships.R_FRIEND
+
+    def _teach_piloting(self, camp):
+        self.had_convo = True
+        npc = self.elements["NPC"]
+        relationship = camp.get_relationship(npc)
+        relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        relationship.reaction_mod += 10
+        camp.egg.dramatis_personae.add(npc)
+        camp.pc.dole_experience(100, gears.stats.MechaPiloting)
+        camp.pc.dole_experience(100, gears.stats.MechaGunnery)
+        camp.pc.dole_experience(100, gears.stats.MechaFighting)
+
+    def _no_more_convo(self, camp):
+        self.had_convo = True
+
+
+class StudentConvoNone(Plot):
+    LABEL = "BBMC_CONVO"
+    active = False
+    scope = None
+    UNIQUE = True
 
 
 class SceneTwo(Plot):

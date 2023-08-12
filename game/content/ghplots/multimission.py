@@ -174,7 +174,6 @@ class MultiMissionStagePlot(Plot):
         if dest:
             dest(camp)
         elif mmission.elements.get("ONE_SHOT", True):
-            print("Losing mission!")
             mmission._lose_mission(camp)
 
 
