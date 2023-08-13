@@ -4,7 +4,7 @@ Character
     statline={Reflexes=15, Body=10, Speed=13, Perception=13, Knowledge=10, Craft=10, Ego=10, Charm=12}
     personality=[Cheerful, Shy, Fellowship, GreenZone]
     gender=Female
-    portrait='card_f_wintervikki.png'
+    portrait='card_f_vikki_dzd.png'
     colors=(ShiningWhite, LightSkin, NobleGold, HunterOrange, Olive)
     job=MechaPilot
     renown=50

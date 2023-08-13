@@ -297,6 +297,7 @@ class FrozenHotSpringCity(Plot):
 
         vikki = nart.camp.get_major_npc("Vikki Shingo")
         myroom.contents.append(vikki)
+        vikki.portrait='card_f_wintervikki.png'
         self.register_element("VIKKI", vikki)
 
         myscenegen.contents.append(myroom)
@@ -415,18 +416,28 @@ class FrozenHotSpringCity(Plot):
             mygram["[IP_Worry]"] = ["I'm worried about what's going to happen between the Federation and Aegis next"]
             return mygram
 
-    def VIKKI_offers(self, camp):
+    def VIKKI_offers(self, camp: gears.GearHeadCampaign):
         # Return list of dialogue offers.
         mylist = list()
+        relationship = camp.get_relationship(self.elements["VIKKI"])
 
         if not self.mission_started:
-            mylist.append(Offer(
-                "[LONGTIMENOSEE] It's me, Vikki Shingo, from Hogye. Did they pull you out of bed for this mission too?",
-                context=ContextTag([self]),
-                replies=[
-                    Reply("What mission? What's going on?", destination=Cue(ContextTag([context.INFO, context.MISSION]))),
-                    Reply("Vikki! How's life been treating you?",
-                          destination=Cue(ContextTag([context.INFO, context.PERSONAL])))
+            if camp.pc.has_badge(gears.oldghloader.TYPHON_SLAYER.name) or relationship.met_before:
+                mylist.append(Offer(
+                    "[LONGTIMENOSEE] It's me, Vikki Shingo, from Hogye. Did they pull you out of bed for this mission too?",
+                    context=ContextTag([self]),
+                    replies=[
+                        Reply("What mission? What's going on?", destination=Cue(ContextTag([context.INFO, context.MISSION]))),
+                        Reply("Vikki! How's life been treating you?",
+                              destination=Cue(ContextTag([context.INFO, context.PERSONAL])))
+                        ]))
+            else:
+                mylist.append(Offer(
+                    "Good morning... I guess I'm not the only pilot they hauled out of bed for this mission. The name's Vikki Shingo; I think we met briefly yesterday.",
+                    context=ContextTag([self]),
+                    replies=[
+                        Reply("What mission? What's going on?",
+                              destination=Cue(ContextTag([context.INFO, context.MISSION])))
                     ]))
 
             if not self.got_vikki_mission:
@@ -482,10 +493,18 @@ class FrozenHotSpringCity(Plot):
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         if not self.did_opening_sequence:
             pbge.alert("December 23, NT157. It's been an awful year for the Federated Territories of Earth.")
-            pbge.alert(
-                "An ancient bioweapon named Typhon was awakened from stasis and rampaged through several cities. Fortunately, a team of cavaliers was able to destroy it before it reached Snake Lake. You were there.")
-            pbge.alert(
-                "Now, six months later, you are meeting with several of your former lancemates for a charity mecha tournament in the recently constructed Mauna Arena.")
+            if camp.pc.has_badge(gears.oldghloader.TYPHON_SLAYER.name):
+                pbge.alert(
+                    "An ancient bioweapon named Typhon was awakened from stasis and rampaged through several cities. Fortunately, a team of cavaliers was able to destroy it before it reached Snake Lake. You were there.")
+                pbge.alert(
+                    "Now, six months later, you are meeting with several of your former lancemates for a charity mecha tournament in the recently constructed Mauna Arena.")
+            else:
+                pbge.alert(
+                    "An ancient bioweapon named Typhon was awakened from stasis and rampaged through several cities. You watched the destruction unfold on vidnet, and saw the final battle when a team of cavaliers brought the beast down just outside of Snake Lake City."
+                )
+                pbge.alert(
+                    "Now, six months later, you have been invited to a charity mecha tournament at Mauna Arena. The funds raised will be donated to reconstruction efforts in Wujung."
+                )
             pbge.alert("At 5AM, alarms go off through the hotel. You rush outside to see what's going on.")
 
             npc = self.elements["VIKKI"]
@@ -719,6 +738,8 @@ class WinterMochaHyolee(Plot):
     active = True
     scope = "LOCALE"
 
+    did_greeting = False
+
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         hyolee = nart.camp.get_major_npc("Hyolee GH1")
@@ -748,13 +769,30 @@ class WinterMochaHyolee(Plot):
     def HYOLEE_offers(self, camp):
         # Return list of dialogue offers.
         mylist = list()
+        relationship = camp.get_relationship(self.elements["HYOLEE"])
+
+        if not self.did_greeting:
+            if relationship.met_before:
+                mylist.append(Offer(
+                    "Well, well, well, if it isn't [audience]. It's been a while. How have you been doing? I can't wait to catch up.",
+                    context=ContextTag([context.HELLO,]), effect=self._do_greeting, allow_generics=False
+                ))
+            else:
+                mylist.append(Offer(
+                    "[HELLO] I came with Vikki to support Team Hogye, which is just Vikki, but she needs all the support she can get.",
+                    context=ContextTag([context.HELLO,]), effect=self._do_greeting, allow_generics=False
+                ))
+
         mylist.append(Offer("[INFO_PERSONAL]",
-                            context=ContextTag([context.INFO, context.PERSONAL]), data={'subject': 'year'},
+                            context=ContextTag([context.CUSTOM]), data={'reply': 'So what have you been doing lately?'},
                             effect=None, no_repeats=True))
         if not self.asked_join:
             mylist.append(Offer("[HAGOODONE] I tried piloting a mecha once, and that's quite enough for me.",
                                 context=ContextTag([context.JOIN]), effect=self._ask_to_join))
         return mylist
+
+    def _do_greeting(self, camp):
+        self.did_greeting = True
 
 
 class WinterMochaCarter(Plot):

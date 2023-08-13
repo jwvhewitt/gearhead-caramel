@@ -1048,6 +1048,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         for npc in self.egg.dramatis_personae:
             if npc.mnpcid == mnpcid:
                 mynpc = npc
+                # Restore the portrait of the NPC.
+                npc_prototype = selector.MAJOR_NPCS.get(mnpcid, None)
+                if npc_prototype:
+                    mynpc.portrait = npc_prototype.portrait
                 break
         if not mynpc:
             mynpc = selector.MAJOR_NPCS.get(mnpcid, None)

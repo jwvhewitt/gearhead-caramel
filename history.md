@@ -1,4 +1,4 @@
-* Updated Bear Bastard's Mecha Camp scenario
+* Updated Bear Bastard's Mecha Camp, Winter Mocha scenarios
 * Added check_party_activation method to combat
 * NPCs will give useful rumors first, then random chat
 * Added pre-fx to conversation offers
