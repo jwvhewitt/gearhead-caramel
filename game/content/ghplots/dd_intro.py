@@ -778,7 +778,7 @@ class DZDIntroMission( Plot ):
                 mycutscene = SimpleMonologueDisplay(
                     "Your mecha is controlled using the M.O.U.S.E. system- don't ask me what that stands for. Just click where you want to go and the navigation computer does the rest. I'll follow along right behind you.",
                     self.elements["SHERIFF"])
-                mycutscene(camp)
+                mycutscene(camp, False)
 
             self.started_the_intro = True
 
@@ -789,9 +789,9 @@ class DZDIntroMission( Plot ):
                 self.elements["SHERIFF"])
             mycutscene(camp)
             mycutscene.text = "There on the upper left you'll see the icons for the different types of action you can take: movement, attack, skills, and ending your turn. On the upper right is the interface for your currently selected action."
-            mycutscene(camp)
+            mycutscene(camp, False)
             mycutscene.text = "To move, make sure your movement action is selected and just click where you want to go. To attack, you can either click on the attack icon or click on the enemy mecha. You can scroll through weapons and special attacks with the mouse wheel or the arrow keys."
-            mycutscene(camp)
+            mycutscene(camp, False)
 
             self.combat_tutorial_done = True
 

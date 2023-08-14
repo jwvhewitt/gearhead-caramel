@@ -1526,11 +1526,38 @@ class DZD_WujungHospital(Plot):
 
     def BIOCORPNPC_offers(self, camp):
         mylist = list()
+        doomed_town = camp.campdata.get("INFORM_BIOCORP_ANGEL_EGG", False)
+        if doomed_town:
+            mylist.append(Offer(
+                "[HELLO] Things are kind of busy here now... there's a lot of data coming back from the mission team in {}.".format(doomed_town),
+                context=ContextTag([context.HELLO]),
+            ))
 
-        mylist.append(Offer(
-            "[HELLO] This is the BioCorp Medical Research Office. We coordinate efforts between the main office in Snake Lake and projects like Mesa Lab in Last Hope and the various expeditions currently working in the dead zone.",
-            context=ContextTag([context.HELLO]),
-        ))
+            if camp.pc.has_badge(gears.oldghloader.CETUS_SLAYER.name):
+                mylist.append(Offer(
+                    "That's a very good question. When BioCorp studied Cetus at Mesa Labs it appeared to be in a state of deep cellular stasis- what you'd normally call death. Except apparently we were wrong. Cetus escaped the lab and you killed it... but its body was still, technically, BioCorp property.",
+                    context=ContextTag([context.CUSTOM]), data={"reply": "How can Cetus still be alive? I killed it last year."},
+                    subject="CetusWallaWallaBingBang", subject_start=True
+                ))
+
+            else:
+                mylist.append(Offer(
+                    "Well, we thought that too, at first. When BioCorp studied Cetus at Mesa Labs it appeared to be in a state of deep cellular stasis- what you'd normally call death. Then it escaped and eventually got taken down by the Defense Force. But its body was still, technically, BioCorp property.",
+                    context=ContextTag([context.CUSTOM]), data={"reply": "What do you know about Cetus? I thought it was supposed to be dead."},
+                    subject="CetusWallaWallaBingBang", subject_start=True
+                ))
+
+            mylist.append(Offer(
+                "BioCorp sent a recovery team to the site of the battle immediately. When they got there, nothing remained but a puddle of protocellular cytoplasm. We assumed that Cetus disintegrated upon death like many PreZero synths. It now seems that Cetus has far greater regenerative abilities than previously thought, and it survived the battle.",
+                context=ContextTag([context.CUSTOMREPLY]), data={"reply": "So what happened to its body?"},
+                subject="CetusWallaWallaBingBang",
+            ))
+
+        else:
+            mylist.append(Offer(
+                "[HELLO] This is the BioCorp Medical Research Office. We coordinate efforts between the main office in Snake Lake and projects like Mesa Lab in Last Hope and the various expeditions currently working in the dead zone.",
+                context=ContextTag([context.HELLO]),
+            ))
 
         if not self._asked_about_bc_mission:
             mylist.append(Offer(

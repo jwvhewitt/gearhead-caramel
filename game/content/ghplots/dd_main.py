@@ -67,6 +67,11 @@ class DeadzoneDrifterStub( Plot ):
 
         del self.subplots["INTRO"]
 
+    def t_CHEATINGFUCKINGBASTARD(self, camp):
+        mymap = self.elements["DZ_ROADMAP"]
+        for e in mymap.edges:
+            e.style = e.STYLE_SAFE
+
     MEMO_MESSAGES = (
         "{DZ_CONTACT} sent you to Wujung to hire a team of lancemates and find someone who can help rebuild the power station in {DZ_TOWN_NAME}. Osmund Eumann at the Bronze Horse Inn should be able to help.",
         "According to Osmund Eumann, you should be able to find someone who can rebuild the power station at Long Haul Logistics in Wujung.",

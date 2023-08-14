@@ -1904,6 +1904,7 @@ class Encounter_CovertAegis(Encounter_BasicBandits):
 VIRTUE = "MHOICE_VIRTUE"
 SSTATE = "MHOICE_STORY_STATE"
 
+ONE_WAY_WARNING = "\n\nThe blizzard is getting thicker. You will only be able to follow one of these leads before the trail is lost completely. It's your call."
 
 class Choice_BringJusticeToScumHive(Plot):
     LABEL = "MOCHA_MHOICE"
@@ -1911,6 +1912,7 @@ class Choice_BringJusticeToScumHive(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {ENEMY: PIRATES}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -1934,9 +1936,10 @@ class Choice_BringJusticeToScumHive(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
-        thingmenu.desc = "Pirates don't normally operate in this area; they must have established a smuggling camp to expand their territory. This appears to be the direction they came from."
+        thingmenu.desc = "Pirates don't normally operate in this area; they must have established a smuggling camp to expand their territory. This appears to be the direction they came from." + ONE_WAY_WARNING
         thingmenu.add_item('Bring them to justice', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -1947,6 +1950,7 @@ class Choice_PeaceAgainstSynths(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {COMPLICATION: FERAL_SYNTHS}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -1970,12 +1974,17 @@ class Choice_PeaceAgainstSynths(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "It seems that the hunter synths came from this direction. Left unchecked, they could be a much bigger threat to Mauna than {}.".format(
-            ENEMY_NOUN[self.elements.get(ENEMY, 0)])
+            ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
         thingmenu.add_item('Protect Mauna by exterminating the synths', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
+
+    def t_MOCHAVICTORY(self, camp):
+        if not self.chose_this_route:
+            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Guardians to warn people about the synths in the area.")
 
 
 class Choice_FellowshipToDefendAgainstSynths(Plot):
@@ -1984,6 +1993,7 @@ class Choice_FellowshipToDefendAgainstSynths(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {COMPLICATION: FERAL_SYNTHS}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2007,12 +2017,17 @@ class Choice_FellowshipToDefendAgainstSynths(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "From the marks in the snow, you see that the hunter synths pursued {} in this direction.".format(
-            ENEMY_NOUN[self.elements.get(ENEMY, 0)])
+            ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
         thingmenu.add_item('Show fellowship and rescue them', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
+
+    def t_MOCHAVICTORY(self, camp):
+        if not self.chose_this_route:
+            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Guardians to warn people about the synths in the area.")
 
 
 class Choice_BringJusticeToMercenaries(Plot):
@@ -2021,6 +2036,7 @@ class Choice_BringJusticeToMercenaries(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {ENEMY: MERCENARY}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2045,9 +2061,10 @@ class Choice_BringJusticeToMercenaries(Plot):
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
-        thingmenu.desc = "You still don't know who hired the mercenaries you fought earlier. This could be an opportunity to trail them to their leader and find out who they work for."
+        thingmenu.desc = "You still don't know who hired the mercenaries you fought earlier. This could be an opportunity to trail them to their leader and find out who they work for." + ONE_WAY_WARNING
         thingmenu.add_item('For great justice', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -2058,6 +2075,7 @@ class Choice_DutyToFightPirates(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {ENEMY: PIRATES}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2082,9 +2100,10 @@ class Choice_DutyToFightPirates(Plot):
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
-        thingmenu.desc = "The pirates seem to be having trouble navigating on Earth. They've left the road and headed into the forest. It should be no problem to catch up with them there."
+        thingmenu.desc = "The pirates seem to be having trouble navigating on Earth. They've left the road and headed into the forest. It should be no problem to catch up with them there." + ONE_WAY_WARNING
         thingmenu.add_item('Do your duty', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -2095,6 +2114,7 @@ class Choice_FellowshipWithSmugglers(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {COMPLICATION: CONTRABAND_CARGO}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2119,10 +2139,11 @@ class Choice_FellowshipWithSmugglers(Plot):
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "Marks in the snow indicate that the smugglers are still being pursued by {}. It seems cruel to leave them to their fate... You can defend the convoy and let the Guardians figure out what to do about the contraband later.".format(
-            ENEMY_NOUN[self.elements.get(ENEMY, 0)])
+            ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
         thingmenu.add_item('Show your fellowship', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -2133,6 +2154,7 @@ class Choice_BringJusticeToSmugglers(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {COMPLICATION: CONTRABAND_CARGO}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2160,10 +2182,11 @@ class Choice_BringJusticeToSmugglers(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "The smugglers who got away from {} seem to have gone in this direction. Their actions tonight have endangered a great number of lives, and they shouldn't get away with it.".format(
-            ENEMY_NOUN[self.elements.get(ENEMY, 0)])
+            ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
         thingmenu.add_item('For great justice', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -2174,6 +2197,7 @@ class Choice_JusticeForWujungOrphans(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {STAKES: STOLEN_TOYS}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2198,9 +2222,10 @@ class Choice_JusticeForWujungOrphans(Plot):
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
-        thingmenu.desc = 'From the tracks in the snow, you think this is the way the thieves brought the stolen toys. If you hurry you may still be able to catch them and return the toys to the children of Wujung.'
+        thingmenu.desc = 'From the tracks in the snow, you think this is the way the thieves brought the stolen toys. If you hurry you may still be able to catch them and return the toys to the children of Wujung.' + ONE_WAY_WARNING
         thingmenu.add_item('For great justice', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -2211,6 +2236,7 @@ class Choice_GloryByDestroyingBigBase(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {COMPLICATION: PROFESSIONAL_OPERATION}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2234,10 +2260,11 @@ class Choice_GloryByDestroyingBigBase(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "In order to pull off an operation like this, {} must have a base nearby. This seems to be the direction from which they came.".format(
-            ENEMY_NOUN[self.elements.get(ENEMY, 0)])
+            ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
         thingmenu.add_item('Go for glory', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -2248,6 +2275,7 @@ class Choice_GloryByDestroyingBanditBase(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {ENEMY: BANDITS}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2271,9 +2299,10 @@ class Choice_GloryByDestroyingBanditBase(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
-        thingmenu.desc = 'The tracks in the snow indicate that the bandits came from this direction. If you follow the tracks back to their base, you may be able to put an end to their crime spree once and for all.'
+        thingmenu.desc = 'The tracks in the snow indicate that the bandits came from this direction. If you follow the tracks back to their base, you may be able to put an end to their crime spree once and for all.' + ONE_WAY_WARNING
         thingmenu.add_item('Go for glory', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -2284,6 +2313,7 @@ class Choice_PeaceByDefeatingAegis(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {COMPLICATION: AEGIS_SCOUTS}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2309,12 +2339,17 @@ class Choice_PeaceByDefeatingAegis(Plot):
 
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'The tracks in the snow indicate that this is the direction the Aegis scouts came from. Stopping them may be far more important than {} you were sent to fight.'.format(
-            ENEMY_NOUN[self.elements.get(ENEMY, 0)])
+            ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
         thingmenu.add_item('Protect the Earth', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
+
+    def t_MOCHAVICTORY(self, camp):
+        if not self.chose_this_route:
+            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Defense Force to let them know there are Aegis infiltrators in the area.")
 
 
 class Choice_GloryByFightingTheLeader(Plot):
@@ -2323,6 +2358,7 @@ class Choice_GloryByFightingTheLeader(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {STAKES: GET_THE_LEADER}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2347,9 +2383,10 @@ class Choice_GloryByFightingTheLeader(Plot):
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
-        thingmenu.desc = "This seems to be the way that the raider leader went. It's time to finish this."
+        thingmenu.desc = "This seems to be the way that the raider leader went. It's time to finish this." + ONE_WAY_WARNING
         thingmenu.add_item('Go for glory', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -2360,6 +2397,7 @@ class Choice_DutyToCatchTheLeader(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {STAKES: GET_THE_LEADER}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2384,9 +2422,10 @@ class Choice_DutyToCatchTheLeader(Plot):
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
-        thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to capture them?'
+        thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to capture them?' + ONE_WAY_WARNING
         thingmenu.add_item('Do your duty', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 
@@ -2397,6 +2436,7 @@ class Choice_PeaceToDisableThePrototype(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {STAKES: PROTOTYPE_MECHA}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2421,11 +2461,16 @@ class Choice_PeaceToDisableThePrototype(Plot):
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
+        self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
-        thingmenu.desc = 'This seems to be the direction that the prototype mecha was taken. A weapon that powerful should not fall into the wrong hands.'
+        thingmenu.desc = 'This seems to be the direction that the prototype mecha was taken. A weapon that powerful should not fall into the wrong hands.' + ONE_WAY_WARNING
         thingmenu.add_item('Fight for peace', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
+
+    def t_MOCHAVICTORY(self, camp):
+        if not self.chose_this_route and not camp.campdata.get(MOVAR_FOUGHTBLITZEN, False):
+            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Guardians to let them know the missing prototype is still out there.")
 
 
 class Choice_DutyToStopThePrototype(Plot):
@@ -2434,6 +2479,7 @@ class Choice_DutyToStopThePrototype(Plot):
     scope = True
     # Info for the plot checker...
     REQUIRES = {STAKES: PROTOTYPE_MECHA}
+    chose_this_route = False
 
     @classmethod
     def matches(self, pstate):
@@ -2458,9 +2504,14 @@ class Choice_DutyToStopThePrototype(Plot):
     def start_mission(self, camp):
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
+        self.chose_this_route = True
+
+    def t_MOCHAVICTORY(self, camp):
+        if not self.chose_this_route and not camp.campdata.get(MOVAR_FOUGHTBLITZEN, False):
+            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Guardians to let them know the missing prototype is still out there.")
 
     def _waypoint_menu(self, camp, thingmenu):
-        thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to recover the stolen prototype?'
+        thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to recover the stolen prototype?' + ONE_WAY_WARNING
         thingmenu.add_item('Do your duty', self.start_mission)
         thingmenu.add_item('Examine the other options first', None)
 

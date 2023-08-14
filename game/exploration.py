@@ -641,6 +641,8 @@ class Explorer(object):
                         myimage = self.camp.pc.get_portrait()
                         pygame.image.save(myimage.bitmap, pbge.util.user_dir("selfie_{}.png".format(self.camp.pc)))
 
+                    elif gdi.unicode == "W" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        self.camp.check_trigger("CHEATINGFUCKINGBASTARD")
 
                     elif gdi.unicode == "X" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         pc = self.camp.first_active_pc()

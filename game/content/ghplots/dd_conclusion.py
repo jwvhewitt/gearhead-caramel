@@ -11,6 +11,8 @@ from game import content
 from . import dd_main, missionbuilder, dd_customobjectives
 from .dd_main import DZDRoadMapExit
 from pbge.memos import Memo
+from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
+
 
 DZDCVAR_NUM_ALLIANCES = "DZDCVAR_NUM_ALLIANCES"
 DZDCVAR_CETUS_TOWN = "DZDCVAR_CETUS_TOWN"
@@ -356,7 +358,15 @@ class DoomedTown(Plot):
                         **self.elements),
                     mypcs[1]
                 )(camp, False)
+            BiotechDiscovery(
+                camp, "We discovered a mecha-sized egg in {}; it may be connected to Cetus.".format(self.elements["LOCALE"]),
+                "Cetus, you say? Oh, this is bad... this is really really bad. We'll send a team to secure the contamination zone immediately. Here is {cash} for your discovery.",
+                max(camp.pc.renown+15, 65), on_sale_fun=self._inform_biocorp
+            )
             self.found_egg = True
+
+    def _inform_biocorp(self, camp: gears):
+        camp.campdata["INFORM_BIOCORP_ANGEL_EGG"] = self.elements["LOCALE"]
 
     def get_road_adventure(self, camp, dest_node):
         # Return an adventure if there's going to be an adventure. Otherwise return nothing.
@@ -382,6 +392,14 @@ class DoomedTown(Plot):
     def _end_this_bit(self, camp):
         camp.check_trigger("WIN", self)
         self.did_fight = True
+
+    def DZ_CONTACT_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer(
+            "Go to {LOCALE} and find out what's wrong. Be careful, [audience]... there's no telling what you'll find.".format(**self.elements),
+            context=ContextTag([context.HELLO]), allow_generics=False
+        ))
+        return mylist
 
 
 class DZD_ChangeTheWorld(Plot):
