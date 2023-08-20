@@ -47,10 +47,10 @@ def build_grammar(mygram, camp: gears.GearHeadCampaign, speaker, audience):
                 tags.append(ghgrammar.UNFAVORABLE)
 
     trait_absorb(mygram, ghgrammar.DEFAULT_GRAMMAR, tags)
-    for p in camp.active_plots():
-        pgram = p.get_dialogue_grammar(speaker, camp)
-        if pgram:
-            mygram.absorb(pgram)
+    #for p in camp.active_plots():
+    #    pgram = p.get_dialogue_grammar(speaker, camp)
+    #    if pgram:
+    #        mygram.absorb(pgram)
     if speaker.relationship and audience is camp.pc:
         mygram.absorb(speaker.relationship.get_grammar())
     if speaker is camp.pc and audience and audience.relationship:
@@ -217,7 +217,7 @@ class GearHeadConversation(pbge.dialogue.DynaConversation):
                     self.rumors = [r for r in current_rumors if r in all_rumors]
                     random.shuffle(self.rumors)
 
-                self._gathered_rumors = True
+            self._gathered_rumors = True
 
         if self.rumors:
             self.npc_offers.append(Offer(

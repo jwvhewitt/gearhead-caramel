@@ -2609,6 +2609,23 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[I_DONT_KNOW_MUCH]": {
+        Default: ["[I_DONT_KNOW]"
+                  ],
+        personality.Cheerful: ["I'd love to tell you all about it, but I don't know any more than you."
+                               ],
+        personality.Grim: ["I'm afraid you're out of luck. I know almost nothing about it.",
+                           ],
+        personality.Easygoing: ["Well, there's not much that I can really tell you..."
+                                ],
+        personality.Passionate: ["It pains me to admit that I don't know much about this...",
+                                 ],
+        personality.Sociable: ["I'm not sure anyone really knows much about that...",
+                               ],
+        personality.Shy: ["I don't know much.",
+                          ],
+    },
+
     "[I_DONT_WANT_TROUBLE]": {
         # Expresses a desire to not fight anyone.
         Default: ["I'm not looking for any trouble."
@@ -2931,6 +2948,23 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I think that I should proabably get some pactice.",
                                ],
         personality.Shy: ["I need to practice.",
+                          ],
+    },
+
+    "[I_SAW_SOMETHING_YOU_WOULDNT_BELIEVE]": {
+        Default: ["I saw something you wouldn't believe.",
+                  ],
+        personality.Cheerful: ["I saw something really funny a little while ago... not ha ha funny, either."
+                               ],
+        personality.Grim: ["I have seen things which chill me to even think about...",
+                           ],
+        personality.Easygoing: ["I don't think I'm crazy, but I've seen some crazy stuff."
+                                ],
+        personality.Passionate: ["I have seen things that were never meant for mortal eyes!",
+                                 ],
+        personality.Sociable: ["You wouldn't believe me if I told you about the things I've seen.",
+                               ],
+        personality.Shy: ["I have seen the impossible.",
                           ],
     },
 
@@ -5004,6 +5038,33 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Shy: ["Interesting.",
                           ],
+    },
+
+    "[THATS_RIGHT]": {
+        # Character confirms an assertion.
+        Default: ["That's right.",
+                  "That's correct."
+                  ],
+        personality.Cheerful: [
+            "Right you are!",
+        ],
+        personality.Grim: [
+            "Yes, that's true.",
+        ],
+        personality.Easygoing: [
+            "Yeah, you're right.",
+        ],
+        personality.Passionate: [
+            "You speak the truth!",
+            "It's a fact!",
+        ],
+        personality.Sociable: [
+            "You heard correct.",
+        ],
+        personality.Shy: [
+            "You are correct.",
+        ],
+        DISLIKE: ["Yeah, I have to admit you're right..."],
     },
 
     "[THATSUCKS]": {

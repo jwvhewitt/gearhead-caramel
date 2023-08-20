@@ -12,6 +12,7 @@ from game.ghdialogue import context
 from pbge.challenges import Challenge, AutoOffer, ChallengeMemo
 from . import missionbuilder, ghquest_objectives
 
+#VERB_CONTACT = "CONTACT"  # You need to make contact with the target NPC
 VERB_EXPEL = "EXPEL"  # Like DEFEAT, but the enemy is an outside power of some type
 VERB_FORTIFY = "FORTIFY"    # The involved NPCs will try to improve their defenses against the target faction
 VERB_REPRESS = "REPRESS"  # Like DEFEAT, but the enemy has to be located first
@@ -78,7 +79,6 @@ QUEST_TASK_INVESTIGATE_ENEMY = "QUEST_TASK_INVESTIGATE_ENEMY"
 #  ******************************
 #  ***   QUEST  CONCLUSIONS   ***
 #  ******************************
-
 
 class StrikeTheLeader(quests.QuestPlot):
     LABEL = quests.DEFAULT_QUEST_CONCLUSION

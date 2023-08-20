@@ -40,12 +40,13 @@ class DZD_Conclusion(Plot):
         self.cetus_path = [candidates[random.randint(0,1)], candidates[random.randint(2,3)], candidates[random.randint(4,5)]]
 
         # Also: Create the Voice of Iijima contact NPC.
-        npc = gears.selector.random_character(
-            rank=55, job = gears.jobs.ALL_JOBS["Commander"],
-            faction=gears.factions.TerranDefenseForce
-        )
+        npc = nart.camp.get_major_npc("General Pinsent")
+        if not npc:
+            npc = gears.selector.random_character(
+                rank=55, job = gears.jobs.ALL_JOBS["Commander"],
+                faction=gears.factions.TerranDefenseForce
+            )
         self.register_element("TDF_CONTACT", npc)
-
 
         return True
 
@@ -363,6 +364,7 @@ class DoomedTown(Plot):
                 "Cetus, you say? Oh, this is bad... this is really really bad. We'll send a team to secure the contamination zone immediately. Here is {cash} for your discovery.",
                 max(camp.pc.renown+15, 65), on_sale_fun=self._inform_biocorp
             )
+            self.memo = None
             self.found_egg = True
 
     def _inform_biocorp(self, camp: gears):
@@ -395,10 +397,11 @@ class DoomedTown(Plot):
 
     def DZ_CONTACT_offers(self, camp):
         mylist = list()
-        mylist.append(Offer(
-            "Go to {LOCALE} and find out what's wrong. Be careful, [audience]... there's no telling what you'll find.".format(**self.elements),
-            context=ContextTag([context.HELLO]), allow_generics=False
-        ))
+        if not self.did_fight:
+            mylist.append(Offer(
+                "Go to {LOCALE} and find out what's wrong. Be careful, [audience]... there's no telling what you'll find.".format(**self.elements),
+                context=ContextTag([context.HELLO]), allow_generics=False
+            ))
         return mylist
 
 
@@ -661,6 +664,12 @@ class CetusFight(Plot):
             objectives=(dd_customobjectives.DDBAMO_FIGHT_CETUS,),
             architecture=gharchitecture.MechaScaleSemiDeadzoneRuins(),
             cash_reward=100, on_loss=self._lose_mission, on_win=self._win_mission
+        )
+
+        self.memo = Memo(
+            "Cetus has been tracked to {METROSCENE}; you can speak to {TDF_CONTACT} there about defeating it.".format(
+                **self.elements
+            ), location=townhall
         )
 
         return True
