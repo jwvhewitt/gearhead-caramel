@@ -130,3 +130,7 @@ class Egg(object):
 
     def available_dramatis_personae(self, camp):
         return [npc for npc in self.dramatis_personae if npc not in camp.uniques]
+
+
+EGGDAT_ONAWA_HAPPINESS = "EGGDAT_ONAWA_HAPPINESS"
+

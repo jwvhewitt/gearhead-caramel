@@ -204,6 +204,23 @@ class ActionClockWidget(pbge.widgets.Widget):
         self._draw_clock(actions, leftover)
 
 
+class WaypointBumper:
+    # A special action so the player can go bump a waypoint.
+    def __init__(self, pc, camp, turn, nav, wp, dest):
+        self.pc = pc
+        self.camp = camp
+        self.turn = turn
+        self.nav = nav
+        self.wp = wp
+        self.dest = dest
+
+    def __call__(self):
+        dest = self.camp.fight.move_model_to(self.pc, self.nav, self.dest)
+        self.turn.movement_ui.needs_tile_update = True
+        if dest == self.dest:
+            self.wp.combat_bump(self.camp, self.pc)
+
+
 class PlayerTurn(object):
     # It's the player's turn. Allow the player to control this PC.
     def __init__(self, pc, camp):
@@ -289,6 +306,15 @@ class PlayerTurn(object):
     def pop_menu(self):
         # Pop Pop PopMenu Pop Pop PopMenu
         mymenu = pbge.rpgmenu.PopUpMenu()
+        mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.pc.pos, self.camp.fight.cstat[
+                self.pc].total_mp_remaining, self.pc.mmode, self.camp.scene.get_blocked_tiles())
+        path = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.pc.pos, pbge.my_state.view.mouse_tile,
+                                                 self.pc.mmode)
+        if len(path.results) > 1 and path.results[-2] in mynav.cost_to_tile:
+            for wp in self.camp.scene.get_waypoints(pbge.my_state.view.mouse_tile):
+                if hasattr(wp, "combat_bump"):
+                    mymenu.add_item("Use {}".format(wp.name), WaypointBumper(self.pc, self.camp, self, mynav, wp, path.results[-2]))
+
         mymenu.add_item("Center on {}".format(self.pc.get_pilot()), self.focus_on_pc)
         mymenu.add_item("Record hotkey for current action", self.gui_record_hotkey)
         mymenu.add_item("View hotkeys", self.gui_view_hotkeys)
@@ -636,6 +662,22 @@ class Combat(object):
         is_player_model = chara in self.camp.party
         path = nav.get_path(dest)[1:]
         for p in path:
+            self.step(chara, p)
+            if is_player_model:
+                self.scene.update_party_position(self.camp)
+
+        # Spend the movement points.
+        self.cstat[chara].spend_mp(nav.cost_to_tile[chara.pos])
+
+        # Return the actual end point, which may be different from that requested.
+        return chara.pos
+
+    def move_model_and_bump(self, chara, nav, dest):
+        # Move the model along the path, stopping before the last tile. Handle attacks of opportunity and wotnot.
+        # Return the tile where movement ends.
+        is_player_model = chara in self.camp.party
+        path = nav.get_path(dest)[1:]
+        for p in path[:-1]:
             self.step(chara, p)
             if is_player_model:
                 self.scene.update_party_position(self.camp)

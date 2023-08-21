@@ -118,6 +118,7 @@ class DDBAMO_BloodFromASynth(Plot):
         if not self.sample_collected:
             self.sample_collected = True
             pbge.alert("You collect a sample of the mysterious ooze.")
+            self.obj.win(camp)
         else:
             pbge.alert("You don't need more of this stuff, whatever it is.")
 

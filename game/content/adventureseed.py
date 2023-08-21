@@ -364,7 +364,7 @@ class SalvageReward(object):
             pc = camp.first_active_pc()
             candidates = list()
             for mek in camp.scene.contents:
-                if isinstance(mek,gears.base.Mecha) and camp.scene.are_hostile(pc,mek):
+                if isinstance(mek,gears.base.Mecha) and camp.scene.are_hostile(pc,mek) and not mek.is_operational():
                     mek.free_pilots()
                     skill = camp.get_party_skill(gears.stats.Knowledge,
                                                  mek.material.repair_type) - mek.get_percent_damage_over_health()

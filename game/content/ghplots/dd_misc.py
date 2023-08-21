@@ -8,7 +8,7 @@ from .dd_main import DZDRoadMapExit, RoadNode
 import random
 from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, GHNarrativeRequest, PLOT_LIST, ghchallenges
 from gears import personality
-from . import ghquests, missionbuilder, dd_main, dd_customobjectives
+from . import ghquests, missionbuilder, dd_main, dd_customobjectives, dd_homebase
 from pbge import quests, memos
 
 
@@ -28,6 +28,8 @@ class OnawaMystery(Plot):
     def custom_init(self, nart):
         scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"], backup_seek_func=self._is_okay_scene)
         npc = self.register_element("NPC", nart.camp.get_major_npc("Onawa GH1"), dident="NPC_SCENE")
+        self.rank = max(35, nart.camp.pc.renown)
+
         if not npc:
             return False
         self._spoke_before = False
@@ -192,11 +194,24 @@ class OnawaSearchConclusion(Plot):
         self.elements["ON_WIN"](camp)
         self.finished_mission = True
         self.actually_won = True
+        self.memo = pbge.memos.Memo(
+            "You have acquired a chemical sample that may be from the mysterious flying object that Onawa has been searching for. You should report back to her immediately.",
+            location=self.elements["ONAWA"].scene
+        )
+        dd_homebase.BiotechDiscovery(
+            camp, "I found some goop that may have come from a biomonster in {METROSCENE}.".format(**self.elements),
+            "[THATS_INTERESTING] It's also very worrying... we really have no idea how many more monsters like Typhon could have been constructed during the Age of Superpowers. Here's {cash} for your discovery.",
+            self.rank+10
+        )
 
     def lose_challenge(self, camp):
         self.elements["ON_WIN"](camp)
         self.finished_mission = True
         self.actually_won = False
+        self.memo = pbge.memos.Memo(
+            "You failed to secure evidence of the mysterious flying object that Onawa has been searching for. Still, you should report back to her as soon as possible.",
+            location=self.elements["ONAWA"].scene
+        )
 
     def _is_best_scene(self, nart, candidate):
         return (
@@ -236,6 +251,30 @@ class OnawaSearchConclusion(Plot):
         if self.got_mission and not self.finished_mission:
             thingmenu.add_item(self.mission_seed.name, self.mission_seed)
 
+    def ONAWA_offers(self, camp):
+        mylist = list()
+        if self.finished_mission:
+            if self.actually_won:
+                mylist.append(Offer(
+                    "This is great news! With this sample, the brass will have to take the threat seriously... and maybe we can even learn what that thing is. Thank you so much, [audience]. I couldn't have done this without you.",
+                    context=ContextTag([context.CUSTOM,]), effect=self._victory_is_yours,
+                    data={"reply": "I have obtained a chemical sample from the mysterious flying object."},
+                ))
+            else:
+                mylist.append(Offer(
+                    "Sometimes you lose the battle to win the war. The Defense Force's intel network got word that enemy forces have captured a biotech sample. They're finally taking the threat seriously... maybe even more so than if we had gotten the sample ourselves! You did good out there, [audience]. I can't thnak you enough.",
+                    context=ContextTag([context.CUSTOM,]), effect=self._victory_is_yours,
+                    data={"reply": "I failed to collect evidence of the mysterious flying object."},
+                ))
+
+        return mylist
+
+    def _victory_is_yours(self, camp: gears.GearHeadCampaign):
+        self.elements["ONAWA"].relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        camp.egg.data[gears.eggs.EGGDAT_ONAWA_HAPPINESS] = camp.egg.data.get(gears.eggs.EGGDAT_ONAWA_HAPPINESS, 0) + 1
+        camp.campdata[dd_main.ONAWA_FOUND_EVIDENCE] = True
+        self.end_plot(camp, True)
+
 
 class OnawaSearchMission(Plot):
     LABEL = "DZD_ONAWA_SEARCH_MISSION"
@@ -247,7 +286,7 @@ class OnawaSearchMission(Plot):
         "there was a weird glowing thing that few over {METROSCENE}; {NPC} saw it",
         "{NPC} says {NPC.gender.subject_pronoun} saw a mysterious object in the sky",
         "{NPC} claims to have seen an unidentified flying object",
-        "{NPC} thinks an alien spaceship flew past {METROSCENE}"
+        "{NPC} thinks an alien spaceship flew past {METROSCENE}",
         "{NPC} saw a bright light in the sky",
         "{NPC} saw a weird airplane near that place where the trucker disappeared"
     )

@@ -18,6 +18,8 @@ from game.content.plotutility import AdventureModuleData
 # Room tags
 ON_THE_ROAD = "ON_THE_ROAD"  # This location is connected to the highway, if appropriate.
 
+ONAWA_FOUND_EVIDENCE = "ONAWA_FOUND_EVIDENCE"
+
 
 class DeadzoneDrifterStub(Plot):
     LABEL = "SCENARIO_DEADZONEDRIFTER"
