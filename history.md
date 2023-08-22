@@ -1,3 +1,4 @@
+v0.950 August 22, 2023
 * TagBasedPartyReply will not display a major character's mnpcid
 * Added ending scenes to DeadZone Drifter
 * Can now use waypoints from the combat popup menu
