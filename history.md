@@ -1,3 +1,5 @@
+* TagBasedPartyReply will not display a major character's mnpcid
+* Added ending scenes to DeadZone Drifter
 * Can now use waypoints from the combat popup menu
 * Added Onawa's quest to DeadZone Drifter
 * Fixed duplicate grammar bug

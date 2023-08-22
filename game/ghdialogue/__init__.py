@@ -143,8 +143,8 @@ class TagBasedPartyReply(SkillBasedPartyReply):
         self.offer = myoffer
         self.message_format = message_format
         self.needed_tags = set(needed_tags)
-        self.offer.skill_info = self.get_dialogue_info_text()
         winners = [pc for pc in camp.get_active_party() if self.needed_tags.issubset(pc.get_pilot().get_tags())]
+        self.pc = None
         if winners:
             pc = random.choice(winners)
             if pc.get_pilot() is camp.pc:
@@ -153,10 +153,15 @@ class TagBasedPartyReply(SkillBasedPartyReply):
                 mylist.append(myoffer)
                 myoffer.custom_menu_fun = self.custom_menu_fun
                 self.pc = pc.get_pilot()
+        self.offer.skill_info = self.get_dialogue_info_text()
 
     def get_dialogue_info_text(self):
-        if self.needed_tags:
-            return " [{}]".format(", ".join([str(t) for t in self.needed_tags]))
+        mytags = set(self.needed_tags)
+        if self.pc and self.pc.mnpcid and self.pc.mnpcid in mytags:
+            mytags.remove(self.pc.mnpcid)
+
+        if mytags:
+            return " [{}]".format(", ".join([str(t) for t in mytags]))
 
 
 class MatchingTagPartyReply(SkillBasedPartyReply):

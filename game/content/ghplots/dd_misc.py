@@ -37,8 +37,6 @@ class OnawaMystery(Plot):
         self._got_mission_intro = False
         self.needed_wins = random.choice((1,2,2,2,3,3))
 
-        print(self.elements["METROSCENE"])
-
         self.infoblasts = (
             OneShotInfoBlast(
                 "Snake Lake",

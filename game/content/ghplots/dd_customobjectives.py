@@ -688,6 +688,9 @@ class DDBAM_FightCetusNextTime(Plot):
                     pbge.my_state.view.handle_anim_sequence()
                     camp.scene.contents.remove(self.cetus)
 
+    def t_CHEATINGFUCKINGBASTARD(self, camp):
+        self.cetus.hp_damage += 100000
+
     def _has_an_advantage(self, camp):
         # Return True if the PC has obtained one of the advantages that will enable Cetus to be defeated.
         return camp.campdata.get("DZDCVAR_YES_TO_TDF") or camp.campdata[

@@ -830,6 +830,21 @@ class BadEnding(Plot):
     active = True
     scope = True
 
+    RESIDENT_DIALOGUE = (
+        "We lost everything when our home was destroyed. [I_MUST_CONSIDER_MY_NEXT_STEP]",
+        "I suppose it's good that the Federation is helping to rebuild our city, but they're the ones who blew it up in the first place!",
+        "There are still people missing, Hopefully they will be found alive.",
+        "I thought the Defense Force was coming to protect us. As usual, they're only interested in protecting the green zone.",
+        "The Federation says that they're going to rebuild our town, but money can't replace everything that's been lost here today.",
+        "Maybe this is for the best. Creation and destruction are part of an endless cycle. Or maybe I'm just rationalizing because everything I know has been blown to ashes.",
+        "This is your fault! If you were a better pilot, you could have stopped that monster!",
+        "This isn't your fault. Cetus is an unstoppable force... We are the unlucky ones who have seen the eye of god.",
+        "I knew that life is fragile, but I never thought I'd see everything I know destroyed in an instant.",
+        "I'm gonna be honest with you... I was planning on moving out of town even before this happened.",
+        "We survived, but our lives have been taken from us. Now we must build a new future.",
+        "I can't find the words. This is all too overwhelming."
+    )
+
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1,))
@@ -871,12 +886,29 @@ class BadEnding(Plot):
             ), dident="_ROOM"
         )
 
+        self.elements["TDF_CONTACT"].place(myscene, team=team2)
+        self.onawa_spoke = False
+
+        self.add_sub_plot(nart, "DZDCEND_NPC_END_GAME_SHOP", necessary=False)
+
+        my_dialogue = list(self.RESIDENT_DIALOGUE)
+        random.shuffle(my_dialogue)
+        for t in range(random.randint(3,5)):
+            self.add_sub_plot(nart, "DZDCEND_NPC_ONE_LINE_RESIDENT", necessary=False, elements={"DIALOGUE_LINE": my_dialogue[t]})
+
         return True
 
     def METROSCENE_ENTER(self, camp):
         if not self.town_narration:
             pbge.alert("A short time later, land is allocated and funds provided for the construction of New {}. This will be a satellite city of Wujung, straddling the line between the green zone and the dead zone.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
-
+            ghcutscene.SimpleMonologueDisplay(
+                "Let this city be a new beginning, a pact between the people of the deadzone and the Terran Federation. Together we can protect the people of Earth from all threats.",
+                self.elements["TDF_CONTACT"]
+            )(camp)
+            ghcutscene.SimpleMonologueDisplay(
+                "Please know that the Federation stands with you and will spare no expense in helping {METROSCENE} to recover from this senseless tragedy.".format(**self.elements),
+                self.elements["TDF_CONTACT"]
+            )(camp, False)
 
             self.town_narration = True
 
@@ -899,45 +931,444 @@ class BadEnding(Plot):
 
             camp.go(self.elements["ENTRANCE"])
 
+    def TDF_CONTACT_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] You did your best against that monster; we all did. Remember that.",
+            context=ContextTag([context.HELLO,]), allow_generics=False
+        ))
+
+        mylist.append(Offer(
+            "Sometimes we fail despite our best efforts... but for as long as we're alive we can keep trying. It's important to keep trying, no matter how hopeless things seem.",
+            context=ContextTag([context.CUSTOM,]),
+            data={"reply": "That doesn't change the fact that I failed."}
+        ))
+
+        mylist.append(Offer(
+            "I once failed at a very important mission, as well. Many people died. I will have to live with that for the rest of my life. But that's all the more reason to keep on trying. You have never truly lost until you stop trying.",
+            context=ContextTag([context.CUSTOM,]),
+            data={"reply": "Thank you. I'll try to remember that."}
+        ))
+
+        if not self.onawa_spoke:
+            ghdialogue.TagBasedPartyReply(Offer(
+                "You speak insubordination... but you're right. If I had listened, we could have stopped Cetus while it was still in the deep dead zone, far away from people. This is the second time I've failed to protect Earth from a biomonster. I swear to you, Onawa, that it will be the last.",
+                context=ContextTag([context.CUSTOM,]), effect=self._onawa_speaks,
+                data={"reply": "This is your fault. I warned you that Cetus was out there."}
+            ), camp, mylist, needed_tags=("Onawa GH1",))
+
+        return mylist
+
+    def _onawa_speaks(self, camp):
+        self.onawa_spoke = True
+        camp.egg.data[gears.eggs.EGGDAT_ONAWA_HAPPINESS] = camp.egg.data.get(gears.eggs.EGGDAT_ONAWA_HAPPINESS, 0) + 1
+
 
 class DZAllianceEnding(Plot):
     LABEL = "DZDCEND_DZALLIANCE"
     active = True
     scope = True
 
+    RESIDENT_DIALOGUE = (
+        "I don't mind telling you, I've lived in the dead zone for my entire life and Cetus was the second scariest monster I ever saw.",
+        "I thought for certain that {TOWN} would be destroyed. Thank you [audience]!",
+        "When we come together, we have enough strength to defeat a biomonster like Cetus. It really makes you think.",
+        "Thank you for saving {TOWN}!",
+        "When the evacuation order came, I was so scared... Thank you for saving our town!",
+        "Our town has been saved, thanks to you. Thank you so much.",
+        "I don't know why that Defense Force bub is here... you're the ones who did all the real work!",
+        "That was a close call. If I never see another giant monster for the rest of my life, it'll be too soon.",
+        "We usually think about the Age of Superpowers as ancient history, but the truth is that we are still living with the consequences every day.",
+        "Hey, I'd like to thank you for saving {TOWN}. And me in particular. I'm quite glad I didn't have to die today.",
+        "Their fancy battlecarrier loaded with weapons couldn't stop Cetus... it took the people of the land to turn back the storm!",
+        "Cetus is a force of nature; I don't believe that the defense force would have been able to kill it with their weapons. That would only lead to an even greater threat down the line."
+    )
+
+    def custom_init(self, nart):
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team", allies=(team1,))
+
+        myscene = gears.GearHeadScene(
+            30, 30, "{} Green".format(nart.camp.campdata[DZDCVAR_CETUS_TOWN]), player_team=team1, civilian_team=team2,
+            scale=gears.scale.HumanScale, is_metro=True,
+            attributes=(gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC),
+            exploration_music='Heroic Adventure.ogg'
+        )
+
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.HumanScaleGreenzone(),
+                                                        gapfill=pbge.randmaps.gapfiller.RoomFiller(ghrooms.BushesRoom,
+                                                                                                   ghrooms.GrassRoom))
+
+        self.register_scene(nart, myscene, myscenegen, ident="METROSCENE")
+
+        self.elements["TOWN"] = nart.camp.campdata[DZDCVAR_CETUS_TOWN]
+
+        self.initial_narration = False
+        self.town_narration = False
+        self.got_reward = False
+
+        myscene.contents.append(pbge.randmaps.rooms.Room(3, 3, tags=(pbge.randmaps.IS_CONNECTED_ROOM,)))
+        myscene.contents.append(pbge.randmaps.rooms.Room(3, 3, tags=(pbge.randmaps.IS_CONNECTED_ROOM,)))
+        myscene.contents.append(pbge.randmaps.rooms.Room(3, 3, tags=(pbge.randmaps.IS_CONNECTED_ROOM,)))
+
+        myroom = self.register_element("_ROOM", pbge.randmaps.rooms.FuzzyRoom(
+            3, 3, anchor=pbge.randmaps.anchors.south
+        ), dident="METROSCENE")
+
+        myroom2 = self.register_element("_ROOM2", ghrooms.FlagstoneRoom(
+            10, 10, anchor=pbge.randmaps.anchors.middle
+        ), dident="METROSCENE")
+
+        towngate = self.register_element(
+            "ENTRANCE", ghwaypoints.Exit(
+                name="Back to {}".format(self.elements["TOWN"]),
+                desc="This pathway leads back to town from the village green.",
+                anchor=pbge.randmaps.anchors.south,
+                plot_locked=True
+            ), dident="_ROOM"
+        )
+
+        if self.elements["TOWN"].metrodat.city_leader and self.elements["TOWN"].metrodat.city_leader.is_not_destroyed():
+            self.elements["LEADER"] = self.elements["TOWN"].metrodat.city_leader
+            self.elements["TOWN"].metrodat.city_leader.place(myscene, team=team2)
+
+        self.elements["TDF_CONTACT"].place(myscene, team=team2)
+        self.onawa_spoke = False
+
+        self.add_sub_plot(nart, "DZDCEND_NPC_END_GAME_SHOP", necessary=False)
+
+        my_dialogue = list(self.RESIDENT_DIALOGUE)
+        random.shuffle(my_dialogue)
+        for t in range(random.randint(3,5)):
+            self.add_sub_plot(nart, "DZDCEND_NPC_ONE_LINE_RESIDENT", necessary=False, elements={"DIALOGUE_LINE": my_dialogue[t].format(**self.elements)})
+
+        return True
+
     def t_START(self, camp: gears.GearHeadCampaign):
-        pbge.alert("The communities of the dead zone celebrate your victory over Cetus. Many of the local leaders enter talks to expand trade and mutual defense pacts between their isolated settlements.")
-        pbge.alert("Within the green zone the Terran Defense Force claims this outcome was a result of their deterrence strategy, though some of the commanders resent you for letting Cetus get away.")
-        pbge.alert("Cetus does not return to trouble this part of the world again.")
-        total_qol = get_current_qol_total(camp, self.elements["DZ_ROADMAP"])
-        if total_qol < camp.campdata["INITIAL_QOL"]:
-            camp.pc.add_badge(DISASTER_MAGNET)
-        else:
-            camp.pc.add_badge(gears.meritbadges.TagReactionBadge(
-                "DeadZone Hero", "You united the deadzone to fight Cetus.",
-                {gears.personality.DeadZone: 10, gears.factions.TerranDefenseForce: -10}
-            ))
+        if not self.initial_narration:
+            pbge.alert("The communities of the dead zone celebrate your victory over Cetus. Many of the local leaders enter talks to expand trade and mutual defense pacts between their isolated settlements.")
+            pbge.alert("Within the green zone the Terran Defense Force claims this outcome was a result of their deterrence strategy, though some of the commanders resent you for letting Cetus get away.")
+            total_qol = get_current_qol_total(camp, self.elements["DZ_ROADMAP"])
+            if total_qol < camp.campdata["INITIAL_QOL"]:
+                camp.pc.add_badge(DISASTER_MAGNET)
+            else:
+                camp.pc.add_badge(gears.meritbadges.TagReactionBadge(
+                    "DeadZone Hero", "You united the deadzone to fight Cetus.",
+                    {gears.personality.DeadZone: 10, gears.factions.TerranDefenseForce: -10}
+                ))
+            self.initial_narration = True
+            camp.go(self.elements["ENTRANCE"])
+
+    def METROSCENE_ENTER(self, camp):
+        if not self.town_narration:
+            pbge.alert("After the battle, a victory party is held in {}.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
+            if self.elements.get("LEADER"):
+                ghcutscene.SimpleMonologueDisplay(
+                    "I raise a toast to {TDF_CONTACT} of the Terran Defense Force, without whose help {TOWN} would have been destroyed by Cetus!".format(**self.elements),
+                    self.elements["LEADER"]
+                )(camp)
+                ghcutscene.SimpleMonologueDisplay(
+                    "Please, this victory belongs to the brave soldiers of the dead zone, and to [pc] for uniting us in common cause!".format(**self.elements),
+                    self.elements["TDF_CONTACT"]
+                )(camp, False)
+            else:
+                ghcutscene.SimpleMonologueDisplay(
+                    "I propose a toast to [pc] for uniting the communities of the dead zone, and allowing us to defeat Cetus together!".format(**self.elements),
+                    self.elements["TDF_CONTACT"]
+                )(camp)
+
+            self.town_narration = True
+
+    def ENTRANCE_menu(self, camp, thingmenu):
+        thingmenu.add_item("End this adventure", self._end_adventure)
+        thingmenu.add_item("Stay here a while longer", None)
+
+    def _end_adventure(self, camp):
+        pbge.alert("Cetus does not return to trouble this part of the world again. Your reputation as a hero spreads throughout the dead zone.")
         camp.eject()
+
+    def TDF_CONTACT_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] I need to thank you, on behalf of all the people of Earth.",
+            context=ContextTag([context.HELLO,]), allow_generics=False
+        ))
+
+        if not self.got_reward:
+            mylist.append(Offer(
+                "You're being too modest. Here, you've earned a reward of two million credits for your heroic actions. You're probably going to need the money for your next adventure.",
+                context=ContextTag([context.CUSTOM,]), effect=self._get_reward,
+                data={"reply": "I was merely doing my duty as a cavalier."}
+            ))
+
+            mylist.append(Offer(
+                "Yes, I'm happy to say that it does come with a reward. Here, you've earned a reward of two million credits for your heroic actions. You're probably going to need the money for your next adventure.",
+                context=ContextTag([context.CUSTOM,]), effect=self._get_reward,
+                data={"reply": "Does this thanks come with any money? Because I could use some of that."}
+            ))
+
+        if not self.onawa_spoke:
+            ghdialogue.TagBasedPartyReply(Offer(
+                "You are correct. You've been correct all along. The Terran Defense Force needs to protect the entirety of Earth, not just the green zone. I will be reccomending some changes in my report on the Cetus incident.",
+                context=ContextTag([context.CUSTOM,]), effect=self._onawa_speaks,
+                data={"reply": "There was no need for Cetus to get this close to town. We need to increase our cooperation with the people of the dead zone, and actually listen to what they have to say."}
+            ), camp, mylist, needed_tags=("Onawa GH1",))
+
+        return mylist
+
+    def _get_reward(self, camp: gears.GearHeadCampaign):
+        camp.credits += 2000000
+        self.got_reward = True
+
+    def _onawa_speaks(self, camp):
+        self.onawa_spoke = True
+        camp.egg.data[gears.eggs.EGGDAT_ONAWA_HAPPINESS] = camp.egg.data.get(gears.eggs.EGGDAT_ONAWA_HAPPINESS, 0) + 1
+
+    def LEADER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] You have saved {TOWN}, and have our eternal gratitude. Remember that you will always have a home here.".format(**self.elements),
+            context=ContextTag([context.HELLO,]), allow_generics=False
+        ))
+
+        return mylist
 
 
 class TDFMissilesEnding(Plot):
     LABEL = "DZDCEND_TDFMISSILES"
     active = True
     scope = True
+    RESIDENT_DIALOGUE = (
+        "The Defense Force would never have used nuclears this close to a green zone city.",
+        "I thought for sure that {TOWN} would be destroyed. Instead, it only got half destroyed. Thank you [audience]!",
+        "Everybody complaining about the fallout has forgotten that we're already living on dead land. Thanks for saving our town.",
+        "I worry about the future of {TOWN}... we survived an attack from Cetus, but will we ever recover?",
+        "The Terran Federation is proud of the fact that they've killed a biomonster. They don't notice the damage they've caused to the people who live out here.",
+        "I'm just glad this is over... I don't want to get killed by biomonsters or nuclears.",
+        "I'm thinking that maybe, after the decontamination is complete, we can use the crater as a local tourist attraction. What do you think?",
+        "You did good out there... I'm not so sure about {TDF_CONTACT}.",
+        "Thanks for saving {TOWN}. It's where I keep all my stuff.",
+        "Cetus is a force of nature, one with the winds and the dust. I don't believe we've seen the last of it.",
+        "Thank you for saving us. You're a true cavalier.",
+        "The worst thing about getting attacked by Cetus is that I still have to go to work tomorrow."
+    )
+
+    def custom_init(self, nart):
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team", allies=(team1,))
+
+        myscene = gears.GearHeadScene(
+            30, 30, "{} Green".format(nart.camp.campdata[DZDCVAR_CETUS_TOWN]), player_team=team1, civilian_team=team2,
+            scale=gears.scale.HumanScale, is_metro=True,
+            attributes=(gears.personality.DeadZone, gears.tags.City, gears.tags.SCENE_PUBLIC),
+            exploration_music='Komiku_-_06_-_Friendss_theme.ogg'
+        )
+
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.HumanScaleGreenzone(),
+                                                        gapfill=pbge.randmaps.gapfiller.RoomFiller(ghrooms.BushesRoom,
+                                                                                                   ghrooms.GrassRoom))
+
+        self.register_scene(nart, myscene, myscenegen, ident="METROSCENE")
+
+        self.elements["TOWN"] = nart.camp.campdata[DZDCVAR_CETUS_TOWN]
+
+        self.initial_narration = False
+        self.town_narration = False
+        self.got_reward = False
+
+        myscene.contents.append(pbge.randmaps.rooms.Room(3, 3, tags=(pbge.randmaps.IS_CONNECTED_ROOM,)))
+        myscene.contents.append(pbge.randmaps.rooms.Room(3, 3, tags=(pbge.randmaps.IS_CONNECTED_ROOM,)))
+        myscene.contents.append(pbge.randmaps.rooms.Room(3, 3, tags=(pbge.randmaps.IS_CONNECTED_ROOM,)))
+
+        myroom = self.register_element("_ROOM", pbge.randmaps.rooms.FuzzyRoom(
+            3, 3, anchor=pbge.randmaps.anchors.south
+        ), dident="METROSCENE")
+
+        myroom2 = self.register_element("_ROOM2", ghrooms.FlagstoneRoom(
+            10, 10, anchor=pbge.randmaps.anchors.middle
+        ), dident="METROSCENE")
+
+        towngate = self.register_element(
+            "ENTRANCE", ghwaypoints.Exit(
+                name="Back to {}".format(self.elements["TOWN"]),
+                desc="This pathway leads back to town from the village green.",
+                anchor=pbge.randmaps.anchors.south,
+                plot_locked=True
+            ), dident="_ROOM"
+        )
+
+        if self.elements["TOWN"].metrodat.city_leader and self.elements["TOWN"].metrodat.city_leader.is_not_destroyed():
+            self.elements["LEADER"] = self.elements["TOWN"].metrodat.city_leader
+            self.elements["TOWN"].metrodat.city_leader.place(myscene, team=team2)
+
+        self.elements["TDF_CONTACT"].place(myscene, team=team2)
+        self.onawa_spoke = False
+
+        self.add_sub_plot(nart, "DZDCEND_NPC_END_GAME_SHOP", necessary=False)
+
+        my_dialogue = list(self.RESIDENT_DIALOGUE)
+        random.shuffle(my_dialogue)
+        for t in range(random.randint(3,5)):
+            self.add_sub_plot(nart, "DZDCEND_NPC_ONE_LINE_RESIDENT", necessary=False, elements={"DIALOGUE_LINE": my_dialogue[t].format(**self.elements)})
+
+        return True
 
     def t_START(self, camp: gears.GearHeadCampaign):
-        pbge.alert("The bombardment from the Voice of Iijima leaves a crater a kilometer across. No remains of Cetus are ever found, and the biomonster is presumed eliminated.")
-        pbge.alert("The meagre farmland around {} is polluted by the fallout. Though the Terran Federation provides food aid to the community, the trust between them has been lost.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
-        pbge.alert("You are welcomed as a hero in the greenzone, though a part of you continues to wonder if this is truly over...")
-        total_qol = get_current_qol_total(camp, self.elements["DZ_ROADMAP"])
-        if total_qol < camp.campdata["INITIAL_QOL"]:
-            camp.pc.add_badge(DISASTER_MAGNET)
-        camp.pc.add_badge(gears.meritbadges.TagReactionBadge(
-            "GreenZone Hero", "You helped the Terran Defense Force to defeat Cetus before it could reach the green zone.",
-            {gears.personality.DeadZone: -10, gears.personality.GreenZone: 10}
-        ))
-        camp.egg.data[gears.eggs.EGGDAT_ONAWA_HAPPINESS] = camp.egg.data.get(gears.eggs.EGGDAT_ONAWA_HAPPINESS, 0) - 2
+        if not self.initial_narration:
+            pbge.alert("The bombardment from the Voice of Iijima leaves a crater a kilometer across. No remains of Cetus are found, and the biomonster is presumed eliminated.")
+            pbge.alert("The meagre farmland around {} is polluted by the fallout. Though the Terran Federation provides food aid to the community, some resentment remains.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
+            total_qol = get_current_qol_total(camp, self.elements["DZ_ROADMAP"])
+            if total_qol < camp.campdata["INITIAL_QOL"]:
+                camp.pc.add_badge(DISASTER_MAGNET)
+            else:
+                camp.pc.add_badge(gears.meritbadges.TagReactionBadge(
+                    "GreenZone Hero",
+                    "You helped the Terran Defense Force to defeat Cetus before it could reach the green zone.",
+                    {gears.personality.DeadZone: -10, gears.personality.GreenZone: 10}
+                ))
+            camp.egg.data[gears.eggs.EGGDAT_ONAWA_HAPPINESS] = camp.egg.data.get(gears.eggs.EGGDAT_ONAWA_HAPPINESS, 0) - 2
+            self.initial_narration = True
+            camp.go(self.elements["ENTRANCE"])
 
+    def METROSCENE_ENTER(self, camp):
+        if not self.town_narration:
+            pbge.alert("After the battle, a victory celebration is held in {}.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
+            if self.elements.get("LEADER"):
+                ghcutscene.SimpleMonologueDisplay(
+                    "I would like to thank {TDF_CONTACT} of the Terran Defense Force, without whose aid {TOWN} would have certainly been destroyed by Cetus.".format(**self.elements),
+                    self.elements["LEADER"]
+                )(camp)
+                ghcutscene.SimpleMonologueDisplay(
+                    "Thank you. Please rest assured that the Terran Federation is fully committed to repairing the damage caused by Cetus and supporting {TOWN} until the area has been decontaminated.".format(**self.elements),
+                    self.elements["TDF_CONTACT"]
+                )(camp, False)
+            else:
+                ghcutscene.SimpleMonologueDisplay(
+                    "{TOWN} is now safe from Cetus. Rest assured that the Federation is fully committed to repairing the damage caused by the battle and supporting {TOWN} until this entire area has been decontaminated.".format(**self.elements),
+                    self.elements["TDF_CONTACT"]
+                )(camp)
+
+            self.town_narration = True
+
+    def ENTRANCE_menu(self, camp, thingmenu):
+        thingmenu.add_item("End this adventure", self._end_adventure)
+        thingmenu.add_item("Stay here a while longer", None)
+
+    def _end_adventure(self, camp):
+        pbge.alert("Cetus has been defeated. You are welcomed as a hero in the green zone... though a part of you wonders if this is really over.")
         camp.eject()
 
+    def TDF_CONTACT_offers(self, camp):
+        mylist = list()
 
+        mylist.append(Offer(
+            "[HELLO] I need to thank you for your help in defeating Cetus.",
+            context=ContextTag([context.HELLO,]), allow_generics=False
+        ))
+
+        if not self.got_reward:
+            mylist.append(Offer(
+                "The farmland around {TOWN} can be restored. The buildings can be rebuilt. The trust of the people... that's going to take longer. Here, you've earned a reward of two million credits for your heroic actions.".format(**self.elements),
+                context=ContextTag([context.CUSTOM,]), effect=self._get_reward,
+                data={"reply": "I only wish there had been another way to do it."}
+            ))
+
+            mylist.append(Offer(
+                "Well, if it's work, then you deserve to get paid. Here's a reward of two million credits for your heroic actions. You're probably going to need the money for your next adventure.",
+                context=ContextTag([context.CUSTOM,]), effect=self._get_reward,
+                data={"reply": "Defeating biomonsters is all in a day's work."}
+            ))
+
+        if not self.onawa_spoke:
+            ghdialogue.TagBasedPartyReply(Offer(
+                "Yes, I've read your reports... If this information had gotten to me earlier things may have turned out different. I'm afraid all we can do now is to support {TOWN} while trying to mend our relationship with the dead zone.".format(**self.elements),
+                context=ContextTag([context.CUSTOM,]), effect=self._onawa_speaks,
+                data={"reply": "This could have been handled better. There was no need to use nuclears so close to a town."}
+            ), camp, mylist, needed_tags=("Onawa GH1",))
+
+        return mylist
+
+    def _get_reward(self, camp: gears.GearHeadCampaign):
+        camp.credits += 2000000
+        self.got_reward = True
+
+    def _onawa_speaks(self, camp):
+        self.onawa_spoke = True
+        camp.egg.data[gears.eggs.EGGDAT_ONAWA_HAPPINESS] = camp.egg.data.get(gears.eggs.EGGDAT_ONAWA_HAPPINESS, 0) + 1
+
+    def LEADER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] You have saved {TOWN}, and have our deepest gratitude. It will take a long time to recover, but without you we wouldn't have a town left at all.".format(**self.elements),
+            context=ContextTag([context.HELLO,]), allow_generics=False
+        ))
+
+        return mylist
+
+
+
+# Utilities for the ending scene
+
+class OneLineResident(Plot):
+    # A resident of the town Cetus attacked, here to deliver a single line of dialogue.
+    # ELEMENTS
+    #   DIALOGUE_LINE: The one line of dialogue to be delivered.
+    LABEL = "DZDCEND_NPC_ONE_LINE_RESIDENT"
+    active = True
+    scope = True
+
+    def custom_init(self, nart):
+        npc: gears.base.Character = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.campdata[DZDCVAR_CETUS_TOWN], lock=True)
+        npc.place(self.elements["METROSCENE"], team=self.elements["METROSCENE"].civilian_team)
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.faction is not gears.factions.TerranDefenseForce and nart.camp.is_not_lancemate(candidate) and not candidate.uniqueid
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            self.elements.get("DIALOGUE_LINE", "[HELLO] I had something to say but I forgot it..."),
+            context=ContextTag([context.HELLO,]), dead_end=True
+        ))
+
+        return mylist
+
+
+class EndGameShop(Plot):
+    # A resident of the town Cetus attacked, here to deliver a single line of dialogue.
+    # ELEMENTS
+    #   DIALOGUE_LINE: The one line of dialogue to be delivered.
+    LABEL = "DZDCEND_NPC_END_GAME_SHOP"
+    active = True
+    scope = True
+
+    def custom_init(self, nart):
+        npc: gears.base.Character = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.campdata[DZDCVAR_CETUS_TOWN], lock=True)
+        npc.place(self.elements["METROSCENE"], team=self.elements["METROSCENE"].civilian_team)
+        self.shop = services.Shop(npc=npc, shop_faction=gears.factions.TerranDefenseForce,
+                                  ware_types=services.MECHA_STORE, rank=70)
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        return isinstance(candidate, gears.base.Character) and candidate.faction is not gears.factions.TerranDefenseForce and nart.camp.is_not_lancemate(candidate) and not candidate.uniqueid and candidate.job and candidate.job.name in ("Shopkeeper", "Trader", "Mechanic", "Tekno")
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] I'm going to be restocking the town militia in cooperation with the Defense Force. If you want, I can hook you up with some good mecha.",
+            context=ContextTag([context.HELLO,])
+        ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": "{NPC}'s mecha".format(**self.elements), "wares": "meks"},
+                            ))
+
+        return mylist

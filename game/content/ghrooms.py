@@ -30,6 +30,10 @@ class GrassRoom(ClumpyRoom):
     CLUMP_FLOOR = ghterrain.GreenZoneGrass
 
 
+class FlagstoneRoom(ClumpyRoom):
+    CLUMP_FLOOR = ghterrain.Flagstone
+
+
 class ToxicSludgeRoom(ClumpyRoom):
     CLUMP_FLOOR = ghterrain.ToxicSludge
 

@@ -519,6 +519,8 @@ class PlayerTurn(object):
                 elif gdi.unicode == "," and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                     print("Checking...")
                     print(self.camp.fight.cstat[self.pc]._ap_remaining,self.camp.fight.cstat[self.pc].action_points, -self.camp.fight.cstat[self.pc]._mp_spent, self.camp.fight.cstat[self.pc].mp_remaining, self.camp.fight.cstat[self.pc].total_mp_remaining)
+                elif gdi.unicode == "W" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                    self.camp.check_trigger("CHEATINGFUCKINGBASTARD")
                 elif gdi.unicode == "!" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                     myparty = self.camp.get_active_party()
                     myparty.remove(self.pc)

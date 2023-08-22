@@ -35,7 +35,7 @@ Monster
     desig = "DZD"
     statline = {Reflexes = 16, Body=32, Speed=16, Perception=16, Craft=14, Knowledge=17, Ego=17, Charm = 12,
 			MechaFighting = 12, MechaGunnery = 9, MechaPiloting = 5, Vitality = 30,
-			CloseCombat = 12, RangedCombat = 9, Dodge = 5, Scouting = 8
+			CloseCombat = 12, RangedCombat = 9, Dodge = 5, Scouting = 8, Concentration = 10
 	}
 	scale = MechaScale
     material = Biotech
@@ -56,14 +56,14 @@ Monster
                     name = "Death Wave"
                     reach = 5
                     damage = 4
-                    accuracy = 2
+                    accuracy = 3
                     penetration = 4
                     attributes = (Scatter,Brutal,Overload,SwarmFire2,LineAttack)
                     area_anim = DeathWaveAnim
                     shot_anim = PlasmaBall
             END
         Wing
-            size = 5
+            size = 6
             SUB
                 Armor
                     size = 4
@@ -72,21 +72,21 @@ Monster
                 Mount
                     INV
                         Launcher
-                            size = 4
+                            size = 6
                             SUB
                                 Missile
                                     name = "Acid Spores"
                                     reach = 4
                                     damage = 2
-                                    accuracy = 4
-                                    penetration = 1
+                                    accuracy = 5
+                                    penetration = 3
                                     quantity = 4
                                     attributes = (DisintegrateAttack,)
                             END
                     END
             END
         Wing
-            size = 5
+            size = 6
             SUB
                 Armor
                     size = 4
@@ -95,21 +95,21 @@ Monster
                 Mount
                     INV
                         Launcher
-                            size = 4
+                            size = 6
                             SUB
                                 Missile
                                     name = "Acid Spores"
                                     reach = 4
                                     damage = 2
-                                    accuracy = 4
-                                    penetration = 1
+                                    accuracy = 5
+                                    penetration = 3
                                     quantity = 4
                                     attributes = (DisintegrateAttack,)
                             END
                     END
             END
         Wing
-            size = 5
+            size = 6
             SUB
                 Armor
                     size = 4
@@ -118,21 +118,21 @@ Monster
                 Mount
                     INV
                         Launcher
-                            size = 4
+                            size = 6
                             SUB
                                 Missile
                                     name = "Acid Spores"
                                     reach = 4
                                     damage = 2
-                                    accuracy = 4
-                                    penetration = 1
+                                    accuracy = 5
+                                    penetration = 3
                                     quantity = 4
                                     attributes = (DisintegrateAttack,)
                             END
                     END
             END
         Wing
-            size = 5
+            size = 6
             SUB
                 Armor
                     size = 4
@@ -141,21 +141,21 @@ Monster
                 Mount
                     INV
                         Launcher
-                            size = 4
+                            size = 6
                             SUB
                                 Missile
                                     name = "Acid Spores"
                                     reach = 4
                                     damage = 2
-                                    accuracy = 4
-                                    penetration = 1
+                                    accuracy = 5
+                                    penetration = 3
                                     quantity = 4
                                     attributes = (DisintegrateAttack,)
                             END
                     END
             END
         Wing
-            size = 5
+            size = 6
             SUB
                 Armor
                     size = 4
@@ -164,14 +164,14 @@ Monster
                 Mount
                     INV
                         Launcher
-                            size = 4
+                            size = 6
                             SUB
                                 Missile
                                     name = "Acid Spores"
                                     reach = 4
                                     damage = 2
-                                    accuracy = 4
-                                    penetration = 1
+                                    accuracy = 5
+                                    penetration = 3
                                     quantity = 4
                                     attributes = (DisintegrateAttack,)
                             END
@@ -188,7 +188,7 @@ Monster
                     damage=3
                     accuracy=3
                     penetration=2
-                    attributes = (Defender,HaywireAttack)
+                    attributes = (Defender, HaywireAttack, DisintegrateAttack)
                     integral = True
             END
         Tail
@@ -202,7 +202,7 @@ Monster
                     damage=3
                     accuracy=3
                     penetration=2
-                    attributes = (Defender,HaywireAttack)
+                    attributes = (Defender, HaywireAttack, DisintegrateAttack)
                     integral = True
             END
         Tail
@@ -216,7 +216,7 @@ Monster
                     damage=3
                     accuracy=3
                     penetration=2
-                    attributes = (Defender,HaywireAttack)
+                    attributes = (Defender, HaywireAttack, DisintegrateAttack)
                     integral = True
             END
 
