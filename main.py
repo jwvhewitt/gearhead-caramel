@@ -33,6 +33,7 @@ VERSION = "v0.950"
 
 
 class TitleScreenRedraw(object):
+
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
     MENU_DEST = pbge.frects.Frect(-150, 0, 300, 254)
 

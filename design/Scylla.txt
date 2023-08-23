@@ -1,0 +1,179 @@
+Mecha
+    name = "Scylla"
+    desig = "SD-76g"
+    desc="This is one of BioCorp's Biometrics line; its body structure is modeled after that of a tiger. They Scylla was designed for rapid assault actions and excels in this role."
+    imagename = "mav_scylla.png"
+    portrait = "mecha_scylla.png"
+    form = MT_Zoanoid
+    family = "Biometrics"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv)
+    faction_list = (TerranFederation,TerranDefenseForce,ClanIronwind,BioCorp)
+    role_list = (Trooper,Commander)
+    material = Advanced
+
+    SUB
+        Head
+            size = 6
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+                    integral = True
+                Sensor
+                    size = 3
+                    integral = True
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                BeamWeapon
+                    name = "Plasma Breath"
+                    reach = 3
+                    damage = 2
+                    accuracy = 2
+                    penetration = 3
+                    attributes = (Plasma, Brutal, Intercept)
+                    shot_anim = PlasmaBall
+                    integral = True
+
+                MeleeWeapon
+                    name="Jaws"
+                    reach=1
+                    damage=2
+                    accuracy=2
+                    penetration=2
+                    attributes = (BonusStrike1)
+                    integral = True
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 5
+                    material = Ceramic
+                Engine
+                    size = 1300
+                Gyroscope
+                Mount
+                    name = "Top Weapon Mount"
+                    INV
+                        Launcher
+                            size = 15
+                            SUB
+                                Missile
+                                    name = "Long Range Missiles"
+                                    reach = 8
+                                    damage = 1
+                                    accuracy = 3
+                                    penetration = 1
+                                    quantity = 48
+                            END
+                    END
+
+                Mount
+                    name = "Bottom Weapon Mount"
+                    INV
+                        Launcher
+                            size = 8
+                            SUB
+                                Missile
+                                    name = "Tiger Missiles"
+                                    reach = 7
+                                    damage = 2
+                                    accuracy = 1
+                                    penetration = 2
+                                    quantity = 6
+                                    attributes = (Blast2)
+                            END
+                    END
+                FlightJets
+                    size = 7
+            END
+        Leg
+            name = "Front Right Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+                EnergyWeapon
+                    name = "Beam Claws"
+                    reach=1
+                    damage=4
+                    accuracy=3
+                    penetration=2
+                    attributes=(Overload, MultiWielded)
+            END
+        Leg
+            name = "Front Left Leg"
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+                EnergyWeapon
+                    name = "Beam Claws"
+                    reach=1
+                    damage=4
+                    accuracy=3
+                    penetration=2
+                    attributes=(Overload, MultiWielded)
+            END
+
+        Leg
+            name = "Rear Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+
+                FlightJets
+                    size = 5
+
+                Mount
+                    name = "Right Weapon Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 1
+                                    quantity = 24
+                            END
+                    END
+
+            END
+        Leg
+            name = "Rear Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                    material = Ceramic
+
+                FlightJets
+                    size = 5
+
+                Mount
+                    name = "Left Weapon Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 1
+                                    quantity = 24
+                            END
+                    END
+            END
+        END

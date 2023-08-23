@@ -3640,8 +3640,8 @@ class MT_Zoanoid(MT_Battroid):
     name = "Zoanoid"
     desc = "+20 walk speed, bonus to melee damage. Can jump but not fly or skim. No arms or turrets."
 
-    PROTOTYPE_IMAGENAME = "mav_kojedo.png"
-    PROTOTYPE_PORTRAIT = "mecha_kojedo.png"
+    PROTOTYPE_IMAGENAME = "mav_scylla.png"
+    PROTOTYPE_PORTRAIT = "mecha_scylla.png"
     MELEE_DAMAGE_BONUS = 5
 
     LEGAL_MOVE_MODES = (scenes.movement.Walking, tags.Jumping, tags.SpaceFlight)

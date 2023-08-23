@@ -1,4 +1,5 @@
-v0.950 August 22, 2023
+v0.950 August 23, 2023
+* Added the Scylla mecha from GH1
 * TagBasedPartyReply will not display a major character's mnpcid
 * Added ending scenes to DeadZone Drifter
 * Can now use waypoints from the combat popup menu
