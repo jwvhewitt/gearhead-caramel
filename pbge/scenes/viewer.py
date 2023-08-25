@@ -123,8 +123,9 @@ class SceneView(object):
                 spr = self.darksprite.get((fname, colors))
                 if not spr:
                     spr = self.get_named_sprite(fname, transparent=transparent, colors=colors).copy()
+                    spr.bitmap.set_at((0, 0), pygame.Color(0,0,255))
                     spr.bitmap.fill((190, 180, 200), special_flags=pygame.BLEND_MULT)
-                    spr.bitmap.set_colorkey((0, 0, 199))
+                    spr.bitmap.set_colorkey(spr.bitmap.get_at((0,0)))
                     self.darksprite[(fname, colors)] = spr
                 return spr
         else:

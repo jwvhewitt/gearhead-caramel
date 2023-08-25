@@ -1,8 +1,11 @@
+import collections
+
 import pbge
 from pbge.plots import Plot
 import gears
 from . import missionbuilder
 from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain
+import random
 
 
 def end_mission_lance_recovery(camp):
@@ -143,6 +146,8 @@ class MultiMissionStagePlot(Plot):
     STAGE_CONCLUSION = 4
     stage_frame = STAGE_NORMAL
 
+    PARTIAL_RESTORE_AFTER_STAGE = True
+
     def custom_init(self, nart):
         self.nodes = list()
         self._build_stage(nart)
@@ -151,8 +156,48 @@ class MultiMissionStagePlot(Plot):
     def _build_stage(self, nart):
         raise NotImplementedError("No build stage method declared for {}".format(self.LABEL))
 
+    def do_partial_restore(self, camp: gears.GearHeadCampaign):
+        myparty = camp.get_active_party()
+        repair_points = collections.defaultdict(int)
+        needs_repair = collections.defaultdict(list)
+        for pc in myparty:
+            for repair_skill in gears.stats.REPAIR_SKILLS:
+                if pc.has_skill(repair_skill):
+                    repair_points[repair_skill] += pc.get_skill_score(gears.stats.Craft, repair_skill) + pc.get_current_mental()
+            for part in pc.get_all_parts():
+                if hasattr(part, "mp_spent"):
+                    part.mp_spent = 0
+                if hasattr(part, "sp_spent"):
+                    part.sp_spent = 0
+                if isinstance(part, gears.base.MakesPower):
+                    part.spent = 0
+                if hasattr(part, "hp_damage"):
+                    needs_repair[part.material.repair_type].append(part)
+        for repair_skill, parts in needs_repair.items():
+            rp = repair_points.get(repair_skill, 0)
+            while parts and rp > 0:
+                rpart = random.choice(parts)
+                rpart.hp_damage = max(rpart.hp_damage - rpart.scale.scale_health(1, gears.materials.DamageMat))
+                if rpart.hp_damage < 1:
+                    parts.remove(rpart)
+                rp -= 1
+
+    def _win_mission_wrapper(self, camp):
+        if self.PARTIAL_RESTORE_AFTER_STAGE:
+            self.do_partial_restore(camp)
+        myfun = self.elements["WIN_MISSION_FUN"]
+        if myfun:
+            myfun(camp)
+
+    def _lose_mission_wrapper(self, camp):
+        myfun = self.elements["LOSE_MISSION_FUN"]
+        if myfun:
+            myfun(camp)
+
     def _add_stage_node(self, nart, nodelabel: str, necessary: bool = True):
-        mynode = self.add_sub_plot(nart, nodelabel, necessary=necessary)
+        mynode = self.add_sub_plot(nart, nodelabel, necessary=necessary, elements={
+            "WIN_MISSION_FUN": self._win_mission_wrapper, "LOSE_MISSION_FUN": self._lose_mission_wrapper
+        })
         self.nodes.append(mynode)
 
     def _get_stage_desc(self, camp):

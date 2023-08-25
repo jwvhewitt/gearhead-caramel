@@ -36,11 +36,11 @@ class WMWMission(multimission.MultiMission):
         hard_battle = 0
         while num_stages > 1:
             if random.randint(1,100) <= recovery_time:
-                self._add_stage(nart, "WMW_BATTLE_STAGE")
+                self._add_stage(nart, "WMW_REPAIR_STAGE")
                 recovery_time = -25
                 hard_battle += 30
             elif random.randint(1,100) <= hard_battle:
-                self._add_stage(nart, "WMW_BATTLE_STAGE")
+                self._add_stage(nart, "WMW_HARD_STAGE")
                 hard_battle = 0
             else:
                 self._add_stage(nart, "WMW_BATTLE_STAGE")
@@ -54,6 +54,10 @@ class WMWMission(multimission.MultiMission):
         return bool(camp.get_usable_party(gears.scale.MechaScale, just_checking=True,
                                           enviro=self.elements["ARCHITECTURE"].ENV))
 
+
+#   **************************
+#   ***  WMW_BATTLE_STAGE  ***
+#   **************************
 
 class WMWBattleStage(multimission.MultiMissionStagePlot):
     LABEL = "WMW_BATTLE_STAGE"
@@ -72,19 +76,57 @@ class WMWDefaultBattleNode(multimission.MultiMissionNodePlot):
     LABEL = "WMW_BATTLE_NODE"
     NAME_PATTERN = "Capture territory held by {ENEMY_FACTION}"
 
-    def create_mission(self, camp):
-        return missionbuilder.BuildAMissionSeed(
-            camp, self.NAME_PATTERN.format(**self.elements),
-            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
-            self.elements.get("ENEMY_FACTION"), self.elements.get("ALLIED_FACTION"), self.rank,
-            self.OBJECTIVES,
-            custom_elements=self.elements.get("CUSTOM_ELEMENTS", None),
-            scenegen=self.elements["SCENE_GENERATOR"], architecture=self.elements["ARCHITECTURE"],
-            on_win=self._on_win, on_loss=self._on_loss,
-            combat_music=self.elements.get("COMBAT_MUSIC"), exploration_music=self.elements.get("EXPLORATION_MUSIC"),
-            data=self.elements.get("MISSION_DATA", {}),
-            mission_grammar=self.elements.get("MISSION_GRAMMAR", {}),
-            restore_at_end=False, auto_exit=True,
-            call_win_loss_funs_after_card=True
-        )
 
+#   **************************
+#   ***  WMW_REPAIR_STAGE  ***
+#   **************************
+
+class WMWRepairStage(multimission.MultiMissionStagePlot):
+    LABEL = "WMW_REPAIR_STAGE"
+
+    DESC_PATTERNS = (
+        "An opportunity presents itself to restore your equipment.",
+    )
+
+    stage_frame = multimission.MultiMissionStagePlot.STAGE_RESTORE
+
+    def _build_stage(self, nart):
+        self.DESC_PATTERN = random.choice(self.DESC_PATTERNS)
+        self._add_stage_node(nart, "WMW_REPAIR_NODE")
+
+
+class WMWDefaultRepairNode(multimission.MultiMissionNodePlot):
+    LABEL = "WMW_REPAIR_NODE"
+    NAME_PATTERN = "Acquire repair supplies currently held by {ENEMY_FACTION}"
+
+    OBJECTIVES = (missionbuilder.BAMO_RECOVER_CARGO, missionbuilder.BAMO_CAPTURE_BUILDINGS)
+
+    def _on_win(self, camp: gears.GearHeadCampaign):
+        pbge.alert("Using the captured supplies, you are able to return your mecha to full fighting strength.")
+        camp.totally_restore_party()
+        super()._on_win(camp)
+
+
+#   ************************
+#   ***  WMW_HARD_STAGE  ***
+#   ************************
+
+class WMWHardStage(multimission.MultiMissionStagePlot):
+    LABEL = "WMW_HARD_STAGE"
+
+    DESC_PATTERNS = (
+        "An opportunity presents itself to restore your equipment.",
+    )
+
+    stage_frame = multimission.MultiMissionStagePlot.STAGE_HARD
+
+    def _build_stage(self, nart):
+        self.DESC_PATTERN = random.choice(self.DESC_PATTERNS)
+        self._add_stage_node(nart, "WMW_HARD_NODE")
+
+
+class WMWDefaultHardNode(multimission.MultiMissionNodePlot):
+    LABEL = "WMW_HARD_NODE"
+    NAME_PATTERN = "Meet the enemy forces head-on"
+
+    OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES, missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_DESTROY_ARTILLERY)

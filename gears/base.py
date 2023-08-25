@@ -3638,7 +3638,7 @@ class MT_Ornithoid(MT_Battroid):
 
 class MT_Zoanoid(MT_Battroid):
     name = "Zoanoid"
-    desc = "+20 walk speed, bonus to melee damage. Can jump but not fly or skim. No arms or turrets."
+    desc = "+20 walk speed, bonus to melee damage. Can jump but not fly, skim, or roll. No arms, wings, or turrets."
 
     PROTOTYPE_IMAGENAME = "mav_scylla.png"
     PROTOTYPE_PORTRAIT = "mecha_scylla.png"
@@ -3649,7 +3649,7 @@ class MT_Zoanoid(MT_Battroid):
     @classmethod
     def is_legal_sub_com(self, part):
         if isinstance(part, Module):
-            return part.form not in (MF_Arm, MF_Turret)
+            return part.form not in (MF_Arm, MF_Turret, MF_Wing)
         else:
             return False
 

@@ -246,8 +246,11 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         )
 
     def __setstate__(self, state):
-        # For saves from v0.612 or earlier, make sure there's an environment.
         self.__dict__.update(state)
+        # for saves from v0.950 or earlier:
+        if "call_win_loss_funs_after_card" not in state:
+            self.call_win_loss_funs_after_card = False
+        # For saves from v0.612 or earlier, make sure there's an environment.
         if "environment" not in state:
             self.environment = gears.tags.GroundEnv
         # From v0.905 or earlier, make sure we have a scale.
