@@ -224,9 +224,23 @@ class DZDIntro_GetInTheMekShimli(Plot):
         thingmenu.add_item("Board mecha",self._start_mission)
         if pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):
             thingmenu.add_item("Don't panic and go to Wujung",self._skip_first_mission)
+        if pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):
+            thingmenu.add_item("Test mission",self._test_mission(camp))
 
     def _skip_first_mission(self,camp):
         self.adv.end_adventure(camp)
+
+    def _test_mission(self,camp):
+        return missionbuilder.BuildAMissionSeed(
+                camp, "Test Mission",
+                self.elements["LOCALE"], self.elements["ENTRANCE"],
+                allied_faction=gears.factions.DeadzoneFederation,
+                enemy_faction=gears.factions.AegisOverlord, rank=25,
+                objectives=(missionbuilder.BAMO_TEST_MISSION,),
+                one_chance=True,
+                scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleSemiDeadzone(),
+                cash_reward=100
+            )
 
 
 class DZDIntro_CousinIntro(DZDIntro_GetInTheMekShimli):

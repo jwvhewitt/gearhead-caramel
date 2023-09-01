@@ -203,6 +203,10 @@ class GearHeadConversation(pbge.dialogue.DynaConversation):
         super().__init__(camp, *args, **kwargs)
 
     def _get_dialogue_data(self):
+        if self.pc:
+            self.pc = self.pc.get_pilot()
+        if self.npc:
+            self.npc = self.npc.get_pilot()
         super()._get_dialogue_data()
         if not self._gathered_rumors:
             if self.npc and self.camp.is_not_lancemate(self.npc):

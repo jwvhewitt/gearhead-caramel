@@ -175,6 +175,9 @@ class Scene(object):
     DELTA8 = ((-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1))
     ANGDIR = ((-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0))
 
+    # New in v0.952
+    is_temporary = False
+
     def __init__(self, width=128, height=128, name="", player_team=None, exit_scene_wp=None, wrap_x=False, wrap_y=False):
         self.name = name
         self.width = width

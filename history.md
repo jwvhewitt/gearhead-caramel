@@ -1,6 +1,11 @@
+* Speaking to mecha should no longer cause a crash
+* Objects in temporary scenes will never be chosen by seek_element
+* Locked objects will never be chosen by seek_element
+* All NPCs used in combat should now be locked
+
 v0.951 August 24, 2023
-- Fixed blue fog of war bug
-- Fixed the "call_win_loss_funs_after_card" crash
+* Fixed blue fog of war bug
+* Fixed the "call_win_loss_funs_after_card" crash
 
 v0.950 August 23, 2023
 * Added the Scylla mecha from GH1

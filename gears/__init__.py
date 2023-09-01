@@ -1119,8 +1119,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         candidates = list()
         bu_candidates = list()
         for npc in [
-            e for e in self.all_contents(self, True) if isinstance(e, base.Character) and self.is_not_lancemate(e) and
-                                                        e.combatant and e.renown <= rank+20
+            e for e in self.all_contents(self, True, check_temp_scenes=False) if isinstance(e, base.Character) and self.is_not_lancemate(e) and
+                                                        e.combatant and e.renown <= rank+30
         ] + self.egg.available_dramatis_personae(self):
             if npc.faction is fac:
                 candidates.append(npc)

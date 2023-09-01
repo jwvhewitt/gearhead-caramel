@@ -273,12 +273,12 @@ class Plot(object):
             scope = nart.camp
         candidates = list()
         bu_candidates = list()
-        for e in nart.camp.all_contents(scope, check_subscenes):
+        for e in nart.camp.all_contents(scope, check_subscenes, check_temp_scenes=False):
             if seek_func(nart, e):
                 candidates.append(e)
             elif backup_seek_func and backup_seek_func(nart, e):
                 bu_candidates.append(e)
-        if lock and (candidates or bu_candidates):
+        if candidates or bu_candidates:
             mylocked = nart.camp.get_all_locked_elements()
             for le in mylocked:
                 if le and le in candidates:
@@ -321,6 +321,7 @@ class Plot(object):
         myscene.rank = rank or self.rank
         if temporary:
             self._temp_scenes.append(myscene)
+            myscene.is_temporary = True
         return myscene
 
     def custom_init(self, nart):

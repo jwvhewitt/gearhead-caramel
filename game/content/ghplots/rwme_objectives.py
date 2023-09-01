@@ -329,7 +329,7 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
         mynpc = self.seek_element(nart, "PILOT", self._npc_is_good, backup_seek_func=self._npc_is_okay,
                                   must_find=False, lock=True)
         if mynpc:
-            self.register_element("PILOT", mynpc, lock=True)
+            #self.register_element("PILOT", mynpc, lock=True)
             plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team3)
             mek = mynpc.get_root()
             self.register_element("SURVIVOR", mek)
@@ -338,7 +338,7 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
             mysurvivor = self.register_element("SURVIVOR", gears.selector.generate_ace(self.rank, self.elements.get(
                 "ALLIED_FACTION", None), myscene.environment))
             mynpc = mysurvivor.get_pilot()
-            self.register_element("PILOT", mynpc)
+            self.register_element("PILOT", mynpc, lock=True)
             team3.contents.append(mysurvivor)
             self.add_sub_plot(nart,"MT_NDDEV",ident="NPC_TALK",elements={"NPC":mynpc,})
 
@@ -783,7 +783,7 @@ class RWMO_BasicSecurityCheck(Plot):
                 self.regular_checkpoint = False
         else:
             myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
-            self.register_element("_commander", myunit.commander)
+            self.register_element("_commander", myunit.commander, lock=True)
             if nart.camp.is_unfavorable_to_pc(myfac):
                 self.add_sub_plot(nart,"MC_NDBCONVERSATION",elements={"NPC":myunit.commander.get_pilot()})
                 self.regular_checkpoint = False

@@ -198,14 +198,14 @@ class Campaign(object):
         for c in self.contents:
             c.dump_info()
 
-    def all_contents(self, thing, check_subscenes=True, search_path=None):
+    def all_contents(self, thing, check_subscenes=True, search_path=None, check_temp_scenes=True):
         """Iterate over this thing and all of its descendants."""
         search_path = search_path or ALL_CONTENTS_SEARCH_PATH
         yield thing
         for cs in search_path:
             if hasattr(thing, cs):
                 for t in getattr(thing, cs):
-                    if check_subscenes or not isinstance(t, scenes.Scene):
+                    if (check_temp_scenes or not (isinstance(t, scenes.Scene) and t.is_temporary)) and (check_subscenes or not isinstance(t, scenes.Scene)):
                         for tt in self.all_contents(t, check_subscenes):
                             yield tt
 
