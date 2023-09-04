@@ -19,7 +19,7 @@ class _Info(object):
 
 # This is the entry point to this module.
 class Invocation( effects.Invocation ):
-    def __init__(self, att_stat, att_skill, def_stat, def_skill):
+    def __init__(self, att_stat, att_skill, def_stat, def_skill, help_text=""):
         info = _Info(att_stat, att_skill, def_stat, def_skill)
         super().__init__( name = 'Captivate Audience'
                         , fx = _top_fx(info)
@@ -32,13 +32,14 @@ class Invocation( effects.Invocation ):
                         , shot_anim = geffects.OriginSpotShotFactory(geffects.ListenToMySongAnim)
                         , data = _attack_data()
                         , price = [geffects.MentalPrice(MENTAL_COST)]
-                        , targets = 1
+                        , targets = 1,
+                          help_text=help_text
                         )
 
 def _attack_data():
     '''Defines the icon for this action.'''
     # TODO: Something more appropriate.
-    return geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 0)
+    return geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 27)
 
 def _top_fx(info):
     '''Primary effect when cast.'''

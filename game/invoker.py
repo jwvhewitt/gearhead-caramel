@@ -27,6 +27,7 @@ class InvocationsWidget(pbge.widgets.Widget):
     IMAGE_NAME = 'sys_invokerinterface_widget.png'
     MENU_POS = (-380, 15, 200, 180)
     DESC_POS = (-160, 15, 140, 180)
+    HELP_FRECT = pbge.frects.Frect(-316, 65, 300, 120, anchor=pbge.frects.ANCHOR_UPPERRIGHT)
 
     def __init__(
             self, camp, pc, build_library_function, update_callback, start_source=None,
@@ -73,6 +74,8 @@ class InvocationsWidget(pbge.widgets.Widget):
         else:
             self.select_first_usable_invo()
 
+        self.help_on = False
+
     def _builtin_responder(self, ev):
         # Respond to keyboard and mouse scroll events.
         if ev.type == pygame.MOUSEBUTTONDOWN:
@@ -97,6 +100,10 @@ class InvocationsWidget(pbge.widgets.Widget):
             elif pbge.my_state.is_key_for_action(ev, "right"):
                 self.next_invo()
                 self.register_response()
+            elif pbge.my_state.is_key_for_action(ev, "help"):
+                self.help_on = not self.help_on
+            elif pbge.my_state.is_key_for_action(ev, "exit"):
+                self.help_on = False
 
     def prev_invo(self):
         usable_invos = [i for i in self.shelf.invo_list if
@@ -218,7 +225,7 @@ class InvocationsWidget(pbge.widgets.Widget):
                 self.buttons[butt].tooltip = None
         self.update_callback(self.get_invo())
 
-    def _generate_tooltip(self, invo):
+    def _generate_tooltip(self, invo: pbge.effects.Invocation):
         done_classes = set()
         descs = list()
         # Merge descriptions according to class.
@@ -239,13 +246,21 @@ class InvocationsWidget(pbge.widgets.Widget):
 
             descs.append(desc)
 
-        if not descs:
-            return invo.name
+        invo_header = invo.name
+        if invo.help_text:
+            invo_header = "{}: {}".format(invo.name, invo.help_text)
 
-        return '{} ({})'.format(invo.name, ', '.join(descs))
+        if not descs:
+            return invo_header
+
+        return '{} ({})'.format(invo_header, ', '.join(descs))
 
     def render(self, flash=False):
         self.sprite.render(self.get_rect(), 0)
+        if self.help_on:
+            myrect = self.HELP_FRECT.get_rect()
+            pbge.default_border.render(myrect)
+            pbge.draw_text(pbge.MEDIUMFONT, self._generate_tooltip(self.shelf.invo_list[self.invo]), myrect)
 
     def get_invo(self):
         if self.shelf and self.invo < len(self.shelf.invo_list):
@@ -487,6 +502,7 @@ class InvocationUI(object):
     def deactivate(self):
         # Used during combat only!
         self.my_widget.active = False
+        self.my_widget.help_on = False
         pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
 
     def get_firing_pos(self):

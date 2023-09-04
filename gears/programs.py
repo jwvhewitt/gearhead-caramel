@@ -45,9 +45,11 @@ class EMBlaster(Program):
             area=pbge.scenes.targetarea.SingleTarget(reach=5),
             used_in_combat = True, used_in_exploration=False,
             ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
-            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=12),
+            data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=30),
             price=[geffects.MentalPrice(3),],
-            targets=1)
+            targets=1,
+            help_text=""
+        )
         progs.append(myprog2)
 
         myprog = pbge.effects.Invocation(
@@ -238,7 +240,9 @@ class AIAssistant(Program):
                                                                aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12),
             price=[],
-            targets=1)
+            targets=1,
+            help_text=""
+        )
         progs.append(myprog)
 
         return progs
@@ -272,7 +276,9 @@ class Necromatix(Program):
             shot_anim=None,
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
             price=[geffects.MentalPrice(3)],
-            targets=1)
+            targets=1,
+            help_text="The bionites inside your mecha will repair the damage you have suffered."
+        )
         progs.append(myprog)
 
         myprog = pbge.effects.Invocation(
@@ -293,7 +299,9 @@ class Necromatix(Program):
             shot_anim=None,
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
             price=[geffects.MentalPrice(5),geffects.StatValuePrice(stats.Biotechnology, 5)],
-            targets=1)
+            targets=1,
+            help_text="The bionites which repair your mecha will spread out and repair all allied mecha within a three tile radius."
+        )
         progs.append(myprog)
 
         myprog2 = pbge.effects.Invocation(
@@ -308,7 +316,9 @@ class Necromatix(Program):
             ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.Disintegration)]),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=25),
             price=[geffects.MentalPrice(5),geffects.StatValuePrice(stats.Biotechnology,9)],
-            targets=1)
+            targets=1,
+            help_text="You unleash the bionites infesting your mecha on a single enemy within 5 tiles; instead of repairing the enemy mecha, the bionites will disassemble it to its component atoms."
+        )
         progs.append(myprog2)
 
 

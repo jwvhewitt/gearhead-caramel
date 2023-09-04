@@ -948,8 +948,6 @@ class BaseGear(scenes.PlaceableThing):
             , geffects.HiddenModifier()
             , geffects.ImmobileModifier()
             , geffects.CoverModifier()
-            , geffects.CoverEnhanceModifier()
-            , geffects.CoverPierceModifier()
                 ]
 
     def get_ranged_modifiers(self, reach):

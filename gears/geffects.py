@@ -1727,39 +1727,6 @@ class DoDrainStamina(effects.NoEffect):
         return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
 
 
-class DoIgniteAmmo(effects.NoEffect):
-    """ Target loses some number of ammo/missiles.
-    """
-
-    def __init__(self, **keywords):
-        super().__init__(**keywords)
-
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
-        for target in camp.scene.get_operational_actors(pos):
-            ammos = [m for m in target.sub_sub_coms()
-                     if isinstance(m, (base.Ammo, base.Missile))
-                     and m.spent < m.quantity
-                     ]
-            if not ammos:
-                continue
-            ammo = random.choice(list(ammos))
-            # How much ammo left?
-            remaining = ammo.quantity - ammo.spent
-            # Determine the limit.
-            if random.randint(1, 2) == 1:
-                limit = remaining
-            else:
-                limit = max(1, remaining // 2)
-            ignite = random.randint(1, limit)
-            ammo.spent += ignite
-            myanim = animobs.Caption("-{}{}".format(ignite, ammo.name)
-                                     , pos=target.pos
-                                     , delay=delay
-                                     , y_off=-camp.scene.model_altitude(target, *target.pos)
-                                     )
-            anims.append(myanim)
-        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
-
 
 #  ***************************
 #  ***   Roll  Modifiers   ***
@@ -1794,6 +1761,15 @@ class CoverModifier(object):
         target = camp.scene.get_main_actor(pos)
         attacker_flying = attacker and hasattr(attacker, "mmode") and attacker.mmode is pbge.scenes.movement.Flying
         target_flying = target and hasattr(target, "mmode") and target.mmode is pbge.scenes.movement.Flying
+
+        mod_modifier = 0
+        if hasattr(target, "ench_list"):
+            mod_modifier += target.ench_list.get_funval(target, "get_cover_bonus")
+        if hasattr(attacker, "ench_list"):
+            mod_modifier += attacker.ench_list.get_funval(attacker, "get_cover_negation")
+        if mod_modifier != 0:
+            my_mod = (my_mod * (mod_modifier + 100))//100
+
         if attacker_flying and target_flying:
             my_mod = 0
         elif attacker_flying or target_flying:
@@ -1928,52 +1904,6 @@ class HiddenModifier(object):
             return self.BONUS
         else:
             return 0
-
-
-class CoverEnhanceModifier(object):
-    name = 'Cover Enhance'
-
-    def calc_modifier(self, camp, attacker, pos):
-        target = camp.scene.get_main_actor(pos)
-        if not target or not hasattr(target, 'ench_list'):
-            return 0
-        percent = target.ench_list.get_funval(target, 'get_cover_enhance_bonus')
-        if percent == 0:
-            return 0
-        elif percent < 0:
-            self.name = 'Cover Blown'
-        else:
-            self.name = 'Taking Cover'
-
-        # Cannot remove more cover than the actual cover.
-        if percent < -100:
-            percent = -100
-
-        base_cover = camp.scene.get_cover(attacker.pos[0], attacker.pos[1], pos[0], pos[1])
-        return -((base_cover * percent) // 100)
-
-
-class CoverPierceModifier(object):
-    name = 'Cover Pierce'
-
-    def calc_modifier(self, camp, attacker, pos):
-        if not attacker or not hasattr(attacker, 'ench_list'):
-            return 0
-        percent = attacker.ench_list.get_funval(attacker, 'get_cover_pierce_bonus')
-        if percent == 0:
-            return 0
-        elif percent < 0:
-            self.name = 'Confused By Cover'
-        else:
-            self.name = 'Pierce Cover'
-
-        # Cannot pierce more cover than the actual cover.
-        if percent > 100:
-            percent = 100
-
-        base_cover = camp.scene.get_cover(attacker.pos[0], attacker.pos[1], pos[0], pos[1])
-        return (base_cover * percent) // 100
-
 
 #  **************************
 #  ***   Defense  Rolls   ***
@@ -2351,8 +2281,8 @@ class StatValuePrice(object):
 # Existing funval types:
 #   get_mobility_bonus
 #   get_penetration_bonus
-#   get_cover_enhance_bonus
-#   get_cover_pierce_bonus
+#   get_cover_bonus
+#   get_cover_negation
 
 
 # Enchantments should derive from either PositiveEnchantment
@@ -2484,11 +2414,11 @@ class WeakPoint(NegativeEnchantment):
 
 
 class TakingCover(PositiveEnchantment):
-    name = 'Taking Cover'
-    DEFAULT_DISPEL = (END_COMBAT, ON_MOVE)
-    DEFAULT_DURATION = None
+    name = 'On the Hunt'
+    DEFAULT_DISPEL = (END_COMBAT,)
+    DEFAULT_DURATION = 3
 
-    def __init__(self, percent_bonus=100, **kwargs):
+    def __init__(self, percent_bonus=50, **kwargs):
         super().__init__(**kwargs)
         self.percent_bonus = percent_bonus
 
@@ -2499,8 +2429,11 @@ class TakingCover(PositiveEnchantment):
         if new_percent_bonus and new_percent_bonus > self.percent_bonus:
             self.percent_bonus = new_percent_bonus
 
-    def get_cover_enhance_bonus(self, owner):
+    def get_cover_bonus(self, owner):
         return self.percent_bonus
+
+    def get_cover_negation(self, owner):
+        return -50
 
 
 class BreakingCover(NegativeEnchantment):
@@ -2512,14 +2445,7 @@ class BreakingCover(NegativeEnchantment):
         super().__init__(**kwargs)
         self.percent_malus = percent_malus
 
-    def merge_enchantment(self, **kwargs):
-        new_percent_malus = kwargs.pop("percent_malus")
-        super().merge_enchantment(**kwargs)
-        # Select larger malus.
-        if new_percent_malus and new_percent_malus > self.percent_malus:
-            self.percent_malus = new_percent_malus
-
-    def get_cover_enhance_bonus(self, owner):
+    def get_cover_bonus(self, owner):
         return -self.percent_malus
 
 

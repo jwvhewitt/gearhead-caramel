@@ -1,3 +1,7 @@
+* Fixed gender customization from character creator
+* Added skill icon for "Listen to my Song"
+* Changed the Scouting, Wildcraft abilities somewhat
+* Added a help key for invocations interface, which defaults to F1
 * Speaking to mecha should no longer cause a crash
 * Objects in temporary scenes will never be chosen by seek_element
 * Locked objects will never be chosen by seek_element

@@ -1871,8 +1871,8 @@ class BAM_RescueVictim(Plot):
         self.elements["VICTIM"].remove_victim()
 
 
-class BAM_RescueNobody(Plot):
-    LABEL = BAMO_TEST_MISSION
+class BAM_TestMissionStub(Plot):
+    LABEL = None
     active = True
     scope = "LOCALE"
 

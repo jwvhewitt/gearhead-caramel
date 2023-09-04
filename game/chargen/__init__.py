@@ -406,7 +406,9 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.pc.birth_year = self.year - new_age
     def set_gender(self,new_gender):
         if new_gender == 1234567:
+            self.active = False
             GenderCustomizationWidget.create_and_invoke(self.pc)
+            self.active = True
         else:
             self.pc.gender = new_gender
     def stat_display(self,wid):

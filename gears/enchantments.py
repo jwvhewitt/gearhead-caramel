@@ -54,8 +54,8 @@ class EnchantmentList(list):
         # Existing funval types:
         #   get_mobility_bonus
         #   get_penetration_bonus
-        #   get_cover_enhance_bonus
-        #   get_cover_pierce_bonus
+        #   get_cover_bonus
+        #   get_cover_negation
         p_max,n_max = 0,0
         for thing in self:
             if hasattr( thing, funname ):
