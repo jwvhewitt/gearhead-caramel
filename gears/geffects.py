@@ -5,7 +5,7 @@ from pbge.scenes import animobs, movement, pfov
 import random
 from . import materials
 from . import damage, stats, pets
-from .enchantments import Enchantment, END_COMBAT, ON_MOVE, ON_DISPEL_POSITIVE, ON_DISPEL_NEGATIVE, USE_ANTIDOTE
+from .enchantments import Enchantment, END_COMBAT, ON_MOVE, DISPEL_NEGATIVE_ELECTRONIC, ON_DISPEL_POSITIVE, ON_DISPEL_NEGATIVE, USE_ANTIDOTE
 import math
 from . import base, tags
 import copy
@@ -2338,7 +2338,7 @@ class HaywireStatus(NegativeEnchantment):
     name = 'Haywire'
     # The only top 10 status effect from Prince Edward Island
     DEFAULT_DURATION = 3
-    DEFAULT_DISPEL = (END_COMBAT, materials.RT_REPAIR)
+    DEFAULT_DISPEL = (END_COMBAT, materials.RT_REPAIR, DISPEL_NEGATIVE_ELECTRONIC)
     ALT_AI = 'HaywireAI'
 
     @classmethod
@@ -2348,7 +2348,7 @@ class HaywireStatus(NegativeEnchantment):
 
 class OverloadStatus(NegativeEnchantment):
     name = 'Overloaded'
-    DEFAULT_DISPEL = (END_COMBAT,)
+    DEFAULT_DISPEL = (END_COMBAT, DISPEL_NEGATIVE_ELECTRONIC)
     DEFAULT_DURATION = 5
 
     def get_mobility_bonus(self, owner):
@@ -2361,7 +2361,7 @@ class OverloadStatus(NegativeEnchantment):
 
 class SensorLock(NegativeEnchantment):
     name = 'Sensor Lock'
-    DEFAULT_DISPEL = (END_COMBAT,)
+    DEFAULT_DISPEL = (END_COMBAT, DISPEL_NEGATIVE_ELECTRONIC)
     DEFAULT_DURATION = 5
 
     def get_mobility_bonus(self, owner):

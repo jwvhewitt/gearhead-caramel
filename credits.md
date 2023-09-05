@@ -63,6 +63,8 @@ Slightly Smiling Face, Beaming Face with Smiling Eyes by Emily Jäger
 * Star by Adrien Coquet from Noun Project (CC BY 3.0)
 * Skull by Brian Oppenlander from Noun Project (CC BY 3.0)
 * bullseye by Minh Do from Noun Project (CC BY 3.0)
+* Floppy Disk by Creative Stall from Noun Project (CC BY 3.0)
+* computer bug by Laymik from Noun Project (CC BY 3.0)
 
 MUSIC
 =====

@@ -48,7 +48,7 @@ class EMBlaster(Program):
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=30),
             price=[geffects.MentalPrice(3),],
             targets=1,
-            help_text=""
+            help_text="An electromagnetic beam will cause one target within five tiles to go haywire."
         )
         progs.append(myprog2)
 
@@ -69,7 +69,9 @@ class EMBlaster(Program):
                                                                aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
             data = geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=12),
             price = [geffects.MentalPrice(5), geffects.StatValuePrice(stats.Computers,5)],
-            targets = 1)
+            targets = 1,
+            help_text="A localized electromagnetic pulse will cause all mecha within three tiles to go haywire."
+        )
         progs.append(myprog)
 
         return progs
@@ -102,7 +104,9 @@ class TargetAnalysis(Program):
             shot_anim=geffects.OriginSpotShotFactory(geffects.SearchTextAnim),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 6),
             price=[geffects.MentalPrice(1),],
-            targets=1)
+            targets=1,
+            help_text="Attempt to spot hidden units within a 15 tile radius."
+        )
         progs.append(myprog)
 
         myprog2 = pbge.effects.Invocation(
@@ -113,7 +117,9 @@ class TargetAnalysis(Program):
             ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.SensorLock)]),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12),
             price=[geffects.MentalPrice(2), geffects.StatValuePrice(stats.Computers, 3)],
-            targets=1)
+            targets=1,
+            help_text="Targets one enemy within 15 tiles; the target gets a -25 penalty to mobility and no sensor range modifier for five rounds."
+        )
         progs.append(myprog2)
 
         progs.append(pbge.effects.Invocation(
@@ -135,7 +141,8 @@ class TargetAnalysis(Program):
                                                                geffects.SensorLock)]),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 12),
             price=[geffects.MentalPrice(2), geffects.StatValuePrice(stats.Computers, 5)],
-            targets=1
+            targets=1,
+            help_text="Targets one enemy within 15 tiles; if successful, the target is affected by both Sensor Lock and Spot weakness for a -25 penalty to Mobility and a -20 penalty to armor."
         ))
 
         progs.append(pbge.effects.Invocation(
@@ -163,7 +170,8 @@ class TargetAnalysis(Program):
                                                                geffects.SensorLock)]),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 12),
             price=[geffects.MentalPrice(4), geffects.StatValuePrice(stats.Computers, 7)],
-            targets=1
+            targets=1,
+            help_text="Targets all enemies within a cone shaped area; if successful, the target suffers the Sensor Lock effect."
         ))
 
         return progs
@@ -190,7 +198,9 @@ class Deflect(Program):
                                                            aitargeters.TargetDoesNotHaveEnchantment(geffects.Prescience)]),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 12),
             price=[geffects.MentalPrice(1),],
-            targets=1)
+            targets=1,
+            help_text="Gives a +2 bonus to Mecha Piloting that lasts for 5 rounds."
+        )
         progs.append(myprog)
 
         progs.append(pbge.effects.Invocation(
@@ -211,7 +221,8 @@ class Deflect(Program):
                                                            aitargeters.TargetDoesNotHaveEnchantment(geffects.Prescience)]),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 12),
             price=[geffects.MentalPrice(3),geffects.StatValuePrice(stats.Computers, 5)],
-            targets=1
+            targets=1,
+            help_text="Gives all allies within a 10 tile radius a +2 bonus to Mecha Piloting that lasts for 5 rounds."
         ))
 
         return progs
@@ -230,7 +241,7 @@ class AIAssistant(Program):
         myprog = pbge.effects.Invocation(
             name = 'AI Assistant',
             fx = geffects.AddEnchantment(geffects.AIAssisted,
-                                         enchant_params = {'percent_prob': pc.get_skill_score(stats.Knowledge, stats.Computers) * 2},
+                                         enchant_params = {'percent_prob': max(pc.get_skill_score(stats.Knowledge, stats.Computers) +25, 90)},
                                          anim = geffects.AIAssistAnim),
             area = pbge.scenes.targetarea.SelfOnly(),
             used_in_combat = True, used_in_exploration = False,
@@ -239,9 +250,9 @@ class AIAssistant(Program):
                                                                aitargeters.TargetIsAlly(),
                                                                aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12),
-            price=[],
+            price=[geffects.MentalPrice(4),],
             targets=1,
-            help_text=""
+            help_text="While the AI Assistant is active, it gives a +1 bonus to all combat skills if a Computers skill check is successful."
         )
         progs.append(myprog)
 

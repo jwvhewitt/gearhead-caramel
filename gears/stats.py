@@ -311,6 +311,43 @@ class Computers(Skill):
     name = 'Computers'
     desc = "This skill allows you to hack computers and use electronic warfare systems."
 
+    PROGRAMS_SHELF = "Hacking"
+
+    @classmethod
+    def add_program_invocations(cls, pc, invodict):
+        invodict[cls.PROGRAMS_SHELF].append(pbge.effects.Invocation(
+            name = 'Reboot',
+            fx= geffects.DispelEnchantments(
+                dispel_this=enchantments.DISPEL_NEGATIVE_ELECTRONIC,
+                anim=geffects.RepairAnim
+            ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=10),
+            used_in_combat = True, used_in_exploration=True,
+            ai_tar=None,
+            data=geffects.AttackData(pbge.image.Image('sys_programicons.png',32,32),0,thrill_power=25),
+            price=[geffects.MentalPrice(1), geffects.StatValuePrice(cls, 3)],
+            targets=1,
+            help_text="Clears negative EW effects like Haywire, Sensor Lock, and Overload from one ally within 10 tiles."
+        ))
+
+        invodict[cls.PROGRAMS_SHELF].append(pbge.effects.Invocation(
+            name = 'Virus Injection',
+            fx= geffects.OpposedSkillRoll(
+                Knowledge,cls,Ego,cls,
+                roll_mod=25, min_chance=50,
+                on_success=[geffects.DoDrainStamina(2,6)],
+                on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim),],
+                anim=geffects.OverloadAnim
+            ),
+            area=pbge.scenes.targetarea.SingleTarget(reach=10),
+            used_in_combat = True, used_in_exploration=False,
+            ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetHasSP()]),
+            data=geffects.AttackData(pbge.image.Image('sys_programicons.png',32,32),3,thrill_power=50),
+            price=[geffects.MentalPrice(4), geffects.StatValuePrice(cls, 5)],
+            targets=1,
+            help_text="Bombards one enemy mecha within 10 tiles with junk data and malicious code, quickly exhausting the pilot's stamina."
+        ))
+
 
 class Performance(Skill):
     name = 'Performance'

@@ -415,7 +415,12 @@ class Combatant(KeyObject):
         return my_invos
 
     def get_program_library(self, in_combat=True):
-        my_invo_dict = dict()
+        my_invo_dict = collections.defaultdict(list)
+        if self.scale is scale.MechaScale:
+            pilot = self.get_pilot()
+            for p in list(pilot.get_all_skills()):
+                if hasattr(p, 'add_program_invocations'):
+                    p.add_program_invocations(pilot, my_invo_dict)
         for p in self.descendants(include_pilot=False):
             if p.is_operational() and hasattr(p, 'add_program_invocations'):
                 p.add_program_invocations(self, my_invo_dict)

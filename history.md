@@ -1,3 +1,5 @@
+v0.952 September 5, 2023
+* Added hacking invocations for Computers skill
 * Fixed gender customization from character creator
 * Added skill icon for "Listen to my Song"
 * Changed the Scouting, Wildcraft abilities somewhat
