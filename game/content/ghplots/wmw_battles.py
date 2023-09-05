@@ -48,7 +48,7 @@ class WMWMission(multimission.MultiMission):
             recovery_time += 50
             num_stages -= 1
 
-        self._add_stage(nart, "WMW_BATTLE_STAGE")
+        self._add_stage(nart, "WMW_FINAL_STAGE")
 
     def can_do_mission(self, camp):
         return bool(camp.get_usable_party(gears.scale.MechaScale, just_checking=True,
@@ -130,3 +130,27 @@ class WMWDefaultHardNode(multimission.MultiMissionNodePlot):
     NAME_PATTERN = "Meet the enemy forces head-on"
 
     OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES, missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_DESTROY_ARTILLERY)
+
+
+#   *************************
+#   ***  WMW_FINAL_STAGE  ***
+#   *************************
+
+class WMWFinalStage(multimission.MultiMissionStagePlot):
+    LABEL = "WMW_FINAL_STAGE"
+
+    DESC_PATTERNS = (
+        "You need to battle through the forces of {ENEMY_FACTION} to reach your destination.",
+        "The battle to capture {TARGET_SCENE} from {ENEMY_FACTION} will be a long one."
+    )
+
+    stage_frame = multimission.MultiMissionStagePlot.STAGE_CONCLUSION
+
+    def _build_stage(self, nart):
+        self.DESC_PATTERN = random.choice(self.DESC_PATTERNS)
+        self._add_stage_node(nart, "WMW_FINAL_NODE")
+
+
+class WMWDefaultFinalNode(multimission.MultiMissionNodePlot):
+    LABEL = "WMW_FINAL_NODE"
+    NAME_PATTERN = "Capture {TARGET_SCENE}"

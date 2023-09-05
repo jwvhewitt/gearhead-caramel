@@ -1,3 +1,6 @@
+v0.953 September 5, 2023
+* Fixed hacking prop bug
+
 v0.952 September 5, 2023
 * Added hacking invocations for Computers skill
 * Fixed gender customization from character creator
