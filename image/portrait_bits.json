@@ -238,6 +238,30 @@
     ]
   },
 
+  {
+    "name": "Nose J",
+    "btype": "Nose",
+    "layers": [
+      {"name":"Nose","fname":"por_nose_j.png","anchor":"nose","depth":5500,"x_offset":-1,"y_offset":-3}
+    ]
+  },
+
+    {
+    "name": "Nose Min",
+    "btype": "Nose",
+    "layers": [
+      {"name":"Nose","fname":"por_nose_min.png","anchor":"nose","depth":5500,"x_offset":0,"y_offset":2}
+    ]
+  },
+
+      {
+    "name": "Mischa Nose",
+    "btype": "Nose",
+    "layers": [
+      {"name":"Nose","fname":"por_nose_mischa.png","anchor":"nose","depth":5500,"x_offset":3,"y_offset":0}
+    ]
+  },
+
     {
     "name": "Natpo Nose",
     "btype": "Nose",

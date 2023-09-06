@@ -76,6 +76,8 @@ class WMWDefaultBattleNode(multimission.MultiMissionNodePlot):
     LABEL = "WMW_BATTLE_NODE"
     NAME_PATTERN = "Capture territory held by {ENEMY_FACTION}"
 
+    OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_CAPTURE_BUILDINGS)
+
 
 #   **************************
 #   ***  WMW_REPAIR_STAGE  ***

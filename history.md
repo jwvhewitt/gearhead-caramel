@@ -1,3 +1,5 @@
+* Fixed crash if PC has space or special character in name
+
 v0.953 September 5, 2023
 * Fixed hacking prop bug
 

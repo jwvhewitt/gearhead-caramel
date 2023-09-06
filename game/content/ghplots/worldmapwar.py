@@ -256,7 +256,7 @@ class WorldMapWar:
                     "LOSS_FUN": DefenderWinsEffect(attacking_team, target_node, self, True),
                     "TARGET_GATE": target_node.entrance, "TARGET_SCENE": target_node.destination,
                     "ENEMY_FACTION": target_node.destination.faction, "ALLIED_FACTION": attacking_team,
-                    "NUM_STAGES": min(max(self.get_defense_strength(target_node)//2 + 1, 2), 5),
+                    "NUM_STAGES": min(max(self.get_defense_strength(target_node)//2 + 2, 2), 5),
                     "MISSION_GRAMMAR": mission_grammar
                 })
         )

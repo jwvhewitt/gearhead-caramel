@@ -704,16 +704,23 @@ class BAM_DefeatCommander(Plot):
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
-        mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True,
-                                  backup_seek_func=self.adv.is_good_backup_enemy)
-        if mynpc:
-            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
-            myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
-            self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
-        else:
-            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
-            self.register_element("_commander", myunit.commander, lock=True)
-            self.add_sub_plot(nart, "MC_NDBCONVERSATION", elements={"NPC": myunit.commander.get_pilot()})
+        mynpc = self.register_element("_commander", nart.camp.cast_a_combatant(
+            myfac, self.rank, opposed_faction=self.elements["ALLIED_FACTION"], myplot=self
+        ), lock=True)
+        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+        myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+        self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
+
+        #mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True,
+        #                          backup_seek_func=self.adv.is_good_backup_enemy)
+        #if mynpc:
+        #    plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+        #    myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+        #    self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
+        #else:
+        #    myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+        #    self.register_element("_commander", myunit.commander, lock=True)
+        #    self.add_sub_plot(nart, "MC_NDBCONVERSATION", elements={"NPC": myunit.commander.get_pilot()})
 
         team2.contents += myunit.mecha_list
 

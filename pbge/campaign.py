@@ -65,7 +65,7 @@ class Campaign(object):
             pickle.dump(self, f, 4)
 
     def delete_save_file(self, del_name=None):
-        name = del_name or self.name
+        name = util.sanitize_filename(del_name or self.name)
         if os.path.exists(util.user_dir("rpg_{}.sav".format(name))):
             os.remove(util.user_dir("rpg_{}.sav".format(name)))
 

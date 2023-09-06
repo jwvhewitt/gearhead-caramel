@@ -512,7 +512,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def delete_save_file( self, del_name=None ):
         super().delete_save_file(del_name)
-        name = del_name or self.name
+        name = pbge.util.sanitize_filename(del_name or self.name)
         if os.path.exists(pbge.util.user_dir("rpg_{}.jpg".format(name))):
             os.remove(pbge.util.user_dir("rpg_{}.jpg".format(name)))
 
@@ -1154,9 +1154,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     myplot.move_records.append((e, self.uniques))
             return e
         elif create_if_not_found:
-            return selector.random_character(rank + random.randint(1,10), camp=self, faction=fac, combatant=True)
-
-
+            e = selector.random_character(rank + random.randint(5,25), camp=self, faction=fac, combatant=True)
+            self.storage.contents.append(e)
+            print("Created new combatant.")
+            return e
 
 
 class GearHeadArchitecture(pbge.randmaps.architect.Architecture):

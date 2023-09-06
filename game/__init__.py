@@ -78,7 +78,7 @@ def start_campaign(pc_egg, redrawer, version):
 
             if not pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                 pc_egg.backup()
-                os.remove(pbge.util.user_dir("egg_{}.sav".format(pc_egg.pc.name)))
+                os.remove(pbge.util.user_dir(pbge.util.sanitize_filename("egg_{}.sav".format(pc_egg.pc.name))))
 
             camp.play()
 
