@@ -223,7 +223,8 @@ class GameState(object):
                     self.music_channels[self.current_music_channel].fadeout(2000)
                     self.current_music_channel = 1 - self.current_music_channel
                 self.music_channels[self.current_music_channel].play(sound, loops=-1, fade_ms=2000)
-                sound.set_volume(util.config.getfloat("GENERAL", "music_volume"))
+                self.set_music_volume(util.config.getfloat("GENERAL", "music_volume"))
+                #sound.set_volume(util.config.getfloat("GENERAL", "music_volume"))
                 #self.music_channels[self.current_music_channel].set_volume(util.config.getfloat("GENERAL", "music_volume"))
 
     def _start_streaming_music(self, mfname, yafi):

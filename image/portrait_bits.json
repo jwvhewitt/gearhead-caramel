@@ -143,6 +143,18 @@
     "style": ["Feminine"]
   },
   {
+    "name": "Hawk Eyes",
+    "btype": "Eyes",
+    "layers": [
+      {"name":"Right Eye","fname":"por_eyes_hawk.png","anchor":"right_eye","depth":5100,"frame_width":30,"frame_height":19,"x_offset":0, "y_offset":2},
+      {"name":"Left Eye","fname":"por_eyes_hawk.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":30,"frame_height":19,"x_offset":1, "y_offset":2}
+    ],
+    "children": [
+      "Eyebrows"
+    ],
+    "style": ["+Perception"]
+  },
+  {
     "name": "Emo Eyes",
     "btype": "Eyes",
     "layers": [
@@ -166,6 +178,19 @@
       "Eyebrows"
     ],
     "style": ["Feminine"]
+  },
+
+    {
+    "name": "Jessica Eyes",
+    "btype": "Eyes",
+    "layers": [
+      {"name":"Right Eye","fname":"por_eyes_jessica.png","anchor":"right_eye","depth":5100,"frame_width":29,"frame_height":19,"x_offset":-2,"y_offset": 1},
+      {"name":"Left Eye","fname":"por_eyes_jessica.png","anchor":"left_eye","depth":5100,"frame":1,"frame_width":29,"frame_height":19,"x_offset":0,"y_offset": 1}
+    ],
+    "children": [
+      "Eyebrows"
+    ],
+    "style": ["Feminine", "+Charm"]
   },
 
   {
@@ -270,6 +295,24 @@
     ]
   },
 
+      {
+    "name": "Nose R",
+    "btype": "Nose",
+    "layers": [
+      {"name":"Nose","fname":"por_nose_r.png","anchor":"nose","depth":5500,"x_offset":-2,"y_offset":0}
+    ]
+  },
+
+  {
+    "name": "Nose EFun",
+    "btype": "Nose",
+    "layers": [
+      {"name":"Nose","fname":"por_nose_efun.png","anchor":"nose","depth":5500,"x_offset":-2,"y_offset":0}
+    ],
+    "style": ["Old"],
+    "nostyle": ["+Charm"]
+  },
+
   {
     "name": "Mouth A",
     "btype": "Mouth",
@@ -294,6 +337,15 @@
     ],
     "style": ["Feminine"],
     "prefers": ["Grim","Shy"]
+  },
+  {
+    "name": "Wendy Mouth",
+    "btype": "Mouth",
+    "layers": [
+      {"name":"Mouth","fname":"por_mouth_wendy.png","anchor":"mouth","depth":5200,"x_offset":-2, "y_offset":1}
+    ],
+    "style": ["Feminine"],
+    "prefers": ["Sociable"]
   },
   {
     "name": "Neutral Mouth",

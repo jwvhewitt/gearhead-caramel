@@ -1,3 +1,11 @@
+* Carrying capacity now shown for characters in backpack display
+* Athletics skill now increases carrying capacity
+* Right and left keys can be used to scroll through lancemates in inventory interface
+* Increased damage of personal scale attacks
+* Rebalanced some monsters to make them more dangerous
+* Added config option to indicate lance members on map
+* Fixed music volume bug
+* Added some new portrait bits
 * Fixed crash if PC has space or special character in name
 
 v0.953 September 5, 2023

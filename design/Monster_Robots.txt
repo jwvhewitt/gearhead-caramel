@@ -303,7 +303,7 @@ Monster
                     accuracy = 3
                     penetration = 3
                     attack_stat = Craft
-                    shot_anim = FireBall
+                    shot_anim = FireBolt
                     SUB
                         Chem
                             name = "Magma"

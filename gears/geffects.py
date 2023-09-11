@@ -478,7 +478,7 @@ class PlasmaBeam(animobs.ShotAnim):
     DEFAULT_SOUND_FX = "SpellShort.ogg"
 
 
-class FireBall(animobs.ShotAnim):
+class FireBolt(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_fire.png"
     DEFAULT_SOUND_FX = "foom_0.ogg"
 
@@ -777,7 +777,7 @@ class JumpModel(object):
 
 # A curated list for the gear editor.
 SHOT_ANIMS = (SmallBullet, BigBullet, HugeBullet, SmallBeam, GunBeam, Missile1, Missile2, Missile3, Missile4, Missile5,
-              ReturningHammer, JawShot, FlyingDeathwing, AcidSpray, LightningBolt, FireBall)
+              ReturningHammer, JawShot, FlyingDeathwing, AcidSpray, LightningBolt, FireBolt)
 AREA_ANIMS = (
     BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim)
 

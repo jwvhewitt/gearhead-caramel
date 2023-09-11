@@ -75,6 +75,7 @@ class InfoPanel(object):
                 myrect.clamp_ip(pbge.my_state.screen.get_rect())
             self.render(myrect.left, myrect.top)
 
+
 class NameBlock(object):
     def __init__(self, model, width=220, **kwargs):
         self.model = model

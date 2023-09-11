@@ -188,7 +188,7 @@ Monster
                     damage=3
                     accuracy=3
                     penetration=2
-                    attributes = (Defender, HaywireAttack, DisintegrateAttack)
+                    attributes = (Defender, HaywireAttack, DisintegrateAttack, MultiWielded)
                     integral = True
             END
         Tail
@@ -202,7 +202,7 @@ Monster
                     damage=3
                     accuracy=3
                     penetration=2
-                    attributes = (Defender, HaywireAttack, DisintegrateAttack)
+                    attributes = (Defender, HaywireAttack, DisintegrateAttack, MultiWielded)
                     integral = True
             END
         Tail
@@ -216,7 +216,7 @@ Monster
                     damage=3
                     accuracy=3
                     penetration=2
-                    attributes = (Defender, HaywireAttack, DisintegrateAttack)
+                    attributes = (Defender, HaywireAttack, DisintegrateAttack, MultiWielded)
                     integral = True
             END
 

@@ -37,7 +37,7 @@ Monster
                     accuracy = 2
                     penetration = 3
                     attributes = (Brutal, BurnAttack, Scatter)
-                    shot_anim = FireBall
+                    shot_anim = FireBolt
                     area_anim = Fireball
 
             END

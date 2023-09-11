@@ -3,10 +3,83 @@ from pbge import widgets
 import gears
 import pygame
 
-INFO_COLUMN = pbge.frects.Frect(-300,-200,220,300)
-EQUIPMENT_COLUMN = pbge.frects.Frect(-50,-200,350,170)
-INVENTORY_COLUMN = pbge.frects.Frect(-50,0,350,200)
-PC_SWITCH_AREA = pbge.frects.Frect(-300,100,220,100)
+INFO_COLUMN = pbge.frects.Frect(-300, -200, 220, 300)
+EQUIPMENT_COLUMN = pbge.frects.Frect(-50, -200, 350, 170)
+INVENTORY_COLUMN = pbge.frects.Frect(-50, 0, 350, 200)
+PC_SWITCH_AREA = pbge.frects.Frect(-300, 100, 220, 100)
+
+
+class CreditsBlock(object):
+    def __init__(self, camp: gears.GearHeadCampaign, font=None, width=220, **kwargs):
+        self.camp = camp
+        self.width = width
+        self.font = font or pbge.SMALLFONT
+        self.update()
+        self.height = self.image.get_height()
+
+    def update(self):
+        self.image = pbge.render_text(
+            self.font, '${}'.format(self.camp.credits), self.width, justify=0, color=pbge.INFO_GREEN
+        )
+
+    def render(self, x, y):
+        self.update()
+        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+
+
+class SwitchNameBlock(object):
+    def __init__(self, switch, width=220, font=None, **kwargs):
+        self.switch = switch
+        self.width = width
+        self.font = font or pbge.MEDIUM_DISPLAY_FONT
+
+    @property
+    def height(self):
+        return len(pbge.wrapline(str(self.switch.pc), self.font, self.width)) * self.font.get_linesize()
+
+    def render(self, x, y):
+        mydest = pygame.Rect(x, y, self.width, self.height)
+        pbge.draw_text(self.font, str(self.switch.pc), mydest, pbge.WHITE, justify=0)
+
+
+class SwitchEncumberanceBlock(object):
+    def __init__(self, switch, font=None, width=220, **kwargs):
+        self.switch = switch
+        self.width = width
+        self.font = font or pbge.SMALLFONT
+
+    @property
+    def height(self):
+        if hasattr(self.switch.pc, "carrying_capacity"):
+            return self.font.get_linesize() * 2
+        else:
+            return self.font.get_linesize()
+
+    def render(self, x, y):
+        mydest = pygame.Rect(x, y, self.width, self.height)
+        mymass = self.switch.pc.get_inv_mass()
+        mycolor = pbge.INFO_GREEN
+        if hasattr(self.switch.pc, "carrying_capacity"):
+            mycapacity = self.switch.pc.carrying_capacity()
+            if mymass > mycapacity * 1.25:
+                mycolor = pbge.ENEMY_RED
+            elif mymass > mycapacity:
+                mycolor = pygame.Color("yellow")
+        else:
+            mycapacity = 0
+        pbge.draw_text(
+            self.font, self.switch.pc.scale.get_mass_string(mymass), mydest, mycolor, justify=0
+        )
+        if mycapacity > 0:
+            mydest.y += self.font.get_linesize()
+            pbge.draw_text(
+                self.font, "/{}".format(self.switch.pc.scale.get_mass_string(mycapacity)), mydest, mycolor, justify=0
+            )
+
+
+class BackpackSwitchIP(gears.info.InfoPanel):
+    DEFAULT_BLOCKS = (SwitchNameBlock, CreditsBlock, SwitchEncumberanceBlock)
+
 
 class InvItemWidget(widgets.Widget):
     def __init__(self, item, bp, show_parent=False, **kwargs):
@@ -18,10 +91,10 @@ class InvItemWidget(widgets.Widget):
         self.item = item
         self.bp = bp
         if show_parent:
-            self.text = '{} [{}]'.format(str(item),str(item.parent))
+            self.text = '{} [{}]'.format(str(item), str(item.parent))
         else:
             self.text = item.get_full_name()
-        super(InvItemWidget,self).__init__(0,0,INVENTORY_COLUMN.w,pbge.MEDIUMFONT.get_linesize(),**kwargs)
+        super(InvItemWidget, self).__init__(0, 0, INVENTORY_COLUMN.w, pbge.MEDIUMFONT.get_linesize(), **kwargs)
 
     def render(self, flash=False):
         mydest = self.get_rect()
@@ -29,10 +102,10 @@ class InvItemWidget(widgets.Widget):
             color = pbge.INFO_HILIGHT
         else:
             color = pbge.INFO_GREEN
-        pbge.draw_text(pbge.MEDIUMFONT,self.text,mydest,color=color)
+        pbge.draw_text(pbge.MEDIUMFONT, self.text, mydest, color=color)
         pbge.draw_text(pbge.ITALICFONT, self.item.scale.get_mass_string(self.item.mass), mydest, justify=1, color=color)
 
-    def _builtin_responder(self,ev):
+    def _builtin_responder(self, ev):
         if (ev.type == pygame.MOUSEMOTION) and self.get_rect().collidepoint(pbge.my_state.mouse_pos):
             self.bp.active_item = self
 
@@ -41,41 +114,44 @@ class InvItemWidget(widgets.Widget):
         mydest = self.get_rect()
         mydest.h = 150
         mydest.clamp_ip(pbge.my_state.screen.get_rect())
-        return pbge.rpgmenu.Menu(mydest.x,mydest.y,self.w,150,font=pbge.MEDIUMFONT,border=widgets.popup_menu_border,anchor=pbge.frects.ANCHOR_UPPERLEFT)
+        return pbge.rpgmenu.Menu(mydest.x, mydest.y, self.w, 150, font=pbge.MEDIUMFONT,
+                                 border=widgets.popup_menu_border, anchor=pbge.frects.ANCHOR_UPPERLEFT)
 
     def __str__(self):
         return self.text
 
-    def __lt__(self,other):
+    def __lt__(self, other):
         """ Comparison of menu items done by msg string """
-        return( self.text < str(other) )
+        return (self.text < str(other))
+
 
 class PlayerCharacterSwitch(widgets.RowWidget):
     WIDTH = 140
     HEIGHT = 100
-    def __init__(self, camp, pc, set_pc_fun, upleft=(0,0), **kwargs):
-        super().__init__(upleft[0],upleft[1],self.WIDTH,self.HEIGHT,**kwargs)
+
+    def __init__(self, camp, pc, set_pc_fun, upleft=(0, 0), **kwargs):
+        super().__init__(upleft[0], upleft[1], self.WIDTH, self.HEIGHT, **kwargs)
         self.camp = camp
         self.pc = pc
         self.portraits = dict()
         self.set_pc_fun = set_pc_fun
 
-        arrow_sprite = pbge.image.Image("sys_leftrightarrows.png",16,100)
-        self.add_center(widgets.ButtonWidget(0,0,16,100,sprite=arrow_sprite,on_click=self.click_left))
-        self.portrait_button = widgets.ButtonWidget(0,0,100,100,sprite=None,frame=1)
+        arrow_sprite = pbge.image.Image("sys_leftrightarrows.png", 16, 100)
+        self.add_center(widgets.ButtonWidget(0, 0, 16, 100, sprite=arrow_sprite, on_click=self.click_left))
+        self.portrait_button = widgets.ButtonWidget(0, 0, 100, 100, sprite=None, frame=1)
         self.add_center(self.portrait_button)
-        self.add_center(widgets.ButtonWidget(0,0,16,100,sprite=arrow_sprite,on_click=self.click_right,frame=1))
+        self.add_center(widgets.ButtonWidget(0, 0, 16, 100, sprite=arrow_sprite, on_click=self.click_right, frame=1))
 
         self.update()
 
-    def click_left(self,wid,ev):
+    def click_left(self, wid, ev):
         party = [pc for pc in self.camp.get_active_party() if isinstance(pc, (gears.base.Character, gears.base.Mecha))]
         if self.pc in party:
             new_i = party.index(self.pc) - 1
             self.pc = party[new_i]
             self.update()
 
-    def click_right(self,wid,ev):
+    def click_right(self, wid, ev):
         party = [pc for pc in self.camp.get_active_party() if isinstance(pc, (gears.base.Character, gears.base.Mecha))]
         if self.pc in party:
             new_i = party.index(self.pc) + 1
@@ -83,6 +159,13 @@ class PlayerCharacterSwitch(widgets.RowWidget):
                 new_i = 0
             self.pc = party[new_i]
             self.update()
+
+    def _builtin_responder(self, ev):
+        if (ev.type == pygame.KEYDOWN):
+            if pbge.my_state.is_key_for_action(ev, "left"):
+                self.click_left(self, ev)
+            elif pbge.my_state.is_key_for_action(ev, "right"):
+                self.click_right(self, ev)
 
     def update(self):
         if self.pc not in self.portraits:
@@ -93,16 +176,21 @@ class PlayerCharacterSwitch(widgets.RowWidget):
 
 class PlayerCharacterSwitchPlusBPInfo(widgets.RowWidget):
     def __init__(self, camp, pc, set_pc_fun, upleft=None, **kwargs):
-        super().__init__(PC_SWITCH_AREA.dx,PC_SWITCH_AREA.dy,PC_SWITCH_AREA.w,PC_SWITCH_AREA.h,**kwargs)
+        super().__init__(PC_SWITCH_AREA.dx, PC_SWITCH_AREA.dy, PC_SWITCH_AREA.w, PC_SWITCH_AREA.h, **kwargs)
         if upleft:
             self.dx, self.dy = upleft
 
         self.my_switch = PlayerCharacterSwitch(camp, pc, set_pc_fun)
         self.add_left(self.my_switch)
-        self.add_right(widgets.LabelWidget(0,0,70,100,text_fun=self.get_label_text, justify=0, color=pbge.INFO_GREEN))
+        self.add_right(
+            gears.info.InfoWidget(0, 0, 70, 100, info_panel=BackpackSwitchIP(
+                draw_border=False, switch=self.my_switch, camp=camp, width=70,
+            ))
+        )
+        # self.add_right(widgets.LabelWidget(0,0,70,100,text_fun=self.get_label_text, justify=0, color=pbge.INFO_GREEN))
 
-    def get_label_text(self,wid):
-        return "{}\n \n ${}\n {}".format(str(self.my_switch.pc),self.my_switch.camp.credits,self.my_switch.pc.scale.get_mass_string(self.my_switch.pc.get_inv_mass()))
+    # def get_label_text(self,wid):
+    #    return "{}\n \n ${}\n {}".format(str(self.my_switch.pc),self.my_switch.camp.credits,self.my_switch.pc.scale.get_mass_string(self.my_switch.pc.get_inv_mass()))
 
 
 class BackpackWidget(widgets.Widget):
@@ -114,17 +202,23 @@ class BackpackWidget(widgets.Widget):
         :type pc: gears.base.Character
         :type camp: gears.GearHeadCampaign
         """
-        super(BackpackWidget, self).__init__(0,0,0,0,**kwargs)
+        super(BackpackWidget, self).__init__(0, 0, 0, 0, **kwargs)
 
         self.camp = camp
         self.pc = pc
         self.info_cache = dict()
 
-        self.ec_up_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
-        self.ec_down_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
-        self.equipment_selector = widgets.ScrollColumnWidget(0, 0, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h - 42, up_button = self.ec_up_button, down_button=self.ec_down_button, padding=2)
+        self.ec_up_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16,
+                                                 sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.ec_down_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16,
+                                                   sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2,
+                                                   on_frame=2, off_frame=3)
+        self.equipment_selector = widgets.ScrollColumnWidget(0, 0, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h - 42,
+                                                             up_button=self.ec_up_button,
+                                                             down_button=self.ec_down_button, padding=2)
 
-        self.equipment_column = widgets.ColumnWidget(EQUIPMENT_COLUMN.dx,EQUIPMENT_COLUMN.dy,EQUIPMENT_COLUMN.w,EQUIPMENT_COLUMN.h,draw_border=True)
+        self.equipment_column = widgets.ColumnWidget(EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w,
+                                                     EQUIPMENT_COLUMN.h, draw_border=True)
 
         self.equipment_column.add_interior(self.ec_up_button)
         self.equipment_column.add_interior(self.equipment_selector)
@@ -132,23 +226,29 @@ class BackpackWidget(widgets.Widget):
 
         self.children.append(self.equipment_column)
 
-        self.ic_up_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
-        self.ic_down_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
-        self.inventory_selector = widgets.ScrollColumnWidget(0, 0, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h - 42, up_button = self.ic_up_button, down_button=self.ic_down_button, padding=2)
+        self.ic_up_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16,
+                                                 sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.ic_down_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16,
+                                                   sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2,
+                                                   on_frame=2, off_frame=3)
+        self.inventory_selector = widgets.ScrollColumnWidget(0, 0, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h - 42,
+                                                             up_button=self.ic_up_button,
+                                                             down_button=self.ic_down_button, padding=2)
 
-        self.inventory_column = widgets.ColumnWidget(INVENTORY_COLUMN.dx,INVENTORY_COLUMN.dy,INVENTORY_COLUMN.w,INVENTORY_COLUMN.h,draw_border=True)
+        self.inventory_column = widgets.ColumnWidget(INVENTORY_COLUMN.dx, INVENTORY_COLUMN.dy, INVENTORY_COLUMN.w,
+                                                     INVENTORY_COLUMN.h, draw_border=True)
 
         self.inventory_column.add_interior(self.ic_up_button)
         self.inventory_column.add_interior(self.inventory_selector)
         self.inventory_column.add_interior(self.ic_down_button)
 
         self.children.append(self.inventory_column)
-        self.children.append(PlayerCharacterSwitchPlusBPInfo(camp,pc,self.set_pc,draw_border=True))
+        self.children.append(PlayerCharacterSwitchPlusBPInfo(camp, pc, self.set_pc, draw_border=True))
         self.finished = False
 
         self.update_selectors()
 
-    def set_pc(self,pc):
+    def set_pc(self, pc):
         self.pc = pc
         self.update_selectors()
 
@@ -160,38 +260,38 @@ class BackpackWidget(widgets.Widget):
         """
         for part in part_list:
             if is_inv:
-                menu_widget.add_interior(InvItemWidget(part,self,show_parent=True,on_click=self.this_item_was_selected))
+                menu_widget.add_interior(
+                    InvItemWidget(part, self, show_parent=True, on_click=self.this_item_was_selected))
             self._add_equipped_items(part.sub_com, menu_widget, False)
             self._add_equipped_items(part.inv_com, menu_widget, True)
 
-
-    def build_equipment_menu(self,menu_widget):
+    def build_equipment_menu(self, menu_widget):
         self._add_equipped_items(self.pc.sub_com, menu_widget, False)
         self._add_equipped_items(self.pc.inv_com, menu_widget, False)
 
-    def build_inventory_menu(self,container,menu_widget):
+    def build_inventory_menu(self, container, menu_widget):
         for item in container.inv_com:
-            menu_widget.add_interior(InvItemWidget(item, self, show_parent=False,on_click=self.this_item_was_selected))
+            menu_widget.add_interior(InvItemWidget(item, self, show_parent=False, on_click=self.this_item_was_selected))
         menu_widget.sort(key=lambda w: w.text)
 
     def update_selectors(self):
         self.inventory_selector.clear()
-        self.build_inventory_menu(self.pc,self.inventory_selector)
+        self.build_inventory_menu(self.pc, self.inventory_selector)
         self.equipment_selector.clear()
         self.build_equipment_menu(self.equipment_selector)
         self.active_item = None
 
-    def _unequip_item(self,wid):
+    def _unequip_item(self, wid):
         wid.item.parent.inv_com.remove(wid.item)
         self.pc.inv_com.append(wid.item)
         self.update_selectors()
 
-    def _equip_item(self,wid):
+    def _equip_item(self, wid):
         mymenu = wid.get_menu()
         for part in self.pc.descendants():
-            if part.can_equip(wid.item,check_slots=False):
-                mymenu.add_item(part.get_full_name(),part)
-        mymenu.add_item("[CANCEL]",None)
+            if part.can_equip(wid.item, check_slots=False):
+                mymenu.add_item(part.get_full_name(), part)
+        mymenu.add_item("[CANCEL]", None)
         dest = mymenu.query()
         if dest:
             for item in dest.inv_com:
@@ -202,18 +302,20 @@ class BackpackWidget(widgets.Widget):
             dest.inv_com.append(wid.item)
             self.update_selectors()
 
-    def _drop_item(self,wid):
+    def _drop_item(self, wid):
         wid.item.parent.inv_com.remove(wid.item)
         self.camp.scene.contents.append(wid.item)
         wid.item.pos = self.pc.get_root().pos
         self.update_selectors()
 
-    def _trade_item(self,wid):
+    def _trade_item(self, wid):
         mymenu = wid.get_menu()
         mypc = self.pc.get_root()
         for pc in self.camp.get_active_party():
-            if pc is not mypc and pc.can_equip(wid.item) and isinstance(pc, (gears.base.Mecha, gears.base.Character)) and (not hasattr(pc, "owner") or not pc.owner):
-                mymenu.add_item(str(pc),pc)
+            if pc is not mypc and pc.can_equip(wid.item) and isinstance(pc,
+                                                                        (gears.base.Mecha, gears.base.Character)) and (
+                    not hasattr(pc, "owner") or not pc.owner):
+                mymenu.add_item(str(pc), pc)
         mymenu.add_item("[Cancel]", None)
         nupc = mymenu.query()
         if nupc:
@@ -221,12 +323,12 @@ class BackpackWidget(widgets.Widget):
             nupc.inv_com.append(wid.item)
             self.update_selectors()
 
-    def _stash_item(self,wid):
+    def _stash_item(self, wid):
         wid.item.parent.inv_com.remove(wid.item)
         self.camp.party.append(wid.item)
         self.update_selectors()
 
-    def this_item_was_selected(self,wid,ev):
+    def this_item_was_selected(self, wid, ev):
         """
 
         :type wid: InvItemWidget
@@ -238,14 +340,14 @@ class BackpackWidget(widgets.Widget):
         # Basic options: Equip, Unequip, Transfer, Drop, Apply Skill
         # Let's let items set their own special menu options, like eat, use, engage safety, etc.
         if wid.item.parent is self.pc:
-            mymenu.add_item("Equip {}".format(wid.item),self._equip_item)
+            mymenu.add_item("Equip {}".format(wid.item), self._equip_item)
         else:
             mymenu.add_item("Unequip {}".format(wid.item), self._unequip_item)
 
         if self.pc.get_root() in self.camp.scene.contents:
-            mymenu.add_item("Drop {}".format(wid.item),self._drop_item)
-            if isinstance(self.pc.get_root(),gears.base.Character):
-                mymenu.add_item("Trade {}".format(wid.item),self._trade_item)
+            mymenu.add_item("Drop {}".format(wid.item), self._drop_item)
+            if isinstance(self.pc.get_root(), gears.base.Character):
+                mymenu.add_item("Trade {}".format(wid.item), self._trade_item)
         else:
             mymenu.add_item("Stash {}".format(wid.item), self._stash_item)
 
@@ -256,9 +358,10 @@ class BackpackWidget(widgets.Widget):
     def render(self, flash=False):
         if self.active_item:
             if self.active_item.item not in self.info_cache:
-                self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,width=INFO_COLUMN.w)
+                self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,
+                                                                                         width=INFO_COLUMN.w)
             mydest = INFO_COLUMN.get_rect()
-            self.info_cache[self.active_item.item].render(mydest.x,mydest.y)
+            self.info_cache[self.active_item.item].render(mydest.x, mydest.y)
 
     def finish(self, wid, ev):
         self.finished = True
@@ -294,18 +397,24 @@ class ItemExchangeWidget(widgets.Widget):
 
         :type camp: gears.GearHeadCampaign
         """
-        super().__init__(0,0,0,0,**kwargs)
+        super().__init__(0, 0, 0, 0, **kwargs)
 
         self.camp = camp
         self.pc = pc
         self.conlist = conlist
         self.info_cache = dict()
 
-        self.cc_up_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
-        self.cc_down_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
-        self.crate_selector = widgets.ScrollColumnWidget(0, 0, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h - 42, up_button = self.cc_up_button, down_button=self.cc_down_button, padding=2)
+        self.cc_up_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16,
+                                                 sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.cc_down_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16,
+                                                   sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2,
+                                                   on_frame=2, off_frame=3)
+        self.crate_selector = widgets.ScrollColumnWidget(0, 0, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h - 42,
+                                                         up_button=self.cc_up_button, down_button=self.cc_down_button,
+                                                         padding=2)
 
-        self.crate_column = widgets.ColumnWidget(EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h, draw_border=True)
+        self.crate_column = widgets.ColumnWidget(EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w,
+                                                 EQUIPMENT_COLUMN.h, draw_border=True)
 
         self.crate_column.add_interior(self.cc_up_button)
         self.crate_column.add_interior(self.crate_selector)
@@ -313,39 +422,44 @@ class ItemExchangeWidget(widgets.Widget):
 
         self.children.append(self.crate_column)
 
-        self.ic_up_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
-        self.ic_down_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2, on_frame=2, off_frame=3)
-        self.inventory_selector = widgets.ScrollColumnWidget(0, 0, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h - 42, up_button = self.ic_up_button, down_button=self.ic_down_button, padding=2)
+        self.ic_up_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16,
+                                                 sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
+        self.ic_down_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16,
+                                                   sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2,
+                                                   on_frame=2, off_frame=3)
+        self.inventory_selector = widgets.ScrollColumnWidget(0, 0, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h - 42,
+                                                             up_button=self.ic_up_button,
+                                                             down_button=self.ic_down_button, padding=2)
 
-        self.inventory_column = widgets.ColumnWidget(INVENTORY_COLUMN.dx,INVENTORY_COLUMN.dy,INVENTORY_COLUMN.w,INVENTORY_COLUMN.h,draw_border=True)
+        self.inventory_column = widgets.ColumnWidget(INVENTORY_COLUMN.dx, INVENTORY_COLUMN.dy, INVENTORY_COLUMN.w,
+                                                     INVENTORY_COLUMN.h, draw_border=True)
 
         self.inventory_column.add_interior(self.ic_up_button)
         self.inventory_column.add_interior(self.inventory_selector)
         self.inventory_column.add_interior(self.ic_down_button)
 
         self.children.append(self.inventory_column)
-        self.children.append(PlayerCharacterSwitchPlusBPInfo(camp,pc,self.set_pc,draw_border=True))
+        self.children.append(PlayerCharacterSwitchPlusBPInfo(camp, pc, self.set_pc, draw_border=True))
 
         self.update_selectors()
 
         self.finished = False
 
-    def set_pc(self,pc):
+    def set_pc(self, pc):
         self.pc = pc
         self.update_selectors()
 
-    def build_inventory_menu(self,mylist,menu_widget, click_fun):
+    def build_inventory_menu(self, mylist, menu_widget, click_fun):
         for item in mylist:
-            menu_widget.add_interior(InvItemWidget(item, self, show_parent=False,on_click=click_fun))
+            menu_widget.add_interior(InvItemWidget(item, self, show_parent=False, on_click=click_fun))
         menu_widget.sort(key=lambda w: w.text)
 
     def update_selectors(self):
         self.inventory_selector.clear()
-        self.build_inventory_menu(self.pc.inv_com,self.inventory_selector, self.trade_to_crate)
+        self.build_inventory_menu(self.pc.inv_com, self.inventory_selector, self.trade_to_crate)
         self.crate_selector.clear()
-        self.build_inventory_menu(self.conlist,self.crate_selector, self.trade_to_pc)
+        self.build_inventory_menu(self.conlist, self.crate_selector, self.trade_to_pc)
         self.active_item = None
-
 
     def trade_to_crate(self, wid, ev):
         wid.item.parent.inv_com.remove(wid.item)
@@ -365,9 +479,10 @@ class ItemExchangeWidget(widgets.Widget):
     def render(self, flash=False):
         if self.active_item:
             if self.active_item.item not in self.info_cache:
-                self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,width=INFO_COLUMN.w)
+                self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,
+                                                                                         width=INFO_COLUMN.w)
             mydest = INFO_COLUMN.get_rect()
-            self.info_cache[self.active_item.item].render(mydest.x,mydest.y)
+            self.info_cache[self.active_item.item].render(mydest.x, mydest.y)
 
     @classmethod
     def create_and_invoke(cls, camp, pc, conlist):
@@ -375,7 +490,9 @@ class ItemExchangeWidget(widgets.Widget):
         # was chosen, or None if the invocation was cancelled.
         myui = cls(camp, pc, conlist)
         pbge.my_state.widgets.append(myui)
-        myui.children.append(pbge.widgets.LabelWidget(230,230,80,0,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
+        myui.children.append(
+            pbge.widgets.LabelWidget(230, 230, 80, 0, text="Done", justify=0, on_click=myui.done_button,
+                                     draw_border=True))
 
         keepgoing = True
         while keepgoing and not myui.finished and not pbge.my_state.got_quit:

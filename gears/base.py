@@ -1790,7 +1790,7 @@ class Weapon(Component, StandardDamageHandler):
             name='Basic Attack',
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale),),
+                children=(geffects.DoDamage(2 * self.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -1890,7 +1890,10 @@ class MeleeWeapon(Weapon):
             fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
                 children=(
-                geffects.DoDamage(2 * self.damage, 4, scale=self.scale, damage_bonus=self.get_damage_bonus()),),
+                geffects.DoDamage(
+                    2 * self.damage, self.scale.DEFAULT_DAMAGE_DIE,
+                    scale=self.scale, damage_bonus=self.get_damage_bonus()
+                ),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers(), bonus_strikes=bonus_strike
@@ -2005,7 +2008,8 @@ class EnergyWeapon(Weapon):
             name=name,
             fx=geffects.MeleeAttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale, hot_knife=True,
+                children=(geffects.DoDamage(2 * self.damage, self.scale.DEFAULT_DAMAGE_DIE,
+                                            scale=self.scale, hot_knife=True,
                                             damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
@@ -2265,7 +2269,7 @@ class BallisticWeapon(Weapon):
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale),),
+                children=(geffects.DoDamage(2 * self.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=penetration,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -2383,7 +2387,7 @@ class BeamWeapon(Weapon):
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale),),
+                children=(geffects.DoDamage(2 * self.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -2627,7 +2631,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 name='Single Shot',
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL,
-                    children=(geffects.DoDamage(2 * ammo.damage, 4, scale=ammo.scale),),
+                    children=(geffects.DoDamage(2 * ammo.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=ammo.scale),),
                     accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo)
@@ -2659,7 +2663,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 name='Fire x{}'.format(num_missiles),
                 fx=geffects.MultiAttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL, num_attacks=num_missiles,
-                    children=(geffects.DoDamage(2 * ammo.damage, 4, scale=ammo.scale),),
+                    children=(geffects.DoDamage(2 * ammo.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=ammo.scale),),
                     accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo),
@@ -2863,7 +2867,8 @@ class ChemThrower(Weapon):
             name=name,
             fx=geffects.AttackRoll(
                 self.attack_stat, self.get_attack_skill(),
-                children=(geffects.DoDamage(2 * self.damage, 4, scale=self.scale, scatter=True),),
+                children=(geffects.DoDamage(2 * self.damage, self.scale.DEFAULT_DAMAGE_DIE,
+                                            scale=self.scale, scatter=True),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
                 modifiers=self.get_modifiers()
@@ -4184,21 +4189,27 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         """Returns the unscaled maximum health of this character."""
         return max(self.get_stat(stats.Body) + self.get_stat(stats.Vitality), 3)
 
+    def carrying_capacity(self):
+        return self.get_stat(stats.Body) * 25 + self.get_stat(stats.Athletics) * 10
+
     def get_mobility_penalty(self):
         inv_mass = self.scale.unscale_mass(self.get_inv_mass())
-        ccap = self.get_stat(stats.Body) * 30
+        ccap = self.carrying_capacity()
         if inv_mass > ccap:
-            return (inv_mass - ccap) // 5
+            penalty = max(((inv_mass - ccap) * 100) // ccap, 10)
+            return min(penalty, 100)
         else:
             return 0
 
     def calc_mobility(self):
         """Calculate the mobility ranking of this character.
         """
-        base_m = self.get_stat(stats.Speed) * 3 + 10 - self.get_mobility_penalty()
+        base_m = self.get_stat(stats.Speed) * 3 + 10
 
         # Add emchantment modifiers.
         base_m += self.ench_list.get_funval(self, 'get_mobility_bonus')
+
+        base_m = base_m * (100 - self.get_mobility_penalty()) // 100
 
         if base_m > 50:
             it = min(base_m, 50 + int(math.log(base_m - 50, 1.2)))

@@ -17,6 +17,7 @@ OVERLAY_HIDDEN = 6
 
 SCROLL_STEP = 12
 
+PARTY_INDICATOR_SPRITE = "sys_partyindicator.png"
 
 class TextTicker(object):
     def __init__(self):
@@ -51,7 +52,7 @@ class TextTicker(object):
 
 
 class SceneView(object):
-    def __init__(self, scene, postfx=None, cursor=None):
+    def __init__(self, scene, postfx=None, cursor=None, party_indicator_spritename=PARTY_INDICATOR_SPRITE):
         self.overlays = dict()
         self.anim_list = list()
         self.anims = collections.defaultdict(list)
@@ -85,6 +86,8 @@ class SceneView(object):
         self.postfx = postfx
 
         self.cursor = cursor
+
+        self.party_indicator = image.Image(party_indicator_spritename, self.TILE_WIDTH, self.TILE_HEIGHT, transparent=True)
 
         my_state.view = self
 
@@ -445,6 +448,8 @@ class SceneView(object):
         keep_going = True
         line_number = 1
 
+        indicate_lance_tiles = util.config.getboolean("GENERAL", "indicate_lance_tiles")
+
         # Record all of the scene contents for display when their tile comes up.
         self.modelmap.clear()
         self.uppermap.clear()
@@ -539,6 +544,14 @@ class SceneView(object):
                                 o_dest.y -= self.scene.tile_altitude(x,y)
                             o_sprite, o_frame = self.overlays[(x, y)]
                             o_sprite.render(o_dest, o_frame)
+
+                        elif indicate_lance_tiles:
+                            tile_models = self.modelmap.get((x,y))
+                            if tile_models and any(self.scene.local_teams.get(m) is self.scene.player_team for m in tile_models):
+                                o_dest = dest.copy()
+                                if self.scene.tile_altitude(x, y) > 0:
+                                    o_dest.y -= self.scene.tile_altitude(x, y)
+                                self.party_indicator.render(o_dest, 0)
 
                         if self.cursor and self.cursor.x == x and self.cursor.y == y:
                             c_dest = dest.copy()

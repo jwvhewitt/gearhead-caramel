@@ -81,6 +81,7 @@ Mecha
                             penetration = 2
                             attributes = (ConeAttack)
                             material = Advanced
+                            area_anim = Fireball
                             SUB
                                 Chem
                                     name = "Napalm"

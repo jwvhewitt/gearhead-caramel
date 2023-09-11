@@ -172,6 +172,7 @@ class ConfigEditor(object):
         OptionToggler.add_menu_toggle(self.scroll_column, "Show numbers in pilot info", "show_numbers_in_pilot_info")
         OptionToggler.add_menu_toggle(self.scroll_column, "Dock tile info panel", "dock_tile_info_panel")
         OptionToggler.add_menu_toggle(self.scroll_column, "Show skills used in dialogue", "show_convo_skills")
+        OptionToggler.add_menu_toggle(self.scroll_column, "Indicate lance members on map", "indicate_lance_tiles")
 
         self.scroll_column.add_interior(pbge.widgets.LabelWidget(0,0,CONFIG_EDITOR_WIDTH,0,"\nDifficulty Options", font=pbge.BIGFONT))
         for op in util.config.options("DIFFICULTY"):

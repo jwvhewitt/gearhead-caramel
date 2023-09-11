@@ -13,6 +13,7 @@ class MechaScale( object ):
     RANGED_SKILL = stats.MechaGunnery
     MELEE_SKILL = stats.MechaFighting
     XP_MULTIPLIER = 1
+    DEFAULT_DAMAGE_DIE = 4
     @classmethod
     def scale_mass( self, mass, material ):
         # Scale mass based on scale and material.
@@ -44,6 +45,7 @@ class HumanScale( MechaScale ):
     RANGED_SKILL = stats.RangedCombat
     MELEE_SKILL = stats.CloseCombat
     XP_MULTIPLIER = 2
+    DEFAULT_DAMAGE_DIE = 6
     @staticmethod
     def get_mass_string( mass ):
         return '{:.1f}kg'.format(mass / 10.0)
