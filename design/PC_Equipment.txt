@@ -645,6 +645,17 @@ TorsoClothing
             size = 1
     END
 
+TorsoClothing
+    name = "Armorweave Clothes"
+    desc = "Armor mesh has been integrated with these clothes, making them a little stiff."
+    scale = HumanScale
+    material = Advanced
+    shop_tags = ("CLOTHING",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 2
+    END
 
 TorsoClothing
     name = "Flak Jacket"
@@ -655,7 +666,7 @@ TorsoClothing
     faction_list = (None,)
     SUB
         Armor
-            size = 2
+            size = 3
     END
 
 TorsoClothing
@@ -696,6 +707,18 @@ TorsoClothing
     END
 
 HeadClothing
+    name = "Field Cap"
+    desc = "A lightweight cap."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 1
+    END
+
+HeadClothing
     name = "Teddy Hat"
     desc = "A fluffy hat that looks like a teddy bear's face. The ears are apparently solar panels."
     scale = HumanScale
@@ -711,6 +734,18 @@ HeadClothing
     END
 
 HeadClothing
+    name = "Sports Helmet"
+    desc = "A hard polymer helmet more suited to sports than combat."
+    scale = HumanScale
+    material = Ceramic
+    shop_tags = ("CLOTHING", "ODDITY")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 2
+    END
+
+HeadClothing
     name = "Light Helmet"
     desc = "A light combat helmet, made from a combination of plastics and shock absorbers."
     scale = HumanScale
@@ -719,7 +754,55 @@ HeadClothing
     faction_list = (None,)
     SUB
         Armor
-            size = 2
+            size = 3
+    END
+
+HeadClothing
+    name = "Combat Helmet"
+    desc = "An armored helmet."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 4
+    END
+
+HeadClothing
+    name = "Ceram Helmet"
+    desc = "A strong helmet made from the light ceram material."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 6
+    END
+
+HeadClothing
+    name = "Havoc Helmet"
+    desc = "Helmet worn by aggressive attackers. Contains an integrated rocket launcher."
+    scale = HumanScale
+    material = Advanced
+    shop_tags = ("CLOTHING", "CONTRABAND")
+    faction_list = (BoneDevils, TerranFederation, TerranDefenseForce, DeadzoneFederation, ClanIronwind, TheSolarNavy, ProDuelistAssociation)
+    SUB
+        Armor
+            size = 6
+
+        Launcher
+            size = 4
+            SUB
+                Missile
+                    name = "Havoc Rockets"
+                    reach = 4
+                    damage = 1
+                    accuracy = 2
+                    penetration = 2
+                    quantity = 24
+            END
     END
 
 ArmClothing
@@ -756,6 +839,42 @@ ArmClothing
     SUB
         Armor
             size = 3
+    END
+
+ArmClothing
+    name = "Plate Sleeve"
+    desc = "Arm armor composed of solid inflexible plates."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 4
+    END
+
+ArmClothing
+    name = "Mesh Sleeve"
+    desc = "This sleeve is composed of a flexible but tough material which resists impact."
+    scale = HumanScale
+    material = Advanced
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 5
+    END
+
+ArmClothing
+    name = "Ceram Plate Sleeve"
+    desc = "A strong sleeve made from the light ceram material."
+    scale = HumanScale
+    material = Ceramic
+    shop_tags = ("CLOTHING",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 6
     END
 
 
@@ -795,6 +914,41 @@ LegClothing
             size = 3
     END
 
+LegClothing
+    name = "Plate Legging"
+    desc = "Leg armor made from solid inflexible plates."
+    scale = HumanScale
+    material = Metal
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 4
+    END
+
+LegClothing
+    name = "Mesh Legging"
+    desc = "This legging is composed of a flexible but tough material which resists impact."
+    scale = HumanScale
+    material = Advanced
+    shop_tags = ("CLOTHING","ESSENTIAL")
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 5
+    END
+
+LegClothing
+    name = "Ceram Plate Legging"
+    desc = "Strong legging made from the light ceram material."
+    scale = HumanScale
+    material = Ceramic
+    shop_tags = ("CLOTHING",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 6
+    END
 
 
 

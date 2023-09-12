@@ -272,9 +272,11 @@ class AutoJoiner(object):
             camp.party.append(self.npc)
             mek = self.get_mecha_for_character(self.npc)
             self.add_lancemate_mecha_to_party(camp, self.npc, mek)
+            camp.scene.local_teams[self.npc] = camp.scene.player_team
             pet = self._get_pet_from_campdata(camp)
             if pet:
                 camp.party.append(pet)
+                camp.scene.local_teams[pet] = camp.scene.player_team
                 if camp.scene and pet not in camp.scene.contents and pet.scale is camp.scene.scale and self.npc in camp.scene and self.npc.pos:
                     camp.scene.place_gears_near_spot(*self.npc.pos, camp.scene.player_team, pet)
 
@@ -326,6 +328,7 @@ class AutoLeaver(object):
         if self.npc in camp.party:
             camp.assign_pilot_to_mecha(self.npc, None)
             camp.party.remove(self.npc)
+            camp.scene.local_teams[self.npc] = camp.scene.civilian_team
             for mek in list(camp.party):
                 if hasattr(mek, "owner") and mek.owner is self.npc:
                     camp.party.remove(mek)

@@ -124,7 +124,7 @@ Monster
 					integral = True
                     shot_anim = FireBolt
                     area_anim = Fireball
-                    attributes = (Blast1, BurnAttack)
+                    attributes = (Scatter, BurnAttack)
             END
         Torso
             size = 5

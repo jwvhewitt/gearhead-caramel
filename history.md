@@ -1,3 +1,4 @@
+v0.954 September 12, 2023
 * Carrying capacity now shown for characters in backpack display
 * Athletics skill now increases carrying capacity
 * Right and left keys can be used to scroll through lancemates in inventory interface
@@ -6,7 +7,7 @@
 * Added config option to indicate lance members on map
 * Fixed music volume bug
 * Added some new portrait bits
-* Fixed crash if PC has space or special character in name
+* Fixed crash if PC name has space or special character in it
 
 v0.953 September 5, 2023
 * Fixed hacking prop bug

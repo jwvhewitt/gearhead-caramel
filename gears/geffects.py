@@ -483,6 +483,10 @@ class FireBolt(animobs.ShotAnim):
     DEFAULT_SOUND_FX = "foom_0.ogg"
 
 
+# For the v0.900 series; can probably cut after 1.000.
+FireBall = FireBolt
+
+
 class AcidSpray(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_gervais_s_acidspray.png"
     DEFAULT_SOUND_FX = "lava.ogg"

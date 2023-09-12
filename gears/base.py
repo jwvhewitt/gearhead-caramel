@@ -2357,8 +2357,8 @@ class BeamWeapon(Weapon):
     MAX_PENETRATION = 5
     COST_FACTOR = 15
     DEFAULT_SHOT_ANIM = geffects.GunBeam
-    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.Brutal,
-                        attackattributes.BurstFire2,
+    LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic,
+                        attackattributes.Brutal, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
                         attackattributes.Designator,
                         attackattributes.OverloadAttack, attackattributes.Plasma,
@@ -3466,7 +3466,7 @@ class Clothing(BaseGear, ContainerDamageHandler):
         return 5 * self.form.VOLUME_X
 
     def is_legal_sub_com(self, part):
-        return isinstance(part, (Armor, MovementSystem, PowerSource, Weapon))
+        return isinstance(part, (Armor, MovementSystem, PowerSource, Weapon, Launcher))
 
 
 class HeadClothing(Clothing):

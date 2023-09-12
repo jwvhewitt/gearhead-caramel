@@ -29,7 +29,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.953"
+VERSION = "v0.954"
 
 
 class TitleScreenRedraw(object):
@@ -193,6 +193,7 @@ class LoadGameMenu:
             except Exception as err:
                 print(err)
                 self.deal_with_bad_file(fname, err)
+                return
             camp.play()
 
     def deal_with_bad_file(self, fname, err):
