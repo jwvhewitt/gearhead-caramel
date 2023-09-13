@@ -1,3 +1,5 @@
+* Fixed "deactivate_on_win" bug in older save files
+
 v0.954 September 12, 2023
 * Carrying capacity now shown for characters in backpack display
 * Athletics skill now increases carrying capacity

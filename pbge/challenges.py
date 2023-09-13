@@ -267,6 +267,8 @@ class Challenge(object):
         self.__dict__.update(state)
         if "num_simultaneous_plots" not in state:
             self.num_simultaneous_plots = 3
+        if "deactivate_on_win" not in state:
+            self.deactivate_on_win = True
 
 
 class ResourceSpender(object):
