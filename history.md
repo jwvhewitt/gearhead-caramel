@@ -1,3 +1,4 @@
+v0.955 September 13, 2023
 * Fixed "deactivate_on_win" bug in older save files
 
 v0.954 September 12, 2023
