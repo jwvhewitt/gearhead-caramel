@@ -13,6 +13,7 @@ elif getattr(sys, "frozen", False):
 else:
     # The application is not frozen
     gamedir = os.path.dirname(__file__)
+print(gamedir)
 
 pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
 pbge.please_stand_by()
