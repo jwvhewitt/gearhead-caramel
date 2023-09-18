@@ -157,6 +157,10 @@ class Campaign(object):
             thingmenu.sort()
             thingmenu.add_alpha_keys()
 
+    def expand_cutscene(self, csplan):
+        for p in self.active_plots():
+            p.modify_cutscene(self, csplan)
+
     def place_party(self, entrance):
         """Stick the party close to the waypoint."""
         raise NotImplementedError("Method place_party needs custom implementation.")

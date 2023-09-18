@@ -130,7 +130,7 @@ class DZD_Wujung(Plot):
                 requirements=(ghcutscene.SpeakerTagRequirement(needed_tags=(gears.personality.DeadZone,)),
                               ghcutscene.StatusTagRequirement(forbidden_tags=(gears.personality.Grim,))),
                 tags=(gears.personality.Cheerful,),
-                ALERT_PHYSICALDESC="The air here is clean and crisp; the grass is soft beneath your800438176635 feet. Majestic buildings reach skyward like a picture of the PreZero age.",
+                ALERT_PHYSICALDESC="The air here is clean and crisp; the grass is soft beneath your feet. Majestic buildings reach skyward like a picture of the PreZero age.",
                 ALERT_OPINION="The city is bigger than you thought it would be; bustling with activity; waiting to be explored.",
                 SPEAK_OPINION="I can see now why they call this the green zone. Everything is so... green."
             ))

@@ -272,13 +272,15 @@ class AutoJoiner(object):
             camp.party.append(self.npc)
             mek = self.get_mecha_for_character(self.npc)
             self.add_lancemate_mecha_to_party(camp, self.npc, mek)
-            camp.scene.local_teams[self.npc] = camp.scene.player_team
+            if camp.scene:
+                camp.scene.local_teams[self.npc] = camp.scene.player_team
             pet = self._get_pet_from_campdata(camp)
             if pet:
                 camp.party.append(pet)
-                camp.scene.local_teams[pet] = camp.scene.player_team
-                if camp.scene and pet not in camp.scene.contents and pet.scale is camp.scene.scale and self.npc in camp.scene and self.npc.pos:
-                    camp.scene.place_gears_near_spot(*self.npc.pos, camp.scene.player_team, pet)
+                if camp.scene:
+                    camp.scene.local_teams[pet] = camp.scene.player_team
+                    if pet not in camp.scene.contents and pet.scale is camp.scene.scale and self.npc in camp.scene and self.npc.pos:
+                        camp.scene.place_gears_near_spot(*self.npc.pos, camp.scene.player_team, pet)
 
     @staticmethod
     def add_lancemate_mecha_to_party(camp, npc, mek):
@@ -328,14 +330,15 @@ class AutoLeaver(object):
         if self.npc in camp.party:
             camp.assign_pilot_to_mecha(self.npc, None)
             camp.party.remove(self.npc)
-            camp.scene.local_teams[self.npc] = camp.scene.civilian_team
+            if camp.scene:
+                camp.scene.local_teams[self.npc] = camp.scene.civilian_team
             for mek in list(camp.party):
                 if hasattr(mek, "owner") and mek.owner is self.npc:
                     camp.party.remove(mek)
                 elif isinstance(mek, gears.base.Monster) and mek.pet_data and mek.pet_data.trainer is self.npc:
                     camp.party.remove(mek)
                     self._save_pet_to_campdata(camp, mek)
-                    if mek in camp.scene.contents:
+                    if camp.scene and mek in camp.scene.contents:
                         camp.scene.contents.remove(mek)
 
             # for mek in list(camp.incapacitated_party):

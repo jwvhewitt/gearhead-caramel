@@ -5,6 +5,7 @@ a CC-BY-4.0 license.
 ARTWORK
 =======
 
+* eyecatch_radou_*.png screens by Radou, https://tapas.io/episode/615068, CC-BY-4.0
 * eyecatch_sierrabravo_*.png screens by Sierra Bravo, https://www.sierrabravoart.com/, CC-BY-4.0
 * eyecatch_nickyrodriguez_*.png screens by Nicky Rodriguez, https://www.artofnickyrodriguez.com/, CC-BY-4.0
 * eyecatch_noppy_*.png screens by Thomas Noppers, https://www.etsy.com/shop/ToppyNoppy, CC-BY-4.0
@@ -12,7 +13,7 @@ ARTWORK
 * The font Atan combines the Roman glyphs from Anita Semi Square by Gustavo Paz L. with the Korean glyphs from Gugi. SIL Open Font License.
 * The Open Han Sans fonts are released under the SIL OPEN FONT LICENSE Version 1.1
 * anim_frogatto_nuke.png from OpenGameArt user Jetrel, public domain
-* anim_gervais_*.png, terrain_gervais_\*.png by David Gervais, CC-BY 3.0
+* anim_gervais_\*.png, terrain_gervais_\*.png by David Gervais, CC-BY 3.0
 
 ICONS - MOSTLY FROM "THE NOUN PROJECT"
 ======================================
@@ -154,10 +155,12 @@ Unless otherwise noted, the sound effects used in GearHead Caramel were obtained
 pixabay.com and other CC0 sound effect collections.
 
 * alienshoot1.ogg by Robin Lamb, CC0
+* cqccreaturedie7.ogg by Anton Risberg, CC-BY-4.0
 * foom_0.ogg by Bart K, CC-BY-3.0
 * hjm-tesla_sound_shot.ogg by Varkalandar, CC-BY-4.0
 * lava.ogg by Michel Baradari, CC-BY-3.0
 * poof_1.ogg by dklon, CC-BY-3.0
+* purchase2.ogg by Anton Risberg, CC-BY-4.0
 * qubodupElectricityDamage02.ogg by Iwan 'qubodup' Gabovitch http://qubodup.net and released under CC-BY 3.0
 * rock_breaking.ogg by Blender Foundation, CC-BY-3.0
 * Spell1.ogg by artisticdude, CC-BY-3.0

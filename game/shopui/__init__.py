@@ -417,6 +417,8 @@ class ShopUI(pbge.widgets.Widget):
                     self._on_escape_key()
         pbge.my_state.widgets.remove(self)
         # Improve friendliness for all items bought.
+        if self.shop_panel.num_bought > 0 or self.shop_panel.num_sold > 0:
+            pbge.my_state.start_sound_effect("purchase2.ogg")
         for item in self.shop_panel.bought:
             self.shop.improve_friendliness(self.camp, item)
 

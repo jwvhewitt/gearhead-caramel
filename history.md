@@ -1,3 +1,13 @@
+v0.956 September 18, 2023
+* Added two new eyecatch cards by Radou
+* Fixed AutoJoiner/AutoLeaver crash at world creation
+* Plots may now modify cutscenes
+* Added checkout sound fx to shop
+* Some portrait bits tweaked by Anton Risberg
+* Fixed crash if no boss monster generated for The Night Stalker plot
+* Fixed numbers typo in DZD Wujung entry cutscene
+* Fixed bug where campaign would remain in memory after quitting because of pbge.my_state.view
+
 v0.955 September 13, 2023
 * Fixed "deactivate_on_win" bug in older save files
 

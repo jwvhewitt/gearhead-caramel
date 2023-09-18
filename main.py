@@ -29,7 +29,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.955"
+VERSION = "v0.956"
 
 
 class TitleScreenRedraw(object):
@@ -390,6 +390,7 @@ def play_the_game():
             mymenu.add_item("Quit", None)
 
             pbge.my_state.start_music(TITLE_THEME)
+            pbge.my_state.view = tsrd
             action = mymenu.query()
             if action:
                 action(tsrd)

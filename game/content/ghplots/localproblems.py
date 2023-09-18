@@ -179,8 +179,9 @@ class TheNightStalker(Plot):
         )
 
         monteam2 = self.register_element("BOSSTEAM", teams.Team(enemies=[goal_level.player_team, ]), dident="_goal_room")
-        mymonster = self.register_element("BOSS", gears.selector.generate_boss_monster(self.rank+15, gears.tags.UrbanEnv, ("SYNTH", "HUNTER-X"), gears.scale.HumanScale), dident="BOSSTEAM")
+        mymonster = gears.selector.generate_boss_monster(self.rank+15, gears.tags.UrbanEnv, ("SYNTH", "HUNTER-X"), gears.scale.HumanScale)
         if mymonster:
+            self.register_element("BOSS", mymonster, dident="BOSSTEAM")
             goal_room.contents.append(ghwaypoints.BrokenBiotank(anchor=pbge.randmaps.anchors.middle))
 
             # Connect everything.

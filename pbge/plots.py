@@ -424,6 +424,9 @@ class Plot(object):
             if ogen:
                 ogen(camp, thingmenu)
 
+    def modify_cutscene(self, camp, csplan):
+        pass
+
     def _get_generic_offers(self, npc, camp):
         """Get any offers that could apply to non-element NPCs."""
         return list()

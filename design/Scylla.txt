@@ -1,7 +1,7 @@
 Mecha
     name = "Scylla"
     desig = "SD-76g"
-    desc="This is one of BioCorp's Biometrics line; its body structure is modeled after that of a tiger. They Scylla was designed for rapid assault actions and excels in this role."
+    desc="This is one of BioCorp's Biometrics line; its body structure is modeled after that of a tiger. The Scylla was designed for rapid assault actions and excels in this role."
     imagename = "mav_scylla.png"
     portrait = "mecha_scylla.png"
     form = MT_Zoanoid

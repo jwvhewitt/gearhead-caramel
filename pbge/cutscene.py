@@ -151,6 +151,7 @@ class CutscenePlan:
                     return [next_node] + followup
 
     def build(self, camp):
+        camp.expand_cutscene(self)
         current_state = CutsceneState(topic=self.topic, elements=self.elements, start_beats=self.start_beats,
                                       mid_beats=self.mid_beats, final_beats=self.final_beats,
                                       info_blocks=self.info_blocks)
