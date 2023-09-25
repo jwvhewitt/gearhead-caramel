@@ -151,6 +151,7 @@ class GameState(object):
         self._active_widget = None
         self.widget_clicked = False
         self.widget_responded = False
+        self.widget_all_text = False
         self.audio_enabled = True
         #self.music = None
         self.music_name = ""
@@ -529,7 +530,7 @@ def wait_event():
         if android.check_pause():
             android.wait_for_resume()
 
-    # Record if a quit event took place
+    # Record if a quit event took placewaitwait
     if ev.type == pygame.QUIT:
         my_state.got_quit = True
     elif ev.type == TIMEREVENT:
@@ -550,12 +551,13 @@ def wait_event():
     # Inform any interested widgets of the event.
     my_state.widget_clicked = False
     my_state.widget_responded = False
+    my_state.widget_all_text = False
     if my_state.widgets_active:
         for w in my_state.widgets:
             w.respond_event(ev)
 
     # If the view has a check_event method, call that.
-    if my_state.view and hasattr(my_state.view, "check_event"):
+    if my_state.view and hasattr(my_state.view, "check_event") and not (my_state.widget_responded or my_state.widget_all_text):
         my_state.view.check_event(ev)
 
     return ev

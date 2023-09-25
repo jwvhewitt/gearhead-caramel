@@ -1,3 +1,8 @@
+v0.957 September 25, 2023
+* Fixed sound fx issues on certain platforms
+* Game will no longer crash if campaign is ended between completing a mission and leaving mission, which is a situation that never occurs in any of the scenarios but if it ever did happen it would work now
+* Fixed keys scrolling map when using a text widget
+
 v0.956 September 18, 2023
 * Added two new eyecatch cards by Radou
 * Fixed AutoJoiner/AutoLeaver crash at world creation

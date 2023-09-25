@@ -719,6 +719,7 @@ class Explorer(object):
                         mymenu.add_item("No, I pressed the wrong key.", False)
                         if mymenu.query():
                             self.camp.eject()
+                            self.no_quit = False
 
                     elif gdi.unicode == "O" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         self.camp.version = "v0.100"

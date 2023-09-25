@@ -627,12 +627,14 @@ class TextEntryWidget(Widget):
 
     def _builtin_responder(self, ev):
         if my_state.active_widget is self:
+            my_state.widget_all_text = True
             if ev.type == pygame.TEXTINPUT:
                 if len(ev.text) > 0:
                     self.char_list.insert(max(self.cursor_i, 0), ev.text)
                     self.cursor_i += len(ev.text)
                     if self.on_change:
                         self.on_change(self, ev)
+                    my_state.widget_responded = True
             elif ev.type == pygame.KEYDOWN:
                 if my_state.is_key_for_action(ev, "backspace"):
                     if (len(self.char_list) > 0) and self.cursor_i > 0:
@@ -640,6 +642,7 @@ class TextEntryWidget(Widget):
                         self.cursor_i -= 1
                         if self.on_change:
                             self.on_change(self, ev)
+                        my_state.widget_responded = True
                     elif self.on_backspace_at_zero:
                         self.on_backspace_at_zero()
 
@@ -648,11 +651,13 @@ class TextEntryWidget(Widget):
                         self.cursor_i -= 1
                     elif self.on_left_at_zero:
                         self.on_left_at_zero()
+                    my_state.widget_responded = True
                 elif my_state.is_key_for_action(ev, "right"):
                     if self.cursor_i < len(self.char_list):
                         self.cursor_i += 1
                     elif self.on_right_at_end:
                         self.on_right_at_end()
+                    my_state.widget_responded = True
         if ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and self.get_rect().collidepoint(my_state.mouse_pos):
             mytext = self.text
             mydest = self.get_rect()
@@ -813,19 +818,24 @@ class TextEditorPanel(ScrollColumnWidget):
                 self.scroll_up()
             elif (ev.button == 5):
                 self.scroll_down()
+            my_state.widget_responded = True
+
         elif ((my_state.active_widget in self._interior_widgets) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
+            my_state.widget_all_text = True
             if my_state.is_key_for_action(ev, "up") and self.active_widget > 0:
                 cursor_i = self._interior_widgets[self.active_widget].cursor_i
                 self.active_widget -= 1
                 self._interior_widgets[self.active_widget].cursor_i = min(cursor_i, len(
                     self._interior_widgets[self.active_widget].char_list))
                 my_state.active_widget = self._interior_widgets[self.active_widget]
+                my_state.widget_responded = True
             elif my_state.is_key_for_action(ev, "down") and self.active_widget < (len(self._interior_widgets) - 1):
                 cursor_i = self._interior_widgets[self.active_widget].cursor_i
                 self.active_widget += 1
                 self._interior_widgets[self.active_widget].cursor_i = min(cursor_i, len(
                     self._interior_widgets[self.active_widget].char_list))
                 my_state.active_widget = self._interior_widgets[self.active_widget]
+                my_state.widget_responded = True
 
     def is_kb_selectable(self):
         return False

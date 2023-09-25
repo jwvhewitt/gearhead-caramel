@@ -838,13 +838,18 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     # Gonna set up the credits as a property.
     def _get_credits(self):
-        return self.egg.credits
+        if self.egg:
+            return self.egg.credits
+        else:
+            return 0
 
     def _set_credits(self, nuval):
-        self.egg.credits = max(nuval, 0)
+        if self.egg:
+            self.egg.credits = max(nuval, 0)
 
     def _del_credits(self):
-        self.egg.credits = 0
+        if self.egg:
+            self.egg.credits = 0
 
     credits = property(_get_credits, _set_credits, _del_credits)
 
