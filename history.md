@@ -1,3 +1,5 @@
+* Gradient map prep can now place rooms in requested bands
+
 v0.957 September 25, 2023
 * Fixed sound fx issues on certain platforms
 * Game will no longer crash if campaign is ended between completing a mission and leaving mission, which is a situation that never occurs in any of the scenarios but if it ever did happen it would work now

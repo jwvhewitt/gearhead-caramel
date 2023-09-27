@@ -1440,14 +1440,13 @@ class ropp_Scenario(Plot):
             exploration_music='Anthem of Rain - Adaptation (Instrumental).ogg',
             combat_music='HoliznaCC0 - Punk.ogg')
         # Create a scene generator
-        myroom = pbge.randmaps.rooms.Room(40, 25)
-        myroom.area = pygame.Rect(5, 10, 40, 25)
+        myroom = pbge.randmaps.rooms.Room(40, 25, anchor=pbge.randmaps.anchors.north)
         myscenegen = pbge.randmaps.PartlyUrbanGenerator(
             myscene,
             game.content.gharchitecture.HumanScaleGreenzone(
                 prepare=pbge.randmaps.prep.GradientPrep(
-                    [[ghterrain.GreenZoneGrass, 40], [ghterrain.Sand, 15],
-                     [ghterrain.Water, 5]]),
+                    [[ghterrain.GreenZoneGrass, 0.69], [ghterrain.Sand, 0.94],
+                     [ghterrain.Water, 1.0]]),
                 mutate=pbge.randmaps.mutator.CellMutator(),
                 wall_converter=pbge.randmaps.converter.
                 WallOnlyOnFloorConverter(ghterrain.Bushes,
@@ -1464,7 +1463,7 @@ class ropp_Scenario(Plot):
                                      10,
                                      tags=[pbge.randmaps.IS_CONNECTED_ROOM]),
             dident="_CITY_13")
-        myroom.area = pygame.Rect(0, 40, 50, 10)
+        myscenegen.archi.prepare.band_rooms[1] = myroom
         the_world['00000012'] = myroom
         mygate = self.register_element("_MISSION_GATE_13",
                                        Exit(

@@ -32,7 +32,6 @@ import traceback
 
 VERSION = "v0.957"
 
-
 class TitleScreenRedraw(object):
 
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)

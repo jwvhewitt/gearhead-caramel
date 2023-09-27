@@ -54,10 +54,11 @@ class HeightfieldPrep( object ):
 class GradientPrep( object ):
     """Make horizontal or vertical bands of terrain with some overlap."""
     def __init__( self, bands, overlap=2, vertical=True ):
-        # Bands is a list of (terrain, width) pairs which describe the bands.
+        # Bands is a list of (terrain, width as 0.0-1.0 float) pairs which describe the bands.
         self.bands = bands
         self.overlap = overlap
         self.vertical = vertical
+        self.band_rooms = dict()
 
     def adjust_offset(self, offset):
         if random.randint(1,23) == 5:
@@ -69,24 +70,31 @@ class GradientPrep( object ):
         # First, do the basic filling.
         mapgen.fill( mapgen.gb, mapgen.area, wall=True )
         band_start = 0
-        for band in self.bands:
+        if self.vertical:
+            band_stops = [int(band[1] * mapgen.height) for band in self.bands]
+        else:
+            band_stops = [int(band[1] * mapgen.width) for band in self.bands]
+        print(band_stops)
+        for n, band in enumerate(self.bands):
             if self.vertical:
-                mydest = pygame.Rect(0, band_start, mapgen.width, band[1])
+                mydest = pygame.Rect(0, band_start, mapgen.width, band_stops[n] - band_start)
             else:
-                mydest = pygame.Rect(band_start, 0, band[1], mapgen.height)
+                mydest = pygame.Rect(band_start, 0, band_stops[n] - band_start, mapgen.height)
             if band is self.bands[-1]:
                 # Error check- we want to make sure the map is completely filled! So, if this is the last band, make
                 # sure that it reaches the bottom right corner of the map.
                 mydest.bottomright = (mapgen.width, mapgen.height)
             mapgen.fill(mapgen.gb, mydest, floor=band[0])
-            if self.vertical:
-                band_start = mydest.bottom
-            else:
-                band_start = mydest.right
+            myroom = self.band_rooms.get(n, None)
+            if myroom:
+                myroom.area = mydest
+                myroom.width = mydest.w
+                myroom.height = mydest.h
+            band_start = band_stops[n]
 
         # Second, randomize those bands up a bit.
-        baseline = self.bands[0][1]
         for b in range(len(self.bands)-1):
+            baseline = band_stops[b]
             offset = random.randint(0, self.overlap) - random.randint(0, self.overlap)
             b0,b1 = self.bands[b], self.bands[b+1]
             if self.vertical:
@@ -107,5 +115,4 @@ class GradientPrep( object ):
                         for dx in range(offset+1):
                             mapgen.gb.set_floor(baseline + dx, y, b0[0])
                     offset = self.adjust_offset(offset)
-            baseline += b1[1]
 

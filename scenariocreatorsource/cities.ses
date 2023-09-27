@@ -181,10 +181,10 @@ myscene = gears.GearHeadScene(
 )
 
 # Create a scene generator
-myroom = pbge.randmaps.rooms.Room(40,25)
-myroom.area = pygame.Rect(5,10,40,25)
+myroom = pbge.randmaps.rooms.Room(40,25,anchor=pbge.randmaps.anchors.north)
+
 myscenegen = pbge.randmaps.PartlyUrbanGenerator(
-    myscene, game.content.gharchitecture.HumanScaleGreenzone(prepare=pbge.randmaps.prep.GradientPrep([[{city_terrain},40],[{beach_terrain},15],[{water_terrain},5]]),
+    myscene, game.content.gharchitecture.HumanScaleGreenzone(prepare=pbge.randmaps.prep.GradientPrep([[{city_terrain},0.69],[{beach_terrain},0.94],[{water_terrain},1.0]]),
                                                              mutate=pbge.randmaps.mutator.CellMutator(),
                                                              wall_converter=pbge.randmaps.converter.WallOnlyOnFloorConverter(ghterrain.Bushes, {city_terrain})),
     road_terrain={road_terrain},
@@ -201,7 +201,7 @@ myroom = self.register_element(
     "_ENTRY_ROOM_{_uid}", pbge.randmaps.rooms.Room(50, 10, tags=[pbge.randmaps.IS_CONNECTED_ROOM]),
     dident="_CITY_{_uid}"
 )
-myroom.area = pygame.Rect(0,40,50,10)
+myscenegen.archi.prepare.band_rooms[1] = myroom
 
 +add_physical ROOM myroom
 
