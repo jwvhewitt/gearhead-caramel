@@ -13,6 +13,8 @@ import random
 #
 # The prepper may also set the map generator's plasma attribute.
 
+# The prepper may return a set of rooms which, if they are expanded, will also expand the map.
+
 class BasicPrep( object ):
     """Fill map with True walls and basic floors."""
     def __init__( self, terr ):
@@ -74,7 +76,7 @@ class GradientPrep( object ):
             band_stops = [int(band[1] * mapgen.height) for band in self.bands]
         else:
             band_stops = [int(band[1] * mapgen.width) for band in self.bands]
-        print(band_stops)
+
         for n, band in enumerate(self.bands):
             if self.vertical:
                 mydest = pygame.Rect(0, band_start, mapgen.width, band_stops[n] - band_start)
@@ -115,4 +117,6 @@ class GradientPrep( object ):
                         for dx in range(offset+1):
                             mapgen.gb.set_floor(baseline + dx, y, b0[0])
                     offset = self.adjust_offset(offset)
+
+        return set(self.band_rooms.values())
 

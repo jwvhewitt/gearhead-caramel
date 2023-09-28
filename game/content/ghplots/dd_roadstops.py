@@ -1078,7 +1078,7 @@ class DZRS_LostForager(Plot):
         npc2 = self.register_element("NPC",
                                      gears.selector.random_character(self.rank + random.randint(1, 8), combatant=True,
                                                                      local_tags=self.elements["LOCALE"].attributes,
-                                                                     job=gears.jobs.ALL_JOBS["Explorer"]))
+                                                                     job=gears.jobs.ALL_JOBS["Explorer"]), lock=True)
         self.npcs = (npc1, npc2)
 
         # Place the mission-giving NPC
@@ -1209,6 +1209,8 @@ class DZRS_LostForager(Plot):
         camp.go(self.elements["MISSION_GATE"])
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
         self.memo = None
+        if "NPC" in self.locked_elements:
+            self.locked_elements.remove("NPC")
         camp.dole_xp(200)
 
     def _add_lancemate(self, camp):

@@ -85,6 +85,8 @@ class AnimOb(object):
     DEFAULT_SOUND_FX = None
     ALLOW_MULTIPLE_SOUND_FX = False
 
+    sort_priority = 1
+
     def update(self, view):
         if self.delay > 0:
             self.delay += -1
@@ -146,6 +148,7 @@ class ShotAnim(AnimOb):
     DEFAULT_SPEED = 0.5
     DEFAULT_TRANSPARENCY = False
     ALLOW_MULTIPLE_SOUND_FX = True
+    sort_priority = 1
 
     def relative_x(self, x, y):
         """Return the relative x position of this tile, ignoring offset."""
@@ -226,6 +229,7 @@ class AnimatedShotAnim(ShotAnim):
     DEFAULT_SPRITE_NAME = ''
     DEFAULT_SPEED = 0.3
     DEFAULT_TRANSPARENCY = False
+    sort_priority = 1
 
     def update(self, view):
         if self.delay > 0:

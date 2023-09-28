@@ -43,6 +43,9 @@ class DZDIntro_GetInTheMekShimli(Plot):
         myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.IndustrialBuilding(floor_terrain=ghterrain.GrateFloor))
         self.register_scene( nart, myscene, myscenegen, ident="LOCALE", temporary=True)
 
+        #for t in range(100):
+        #    self.add_sub_plot(nart, "SHOP_ARMORSTORE")
+
         # Start a new adventure for this plot and its children- the intro will be disposed of when it's finished.
         self.adv = pbge.plots.Adventure(world=myscene)
 

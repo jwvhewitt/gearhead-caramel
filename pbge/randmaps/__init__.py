@@ -43,6 +43,8 @@ from . import terrset
 class SceneGenerator(Room):
     """The blueprint for a scene."""
 
+    EXPAND_AMOUNT = 15
+
     # DEFAULT_ROOM = rooms.FuzzyRoom
     def __init__(self, myscene, archi, default_room=None, gapfill=None, mutate=None, decorate=None, **kwargs):
         super(SceneGenerator, self).__init__(myscene.width, myscene.height, **kwargs)
@@ -64,8 +66,7 @@ class SceneGenerator(Room):
     def make(self):
         """Assemble this stuff into a real map."""
         # Conduct the five steps of building a level.
-        self.archi.prepare(self)  # Only the scene generator gets to prepare
-        self.step_two(self.gb)  # Arrange contents for self, then children
+        self._step_two_from_scratch()
         self.step_three(self.gb, self.archi)  # Connect contents for self, then children
         self.step_four(self.gb)  # Mutate for self, then children
         self.step_five(self.gb, self.archi)  # Render for self, then children
@@ -85,6 +86,35 @@ class SceneGenerator(Room):
 
         return self.gb
 
+    def _expand(self, raise_exception=True):
+        self.gb.width += self.EXPAND_AMOUNT
+        self.gb.height += self.EXPAND_AMOUNT
+        self.gb.init_map()
+        self.width = self.gb.width
+        self.height = self.gb.height
+        if raise_exception:
+            raise rooms.RoomError("ROOM ERROR: {}: Map {} isn't big enough".format(str(self), str(self.__class__)), self)
+
+    def _step_two_from_scratch(self):
+        prepped_rooms = list()
+        keep_going = True
+        tries = 0
+        while keep_going:
+            try:
+                for r in self.all_rooms():
+                    r.area = None
+                self.area = pygame.Rect(0, 0, self.gb.width, self.gb.height)
+
+                prepped_rooms = self.archi.prepare(self) or ()  # Only the scene generator gets to prepare
+                self.step_two(self.gb)  # Arrange contents for self, then children
+                keep_going = False
+            except rooms.RoomError as re:
+                if len(re.args) > 1 and re.args[1] in prepped_rooms:
+                    self._expand(False)
+                tries += 1
+                if tries > 100000:
+                    raise RuntimeError("Runtime Error: {} could not generate scene within 100,000 tries. I dunno, this shouldn't be possible. But, I added an exception to prevent the game from locking up. A crash is better than an endless loop, don't you think?".format(self.gb))
+
     def clean_contents(self):
         # Remove unimportant things from the contents.
         for t in self.gb.contents[:]:
@@ -92,12 +122,6 @@ class SceneGenerator(Room):
                 self.gb.contents.remove(t)
                 if isinstance(t, scenes.Scene):
                     self.gb.sub_scenes.append(t)
-                # elif isinstance( t, Room ):
-                #    self.gb.sub_scenes.append( t )
-        if self.gb.container and isinstance(self.gb.container, scenes.Scene) and self.gb in self.gb.container.contents:
-            myscene = self.gb.container
-            myscene.contents.remove(self.gb)
-            myscene.sub_scenes.append(self.gb)
 
 
 CITY_GRID_ROAD_OVERLAP = "Overlap the Road, Y'All!"
@@ -163,8 +187,7 @@ class CityGridGenerator(SceneGenerator):
                         myblock.h += 2
                     r.area = myblock
                 else:
-                    raise rooms.RoomError(
-                        "ROOM ERROR: {}:{} has no block for {}".format(str(self), str(self.__class__), str(r)))
+                    self._expand()
 
     def connect_contents(self, gb, archi):
         pass
@@ -213,13 +236,16 @@ class PartlyUrbanGenerator(SceneGenerator):
                     closed_area.append(myrect)
 
         # Assign areas for unplaced rooms.
+        ok = True
         for r in list(self.contents):
             if hasattr(r, "area") and not r.area:
                 if IS_CITY_ROOM in r.tags:
                     self.contents.remove(r)
                     self.urban_area.contents.append(r)
                 else:
-                    self.find_spot_for_room(closed_area, r)
+                    ok = ok and self.find_spot_for_room(closed_area, r)
+        if not ok:
+            self._expand()
 
     def build(self, gb, archi):
         super().build(gb, archi)
@@ -320,8 +346,7 @@ class PackedBuildingGenerator(SceneGenerator):
                 r.area = myrect
                 closed_area.append(myrect)
             else:
-                raise rooms.RoomError(
-                    "ROOM ERROR: {}:{} cannot place {}".format(str(self), str(self.__class__), str(r)))
+                self._expand()
 
     def connect_contents(self, gb, archi):
         # Step Three: Connect all rooms in contents, making trails on map.
@@ -429,8 +454,7 @@ class HallwayBuildingGenerator(SceneGenerator):
                     r.area = myblock
                     self.connect_to_hallway(myblock)
                 else:
-                    raise rooms.RoomError(
-                        "ROOM ERROR: {}:{} has no block for {}".format(str(self), str(self.__class__), str(r)))
+                    self._expand()
 
     def connect_contents(self, gb, archi):
         pass

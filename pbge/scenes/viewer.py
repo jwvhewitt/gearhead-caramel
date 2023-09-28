@@ -19,6 +19,7 @@ SCROLL_STEP = 12
 
 PARTY_INDICATOR_SPRITE = "sys_partyindicator.png"
 
+
 class TextTicker(object):
     def __init__(self):
         self.text_images = list()
@@ -87,7 +88,8 @@ class SceneView(object):
 
         self.cursor = cursor
 
-        self.party_indicator = image.Image(party_indicator_spritename, self.TILE_WIDTH, self.TILE_HEIGHT, transparent=True)
+        self.party_indicator = image.Image(party_indicator_spritename, self.TILE_WIDTH, self.TILE_HEIGHT,
+                                           transparent=True)
 
         my_state.view = self
 
@@ -126,9 +128,9 @@ class SceneView(object):
                 spr = self.darksprite.get((fname, colors))
                 if not spr:
                     spr = self.get_named_sprite(fname, transparent=transparent, colors=colors).copy()
-                    spr.bitmap.set_at((0, 0), pygame.Color(0,0,255))
+                    spr.bitmap.set_at((0, 0), pygame.Color(0, 0, 255))
                     spr.bitmap.fill((190, 180, 200), special_flags=pygame.BLEND_MULT)
-                    spr.bitmap.set_colorkey(spr.bitmap.get_at((0,0)))
+                    spr.bitmap.set_colorkey(spr.bitmap.get_at((0, 0)))
                     self.darksprite[(fname, colors)] = spr
                 return spr
         else:
@@ -360,7 +362,7 @@ class SceneView(object):
             return "IT'S NOT ON THE MAP ALRIGHT?!"
 
     def model_depth(self, model):
-        return self.relative_y(model.pos[0], model.pos[1])
+        return self.relative_y(model.pos[0], model.pos[1]), getattr(model, "sort_priority", 0)
 
     def show_model_name(self, model, sx, sy):
         myname = my_state.small_font.render(str(model), True, WHITE)
@@ -369,9 +371,9 @@ class SceneView(object):
         my_state.screen.blit(myname, namedest)
 
     CAMERA_MOVES = (
-        (-0.5,0), (-0.25,-0.25), (0,-0.5),
-        (-0.25,0.25), (0,0), (0.25,-0.25),
-        (0,0.5), (0.25,0.25), (0.5,0)
+        (-0.5, 0), (-0.25, -0.25), (0, -0.5),
+        (-0.25, 0.25), (0, 0), (0.25, -0.25),
+        (0, 0.5), (0.25, 0.25), (0.5, 0)
     )
 
     SCROLL_AREA = 15
@@ -392,7 +394,7 @@ class SceneView(object):
         else:
             dy = 1
 
-        nux, nuy =  self.CAMERA_MOVES[dx + dy * 3]
+        nux, nuy = self.CAMERA_MOVES[dx + dy * 3]
         self.focus(float(self._focus_x) + nux, float(self._focus_y) + nuy)
 
     def get_floor_borders(self, x0, y0, center_floor):
@@ -524,8 +526,8 @@ class SceneView(object):
             if current_line > 1 and line_cache[current_line - 2]:
                 # After drawing the terrain last time, draw any objects in the previous cell.
                 for x, y in line_cache[current_line - 2]:
-                    if self.scene.get_visible(x,y):
-                        spos = self.screen_coords(x,y)
+                    if self.scene.get_visible(x, y):
+                        spos = self.screen_coords(x, y)
                         dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         dest.center = spos
                         self.scene._map[x][y].render_top(dest, self, x, y)
@@ -533,21 +535,22 @@ class SceneView(object):
             if current_line > 0 and line_cache[current_line - 1]:
                 # After drawing the terrain last time, draw any objects in the previous cell.
                 for x, y in line_cache[current_line - 1]:
-                    if self.scene.get_visible(x,y):
-                        spos = self.screen_coords(x,y)
+                    if self.scene.get_visible(x, y):
+                        spos = self.screen_coords(x, y)
                         dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         dest.center = spos
 
                         if self.overlays.get((x, y), None):
                             o_dest = dest.copy()
-                            if self.scene.tile_altitude(x,y) > 0:
-                                o_dest.y -= self.scene.tile_altitude(x,y)
+                            if self.scene.tile_altitude(x, y) > 0:
+                                o_dest.y -= self.scene.tile_altitude(x, y)
                             o_sprite, o_frame = self.overlays[(x, y)]
                             o_sprite.render(o_dest, o_frame)
 
                         elif indicate_lance_tiles:
-                            tile_models = self.modelmap.get((x,y))
-                            if tile_models and any(self.scene.local_teams.get(m) is self.scene.player_team for m in tile_models):
+                            tile_models = self.modelmap.get((x, y))
+                            if tile_models and any(
+                                    self.scene.local_teams.get(m) is self.scene.player_team for m in tile_models):
                                 o_dest = dest.copy()
                                 if self.scene.tile_altitude(x, y) > 0:
                                     o_dest.y -= self.scene.tile_altitude(x, y)
@@ -555,8 +558,8 @@ class SceneView(object):
 
                         if self.cursor and self.cursor.x == x and self.cursor.y == y:
                             c_dest = dest.copy()
-                            if self.scene.tile_altitude(x,y) > 0:
-                                c_dest.y -= self.scene.tile_altitude(x,y)
+                            if self.scene.tile_altitude(x, y) > 0:
+                                c_dest.y -= self.scene.tile_altitude(x, y)
                             self.cursor.render(c_dest)
 
                         mlist = self.uppermap.get((x, y))
@@ -581,12 +584,12 @@ class SceneView(object):
                             if len(mlist) > 1:
                                 mlist.sort(key=self.model_depth)
                             for m in mlist:
-                                #mx, my = m.pos
+                                # mx, my = m.pos
                                 sx, sy = self.foot_coords(*m.pos)
                                 m.render((sx, sy), self)
 
 
-            elif len(line_cache) > 2 and line_cache[current_line-2] is None:
+            elif len(line_cache) > 2 and line_cache[current_line - 2] is None:
                 keep_going = False
 
             line_number += 1
@@ -609,13 +612,13 @@ class SceneView(object):
     def check_event(self, ev):
         if ev.type == pygame.KEYDOWN:
             if my_state.is_key_for_action(ev, "scroll_map_north"):
-                self.focus(self._focus_x, self._focus_y-1)
+                self.focus(self._focus_x, self._focus_y - 1)
             elif my_state.is_key_for_action(ev, "scroll_map_west"):
-                self.focus(self._focus_x-1, self._focus_y)
+                self.focus(self._focus_x - 1, self._focus_y)
             elif my_state.is_key_for_action(ev, "scroll_map_south"):
-                self.focus(self._focus_x, self._focus_y+1)
+                self.focus(self._focus_x, self._focus_y + 1)
             elif my_state.is_key_for_action(ev, "scroll_map_east"):
-                self.focus(self._focus_x+1, self._focus_y)
+                self.focus(self._focus_x + 1, self._focus_y)
 
         if self.cursor:
             self.cursor.update(self, ev)

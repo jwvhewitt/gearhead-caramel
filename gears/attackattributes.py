@@ -450,7 +450,7 @@ class LinkedFire(Singleton):
                     if i.weapon is not weapon:
                         myattack.price += i.price
             if myattack.targets > 1:
-                myattack.price.append(geffects.MentalPrice(myattack.targets + 1))
+                myattack.price.append(geffects.MentalPrice(max(myattack.targets, 2)))
                 myattack.name = "Link {} shots".format(myattack.targets)
                 myattack.data.active_frame = 18
                 myattack.data.inactive_frame = 19
@@ -463,7 +463,7 @@ class LinkedFire(Singleton):
     def get_all_weapons(cls, myroot, weapon):
         mylist = list()
         for wep in myroot.ok_descendants(False):
-            if cls.matches(weapon, wep):
+            if cls.matches(weapon, wep) and wep.is_operational():
                 mylist.append(wep)
         return mylist
 

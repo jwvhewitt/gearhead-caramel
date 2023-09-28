@@ -773,7 +773,7 @@ HeadClothing
     name = "Ceram Helmet"
     desc = "A strong helmet made from the light ceram material."
     scale = HumanScale
-    material = Metal
+    material = Ceramic
     shop_tags = ("CLOTHING",)
     faction_list = (None,)
     SUB

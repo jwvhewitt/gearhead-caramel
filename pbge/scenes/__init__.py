@@ -118,6 +118,7 @@ class PlaceableThing(KeyObject):
     imagewidth = 64
     frame = 0
     altitude = None
+    sort_priority = 0
 
     def get_sprite(self):
         """Generate the sprite for this thing."""
@@ -195,15 +196,19 @@ class Scene(object):
         self.exit_scene_wp = exit_scene_wp
 
         # Fill the map with empty tiles
+        self._map = list()
+        self.init_map()
         self.contents = container.ContainerList(owner=self)
-        self._map = [[Tile()
-                      for y in range(height)]
-                     for x in range(width)]
 
         self.local_teams = dict()
 
         self.wrap_x = wrap_x
         self.wrap_y = wrap_y
+
+    def init_map(self):
+        self._map = [[Tile()
+                      for y in range(self.height)]
+                     for x in range(self.width)]
 
     def on_the_map(self, x, y):
         # Returns true if on the map, false otherwise

@@ -123,6 +123,33 @@ class StartGameMenu:
             myimage = self.myportraits[menu_item.value]
             myimage.render(self.PORTRAIT_AREA.get_rect())
 
+class TestStartGame:
+    PORTRAIT_AREA = pbge.frects.Frect(-400, -300, 400, 600)
+    MENU_COLUMN = pbge.frects.Frect(20,-100,280,350)
+
+    def __init__(self, tsrd):
+        myfiles = glob.glob(pbge.util.user_dir("egg_*.sav"))
+        mystories = list()
+
+        for p in game.content.ghplots.UNSORTED_PLOT_LIST:
+            if hasattr(p, "ADVENTURE_MODULE_DATA"):
+                mystories.append(p)
+
+        myeggs = list()
+        for fname in myfiles:
+            with open(fname, "rb") as f:
+                # Why deepcopy the freshly loaded pickle? Because that will update any gears involved
+                # to the latest version, and at this point in time it'll hopefully keep save games working
+                # despite rapid early-development changes.
+                myeggs.append(copy.deepcopy(pickle.load(f)))
+
+        for egg in myeggs:
+            for story in mystories:
+                for t in range(100):
+                    camp = game.content.narrative_convenience_function(egg, adv_type=story.LABEL)
+                    print("Success: {} in {} generated #{}".format(egg.pc, story.ADVENTURE_MODULE_DATA.name, t))
+
+
 def prep_eggs_for_steam(tsrd):
     if not pickle.HIGHEST_PROTOCOL > 4:
         pbge.my_state.view = tsrd
@@ -384,8 +411,9 @@ def play_the_game():
             if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                 mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
                 mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
-                mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
-                mymenu.add_item("Just Show Background", just_show_background)
+                #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
+                #mymenu.add_item("Just Show Background", just_show_background)
+                mymenu.add_item("Test Adventure Generation", TestStartGame)
                 mymenu.add_item("Steam The Eggs", prep_eggs_for_steam)
             mymenu.add_item("Quit", None)
 

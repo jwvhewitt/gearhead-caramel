@@ -1,3 +1,7 @@
+* Scenes and rooms will expand if larger area is needed for contents
+* Weapon is_operational bug fixed
+* Items on floor should always appear behind characters and mecha
+* Lost forager will not be selected for random plots while lost
 * Gradient map prep can now place rooms in requested bands
 
 v0.957 September 25, 2023

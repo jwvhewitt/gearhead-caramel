@@ -3389,6 +3389,12 @@ class Module(BaseGear, StandardDamageHandler):
         else:
             return False
 
+    def is_operational(self):
+        """ To be operational, a weapon must be in an operational module.
+        """
+        parent = self.parent
+        return self.is_not_destroyed() and self.is_sub_com() and parent and parent.is_legal_sub_com(self)
+
 
 class Head(Module):
     def __init__(self, **keywords):
@@ -3732,6 +3738,7 @@ MECHA_FORMS = (
 class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
     SAVE_PARAMETERS = ('name', 'form', 'environment_list', 'role_list', 'family')
     DODGE_SKILL = stats.MechaPiloting
+    sort_priority = 1
 
     def __init__(self, form=MT_Battroid,
                  environment_list=(tags.GroundEnv, tags.UrbanEnv, tags.SpaceEnv), role_list=(tags.Trooper,),
@@ -4073,6 +4080,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     TOTAL_XP = "TOTAL_XP"
     SPENT_XP = "SPENT_XP"
     DODGE_SKILL = stats.Dodge
+    sort_priority = 1
 
     def __init__(self, statline=None, combatant=True, **keywords):
         self.statline = collections.defaultdict(int)
@@ -4552,6 +4560,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
     DEFAULT_SCALE = scale.MechaScale
     DEFAULT_MATERIAL = materials.Metal
     DODGE_SKILL = stats.MechaPiloting
+    sort_priority = 1
 
     def __init__(self, statline=None, size=10, frame=0, destroyed_frame=1, action_points=3, **keywords):
         self.statline = collections.defaultdict(int)
