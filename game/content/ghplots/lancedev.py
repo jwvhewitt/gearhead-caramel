@@ -220,7 +220,8 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
             mymenu.add_item("Wait a minute- Who do you think the boss of this lance is?", self._question_mission)
 
             act = mymenu.query()
-            act(camp)
+            if act:
+                act(camp)
 
     def _start_mission(self, camp):
         pbge.alert("You rush to intercept the bandits before they can reach the convoy.")
@@ -236,7 +237,8 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
         mymenu.add_item("We reject the mission. There are other things we need to do right now.", self._deny_mission)
 
         act = mymenu.query()
-        act(camp)
+        if act:
+            act(camp)
 
     def _grudgingly_start_mission(self, camp):
         pbge.alert("You go to intercept the bandits before they can reach the convoy. Hopefully you are not too late.")

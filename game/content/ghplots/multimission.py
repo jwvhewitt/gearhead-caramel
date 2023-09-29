@@ -220,6 +220,9 @@ class MultiMissionStagePlot(Plot):
             dest(camp)
         elif mmission.elements.get("ONE_SHOT", True):
             mmission._lose_mission(camp)
+        else:
+            dest = mymenu.get_current_item()
+            dest(camp)
 
 
 class MultiMission(Plot):

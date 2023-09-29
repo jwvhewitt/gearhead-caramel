@@ -11,7 +11,7 @@ class InfoPanel(object):
     #   can't be pickled! Instead create the info panel anew as needed.
     DEFAULT_BLOCKS = list()
 
-    def __init__(self, padding=3, draw_border=True, view=None, view_pos=(0,0), border_style=pbge.default_border,
+    def __init__(self, padding=3, draw_border=True, view=None, view_pos=(0, 0), border_style=pbge.default_border,
                  **kwargs):
         self.padding = padding
         self.info_blocks = list()
@@ -71,7 +71,7 @@ class InfoPanel(object):
             else:
                 x, y = self.view.foot_coords(*self.view_pos)
                 y -= 64
-                myrect.midbottom = (x,y)
+                myrect.midbottom = (x, y)
                 myrect.clamp_ip(pbge.my_state.screen.get_rect())
             self.render(myrect.left, myrect.top)
 
@@ -263,7 +263,8 @@ class PilotStatusBlock(object):
             mydest = pygame.Rect(x + 83, y, field_width, self.height)
 
             if show_numbers:
-                pbge.draw_text(pbge.SMALLFONT, 'H:{}'.format(self.model.current_health), mydest.inflate(8,0), justify=-1, color=pbge.INFO_GREEN)
+                pbge.draw_text(pbge.SMALLFONT, 'H:{}'.format(self.model.current_health), mydest.inflate(8, 0),
+                               justify=-1, color=pbge.INFO_GREEN)
             else:
                 pbge.draw_text(pbge.SMALLFONT, 'H:', mydest, justify=-1, color=pbge.INFO_GREEN)
                 maxi = self.model.max_health
@@ -278,7 +279,8 @@ class PilotStatusBlock(object):
 
             mydest.x += field_width + 5
             if show_numbers:
-                pbge.draw_text(pbge.SMALLFONT, 'M:{}'.format(self.model.get_current_mental()), mydest.inflate(8,0), justify=-1, color=pbge.INFO_GREEN)
+                pbge.draw_text(pbge.SMALLFONT, 'M:{}'.format(self.model.get_current_mental()), mydest.inflate(8, 0),
+                               justify=-1, color=pbge.INFO_GREEN)
             else:
                 pbge.draw_text(pbge.SMALLFONT, 'M:', mydest, justify=-1, color=pbge.INFO_GREEN)
                 maxi = self.model.get_max_mental()
@@ -293,7 +295,8 @@ class PilotStatusBlock(object):
 
             mydest.x += field_width + 5
             if show_numbers:
-                pbge.draw_text(pbge.SMALLFONT, 'S:{}'.format(self.model.get_current_stamina()), mydest.inflate(8,0), justify=-1, color=pbge.INFO_GREEN)
+                pbge.draw_text(pbge.SMALLFONT, 'S:{}'.format(self.model.get_current_stamina()), mydest.inflate(8, 0),
+                               justify=-1, color=pbge.INFO_GREEN)
             else:
                 pbge.draw_text(pbge.SMALLFONT, 'S:', mydest, justify=-1, color=pbge.INFO_GREEN)
                 maxi = self.model.get_max_stamina()
@@ -348,7 +351,8 @@ class OddsInfoBlock(object):
         self.height = pbge.SMALLFONT.get_linesize() * 3
 
     def render(self, x, y):
-        pbge.draw_text(pbge.my_state.huge_font, '{}%'.format(max(min(int(self.odds * 100), 99), 1)), pygame.Rect(x, y, 75, 32),
+        pbge.draw_text(pbge.my_state.huge_font, '{}%'.format(max(min(int(self.odds * 100), 99), 1)),
+                       pygame.Rect(x, y, 75, 32),
                        justify=0, color=pbge.INFO_HILIGHT)
         pbge.draw_text(pbge.my_state.big_font, 'TO HIT',
                        pygame.Rect(x, y + pbge.my_state.huge_font.get_linesize(), 75, 32), justify=0,
@@ -914,6 +918,60 @@ class ClothingArmorBlock(object):
             pbge.draw_text(self.font, "Armor: 0/0", mydest, color=pbge.INFO_GREEN, justify=0)
 
 
+class CreditsBlock(object):
+    def __init__(self, camp, font=None, width=220, **kwargs):
+        self.camp = camp
+        self.width = width
+        self.font = font or pbge.SMALLFONT
+        self.update()
+        self.height = self.image.get_height()
+
+    def update(self):
+        self.image = pbge.render_text(
+            self.font, '${}'.format(self.camp.credits), self.width, justify=0, color=pbge.INFO_GREEN
+        )
+
+    def render(self, x, y):
+        self.update()
+        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+
+
+class EncumberanceBlock(object):
+    def __init__(self, model, font=None, width=220, **kwargs):
+        self.model = model
+        self.width = width
+        self.font = font or pbge.SMALLFONT
+
+    @property
+    def height(self):
+        if hasattr(self.model, "carrying_capacity"):
+            return self.font.get_linesize() * 2
+        else:
+            return self.font.get_linesize()
+
+    def render(self, x, y):
+        mydest = pygame.Rect(x, y, self.width, self.height)
+        mymass = self.model.get_inv_mass()
+        mycolor = pbge.INFO_GREEN
+        if hasattr(self.model, "carrying_capacity"):
+            mycapacity = self.model.carrying_capacity()
+            if mymass > mycapacity * 1.25:
+                mycolor = pbge.ENEMY_RED
+            elif mymass > mycapacity:
+                mycolor = pygame.Color("yellow")
+        else:
+            mycapacity = 0
+        pbge.draw_text(
+            self.font, self.model.scale.get_mass_string(mymass), mydest, mycolor, justify=0
+        )
+        if mycapacity > 0:
+            mydest.y += self.font.get_linesize()
+            pbge.draw_text(
+                self.font, "/{}".format(self.model.scale.get_mass_string(mycapacity)), mydest, mycolor, justify=0
+            )
+
+
+
 class MechaStatusDisplay(InfoPanel):
     # A floating status display, drawn wherever the mouse is pointing.
     DEFAULT_BLOCKS = (FullNameBlock, HostilityStatusBlock, ModuleStatusBlock, PilotStatusBlock, EnchantmentBlock)
@@ -1044,6 +1102,7 @@ ENEMY_BORDER = pbge.Border(
     tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2
 )
 
+
 class InfoWidget(pbge.widgets.Widget):
     # A widget that holds an info panel. Works just like a normal widget. Provide your own info panel and make sure
     # that the dimensions are compatible,
@@ -1056,4 +1115,3 @@ class InfoWidget(pbge.widgets.Widget):
         pbge.my_state.screen.set_clip(mydest)
         self.info_panel.render(mydest.x, mydest.y)
         pbge.my_state.screen.set_clip(None)
-

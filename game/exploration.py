@@ -738,8 +738,9 @@ class Explorer(object):
                         pc = self.scene.get_main_actor(self.view.mouse_tile)
                         ExploMenu(self, pc)
 
-        if not self.no_quit:
-            self.camp.save()
+        if pbge.my_state.got_quit or not self.no_quit:
+            if self.camp.egg:
+                self.camp.save()
         else:
             self.camp.check_trigger("EXIT")
 

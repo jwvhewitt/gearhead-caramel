@@ -200,6 +200,9 @@ class Menu( Frect ):
         while no_choice_made:
             pc_input = wait_event()
 
+            if my_state.got_quit:
+                return(None)
+
             if pc_input.type == TIMEREVENT:
                 # Redraw the menu on each timer event.
                 self.render()

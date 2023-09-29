@@ -9,22 +9,6 @@ INVENTORY_COLUMN = pbge.frects.Frect(-50, 0, 350, 200)
 PC_SWITCH_AREA = pbge.frects.Frect(-300, 100, 220, 100)
 
 
-class CreditsBlock(object):
-    def __init__(self, camp: gears.GearHeadCampaign, font=None, width=220, **kwargs):
-        self.camp = camp
-        self.width = width
-        self.font = font or pbge.SMALLFONT
-        self.update()
-        self.height = self.image.get_height()
-
-    def update(self):
-        self.image = pbge.render_text(
-            self.font, '${}'.format(self.camp.credits), self.width, justify=0, color=pbge.INFO_GREEN
-        )
-
-    def render(self, x, y):
-        self.update()
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
 class SwitchNameBlock(object):
@@ -78,7 +62,7 @@ class SwitchEncumberanceBlock(object):
 
 
 class BackpackSwitchIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (SwitchNameBlock, CreditsBlock, SwitchEncumberanceBlock)
+    DEFAULT_BLOCKS = (SwitchNameBlock, gears.info.CreditsBlock, SwitchEncumberanceBlock)
 
 
 class InvItemWidget(widgets.Widget):
@@ -94,12 +78,14 @@ class InvItemWidget(widgets.Widget):
             self.text = '{} [{}]'.format(str(item), str(item.parent))
         else:
             self.text = item.get_full_name()
-        super(InvItemWidget, self).__init__(0, 0, INVENTORY_COLUMN.w, pbge.MEDIUMFONT.get_linesize(), **kwargs)
+        super().__init__(0, 0, INVENTORY_COLUMN.w, pbge.MEDIUMFONT.get_linesize(), **kwargs)
 
     def render(self, flash=False):
         mydest = self.get_rect()
         if flash or (self is self.bp.active_item):
             color = pbge.INFO_HILIGHT
+        elif self.item.is_destroyed():
+            color = pbge.ENEMY_RED
         else:
             color = pbge.INFO_GREEN
         pbge.draw_text(pbge.MEDIUMFONT, self.text, mydest, color=color)
@@ -358,8 +344,9 @@ class BackpackWidget(widgets.Widget):
     def render(self, flash=False):
         if self.active_item:
             if self.active_item.item not in self.info_cache:
-                self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,
-                                                                                         width=INFO_COLUMN.w)
+                self.info_cache[self.active_item.item] = gears.info.get_longform_display(
+                    self.active_item.item, width=INFO_COLUMN.w
+                )
             mydest = INFO_COLUMN.get_rect()
             self.info_cache[self.active_item.item].render(mydest.x, mydest.y)
 

@@ -166,6 +166,13 @@ class _CostBlock(object):
 
 ###############################################################################
 
+class CustomerPanelIP(gears.info.InfoPanel):
+    DEFAULT_BLOCKS = (gears.info.NameBlock, gears.info.CreditsBlock, gears.info.EncumberanceBlock)
+
+class NoCustomerPanelIP(gears.info.InfoPanel):
+    DEFAULT_BLOCKS = (gears.info.CreditsBlock, )
+
+
 class CustomerPanel(object):
     '''
     Displays the customer and the money money money.
@@ -174,6 +181,8 @@ class CustomerPanel(object):
         self.camp = camp
         self.customer_manager = customer_manager
         self._portraits = dict()
+        self._infopanels = dict()
+        self._no_customer_ip = NoCustomerPanelIP(draw_border=False, width=CUSTOMER_PANEL_FRECT.w-100, camp=self.camp)
 
     def render(self):
         myrect = CUSTOMER_PANEL_FRECT.get_rect()
@@ -182,16 +191,22 @@ class CustomerPanel(object):
         if customer:
             if customer not in self._portraits:
                 self._portraits[customer] = customer.get_portrait()
+            if customer not in self._infopanels:
+                self._infopanels[customer] = CustomerPanelIP(draw_border=False, width=myrect.w-100, model=customer, camp=self.camp)
             self._portraits[customer].render(myrect, 1)
             myrect.x += 100
             myrect.w -= 100
+            ip = self._infopanels[customer]
             customertext = customer.name + '\n'
         else:
             customertext = ''
-        pbge.draw_text( pbge.MEDIUMFONT
-                      , '{} ${:,}'.format(customertext, self.camp.credits)
-                      , myrect
-                      )
+            ip = self._no_customer_ip
+
+        ip.render(myrect.x, myrect.y)
+        #pbge.draw_text( pbge.MEDIUMFONT
+        #              , '{} ${:,}'.format(customertext, self.camp.credits)
+        #              , myrect
+        #              )
 
 ###############################################################################
 

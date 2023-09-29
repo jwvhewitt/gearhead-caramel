@@ -573,6 +573,10 @@ class PostCombatCleanup:
                     pbge.my_state.view.anim_list.append(pbge.scenes.animobs.MoveModel(pc, pc.pos, dest, speed=0.5))
                 pbge.my_state.view.handle_anim_sequence()
 
+        for m in camp.scene.contents:
+            if hasattr(m, "hidden") and m.hidden:
+                m.hidden = False
+
 
 class Combat(object):
     def __init__(self, camp: gears.GearHeadCampaign):

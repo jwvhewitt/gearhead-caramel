@@ -303,6 +303,11 @@ class GearHeadScene(pbge.scenes.Scene):
             elif pbge.my_state.view.waypointmap.get(pos):
                 wp = pbge.my_state.view.waypointmap.get(pos)
                 return info.ListDisplay(items=wp, view=view, view_pos=pos)
+            elif pbge.my_state.view.modelmap.get(pos):
+                items = [i for i in pbge.my_state.view.modelmap.get(pos) if not isinstance(i, base.Combatant)]
+                if items:
+                    return info.ListDisplay(items=items, view=view, view_pos=pos)
+
 
     def place_actor(self, actor, x0, y0, team=None):
         entry_points = pbge.scenes.pfov.MModeReach(self.environment.LEGAL_MOVEMODES[0], self, x0, y0, 5, True).tiles

@@ -1,3 +1,7 @@
+* Mouseover info will list items in tile
+* Destroyed items appear red in inventory display
+* All hidden models get revealed at the end of combat
+* Window close button should now properly close the game
 * Scenes and rooms will expand if larger area is needed for contents
 * Weapon is_operational bug fixed
 * Items on floor should always appear behind characters and mecha

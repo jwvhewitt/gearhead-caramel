@@ -58,6 +58,11 @@ class Egg(object):
             for sc in thing.inv_com:
                 self._remove_campdata_for(sc, cdat_rec)
 
+    def _remove_hidden_for(self, thing, hidden_rec):
+        if hasattr(thing, "hidden") and thing.hidden:
+            hidden_rec.add(thing)
+            thing.hidden = False
+
     def _reset_container_for(self, thing, con_rec):
         if thing in con_rec:
             con_rec[thing].append(thing)
@@ -71,17 +76,25 @@ class Egg(object):
             for sc in thing.inv_com:
                 self._reset_campdata_for(sc, cdat_rec)
 
+    def _reset_hidden_for(self, thing, hidden_rec):
+        if thing in hidden_rec:
+            thing.hidden = True
+
     def write(self, f):
         # Save a record of all the containers.
         con_rec = dict()
         cdat_rec = dict()
+        hidden_rec = set()
         self._remove_container_for(self.pc, con_rec)
         self._remove_container_for(self.mecha, con_rec)
+        self._remove_hidden_for(self.pc, hidden_rec)
+        self._remove_hidden_for(self.mecha, hidden_rec)
         self._remove_campdata_for(self.pc, cdat_rec)
         self._remove_campdata_for(self.mecha, cdat_rec)
         for npc in list(self.dramatis_personae):
             self._remove_container_for(npc, con_rec)
             self._remove_campdata_for(npc, cdat_rec)
+            self._remove_hidden_for(npc, hidden_rec)
             if npc.is_destroyed():
                 self.dramatis_personae.remove(npc)
         pickle.dump(self, f, 4)
@@ -89,9 +102,12 @@ class Egg(object):
         self._reset_container_for(self.mecha, con_rec)
         self._reset_campdata_for(self.pc, cdat_rec)
         self._reset_campdata_for(self.mecha, cdat_rec)
+        self._reset_hidden_for(self.pc, hidden_rec)
+        self._reset_hidden_for(self.mecha, hidden_rec)
         for npc in self.dramatis_personae:
             self._reset_container_for(npc, con_rec)
             self._reset_campdata_for(npc, cdat_rec)
+            self._reset_hidden_for(npc, hidden_rec)
 
     def save(self, sfpat='egg_{}.sav'):
         self._validate_dramatis_personae()
