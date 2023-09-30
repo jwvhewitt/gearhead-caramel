@@ -85,7 +85,7 @@ class DZD_Wujung(Plot):
         tplot = self.add_sub_plot(nart, "RANDOM_LANCEMATE")
 
         # Test a local problem.
-        #self.add_sub_plot(nart, "TOWNHALL")
+        # self.add_sub_plot(nart, "TOWNHALL")
         self.add_sub_plot(nart, "TEST_LOCAL_PROBLEM", necessary=False)
         self.add_sub_plot(nart, "TEST_FEATURE", necessary=False)
 
@@ -110,7 +110,7 @@ class DZD_Wujung(Plot):
         )
 
         self.add_sub_plot(nart, "DZD_SKIPPYSNIGHTOUT")
-        #self.add_sub_plot(nart, "WMWO_IRON_FIST", elements={"OCCUPIER": gears.factions.BioCorp, "RESISTANCE_FACTION": gears.factions.TerranFederation})
+        # self.add_sub_plot(nart, "WMWO_IRON_FIST", elements={"OCCUPIER": gears.factions.BioCorp, "RESISTANCE_FACTION": gears.factions.TerranFederation})
 
         self.intro_ready = True
 
@@ -192,7 +192,7 @@ class DZD_Wujung(Plot):
                 tags=(gears.personality.Easygoing,),
                 ALERT_PHYSICALDESC="The city has changed a lot since the last time you were here- probably because of the reconstruction. You're not sure where to find the Bronze Horse Inn.",
                 ALERT_OPINION="The Bronze Horse Inn is a new addition to the city. Might as well take a look around and see if you can find it.",
-                SPEAK_MISSION = "Looks like there are a lot of new buildings around here; I guess the Bronze Horse Inn must be one of them.",
+                SPEAK_MISSION="Looks like there are a lot of new buildings around here; I guess the Bronze Horse Inn must be one of them.",
                 SPEAK_CHEERFUL="Just look at how they've fixed up Wujung! The Bronze Horse Inn must be one of these new buildings."
             ))
             my_cutscene.info_blocks.append(pbge.cutscene.InfoBlock(
@@ -624,7 +624,8 @@ class DZD_BronzeHorseInn(Plot):
         team2 = self.register_element("FOYER_TEAM", teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(50, 35, "Bronze Horse Inn", player_team=team1, civilian_team=team2,
                                        attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING),
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                           gears.tags.SCENE_MEETING),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.ResidentialBuilding())
@@ -743,7 +744,7 @@ class DZD_BronzeHorseInn(Plot):
                 "While you rest in one of our suites, your mecha will be taken care of in our offsite hangar with full repair and customization services. We have a physical training room, a mecha museum, and a twenty four hour breakfast buffet. It's everything a cavalier could want.",
                 context=ContextTag([context.INFO]), effect=self._tell_about_services,
                 data={"subject": "your services"}, no_repeats=True,
-                ))
+            ))
         if self.did_intro and not self.gave_mission and len(camp.get_lancemates()) >= 3:
             mylist.append(
                 Offer("[HELLO] You know, A friend of mine has a problem that you might be able to help with...",
@@ -753,7 +754,7 @@ class DZD_BronzeHorseInn(Plot):
                 Offer(
                     "A buddy of mine from back home set up a robotic mining operation just outside of Last Hope. Unfortunately, as soon as she started hitting the good stuff, a gang of bandits rolled in and took over the site for themselves. What I'd like you to do is go clear 'em out.",
                     context=ContextTag([context.MISSION]), subject=self, subject_start=True
-                    ))
+                ))
             mylist.append(
                 Offer(
                     "Fantastic. You can access the mission by heading to the West Gate of Wujung and following the nav coordinates I'm sending to you now. [GOODLUCK]",
@@ -777,7 +778,7 @@ class DZD_BronzeHorseInn(Plot):
                     context=ContextTag([context.CUSTOM]),
                     data={"reply": "You didn't tell us that the mission you gave was for Ran Magnus!"},
                     effect=self._open_gym
-            ))
+                ))
 
         if not camp.campdata.get("CONSTRUCTION_ARRANGED"):
             mylist.append(
@@ -785,9 +786,9 @@ class DZD_BronzeHorseInn(Plot):
                     "You'll definitely be able to find someone at Long Haul Logistics. I'd ask at the RegEx Corporation construction office.".format(
                         **self.elements),
                     context=ContextTag([context.CUSTOM]), effect=self._set_lhl_memo,
-                    data={"reply": "Do you know where I could find someone to help rebuild a power station in a town way out in the dead zone?"}
+                    data={
+                        "reply": "Do you know where I could find someone to help rebuild a power station in a town way out in the dead zone?"}
                 ))
-
 
         return mylist
 
@@ -909,7 +910,7 @@ class DZD_BlueFortressHQ(Plot):
             "blocks": (
                 pbge.scenes.movement.Walking, gears.tags.Skimming, gears.tags.Rolling, pbge.scenes.movement.Flying),
             "colors": (
-            gears.color.SteelBlue, gears.color.DeepSeaBlue, gears.color.Straw, gears.color.Black, gears.color.Black)
+                gears.color.SteelBlue, gears.color.DeepSeaBlue, gears.color.Straw, gears.color.Black, gears.color.Black)
         }
         building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
             waypoints={"DOOR": ghwaypoints.ScrapIronDoor(name="Blue Fortress")},
@@ -920,7 +921,7 @@ class DZD_BlueFortressHQ(Plot):
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Blue Fortress", player_team=team1, civilian_team=team2,
                                        attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_BASE),
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_BASE),
                                        scale=gears.scale.HumanScale, faction=factions.TerranDefenseForce)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.DefaultBuilding())
@@ -985,7 +986,7 @@ class DZD_BlueFortressHQ(Plot):
                                                 self.elements["LOCALE"], self.elements["MISSION_GATE"],
                                                 enemy_faction=self.next_enemy_faction,
                                                 allied_faction=factions.TerranDefenseForce,
-                                                architecture = gharchitecture.MechaScaleGreenzone(),
+                                                architecture=gharchitecture.MechaScaleGreenzone(),
                                                 on_win=self._win_mission)
         missionbuilder.NewMissionNotification(self.adventure_seed.name, self.elements["MISSION_GATE"])
 
@@ -1174,14 +1175,16 @@ class DZD_AlliedArmor(Plot):
         otherscene.contents.append(hiddenroom)
         mystairs = self.register_element("STAIRSUP", ghwaypoints.StoneStairsUp(dest_wp=secretstairs))
         hiddenroom.contents.append(mystairs)
-        #hiddenroom.contents.append(gears.selector.get_design_by_full_name("Deathwing"))
+        # hiddenroom.contents.append(gears.selector.get_design_by_full_name("Deathwing"))
 
         cwnpc = self.register_element("CWORKER", gears.selector.random_character(combatant=False,
                                                                                  job=gears.jobs.ALL_JOBS[
                                                                                      "Construction Worker"]))
         hiddenroom.contents.append(cwnpc)
 
-        self.add_sub_plot(nart, "TEST_DUNGEON_EXTRA", elements={"DG_ARCHITECTURE": intscenegen.archi, "DG_MONSTER_TAGS": ("ANIMAL", "CITY", "VERMIN",), "LOCALE": otherscene}, necessary=False)
+        self.add_sub_plot(nart, "TEST_DUNGEON_EXTRA", elements={"DG_ARCHITECTURE": intscenegen.archi,
+                                                                "DG_MONSTER_TAGS": ("ANIMAL", "CITY", "VERMIN",),
+                                                                "LOCALE": otherscene}, necessary=False)
 
         mydungeon = dungeonmaker.DungeonMaker(
             nart, self, self.elements["OTHERSCENE"], "Wujung Undercity", gharchitecture.StoneBuilding(), 10,
@@ -1300,7 +1303,7 @@ class DZD_WujungTires(Plot):
         team2 = teams.Team(name="Civilian Team", allies=(team1,))
         intscene = gears.GearHeadScene(35, 35, "Wujung Tires", player_team=team1, civilian_team=team2,
                                        attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
@@ -1352,7 +1355,7 @@ class DZD_EliteEquipment(Plot):
             waypoints={"DOOR": ghwaypoints.GlassDoor(name="Elite Equipment"),
                        "OTHER": ghwaypoints.GlassDoor(name="Allied Armor")},
             door_sign=(
-            game.content.ghterrain.CrossedSwordsTerrainEast, game.content.ghterrain.CrossedSwordsTerrainSouth),
+                game.content.ghterrain.CrossedSwordsTerrainEast, game.content.ghterrain.CrossedSwordsTerrainSouth),
             other_sign=(game.content.ghterrain.AlliedArmorSignEast, game.content.ghterrain.AlliedArmorSignSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
 
@@ -1363,7 +1366,7 @@ class DZD_EliteEquipment(Plot):
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(35, 35, "Elite Equipment", player_team=team1, civilian_team=team2,
                                        attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_SHOP),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
@@ -1449,7 +1452,8 @@ class DZD_WujungHospital(Plot):
         team2 = self.register_element("CIV_TEAM", teams.Team(name="Civilian Team"))
         intscene = gears.GearHeadScene(50, 50, "Wujung Hospital", player_team=team1, civilian_team=team2,
                                        attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_HOSPITAL),
+                                           gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                           gears.tags.SCENE_HOSPITAL),
                                        scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
@@ -1529,21 +1533,24 @@ class DZD_WujungHospital(Plot):
         doomed_town = camp.campdata.get("INFORM_BIOCORP_ANGEL_EGG", False)
         if doomed_town:
             mylist.append(Offer(
-                "[HELLO] Things are kind of busy here now... there's a lot of data coming back from the mission team in {}.".format(doomed_town),
+                "[HELLO] Things are kind of busy here now... there's a lot of data coming back from the mission team in {}.".format(
+                    doomed_town),
                 context=ContextTag([context.HELLO]),
             ))
 
             if camp.pc.has_badge(gears.oldghloader.CETUS_SLAYER.name):
                 mylist.append(Offer(
                     "That's a very good question. When BioCorp studied Cetus at Mesa Labs it appeared to be in a state of deep cellular stasis- what you'd normally call death. Except apparently we were wrong. Cetus escaped the lab and you killed it... but its body was still, technically, BioCorp property.",
-                    context=ContextTag([context.CUSTOM]), data={"reply": "How can Cetus still be alive? I killed it last year."},
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "How can Cetus still be alive? I killed it last year."},
                     subject="CetusWallaWallaBingBang", subject_start=True
                 ))
 
             else:
                 mylist.append(Offer(
                     "Well, we thought that too, at first. When BioCorp studied Cetus at Mesa Labs it appeared to be in a state of deep cellular stasis- what you'd normally call death. Then it escaped and eventually got taken down by the Defense Force. But its body was still, technically, BioCorp property.",
-                    context=ContextTag([context.CUSTOM]), data={"reply": "What do you know about Cetus? I thought it was supposed to be dead."},
+                    context=ContextTag([context.CUSTOM]),
+                    data={"reply": "What do you know about Cetus? I thought it was supposed to be dead."},
                     subject="CetusWallaWallaBingBang", subject_start=True
                 ))
 
@@ -1641,13 +1648,13 @@ class DZD_WujungHospital(Plot):
                 "The Cyberdoc terminal has a stock of cyberware it can install into your body, directly improving your capabilities, or it can install cyberware you acquired elsewhere. It can even remove cyberware, by cloning a non-cyberware organ from your cells."
                 , context=ContextTag([context.INFO]), effect=self._ask_about_cyberdoc
                 , data={"subject": "the Cyberdoc terminal"}, no_repeats=True
-                ))
+            ))
         if not self.asked_about_cyberware:
             mylist.append(Offer(
                 "Cyberware is installed into your body by the Cyberdoc terminal to give you new capabilities. Modern cyberware reduces stamina, an improvement over the 'cyberdisfunctions' of old; a general healthy constitution lets more cyberware be installed safely, as well as the patient's knowledge of cybertech."
                 , context=ContextTag([context.INFO]), effect=self._ask_about_cyberware
                 , data={"subject": "cyberware"}, no_repeats=True
-                ))
+            ))
 
         return mylist
 
@@ -1832,6 +1839,7 @@ class DZD_LoRoTruckerLancemate(Plot):
         self.add_sub_plot(nart, "RLM_Relationship", elements={"NPC_SCENE": self.elements["INTERIOR"]})
         return True
 
+
 #   ****************************
 #   ***  DZD_BLACK_ISLE_PUB  ***
 #   ****************************
@@ -1855,7 +1863,8 @@ class DZD_BlackIslePub(Plot):
             "blocks": (
                 pbge.scenes.movement.Walking, gears.tags.Skimming, gears.tags.Rolling, pbge.scenes.movement.Flying),
             "colors": (
-            gears.color.Ebony, gears.color.DeepGrey, gears.color.BattleshipGrey, gears.color.Black, gears.color.Black)
+                gears.color.Ebony, gears.color.DeepGrey, gears.color.BattleshipGrey, gears.color.Black,
+                gears.color.Black)
         }
         building = self.register_element("_EXTERIOR", game.content.ghterrain.BrickBuilding(
             waypoints={"DOOR": ghwaypoints.WoodenDoor(name="Black Isle Pub")},
@@ -1866,7 +1875,8 @@ class DZD_BlackIslePub(Plot):
         team2 = teams.Team(name="Civilian Team")
         intscene = gears.GearHeadScene(
             35, 35, self.shopname, player_team=team1, civilian_team=team2,
-            attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING, gears.tags.SCENE_CULTURE),
+            attributes=(
+            gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING, gears.tags.SCENE_CULTURE),
             scale=gears.scale.HumanScale)
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(
@@ -1874,8 +1884,8 @@ class DZD_BlackIslePub(Plot):
         )
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(width=random.randint(20, 25),
-                                                                                 height=random.randint(11, 15),
-                                                                                 anchor=pbge.randmaps.anchors.south),
+                                                                              height=random.randint(11, 15),
+                                                                              anchor=pbge.randmaps.anchors.south),
                                       dident="INTERIOR")
 
         mybar = ghrooms.BarArea(random.randint(5, 10), random.randint(2, 3), anchor=pbge.randmaps.anchors.north)
@@ -1889,7 +1899,9 @@ class DZD_BlackIslePub(Plot):
             nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
-        myfloor = pbge.randmaps.rooms.Room(foyer.width-2, foyer.height-mybar.height-2, anchor=pbge.randmaps.anchors.south, decorate=gharchitecture.RestaurantDecor())
+        myfloor = pbge.randmaps.rooms.Room(foyer.width - 2, foyer.height - mybar.height - 2,
+                                           anchor=pbge.randmaps.anchors.south,
+                                           decorate=gharchitecture.RestaurantDecor())
         foyer.contents.append(myfloor)
 
         self.add_sub_plot(nart, "TAVERN_BONUS", necessary=False)
@@ -1976,7 +1988,7 @@ class DZD_SkippysNightOut(Plot):
         activity_susdeck = pbge.okapipuzzle.SusDeck("Activity", activity_cards)
 
         scene_cards = list()
-        for k,v in self.SCENE_SUS_CARDS.items():
+        for k, v in self.SCENE_SUS_CARDS.items():
             self.scene_to_seek = k
             scene = self.seek_element(nart, "_SCENE{}".format(len(scene_cards)), self._is_good_meeting_scene,
                                       scope=self.elements["METROSCENE"])
@@ -2113,7 +2125,7 @@ class DZD_SkippysNightOut(Plot):
             "Thanks. Good luck out there.",
             context=ContextTag([context.CUSTOMREPLY, ]), no_repeats=True, allow_generics=False,
             data={"reply": "I'll get to work on it right away."}, subject="mystery"
-            ))
+        ))
 
         mychallenge: pbge.challenges.MysteryChallenge = self.elements["CHALLENGE"]
         if mychallenge.active:
@@ -2151,11 +2163,16 @@ class DZD_SkippysNightOut(Plot):
         return mylist
 
     EXPLANATIONS = (
-        "We went around to a bunch of different bars, and I don't remember exactly but at some point his legs just weren't there anymore.", # Carouse
-        "I'll be honest, things were getting a bit hot and heavy with us, and you know how sometimes your clothes just come off in that kind of situation? The same applies to cyberprosthetics.", # Make Out
-        "The two of us got involved in a card game. I think the jerk we were playing against was cheating, because things went pretty bad for Skippy and he threw his legs in the pot. He lost, but what is anyone gonna do with a pair of used cyberlegs?", #Gambling
-        "Not gonna lie. We got a bottle of Vesuvian Xozu, and it was good, but halfway through we had a mystical experience. Reality faded away and we were in astral space. A giant groundhog, who was a beautiful woman but also a groundhog, appeared and told Skippy to get on her back. As they were bouncing around the room his legs came off.", #Xozu
-        "At some point, [God] knows why, we decided to go get matching tattoos. The harness for Skippy's legs was getting in the way of... where he got the tattoo. So we took his legs off and I guess we just forgot about them." #Tattoos
+        "We went around to a bunch of different bars, and I don't remember exactly but at some point his legs just weren't there anymore.",
+        # Carouse
+        "I'll be honest, things were getting a bit hot and heavy with us, and you know how sometimes your clothes just come off in that kind of situation? The same applies to cyberprosthetics.",
+        # Make Out
+        "The two of us got involved in a card game. I think the jerk we were playing against was cheating, because things went pretty bad for Skippy and he threw his legs in the pot. He lost, but what is anyone gonna do with a pair of used cyberlegs?",
+        # Gambling
+        "Not gonna lie. We got a bottle of Vesuvian Xozu, and it was good, but halfway through we had a mystical experience. Reality faded away and we were in astral space. A giant groundhog, who was a beautiful woman but also a groundhog, appeared and told Skippy to get on her back. As they were bouncing around the room his legs came off.",
+        # Xozu
+        "At some point, [God] knows why, we decided to go get matching tattoos. The harness for Skippy's legs was getting in the way of... where he got the tattoo. So we took his legs off and I guess we just forgot about them."
+        # Tattoos
     )
 
     def SOLUTION_NPC_offers(self, camp):
@@ -2166,7 +2183,8 @@ class DZD_SkippysNightOut(Plot):
             mylist.append(Offer(
                 "{} I suggest you search at {}.".format(explanation, mychallenge.mystery.solution[2].gameob),
                 context=ContextTag([context.CUSTOM]), effect=self._hear_explanation,
-                data={"reply": "I know you were with Skippy last night. Why don't you tell me what happened to his legs?"}
+                data={
+                    "reply": "I know you were with Skippy last night. Why don't you tell me what happened to his legs?"}
             ))
 
         return mylist
@@ -2200,4 +2218,3 @@ class DZD_SkippysNightOut(Plot):
 
     def _get_legs_story(self, camp):
         self.got_legs_story = True
-

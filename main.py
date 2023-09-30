@@ -413,7 +413,7 @@ def play_the_game():
                 mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
                 #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
                 #mymenu.add_item("Just Show Background", just_show_background)
-                mymenu.add_item("Test Adventure Generation", TestStartGame)
+                #mymenu.add_item("Test Adventure Generation", TestStartGame)
                 mymenu.add_item("Steam The Eggs", prep_eggs_for_steam)
             mymenu.add_item("Quit", None)
 

@@ -1,3 +1,4 @@
+* Closing doors via right click will now work
 * Mouseover info will list items in tile
 * Destroyed items appear red in inventory display
 * All hidden models get revealed at the end of combat

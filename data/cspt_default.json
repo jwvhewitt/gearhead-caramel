@@ -90,7 +90,7 @@
     "type": "MonologuePresentation",
     "node_type": "Monologue",
     "strings": [
-      "[pc], [You_look_grim]. {SPEAK_CHEERFUL} [LETS_CONTINUE]"
+      "[pc], [You_look_grim]. {INFOBLOCK1_SPEAK_CHEERFUL} [LETS_CONTINUE]"
     ],
     "requirements": [
       {"type": "LMSpeakerRequirement"},

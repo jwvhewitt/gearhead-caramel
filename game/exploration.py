@@ -22,6 +22,7 @@ current_explo = None
 
 class MoveTo(object):
     """A command for moving to a particular point."""
+    EXCLUDE_LAST_STEP = False
 
     def __init__(self, explo, pos, party=None, dest_fun=None):
         # dest_fun is a function that takes the exploration object as a parameter that is called when the party
@@ -36,6 +37,9 @@ class MoveTo(object):
         # blocked_tiles = set( m.pos for m in explo.scene.contents )
         self.pmm = self._get_party_mmode(explo)
         self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, self.pmm)
+        if self.EXCLUDE_LAST_STEP:
+            self.path.results.pop(-1)
+            #self.dest = self.path.results[-1]
         self.step = 0
         self.dest_fun = dest_fun
 
@@ -111,7 +115,7 @@ class MoveTo(object):
         pc = self.first_living_pc()
         self.step += 1
 
-        if (not pc) or (self.dest == pc.pos) or (self.step >
+        if (not pc) or (self.dest == pc.pos) or (self.step >=
                                                  len(self.path.results)) or not exp.scene.on_the_map(*self.dest):
             if self.dest_fun:
                 self.dest_fun(exp)
@@ -190,6 +194,7 @@ class TalkTo(MoveTo):
 
 class BumpTo(MoveTo):
     """A command for moving to a particular waypoint, then activating it."""
+    EXCLUDE_LAST_STEP = True
     def __init__(self, explo, wayp, party=None):
         super().__init__(explo, wayp.pos, party, dest_fun=self._bump_wayp)
         self.wayp = wayp

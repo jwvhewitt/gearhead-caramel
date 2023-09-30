@@ -181,6 +181,9 @@ class BasicArmorStore(Plot):
             combat_music=self.elements["LOCALE"].combat_music,
             scale=gears.scale.HumanScale)
 
+        #if "CITY_COLORS" in self.elements:
+        #    wall_terrain =
+
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south),
