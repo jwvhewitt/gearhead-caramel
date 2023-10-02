@@ -218,9 +218,9 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                 mymenu.add_item("Do the mission without them.", True)
                 mymenu.add_item("Come back to the mission later", False)
                 if mymenu.query():
-                    super().__call__(camp)
+                    return super().__call__(camp)
             else:
-                super().__call__(camp)
+                return super().__call__(camp)
         else:
             if self.scale is gears.scale.MechaScale:
                 pbge.alert("You cannot proceed on this mission without a mecha.")

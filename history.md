@@ -1,3 +1,7 @@
+* Fixed world map encounters bug
+* Burst fire weapons have increased thrill power
+* Intercept weapons have their thrill power lowered
+* Fixed do_partial_restore in MultiMission
 * Closing doors via right click will now work
 * Mouseover info will list items in tile
 * Destroyed items appear red in inventory display

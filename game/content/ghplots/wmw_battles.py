@@ -132,6 +132,7 @@ class WMWDefaultHardNode(multimission.MultiMissionNodePlot):
     NAME_PATTERN = "Meet the enemy forces head-on"
 
     OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES, missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_DESTROY_ARTILLERY)
+    CASH_REWARD = 50
 
 
 #   *************************
@@ -156,3 +157,5 @@ class WMWFinalStage(multimission.MultiMissionStagePlot):
 class WMWDefaultFinalNode(multimission.MultiMissionNodePlot):
     LABEL = "WMW_FINAL_NODE"
     NAME_PATTERN = "Capture {TARGET_SCENE}"
+
+    CASH_REWARD = 150

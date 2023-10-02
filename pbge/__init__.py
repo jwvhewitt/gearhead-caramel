@@ -593,6 +593,8 @@ def alert(text, font=None, justify=-1):
 
 def alert_display(display_fun):
     pygame.event.clear()
+    wid_state = my_state.widgets_active
+    my_state.widgets_active = False
     while True:
         ev = wait_event()
         if (ev.type == pygame.MOUSEBUTTONUP) or (ev.type == pygame.QUIT):
@@ -604,6 +606,7 @@ def alert_display(display_fun):
                 my_state.view()
             display_fun()
             my_state.do_flip()
+    my_state.widgets_active = wid_state
 
 
 def please_stand_by(caption=None):

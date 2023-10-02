@@ -182,6 +182,7 @@ class BurstFire2(Singleton):
             defenses=old_fx.defenses,
             apply_hit_modifier=False,
         )
+        base.data.thrill_power = int(base.data.thrill_power * (2 + self.BURST_VALUE)//3)
         return [base, ]
 
 
@@ -409,6 +410,9 @@ class Intercept(Singleton):
     POWER_MODIFIER = 1.0
     CAN_INTERCEPT = True
 
+    @classmethod
+    def modify_basic_attack(cls, weapon, attack):
+        attack.data.thrill_power = attack.data.thrill_power // 2
 
 class LineAttack(Singleton):
     name = "Line Area"

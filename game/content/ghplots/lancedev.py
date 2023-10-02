@@ -85,6 +85,67 @@ class LMMissionPlot(LMPlot):
 
 # The actual plots...
 
+class PartyPlanner(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene)
+        self.candidates = set(gears.stats.NONCOMBAT_SKILLS)
+        for pc in nart.camp.get_lancemates():
+            self.candidates.difference_update(pc.statline.keys())
+        self.candidates.difference_update(nart.camp.pc.statline.keys())
+        return bool(self.candidates)
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    gears.personality.Sociable in candidate.personality and
+                    candidate.statline.get(gears.stats.Knowledge) > 13 and
+                    not candidate.relationship.expectation
+            )
+
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        npc: gears.base.Character = self.elements["NPC"]
+        pbge.alert(
+            "As you enter {METROSCENE}, {NPC} calls you over; {NPC.gender.subject_pronoun} has a spreadsheet open on {NPC.gender.possessive_determiner} phone.".format(
+                **self.elements))
+        self.new_skill = random.choice(list(self.candidates))
+
+        mymenu = ghcutscene.SimpleMonologueMenu(
+            "[CAN_I_ASK_A_QUESTION] Actually, never mind, I just asked you a question. Did you know that we don't have a lancemate who knows {}?".format(self.new_skill),
+            npc.get_root(), camp)
+
+        npc.statline[self.new_skill] = random.randint(2,5)
+        npc.relationship.expectation = gears.relationships.E_ADVENTURE
+
+        mymenu.add_item(
+            "Yes, I did know that, actually.",
+            self.choose_yes)
+
+        mymenu.add_item(
+            "I can't say that I really noticed.",
+            self.choose_no)
+
+        answer = mymenu.query()
+        if answer:
+            answer(npc, camp)
+
+        self.proper_end_plot(camp)
+
+    def choose_yes(self, npc, camp):
+        ghcutscene.SimpleMonologueDisplay(
+            "When assembling a lance, it's important to keep the skills and aptitudes of all your party members in mind. I've decided to learn {} so if we ever have an adventure where we need to know it, at least one of us will.".format(self.new_skill),
+            npc
+        )(camp, False)
+
+    def choose_no(self, npc, camp):
+        ghcutscene.SimpleMonologueDisplay(
+            "Well, I've taken it upon myself to study {}. So, if we ever need that skill during an adventure, you can rest assured that someone here knows how to do it.".format(self.new_skill),
+            npc
+        )(camp, False)
 
 
 class Earth_RescueAndBiotech(LMMissionPlot):
@@ -109,7 +170,8 @@ class Earth_RescueAndBiotech(LMMissionPlot):
 
         self.add_sub_plot(nart, "NPC_VACATION", ident="FREEZER")
         self.prep_mission(
-            nart.camp, custom_elements={lancedev_objectives.BAME_LANCEMATE: npc, missionbuilder.BAMEP_MONSTER_TYPE: ("SYNTH", "MUTANT", "ANIMAL")},
+            nart.camp, custom_elements={lancedev_objectives.BAME_LANCEMATE: npc,
+                                        missionbuilder.BAMEP_MONSTER_TYPE: ("SYNTH", "MUTANT", "ANIMAL")},
             archi_override=gharchitecture.StoneCave(decorate=gharchitecture.CaveDecor())
         )
         self.had_convo = False
@@ -118,15 +180,18 @@ class Earth_RescueAndBiotech(LMMissionPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                gears.tags.Medic in candidate.get_tags() and
-                gears.stats.Biotechnology not in candidate.statline and
-                candidate.relationship.expectation in (None, gears.relationships.E_IMPROVER, gears.relationships.E_ADVENTURE)
+                    gears.tags.Medic in candidate.get_tags() and
+                    gears.stats.Biotechnology not in candidate.statline and
+                    candidate.relationship.expectation in (
+                        None, gears.relationships.E_IMPROVER, gears.relationships.E_ADVENTURE)
             )
 
-    def METROSCENE_ENTER(self,camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.had_convo:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, you notice {NPC} looking anxiously at {NPC.gender.possessive_determiner} phone.".format(**self.elements))
+            pbge.alert(
+                "As you enter {METROSCENE}, you notice {NPC} looking anxiously at {NPC.gender.possessive_determiner} phone.".format(
+                    **self.elements))
 
             mymenu = ghcutscene.SimpleMonologueMenu(
                 "A hiker has gone missing in an area known to contain biomonsters... They're calling on all medics in the area to help with the search and rescue.",
@@ -139,29 +204,33 @@ class Earth_RescueAndBiotech(LMMissionPlot):
             if choice:
                 choice(camp)
 
-    def _accept_offer(self,camp):
+    def _accept_offer(self, camp):
         npc: gears.base.Character = self.elements["NPC"]
         ghcutscene.SimpleMonologueDisplay(
-            "One more thing about this mission... the hiker was probably drawn to these caves because of the rumors of lost biotechnology inside. At the very least, we should keep our eyes open for useful discoveries.", npc)(camp, False)
+            "One more thing about this mission... the hiker was probably drawn to these caves because of the rumors of lost biotechnology inside. At the very least, we should keep our eyes open for useful discoveries.",
+            npc)(camp, False)
         self.elements["NPC"].relationship.expectation = relationships.E_DISCOVERY
         self.had_convo = True
         self.mission_active = True
 
-    def _reject_offer(self,camp):
+    def _reject_offer(self, camp):
         npc: gears.base.Character = self.elements["NPC"]
         npc.relationship.history.append(gears.relationships.Memory(
             "you refused to aid the search and rescue", "I didn't help you with the search and rescue", -25,
             (gears.relationships.MEM_Ideological,)
         ))
         if npc.get_reaction_score(camp.pc, camp) < 1:
-            ghcutscene.SimpleMonologueDisplay("I will go join the search party by myself, then. Don't bother waiting for me as I have no interest in rejoining your lance.", npc)(camp, False)
+            ghcutscene.SimpleMonologueDisplay(
+                "I will go join the search party by myself, then. Don't bother waiting for me as I have no interest in rejoining your lance.",
+                npc)(camp, False)
             plotutility.AutoLeaver(self.elements["NPC"])(camp)
             self.subplots["FREEZER"].freeze_now(camp)
             if relationships.RT_LANCEMATE in npc.relationship.tags:
                 npc.relationship.tags.remove(relationships.RT_LANCEMATE)
         else:
-            ghcutscene.SimpleMonologueDisplay("You're probably right about that. I just wish there were something we could do.", npc)(camp, False)
-        self.proper_end_plot(camp,False)
+            ghcutscene.SimpleMonologueDisplay(
+                "You're probably right about that. I just wish there were something we could do.", npc)(camp, False)
+        self.proper_end_plot(camp, False)
 
 
 class Earth_GetInTheMekShimli(LMMissionPlot):
@@ -199,21 +268,23 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                candidate.relationship.expectation == gears.relationships.E_GREATERGOOD and
-                not candidate.relationship.role
+                    candidate.relationship.expectation == gears.relationships.E_GREATERGOOD and
+                    not candidate.relationship.role
             )
 
     def _is_good_defender(self, nart, candidate):
         return (isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
                 nart.camp.are_faction_allies(self.elements["METROSCENE"], candidate))
 
-    def METROSCENE_ENTER(self,camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
             defender = self.elements["DEFENDER"]
             pbge.alert("As you enter {METROSCENE}, {DEFENDER} rushes to you in a near-panic.".format(**self.elements))
 
-            ghcutscene.SimpleMonologueDisplay("[THIS_IS_AN_EMERGENCY] There's a convoy under attack just outside of town. It includes civilian transports. You're the only lance in the area that can possibly make it there in time to defend.", defender)(camp)
+            ghcutscene.SimpleMonologueDisplay(
+                "[THIS_IS_AN_EMERGENCY] There's a convoy under attack just outside of town. It includes civilian transports. You're the only lance in the area that can possibly make it there in time to defend.",
+                defender)(camp)
             mymenu = ghcutscene.SimpleMonologueMenu("We'll do it. [LETS_START_MECHA_MISSION]", npc, camp)
 
             mymenu.add_item("Absolutely right. Let's get to work.", self._start_mission)
@@ -251,7 +322,10 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
         ghcutscene.SimpleMonologueDisplay(
             "This is no time for your petty ego. I'm going to rescue that convoy; who else is with me?",
             npc)(camp, False)
-        deserters = [lm for lm in camp.get_lancemates() if (lm is npc) or (lm.get_reaction_score(camp.pc, camp) < 30) or {gears.personality.Peace, gears.personality.Fellowship}.intersection(lm.personality)]
+        deserters = [lm for lm in camp.get_lancemates() if
+                     (lm is npc) or (lm.get_reaction_score(camp.pc, camp) < 30) or {gears.personality.Peace,
+                                                                                    gears.personality.Fellowship}.intersection(
+                         lm.personality)]
         deserter_names = [str(d) for d in deserters]
         npc.relationship.expectation = gears.relationships.E_AVENGER
         if len(deserter_names) > 2:
@@ -264,7 +338,8 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
         for lm in deserters:
             plotutility.AutoLeaver(lm)(camp)
             lm.relationship.reaction_mod -= random.randint(1, 20)
-            vplot = game.content.load_dynamic_plot(camp, "NPC_VACATION", PlotState().based_on(self, update_elements={"NPC": lm}))
+            vplot = game.content.load_dynamic_plot(camp, "NPC_VACATION",
+                                                   PlotState().based_on(self, update_elements={"NPC": lm}))
             vplot.freeze_now(camp)
         self.proper_end_plot(camp, False)
 
@@ -296,17 +371,25 @@ class HowDoYouSeeMe(LMPlot):
             npc.get_root(), camp)
 
         if gears.personality.Fellowship in camp.pc.personality:
-            mymenu.add_item("I would say that we are friends, adventuring companions. There's a special bond that only cavaliers know.", self.choose_friend)
+            mymenu.add_item(
+                "I would say that we are friends, adventuring companions. There's a special bond that only cavaliers know.",
+                self.choose_friend)
 
-        mymenu.add_item("We are colleagues, coworkers. Professionals working together in a dangerous field.", self.choose_colleague)
+        mymenu.add_item("We are colleagues, coworkers. Professionals working together in a dangerous field.",
+                        self.choose_colleague)
 
         if npc.relationship.attitude == gears.relationships.A_SENIOR or npc.renown > camp.renown:
-            mymenu.add_item("You are a senior pilot to me. I look up to you and try to learn from you. If anything, you are my mentor.", self.choose_mentor)
+            mymenu.add_item(
+                "You are a senior pilot to me. I look up to you and try to learn from you. If anything, you are my mentor.",
+                self.choose_mentor)
 
         if gears.relationships.RT_FAMILY not in npc.relationship.tags:
-            mymenu.add_item("Honestly speaking, ever since you joined the team I've had a bit of a crush on you...", self.choose_crush)
+            mymenu.add_item("Honestly speaking, ever since you joined the team I've had a bit of a crush on you...",
+                            self.choose_crush)
 
-        mymenu.add_item("I don't know?! What is this, some kind of team building activity? We're just lancemates, alright?", self.choose_confusion)
+        mymenu.add_item(
+            "I don't know?! What is this, some kind of team building activity? We're just lancemates, alright?",
+            self.choose_confusion)
 
         npc.personality.add(gears.personality.Fellowship)
 
@@ -318,20 +401,23 @@ class HowDoYouSeeMe(LMPlot):
 
     def choose_friend(self, npc, camp):
         ghcutscene.SimpleMonologueDisplay(
-            "Yes, I would say that's the correct answer. Being a cavalier isn't like any other job... the bonds we form on the battlefield are special.", npc
+            "Yes, I would say that's the correct answer. Being a cavalier isn't like any other job... the bonds we form on the battlefield are special.",
+            npc
         )(camp, False)
         npc.relationship.role = gears.relationships.R_FRIEND
         npc.relationship.reaction_mod += 10
 
     def choose_colleague(self, npc, camp):
         ghcutscene.SimpleMonologueDisplay(
-            "That's a very professional answer. You didn't used to work for the corporations by any chance, did you?", npc
+            "That's a very professional answer. You didn't used to work for the corporations by any chance, did you?",
+            npc
         )(camp, False)
         npc.relationship.role = gears.relationships.R_COLLEAGUE
 
     def choose_mentor(self, npc, camp: gears.GearHeadCampaign):
         ghcutscene.SimpleMonologueDisplay(
-            "I suppose I am a mentor to you. I'll do my best to pass on whatever knowledge I have to you and the rest of the lance.", npc
+            "I suppose I am a mentor to you. I'll do my best to pass on whatever knowledge I have to you and the rest of the lance.",
+            npc
         )(camp, False)
         camp.dole_xp(100)
         npc.relationship.role = gears.relationships.R_MENTOR
@@ -353,7 +439,8 @@ class HowDoYouSeeMe(LMPlot):
     def choose_confusion(self, npc, camp):
         if npc.get_reaction_score(camp.pc, camp) > 40:
             ghcutscene.SimpleMonologueDisplay(
-                "Sorry, I didn't mean to confuddle you. I can assure you that we are, in fact, friends... even if that doesn't seem obvious to you right now.", npc
+                "Sorry, I didn't mean to confuddle you. I can assure you that we are, in fact, friends... even if that doesn't seem obvious to you right now.",
+                npc
             )(camp, False)
             npc.relationship.role = gears.relationships.R_FRIEND
         else:
@@ -389,41 +476,45 @@ class Earth_ProBonoMetalPanic(LMMissionPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                candidate.relationship.attitude == gears.relationships.A_THANKFUL and
-                candidate.relationship.expectation == gears.relationships.E_IMPROVER
+                    candidate.relationship.attitude == gears.relationships.A_THANKFUL and
+                    candidate.relationship.expectation == gears.relationships.E_IMPROVER
             )
 
-    def METROSCENE_ENTER(self,camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
             pbge.alert("As you enter {METROSCENE}, {NPC} rushes over to talk.".format(**self.elements))
-            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.PROPOSAL)))
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
             self.started_convo = True
 
-    def NPC_offers(self,camp: gears.GearHeadCampaign):
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
         if not self.mission_active:
             npc: gears.base.Character = self.elements["NPC"]
             mylist.append(Offer(
-                "I just saw this mission on CavNet; a cooperative close to {METROSCENE} is being attacked by bandits. They can't afford a reward, but we've got to go help them!".format(**self.elements),
-                (context.HELLO,context.PROPOSAL),
+                "I just saw this mission on CavNet; a cooperative close to {METROSCENE} is being attacked by bandits. They can't afford a reward, but we've got to go help them!".format(
+                    **self.elements),
+                (context.HELLO, context.PROPOSAL),
                 subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[THANK_YOU] [LETS_START_MECHA_MISSION]".format(**self.elements),
-                (context.CUSTOM,),subject=self,data={"reply": "[MISSION:ACCEPT]"},
+                (context.CUSTOM,), subject=self, data={"reply": "[MISSION:ACCEPT]"},
                 effect=self._accept_offer
             ))
             mem = npc.relationship.get_positive_memory()
             if mem:
                 mylist.append(Offer(
-                    "Remember when {}? It's our job as cavaliers to help people... and if we can't do that, I don't even know what we're here for.".format(mem.npc_perspective),
-                    (context.CUSTOM,),subject="Blah", subject_start=True, data={"reply": "We can't afford to do that."},
+                    "Remember when {}? It's our job as cavaliers to help people... and if we can't do that, I don't even know what we're here for.".format(
+                        mem.npc_perspective),
+                    (context.CUSTOM,), subject="Blah", subject_start=True,
+                    data={"reply": "We can't afford to do that."},
                 ))
             else:
                 mylist.append(Offer(
                     "What good are we as cavaliers if we can't protect the people who need protecting? We might be the only people in town who can respond to this emergency.",
-                    (context.CUSTOM,),subject="Blah", subject_start=True, data={"reply": "We can't afford to do that."},
+                    (context.CUSTOM,), subject="Blah", subject_start=True,
+                    data={"reply": "We can't afford to do that."},
                 ))
 
             mylist.append(Offer(
@@ -438,11 +529,11 @@ class Earth_ProBonoMetalPanic(LMMissionPlot):
             ))
         return mylist
 
-    def _accept_offer(self,camp):
+    def _accept_offer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_GREATERGOOD
         self.mission_active = True
 
-    def _reject_offer(self,camp):
+    def _reject_offer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_GREATERGOOD
         self.elements["NPC"].relationship.attitude = relationships.A_DISRESPECT
         plotutility.AutoLeaver(self.elements["NPC"])(camp)
@@ -451,7 +542,7 @@ class Earth_ProBonoMetalPanic(LMMissionPlot):
             "you refused to help defend the cooperative farm", "I didn't go with you to defend the cooperative", -25,
             (gears.relationships.MEM_Ideological,)
         ))
-        self.proper_end_plot(camp,False)
+        self.proper_end_plot(camp, False)
 
     def win_mission(self, camp: gears.GearHeadCampaign):
         npc: gears.base.Character = self.elements["NPC"]
@@ -474,7 +565,7 @@ class FriendInTroubleRightNow(LMMissionPlot):
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
         self.elements["ENEMY_FACTION"] = plotutility.RandomBanditCircle(nart.camp)
-        sp = self.add_sub_plot(nart,"ADD_COMBATANT_NPC")
+        sp = self.add_sub_plot(nart, "ADD_COMBATANT_NPC")
         self.elements["FRIEND"] = sp.elements["NPC"]
         self.add_sub_plot(nart, "NPC_VACATION", ident="FREEZER")
         self.prep_mission(nart.camp)
@@ -484,57 +575,59 @@ class FriendInTroubleRightNow(LMMissionPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                candidate.relationship.attitude == gears.relationships.A_FRIENDLY and
-                gears.personality.Fellowship in candidate.personality and
-                candidate.relationship.role is None
+                    candidate.relationship.attitude == gears.relationships.A_FRIENDLY and
+                    gears.personality.Fellowship in candidate.personality and
+                    candidate.relationship.role is None
             )
 
-    def METROSCENE_ENTER(self,camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
             pbge.alert("As you enter {METROSCENE}, {NPC} rushes over to tell you something.".format(**self.elements))
-            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.PROPOSAL)))
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
             self.started_convo = True
 
-    def NPC_offers(self,camp: gears.GearHeadCampaign):
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
         if not self.mission_active:
             npc: gears.base.Character = self.elements["NPC"]
             mylist.append(Offer(
                 "I have to leave right now; my friend {FRIEND} is in trouble and needs help.".format(**self.elements),
-                (context.HELLO,context.PROPOSAL),
+                (context.HELLO, context.PROPOSAL),
                 subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
-                "[THANK_YOU] We have to hurry... {FRIEND} is being attacked by {ENEMY_FACTION} as we speak!".format(**self.elements),
-                (context.CUSTOM,),subject=self,data={"reply": "Let's go together. If your friend needs help, we'll all help."},
+                "[THANK_YOU] We have to hurry... {FRIEND} is being attacked by {ENEMY_FACTION} as we speak!".format(
+                    **self.elements),
+                (context.CUSTOM,), subject=self,
+                data={"reply": "Let's go together. If your friend needs help, we'll all help."},
                 effect=self._accept_offer
             ))
             mylist.append(Offer(
                 "Thanks for understanding. I'm sure I'll have no problem handling this by myself.",
-                (context.CUSTOM,),subject=self,data={"reply": "Good luck with that. I'll see you later."},
+                (context.CUSTOM,), subject=self, data={"reply": "Good luck with that. I'll see you later."},
                 effect=self._reject_offer
             ))
         return mylist
 
-    def _accept_offer(self,camp):
+    def _accept_offer(self, camp):
         self.elements["NPC"].relationship.role = relationships.R_FRIEND
         self.mission_active = True
         self.mission_seed(camp)
 
-    def _reject_offer(self,camp):
+    def _reject_offer(self, camp):
         self.elements["NPC"].relationship.role = relationships.R_COLLEAGUE
         plotutility.AutoLeaver(self.elements["NPC"])(camp)
         self.subplots["FREEZER"].freeze_now(camp)
         friend = self.elements["FRIEND"]
         friend.container.remove(friend)
-        self.proper_end_plot(camp,False)
+        self.proper_end_plot(camp, False)
 
     def prep_mission(self, camp: gears.GearHeadCampaign):
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(camp.scene.get_metro_scene())
         self.mission_seed = missionbuilder.BuildAMissionSeed(
             camp, self.MISSION_NAME.format(**self.elements),
-            self.elements["METROSCENE"],self.elements["MISSION_GATE"],
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             enemy_faction=self.elements.get("ENEMY_FACTION"),
             rank=camp.renown + 5, objectives=self.MISSION_OBJECTIVES,
             cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
@@ -576,7 +669,9 @@ class DDLD_ContactInTown(LMMissionPlot):
                       not nart.camp.are_faction_allies(npc, fac)]
         if candidates:
             self.elements["ENEMY_FACTION"] = random.choice(candidates)
-            sp = self.add_sub_plot(nart, "PLACE_LOCAL_REPRESENTATIVES", elements={"LOCALE": self.elements["METROSCENE"], "FACTION": self.elements["METROSCENE"].faction})
+            sp = self.add_sub_plot(nart, "PLACE_LOCAL_REPRESENTATIVES", elements={"LOCALE": self.elements["METROSCENE"],
+                                                                                  "FACTION": self.elements[
+                                                                                      "METROSCENE"].faction})
             self.elements["MISSIONGIVER"] = sp.elements["NPC"]
             self.prep_mission(nart.camp)
             self.started_convo = False
@@ -585,50 +680,53 @@ class DDLD_ContactInTown(LMMissionPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                candidate.relationship.expectation == gears.relationships.E_MERCENARY and
-                gears.personality.Fellowship in candidate.personality and
-                candidate.relationship.attitude in (gears.relationships.A_JUNIOR, gears.relationships.A_SENIOR, None)
+                    candidate.relationship.expectation == gears.relationships.E_MERCENARY and
+                    gears.personality.Fellowship in candidate.personality and
+                    candidate.relationship.attitude in (
+                        gears.relationships.A_JUNIOR, gears.relationships.A_SENIOR, None)
             )
 
-    def METROSCENE_ENTER(self,camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
             pbge.alert("{NPC} approaches you, smiling broadly.".format(**self.elements))
             npc.relationship.attitude = relationships.A_FRIENDLY
             ghcutscene.SimpleMonologueDisplay(
-                "I just got a message from [foaf]. {MISSIONGIVER} at {MISSIONGIVER.scene} is looking for a cavalier to run a lucrative mission.".format(**self.elements),
+                "I just got a message from [foaf]. {MISSIONGIVER} at {MISSIONGIVER.scene} is looking for a cavalier to run a lucrative mission.".format(
+                    **self.elements),
                 npc.get_root())(camp)
-            self.memo = pbge.memos.Memo( "{MISSIONGIVER} may have a lucrative mission for you.".format(**self.elements)
-                            , self.elements["MISSIONGIVER"].get_scene()
-                            )
+            self.memo = pbge.memos.Memo("{MISSIONGIVER} may have a lucrative mission for you.".format(**self.elements)
+                                        , self.elements["MISSIONGIVER"].get_scene()
+                                        )
             self.started_convo = True
 
-    def MISSIONGIVER_offers(self,camp: gears.GearHeadCampaign):
+    def MISSIONGIVER_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
         if not self.mission_active:
             mylist.append(Offer(
-                "There are troops belonging to {} setting up in the area, and nobody wants that. Your job will be to clear them out and destroy their fortifications.".format(self.elements["ENEMY_FACTION"].name),
+                "There are troops belonging to {} setting up in the area, and nobody wants that. Your job will be to clear them out and destroy their fortifications.".format(
+                    self.elements["ENEMY_FACTION"].name),
                 (context.MISSION,),
                 subject=self, subject_start=True
             ))
             mylist.append(Offer(
                 "[IWillSendMissionDetails]. [GOODLUCK]",
-                (context.ACCEPT,),subject=self,
+                (context.ACCEPT,), subject=self,
                 effect=self._accept_offer
             ))
             mylist.append(Offer(
                 "I expect that some of the local pilots will be eager to prove themselves on this mission. [GOODBYE]",
-                (context.DENY,),subject=self,
+                (context.DENY,), subject=self,
                 effect=self._reject_offer
             ))
         return mylist
 
-    def _accept_offer(self,camp):
+    def _accept_offer(self, camp):
         self.mission_active = True
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
-    def _reject_offer(self,camp):
-        self.proper_end_plot(camp,False)
+    def _reject_offer(self, camp):
+        self.proper_end_plot(camp, False)
 
 
 class BeFriendsRaidFactory(LMMissionPlot):
@@ -656,51 +754,52 @@ class BeFriendsRaidFactory(LMMissionPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                candidate.relationship.expectation is None and gears.tags.Criminal in candidate.get_tags()
-                and candidate.relationship.role == gears.relationships.R_FRIEND
+                    candidate.relationship.expectation is None and gears.tags.Criminal in candidate.get_tags()
+                    and candidate.relationship.role == gears.relationships.R_FRIEND
             )
 
-    def METROSCENE_ENTER(self,camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
             pbge.alert("As you enter {METROSCENE}, {NPC} pulls you aside for a private chat.".format(**self.elements))
-            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.PROPOSAL)))
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
             self.started_convo = True
 
-    def NPC_offers(self,camp: gears.GearHeadCampaign):
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
         if not self.mission_active:
             npc: gears.base.Character = self.elements["NPC"]
             mylist.append(Offer(
-                "There's a processing facility belonging to {} just outside of town, and today they'll be moving some valuable cargo. If we strike fast we can rob them blind.".format(self.elements["ENEMY_FACTION"].name),
-                (context.HELLO,context.PROPOSAL),
+                "There's a processing facility belonging to {} just outside of town, and today they'll be moving some valuable cargo. If we strike fast we can rob them blind.".format(
+                    self.elements["ENEMY_FACTION"].name),
+                (context.HELLO, context.PROPOSAL),
                 subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[GOOD] We don't need to tell anyone else what kind of mission this is... They wouldn't understand.",
-                (context.CUSTOM,),subject=self,data={"reply": "[MISSION:ACCEPT]"},
+                (context.CUSTOM,), subject=self, data={"reply": "[MISSION:ACCEPT]"},
                 effect=self._accept_offer
             ))
             mylist.append(Offer(
                 "Yeah, I know... old habits die hard, I guess. Let's just keep this conversation between you and me. I'll try to stay on the up and up from here on out.",
-                (context.CUSTOM,),subject=self,data={"reply": "No; we're cavaliers, not bandits."},
+                (context.CUSTOM,), subject=self, data={"reply": "No; we're cavaliers, not bandits."},
                 effect=self._reject_offer
             ))
         return mylist
 
-    def _accept_offer(self,camp):
+    def _accept_offer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_MERCENARY
         self.mission_active = True
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
-    def _reject_offer(self,camp):
+    def _reject_offer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_IMPROVER
         self.elements["NPC"].relationship.history.append(gears.relationships.Memory(
             "you convinced me to give up on crime", "I helped you to reform", 5,
             (gears.relationships.MEM_Ideological,)
         ))
         self.elements["NPC"].statline[gears.stats.Ego] += 2
-        self.proper_end_plot(camp,False)
+        self.proper_end_plot(camp, False)
 
     def win_mission(self, camp):
         npc: gears.base.Character = self.elements["NPC"]
@@ -737,46 +836,49 @@ class PureBiznessRelationship(LMMissionPlot):
                     and candidate.relationship.role is None
             )
 
-    def METROSCENE_ENTER(self,camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("{NPC}'s phone rings. After a short conversation, {NPC.gender.subject_pronoun} turns to you.".format(**self.elements))
-            ghdialogue.start_conversation(camp,camp.pc,npc,cue=pbge.dialogue.Cue((context.HELLO,context.PROPOSAL)))
+            pbge.alert(
+                "{NPC}'s phone rings. After a short conversation, {NPC.gender.subject_pronoun} turns to you.".format(
+                    **self.elements))
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
             self.started_convo = True
 
-    def NPC_offers(self,camp: gears.GearHeadCampaign):
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
         if not self.mission_active:
             npc: gears.base.Character = self.elements["NPC"]
             mylist.append(Offer(
-                "I just got a hot tip from [foaf]; there's a mission available right now to fight {} for double standard pay. We could really use that money.".format(self.elements["ENEMY_FACTION"].name),
-                (context.HELLO,context.PROPOSAL),
+                "I just got a hot tip from [foaf]; there's a mission available right now to fight {} for double standard pay. We could really use that money.".format(
+                    self.elements["ENEMY_FACTION"].name),
+                (context.HELLO, context.PROPOSAL),
                 subject=self, subject_start=True, allow_generics=False
             ))
             mylist.append(Offer(
                 "[GOOD] I'm receiving the data on my phone now... we can get started any time you want.",
-                (context.CUSTOM,),subject=self,data={"reply":"[MISSION:ACCEPT]"},
+                (context.CUSTOM,), subject=self, data={"reply": "[MISSION:ACCEPT]"},
                 effect=self._accept_offer
             ))
             mylist.append(Offer(
                 "[YOU_ARE_THE_BOSS]",
-                (context.CUSTOM,),subject=self,data={"reply":"[MISSION:DENY]"},
+                (context.CUSTOM,), subject=self, data={"reply": "[MISSION:DENY]"},
                 effect=self._reject_offer
             ))
         return mylist
 
-    def _accept_offer(self,camp):
+    def _accept_offer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_MERCENARY
         self.mission_active = True
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
-    def _reject_offer(self,camp):
+    def _reject_offer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_MERCENARY
         self.elements["NPC"].relationship.history.append(gears.relationships.Memory(
             "you rejected the mission I suggested", "I didn't accept the mission you suggested", -10,
             (gears.relationships.MEM_Ideological,)
         ))
-        self.proper_end_plot(camp,False)
+        self.proper_end_plot(camp, False)
 
     def win_mission(self, camp):
         npc: gears.base.Character = self.elements["NPC"]
@@ -929,7 +1031,7 @@ class PrezeroMacguffin(LMPlot):
         self.memo = pbge.memos.Memo(
             "{NPC} told you about a ruin where you can find valuable PreZero artifacts.".format(**self.elements)
             , "{} at {}".format(self.dungeon_name, self.elements["METROSCENE"])
-            )
+        )
 
     def _accept_offer(self, camp):
         self.got_info = True
@@ -1348,7 +1450,7 @@ class DDLD_HermitMechaniac(LMPlot):
                 "[HELLO] Thanks for protecting my factory from those raiders; here is a reward for ${:,}.".format(
                     self.rewards),
                 context=ContextTag([context.HELLO]), effect=self._give_rewards
-                ))
+            ))
         else:
             mylist.append(Offer("[HELLO] Can I interest you in a new [mecha] today?",
                                 context=ContextTag([context.HELLO]),
@@ -1364,7 +1466,7 @@ class DDLD_HermitMechaniac(LMPlot):
                 "They're a small time gang of highway bandits who got pissed off that I wouldn't supply them with mecha, but behaviour like this is exactly why I didn't supply them with mecha!",
                 context=ContextTag([context.INFO]), effect=self._tell_about_raiders,
                 data={"subject": "the raiders"}, no_repeats=True
-                ))
+            ))
 
         return mylist
 
@@ -1398,7 +1500,7 @@ class WangttaScent(LMPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return candidate.relationship.attitude is None and candidate.get_stat(gears.stats.MechaPiloting) < (
-                        candidate.renown // 10 + 4)
+                    candidate.renown // 10 + 4)
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.accepted_duel:
@@ -1822,7 +1924,7 @@ class LD_JuniorQuestions(LMPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return not candidate.relationship.expectation and candidate.renown < 20 and candidate.relationship.attitude in (
-            relationships.A_JUNIOR, None)
+                relationships.A_JUNIOR, None)
 
     def t_UPDATE(self, camp):
         if not self.started_conversation:
@@ -2225,7 +2327,7 @@ class LMD_PassingJudgment(LMPlot):
                     candidate.relationship.role == relationships.R_CHAPERONE and
                     candidate.relationship.missions_together > 10 and
                     candidate.relationship.attitude in (
-                    relationships.A_JUNIOR, relationships.A_DISTANT, relationships.A_RESENT)
+                        relationships.A_JUNIOR, relationships.A_DISTANT, relationships.A_RESENT)
             )
 
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):

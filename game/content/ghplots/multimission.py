@@ -31,6 +31,7 @@ class MultiMissionNodePlot(Plot):
 
     NAME_PATTERN = ""
     OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES, missionbuilder.BAMO_CAPTURE_BUILDINGS)
+    CASH_REWARD = 20
 
     def custom_init(self, nart):
         if "SCENE_GENERATOR" not in self.elements or "ARCHITECTURE" not in self.elements:
@@ -52,7 +53,8 @@ class MultiMissionNodePlot(Plot):
             data=self.elements.get("MISSION_DATA", {}),
             mission_grammar=self.elements.get("MISSION_GRAMMAR", {}),
             restore_at_end=not self.elements.get("ONE_SHOT", True),
-            call_win_loss_funs_after_card=True
+            call_win_loss_funs_after_card=True,
+            cash_reward=self.CASH_REWARD
         )
 
     @property
@@ -157,7 +159,7 @@ class MultiMissionStagePlot(Plot):
         raise NotImplementedError("No build stage method declared for {}".format(self.LABEL))
 
     def do_partial_restore(self, camp: gears.GearHeadCampaign):
-        myparty = camp.get_active_party()
+        myparty = [pc for pc in camp.party if not pc.is_destroyed()]
         repair_points = collections.defaultdict(int)
         needs_repair = collections.defaultdict(list)
         for pc in myparty:
@@ -171,7 +173,7 @@ class MultiMissionStagePlot(Plot):
                     part.sp_spent = 0
                 if isinstance(part, gears.base.MakesPower):
                     part.spent = 0
-                if hasattr(part, "hp_damage"):
+                if hasattr(part, "hp_damage") and part.hp_damage > 0:
                     needs_repair[part.material.repair_type].append(part)
         for repair_skill, parts in needs_repair.items():
             rp = repair_points.get(repair_skill, 0)
