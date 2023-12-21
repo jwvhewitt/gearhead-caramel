@@ -4504,6 +4504,9 @@ class Character(Being):
         for v in personality.VIRTUES:
             if v in self.personality and v in pc.personality:
                 rs += 10
+        for v in personality.FAULTS:
+            if v not in self.personality and v in pc.personality:
+                rs -= 15
         fac = self.get_tacit_faction(camp)
         if fac:
             if pc is camp.pc:

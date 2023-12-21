@@ -41,16 +41,23 @@ class OccupationFortify(Plot):
     scope = "METRO"
     active = True
 
+    IS_OCCUPATION_PLOT = True
+
     def custom_init(self, nart):
         # The invading faction is going to fortify their position.
-        candidates = self.elements.get(RIVAL_FACTIONS)
-        if candidates:
-            rival = random.choice(candidates)
-        else:
-            rival = None
+        self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
+        if RESISTANCE_FACTION not in self.elements:
+            candidates = self.elements.get(RIVAL_FACTIONS)
+            if candidates:
+                rival = random.choice(candidates)
+            else:
+                rival = gears.factions.Circle(
+                    nart.camp, parent_faction=self.elements.get(ORIGINAL_FACTION)
+                )
+            self.elements[RESISTANCE_FACTION] = rival
 
         oc1 = quests.QuestOutcome(
-            ghquests.VERB_FORTIFY, target=rival,
+            ghquests.VERB_FORTIFY, target=self.elements[RESISTANCE_FACTION],
             involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
             effect=self._occupier_wins, loss_effect=self._occupier_loses,
             lore=[
@@ -105,10 +112,13 @@ WMWO_IRON_FIST = "WMWO_IRON_FIST"  # The faction will impose totalitarian rule o
 # Plots may involve forced labor, rounding up dissidents, and propaganda campaigns. This plot type will usually be
 # associated with an invading dictatorship, but not necessarily.
 
+
 class OccupationCrushDissent(Plot):
     LABEL = WMWO_IRON_FIST
     scope = "METRO"
     active = True
+
+    IS_OCCUPATION_PLOT = True
 
     def custom_init(self, nart):
         # The invading faction is going to try and crush dissent in this region. The locals are going to try to resist
@@ -175,3 +185,75 @@ WMWO_MARTIAL_LAW = "WMWO_MARTIAL_LAW"  # The faction will attempt to impose law 
 # Plots may involve capturing fugitives, enforcing curfew, and dispersing riots. This plot will usually be associated
 # with either an invading force or a totalitarian force reasserting control over areas lost to rebellion or outside
 # influence.
+
+
+class OccupationRestoreOrder(Plot):
+    LABEL = WMWO_MARTIAL_LAW
+    scope = "METRO"
+    active = True
+
+    IS_OCCUPATION_PLOT = True
+
+    def custom_init(self, nart):
+        # The invading faction is going to fortify their position.
+        self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
+        if RESISTANCE_FACTION not in self.elements:
+            candidates = self.elements.get(RIVAL_FACTIONS)
+            if candidates:
+                rival = random.choice(candidates)
+            else:
+                rival = gears.factions.Circle(
+                    nart.camp, parent_faction=self.elements.get(ORIGINAL_FACTION)
+                )
+            self.elements[RESISTANCE_FACTION] = rival
+
+        oc1 = quests.QuestOutcome(
+            ghquests.VERB_FORTIFY, target=self.elements[RESISTANCE_FACTION],
+            involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
+            effect=self._occupier_wins, loss_effect=self._occupier_loses,
+            lore=[
+                quests.QuestLore(
+                    ghquests.LORECAT_OUTCOME, texts={
+                        quests.TEXT_LORE_HINT: "{OCCUPIER} must bring order to {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_INFO: "{RESISTANCE_FACTION} are dissidents who resist {OCCUPIER} and must be crushed".format(**self.elements),
+                        quests.TEXT_LORE_TOPIC: "the state of {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that {RESISTANCE_FACTION} is working against {OCCUPIER} in {METROSCENE}.".format(**self.elements),
+                        quests.TEXT_LORE_TARGET_TOPIC: "{RESISTANCE_FACTION}'s rebellion".format(**self.elements),
+                    }, involvement = ghchallenges.InvolvedMetroFactionNPCs(
+                        self.elements["METROSCENE"], self.elements["OCCUPIER"]
+                    ), priority=True
+                )
+            ]
+        )
+
+        oc2 = quests.QuestOutcome(
+            ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
+            involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
+                                                                        self.elements["OCCUPIER"]),
+            effect=self._occupier_loses, loss_effect=self._occupier_wins, lore=[
+                quests.QuestLore(
+                    ghquests.LORECAT_OUTCOME, texts={
+                        quests.TEXT_LORE_HINT: "life under {OCCUPIER} has been unbearable".format(**self.elements),
+                        quests.TEXT_LORE_INFO: "a resistance has formed to get rid of {OCCUPIER}".format(**self.elements),
+                        quests.TEXT_LORE_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that there is a resistance dedicated to ousting {OCCUPIER} from {METROSCENE}.".format(**self.elements),
+                        quests.TEXT_LORE_TARGET_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
+                    }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
+                        self.elements["METROSCENE"], self.elements["OCCUPIER"]
+                    ), priority=True
+                )
+            ]
+        )
+
+        myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
+            outcomes=(oc1, oc2), end_on_loss=True
+        ))
+        myquest.build(nart, self)
+
+        return True
+
+    def _occupier_wins(self, camp: gears.GearHeadCampaign):
+        pbge.alert("The occupier wins!")
+
+    def _occupier_loses(self, camp: gears.GearHeadCampaign):
+        pbge.alert("The resistance wins!")

@@ -7,15 +7,18 @@ from types import MethodType
 
 VERB_DEFEAT = "DEFEAT"
 
+DEFAULT_QUEST_BAD_CONCLUSION = "QUEST_BAD_CONCLUSION"
 DEFAULT_QUEST_CONCLUSION = "QUEST_CONCLUSION"
+DEFAULT_QUEST_GOOD_CONCLUSION = "QUEST_GOOD_CONCLUSION"
+
+DEFAULT_QUEST_CONCLUSION_SERIES = (DEFAULT_QUEST_BAD_CONCLUSION, DEFAULT_QUEST_CONCLUSION, DEFAULT_QUEST_GOOD_CONCLUSION)
+
 DEFAULT_QUEST_TASK = "QUEST_TASK"
 DEFAULT_QUEST_LORE_HANDLER = "QUEST_LORE_HANDLER"
 
 QUEST_ELEMENT_ID = "QUEST"
-_QD_LEADS_TO_ELEMENT_ID = "_QUEST_LEADS_TO"  # Private use for this module; if writing your own quests, don't worry
-# about it. Don't even question what this constant is. Or what it means. Or what it may be doing to your precious code.
-# - The Illuminati
-DEFAULT_OUTCOME_ELEMENT_ID = "QUEST_OUTCOME"
+
+OUTCOME_ELEMENT_ID = "QUEST_OUTCOME"
 LORE_SET_ELEMENT_ID = "QUEST_LORE_SET"
 
 # Mandatory Lore
@@ -34,25 +37,25 @@ TEXT_LORE_TARGET_TOPIC = "[QUEST_LORE_TARGET_TOPIC]"    # Why are the lore keys 
 
 class QuestPlot(plots.Plot):
     active = False
-    QUEST_DATA = None
     quest_record = None
 
     def __init__(self, nart, pstate):
-        leads_to = pstate.elements.pop(_QD_LEADS_TO_ELEMENT_ID, None)
-        self.quest_record = QuestRecord(pstate.elements.get(QUEST_ELEMENT_ID), leads_to)
-        if not self.QUEST_DATA:
-            self.QUEST_DATA = QuestData()
+        self.quest_record = QuestRecord(pstate.elements.get(QUEST_ELEMENT_ID))
         super().__init__(nart, pstate)
 
     def t_UPDATE(self, camp):
+        # Remember to super() this trigger if you need to in subclass plots!
         if not self.quest_record.started:
             self.quest_record.started = True
             self.start_quest_task(camp)
 
     def start_quest_task(self, camp):
+        # Because starting/ending is controlled by the quest_record and revealed lore, this utility function stub
+        # was added to activate subplots or challenges when needed.
         pass
 
     def end_quest_task(self, camp):
+        # See above, but for ending this task.
         pass
 
 
@@ -83,6 +86,7 @@ class QuestLore:
 
 class LoreRevealer:
     # An object that can be used as the "effect" for a waypoint or dialogue offer that will reveal the provided lore.
+    # TODO: What is loreset all about? Find out and describe its use in a comment.
     def __init__(self, lores, quest, loreset=None):
         self.lores = lores
         self.quest = quest
@@ -96,27 +100,22 @@ class LoreRevealer:
 
 
 class QuestOutcome:
-    def __init__(self, verb=VERB_DEFEAT, target=None, involvement=None, effect=None, loss_effect=None, lore=()):
+    def __init__(self, verb=VERB_DEFEAT, target=None, involvement=None, win_effect=None, loss_effect=None, lore=()):
         # verb is what's gonna happen in this outcome.
         # target is the Quest Element ID of the object of the verb. Except you can't say object in Python because that
         #   word has a different meaning here than it does in English grammar.
         # involvement is a challenge involvement checker which checks to see what factions/NPCs might offer missions
         #   leading to this outcome.
-        # effect is a callable of form "effect(camp)" which is called if/when this outcome comes to pass
-        # loss_effect is a callable of form "loss_effect(camp)" which is called if/when this outcome fails
-        # lore is a list of lore that will be inherited by the conclusion leading to this outcome. Note that if any
-        #   lore has "None" as its outcome, it will automatically be set to this outcome. So if you want some lore
-        #   with no outcome set the outcome to "False" instead. It ain't pretty but it should work. Addendum: I don't
-        #   know why you would want to define a lore without its outcome.
+        # win_effect is a callable of form "effect(camp)" which is called if/when this outcome comes to pass
+        # loss_effect is a callable of form "loss_effect(camp)" which is called if/when this outcome fails or
+        #   bcomes unwinnable.
+        # lore is a list of lore that may be selected by a conclusion leading to this outcome.
         self.verb = verb
         self.target = target
         self.involvement = involvement
-        self.effect = effect
+        self.win_effect = win_effect
         self.loss_effect = loss_effect
         self.lore = list(lore)
-        for l in self.lore:
-            if l.outcome is None:
-                l.outcome = self
 
     def is_involved(self, camp, npc):
         if not self.involvement:
@@ -130,13 +129,13 @@ class QuestOutcome:
 
 class QuestConclusionMethodWrapper:
     # An object that automatically gets added to the root plot to listen for conclusions being concluded.
+    # TODO: Figure out if this class is really necessary. It doesn't seem to do much.
     def __init__(self, root_plot: plots.Plot, outcome_fun, end_plot=True):
         self.root_plot = root_plot
         self.outcome_fun = outcome_fun
         self.end_plot = end_plot
 
     def __call__(self, camp):
-        print("Invoking...")
         if self.outcome_fun:
             self.outcome_fun(camp)
         if self.end_plot:
@@ -149,15 +148,15 @@ class Quest:
     # The plot creating the quest needs to call the build function.
     # The quest plots need to call the extend function.
     def __init__(
-        self, outcomes, outcome_element_id=DEFAULT_OUTCOME_ELEMENT_ID,
-        task_type=DEFAULT_QUEST_TASK, conclusion_type=DEFAULT_QUEST_CONCLUSION,
+        self, outcomes, task_ident=DEFAULT_QUEST_TASK, conclusion_series=DEFAULT_QUEST_CONCLUSION_SERIES,
         course_length=3, end_on_loss=True, lore_handler=DEFAULT_QUEST_LORE_HANDLER
     ):
         self.outcomes = list(outcomes)
-        self.outcome_element_id = outcome_element_id
-        self.task_type = task_type
-        self.conclusion_type = conclusion_type
-        self.course_length = course_length
+        self.task_ident = task_ident
+        if not isinstance(conclusion_series, (list, tuple)):
+            conclusion_series = (conclusion_series,)
+        self.conclusion_series = conclusion_series
+        self.course_length = max(course_length, 1)
         self.outcome_plots = dict()
         self.all_plots = list()
         self.end_on_loss = end_on_loss
@@ -169,44 +168,41 @@ class Quest:
         # Start constructing a quest starting with root_plot as the main controller.
         random.shuffle(self.outcomes)
         for numb, outc in enumerate(self.outcomes):
-            frontier = dict()
-            used_tasks = set()
-            if self.conclusion_type.isidentifier():
-                ident = "{}_{}".format(self.conclusion_type, str(numb))
-            else:
-                ident = "CONCLUSION_{}".format(numb)
-            nuplot = root_plot.add_sub_plot(
-                nart, self.conclusion_type,
-                elements={QUEST_ELEMENT_ID: self, self.outcome_element_id: outc}, ident=ident
-            )
-            self.outcome_plots[outc] = nuplot
-            setattr(root_plot, "{}_WIN".format(ident), QuestConclusionMethodWrapper(root_plot, outc.effect, True))
-            setattr(root_plot, "{}_LOSE".format(ident), QuestConclusionMethodWrapper(root_plot, outc.loss_effect,
-                                                                                     self.end_on_loss))
-            self._prep_quest_plot(root_plot, nuplot)
-            if nuplot.QUEST_DATA.potential_tasks:
-                frontier[nuplot] = list(nuplot.QUEST_DATA.potential_tasks)
-                random.shuffle(frontier[nuplot])
-            nuplot.quest_record.needed_lore.update(outc.lore)
-
-            # Add some tasks to this conclusion.
-            # Don't repeat the same task for the same outcome.
-            t = self.course_length
-            while t > 0 and frontier:
-                mykey = random.choice(list(frontier.keys()))
-                sub_plot_ident = frontier[mykey].pop()
-                if not frontier[mykey]:
-                    del frontier[mykey]
-                if sub_plot_ident not in used_tasks:
-                    used_tasks.add(sub_plot_ident)
-                    new_task = self.extend(nart, mykey, sub_plot_ident)
-                    if new_task:
-                        t -= 1
-                        if new_task.QUEST_DATA.potential_tasks:
-                            frontier[new_task] = list(new_task.QUEST_DATA.potential_tasks)
-                            random.shuffle(frontier[new_task])
+            primary_conclusion = None
+            main_quest_line = list()
+            for c_label in self.conclusion_series:
+                # Attempt to load a conclusion of this type.
+                if primary_conclusion:
+                    conc = self.extend(nart, primary_conclusion, c_label, {LORE_SET_ELEMENT_ID: primary_conclusion.quest_record.needed_lore, OUTCOME_ELEMENT_ID: outc})
+                else:
+                    conc = self.extend(nart, root_plot, c_label, {LORE_SET_ELEMENT_ID: set(), OUTCOME_ELEMENT_ID: outc})
+                if conc:
+                    if not primary_conclusion:
+                        primary_conclusion = conc
+                        main_quest_line.append(conc)
+                        for t in range(self.course_length):
+                            nu_parent = random.choice(main_quest_line)
+                            nu_comp = self.extend(nart, nu_parent, self.task_ident, {LORE_SET_ELEMENT_ID: nu_parent.quest_record.needed_lore, OUTCOME_ELEMENT_ID: outc})
+                            if nu_comp:
+                                main_quest_line.append(nu_comp)
+                    else:
+                        side_quest_line = [conc,]
 
         self.add_quest_lore_handler(root_plot, nart)
+
+    def _add_conclusion(self, root_plot, nart):
+        # The conclusion gets the lore of the provided outcome as its lore_menu
+        pass
+
+    def _add_complication(self, current_plot, nart):
+        # The complication gets the lore requirements of the current_plot as its lore_menu.
+        # Generally a complication locks one of the lore requirements and adds a lore requirement of its own.
+        pass
+
+    def _add_side_quest(self, current_plot, nart):
+        # A side quest gets the lore requirements of the current plot as its own lore requirements, then
+        # adds some extra lore to unlock this branch.
+        pass
 
     def add_quest_lore_handler(self, root_plot, nart):
         lore_set = set()
@@ -233,50 +229,34 @@ class Quest:
         for oc_plot in self.all_plots:
             if oc_plot.quest_record.should_be_active():
                 oc_plot.active = True
+            elif camp and oc_plot.active:
+                oc_plot.end_quest_task(camp)
+                oc_plot.deactivate(camp)
         if camp:
             camp.check_trigger('UPDATE')
 
-    def extend(self, nart, current_plot: QuestPlot, splabel):
+    def extend(self, nart, current_plot: plots.Plot, splabel, elements=None):
+        _elements = {QUEST_ELEMENT_ID: self}
+        if elements:
+            _elements.update(elements)
         nuplot = current_plot.add_sub_plot(
-            nart, splabel, necessary=False,
-            elements={_QD_LEADS_TO_ELEMENT_ID: current_plot}
+            nart, splabel, necessary=False, elements=_elements
         )
         if nuplot:
-            self._prep_quest_plot(current_plot, nuplot)
-            current_plot.quest_record.tasks.append(nuplot)
+            self.all_plots.append(nuplot)
 
         return nuplot
 
     def lock_lore(self, myplot: QuestPlot, mylore: QuestLore):
         # Attempt to lock the requested lore. You have to request locking the lore to prevent a loreblock, in which
-        # case the quest is made inaccessible by conflicting lore requirements between different branches. When lore is
-        # locked it will not be revealed normally; instead, the task that requested the lock needs to reveal the lore
-        # manually. THIS POINT IS VERY IMPORTANT.
-        # Anyhow, the rules to prevent loreblock are as follows:
-        #  - Lore may not be locked if it was inherited from a parent plot and any other inherited lore requirements
-        #    of this plot are already locked.
-        #  - Eat lots of fibre.
-        # This algorithm will result in a lot of false positives- cases where there is no loreblock, but get disallowed
-        # anyways. But it shouldn't produce any false negatives, which could be game-breaking bugs, and my covid brain
-        # fog is back something fierce. Which you might be able to tell by this lengthy rambling comment.
+        # case the quest is made inaccessible by conflicting lore requirements between different branches.
         # If the lore lock fails, a PlotError is thrown so this plot will not be loaded.
-        if myplot.quest_record.leads_to and mylore in myplot.quest_record.leads_to.quest_record.needed_lore:
-            # I think this may be the ugliest list comprehension I've ever seen in Python. Show me your own worst
-            # examples! Just not in the form of pull requests, please...
-            if any([lore in self._locked_lore for lore in myplot.quest_record.needed_lore if lore in myplot.quest_record.leads_to.quest_record.needed_lore]):
-                raise plots.PlotError("Lore {} cannot be locked by {}.".format(mylore, myplot))
-        elif mylore in self._locked_lore:
+        if mylore in self._locked_lore:
             raise plots.PlotError("Lore {} is already locked and so can't be locked by {}.".format(mylore, myplot))
         self._locked_lore.add(mylore)
         if mylore in myplot.quest_record.needed_lore:
             myplot.quest_record.needed_lore.remove(mylore)
-
-    def _prep_quest_plot(self, current_plot, nuplot: QuestPlot):
-        #if not (hasattr(nuplot, "QUEST_DATA") and nuplot.QUEST_DATA):
-        #    nuplot.QUEST_DATA = QuestData()
-        #if not (hasattr(nuplot, "quest_record") and nuplot.quest_record):
-        #    nuplot.quest_record = QuestRecord(self, current_plot)
-        self.all_plots.append(nuplot)
+        myplot.quest_record.lore_to_reveal.add(mylore)
 
     def reveal_lore(self, camp, lore: QuestLore):
         if lore not in self._revealed_lore:
@@ -294,54 +274,33 @@ class Quest:
         return tuple(self._revealed_lore)
 
 
-class QuestData:
-    def __init__(self, potential_tasks=(), blocks_progress=True, theme=None):
-        # Every quest plot should define this data structure as QUEST_DATA property. It gets used by the quest
-        # builder.
-        # potential_tasks are tasks that may be added to this task or conclusion.
-        # blocks_progress means this subquest must be completed before its parent will be activated.
-        # If theme is defined, no other siblings of this quest task can have the same theme.
-        self.potential_tasks = tuple(potential_tasks)
-        self.blocks_progress = blocks_progress
-        self.theme = theme
-
-
 class QuestRecord:
     # A quest record created by a quest plot which contains its relationship to other quest plots.
     WIN = 1
     LOSS = -1
     IN_PROGRESS = 0
 
-    def __init__(self, quest: Quest, leads_to: QuestPlot):
+    def __init__(self, quest: Quest):
         self.quest = quest
         self.completion = self.IN_PROGRESS
-        self.tasks = list()
         self.needed_lore = set()
+        self.lore_to_reveal = set()
         self.started = False
-        self.leads_to = leads_to
-        if leads_to:
-            self.needed_lore.update(leads_to.quest_record.needed_lore)
-
-    def deactivate_children(self, camp):
-        for task in self.tasks:
-            task.end_quest_task(camp)
-            task.deactivate(camp)
-            task.quest_record.deactivate_children(camp)
 
     def win_task(self, myplot: QuestPlot, camp):
         if self.completion != self.WIN:
             camp.check_trigger("WIN", myplot)
         self.completion = self.WIN
-        self.deactivate_children(camp)
         myplot.end_quest_task(camp)
         myplot.deactivate(camp)
+        for lore in self.lore_to_reveal:
+            self.quest.reveal_lore(camp, lore)
         self.quest.check_quest_plot_activation(camp)
 
     def lose_task(self, myplot: QuestPlot, camp):
         if self.completion != self.LOSS:
             camp.check_trigger("LOSE", myplot)
         self.completion = self.LOSS
-        self.deactivate_children(camp)
         myplot.end_quest_task(camp)
         myplot.deactivate(camp)
         self.quest.check_quest_plot_activation(camp)
@@ -349,16 +308,9 @@ class QuestRecord:
     def should_be_active(self):
         if self.started and self.completion != self.IN_PROGRESS:
             return False
-        for sq in self.tasks:
-            if sq.QUEST_DATA.blocks_progress and sq.quest_record.completion != self.WIN:
-                return False
         for lore in self.needed_lore:
             if not self.quest.lore_is_revealed(lore):
                 return False
+        if self.lore_to_reveal and all(self.quest.lore_is_revealed(l) for l in self.lore_to_reveal):
+            return False
         return True
-
-    def get_task(self, task_label):
-        # Return an active task if one is found with the label. There should only ever be one task with the same label.
-        for t in self.tasks:
-            if t.LABEL == task_label and t.quest_record.completion != self.WIN:
-                return t

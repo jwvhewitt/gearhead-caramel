@@ -8,7 +8,7 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
 from pbge.memos import Memo
-from . import missionbuilder, rwme_objectives, campfeatures
+from . import missionbuilder, rwme_objectives, campfeatures, warplots
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
@@ -21,7 +21,7 @@ WORLD_MAP_WAR = "WORLD_MAP_WAR"
 
 
 class WarStats:
-    def __init__(self, home_base=None, aggression=75, loyalty=95, color=0, unpopular=False):
+    def __init__(self, home_base=None, aggression=75, loyalty=95, color=0, unpopular=False, occtype=warplots.WMWO_DEFENDER):
         # home_base is the city where this team's HQ is located. Capture it, and that team is eliminated.
         # aggression is how likely they are to attack instead of turtle
         # loyalty is the % chance this faction will honor a peace treaty. Lower loyalty = more backstabbing.
@@ -32,6 +32,7 @@ class WarStats:
         self.color = color
         self.unpopular = unpopular
         self.boosted = False
+        self.occtype = occtype
 
     def __setstate__(self, state):
         # For v0.946 and earlier: get rid of obsolete properties.
@@ -41,6 +42,8 @@ class WarStats:
             del state["resources"]
         if "boosted" not in state:
             state["boosted"] = False
+        if "occtype" not in state:
+            state["occtype"] = warplots.WMWO_DEFENDER
         self.__dict__.update(state)
 
 

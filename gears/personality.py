@@ -21,25 +21,63 @@ class Sociable(Singleton):
 class Shy(Singleton):
     name = 'Shy'
 
-TRAITS = ((Cheerful,Cheerful,Grim),(Easygoing,Easygoing,Passionate),(Sociable,Sociable,Shy))
-OPPOSED_PAIRS = ((Cheerful,Grim),(Easygoing,Passionate),(Sociable,Shy))
 
 class Glory(Singleton):
     name = 'Glory'
 
+
 class Peace(Singleton):
     name = 'Peace'
+
 
 class Justice(Singleton):
     name = 'Justice'
 
+
 class Duty(Singleton):
     name = 'Duty'
+
 
 class Fellowship(Singleton):
     name = 'Fellowship'
 
+
 VIRTUES = (Glory,Peace,Justice,Duty,Fellowship)
+
+
+class Failure(Singleton):
+    name = 'Failure'
+    opposite = Glory
+
+
+class Violent(Singleton):
+    name = 'Violent'
+    opposite = Peace
+
+
+class Corrupt(Singleton):
+    name = 'Corrupt'
+    opposite = Justice
+
+
+class Irresponsible(Singleton):
+    name = 'Irresponsible'
+    opposite = Duty
+
+
+class Heartless(Singleton):
+    name = 'Heartless'
+    opposite = Fellowship
+
+
+FAULTS = (Failure, Violent, Corrupt, Irresponsible, Heartless)
+
+
+TRAITS = ((Cheerful,Cheerful,Grim),(Easygoing,Easygoing,Passionate),(Sociable,Sociable,Shy))
+OPPOSED_PAIRS = (
+    (Cheerful,Grim),(Easygoing,Passionate),(Sociable,Shy),
+    (Peace, Violent), (Failure, Glory), (Corrupt, Justice), (Duty, Irresponsible), (Fellowship, Heartless)
+)
 
 
 # Origin Tags- Use one of these to mark the home/culture of a character.

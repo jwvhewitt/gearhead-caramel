@@ -10,7 +10,7 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
 from pbge.memos import Memo
-from . import missionbuilder, rwme_objectives, campfeatures, worldmapwar
+from . import missionbuilder, rwme_objectives, campfeatures, worldmapwar, warplots
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
@@ -30,17 +30,17 @@ class ROPP_WarStarter(Plot):
         war_teams = dict()
         war_teams[gears.factions.TheSolarNavy] = worldmapwar.WarStats(
             nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000001'],
-            color=1, unpopular=True
+            color=1, unpopular=True, occtype=warplots.WMWO_MARTIAL_LAW
         )
 
         war_teams[gears.factions.TreasureHunters] = worldmapwar.WarStats(
             nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000003'],
-            color=2, unpopular=False
+            color=2, unpopular=False, occtype=warplots.WMWO_DEFENDER
         )
 
         war_teams[gears.factions.AegisOverlord] = worldmapwar.WarStats(
             nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000005'],
-            color=3, unpopular=True, loyalty=50
+            color=3, unpopular=True, loyalty=50, occtype=warplots.WMWO_IRON_FIST
         )
 
         nart.camp.set_faction_allies(gears.factions.TreasureHunters, gears.factions.AegisOverlord)
@@ -71,6 +71,12 @@ class ROPP_WarStarter(Plot):
         self.add_sub_plot(nart, "ROPP_AEGIS_JOINER")
 
         return True
+
+    def __setstate__(self, state):
+        # For v0.947 and earlier: set occtype for the war teams.
+        wardict = self.elements[worldmapwar.WORLD_MAP_TEAMS]
+        wardict[gears.factions.TheSolarNavy].occtype = warplots.WMWO_MARTIAL_LAW
+        wardict[gears.factions.AegisOverlord].occtype = warplots.WMWO_IRON_FIST
 
     def ROPPWAR_WIN(self, camp: gears.GearHeadCampaign):
         pbge.alert("Congratulations, you have won the war! Thank you for playing the early access version of Raid on Pirate's Point.")
