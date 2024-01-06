@@ -59,7 +59,7 @@ class OccupationFortify(Plot):
         oc1 = quests.QuestOutcome(
             ghquests.VERB_FORTIFY, target=self.elements[RESISTANCE_FACTION],
             involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
-            effect=self._occupier_wins, loss_effect=self._occupier_loses,
+            win_effect=self._occupier_wins, loss_effect=self._occupier_loses,
             lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
@@ -79,7 +79,7 @@ class OccupationFortify(Plot):
             ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
             involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
                                                                         self.elements["OCCUPIER"]),
-            effect=self._occupier_loses, loss_effect=self._occupier_wins, lore=[
+            win_effect=self._occupier_loses, loss_effect=self._occupier_wins, lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
                         quests.TEXT_LORE_HINT: "life under {OCCUPIER} has been unbearable".format(**self.elements),
@@ -123,16 +123,16 @@ class OccupationCrushDissent(Plot):
     def custom_init(self, nart):
         # The invading faction is going to try and crush dissent in this region. The locals are going to try to resist
         # this as well as they can.
-        self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
+        #self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
         if RESISTANCE_FACTION not in self.elements:
             self.elements[RESISTANCE_FACTION] = gears.factions.Circle(
                 nart.camp, parent_faction=self.elements.get(ORIGINAL_FACTION)
             )
 
         oc1 = quests.QuestOutcome(
-            ghquests.VERB_REPRESS, target=self.elements[RESISTANCE_FACTION],
+            ghquests.VERB_REPRESS, target=RESISTANCE_FACTION,
             involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
-            effect=self._occupier_wins, loss_effect=self._resistance_wins,
+            win_effect=self._occupier_wins, loss_effect=self._resistance_wins,
             lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
@@ -149,10 +149,10 @@ class OccupationCrushDissent(Plot):
         )
 
         oc2 = quests.QuestOutcome(
-            ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
+            ghquests.VERB_EXPEL, target=OCCUPIER,
             involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
                                                                         self.elements["OCCUPIER"]),
-            effect=self._resistance_wins, loss_effect=self._occupier_wins, lore=[
+            win_effect=self._resistance_wins, loss_effect=self._occupier_wins, lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
                         quests.TEXT_LORE_HINT: "life under {OCCUPIER} has been unbearable".format(**self.elements),
@@ -210,7 +210,7 @@ class OccupationRestoreOrder(Plot):
         oc1 = quests.QuestOutcome(
             ghquests.VERB_FORTIFY, target=self.elements[RESISTANCE_FACTION],
             involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
-            effect=self._occupier_wins, loss_effect=self._occupier_loses,
+            win_effect=self._occupier_wins, loss_effect=self._occupier_loses,
             lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
@@ -230,7 +230,7 @@ class OccupationRestoreOrder(Plot):
             ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
             involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
                                                                         self.elements["OCCUPIER"]),
-            effect=self._occupier_loses, loss_effect=self._occupier_wins, lore=[
+            win_effect=self._occupier_loses, loss_effect=self._occupier_wins, lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
                         quests.TEXT_LORE_HINT: "life under {OCCUPIER} has been unbearable".format(**self.elements),

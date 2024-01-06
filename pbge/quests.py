@@ -40,7 +40,7 @@ class QuestPlot(plots.Plot):
     quest_record = None
 
     def __init__(self, nart, pstate):
-        self.quest_record = QuestRecord(pstate.elements.get(QUEST_ELEMENT_ID))
+        self.quest_record = QuestRecord(pstate.elements.get(QUEST_ELEMENT_ID), pstate)
         super().__init__(nart, pstate)
 
     def t_UPDATE(self, camp):
@@ -86,7 +86,10 @@ class QuestLore:
 
 class LoreRevealer:
     # An object that can be used as the "effect" for a waypoint or dialogue offer that will reveal the provided lore.
-    # TODO: What is loreset all about? Find out and describe its use in a comment.
+    # lores should be a list. Hence the "s". This way, a single conversation offer can reveal multiple pieces of lore.
+    # loreset is a set of lore to reveal, usually the list of "orphaned" lore held by the lore handler plot. As lore
+    # gets revealed it is removed from this set. When all the lore is revealed, the lore handler will typically
+    # deactivate itself.
     def __init__(self, lores, quest, loreset=None):
         self.lores = lores
         self.quest = quest
@@ -129,7 +132,9 @@ class QuestOutcome:
 
 class QuestConclusionMethodWrapper:
     # An object that automatically gets added to the root plot to listen for conclusions being concluded.
-    # TODO: Figure out if this class is really necessary. It doesn't seem to do much.
+    # Because we're attaching it after the root plot has been instantiated, it isn't a proper method.
+    # I could use the types module to add a bound method, but because this also calls the outcome_fun
+    # and ends the plot (usually) I figure this way of doing things is just as good.
     def __init__(self, root_plot: plots.Plot, outcome_fun, end_plot=True):
         self.root_plot = root_plot
         self.outcome_fun = outcome_fun
@@ -167,42 +172,51 @@ class Quest:
     def build(self, nart, root_plot: plots.Plot):
         # Start constructing a quest starting with root_plot as the main controller.
         random.shuffle(self.outcomes)
-        for numb, outc in enumerate(self.outcomes):
+        for numa, outc in enumerate(self.outcomes):
+            print("Building {}".format(outc))
             primary_conclusion = None
             main_quest_line = list()
-            for c_label in self.conclusion_series:
+            for numb, c_label in enumerate(self.conclusion_series):
                 # Attempt to load a conclusion of this type.
-                if primary_conclusion:
-                    conc = self.extend(nart, primary_conclusion, c_label, {LORE_SET_ELEMENT_ID: primary_conclusion.quest_record.needed_lore, OUTCOME_ELEMENT_ID: outc})
+                if c_label.isidentifier():
+                    ident = "{}_{}_{}".format(c_label, str(numa), str(numb))
                 else:
-                    conc = self.extend(nart, root_plot, c_label, {LORE_SET_ELEMENT_ID: set(), OUTCOME_ELEMENT_ID: outc})
+                    ident = "CONCLUSION_{}_{}".format(numa, numb)
+
+                if primary_conclusion:
+                    conc = self.extend(nart, primary_conclusion, c_label, {LORE_SET_ELEMENT_ID: primary_conclusion.quest_record.needed_lore, OUTCOME_ELEMENT_ID: outc}, spident=ident)
+                else:
+                    conc = self.extend(nart, root_plot, c_label, {LORE_SET_ELEMENT_ID: set(), OUTCOME_ELEMENT_ID: outc}, spident=ident)
                 if conc:
+                    setattr(root_plot, "{}_WIN".format(ident),
+                            QuestConclusionMethodWrapper(root_plot, outc.win_effect, True))
+                    setattr(root_plot, "{}_LOSE".format(ident),
+                            QuestConclusionMethodWrapper(root_plot, outc.loss_effect,
+                                                         self.end_on_loss))
+
                     if not primary_conclusion:
                         primary_conclusion = conc
                         main_quest_line.append(conc)
-                        for t in range(self.course_length):
+                        tasks = 0
+                        tries = 0
+                        while tasks < self.course_length and tries < self.course_length * 5:
                             nu_parent = random.choice(main_quest_line)
                             nu_comp = self.extend(nart, nu_parent, self.task_ident, {LORE_SET_ELEMENT_ID: nu_parent.quest_record.needed_lore, OUTCOME_ELEMENT_ID: outc})
+                            tries += 1
                             if nu_comp:
                                 main_quest_line.append(nu_comp)
+                                tasks += 1
                     else:
                         side_quest_line = [conc,]
+                        tries = 0
+                        while tries < self.course_length:
+                            nu_parent = random.choice(side_quest_line)
+                            nu_comp = self.extend(nart, nu_parent, self.task_ident, {LORE_SET_ELEMENT_ID: nu_parent.quest_record.needed_lore, OUTCOME_ELEMENT_ID: outc})
+                            tries += 1
+                            if nu_comp:
+                                side_quest_line.append(nu_comp)
 
         self.add_quest_lore_handler(root_plot, nart)
-
-    def _add_conclusion(self, root_plot, nart):
-        # The conclusion gets the lore of the provided outcome as its lore_menu
-        pass
-
-    def _add_complication(self, current_plot, nart):
-        # The complication gets the lore requirements of the current_plot as its lore_menu.
-        # Generally a complication locks one of the lore requirements and adds a lore requirement of its own.
-        pass
-
-    def _add_side_quest(self, current_plot, nart):
-        # A side quest gets the lore requirements of the current plot as its own lore requirements, then
-        # adds some extra lore to unlock this branch.
-        pass
 
     def add_quest_lore_handler(self, root_plot, nart):
         lore_set = set()
@@ -235,12 +249,12 @@ class Quest:
         if camp:
             camp.check_trigger('UPDATE')
 
-    def extend(self, nart, current_plot: plots.Plot, splabel, elements=None):
+    def extend(self, nart, current_plot: plots.Plot, splabel, elements=None, spident=None):
         _elements = {QUEST_ELEMENT_ID: self}
         if elements:
             _elements.update(elements)
         nuplot = current_plot.add_sub_plot(
-            nart, splabel, necessary=False, elements=_elements
+            nart, splabel, necessary=False, elements=_elements, ident=spident
         )
         if nuplot:
             self.all_plots.append(nuplot)
@@ -280,11 +294,19 @@ class QuestRecord:
     LOSS = -1
     IN_PROGRESS = 0
 
-    def __init__(self, quest: Quest):
+    def __init__(self, quest: Quest, pstate: plots.PlotState):
         self.quest = quest
         self.completion = self.IN_PROGRESS
         self.needed_lore = set()
         self.lore_to_reveal = set()
+        my_lore = pstate.elements.get(LORE_SET_ELEMENT_ID, ())
+        if my_lore:
+            # Copy the priority lore from the set.
+            priority_lore = [l for l in my_lore if l.priority]
+            self.needed_lore.update(priority_lore)
+        else:
+            # Copy all the lore from the outcome.
+            self.needed_lore.update(pstate.elements.get(OUTCOME_ELEMENT_ID).lore)
         self.started = False
 
     def win_task(self, myplot: QuestPlot, camp):

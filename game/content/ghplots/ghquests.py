@@ -19,6 +19,9 @@ VERB_REPRESS = "REPRESS"  # Like DEFEAT, but the enemy has to be located first
 
 LORECAT_OUTCOME = "OUTCOME"
 
+LORECAT_CHARACTER = "CHARACTER"
+L_CHARACTER_ALIAS = "L_CHARACTER_ALIAS"
+
 LORECAT_KNOWLEDGE = "KNOWLEDGE"
 LORECAT_LOCATION = "LOCATION"
 
@@ -71,46 +74,42 @@ QUEST_TASK_INVESTIGATE_ENEMY = "QUEST_TASK_INVESTIGATE_ENEMY"
 # myself. Because this is exactly the kind of dumb thing I'd do that would lead to a weird hard-to-replicate bug.
 #
 
-# Given a quest, construct a series of obstacles leading to the conclusion. The obstacles may be parallel or
-# serial. They may be blocking, preventing the next challenge from activating until they are complete, or they
-# may be optional, allowing the player to attempt the next challenge with a penalty. It is the responsibility of the
-# parent plot to check penalties from incomplete/lost challenges!
+#  ******************************
+#  ***   QUEST  CONCLUSIONS   ***sp =
+#  ******************************
 
-#  ******************************
-#  ***   QUEST  CONCLUSIONS   ***
-#  ******************************
 
 class StrikeTheLeader(quests.QuestPlot):
     LABEL = quests.DEFAULT_QUEST_CONCLUSION
     scope = "METRO"
 
-#    QUEST_DATA = quests.QuestData(
- #       (QUEST_TASK_ACE_DEFENSE, QUEST_TASK_HIDDEN_IDENTITY, QUEST_TASK_IMMEDIATE_ACTION,),
-  #  )
-
     @classmethod
     def matches(cls, pstate):
         outc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
-        return outc and outc.verb in (quests.VERB_DEFEAT, VERB_REPRESS)
+        if outc:
+            target = pstate.elements.get(outc.target)
+            return outc.verb in (quests.VERB_DEFEAT, VERB_REPRESS) and gears.factions.is_a_faction(target) and not pstate.elements.get(quests.LORE_SET_ELEMENT_ID, None)
 
     def custom_init(self, nart):
+        print("Loading STLd")
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = my_outcome.target
-        npc = self.register_element(QE_TASK_NPC, nart.camp.cast_a_combatant(my_outcome.target, rank=self.rank+5, myplot=self), lock=True)
-        self.elements[QE_NPC_ALIAS] = "{}'s leader".format(my_outcome.target)
+        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        npc = self.register_element(QE_TASK_NPC, nart.camp.cast_a_combatant(self.elements["_ENEMY_FACTION"], rank=self.rank+15, myplot=self), lock=True)
+
         self.mission_name = "Defeat {QE_TASK_NPC} of {_ENEMY_FACTION}".format(**self.elements)
         self.memo = plots.Memo(
-            "You have identified {QE_TASK_NPC} and the local head of {_ENEMY_FACTION} and can challenge {QE_TASK_NPC.gender.object_pronoun} at any time.".format(**self.elements),
+            "You have identified {QE_TASK_NPC} as the local head of {_ENEMY_FACTION} and can challenge {QE_TASK_NPC.gender.object_pronoun} at any time.".format(**self.elements),
             self.elements["METROSCENE"]
         )
 
         task_lore = quests.QuestLore(
-            LORECAT_LOCATION, texts={
+            LORECAT_CHARACTER, texts={
                 quests.TEXT_LORE_HINT: "the leader of {_ENEMY_FACTION} in {METROSCENE} has big plans".format(**self.elements),
-                quests.TEXT_LORE_INFO: "{QE_TASK_NPC} is their leader".format(**self.elements),
+                quests.TEXT_LORE_INFO: "{QE_TASK_NPC} is {_ENEMY_FACTION}'s local commander".format(**self.elements),
                 quests.TEXT_LORE_TOPIC: "{_ENEMY_FACTION}'s leader".format(**self.elements),
                 quests.TEXT_LORE_SELFDISCOVERY: "You have learned that the leader of {_ENEMY_FACTION} in {METROSCENE} is {QE_TASK_NPC}.".format(**self.elements),
                 quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s leader".format(**self.elements),
+                L_CHARACTER_ALIAS: "{}'s leader".format(self.elements["_ENEMY_FACTION"]),
             }, involvement=my_outcome.involvement, outcome=my_outcome
         )
         self.quest_record.needed_lore.add(task_lore)
@@ -128,12 +127,6 @@ class StrikeTheLeader(quests.QuestPlot):
         # For instance, if the fortress is defended by artillery, that gets added into the mission.
         objectives = [missionbuilder.BAMO_DEFEAT_NPC,] + [random.choice(self.SECONDARY_OBJECTIVES)]
         rank = self.rank
-
-        ace_task = self.quest_record.get_task(QUEST_TASK_ACE_DEFENSE)
-        if ace_task:
-            drank, dobjs = ace_task.get_ace_mission_mods(camp)
-            rank += drank
-            objectives += dobjs
 
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
 
@@ -165,19 +158,18 @@ class TheyHaveAFortress(quests.QuestPlot):
     LABEL = quests.DEFAULT_QUEST_CONCLUSION
     scope = "METRO"
 
-#    QUEST_DATA = quests.QuestData(
-#        (QUEST_TASK_FINDENEMYBASE, QUEST_TASK_INVESTIGATE_ENEMY, QUEST_TASK_ACE_DEFENSE),
-#    )
-
     @classmethod
     def matches(cls, pstate):
         outc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
-        return outc and outc.verb in (quests.VERB_DEFEAT, VERB_EXPEL)
+        target = pstate.elements.get(outc.target)
+        return outc.verb in (quests.VERB_DEFEAT, VERB_EXPEL) and gears.factions.is_a_faction(
+            target) and not pstate.elements.get(quests.LORE_SET_ELEMENT_ID, None)
 
     def custom_init(self, nart):
+        print("Loading THAF")
         self.elements[QE_BASE_NAME] = "Fortress"
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = my_outcome.target
+        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
         self.mission_name = "Attack {_ENEMY_FACTION}'s {QE_BASE_NAME}".format(**self.elements)
         self.memo = plots.Memo(
             "You know the location of {_ENEMY_FACTION}'s {QE_BASE_NAME} and can attack at any time.".format(**self.elements),
@@ -195,7 +187,7 @@ class TheyHaveAFortress(quests.QuestPlot):
             }, involvement=my_outcome.involvement, outcome=my_outcome
         )
         self.quest_record.needed_lore.add(base_lore)
-        self.elements[QE_LORE_TO_LOCK] = base_lore
+
         return True
 
     def _get_mission(self, camp):
@@ -204,11 +196,11 @@ class TheyHaveAFortress(quests.QuestPlot):
         objectives = [missionbuilder.BAMO_STORM_THE_CASTLE,]
         rank = self.rank
 
-        ace_task = self.quest_record.get_task(QUEST_TASK_ACE_DEFENSE)
-        if ace_task:
-            drank, dobjs = ace_task.get_ace_mission_mods(camp)
-            rank += drank
-            objectives += dobjs
+        #ace_task = self.quest_record.get_task(QUEST_TASK_ACE_DEFENSE)
+        #if ace_task:
+        #    drank, dobjs = ace_task.get_ace_mission_mods(camp)
+        #    rank += drank
+        #    objectives += dobjs
 
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
 
@@ -258,7 +250,7 @@ class ProtectedByArtillery(quests.QuestPlot):
     def custom_init(self, nart):
         self.elements[QE_BASE_NAME] = "Artillery"
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = my_outcome.target
+        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
         self.mission_name = "Destroy {_ENEMY_FACTION}'s {QE_BASE_NAME}".format(**self.elements)
         self.memo = plots.Memo(
             "{_ENEMY_FACTION} is protected by {QE_BASE_NAME}.".format(**self.elements),
@@ -315,7 +307,7 @@ class ProtectedByArtillery(quests.QuestPlot):
 
     def _win_task(self, camp):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        pbge.BasicNotification("{}'s artillery has been destroyed.".format(my_outcome.target),
+        pbge.BasicNotification("{}'s artillery has been destroyed.".format(self.elements["_ENEMY_FACTION"]),
                                count=150)
         self.quest_record.win_task(self, camp)
 
@@ -344,12 +336,12 @@ class FindEnemyBaseTask(quests.QuestPlot):
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = my_outcome.target
+        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
         base_name = self.elements.get(QE_BASE_NAME, "Base")
         mychallenge: Challenge = self.register_element(
             "_CHALLENGE", Challenge(
-                "Locate {}'s {}".format(my_outcome.target, base_name), ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE,
-                key=(my_outcome.target,), involvement=my_outcome.involvement,
+                "Locate {}'s {}".format(self.elements["_ENEMY_FACTION"], base_name), ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE,
+                key=(self.elements["_ENEMY_FACTION"],), involvement=my_outcome.involvement,
                 data={"base_name": base_name},
                 oppoffers=(
                     AutoOffer(
@@ -358,14 +350,14 @@ class FindEnemyBaseTask(quests.QuestPlot):
                             context=ContextTag([context.CUSTOM, ]),
                             data={
                                 "reply": "Can you tell me how to get to {}'s {}? [PRETEXT_FOR_GOING_THERE]".format(
-                                    my_outcome.target, base_name)
+                                    self.elements["_ENEMY_FACTION"], base_name)
                             }, dead_end=True, effect=self._advance_fully
                         ), active=True, uses=99,
                         access_fun=ghchallenges.AccessSkillRoll(
                             gears.stats.Charm, gears.stats.Stealth, self.rank, difficulty=gears.stats.DIFFICULTY_EASY
                         ),
                         involvement=ghchallenges.InvolvedMetroFactionNPCs(
-                            self.elements["METROSCENE"], my_outcome.target
+                            self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]
                         )
                     ),
                     AutoOffer(
@@ -374,18 +366,18 @@ class FindEnemyBaseTask(quests.QuestPlot):
                             context=ContextTag([context.UNFAVORABLE_CUSTOM, ]),
                             data={
                                 "reply": "Can you tell me how to get to {}'s {}? [PRETEXT_FOR_GOING_THERE]".format(
-                                    my_outcome.target, base_name)
+                                    self.elements["_ENEMY_FACTION"], base_name)
                             }, dead_end=True, effect=self._advance_fully
                         ), active=True, uses=99,
                         access_fun=ghchallenges.AccessSkillRoll(
                             gears.stats.Charm, gears.stats.Stealth, self.rank, difficulty=gears.stats.DIFFICULTY_HARD
                         ),
                         involvement=ghchallenges.InvolvedMetroFactionNPCs(
-                            self.elements["METROSCENE"], my_outcome.target
+                            self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]
                         )
                     ),
                 ), memo=ChallengeMemo(
-                    "{} have a hidden {} near {}.".format(my_outcome.target, base_name, self.elements["METROSCENE"])
+                    "{} have a hidden {} near {}.".format(self.elements["_ENEMY_FACTION"], base_name, self.elements["METROSCENE"])
                 ), memo_active=True
             )
         )
@@ -421,7 +413,7 @@ class FindEnemyBaseTask(quests.QuestPlot):
     def _CHALLENGE_WIN(self, camp):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
         base_name = self.elements.get(QE_BASE_NAME, "Base")
-        pbge.BasicNotification("You have discovered the location of {}'s {}.".format(my_outcome.target, base_name),
+        pbge.BasicNotification("You have discovered the location of {}'s {}.".format(self.elements["_ENEMY_FACTION"], base_name),
                                count=150)
         self.quest_record.win_task(self, camp)
 
@@ -481,7 +473,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
         base_name = self.elements.get(QE_BASE_NAME, "Base")
-        self.elements["_ENEMY_FACTION"] = my_outcome.target
+        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
 
         suspect_cards = list()
         solution = list()
@@ -507,7 +499,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         for wcd in location_source:
             for k, v in wcd.items():
                 if isinstance(v, str):
-                    wcd[k] = v.format(my_outcome.target)
+                    wcd[k] = v.format(self.elements["_ENEMY_FACTION"])
             location_cards.append(pbge.okapipuzzle.VerbSusCard(**wcd))
         location_susdeck = pbge.okapipuzzle.SusDeck("Location", location_cards)
         solution.append(random.choice(location_cards))
@@ -523,7 +515,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         solution.append(random.choice(motive_cards))
 
         mymystery = self.register_element("MYSTERY", pbge.okapipuzzle.OkapiPuzzle(
-            "{}'s Collaborator".format(my_outcome.target),
+            "{}'s Collaborator".format(self.elements["_ENEMY_FACTION"]),
             (suspect_susdeck, location_susdeck, motive_susdeck), "{a} {b.verbed} {c.to_verb}.",
             solution=solution
         ))
@@ -542,7 +534,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
 
         mychallenge = self.register_element("_CHALLENGE", pbge.challenges.MysteryChallenge(
             str(mymystery), self.elements["MYSTERY"],
-            memo=pbge.challenges.MysteryMemo("Someone in {} is collaborating with {}.".format(self.elements["METROSCENE"], my_outcome.target)),
+            memo=pbge.challenges.MysteryMemo("Someone in {} is collaborating with {}.".format(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"])),
             active=False,
             oppoffers=[
                 pbge.challenges.AutoOffer(
@@ -624,18 +616,18 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
         base_name = self.elements.get(QE_BASE_NAME, "Base")
         pbge.BasicNotification(
-            "You have learned that {} knows where {}'s {} is.".format(my_npc, my_outcome.target, base_name),
+            "You have learned that {} knows where {}'s {} is.".format(my_npc, self.elements["_ENEMY_FACTION"], base_name),
             count=150
         )
         self.memo = plots.Memo(
-            "You have learned that {} knows where {}'s {} is.".format(my_npc, my_outcome.target, base_name),
+            "You have learned that {} knows where {}'s {} is.".format(my_npc, self.elements["_ENEMY_FACTION"], base_name),
             location=my_npc.scene
         )
 
     def win_da_task(self, camp):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
         base_name = self.elements.get(QE_BASE_NAME, "Base")
-        pbge.BasicNotification("You have discovered the location of {}'s {}.".format(my_outcome.target, base_name),
+        pbge.BasicNotification("You have discovered the location of {}'s {}.".format(self.elements["_ENEMY_FACTION"], base_name),
                                count=150)
         self.quest_record.win_task(self, camp)
 
@@ -643,12 +635,12 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         mylist = list()
         if self.mystery_solved:
             my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-            base_name = "{}'s {}".format(my_outcome.target, self.elements[QE_BASE_NAME])
+            base_name = "{}'s {}".format(self.elements["_ENEMY_FACTION"], self.elements[QE_BASE_NAME])
 
             mylist.append(Offer(
                 "[LETS_KEEP_THIS_A_SECRET] I will tell you the location of {}!".format(base_name),
                 ContextTag([context.CUSTOM,]), effect=self.win_da_task,
-                data={"reply": "I know that you've been collaborating with {}.".format(my_outcome.target)}
+                data={"reply": "I know that you've been collaborating with {}.".format(self.elements["_ENEMY_FACTION"])}
             ))
 
         return mylist
@@ -657,7 +649,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         if self.mystery_solved:
             my_npc: gears.base.Character = self.elements["CULPRIT"]
             my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-            base_name = "{}'s {}".format(my_outcome.target, self.elements[QE_BASE_NAME])
+            base_name = "{}'s {}".format(self.elements["_ENEMY_FACTION"], self.elements[QE_BASE_NAME])
             if self.vigilante_action or my_npc.is_destroyed():
                 pbge.alert("As you enter {CULPRIT_SCENE}, you notice the conspicuous absense of {CULPRIT}.".format(**self.elements))
                 pbge.alert("A dataslate has been left behind with a set of map coordinates. Could this be the location of {}?".format(base_name))
@@ -675,7 +667,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
                     "[THATS_INTERESTING] [THIS_WILL_BE_DEALT_WITH]",
                     ContextTag([context.CUSTOM,]), effect=self._do_vigilante_action,
                     data={"reply": "I have proof that {} has been collaborating with {}.".format(culprit,
-                                                                                                 my_outcome.target)}
+                                                                                                 self.elements["_ENEMY_FACTION"])}
                 ))
 
         return goffs
@@ -685,14 +677,14 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         npc: gears.base.Character = self.elements["CULPRIT"]
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
         camp.freeze(npc)
-        myfac = camp.get_faction(my_outcome.target)
+        myfac = camp.get_faction(self.elements["_ENEMY_FACTION"])
         if npc.combatant and myfac and myfac.get_faction_tag():
             npc.relationship = camp.get_relationship(npc)
             npc.relationship.role = gears.relationships.R_ADVERSARY
             npc.relationship.history.append(
                 gears.relationships.Memory(
-                    "you revealed that I was working for {}".format(my_outcome.target),
-                    "I discovered you were working for {}".format(my_outcome.target),
+                    "you revealed that I was working for {}".format(self.elements["_ENEMY_FACTION"]),
+                    "I discovered you were working for {}".format(self.elements["_ENEMY_FACTION"]),
                     -5, memtags=(gears.relationships.MEM_Clash, gears.relationships.MEM_Ideological)
                 )
             )
@@ -730,8 +722,8 @@ class DiscoverHiddenIdentity(quests.QuestPlot):
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements.get(quests.OUTCOME_ELEMENT_ID)
         if my_outcome and my_outcome.target and my_outcome.verb in AGGRESSIVE_VERBS:
-            self.elements["_ENEMY_FACTION"] = my_outcome.target
-            involvement = ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], my_outcome.target)
+            self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+            involvement = ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements[my_outcome.target])
         elif my_outcome:
             involvement = my_outcome.involvement
         else:
@@ -823,13 +815,13 @@ class DefendThePowerStation(quests.QuestPlot):
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = my_outcome.target
+        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
         self.elements["PUBLIC_UTILITY"] = random.choice(self.PUBLIC_UTILITIES)
 
         mychallenge: Challenge = self.register_element(
             "_CHALLENGE", Challenge(
-                "Defend the Power Station from {}".format(my_outcome.target), ghchallenges.MISSION_CHALLENGE,
-                key=(my_outcome.target,), involvement=my_outcome.involvement,
+                "Defend the Power Station from {}".format(self.elements["_ENEMY_FACTION"]), ghchallenges.MISSION_CHALLENGE,
+                key=(self.elements["_ENEMY_FACTION"],), involvement=my_outcome.involvement,
                 data={
                     "challenge_objectives": [
                         "save {METROSCENE}'s {PUBLIC_UTILITY} from {_ENEMY_FACTION}".format(**self.elements),
@@ -930,12 +922,12 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = my_outcome.target
+        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
 
         mychallenge: Challenge = self.register_element(
             "_CHALLENGE", Challenge(
-                "Investigate {}".format(my_outcome.target), ghchallenges.MISSION_CHALLENGE,
-                key=(my_outcome.target,), involvement=my_outcome.involvement,
+                "Investigate {}".format(self.elements["_ENEMY_FACTION"]), ghchallenges.MISSION_CHALLENGE,
+                key=(self.elements["_ENEMY_FACTION"],), involvement=my_outcome.involvement,
                 data={
                     "challenge_objectives": [
                         "investigate {_ENEMY_FACTION}'s activities near {METROSCENE}".format(**self.elements),
@@ -964,7 +956,7 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
                     "mission_builder": self._build_mission
                 },
                 memo=ChallengeMemo(
-                    "You are investigating {} activity near {}.".format(my_outcome.target, self.elements["METROSCENE"])
+                    "You are investigating {} activity near {}.".format(self.elements["_ENEMY_FACTION"], self.elements["METROSCENE"])
                 ), memo_active=True, points_target=10, num_simultaneous_plots=1
             )
         )
@@ -1038,6 +1030,7 @@ class GearHeadLoreHandler(plots.Plot):
     active = True
 
     def custom_init(self, nart):
+        print("Loading Lore Handler")
         return True
 
     def t_UPDATE(self, camp):

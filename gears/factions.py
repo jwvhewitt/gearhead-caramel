@@ -342,6 +342,10 @@ class Circle(object):
         return self.name
 
 
+def is_a_faction(maybe_fac):
+    return hasattr(maybe_fac, "get_faction_tag")
+
+
 class FactionRelations(object):
     ALLY = 1
     NEUTRAL = 0
