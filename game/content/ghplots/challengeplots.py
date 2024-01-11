@@ -849,8 +849,7 @@ class BasicMissionChallenge(Plot):
 
     def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
         return (
-            isinstance(candidate, gears.base.Character) and candidate not in nart.camp.party and
-            (not candidate.relationship or gears.relationships.RT_LANCEMATE not in candidate.relationship.tags) and
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
             self._get_challenge_for_npc(nart, candidate)
         )
 

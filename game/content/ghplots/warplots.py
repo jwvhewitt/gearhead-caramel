@@ -158,7 +158,7 @@ class OccupationCrushDissent(Plot):
                         quests.TEXT_LORE_HINT: "life under {OCCUPIER} has been unbearable".format(**self.elements),
                         quests.TEXT_LORE_INFO: "a resistance has formed to get rid of {OCCUPIER}".format(**self.elements),
                         quests.TEXT_LORE_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
-                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that there is a resistance dedicated to ousting {OCCUPIER} from {METROSCENE}.".format(**self.elements),
+                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that the people of {METROSCENE} must unite to oust {OCCUPIER}.".format(**self.elements),
                         quests.TEXT_LORE_TARGET_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
                     }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]

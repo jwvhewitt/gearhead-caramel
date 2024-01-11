@@ -1166,7 +1166,6 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         elif create_if_not_found:
             e = selector.random_character(rank + random.randint(5,25), camp=self, faction=fac, combatant=True)
             self.storage.contents.append(e)
-            print("Created new combatant.")
             return e
 
 

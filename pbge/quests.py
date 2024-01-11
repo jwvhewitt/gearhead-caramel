@@ -61,7 +61,7 @@ class QuestPlot(plots.Plot):
 
 class QuestLore:
     # Lore is information about a quest that is used to unlock quest tasks and different branches of a quest.
-    def __init__(self, category, outcome=None, texts=None, involvement=None, effect=None, priority=False):
+    def __init__(self, category, outcome=None, texts=None, involvement=None, effect=None, priority=False, tags=()):
         # category is used for sorting lore bits into different lore revelation routines, maybe.
         # outcome is the outcome of the questline that this lore refers to, if appropriate.
         # texts is a dict of strings that contains text about the lore
@@ -76,12 +76,16 @@ class QuestLore:
         self.involvement = involvement
         self.effect = effect
         self.priority = priority
+        self.tags = set(tags)
 
     def is_involved(self, camp, npc):
         if not self.involvement:
             return True
         else:
             return self.involvement(camp, npc)
+
+    def __str__(self):
+        return "LORE:{}".format(self.texts.get(TEXT_LORE_SELFDISCOVERY))
 
 
 class LoreRevealer:
@@ -168,14 +172,13 @@ class Quest:
         self._locked_lore = set()
         self._revealed_lore = set()
         self.lore_handler = lore_handler
+        self._not_lockable_lore = set()
 
     def build(self, nart, root_plot: plots.Plot):
         # Start constructing a quest starting with root_plot as the main controller.
         random.shuffle(self.outcomes)
         for numa, outc in enumerate(self.outcomes):
-            print("Building {}".format(outc))
             primary_conclusion = None
-            main_quest_line = list()
             for numb, c_label in enumerate(self.conclusion_series):
                 # Attempt to load a conclusion of this type.
                 if c_label.isidentifier():
@@ -184,7 +187,8 @@ class Quest:
                     ident = "CONCLUSION_{}_{}".format(numa, numb)
 
                 if primary_conclusion:
-                    conc = self.extend(nart, primary_conclusion, c_label, {LORE_SET_ELEMENT_ID: primary_conclusion.quest_record.needed_lore, OUTCOME_ELEMENT_ID: outc}, spident=ident)
+                    self._not_lockable_lore.update(primary_conclusion.quest_record._needed_lore)
+                    conc = self.extend(nart, primary_conclusion, c_label, {LORE_SET_ELEMENT_ID: primary_conclusion.quest_record._needed_lore, OUTCOME_ELEMENT_ID: outc}, spident=ident)
                 else:
                     conc = self.extend(nart, root_plot, c_label, {LORE_SET_ELEMENT_ID: set(), OUTCOME_ELEMENT_ID: outc}, spident=ident)
                 if conc:
@@ -196,33 +200,26 @@ class Quest:
 
                     if not primary_conclusion:
                         primary_conclusion = conc
-                        main_quest_line.append(conc)
-                        tasks = 0
-                        tries = 0
-                        while tasks < self.course_length and tries < self.course_length * 5:
-                            nu_parent = random.choice(main_quest_line)
-                            nu_comp = self.extend(nart, nu_parent, self.task_ident, {LORE_SET_ELEMENT_ID: nu_parent.quest_record.needed_lore, OUTCOME_ELEMENT_ID: outc})
-                            tries += 1
-                            if nu_comp:
-                                main_quest_line.append(nu_comp)
-                                tasks += 1
+                        course_length = self.course_length
                     else:
-                        side_quest_line = [conc,]
-                        tries = 0
-                        while tries < self.course_length:
-                            nu_parent = random.choice(side_quest_line)
-                            nu_comp = self.extend(nart, nu_parent, self.task_ident, {LORE_SET_ELEMENT_ID: nu_parent.quest_record.needed_lore, OUTCOME_ELEMENT_ID: outc})
-                            tries += 1
-                            if nu_comp:
-                                side_quest_line.append(nu_comp)
+                        course_length = random.randint(1, max(self.course_length, 2))
+                    current_plots = [conc,]
+                    tries = 0
+                    while tries < course_length * 3 and len(current_plots) <= course_length:
+                        nu_parent = random.choice(current_plots)
+                        nu_comp = self.extend(nart, nu_parent, self.task_ident, {LORE_SET_ELEMENT_ID: nu_parent.quest_record._needed_lore, OUTCOME_ELEMENT_ID: outc})
+                        if nu_comp:
+                            current_plots.append(nu_comp)
+                        tries += 1
 
         self.add_quest_lore_handler(root_plot, nart)
+        del self._not_lockable_lore
 
     def add_quest_lore_handler(self, root_plot, nart):
         lore_set = set()
 
         for oc_plot in self.all_plots:
-            for lore in oc_plot.quest_record.needed_lore:
+            for lore in oc_plot.quest_record._needed_lore:
                 if lore not in self._locked_lore:
                     lore_set.add(lore)
 
@@ -265,11 +262,13 @@ class Quest:
         # Attempt to lock the requested lore. You have to request locking the lore to prevent a loreblock, in which
         # case the quest is made inaccessible by conflicting lore requirements between different branches.
         # If the lore lock fails, a PlotError is thrown so this plot will not be loaded.
-        if mylore in self._locked_lore:
+        if not self.will_not_cause_lore_blockage(LoreBlockRecord(myplot.quest_record, new_locked_lore=mylore)):
+            raise plots.PlotError("Lore {} will cause blockage if locked by {}.".format(mylore, myplot))
+        elif mylore in self._locked_lore or mylore in self._not_lockable_lore:
             raise plots.PlotError("Lore {} is already locked and so can't be locked by {}.".format(mylore, myplot))
         self._locked_lore.add(mylore)
-        if mylore in myplot.quest_record.needed_lore:
-            myplot.quest_record.needed_lore.remove(mylore)
+        if mylore in myplot.quest_record._needed_lore:
+            myplot.quest_record._needed_lore.remove(mylore)
         myplot.quest_record.lore_to_reveal.add(mylore)
 
     def reveal_lore(self, camp, lore: QuestLore):
@@ -282,10 +281,58 @@ class Quest:
     def lore_is_revealed(self, lore):
         return lore in self._revealed_lore
 
+    def lore_is_unlocked(self, lore):
+        return lore not in self._locked_lore
+
+    def lore_is_lockable(self, lore):
+        return lore not in self._locked_lore and lore not in self._not_lockable_lore
+
+    def will_not_cause_lore_blockage(self, new_rec):
+        # Make sure this new LoreRecord will not cause a lore blockage. Unfortunately, preventing lore blockage is
+        # more complex than just making sure the quest generator is getting enough fibre.
+        all_plots = [LoreBlockRecord(p.quest_record) for p in self.all_plots]
+        all_plots.append(new_rec)
+        all_plots.reverse()
+
+        revealed_lore = set()
+        locked_lore = set()
+        for p in all_plots:
+            revealed_lore.update(p.needed_lore)
+            locked_lore.update(p.lore_to_reveal)
+
+        revealed_lore.difference_update(locked_lore)
+
+        while all_plots:
+            removed_a_plot = False
+            for p in list(all_plots):
+                if p.needed_lore <= revealed_lore:
+                    revealed_lore.update(p.lore_to_reveal)
+                    all_plots.remove(p)
+                    removed_a_plot = True
+            if not removed_a_plot:
+                break
+
+        # I did not mean the final line of this function to sound like something you'd hear a mansplainer say, but...
+        #if all_plots:
+        #    print("LOre Blockage: {} {}".format([str(l) for l in new_rec.needed_lore], [str(l) for l in new_rec.lore_to_reveal]))
+        return not all_plots
+
     @property
     # People might want to look at the revealed lore set, but no touching.
     def revealed_lore(self):
         return tuple(self._revealed_lore)
+
+
+class LoreBlockRecord:
+    def __init__(self, qr, new_needed_lore: QuestLore=None, new_locked_lore: QuestLore=None):
+        self.needed_lore = set(qr._needed_lore)
+        self.lore_to_reveal = set(qr.lore_to_reveal)
+        if new_needed_lore:
+            self.needed_lore.add(new_needed_lore)
+        if new_locked_lore:
+            self.lore_to_reveal.add(new_locked_lore)
+            if new_locked_lore in self.needed_lore:
+                self.needed_lore.remove(new_locked_lore)
 
 
 class QuestRecord:
@@ -297,16 +344,16 @@ class QuestRecord:
     def __init__(self, quest: Quest, pstate: plots.PlotState):
         self.quest = quest
         self.completion = self.IN_PROGRESS
-        self.needed_lore = set()
+        self._needed_lore = set()
         self.lore_to_reveal = set()
         my_lore = pstate.elements.get(LORE_SET_ELEMENT_ID, ())
         if my_lore:
             # Copy the priority lore from the set.
             priority_lore = [l for l in my_lore if l.priority]
-            self.needed_lore.update(priority_lore)
+            self._needed_lore.update(priority_lore)
         else:
             # Copy all the lore from the outcome.
-            self.needed_lore.update(pstate.elements.get(OUTCOME_ELEMENT_ID).lore)
+            self._needed_lore.update(pstate.elements.get(OUTCOME_ELEMENT_ID).lore)
         self.started = False
 
     def win_task(self, myplot: QuestPlot, camp):
@@ -330,9 +377,16 @@ class QuestRecord:
     def should_be_active(self):
         if self.started and self.completion != self.IN_PROGRESS:
             return False
-        for lore in self.needed_lore:
+        for lore in self._needed_lore:
             if not self.quest.lore_is_revealed(lore):
                 return False
         if self.lore_to_reveal and all(self.quest.lore_is_revealed(l) for l in self.lore_to_reveal):
             return False
         return True
+
+    def add_needed_lore(self, quest, myplot, new_lore):
+        if quest.will_not_cause_lore_blockage(LoreBlockRecord(myplot.quest_record, new_needed_lore=new_lore)):
+        #if quest.lore_is_unlocked(new_lore):
+            self._needed_lore.add(new_lore)
+        else:
+            raise plots.PlotError("Lore {} will cause lore blockage if claimed by {}.".format(new_lore, myplot))
