@@ -29,6 +29,8 @@ LORECAT_KNOWLEDGE = "KNOWLEDGE"
 LORECAT_LOCATION = "LOCATION"
 L_LOCATION_NAME = "L_LOCATION_NAME"
 
+LORECAT_MOTIVE = "MOTIVE"
+
 LORETAG_ENEMY = "LORETAG_ENEMY"
 LORETAG_HIDDEN = "LORETAG_HIDDEN"
 LORETAG_PRIMARY = "LORETAG_PRIMARY"     # An important lore; usually something straight from the conclusion.
@@ -562,7 +564,7 @@ class DefendThePowerStation(quests.QuestPlot):
 
     @staticmethod
     def get_matching_lore(quest: quests.Quest, lores):
-        candidates = [l for l in lores if quest.lore_is_unlocked(l) and l.category == LORECAT_OUTCOME]
+        candidates = [l for l in lores if quest.lore_is_unlocked(l) and l.category == LORECAT_MOTIVE]
         if candidates:
             return random.choice(candidates)
 
@@ -583,7 +585,7 @@ class DefendThePowerStation(quests.QuestPlot):
                 quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s plans for {METROSCENE}".format(**self.elements),
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} is planning an attack on {METROSCENE}'s {PUBLIC_UTILITY}.".format(
                     **self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome, priority=True,
+            }, involvement=my_outcome.involvement, outcome=my_outcome,
             tags=(LORETAG_ENEMY,)
         )
         self.quest_record._needed_lore.add(new_lore)
@@ -807,7 +809,7 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
                 quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s forces in {METROSCENE}".format(**self.elements),
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} has been conducting operations near {METROSCENE}.".format(
                     **self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome, priority=True,
+            }, involvement=my_outcome.involvement, outcome=my_outcome,
             tags=(LORETAG_ENEMY, LORETAG_HIDDEN)
         )
         self.quest_record.add_needed_lore(quest, self, new_lore)
@@ -944,7 +946,7 @@ class ProtectedByArtillery(quests.QuestPlot):
                 quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s {_BASE_NAME}".format(**self.elements),
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION}'s {_PRIMARY_NAME} is protected by {_BASE_NAME}.".format(
                     **self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome, priority=True,
+            }, involvement=my_outcome.involvement, outcome=my_outcome,
             tags=(LORETAG_ENEMY, LORETAG_PROTECTED)
         )
         self.quest_record.add_needed_lore(quest, self, new_lore)

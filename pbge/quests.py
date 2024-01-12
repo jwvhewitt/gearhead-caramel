@@ -1,6 +1,6 @@
 # A Quest is the opposite of a story- it is a randomly generated narrative with a defined ending.
 
-from . import plots, widgets, my_state, frects, image, wait_event, TIMEREVENT
+from . import plots, widgets, my_state, frects, image, wait_event, TIMEREVENT, util
 import pygame
 import random
 
@@ -123,6 +123,9 @@ class QuestOutcome:
         self.win_effect = win_effect
         self.loss_effect = loss_effect
         self.lore = list(lore)
+        for l in self.lore:
+            if not l.outcome:
+                l.outcome = self
 
     def is_involved(self, camp, npc):
         if not self.involvement:
@@ -218,7 +221,6 @@ class Quest:
 
         self.add_quest_lore_handler(root_plot, nart)
         del self._not_lockable_lore
-        print(self.all_plots)
 
     def add_quest_lore_handler(self, root_plot, nart):
         lore_set = set()
@@ -242,7 +244,7 @@ class Quest:
         self.check_quest_plot_activation()
 
     def check_quest_plot_activation(self, camp=None):
-        for oc_plot in self.all_plots:
+        for oc_plot in list(self.all_plots):
             if oc_plot.quest_record.should_be_active():
                 oc_plot.active = True
             elif camp and oc_plot.active:
@@ -338,6 +340,14 @@ class Quest:
         memob.regen_memo()
         memob.active = True
 
+    def open_debug(self, wid, ev):
+        # Open the Hypothesis Widget.
+        memob, camp = wid.data
+        memob.active = False
+        QuestDebugInfoWidget(self, camp)()
+        memob.regen_memo()
+        memob.active = True
+
     def get_widget(self, memobrowser, camp):
         mylabel = widgets.LabelWidget(
             memobrowser.dx, memobrowser.dy, memobrowser.w, memobrowser.h, text=str(self),
@@ -348,6 +358,14 @@ class Quest:
             on_click=self.open_lore, data=(memobrowser,camp), parent=mylabel, anchor=frects.ANCHOR_BOTTOM,
             font=my_state.big_font
         )
+        mylabel.children.append(mybutton)
+
+        if util.config.getboolean("GENERAL", "dev_mode_on"):
+            mybutton = widgets.LabelWidget(
+                -75, 60, 150, 24, text="View Debug Info", draw_border=True, justify=0, border=widgets.widget_border_on,
+                on_click=self.open_debug, data=(memobrowser, camp), parent=mylabel, anchor=frects.ANCHOR_BOTTOM,
+                font=my_state.big_font
+            )
         mylabel.children.append(mybutton)
         return mylabel
 
@@ -451,6 +469,63 @@ class BrowseLoreWidget(widgets.ScrollColumnWidget):
                 msg = rl.texts[TEXT_LORE_MEMO]
                 msg.capitalize()
                 self.add_interior(widgets.LabelWidget(0,0,self.w,0,msg, font=my_state.medium_font))
+
+    def close_browser(self, button=None, ev=None):
+        self.keep_going = False
+        my_state.widgets.remove(self)
+
+    def __call__(self):
+        # Run the UI. Clean up after you leave.
+        my_state.widgets.append(self)
+        while self.keep_going and not my_state.got_quit:
+            ev = wait_event()
+            if ev.type == TIMEREVENT:
+                my_state.render_and_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    self.keep_going = False
+
+        if self in my_state.widgets:
+            my_state.widgets.remove(self)
+
+
+class QuestDebugInfoWidget(widgets.ScrollColumnWidget):
+    def __init__(self, quest, camp, **kwargs):
+        up_arrow = widgets.ButtonWidget(-64, -232, 128, 16, sprite=image.Image("sys_updownbuttons.png", 128, 16),
+                                        on_frame=0, off_frame=1)
+        down_arrow = widgets.ButtonWidget(-64, 216, 128, 16, sprite=image.Image("sys_updownbuttons.png", 128, 16),
+                                          on_frame=2, off_frame=3)
+        super().__init__(-250, -200, 500, 400, center_interior=True, padding=16, up_button=up_arrow, down_button=down_arrow, draw_border=True, **kwargs)
+        self.quest = quest
+        self.camp = camp
+
+        self.children.append(up_arrow)
+        self.children.append(down_arrow)
+
+        self.keep_going = True
+        closebuttonsprite = image.Image('sys_closeicon.png')
+
+        self.close_button = widgets.ButtonWidget(
+            -closebuttonsprite.frame_width // 2, -closebuttonsprite.frame_height // 2, closebuttonsprite.frame_width,
+            closebuttonsprite.frame_height, closebuttonsprite, 0, on_click=self.close_browser, parent=self,
+            anchor=frects.ANCHOR_UPPERRIGHT)
+        self.children.append(self.close_button)
+
+        for myplot in quest.all_plots:
+            self.add_interior(widgets.LabelWidget(0, 0, self.w, 0, str(myplot), font=my_state.big_font, color=pygame.Color("white")))
+            for nelore in myplot.quest_record._needed_lore:
+                if TEXT_LORE_MEMO in nelore.texts:
+                    msg = nelore.texts[TEXT_LORE_MEMO]
+                else:
+                    msg = nelore.texts[TEXT_LORE_SELFDISCOVERY]
+                msg.capitalize()
+                if quest.lore_is_revealed(nelore):
+                    color=pygame.Color("green")
+                elif quest.lore_is_unlocked(nelore):
+                    color = pygame.Color("yellow")
+                else:
+                    color = pygame.Color("red")
+                self.add_interior(widgets.LabelWidget(0,0,self.w,0,msg, font=my_state.medium_font, color=color))
 
     def close_browser(self, button=None, ev=None):
         self.keep_going = False

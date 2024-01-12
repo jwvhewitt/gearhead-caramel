@@ -72,7 +72,7 @@ class OccupationFortify(Plot):
                     }, involvement = ghchallenges.InvolvedMetroFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
-                )
+                ),
             ]
         )
 
@@ -168,7 +168,23 @@ class OccupationCrushDissent(Plot):
                     }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
+                ),
+                quests.QuestLore(
+                    ghquests.LORECAT_MOTIVE, texts={
+                        quests.TEXT_LORE_HINT: "{RESISTANCE_FACTION} is our only hope to stop {OCCUPIER}".format(**self.elements),
+                        quests.TEXT_LORE_INFO: "no-one is safe as long as {OCCUPIER} occupies {METROSCENE}; {RESISTANCE_FACTION} is leading the resistance".format(
+                            **self.elements),
+                        quests.TEXT_LORE_TOPIC: "the {OCCUPIER} occupation".format(**self.elements),
+                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that {OCCUPIER} has been eliminating all resistance in {METROSCENE}.".format(
+                            **self.elements),
+                        quests.TEXT_LORE_TARGET_TOPIC: "{RESISTANCE_FACTION}'s rebellion".format(**self.elements),
+                        quests.TEXT_LORE_MEMO: "{OCCUPIER} is attempting to crush all resistance to their occupation of {METROSCENE}.".format(
+                            **self.elements),
+                    }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
+                        self.elements["METROSCENE"], self.elements["OCCUPIER"]
+                    )
                 )
+
             ]
         )
 
